@@ -45,6 +45,10 @@ export class AuthServerProvider {
       {observe: 'response'}).pipe(map(authenticateSuccess.bind(this)));
   }
 
+  renewCode(): Observable<any> {
+    return this.http.get(SERVER_API_URL + 'api/tfa/generate-challenge');
+  }
+
   verifyCode(code): Observable<any> {
     const authenticateSuccess = (resp) => {
       this.storeAuthenticationToken(resp.body.id_token);

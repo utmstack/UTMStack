@@ -4,25 +4,35 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20250617005" author="JocLRojas">
+    <changeSet id="20250910005" author="JocLRojas">
 
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
 
             UPDATE public.utm_logstash_filter
-            SET filter_version='2.0.1',
-            logstash_filter='# Azure Envent-Hub filter, version 2.0.1
+            SET filter_version='2.0.2',
+            logstash_filter='# Azure Envent-Hub filter, version 2.0.2
 # 
 # Documentations
 # 1- https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log
-# 2- https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log-schema
+# 2- https://learn.microsoft.com/en-us/azure/azure-monitor/platform/activity-log-schema
 pipeline:
   - dataTypes:
       - azure
     steps:
       - json:
           source: raw
-    
+
+      # .......................................................................#
+      # Expand log.records data
+      # .......................................................................#
+      - expand:
+          source: log.records
+          to: log.recordsExpand
+
+      - json:
+          source: log.recordsExpand
+
       # .......................................................................#
       # Renaming fields
       # .......................................................................#
@@ -160,28 +170,483 @@ pipeline:
           from:
             - log.ResourceId
           to: log.resourceId
-          
+
+      - rename:
+          from:
+            - log.callerIpAddress
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.properties.C_DeviceId
+          to: log.propertiesCDeviceId
+
+      - rename:
+          from:
+            - log.properties.C_Iat
+          to: log.propertiesCIat
+
+      - rename:
+          from:
+            - log.properties.C_Idtyp
+          to: log.propertiesCIdtyp
+
+      - rename:
+          from:
+            - log.properties.C_Sid
+          to: log.propertiesCSid
+
+      - rename:
+          from:
+            - log.properties.UserPrincipalObjectID
+          to: log.propertiesUserPrincipalObjectID
+
+      - rename:
+          from:
+            - log.properties.__UDI_RequiredFields_EventTime
+          to: log.propertiesUDIRequiredFieldsEventTime
+
+      - rename:
+          from:
+            - log.properties.__UDI_RequiredFields_RegionScope
+          to: log.propertiesUDIRequiredFieldsRegionScope
+
+      - rename:
+          from:
+            - log.properties.__UDI_RequiredFields_TenantId
+          to: log.propertiesUDIRequiredFieldsTenantId
+
+      - rename:
+          from:
+            - log.properties.__UDI_RequiredFields_UniqueId
+          to: log.propertiesUDIRequiredFieldsUniqueId
+
+      - rename:
+          from:
+            - log.properties.apiVersion
+          to: log.propertiesApiVersion
+
+      - rename:
+          from:
+            - log.properties.appId
+          to: log.propertiesAppId
+
+      - rename:
+          from:
+            - log.properties.atContentH
+          to: log.propertiesAtContentH
+
+      - rename:
+          from:
+            - log.properties.atContentP
+          to: log.propertiesAtContentP
+
+      - rename:
+          from:
+            - log.properties.clientAuthMethod
+          to: log.propertiesClientAuthMethod
+
+      - rename:
+          from:
+            - log.properties.clientRequestId
+          to: log.propertiesClientRequestId
+
+      - rename:
+          from:
+            - log.properties.durationMs
+          to: log.propertiesDurationMs
+
+      - rename:
+          from:
+            - log.properties.identityProvider
+          to: log.propertiesIdentityProvider
+
+      - rename:
+          from:
+            - log.properties.ipAddress
+          to: log.propertiesIpAddress
+
+      - rename:
+          from:
+            - log.properties.location
+          to: log.propertiesLocation
+
+      - rename:
+          from:
+            - log.properties.operationId
+          to: log.propertiesOperationId
+
+      - rename:
+          from:
+            - log.properties.requestId
+          to: log.propertiesRequestId
+
+      - rename:
+          from:
+            - log.properties.requestMethod
+          to: log.propertiesRequestMethod
+
+      - rename:
+          from:
+            - log.properties.requestUri
+          to: log.propertiesRequestUri
+
+      - rename:
+          from:
+            - log.properties.responseSizeBytes
+          to: origin.bytesReceived
+
+      - rename:
+          from:
+            - log.properties.responseStatusCode
+          to: statusCode
+
+      - rename:
+          from:
+            - log.properties.roles
+          to: log.propertiesRoles
+
+      - rename:
+          from:
+            - log.properties.scopes
+          to: log.propertiesScopes
+
+      - rename:
+          from:
+            - log.properties.signInActivityId
+          to: log.propertiesSignInActivityId
+
+      - rename:
+          from:
+            - log.properties.tenantId
+          to: log.propertiesTenantId
+
+      - rename:
+          from:
+            - log.properties.timeGenerated
+          to: log.propertiesTimeGenerated
+
+      - rename:
+          from:
+            - log.properties.tokenIssuedAt
+          to: log.propertiesTokenIssuedAt
+
+      - rename:
+          from:
+            - log.properties.userAgent
+          to: log.propertiesUserAgent
+
+      - rename:
+          from:
+            - log.properties.userId
+          to: log.propertiesUserId
+
+      - rename:
+          from:
+            - log.properties.wids
+          to: log.propertiesWids
+
+      - rename:
+          from:
+            - log.time
+          to: deviceTime
+
+      - rename:
+          from:
+            - log.properties.agent.agentType
+          to: log.propertiesAgentAgentType
+
+      - rename:
+          from:
+            - log.properties.agent.parentAppId
+          to: log.propertiesAgentParentAppId
+
+      - rename:
+          from:
+            - log.properties.appDisplayName
+          to: log.propertiesAppDisplayName
+
+      - rename:
+          from:
+            - log.properties.appOwnerTenantId
+          to: log.propertiesAppOwnerTenantId
+
+      - rename:
+          from:
+            - log.properties.appServicePrincipalId
+          to: log.propertiesAppServicePrincipalId
+
+      - rename:
+          from:
+            - log.properties.authenticationProtocol
+          to: log.propertiesAuthenticationProtocol
+
+      - rename:
+          from:
+            - log.properties.authenticationRequirement
+          to: log.propertiesAuthenticationRequirement
+
+      - rename:
+          from:
+            - log.properties.autonomousSystemNumber
+          to: log.propertiesAutonomousSystemNumber
+
+      - rename:
+          from:
+            - log.properties.clientAppUsed
+          to: log.propertiesClientAppUsed
+
+      - rename:
+          from:
+            - log.properties.clientCredentialType
+          to: log.propertiesClientCredentialType
+
+      - rename:
+          from:
+            - log.properties.conditionalAccessStatus
+          to: log.propertiesConditionalAccessStatus
+
+      - rename:
+          from:
+            - log.properties.correlationId
+          to: log.propertiesCorrelationId
+
+      - rename:
+          from:
+            - log.properties.createdDateTime
+          to: log.propertiesCreatedDateTime
+
+      - rename:
+          from:
+            - log.properties.crossTenantAccessType
+          to: log.propertiesCrossTenantAccessType
+
+      - rename:
+          from:
+            - log.properties.deviceDetail.deviceId
+          to: log.propertiesDeviceDetailDeviceId
+
+      - rename:
+          from:
+            - log.properties.deviceDetail.operatingSystem
+          to: log.propertiesDeviceDetailOperatingSystem
+
+      - rename:
+          from:
+            - log.properties.deviceDetail.browser
+          to: log.propertiesDeviceDetailBrowser
+
+      - rename:
+          from:
+            - log.properties.deviceDetail.displayName
+          to: log.propertiesDeviceDetailDisplayName
+
+      - rename:
+          from:
+            - log.properties.deviceDetail.trustType
+          to: log.propertiesDeviceDetailTrustType
+
+      - rename:
+          from:
+            - log.properties.flaggedForReview
+          to: log.propertiesFlaggedForReview
+
+      - rename:
+          from:
+            - log.properties.homeTenantId
+          to: log.propertiesHomeTenantId
+
+      - rename:
+          from:
+            - log.properties.id
+          to: log.propertiesId
+
+      - rename:
+          from:
+            - log.properties.incomingTokenType
+          to: log.propertiesIncomingTokenType
+
+      - rename:
+          from:
+            - log.properties.isInteractive
+          to: log.propertiesIsInteractive
+
+      - rename:
+          from:
+            - log.properties.isTenantRestricted
+          to: log.propertiesIsTenantRestricted
+
+      - rename:
+          from:
+            - log.properties.isThroughGlobalSecureAccess
+          to: log.propertiesIsThroughGlobalSecureAccess
+
+      - rename:
+          from:
+            - log.properties.originalRequestId
+          to: log.propertiesOriginalRequestId
+
+      - rename:
+          from:
+            - log.properties.originalTransferMethod
+          to: log.propertiesOriginalTransferMethod
+
+      - rename:
+          from:
+            - log.properties.processingTimeInMilliseconds
+          to: log.propertiesProcessingTimeInMilliseconds
+
+      - rename:
+          from:
+            - log.properties.resourceDisplayName
+          to: log.propertiesResourceDisplayName
+
+      - rename:
+          from:
+            - log.properties.resourceId
+          to: log.propertiesResourceId
+
+      - rename:
+          from:
+            - log.properties.processingTimeInMilliseconds
+          to: log.propertiesProcessingTimeInMilliseconds
+
+      - rename:
+          from:
+            - log.properties.resourceOwnerTenantId
+          to: log.propertiesResourceOwnerTenantId
+
+      - rename:
+          from:
+            - log.properties.resourceServicePrincipalId
+          to: log.propertiesResourceServicePrincipalId
+
+      - rename:
+          from:
+            - log.properties.resourceTenantId
+          to: log.propertiesResourceTenantId
+
+      - rename:
+          from:
+            - log.properties.riskDetail
+          to: log.propertiesRiskDetail
+
+      - rename:
+          from:
+            - log.properties.riskLevelAggregated
+          to: log.propertiesRiskLevelAggregated
+
+      - rename:
+          from:
+            - log.properties.processingTimeInMilliseconds
+          to: log.propertiesRiskLevelDuringSignIn
+
+      - rename:
+          from:
+            - log.properties.riskState
+          to: log.propertiesRiskState
+
+      - rename:
+          from:
+            - log.properties.rngcStatus
+          to: log.propertiesRngcStatus
+
+      - rename:
+          from:
+            - log.properties.servicePrincipalId
+          to: log.propertiesServicePrincipalId
+
+      - rename:
+          from:
+            - log.properties.sessionId
+          to: log.propertiesSessionId
+
+      - rename:
+          from:
+            - log.properties.signInTokenProtectionStatus
+          to: log.propertiesSignInTokenProtectionStatus
+
+      - rename:
+          from:
+            - log.properties.ssoExtensionVersion
+          to: log.propertiesSsoExtensionVersion
+
+      - rename:
+          from:
+            - log.properties.status.additionalDetails
+          to: log.propertiesStatusAdditionalDetails
+
+      - rename:
+          from:
+            - log.properties.status.errorCode
+          to: log.propertiesStatusErrorCode
+
+      - rename:
+          from:
+            - log.properties.riskState
+          to: log.propertiesRiskState
+
+      - rename:
+          from:
+            - log.properties.tokenIssuerName
+          to: log.propertiesTokenIssuerName
+
+      - rename:
+          from:
+            - log.properties.tokenIssuerType
+          to: log.propertiesTokenIssuerType
+
+      - rename:
+          from:
+            - log.properties.tokenProtectionStatusDetails.signInSessionStatus
+          to: log.propertiesTokenProtectionStatusDetailsSignInSessionStatus
+
+      - rename:
+          from:
+            - log.properties.tokenProtectionStatusDetails.signInSessionStatusCode
+          to: log.propertiesTokenProtectionStatusDetailsSignInSessionStatusCode
+
+      - rename:
+          from:
+            - log.properties.uniqueTokenIdentifier
+          to: log.propertiesUniqueTokenIdentifier
+
+      - rename:
+          from:
+            - log.properties.userDisplayName
+          to: log.propertiesUserDisplayName
+
+      - rename:
+          from:
+            - log.properties.userPrincipalName
+          to: log.propertiesUserPrincipalName
+
+      - rename:
+          from:
+            - log.properties.userType
+          to: log.propertiesUserType
 
       # .......................................................................#
-      # Using grok to parse IP and port of the CallerIpAddress
+      # Adding severity based on log.level
       # .......................................................................#
-      - grok:
-          patterns:
-            - fieldName: origin.ip
-              pattern: ''{{.ipv4}}(:)''
-            - fieldName: origin.port
-              pattern: ''{{.integer}}''
-          source: log.CallerIpAddress
-          where: log.CallerIpAddress.contains(":")
-
-      # .......................................................................#
-      # Remove caracters unnecessary to remote.ip
-      # .......................................................................#
-      - trim:
-          function: suffix
-          substring: '':''
-          fields:
-            - origin.ip
+      - add:
+          function: ''string''
+          params:
+            key: severity
+            value: ''high''
+          where: safe("log.level", "") in ["ERROR", "Error", "FATAL", "CRITICAL", "Critical"]
+      - add:
+          function: ''string''
+          params:
+            key: severity
+            value: ''medium''
+          where: safe("log.level", "") in ["WARN", "Warning"]
+      - add:
+          function: ''string''
+          params:
+            key: severity
+            value: ''low''
+          where: safe("log.level", "") in ["Information", "Informational", "INFO", "DEBUG", "TRACE"]
 
       # .......................................................................#
       # Add geolocation to remote.ip
@@ -194,22 +659,76 @@ pipeline:
           where: exists("origin.ip")
 
       # .......................................................................#
+      # Normalizing request method and renaming to action
+      # .......................................................................#
+      - add:
+          function: ''string''
+          params:
+            key: action
+            value: ''get''
+          where: safe("log.propertiesRequestMethod", "") == "GET"
+      - add:
+          function: ''string''
+          params:
+            key: action
+            value: ''post''
+          where: safe("log.propertiesRequestMethod", "") == "POST"
+      - add:
+          function: ''string''
+          params:
+            key: action
+            value: ''put''
+          where: safe("log.propertiesRequestMethod", "") == "PUT"
+      - add:
+          function: ''string''
+          params:
+            key: action
+            value: ''delete''
+          where: safe("log.propertiesRequestMethod", "") == "DELETE"
+      - add:
+          function: ''string''
+          params:
+            key: action
+            value: ''patch''
+          where: safe("log.propertiesRequestMethod", "") == "PATCH"
+      - add:
+          function: ''string''
+          params:
+            key: action
+            value: ''request''
+          where: safe("log.propertiesRequestMethod", "") == "REQUEST"
+
+      # .......................................................................#
+      # Removing log.propertiesRequestMethod if action was set
+      # .......................................................................#
+      - delete:
+          fields:
+            - log.propertiesRequestMethod
+          where: exists("action")
+
+      # .......................................................................#
       # Fields conversions
       # .......................................................................#
       - cast:
           fields:
             - origin.port
-            - statusCode
           to: int
+
+      - cast:
+          fields:
+            - statusCode
+          to: float
 
       - cast:
           fields:
             - origin.bytesSent
             - origin.bytesReceived
-          to: float64
+          to: float
 
+      # .......................................................................#
       # Adding actionResult
       # denied by default
+      # .......................................................................#
       - add:
           function: ''string''
           params:
@@ -220,7 +739,11 @@ pipeline:
           params:
             key: actionResult
             value: ''accepted''
-          where: safe("statusCode", 0,0) && (statusCode >= double(200) && statusCode <= double(299) || (safe("origin.bytesReceived", 0,0) && statusCode >= double(300) && statusCode <= double(399) && origin.bytesReceived > double(0)))'
+          where: safe("statusCode", 0.0) >= double(200) && safe("statusCode", 0.0) <= double(299) || (safe("statusCode", 0.0) >= double(300) && safe("statusCode", 0.0) <= double(399) && safe("origin.bytesReceived", 0.0) > double(0))
+
+      - delete:
+          fields:
+            - log.recordsExpand'
 	WHERE id=201;
             ]]>
         </sql>

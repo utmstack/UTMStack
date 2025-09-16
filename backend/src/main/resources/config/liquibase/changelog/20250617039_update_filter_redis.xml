@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20250617039" author="JocLRojas">
+    <changeSet id="20250910039" author="JocLRojas">
 
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
@@ -161,21 +161,21 @@ pipeline:
           params:
             key: severity
             value: ''low''
-          where: safe("log.severity", "") && (log.severity=="debug" || log.severity=="verbose")
+          where: safe("log.severity", "") in ["debug", "verbose"]
 
       - add:
           function: ''string''
           params:
             key: severity
             value: ''medium''
-          where: safe("log.severity", "") && (log.severity=="notice" || log.severity=="warning")
+          where: safe("log.severity", "") in ["notice", "warning"]
 
       - add:
           function: ''string''
           params:
             key: severity
             value: ''high''
-          where: safe("log.severity", "") && log.severity=="error"
+          where: safe("log.severity", "") in ["error"]
 
       # Parse beats field
       - rename:

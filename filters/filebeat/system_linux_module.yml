@@ -33,6 +33,14 @@ pipeline:
           to: origin.host
       - rename:
           from:
+            - log.host.name
+          to: origin.user
+      - rename:
+          from:
+            - log.host.id
+          to: log.hostId
+      - rename:
+          from:
             - log.event.dataset
           to: action
       - rename:

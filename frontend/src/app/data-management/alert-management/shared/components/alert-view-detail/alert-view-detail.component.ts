@@ -127,7 +127,7 @@ export class AlertViewDetailComponent implements OnInit {
   navigateToEvents() {
     const queryParams = {patternId: LOG_INDEX_PATTERN_ID, indexPattern: LOG_INDEX_PATTERN};
     const LOG_ID_FIELD = 'id';
-    queryParams[LOG_ID_FIELD] = ElasticOperatorsEnum.IS_ONE_OF + '->' + this.logs.slice(0, 100);
+    queryParams[LOG_ID_FIELD] = ElasticOperatorsEnum.IS_ONE_OF + '->' + this.logs.map(log => log.id).slice(0, 100);
     queryParams[this.TIMESTAMP_FIELD] = ElasticOperatorsEnum.IS_BETWEEN + '->' + 'now-1y' + ',' + 'now';
     this.spinner.show('loadingSpinner');
     this.router.navigate([LOG_ROUTE], {

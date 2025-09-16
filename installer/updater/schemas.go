@@ -14,12 +14,13 @@ type InstanceDTOOutput struct {
 }
 
 type InstanceDTOInput struct {
-	Name      string `json:"name"`
-	Country   string `json:"country"`
-	Email     string `json:"email"`
-	Version   string `json:"version"`
-	Edition   string `json:"edition"`
-	CurrentIp string `json:"current_ip"`
+	Name        string `json:"name"`
+	Country     string `json:"country"`
+	Email       string `json:"email"`
+	Version     string `json:"version"`
+	Edition     string `json:"edition"`
+	CurrentIp   string `json:"current_ip"`
+	MappingName string `json:"mapping_name,omitempty"`
 }
 
 type InstanceInfo struct {

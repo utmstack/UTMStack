@@ -23,7 +23,7 @@ public class TfaService {
         return methodServices.stream()
                 .filter(service -> service.getMethod().equals(method))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Método TFA no soportado: " + method));
+                .orElseThrow(() -> new IllegalArgumentException("TFA method not supported: " + method));
     }
 
     public TfaInitResponse initiateSetup(User user, TfaMethod method) {

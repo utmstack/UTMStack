@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20250617010" author="JocLRojas">
+    <changeSet id="20250910010" author="JocLRojas">
 
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
@@ -480,21 +480,21 @@ pipeline:
           params:
             key: severity
             value: ''high''
-          where: safe("log.severityLabelCharacter", "") && (log.severityLabelCharacter == "C" || log.severityLabelCharacter == "A" || log.severityLabelCharacter == "E")
+          where: safe("log.severityLabelCharacter", "") in ["C", "A", "E"]
 
       - add:
           function: ''string''
           params:
             key: severity
             value: ''medium''
-          where: safe("log.severityLabelCharacter", "") && log.severityLabelCharacter == "W"
+          where: safe("log.severityLabelCharacter", "") == "W"
 
       - add:
           function: ''string''
           params:
             key: severity
             value: ''low''
-          where: safe("log.severityLabelCharacter", "") && (log.severityLabelCharacter == "D" || log.severityLabelCharacter == "V" || log.severityLabelCharacter == "N" || log.severityLabelCharacter == "I" || log.severityLabelCharacter == "T")
+          where: safe("log.severityLabelCharacter", "") in ["D", "V", "N", "I", "T"]
 
       # Removing unused fields
       - delete:

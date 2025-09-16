@@ -5,10 +5,6 @@ import (
 	"time"
 )
 
-const INSTALLER_VERSION = ""
-const REPLACE = ""
-const PUBLIC_KEY = ``
-
 const (
 	RegisterInstanceEndpoint   = "/api/v1/instances/register"
 	GetInstanceDetailsEndpoint = "/api/v1/instances"
@@ -29,6 +25,11 @@ const (
 )
 
 var (
+	DEFAULT_BRANCH    string
+	INSTALLER_VERSION string
+	REPLACE           string
+	PUBLIC_KEY        string
+
 	BackendConfigEndpoint  = "https://127.0.0.1/api/utm-configuration-parameters?page=0&size=10000&sectionId.equals=%d&sort=id,asc"
 	ConfigPath             = filepath.Join("/root", "utmstack.yml")
 	InstanceConfigPath     = filepath.Join(GetConfig().UpdatesFolder, "instance-config.yml")

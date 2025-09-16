@@ -62,6 +62,10 @@ public class UtmAlertResponseRule implements Serializable {
     @Column(name = "last_modified_date")
     private Instant lastModifiedDate;
 
+    @OneToMany(mappedBy = "rule", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    List<UtmAlertResponseRuleExecution> utmAlertResponseRuleExecutions;
+
+
     @ManyToMany
     @JoinTable(
             name = "utm_alert_response_rule_template",

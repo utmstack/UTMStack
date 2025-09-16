@@ -31,7 +31,7 @@
           <ng-container *ngIf="rules$ | async as rules; else empty">
             <tr *ngFor="let rule of rules; trackBy: trackByFn" class="cursor-pointer">
               <ng-container *ngFor="let field of fields">
-                <td [ngStyle]="{'width': field.width}" *ngIf="(field.visible)">
+                <td [ngStyle]="{'width': field.width}" *ngIf="(field.visible)" (click)="visualizeRule(rule)">
                   <app-rule-field
                     [rule] = "rule"
                     [column] = "field">
@@ -41,18 +41,19 @@
               <td class="td-action">
                 <div class="d-flex justify-content-end align-items-center medium-icon">
 
-                  <i (click)="visualizeRule(rule)"
-                     class="icon-eye cursor-pointer ml-2"
-                     ngbTooltip="View Rule"
-                     container="body"
-                     placement="left"></i>
 
                   <i (click)="activeRule(rule)"
                      class="cursor-pointer ml-2"
                      [ngClass]="{'icon-blocked': rule.ruleActive, 'icon-check2': !rule.ruleActive}"
                      ngbTooltip="{{ !rule.ruleActive ? 'Active' : 'Deactivate' }}"
                      container="body"
+                     *ngIf="!loadingRules.includes(rule.id);else spinner"
                      placement="left"></i>
+
+
+                  <ng-template #spinner >
+                    <i class="icon-spinner2 spinner"></i>
+                  </ng-template>
 
                   <i *ngIf="!rule.systemOwner"
                     (click)="editRule(rule)" class="icon-pencil3 cursor-pointer ml-2"

@@ -1,14 +1,13 @@
 package com.park.utmstack.domain.tfa;
 
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Data;
 
-@Getter
-@ToString
+@Data
 public class TfaSetupState {
-    private final String secret;
-    private final long expiresAt;
-    private final long setupStartedAt;
+    private  String secret;
+    private String lastUsedCode;
+    private  long expiresAt;
+    private  long setupStartedAt;
 
     public TfaSetupState(String secret, long expiresAt) {
         this.secret = secret;

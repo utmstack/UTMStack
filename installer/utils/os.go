@@ -49,6 +49,26 @@ func RunCmd(command string, arg ...string) error {
 	return RunEnvCmd([]string{}, command, arg...)
 }
 
+func RunCmdWithOutput(command string, arg ...string) ([]string, error) {
+	cmd := exec.Command(command, arg...)
+	
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("error running command: %v", err)
+	}
+	
+	lines := bytes.Split(output, []byte("\n"))
+	result := make([]string, 0, len(lines))
+	for _, line := range lines {
+		trimmed := bytes.TrimSpace(line)
+		if len(trimmed) > 0 {
+			result = append(result, string(trimmed))
+		}
+	}
+	
+	return result, nil
+}
+
 func MakeDir(mode os.FileMode, arg ...string) string {
 	path := ""
 	for _, folder := range arg {

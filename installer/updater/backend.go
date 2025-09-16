@@ -5,10 +5,31 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/utmstack/UTMStack/installer/config"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
+
+// IsBackendMaintenanceError checks if the error is due to backend being unavailable (maintenance or down)
+func IsBackendMaintenanceError(err error) bool {
+	if err == nil {
+		return false
+	}
+	errStr := err.Error()
+	// Check for common signs of backend being unavailable
+	return (strings.Contains(errStr, "<!DOCTYPE html") || 
+		strings.Contains(errStr, "<html>") ||
+		strings.Contains(errStr, "invalid character '<'") ||
+		strings.Contains(errStr, "UTMStack - Maintenance") ||
+		strings.Contains(errStr, "currently under maintenance") ||
+		strings.Contains(errStr, "502 Bad Gateway") ||
+		strings.Contains(errStr, "503 Service Unavailable") ||
+		strings.Contains(errStr, "504 Gateway Timeout")) ||
+		(strings.Contains(errStr, "status code: 502") || 
+		 strings.Contains(errStr, "status code: 503") ||
+		 strings.Contains(errStr, "status code: 504"))
+}
 
 func getConfigFromBackend(id uint) ([]ConfigBackend, error) {
 	transCfg := &http.Transport{

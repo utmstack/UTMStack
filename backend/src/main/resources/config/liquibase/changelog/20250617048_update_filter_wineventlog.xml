@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20250617047" author="JocLRojas">
+    <changeSet id="20250910049" author="JocLRojas">
 
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
@@ -241,7 +241,7 @@ pipeline:
       - rename:
           from:
             - log.winlog.event_data.TargetDomainName
-          to: log.winlogEventDataTargetDomainName
+          to: target.domain
 
       - rename:
           from:
@@ -271,7 +271,7 @@ pipeline:
       - rename:
           from:
             - log.winlog.event_data.TargetUserName
-          to: log.winlogEventDataTargetUserName
+          to: target.user
 
       - rename:
           from:
@@ -402,12 +402,12 @@ pipeline:
           to: "[]string"
           fields:
             - log.origin.macs
-    
+
       - cast:
-          to: string
+          to: "int"
           fields:
             - log.eventCode
-
+    
       - trim:
           function: prefix
           substring: ''{''
@@ -430,7 +430,7 @@ pipeline:
 
       # Drop unnecessary events
       - drop:
-          where: "[''0'', ''1'', ''43'', ''44'', ''1001'', ''1040'', ''1042'', ''1105'', ''1500'', ''1501'', ''4608'', ''4609'', ''4614'', ''4615'', ''4616'', ''4626'', ''4627'', ''4650'', ''4651'', ''4652'', ''4653'', ''4654'', ''4655'', ''4659'', ''4665'', ''4666'', ''4667'', ''4668'', ''4688'', ''4689'', ''4696'', ''4709'', ''4710'', ''4711'', ''4712'', ''4778'', ''4779'', ''4826'', ''4864'', ''4866'', ''4898'', ''4899'', ''4902'', ''4904'', ''4905'', ''4906'', ''4909'', ''4910'', ''4911'', ''4928'', ''4929'', ''4930'', ''4931'', ''4932'', ''4933'', ''4934'', ''4935'', ''4936'', ''4937'', ''4944'', ''4945'', ''4951'', ''4952'', ''4953'', ''4957'', ''4958'', ''4965'', ''4979'', ''4980'', ''4981'', ''4982'', ''4983'', ''4984'', ''4985'', ''5024'', ''5027'', ''5028'', ''5029'', ''5033'', ''5034'', ''5035'', ''5038'', ''5039'', ''5051'', ''5056'', ''5057'', ''5058'', ''5059'', ''5060'', ''5061'', ''5062'', ''5063'', ''5064'', ''5065'', ''5066'', ''5067'', ''5068'', ''5069'', ''5070'', ''5071'', ''5120'', ''5121'', ''5122'', ''5123'', ''5125'', ''5126'', ''5127'', ''5136'', ''5137'', ''5138'', ''5139'', ''5141'', ''5145'', ''5168'', ''5169'', ''5170'', ''5376'', ''5377'', ''5378'', ''5379'', ''5380'', ''5381'', ''5382'', ''5440'', ''5441'', ''5442'', ''5443'', ''5444'', ''5446'', ''5450'', ''5451'', ''5452'', ''5456'', ''5457'', ''5458'', ''5459'', ''5460'', ''5461'', ''5462'', ''5463'', ''5464'', ''5465'', ''5466'', ''5467'', ''5468'', ''5471'', ''5472'', ''5473'', ''5474'', ''5477'', ''5478'', ''5712'', ''5888'', ''5889'', ''5890'', ''6145'', ''6274'', ''6275'', ''6281'', ''6400'', ''6401'', ''6402'', ''6403'', ''6405'', ''6406'', ''6407'', ''6408'', ''6409'', ''6410'', ''6417'', ''6418'', ''6423'', ''6424'', ''7040'', ''8191'', ''10000'', ''10010'', ''16384'', ''16394'', ''24578'', ''24579'', ''24581'', ''24582'', ''24583'', ''24584'', ''24586'', ''24588'', ''24592'', ''24593'', ''24594'', ''24595'', ''24621''].exists_one(v, v == log.eventCode)"
+          where: "[0, 1, 43, 44, 1040, 1042, 1105, 1500, 1501, 4608, 4609, 4614, 4615, 4616, 4626, 4627, 4650, 4651, 4652, 4653, 4654, 4655, 4659, 4665, 4666, 4667, 4668, 4688, 4689, 4696, 4709, 4710, 4711, 4712, 4778, 4779, 4826, 4864, 4866, 4898, 4899, 4902, 4904, 4905, 4906, 4909, 4910, 4911, 4928, 4929, 4930, 4931, 4932, 4933, 4934, 4935, 4936, 4937, 4944, 4945, 4951, 4952, 4953, 4957, 4958, 4965, 4979, 4980, 4981, 4982, 4983, 4984, 4985, 5024, 5027, 5028, 5029, 5033, 5034, 5035, 5038, 5039, 5051, 5056, 5057, 5058, 5059, 5060, 5061, 5062, 5063, 5064, 5065, 5066, 5067, 5068, 5069, 5070, 5071, 5120, 5121, 5122, 5123, 5125, 5126, 5127, 5137, 5138, 5139, 5141, 5145, 5168, 5169, 5170, 5376, 5377, 5378, 5379, 5380, 5381, 5440, 5441, 5442, 5443, 5444, 5446, 5450, 5451, 5452, 5456, 5457, 5458, 5459, 5460, 5461, 5462, 5463, 5464, 5465, 5466, 5467, 5468, 5471, 5472, 5473, 5474, 5477, 5478, 5712, 5888, 5889, 5890, 6145, 6274, 6275, 6281, 6400, 6401, 6402, 6403, 6405, 6406, 6407, 6408, 6409, 6410, 6417, 6418, 6423, 6424, 7040, 8191, 10000, 10010, 16384, 16394, 24578, 24579, 24581, 24582, 24583, 24584, 24586, 24588, 24592, 24593, 24594, 24595, 24621].exists_one(v, v == log.eventCode)"
 
       # Decoding event code
       - add:
@@ -438,1848 +438,1862 @@ pipeline:
           params:
             key: log.eventName
             value: ''A product has been installed successfully''
-          where: log.eventCode=="1033"
+          where: safe("log.eventCode", 0.0)==double(1033)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The event logging service has shut down''
-          where: log.eventCode=="1100"
+          where: safe("log.eventCode", 0.0)==double(1100)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Audit events have been dropped by the transport.''
-          where: log.eventCode=="1101"
+          where: safe("log.eventCode", 0.0)==double(1101)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The audit log was cleared''
-          where: log.eventCode=="1102"
+          where: safe("log.eventCode", 0.0)==double(1102)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The security Log is now full''
-          where: log.eventCode=="1104"
+          where: safe("log.eventCode", 0.0)==double(1104)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The event logging service encountered an error''
-          where: log.eventCode=="1108"
+          where: safe("log.eventCode", 0.0)==double(1108)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A PowerShell script block has been executed and the script text has been logged to the event viewer.''
-          where: log.eventCode=="4104"
+          where: safe("log.eventCode", 0.0)==double(4104)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An authentication package has been loaded by the Local Security Authority''
-          where: log.eventCode=="4610"
+          where: safe("log.eventCode", 0.0)==double(4610)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A trusted logon process has been registered with the Local Security Authority''
-          where: log.eventCode=="4611"
+          where: safe("log.eventCode", 0.0)==double(4611)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Internal resources allocated for the queuing of audit messages have been exhausted: leading to the loss of some audits.''
-          where: log.eventCode=="4612"
+          where: safe("log.eventCode", 0.0)==double(4612)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A monitored security event pattern has occurred''
-          where: log.eventCode=="4618"
+          where: safe("log.eventCode", 0.0)==double(4618)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Administrator recovered system from CrashOnAuditFail''
-          where: log.eventCode=="4621"
+          where: safe("log.eventCode", 0.0)==double(4621)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security package has been loaded by the Local Security Authority.''
-          where: log.eventCode=="4622"
+          where: safe("log.eventCode", 0.0)==double(4622)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An account was successfully logged on''
-          where: log.eventCode=="4624"
+          where: safe("log.eventCode", 0.0)==double(4624)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An account failed to log on''
-          where: log.eventCode=="4625"
+          where: safe("log.eventCode", 0.0)==double(4625)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An account was logged off''
-          where: log.eventCode=="4634"
+          where: safe("log.eventCode", 0.0)==double(4634)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''IKE DoS-prevention mode started''
-          where: log.eventCode=="4646"
+          where: safe("log.eventCode", 0.0)==double(4646)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''User initiated logoff''
-          where: log.eventCode=="4647"
+          where: safe("log.eventCode", 0.0)==double(4647)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A logon was attempted using explicit credentials''
-          where: log.eventCode=="4648"
+          where: safe("log.eventCode", 0.0)==double(4648)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A replay attack was detected''
-          where: log.eventCode=="4649"
+          where: safe("log.eventCode", 0.0)==double(4649)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A handle to an object was requested''
-          where: log.eventCode=="4656"
+          where: safe("log.eventCode", 0.0)==double(4656)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A registry value was modified''
-          where: log.eventCode=="4657"
+          where: safe("log.eventCode", 0.0)==double(4657)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The handle to an object was closed''
-          where: log.eventCode=="4658"
+          where: safe("log.eventCode", 0.0)==double(4658)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An object was deleted''
-          where: log.eventCode=="4660"
+          where: safe("log.eventCode", 0.0)==double(4660)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A handle to an object was requested''
-          where: log.eventCode=="4661"
+          where: safe("log.eventCode", 0.0)==double(4661)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An operation was performed on an object''
-          where: log.eventCode=="4662"
+          where: safe("log.eventCode", 0.0)==double(4662)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An attempt was made to access an object''
-          where: log.eventCode=="4663"
+          where: safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An attempt was made to create a hard link''
-          where: log.eventCode=="4664"
+          where: safe("log.eventCode", 0.0)==double(4664)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Permissions on an object were changed''
-          where: log.eventCode=="4670"
+          where: safe("log.eventCode", 0.0)==double(4670)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An application attempted to access a blocked ordinal through the TBS''
-          where: log.eventCode=="4671"
+          where: safe("log.eventCode", 0.0)==double(4671)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Special privileges assigned to new logon''
-          where: log.eventCode=="4672"
+          where: safe("log.eventCode", 0.0)==double(4672)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A privileged service was called''
-          where: log.eventCode=="4673"
+          where: safe("log.eventCode", 0.0)==double(4673)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An operation was attempted on a privileged object''
-          where: log.eventCode=="4674"
+          where: safe("log.eventCode", 0.0)==double(4674)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''SIDs were filtered''
-          where: log.eventCode=="4675"
+          where: safe("log.eventCode", 0.0)==double(4675)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An attempt was made to duplicate a handle to an object''
-          where: log.eventCode=="4690"
+          where: safe("log.eventCode", 0.0)==double(4690)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Indirect access to an object was requested''
-          where: log.eventCode=="4691"
+          where: safe("log.eventCode", 0.0)==double(4691)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Backup of data protection master key was attempted''
-          where: log.eventCode=="4692"
+          where: safe("log.eventCode", 0.0)==double(4692)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Recovery of data protection master key was attempted''
-          where: log.eventCode=="4693"
+          where: safe("log.eventCode", 0.0)==double(4693)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Protection of auditable protected data was attempted''
-          where: log.eventCode=="4694"
+          where: safe("log.eventCode", 0.0)==double(4694)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Unprotection of auditable protected data was attempted''
-          where: log.eventCode=="4695"
+          where: safe("log.eventCode", 0.0)==double(4695)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A service was installed in the system''
-          where: log.eventCode=="4697"
+          where: safe("log.eventCode", 0.0)==double(4697)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A scheduled task was created''
-          where: log.eventCode=="4698"
+          where: safe("log.eventCode", 0.0)==double(4698)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A scheduled task was deleted''
-          where: log.eventCode=="4699"
+          where: safe("log.eventCode", 0.0)==double(4699)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A scheduled task was enabled''
-          where: log.eventCode=="4700"
+          where: safe("log.eventCode", 0.0)==double(4700)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A scheduled task was disabled''
-          where: log.eventCode=="4701"
+          where: safe("log.eventCode", 0.0)==double(4701)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A scheduled task was updated''
-          where: log.eventCode=="4702"
+          where: safe("log.eventCode", 0.0)==double(4702)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A token right was adjusted''
-          where: log.eventCode=="4703"
+          where: safe("log.eventCode", 0.0)==double(4703)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A user right was assigned''
-          where: log.eventCode=="4704"
+          where: safe("log.eventCode", 0.0)==double(4704)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A user right was removed''
-          where: log.eventCode=="4705"
+          where: safe("log.eventCode", 0.0)==double(4705)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A new trust was created to a domain''
-          where: log.eventCode=="4706"
+          where: safe("log.eventCode", 0.0)==double(4706)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A trust to a domain was removed''
-          where: log.eventCode=="4707"
+          where: safe("log.eventCode", 0.0)==double(4707)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Kerberos policy was changed''
-          where: log.eventCode=="4713"
+          where: safe("log.eventCode", 0.0)==double(4713)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Encrypted data recovery policy was changed''
-          where: log.eventCode=="4714"
+          where: safe("log.eventCode", 0.0)==double(4714)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The audit policy (SACL) on an object was changed''
-          where: log.eventCode=="4715"
+          where: safe("log.eventCode", 0.0)==double(4715)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Trusted domain information was modified''
-          where: log.eventCode=="4716"
+          where: safe("log.eventCode", 0.0)==double(4716)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''System security access was granted to an account''
-          where: log.eventCode=="4717"
+          where: safe("log.eventCode", 0.0)==double(4717)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''System security access was removed from an account''
-          where: log.eventCode=="4718"
+          where: safe("log.eventCode", 0.0)==double(4718)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''System audit policy was changed''
-          where: log.eventCode=="4719"
+          where: safe("log.eventCode", 0.0)==double(4719)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A user account was created''
-          where: log.eventCode=="4720"
+          where: safe("log.eventCode", 0.0)==double(4720)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A user account was enabled''
-          where: log.eventCode=="4722"
+          where: safe("log.eventCode", 0.0)==double(4722)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An attempt was made to change the password for an account''
-          where: log.eventCode=="4723"
+          where: safe("log.eventCode", 0.0)==double(4723)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An attempt was made to reset an accounts password''
-          where: log.eventCode=="4724"
+          where: safe("log.eventCode", 0.0)==double(4724)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A user account was disabled''
-          where: log.eventCode=="4725"
+          where: safe("log.eventCode", 0.0)==double(4725)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A user account was deleted''
-          where: log.eventCode=="4726"
+          where: safe("log.eventCode", 0.0)==double(4726)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-enabled global group was created''
-          where: log.eventCode=="4727"
+          where: safe("log.eventCode", 0.0)==double(4727)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A member was added to a security-enabled global group''
-          where: log.eventCode=="4728"
+          where: safe("log.eventCode", 0.0)==double(4728)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A member was removed from a security-enabled global group''
-          where: log.eventCode=="4729"
+          where: safe("log.eventCode", 0.0)==double(4729)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-enabled global group was deleted''
-          where: log.eventCode=="4730"
+          where: safe("log.eventCode", 0.0)==double(4730)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-enabled local group was created''
-          where: log.eventCode=="4731"
+          where: safe("log.eventCode", 0.0)==double(4731)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A member was added to a security-enabled local group''
-          where: log.eventCode=="4732"
+          where: safe("log.eventCode", 0.0)==double(4732)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A member was removed from a security-enabled local group''
-          where: log.eventCode=="4733"
+          where: safe("log.eventCode", 0.0)==double(4733)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-enabled local group was deleted''
-          where: log.eventCode=="4734"
+          where: safe("log.eventCode", 0.0)==double(4734)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-enabled local group was changed''
-          where: log.eventCode=="4735"
+          where: safe("log.eventCode", 0.0)==double(4735)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-enabled global group was changed''
-          where: log.eventCode=="4737"
+          where: safe("log.eventCode", 0.0)==double(4737)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A user account was changed''
-          where: log.eventCode=="4738"
+          where: safe("log.eventCode", 0.0)==double(4738)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Domain Policy was changed''
-          where: log.eventCode=="4739"
+          where: safe("log.eventCode", 0.0)==double(4739)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A user account was locked out''
-          where: log.eventCode=="4740"
+          where: safe("log.eventCode", 0.0)==double(4740)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A computer account was created''
-          where: log.eventCode=="4741"
+          where: safe("log.eventCode", 0.0)==double(4741)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A computer account was changed''
-          where: log.eventCode=="4742"
+          where: safe("log.eventCode", 0.0)==double(4742)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A computer account was deleted''
-          where: log.eventCode=="4743"
+          where: safe("log.eventCode", 0.0)==double(4743)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-disabled local group was created''
-          where: log.eventCode=="4744"
+          where: safe("log.eventCode", 0.0)==double(4744)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-disabled local group was changed''
-          where: log.eventCode=="4745"
+          where: safe("log.eventCode", 0.0)==double(4745)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A member was added to a security-disabled local group''
-          where: log.eventCode=="4746"
+          where: safe("log.eventCode", 0.0)==double(4746)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A member was removed from a security-disabled local group''
-          where: log.eventCode=="4747"
+          where: safe("log.eventCode", 0.0)==double(4747)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-disabled local group was deleted''
-          where: log.eventCode=="4748"
+          where: safe("log.eventCode", 0.0)==double(4748)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-disabled global group was created''
-          where: log.eventCode=="4749"
+          where: safe("log.eventCode", 0.0)==double(4749)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-disabled global group was changed''
-          where: log.eventCode=="4750"
+          where: safe("log.eventCode", 0.0)==double(4750)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A member was added to a security-disabled global group''
-          where: log.eventCode=="4751"
+          where: safe("log.eventCode", 0.0)==double(4751)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A member was removed from a security-disabled global group''
-          where: log.eventCode=="4752"
+          where: safe("log.eventCode", 0.0)==double(4752)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-disabled global group was deleted''
-          where: log.eventCode=="4753"
+          where: safe("log.eventCode", 0.0)==double(4753)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-enabled universal group was created''
-          where: log.eventCode=="4754"
+          where: safe("log.eventCode", 0.0)==double(4754)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-enabled universal group was changed''
-          where: log.eventCode=="4755"
+          where: safe("log.eventCode", 0.0)==double(4755)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A member was added to a security-enabled universal group''
-          where: log.eventCode=="4756"
+          where: safe("log.eventCode", 0.0)==double(4756)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A member was removed from a security-enabled universal group''
-          where: log.eventCode=="4757"
+          where: safe("log.eventCode", 0.0)==double(4757)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-enabled universal group was deleted''
-          where: log.eventCode=="4758"
+          where: safe("log.eventCode", 0.0)==double(4758)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-disabled universal group was created''
-          where: log.eventCode=="4759"
+          where: safe("log.eventCode", 0.0)==double(4759)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-disabled universal group was changed''
-          where: log.eventCode=="4760"
+          where: safe("log.eventCode", 0.0)==double(4760)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A member was added to a security-disabled universal group''
-          where: log.eventCode=="4761"
+          where: safe("log.eventCode", 0.0)==double(4761)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A member was removed from a security-disabled universal group''
-          where: log.eventCode=="4762"
+          where: safe("log.eventCode", 0.0)==double(4762)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-disabled universal group was deleted''
-          where: log.eventCode=="4763"
+          where: safe("log.eventCode", 0.0)==double(4763)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A groups type was changed''
-          where: log.eventCode=="4764"
+          where: safe("log.eventCode", 0.0)==double(4764)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''SID History was added to an account''
-          where: log.eventCode=="4765"
+          where: safe("log.eventCode", 0.0)==double(4765)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An attempt to add SID History to an account failed''
-          where: log.eventCode=="4766"
+          where: safe("log.eventCode", 0.0)==double(4766)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A user account was unlocked''
-          where: log.eventCode=="4767"
+          where: safe("log.eventCode", 0.0)==double(4767)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A Kerberos authentication ticket (TGT) was requested''
-          where: log.eventCode=="4768"
+          where: safe("log.eventCode", 0.0)==double(4768)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A Kerberos service ticket was requested''
-          where: log.eventCode=="4769"
+          where: safe("log.eventCode", 0.0)==double(4769)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A Kerberos service ticket was renewed''
-          where: log.eventCode=="4770"
+          where: safe("log.eventCode", 0.0)==double(4770)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Kerberos pre-authentication failed''
-          where: log.eventCode=="4771"
+          where: safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A Kerberos authentication ticket request failed''
-          where: log.eventCode=="4772"
+          where: safe("log.eventCode", 0.0)==double(4772)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A Kerberos service ticket request failed''
-          where: log.eventCode=="4773"
+          where: safe("log.eventCode", 0.0)==double(4773)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An account was mapped for logon''
-          where: log.eventCode=="4774"
+          where: safe("log.eventCode", 0.0)==double(4774)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An account could not be mapped for logon''
-          where: log.eventCode=="4775"
+          where: safe("log.eventCode", 0.0)==double(4775)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The domain controller attempted to validate the credentials for an account''
-          where: log.eventCode=="4776"
+          where: safe("log.eventCode", 0.0)==double(4776)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The domain controller failed to validate the credentials for an account''
-          where: log.eventCode=="4777"
+          where: safe("log.eventCode", 0.0)==double(4777)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The ACL was set on accounts which are members of administrators groups''
-          where: log.eventCode=="4780"
+          where: safe("log.eventCode", 0.0)==double(4780)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The name of an account was changed''
-          where: log.eventCode=="4781"
+          where: safe("log.eventCode", 0.0)==double(4781)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The password hash an account was accessed''
-          where: log.eventCode=="4782"
+          where: safe("log.eventCode", 0.0)==double(4782)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A basic application group was created''
-          where: log.eventCode=="4783"
+          where: safe("log.eventCode", 0.0)==double(4783)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A basic application group was changed''
-          where: log.eventCode=="4784"
+          where: safe("log.eventCode", 0.0)==double(4784)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A member was added to a basic application group''
-          where: log.eventCode=="4785"
+          where: safe("log.eventCode", 0.0)==double(4785)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A member was removed from a basic application group''
-          where: log.eventCode=="4786"
+          where: safe("log.eventCode", 0.0)==double(4786)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A non-member was added to a basic application group''
-          where: log.eventCode=="4787"
+          where: safe("log.eventCode", 0.0)==double(4787)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A non-member was removed from a basic application group.''
-          where: log.eventCode=="4788"
+          where: safe("log.eventCode", 0.0)==double(4788)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A basic application group was deleted''
-          where: log.eventCode=="4789"
+          where: safe("log.eventCode", 0.0)==double(4789)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An LDAP query group was created''
-          where: log.eventCode=="4790"
+          where: safe("log.eventCode", 0.0)==double(4790)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A basic application group was changed''
-          where: log.eventCode=="4791"
+          where: safe("log.eventCode", 0.0)==double(4791)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An LDAP query group was deleted''
-          where: log.eventCode=="4792"
+          where: safe("log.eventCode", 0.0)==double(4792)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Password Policy Checking API was called''
-          where: log.eventCode=="4793"
+          where: safe("log.eventCode", 0.0)==double(4793)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An attempt was made to set the Directory Services Restore Mode administrator password''
-          where: log.eventCode=="4794"
+          where: safe("log.eventCode", 0.0)==double(4794)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An attempt was made to query the existence of a blank password for an account''
-          where: log.eventCode=="4797"
+          where: safe("log.eventCode", 0.0)==double(4797)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A users local group membership was enumerated.''
-          where: log.eventCode=="4798"
+          where: safe("log.eventCode", 0.0)==double(4798)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security-enabled local group membership was enumerated''
-          where: log.eventCode=="4799"
+          where: safe("log.eventCode", 0.0)==double(4799)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The workstation was locked''
-          where: log.eventCode=="4800"
+          where: safe("log.eventCode", 0.0)==double(4800)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The workstation was unlocked''
-          where: log.eventCode=="4801"
+          where: safe("log.eventCode", 0.0)==double(4801)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The screen saver was invoked''
-          where: log.eventCode=="4802"
+          where: safe("log.eventCode", 0.0)==double(4802)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The screen saver was dismissed''
-          where: log.eventCode=="4803"
+          where: safe("log.eventCode", 0.0)==double(4803)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''RPC detected an integrity violation while decrypting an incoming message''
-          where: log.eventCode=="4816"
+          where: safe("log.eventCode", 0.0)==double(4816)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Auditing settings on object were changed.''
-          where: log.eventCode=="4817"
+          where: safe("log.eventCode", 0.0)==double(4817)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Proposed Central Access Policy does not grant the same access permissions as the current Central Access Policy''
-          where: log.eventCode=="4818"
+          where: safe("log.eventCode", 0.0)==double(4818)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Central Access Policies on the machine have been changed''
-          where: log.eventCode=="4819"
+          where: safe("log.eventCode", 0.0)==double(4819)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A Kerberos Ticket-granting-ticket (TGT) was denied because the device does not meet the access control restrictions''
-          where: log.eventCode=="4820"
+          where: safe("log.eventCode", 0.0)==double(4820)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A Kerberos service ticket was denied because the user: device: or both does not meet the access control restrictions''
-          where: log.eventCode=="4821"
+          where: safe("log.eventCode", 0.0)==double(4821)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''NTLM authentication failed because the account was a member of the Protected User group''
-          where: log.eventCode=="4822"
+          where: safe("log.eventCode", 0.0)==double(4822)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''NTLM authentication failed because access control restrictions are required''
-          where: log.eventCode=="4823"
+          where: safe("log.eventCode", 0.0)==double(4823)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Kerberos preauthentication by using DES or RC4 failed because the account was a member of the Protected User group''
-          where: log.eventCode=="4824"
+          where: safe("log.eventCode", 0.0)==double(4824)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A user was denied the access to Remote Desktop. By default: users are allowed to connect only if they are members of the Remote Desktop Users group or Administrators group''
-          where: log.eventCode=="4825"
+          where: safe("log.eventCode", 0.0)==double(4825)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''SID History was removed from an account''
-          where: log.eventCode=="4830"
+          where: safe("log.eventCode", 0.0)==double(4830)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A trusted forest information entry was added''
-          where: log.eventCode=="4865"
+          where: safe("log.eventCode", 0.0)==double(4865)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A trusted forest information entry was modified''
-          where: log.eventCode=="4867"
+          where: safe("log.eventCode", 0.0)==double(4867)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The certificate manager denied a pending certificate request''
-          where: log.eventCode=="4868"
+          where: safe("log.eventCode", 0.0)==double(4868)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services received a resubmitted certificate request''
-          where: log.eventCode=="4869"
+          where: safe("log.eventCode", 0.0)==double(4869)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services revoked a certificate''
-          where: log.eventCode=="4870"
+          where: safe("log.eventCode", 0.0)==double(4870)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services received a request to publish the certificate revocation list (CRL)''
-          where: log.eventCode=="4871"
+          where: safe("log.eventCode", 0.0)==double(4871)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services published the certificate revocation list (CRL)''
-          where: log.eventCode=="4872"
+          where: safe("log.eventCode", 0.0)==double(4872)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A certificate request extension changed''
-          where: log.eventCode=="4873"
+          where: safe("log.eventCode", 0.0)==double(4873)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''One or more certificate request attributes changed.''
-          where: log.eventCode=="4874"
+          where: safe("log.eventCode", 0.0)==double(4874)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services received a request to shut down''
-          where: log.eventCode=="4875"
+          where: safe("log.eventCode", 0.0)==double(4875)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services backup started''
-          where: log.eventCode=="4876"
+          where: safe("log.eventCode", 0.0)==double(4876)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services backup completed''
-          where: log.eventCode=="4877"
+          where: safe("log.eventCode", 0.0)==double(4877)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services restore started''
-          where: log.eventCode=="4878"
+          where: safe("log.eventCode", 0.0)==double(4878)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services restore completed''
-          where: log.eventCode=="4879"
+          where: safe("log.eventCode", 0.0)==double(4879)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services started''
-          where: log.eventCode=="4880"
+          where: safe("log.eventCode", 0.0)==double(4880)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services stopped''
-          where: log.eventCode=="4881"
+          where: safe("log.eventCode", 0.0)==double(4881)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The security permissions for Certificate Services changed''
-          where: log.eventCode=="4882"
+          where: safe("log.eventCode", 0.0)==double(4882)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services retrieved an archived key''
-          where: log.eventCode=="4883"
+          where: safe("log.eventCode", 0.0)==double(4883)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services imported a certificate into its database''
-          where: log.eventCode=="4884"
+          where: safe("log.eventCode", 0.0)==double(4884)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The audit filter for Certificate Services changed''
-          where: log.eventCode=="4885"
+          where: safe("log.eventCode", 0.0)==double(4885)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services received a certificate request''
-          where: log.eventCode=="4886"
+          where: safe("log.eventCode", 0.0)==double(4886)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services approved a certificate request and issued a certificate''
-          where: log.eventCode=="4887"
+          where: safe("log.eventCode", 0.0)==double(4887)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services denied a certificate request''
-          where: log.eventCode=="4888"
+          where: safe("log.eventCode", 0.0)==double(4888)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services set the status of a certificate request to pending''
-          where: log.eventCode=="4889"
+          where: safe("log.eventCode", 0.0)==double(4889)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The certificate manager settings for Certificate Services changed.''
-          where: log.eventCode=="4890"
+          where: safe("log.eventCode", 0.0)==double(4890)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A configuration entry changed in Certificate Services''
-          where: log.eventCode=="4891"
+          where: safe("log.eventCode", 0.0)==double(4891)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A property of Certificate Services changed''
-          where: log.eventCode=="4892"
+          where: safe("log.eventCode", 0.0)==double(4892)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services archived a key''
-          where: log.eventCode=="4893"
+          where: safe("log.eventCode", 0.0)==double(4893)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services imported and archived a key''
-          where: log.eventCode=="4894"
+          where: safe("log.eventCode", 0.0)==double(4894)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services published the CA certificate to Active Directory Domain Services''
-          where: log.eventCode=="4895"
+          where: safe("log.eventCode", 0.0)==double(4895)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''One or more rows have been deleted from the certificate database''
-          where: log.eventCode=="4896"
+          where: safe("log.eventCode", 0.0)==double(4896)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Role separation enabled''
-          where: log.eventCode=="4897"
+          where: safe("log.eventCode", 0.0)==double(4897)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Certificate Services template security was updated''
-          where: log.eventCode=="4900"
+          where: safe("log.eventCode", 0.0)==double(4900)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Auditing settings on object were changed''
-          where: log.eventCode=="4907"
+          where: safe("log.eventCode", 0.0)==double(4907)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Special Groups Logon table modified''
-          where: log.eventCode=="4908"
+          where: safe("log.eventCode", 0.0)==double(4908)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Per User Audit Policy was changed''
-          where: log.eventCode=="4912"
+          where: safe("log.eventCode", 0.0)==double(4912)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Central Access Policy on the object was changed''
-          where: log.eventCode=="4913"
+          where: safe("log.eventCode", 0.0)==double(4913)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A change has been made to Windows Firewall exception list. A rule was added''
-          where: log.eventCode=="4946"
+          where: safe("log.eventCode", 0.0)==double(4946)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A change has been made to Windows Firewall exception list. A rule was modified''
-          where: log.eventCode=="4947"
+          where: safe("log.eventCode", 0.0)==double(4947)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A change has been made to Windows Firewall exception list. A rule was deleted''
-          where: log.eventCode=="4948"
+          where: safe("log.eventCode", 0.0)==double(4948)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Windows Firewall settings were restored to the default values''
-          where: log.eventCode=="4949"
+          where: safe("log.eventCode", 0.0)==double(4949)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A Windows Firewall setting has changed''
-          where: log.eventCode=="4950"
+          where: safe("log.eventCode", 0.0)==double(4950)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Windows Firewall Group Policy settings has changed. The new settings have been applied''
-          where: log.eventCode=="4954"
+          where: safe("log.eventCode", 0.0)==double(4954)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Windows Firewall has changed the active profile''
-          where: log.eventCode=="4956"
+          where: safe("log.eventCode", 0.0)==double(4956)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''IPsec dropped an inbound packet that failed an integrity check''
-          where: log.eventCode=="4960"
+          where: safe("log.eventCode", 0.0)==double(4960)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''IPsec dropped an inbound packet that failed a replay check''
-          where: log.eventCode=="4961"
+          where: safe("log.eventCode", 0.0)==double(4961)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''IPsec dropped an inbound packet that failed a replay check''
-          where: log.eventCode=="4962"
+          where: safe("log.eventCode", 0.0)==double(4962)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''IPsec dropped an inbound clear text packet that should have been secured''
-          where: log.eventCode=="4963"
+          where: safe("log.eventCode", 0.0)==double(4963)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Special groups have been assigned to a new logon''
-          where: log.eventCode=="4964"
+          where: safe("log.eventCode", 0.0)==double(4964)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''During Main Mode negotiation: IPsec received an invalid negotiation packet.''
-          where: log.eventCode=="4976"
+          where: safe("log.eventCode", 0.0)==double(4976)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''During Quick Mode negotiation: IPsec received an invalid negotiation packet.''
-          where: log.eventCode=="4977"
+          where: safe("log.eventCode", 0.0)==double(4977)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''During Extended Mode negotiation: IPsec received an invalid negotiation packet.''
-          where: log.eventCode=="4978"
+          where: safe("log.eventCode", 0.0)==double(4978)
+
+      - add:
+          function: ''string''
+          params:
+            key: log.eventName
+            value: ''Antimalware engine encountered an error and failed''
+          where: safe("log.eventCode", 0.0)==double(5008)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Windows Firewall Service has been stopped''
-          where: log.eventCode=="5025"
+          where: safe("log.eventCode", 0.0)==double(5025)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Windows Firewall Service failed to start''
-          where: log.eventCode=="5030"
+          where: safe("log.eventCode", 0.0)==double(5030)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Windows Firewall Service blocked an application from accepting incoming connections on the network.''
-          where: log.eventCode=="5031"
+          where: safe("log.eventCode", 0.0)==double(5031)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Windows Firewall was unable to notify the user that it blocked an application from accepting incoming connections on the network''
-          where: log.eventCode=="5032"
+          where: safe("log.eventCode", 0.0)==double(5032)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Windows Firewall Driver detected critical runtime error. Terminating''
-          where: log.eventCode=="5037"
+          where: safe("log.eventCode", 0.0)==double(5037)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A change has been made to IPsec settings. An Authentication Set was added.''
-          where: log.eventCode=="5040"
+          where: safe("log.eventCode", 0.0)==double(5040)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A change has been made to IPsec settings. An Authentication Set was modified''
-          where: log.eventCode=="5041"
+          where: safe("log.eventCode", 0.0)==double(5041)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A change has been made to IPsec settings. An Authentication Set was deleted''
-          where: log.eventCode=="5042"
+          where: safe("log.eventCode", 0.0)==double(5042)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A change has been made to IPsec settings. A Connection Security Rule was added''
-          where: log.eventCode=="5043"
+          where: safe("log.eventCode", 0.0)==double(5043)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A change has been made to IPsec settings. A Connection Security Rule was modified''
-          where: log.eventCode=="5044"
+          where: safe("log.eventCode", 0.0)==double(5044)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A change has been made to IPsec settings. A Connection Security Rule was deleted''
-          where: log.eventCode=="5045"
+          where: safe("log.eventCode", 0.0)==double(5045)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A change has been made to IPsec settings. A Crypto Set was added''
-          where: log.eventCode=="5046"
+          where: safe("log.eventCode", 0.0)==double(5046)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A change has been made to IPsec settings. A Crypto Set was modified''
-          where: log.eventCode=="5047"
+          where: safe("log.eventCode", 0.0)==double(5047)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A change has been made to IPsec settings. A Crypto Set was deleted''
-          where: log.eventCode=="5048"
+          where: safe("log.eventCode", 0.0)==double(5048)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An IPsec Security Association was deleted''
-          where: log.eventCode=="5049"
+          where: safe("log.eventCode", 0.0)==double(5049)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An attempt to programmatically disable the Windows Firewall using a call to INetFwProfile.FirewallEnabled(FALSE)''
-          where: log.eventCode=="5050"
+          where: safe("log.eventCode", 0.0)==double(5050)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A security setting was updated on OCSP Responder Service''
-          where: log.eventCode=="5124"
+          where: safe("log.eventCode", 0.0)==double(5124)
+
+      - add:
+          function: ''string''
+          params:
+            key: log.eventName
+            value: ''A directory service object was modified''
+          where: safe("log.eventCode", 0.0)==double(5136)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A network share object was accessed''
-          where: log.eventCode=="5140"
+          where: safe("log.eventCode", 0.0)==double(5140)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A network share object was added.''
-          where: log.eventCode=="5142"
+          where: safe("log.eventCode", 0.0)==double(5142)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A network share object was modified''
-          where: log.eventCode=="5143"
+          where: safe("log.eventCode", 0.0)==double(5143)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A network share object was deleted.''
-          where: log.eventCode=="5144"
+          where: safe("log.eventCode", 0.0)==double(5144)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Windows Filtering Platform has blocked a packet''
-          where: log.eventCode=="5146"
+          where: safe("log.eventCode", 0.0)==double(5146)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A more restrictive Windows Filtering Platform filter has blocked a packet''
-          where: log.eventCode=="5147"
+          where: safe("log.eventCode", 0.0)==double(5147)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Windows Filtering Platform has detected a DoS attack and entered a defensive mode; packets associated with this attack will be discarded.''
-          where: log.eventCode=="5148"
+          where: safe("log.eventCode", 0.0)==double(5148)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The DoS attack has subsided and normal processing is being resumed.''
-          where: log.eventCode=="5149"
+          where: safe("log.eventCode", 0.0)==double(5149)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Windows Filtering Platform has blocked a packet.''
-          where: log.eventCode=="5150"
+          where: safe("log.eventCode", 0.0)==double(5150)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A more restrictive Windows Filtering Platform filter has blocked a packet.''
-          where: log.eventCode=="5151"
+          where: safe("log.eventCode", 0.0)==double(5151)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Windows Filtering Platform blocked a packet''
-          where: log.eventCode=="5152"
+          where: safe("log.eventCode", 0.0)==double(5152)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A more restrictive Windows Filtering Platform filter has blocked a packet''
-          where: log.eventCode=="5153"
+          where: safe("log.eventCode", 0.0)==double(5153)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Windows Filtering Platform has permitted an application or service to listen on a port for incoming connections''
-          where: log.eventCode=="5154"
+          where: safe("log.eventCode", 0.0)==double(5154)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Windows Filtering Platform has blocked an application or service from listening on a port for incoming connections''
-          where: log.eventCode=="5155"
+          where: safe("log.eventCode", 0.0)==double(5155)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Windows Filtering Platform has allowed a connection''
-          where: log.eventCode=="5156"
+          where: safe("log.eventCode", 0.0)==double(5156)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Windows Filtering Platform has blocked a connection''
-          where: log.eventCode=="5157"
+          where: safe("log.eventCode", 0.0)==double(5157)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Windows Filtering Platform has permitted a bind to a local port''
-          where: log.eventCode=="5158"
+          where: safe("log.eventCode", 0.0)==double(5158)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Windows Filtering Platform has blocked a bind to a local port''
-          where: log.eventCode=="5159"
+          where: safe("log.eventCode", 0.0)==double(5159)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A Windows Filtering Platform filter has been changed''
-          where: log.eventCode=="5447"
+          where: safe("log.eventCode", 0.0)==double(5447)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A Windows Filtering Platform provider has been changed''
-          where: log.eventCode=="5448"
+          where: safe("log.eventCode", 0.0)==double(5448)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A Windows Filtering Platform provider context has been changed''
-          where: log.eventCode=="5449"
+          where: safe("log.eventCode", 0.0)==double(5449)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An IPsec negotiation with a remote computer failed because the IKE and AuthIP IPsec Keying Modules (IKEEXT) service is not started''
-          where: log.eventCode=="5453"
+          where: safe("log.eventCode", 0.0)==double(5453)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''IPsec Services has been shut down successfully''
-          where: log.eventCode=="5479"
+          where: safe("log.eventCode", 0.0)==double(5479)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''IPsec Services failed to get the complete list of network interfaces on the computer''
-          where: log.eventCode=="5480"
+          where: safe("log.eventCode", 0.0)==double(5480)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''IPsec Services failed to initialize RPC server. IPsec Services could not be started''
-          where: log.eventCode=="5483"
+          where: safe("log.eventCode", 0.0)==double(5483)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''IPsec Services has experienced a critical failure and has been shut down''
-          where: log.eventCode=="5484"
+          where: safe("log.eventCode", 0.0)==double(5484)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''IPsec Services failed to process some IPsec filters on a plug-and-play event for network interfaces''
-          where: log.eventCode=="5485"
+          where: safe("log.eventCode", 0.0)==double(5485)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A request was made to authenticate to a wireless network''
-          where: log.eventCode=="5632"
+          where: safe("log.eventCode", 0.0)==double(5632)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A request was made to authenticate to a wired network''
-          where: log.eventCode=="5633"
+          where: safe("log.eventCode", 0.0)==double(5633)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Netlogon service denied a vulnerable Netlogon secure channel connection from a machine account.''
-          where: log.eventCode=="5827"
+          where: safe("log.eventCode", 0.0)==double(5827)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''The Netlogon service denied a vulnerable Netlogon secure channel connection using a trust account.''
-          where: log.eventCode=="5828"
+          where: safe("log.eventCode", 0.0)==double(5828)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Security policy in the group policy objects has been applied successfully''
-          where: log.eventCode=="6144"
+          where: safe("log.eventCode", 0.0)==double(6144)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Network Policy Server granted access to a user''
-          where: log.eventCode=="6272"
+          where: safe("log.eventCode", 0.0)==double(6272)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Network Policy Server denied access to a user''
-          where: log.eventCode=="6273"
+          where: safe("log.eventCode", 0.0)==double(6273)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Network Policy Server quarantined a user''
-          where: log.eventCode=="6276"
+          where: safe("log.eventCode", 0.0)==double(6276)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Network Policy Server granted access to a user but put it on probation because the host did not meet the defined health policy''
-          where: log.eventCode=="6277"
+          where: safe("log.eventCode", 0.0)==double(6277)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Network Policy Server granted full access to a user because the host met the defined health policy''
-          where: log.eventCode=="6278"
+          where: safe("log.eventCode", 0.0)==double(6278)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Network Policy Server locked the user account due to repeated failed authentication attempts''
-          where: log.eventCode=="6279"
+          where: safe("log.eventCode", 0.0)==double(6279)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Network Policy Server unlocked the user account''
-          where: log.eventCode=="6280"
+          where: safe("log.eventCode", 0.0)==double(6280)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''BranchCache: Hosted cache could not be authenticated using the provisioned SSL certificate.''
-          where: log.eventCode=="6404"
+          where: safe("log.eventCode", 0.0)==double(6404)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A new external device was recognized by the system.''
-          where: log.eventCode=="6416"
+          where: safe("log.eventCode", 0.0)==double(6416)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A request was made to disable a device''
-          where: log.eventCode=="6419"
+          where: safe("log.eventCode", 0.0)==double(6419)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A device was disabled''
-          where: log.eventCode=="6420"
+          where: safe("log.eventCode", 0.0)==double(6420)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A request was made to enable a device''
-          where: log.eventCode=="6421"
+          where: safe("log.eventCode", 0.0)==double(6421)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''A device was enabled''
-          where: log.eventCode=="6422"
+          where: safe("log.eventCode", 0.0)==double(6422)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''An application or service has attempted to use DCOM without having the necessary permissions.''
-          where: log.eventCode=="10016"
+          where: safe("log.eventCode", 0.0)==double(10016)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Encryption of volume started.''
-          where: log.eventCode=="24577"
+          where: safe("log.eventCode", 0.0)==double(24577)
 
       - add:
           function: ''string''
           params:
             key: log.eventName
             value: ''Decryption of volume started.''
-          where: log.eventCode=="24580"
+          where: safe("log.eventCode", 0.0)==double(24580)
 
       # Decoding the "failureReason" field when the event code is 4625 and adding the "failureReasonDescription" field
       - add:
@@ -2287,49 +2301,49 @@ pipeline:
           params:
             key: log.failureReasonDescription
             value: ''The specified user account has expired.''
-          where: safe("log.winlogEventDataFailureReason", "") && log.winlogEventDataFailureReason=="%%2305" && log.eventCode=="4625"
+          where: safe("log.winlogEventDataFailureReason", "") == "%%2305" && safe("log.eventCode", 0.0)==double(4625)
 
       - add:
           function: ''string''
           params:
             key: log.failureReasonDescription
             value: ''The password for the specified account has expired''
-          where: safe("log.winlogEventDataFailureReason", "") && log.winlogEventDataFailureReason=="%%2309" && log.eventCode=="4625"
+          where: safe("log.winlogEventDataFailureReason", "") == "%%2309" && safe("log.eventCode", 0.0)==double(4625)
 
       - add:
           function: ''string''
           params:
             key: log.failureReasonDescription
             value: ''Account currently disabled''
-          where: safe("log.winlogEventDataFailureReason", "") && log.winlogEventDataFailureReason=="%%2310" && log.eventCode=="4625"
+          where: safe("log.winlogEventDataFailureReason", "") == "%%2310" && safe("log.eventCode", 0.0)==double(4625)
 
       - add:
           function: ''string''
           params:
             key: log.failureReasonDescription
             value: ''Account logon time restriction violation''
-          where: safe("log.winlogEventDataFailureReason", "") && log.winlogEventDataFailureReason=="%%2311" && log.eventCode=="4625"
+          where: safe("log.winlogEventDataFailureReason", "") == "%%2311" && safe("log.eventCode", 0.0)==double(4625)
 
       - add:
           function: ''string''
           params:
             key: log.failureReasonDescription
             value: ''User not allowed to logon at this computer''
-          where: safe("log.winlogEventDataFailureReason", "") && log.winlogEventDataFailureReason=="%%2312" && log.eventCode=="4625"
+          where: safe("log.winlogEventDataFailureReason", "") == "%%2312" && safe("log.eventCode", 0.0)==double(4625)
 
       - add:
           function: ''string''
           params:
             key: log.failureReasonDescription
             value: ''Unknown user name or bad password''
-          where: safe("log.winlogEventDataFailureReason", "") && log.winlogEventDataFailureReason=="%%2313" && log.eventCode=="4625"
+          where: safe("log.winlogEventDataFailureReason", "") == "%%2313" && safe("log.eventCode", 0.0)==double(4625)
 
       - add:
           function: ''string''
           params:
             key: log.failureReasonDescription
             value: ''An Error occurred during Logon''
-          where: safe("log.winlogEventDataFailureReason", "") && log.winlogEventDataFailureReason=="%%2304" && log.eventCode=="4625"
+          where: safe("log.winlogEventDataFailureReason", "") == "%%2304" && safe("log.eventCode", 0.0)==double(4625)
 
       # Decoding the "AccessMask" field when the event code is 4663 and adding the "accessType" and "accessDescription" field
       - add:
@@ -2337,210 +2351,210 @@ pipeline:
           params:
             key: log.accessType
             value: ''read''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x1" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x1" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessDescription
             value: ''For a file object, the right to read the corresponding file data. For a directory object, the right to read the corresponding directory data.\n For a directory, the right to list the contents of the directory.\n For registry objects, this is, Query key value.''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x1" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x1" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessType
             value: ''write''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x2" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x2" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessDescription
             value: ''For a file object, the right to write data to the file.\n For a directory object, the right to create a file in the directory.\n For registry objects, this is, Set key value.''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x2" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x2" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessType
             value: ''append''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x4" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x4" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessDescription
             value: ''For a file object, the right to append data to the file. (For local files, write operations will not overwrite existing data if this flag is specified without FILE_WRITE_DATA.)\n For a directory object, the right to create a subdirectory.\n For a named pipe, the right to create a pipe.''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x4" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x4" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessType
             value: ''read_extended_attributes''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x8" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x8" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessDescription
             value: ''The right to read extended file attributes.\n For registry objects, this is, Enumerate sub-keys.''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x8" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x8" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessType
             value: ''write_extended_attributes''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x10" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x10" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessDescription
             value: ''The right to write extended file attributes.''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x10" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x10" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessType
             value: ''execute''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x20" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x20" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessDescription
             value: ''For a native code file, the right to execute the file. This access right given to scripts may cause the script to be executable, depending on the script interpreter.\n For a directory, the right to traverse the directory. By default, users are assigned the BYPASS_TRAVERSE_CHECKING privilege, which ignores the FILE_TRAVERSE access right.''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x20" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x20" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessType
             value: ''delete_child''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x40" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x40" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessDescription
             value: ''For a directory, the right to delete a directory and all the files it contains, including read-only files.''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x40" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x40" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessType
             value: ''read_attributes''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x80" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x80" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessDescription
             value: ''The right to read file attributes.''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x80" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x80" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessType
             value: ''write_attributes''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x100" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x100" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessDescription
             value: ''The right to write file attributes.''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x100" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x100" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessType
             value: ''delete''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x10000" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x10000" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessDescription
             value: ''The right to delete the object.''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x10000" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x10000" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessType
             value: ''read_control''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x20000" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x20000" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessDescription
             value: ''The right to read information in the security descriptor object, without including the information in the system access control list (SACL).''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x20000" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x20000" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessType
             value: ''write_dac''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x40000" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x40000" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessDescription
             value: ''The right to modify the discretionary access control list (DACL) in the security descriptor object.''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x40000" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x40000" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessType
             value: ''write_owner''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x80000" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x80000" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessDescription
             value: ''The right to change the owner in the security descriptor object''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x80000" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x80000" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessType
             value: ''synchronize''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x100000" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x100000" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessDescription
             value: ''The right to use the object for synchronization. This enables a thread to wait until the object is in the signaled state. Some object types do not support this access right.''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x100000" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x100000" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessType
             value: ''access_sys_sec''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x1000000" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x1000000" && safe("log.eventCode", 0.0)==double(4663)
 
       - add:
           function: ''string''
           params:
             key: log.accessDescription
             value: ''The ACCESS_SYS_SEC access right controls the ability to get or set the SACL in an security descriptor object.''
-          where: safe("log.winlogEeventDataAccessMask", "") && log.winlogEeventDataAccessMask=="0x1000000" && log.eventCode=="4663"
+          where: safe("log.winlogEeventDataAccessMask", "") == "0x1000000" && safe("log.eventCode", 0.0)==double(4663)
 
       # Decoding the "eventStatus" field
       - add:
@@ -2548,91 +2562,91 @@ pipeline:
           params:
             key: log.statusDescription
             value: ''Account locked out''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xC0000234"
+          where: safe("log.winlogEventDataStatus", "") == "0xC0000234"
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Account expired''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xC0000193"
+          where: safe("log.winlogEventDataStatus", "") == "0xC0000193"
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Clocks out of sync''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xC0000133"
+          where: safe("log.winlogEventDataStatus", "") == "0xC0000133"
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Password change required''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xC0000224"
+          where: safe("log.winlogEventDataStatus", "") == "0xC0000224"
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''User does not have logon right''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xc000015b"
+          where: safe("log.winlogEventDataStatus", "") == "0xc000015b"
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Logon failure''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xc000006d"
+          where: safe("log.winlogEventDataStatus", "") == "0xc000006d"
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Account restriction''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xc000006e"
+          where: safe("log.winlogEventDataStatus", "") == "0xc000006e"
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''An error occurred during logon''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xc00002ee"
+          where: safe("log.winlogEventDataStatus", "") == "0xc00002ee"
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Password expired''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xC0000071"
+          where: safe("log.winlogEventDataStatus", "") == "0xC0000071"
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Account disabled''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xC0000072"
+          where: safe("log.winlogEventDataStatus", "") == "0xC0000072"
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Authentication firewall prohibits logon''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xC0000413"
+          where: safe("log.winlogEventDataStatus", "") == "0xC0000413"
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Incorrect password''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xc000006a"
+          where: safe("log.winlogEventDataStatus", "") == "0xc000006a"
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Account does not exist''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xc0000064"
+          where: safe("log.winlogEventDataStatus", "") == "0xc0000064"
 
       # Decoding the "eventStatus" field when the event code is 4771 and adding the "statusDescription"
       - add:
@@ -2640,322 +2654,322 @@ pipeline:
           params:
             key: log.statusDescription
             value: ''Customer database entry has expired''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x1" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x1" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''The server database entry has expired''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x2" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") =="0x2" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Requested protocol version not supported''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x3" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x3" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Customer key encrypted in old master key''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x4" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x4" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Server key encrypted with old master key''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x5" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x5" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Client not found in Kerberos database''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x6" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x6" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Server not found in Kerberos database''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x7" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x7" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Multiple principal entries in database''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x8" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x8" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''The client or server has a null key''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x9" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x9" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Ticket not eligible for postdating''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xA" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0xA" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Requested start time is later than end time''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xB" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0xB" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''KDC policy rejects request''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xC" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0xC" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''KDC cannot accommodate requested option''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xD" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0xD" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''KDC has no support for encryption type''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xE" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0xE" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''KDC has no support for checksum type''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0xF" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0xF" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''KDC has no support for padata type''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x10" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x10" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''KDC has no support for transited type''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x11" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x11" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Clients credentials have been revoked''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x12" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x12" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Credentials for server have been revoked''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x13" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x13" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''TGT has been revoked''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x14" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x14" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Client not yet valid - try again later''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x15" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x15" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Server not yet valid - try again later''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x16" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x16" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Password has expired''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x17" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x17" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Pre-authentication information was invalid''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x18" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x18" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Additional pre-authentication required''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x19" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x19" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Integrity check on decrypted field failed''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x1F" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x1F" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Ticket expired''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x20" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x20" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Ticket not yet valid''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x21" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x21" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Request is a replay''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x22" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x22" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''The ticket is not for us''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x23" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x23" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Ticket and authenticator is not match''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x24" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x24" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Clock skew too great''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x25" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x25" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Incorrect net address''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x26" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x26" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Protocol version mismatch''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x27" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x27" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Invalid msg type''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x28" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x28" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Message stream modified''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x29" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x29" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Message out of order''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x2A" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x2A" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Specified version of key is not available''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x2C" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x2C" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Service key not available''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x2D" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x2D" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Mutual authentication failed''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDataStatus=="0x2E" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x2E" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Incorrect message direction''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDatalog.winlogEventDataStatus=="0x2F" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x2F" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Alternative authentication method required''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDatalog.winlogEventDataStatus=="0x30" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x30" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Incorrect sequence number in message''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDatalog.winlogEventDataStatus=="0x31" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x31" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Inappropriate type of checksum in message''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDatalog.winlogEventDataStatus=="0x32" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x32" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Generic error (description in e-text)''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDatalog.winlogEventDataStatus=="0x3C" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x3C" && safe("log.eventCode", 0.0)==double(4771)
 
       - add:
           function: ''string''
           params:
             key: log.statusDescription
             value: ''Field is too long for this implementation''
-          where: safe("log.winlogEventDataStatus", "") && log.winlogEventDatalog.winlogEventDataStatus=="0x3D" && log.eventCode=="4771"
+          where: safe("log.winlogEventDataStatus", "") == "0x3D" && safe("log.eventCode", 0.0)==double(4771)
 
       - delete:
           fields:

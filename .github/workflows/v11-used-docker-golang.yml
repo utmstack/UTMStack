@@ -6,8 +6,11 @@ on:
       image_name:
         required: true
         type: string
-      environment:
+      tag:
         required: true
+        type: string
+      flags:
+        required: false
         type: string
 jobs:
   build:
@@ -16,13 +19,6 @@ jobs:
     steps:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
-      
-      - name: Load Version
-        id: set-version
-        run: |
-          versions=$(cat "${{ github.workspace }}/versions.json")
-          service_version=$(echo "${versions}" | jq -r --arg s "${{inputs.image_name}}" '.[$s]')
-          echo "version=${service_version}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Go 1.x
         uses: actions/setup-go@v5
@@ -36,7 +32,12 @@ jobs:
   
       - name: Build Binary
         working-directory: ./${{inputs.image_name}}
-        run: go build -o ${{inputs.image_name}} -v .
+        run: |
+          if [ -n "${{inputs.flags}}" ]; then
+            go build -o ${{inputs.image_name}} -v -ldflags "${{inputs.flags}}" .
+          else
+            go build -o ${{inputs.image_name}} -v .
+          fi
         
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -50,4 +51,4 @@ jobs:
         with:
           context: ./${{inputs.image_name}}
           push: true
-          tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:v${{ steps.set-version.outputs.version }}-${{inputs.environment}}
+          tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.tag}}

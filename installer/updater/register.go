@@ -40,6 +40,11 @@ func RegisterInstance() error {
 			Version: instanceInfo.Version,
 		}
 
+		serverConfig := config.GetConfig()
+		if serverConfig != nil && (serverConfig.MappingName != nil && *serverConfig.MappingName != "") {
+			instanceRegisterReq.MappingName = *serverConfig.MappingName
+		}
+
 		instanceJSON, err := json.Marshal(instanceRegisterReq)
 		if err != nil {
 			return fmt.Errorf("error marshalling instance register request: %v", err)
@@ -75,7 +80,10 @@ func getInstanceInfo() InstanceInfo {
 		time.Sleep(30 * time.Second)
 		backConf, err := getConfigFromBackend(6)
 		if err != nil {
-			config.Logger().Info("instance info not ready yet, retrying after error: %v", err)
+			// Only log if it's not a maintenance/backend down error
+			if !IsBackendMaintenanceError(err) {
+				config.Logger().Info("instance info not ready yet, retrying after error: %v", err)
+			}
 			continue
 		}
 
@@ -110,6 +118,10 @@ func updateInstanceInfo(instanceInfo InstanceInfo) error {
 
 	backConf, err := getConfigFromBackend(6)
 	if err != nil {
+		// If backend is in maintenance, just return without error
+		if IsBackendMaintenanceError(err) {
+			return nil
+		}
 		return fmt.Errorf("error getting instance auth from backend: %v", err)
 	}
 
@@ -121,6 +133,10 @@ func updateInstanceInfo(instanceInfo InstanceInfo) error {
 
 	err = updateConfigInBackend(backConf, 6)
 	if err != nil {
+		// If backend is in maintenance, just return without error
+		if IsBackendMaintenanceError(err) {
+			return nil
+		}
 		return fmt.Errorf("error updating instance info in backend: %v", err)
 	}
 

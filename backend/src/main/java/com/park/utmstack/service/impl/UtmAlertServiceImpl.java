@@ -8,7 +8,7 @@ import com.park.utmstack.domain.application_modules.enums.ModuleName;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.domain.index_pattern.enums.SystemIndexPattern;
-import com.park.utmstack.domain.shared_types.AlertType;
+import com.park.utmstack.domain.shared_types.alert.AlertType;
 import com.park.utmstack.domain.shared_types.LogType;
 import com.park.utmstack.domain.shared_types.static_dashboard.CardType;
 import com.park.utmstack.repository.UtmAlertLastRepository;

@@ -116,7 +116,6 @@ func Install() error {
 		if !config.ConnectedToInternet {
 			fmt.Println(" [SKIPPED] (AirGap mode detected, skipping Docker installation)")
 		} else {
-			fmt.Print("Installing Docker")
 			if err := docker.InstallDocker(distro); err != nil {
 				return err
 			}

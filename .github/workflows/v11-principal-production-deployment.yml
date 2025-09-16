@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       version_tag:
-        description: "Version to deploy."
+        description: "Version to deploy.(e.g., v11.0.0)"
         required: true
       event_processor_tag:
-        description: "Event processor version to use for this deployment."
+        description: "Event processor version to use for this deployment.(e.g., 1.0.0)"
         required: true
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
             fi
 
             echo "Validating user permissions..."
-            RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
             -H "Accept: application/vnd.github.json" \
             "https://api.github.com/orgs/utmstack/teams/core-developers/memberships/${{ github.actor }}")
 
@@ -57,5 +57,5 @@ jobs:
     secrets:
       AGENT_SECRET_PREFIX: ${{ secrets.AGENT_SECRET_PREFIX }}
       SIGNER_TOKEN: ${{ secrets.SIGNER_TOKEN }}
-      CM_AUTH: ${{ secrets.CM_AUTH_ALPHA }}
+      CM_AUTH: ${{ secrets.CM_AUTH_PROD }}
     

@@ -5,6 +5,7 @@ import {IncidentOriginTypeEnum} from '../../../../../shared/enums/incident-respo
 import {UtmAlertType} from '../../../../../shared/types/alert/utm-alert.type';
 import {UtmFieldType} from '../../../../../shared/types/table/utm-field.type';
 import {AlertFieldService} from '../../services/alert-field.service';
+import {isEmpty} from "rxjs/operators";
 
 @Component({
   selector: 'app-alert-host-detail',

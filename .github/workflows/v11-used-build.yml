@@ -57,16 +57,12 @@ jobs:
 
       - name: Build and Sign Agent
         run: |
-          cd ${{ github.workspace }}/agent/config
-          sed -i 's|const REPLACE_KEY string = ""|const REPLACE_KEY string = "${{ secrets.AGENT_SECRET_PREFIX }}"|' const.go
-          
           echo "Building Agent..."
           cd ${{ github.workspace }}/agent
-          
-          GOOS=linux GOARCH=amd64 go build -o utmstack_agent_service -v .
-          # GOOS=linux GOARCH=arm64 go build -o utmstack_agent_service_arm64 -v .
-          GOOS=windows GOARCH=amd64 go build -o utmstack_agent_service.exe -v .
-          GOOS=windows GOARCH=arm64 go build -o utmstack_agent_service_arm64.exe -v .
+
+          GOOS=linux GOARCH=amd64 go build -o utmstack_agent_service -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+          GOOS=windows GOARCH=amd64 go build -o utmstack_agent_service.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+          GOOS=windows GOARCH=arm64 go build -o utmstack_agent_service_arm64.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
           if [[ ${{ inputs.environment }} != "alpha" ]]; then
             echo "Signing Windows Agent..."

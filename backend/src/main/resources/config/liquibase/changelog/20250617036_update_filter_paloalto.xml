@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20250617036" author="JocLRojas">
+    <changeSet id="20250910036" author="JocLRojas">
 
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
@@ -6867,7 +6867,7 @@ pipeline:
           fields:
             - target.bytessent
             - target.bytesreceived
-          to: float64
+          to: float
       
       - cast:
           fields:

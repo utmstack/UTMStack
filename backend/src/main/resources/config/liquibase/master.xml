@@ -169,7 +169,7 @@
 
     <include file="/config/liquibase/changelog/20250617015_update_filter_github.xml" relativeToChangelogFile="false"/>
 
-    <!--<include file="/config/liquibase/changelog/20250617016_update_filter_google.xml" relativeToChangelogFile="false"/>-->
+    <include file="/config/liquibase/changelog/20250617016_update_filter_google.xml" relativeToChangelogFile="false"/>
 
     <include file="/config/liquibase/changelog/20250617017_update_filter_haproxy.xml" relativeToChangelogFile="false"/>
 
@@ -231,9 +231,9 @@
 
     <include file="/config/liquibase/changelog/20250617046_update_filter_vmware_esxi.xml" relativeToChangelogFile="false"/>
 
-    <include file="/config/liquibase/changelog/20250617047_update_filter_wineventlog.xml" relativeToChangelogFile="false"/>
+    <include file="/config/liquibase/changelog/20250617047_update_filter_macos.xml" relativeToChangelogFile="false"/>
 
-    <include file="/config/liquibase/changelog/20250617048_update_filter_macos.xml" relativeToChangelogFile="false"/>
+    <include file="/config/liquibase/changelog/20250617048_update_filter_wineventlog.xml" relativeToChangelogFile="false"/>
 
     <include file="/config/liquibase/changelog/20250630001_update_visualization_fields_to_new_log_format.xml" relativeToChangelogFile="false"/>
 

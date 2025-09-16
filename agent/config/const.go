@@ -6,8 +6,6 @@ import (
 	"github.com/utmstack/UTMStack/agent/utils"
 )
 
-const REPLACE_KEY string = ""
-
 type DataType string
 
 type ProtoPort struct {
@@ -16,6 +14,8 @@ type ProtoPort struct {
 }
 
 var (
+	REPLACE_KEY string
+
 	DependUrl        = "https://%s:%s/private/dependencies/agent/%s"
 	AgentManagerPort = "9000"
 	LogAuthProxyPort = "50051"

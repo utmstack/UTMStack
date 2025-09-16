@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20250617002" author="JocLRojas">
+    <changeSet id="20250910002" author="JocLRojas">
 
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
@@ -168,37 +168,37 @@ pipeline:
           params:
             key: action
             value: ''get''
-          where: safe("log.method", "") && log.method == "GET"
+          where: safe("log.method", "") == "GET"
       - add:
           function: ''string''
           params:
             key: action
             value: ''post''
-          where: safe("log.method", "") && log.method == "POST"
+          where: safe("log.method", "") == "POST"
       - add:
           function: ''string''
           params:
             key: action
             value: ''put''
-          where: safe("log.method", "") && log.method == "PUT"
+          where: safe("log.method", "") == "PUT"
       - add:
           function: ''string''
           params:
             key: action
             value: ''delete''
-          where: safe("log.method", "") && log.method == "DELETE"
+          where: safe("log.method", "") == "DELETE"
       - add:
           function: ''string''
           params:
             key: action
             value: ''patch''
-          where: safe("log.method", "") && log.method == "PATCH"
+          where: safe("log.method", "") == "PATCH"
       - add:
           function: ''string''
           params:
             key: action
             value: ''request''
-          where: safe("log.method", "") && log.method == "REQUEST"
+          where: safe("log.method", "") == "REQUEST"
       # Removing log.method if action was set
       - delete:
           fields:
@@ -209,7 +209,7 @@ pipeline:
           fields:
             - log.statusCode
             - origin.bytesReceived
-          to: int
+          to: float
       - reformat:
           fields:
             - deviceTime
@@ -228,7 +228,7 @@ pipeline:
           params:
             key: actionResult
             value: ''accepted''
-          where: safe("log.statusCode", 0,0) && (log.statusCode >= double(200) && log.statusCode <= double(299) || (safe("origin.bytesReceived", 0,0) && log.statusCode >= double(300) && log.statusCode <= double(399) && origin.bytesReceived > double(0)))
+          where: safe("log.statusCode", 0.0) >= double(200) && safe("log.statusCode", 0.0) <= double(299) || (safe("log.statusCode", 0.0) >= double(300) && safe("log.statusCode", 0.0) <= double(399) && safe("origin.bytesReceived", 0.0) > double(0))
       # Removing unused fields
       - delete:
           fields:

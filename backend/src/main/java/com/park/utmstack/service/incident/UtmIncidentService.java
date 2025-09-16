@@ -6,7 +6,7 @@ import com.park.utmstack.domain.incident.UtmIncident;
 import com.park.utmstack.domain.incident.UtmIncidentAlert;
 import com.park.utmstack.domain.incident.enums.IncidentHistoryActionEnum;
 import com.park.utmstack.domain.incident.enums.IncidentStatusEnum;
-import com.park.utmstack.domain.shared_types.AlertType;
+import com.park.utmstack.domain.shared_types.alert.AlertType;
 import com.park.utmstack.repository.incident.UtmIncidentRepository;
 import com.park.utmstack.service.MailService;
 import com.park.utmstack.service.UserService;

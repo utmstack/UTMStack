@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20250617025" author="JocLRojas">
+    <changeSet id="20250910025" author="JocLRojas">
 
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
@@ -44,6 +44,14 @@ pipeline:
           from:
             - log.host.hostname
           to: origin.host
+      - rename:
+          from:
+            - log.host.name
+          to: origin.user
+      - rename:
+          from:
+            - log.host.id
+          to: log.hostId
       - rename:
           from:
             - log.event.dataset

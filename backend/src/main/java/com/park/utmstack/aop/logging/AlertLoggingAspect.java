@@ -5,7 +5,7 @@ import com.park.utmstack.domain.UtmAlertLog;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.domain.index_pattern.enums.SystemIndexPattern;
-import com.park.utmstack.domain.shared_types.AlertType;
+import com.park.utmstack.domain.shared_types.alert.AlertType;
 import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.UtmAlertLogService;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;

@@ -86,7 +86,7 @@ public class EmailTfaService implements TfaMethodService {
         String secret = user.getTfaSecret();
         String code = tfaService.generateCode(secret);
 
-        TfaSetupState state = new TfaSetupState(secret, System.currentTimeMillis() + Constants.EXPIRES_IN_SECONDS * 1000);
+        TfaSetupState state = new TfaSetupState(secret, System.currentTimeMillis() + Constants.EXPIRES_IN_SECONDS * 1000 * 10);
         cache.storeState(user.getLogin(), TfaMethod.EMAIL, state);
 
         mailService.sendTfaVerificationCode(user, code);

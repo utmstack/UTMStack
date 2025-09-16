@@ -12,7 +12,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/utmstack/UTMStack/installer/config"
@@ -36,7 +35,9 @@ func SyncSystemLogs() {
 
 		active, err := isLogSenderEnabled()
 		if err != nil {
-			config.Logger().ErrorF("Error getting log sender config: %v", err)
+			if !IsBackendMaintenanceError(err) {
+				config.Logger().ErrorF("Error getting log sender config: %v", err)
+			}
 		}
 
 		if !config.Updating && active {
@@ -52,9 +53,37 @@ func SyncSystemLogs() {
 	}
 }
 
+func disableLogSender() error {
+	backConf, err := getConfigFromBackend(9)
+	if err != nil {
+		if IsBackendMaintenanceError(err) {
+			return nil
+		}
+		return err
+	}
+	for i, c := range backConf {
+		if c.ConfParamShort == "utmstack.intance.send.logs" {
+			backConf[i].ConfParamValue = "false"
+		}
+	}
+
+	err = updateConfigInBackend(backConf, 9)
+	if err != nil {
+		if IsBackendMaintenanceError(err) {
+			return nil
+		}
+		return fmt.Errorf("error disabling log sender in backend: %v", err)
+	}
+
+	return nil
+}
+
 func isLogSenderEnabled() (bool, error) {
 	backConf, err := getConfigFromBackend(9)
 	if err != nil {
+		if IsBackendMaintenanceError(err) {
+			return false, nil
+		}
 		return false, err
 	}
 
@@ -93,13 +122,18 @@ func CollectAndShipSwarmLogs() error {
 		_ = os.Remove(archiveName)
 	}
 
+	err = disableLogSender()
+	if err != nil {
+		return fmt.Errorf("error disabling log sender: %v", err)
+	}
+
 	return nil
 }
 
 func createZip(
 	ctx context.Context,
 	cli *client.Client,
-	containers []types.Container,
+	containers []container.Summary,
 	zipPath string,
 ) error {
 	file, err := os.Create(zipPath)

@@ -120,7 +120,9 @@ func (c *UpdaterClient) CheckUpdate() error {
 		return fmt.Errorf("error getting current version: %v", err)
 	}
 
-	for _, update := range updates {
+	sortedUpdates := SortVersions(updates)
+
+	for _, update := range sortedUpdates {
 		if update["version"] != currentVersion.Version {
 			err := c.UpdateToNewVersion(update["version"], update["edition"], update["changelog"])
 			if err != nil {

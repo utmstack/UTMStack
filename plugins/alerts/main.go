@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"net"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/opensearch"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
 	"github.com/tidwall/gjson"
-	"net"
-	"os"
-	"strings"
-	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"

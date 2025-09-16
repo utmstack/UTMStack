@@ -71,6 +71,9 @@ export const ALERT_IMPACT_INTEGRITY_FIELD = 'impact.integrity';
 
 // TARGET
 export const ALERT_TARGET_IP_FIELD = 'target.ip';
+export const ALERT_TARGET_FILE_FIELD = 'target.file';
+export const ALERT_TARGET_HOST_FIELD = 'target.host';
+export const ALERT_TARGET_USER_FIELD = 'target.user';
 export const ALERT_TARGET_BYTES_SENT_FIELD = 'target.bytesSent';
 export const ALERT_TARGET_URL_FIELD = 'target.url';
 export const ALERT_TARGET_DOMAIN_FIELD = 'target.domain';
@@ -84,6 +87,9 @@ export const ALERT_TARGET_GEOLOCATION_LONGITUDE_FIELD = 'target.geolocation.long
 
 // ADVERSARY
 export const ALERT_ADVERSARY_IP_FIELD = 'adversary.ip';
+export const ALERT_ADVERSARY_FILE_FIELD = 'adversary.file';
+export const ALERT_ADVERSARY_HOST_FIELD = 'adversary.host';
+export const ALERT_ADVERSARY_USER_FIELD = 'adversary.user';
 export const ALERT_ADVERSARY_BYTES_SENT_FIELD = 'adversary.bytesSent';
 export const ALERT_ADVERSARY_URL_FIELD = 'adversary.url';
 export const ALERT_ADVERSARY_DOMAIN_FIELD = 'adversary.domain';
@@ -194,6 +200,24 @@ export const ALERT_FIELDS: UtmFieldType[] = [
         field: ALERT_TARGET_GEOLOCATION_LONGITUDE_FIELD,
         type: ElasticDataTypesEnum.STRING,
         visible: false,
+      },
+      {
+        label: 'Target File',
+        field: ALERT_TARGET_FILE_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: false,
+      },
+      {
+        label: 'Target Host',
+        field: ALERT_TARGET_HOST_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: false,
+      },
+      {
+        label: 'Target User',
+        field: ALERT_TARGET_USER_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: false,
       }
     ]
   },
@@ -248,6 +272,24 @@ export const ALERT_FIELDS: UtmFieldType[] = [
       {
         label: 'Adversary Longitude',
         field: ALERT_ADVERSARY_GEOLOCATION_LONGITUDE_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: false,
+      },
+      {
+        label: 'Adversary File',
+        field: ALERT_ADVERSARY_FILE_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: false,
+      },
+      {
+        label: 'Adversary Host',
+        field: ALERT_ADVERSARY_HOST_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: false,
+      },
+      {
+        label: 'Adversary User',
+        field: ALERT_ADVERSARY_URL_FIELD,
         type: ElasticDataTypesEnum.STRING,
         visible: false,
       }

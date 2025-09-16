@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20250617011" author="JocLRojas">
+    <changeSet id="20250910011" author="JocLRojas">
 
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
@@ -241,7 +241,7 @@ pipeline:
           from:
             - log.audit_compliance_operation
           to: log.auditComplianceOperation
-          where: safe("log.audit_compliance_operation")
+          where: exists("log.audit_compliance_operation")
       - rename:
           from:
             - log.node.id
@@ -394,19 +394,19 @@ pipeline:
           params:
             key: severity
             value: ''high''
-          where: safe("log.level", "") && (log.level == "CRITICAL" || log.level == "FATAL" || log.level == "ERROR")
+          where: safe("log.level", "") in ["ERROR", "Error", "FATAL", "CRITICAL", "Critical"]
       - add:
           function: ''string''
           params:
             key: severity
             value: ''medium''
-          where: safe("log.level", "") && log.level == "WARN"
+          where: safe("log.level", "") in ["WARN", "Warning"]
       - add:
           function: ''string''
           params:
             key: severity
             value: ''low''
-          where: safe("log.level", "") && (log.level == "INFO" || log.level == "DEBUG" || log.level == "TRACE")
+          where: safe("log.level", "") in ["Information", "Informational", "INFO", "DEBUG", "TRACE"]
 
       # Removing unused fields
       - delete:
@@ -433,7 +433,7 @@ pipeline:
 
       # Droping unwanted logs
       - drop:
-          where: safe("log.eventDataset", "") && safe("log.component", "") && ( (log.eventDataset != "elasticsearch.server" && log.eventDataset != "elasticsearch.audit") || (log.eventDataset == "elasticsearch.server" && (log.component.matches("(A|a)udit")==false && log.component.matches("(S|s)(S|s)(L|l)")==false && log.component.matches("(S|s)ecurity")==false ) ) )'
+          where: safe("log.eventDataset", "") && safe("log.component", "") && ( (safe("log.eventDataset", "") != "elasticsearch.server" && safe("log.eventDataset", "") != "elasticsearch.audit") || (safe("log.eventDataset", "") == "elasticsearch.server" && (safe("log.component", "").matches("(A|a)udit")==false && safe("log.component", "").matches("(S|s)(S|s)(L|l)")==false && safe("log.component", "").matches("(S|s)ecurity")==false ) ) )'
 	WHERE id=1410;
             ]]>
         </sql>

@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20250617043" author="JocLRojas">
+    <changeSet id="20250910043" author="JocLRojas">
 
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
@@ -685,17 +685,12 @@ pipeline:
       # Field conversions
       - cast:
           fields:
-            - log.statusCode
             - target.port
           to: int
 
       - cast:
           fields:
             - log.statusCode
-          to: float
-
-      - cast:
-          fields:
             - origin.bytesReceived
             - origin.bytesSent
           to: float
@@ -719,7 +714,7 @@ pipeline:
           params:
             key: actionResult
             value: ''accepted''
-          where: safe("statusCode", 0,0) && (statusCode >= double(200) && statusCode <= double(299) || (safe("origin.bytesReceived", 0,0) && statusCode >= double(300) && statusCode <= double(399) && origin.bytesReceived > double(0)))
+          where: safe("statusCode", 0.0) >= double(200) && safe("statusCode", 0.0) <= double(299) || (safe("statusCode", 0.0) >= double(300) && safe("statusCode", 0.0) <= double(399) && safe("origin.bytesReceived", 0.0) > double(0))
 
       # Removing unused fields
       - delete:
@@ -739,7 +734,6 @@ pipeline:
             - log.restData
             - log.useragent
             - log.activityname
-            - log.application
             - log.httpresponsecode
             - log.overrideauthorizer
             - log.overridename

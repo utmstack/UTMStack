@@ -13,7 +13,11 @@ func UpdateWindowConfig() {
 	for {
 		window, err := getWindowMaintaince()
 		if err != nil {
-			config.Logger().ErrorF("Error getting maintenance window config: %v", err)
+			// Only log error if it's not a maintenance error
+			if !IsBackendMaintenanceError(err) {
+				config.Logger().ErrorF("Error getting maintenance window config: %v", err)
+			}
+			// If backend is in maintenance, just skip this iteration silently
 		}
 
 		if window != "" {

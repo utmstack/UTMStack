@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version_tag:
-        description: "Version to deploy.(e.g., v1.0.0-alpha.1)"
+        description: "Version to deploy.(e.g., v11.0.0-alpha.1)"
         required: true
       event_processor_tag:
         description: "Event processor version to use for this deployment.(e.g., 1.0.0-beta)"

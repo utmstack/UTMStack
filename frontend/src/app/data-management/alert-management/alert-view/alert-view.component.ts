@@ -554,8 +554,9 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   }
 
   openIncidentResponseAutomationModal(alert: UtmAlertType) {
-    const modal = this.modalService.open(IrCreateRuleComponent, {size: 'lg', centered: true});
-    modal.componentInstance.alert = alert;
+       this.router.navigate(['soar/create-flow'], {
+            queryParams:{alertName:alert.name}
+          })
   }
 
   getFilterTime() {

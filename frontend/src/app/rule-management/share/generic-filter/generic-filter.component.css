@@ -5,3 +5,8 @@
     min-height: 0;
     height: 100%;
 }
+
+.filter-value-field-container {
+  max-height: 140px;
+  overflow-y: auto ;
+}

@@ -182,7 +182,10 @@ export class AddRuleComponent implements OnInit, OnDestroy {
     });
     // this.savedVariables = rule ? rule.definition.ruleVariables : [];
 
+    if(!rule || rule.afterEvents.length == 0){
     this.addAfterEvent();
+    }
+
   }
 
 

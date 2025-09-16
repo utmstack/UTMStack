@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20250617007" author="JocLRojas">
+    <changeSet id="20250910007" author="JocLRojas">
 
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
@@ -327,14 +327,14 @@ pipeline:
           params:
             key: actionResult
             value: ''accepted''
-          where: safe("actionResult", "") && (log.messageId==106102 || log.messageId==106103) && (actionResult == "Permitted" || actionResult == "permitted")
+          where: safe("actionResult", "") && (safe("log.messageId", 0.0) == double(106102) || safe("log.messageId", 0.0) == double(106103)) && (safe("actionResult", "") == "Permitted" || safe("actionResult", "") == "permitted")
       # Adding action result
       - add:
           function: ''string''
           params:
             key: actionResult
             value: ''denied''
-          where: safe("actionResult", "") && (log.messageId==106102 || log.messageId==106103) && (actionResult != "Permitted" && actionResult != "permitted")
+          where: safe("actionResult", "") && (safe("log.messageId", 0.0) == double(106102) || safe("log.messageId", 0.0) == double(106103)) && (safe("actionResult", "") != "Permitted" && safe("actionResult", "") != "permitted")
       #......................................................................#
       # ASA-4-109017
       - grok:
@@ -5767,13 +5767,13 @@ pipeline:
           params:
             key: action
             value: ''Threat-detection add host to shun list''
-          where: (log.messageId==733102 || log.messageId==733103) && log.msg.contains("add")
+          where: (safe("log.messageId", 0.0)==double(733102) || safe("log.messageId", 0.0)==double(733103)) && safe("log.msg", "").contains("add")
       - add:
           function: ''string''
           params:
             key: action
             value: ''Threat-detection removes host to shun list''
-          where: (log.messageId==733102 || log.messageId==733103) && log.msg.contains("removes")
+          where: (safe("log.messageId", 0.0)==double(733102) || safe("log.messageId", 0.0)==double(733103)) && safe("log.msg", "").contains("removes")
       #......................................................................#
       # Decoding severity
       - add:
@@ -5781,7 +5781,7 @@ pipeline:
           params:
             key: severity
             value: ''high''
-          where: log.severity=="1" || log.severity=="2" || log.severity=="3"
+          where: safe("log.severity", "") in ["1", "2", "3"]
       - add:
           function: ''string''
           params:
@@ -5793,7 +5793,7 @@ pipeline:
           params:
             key: severity
             value: ''low''
-          where: log.severity=="5" || log.severity=="6" || log.severity=="7"
+          where: safe("log.severity", "") in ["5", "6", "7"]
       #......................................................................#
       # Adding common geolocation
       - dynamic:

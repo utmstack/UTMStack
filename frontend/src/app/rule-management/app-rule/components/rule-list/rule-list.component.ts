@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {merge, Observable, of, Subject} from 'rxjs';
-import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {catchError, filter, map, switchMap, takeUntil, tap, finalize} from 'rxjs/operators';
 import { SortEvent } from 'src/app/shared/directives/sortable/type/sort-event';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {
@@ -50,6 +50,7 @@ export class RuleListComponent implements OnInit, OnDestroy {
   isInitialized = false;
   request = RULE_REQUEST;
   destroy$: Subject<void> = new Subject<void>();
+  loadingRules=[]
 
   constructor(private route: ActivatedRoute,
               private filterService: FilterService,
@@ -153,8 +154,11 @@ export class RuleListComponent implements OnInit, OnDestroy {
       id: rule.id,
       active: !rule.ruleActive
     };
-
-    this.ruleService.activeRule(params)
+    this.loadingRules.push(rule.id)
+    const index = this.loadingRules.length-1
+    this.ruleService.activeRule(params).pipe(
+      finalize(()=>this.loadingRules.splice(index,1))
+    )
       .subscribe(() =>  this.ruleService.notifyRefresh(true),
         () => {
           this.utmToast.showError('Error', 'Error changing rule status');

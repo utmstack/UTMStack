@@ -12,6 +12,6 @@ import java.util.List;
 @SuppressWarnings("unused")
 @Repository
 public interface UtmAlertResponseRuleExecutionRepository extends JpaRepository<UtmAlertResponseRuleExecution, Long>, JpaSpecificationExecutor<UtmAlertResponseRuleExecution> {
-    List<UtmAlertResponseRuleExecution> findAllByExecutionStatus(RuleExecutionStatus status);
+    List<UtmAlertResponseRuleExecution> findAllRuleByExecutionStatusAndRule_RuleActiveTrue(RuleExecutionStatus status);
 
 }

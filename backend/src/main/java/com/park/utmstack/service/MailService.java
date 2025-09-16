@@ -5,7 +5,7 @@ import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.incident.UtmIncident;
 import com.park.utmstack.domain.mail_sender.MailConfig;
-import com.park.utmstack.domain.shared_types.AlertType;
+import com.park.utmstack.domain.shared_types.alert.AlertType;
 import com.park.utmstack.domain.shared_types.LogType;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.mail_sender.BaseMailSender;

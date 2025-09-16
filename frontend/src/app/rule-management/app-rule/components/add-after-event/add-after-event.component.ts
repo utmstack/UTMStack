@@ -129,6 +129,13 @@ export class AddAfterEventComponent implements OnInit {
 
   getOperatorByField(fieldName: string) {
     const field = this.fields.find(f => f.name === fieldName);
-    return this.getOperators(field);
+    //if the field doesnt appear on field list, it must be an added field ( so we'll treat it like a STRING)
+    return this.getOperators(field || {name:fieldName,type:ElasticDataTypesEnum.STRING});
   }
+
+  addField(name:string){
+    return {name,type:ElasticDataTypesEnum.STRING};
+  }
+
+
 }

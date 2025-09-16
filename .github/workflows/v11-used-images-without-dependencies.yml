@@ -8,6 +8,9 @@ on:
       microservice:
         required: true
         type: string
+      flags:
+        required: false
+        type: string
 
 jobs:
   prepare_deployment:
@@ -51,7 +54,8 @@ jobs:
     uses: ./.github/workflows/v11-used-docker-golang.yml
     with:
       image_name: ${{ inputs.microservice }}
-      environment: ${{inputs.tag}}-community
+      tag: ${{inputs.tag}}-community
+      flags: ${{inputs.flags}}
 
   java_11_deployment:
     name: Java 11 deployment

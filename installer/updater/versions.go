@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -106,4 +107,82 @@ func IsEnterpriseImage(serviceName string) (bool, error) {
 
 	image := strings.TrimSpace(outBuf.String())
 	return strings.Contains(image, "-enterprise"), nil
+}
+
+// Version sorting functions
+type Version struct {
+	Major          int
+	Minor          int
+	Patch          int
+	PrereleaseName string // alpha, beta, rc, or empty
+	PrereleaseNum  int    // the number after alpha.X, beta.X, rc.X
+	Original       string
+}
+
+func ParseVersion(versionStr string) Version {
+	v := Version{Original: versionStr}
+
+	// Remove v prefix if present
+	versionStr = strings.TrimPrefix(versionStr, "v")
+	versionStr = strings.TrimPrefix(versionStr, "V")
+
+	// Parse version with regex: X.Y.Z or X.Y.Z-type.num
+	re := regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)(?:-(alpha|beta|rc)\.(\d+))?$`)
+	matches := re.FindStringSubmatch(versionStr)
+
+	if len(matches) > 1 {
+		v.Major, _ = strconv.Atoi(matches[1])
+	}
+	if len(matches) > 2 {
+		v.Minor, _ = strconv.Atoi(matches[2])
+	}
+	if len(matches) > 3 {
+		v.Patch, _ = strconv.Atoi(matches[3])
+	}
+	if len(matches) > 4 && matches[4] != "" {
+		v.PrereleaseName = matches[4]
+	}
+	if len(matches) > 5 && matches[5] != "" {
+		v.PrereleaseNum, _ = strconv.Atoi(matches[5])
+	}
+
+	return v
+}
+
+func CompareVersions(v1, v2 Version) int {
+	// Compare major.minor.patch first
+	if v1.Major != v2.Major {
+		return v1.Major - v2.Major
+	}
+	if v1.Minor != v2.Minor {
+		return v1.Minor - v2.Minor
+	}
+	if v1.Patch != v2.Patch {
+		return v1.Patch - v2.Patch
+	}
+
+	if v1.PrereleaseNum != v2.PrereleaseNum {
+		return v1.PrereleaseNum - v2.PrereleaseNum
+	}
+
+	return 0
+}
+
+func SortVersions(versions []map[string]string) []map[string]string {
+	if len(versions) <= 1 {
+		return versions
+	}
+
+	for i := range len(versions) - 1 {
+		for j := range len(versions) - i - 1 {
+			v1 := ParseVersion(versions[j]["version"])
+			v2 := ParseVersion(versions[j+1]["version"])
+
+			if CompareVersions(v1, v2) > 0 {
+				versions[j], versions[j+1] = versions[j+1], versions[j]
+			}
+		}
+	}
+
+	return versions
 }

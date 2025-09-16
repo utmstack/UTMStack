@@ -9,7 +9,6 @@ import {UtmAlertType} from '../../../../../../shared/types/alert/utm-alert.type'
 import {AlertUpdateHistoryBehavior} from '../../../behavior/alert-update-history.behavior';
 import {EventDataTypeEnum} from '../../../enums/event-data-type.enum';
 import {AlertManagementService} from '../../../services/alert-management.service';
-
 @Component({
   selector: 'app-alert-apply-incident',
   templateUrl: './alert-apply-incident.component.html',

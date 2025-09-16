@@ -34,12 +34,11 @@
       <a [ngClass]="{'active':view===alertDetailTabEnum.TAGS}" class="nav-link">
         <i class="icon-price-tags2 mr-1"></i> Rules applied </a>
     </li>
-      <!--<li class="nav-item cursor-pointer btn-tab">
-          <button (click)="navigateToEvents()" *ngIf="countRelatedEvents>0" class="btn utm-button utm-button-primary ml-2"
-                  routerLink="/integrations/explore">
+      <li class="nav-item cursor-pointer btn-tab">
+          <button (click)="navigateToEvents()" *ngIf="countRelatedEvents>0" class="btn utm-button utm-button-primary ml-2">
               <i class="icon-eye8 mr-1"></i> View logs related
           </button>
-      </li>-->
+      </li>
   </ul>
   <div class="w-100" *ngIf="view === alertDetailTabEnum.DETAIL">
     <app-alert-description [alert]="alert"></app-alert-description>

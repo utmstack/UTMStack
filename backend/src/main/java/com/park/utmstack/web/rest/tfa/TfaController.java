@@ -28,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
+import tech.jhipster.web.util.ResponseUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,7 +58,7 @@ public class TfaController {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            throw e;
+            return UtilResponse.buildInternalServerErrorResponse(msg);
         }
 
     }
@@ -72,8 +73,22 @@ public class TfaController {
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
+            return UtilResponse.buildInternalServerErrorResponse(msg);
+        }
+    }
+
+    @GetMapping("/generate-challenge")
+    public ResponseEntity<Void> generateChallenge() {
+        final String ctx = CLASSNAME + ".generateChallenge";
+        try {
+            User user = userService.getCurrentUserLogin();
+            tfaService.generateChallenge(user);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            throw e;
+            return UtilResponse.buildInternalServerErrorResponse(msg);
         }
     }
 
@@ -82,7 +97,7 @@ public class TfaController {
         final String ctx = CLASSNAME + ".completeTfa";
         try {
 
-            /*List<UtmConfigurationParameter> tfaParams = utmConfigurationParameterService.getConfigParameterBySectionId(Constants.TFA_SETTING_ID);
+            List<UtmConfigurationParameter> tfaParams = utmConfigurationParameterService.getConfigParameterBySectionId(Constants.TFA_SETTING_ID);
 
             for (UtmConfigurationParameter param : tfaParams) {
                 switch (param.getConfParamShort()) {
@@ -93,12 +108,11 @@ public class TfaController {
                         param.setConfParamValue(String.valueOf(request.isEnable()));
                         break;
                 }
-            }*/
-
-
+            }
 
             tfaService.persistConfiguration(request.getMethod());
             User user = userService.getCurrentUserLogin();
+            utmConfigurationParameterService.saveAllConfigParams(tfaParams);
             tfaService.generateChallenge(user);
             return ResponseEntity.ok().build();
         } catch (UtmMailException e) {

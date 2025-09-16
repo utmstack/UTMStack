@@ -37,6 +37,13 @@ func main() {
 			v := fmt.Sprintf("%s-%s", version.Version, version.Edition)
 			fmt.Println("UTMStack version:", v)
 
+		case "--uninstall", "-u":
+			err := Uninstall()
+			if err != nil {
+				fmt.Printf("\nerror uninstalling UTMStack: %v", err)
+				os.Exit(1)
+			}
+
 		default:
 			help()
 		}
@@ -55,5 +62,6 @@ func help() {
 	fmt.Println("Arguments:")
 	fmt.Println("  --help, -h              Show this help")
 	fmt.Println("  --install, -i <ID>      Install UTMStack (Requires organization ID)")
+	fmt.Println("  --uninstall, -u         Uninstall UTMStack")
 	fmt.Println("  --version, -v           Show UTMStack version")
 }

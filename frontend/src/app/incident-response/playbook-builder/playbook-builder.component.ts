@@ -119,10 +119,24 @@ export class PlaybookBuilderComponent implements OnInit, OnDestroy {
         this.utmToastService.showError('Error', 'An error has occurred while fetching a rule');
       });
 
+    this.route.queryParams
+      .pipe(
+        filter(params => !!params && !!params.alertName),
+        map(params => params.alertName)).subscribe((alertName)=>{
+        this.addRuleCondition();
+        const rc = this.ruleConditions.at(this.ruleConditions.length-1);
+        rc.patchValue({
+          field: 'name',
+          value: alertName,
+        });
+      });
+
     this.formRule.get('name').valueChanges.pipe(debounceTime(1000)).subscribe(value => {
       this.searchRule(this.rulePrefix + value);
     });
   }
+
+
 
   get ruleConditions() {
     return this.formRule.get('conditions') as FormArray;

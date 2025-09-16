@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20250617016" author="JocLRojas">
+    <changeSet id="20250910016" author="JocLRojas">
 
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
 
             UPDATE public.utm_logstash_filter
             SET filter_version='2.1.0',
-                logstash_filter='# GCP filter, version 2.1.0
+            logstash_filter='# GCP filter, version 2.1.0
 # 
 # Documentations
 # 1- https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry
@@ -433,7 +433,7 @@ pipeline:
             - log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
             - log.severity
             - log.jsonPayloadStructuredRdata'
-            WHERE id=1301;
+	WHERE id=1301;
             ]]>
         </sql>
     </changeSet>

@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20250617034" author="JocLRojas">
+    <changeSet id="20250910034" author="JocLRojas">
 
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
@@ -293,7 +293,7 @@ pipeline:
       - cast:
           fields:
             - log.statusCode
-          to: int
+          to: float
 
       - cast:
           fields:
@@ -319,35 +319,35 @@ pipeline:
           params:
             key: action
             value: ''get''
-          where: safe("log.method", "") && log.method == "GET"
+          where: safe("log.method", "") == "GET"
 
       - add:
           function: ''string''
           params:
             key: action
             value: ''post''
-          where: safe("log.method", "") && log.method == "POST"
+          where: safe("log.method", "") == "POST"
 
       - add:
           function: ''string''
           params:
             key: action
             value: ''put''
-          where: safe("log.method", "") && log.method == "PUT"
+          where: safe("log.method", "") == "PUT"
 
       - add:
           function: ''string''
           params:
             key: action
             value: ''delete''
-          where: safe("log.method", "") && log.method == "DELETE"
+          where: safe("log.method", "") == "DELETE"
 
       - add:
           function: ''string''
           params:
             key: action
             value: ''request''
-          where: safe("log.method", "") && log.method == "REQUEST"
+          where: safe("log.method", "") == "REQUEST"
 
       # Adding actionResult
       # denied by default
@@ -362,7 +362,7 @@ pipeline:
           params:
             key: actionResult
             value: ''accepted''
-          where: safe("statusCode", 0,0) && (statusCode >= double(200) && statusCode <= double(299) || (safe("origin.bytesReceived", 0,0) && statusCode >= double(300) && statusCode <= double(399) && origin.bytesReceived > double(0,0)))
+          where: safe("statusCode", 0.0) >= double(200) && safe("statusCode", 0.0) <= double(299) || (safe("statusCode", 0.0) >= double(300) && safe("statusCode", 0.0) <= double(399) && safe("origin.bytesReceived", 0.0) > double(0))
 
       # Adding severity based on log.severityLabel
       - add:
@@ -370,21 +370,21 @@ pipeline:
           params:
             key: log.severity
             value: ''high''
-          where: safe("log.severityLabel", "") && (log.severityLabel == "critical" || log.severityLabel == "alert" || log.severityLabel == "error")
+          where: safe("log.severityLabel", "") in ["critical", "alert", "error"]
 
       - add:
           function: ''string''
           params:
             key: log.severity
             value: ''medium''
-          where: safe("log.severityLabel"", "") && log.severityLabel == "warning"
+          where: safe("log.severityLabel", "") == "warning"
 
       - add:
           function: ''string''
           params:
             key: log.severity
             value: ''low''
-          where: safe("log.severityLabel", "") && (log.severityLabel == "debug" || log.severityLabel == "verbose" || log.severityLabel == "notice" || log.severityLabel == "information" || log.severityLabel == "trace")
+          where: safe("log.severityLabel", "") in ["debug", "verbose", "notice", "information", "trace"]
 
       # Removing log.method if action was set
       - delete:

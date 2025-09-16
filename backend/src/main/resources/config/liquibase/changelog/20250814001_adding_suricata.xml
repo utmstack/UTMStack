@@ -169,7 +169,6 @@
 
                 INSERT INTO utm_logstash_filter (id, logstash_filter, filter_name, filter_group_id, system_owner, module_name, is_active, filter_version, data_type_id)
                 VALUES (1530, $$
-
                     # Suricata filter version 1.0.0
 # Based on https://suricata.readthedocs.io/en/latest/output/eve/eve-json-format.html (latest 8.0.0) (august 2025)
 # and real events log provided
@@ -187,17 +186,17 @@ pipeline:
       - grok:
           patterns:
             - fieldName: log.syslogPri
-              pattern: '\<{{.integer}}\>'
+              pattern: ''\<{{.integer}}\>''
             - fieldName: log.syslogTimestamp
-              pattern: '{{.monthName}}(\s+){{.monthDay}}(\s+){{.time}}'
+              pattern: ''{{.monthName}}(\s+){{.monthDay}}(\s+){{.time}}''
             - fieldName: log.syslogHost
-              pattern: '{{.hostname}}'
+              pattern: ''{{.hostname}}''
             - fieldName: log.syslogProgram
-              pattern: '{{.word}}'
+              pattern: ''{{.word}}''
             - fieldName: log.syslogPid
-              pattern: '\[{{.integer}}\]: '
+              pattern: ''\[{{.integer}}\]: ''
             - fieldName: log.suricataJson
-              pattern: '{{.greedy}}'
+              pattern: ''{{.greedy}}''
 
       # Parse Suricata JSON logs
       - json:

@@ -196,6 +196,7 @@
                                container="body"
                                placement="top"
                                tooltipClass="utm-tooltip-top"></i>
+
                             <app-alert-apply-incident (markAsIncident)="onSuccessMarkAsIncident($event)"
                                                       *ngIf="dataType !== eventDataTypeEnum.INCIDENT"
                                                       [alert]="alert"
@@ -203,7 +204,7 @@
                                                       [multiple]="false">
                             </app-alert-apply-incident>
                             <i (click)="openIncidentResponseAutomationModal(alert)"
-                               [ngbTooltip]="'Create incident response automation'"
+                               [ngbTooltip]="'Create Flow'"
                                class="cursor-pointer icon-terminal text-blue-800"
                                container="body"
                                placement="top"
