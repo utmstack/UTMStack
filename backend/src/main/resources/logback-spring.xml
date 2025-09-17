@@ -64,6 +64,12 @@
     <logger name="LiquibaseSchemaResolver" level="INFO"/>
     <logger name="sun.rmi.transport" level="WARN"/>
     <logger name="org.postgresql" level="WARN"/>
+    <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" level="OFF"/>
+    <logger name="org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController" level="OFF"/>
+    <logger name="org.springframework.boot.web.servlet.error.DefaultErrorAttributes" level="OFF"/>
+    <logger name="org.springframework.web.method.support.InvocableHandlerMethod" level="OFF"/>
+    <logger name="org.springframework.web.servlet.DispatcherServlet" level="OFF"/>
+
 
     <!-- https://logback.qos.ch/manual/configuration.html#shutdownHook and https://jira.qos.ch/browse/LOGBACK-1090 -->
     <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
