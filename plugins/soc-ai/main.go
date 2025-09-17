@@ -10,6 +10,7 @@ import (
 	"github.com/threatwinds/go-sdk/plugins"
 	twutil "github.com/threatwinds/go-sdk/utils"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/config"
+	"github.com/utmstack/UTMStack/plugins/soc-ai/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -19,6 +20,8 @@ type socAiServer struct {
 }
 
 func main() {
+	utils.Logger.Info("Starting soc-ai plugin...")
+
 	go config.StartConfigurationSystem()
 
 	time.Sleep(2 * time.Second)
@@ -33,7 +36,7 @@ func main() {
 	for retry := 0; retry < maxRetries; retry++ {
 		socketsFolder, err = twutil.MkdirJoin(plugins.WorkDir, "sockets")
 		if err == nil {
-			catcher.Info("socket directory created", map[string]any{"directory": socketsFolder})
+			utils.Logger.LogF(100, "Socket directory %s created", socketsFolder)
 			break
 		}
 
@@ -63,7 +66,7 @@ func main() {
 	for retry := 0; retry < maxRetries; retry++ {
 		unixAddress, err = net.ResolveUnixAddr("unix", socketFile)
 		if err == nil {
-			catcher.Info("Socket file created", map[string]any{"socketFile": socketFile})
+			utils.Logger.LogF(100, "Socket file %s created", socketFile)
 			break
 		}
 
@@ -90,7 +93,7 @@ func main() {
 	for retry := 0; retry < maxRetries; retry++ {
 		listener, err = net.ListenUnix("unix", unixAddress)
 		if err == nil {
-			catcher.Info("Listening on unix socket", map[string]any{"socketFile": socketFile})
+			utils.Logger.LogF(100, "Listening on %s", socketFile)
 			break
 		}
 
@@ -151,12 +154,12 @@ func (p *socAiServer) Correlate(_ context.Context,
 
 	// Check if the module is active before processing the alert
 	if config.GetConfig() == nil || !config.GetConfig().ModuleActive {
-		catcher.Info("SOC-AI module is disabled, skipping alert", map[string]any{"alert": alert.Id})
+		utils.Logger.LogF(100, "SOC-AI module is disabled, skipping alert: %s", alert.Id)
 		return &emptypb.Empty{}, nil
 	}
 
 	if !EnqueueAlert(alert) {
-		catcher.Info("Alert was dropped due to full queue", map[string]any{"alert": alert.Id})
+		utils.Logger.LogF(300, "Alert %s was dropped due to full queue", alert.Id)
 		return &emptypb.Empty{}, nil
 	}
 

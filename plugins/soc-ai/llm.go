@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/config"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/correlation"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/schema"
@@ -19,11 +18,11 @@ func sendRequestToLLM(alert *schema.AlertFields) error {
 
 	content := config.LLM_INSTRUCTION
 	if alert == nil {
-		return catcher.Error("sendRequestToOpenAI: alert is nil", nil, nil)
+		return fmt.Errorf("sendRequestToOpenAI: alert is nil")
 	}
 	correlationContext, err := correlation.GetCorrelationContext(*alert)
 	if err != nil {
-		return catcher.Error("error getting correlation context", err, nil)
+		return fmt.Errorf("error getting correlation context: %v", err)
 	}
 	if correlationContext != "" {
 		content = fmt.Sprintf("%s%s", content, correlationContext)
@@ -31,7 +30,7 @@ func sendRequestToLLM(alert *schema.AlertFields) error {
 
 	jsonContent, err := json.Marshal(alert)
 	if err != nil {
-		return catcher.Error("error marshalling alert", err, nil)
+		return fmt.Errorf("error marshalling alert: %v", err)
 	}
 
 	req := schema.GPTRequest{
@@ -48,11 +47,11 @@ func sendRequestToLLM(alert *schema.AlertFields) error {
 		},
 	}
 
-	catcher.Info("Sending request to LLM", map[string]any{"request": req})
+	utils.Logger.LogF(100, "Sending request to LLM: %v", req)
 
 	requestJson, err := json.Marshal(req)
 	if err != nil {
-		return catcher.Error("error marshalling request", err, nil)
+		return fmt.Errorf("error marshalling request: %v", err)
 	}
 
 	headers := map[string]string{
@@ -66,13 +65,13 @@ func sendRequestToLLM(alert *schema.AlertFields) error {
 		if err == nil && len(response.Choices) > 0 {
 			err = processLLMResponse(alert, response.Choices[0].Message.Content)
 			if err != nil {
-				return catcher.Error("error processing LLM response", err, nil)
+				return fmt.Errorf("error processing LLM response: %v", err)
 			}
 			return nil
 		}
 
 		if status == 401 {
-			return catcher.Error("invalid api-key", nil, nil)
+			return fmt.Errorf("invalid api-key")
 		}
 		lastErr = fmt.Errorf("attempt %d failed: %v (status: %d)", attempt, err, status)
 
@@ -81,25 +80,21 @@ func sendRequestToLLM(alert *schema.AlertFields) error {
 		}
 	}
 
-	catcher.Error("LLM appears to be DOWN", lastErr, map[string]any{
-		"attempts": maxRetries,
-		"alert":    alert.ID,
-		"provider": config.GetConfig().Provider,
-		"url":      config.GetConfig().Url,
-	})
+	utils.Logger.LogF(500, "LLM appears to be DOWN - all %d attempts failed for alert %s. Provider: %s, URL: %s, Last error: %v",
+		maxRetries, alert.ID, config.GetConfig().Provider, config.GetConfig().Url, lastErr)
 
-	return catcher.Error("all attempts to call LLM failed", lastErr, map[string]any{})
+	return fmt.Errorf("all attempts to call LLM failed: %v", lastErr)
 }
 
 func processLLMResponse(alert *schema.AlertFields, response string) error {
 	response, err := clearJson(response)
 	if err != nil {
-		return catcher.Error("error clearing json", err, nil)
+		return fmt.Errorf("error clearing json: %v", err)
 	}
 
 	alertResponse, err := utils.ConvertFromJsonToStruct[schema.GPTAlertResponse](response)
 	if err != nil {
-		return catcher.Error("error converting json to struct", err, nil)
+		return fmt.Errorf("error converting json to struct: %v", err)
 	}
 
 	nextSteps := []string{}
@@ -120,7 +115,7 @@ func clearJson(s string) (string, error) {
 	end := strings.LastIndex(s, "}")
 
 	if start == -1 || end == -1 {
-		return "", catcher.Error("no valid json found in gpt response", nil, nil)
+		return "", fmt.Errorf("no valid json found in gpt response")
 	}
 
 	return s[start : end+1], nil

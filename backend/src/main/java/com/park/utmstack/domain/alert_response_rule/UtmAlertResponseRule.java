@@ -65,8 +65,7 @@ public class UtmAlertResponseRule implements Serializable {
     @OneToMany(mappedBy = "rule", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<UtmAlertResponseRuleExecution> utmAlertResponseRuleExecutions;
 
-
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "utm_alert_response_rule_template",
             joinColumns = @JoinColumn(name = "rule_id"),

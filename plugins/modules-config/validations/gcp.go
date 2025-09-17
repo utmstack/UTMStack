@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"cloud.google.com/go/pubsub"
-	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/plugins/modules-config/config"
 	"google.golang.org/api/option"
 )
@@ -15,7 +14,7 @@ func ValidateGcpConfig(config *config.ModuleGroup) error {
 	var jsonKey, projectID, subscriptionID string
 
 	if config == nil {
-		return catcher.Error("GCP configuration is nil", nil, nil)
+		return fmt.Errorf("GCP configuration is nil")
 	}
 
 	for _, cnf := range config.ModuleGroupConfigurations {
@@ -30,13 +29,13 @@ func ValidateGcpConfig(config *config.ModuleGroup) error {
 	}
 
 	if jsonKey == "" {
-		return catcher.Error("JSON Key is required in GCP configuration", nil, nil)
+		return fmt.Errorf("JSON Key is required in GCP configuration")
 	}
 	if projectID == "" {
-		return catcher.Error("Project ID is required in GCP configuration", nil, nil)
+		return fmt.Errorf("Project ID is required in GCP configuration")
 	}
 	if subscriptionID == "" {
-		return catcher.Error("Subscription ID is required in GCP configuration", nil, nil)
+		return fmt.Errorf("Subscription ID is required in GCP configuration")
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

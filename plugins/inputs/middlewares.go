@@ -7,10 +7,6 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
-	"io"
-	"strconv"
-	"strings"
-
 	"github.com/gin-gonic/gin"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
@@ -18,6 +14,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"io"
+	"strconv"
+	"strings"
 )
 
 type Middlewares struct {

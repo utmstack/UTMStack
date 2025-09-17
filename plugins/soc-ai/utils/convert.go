@@ -2,14 +2,13 @@ package utils
 
 import (
 	"encoding/json"
-
-	"github.com/threatwinds/go-sdk/catcher"
+	"fmt"
 )
 
 func ConvertFromStructToJsonString(alert interface{}) (string, error) {
 	bytes, err := json.Marshal(alert)
 	if err != nil {
-		return "", catcher.Error("error marshalling alert", err, nil)
+		return "", fmt.Errorf("error marshalling alert: %v", err)
 	}
 
 	return string(bytes), nil
@@ -19,7 +18,7 @@ func ConvertFromJsonToStruct[responseType any](jsonString string) (responseType,
 	var response responseType
 	err := json.Unmarshal([]byte(jsonString), &response)
 	if err != nil {
-		return *new(responseType), catcher.Error("error unmarshalling GPT response", err, nil)
+		return *new(responseType), fmt.Errorf("error unmarshalling GPT response: %v", err)
 	}
 
 	return response, nil

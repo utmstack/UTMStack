@@ -2,12 +2,15 @@ package config
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"strings"
 	sync "sync"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/UTMStack/plugins/soc-ai/utils"
 	"google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	"google.golang.org/grpc/connectivity"
@@ -67,7 +70,7 @@ func StartConfigurationSystem() {
 		configMutex.Unlock()
 
 		if config.Backend == "" || config.InternalKey == "" || config.Opensearch == "" || config.ModulesConfigHost == "" {
-			catcher.Info("Backend, Internal key, Opensearch or Modules Config Host is not set, skipping UTMStack plugin execution", nil)
+			fmt.Println("Backend, Internal key, Opensearch or Modules Config Host is not set, skipping UTMStack plugin execution")
 			time.Sleep(reconnectDelay)
 			continue
 		}
@@ -148,7 +151,7 @@ func StartConfigurationSystem() {
 
 			switch message := in.Payload.(type) {
 			case *BiDirectionalMessage_Config:
-				catcher.Info("Received configuration update", map[string]any{"config": message.Config})
+				log.Printf("Received configuration update: %v", message.Config)
 				updateConfigFromGRPC(message.Config)
 			}
 		}
@@ -164,7 +167,7 @@ func updateConfigFromGRPC(grpcConf *ConfigurationSection) {
 	defer configMutex.Unlock()
 
 	if grpcConf == nil {
-		catcher.Info("Received nil configuration from gRPC", nil)
+		utils.Logger.LogF(100, "Received nil configuration from gRPC")
 		return
 	}
 
@@ -192,7 +195,7 @@ func updateConfigFromGRPC(grpcConf *ConfigurationSection) {
 		case "utmstack.socai.custom.url":
 			customURL = c.ConfValue
 		default:
-			catcher.Info("Unknown configuration key", map[string]any{"key": c.ConfKey})
+			utils.Logger.LogF(100, "Unknown configuration key: %s", c.ConfKey)
 		}
 	}
 

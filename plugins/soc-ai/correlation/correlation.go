@@ -6,7 +6,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/config"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/elastic"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/schema"
@@ -15,7 +14,7 @@ import (
 func GetCorrelationContext(alert schema.AlertFields) (string, error) {
 	relatedAlerts, err := findRelatedAlerts(alert)
 	if err != nil {
-		return "", catcher.Error("error finding related alerts", err, nil)
+		return "", fmt.Errorf("error finding related alerts: %v", err)
 	}
 
 	if len(relatedAlerts.RelatedAlerts) > 0 {
@@ -31,12 +30,12 @@ func findRelatedAlerts(current schema.AlertFields) (schema.AlertCorrelation, err
 
 	result, err := elastic.ElasticSearch(config.ALERT_INDEX_PATTERN, "name", current.Name)
 	if err != nil {
-		return correlation, catcher.Error("error getting historical alerts", err, nil)
+		return correlation, fmt.Errorf("error getting historical alerts: %v", err)
 	}
 
 	var alerts []schema.AlertFields
 	if err := json.Unmarshal(result, &alerts); err != nil {
-		return correlation, catcher.Error("error unmarshalling alerts", err, nil)
+		return correlation, fmt.Errorf("error unmarshalling alerts: %v", err)
 	}
 
 	for _, hist := range alerts {

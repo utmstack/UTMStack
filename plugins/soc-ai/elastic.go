@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -18,16 +19,14 @@ func processAlertToElastic(alert *schema.AlertFields) error {
 		if strings.Contains(err.Error(), "index_not_found_exception") || strings.Contains(err.Error(), "no such index") {
 
 			if createErr := elastic.CreateIndexIfNotExist(config.SOC_AI_INDEX); createErr != nil {
-				return catcher.Error("error updating alert in elastic", err, map[string]any{
-					"failed_to_create_index": createErr,
-				})
+				return fmt.Errorf("error updating alert in elastic: %v (failed to create index: %v)", err, createErr)
 			}
 
 			if retryErr := elastic.ElasticQuery(config.SOC_AI_INDEX, resp, "update"); retryErr != nil {
-				return catcher.Error("error updating alert in elastic after index creation", retryErr, nil)
+				return fmt.Errorf("error updating alert in elastic after index creation: %v", retryErr)
 			}
 		} else {
-			return catcher.Error("error updating alert in elastic", err, nil)
+			return fmt.Errorf("error updating alert in elastic: %v", err)
 		}
 	}
 

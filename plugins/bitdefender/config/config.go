@@ -3,6 +3,8 @@ package config
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	sync "sync"
@@ -63,7 +65,7 @@ func StartConfigurationSystem() {
 		modulesConfigHost = pluginConfig.Get("modulesConfig").String()
 
 		if internalKey == "" || modulesConfigHost == "" {
-			catcher.Info("Internal key or Modules Config Host is not set, skipping UTMStack plugin execution", nil)
+			fmt.Println("Internal key or Modules Config Host is not set, skipping UTMStack plugin execution")
 			time.Sleep(reconnectDelay)
 			continue
 		}
@@ -144,7 +146,7 @@ func StartConfigurationSystem() {
 
 			switch message := in.Payload.(type) {
 			case *BiDirectionalMessage_Config:
-				catcher.Info("Received configuration update", map[string]any{"config": message.Config})
+				log.Printf("Received configuration update: %v", message.Config)
 				cnf = message.Config
 				go processConfigurations(cnf)
 			}
@@ -214,7 +216,7 @@ func apiPush(config BDGZModuleConfig, operation string) error {
 	for i := 0; i < 5; i++ {
 		response, err := fn(config)
 		if err != nil {
-			_ = catcher.Error("operation failed", err, map[string]any{})
+			_ = catcher.Error(fmt.Sprintf("%v", err), err, map[string]any{})
 			time.Sleep(1 * time.Minute)
 			continue
 		}

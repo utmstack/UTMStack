@@ -4,13 +4,11 @@ import (
 	context "context"
 	"fmt"
 	"io"
-	"os"
 	"strconv"
 	sync "sync"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/database"
 	"github.com/utmstack/UTMStack/agent-manager/models"
@@ -63,8 +61,7 @@ func InitCollectorService() {
 		collectors := []models.Collector{}
 		_, err := CollectorServ.DBConnection.GetAll(&collectors, "")
 		if err != nil {
-			catcher.Error("failed to fetch collectors", err, nil)
-			os.Exit(1)
+			utils.ALogger.Fatal("failed to fetch collectors: %v", err)
 		}
 		for _, c := range collectors {
 			CollectorServ.CacheCollectorKey[c.ID] = c.CollectorKey
@@ -79,7 +76,7 @@ func InitCollectorService() {
 				moduleConfig := &types.ConfigurationSection{}
 				moduleConfig, err = client.GetUTMConfig(moduleType)
 				if err != nil {
-					catcher.Error("failed to get module config", err, nil)
+					utils.ALogger.ErrorF("failed to get module config: %v", err)
 					time.Sleep(5 * time.Second)
 					continue external
 				}
@@ -89,7 +86,7 @@ func InitCollectorService() {
 					var idInt int
 					idInt, err = strconv.Atoi(group.CollectorID)
 					if err != nil {
-						catcher.Error("invalid collector ID", err, nil)
+						utils.ALogger.ErrorF("invalid collector ID: %v", err)
 						continue
 					}
 
@@ -131,7 +128,7 @@ func (s *CollectorService) RegisterCollector(ctx context.Context, req *RegisterR
 				Key: oldCollector.CollectorKey,
 			}, nil
 		} else {
-			catcher.Error("collector already registered with different IP", nil, map[string]any{"hostname": oldCollector.Hostname, "module": oldCollector.Module, "id": oldCollector.ID})
+			utils.ALogger.ErrorF("collector %s(%s) with id %d already registered with different IP", oldCollector.Hostname, oldCollector.Module, oldCollector.ID)
 			return nil, status.Errorf(codes.AlreadyExists, "hostname has already been registered")
 		}
 	}
@@ -140,7 +137,7 @@ func (s *CollectorService) RegisterCollector(ctx context.Context, req *RegisterR
 	collector.CollectorKey = key
 	err = s.DBConnection.Create(collector)
 	if err != nil {
-		catcher.Error("failed to create collector", err, map[string]any{})
+		utils.ALogger.ErrorF("failed to create collector: %v", err)
 		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to create collector: %v", err))
 	}
 
@@ -154,7 +151,7 @@ func (s *CollectorService) RegisterCollector(ctx context.Context, req *RegisterR
 		LastPing:      time.Now(),
 	}
 
-	catcher.Info("collector registered", map[string]any{"hostname": collector.Hostname, "module": collector.Module, "id": collector.ID})
+	utils.ALogger.Info("Collector %s(%s) with id %d registered correctly", collector.Hostname, collector.Module, collector.ID)
 	return &AuthResponse{
 		Id:  uint32(collector.ID),
 		Key: key,
@@ -173,12 +170,12 @@ func (s *CollectorService) DeleteCollector(ctx context.Context, req *DeleteReque
 
 	err = s.DBConnection.Upsert(&models.Collector{}, "id = ?", map[string]interface{}{"deleted_by": req.DeletedBy}, id)
 	if err != nil {
-		catcher.Error("unable to delete collector", err, map[string]any{})
+		utils.ALogger.ErrorF("unable to delete collector: %v", err)
 	}
 
 	err = s.DBConnection.Delete(&models.Collector{}, "id = ?", false, id)
 	if err != nil {
-		catcher.Error("unable to delete collector", err, map[string]any{})
+		utils.ALogger.ErrorF("unable to delete collector: %v", err)
 		return nil, status.Error(codes.Internal, fmt.Sprintf("unable to delete collector: %v", err.Error()))
 	}
 
@@ -190,7 +187,7 @@ func (s *CollectorService) DeleteCollector(ctx context.Context, req *DeleteReque
 	delete(s.CollectorStreamMap, uint(idInt))
 	s.CollectorStreamMutex.Unlock()
 
-	catcher.Info("collector deleted", map[string]any{"collector_id": key, "deleted_by": req.DeletedBy})
+	utils.ALogger.Info("Collector with key %s deleted by %s", key, req.DeletedBy)
 	return &AuthResponse{
 		Id:  uint32(idInt),
 		Key: key,
@@ -204,7 +201,7 @@ func (s *CollectorService) ListCollector(ctx context.Context, req *ListRequest) 
 	collectors := []models.Collector{}
 	total, err := s.DBConnection.GetByPagination(&collectors, page, filter, "", false)
 	if err != nil {
-		catcher.Error("failed to fetch collectors", err, map[string]any{})
+		utils.ALogger.ErrorF("failed to fetch collectors: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to fetch collectors: %v", err)
 	}
 	return convertModelToCollectorResponse(collectors, total), nil
@@ -214,7 +211,7 @@ func (s *CollectorService) ProcessPendingConfigs() {
 	for configs := range s.CollectorPendigConfigChan {
 		collectorID, err := strconv.Atoi(configs.CollectorId)
 		if err != nil {
-			catcher.Error("invalid collector ID", err, map[string]any{})
+			utils.ALogger.ErrorF("invalid collector ID: %v", err)
 			continue
 		}
 
@@ -231,7 +228,7 @@ func (s *CollectorService) ProcessPendingConfigs() {
 				},
 			})
 			if err != nil {
-				catcher.Error("failed to send config to collector", err, map[string]any{})
+				utils.ALogger.ErrorF("failed to send config to collector: %v", err)
 			}
 		}
 	}
@@ -276,7 +273,7 @@ func (s *CollectorService) CollectorStream(stream CollectorService_CollectorStre
 
 		switch msg := in.StreamMessage.(type) {
 		case *CollectorMessages_Result:
-			catcher.Info("Received Knowledge", map[string]any{"request_id": msg.Result.RequestId})
+			utils.ALogger.Info("Received Knowlodge: %s", msg.Result.RequestId)
 
 		case *CollectorMessages_Config:
 			// Not implemented
