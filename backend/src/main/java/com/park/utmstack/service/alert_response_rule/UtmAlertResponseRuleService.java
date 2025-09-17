@@ -93,9 +93,12 @@ public class UtmAlertResponseRuleService {
         final String ctx = CLASSNAME + ".save";
         try {
             if (alertResponseRule.getId() != null) {
+                String alertRuleId = String.valueOf(alertResponseRule.getId());
                 UtmAlertResponseRule current = alertResponseRuleRepository.findById(alertResponseRule.getId())
-                        .orElseThrow(() -> new RuntimeException(String.format("Incident response rule with ID: %1$s not found", alertResponseRule.getId())));
-                alertResponseRuleHistoryRepository.save(new UtmAlertResponseRuleHistory(new UtmAlertResponseRuleDTO(current)));
+                        .orElseThrow(() -> new RuntimeException(String.format("Incident response rule with ID: %1$s not found", alertRuleId)));
+                alertResponseRule.mergeInto(current);
+                alertResponseRuleHistoryRepository.save(new UtmAlertResponseRuleHistory(new UtmAlertResponseRuleDTO(alertResponseRule)));
+                alertResponseRule = current;
             }
 
             if (alertResponseRule.getUtmAlertResponseActionTemplates() != null) {

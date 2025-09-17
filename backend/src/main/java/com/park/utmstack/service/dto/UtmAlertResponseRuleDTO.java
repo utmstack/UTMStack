@@ -3,10 +3,12 @@ package com.park.utmstack.service.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.park.utmstack.domain.alert_response_rule.UtmAlertResponseActionTemplate;
 import com.park.utmstack.domain.alert_response_rule.UtmAlertResponseRule;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.*;
@@ -95,4 +97,5 @@ public class UtmAlertResponseRuleDTO {
         }
 
     }
+
 }

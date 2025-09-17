@@ -41,14 +41,7 @@ public class UtmAlertResponseActionTemplate implements Serializable {
     @Column(name = "system_owner", nullable = false)
     private Boolean systemOwner;
 
-    @ManyToMany
-    @JoinTable(
-            name = "utm_alert_response_rule_template",
-            joinColumns = @JoinColumn(name = "rule_id"),
-            inverseJoinColumns = @JoinColumn(name = "template_id")
-    )
-    private List<UtmAlertResponseActionTemplate> utmAlertResponseActionTemplates = new ArrayList<>();
-
-
+    @ManyToMany(mappedBy = "utmAlertResponseActionTemplates")
+    private List<UtmAlertResponseRule> utmAlertResponseRules = new ArrayList<>();
 }
 
