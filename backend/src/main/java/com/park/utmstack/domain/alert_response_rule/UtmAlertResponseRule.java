@@ -65,8 +65,7 @@ public class UtmAlertResponseRule implements Serializable {
     @OneToMany(mappedBy = "rule", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<UtmAlertResponseRuleExecution> utmAlertResponseRuleExecutions;
 
-
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "utm_alert_response_rule_template",
             joinColumns = @JoinColumn(name = "rule_id"),
@@ -108,31 +107,5 @@ public class UtmAlertResponseRule implements Serializable {
                     .collect(Collectors.toList());
         }
     }
-
-    public void mergeInto(UtmAlertResponseRule target) {
-        target.setRuleName(this.getRuleName());
-        target.setRuleDescription(this.getRuleDescription());
-        target.setRuleCmd(this.getRuleCmd());
-        target.setRuleActive(this.getRuleActive());
-        target.setAgentPlatform(this.getAgentPlatform());
-        target.setDefaultAgent(this.getDefaultAgent());
-        target.setExcludedAgents(this.getExcludedAgents());
-        target.setRuleConditions(this.getRuleConditions());
-
-        if (!this.getUtmAlertResponseActionTemplates().isEmpty()) {
-            List<UtmAlertResponseActionTemplate> targetActions = target.getUtmAlertResponseActionTemplates();
-            targetActions.clear();
-            targetActions.addAll(this.getUtmAlertResponseActionTemplates().stream().map(templateDto -> {
-                UtmAlertResponseActionTemplate template = new UtmAlertResponseActionTemplate();
-                template.setId(templateDto.getId());
-                template.setTitle(templateDto.getTitle());
-                template.setDescription(templateDto.getDescription());
-                template.setCommand(templateDto.getCommand());
-                return template;
-            }).collect(Collectors.toList()));
-        }
-
-    }
-
 
 }
