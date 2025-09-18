@@ -4,6 +4,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import com.park.utmstack.aop.logging.Loggable;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.tfa.TfaMethod;
@@ -58,6 +59,7 @@ public class TotpTfaService implements TfaMethodService {
     }
 
     @Override
+    @Loggable
     public TfaVerifyResponse verifyCode(User user, String code) {
         TfaSetupState tfaSetupState = cache.getState(user.getLogin(), TfaMethod.TOTP)
                 .orElseThrow(() -> new IllegalStateException("No TFA setup found for user: " + user.getLogin()));
