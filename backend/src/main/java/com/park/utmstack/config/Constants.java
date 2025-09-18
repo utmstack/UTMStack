@@ -137,6 +137,16 @@ public final class Constants {
     // ----------------------------------------------------------------------------------
     public static final String STATISTICS_INDEX_PATTERN = "v11-statistics-*";
 
+    // Logging
+    public static final String TRACE_ID_KEY = "traceId";
+    public static final String CONTEXT_KEY = "context";
+    public static final String USERNAME_KEY = "username";
+    public static final String METHOD_KEY = "method";
+    public static final String PATH_KEY = "path";
+    public static final String REMOTE_ADDR_KEY = "remoteAddr";
+    public static final String DURATION_KEY = "duration";
+    public static final String CAUSE_KEY = "cause";
+
     private Constants() {
     }
 }

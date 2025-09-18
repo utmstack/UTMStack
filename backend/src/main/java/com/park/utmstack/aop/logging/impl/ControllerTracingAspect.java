@@ -25,13 +25,12 @@ public class ControllerTracingAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         String context = signature.getDeclaringType().getSimpleName() + "." + signature.getMethod().getName();
         MDC.put("context", context);
-
         try {
             return joinPoint.proceed();
         } catch (Exception e) {
             if (!e.getClass().isAnnotationPresent(NoLogException.class)) {
                 String msg = String.format("%s: %s", context, e.getMessage());
-                log.error(msg, e, StructuredArguments.keyValue("args",logContextBuilder.buildArgs(e)));
+                log.error(msg, e, StructuredArguments.keyValue("args", logContextBuilder.buildArgs(e)));
             }
             throw e;
         }
