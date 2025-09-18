@@ -50,6 +50,7 @@ export class LoginComponent implements OnInit {
     private modalService: NgbModal,
     private themeChangeBehavior: ThemeChangeBehavior,
     private spinner: NgxSpinnerService,
+    private stateStorageService: StateStorageService,
     private apiServiceCheckerService: ApiServiceCheckerService
   ) {
     this.credentials = {};
@@ -130,11 +131,12 @@ export class LoginComponent implements OnInit {
     this.loginService
       .login(this.formLogin.value)
       .then((data) => {
-        if (data.auth) {
+        if (!data.forceTfa) {
           this.authenticationError = false;
           this.logged = true;
           this.startLogin = false;
           this.spinner.show();
+          this.startNavigation();
         } else if (data.tfaConfigured && !!data.method ) {
           this.spinner.show();
           this.router.navigate(['/totp'])
@@ -166,6 +168,25 @@ export class LoginComponent implements OnInit {
     if (this.formLogin.valid && $event.code === 'Enter') {
       this.login();
     }
+  }
+
+  startNavigation() {
+    this.accountService.identity(true).then(account => {
+      if (account) {
+        const { path, queryParams } =
+          extractQueryParamsForNavigation(this.stateStorageService.getUrl() ? this.stateStorageService.getUrl() : '' );
+        if (path) {
+          this.stateStorageService.resetPreviousUrl();
+        }
+        const redirectTo = (account.authorities.includes(ADMIN_ROLE) && account.email === ADMIN_DEFAULT_EMAIL)
+          ? '/getting-started' : !!path ? path : '/dashboard/overview';
+        this.router.navigate([redirectTo], {queryParams})
+          .then(() => this.spinner.hide());
+      } else {
+        this.logged = false;
+        this.utmToast.showError('Login error', 'User without privileges.');
+      }
+    });
   }
 
   startInternalNavigation(params) {

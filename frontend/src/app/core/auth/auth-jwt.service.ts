@@ -35,7 +35,7 @@ export class AuthServerProvider {
     };
     const authenticateSuccess = (resp: HttpResponse<any>) => {
       this.storeAuthenticationToken(resp.body.token);
-      if (resp.body.method) {
+      if (resp.body.method && resp.body.forceTfa) {
         this.tfaMethod = resp.body.method as TfaMethod;
       }
       return resp.body;
