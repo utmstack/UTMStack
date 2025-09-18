@@ -135,7 +135,7 @@ export class LoginComponent implements OnInit {
           this.logged = true;
           this.startLogin = false;
           this.spinner.show();
-        } else if (data.tfaRequired && !!data.method ) {
+        } else if (data.tfaConfigured && !!data.method ) {
           this.spinner.show();
           this.router.navigate(['/totp'])
             .then(() => this.spinner.hide());
