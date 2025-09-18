@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 public class LoggingMethodAspect {
     private final LogContextBuilder logContextBuilder;
 
-
     @Around("@annotation(com.park.utmstack.aop.logging.Loggable)")
     public Object logExecution(ProceedingJoinPoint joinPoint) throws Throwable {
         String traceId = MDC.get(Constants.TRACE_ID_KEY);
