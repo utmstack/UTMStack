@@ -7,7 +7,7 @@ import com.park.utmstack.service.dto.incident.*;
 import com.park.utmstack.service.incident.UtmIncidentAlertService;
 import com.park.utmstack.service.incident.UtmIncidentQueryService;
 import com.park.utmstack.service.incident.UtmIncidentService;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
@@ -20,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
-import tech.jhipster.web.util.ResponseUtil;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -82,7 +81,7 @@ public class UtmIncidentResource {
                 String msg = ctx + ": A new incident has to have at least one alert related";
                 log.error(msg);
                 applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-                return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+                return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
             }
 
             List<String> alertIds = newIncidentDTO.getAlertList().stream()
@@ -96,7 +95,7 @@ public class UtmIncidentResource {
                 String msg = "Some alerts are already linked to another incident. Alert IDs: " + alertIdsList + ". Check the related incidents for more details.";
                 log.error(msg);
                 applicationEventService.createEvent(ctx + ": " + msg , ApplicationEventType.ERROR);
-                return UtilResponse.buildErrorResponse(HttpStatus.CONFLICT, utmIncidentAlertService.formatAlertMessage(alertsFound));
+                return ResponseUtil.buildErrorResponse(HttpStatus.CONFLICT, utmIncidentAlertService.formatAlertMessage(alertsFound));
             }
 
 
@@ -105,7 +104,7 @@ public class UtmIncidentResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -142,7 +141,7 @@ public class UtmIncidentResource {
                 String msg = "Some alerts are already linked to another incident. Alert IDs: " + alertIdsList + ". Check the related incidents for more details.";
                 log.error(msg);
                 applicationEventService.createEvent(ctx + ": " + msg , ApplicationEventType.ERROR);
-                return UtilResponse.buildErrorResponse(HttpStatus.CONFLICT, utmIncidentAlertService.formatAlertMessage(alertsFound));
+                return ResponseUtil.buildErrorResponse(HttpStatus.CONFLICT, utmIncidentAlertService.formatAlertMessage(alertsFound));
             }
             UtmIncident result = utmIncidentService.addAlertsIncident(addToIncidentDTO);
             return ResponseEntity.created(new URI("/api/utm-incidents/add-alerts" + result.getId()))
@@ -238,7 +237,7 @@ public class UtmIncidentResource {
         try {
             log.debug("REST request to get UtmIncident : {}", id);
             Optional<UtmIncident> utmIncident = utmIncidentService.findOne(id);
-            return ResponseUtil.wrapOrNotFound(utmIncident);
+            return tech.jhipster.web.util.ResponseUtil.wrapOrNotFound(utmIncident);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);

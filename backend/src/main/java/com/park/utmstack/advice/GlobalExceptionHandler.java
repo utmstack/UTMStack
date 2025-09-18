@@ -1,0 +1,50 @@
+package com.park.utmstack.advice;
+
+
+import com.park.utmstack.security.TooMuchLoginAttemptsException;
+import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.util.ResponseUtil;
+import com.park.utmstack.util.exceptions.TfaVerificationException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.NoSuchElementException;
+
+@Slf4j
+@RestControllerAdvice
+@RequiredArgsConstructor
+public class GlobalExceptionHandler {
+
+    private final ApplicationEventService applicationEventService;
+
+    @ExceptionHandler(TfaVerificationException.class)
+    public ResponseEntity<?> TfaVerificationException(TfaVerificationException e, HttpServletRequest request) {
+        return ResponseUtil.buildErrorResponse(HttpStatus.PRECONDITION_FAILED, e.getMessage());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<?> handleForbidden(BadCredentialsException e, HttpServletRequest request) {
+        return ResponseUtil.buildUnauthorizedResponse(e.getMessage());
+    }
+
+    @ExceptionHandler(TooMuchLoginAttemptsException.class)
+    public ResponseEntity<?> handleTooManyLoginAttempts(TooMuchLoginAttemptsException e, HttpServletRequest request) {
+        return ResponseUtil.buildLockedResponse(e.getMessage());
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<?> handleNotFound(NoSuchElementException e, HttpServletRequest request) {
+        return ResponseUtil.buildNotFoundResponse(e.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleGenericException(Exception e, HttpServletRequest request) {
+        return ResponseUtil.buildInternalServerErrorResponse(e.getMessage());
+    }
+}

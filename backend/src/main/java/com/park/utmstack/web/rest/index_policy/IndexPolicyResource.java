@@ -5,7 +5,7 @@ import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.index_policy.*;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.index_policy.IndexPolicyService;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -54,7 +54,7 @@ public class IndexPolicyResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -69,7 +69,7 @@ public class IndexPolicyResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 }

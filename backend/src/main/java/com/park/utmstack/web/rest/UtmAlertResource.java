@@ -4,7 +4,7 @@ import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.service.UtmAlertService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.util.AlertUtil;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,7 +108,7 @@ public class UtmAlertResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 

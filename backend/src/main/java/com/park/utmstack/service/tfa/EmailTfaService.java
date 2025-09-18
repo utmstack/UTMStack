@@ -73,7 +73,7 @@ public class EmailTfaService implements TfaMethodService {
     }
 
     @Override
-    public void persistConfiguration(User user) throws Exception {
+    public void persistConfiguration(User user) {
         String secret = cache.getState(user.getLogin(), TfaMethod.EMAIL)
                 .orElseThrow(() -> new IllegalStateException("No TFA setup found for user: " + user.getLogin()))
                 .getSecret();

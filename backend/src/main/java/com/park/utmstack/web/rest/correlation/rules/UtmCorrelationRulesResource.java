@@ -10,7 +10,7 @@ import com.park.utmstack.service.correlation.rules.UtmCorrelationRulesService;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesDTO;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesMapper;
 import com.park.utmstack.service.dto.correlation.validators.CorrelationRuleValidator;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
@@ -24,9 +24,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import tech.jhipster.web.util.ResponseUtil;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
@@ -93,12 +91,12 @@ public class UtmCorrelationRulesResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -119,12 +117,12 @@ public class UtmCorrelationRulesResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -147,17 +145,17 @@ public class UtmCorrelationRulesResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         }  catch (EntityNotFoundException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.NOT_FOUND, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.NOT_FOUND, msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -207,9 +205,9 @@ public class UtmCorrelationRulesResource {
             Optional<UtmCorrelationRules> utmCorrelationRule = rulesService.findOne(id);
             if (utmCorrelationRule.isPresent()) {
                 UtmCorrelationRulesDTO dto = utmCorrelationRulesMapper.toDto(utmCorrelationRule.get());
-                return ResponseUtil.wrapOrNotFound(Optional.of(dto));
+                return tech.jhipster.web.util.ResponseUtil.wrapOrNotFound(Optional.of(dto));
             } else {
-                return ResponseUtil.wrapOrNotFound(Optional.empty());
+                return tech.jhipster.web.util.ResponseUtil.wrapOrNotFound(Optional.empty());
             }
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
@@ -236,12 +234,12 @@ public class UtmCorrelationRulesResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 }

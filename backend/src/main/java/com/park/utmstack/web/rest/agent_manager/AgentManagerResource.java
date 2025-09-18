@@ -6,7 +6,7 @@ import com.park.utmstack.service.agent_manager.AgentGrpcService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.agent_manager.*;
 import com.park.utmstack.service.incident_response.UtmIncidentVariableService;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.application_modules.UtmModuleResource;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.vm.AgentRequestVM;
@@ -64,7 +64,7 @@ public class AgentManagerResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -88,7 +88,7 @@ public class AgentManagerResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -105,7 +105,7 @@ public class AgentManagerResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -140,7 +140,7 @@ public class AgentManagerResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
 
     }

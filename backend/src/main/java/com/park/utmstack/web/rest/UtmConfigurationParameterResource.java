@@ -9,7 +9,7 @@ import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.UtmConfigurationParameterCriteria;
 import com.park.utmstack.service.mail_config.MailConfigService;
 import com.park.utmstack.service.validators.email.EmailValidatorService;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.exceptions.UtmMailException;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -25,7 +25,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-import tech.jhipster.web.util.ResponseUtil;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
@@ -85,7 +84,7 @@ public class UtmConfigurationParameterResource {
                         String msg =  String.format("Validation failed for field %s.", parameter.getConfParamShort());
                         log.error(msg);
                         applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-                        return UtilResponse.buildPreconditionFailedResponse(msg);
+                        return ResponseUtil.buildPreconditionFailedResponse(msg);
                     }
                 }
             }
@@ -95,17 +94,17 @@ public class UtmConfigurationParameterResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildPreconditionFailedResponse(msg);
+            return ResponseUtil.buildPreconditionFailedResponse(msg);
         } catch (IllegalArgumentException e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildBadRequestResponse(msg);
+            return ResponseUtil.buildBadRequestResponse(msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildInternalServerErrorResponse(msg);
+            return ResponseUtil.buildInternalServerErrorResponse(msg);
         }
     }
 
@@ -135,7 +134,7 @@ public class UtmConfigurationParameterResource {
     public ResponseEntity<UtmConfigurationParameter> getUtmConfigurationParameter(@PathVariable Long id) {
         log.debug("REST request to get UtmConfigurationParameter : {}", id);
         Optional<UtmConfigurationParameter> utmConfigurationParameter = utmConfigurationParameterService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(utmConfigurationParameter);
+        return tech.jhipster.web.util.ResponseUtil.wrapOrNotFound(utmConfigurationParameter);
     }
 
     @PostMapping ("/checkEmailConfiguration")
@@ -148,12 +147,12 @@ public class UtmConfigurationParameterResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildBadRequestResponse("Check failed with this configuration, review your configuration, save changes and try again");
+            return ResponseUtil.buildBadRequestResponse("Check failed with this configuration, review your configuration, save changes and try again");
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 }

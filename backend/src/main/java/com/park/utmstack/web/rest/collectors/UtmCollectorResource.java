@@ -19,7 +19,7 @@ import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.dto.ErrorResponse;
 import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
 import com.park.utmstack.service.dto.network_scan.AssetGroupDTO;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.errors.InternalServerErrorException;
 import com.park.utmstack.web.rest.network_scan.UtmNetworkScanResource;
@@ -35,7 +35,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -143,12 +142,12 @@ public class UtmCollectorResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (CollectorServiceGrpcException e) {
             String msg = ctx + ": UtmCollector manager is not available or was an error getting the collector list. " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_GATEWAY, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_GATEWAY, msg);
         }
     }
 
@@ -180,12 +179,12 @@ public class UtmCollectorResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (CollectorServiceGrpcException e) {
             String msg = ctx + ": UtmCollector manager is not available or the parameters are wrong, please check." + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_GATEWAY, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_GATEWAY, msg);
         }
     }
 
@@ -208,12 +207,12 @@ public class UtmCollectorResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (CollectorServiceGrpcException e) {
             String msg = ctx + ": UtmCollector manager is not available or was an error getting configuration. " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_GATEWAY, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_GATEWAY, msg);
         }
     }
 
@@ -364,7 +363,7 @@ public class UtmCollectorResource {
     private ResponseEntity<Void> logAndResponse(ErrorResponse error) {
         log.error(error.getMessage());
         applicationEventService.createEvent(error.getMessage(), ApplicationEventType.ERROR);
-        return UtilResponse.buildErrorResponse(error.getStatus(), error.getMessage());
+        return ResponseUtil.buildErrorResponse(error.getStatus(), error.getMessage());
     }
 
     private void upsert(CollectorConfigKeysDTO collectorConfig) throws Exception {

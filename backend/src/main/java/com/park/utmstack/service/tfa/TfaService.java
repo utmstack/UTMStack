@@ -42,7 +42,7 @@ public class TfaService {
         selected.persistConfiguration(user);
     }
 
-    public void generateChallenge(User user) throws Exception {
+    public void generateChallenge(User user) {
 
         TfaMethod method = TfaMethod.valueOf(user.getTfaMethod());
 

@@ -6,7 +6,7 @@ import com.park.utmstack.repository.compliance.UtmComplianceReportScheduleReposi
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.compliance.UtmComplianceReportScheduleService;
 import com.park.utmstack.service.dto.compliance.UtmComplianceReportScheduleCriteria;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 
 import java.net.URISyntaxException;
@@ -23,7 +23,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import tech.jhipster.web.util.ResponseUtil;
 
 import javax.validation.Valid;
 
@@ -82,7 +81,7 @@ public class UtmComplianceReportScheduleResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -119,7 +118,7 @@ public class UtmComplianceReportScheduleResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -140,7 +139,7 @@ public class UtmComplianceReportScheduleResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -155,12 +154,12 @@ public class UtmComplianceReportScheduleResource {
         final String ctx = CLASSNAME + ".getUtmComplianceReportScheduleById";
         try {
             log.debug("REST request to get a UtmComplianceReportSchedule by id");
-            return ResponseUtil.wrapOrNotFound(utmComplianceReportScheduleService.findOne(id));
+            return tech.jhipster.web.util.ResponseUtil.wrapOrNotFound(utmComplianceReportScheduleService.findOne(id));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -181,7 +180,7 @@ public class UtmComplianceReportScheduleResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 }

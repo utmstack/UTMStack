@@ -4,7 +4,7 @@ import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.correlation.config.UtmTenantConfig;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.correlation.config.UtmTenantConfigService;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import io.undertow.util.BadRequestException;
@@ -16,7 +16,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tech.jhipster.web.util.ResponseUtil;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -54,12 +53,12 @@ public class UtmTenantConfigResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -79,12 +78,12 @@ public class UtmTenantConfigResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -104,12 +103,12 @@ public class UtmTenantConfigResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -145,6 +144,6 @@ public class UtmTenantConfigResource {
     public ResponseEntity<UtmTenantConfig> getTenantConfig(@PathVariable Long id) {
         log.debug("REST request to get UtmTenantConfig : {}", id);
         Optional<UtmTenantConfig> tenantConfig = tenantConfigService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(tenantConfig);
+        return tech.jhipster.web.util.ResponseUtil.wrapOrNotFound(tenantConfig);
     }
 }

@@ -6,14 +6,13 @@ import com.park.utmstack.domain.shared_types.enums.ImageShortName;
 import com.park.utmstack.repository.UtmImagesRepository;
 import com.park.utmstack.service.UtmImagesService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tech.jhipster.web.util.ResponseUtil;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -50,7 +49,7 @@ public class UtmImagesResource {
             Optional<UtmImages> imageOpt = imagesRepository.findById(image.getShortName());
 
             if (imageOpt.isEmpty())
-                return UtilResponse.buildBadRequestResponse("Image short name not recognized: " + image.getShortName());
+                return ResponseUtil.buildBadRequestResponse("Image short name not recognized: " + image.getShortName());
 
             UtmImages img = imageOpt.get();
             img.setUserImg(image.getUserImg());
@@ -59,7 +58,7 @@ public class UtmImagesResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildInternalServerErrorResponse(msg);
+            return ResponseUtil.buildInternalServerErrorResponse(msg);
         }
     }
 
@@ -82,7 +81,7 @@ public class UtmImagesResource {
         final String ctx = CLASSNAME + ".getImage";
         try {
             Optional<UtmImages> utmImages = utmImagesService.findOne(shortName);
-            return ResponseUtil.wrapOrNotFound(utmImages);
+            return tech.jhipster.web.util.ResponseUtil.wrapOrNotFound(utmImages);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);

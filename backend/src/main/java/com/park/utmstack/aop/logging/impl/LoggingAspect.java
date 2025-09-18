@@ -1,4 +1,4 @@
-package com.park.utmstack.aop.logging;
+package com.park.utmstack.aop.logging.impl;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;

@@ -5,7 +5,7 @@ import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.service.UtmConfigurationSectionQueryService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.UtmConfigurationSectionCriteria;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +56,7 @@ public class UtmConfigurationSectionResource {
             final String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildInternalServerErrorResponse(msg);
+            return ResponseUtil.buildInternalServerErrorResponse(msg);
         }
     }
 }

@@ -10,7 +10,7 @@ import com.park.utmstack.service.compliance.config.UtmComplianceReportConfigServ
 import com.park.utmstack.service.compliance.config.UtmComplianceStandardSectionService;
 import com.park.utmstack.service.compliance.config.UtmComplianceStandardService;
 import com.park.utmstack.service.dto.compliance.UtmComplianceReportConfigCriteria;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -21,7 +21,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tech.jhipster.web.util.ResponseUtil;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -143,7 +142,7 @@ public class UtmComplianceReportConfigResource {
                 dashboardVisualizationService.findAllByIdDashboard(report.getDashboardId()).ifPresent(report::setDashboard);
                 return ResponseEntity.ok(report);
             }
-            return ResponseUtil.wrapOrNotFound(standard);
+            return tech.jhipster.web.util.ResponseUtil.wrapOrNotFound(standard);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
@@ -201,7 +200,7 @@ public class UtmComplianceReportConfigResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
