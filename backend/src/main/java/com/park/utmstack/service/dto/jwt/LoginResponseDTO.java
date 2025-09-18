@@ -9,7 +9,7 @@ import lombok.Data;
 @Builder
 public class LoginResponseDTO {
     private boolean success;
-    private boolean tfaRequired;
+    private boolean tfaConfigured;
     private String method;
     private String token;
 }

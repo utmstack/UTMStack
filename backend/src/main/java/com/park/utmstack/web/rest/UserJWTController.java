@@ -23,9 +23,6 @@ import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.vm.LoginVM;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.logstash.logback.argument.StructuredArguments;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,8 +59,6 @@ public class UserJWTController {
     private final TfaService tfaService;
     private final LogContextBuilder logContextBuilder;
 
-
-
     @AuditEvent(
             value = ApplicationEventType.AUTH_SUCCESS,
             message = "Authentication successful: access token issued"
@@ -89,9 +84,9 @@ public class UserJWTController {
         User user = userService.getUserWithAuthoritiesByLogin(loginVM.getUsername())
                 .orElseThrow(() -> new BadCredentialsException("Authentication failed: user '" + loginVM.getUsername() + "' not found"));
 
-        boolean tfaRequired = isTfaEnabled && user.getTfaMethod() != null && !user.getTfaMethod().isEmpty();
+        boolean isTfaSetup = isTfaEnabled && user.getTfaMethod() != null && !user.getTfaMethod().isEmpty();
 
-        if (tfaRequired) {
+        if (isTfaSetup) {
             tfaService.generateChallenge(user);
 
             Map<String, Object> args = logContextBuilder.buildArgs(request);
@@ -107,7 +102,7 @@ public class UserJWTController {
                 .token(tempToken)
                 .method(user.getTfaMethod())
                 .success(true)
-                .tfaRequired(tfaRequired)
+                .tfaConfigured(isTfaSetup)
                 .build();
 
         return ResponseEntity.ok(response);
