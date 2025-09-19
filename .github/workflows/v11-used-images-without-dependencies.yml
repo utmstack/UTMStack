@@ -26,7 +26,7 @@ jobs:
         run: |
           service="${{inputs.microservice}}"
           if [[ "$service" == "backend" ]]; then
-            tech="java-11"
+            tech="java-17"
           elif [[ "$service" == "frontend" ]]; then
             tech="frontend"
           elif [[ "$service" == "user-auditor" || "web-pdf" ]]; then

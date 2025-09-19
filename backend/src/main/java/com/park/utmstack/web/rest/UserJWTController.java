@@ -88,15 +88,21 @@ public class UserJWTController {
                 .orElseThrow(() -> new BadCredentialsException("Authentication failed: user '" + loginVM.getUsername() + "' not found"));
 
         boolean isTfaSetup = isTfaEnabled && user.getTfaMethod() != null && !user.getTfaMethod().isEmpty() && forceTfaAuth;
+        Map<String, Object> args = logContextBuilder.buildArgs(request);
 
         if (isTfaSetup) {
             tfaService.generateChallenge(user);
 
-            Map<String, Object> args = logContextBuilder.buildArgs(request);
             args.put("tfaMethod", user.getTfaMethod());
             applicationEventService.createEvent(
                     "TFA challenge issued for user '" + user.getLogin() + "' via method '" + user.getTfaMethod() + "'",
                     ApplicationEventType.TFA_CODE_SENT,
+                    args
+            );
+        } else {
+            applicationEventService.createEvent(
+                    "Login successfully completed for user '" + user.getLogin() + "'",
+                    ApplicationEventType.AUTH_SUCCESS,
                     args
             );
         }
