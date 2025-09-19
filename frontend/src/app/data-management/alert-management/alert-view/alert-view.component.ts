@@ -87,6 +87,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   filters: ElasticFilterType[] = [
     {field: ALERT_STATUS_FIELD_AUTO, operator: ElasticOperatorsEnum.IS_NOT, value: AUTOMATIC_REVIEW},
     {field: ALERT_TAGS_FIELD, operator: ElasticOperatorsEnum.IS_NOT, value: FALSE_POSITIVE_OBJECT.tagName},
+    {field: ALERT_PARENT_ID, operator: ElasticOperatorsEnum.DOES_NOT_EXIST},
     {field: ALERT_TIMESTAMP_FIELD, operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['now-7d', 'now']}
   ];
   defaultStatus: number;
