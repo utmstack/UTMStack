@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest;
 
+import com.park.utmstack.aop.logging.AuditEvent;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.service.UtmAlertService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -40,33 +42,34 @@ public class UtmAlertResource {
     }
 
     @PostMapping("/utm-alerts/status")
-    public ResponseEntity<Void> updateAlertStatus(@RequestBody UpdateAlertStatusRequestBody rq) {
+    @AuditEvent(
+            attemptType = ApplicationEventType.ALERT_UPDATE_ATTEMPT,
+            attemptMessage = "Attempt to update alert status initiated",
+            successType = ApplicationEventType.ALERT_UPDATE_SUCCESS,
+            successMessage = "Alert status updated successfully"
+    )
+    public ResponseEntity<Void> updateAlertStatus(@RequestBody UpdateAlertStatusRequestBody rq) throws IOException {
         final String ctx = CLASSNAME + ".updateAlertStatus";
-        try {
-            utmAlertService.updateStatus(rq.getAlertIds(), rq.getStatus(), rq.getStatusObservation());
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
-        }
+        utmAlertService.updateStatus(rq.getAlertIds(), rq.getStatus(), rq.getStatusObservation());
+
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/utm-alerts/notes")
+    @AuditEvent(
+            attemptType = ApplicationEventType.ALERT_NOTE_UPDATE_ATTEMPT,
+            attemptMessage = "Attempt to update alert notes initiated",
+            successType = ApplicationEventType.ALERT_NOTE_UPDATE_SUCCESS,
+            successMessage = "Alert notes updated successfully"
+    )
     public ResponseEntity<Void> updateAlertNotes(@RequestBody(required = false) String notes, @RequestParam String alertId) {
         final String ctx = CLASSNAME + ".updateAlertNotes";
-        try {
-            utmAlertService.updateNotes(alertId, notes);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
-        }
+        utmAlertService.updateNotes(alertId, notes);
+        applicationEventService.createEvent(
+                "Alert notes updated successfully",
+                ApplicationEventType.ALERT_NOTE_UPDATE_SUCCESS
+        );
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/utm-alerts/tags")
