@@ -33,6 +33,7 @@ import { AlertEntityDisplayComponent } from './components/alert-entity-display/a
 import {AlertFullLogComponent} from './components/alert-full-log/alert-full-log.component';
 import {AlertHistoryComponent} from './components/alert-history/alert-history.component';
 import {AlertHostDetailComponent} from './components/alert-host-detail/alert-host-detail.component';
+import {AlertImpactComponent} from "./components/alert-impact/alert-impact.component";
 import {AlertIncidentDetailComponent} from './components/alert-incident-detail/alert-incident-detail.component';
 import {AlertIpComponent} from './components/alert-ip/alert-ip.component';
 import {AlertMapLocationComponent} from './components/alert-map-location/alert-map-location.component';
@@ -54,7 +55,7 @@ import {AlertGenericFilterComponent} from './components/filters/alert-generic-fi
 import {FilterAppliedComponent} from './components/filters/filter-applied/filter-applied.component';
 import {RowToFiltersComponent} from './components/filters/row-to-filter/row-to-filters.component';
 import {StatusFilterComponent} from './components/filters/status-filter/status-filter.component';
-import {AlertImpactComponent} from "./components/alert-impact/alert-impact.component";
+import {AlertLogsRelatedButtonComponent} from "./alert-logs-related-button/alert-logs-related-button.component";
 
 @NgModule({
   declarations: [
@@ -99,7 +100,8 @@ import {AlertImpactComponent} from "./components/alert-impact/alert-impact.compo
     AlertIncidentDetailComponent,
     AlertSocAiComponent,
     AlertEntityDisplayComponent,
-    AlertBadgeFieldComponent
+    AlertBadgeFieldComponent,
+    AlertLogsRelatedButtonComponent
   ],
   entryComponents: [
     AlertStatusComponent,
@@ -154,21 +156,21 @@ import {AlertImpactComponent} from "./components/alert-impact/alert-impact.compo
     AlertEntityDisplayComponent,
     AlertBadgeFieldComponent
   ],
-  imports: [
-    CommonModule,
-    TranslateModule,
-    UtmSharedModule,
-    FormsModule,
-    NgbModule,
-    ReactiveFormsModule,
-    NgSelectModule,
-    InfiniteScrollModule,
-    NgxJsonViewerModule,
-    IncidentResponseSharedModule,
-    DataMgmtSharedModule,
-    RouterModule,
-    InlineSVGModule,
-  ]
+    imports: [
+        CommonModule,
+        TranslateModule,
+        UtmSharedModule,
+        FormsModule,
+        NgbModule,
+        ReactiveFormsModule,
+        NgSelectModule,
+        InfiniteScrollModule,
+        NgxJsonViewerModule,
+        IncidentResponseSharedModule,
+        DataMgmtSharedModule,
+        RouterModule,
+        InlineSVGModule,
+    ]
 })
 export class AlertManagementSharedModule {
 }

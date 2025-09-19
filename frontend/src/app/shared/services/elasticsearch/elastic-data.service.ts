@@ -31,6 +31,13 @@ export class ElasticDataService {
       , {observe: 'response'});
   }
 
+  exists(pattern: string, filters?: any): Observable<boolean> {
+    const query = new QueryType();
+    query.add('indexPattern', pattern);
+
+    return this.http.post<boolean>(this.resourceUrl + 'count' + query.toString(), filters);
+  }
+
   public exportToCsv(params): Observable<Blob> {
     const headers = new HttpHeaders();
     headers.append('Accept', 'application/octet-stream');

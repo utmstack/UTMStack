@@ -47,7 +47,6 @@ import {AlertManagementSharedModule} from './shared/alert-management-shared.modu
     SaveAlertReportComponent,
     AlertReportFilterComponent],
   providers: [NewAlertBehavior, AlertIncidentStatusChangeBehavior],
-  exports: [],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AlertManagementModule {
