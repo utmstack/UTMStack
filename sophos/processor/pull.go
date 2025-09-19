@@ -4,7 +4,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/threatwinds/logger"
 	"github.com/utmstack/config-client-go/types"
 )
 
@@ -13,7 +12,7 @@ var (
 	nextKeysMu sync.RWMutex
 )
 
-func PullLogs(group types.ModuleGroup, startTime time.Time) *logger.Error {
+func PullLogs(group types.ModuleGroup, startTime time.Time) error {
 	nextKeysMu.RLock()
 	prevKey := nextKeys[group.ModuleID]
 	nextKeysMu.RUnlock()

@@ -1,10 +1,12 @@
 package main
 
 import (
+	"os"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/sophos/configuration"
 	"github.com/utmstack/UTMStack/sophos/processor"
 	"github.com/utmstack/UTMStack/sophos/utils"
@@ -14,11 +16,12 @@ import (
 )
 
 func main() {
-	utils.Logger.Info("Starting sophos central module...")
+	catcher.Info("Starting sophos central module...", map[string]any{})
 	intKey := configuration.GetInternalKey()
 	panelServ := configuration.GetPanelServiceName()
 	if intKey == "" || panelServ == "" {
-		utils.Logger.Fatal("Internal key or panel service name is not set. Exiting...")
+		catcher.Error("Internal key or panel service name is not set. Exiting...", nil, map[string]any{})
+		os.Exit(1)
 	}
 	client := utmconf.NewUTMClient(intKey, "http://"+panelServ)
 
@@ -30,22 +33,22 @@ func main() {
 
 	for range ticker.C {
 		if err := utils.ConnectionChecker(configuration.CHECKCON); err != nil {
-			utils.Logger.ErrorF("External connection failure detected: %v", err)
+			catcher.Error("External connection failure detected", err, map[string]any{})
 		}
 
 		endTime := time.Now().UTC()
 		//startTimeStr := startTime.Format(time.RFC3339)
 		//endTimeStr := endTime.Format(time.RFC3339)
 
-		utils.Logger.Info("Syncing logs from %s to %s", startTime, endTime)
+		catcher.Info("Syncing logs", map[string]any{"start_time": startTime, "end_time": endTime})
 
 		moduleConfig, err := client.GetUTMConfig(enum.SOPHOS)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
-				utils.Logger.LogF(100, "error getting configuration of the SOPHOS module: backend is not available")
+				catcher.Error("error getting configuration of the SOPHOS module: backend is not available", nil, map[string]any{})
 			}
 			if strings.TrimSpace(err.Error()) != "" {
-				utils.Logger.ErrorF("error getting configuration of the SOPHOS module: %v", err)
+				catcher.Error("error getting configuration of the SOPHOS module", err, map[string]any{})
 			}
 			continue
 		}
@@ -60,7 +63,7 @@ func main() {
 
 					for _, cnf := range group.Configurations {
 						if strings.TrimSpace(cnf.ConfValue) == "" {
-							utils.Logger.LogF(100, "program not configured yet for group: %s", group.GroupName)
+							catcher.Error("program not configured yet for group", nil, map[string]any{"group_name": group.GroupName})
 							skip = true
 							break
 						}
@@ -76,7 +79,7 @@ func main() {
 			wg.Wait()
 		}
 
-		utils.Logger.Info("sync completed from %v to %v, waiting 5 minutes", startTime, endTime)
+		catcher.Info("sync completed, waiting 5 minutes", map[string]any{"start_time": startTime, "end_time": endTime})
 		startTime = endTime.Add(time.Nanosecond)
 	}
 }
