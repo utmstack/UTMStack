@@ -24,7 +24,6 @@ public class AuditEventAspect {
 
     @Around("@annotation(auditEvent)")
     public Object logAuditEvent(ProceedingJoinPoint joinPoint, AuditEvent auditEvent) throws Throwable {
-        Object result = joinPoint.proceed();
 
         Map<String, Object> args = logContextBuilder.buildArgs();
         for (AuditContextExtractor extractor : extractors) {
@@ -32,7 +31,7 @@ public class AuditEventAspect {
         }
         applicationEventService.createEvent(auditEvent.message(), auditEvent.value(), args);
 
-        return result;
+        return joinPoint.proceed();
     }
 }
 

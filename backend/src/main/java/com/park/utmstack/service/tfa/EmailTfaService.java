@@ -1,5 +1,6 @@
 package com.park.utmstack.service.tfa;
 
+import com.park.utmstack.aop.logging.Loggable;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.tfa.TfaMethod;
@@ -32,6 +33,7 @@ public class EmailTfaService implements TfaMethodService {
     }
 
     @Override
+    @Loggable
     public TfaInitResponse initiateSetup(User user) {
         final String ctx = CLASSNAME + ".initiateSetup";
         try {
@@ -56,6 +58,7 @@ public class EmailTfaService implements TfaMethodService {
 
 
     @Override
+    @Loggable
     public TfaVerifyResponse verifyCode(User user, String code) {
 
         TfaSetupState tfaSetupState = cache.getState(user.getLogin(), TfaMethod.EMAIL)
@@ -73,6 +76,7 @@ public class EmailTfaService implements TfaMethodService {
     }
 
     @Override
+    @Loggable
     public void persistConfiguration(User user) {
         String secret = cache.getState(user.getLogin(), TfaMethod.EMAIL)
                 .orElseThrow(() -> new IllegalStateException("No TFA setup found for user: " + user.getLogin()))
@@ -82,6 +86,7 @@ public class EmailTfaService implements TfaMethodService {
     }
 
     @Override
+    @Loggable
     public void generateChallenge(User user) {
         String secret = user.getTfaSecret();
         String code = tfaService.generateCode(secret);

@@ -61,8 +61,8 @@ public class UserJWTController {
     private final LogContextBuilder logContextBuilder;
 
     @AuditEvent(
-            value = ApplicationEventType.AUTH_SUCCESS,
-            message = "Authentication successful: access token issued"
+            value = ApplicationEventType.AUTH_ATTEMPT,
+            message = "Authentication attempt registered"
     )
     @PostMapping("/authenticate")
     public ResponseEntity<LoginResponseDTO> authorize(@Valid @RequestBody LoginVM loginVM, HttpServletRequest request) {

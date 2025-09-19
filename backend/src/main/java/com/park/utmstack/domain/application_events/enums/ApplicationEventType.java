@@ -5,6 +5,7 @@ public enum ApplicationEventType {
     AUTH_SUCCESS,
     AUTH_FAILURE,
     TFA_CODE_SENT,
+    TFA_CODE_VERIFY_ATTEMPT,
     TFA_VERIFIED,
     AUTH_LOGOUT,
     CONFIG_CHANGED,

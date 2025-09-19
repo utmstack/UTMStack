@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest.tfa;
 
+import com.park.utmstack.aop.logging.AuditEvent;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.Authority;
 import com.park.utmstack.domain.User;
@@ -79,6 +80,7 @@ public class TfaController {
             User user = userService.getCurrentUserLogin();
             TfaVerifyResponse response = tfaService.verifyCode(user, request);
             return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
@@ -142,6 +144,10 @@ public class TfaController {
         }
     }
 
+    @AuditEvent(
+            value = ApplicationEventType.TFA_CODE_VERIFY_ATTEMPT,
+            message = "Verification attempt for second-factor authentication"
+    )
     @PostMapping("/verifyCode")
     public ResponseEntity<JWTToken> verifyCode(@RequestBody String code, HttpServletRequest request) {
         final String ctx = CLASSNAME + ".verifyCode";
