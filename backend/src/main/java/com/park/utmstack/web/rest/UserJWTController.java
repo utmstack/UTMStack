@@ -61,8 +61,10 @@ public class UserJWTController {
     private final LogContextBuilder logContextBuilder;
 
     @AuditEvent(
-            value = ApplicationEventType.AUTH_ATTEMPT,
-            message = "Authentication attempt registered"
+            attemptType = ApplicationEventType.AUTH_ATTEMPT,
+            attemptMessage = "Authentication attempt registered",
+            successType = ApplicationEventType.UNDEFINED,
+            successMessage = ""
     )
     @PostMapping("/authenticate")
     public ResponseEntity<LoginResponseDTO> authorize(@Valid @RequestBody LoginVM loginVM, HttpServletRequest request) {

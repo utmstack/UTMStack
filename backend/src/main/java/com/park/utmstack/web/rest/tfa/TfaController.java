@@ -145,8 +145,10 @@ public class TfaController {
     }
 
     @AuditEvent(
-            value = ApplicationEventType.TFA_CODE_VERIFY_ATTEMPT,
-            message = "Verification attempt for second-factor authentication"
+            attemptType = ApplicationEventType.TFA_CODE_VERIFY_ATTEMPT,
+            attemptMessage = "Verification attempt for second-factor authentication",
+            successType = ApplicationEventType.AUTH_SUCCESS,
+            successMessage = "Login successfully completed"
     )
     @PostMapping("/verifyCode")
     public ResponseEntity<JWTToken> verifyCode(@RequestBody String code, HttpServletRequest request) {
@@ -171,13 +173,7 @@ public class TfaController {
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
-        Map<String, Object> args = logContextBuilder.buildArgs(request);
-        args.put("tfaMethod", user.getTfaMethod());
-        applicationEventService.createEvent(
-                "Login successfully completed for user '" + user.getLogin() + "' via TFA method '" + user.getTfaMethod() + "'",
-                ApplicationEventType.AUTH_SUCCESS,
-                args
-        );
+
         return new ResponseEntity<>(new JWTToken(jwt, true), httpHeaders, HttpStatus.OK);
 
     }
