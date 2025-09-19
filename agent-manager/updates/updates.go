@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/threatwinds/go-sdk/catcher"
 )
 
 type Version struct {
@@ -32,7 +32,7 @@ func ServeDependencies() {
 
 	cert, err := tls.LoadX509KeyPair("/cert/utm.crt", "/cert/utm.key")
 	if err != nil {
-		util.Logger.ErrorF("failed to load certificates: %v", err)
+		catcher.Error("failed to load certificates", err, map[string]any{})
 	}
 
 	tlsConfig := &tls.Config{
@@ -53,10 +53,10 @@ func ServeDependencies() {
 		TLSConfig: tlsConfig,
 	}
 
-	util.Logger.Info("Starting HTTP server on port 8080")
+	catcher.Info("Starting HTTP server on port 8080", map[string]any{})
 	err = server.ListenAndServeTLS("", "")
 	if err != nil {
-		util.Logger.ErrorF("error starting HTTP server: %v", err)
+		catcher.Error("error starting HTTP server", err, map[string]any{})
 	}
 
 }

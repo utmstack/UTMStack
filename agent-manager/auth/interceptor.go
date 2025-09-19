@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/agent-manager/agent"
 	"github.com/utmstack/UTMStack/agent-manager/config"
-	"github.com/utmstack/UTMStack/agent-manager/util"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -98,7 +98,7 @@ func StreamInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamS
 func checkKeyAuth(token string, id uint64, fullMethod string) error {
 	authCache := getAuthCache(fullMethod)
 	if authCache == nil {
-		util.Logger.ErrorF("unable to resolve auth cache")
+		catcher.Error("unable to resolve auth cache", nil, map[string]any{})
 		return status.Error(codes.Unauthenticated, "unable to resolve auth cache")
 	}
 
@@ -148,19 +148,19 @@ func authenticateRequest(md metadata.MD, authName string) error {
 	authHeader := md.Get(authName)
 
 	if len(authHeader) == 0 {
-		util.Logger.ErrorF("%s must be provided", authName)
+		catcher.Error("must be provided", nil, map[string]any{"authName": authName})
 		return status.Error(codes.Unauthenticated, fmt.Sprintf("%s must be provided", authName))
 	}
 
 	if authName == "connection-key" && authHeader[0] != "" {
 		if !validateToken(authHeader[0]) {
-			util.Logger.ErrorF("unable to connect with the panel to check the connection-key")
+			catcher.Error("unable to connect with the panel to check the connection-key", nil, map[string]any{})
 			return status.Error(codes.Unauthenticated, "unable to connect with the panel to check the connection-key")
 		}
 	} else if authName == "internal-key" && authHeader[0] != "" {
 		internalKey := os.Getenv(config.UTMSharedKeyEnv)
 		if authHeader[0] != internalKey {
-			util.Logger.ErrorF("internal key does not match")
+			catcher.Error("internal key does not match", nil, map[string]any{})
 			return status.Error(codes.Unauthenticated, "internal key does not match")
 		}
 	} else {

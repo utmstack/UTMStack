@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/util"
 	"google.golang.org/grpc/codes"
@@ -30,7 +31,7 @@ func (s *Grpc) RegisterCollector(ctx context.Context, req *RegisterRequest) (*Au
 				Key: oldCollector[0].CollectorKey,
 			}, nil
 		} else {
-			util.Logger.ErrorF("Collector %s(%s) with id %d already registered with different IP", oldCollector[0].Hostname, oldCollector[0].Module, oldCollector[0].ID)
+			catcher.Error("Collector is already registered with different IP", nil, map[string]any{"hostname": oldCollector[0].Hostname, "module": oldCollector[0].Module, "id": oldCollector[0].ID})
 			return nil, status.Errorf(codes.AlreadyExists, "hostname has already been registered")
 		}
 	}
@@ -39,7 +40,7 @@ func (s *Grpc) RegisterCollector(ctx context.Context, req *RegisterRequest) (*Au
 	collector.CollectorKey = key
 	err = collectorService.Create(collector)
 	if err != nil {
-		util.Logger.ErrorF("Failed to create collector: %v", err)
+		catcher.Error("Failed to create collector", err, map[string]any{})
 		return nil, err
 	}
 
@@ -49,7 +50,7 @@ func (s *Grpc) RegisterCollector(ctx context.Context, req *RegisterRequest) (*Au
 
 	err = lastSeenService.Set(key, time.Now())
 	if err != nil {
-		util.Logger.ErrorF("Failed to set last seen: %v", err)
+		catcher.Error("Failed to set last seen", err, map[string]any{})
 		return nil, err
 	}
 	res := &AuthResponse{
@@ -57,7 +58,7 @@ func (s *Grpc) RegisterCollector(ctx context.Context, req *RegisterRequest) (*Au
 		Key: key,
 	}
 
-	util.Logger.Info("Collector %s(%s) with id %d registered correctly", collector.Hostname, collector.Module, collector.ID)
+	catcher.Info("Collector was registered correctly", map[string]any{"hostname": collector.Hostname, "module": collector.Module, "id": collector.ID})
 	return res, nil
 }
 
@@ -75,7 +76,7 @@ func (s *Grpc) DeleteCollector(ctx context.Context, req *CollectorDelete) (*Auth
 
 	id, err := collectorService.Delete(uuid.MustParse(key), req.DeletedBy)
 	if err != nil {
-		util.Logger.ErrorF("unable to delete collector: %v", err)
+		catcher.Error("unable to delete collector", err, map[string]any{})
 		return nil, status.Error(codes.Internal, fmt.Sprintf("unable to delete collector: %v", err.Error()))
 	}
 
@@ -87,7 +88,7 @@ func (s *Grpc) DeleteCollector(ctx context.Context, req *CollectorDelete) (*Auth
 	delete(s.CollectorStreamMap, key)
 	s.collectorStreamMutex.Unlock()
 
-	util.Logger.Info("Collector with key %s deleted by %s", key, req.DeletedBy)
+	catcher.Info("Collector was deleted by", map[string]any{"key": key, "deleted_by": req.DeletedBy})
 
 	return &AuthResponse{
 		Id:  uint32(id),
@@ -102,7 +103,7 @@ func (s *Grpc) ListCollector(ctx context.Context, req *ListRequest) (*ListCollec
 
 	collectors, total, err := collectorService.ListCollectors(page, filter)
 	if err != nil {
-		util.Logger.ErrorF("failed to fetch collectors: %v", err)
+		catcher.Error("failed to fetch collectors", err, map[string]any{})
 		return nil, status.Errorf(codes.Internal, "failed to fetch collectors: %v", err)
 	}
 	return convertToCollectorResponse(collectors, total)
@@ -130,7 +131,7 @@ func (s *Grpc) ProcessPendingConfigs() {
 				if ok {
 					collector, err := collectorService.GetByKey(key)
 					if err != nil {
-						util.Logger.ErrorF("unable to get collector config to send config to stream : %v", err)
+						catcher.Error("unable to get collector config to send config to stream", err, map[string]any{})
 						continue
 					}
 
@@ -140,7 +141,7 @@ func (s *Grpc) ProcessPendingConfigs() {
 						},
 					})
 					if err != nil {
-						util.Logger.ErrorF("failed to send config to collector: %v", err)
+						catcher.Error("failed to send config to collector", err, map[string]any{})
 					}
 				}
 			}
@@ -171,7 +172,7 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 				delete(s.CollectorStreamMap, collectorKey)
 				s.collectorStreamMutex.Unlock()
 
-				util.Logger.ErrorF("failed to reconnect to client: %v", err)
+				catcher.Error("failed to reconnect to client", err, map[string]any{})
 				return fmt.Errorf("failed to reconnect to client: %v", err)
 			}
 
@@ -195,7 +196,7 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 
 		switch msg := in.StreamMessage.(type) {
 		case *CollectorMessages_Result:
-			util.Logger.Info("Received Knowlodge: %s", msg.Result.RequestId)
+			catcher.Info("Received Knowledge", map[string]any{"request_id": msg.Result.RequestId})
 
 			s.pendingConfigM.Lock()
 			if s.PendingConfigs[collectorKey] == msg.Result.RequestId {
@@ -223,7 +224,7 @@ func (s *Grpc) GetCollectorConfig(ctx context.Context, in *ConfigRequest) (*Coll
 
 	collector, err := collectorService.GetByKey(key)
 	if err != nil {
-		util.Logger.ErrorF("unable to get collector config: %v", err)
+		catcher.Error("unable to get collector config", err, map[string]any{})
 		return nil, status.Error(codes.Internal, fmt.Sprintf("unable to get collector config: %v", err.Error()))
 	}
 
@@ -251,7 +252,7 @@ func (s *Grpc) RegisterCollectorConfig(ctx context.Context, in *CollectorConfig)
 
 	err = collectorService.SaveCollectorConfigs(collectorConf, collector.ID)
 	if err != nil {
-		util.Logger.ErrorF("error saving collector configuration: %v", err)
+		catcher.Error("error saving collector configuration", err, map[string]any{})
 		return nil, status.Errorf(codes.Internal, "error saving collector configuration: %v", err.Error())
 	}
 
@@ -271,7 +272,7 @@ func (s *Grpc) ListCollectorHostnames(ctx context.Context, req *ListRequest) (*C
 
 	hostnames, _, err := collectorService.GetHostnames(page, filter)
 	if err != nil {
-		util.Logger.ErrorF("failed to fetch hostnames: %v", err)
+		catcher.Error("failed to fetch hostnames", err, map[string]any{})
 		return nil, status.Errorf(codes.NotFound, "failed to fetch hostnames: %v", err)
 	}
 
@@ -283,7 +284,7 @@ func (s *Grpc) ListCollectorHostnames(ctx context.Context, req *ListRequest) (*C
 func (s *Grpc) GetCollectorsByHostnameAndModule(ctx context.Context, filter *FilterByHostAndModule) (*ListCollectorResponse, error) {
 	collectors, err := collectorService.GetCollectorByHostnameAndModule(filter.GetHostname(), filter.GetModule().String())
 	if err != nil {
-		util.Logger.ErrorF("unable to get hostname: %v", err)
+		catcher.Error("unable to get hostname", err, map[string]any{})
 		return nil, status.Errorf(codes.NotFound, "unable to get hostname: %v", err)
 	}
 
@@ -293,7 +294,7 @@ func (s *Grpc) GetCollectorsByHostnameAndModule(ctx context.Context, filter *Fil
 func (s *Grpc) LoadCollectorsCacheFromDatabase() error {
 	collectors, err := collectorService.FindAll()
 	if err != nil {
-		util.Logger.ErrorF("Failed to fetch collectors from database: %v", err)
+		catcher.Error("Failed to fetch collectors from database", err, map[string]any{})
 		return err
 	}
 	for _, colect := range collectors {
