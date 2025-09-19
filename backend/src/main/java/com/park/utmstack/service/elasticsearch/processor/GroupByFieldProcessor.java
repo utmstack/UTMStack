@@ -12,7 +12,6 @@ public class GroupByFieldProcessor implements SearchResultProcessor {
 
     @Override
     public List<Map<String, Object>> process(List<Map<String, Object>> rawResults) {
-        // Fase 1: Indexación por ID
         Map<Object, Map<String, Object>> byId = new LinkedHashMap<>();
         for (Map<String, Object> item : rawResults) {
             Object id = item.get("id");
@@ -22,13 +21,13 @@ public class GroupByFieldProcessor implements SearchResultProcessor {
         }
 
         Map<Object, List<Map<String, Object>>> childrenByParent = new LinkedHashMap<>();
-        Set<Object> childIds = new HashSet<>(); // ✅ Rastrear IDs de hijos
+        Set<Object> childIds = new HashSet<>();
 
         for (Map<String, Object> item : rawResults) {
             Object parentId = item.get("parentId");
             if (parentId != null && byId.containsKey(parentId)) {
                 childrenByParent.computeIfAbsent(parentId, k -> new ArrayList<>()).add(item);
-                childIds.add(item.get("id")); // ✅ Marcar como hijo
+                childIds.add(item.get("id"));
             }
         }
 

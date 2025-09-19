@@ -144,9 +144,8 @@ public class ElasticsearchResource {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<List<Map<String, Object>>> search(@RequestBody(required = false) List<FilterType> filters,
+    public ResponseEntity<List<Map>> search(@RequestBody(required = false) List<FilterType> filters,
                                             @RequestParam Integer top, @RequestParam String indexPattern,
-                                            @RequestParam(required = false) String groupByField,
                                             Pageable pageable) {
         final String ctx = CLASSNAME + ".search";
         try {
@@ -160,15 +159,8 @@ public class ElasticsearchResource {
             HttpHeaders headers = UtilPagination.generatePaginationHttpHeaders(Math.min(hits.total().value(), top),
                     pageable.getPageNumber(), pageable.getPageSize(), "/api/elasticsearch/search");
 
-
-            List<Map<String, Object>> flatResults = hits.hits().stream()
-                    .map(hit -> (Map<String, Object>)hit.source())
-                    .collect(Collectors.toList());
-
-            SearchResultProcessor processor = searchProcessorRegistry.resolve(groupByField);
-            List<Map<String, Object>> processed = processor.process(flatResults);
-
-            return ResponseEntity.ok().headers(headers).body(processed);
+            return ResponseEntity.ok().headers(headers).body(hits.hits().stream()
+                    .map(Hit::source).collect(Collectors.toList()));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
