@@ -42,28 +42,28 @@
 
     </div>
 
-    <!--<div class="pipeline-line pipeline-{{logstashPipelines.general.status}}">
-      <svg viewbox="0 0 10 100" style="width: 15px">
-        <line x1="5" x2="5" y1="0" y2="100"/>
-      </svg>
-    </div>
-
-    <div class="container__build tooltip-{{logstashPipelines.general.status}}">
-      <div class="p-3">
-        <app-logstash-stats [logstashPipelines]="logstashPipelines"></app-logstash-stats>
-      </div>
-    </div>-->
-
     <div class="pipeline-line pipeline-{{logstashPipelines.general.status}}">
       <svg viewbox="0 0 10 100" style="width: 15px">
         <line x1="5" x2="5" y1="0" y2="100"/>
       </svg>
     </div>
 
+    <!--<div class="container__build tooltip-{{logstashPipelines.general.status}}">
+      <div class="p-3">
+        <app-logstash-stats [logstashPipelines]="logstashPipelines"></app-logstash-stats>
+      </div>
+    </div>
+
+    <div class="pipeline-line pipeline-{{logstashPipelines.general.status}}">
+      <svg viewbox="0 0 10 100" style="width: 15px">
+        <line x1="5" x2="5" y1="0" y2="100"/>
+      </svg>
+    </div>-->
+
 
     <!-- in the deploy container show simply text, without a wrapping card -->
     <div class="container__deploy tooltip-green">
-      <div class="p-3 h-100 position-relative">
+      <div style="height: 180px" class="p-3 position-relative">
         <h6 class="text-blue-800 d-flex align-content-center justify-content-start mb-3">
          <span class="span-small-icon">
         <i [ngClass]="'icon-circle2 text-success-800'" class="mr-2"></i>

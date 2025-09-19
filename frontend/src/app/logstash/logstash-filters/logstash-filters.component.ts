@@ -19,16 +19,15 @@ import {UtmPipeline} from '../shared/types/logstash-stats.type';
 export class LogstashFiltersComponent implements OnInit {
   @Input() pipeline: UtmPipeline;
   filters: LogstashFilterType[] = [];
+  filter: LogstashFilterType = {} as LogstashFilterType;
   loading = true;
   totalItems: any;
   requestParams =
     {
       page: 0,
       size: ITEMS_PER_PAGE,
-      'filterName.contains': null,
-      'isActive.equals': true,
-      pipelineId: null,
-      sort: 'id,asc'
+      sort: 'id,asc',
+      pipelineId: null
     };
   openEditJson: any;
   filterEdit: LogstashFilterType;
@@ -43,7 +42,10 @@ export class LogstashFiltersComponent implements OnInit {
 
   ngOnInit() {
     if (this.pipeline) {
-      this.requestParams.pipelineId = this.pipeline.id;
+      this.requestParams = {
+        ...this.requestParams,
+        pipelineId: this.pipeline.id
+      };
       this.lineColor = this.pipeline.pipelineStatus === 'up' ? 'green' : 'red';
       this.getLogsFilters();
     }
@@ -98,6 +100,7 @@ export class LogstashFiltersComponent implements OnInit {
   private onSuccess(data: any[], headers) {
     this.totalItems = headers.get('X-Total-Count');
     this.filters = data;
+    this.filter = data[0] || {};
     this.loading = false;
   }
 

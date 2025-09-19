@@ -1,9 +1,9 @@
 <div class="d-flex justify-content-between w-100 align-items-center" >
   <h6 class="font-weight-semibold  m-0">Pipeline filters</h6>
-  <!--<button (click)="filterEdit = null;openEditJson = true"
+  <button (click)="filterEdit = null;openEditJson = true"
           class="btn utm-button utm-button-primary">
     <i class="icon-database-add mr-2"></i> Add filter
-  </button>-->
+  </button>
 </div>
 
 <!--<div class="alert alert-danger alert-styled-right mb-3 mt-3" *ngIf="pipeline.pipelineStatus!=='up'">
@@ -70,10 +70,10 @@
         <div class="close-icon"></div>
       </button>
     </div>
-    <app-logstash-filter-create (filterEditClose)="onFilterEditClose()"
-                                [disable] = "filterEdit.systemOwner"
+    <app-logstash-filter-create *ngIf="filter" (filterEditClose)="onFilterEditClose()"
+                                [disable] = "filterEdit && filterEdit.systemOwner"
                                 (close)="openEditJson= undefined"
-                                [dataType]="filters[0].datatype"
+                                [dataType]="filter.datatype"
                                 [filter]="filterEdit" [pipeline]="pipeline"></app-logstash-filter-create>
   </div>
 </div>
