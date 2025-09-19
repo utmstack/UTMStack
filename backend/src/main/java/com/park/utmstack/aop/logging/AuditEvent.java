@@ -10,7 +10,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AuditEvent {
-    ApplicationEventType value();
-    String message() default "";
+    ApplicationEventType attemptType();
+    String attemptMessage();
+
+    ApplicationEventType successType();
+    String successMessage();
 }
 
