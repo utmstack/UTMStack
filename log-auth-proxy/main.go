@@ -4,12 +4,13 @@ import (
 	"crypto/tls"
 	"net"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/log-auth-proxy/handlers"
 	"github.com/utmstack/UTMStack/log-auth-proxy/logservice"
 	"github.com/utmstack/UTMStack/log-auth-proxy/middleware"
-	"github.com/utmstack/UTMStack/log-auth-proxy/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/health"
@@ -17,7 +18,7 @@ import (
 )
 
 func main() {
-	utils.Logger.Info("Starting Log Auth Proxy...")
+	catcher.Info("Starting Log Auth Proxy...", map[string]any{})
 	autService := logservice.NewLogAuthService()
 	go autService.SyncAuth()
 	authInterceptor := middleware.NewLogAuthInterceptor(autService)
@@ -41,7 +42,8 @@ func startHTTPServer(interceptor *middleware.LogAuthInterceptor, logOutputServic
 
 	cert, err := tls.LoadX509KeyPair("/cert/utm.crt", "/cert/utm.key")
 	if err != nil {
-		utils.Logger.Fatal("failed to load server certificates: %v", err)
+		catcher.Error("failed to load server certificates", err, map[string]any{})
+		os.Exit(1)
 	}
 
 	tlsConfig := &tls.Config{
@@ -55,17 +57,19 @@ func startHTTPServer(interceptor *middleware.LogAuthInterceptor, logOutputServic
 		TLSConfig: tlsConfig,
 	}
 
-	utils.Logger.Info("Starting HTTP server on 0.0.0.0:8080")
+	catcher.Info("Starting HTTP server on 0.0.0.0:8080", map[string]any{})
 	err = server.ListenAndServeTLS("", "")
 	if err != nil {
-		utils.Logger.Fatal("Failed to start HTTP server: %v", err)
+		catcher.Error("Failed to start HTTP server", err, map[string]any{})
+		os.Exit(1)
 	}
 }
 
 func startGRPCServer(interceptor *middleware.LogAuthInterceptor, logOutputService *logservice.LogOutputService) {
 	cert, err := tls.LoadX509KeyPair("/cert/utm.crt", "/cert/utm.key")
 	if err != nil {
-		utils.Logger.Fatal("failed to load server certificates: %v", err)
+		catcher.Error("failed to load server certificates", err, map[string]any{})
+		os.Exit(1)
 	}
 
 	tlsConfig := &tls.Config{
@@ -93,11 +97,13 @@ func startGRPCServer(interceptor *middleware.LogAuthInterceptor, logOutputServic
 
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {
-		utils.Logger.Fatal("failed to listen grpc server: %v", err)
+		catcher.Error("failed to listen grpc server", err, map[string]any{})
+		os.Exit(1)
 	}
 
-	utils.Logger.Info("Starting gRPC server on 0.0.0.0:50051")
+	catcher.Info("Starting gRPC server on 0.0.0.0:50051", map[string]any{})
 	if err := grpcServer.Serve(lis); err != nil {
-		utils.Logger.Fatal("Failed to serve grpc: %v", err)
+		catcher.Error("Failed to serve grpc", err, map[string]any{})
+		os.Exit(1)
 	}
 }

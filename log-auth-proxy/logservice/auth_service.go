@@ -7,10 +7,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/log-auth-proxy/agent"
 	"github.com/utmstack/UTMStack/log-auth-proxy/config"
 	"github.com/utmstack/UTMStack/log-auth-proxy/panelservice"
-	"github.com/utmstack/UTMStack/log-auth-proxy/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
@@ -54,7 +54,8 @@ func (auth *LogAuthService) SyncAuth() {
 func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 	serverAddress := os.Getenv(config.UTMAgentManagerHostEnv)
 	if serverAddress == "" {
-		utils.Logger.Fatal("Failed to get the SERVER_ADDRESS ")
+		catcher.Error("Failed to get the SERVER_ADDRESS", nil, map[string]any{})
+		os.Exit(1)
 	}
 
 	tlsConfig := &tls.Config{InsecureSkipVerify: true}
@@ -63,7 +64,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 
 	conn, err := grpc.NewClient(serverAddress, opts, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
 	if err != nil {
-		utils.Logger.ErrorF("Failed to connect to gRPC server: %v", err)
+		catcher.Error("Failed to connect to gRPC server", err, map[string]any{})
 		return
 	}
 	defer conn.Close()
@@ -82,7 +83,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 			SortBy:      "",
 		})
 		if err != nil {
-			utils.Logger.ErrorF("Error sync collector keys: %v", err)
+			catcher.Error("Error sync collector keys", err, map[string]any{})
 			return
 		}
 
@@ -104,7 +105,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 			SortBy:      "",
 		})
 		if err != nil {
-			utils.Logger.ErrorF("Error sync agent keys: %v", err)
+			catcher.Error("Error sync agent keys", err, map[string]any{})
 			return
 		}
 
@@ -121,7 +122,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 func (auth *LogAuthService) syncConnectionKey() {
 	panelKey, err := panelservice.GetConnectionKey()
 	if err != nil {
-		utils.Logger.ErrorF("Failed to get connection key: %v", err)
+		catcher.Error("Failed to get connection key", err, map[string]any{})
 		return
 	}
 	auth.Mutex.Lock()

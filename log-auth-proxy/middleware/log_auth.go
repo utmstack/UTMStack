@@ -12,9 +12,9 @@ import (
 	"sync"
 
 	"github.com/gin-gonic/gin"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/log-auth-proxy/config"
 	"github.com/utmstack/UTMStack/log-auth-proxy/logservice"
-	"github.com/utmstack/UTMStack/log-auth-proxy/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -65,7 +65,7 @@ func (interceptor *LogAuthInterceptor) GrpcRecoverInterceptor(
 	defer func() {
 		if r := recover(); r != nil {
 			// Handle the panic here
-			utils.Logger.ErrorF("Panic occurred: %v", r)
+			catcher.Error("Panic occurred:", nil, map[string]any{"panic": r})
 			err = status.Errorf(codes.Internal, "Internal server error")
 		}
 	}()
@@ -93,7 +93,7 @@ func (interceptor *LogAuthInterceptor) HTTPGitHubAuthInterceptor() gin.HandlerFu
 	return func(c *gin.Context) {
 		body, err := io.ReadAll(c.Request.Body)
 		if err != nil {
-			utils.Logger.ErrorF("error reading request body: %v", err)
+			catcher.Error("error reading request body", err, map[string]any{})
 			c.AbortWithStatusJSON(http.StatusInternalServerError, "error reading request body")
 			return
 		}
