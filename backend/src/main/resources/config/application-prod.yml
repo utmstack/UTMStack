@@ -2,7 +2,7 @@ logging:
     level:
         ROOT: error
         tech.jhipster: error
-        com.park.utmstack: error
+        com.park.utmstack: info
 
 spring:
     devtools:
