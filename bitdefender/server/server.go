@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/bitdefender/constants"
 	"github.com/utmstack/UTMStack/bitdefender/schema"
 	"github.com/utmstack/UTMStack/bitdefender/utils"
@@ -19,13 +20,13 @@ var syslogHelper EpsSyslogHelper
 // GetBDGZLogs gets the Bitdefender Api Push logs and sends them to the syslog server
 func GetBDGZLogs(config *types.ConfigurationSection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		utils.Logger.Info("New group of events received")
+		catcher.Info("New group of events received", map[string]any{})
 		// Check if the Bitdefender Module is active
 		if config.ModuleActive {
 			//Check if the authorization exist
 			if r.Header.Get("authorization") == "" {
 				messag := "401 Missing Authorization Header"
-				utils.Logger.ErrorF("%s", messag)
+				catcher.Error(messag, nil, map[string]any{})
 				j, _ := json.Marshal(messag)
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write(j)
@@ -41,7 +42,7 @@ func GetBDGZLogs(config *types.ConfigurationSection) http.HandlerFunc {
 			}
 			if !isAuth {
 				messag := "401 Invalid Authentication Credentials"
-				utils.Logger.ErrorF("%s", messag)
+				catcher.Error(messag, nil, map[string]any{})
 				j, _ := json.Marshal(messag)
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write(j)
@@ -52,7 +53,7 @@ func GetBDGZLogs(config *types.ConfigurationSection) http.HandlerFunc {
 			var newBody schema.BodyEvents
 			err := json.NewDecoder(r.Body).Decode(&newBody)
 			if err != nil {
-				utils.Logger.ErrorF("error to decode body: %v", err)
+				catcher.Error("error to decode body", err, map[string]any{})
 				return
 			}
 
@@ -65,7 +66,7 @@ func GetBDGZLogs(config *types.ConfigurationSection) http.HandlerFunc {
 			w.WriteHeader(http.StatusOK)
 			w.Write(j)
 		} else {
-			utils.Logger.ErrorF("Bitdefender module disabled")
+			catcher.Error("Bitdefender module disabled", nil, map[string]any{})
 		}
 	}
 }
@@ -95,10 +96,10 @@ func ServerUp(cnf *types.ConfigurationSection, certsPath string) {
 	}
 
 	go func() {
-		utils.Logger.Info("Listening in port %s...\n", constants.GetConnectorPort())
+		catcher.Info("Listening in port", map[string]any{"port": constants.GetConnectorPort()})
 		err := server.ListenAndServeTLS(filepath.Join(certsPath, "server.crt"), filepath.Join(certsPath, "server.key"))
 		if err != nil {
-			utils.Logger.ErrorF("%v", err)
+			catcher.Error("error starting server", err, map[string]any{})
 		}
 		//Close connection with syslogServer
 		syslogHelper.clientSyslog.Close()

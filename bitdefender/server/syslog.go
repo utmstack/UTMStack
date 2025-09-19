@@ -6,8 +6,8 @@ import (
 	"time"
 
 	syslog "github.com/RackSec/srslog"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/bitdefender/constants"
-	"github.com/utmstack/UTMStack/bitdefender/utils"
 	"github.com/utmstack/config-client-go/types"
 )
 
@@ -38,16 +38,16 @@ func (g *EpsSyslogHelper) SentToSyslog(config *types.ConfigurationSection, event
 				pattern := "BitdefenderGZCompanyId=" + compID
 				match, err := regexp.MatchString(pattern, syslogMessage)
 				if err != nil {
-					utils.Logger.ErrorF("error matching pattern: %v", err)
+					catcher.Error("error matching pattern", err, map[string]any{})
 					continue
 				}
 				if match {
 					syslogMessage += " UTM_TENANT=" + cnf.GroupName
 					g.clientSyslog.Warning(syslogMessage)
-					utils.Logger.Info("message recived: %s", syslogMessage)
+					catcher.Info("message recived", map[string]any{"message": syslogMessage})
 					break
 				} else {
-					utils.Logger.Info("Event received that is not within the configured CompanyId: %s", syslogMessage)
+					catcher.Info("Event received that is not within the configured CompanyId", map[string]any{"message": syslogMessage})
 				}
 			}
 		}
