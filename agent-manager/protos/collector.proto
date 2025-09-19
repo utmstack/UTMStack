@@ -19,6 +19,7 @@ service PanelCollectorService {
 
 enum CollectorModule{
   AS_400 = 0;
+  UTMSTACK = 1;
 }
 
 message RegisterRequest {

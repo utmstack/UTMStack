@@ -5,7 +5,8 @@ import "gorm.io/gorm"
 type CollectorModule string
 
 const (
-	AS_400 CollectorModule = "AS_400"
+	AS_400   CollectorModule = "AS_400"
+	UTMSTACK CollectorModule = "UTMSTACK"
 )
 
 type Collector struct {
