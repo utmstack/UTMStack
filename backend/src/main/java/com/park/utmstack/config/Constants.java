@@ -147,6 +147,8 @@ public final class Constants {
     public static final String DURATION_KEY = "duration";
     public static final String CAUSE_KEY = "cause";
 
+    public static final String ENV_TFA_ENABLE = "APP_TFA_ENABLED";
+
     private Constants() {
     }
 }

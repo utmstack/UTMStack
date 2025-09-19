@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Controller to authenticate users.
@@ -73,18 +74,20 @@ public class UserJWTController {
 
         boolean isTfaEnabled = Boolean.parseBoolean(Constants.CFG.get(Constants.PROP_TFA_ENABLE));
 
+        boolean forceTfaAuth = Boolean.parseBoolean(Optional.ofNullable(System.getenv(Constants.ENV_TFA_ENABLE)).orElse("true"));
+
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
 
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String tempToken = tokenProvider.createToken(authentication, false, false);
+        String token = tokenProvider.createToken(authentication, false, !forceTfaAuth);
 
         User user = userService.getUserWithAuthoritiesByLogin(loginVM.getUsername())
                 .orElseThrow(() -> new BadCredentialsException("Authentication failed: user '" + loginVM.getUsername() + "' not found"));
 
-        boolean isTfaSetup = isTfaEnabled && user.getTfaMethod() != null && !user.getTfaMethod().isEmpty();
+        boolean isTfaSetup = isTfaEnabled && user.getTfaMethod() != null && !user.getTfaMethod().isEmpty() && forceTfaAuth;
 
         if (isTfaSetup) {
             tfaService.generateChallenge(user);
@@ -99,10 +102,11 @@ public class UserJWTController {
         }
 
         LoginResponseDTO response = LoginResponseDTO.builder()
-                .token(tempToken)
+                .token(token)
                 .method(user.getTfaMethod())
                 .success(true)
                 .tfaConfigured(isTfaSetup)
+                .forceTfa(forceTfaAuth)
                 .build();
 
         return ResponseEntity.ok(response);

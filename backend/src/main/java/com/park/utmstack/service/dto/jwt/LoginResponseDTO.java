@@ -10,6 +10,7 @@ import lombok.Data;
 public class LoginResponseDTO {
     private boolean success;
     private boolean tfaConfigured;
+    private boolean forceTfa;
     private String method;
     private String token;
 }
