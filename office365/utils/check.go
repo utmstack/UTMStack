@@ -4,10 +4,16 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
+
+	"github.com/threatwinds/go-sdk/catcher"
 )
 
-const connectionTimeout = 5 * time.Second
+const (
+	connectionTimeout = 5 * time.Second
+	wait              = 3 * time.Second
+)
 
 func ConnectionChecker(url string) error {
 	checkConn := func() error {
@@ -20,7 +26,7 @@ func ConnectionChecker(url string) error {
 		return nil
 	}
 
-	if err := Logger.InfiniteRetryIfXError(checkConn, "connection failed"); err != nil {
+	if err := infiniteRetryIfXError(checkConn, "connection failed"); err != nil {
 		return err
 	}
 
@@ -42,4 +48,31 @@ func checkConnection(url string, ctx context.Context) error {
 	defer resp.Body.Close()
 
 	return nil
+}
+
+func infiniteRetryIfXError(f func() error, exception string) error {
+	var xErrorWasLogged bool
+
+	for {
+		err := f()
+		if err != nil && is(err, exception) {
+			if !xErrorWasLogged {
+				_ = catcher.Error("An error occurred (%s), will keep retrying indefinitely...", err, nil)
+				xErrorWasLogged = true
+			}
+			time.Sleep(wait)
+			continue
+		}
+
+		return err
+	}
+}
+
+func is(e error, args ...string) bool {
+	for _, arg := range args {
+		if strings.Contains(e.Error(), arg) {
+			return true
+		}
+	}
+	return false
 }

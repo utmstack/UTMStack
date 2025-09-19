@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/office365/configuration"
 	"github.com/utmstack/UTMStack/office365/utils"
 	"github.com/utmstack/config-client-go/types"
@@ -71,7 +72,7 @@ func (o *OfficeProcessor) GetAuth() error {
 
 func (o *OfficeProcessor) StartSubscriptions() error {
 	for _, subscription := range o.Subscriptions {
-		utils.Logger.Info("starting subscription: %s...", subscription)
+		catcher.Info("starting subscription...", map[string]any{"subscription": subscription})
 		url := configuration.GetStartSubscriptionLink(o.TenantId) + "?contentType=" + subscription
 		headers := map[string]string{
 			"Content-Type":  "application/json",
@@ -92,7 +93,7 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 			return fmt.Errorf("failed to unmarshal response: %v", err)
 		}
 
-		utils.Logger.Info("starting subscription response: %v", respJson)
+		catcher.Info("starting subscription response", map[string]any{"response": respJson})
 	}
 
 	return nil
@@ -136,7 +137,7 @@ func (o *OfficeProcessor) GetLogs(startTime time.Time, endTime time.Time, group 
 	for _, subscription := range o.Subscriptions {
 		contentList, err := o.GetContentList(subscription, startTime, endTime, group)
 		if err != nil {
-			utils.Logger.ErrorF("error getting content list: %v", err)
+			catcher.Error("error getting content list", err, map[string]any{})
 			continue
 		}
 		logsCounter := 0
@@ -144,7 +145,7 @@ func (o *OfficeProcessor) GetLogs(startTime time.Time, endTime time.Time, group 
 			for _, log := range contentList {
 				details, err := o.GetContentDetails(log.ContentUri)
 				if err != nil {
-					utils.Logger.ErrorF("error getting content details: %v", err)
+					catcher.Error("error getting content details", err, map[string]any{})
 					continue
 				}
 				if len(details) > 0 {
@@ -152,13 +153,13 @@ func (o *OfficeProcessor) GetLogs(startTime time.Time, endTime time.Time, group 
 					cleanLogs := ETLProcess(details, group)
 					err := SendToLogstash(cleanLogs)
 					if err != nil {
-						utils.Logger.ErrorF("error sending logs to logstash: %v", err)
+						catcher.Error("error sending logs to logstash", err, map[string]any{})
 						continue
 					}
 				}
 			}
 		}
 
-		utils.Logger.Info("found: %d new logs in %s for group %s", logsCounter, subscription, group.GroupName)
+		catcher.Info("new logs were found", map[string]any{"count": logsCounter, "subscription": subscription, "group": group.GroupName})
 	}
 }
