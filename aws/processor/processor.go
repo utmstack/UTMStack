@@ -1,14 +1,14 @@
 package processor
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
-	"github.com/threatwinds/logger"
-	"github.com/utmstack/UTMStack/aws/utils"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/config-client-go/types"
 )
 
@@ -33,9 +33,9 @@ func GetAWSProcessor(group types.ModuleGroup) AWSProcessor {
 	return awsPro
 }
 
-func (p *AWSProcessor) createAWSSession() (*session.Session, *logger.Error) {
+func (p *AWSProcessor) createAWSSession() (*session.Session, error) {
 	if p.RegionName == "" {
-		return nil, utils.Logger.ErrorF("Region is not configured")
+		return nil, fmt.Errorf("Region is not configured")
 	}
 
 	sess, err := session.NewSession(&aws.Config{
@@ -48,13 +48,13 @@ func (p *AWSProcessor) createAWSSession() (*session.Session, *logger.Error) {
 		),
 	})
 	if err != nil {
-		return nil, utils.Logger.ErrorF("error creating aws session: %v", err)
+		return nil, fmt.Errorf("error creating aws session: %v", err)
 	}
 
 	return sess, nil
 }
 
-func (p *AWSProcessor) DescribeLogGroups() ([]string, *logger.Error) {
+func (p *AWSProcessor) DescribeLogGroups() ([]string, error) {
 	sess, sessionErr := p.createAWSSession()
 	if sessionErr != nil {
 		return nil, sessionErr
@@ -70,13 +70,13 @@ func (p *AWSProcessor) DescribeLogGroups() ([]string, *logger.Error) {
 			return !lastPage
 		})
 	if err != nil {
-		return nil, utils.Logger.ErrorF("error getting log groups: %v", err)
+		return nil, fmt.Errorf("error getting log groups: %v", err)
 	}
 
 	return logGroups, nil
 }
 
-func (p *AWSProcessor) DescribeLogStreams(logGroup string) ([]string, *logger.Error) {
+func (p *AWSProcessor) DescribeLogStreams(logGroup string) ([]string, error) {
 	sess, sessionErr := p.createAWSSession()
 	if sessionErr != nil {
 		return nil, sessionErr
@@ -96,13 +96,13 @@ func (p *AWSProcessor) DescribeLogStreams(logGroup string) ([]string, *logger.Er
 			return !lastPage
 		})
 	if err != nil {
-		return nil, utils.Logger.ErrorF("error getting log streams: %v", err)
+		return nil, fmt.Errorf("error getting log streams: %v", err)
 	}
 
 	return logStreams, nil
 }
 
-func (p *AWSProcessor) GetLogs(startTime, endTime time.Time, group types.ModuleGroup) ([]TransformedLog, *logger.Error) {
+func (p *AWSProcessor) GetLogs(startTime, endTime time.Time, group types.ModuleGroup) ([]TransformedLog, error) {
 	transformedLogs := []TransformedLog{}
 
 	sess, sessionErr := p.createAWSSession()
@@ -124,7 +124,7 @@ func (p *AWSProcessor) GetLogs(startTime, endTime time.Time, group types.ModuleG
 		}
 
 		for _, stream := range logStreams {
-			utils.Logger.Info("Processing stream %s from group %s", stream, logGroup)
+			catcher.Info("Processing stream", map[string]any{"stream": stream, "log_group": logGroup})
 			params := &cloudwatchlogs.GetLogEventsInput{
 				LogGroupName:  aws.String(logGroup),
 				LogStreamName: aws.String(stream),
@@ -140,7 +140,7 @@ func (p *AWSProcessor) GetLogs(startTime, endTime time.Time, group types.ModuleG
 					return !lastPage
 				})
 			if err != nil {
-				return nil, utils.Logger.ErrorF("error getting log pages: %v", err)
+				return nil, catcher.Error("error getting log pages", err, map[string]any{})
 			}
 		}
 	}
