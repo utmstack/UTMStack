@@ -8,10 +8,10 @@ import (
 
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/soc-ai/configurations"
 	"github.com/utmstack/soc-ai/elastic"
 	"github.com/utmstack/soc-ai/schema"
-	"github.com/utmstack/soc-ai/utils"
 )
 
 func (p *Processor) restRouter() {
@@ -36,20 +36,20 @@ func notFound(c *gin.Context) {
 func (p *Processor) handleAlerts(c *gin.Context) {
 	err := elastic.CreateIndexIfNotExist(configurations.SOC_AI_INDEX)
 	if err != nil {
-		utils.Logger.ErrorF("error creating index %s: %v", configurations.SOC_AI_INDEX, err)
+		catcher.Error("error creating index", err, map[string]any{"index": configurations.SOC_AI_INDEX})
 		c.JSON(http.StatusInternalServerError, fmt.Sprintf("error creating index %s", configurations.SOC_AI_INDEX))
 		return
 	}
 
 	if !configurations.GetGPTConfig().ModuleActive {
-		utils.Logger.LogF(100, "Droping request to /process, GPT module is not active")
+		catcher.Error("Droping request to /process, GPT module is not active", nil, map[string]any{})
 		c.JSON(http.StatusOK, "GPT module is not active")
 		return
 	}
 
 	var ids []string
 	if err := c.BindJSON(&ids); err != nil {
-		utils.Logger.ErrorF("error binding JSON: %v", err)
+		catcher.Error("error binding JSON", err, map[string]any{})
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -58,7 +58,7 @@ func (p *Processor) handleAlerts(c *gin.Context) {
 		result, err := elastic.ElasticSearch(configurations.SOC_AI_INDEX, "activityId", id)
 		if err != nil {
 			if !strings.Contains(err.Error(), "no such host") {
-				utils.Logger.ErrorF("error while searching alert %s in elastic: %v", id, err)
+				catcher.Error("error while searching alert in elastic", err, map[string]any{"alert": id})
 				c.JSON(http.StatusInternalServerError, fmt.Sprintf("error while searching alert %s in elastic: %v", id, err))
 				return
 			}
@@ -69,7 +69,7 @@ func (p *Processor) handleAlerts(c *gin.Context) {
 		var gptResponses []schema.GPTAlertResponse
 		err = json.Unmarshal(result, &gptResponses)
 		if err != nil {
-			utils.Logger.ErrorF("error decoding response from elastic: %v", err)
+			catcher.Error("error decoding response from elastic", err, map[string]any{})
 			c.JSON(http.StatusInternalServerError, fmt.Sprintf("error decoding response: %v", err))
 			return
 		}
@@ -77,20 +77,20 @@ func (p *Processor) handleAlerts(c *gin.Context) {
 		if len(gptResponses) == 0 {
 			err = elastic.IndexStatus(id, "Processing", "create")
 			if err != nil {
-				utils.Logger.ErrorF("error creating doc in index: %v", err)
+				catcher.Error("error creating doc in index", err, map[string]any{})
 				c.JSON(http.StatusInternalServerError, fmt.Sprintf("error creating doc in index: %v", err))
 				return
 			}
 		} else {
 			err = elastic.IndexStatus(id, "Processing", "update")
 			if err != nil {
-				utils.Logger.ErrorF("error updating doc in index: %v", err)
+				catcher.Error("error updating doc in index", err, map[string]any{})
 				c.JSON(http.StatusInternalServerError, fmt.Sprintf("error updating doc in index: %v", err))
 				return
 			}
 		}
 
-		utils.Logger.Info("alert %s received", id)
+		catcher.Info("alert received", map[string]any{"alert": id})
 		p.AlertInfoQueue <- schema.AlertGPTDetails{AlertID: id}
 	}
 

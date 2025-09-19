@@ -3,25 +3,25 @@ package processor
 import (
 	"fmt"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/soc-ai/elastic"
 	"github.com/utmstack/soc-ai/schema"
-	"github.com/utmstack/soc-ai/utils"
 )
 
 func (p *Processor) processAlertsInfo() {
 	for alert := range p.AlertInfoQueue {
-		utils.Logger.Info("Processing alert info for ID: %s", alert.AlertID)
+		catcher.Info("Processing alert info for ID", map[string]any{"alert": alert.AlertID})
 
 		alertInfo, err := elastic.GetAlertsInfo(alert.AlertID)
 		if err != nil {
 			p.RegisterError(fmt.Sprintf("error while getting alert %s info: %v", alert.AlertID, err), alert.AlertID)
 			continue
 		}
-		utils.Logger.Info("Alert info retrieved successfully for ID: %s", alert.AlertID)
+		catcher.Info("Alert info retrieved successfully for ID", map[string]any{"alert": alert.AlertID})
 
 		correlation, err := elastic.FindRelatedAlerts(alertInfo)
 		if err != nil {
-			utils.Logger.ErrorF("error finding related alerts: %v", err)
+			catcher.Error("error finding related alerts", err, map[string]any{})
 		}
 
 		details := schema.ConvertFromAlertToAlertDB(alertInfo)

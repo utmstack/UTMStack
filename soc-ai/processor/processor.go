@@ -6,10 +6,10 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/soc-ai/configurations"
 	"github.com/utmstack/soc-ai/elastic"
 	"github.com/utmstack/soc-ai/schema"
-	"github.com/utmstack/soc-ai/utils"
 )
 
 var (
@@ -35,7 +35,7 @@ func NewProcessor() *Processor {
 }
 
 func (p *Processor) ProcessData() {
-	utils.Logger.Info("Starting SOC-AI Processor...")
+	catcher.Info("Starting SOC-AI Processor...", nil)
 
 	go configurations.GetGPTConfig().UpdateGPTConfigurations()
 	go p.restRouter()
@@ -55,7 +55,7 @@ func (p *Processor) ProcessData() {
 func (p *Processor) RegisterError(message, id string) {
 	err := elastic.IndexStatus(id, "Error", "update")
 	if err != nil {
-		utils.Logger.ErrorF("error while indexing error in elastic: %v", err)
+		catcher.Error("error while indexing error in elastic", err, map[string]any{})
 	}
-	utils.Logger.ErrorF("%s", message)
+	catcher.Error(message, nil, map[string]any{})
 }

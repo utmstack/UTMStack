@@ -4,6 +4,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	UTMStackConfigurationClient "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/soc-ai/utils"
@@ -35,21 +36,21 @@ func (c *GPTConfig) UpdateGPTConfigurations() {
 	panelServ := GetPanelServiceName()
 	client := UTMStackConfigurationClient.NewUTMClient(intKey, panelServ)
 
-	utils.Logger.Info("Starting to update GPT configurations...")
+	catcher.Info("Starting to update GPT configurations...", nil)
 
 	for {
 		if err := utils.ConnectionChecker(GPT_API_ENDPOINT); err != nil {
-			utils.Logger.ErrorF("Failed to establish internet connection: %v", err)
+			catcher.Error("Failed to establish internet connection", err, map[string]any{})
 		}
 
 		tempModuleConfig, err := client.GetUTMConfig(enum.SOCAI)
 		if err != nil && err.Error() != "" && err.Error() != " " {
-			utils.Logger.LogF(100, "Error while getting GPT configuration: %v", err)
+			catcher.Error("Error while getting GPT configuration", err, map[string]any{})
 			time.Sleep(TIME_FOR_GET_CONFIG * time.Second)
 			continue
 		}
 		if tempModuleConfig == nil {
-			utils.Logger.LogF(100, "Got nil config from server")
+			catcher.Error("Got nil config from server", nil, map[string]any{})
 			time.Sleep(TIME_FOR_GET_CONFIG * time.Second)
 			continue
 		}
