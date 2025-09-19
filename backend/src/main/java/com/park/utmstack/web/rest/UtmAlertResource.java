@@ -73,33 +73,31 @@ public class UtmAlertResource {
     }
 
     @PostMapping("/utm-alerts/tags")
+    @AuditEvent(
+            attemptType = ApplicationEventType.ALERT_TAG_UPDATE_ATTEMPT,
+            attemptMessage = "Attempt to update alert tags initiated",
+            successType = ApplicationEventType.ALERT_TAG_UPDATE_SUCCESS,
+            successMessage = "Alert tags updated successfully"
+    )
     public ResponseEntity<Void> updateAlertTags(@RequestBody @Valid UpdateAlertTagsRequestBody body) {
         final String ctx = CLASSNAME + ".updateAlertTags";
-        try {
-            utmAlertService.updateTags(body.getAlertIds(), body.getTags(), body.isCreateRule());
-            return ResponseEntity.ok().build();
-        } catch (Exception ex) {
-            String msg = ctx + ": " + ex.getMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
-        }
+        utmAlertService.updateTags(body.getAlertIds(), body.getTags(), body.isCreateRule());
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/utm-alerts/convert-to-incident")
+    @AuditEvent(
+            attemptType = ApplicationEventType.ALERT_CONVERT_TO_INCIDENT_ATTEMPT,
+            attemptMessage = "Attempt to convert alerts to incident initiated",
+            successType = ApplicationEventType.ALERT_CONVERT_TO_INCIDENT_SUCCESS,
+            successMessage = "Alerts converted to incident successfully"
+    )
     public ResponseEntity<Void> convertToIncident(@RequestBody @Valid ConvertToIncidentRequestBody body) {
         final String ctx = CLASSNAME + ".convertToIncident";
-        try {
-            utmAlertService.convertToIncident(body.getEventIds(), body.getIncidentName(),body.getIncidentId(), body.getIncidentSource());
-            return ResponseEntity.ok().build();
-        } catch (Exception ex) {
-            String msg = ctx + ": " + ex.getMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
-        }
+
+        utmAlertService.convertToIncident(body.getEventIds(), body.getIncidentName(),body.getIncidentId(), body.getIncidentSource());
+        return ResponseEntity.ok().build();
+
     }
 
     @GetMapping("/utm-alerts/count-open-alerts")
