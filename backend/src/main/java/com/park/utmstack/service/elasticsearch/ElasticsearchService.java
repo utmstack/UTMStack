@@ -5,6 +5,7 @@ import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.UtmSpaceNotificationControl;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
+import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.domain.index_pattern.enums.SystemIndexPattern;
 import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.service.MailService;
@@ -18,9 +19,11 @@ import com.utmstack.opensearch_connector.enums.TermOrder;
 import com.utmstack.opensearch_connector.exceptions.OpenSearchException;
 import com.utmstack.opensearch_connector.types.ElasticCluster;
 import com.utmstack.opensearch_connector.types.IndexSort;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.opensearch.client.opensearch._types.SortOrder;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch.cat.indices.IndicesRecord;
+import org.opensearch.client.opensearch.core.CountRequest;
 import org.opensearch.client.opensearch.core.IndexResponse;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
@@ -322,6 +325,22 @@ public class ElasticsearchService {
             Assert.hasText(indexPattern, "Parameter indexPattern must not be null or empty");
             SearchRequest query = buildQuery(indexPattern, filters, top, pageable);
             return client.getClient().search(query, type);
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage());
+        }
+    }
+
+    public boolean exists(List<FilterType> filters, String indexPattern) {
+        final String ctx = CLASSNAME + ".exists";
+        try {
+            SearchRequest request = new SearchRequest.Builder()
+                    .index(indexPattern)
+                    .query(SearchUtil.toQuery(filters))
+                    .size(1)
+                    .build();
+
+            SearchResponse<Object> response = search(request, Object.class);
+            return response.hits().total().value() > 0;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }

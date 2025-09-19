@@ -230,6 +230,21 @@ public class ElasticsearchResource {
         }
     }
 
+    @PostMapping("/count")
+    public ResponseEntity<Boolean> count(@RequestBody(required = false) List<FilterType> filters,
+                                      @RequestParam String indexPattern,
+                                      Pageable pageable) {
+        final String ctx = CLASSNAME + ".count";
+        try {
+            return ResponseEntity.ok().body(elasticsearchService.exists(filters, indexPattern));
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+        }
+    }
+
     public static class PropertyValuesWithCountRequest {
         private List<FilterType> filters;
         private String field;
