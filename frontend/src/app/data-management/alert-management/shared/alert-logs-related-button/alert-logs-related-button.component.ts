@@ -12,13 +12,14 @@ import {ElasticDataService} from '../../../../shared/services/elasticsearch/elas
 const LOG_ID_FIELD = 'id';
 
 @Component({
-  selector: 'app-alert-logs-related-button',
+  selector: 'app-alert-logs-related-action',
   templateUrl: './alert-logs-related-button.component.html',
   styleUrls: ['./alert-logs-related-button.component.css']
 })
 export class AlertLogsRelatedButtonComponent implements OnInit {
 
   @Input() logs: any[] = [];
+  @Input() template: 'btn' | 'span'  = 'btn';
   showButton = false;
 
   constructor(private router: Router,
@@ -55,5 +56,4 @@ export class AlertLogsRelatedButtonComponent implements OnInit {
       this.spinner.hide('loadingSpinner');
     });
   }
-
 }
