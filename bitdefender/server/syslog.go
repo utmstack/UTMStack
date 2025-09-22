@@ -38,7 +38,7 @@ func (g *EpsSyslogHelper) SentToSyslog(config *types.ConfigurationSection, event
 				pattern := "BitdefenderGZCompanyId=" + compID
 				match, err := regexp.MatchString(pattern, syslogMessage)
 				if err != nil {
-					catcher.Error("error matching pattern", err, map[string]any{})
+					catcher.Error("error matching pattern", err, nil)
 					continue
 				}
 				if match {

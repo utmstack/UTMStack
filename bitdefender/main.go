@@ -22,20 +22,20 @@ var (
 func main() {
 	path, err := utils.GetMyPath()
 	if err != nil {
-		catcher.Error("failed to get current path", err, map[string]any{})
+		catcher.Error("failed to get current path", err, nil)
 		os.Exit(1)
 	}
 
 	certsPath := filepath.Join(path, "certs")
 	err = utils.CreatePathIfNotExist(certsPath)
 	if err != nil {
-		catcher.Error("error creating path", err, map[string]any{})
+		catcher.Error("error creating path", err, nil)
 		os.Exit(1)
 	}
 
 	err = utils.GenerateCerts(certsPath)
 	if err != nil {
-		catcher.Error("error generating certificates", err, map[string]any{})
+		catcher.Error("error generating certificates", err, nil)
 		os.Exit(1)
 	}
 

@@ -38,7 +38,7 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex) {
 		time.Sleep(delayCheckConfig)
 
 		if err := utils.ConnectionChecker(constants.URL_CHECK_CONNECTION); err != nil {
-			catcher.Error("Failed to establish connection", err, map[string]any{})
+			catcher.Error("Failed to establish connection", err, nil)
 		}
 
 		tempModuleConfig, err := client.GetUTMConfig(enum.BITDEFENDER)
@@ -47,7 +47,7 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex) {
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
-				catcher.Error("error getting configuration of the Bitdefender module", err, map[string]any{})
+				catcher.Error("error getting configuration of the Bitdefender module", err, nil)
 			}
 			continue
 		}
@@ -61,16 +61,16 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex) {
 				if !araAnyEmpty(group.Configurations[0].ConfValue, group.Configurations[1].ConfValue, group.Configurations[2].ConfValue, group.Configurations[3].ConfValue) {
 					catcher.Info("new configuration found", map[string]any{"groupName": group.GroupName, "master": group.Configurations[2].ConfValue, "CompanyIDs": group.Configurations[3].ConfValue})
 					if err := confBDGZApiPush(group, "sendConf"); err != nil {
-						catcher.Error("error sending configuration", err, map[string]any{})
+						catcher.Error("error sending configuration", err, nil)
 						continue
 					}
 					time.Sleep(15 * time.Second)
 					if err := confBDGZApiPush(group, "getConf"); err != nil {
-						catcher.Error("error getting configuration", err, map[string]any{})
+						catcher.Error("error getting configuration", err, nil)
 						continue
 					}
 					if err := confBDGZApiPush(group, "sendTest"); err != nil {
-						catcher.Error("error sending test event", err, map[string]any{})
+						catcher.Error("error sending test event", err, nil)
 						continue
 					}
 
@@ -101,7 +101,7 @@ func confBDGZApiPush(config types.ModuleGroup, operation string) error {
 	for i := 0; i < 5; i++ {
 		response, err := fn(config)
 		if err != nil {
-			catcher.Error("error sending configuration", err, map[string]any{})
+			catcher.Error("error sending configuration", err, nil)
 			time.Sleep(1 * time.Minute)
 			continue
 		}
@@ -114,7 +114,7 @@ func confBDGZApiPush(config types.ModuleGroup, operation string) error {
 			regex := regexp.MustCompile(`result":true`)
 			match := regex.Match([]byte(string(myBody)))
 			if match {
-				catcher.Info("Configuration sent correctly", map[string]any{})
+				catcher.Info("Configuration sent correctly", nil)
 			}
 		}
 		return nil
@@ -123,33 +123,33 @@ func confBDGZApiPush(config types.ModuleGroup, operation string) error {
 }
 
 func sendPushEventSettings(config types.ModuleGroup) (*http.Response, error) {
-	catcher.Info("Sending configuration...", map[string]any{})
+	catcher.Info("Sending configuration...", nil)
 	byteTemplate := getTemplateSetPush(config)
 	body, err := json.Marshal(byteTemplate)
 	if err != nil {
-		catcher.Error("error when marshaling the request body to send the configuration", err, map[string]any{})
+		catcher.Error("error when marshaling the request body to send the configuration", err, nil)
 		return nil, err
 	}
 	return sendRequest(body, config)
 }
 
 func getPushEventSettings(config types.ModuleGroup) (*http.Response, error) {
-	catcher.Info("Checking configuration...", map[string]any{})
+	catcher.Info("Checking configuration...", nil)
 	byteTemplate := getTemplateGet()
 	body, err := json.Marshal(byteTemplate)
 	if err != nil {
-		catcher.Error("error when marshaling the request body to send the configuration", err, map[string]any{})
+		catcher.Error("error when marshaling the request body to send the configuration", err, nil)
 		return nil, err
 	}
 	return sendRequest(body, config)
 }
 
 func sendTestPushEvent(config types.ModuleGroup) (*http.Response, error) {
-	catcher.Info("Sending Event Test...", map[string]any{})
+	catcher.Info("Sending Event Test...", nil)
 	byteTemplate := getTemplateTest()
 	body, err := json.Marshal(byteTemplate)
 	if err != nil {
-		catcher.Error("error when marshaling the request body to send the configuration", err, map[string]any{})
+		catcher.Error("error when marshaling the request body to send the configuration", err, nil)
 		return nil, err
 	}
 	return sendRequest(body, config)

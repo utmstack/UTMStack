@@ -20,13 +20,13 @@ var syslogHelper EpsSyslogHelper
 // GetBDGZLogs gets the Bitdefender Api Push logs and sends them to the syslog server
 func GetBDGZLogs(config *types.ConfigurationSection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		catcher.Info("New group of events received", map[string]any{})
+		catcher.Info("New group of events received", nil)
 		// Check if the Bitdefender Module is active
 		if config.ModuleActive {
 			//Check if the authorization exist
 			if r.Header.Get("authorization") == "" {
 				messag := "401 Missing Authorization Header"
-				catcher.Error(messag, nil, map[string]any{})
+				catcher.Error(messag, nil, nil)
 				j, _ := json.Marshal(messag)
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write(j)
@@ -42,7 +42,7 @@ func GetBDGZLogs(config *types.ConfigurationSection) http.HandlerFunc {
 			}
 			if !isAuth {
 				messag := "401 Invalid Authentication Credentials"
-				catcher.Error(messag, nil, map[string]any{})
+				catcher.Error(messag, nil, nil)
 				j, _ := json.Marshal(messag)
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write(j)
@@ -53,7 +53,7 @@ func GetBDGZLogs(config *types.ConfigurationSection) http.HandlerFunc {
 			var newBody schema.BodyEvents
 			err := json.NewDecoder(r.Body).Decode(&newBody)
 			if err != nil {
-				catcher.Error("error to decode body", err, map[string]any{})
+				catcher.Error("error to decode body", err, nil)
 				return
 			}
 
@@ -66,7 +66,7 @@ func GetBDGZLogs(config *types.ConfigurationSection) http.HandlerFunc {
 			w.WriteHeader(http.StatusOK)
 			w.Write(j)
 		} else {
-			catcher.Error("Bitdefender module disabled", nil, map[string]any{})
+			catcher.Error("Bitdefender module disabled", nil, nil)
 		}
 	}
 }
@@ -99,7 +99,7 @@ func ServerUp(cnf *types.ConfigurationSection, certsPath string) {
 		catcher.Info("Listening in port", map[string]any{"port": constants.GetConnectorPort()})
 		err := server.ListenAndServeTLS(filepath.Join(certsPath, "server.crt"), filepath.Join(certsPath, "server.key"))
 		if err != nil {
-			catcher.Error("error starting server", err, map[string]any{})
+			catcher.Error("error starting server", err, nil)
 		}
 		//Close connection with syslogServer
 		syslogHelper.clientSyslog.Close()
