@@ -1,12 +1,13 @@
 <ng-container *ngIf="showButton">
   <button (click)="navigateToEvents()" *ngIf="template === 'btn'; else spanTemplate" class="btn utm-button utm-button-primary ml-2">
-    <i class="icon-eye8 mr-1"></i> View logs related
+    <i class="icon-eye8 mr-1"></i> View in Log Explorer
   </button>
 
   <ng-template #spanTemplate>
     <span (click)="navigateToEvents()" class="text-blue-800 cursor-pointer ml-2">
-        (view <strong>{{logs.length < 100 ? logs.length : ' last 100 ' }}</strong> {{logs.length > 1 ? 'logs' : 'log'}}
-          related)
+       <!-- (view <strong>{{logs.length < 100 ? logs.length : ' last 100 ' }}</strong> {{logs.length > 1 ? 'logs' : 'log'}}
+          related)-->
+      (View in Log Explorer)
       </span>
   </ng-template>
 </ng-container>

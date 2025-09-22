@@ -30,12 +30,14 @@ import {AlertCompleteComponent} from './components/alert-complete/alert-complete
 import {AlertDescriptionComponent} from './components/alert-description/alert-description.component';
 import {AlertDocUpdateInProgressComponent} from './components/alert-doc-update-in-progress/alert-doc-update-in-progress.component';
 import { AlertEntityDisplayComponent } from './components/alert-entity-display/alert-entity-display.component';
+import {AlertEventsRelatedComponent} from './components/alert-events-related/alert-events-related.component';
 import {AlertFullLogComponent} from './components/alert-full-log/alert-full-log.component';
 import {AlertHistoryComponent} from './components/alert-history/alert-history.component';
 import {AlertHostDetailComponent} from './components/alert-host-detail/alert-host-detail.component';
-import {AlertImpactComponent} from "./components/alert-impact/alert-impact.component";
+import {AlertImpactComponent} from './components/alert-impact/alert-impact.component';
 import {AlertIncidentDetailComponent} from './components/alert-incident-detail/alert-incident-detail.component';
 import {AlertIpComponent} from './components/alert-ip/alert-ip.component';
+import {AlertLogsRelatedButtonComponent} from './components/alert-logs-related-button/alert-logs-related-button.component';
 import {AlertMapLocationComponent} from './components/alert-map-location/alert-map-location.component';
 import {AlertProposedSolutionComponent} from './components/alert-proposed-solution/alert-proposed-solution.component';
 import {AlertRuleCreateComponent} from './components/alert-rule-create/alert-rule-create.component';
@@ -55,7 +57,6 @@ import {AlertGenericFilterComponent} from './components/filters/alert-generic-fi
 import {FilterAppliedComponent} from './components/filters/filter-applied/filter-applied.component';
 import {RowToFiltersComponent} from './components/filters/row-to-filter/row-to-filters.component';
 import {StatusFilterComponent} from './components/filters/status-filter/status-filter.component';
-import {AlertLogsRelatedButtonComponent} from "./alert-logs-related-button/alert-logs-related-button.component";
 
 @NgModule({
   declarations: [
@@ -101,7 +102,8 @@ import {AlertLogsRelatedButtonComponent} from "./alert-logs-related-button/alert
     AlertSocAiComponent,
     AlertEntityDisplayComponent,
     AlertBadgeFieldComponent,
-    AlertLogsRelatedButtonComponent
+    AlertLogsRelatedButtonComponent,
+    AlertEventsRelatedComponent
   ],
   entryComponents: [
     AlertStatusComponent,
@@ -154,7 +156,8 @@ import {AlertLogsRelatedButtonComponent} from "./alert-logs-related-button/alert
     AlertIncidentDetailComponent,
     AlertSocAiComponent,
     AlertEntityDisplayComponent,
-    AlertBadgeFieldComponent
+    AlertBadgeFieldComponent,
+    AlertEventsRelatedComponent
   ],
     imports: [
         CommonModule,
