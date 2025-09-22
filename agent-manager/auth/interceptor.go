@@ -98,7 +98,7 @@ func StreamInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamS
 func checkKeyAuth(token string, id uint64, fullMethod string) error {
 	authCache := getAuthCache(fullMethod)
 	if authCache == nil {
-		catcher.Error("unable to resolve auth cache", nil, map[string]any{})
+		catcher.Error("unable to resolve auth cache", nil, nil)
 		return status.Error(codes.Unauthenticated, "unable to resolve auth cache")
 	}
 
@@ -154,13 +154,13 @@ func authenticateRequest(md metadata.MD, authName string) error {
 
 	if authName == "connection-key" && authHeader[0] != "" {
 		if !validateToken(authHeader[0]) {
-			catcher.Error("unable to connect with the panel to check the connection-key", nil, map[string]any{})
+			catcher.Error("unable to connect with the panel to check the connection-key", nil, nil)
 			return status.Error(codes.Unauthenticated, "unable to connect with the panel to check the connection-key")
 		}
 	} else if authName == "internal-key" && authHeader[0] != "" {
 		internalKey := os.Getenv(config.UTMSharedKeyEnv)
 		if authHeader[0] != internalKey {
-			catcher.Error("internal key does not match", nil, map[string]any{})
+			catcher.Error("internal key does not match", nil, nil)
 			return status.Error(codes.Unauthenticated, "internal key does not match")
 		}
 	} else {

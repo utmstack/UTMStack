@@ -23,7 +23,7 @@ import (
 )
 
 func main() {
-	catcher.Info("Starting UTMStack Agent Manager", map[string]any{})
+	catcher.Info("Starting UTMStack Agent Manager", nil)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -32,20 +32,20 @@ func main() {
 		}
 	}()
 
-	catcher.Info("Initializing database...", map[string]any{})
+	catcher.Info("Initializing database...", nil)
 	config.InitDb()
 	migration.MigrateDatabase()
-	catcher.Info("[OK] Database initialized", map[string]any{})
+	catcher.Info("[OK] Database initialized", nil)
 
 	s, err := pb.InitGrpc()
 	if err != nil {
-		catcher.Error("Failed to initialize gRPC", err, map[string]any{})
+		catcher.Error("Failed to initialize gRPC", err, nil)
 		os.Exit(1)
 	}
 
 	cert, err := tls.LoadX509KeyPair("/cert/utm.crt", "/cert/utm.key")
 	if err != nil {
-		catcher.Error("failed to load server certificates", err, map[string]any{})
+		catcher.Error("failed to load server certificates", err, nil)
 		os.Exit(1)
 	}
 
@@ -84,13 +84,13 @@ func main() {
 
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {
-		catcher.Error("Failed to listen", err, map[string]any{})
+		catcher.Error("Failed to listen", err, nil)
 		os.Exit(1)
 	}
 
-	catcher.Info("Starting gRPC server on 0.0.0.0:50051", map[string]any{})
+	catcher.Info("Starting gRPC server on 0.0.0.0:50051", nil)
 	if err := grpcServer.Serve(lis); err != nil {
-		catcher.Error("Failed to serve", err, map[string]any{})
+		catcher.Error("Failed to serve", err, nil)
 		os.Exit(1)
 	}
 }

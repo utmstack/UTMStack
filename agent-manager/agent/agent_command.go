@@ -16,7 +16,7 @@ func (s *Grpc) ListAgentCommands(ctx context.Context, req *ListRequest) (*ListAg
 
 	commands, total, err := agentCommandService.ListAgentCommands(page, filter)
 	if err != nil {
-		catcher.Error("failed to fetch agents", err, map[string]any{})
+		catcher.Error("failed to fetch agents", err, nil)
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
 	}
 

@@ -32,7 +32,7 @@ func ServeDependencies() {
 
 	cert, err := tls.LoadX509KeyPair("/cert/utm.crt", "/cert/utm.key")
 	if err != nil {
-		catcher.Error("failed to load certificates", err, map[string]any{})
+		catcher.Error("failed to load certificates", err, nil)
 	}
 
 	tlsConfig := &tls.Config{
@@ -53,10 +53,10 @@ func ServeDependencies() {
 		TLSConfig: tlsConfig,
 	}
 
-	catcher.Info("Starting HTTP server on port 8080", map[string]any{})
+	catcher.Info("Starting HTTP server on port 8080", nil)
 	err = server.ListenAndServeTLS("", "")
 	if err != nil {
-		catcher.Error("error starting HTTP server", err, map[string]any{})
+		catcher.Error("error starting HTTP server", err, nil)
 	}
 
 }

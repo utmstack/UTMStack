@@ -21,7 +21,7 @@ func MigrateDatabase() {
 	db := config.GetDB()
 	err := db.AutoMigrate(&Changeset{})
 	if err != nil {
-		catcher.Error("failed to auto-migrate MigrationRecord table", err, map[string]any{})
+		catcher.Error("failed to auto-migrate MigrationRecord table", err, nil)
 		return
 	}
 	performMigration(db, "performInitialMigrations_15022024_001", "jdieguez89", performInitialMigrations)
@@ -61,7 +61,7 @@ func performMigration(db *gorm.DB, migrationName string, executedBy string, migr
 func executeSQLCommands(db *gorm.DB, sqlCommands []string) error {
 	for _, sql := range sqlCommands {
 		if err := db.Exec(sql).Error; err != nil {
-			catcher.Error("Failed to execute SQL command", err, map[string]any{})
+			catcher.Error("Failed to execute SQL command", err, nil)
 			return err
 		}
 	}
@@ -118,11 +118,11 @@ func renameLastSeenTableAndColumnOrCreateTable(db *gorm.DB) error {
 	oldName := "agent_last_seens"
 	if db.Migrator().HasTable(oldName) {
 		if err := db.Migrator().RenameTable("agent_last_seens", newName); err != nil {
-			catcher.Error("Failed to rename table", err, map[string]any{})
+			catcher.Error("Failed to rename table", err, nil)
 			return err
 		}
 		if err := db.Migrator().RenameColumn(&models.LastSeen{}, "agent_key", "key"); err != nil {
-			catcher.Error("Failed to rename column", err, map[string]any{})
+			catcher.Error("Failed to rename column", err, nil)
 			return err
 		}
 		sqlCommands := []string{
@@ -132,7 +132,7 @@ func renameLastSeenTableAndColumnOrCreateTable(db *gorm.DB) error {
 		}
 		err := executeSQLCommands(db, sqlCommands)
 		if err == nil {
-			catcher.Info("Renamed table and column successfully", map[string]any{})
+			catcher.Info("Renamed table and column successfully", nil)
 		}
 		return err
 

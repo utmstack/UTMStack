@@ -31,7 +31,7 @@ func NewLastSeenService() *LastSeenService {
 func (s *LastSeenService) Start() {
 	pings, err := s.repo.GetAll()
 	if err != nil {
-		catcher.Error("Failed to populate LastSeen cache", err, map[string]any{})
+		catcher.Error("Failed to populate LastSeen cache", err, nil)
 	} else {
 		s.Populate(pings)
 	}
@@ -71,7 +71,7 @@ func (s *LastSeenService) flushCachePeriodically() {
 			// Flush the cache to the database
 			err := s.flushCacheToDB()
 			if err != nil {
-				catcher.Error("Failed to flush LastSeen cache to database", err, map[string]any{})
+				catcher.Error("Failed to flush LastSeen cache to database", err, nil)
 			}
 		case <-s.stopCh:
 			return

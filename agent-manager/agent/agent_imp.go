@@ -49,7 +49,7 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthRespo
 	agent.AgentKey = key
 	err = agentService.Create(agent)
 	if err != nil {
-		catcher.Error("Failed to create agent", err, map[string]any{})
+		catcher.Error("Failed to create agent", err, nil)
 		return nil, err
 	}
 
@@ -59,7 +59,7 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthRespo
 
 	err = lastSeenService.Set(key, time.Now())
 	if err != nil {
-		catcher.Error("Failed to set last seen", err, map[string]any{})
+		catcher.Error("Failed to set last seen", err, nil)
 		return nil, err
 	}
 	res := &AuthResponse{
@@ -89,7 +89,7 @@ func (s *Grpc) UpdateAgent(ctx context.Context, req *AgentRequest) (*AuthRespons
 
 	agent, err := agentService.FindByID(uint(id))
 	if err != nil {
-		catcher.Error("Failed to find agent", err, map[string]any{})
+		catcher.Error("Failed to find agent", err, nil)
 		return nil, err
 	}
 
@@ -120,7 +120,7 @@ func (s *Grpc) UpdateAgent(ctx context.Context, req *AgentRequest) (*AuthRespons
 
 	err = agentService.Update(agent)
 	if err != nil {
-		catcher.Error("Failed to update agent", err, map[string]any{})
+		catcher.Error("Failed to update agent", err, nil)
 		return nil, err
 	}
 
@@ -147,7 +147,7 @@ func (s *Grpc) DeleteAgent(ctx context.Context, req *AgentDelete) (*AuthResponse
 
 	id, err := agentService.Delete(uuid.MustParse(key), req.DeletedBy)
 	if err != nil {
-		catcher.Error("Unable to delete agent", err, map[string]any{})
+		catcher.Error("Unable to delete agent", err, nil)
 		return &AuthResponse{}, status.Error(codes.Internal, fmt.Sprintf("unable to delete agent: %v", err.Error()))
 	}
 
@@ -174,7 +174,7 @@ func (s *Grpc) ListAgents(ctx context.Context, req *ListRequest) (*ListAgentsRes
 
 	agents, total, err := agentService.ListAgents(page, filter)
 	if err != nil {
-		catcher.Error("failed to fetch agents", err, map[string]any{})
+		catcher.Error("failed to fetch agents", err, nil)
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
 	}
 	return convertToAgentResponse(agents, total)
@@ -203,7 +203,7 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 				delete(s.AgentStreamMap, agentKey)
 				s.agentStreamMutex.Unlock()
 
-				catcher.Error("failed to reconnect to client", err, map[string]any{})
+				catcher.Error("failed to reconnect to client", err, nil)
 				return fmt.Errorf("failed to reconnect to client: %v", err)
 			}
 
@@ -245,7 +245,7 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 					},
 				},
 			}); err != nil {
-				catcher.Error("Failed to send result to server", err, map[string]any{})
+				catcher.Error("Failed to send result to server", err, nil)
 			}
 			s.resultChannelM.Lock()
 			if resultChan, ok := s.ResultChannel[cmdID]; ok {
@@ -347,12 +347,12 @@ func (s *Grpc) ProcessCommand(stream PanelService_ProcessCommandServer) error {
 
 func (s *Grpc) UpdateAgentGroup(ctx context.Context, req *AgentGroupUpdate) (*Agent, error) {
 	if req.AgentId == 0 || req.AgentGroup == 0 {
-		catcher.Error("Error in req", nil, map[string]any{})
+		catcher.Error("Error in req", nil, nil)
 		return nil, status.Errorf(codes.FailedPrecondition, "error in req")
 	}
 	agent, err := agentService.UpdateAgentGroup(uint(req.AgentId), uint(req.AgentGroup))
 	if err != nil {
-		catcher.Error("Unable to update group", err, map[string]any{})
+		catcher.Error("Unable to update group", err, nil)
 		return nil, status.Errorf(codes.Internal, "unable to update group: %v", err)
 	}
 	return parseAgentToProto(agent), nil
@@ -360,12 +360,12 @@ func (s *Grpc) UpdateAgentGroup(ctx context.Context, req *AgentGroupUpdate) (*Ag
 
 func (s *Grpc) GetAgentByHostname(ctx context.Context, req *Hostname) (*Agent, error) {
 	if req.Hostname == "" {
-		catcher.Error("Error in req", nil, map[string]any{})
+		catcher.Error("Error in req", nil, nil)
 		return nil, status.Errorf(codes.FailedPrecondition, "error in req")
 	}
 	agent, err := agentService.FindByHostname(req.Hostname)
 	if err != nil {
-		catcher.Error("Unable to find agent with hostname", err, map[string]any{})
+		catcher.Error("Unable to find agent with hostname", err, nil)
 		return nil, status.Errorf(codes.NotFound, "unable to find agent with hostname: %v", err)
 	}
 	return parseAgentToProto(*agent), nil
@@ -377,7 +377,7 @@ func (s *Grpc) UpdateAgentType(ctx context.Context, req *AgentTypeUpdate) (*Agen
 	}
 	agent, err := agentService.UpdateAgentType(uint(req.AgentId), uint(req.AgentType))
 	if err != nil {
-		catcher.Error("Unable to update type", err, map[string]any{})
+		catcher.Error("Unable to update type", err, nil)
 		return nil, status.Errorf(codes.Internal, "unable to update type: %v", err)
 	}
 	return parseAgentToProto(agent), nil
@@ -388,7 +388,7 @@ func (s *Grpc) LoadAgentCacheFromDatabase() error {
 	// Fill the agentCache map with agentID and agentToken pairs
 	agents, err := agentService.FindAll()
 	if err != nil {
-		catcher.Error("Failed to fetch agents from database", err, map[string]any{})
+		catcher.Error("Failed to fetch agents from database", err, nil)
 		return err
 	}
 	for _, agent := range agents {
@@ -404,7 +404,7 @@ func (s *Grpc) ListAgentsWithCommands(ctx context.Context, req *ListRequest) (*L
 
 	agents, total, err := agentService.ListAgentWithCommands(page, filter)
 	if err != nil {
-		catcher.Error("failed to fetch agents", err, map[string]any{})
+		catcher.Error("failed to fetch agents", err, nil)
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
 	}
 
@@ -460,14 +460,14 @@ func createHistoryCommand(cmd *UtmCommand, cmdID string) {
 	}
 	err := agentCommandService.Create(cmdHistory)
 	if err != nil {
-		catcher.Error("Unable to create a new command history", err, map[string]any{})
+		catcher.Error("Unable to create a new command history", err, nil)
 	}
 }
 
 func updateHistoryCommand(cmdResult *CommandResult, cmdID string) {
 	err := agentCommandService.UpdateCommandStatusAndResult(findAgentIdByKey(CacheAgent, cmdResult.AgentKey), cmdID, models.Executed, cmdResult.Result)
 	if err != nil {
-		catcher.Error("Failed to update command status", nil, map[string]any{})
+		catcher.Error("Failed to update command status", nil, nil)
 	}
 }
 
