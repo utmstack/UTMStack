@@ -1,4 +1,4 @@
-<div *ngIf="alert" class="p-3">
+<div *ngIf="alert" class="d-flex flex-column p-3 h-100">
   <ul class="nav nav-tabs justify-content-start mt-1">
     <li (click)="view=alertDetailTabEnum.DETAIL" class="nav-item cursor-pointer">
       <a [ngClass]="{'active':view===alertDetailTabEnum.DETAIL}" class="nav-link">
@@ -13,7 +13,7 @@
     <li (click)="view=alertDetailTabEnum.LAST_LOG; viewLastLog()" class="nav-item cursor-pointer"
         *ngIf="countRelatedEvents>0">
       <a [ngClass]="{'active':view===alertDetailTabEnum.LAST_LOG}" class="nav-link">
-        <i class="icon-database-time2 mr-1"></i> View last log
+        <i class="icon-database-time2 mr-1"></i> Events related
       </a>
     </li>
     <li (click)="view=alertDetailTabEnum.INCIDENT;" class="nav-item cursor-pointer"
@@ -166,9 +166,9 @@
     <app-alert-incident-detail [alert]="alert"></app-alert-incident-detail>
   </div>
 
-  <div class="w-100 mt-3" *ngIf="view === alertDetailTabEnum.LAST_LOG">
-    <div *ngIf="!fullScreen && countRelatedEvents > 0">
-      <div class="full-log mt-2">
+  <div class="d-flex flex-column w-100 mt-3 h-100 m-h-0" *ngIf="view === alertDetailTabEnum.LAST_LOG">
+    <div class="h-100 m-h-0" *ngIf="!fullScreen && countRelatedEvents > 0">
+      <!--<div class="full-log mt-2">
           <app-analyzer-table-view *ngIf="log; else loadingLastLog"
                                    [rowDocument]="log"></app-analyzer-table-view>
         <ng-template #loadingLastLog>
@@ -184,7 +184,8 @@
             <app-no-data-found></app-no-data-found>
           </div>
         </ng-container>
-      </div>
+      </div>-->
+      <app-alert-events-related [events]="logs"></app-alert-events-related>
     </div>
   </div>
   <div class="w-100 mt-3" *ngIf="view === alertDetailTabEnum.HISTORY">

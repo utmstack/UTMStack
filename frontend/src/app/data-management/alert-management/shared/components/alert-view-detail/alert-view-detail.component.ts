@@ -1,9 +1,9 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {Router} from '@angular/router';
-import {NgxSpinnerService} from 'ngx-spinner';
 import {UtmModulesEnum} from '../../../../../app-module/shared/enum/utm-module.enum';
 import {UtmModulesService} from '../../../../../app-module/shared/services/utm-modules.service';
-import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
+import {
+  UtmTableDetailComponent
+} from '../../../../../shared/components/utm/table/utm-table/utm-table-detail/utm-table-detail.component';
 import {
   ALERT_CASE_ID_FIELD,
   ALERT_CATEGORY_FIELD,
@@ -16,8 +16,9 @@ import {
   ALERT_SEVERITY_FIELD_LABEL,
   ALERT_STATUS_FIELD, ALERT_TACTIC_FIELD, ALERT_TECHNIQUE_FIELD, ALERT_TIMESTAMP_FIELD
 } from '../../../../../shared/constants/alert/alert-field.constant';
+import {LOG_ANALYZER_TOTAL_ITEMS} from '../../../../../shared/constants/log-analyzer.constant';
+import {ITEMS_PER_PAGE} from '../../../../../shared/constants/pagination.constants';
 import {IncidentOriginTypeEnum} from '../../../../../shared/enums/incident-response/incident-origin-type.enum';
-import {ElasticDataService} from '../../../../../shared/services/elasticsearch/elastic-data.service';
 import {AlertTags} from '../../../../../shared/types/alert/alert-tag.type';
 import {AlertStatusEnum, UtmAlertType} from '../../../../../shared/types/alert/utm-alert.type';
 import {ElasticFilterType} from '../../../../../shared/types/filter/elastic-filter.type';
@@ -158,6 +159,26 @@ export class AlertViewDetailComponent implements OnInit {
 
   isEmptyResponse() {
     return Object.entries(this.log).length === 0;
+  }
+
+  protected readonly totalItems = LOG_ANALYZER_TOTAL_ITEMS;
+  protected readonly itemsPerPage = ITEMS_PER_PAGE;
+  protected readonly componentDetail = UtmTableDetailComponent;
+
+  onPageChange($event: number) {
+
+  }
+
+  onRemoveColumn($event: UtmFieldType) {
+
+  }
+
+  onSizeChange($event: number) {
+
+  }
+
+  onSortBy($event: string) {
+
   }
 }
 
