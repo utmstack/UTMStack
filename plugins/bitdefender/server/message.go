@@ -20,7 +20,7 @@ func CreateMessage(cnf *config.ConfigurationSection, events []string) {
 				pattern := "BitdefenderGZCompanyId=" + compID
 				match, err := regexp.MatchString(pattern, syslogMessage)
 				if err != nil {
-					_ = catcher.Error("error matching pattern", err, map[string]any{})
+					_ = catcher.Error("error matching pattern", err, nil)
 					continue
 				}
 

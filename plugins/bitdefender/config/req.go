@@ -12,7 +12,7 @@ import (
 func sendRequest(body []byte, config BDGZModuleConfig) (*http.Response, error) {
 	r, err := http.NewRequest("POST", config.AccessUrl+EndpointPush, bytes.NewBuffer(body))
 	if err != nil {
-		return nil, catcher.Error("cannot create request", err, map[string]any{})
+		return nil, catcher.Error("cannot create request", err, nil)
 	}
 
 	r.Header.Add("Content-Type", "application/json")
@@ -21,7 +21,7 @@ func sendRequest(body []byte, config BDGZModuleConfig) (*http.Response, error) {
 	client := &http.Client{}
 	resp, err := client.Do(r)
 	if err != nil {
-		return nil, catcher.Error("cannot send request", err, map[string]any{})
+		return nil, catcher.Error("cannot send request", err, nil)
 	}
 	return resp, nil
 }

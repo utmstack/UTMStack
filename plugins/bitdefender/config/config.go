@@ -210,13 +210,13 @@ func apiPush(config BDGZModuleConfig, operation string) error {
 
 	fn, ok := operationFunc[operation]
 	if !ok {
-		return catcher.Error("wrong operation", nil, map[string]any{})
+		return catcher.Error("wrong operation", nil, nil)
 	}
 
 	for i := 0; i < 5; i++ {
 		response, err := fn(config)
 		if err != nil {
-			_ = catcher.Error(fmt.Sprintf("%v", err), err, map[string]any{})
+			_ = catcher.Error(fmt.Sprintf("%v", err), err, nil)
 			time.Sleep(1 * time.Minute)
 			continue
 		}
@@ -226,14 +226,14 @@ func apiPush(config BDGZModuleConfig, operation string) error {
 		return nil
 	}
 
-	return catcher.Error("error sending configuration after 5 retries", nil, map[string]any{})
+	return catcher.Error("error sending configuration after 5 retries", nil, nil)
 }
 
 func sendPushEventSettings(config BDGZModuleConfig) (*http.Response, error) {
 	byteTemplate := getTemplateSetPush(config)
 	body, err := json.Marshal(byteTemplate)
 	if err != nil {
-		return nil, catcher.Error("error when marshaling the request body to send the configuration", err, map[string]any{})
+		return nil, catcher.Error("error when marshaling the request body to send the configuration", err, nil)
 	}
 	return sendRequest(body, config)
 }
@@ -242,7 +242,7 @@ func getPushEventSettings(config BDGZModuleConfig) (*http.Response, error) {
 	byteTemplate := getTemplateGet()
 	body, err := json.Marshal(byteTemplate)
 	if err != nil {
-		return nil, catcher.Error("error when marshaling the request body to get the configuration", err, map[string]any{})
+		return nil, catcher.Error("error when marshaling the request body to get the configuration", err, nil)
 	}
 	return sendRequest(body, config)
 }
@@ -251,7 +251,7 @@ func sendTestPushEvent(config BDGZModuleConfig) (*http.Response, error) {
 	byteTemplate := getTemplateTest()
 	body, err := json.Marshal(byteTemplate)
 	if err != nil {
-		return nil, catcher.Error("error when marshaling the request body to send the test event", err, map[string]any{})
+		return nil, catcher.Error("error when marshaling the request body to send the test event", err, nil)
 	}
 	return sendRequest(body, config)
 }

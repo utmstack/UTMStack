@@ -26,7 +26,7 @@ func GetLogs() http.HandlerFunc {
 		if conf.ModuleActive {
 			if r.Header.Get("authorization") == "" {
 				message := "401 Missing Authorization Header"
-				_ = catcher.Error("missing authorization header", nil, map[string]any{})
+				_ = catcher.Error("missing authorization header", nil, nil)
 				j, _ := json.Marshal(message)
 				w.WriteHeader(http.StatusUnauthorized)
 				_, err := w.Write(j)
@@ -45,7 +45,7 @@ func GetLogs() http.HandlerFunc {
 			}
 			if !isAuth {
 				message := "401 Invalid Authentication Credentials"
-				_ = catcher.Error("invalid authentication credentials", nil, map[string]any{})
+				_ = catcher.Error("invalid authentication credentials", nil, nil)
 				j, _ := json.Marshal(message)
 				w.WriteHeader(http.StatusUnauthorized)
 				_, err := w.Write(j)
@@ -58,7 +58,7 @@ func GetLogs() http.HandlerFunc {
 			var newBody schema.BodyEvents
 			err := json.NewDecoder(r.Body).Decode(&newBody)
 			if err != nil {
-				_ = catcher.Error("error decoding body", err, map[string]any{})
+				_ = catcher.Error("error decoding body", err, nil)
 				return
 			}
 
@@ -72,7 +72,7 @@ func GetLogs() http.HandlerFunc {
 				_ = catcher.Error("cannot write response", err, nil)
 			}
 		} else {
-			_ = catcher.Error("bitdefender module disabled", nil, map[string]any{})
+			_ = catcher.Error("bitdefender module disabled", nil, nil)
 		}
 	}
 }
