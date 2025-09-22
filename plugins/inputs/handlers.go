@@ -3,12 +3,13 @@ package main
 import (
 	"bytes"
 	"crypto/tls"
-	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/threatwinds/go-sdk/utils"
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/threatwinds/go-sdk/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -80,7 +81,7 @@ func Log(c *gin.Context) {
 
 	_, err := buf.ReadFrom(c.Request.Body)
 	if err != nil {
-		e := catcher.Error("failed to read request body", err, map[string]any{})
+		e := catcher.Error("failed to read request body", err, nil)
 		e.GinError(c)
 		return
 	}
@@ -91,7 +92,7 @@ func Log(c *gin.Context) {
 
 	err = utils.ToObject(&body, l)
 	if err != nil {
-		e := catcher.Error("failed to parse log", err, map[string]any{})
+		e := catcher.Error("failed to parse log", err, nil)
 		e.GinError(c)
 		return
 	}
@@ -130,7 +131,7 @@ func GitHub(c *gin.Context) {
 	buf := new(bytes.Buffer)
 	_, err := buf.ReadFrom(c.Request.Body)
 	if err != nil {
-		e := catcher.Error("failed to read request body", err, map[string]any{})
+		e := catcher.Error("failed to read request body", err, nil)
 		e.GinError(c)
 		return
 	}

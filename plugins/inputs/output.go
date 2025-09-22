@@ -36,7 +36,7 @@ func sendLog() {
 		conn, err = grpc.NewClient(fmt.Sprintf("unix://%s", socketFile),
 			grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
-			_ = catcher.Error("failed to connect to engine server", err, map[string]any{})
+			_ = catcher.Error("failed to connect to engine server", err, nil)
 			time.Sleep(5 * time.Second)
 			continue
 		}
@@ -45,7 +45,7 @@ func sendLog() {
 
 		inputClient, err = client.Input(context.Background())
 		if err != nil {
-			_ = catcher.Error("failed to create input client", err, map[string]any{})
+			_ = catcher.Error("failed to create input client", err, nil)
 			if conn != nil {
 				_ = conn.Close()
 			}
@@ -67,7 +67,7 @@ func sendLog() {
 
 			err := inputClient.Send(l)
 			if err != nil {
-				_ = catcher.Error("failed to send log", err, map[string]any{})
+				_ = catcher.Error("failed to send log", err, nil)
 				restart <- true
 				return
 			}
@@ -78,7 +78,7 @@ func sendLog() {
 		for {
 			_, err = inputClient.Recv()
 			if err != nil {
-				_ = catcher.Error("failed to receive ack", err, map[string]any{})
+				_ = catcher.Error("failed to receive ack", err, nil)
 				restart <- true
 				return
 			}
