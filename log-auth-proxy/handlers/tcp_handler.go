@@ -20,7 +20,7 @@ func HandleRequest(conn net.Conn, interceptor *middleware.LogAuthInterceptor, lo
 
 		parts := strings.Split(message, ",LOG:")
 		if len(parts) != 2 {
-			catcher.Error("INVALID FORMAT expecting AUTH:<token>,LOG:<log>", nil, map[string]any{})
+			catcher.Error("INVALID FORMAT expecting AUTH:<token>,LOG:<log>", nil, nil)
 			conn.Write([]byte("INVALID FORMAT expecting AUTH:<token>,LOG:<log>\n"))
 			continue
 		}
@@ -39,6 +39,6 @@ func HandleRequest(conn net.Conn, interceptor *middleware.LogAuthInterceptor, lo
 	}
 
 	if err := scanner.Err(); err != nil {
-		catcher.Error("Error reading from connection:", err, map[string]any{})
+		catcher.Error("Error reading from connection:", err, nil)
 	}
 }

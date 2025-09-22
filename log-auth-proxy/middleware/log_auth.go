@@ -93,7 +93,7 @@ func (interceptor *LogAuthInterceptor) HTTPGitHubAuthInterceptor() gin.HandlerFu
 	return func(c *gin.Context) {
 		body, err := io.ReadAll(c.Request.Body)
 		if err != nil {
-			catcher.Error("error reading request body", err, map[string]any{})
+			catcher.Error("error reading request body", err, nil)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, "error reading request body")
 			return
 		}

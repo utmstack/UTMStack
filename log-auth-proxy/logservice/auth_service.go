@@ -54,7 +54,7 @@ func (auth *LogAuthService) SyncAuth() {
 func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 	serverAddress := os.Getenv(config.UTMAgentManagerHostEnv)
 	if serverAddress == "" {
-		catcher.Error("Failed to get the SERVER_ADDRESS", nil, map[string]any{})
+		catcher.Error("Failed to get the SERVER_ADDRESS", nil, nil)
 		os.Exit(1)
 	}
 
@@ -64,7 +64,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 
 	conn, err := grpc.NewClient(serverAddress, opts, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
 	if err != nil {
-		catcher.Error("Failed to connect to gRPC server", err, map[string]any{})
+		catcher.Error("Failed to connect to gRPC server", err, nil)
 		return
 	}
 	defer conn.Close()
@@ -83,7 +83,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 			SortBy:      "",
 		})
 		if err != nil {
-			catcher.Error("Error sync collector keys", err, map[string]any{})
+			catcher.Error("Error sync collector keys", err, nil)
 			return
 		}
 
@@ -105,7 +105,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 			SortBy:      "",
 		})
 		if err != nil {
-			catcher.Error("Error sync agent keys", err, map[string]any{})
+			catcher.Error("Error sync agent keys", err, nil)
 			return
 		}
 
@@ -122,7 +122,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 func (auth *LogAuthService) syncConnectionKey() {
 	panelKey, err := panelservice.GetConnectionKey()
 	if err != nil {
-		catcher.Error("Failed to get connection key", err, map[string]any{})
+		catcher.Error("Failed to get connection key", err, nil)
 		return
 	}
 	auth.Mutex.Lock()

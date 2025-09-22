@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	catcher.Info("Starting Log Auth Proxy...", map[string]any{})
+	catcher.Info("Starting Log Auth Proxy...", nil)
 	autService := logservice.NewLogAuthService()
 	go autService.SyncAuth()
 	authInterceptor := middleware.NewLogAuthInterceptor(autService)
@@ -42,7 +42,7 @@ func startHTTPServer(interceptor *middleware.LogAuthInterceptor, logOutputServic
 
 	cert, err := tls.LoadX509KeyPair("/cert/utm.crt", "/cert/utm.key")
 	if err != nil {
-		catcher.Error("failed to load server certificates", err, map[string]any{})
+		catcher.Error("failed to load server certificates", err, nil)
 		os.Exit(1)
 	}
 
@@ -57,10 +57,10 @@ func startHTTPServer(interceptor *middleware.LogAuthInterceptor, logOutputServic
 		TLSConfig: tlsConfig,
 	}
 
-	catcher.Info("Starting HTTP server on 0.0.0.0:8080", map[string]any{})
+	catcher.Info("Starting HTTP server on 0.0.0.0:8080", nil)
 	err = server.ListenAndServeTLS("", "")
 	if err != nil {
-		catcher.Error("Failed to start HTTP server", err, map[string]any{})
+		catcher.Error("Failed to start HTTP server", err, nil)
 		os.Exit(1)
 	}
 }
@@ -68,7 +68,7 @@ func startHTTPServer(interceptor *middleware.LogAuthInterceptor, logOutputServic
 func startGRPCServer(interceptor *middleware.LogAuthInterceptor, logOutputService *logservice.LogOutputService) {
 	cert, err := tls.LoadX509KeyPair("/cert/utm.crt", "/cert/utm.key")
 	if err != nil {
-		catcher.Error("failed to load server certificates", err, map[string]any{})
+		catcher.Error("failed to load server certificates", err, nil)
 		os.Exit(1)
 	}
 
@@ -97,13 +97,13 @@ func startGRPCServer(interceptor *middleware.LogAuthInterceptor, logOutputServic
 
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {
-		catcher.Error("failed to listen grpc server", err, map[string]any{})
+		catcher.Error("failed to listen grpc server", err, nil)
 		os.Exit(1)
 	}
 
-	catcher.Info("Starting gRPC server on 0.0.0.0:50051", map[string]any{})
+	catcher.Info("Starting gRPC server on 0.0.0.0:50051", nil)
 	if err := grpcServer.Serve(lis); err != nil {
-		catcher.Error("Failed to serve grpc", err, map[string]any{})
+		catcher.Error("Failed to serve grpc", err, nil)
 		os.Exit(1)
 	}
 }

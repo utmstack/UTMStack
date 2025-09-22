@@ -16,14 +16,14 @@ func HttpLog(logOutputService *logservice.LogOutputService) gin.HandlerFunc {
 		var body map[string]interface{}
 
 		if err := c.ShouldBindJSON(&body); err != nil {
-			catcher.Error("Error binding http JSON", err, map[string]any{})
+			catcher.Error("Error binding http JSON", err, nil)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
 		logType, source, err := getHeaderAndSource(c)
 		if err != nil {
-			catcher.Error("Error getting header and source:", err, map[string]any{})
+			catcher.Error("Error getting header and source:", err, nil)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
@@ -36,7 +36,7 @@ func HttpLog(logOutputService *logservice.LogOutputService) gin.HandlerFunc {
 
 		jsonBytes, err := json.Marshal(body)
 		if err != nil {
-			catcher.Error("Error marshalling http JSON", err, map[string]any{})
+			catcher.Error("Error marshalling http JSON", err, nil)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to convert JSON to string"})
 			return
 		}
@@ -54,13 +54,13 @@ func HttpBulkLog(logOutputService *logservice.LogOutputService) gin.HandlerFunc 
 		var body []interface{}
 
 		if err := c.ShouldBindJSON(&body); err != nil {
-			catcher.Error("Error binding bulk JSON", err, map[string]any{})
+			catcher.Error("Error binding bulk JSON", err, nil)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 		logType, source, err := getHeaderAndSource(c)
 		if err != nil {
-			catcher.Error("Error getting header and source:", err, map[string]any{})
+			catcher.Error("Error getting header and source:", err, nil)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
@@ -79,7 +79,7 @@ func HttpBulkLog(logOutputService *logservice.LogOutputService) gin.HandlerFunc 
 
 			str, err := json.Marshal(v)
 			if err != nil {
-				catcher.Error("Error marshalling bulk JSON", err, map[string]any{})
+				catcher.Error("Error marshalling bulk JSON", err, nil)
 				continue
 			}
 			log := string(str)
@@ -100,14 +100,14 @@ func HttpGitHubHandler(logOutputService *logservice.LogOutputService) gin.Handle
 		var body interface{}
 
 		if err := c.ShouldBindJSON(&body); err != nil {
-			catcher.Error("Error binding github JSON", err, map[string]any{})
+			catcher.Error("Error binding github JSON", err, nil)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
 		jsonBytes, err := json.Marshal(body)
 		if err != nil {
-			catcher.Error("Error marshalling github JSON", err, map[string]any{})
+			catcher.Error("Error marshalling github JSON", err, nil)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to convert JSON to string"})
 			return
 		}

@@ -45,7 +45,7 @@ func (out *LogOutputService) SendLog(logType config.LogType, logData string) {
 	defer out.Mutex.Unlock()
 	port, err := out.getConnectionPort(logType)
 	if err != nil {
-		catcher.Error("error getting connection port", err, map[string]any{})
+		catcher.Error("error getting connection port", err, nil)
 		return
 	}
 	singleLog := logData + config.UTMLogSeparator
@@ -63,7 +63,7 @@ func (out *LogOutputService) SendBulkLog(logType config.LogType, logDataArray []
 
 	port, err := out.getConnectionPort(logType)
 	if err != nil {
-		catcher.Error("error getting connection port", err, map[string]any{})
+		catcher.Error("error getting connection port", err, nil)
 		return
 	}
 
@@ -90,13 +90,13 @@ func (out *LogOutputService) sendLogsToLogstash(port string, logs string) {
 	url := fmt.Sprintf(config.LogstashPipelinesEndpoint, config.LogstashHost(), port)
 	req, err := http.NewRequest("POST", url, bytes.NewBufferString(logs))
 	if err != nil {
-		catcher.Error("error creating request", err, map[string]any{})
+		catcher.Error("error creating request", err, nil)
 	}
 
 	resp, err := out.Client.Do(req)
 	if err != nil {
 		if !strings.Contains(err.Error(), "Client.Timeout exceeded while awaiting headers") {
-			catcher.Error("error sending logs", err, map[string]any{})
+			catcher.Error("error sending logs", err, nil)
 		}
 		return
 	}
@@ -124,7 +124,7 @@ func (out *LogOutputService) SyncOutputs() {
 		for range out.Ticker.C {
 			serviceMap, err := getServiceMap()
 			if err != nil {
-				catcher.Error("error getting service map", err, map[string]any{})
+				catcher.Error("error getting service map", err, nil)
 				continue
 			}
 			out.Mutex.Lock()
