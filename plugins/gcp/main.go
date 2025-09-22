@@ -102,7 +102,7 @@ func (g *GroupModule) PullLogs() {
 		})
 
 		if err != nil {
-			_ = catcher.Error("failed to receive message", err, map[string]any{})
+			_ = catcher.Error("failed to receive message", err, nil)
 			time.Sleep(5 * time.Second)
 			continue
 		}
