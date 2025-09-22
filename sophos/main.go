@@ -16,11 +16,11 @@ import (
 )
 
 func main() {
-	catcher.Info("Starting sophos central module...", map[string]any{})
+	catcher.Info("Starting sophos central module...", nil)
 	intKey := configuration.GetInternalKey()
 	panelServ := configuration.GetPanelServiceName()
 	if intKey == "" || panelServ == "" {
-		catcher.Error("Internal key or panel service name is not set. Exiting...", nil, map[string]any{})
+		catcher.Error("Internal key or panel service name is not set. Exiting...", nil, nil)
 		os.Exit(1)
 	}
 	client := utmconf.NewUTMClient(intKey, "http://"+panelServ)
@@ -33,7 +33,7 @@ func main() {
 
 	for range ticker.C {
 		if err := utils.ConnectionChecker(configuration.CHECKCON); err != nil {
-			catcher.Error("External connection failure detected", err, map[string]any{})
+			catcher.Error("External connection failure detected", err, nil)
 		}
 
 		endTime := time.Now().UTC()
@@ -45,10 +45,10 @@ func main() {
 		moduleConfig, err := client.GetUTMConfig(enum.SOPHOS)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
-				catcher.Error("error getting configuration of the SOPHOS module: backend is not available", nil, map[string]any{})
+				catcher.Error("error getting configuration of the SOPHOS module: backend is not available", nil, nil)
 			}
 			if strings.TrimSpace(err.Error()) != "" {
-				catcher.Error("error getting configuration of the SOPHOS module", err, map[string]any{})
+				catcher.Error("error getting configuration of the SOPHOS module", err, nil)
 			}
 			continue
 		}

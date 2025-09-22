@@ -48,17 +48,17 @@ func (p *SophosCentralProcessor) getAccessToken() (string, error) {
 
 	response, _, err := utils.DoReq[map[string]any](configuration.AUTHURL, []byte(data.Encode()), http.MethodPost, headers)
 	if err != nil {
-		return "", catcher.Error("error making auth request", err, map[string]any{})
+		return "", catcher.Error("error making auth request", err, nil)
 	}
 
 	accessToken, ok := response["access_token"].(string)
 	if !ok || accessToken == "" {
-		return "", catcher.Error("access_token not found in response", nil, map[string]any{})
+		return "", catcher.Error("access_token not found in response", nil, nil)
 	}
 
 	expiresIn, ok := response["expires_in"].(float64)
 	if !ok {
-		return "", catcher.Error("expires_in not found in response", nil, map[string]any{})
+		return "", catcher.Error("expires_in not found in response", nil, nil)
 	}
 
 	p.AccessToken = accessToken
@@ -84,16 +84,16 @@ func (p *SophosCentralProcessor) getTenantInfo(accessToken string) error {
 
 	response, _, err := utils.DoReq[WhoamiResponse](configuration.WHOAMIURL, nil, http.MethodGet, headers)
 	if err != nil {
-		return catcher.Error("error making whoami request", err, map[string]any{})
+		return catcher.Error("error making whoami request", err, nil)
 	}
 
 	if response.ID == "" {
-		return catcher.Error("tenant ID not found in whoami response", nil, map[string]any{})
+		return catcher.Error("tenant ID not found in whoami response", nil, nil)
 	}
 	p.TenantID = response.ID
 
 	if response.ApiHosts.DataRegion == "" {
-		return catcher.Error("dataRegion not found in whoami response", nil, map[string]any{})
+		return catcher.Error("dataRegion not found in whoami response", nil, nil)
 	}
 	p.DataRegion = response.ApiHosts.DataRegion
 
@@ -122,12 +122,12 @@ type Pages struct {
 func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string, group types.ModuleGroup) ([]TransformedLog, string, error) {
 	accessToken, err := p.getValidAccessToken()
 	if err != nil {
-		return nil, "", catcher.Error("error getting access token", err, map[string]any{})
+		return nil, "", catcher.Error("error getting access token", err, nil)
 	}
 
 	if p.TenantID == "" || p.DataRegion == "" {
 		if err := p.getTenantInfo(accessToken); err != nil {
-			return nil, "", catcher.Error("error getting tenant information", err, map[string]any{})
+			return nil, "", catcher.Error("error getting tenant information", err, nil)
 		}
 	}
 
@@ -138,7 +138,7 @@ func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string, group t
 	for {
 		u, err := p.buildURL(fromTime, currentNextKey)
 		if err != nil {
-			return nil, "", catcher.Error("error building URL", err, map[string]any{})
+			return nil, "", catcher.Error("error building URL", err, nil)
 		}
 
 		headers := map[string]string{
