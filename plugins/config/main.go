@@ -120,7 +120,7 @@ func (a *Asset) FromVar(name any, hostnames any, ipAddresses any, confidentialit
 		hostnamesStr := utils.CastString(hostnames)
 		err := json.Unmarshal([]byte(hostnamesStr), &hostnamesList)
 		if err != nil {
-			_ = catcher.Error("failed to unmarshal hostnames list", err, map[string]any{})
+			_ = catcher.Error("failed to unmarshal hostnames list", err, nil)
 			return
 		}
 	}
@@ -131,7 +131,7 @@ func (a *Asset) FromVar(name any, hostnames any, ipAddresses any, confidentialit
 		ipAddressesStr := utils.CastString(ipAddresses)
 		err := json.Unmarshal([]byte(ipAddressesStr), &ipAddressesList)
 		if err != nil {
-			_ = catcher.Error("failed to unmarshal ip addresses list", err, map[string]any{})
+			_ = catcher.Error("failed to unmarshal ip addresses list", err, nil)
 			return
 		}
 	}
@@ -176,7 +176,7 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 		referencesStr := utils.CastString(references)
 		err := json.Unmarshal([]byte(referencesStr), &referencesList)
 		if err != nil {
-			_ = catcher.Error("failed to unmarshal references list", err, map[string]any{})
+			_ = catcher.Error("failed to unmarshal references list", err, nil)
 			return
 		}
 	}
@@ -187,7 +187,7 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 		deduplicateStr := utils.CastString(deduplicate)
 		err := json.Unmarshal([]byte(deduplicateStr), &deduplicateList)
 		if err != nil {
-			_ = catcher.Error("failed to unmarshal deduplicate list", err, map[string]any{})
+			_ = catcher.Error("failed to unmarshal deduplicate list", err, nil)
 			return
 		}
 	}
@@ -199,7 +199,7 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 		afterStr := utils.CastString(after)
 		err := json.Unmarshal([]byte(afterStr), &afterBackendObj)
 		if err != nil {
-			_ = catcher.Error("failed to unmarshal after list", err, map[string]any{})
+			_ = catcher.Error("failed to unmarshal after list", err, nil)
 			return
 		}
 
@@ -238,7 +238,7 @@ func main() {
 		func() {
 			db, err := connect()
 			if err != nil {
-				_ = catcher.Error("failed to connect to database", err, map[string]any{})
+				_ = catcher.Error("failed to connect to database", err, nil)
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -247,7 +247,7 @@ func main() {
 
 			filters, err := getFilters(db)
 			if err != nil {
-				_ = catcher.Error("failed to get filters", err, map[string]any{})
+				_ = catcher.Error("failed to get filters", err, nil)
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -255,7 +255,7 @@ func main() {
 
 			assets, err := getAssets(db)
 			if err != nil {
-				_ = catcher.Error("failed to get assets", err, map[string]any{})
+				_ = catcher.Error("failed to get assets", err, nil)
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -263,7 +263,7 @@ func main() {
 
 			rules, err := getRules(db)
 			if err != nil {
-				_ = catcher.Error("failed to get rules", err, map[string]any{})
+				_ = catcher.Error("failed to get rules", err, nil)
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -271,7 +271,7 @@ func main() {
 
 			patterns, err := getPatterns(db)
 			if err != nil {
-				_ = catcher.Error("failed to get patterns", err, map[string]any{})
+				_ = catcher.Error("failed to get patterns", err, nil)
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -309,7 +309,7 @@ func main() {
 
 			err = cleanUpFilters(filters)
 			if err != nil {
-				_ = catcher.Error("failed to clean up filters", err, map[string]any{})
+				_ = catcher.Error("failed to clean up filters", err, nil)
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -317,7 +317,7 @@ func main() {
 
 			err = writeFilters(filters)
 			if err != nil {
-				_ = catcher.Error("failed to write filters", err, map[string]any{})
+				_ = catcher.Error("failed to write filters", err, nil)
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -325,7 +325,7 @@ func main() {
 
 			err = cleanUpRules(rules)
 			if err != nil {
-				_ = catcher.Error("failed to clean up rules", err, map[string]any{})
+				_ = catcher.Error("failed to clean up rules", err, nil)
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -333,7 +333,7 @@ func main() {
 
 			err = writeRules(rules)
 			if err != nil {
-				_ = catcher.Error("failed to write rules", err, map[string]any{})
+				_ = catcher.Error("failed to write rules", err, nil)
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -341,7 +341,7 @@ func main() {
 
 			err = writeTenant(tenant)
 			if err != nil {
-				_ = catcher.Error("failed to write tenant", err, map[string]any{})
+				_ = catcher.Error("failed to write tenant", err, nil)
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -349,7 +349,7 @@ func main() {
 
 			err = writePatterns(patterns)
 			if err != nil {
-				_ = catcher.Error("failed to write patterns", err, map[string]any{})
+				_ = catcher.Error("failed to write patterns", err, nil)
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -379,7 +379,7 @@ func connect() (*sql.DB, error) {
 
 	err = db.Ping()
 	if err != nil {
-		return nil, catcher.Error("failed to ping database", err, map[string]any{})
+		return nil, catcher.Error("failed to ping database", err, nil)
 	}
 
 	return db, nil
@@ -626,7 +626,7 @@ func cleanUpRules(rules []Rule) error {
 
 	files, err := listFiles(rulesFolder.String())
 	if err != nil {
-		return catcher.Error("failed to list files", err, map[string]any{})
+		return catcher.Error("failed to list files", err, nil)
 	}
 
 	for _, file := range files {
