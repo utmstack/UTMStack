@@ -140,7 +140,7 @@ func (p *AWSProcessor) GetLogs(startTime, endTime time.Time, group types.ModuleG
 					return !lastPage
 				})
 			if err != nil {
-				return nil, catcher.Error("error getting log pages", err, map[string]any{})
+				return nil, catcher.Error("error getting log pages", err, nil)
 			}
 		}
 	}

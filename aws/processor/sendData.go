@@ -28,11 +28,11 @@ func SendToLogstash(data []TransformedLog) error {
 	for _, str := range data {
 		body, err := json.Marshal(str)
 		if err != nil {
-			catcher.Error("error encoding log to JSON", err, map[string]any{})
+			catcher.Error("error encoding log to JSON", err, nil)
 			continue
 		}
 		if err := sendLogs(body); err != nil {
-			catcher.Error("error sending logs to logstach", err, map[string]any{})
+			catcher.Error("error sending logs to logstach", err, nil)
 			continue
 		}
 	}
@@ -44,12 +44,12 @@ func sendLogs(log []byte) error {
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(log))
 	if err != nil {
-		return catcher.Error("error creating request", err, map[string]any{})
+		return catcher.Error("error creating request", err, nil)
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return catcher.Error("error sending logs", err, map[string]any{})
+		return catcher.Error("error sending logs", err, nil)
 	}
 	defer resp.Body.Close()
 

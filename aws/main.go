@@ -16,11 +16,11 @@ import (
 )
 
 func main() {
-	catcher.Info("Starting aws module...", map[string]any{})
+	catcher.Info("Starting aws module...", nil)
 	intKey := configuration.GetInternalKey()
 	panelServ := configuration.GetPanelServiceName()
 	if intKey == "" || panelServ == "" {
-		catcher.Error("Internal key or panel service name is not set. Exiting...", nil, map[string]any{})
+		catcher.Error("Internal key or panel service name is not set. Exiting...", nil, nil)
 		os.Exit(1)
 	}
 	client := utmconf.NewUTMClient(intKey, "http://"+panelServ)
@@ -33,7 +33,7 @@ func main() {
 
 	for range ticker.C {
 		if err := utils.ConnectionChecker(configuration.URL_CHECK_CONNECTION); err != nil {
-			catcher.Error("Failed to establish connection", err, map[string]any{})
+			catcher.Error("Failed to establish connection", err, nil)
 		}
 
 		endTime := time.Now().UTC()
@@ -43,10 +43,10 @@ func main() {
 		moduleConfig, err := client.GetUTMConfig(enum.AWS_IAM_USER)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
-				catcher.Error("error getting configuration of the AWS module: backend is not available", err, map[string]any{})
+				catcher.Error("error getting configuration of the AWS module: backend is not available", err, nil)
 			}
 			if strings.TrimSpace(err.Error()) != "" {
-				catcher.Error("error getting configuration of the AWS module", err, map[string]any{})
+				catcher.Error("error getting configuration of the AWS module", err, nil)
 			}
 			continue
 		}
