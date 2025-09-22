@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest.application_modules;
 
+import com.park.utmstack.aop.logging.AuditEvent;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
 import com.park.utmstack.service.application_events.ApplicationEventService;
@@ -29,6 +30,12 @@ public class UtmModuleGroupConfigurationResource {
 
 
     @PutMapping("/module-group-configurations/update")
+    @AuditEvent(
+            attemptType = ApplicationEventType.CONFIG_UPDATE_ATTEMPT,
+            attemptMessage = "Attempt to update configuration keys initiated",
+            successType = ApplicationEventType.CONFIG_UPDATE_SUCCESS,
+            successMessage = "Configuration keys updated successfully"
+    )
     public ResponseEntity<Void> updateConfiguration(@Valid @RequestBody GroupConfigurationDTO body) {
         final String ctx = CLASSNAME + ".updateConfiguration";
         try {

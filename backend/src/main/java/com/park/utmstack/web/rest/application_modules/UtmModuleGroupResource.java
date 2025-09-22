@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest.application_modules;
 
+import com.park.utmstack.aop.logging.AuditEvent;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
@@ -58,6 +59,12 @@ public class UtmModuleGroupResource {
     }
 
     @PostMapping("/utm-configuration-groups")
+    @AuditEvent(
+            attemptType = ApplicationEventType.CONFIG_GROUP_CREATE_ATTEMPT,
+            attemptMessage = "Attempt to create configuration group initiated",
+            successType = ApplicationEventType.CONFIG_GROUP_CREATE_SUCCESS,
+            successMessage = "Configuration group created successfully"
+    )
     public ResponseEntity<UtmModuleGroup> createConfigurationGroup(@Valid @RequestBody ModuleGroupVM moduleGroupVM) throws URISyntaxException {
         final String ctx = CLASSNAME + ".createConfigurationGroup";
         try {
@@ -105,26 +112,19 @@ public class UtmModuleGroupResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/utm-configuration-groups")
-    public ResponseEntity<UtmModuleGroup> updateUtmConfigurationGroup(@Valid @RequestBody UtmModuleGroup utmModuleGroup) throws URISyntaxException {
+    @AuditEvent(
+            attemptType = ApplicationEventType.CONFIG_GROUP_UPDATE_ATTEMPT,
+            attemptMessage = "Attempt to update configuration group initiated",
+            successType = ApplicationEventType.CONFIG_GROUP_UPDATE_SUCCESS,
+            successMessage = "Configuration group updated successfully"
+    )
+    public ResponseEntity<UtmModuleGroup> updateUtmConfigurationGroup(@Valid @RequestBody UtmModuleGroup utmModuleGroup) {
         final String ctx = CLASSNAME + ".updateUtmConfigurationGroup";
-        try {
-            if (utmModuleGroup.getId() == null)
-                throw new Exception("Can't update the configuration group because ID is null");
-            UtmModuleGroup result = moduleGroupService.save(utmModuleGroup);
-            return ResponseEntity.ok(result);
-        } catch (DataIntegrityViolationException e) {
-            String msg = ctx + ": " + e.getMostSpecificCause().getMessage().replaceAll("\n", "");
-            log.error(msg);
-            eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
-        }
+
+        if (utmModuleGroup.getId() == null)
+            throw new RuntimeException("Can't update the configuration group because ID is null");
+        UtmModuleGroup result = moduleGroupService.save(utmModuleGroup);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -149,45 +149,39 @@ public class UtmModuleGroupResource {
     @GetMapping("/utm-configuration-groups/{groupId}")
     public ResponseEntity<UtmModuleGroup> getConfigurationGroup(@PathVariable Long groupId) {
         final String ctx = CLASSNAME + ".getConfigurationGroups";
-        try {
-            Optional<UtmModuleGroup> group = moduleGroupService.findOne(groupId);
-            return ResponseUtil.wrapOrNotFound(group);
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
-        }
+
+        Optional<UtmModuleGroup> group = moduleGroupService.findOne(groupId);
+        return ResponseUtil.wrapOrNotFound(group);
+
     }
 
     @DeleteMapping("/utm-configuration-groups/delete-single-module-group")
+    @AuditEvent(
+            attemptType = ApplicationEventType.CONFIG_GROUP_DELETE_ATTEMPT,
+            attemptMessage = "Attempt to delete single configuration group initiated",
+            successType = ApplicationEventType.CONFIG_GROUP_DELETE_SUCCESS,
+            successMessage = "Configuration group deleted successfully"
+    )
     public ResponseEntity<Void> deleteSingleModuleGroup(@RequestParam Long groupId) {
         final String ctx = CLASSNAME + ".deleteSingleModuleGroup";
-        try {
-            moduleGroupService.delete(groupId);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
-        }
+
+        moduleGroupService.delete(groupId);
+        return ResponseEntity.ok().build();
+
     }
 
     @DeleteMapping("/utm-configuration-groups/delete-all-module-groups")
+    @AuditEvent(
+            attemptType = ApplicationEventType.CONFIG_GROUP_BULK_DELETE_ATTEMPT,
+            attemptMessage = "Attempt to delete all configuration groups for module initiated",
+            successType = ApplicationEventType.CONFIG_GROUP_BULK_DELETE_SUCCESS,
+            successMessage = "All configuration groups for module deleted successfully"
+    )
     public ResponseEntity<Void> deleteAllModuleGroups(@RequestParam Long moduleId) {
         final String ctx = CLASSNAME + ".deleteAllModuleGroups";
-        try {
-            moduleGroupService.deleteAllByModuleId(moduleId);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
-        }
+
+        moduleGroupService.deleteAllByModuleId(moduleId);
+        return ResponseEntity.ok().build();
+
     }
 }

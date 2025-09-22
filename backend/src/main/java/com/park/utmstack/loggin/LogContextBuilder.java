@@ -54,6 +54,11 @@ public class LogContextBuilder {
         return args;
     }
 
+    public Map<String, Object> buildArgs(Map<String, Object> extra) {
+        Map<String, Object> base = buildArgs();
+        return mergeArgs(base, extra);
+    }
+
     private Map<String, Object> buildFallbackArgs(Exception e) {
         Map<String, Object> args = new HashMap<>();
         args.put(Constants.USERNAME_KEY, SecurityUtils.getCurrentUserLogin().orElse("anonymous"));
@@ -63,5 +68,12 @@ public class LogContextBuilder {
             args.put(Constants.CAUSE_KEY, e.getCause().toString());
         }
         return args;
+    }
+
+    private Map<String, Object> mergeArgs(Map<String, Object> base, Map<String, Object> extra) {
+        if (extra != null) {
+            base.putAll(extra);
+        }
+        return base;
     }
 }
