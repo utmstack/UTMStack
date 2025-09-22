@@ -23,7 +23,7 @@ func main() {
 	BackendService = utmConfig.Get("backend").String()
 
 	if InternalKey == "" || BackendService == "" {
-		_ = catcher.Error("error getting configuration", fmt.Errorf("internal key or backend service is empty"), map[string]any{})
+		_ = catcher.Error("error getting configuration", fmt.Errorf("internal key or backend service is empty"), nil)
 		return
 	}
 
