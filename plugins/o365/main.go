@@ -103,13 +103,13 @@ func pull(startTime time.Time, endTime time.Time, group *config.ModuleGroup) {
 
 	err := agent.GetAuth()
 	if err != nil {
-		_ = catcher.Error("error getting auth", err, map[string]any{})
+		_ = catcher.Error("error getting auth", err, nil)
 		return
 	}
 
 	err = agent.StartSubscriptions()
 	if err != nil {
-		_ = catcher.Error("error starting subscriptions", err, map[string]any{})
+		_ = catcher.Error("error starting subscriptions", err, nil)
 		return
 	}
 
@@ -366,7 +366,7 @@ func (o *OfficeProcessor) GetLogs(startTime, endTime time.Time) []string {
 	for _, subscription := range o.Subscriptions {
 		contentList, err := o.GetContentList(subscription, startTime, endTime)
 		if err != nil {
-			_ = catcher.Error("error getting content list", err, map[string]any{})
+			_ = catcher.Error("error getting content list", err, nil)
 			continue
 		}
 
@@ -374,14 +374,14 @@ func (o *OfficeProcessor) GetLogs(startTime, endTime time.Time) []string {
 			for _, log := range contentList {
 				details, err := o.GetContentDetails(log.ContentUri)
 				if err != nil {
-					_ = catcher.Error("error getting content details", err, map[string]any{})
+					_ = catcher.Error("error getting content details", err, nil)
 					continue
 				}
 				if len(details) > 0 {
 					for _, detail := range details {
 						rawDetail, err := json.Marshal(detail)
 						if err != nil {
-							_ = catcher.Error("error marshalling content details", err, map[string]any{})
+							_ = catcher.Error("error marshalling content details", err, nil)
 							continue
 						}
 						logs = append(logs, string(rawDetail))
