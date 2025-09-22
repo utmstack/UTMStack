@@ -14,13 +14,13 @@ func PullLogs(startTime time.Time, endTime time.Time, group types.ModuleGroup) {
 
 	err := agent.GetAuth()
 	if err != nil {
-		catcher.Error("error getting auth token", err, map[string]any{})
+		catcher.Error("error getting auth token", err, nil)
 		return
 	}
 
 	err = agent.StartSubscriptions()
 	if err != nil {
-		catcher.Error("error starting subscriptions", err, map[string]any{})
+		catcher.Error("error starting subscriptions", err, nil)
 		return
 	}
 

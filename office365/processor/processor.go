@@ -137,7 +137,7 @@ func (o *OfficeProcessor) GetLogs(startTime time.Time, endTime time.Time, group 
 	for _, subscription := range o.Subscriptions {
 		contentList, err := o.GetContentList(subscription, startTime, endTime, group)
 		if err != nil {
-			catcher.Error("error getting content list", err, map[string]any{})
+			catcher.Error("error getting content list", err, nil)
 			continue
 		}
 		logsCounter := 0
@@ -145,7 +145,7 @@ func (o *OfficeProcessor) GetLogs(startTime time.Time, endTime time.Time, group 
 			for _, log := range contentList {
 				details, err := o.GetContentDetails(log.ContentUri)
 				if err != nil {
-					catcher.Error("error getting content details", err, map[string]any{})
+					catcher.Error("error getting content details", err, nil)
 					continue
 				}
 				if len(details) > 0 {
@@ -153,7 +153,7 @@ func (o *OfficeProcessor) GetLogs(startTime time.Time, endTime time.Time, group 
 					cleanLogs := ETLProcess(details, group)
 					err := SendToLogstash(cleanLogs)
 					if err != nil {
-						catcher.Error("error sending logs to logstash", err, map[string]any{})
+						catcher.Error("error sending logs to logstash", err, nil)
 						continue
 					}
 				}
