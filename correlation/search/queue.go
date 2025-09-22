@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
+	"os"
 	"runtime"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/tidwall/gjson"
 	"github.com/utmstack/UTMStack/correlation/statistics"
 	"github.com/utmstack/UTMStack/correlation/utils"
@@ -39,7 +40,8 @@ func ProcessQueue() {
 
 						body, err := utils.DoPost(url, "application/x-ndjson", strings.NewReader(tmp))
 						if err != nil {
-							log.Fatalf("Could not send logs to Elasticsearch: %v. %s", err, body)
+							catcher.Error("Could not send logs to Elasticsearch", err, map[string]any{"response": body})
+							os.Exit(1)
 						}
 					}
 					time.Sleep(1 * time.Second)
@@ -59,7 +61,7 @@ func ProcessQueue() {
 
 				index, err := IndexBuilder("log-"+dataType, timestamp)
 				if err != nil {
-					log.Printf("Error trying to build index name: %v", err)
+					catcher.Error("Error trying to build index name", err, nil)
 					continue
 				}
 

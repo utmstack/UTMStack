@@ -2,9 +2,9 @@ package search
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/tidwall/gjson"
 	"github.com/utmstack/UTMStack/correlation/utils"
 )
@@ -15,7 +15,7 @@ func Search(query string) []string {
 	url := fmt.Sprintf("%s/log-*/_search", cnf.Elasticsearch)
 	cnn, err := utils.DoPost(url, "application/json", strings.NewReader(query))
 	if err != nil {
-		log.Printf("Could not get logs from Elasticsearch: %v", err)
+		catcher.Error("Could not get logs from Elasticsearch", err, nil)
 	} else {
 		hits := gjson.Get(string(cnn), "hits.hits").Array()
 		for _, hit := range hits {

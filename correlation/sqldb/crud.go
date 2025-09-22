@@ -1,8 +1,9 @@
 package sqldb
 
 import (
-	"log"
 	"time"
+
+	"github.com/threatwinds/go-sdk/catcher"
 )
 
 func UpdateStatistics(i, s, t string, c int64) {
@@ -16,7 +17,7 @@ func UpdateStatistics(i, s, t string, c int64) {
 	DO UPDATE SET amount = public.utm_asset_metrics.amount + $4`, i, s, t, c)
 
 	if err != nil {
-		log.Printf("Error updating statistics for datasource %s: %v", s, err)
+		catcher.Error("Error updating statistics for datasource", err, map[string]any{"datasource": s})
 	}
 
 	timestamp := time.Now().UTC().Unix()
@@ -29,6 +30,6 @@ func UpdateStatistics(i, s, t string, c int64) {
 	DO UPDATE SET timestamp=$4, median=$5`, i, s, t, timestamp, int64(10800))
 
 	if err != nil {
-		log.Printf("Error updating status for datasource %s: %v", s, err)
+		catcher.Error("Error updating status for datasource", err, map[string]any{"datasource": s})
 	}
 }

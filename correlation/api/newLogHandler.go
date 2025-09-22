@@ -3,11 +3,12 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/utmstack/UTMStack/correlation/ti"
 	"io"
-	"log"
 	"net/http"
 	"time"
+
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/UTMStack/correlation/ti"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -29,7 +30,7 @@ func NewLog(c *gin.Context) {
 	if err != nil {
 		response["status"] = "error"
 		response["error"] = fmt.Sprintf("%v", err)
-		log.Println(response["error"])
+		catcher.Error("Failed to read request body", err, map[string]any{"status": http.StatusBadRequest})
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -38,7 +39,7 @@ func NewLog(c *gin.Context) {
 	if err := json.Unmarshal(body, &lo); err != nil {
 		response["status"] = "error"
 		response["error"] = fmt.Sprintf("%v", err)
-		log.Println(response["error"])
+		catcher.Error("Failed to read request body", err, map[string]any{"status": http.StatusBadRequest})
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -69,7 +70,10 @@ func NewLog(c *gin.Context) {
 		!gjson.Get(l, "dataSource").Exists() {
 		response["status"] = "error"
 		response["error"] = "The log doesn't have the required fields. Please be sure that you are sending the @timestamp in RFC3339Nano format, the dataType that could be windows, linux, iis, macos, ... and the dataSource that could be the Hostname or IP of the log source."
-		log.Printf("%s LOG: %s", response["error"], l)
+		catcher.Error("Log validation failed - missing required fields", nil, map[string]any{
+			"status":     http.StatusBadRequest,
+			"log_sample": l,
+		})
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}

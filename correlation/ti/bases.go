@@ -2,13 +2,14 @@ package ti
 
 import (
 	"bufio"
-	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/threatwinds/go-sdk/catcher"
 )
 
 func Load() {
-	log.Printf("Loading Threat Intelligence Feeds")
+	catcher.Info("Loading Threat Intelligence Feeds", nil)
 
 	var files = []string{
 		"ip_level1.list",
@@ -31,7 +32,7 @@ func Load() {
 
 		f, err := os.Open(filepath.Join("/app", file))
 		if err != nil {
-			log.Printf("Could not open file: %v", err)
+			catcher.Error("Could not open file", err, nil)
 			continue
 		}
 
@@ -49,5 +50,5 @@ func Load() {
 		_ = f.Close()
 	}
 
-	log.Printf("Threat Intelligence feeds loaded")
+	catcher.Info("Threat Intelligence feeds loaded", nil)
 }

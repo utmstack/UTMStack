@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"log"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/correlation/cache"
 	"github.com/utmstack/UTMStack/correlation/rules"
 	"github.com/utmstack/UTMStack/correlation/search"
@@ -15,13 +15,13 @@ import (
 
 func Finder(rule rules.Rule) {
 	if len(rule.DataTypes) == 0 {
-		log.Printf("Disabling rule '%s', because dataTypes is empty", rule.Name)
+		catcher.Info("Disabling rule, because dataTypes is empty", map[string]any{"name": rule.Name})
 		return
 	}
 
 	sleep, err := time.ParseDuration(fmt.Sprintf("%ds", rule.Frequency))
 	if err != nil {
-		log.Printf("Disabling rule '%s', because of error: '%v", rule.Name, err)
+		catcher.Error("Disabling rule", err, map[string]any{"name": rule.Name})
 		return
 	}
 
@@ -52,7 +52,7 @@ func Finder(rule rules.Rule) {
 			continue
 		}
 
-		log.Printf("Executing rule: %s", rule.Name)
+		catcher.Info("Executing rule", map[string]any{"name": rule.Name})
 
 		if len(rule.Cache) != 0 {
 			findInCache(rule)
@@ -60,7 +60,7 @@ func Finder(rule rules.Rule) {
 			findInSearch(rule)
 		}
 
-		log.Printf("Execution of rule '%s' finished", rule.Name)
+		catcher.Info("Execution of rule finished", map[string]any{"name": rule.Name})
 
 		switch sleep {
 		case 0:
@@ -84,7 +84,7 @@ func findInSearch(rule rules.Rule) {
 				t := template.Must(template.New("query").Parse(query.Query))
 				err := t.Execute(&q, fields)
 				if err != nil {
-					log.Printf("Error while trying to process the query %v of the rule %s: %v", step+1, rule.Name, err)
+					catcher.Error("Error while trying to process the query", err, map[string]any{"step": step + 1, "rule": rule.Name})
 				} else {
 					l := search.Search(q.String())
 					processResponse(l, rule, query.Save, &tmpLogs, len(rule.Search), step, query.MinCount)
@@ -108,7 +108,7 @@ func findInCache(rule rules.Rule) {
 					t := template.Must(template.New("allOf").Parse(allOf.Value))
 					err := t.Execute(&value, fields)
 					if err != nil {
-						log.Printf("Error while trying to process the query %v of the rule %s: %v", step+1, rule.Name, err)
+						catcher.Error("Error while trying to process the query", err, map[string]any{"step": step + 1, "rule": rule.Name})
 					} else {
 						allOfList = append(allOfList, rules.AllOf{Field: allOf.Field, Operator: allOf.Operator, Value: value.String()})
 					}
@@ -120,7 +120,7 @@ func findInCache(rule rules.Rule) {
 					t := template.Must(template.New("oneOf").Parse(oneOf.Value))
 					err := t.Execute(&value, fields)
 					if err != nil {
-						log.Printf("Error while trying to process the query %v of the rule %s: %v", step+1, rule.Name, err)
+						catcher.Error("Error while trying to process the query", err, map[string]any{"step": step + 1, "rule": rule.Name})
 					} else {
 						oneOfList = append(oneOfList, rules.OneOf{Field: oneOf.Field, Operator: oneOf.Operator, Value: value.String()})
 					}
