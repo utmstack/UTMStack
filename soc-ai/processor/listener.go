@@ -42,14 +42,14 @@ func (p *Processor) handleAlerts(c *gin.Context) {
 	}
 
 	if !configurations.GetGPTConfig().ModuleActive {
-		catcher.Error("Droping request to /process, GPT module is not active", nil, map[string]any{})
+		catcher.Error("Droping request to /process, GPT module is not active", nil, nil)
 		c.JSON(http.StatusOK, "GPT module is not active")
 		return
 	}
 
 	var ids []string
 	if err := c.BindJSON(&ids); err != nil {
-		catcher.Error("error binding JSON", err, map[string]any{})
+		catcher.Error("error binding JSON", err, nil)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -69,7 +69,7 @@ func (p *Processor) handleAlerts(c *gin.Context) {
 		var gptResponses []schema.GPTAlertResponse
 		err = json.Unmarshal(result, &gptResponses)
 		if err != nil {
-			catcher.Error("error decoding response from elastic", err, map[string]any{})
+			catcher.Error("error decoding response from elastic", err, nil)
 			c.JSON(http.StatusInternalServerError, fmt.Sprintf("error decoding response: %v", err))
 			return
 		}
@@ -77,14 +77,14 @@ func (p *Processor) handleAlerts(c *gin.Context) {
 		if len(gptResponses) == 0 {
 			err = elastic.IndexStatus(id, "Processing", "create")
 			if err != nil {
-				catcher.Error("error creating doc in index", err, map[string]any{})
+				catcher.Error("error creating doc in index", err, nil)
 				c.JSON(http.StatusInternalServerError, fmt.Sprintf("error creating doc in index: %v", err))
 				return
 			}
 		} else {
 			err = elastic.IndexStatus(id, "Processing", "update")
 			if err != nil {
-				catcher.Error("error updating doc in index", err, map[string]any{})
+				catcher.Error("error updating doc in index", err, nil)
 				c.JSON(http.StatusInternalServerError, fmt.Sprintf("error updating doc in index: %v", err))
 				return
 			}

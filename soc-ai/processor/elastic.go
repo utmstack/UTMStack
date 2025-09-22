@@ -30,7 +30,7 @@ func (p *Processor) processAlertToElastic() {
 		if gptConfig.ChangeAlertStatus {
 			err = elastic.ChangeAlertStatus(alert.AlertID, configurations.API_ALERT_COMPLETED_STATUS_CODE, alert.GPTClassification+" - "+alert.GPTReasoning)
 			if err != nil {
-				catcher.Error("error while changing alert status in elastic", err, map[string]any{})
+				catcher.Error("error while changing alert status in elastic", err, nil)
 				continue
 			}
 			catcher.Info("alert status changed to COMPLETED in Panel", map[string]any{"alert": alert.AlertID})
@@ -39,7 +39,7 @@ func (p *Processor) processAlertToElastic() {
 		if gptConfig.AutomaticIncidentCreation && alert.GPTClassification == "possible incident" {
 			incidentsDetails, err := elastic.GetIncidentsByPattern("Incident in " + alert.DataSource)
 			if err != nil {
-				catcher.Error("error while getting incidents by pattern", err, map[string]any{})
+				catcher.Error("error while getting incidents by pattern", err, nil)
 				continue
 			}
 
@@ -50,7 +50,7 @@ func (p *Processor) processAlertToElastic() {
 						incidentExists = true
 						err = elastic.AddAlertToIncident(incident.ID, alert)
 						if err != nil {
-							catcher.Error("error while adding alert to incident", err, map[string]any{})
+							catcher.Error("error while adding alert to incident", err, nil)
 							continue
 						}
 					}
@@ -60,7 +60,7 @@ func (p *Processor) processAlertToElastic() {
 			if !incidentExists {
 				err = elastic.CreateNewIncident(alert)
 				if err != nil {
-					catcher.Error("error while creating incident", err, map[string]any{})
+					catcher.Error("error while creating incident", err, nil)
 					continue
 				}
 			}

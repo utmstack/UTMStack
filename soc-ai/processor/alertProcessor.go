@@ -21,7 +21,7 @@ func (p *Processor) processAlertsInfo() {
 
 		correlation, err := elastic.FindRelatedAlerts(alertInfo)
 		if err != nil {
-			catcher.Error("error finding related alerts", err, map[string]any{})
+			catcher.Error("error finding related alerts", err, nil)
 		}
 
 		details := schema.ConvertFromAlertToAlertDB(alertInfo)

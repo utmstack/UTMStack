@@ -55,7 +55,7 @@ func (p *Processor) ProcessData() {
 func (p *Processor) RegisterError(message, id string) {
 	err := elastic.IndexStatus(id, "Error", "update")
 	if err != nil {
-		catcher.Error("error while indexing error in elastic", err, map[string]any{})
+		catcher.Error("error while indexing error in elastic", err, nil)
 	}
-	catcher.Error(message, nil, map[string]any{})
+	catcher.Error(message, nil, nil)
 }

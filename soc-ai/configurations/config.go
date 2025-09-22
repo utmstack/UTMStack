@@ -40,17 +40,17 @@ func (c *GPTConfig) UpdateGPTConfigurations() {
 
 	for {
 		if err := utils.ConnectionChecker(GPT_API_ENDPOINT); err != nil {
-			catcher.Error("Failed to establish internet connection", err, map[string]any{})
+			catcher.Error("Failed to establish internet connection", err, nil)
 		}
 
 		tempModuleConfig, err := client.GetUTMConfig(enum.SOCAI)
 		if err != nil && err.Error() != "" && err.Error() != " " {
-			catcher.Error("Error while getting GPT configuration", err, map[string]any{})
+			catcher.Error("Error while getting GPT configuration", err, nil)
 			time.Sleep(TIME_FOR_GET_CONFIG * time.Second)
 			continue
 		}
 		if tempModuleConfig == nil {
-			catcher.Error("Got nil config from server", nil, map[string]any{})
+			catcher.Error("Got nil config from server", nil, nil)
 			time.Sleep(TIME_FOR_GET_CONFIG * time.Second)
 			continue
 		}
