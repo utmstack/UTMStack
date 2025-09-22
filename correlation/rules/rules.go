@@ -101,7 +101,7 @@ func Changes(signals chan os.Signal) {
 	cnf := utils.GetConfig()
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		catcher.Error("Could not create a new watcher", err, map[string]any{})
+		catcher.Error("Could not create a new watcher", err, nil)
 	}
 	defer watcher.Close()
 
@@ -111,16 +111,16 @@ func Changes(signals chan os.Signal) {
 			select {
 			case err, ok := <-watcher.Errors:
 				if !ok {
-					catcher.Error("Could not detect changes in ruleset", err, map[string]any{})
+					catcher.Error("Could not detect changes in ruleset", err, nil)
 				}
 			case event, ok := <-watcher.Events:
 				if !ok {
-					catcher.Error("Error trying to detect changes in ruleset", err, map[string]any{})
+					catcher.Error("Error trying to detect changes in ruleset", err, nil)
 				}
 				if event.Op&fsnotify.Write == fsnotify.Write {
 					if event.Name != cnf.RulesFolder+"system/.git/FETCH_HEAD" {
 						catcher.Info("Changes detected in", map[string]any{"file": event.Name})
-						catcher.Info("Restarting correlation engine", map[string]any{})
+						catcher.Info("Restarting correlation engine", nil)
 						signals <- os.Interrupt
 					}
 				}
@@ -134,7 +134,7 @@ func Changes(signals chan os.Signal) {
 		for {
 			err := filepath.Walk(cnf.RulesFolder, func(path string, info os.FileInfo, err error) error {
 				if err != nil {
-					catcher.Error("Could not list rules folders", err, map[string]any{})
+					catcher.Error("Could not list rules folders", err, nil)
 				}
 				n := true
 				if info.IsDir() {
@@ -147,7 +147,7 @@ func Changes(signals chan os.Signal) {
 					if n {
 						folders = append(folders, path)
 						if err := watcher.Add(path); err != nil {
-							catcher.Error("Could not start watcher for a rules folder", err, map[string]any{})
+							catcher.Error("Could not start watcher for a rules folder", err, nil)
 						}
 
 					}
@@ -155,7 +155,7 @@ func Changes(signals chan os.Signal) {
 				return nil
 			})
 			if err != nil {
-				catcher.Error("Could not list rules folders", err, map[string]any{})
+				catcher.Error("Could not list rules folders", err, nil)
 				continue
 			}
 

@@ -42,7 +42,7 @@ func Load() {
 	catcher.Info("asnBlocks rows", map[string]any{"count": len(asnBlocks)})
 	catcher.Info("cityBlocks rows", map[string]any{"count": len(cityBlocks)})
 	catcher.Info("cityLocations rows", map[string]any{"count": len(cityLocations)})
-	catcher.Info("GeoIP databases loaded", map[string]any{})
+	catcher.Info("GeoIP databases loaded", nil)
 }
 
 func populateASNBlocks(csv [][]string) {
