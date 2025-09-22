@@ -91,7 +91,7 @@ func pull(startTime time.Time, group *config.ModuleGroup) {
 	agent := getSophosCentralProcessor(group)
 	logs, newNextKey, err := agent.getLogs(startTime.Unix(), prevKey)
 	if err != nil {
-		_ = catcher.Error("error getting logs", err, map[string]any{})
+		_ = catcher.Error("error getting logs", err, nil)
 		return
 	}
 
@@ -384,7 +384,7 @@ func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string) ([]stri
 		for _, item := range response.Items {
 			jsonItem, err := json.Marshal(item)
 			if err != nil {
-				_ = catcher.Error("error marshalling content details", err, map[string]any{})
+				_ = catcher.Error("error marshalling content details", err, nil)
 				continue
 			}
 			logs = append(logs, string(jsonItem))
