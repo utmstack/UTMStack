@@ -1,0 +1,14 @@
+<app-dynamic-table (pageChange)="onPageChange($event)"
+                   (removeColumn)="onRemoveColumn($event)"
+                   (sizeChange)="onSizeChange($event)"
+                   (sortBy)="onSortBy($event)"
+                   [componentDetail]="componentDetail"
+                   [fields]="fields"
+                   [itemsPerPage]="itemsPerPage"
+                   [rows]="displayedLogs"
+                   [page]="page"
+                   [showDetail]="true"
+                   [showInactiveColumns]="false"
+                   [totalItems]="events.length"
+                   [viewDeleteAction]="true">
+</app-dynamic-table>
