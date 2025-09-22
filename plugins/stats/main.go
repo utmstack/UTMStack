@@ -173,7 +173,7 @@ func (p *notificationServer) Notify(_ context.Context, msg *plugins.Message) (*e
 
 	err := json.Unmarshal(messageBytes, &pMsg)
 	if err != nil {
-		return &emptypb.Empty{}, catcher.Error("cannot unmarshal message", err, map[string]any{})
+		return &emptypb.Empty{}, catcher.Error("cannot unmarshal message", err, nil)
 	}
 
 	statisticsQueue <- map[string]plugins.DataProcessingMessage{msg.Topic: pMsg}
