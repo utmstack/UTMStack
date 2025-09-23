@@ -1,19 +1,21 @@
 package main
 
 import (
+	"os"
+
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/agent-manager/agent"
 	"github.com/utmstack/UTMStack/agent-manager/database"
 	"github.com/utmstack/UTMStack/agent-manager/updates"
-	"github.com/utmstack/UTMStack/agent-manager/utils"
 )
 
 func main() {
-	utils.InitLogger()
-	utils.ALogger.Info("Starting Agent Manager v1.0.0 ...")
+	catcher.Info("Starting Agent Manager v1.0.0 ...", nil)
 
 	err := database.MigrateDatabase()
 	if err != nil {
-		utils.ALogger.Fatal("failed to migrate database: %v", err)
+		catcher.Error("failed to migrate database", err, nil)
+		os.Exit(1)
 	}
 
 	go updates.InitUpdatesManager()

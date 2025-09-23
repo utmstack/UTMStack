@@ -3,9 +3,10 @@ package agent
 import (
 	"crypto/tls"
 	"net"
+	"os"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/agent-manager/config"
-	"github.com/utmstack/UTMStack/agent-manager/utils"
 	grpc "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/health"
@@ -15,7 +16,8 @@ import (
 func InitGrpcServer() {
 	err := InitAgentService()
 	if err != nil {
-		utils.ALogger.Fatal("failed to init agent service: %v", err)
+		catcher.Error("failed to init agent service", err, nil)
+		os.Exit(1)
 	}
 
 	go InitCollectorService()
@@ -27,14 +29,14 @@ func InitGrpcServer() {
 func StartGrpcServer() {
 	listener, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {
-		utils.ALogger.Fatal("failed to listen: %v", err)
-		return
+		catcher.Error("failed to listen", err, nil)
+		os.Exit(1)
 	}
 
 	loadedCert, err := tls.LoadX509KeyPair(config.CertPath, config.CertKeyPath)
 	if err != nil {
-		utils.ALogger.Fatal("failed to load TLS credentials: %v", err)
-		return
+		catcher.Error("failed to load TLS credentials: %v", err, nil)
+		os.Exit(1)
 	}
 
 	transportCredentials := credentials.NewTLS(&tls.Config{
@@ -57,8 +59,9 @@ func StartGrpcServer() {
 	grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)
 	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
 
-	utils.ALogger.Info("Starting gRPC server on 0.0.0.0:50051")
+	catcher.Info("Starting gRPC server on 0.0.0.0:50051", nil)
 	if err := grpcServer.Serve(listener); err != nil {
-		utils.ALogger.Fatal("failed to serve: %v", err)
+		catcher.Error("failed to serve", err, nil)
+		os.Exit(1)
 	}
 }

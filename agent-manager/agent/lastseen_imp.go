@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/agent-manager/database"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/utils"
@@ -50,7 +51,7 @@ func (s *LastSeenService) InitPingSync() {
 	for {
 		_, err := s.DBConnection.GetAll(&pings, "")
 		if err != nil {
-			utils.ALogger.ErrorF("failed to get LastSeen items: %v", err)
+			catcher.Error("failed to get LastSeen items", err, nil)
 			time.Sleep(5 * time.Second)
 			continue
 		}
@@ -77,7 +78,7 @@ func (s *LastSeenService) processPings() {
 		}
 	}
 
-	utils.ALogger.Info("processPings goroutine ended")
+	catcher.Info("processPings goroutine ended", nil)
 }
 
 func (s *LastSeenService) flushLastSeenToDB() {
@@ -106,7 +107,7 @@ func (s *LastSeenService) flushLastSeenToDB() {
 
 		// Database operations
 		dbOpsCount := len(pings)
-		
+
 		if dbOpsCount == 0 {
 			continue
 		}
@@ -130,7 +131,7 @@ func (s *LastSeenService) flushLastSeenToDB() {
 				for ping := range pingChan {
 					err := s.DBConnection.Upsert(&ping, "connector_id = ?", nil, ping.ConnectorID)
 					if err != nil {
-						utils.ALogger.ErrorF("failed to save LastSeen item for connector %d: %v", ping.ConnectorID, err)
+						catcher.Error("failed to save LastSeen item for connector", err, map[string]any{"connector_id": ping.ConnectorID})
 						select {
 						case errorChan <- err:
 						default:

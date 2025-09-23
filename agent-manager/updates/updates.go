@@ -3,12 +3,13 @@ package updates
 import (
 	"crypto/tls"
 	"net/http"
+	"os"
 
 	"github.com/gin-contrib/gzip"
+	"github.com/threatwinds/go-sdk/catcher"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/UTMStack/agent-manager/config"
-	"github.com/utmstack/UTMStack/agent-manager/utils"
 )
 
 func InitUpdatesManager() {
@@ -16,7 +17,7 @@ func InitUpdatesManager() {
 }
 
 func ServeDependencies() {
-	utils.ALogger.LogF(100, "Serving dependencies from %s", config.UpdatesDependenciesFolder)
+	catcher.Info("Serving dependencies", map[string]any{"path": config.UpdatesDependenciesFolder})
 
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
@@ -32,7 +33,8 @@ func ServeDependencies() {
 
 	loadedCert, err := tls.LoadX509KeyPair(config.CertPath, config.CertKeyPath)
 	if err != nil {
-		utils.ALogger.Fatal("failed to load TLS credentials: %v", err)
+		catcher.Error("failed to load TLS credentials", err, nil)
+		os.Exit(1)
 	}
 
 	tlsConfig := &tls.Config{
@@ -53,9 +55,9 @@ func ServeDependencies() {
 		TLSConfig: tlsConfig,
 	}
 
-	utils.ALogger.Info("Starting HTTP server on port 8080")
+	catcher.Info("Starting HTTP server on port 8080", nil)
 	if err := server.ListenAndServeTLS("", ""); err != nil {
-		utils.ALogger.ErrorF("error starting HTTP server: %v", err)
+		catcher.Error("error starting HTTP server", err, nil)
 		return
 	}
 }

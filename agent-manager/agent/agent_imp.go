@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/agent-manager/database"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/utils"
@@ -82,7 +83,7 @@ func (s *AgentService) RegisterAgent(ctx context.Context, req *AgentRequest) (*A
 				Key: oldAgent.AgentKey,
 			}, nil
 		} else {
-			utils.ALogger.ErrorF("agent with hostname %s already exists", agent.Hostname)
+			catcher.Error("agent already exists", err, map[string]any{"hostname": agent.Hostname})
 			return nil, status.Errorf(codes.AlreadyExists, "hostname has already been registered")
 		}
 	}
@@ -91,7 +92,7 @@ func (s *AgentService) RegisterAgent(ctx context.Context, req *AgentRequest) (*A
 	agent.AgentKey = key
 	err = s.DBConnection.Create(agent)
 	if err != nil {
-		utils.ALogger.ErrorF("failed to create agent: %v", err)
+		catcher.Error("failed to create agent", err, nil)
 		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to create agent: %v", err))
 	}
 
@@ -105,7 +106,7 @@ func (s *AgentService) RegisterAgent(ctx context.Context, req *AgentRequest) (*A
 		LastPing:      time.Now(),
 	}
 
-	utils.ALogger.Info("Agent %s with id %d registered correctly", agent.Hostname, agent.ID)
+	catcher.Info("Agent registered correctly", map[string]any{"hostname": agent.Hostname, "id": agent.ID})
 	return &AuthResponse{
 		Id:  uint32(agent.ID),
 		Key: key,
@@ -125,7 +126,7 @@ func (s *AgentService) UpdateAgent(ctx context.Context, req *AgentRequest) (*Aut
 	agent := &models.Agent{}
 	err = s.DBConnection.GetFirst(agent, "id = ?", idInt)
 	if err != nil {
-		utils.ALogger.ErrorF("failed to fetch agent: %v", err)
+		catcher.Error("failed to fetch agent", err, nil)
 		return nil, status.Errorf(codes.NotFound, "agent not found")
 	}
 
@@ -156,7 +157,7 @@ func (s *AgentService) UpdateAgent(ctx context.Context, req *AgentRequest) (*Aut
 
 	err = s.DBConnection.Upsert(&agent, "id = ?", nil, idInt)
 	if err != nil {
-		utils.ALogger.ErrorF("failed to update agent: %v", err)
+		catcher.Error("failed to update agent", err, nil)
 		return nil, status.Errorf(codes.Internal, "failed to update agent: %v", err)
 	}
 
@@ -180,18 +181,18 @@ func (s *AgentService) DeleteAgent(ctx context.Context, req *DeleteRequest) (*Au
 
 	err = s.DBConnection.Upsert(&models.Agent{}, "id = ?", map[string]interface{}{"deleted_by": req.DeletedBy}, id)
 	if err != nil {
-		utils.ALogger.ErrorF("unable to update delete_by field in agent: %v", err)
+		catcher.Error("unable to update delete_by field in agent", err, nil)
 	}
 
 	err = s.DBConnection.Delete(&models.AgentCommand{}, "agent_id = ?", false, uint(idInt))
 	if err != nil {
-		utils.ALogger.ErrorF("unable to delete agent commands: %v", err)
+		catcher.Error("unable to delete agent commands", err, nil)
 		return &AuthResponse{}, status.Error(codes.Internal, fmt.Sprintf("unable to delete agent commands: %v", err.Error()))
 	}
 
 	err = s.DBConnection.Delete(&models.Agent{}, "id = ?", false, id)
 	if err != nil {
-		utils.ALogger.ErrorF("unable to delete agent: %v", err)
+		catcher.Error("unable to delete agent", err, nil)
 		return &AuthResponse{}, status.Error(codes.Internal, fmt.Sprintf("unable to delete agent: %v", err.Error()))
 	}
 
@@ -203,7 +204,7 @@ func (s *AgentService) DeleteAgent(ctx context.Context, req *DeleteRequest) (*Au
 	delete(s.AgentStreamMap, uint(idInt))
 	s.AgentStreamMutex.Unlock()
 
-	utils.ALogger.Info("Agent with key %s deleted by %s", key, req.DeletedBy)
+	catcher.Info("Agent deleted", map[string]any{"key": key, "deleted_by": req.DeletedBy})
 
 	return &AuthResponse{
 		Id:  uint32(idInt),
@@ -218,7 +219,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *ListRequest) (*ListA
 	agents := []models.Agent{}
 	total, err := s.DBConnection.GetByPagination(&agents, page, filter, "", false)
 	if err != nil {
-		utils.ALogger.ErrorF("failed to fetch agents: %v", err)
+		catcher.Error("failed to fetch agents", err, nil)
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
 	}
 
@@ -266,7 +267,7 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 
 		switch msg := in.StreamMessage.(type) {
 		case *BidirectionalStream_Result:
-			utils.ALogger.Info("Received command result from agent %s: %s", msg.Result.AgentId, msg.Result.Result)
+			catcher.Info("Received command result from agent", map[string]any{"agent_id": msg.Result.AgentId, "result": msg.Result.Result})
 			cmdID := msg.Result.GetCmdId()
 
 			s.CommandResultChannelM.Lock()
@@ -278,7 +279,7 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 					ExecutedAt: msg.Result.ExecutedAt,
 				}
 			} else {
-				utils.ALogger.ErrorF("failed to find result channel for CmdID: %s", cmdID)
+				catcher.Error("failed to find result channel for CmdID", nil, map[string]any{"cmdID": cmdID})
 			}
 			s.CommandResultChannelM.Unlock()
 		}
@@ -324,7 +325,7 @@ func (s *AgentService) ProcessCommand(stream PanelService_ProcessCommandServer) 
 		histCommand := createHistoryCommand(cmd, cmdID, uint(streamId))
 		err = s.DBConnection.Create(&histCommand)
 		if err != nil {
-			utils.ALogger.ErrorF("unable to create a new command history")
+			catcher.Error("unable to create a new command history", err, nil)
 		}
 
 		err = agentStream.Send(&BidirectionalStream{
@@ -348,7 +349,7 @@ func (s *AgentService) ProcessCommand(stream PanelService_ProcessCommandServer) 
 			cmd.AgentId, cmdID,
 		)
 		if err != nil {
-			utils.ALogger.ErrorF("failed to update command status: %v", err)
+			catcher.Error("failed to update command status", err, nil)
 		}
 
 		err = stream.Send(result)
@@ -369,7 +370,7 @@ func (s *AgentService) ListAgentCommands(ctx context.Context, req *ListRequest) 
 	commands := []models.AgentCommand{}
 	total, err := s.DBConnection.GetByPagination(&commands, page, filter, "", false)
 	if err != nil {
-		utils.ALogger.ErrorF("failed to fetch agent commands: %v", err)
+		catcher.Error("failed to fetch agent commands", err, nil)
 		return nil, status.Errorf(codes.Internal, "failed to fetch agent commands: %v", err)
 	}
 
