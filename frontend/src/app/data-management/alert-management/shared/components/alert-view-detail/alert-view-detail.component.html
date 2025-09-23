@@ -26,6 +26,10 @@
       <a [ngClass]="{'active':view===alertDetailTabEnum.MAP}" class="nav-link">
         <i class="icon-map5 mr-1"></i> View on map </a>
     </li>
+    <li (click)="view=alertDetailTabEnum.ECHOES" class="nav-item cursor-pointer">
+      <a [ngClass]="{'active':view===alertDetailTabEnum.ECHOES}" class="nav-link">
+        <i class="icon-database mr-1"></i> Echoes </a>
+    </li>
     <li (click)="view=alertDetailTabEnum.HISTORY" class="nav-item cursor-pointer">
       <a [ngClass]="{'active':view===alertDetailTabEnum.HISTORY}" class="nav-link">
         <i class="icon-history mr-1"></i> Alert History </a>
@@ -66,10 +70,6 @@
       <div *ngIf="hideEmptyField && alert.id !== ''" class="alert-details w-100 d-flex justify-content-start mb-2">
         <span class="text-blue-800 font-weight-light has-minimum-width">ID:</span>&nbsp;
         <app-data-field-render [data]="alert" [field]="getFieldByName(CASE_ID_FIELD)"></app-data-field-render>
-        <!--<span (click)="navigateToEvents()" *ngIf="countRelatedEvents>0" class="text-blue-800 cursor-pointer ml-2">
-        (view <strong>{{countRelatedEvents < 100 ? countRelatedEvents : ' last 100 ' }}</strong> {{countRelatedEvents > 1 ? 'logs' : 'log'}}
-          related)
-      </span>-->
         <app-alert-logs-related-action [logs]="logs" [template]="'span'"></app-alert-logs-related-action>
       </div>
       <div class="alert-details w-100 d-flex justify-content-start  align-items-center mb-2">
@@ -190,6 +190,10 @@
   </div>
   <div class="w-100 mt-3" *ngIf="view === alertDetailTabEnum.HISTORY">
     <app-alert-history [alert]="alert"></app-alert-history>
+  </div>
+
+  <div class="w-100 mt-3" *ngIf="view === alertDetailTabEnum.ECHOES">
+    <app-alert-echoes></app-alert-echoes>
   </div>
 
   <div class="w-100 mt-3" *ngIf="view === alertDetailTabEnum.SOC_AI">

@@ -160,26 +160,6 @@ export class AlertViewDetailComponent implements OnInit {
   isEmptyResponse() {
     return Object.entries(this.log).length === 0;
   }
-
-  protected readonly totalItems = LOG_ANALYZER_TOTAL_ITEMS;
-  protected readonly itemsPerPage = ITEMS_PER_PAGE;
-  protected readonly componentDetail = UtmTableDetailComponent;
-
-  onPageChange($event: number) {
-
-  }
-
-  onRemoveColumn($event: UtmFieldType) {
-
-  }
-
-  onSizeChange($event: number) {
-
-  }
-
-  onSortBy($event: string) {
-
-  }
 }
 
 export enum AlertDetailTabEnum {
@@ -190,4 +170,5 @@ export enum AlertDetailTabEnum {
   MAP = 'map',
   TAGS = 'tags',
   INCIDENT = 'incident',
+  ECHOES = 'echoes',
 }
