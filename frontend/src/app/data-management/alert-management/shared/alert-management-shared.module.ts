@@ -17,6 +17,7 @@ import {AlertTagsCreateComponent} from '../alert-tags/alert-tags-create/alert-ta
 import {AlertTagsManagementComponent} from '../alert-tags/alert-tags-management.component';
 import {AlertTagsRenderComponent} from '../alert-tags/alert-tags-render/alert-tags-render.component';
 import {AlertTagsViewComponent} from '../alert-tags/alert-tags-view/alert-tags-view.component';
+import { AlertActionsContentComponent } from './components/alert-actions-content/alert-actions-content.component';
 import {AlertApplyIncidentComponent} from './components/alert-actions/alert-apply-incident/alert-apply-incident.component';
 import {AlertApplyNoteComponent} from './components/alert-actions/alert-apply-note/alert-apply-note.component';
 import {AlertApplyStatusComponent} from './components/alert-actions/alert-apply-status/alert-apply-status.component';
@@ -103,7 +104,8 @@ import {StatusFilterComponent} from './components/filters/status-filter/status-f
     AlertEntityDisplayComponent,
     AlertBadgeFieldComponent,
     AlertLogsRelatedButtonComponent,
-    AlertEventsRelatedComponent
+    AlertEventsRelatedComponent,
+    AlertActionsContentComponent
   ],
   entryComponents: [
     AlertStatusComponent,
@@ -157,7 +159,8 @@ import {StatusFilterComponent} from './components/filters/status-filter/status-f
     AlertSocAiComponent,
     AlertEntityDisplayComponent,
     AlertBadgeFieldComponent,
-    AlertEventsRelatedComponent
+    AlertEventsRelatedComponent,
+    AlertActionsContentComponent
   ],
     imports: [
         CommonModule,
