@@ -255,7 +255,20 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		hits, err := searchQuery.SearchIn(ctx, []string{opensearch.BuildIndexPattern("v11", "alert")})
 		if err == nil {
 			if hits.Hits.Total.Value != 0 {
-				return utils.PointerOf(hits.Hits.Hits[0].ID)
+				parentHit := hits.Hits.Hits[0]
+
+				var parentAlert AlertFields
+				err := parentHit.Source.ParseSource(&parentAlert)
+				if err != nil {
+					_ = catcher.Error("cannot parse alert source", err, map[string]any{
+						"alert": alert.Name,
+					})
+					return nil
+				}
+
+				go updateParentAlertToOpen(parentHit, parentAlert.Status)
+
+				return utils.PointerOf(parentHit.ID)
 			}
 			return nil
 		}
@@ -372,4 +385,53 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 
 	// This should never be reached, but just in case
 	return nil
+}
+
+func updateParentAlertToOpen(hit opensearch.Hit, currentStatus int) {
+	defer func() {
+		if r := recover(); r != nil {
+			_ = catcher.Error("recovered from panic in updateParentAlertToOpen", nil, map[string]any{
+				"panic":    r,
+				"parentId": hit.ID,
+			})
+		}
+	}()
+
+	// Only update if it is NOT in Open status
+	if currentStatus != 2 {
+		hit.Source = map[string]interface{}{
+			"status":      2,
+			"statusLabel": "Open",
+		}
+
+		maxRetries := 3
+		retryDelay := 2 * time.Second
+
+		for retry := 0; retry < maxRetries; retry++ {
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+
+			err := hit.Save(ctx)
+			cancel()
+
+			if err != nil {
+				_ = catcher.Error("failed to update parent alert to Open, retrying", err, map[string]any{
+					"parentId":   hit.ID,
+					"retry":      retry + 1,
+					"maxRetries": maxRetries,
+				})
+
+				if retry < maxRetries-1 {
+					time.Sleep(retryDelay)
+					retryDelay *= 2
+				}
+				continue
+			}
+
+			return
+		}
+
+		_ = catcher.Error("all retries failed when updating parent alert to Open", nil, map[string]any{
+			"parentId": hit.ID,
+		})
+	}
 }
