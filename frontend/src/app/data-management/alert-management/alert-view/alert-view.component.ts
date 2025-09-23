@@ -8,9 +8,6 @@ import {NgxSpinnerService} from 'ngx-spinner';
 import {LocalStorageService} from 'ngx-webstorage';
 import {Observable, Subject} from 'rxjs';
 import {filter, takeUntil, tap} from 'rxjs/operators';
-import {
-  IrCreateRuleComponent
-} from '../../../incident-response/shared/component/ir-create-rule/ir-create-rule.component';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {
   ElasticFilterDefaultTime
@@ -67,9 +64,11 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   manageTags: number;
   ADMIN = ADMIN_ROLE;
   alerts: UtmAlertType[] = [];
+  childrenAlerts: UtmAlertType[] = [];
   tableWidth: number;
   checkbox = false;
   loading = true;
+  loadingChildren = false;
   /**
    * Contains ID of selected alerts
    */
@@ -88,7 +87,11 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     {field: ALERT_STATUS_FIELD_AUTO, operator: ElasticOperatorsEnum.IS_NOT, value: AUTOMATIC_REVIEW},
     {field: ALERT_TAGS_FIELD, operator: ElasticOperatorsEnum.IS_NOT, value: FALSE_POSITIVE_OBJECT.tagName},
     {field: ALERT_PARENT_ID, operator: ElasticOperatorsEnum.DOES_NOT_EXIST},
-    {field: ALERT_TIMESTAMP_FIELD, operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['now-7d', 'now']}
+    {field: ALERT_TIMESTAMP_FIELD, operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['2025-07-01T00:00:00Z', '2025-09-02T05:00:00Z']}
+  ];
+  filtersChildren: ElasticFilterType[] = [
+    {field: ALERT_STATUS_FIELD_AUTO, operator: ElasticOperatorsEnum.IS_NOT, value: AUTOMATIC_REVIEW},
+    {field: ALERT_TAGS_FIELD, operator: ElasticOperatorsEnum.IS_NOT, value: FALSE_POSITIVE_OBJECT.tagName},
   ];
   defaultStatus: number;
   dataNature = DataNatureTypeEnum.ALERT;
@@ -110,6 +113,9 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   openAlerts = 0;
   ALERT_ADVERSARY_FIELD = ALERT_ADVERSARY_FIELD;
   ALERT_TARGET_FIELD = ALERT_TARGET_FIELD;
+  currentChildrenPage = 1;
+  totalChildren: number;
+  pageSizeChildren = 10;
 
 
   constructor(private elasticDataService: ElasticDataService,
@@ -312,10 +318,10 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     this.getAlert('on time filter change');
   }
 
-  getAlert(calledFrom?: string) {
+  getAlert(calledFrom?: string, filtersParam?: ElasticFilterType[]) {
     this.elasticDataService.search(this.page, this.itemsPerPage,
       100000000, this.dataNature,
-      sanitizeFilters(this.filters), this.sortBy, ALERT_PARENT_ID).subscribe(
+      sanitizeFilters(this.filters), this.sortBy, true).subscribe(
       (res: HttpResponse<any>) => {
         this.totalItems = Number(res.headers.get('X-Total-Count'));
         this.alerts = res.body;
@@ -351,16 +357,13 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   }
 
   addToSelected(alert: any) {
+    console.log(alert);
     const index = this.alertSelected.indexOf(alert);
     if (index === -1) {
       this.alertSelected.push(alert);
     } else {
       this.alertSelected.splice(index, 1);
     }
-  }
-
-  isSelected(alert: any): boolean {
-    return this.alertSelected.findIndex(value => value.id === alert.id) !== -1;
   }
 
   onSortBy($event: SortEvent) {
@@ -381,7 +384,6 @@ export class AlertViewComponent implements OnInit, OnDestroy {
       });
     });
   }
-
 
   loadPage(page: any) {
     this.page = page;
@@ -564,12 +566,56 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     return this.filters.find(f => f.field === ALERT_TIMESTAMP_FIELD);
   }
 
+  loadChildrenAlerts(alert: UtmAlertType, from: 'pagination' | 'expand' = 'expand') {
+
+    if (from === 'expand') {
+      this.totalChildren = 0;
+      this.currentChildrenPage = 1;
+      this.childrenAlerts = [];
+      alert.expanded = !alert.expanded;
+
+      this.filtersChildren = this.filters.filter(value => value.field !== ALERT_PARENT_ID);
+
+      this.filtersChildren.push({
+        field: ALERT_PARENT_ID,
+        operator: ElasticOperatorsEnum.IS,
+        value: alert.id
+      });
+    }
+
+
+    if (alert.expanded) {
+      this.loadingChildren = true;
+      this.elasticDataService.search(this.currentChildrenPage, this.pageSizeChildren,
+        100000000, this.dataNature,
+        sanitizeFilters(this.filtersChildren), this.sortBy, true).subscribe(
+        (res: HttpResponse<any>) => {
+          this.totalChildren = Number(res.headers.get('X-Total-Count'));
+          this.childrenAlerts = res.body;
+          this.loadingChildren = false;
+        },
+        (res: HttpResponse<any>) => {
+          this.utmToastService.showError('Error', 'An error occurred while listing the alerts. Please try again later.');
+          this.loadingChildren = false;
+        }
+      );
+    }
+  }
+
+  prevPage(alert: UtmAlertType) {
+    this.currentChildrenPage = this.currentChildrenPage - 1;
+    this.loadChildrenAlerts(alert, 'pagination');
+  }
+
+  nextPage(alert: UtmAlertType) {
+    this.currentChildrenPage = this.currentChildrenPage + 1;
+    this.loadChildrenAlerts(alert, 'pagination');
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  getAlertById(parentId: string) {
-    return this.alerts.filter(alert => alert.parentId === parentId);
-  }
+  protected readonly Math = Math;
 }

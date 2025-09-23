@@ -20,3 +20,15 @@
   min-height: 0;
   overflow: hidden;
 }
+
+.children-alert-container{
+  height: 200px;
+}
+
+tr.no-bottom-border {
+  border-bottom-width: 0 !important;
+}
+
+.bg-children-light {
+  background-color: #cccccc52 !important;
+}
