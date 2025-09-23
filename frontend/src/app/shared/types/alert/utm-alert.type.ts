@@ -29,7 +29,7 @@ export class UtmAlertType {
   technique: string;
   impact?: { [key: string]: number };
   parentId?: string;
-  children?: any[];
+  hasChildren: boolean;
   expanded: boolean;
 }
 

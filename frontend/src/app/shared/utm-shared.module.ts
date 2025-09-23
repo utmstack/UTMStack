@@ -238,6 +238,7 @@ import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {TimePeriodPipe} from './pipes/time-period.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
+import { AlertEchoesComponent } from './components/alert-echoes/alert-echoes.component';
 
 
 
@@ -397,7 +398,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     RelativeTimePipe,
     UtmTfaConfCheckComponent,
     UtmTfaVerificationComponent,
-    TfaSetupComponent
+    TfaSetupComponent,
+    AlertEchoesComponent
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -503,7 +505,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     FilterPipe,
     UtmInstanceInfoComponent,
     UtmCpCronEditorComponent,
-    RelativeTimePipe
+    RelativeTimePipe,
+    AlertEchoesComponent
   ],
   entryComponents: [
     LoginComponent,

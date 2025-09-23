@@ -4,7 +4,7 @@ import {TemplateSelectorDirective} from '../../directives/template-selector/temp
 @Component({
   selector: 'app-filter',
   templateUrl: './app-filter.component.html',
-  styleUrls: ['./app-filter.component.css']
+  styleUrls: ['./app-filter.component.scss']
 })
 export class AppFilterComponent<T extends {id: number}> {
   @Input() list: T[] | null = null;
