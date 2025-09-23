@@ -29,16 +29,6 @@ export class AlertEventsRelatedComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    for (let i = 0; i < 100; i++) {
-      const baseDate = new Date(this.events[0].timestamp);
-
-      baseDate.setDate(baseDate.getDate() + Math.floor(i / 25));
-
-      this.events.push({
-        ...this.events[0],
-        timestamp: baseDate.getTime().toString()
-      });
-    }
     this.applyFilters();
   }
 
