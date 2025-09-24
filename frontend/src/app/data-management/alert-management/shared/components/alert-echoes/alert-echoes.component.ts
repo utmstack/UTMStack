@@ -33,7 +33,7 @@ export class AlertEchoesComponent implements OnInit {
   readonly fields = ALERT_FIELDS;
   readonly ALERT_ADVERSARY_FIELD = ALERT_ADVERSARY_FIELD;
   readonly ALERT_TARGET_FIELD = ALERT_TARGET_FIELD;
-  itemsPerPage = 5;
+  itemsPerPage = ITEMS_PER_PAGE;
   dataType = EventDataTypeEnum.ALERT;
   dataNature = DataNatureTypeEnum.ALERT;
   loading = false;

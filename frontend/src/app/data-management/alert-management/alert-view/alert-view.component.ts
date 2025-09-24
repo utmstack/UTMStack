@@ -82,12 +82,11 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   totalItems: any;
   page = 1;
   itemsPerPage = ITEMS_PER_PAGE;
-  // By default all alert will contain all except alerts in review
   filters: ElasticFilterType[] = [
     {field: ALERT_STATUS_FIELD_AUTO, operator: ElasticOperatorsEnum.IS_NOT, value: AUTOMATIC_REVIEW},
     {field: ALERT_TAGS_FIELD, operator: ElasticOperatorsEnum.IS_NOT, value: FALSE_POSITIVE_OBJECT.tagName},
     {field: ALERT_PARENT_ID, operator: ElasticOperatorsEnum.DOES_NOT_EXIST},
-    {field: ALERT_TIMESTAMP_FIELD, operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['2025-07-01T00:00:00Z', '2025-09-02T05:00:00Z']}
+    {field: ALERT_TIMESTAMP_FIELD, operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['now-7d', 'now']}
   ];
   filtersChildren: ElasticFilterType[] = [
     {field: ALERT_STATUS_FIELD_AUTO, operator: ElasticOperatorsEnum.IS_NOT, value: AUTOMATIC_REVIEW},
@@ -115,7 +114,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   ALERT_TARGET_FIELD = ALERT_TARGET_FIELD;
   currentChildrenPage = 1;
   totalChildren: number;
-  pageSizeChildren = 10;
+  pageSizeChildren = ITEMS_PER_PAGE;
 
 
   constructor(private elasticDataService: ElasticDataService,
