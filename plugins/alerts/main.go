@@ -255,20 +255,10 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		hits, err := searchQuery.SearchIn(ctx, []string{opensearch.BuildIndexPattern("v11", "alert")})
 		if err == nil {
 			if hits.Hits.Total.Value != 0 {
-				parentHit := hits.Hits.Hits[0]
 
-				var parentAlert AlertFields
-				err := parentHit.Source.ParseSource(&parentAlert)
-				if err != nil {
-					_ = catcher.Error("cannot parse alert source", err, map[string]any{
-						"alert": alert.Name,
-					})
-					return nil
-				}
+				go updateParentAlertToOpen(hits.Hits.Hits[0])
 
-				go updateParentAlertToOpen(parentHit, parentAlert.Status)
-
-				return utils.PointerOf(parentHit.ID)
+				return utils.PointerOf(hits.Hits.Hits[0].ID)
 			}
 			return nil
 		}
@@ -387,21 +377,36 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 	return nil
 }
 
-func updateParentAlertToOpen(hit opensearch.Hit, currentStatus int) {
+func updateParentAlertToOpen(parentHit opensearch.Hit) {
 	defer func() {
 		if r := recover(); r != nil {
 			_ = catcher.Error("recovered from panic in updateParentAlertToOpen", nil, map[string]any{
 				"panic":    r,
-				"parentId": hit.ID,
+				"parentId": parentHit.ID,
 			})
 		}
 	}()
 
-	// Only update if it is NOT in Open status
-	if currentStatus != 2 {
-		hit.Source = map[string]interface{}{
-			"status":      2,
-			"statusLabel": "Open",
+	var parentAlert AlertFields
+	err := parentHit.Source.ParseSource(&parentAlert)
+	if err != nil {
+		_ = catcher.Error("cannot parse parent alert source", err, map[string]any{
+			"parentId": parentHit.ID,
+		})
+		return
+	}
+
+	// Only update if it is Completed status
+	if parentAlert.Status == 5 {
+		parentAlert.Status = 2
+		parentAlert.StatusLabel = "Open"
+
+		err := parentHit.Source.SetSource(parentAlert)
+		if err != nil {
+			_ = catcher.Error("cannot set updated parent alert source", err, map[string]any{
+				"parentId": parentHit.ID,
+			})
+			return
 		}
 
 		maxRetries := 3
@@ -410,12 +415,12 @@ func updateParentAlertToOpen(hit opensearch.Hit, currentStatus int) {
 		for retry := 0; retry < maxRetries; retry++ {
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
-			err := hit.Save(ctx)
+			err := parentHit.Save(ctx)
 			cancel()
 
 			if err != nil {
 				_ = catcher.Error("failed to update parent alert to Open, retrying", err, map[string]any{
-					"parentId":   hit.ID,
+					"parentId":   parentHit.ID,
 					"retry":      retry + 1,
 					"maxRetries": maxRetries,
 				})
@@ -431,7 +436,7 @@ func updateParentAlertToOpen(hit opensearch.Hit, currentStatus int) {
 		}
 
 		_ = catcher.Error("all retries failed when updating parent alert to Open", nil, map[string]any{
-			"parentId": hit.ID,
+			"parentId": parentHit.ID,
 		})
 	}
 }
