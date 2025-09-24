@@ -238,28 +238,27 @@ import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {TimePeriodPipe} from './pipes/time-period.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
-import { AlertEchoesComponent } from './components/alert-echoes/alert-echoes.component';
 
 
 
 @NgModule({
-    imports: [
-        InlineSVGModule,
-        CommonModule,
-        ReactiveFormsModule,
-        TranslateModule,
-        NgbModule,
-        FormsModule,
-        RouterModule,
-        NgSelectModule,
-        NgxSortableModule,
-        NgxFlagIconCssModule,
-        NgxJsonViewerModule,
-        AssetsApplyTypeModule,
-        AssetsApplyNoteModule,
-        AssetsGroupAddModule,
-        InfiniteScrollModule
-    ],
+  imports: [
+    InlineSVGModule,
+    CommonModule,
+    ReactiveFormsModule,
+    TranslateModule,
+    NgbModule,
+    FormsModule,
+    RouterModule,
+    NgSelectModule,
+    NgxSortableModule,
+    NgxFlagIconCssModule,
+    NgxJsonViewerModule,
+    AssetsApplyTypeModule,
+    AssetsApplyNoteModule,
+    AssetsGroupAddModule,
+    InfiniteScrollModule,
+  ],
   declarations: [
     ElasticFilterComponent,
     ElasticFilterAddComponent,
@@ -398,8 +397,7 @@ import { AlertEchoesComponent } from './components/alert-echoes/alert-echoes.com
     RelativeTimePipe,
     UtmTfaConfCheckComponent,
     UtmTfaVerificationComponent,
-    TfaSetupComponent,
-    AlertEchoesComponent
+    TfaSetupComponent
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -505,8 +503,7 @@ import { AlertEchoesComponent } from './components/alert-echoes/alert-echoes.com
     FilterPipe,
     UtmInstanceInfoComponent,
     UtmCpCronEditorComponent,
-    RelativeTimePipe,
-    AlertEchoesComponent
+    RelativeTimePipe
   ],
   entryComponents: [
     LoginComponent,

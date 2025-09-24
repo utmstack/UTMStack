@@ -42,6 +42,7 @@ export class DataFieldRenderComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log('datatype', this.dataType);
   }
 
   resolveValue(alert: any, td: UtmFieldType) {

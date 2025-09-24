@@ -26,7 +26,7 @@
       <a [ngClass]="{'active':view===alertDetailTabEnum.MAP}" class="nav-link">
         <i class="icon-map5 mr-1"></i> View on map </a>
     </li>
-    <li (click)="view=alertDetailTabEnum.ECHOES" class="nav-item cursor-pointer">
+    <li *ngIf="alert.hasChildren" (click)="view=alertDetailTabEnum.ECHOES" class="nav-item cursor-pointer">
       <a [ngClass]="{'active':view===alertDetailTabEnum.ECHOES}" class="nav-link">
         <i class="icon-database mr-1"></i> Echoes </a>
     </li>
@@ -192,8 +192,8 @@
     <app-alert-history [alert]="alert"></app-alert-history>
   </div>
 
-  <div class="w-100 mt-3" *ngIf="view === alertDetailTabEnum.ECHOES">
-    <app-alert-echoes></app-alert-echoes>
+  <div class="d-flex flex-column w-100 mt-3 h-100 m-h-0" *ngIf="view === alertDetailTabEnum.ECHOES && alert.hasChildren">
+    <app-alert-echoes [alert]="alert"></app-alert-echoes>
   </div>
 
   <div class="w-100 mt-3" *ngIf="view === alertDetailTabEnum.SOC_AI">

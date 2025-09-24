@@ -30,6 +30,7 @@ import {AlertCategoryComponent} from './components/alert-category/alert-category
 import {AlertCompleteComponent} from './components/alert-complete/alert-complete.component';
 import {AlertDescriptionComponent} from './components/alert-description/alert-description.component';
 import {AlertDocUpdateInProgressComponent} from './components/alert-doc-update-in-progress/alert-doc-update-in-progress.component';
+import {AlertEchoesComponent} from "./components/alert-echoes/alert-echoes.component";
 import { AlertEntityDisplayComponent } from './components/alert-entity-display/alert-entity-display.component';
 import {AlertEventsRelatedComponent} from './components/alert-events-related/alert-events-related.component';
 import {AlertFullLogComponent} from './components/alert-full-log/alert-full-log.component';
@@ -105,7 +106,8 @@ import {StatusFilterComponent} from './components/filters/status-filter/status-f
     AlertBadgeFieldComponent,
     AlertLogsRelatedButtonComponent,
     AlertEventsRelatedComponent,
-    AlertActionsContentComponent
+    AlertActionsContentComponent,
+    AlertEchoesComponent
   ],
   entryComponents: [
     AlertStatusComponent,
