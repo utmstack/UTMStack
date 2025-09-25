@@ -31,8 +31,9 @@ public class SearchUtil {
     public static Query toQuery(List<FilterType> filters) {
         final String ctx = CLASSNAME + ".toQuery";
         try {
+            boolean hasShouldClauses = false;
             BoolQuery.Builder bool = new BoolQuery.Builder();
-            bool.filter(Query.of(q -> q.matchAll(MatchAllQuery.of(m -> m))));
+            /*bool.filter(Query.of(q -> q.matchAll(MatchAllQuery.of(m -> m))));*/
 
             if (!CollectionUtils.isEmpty(filters)) {
                 for (FilterType filter : filters) {
@@ -100,9 +101,18 @@ public class SearchUtil {
                         case IS_LESS_THAN_OR_EQUALS:
                             buildIsLessThanOrEquals(bool, filter);
                             break;
+                        case IS_ONE_OF_TERMS_OR:
+                            hasShouldClauses = true;
+                            buildIsOneOfOr(bool, filter);
+                            break;
                     }
                 }
             }
+
+            if (hasShouldClauses) {
+                bool.minimumShouldMatch("1");
+            }
+
             return Query.of(q -> q.bool(bool.build()));
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
@@ -371,6 +381,16 @@ public class SearchUtil {
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
+    }
+
+    private static void buildIsOneOfOr(BoolQuery.Builder bool, FilterType filter) {
+        List<FieldValue> termsValues = ((List<?>) filter.getValue()).stream().map(str -> FieldValue.of((String) str)).toList();
+
+        Query termsQuery = Query.of(q -> q.terms(t -> t
+                .field(filter.getField())
+                .terms(terms -> terms.value(termsValues))));
+
+        bool.should(termsQuery);
     }
 
     /**

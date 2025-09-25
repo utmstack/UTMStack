@@ -10,6 +10,7 @@ public enum OperatorType {
     IS_ONE_OF,
     IS_NOT_ONE_OF,
     IS_ONE_OF_TERMS,
+    IS_ONE_OF_TERMS_OR,
     EXIST,
     DOES_NOT_EXIST,
     IS_BETWEEN,
@@ -22,4 +23,5 @@ public enum OperatorType {
     NOT_START_WITH,
     IS_GREATER_THAN,
     IS_LESS_THAN_OR_EQUALS
+
 }

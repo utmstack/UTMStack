@@ -2,6 +2,7 @@ package com.park.utmstack.web.rest.elasticsearch;
 
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
+import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.domain.shared_types.CsvExportingParams;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
@@ -146,6 +147,7 @@ public class ElasticsearchResource {
     @PostMapping("/search")
     public ResponseEntity<List<Map>> search(@RequestBody(required = false) List<FilterType> filters,
                                             @RequestParam Integer top, @RequestParam String indexPattern,
+                                            @RequestParam(required = false, defaultValue = "false") boolean includeChildren,
                                             Pageable pageable) {
         final String ctx = CLASSNAME + ".search";
         try {
@@ -159,8 +161,24 @@ public class ElasticsearchResource {
             HttpHeaders headers = UtilPagination.generatePaginationHttpHeaders(Math.min(hits.total().value(), top),
                     pageable.getPageNumber(), pageable.getPageSize(), "/api/elasticsearch/search");
 
-            return ResponseEntity.ok().headers(headers).body(hits.hits().stream()
-                    .map(Hit::source).collect(Collectors.toList()));
+            List<Map> results = hits.hits().stream()
+                    .map(Hit::source)
+                    .toList();
+
+            if (includeChildren) {
+                results.forEach(d -> {
+                    Object id = d.get("id");
+                    if (id != null) {
+                        boolean hasChildren = elasticsearchService.exists(
+                                List.of(new FilterType("parentId", OperatorType.IS,  id.toString())),
+                                indexPattern
+                        );
+                        d.put("hasChildren", hasChildren);
+                    }
+                });
+            }
+
+            return ResponseEntity.ok().headers(headers).body(results);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);

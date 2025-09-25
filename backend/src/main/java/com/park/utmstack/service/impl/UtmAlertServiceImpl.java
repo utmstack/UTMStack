@@ -29,6 +29,7 @@ import com.park.utmstack.util.exceptions.ElasticsearchIndexDocumentUpdateExcepti
 import com.park.utmstack.util.exceptions.UtmElasticsearchException;
 import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
 import com.utmstack.opensearch_connector.types.BucketAggregation;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.StringEscapeUtils;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch.core.SearchRequest;
@@ -52,6 +53,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class UtmAlertServiceImpl implements UtmAlertService {
 
@@ -67,22 +69,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
     private final SocAIService socAIService;
     private final UtmAlertResponseRuleService alertResponseRuleService;
 
-    public UtmAlertServiceImpl(MailService mailService,
-                               ApplicationEventService eventService,
-                               AlertPointcut alertPointcut,
-                               UtmAlertLastRepository lastAlertRepository,
-                               ElasticsearchService elasticsearchService,
-                               UtmModuleService moduleService, SocAIService socAIService,
-                               UtmAlertResponseRuleService alertResponseRuleService) {
-        this.mailService = mailService;
-        this.eventService = eventService;
-        this.alertPointcut = alertPointcut;
-        this.lastAlertRepository = lastAlertRepository;
-        this.elasticsearchService = elasticsearchService;
-        this.moduleService = moduleService;
-        this.socAIService = socAIService;
-        this.alertResponseRuleService = alertResponseRuleService;
-    }
+
 
     @EventListener(RulesEvaluationEndEvent.class)
     public void checkForNewAlerts() {
@@ -177,13 +164,24 @@ public class UtmAlertServiceImpl implements UtmAlertService {
     public void updateStatus(List<String> alertIds, int status, String statusObservation) throws
             ElasticsearchIndexDocumentUpdateException {
         final String ctx = CLASS_NAME + ".updateStatus";
+        long start = System.currentTimeMillis();
         try {
+            String alertsIds = String.join(",", alertIds);
+            Map<String, Object> extra = Map.of(
+                    "alertIds", alertsIds,
+                    "newStatus", status
+            );
+
+            String attemptMsg = String.format("Attempt to update status to %1$s for alerts with ids: %2$s",
+                AlertStatus.getByCode(status).getName(), alertsIds);
+            eventService.createEvent(attemptMsg, ApplicationEventType.ALERT_STATUS_UPDATE_ATTEMPT, extra);
             String ruleScript = "ctx._source.status=%1$s;" +
                     "ctx._source.statusLabel='%2$s';" +
                     "ctx._source.statusObservation=\"%3$s\";";
 
             List<FilterType> filters = new ArrayList<>();
-            filters.add(new FilterType(Constants.alertIdKeyword, OperatorType.IS_ONE_OF_TERMS, alertIds));
+            filters.add(new FilterType(Constants.alertIdKeyword, OperatorType.IS_ONE_OF_TERMS_OR, alertIds));
+            filters.add(new FilterType(Constants.parentIdKeyword, OperatorType.IS_ONE_OF_TERMS_OR, alertIds));
 
             String script = String.format(ruleScript, status,
                     AlertStatus.getByCode(status).getName(), StringEscapeUtils.escapeJava(statusObservation));
@@ -192,6 +190,11 @@ public class UtmAlertServiceImpl implements UtmAlertService {
 
             elasticsearchService.updateByQuery(SearchUtil.toQuery(filters),
                     Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS), script);
+
+            long duration = System.currentTimeMillis() - start;
+            String successMsg = String.format("Status updated to %1$s for alerts with ids: %2$s in %3$s ms",
+                    AlertStatus.getByCode(status).getName(), alertsIds, duration);
+            eventService.createEvent(successMsg, ApplicationEventType.ALERT_NOTE_UPDATE_SUCCESS, extra);
         } catch (Exception e) {
             throw new ElasticsearchIndexDocumentUpdateException(ctx + ": " + e.getMessage());
         }
