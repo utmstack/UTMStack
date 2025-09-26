@@ -21,7 +21,7 @@ import {
   ALERT_STATUS_FIELD_AUTO,
   ALERT_STATUS_LABEL_FIELD,
   ALERT_TAGS_FIELD, ALERT_TARGET_FIELD,
-  ALERT_TIMESTAMP_FIELD,
+  ALERT_TIMESTAMP_FIELD, ALERTS_CHILDREN_FIELDS,
   EVENT_FIELDS,
   EVENT_IS_ALERT,
   FALSE_POSITIVE_OBJECT,
@@ -53,6 +53,7 @@ import {EventDataTypeEnum} from '../shared/enums/event-data-type.enum';
 import {AlertTagService} from '../shared/services/alert-tag.service';
 import {OPEN_ALERTS_KEY, OpenAlertsService} from '../shared/services/open-alerts.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
+import {AlertActionRefreshService} from "../shared/services/alert-action-refresh.service";
 
 @Component({
   selector: 'app-alert-view',
@@ -60,7 +61,27 @@ import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-fu
   styleUrls: ['./alert-view.component.scss']
 })
 export class AlertViewComponent implements OnInit, OnDestroy {
+
+
+  constructor(private elasticDataService: ElasticDataService,
+              private modalService: NgbModal,
+              private utmToastService: UtmToastService,
+              private translate: TranslateService,
+              private alertFiltersBehavior: AlertFiltersBehavior,
+              private updateStatusServiceBehavior: AlertStatusBehavior,
+              private activatedRoute: ActivatedRoute,
+              public router: Router,
+              private openAlertsService: OpenAlertsService,
+              private alertDataTypeBehavior: AlertDataTypeBehavior,
+              private alertTagService: AlertTagService,
+              private spinner: NgxSpinnerService,
+              private checkEmailConfigService: CheckEmailConfigService,
+              private localStorage: LocalStorageService,
+              private alertActionRefreshService: AlertActionRefreshService) {
+    // this.tableWidth = this.pageWidth - 300;
+  }
   fields = ALERT_FIELDS;
+  childrenFields = ALERTS_CHILDREN_FIELDS;
   manageTags: number;
   ADMIN = ADMIN_ROLE;
   alerts: UtmAlertType[] = [];
@@ -115,24 +136,8 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   currentChildrenPage = 1;
   totalChildren: number;
   pageSizeChildren = ITEMS_PER_PAGE;
-
-
-  constructor(private elasticDataService: ElasticDataService,
-              private modalService: NgbModal,
-              private utmToastService: UtmToastService,
-              private translate: TranslateService,
-              private alertFiltersBehavior: AlertFiltersBehavior,
-              private updateStatusServiceBehavior: AlertStatusBehavior,
-              private activatedRoute: ActivatedRoute,
-              public router: Router,
-              private openAlertsService: OpenAlertsService,
-              private alertDataTypeBehavior: AlertDataTypeBehavior,
-              private alertTagService: AlertTagService,
-              private spinner: NgxSpinnerService,
-              private checkEmailConfigService: CheckEmailConfigService,
-              private localStorage: LocalStorageService ) {
-    // this.tableWidth = this.pageWidth - 300;
-  }
+  readonly ALERT_STATUS_FIELD = ALERT_STATUS_FIELD;
+  readonly Math = Math;
 
   ngOnInit() {
     this.openAlerts = this.localStorage.retrieve(OPEN_ALERTS_KEY);
@@ -181,6 +186,20 @@ export class AlertViewComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
         tap(() => this.showRefresh = true),
         filter( incomingAlerts => this.openAlerts === null || this.openAlerts < incomingAlerts));
+
+    this.alertActionRefreshService.incidentCreated$
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(incident => !!incident),
+        tap(() => this.refreshAlerts())
+      ).subscribe();
+
+    this.alertActionRefreshService.alertTagRuleCreated$
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(incident => !!incident),
+        tap(() => this.refreshAlerts())
+      ).subscribe();
   }
 
   refreshAlerts() {
@@ -614,7 +633,6 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.alertActionRefreshService.clearValues();
   }
-
-  protected readonly Math = Math;
 }
