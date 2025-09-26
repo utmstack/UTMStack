@@ -53,6 +53,7 @@ import {AlertManagementService} from '../../services/alert-management.service';
 import {AlertRulesService} from '../../services/alert-rules.service';
 import {AlertTagService} from '../../services/alert-tag.service';
 import {setAlertPropertyValue} from '../../util/alert-util-function';
+import {AlertActionRefreshService} from "../../services/alert-action-refresh.service";
 
 @Component({
   selector: 'app-alert-rule-create',
@@ -133,7 +134,8 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
               private alertTagService: AlertTagService,
               private operatorService: OperatorService,
               private elasticDataService: ElasticDataService,
-              private alertService: AlertService) {
+              private alertService: AlertService,
+              private alertActionRefreshService: AlertActionRefreshService) {
 
     this.fields = ALERT_FIELDS.filter(value => !this.excludeFields.includes(value.field));
     this.fields = this.fields.reduce((acc: any[], field) => {
@@ -241,6 +243,7 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
     request$.subscribe(() => {
       const action = this.action === 'update' ? 'updated' : 'created';
       this.utmToastService.showSuccessBottom(`Rule ${this.formRule.get('name').value} ${action} successfully`);
+      this.alertActionRefreshService.alertTagRuleCreated(true);
 
       if (this.alert) {
         const alertId = this.alert.id;
