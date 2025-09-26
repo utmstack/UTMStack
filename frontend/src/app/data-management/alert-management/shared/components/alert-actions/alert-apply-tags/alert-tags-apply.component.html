@@ -1,7 +1,9 @@
-<div [ngbTooltip]="selected.length>0?selected.toString():null"
-     placement="auto"
-     container="body"
-     tooltipClass="utm-tooltip-top" (click)="addNewTagRule()" *ngIf="tags;else loadingTag">
+
+<ng-container *ngIf="template === 'default'">
+  <div [ngbTooltip]="selected.length>0?selected.toString():null"
+       placement="auto"
+       container="body"
+       tooltipClass="utm-tooltip-top" (click)="addNewTagRule()" *ngIf="tags;else loadingTag">
     <span class="text-blue-800 position-relative cursor-pointer small-md-icon text-center d-inline"
     >
 
@@ -15,9 +17,19 @@
 
 
     </span>
-</div>
-<ng-template #loadingTag>
+  </div>
+  <ng-template #loadingTag>
   <span class="text-blue-800 position-relative cursor-pointer small-md-icon text-center d-inline">
          <i class="icon-spinner2 spinner"></i>
     </span>
-</ng-template>
+  </ng-template>
+</ng-container>
+
+<ng-container *ngIf="template === 'menu-item'">
+  <a [ngClass]="action.background"  class="span-small-icon" (click)="addNewTagRule()">
+    <i [ngClass]="action.icon"></i>&nbsp;
+    {{ action.label }}
+  </a>
+</ng-container>
+
+

@@ -8,12 +8,14 @@ import {AlertRuleCreateComponent} from '../../alert-rule-create/alert-rule-creat
 @Component({
   selector: 'app-alert-tags-apply',
   templateUrl: './alert-tags-apply.component.html',
-  styleUrls: ['./alert-tags-apply.component.scss']
+  styleUrls: ['./alert-tags-apply.component.scss'],
 })
 export class AlertTagsApplyComponent implements OnInit, OnChanges {
   @Input() showTagsLabel: boolean;
   @Input() alert: UtmAlertType;
   @Input() tags: AlertTags[];
+  @Input() template: 'default' | 'menu-item' = 'default';
+  @Input() action: any;
   selected: string[] = [];
   select: any;
   @Output() updateTagsEvent = new EventEmitter<boolean>();
