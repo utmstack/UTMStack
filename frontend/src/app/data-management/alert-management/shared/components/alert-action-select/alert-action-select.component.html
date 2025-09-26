@@ -1,0 +1,123 @@
+<div #popover="ngbPopover"
+     [container]="'body'"
+     [ngbPopover]="popContent"
+     autoClose="outside"
+     [ngClass]="background"
+     class="d-flex justify-content-start align-items-center cursor-pointer border-1 border-radius-1 flex-grow-1"
+     placement="bottom-right"
+     popoverClass="utm-alert-action-select" style="white-space: nowrap">
+
+  <div class="d-flex justify-content-between align-items-center span-small-icon">
+    <div [ngClass]="background" class="border-left-1 p-1 px-2">
+      <i [ngClass]="changing ? 'icon-spinner2 spinner' :icon"></i>&nbsp;
+      <span>{{label|translate}}</span>
+    </div>
+    <span class="cursor-pointer d-flex justify-content-center text-grey-100">
+      <i [ngClass]="popover.isOpen() ? 'icon-arrow-right32' : 'icon-arrow-down32'" class="p-1 top-0"></i>
+    </span>
+  </div>
+
+</div>
+
+<ng-template #popContent>
+  <div class="utm-action-menu">
+    <ng-container *ngFor="let group of ['Estado', 'Acciones']">
+      <div class="border-bottom-1 border-bottom-grey-100"></div>
+      <ng-container *ngFor="let action of actionGroups[group]">
+
+        <ng-container *ngIf="action.subActions?.length; else simpleAction">
+
+          <ng-container [ngSwitch]="action.action">
+
+            <ng-container *ngSwitchCase="AlertActionType.ADD_OR_CREATE_INCIDENT">
+              <div *ngIf="alert.status !== action.value && !alert.isIncident"
+                   [ngClass]="action.background" class="position-relative span-small-icon"
+                   [ngbPopover]="subPopoverTemplate"
+                   [popoverClass]="'utm-submenu-popover'"
+                   [placement]="'right-top'">
+
+                <i [ngClass]="action.icon"></i>&nbsp;
+                {{ action.label }}
+                <i class="icon-arrow-right32 pull-right"></i>
+              </div>
+            </ng-container>
+
+            <ng-container *ngSwitchDefault>
+              <div *ngIf="alert.status !== action.value"
+                   [ngClass]="action.background" class="position-relative span-small-icon"
+                   [ngbPopover]="subPopoverTemplate"
+                   [popoverClass]="'utm-submenu-popover'"
+                   [placement]="'right-top'">
+
+                <i [ngClass]="action.icon"></i>&nbsp;
+                {{ action.label }}
+                <i class="icon-arrow-right32 pull-right"></i>
+              </div>
+            </ng-container>
+          </ng-container>
+
+          <ng-template #subPopoverTemplate>
+            <ng-container *ngTemplateOutlet="subPopover; context: { action: action }">
+            </ng-container>
+          </ng-template>
+        </ng-container>
+
+
+        <ng-template #simpleAction>
+          <ng-container *ngIf="alert.status !== action.value" >
+            <ng-container [ngSwitch] = "action.action">
+              <app-alert-tags-apply *ngSwitchCase="AlertActionType.ADD_FALSE_POSITIVE_TAG_RULE"
+                                    [alert]="alert"
+                                    [tags]="tags"
+                                    [template]="'menu-item'"
+                                    [action]="action"
+                                    class="span-small-icon">
+              </app-alert-tags-apply>
+
+              <a *ngSwitchDefault [ngClass]="action.background"  class="span-small-icon" (click)="changeStatus(action.value);popover.close()">
+                <i [ngClass]="action.icon"></i>&nbsp;
+                {{ action.label }}
+              </a>
+
+            </ng-container>
+
+          </ng-container>
+
+
+        </ng-template>
+      </ng-container>
+    </ng-container>
+  </div>
+</ng-template>
+
+<ng-template #subPopover let-action="action">
+    <ng-container [ngSwitch] = "action.action">
+      <app-alert-apply-incident *ngSwitchCase="AlertActionType.ADD_OR_CREATE_INCIDENT"
+                                       [alert]="alert"
+                                       [eventType]="dataType"
+                                       [template]="'menu-item'"
+                                       [actions]="action.subActions"
+                                       [multiple]="false">
+      </app-alert-apply-incident>
+      <ng-container *ngSwitchDefault>
+        <div class="utm-action-menu">
+          <a *ngFor="let sub of action.subActions"
+             class="span-small-icon"
+             [ngClass]="sub.background"
+             (click)="handleAction(sub.value)">
+            <i [ngClass]="sub.icon"></i>&nbsp;
+            {{ sub.label }}
+          </a>
+        </div>
+      </ng-container>
+    </ng-container>
+</ng-template>
+
+
+
+
+
+
+
+
+
