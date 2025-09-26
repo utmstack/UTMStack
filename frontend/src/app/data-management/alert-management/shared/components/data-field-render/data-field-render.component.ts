@@ -25,6 +25,7 @@ export class DataFieldRenderComponent implements OnInit {
   @Input() field: UtmFieldType;
   @Input() showStatusChange: boolean;
   @Input() dataType: EventDataTypeEnum;
+  @Input() tags: any[];
   @Output() refreshData = new EventEmitter<boolean>();
   STATUS_FIELD = ALERT_STATUS_FIELD;
   SEVERITY_LABEL_FIELD = ALERT_SEVERITY_FIELD_LABEL;
@@ -42,7 +43,6 @@ export class DataFieldRenderComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('datatype', this.dataType);
   }
 
   resolveValue(alert: any, td: UtmFieldType) {
