@@ -59,6 +59,7 @@ import {AlertGenericFilterComponent} from './components/filters/alert-generic-fi
 import {FilterAppliedComponent} from './components/filters/filter-applied/filter-applied.component';
 import {RowToFiltersComponent} from './components/filters/row-to-filter/row-to-filters.component';
 import {StatusFilterComponent} from './components/filters/status-filter/status-filter.component';
+import { AlertActionSelectComponent } from './components/alert-action-select/alert-action-select.component';
 
 @NgModule({
   declarations: [
@@ -107,7 +108,8 @@ import {StatusFilterComponent} from './components/filters/status-filter/status-f
     AlertLogsRelatedButtonComponent,
     AlertEventsRelatedComponent,
     AlertActionsContentComponent,
-    AlertEchoesComponent
+    AlertEchoesComponent,
+    AlertActionSelectComponent
   ],
   entryComponents: [
     AlertStatusComponent,

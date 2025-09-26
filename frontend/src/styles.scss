@@ -1360,6 +1360,20 @@ app-logstash-pipelines{
   max-width: 350px !important;
 }
 
+.popover.utm-alert-action-select {
+
+  .arrow {
+    display: none !important;
+  }
+
+  .popover-body {
+    padding: 0!important;
+  }
+
+  min-width: 200px !important;
+  max-width: 260px !important;
+}
+
 .border-radius-1 {
   border-radius: 4px;
 }
