@@ -1,8 +1,9 @@
-<div [hidden]="multiple"
-     [ngbTooltip]="isIncident?(incidentName?'Alert added to incident ' + incidentName:'Alert is already added as incident'):'Create/Add to incident'"
-     placement="top"
-     container="body"
-     tooltipClass="utm-tooltip-top">
+<ng-container *ngIf="template === 'default'">
+  <div [hidden]="multiple"
+       [ngbTooltip]="isIncident?(incidentName?'Alert added to incident ' + incidentName:'Alert is already added as incident'):'Create/Add to incident'"
+       placement="top"
+       container="body"
+       tooltipClass="utm-tooltip-top">
 <span #incidentPopoverSpan=ngbPopover
       [ngbPopover]="isIncident ? incidentDetailTitle : colContent"
       [popoverTitle]="isIncident ? null : colTitle"
@@ -14,36 +15,49 @@
       triggers="click">
   <i [ngClass]="creating?'icon-spinner2 spinner':isIncident?'icon-target2':'icon-target'"></i>
 </span>
-</div>
-<button #incidentPopoverButton=ngbPopover [hidden]="!multiple"
-        [ngbPopover]="colContent"
-        autoClose="outside"
-        class="p-1 text-blue-800 font-weight-light my-2"
-        container="body"
-        id="statusId"
-        placement="auto"
-        popoverClass="utm-popover"
-        triggers="click">
-  <span>Report incident <i class="icon-arrow-down32"></i></span>
-</button>
-<ng-template #colContent>
-  <div class="d-flex flex-column justify-content-start align-items-start">
-    <a (click)="createIncident(); closePopover()"
-       class="text-blue-800 span-small-icon font-size-base cursor-pointer p-1 item-status w-100">
-      <i class="icon-plus2 mr-1"></i>
-      Create incident
-    </a>
-    <a (click)="addToIncident(); closePopover()"
-       class="text-blue-800 span-small-icon font-size-base cursor-pointer p-1 item-status w-100">
-      <i class="icon-make-group mr-1"></i>
-      Add to incident
+  </div>
+  <button #incidentPopoverButton=ngbPopover [hidden]="!multiple"
+          [ngbPopover]="colContent"
+          autoClose="outside"
+          class="p-1 text-blue-800 font-weight-light my-2"
+          container="body"
+          id="statusId"
+          placement="auto"
+          popoverClass="utm-popover"
+          triggers="click">
+    <span>Report incident <i class="icon-arrow-down32"></i></span>
+  </button>
+  <ng-template #colContent>
+    <div class="d-flex flex-column justify-content-start align-items-start">
+      <a (click)="createIncident(); closePopover()"
+         class="text-blue-800 span-small-icon font-size-base cursor-pointer p-1 item-status w-100">
+        <i class="icon-plus2 mr-1"></i>
+        Create incident
+      </a>
+      <a (click)="addToIncident(); closePopover()"
+         class="text-blue-800 span-small-icon font-size-base cursor-pointer p-1 item-status w-100">
+        <i class="icon-make-group mr-1"></i>
+        Add to incident
+      </a>
+    </div>
+  </ng-template>
+  <ng-template #colTitle>
+    <h6 class="font-weight-light">Add incident</h6>
+  </ng-template>
+
+  <ng-template #incidentDetailTitle>
+    <app-alert-incident-detail [alert]="alert"></app-alert-incident-detail>
+  </ng-template>
+</ng-container>
+
+<ng-container *ngIf="template === 'menu-item'">
+  <div class="utm-action-menu">
+    <a *ngFor="let sub of actions"
+       class="span-small-icon"
+       [ngClass]="sub.background"
+       (click)="handleAction(sub.action)">
+      <i [ngClass]="sub.icon"></i>&nbsp;
+      {{ sub.label }}
     </a>
   </div>
-</ng-template>
-<ng-template #colTitle>
-  <h6 class="font-weight-light">Add incident</h6>
-</ng-template>
-
-<ng-template #incidentDetailTitle>
-  <app-alert-incident-detail [alert]="alert"></app-alert-incident-detail>
-</ng-template>
+</ng-container>

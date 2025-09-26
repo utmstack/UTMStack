@@ -3,12 +3,16 @@ import {NgbModal, NgbPopover} from '@ng-bootstrap/ng-bootstrap';
 import {
   AddAlertToIncidentComponent
 } from '../../../../../../incident/incident-shared/component/add-alert-to-incident/add-alert-to-incident.component';
-import {CreateIncidentComponent} from '../../../../../../incident/incident-shared/component/create-incident/create-incident.component';
+import {
+  CreateIncidentComponent
+} from '../../../../../../incident/incident-shared/component/create-incident/create-incident.component';
 import {UtmToastService} from '../../../../../../shared/alert/utm-toast.service';
 import {UtmAlertType} from '../../../../../../shared/types/alert/utm-alert.type';
 import {AlertUpdateHistoryBehavior} from '../../../behavior/alert-update-history.behavior';
 import {EventDataTypeEnum} from '../../../enums/event-data-type.enum';
 import {AlertManagementService} from '../../../services/alert-management.service';
+import {AlertActionType} from '../../alert-action-select/alert-action-select.component';
+
 @Component({
   selector: 'app-alert-apply-incident',
   templateUrl: './alert-apply-incident.component.html',
@@ -22,6 +26,9 @@ export class AlertApplyIncidentComponent implements OnInit {
   @Input() alerts: any[];
   @Input() multiple = false;
   @Input() eventType: EventDataTypeEnum;
+  @Input() template: 'default' | 'menu-item' = 'default';
+  @Input() actions: any[];
+
   @Output() markAsIncident = new EventEmitter<string>();
   @ViewChild('incidentPopoverSpan') incidentPopoverSpan: NgbPopover;
   @ViewChild('incidentPopoverButton') incidentPopoverButton: NgbPopover;
@@ -93,4 +100,11 @@ export class AlertApplyIncidentComponent implements OnInit {
     }
   }
 
+  handleAction(action: AlertActionType) {
+    if (action === AlertActionType.CREATE_INCIDENT) {
+      this.createIncident();
+    } else {
+      this.addToIncident();
+    }
+  }
 }
