@@ -34,6 +34,7 @@ public class AlertUtil {
             List<FilterType> filters = new ArrayList<>();
             filters.add(new FilterType(Constants.alertStatus, OperatorType.IS, status));
             filters.add(new FilterType(Constants.alertTags, OperatorType.DOES_NOT_CONTAIN, Constants.FALSE_POSITIVE_TAG));
+            filters.add(new FilterType(Constants.alertParentIdKeyword, OperatorType.DOES_NOT_EXIST, null));
 
             SearchRequest.Builder srb = new SearchRequest.Builder();
             srb.query(SearchUtil.toQuery(filters))

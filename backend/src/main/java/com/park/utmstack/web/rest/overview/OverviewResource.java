@@ -70,6 +70,7 @@ public class OverviewResource {
             filters.add(new FilterType(Constants.timestamp, OperatorType.IS_BETWEEN, Arrays.asList(from, to)));
             filters.add(new FilterType(Constants.alertStatus, OperatorType.IS_NOT, 1));
             filters.add(new FilterType(Constants.alertTags, OperatorType.IS_NOT, Constants.FALSE_POSITIVE_TAG));
+            filters.add(new FilterType(Constants.alertParentIdKeyword, OperatorType.DOES_NOT_EXIST, null));
 
             return ResponseEntity.ok(alertService.countAlertsByStatus(filters));
         } catch (Exception e) {

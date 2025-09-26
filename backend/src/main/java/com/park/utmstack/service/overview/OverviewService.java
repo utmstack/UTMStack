@@ -295,6 +295,7 @@ public class OverviewService {
         List<FilterType> filters = new ArrayList<>();
         filters.add(new FilterType(Constants.alertStatus, OperatorType.IS_NOT, AlertStatus.AUTOMATIC_REVIEW.getCode()));
         filters.add(new FilterType(Constants.alertTags, OperatorType.IS_NOT, Constants.FALSE_POSITIVE_TAG));
+        filters.add(new FilterType(Constants.alertParentIdKeyword, OperatorType.DOES_NOT_EXIST, null));
 
         if(!CollectionUtils.isEmpty(dateRange)){
             filters.add(new FilterType(Constants.timestamp, OperatorType.IS_BETWEEN, dateRange));

@@ -181,7 +181,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
 
             List<FilterType> filters = new ArrayList<>();
             filters.add(new FilterType(Constants.alertIdKeyword, OperatorType.IS_ONE_OF_TERMS_OR, alertIds));
-            filters.add(new FilterType(Constants.parentIdKeyword, OperatorType.IS_ONE_OF_TERMS_OR, alertIds));
+            filters.add(new FilterType(Constants.alertParentIdKeyword, OperatorType.IS_ONE_OF_TERMS_OR, alertIds));
 
             String script = String.format(ruleScript, status,
                     AlertStatus.getByCode(status).getName(), StringEscapeUtils.escapeJava(statusObservation));
