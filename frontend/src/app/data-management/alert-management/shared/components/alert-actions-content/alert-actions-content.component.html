@@ -3,7 +3,7 @@
     <i *ngIf="alert.hasChildren; else noChildren"
        (click)="onToggleExpand()"
        class="cursor-pointer mr-2"
-       [ngClass]="loadingChildren ? 'icon-spinner2 spinner' : alert.expanded ? 'icon-arrow-down32' : 'icon-arrow-right32'"
+       [ngClass]="loadingChildren && alert.expanded ? 'icon-spinner2 spinner' : alert.expanded ? 'icon-arrow-down32' : 'icon-arrow-right32'"
        [ngbTooltip]="alert.expanded ? 'Collapse' : 'View children alerts'"
        container="body"
        placement="top">
