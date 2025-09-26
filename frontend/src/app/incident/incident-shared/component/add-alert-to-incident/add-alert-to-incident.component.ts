@@ -2,6 +2,9 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {AlertUpdateHistoryBehavior} from '../../../../data-management/alert-management/shared/behavior/alert-update-history.behavior';
+import {
+  AlertActionRefreshService
+} from '../../../../data-management/alert-management/shared/services/alert-action-refresh.service';
 import {AlertManagementService} from '../../../../data-management/alert-management/shared/services/alert-management.service';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {
@@ -16,11 +19,6 @@ import {NewIncidentAlert} from '../../../../shared/types/incident/new-incident.t
 import {UtmIncidentType} from '../../../../shared/types/incident/utm-incident.type';
 import {getValueFromPropertyPath} from '../../../../shared/util/get-value-object-from-property-path.util';
 import {InputClassResolve} from '../../../../shared/util/input-class-resolve';
-import {
-  ModalConfirmationComponent
-} from "../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component";
-import {ModalService} from "../../../../core/modal/modal.service";
-import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-add-alert-to-incident',
@@ -46,6 +44,7 @@ export class AddAlertToIncidentComponent implements OnInit {
               private alertManagementService: AlertManagementService,
               private utmToastService: UtmToastService,
               private alertUpdateHistoryBehavior: AlertUpdateHistoryBehavior,
+              private alertActionRefreshService: AlertActionRefreshService,
               private fb: FormBuilder) {
 
   }
@@ -114,6 +113,7 @@ export class AddAlertToIncidentComponent implements OnInit {
     this.alertManagementService.markAsIncident(alertIds, incident.incidentName, incident.id, 'INCIDENT').subscribe(response => {
       this.alertUpdateHistoryBehavior.$refreshHistory.next(true);
       this.incidentAdded.emit(incident);
+      this.alertActionRefreshService.incidentCreated(incident);
       this.activeModal.close();
     }, error => {
       this.utmToastService.showError('Error adding incident',
