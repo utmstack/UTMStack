@@ -28,7 +28,7 @@
     </li>
     <li *ngIf="alert.hasChildren" (click)="view=alertDetailTabEnum.ECHOES" class="nav-item cursor-pointer">
       <a [ngClass]="{'active':view===alertDetailTabEnum.ECHOES}" class="nav-link">
-        <i class="icon-database mr-1"></i> Echoes </a>
+        <i class="icon-database mr-1"></i> Echoes <small class="text-xs">({{alert.echoes}})</small> </a>
     </li>
     <li (click)="view=alertDetailTabEnum.HISTORY" class="nav-item cursor-pointer">
       <a [ngClass]="{'active':view===alertDetailTabEnum.HISTORY}" class="nav-link">
