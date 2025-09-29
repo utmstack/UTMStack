@@ -1,13 +1,5 @@
 <div class="d-flex justify-content-between align-items-center h-100 w-100 small-md-icon">
   <div class="list-icons">
-    <i *ngIf="alert.hasChildren; else noChildren"
-       (click)="onToggleExpand()"
-       class="cursor-pointer mr-2"
-       [ngClass]="loadingChildren && alert.expanded ? 'icon-spinner2 spinner' : alert.expanded ? 'icon-arrow-down32' : 'icon-arrow-right32'"
-       [ngbTooltip]="alert.expanded ? 'Collapse' : 'View children alerts'"
-       container="body"
-       placement="top">
-    </i>
     <i (click)="onSelect()"
        [ngClass]="isSelected(alert)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
        [ngbTooltip]="isSelected(alert)?'Remove from selected':'Add to selected'"

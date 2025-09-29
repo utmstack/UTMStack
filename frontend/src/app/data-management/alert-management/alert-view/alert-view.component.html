@@ -105,6 +105,7 @@
                                             icon="icon-table"
                                             tooltipClass="utm-tooltip-top"></app-utm-dtable-columns>
                   </th>
+                  <th>Echoes</th>
                   <th (sort)="onSortBy($event)"
                       *ngFor="let item of fields; let i=index"
                       [hidden]="!item.visible"
@@ -212,6 +213,9 @@
     <td class="text-center">
       <ng-container *ngTemplateOutlet="actionContent; context: { $implicit: alert }"></ng-container>
     </td>
+    <td>
+      <app-alert-child-column     (toggleExpand)="loadChildrenAlerts(alert)"  [alert]="alert"> </app-alert-child-column>
+    </td>
     <ng-container *ngFor="let td of fields">
       <td *ngIf="td.visible"
           [ngClass]="{'min-width': td.field === ALERT_ADVERSARY_FIELD || td.field === ALERT_TARGET_FIELD}"
@@ -271,7 +275,6 @@
     [loadingChildren]="loadingChildren"
     [tags]="tags"
     [dataType]="dataType"
-    (toggleExpand)="loadChildrenAlerts(alert)"
     (select)="addToSelected($event)"
     (filterRow)="getRowToFiltersData($event)"
     (incident)="onSuccessMarkAsIncident($event)"

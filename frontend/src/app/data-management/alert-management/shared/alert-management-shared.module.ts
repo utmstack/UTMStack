@@ -60,6 +60,7 @@ import {FilterAppliedComponent} from './components/filters/filter-applied/filter
 import {RowToFiltersComponent} from './components/filters/row-to-filter/row-to-filters.component';
 import {StatusFilterComponent} from './components/filters/status-filter/status-filter.component';
 import { AlertActionSelectComponent } from './components/alert-action-select/alert-action-select.component';
+import { AlertChildColumnComponent } from './components/alert-child-column/alert-child-column.component';
 
 @NgModule({
   declarations: [
@@ -85,6 +86,7 @@ import { AlertActionSelectComponent } from './components/alert-action-select/ale
     AlertIpComponent,
     AlertHistoryComponent,
     AlertMapLocationComponent,
+    AlertChildColumnComponent,
     AlertSeverityDescriptionComponent,
     AlertFullLogComponent,
     AlertHostDetailComponent,
@@ -132,6 +134,7 @@ import { AlertActionSelectComponent } from './components/alert-action-select/ale
     ActiveFiltersComponent,
     RowToFiltersComponent,
     AlertGenericFilterComponent,
+    AlertChildColumnComponent,
     AlertFilterComponent,
     DataFieldRenderComponent,
     StatusFilterComponent,

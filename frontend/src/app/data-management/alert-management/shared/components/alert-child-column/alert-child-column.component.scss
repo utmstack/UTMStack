@@ -1,0 +1,53 @@
+.btn-expand {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #28a745;
+  border-radius: 4px;
+  background-color: white;
+  color: #28a745;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+.btn-expand:hover:not(:disabled) {
+  background-color: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.btn-expand:active:not(:disabled) {
+  background-color: #218838;
+  border-color: #1e7e34;
+  transform: scale(0.98);
+}
+
+.btn-expand:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-expand i {
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-expand .spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.no-children-spacer {
+  display: inline-block;
+  width: 70px;
+  height: 32px;
+}
