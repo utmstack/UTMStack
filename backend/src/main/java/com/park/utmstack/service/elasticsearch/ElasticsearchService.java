@@ -22,6 +22,7 @@ import com.utmstack.opensearch_connector.types.IndexSort;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.opensearch.client.opensearch._types.SortOrder;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
+import org.opensearch.client.opensearch.cat.CountResponse;
 import org.opensearch.client.opensearch.cat.indices.IndicesRecord;
 import org.opensearch.client.opensearch.core.CountRequest;
 import org.opensearch.client.opensearch.core.IndexResponse;
@@ -345,6 +346,22 @@ public class ElasticsearchService {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
+
+    public long count(List<FilterType> filters, String indexPattern) {
+        final String ctx = CLASSNAME + ".count";
+        try {
+            SearchRequest.Builder srb = new SearchRequest.Builder()
+                    .index(indexPattern)
+                    .query(SearchUtil.toQuery(filters))
+                    .size(0);
+
+            SearchResponse<Object> response = search(srb.build(), Object.class);
+            return response.hits().total().value();
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage(), e);
+        }
+    }
+
 
     public <T> SearchResponse<T> search(SearchRequest request, Class<T> type) {
         final String ctx = CLASSNAME + ".search";

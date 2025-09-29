@@ -169,11 +169,12 @@ public class ElasticsearchResource {
                 results.forEach(d -> {
                     Object id = d.get("id");
                     if (id != null) {
-                        boolean hasChildren = elasticsearchService.exists(
+                        long countEchoes = elasticsearchService.count(
                                 List.of(new FilterType("parentId", OperatorType.IS,  id.toString())),
                                 indexPattern
                         );
-                        d.put("hasChildren", hasChildren);
+                        d.put("hasChildren", countEchoes > 0);
+                        d.put("echoes", countEchoes);
                     }
                 });
             }
