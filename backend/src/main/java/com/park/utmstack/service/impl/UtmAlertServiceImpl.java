@@ -175,6 +175,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
             String attemptMsg = String.format("Attempt to update status to %1$s for alerts with ids: %2$s",
                 AlertStatus.getByCode(status).getName(), alertsIds);
             eventService.createEvent(attemptMsg, ApplicationEventType.ALERT_STATUS_UPDATE_ATTEMPT, extra);
+
             String ruleScript = "ctx._source.status=%1$s;" +
                     "ctx._source.statusLabel='%2$s';" +
                     "ctx._source.statusObservation=\"%3$s\";";
@@ -199,6 +200,42 @@ public class UtmAlertServiceImpl implements UtmAlertService {
             throw new ElasticsearchIndexDocumentUpdateException(ctx + ": " + e.getMessage());
         }
     }
+
+    public void updateStatusAndTag(List<String> alertIds, int status, String statusObservation) {
+
+        updateStatus(alertIds, status, statusObservation);
+
+        if (status == AlertStatus.COMPLETED.getCode()) {
+            String alertsIds = String.join(",", alertIds);
+            Map<String, Object> extra = Map.of(
+                    "alertIds", alertsIds,
+                    "newStatus", status
+            );
+
+            String attemptMsg = String.format("Attempt to mark alerts as false positive for ids: %s", alertsIds);
+            eventService.createEvent(attemptMsg, ApplicationEventType.ALERT_STATUS_UPDATE_ATTEMPT, extra);
+
+            // Script para modificar el tag
+            String script = String.format("if (ctx._source.tags == null) { ctx._source.tags = []; } " +
+                    "if (!ctx._source.tags.contains('%s')) { ctx._source.tags.add('%s'); }", Constants.FALSE_POSITIVE_TAG, Constants.FALSE_POSITIVE_TAG);
+
+            List<FilterType> filters = new ArrayList<>();
+            filters.add(new FilterType(Constants.alertIdKeyword, OperatorType.IS_ONE_OF_TERMS_OR, alertIds));
+            filters.add(new FilterType(Constants.alertParentIdKeyword, OperatorType.IS_ONE_OF_TERMS_OR, alertIds));
+
+            elasticsearchService.updateByQuery(
+                    SearchUtil.toQuery(filters),
+                    Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS),
+                    script
+            );
+
+            String successMsg = String.format(
+                    "Alerts with ids %s marked as false positive", alertsIds
+            );
+            eventService.createEvent(successMsg, ApplicationEventType.ALERT_NOTE_UPDATE_SUCCESS, extra);
+        }
+    }
+
 
     @Override
     public void updateTags(List<String> alertIds, List<String> tags, Boolean createRule) throws

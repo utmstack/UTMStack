@@ -6,7 +6,9 @@ import com.park.utmstack.service.UtmAlertService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.util.AlertUtil;
 import com.park.utmstack.util.ResponseUtil;
+import com.park.utmstack.util.enums.AlertStatus;
 import com.park.utmstack.web.rest.util.HeaderUtil;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -50,6 +52,9 @@ public class UtmAlertResource {
     )
     public ResponseEntity<Void> updateAlertStatus(@RequestBody UpdateAlertStatusRequestBody rq) throws IOException {
         final String ctx = CLASSNAME + ".updateAlertStatus";
+        if (rq.getStatus() == AlertStatus.COMPLETED.getCode() && rq.isAddFalsePositiveTag()) {
+            utmAlertService.updateStatusAndTag(rq.getAlertIds(), rq.getStatus(), rq.getStatusObservation());
+        }
         utmAlertService.updateStatus(rq.getAlertIds(), rq.getStatus(), rq.getStatusObservation());
 
         return ResponseEntity.ok().build();
@@ -145,36 +150,14 @@ public class UtmAlertResource {
         }
     }
 
+    @Data
     public static class UpdateAlertStatusRequestBody {
         @NotNull
         private List<String> alertIds;
         private String statusObservation;
         @NotNull
         private int status;
-
-        public List<String> getAlertIds() {
-            return alertIds;
-        }
-
-        public void setAlertIds(List<String> alertIds) {
-            this.alertIds = alertIds;
-        }
-
-        public String getStatusObservation() {
-            return statusObservation;
-        }
-
-        public void setStatusObservation(String statusObservation) {
-            this.statusObservation = statusObservation;
-        }
-
-        public int getStatus() {
-            return status;
-        }
-
-        public void setStatus(int status) {
-            this.status = status;
-        }
+        boolean addFalsePositiveTag;
     }
 
     public static class UpdateAlertSolutionRequestBody {
