@@ -170,15 +170,18 @@
 <div *ngIf="viewAlertDetail" class="utm-right-container">
   <div (click)="viewAlertDetail= false" class="overlay overlay-lg col-md-6"></div>
   <div class="card utm-right-action utm-right-action-lg">
-    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
-     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
-      <h6 class="card-title text-blue-800 font-weight-light">
+    <div class="title d-flex justify-content-between align-items-center border-bottom-1
+     border-bottom-grey-100  p-3 ">
+      <h6 class="card-title pb-0 mb-0 text-blue-800 font-weight-light">
         {{getRuleName()}}
       </h6>
+      <div class="d-flex flex-row align-items-center gap-2">
+      <app-alert-logs-related-action [logs]="alertDetail.events"></app-alert-logs-related-action>
       <button (click)="viewAlertDetail= false;onRefreshData(true)" aria-label="Close"
-              class="close button-close" type="button">
+              class="" type="button">
         <div class="close-icon"></div>
       </button>
+      </div>
     </div>
     <app-alert-view-detail (refreshData)="onRefreshData($event)"
                            [alert]="alertDetail"

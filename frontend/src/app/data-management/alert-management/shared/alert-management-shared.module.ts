@@ -167,7 +167,8 @@ import { AlertChildColumnComponent } from './components/alert-child-column/alert
     AlertEntityDisplayComponent,
     AlertBadgeFieldComponent,
     AlertEventsRelatedComponent,
-    AlertActionsContentComponent
+    AlertActionsContentComponent,
+    AlertLogsRelatedButtonComponent
   ],
     imports: [
         CommonModule,
