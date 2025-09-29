@@ -3,10 +3,11 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  border: 1px solid #28a745;
+  height: 33.07px;
+  border: 1px solid #0277bd;
   border-radius: 4px;
   background-color: white;
-  color: #28a745;
+  color: #0277bd ;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -15,14 +16,14 @@
 }
 
 .btn-expand:hover:not(:disabled) {
-  background-color: #28a745;
+  background-color: #0277bd ;
   color: white;
-  border-color: #28a745;
+  border-color: #0277bd ;
 }
 
 .btn-expand:active:not(:disabled) {
-  background-color: #218838;
-  border-color: #1e7e34;
+  background-color: #0277bd ;
+  border-color: #004b8a;
   transform: scale(0.98);
 }
 

@@ -214,7 +214,10 @@
       <ng-container *ngTemplateOutlet="actionContent; context: { $implicit: alert }"></ng-container>
     </td>
     <td>
-      <app-alert-child-column     (toggleExpand)="loadChildrenAlerts(alert)"  [alert]="alert"> </app-alert-child-column>
+      <app-alert-child-column [loadingChildren]="loadingChildren"
+        (toggleExpand)="loadChildrenAlerts(alert)"
+        [alert]="alert">
+      </app-alert-child-column>
     </td>
     <ng-container *ngFor="let td of fields">
       <td *ngIf="td.visible"
