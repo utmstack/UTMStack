@@ -38,7 +38,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Controller to authenticate users.
@@ -74,9 +73,8 @@ public class UserJWTController {
             throw new TooMuchLoginAttemptsException(String.format("Authentication blocked: IP %s exceeded login attempt threshold", ip));
         }
 
+        boolean isAuth = this.tokenProvider.shouldBypassTfa(request);
         boolean isTfaEnabled = Boolean.parseBoolean(Constants.CFG.get(Constants.PROP_TFA_ENABLE));
-
-        boolean forceTfaAuth = Boolean.parseBoolean(Optional.ofNullable(System.getenv(Constants.ENV_TFA_ENABLE)).orElse("true"));
 
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
@@ -84,12 +82,12 @@ public class UserJWTController {
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String token = tokenProvider.createToken(authentication, false, !forceTfaAuth);
+        String token = tokenProvider.createToken(authentication, false, isAuth);
 
         User user = userService.getUserWithAuthoritiesByLogin(loginVM.getUsername())
                 .orElseThrow(() -> new BadCredentialsException("Authentication failed: user '" + loginVM.getUsername() + "' not found"));
 
-        boolean isTfaSetup = isTfaEnabled && user.getTfaMethod() != null && !user.getTfaMethod().isEmpty() && forceTfaAuth;
+        boolean isTfaSetup = isTfaEnabled && user.getTfaMethod() != null && !user.getTfaMethod().isEmpty() && !isAuth;
         Map<String, Object> args = logContextBuilder.buildArgs(request);
 
         if (isTfaSetup) {
@@ -114,7 +112,7 @@ public class UserJWTController {
                 .method(user.getTfaMethod())
                 .success(true)
                 .tfaConfigured(isTfaSetup)
-                .forceTfa(forceTfaAuth)
+                .forceTfa(!isAuth)
                 .build();
 
         return ResponseEntity.ok(response);

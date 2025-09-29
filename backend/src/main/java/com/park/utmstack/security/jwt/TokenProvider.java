@@ -1,6 +1,7 @@
 package com.park.utmstack.security.jwt;
 
 
+import com.park.utmstack.config.Constants;
 import com.park.utmstack.security.AuthoritiesConstants;
 import com.park.utmstack.util.CipherUtil;
 import io.jsonwebtoken.*;
@@ -16,10 +17,12 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import tech.jhipster.config.JHipsterProperties;
 
+import javax.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -116,4 +119,15 @@ public class TokenProvider {
         }
         return false;
     }
+
+    public boolean shouldBypassTfa(HttpServletRequest request) {
+        boolean bypassSwagger = Boolean.parseBoolean(request.getHeader(Constants.TFA_EXEMPTION_HEADER));
+
+        boolean forceTfaAuth = Boolean.parseBoolean(
+                Optional.ofNullable(System.getenv(Constants.ENV_TFA_ENABLE)).orElse("true")
+        );
+
+        return bypassSwagger || !forceTfaAuth;
+    }
+
 }

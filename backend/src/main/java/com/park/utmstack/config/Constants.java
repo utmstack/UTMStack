@@ -149,6 +149,7 @@ public final class Constants {
     public static final String CAUSE_KEY = "cause";
 
     public static final String ENV_TFA_ENABLE = "APP_TFA_ENABLED";
+    public static final String TFA_EXEMPTION_HEADER = "X-Bypass-TFA";
 
     private Constants() {
     }
