@@ -1,4 +1,5 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {UtmAlertType} from 'src/app/shared/types/alert/utm-alert.type';
 
 @Component({
   selector: 'app-alert-child-column',
@@ -7,7 +8,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 })
 export class AlertChildColumnComponent  {
 
-  @Input() alert: any;
+  @Input() alert: UtmAlertType;
   @Input() loadingChildren = false;
 
   @Output() toggleExpand = new EventEmitter<any>();

@@ -31,6 +31,7 @@ export class UtmAlertType {
   parentId?: string;
   hasChildren: boolean;
   expanded: boolean;
+  echoes:number
 }
 
 export enum AlertStatusLabelEnum {
