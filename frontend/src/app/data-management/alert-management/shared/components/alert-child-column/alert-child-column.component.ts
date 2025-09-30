@@ -14,7 +14,7 @@ export class AlertChildColumnComponent  {
   @Output() toggleExpand = new EventEmitter<any>();
 
   onToggleExpand():void {
-    if(this.alert.hasChildren){
+    if (this.alert.hasChildren) {
         this.toggleExpand.emit(this.alert);
     }
   }
