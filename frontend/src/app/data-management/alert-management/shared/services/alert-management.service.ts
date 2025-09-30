@@ -3,6 +3,7 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../../app.constants';
 import {QueryType} from '../../../../shared/types/query-type';
+import {AlertStatusEnum} from 'src/app/shared/types/alert/utm-alert.type'
 
 
 @Injectable({
@@ -16,11 +17,16 @@ export class AlertManagementService {
   }
 
   updateAlertStatus(alertId: string[], status: number, statusObservation: string = ''): Observable<HttpResponse<any>> {
-    const req = {
+
+    const req:any = {
       alertIds: alertId,
       status,
       statusObservation
     };
+
+    if(status == AlertStatusEnum.COMPLETED){
+      req['addFalsePositiveTag']=true;
+    }
     return this.http.post<HttpResponse<any>>(this.resourceUrl + '/status', req, {observe: 'response'});
   }
 
