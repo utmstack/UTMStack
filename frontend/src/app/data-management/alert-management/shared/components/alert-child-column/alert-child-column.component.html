@@ -1,15 +1,12 @@
-<div class="d-flex justify-content-between align-items-center h-100 w-100 small-md-icon">
-  <div class="list-icons">
     <button
        (click)="onToggleExpand()"
-       class="btn-expand d-flex flex-row justify-items-center"
+       class="btn-expand d-flex w-fit h-100 gap-3 justify-items-center p-1 pl-2 justify-content-between  rounded-lg"
        [disabled]="loadingChildren"
        [ngbTooltip]="alert.hasChildren?(alert.expanded ? 'Collapse' : 'View echoes'):'No echoes'"
+       [ngClass]="alert.hasChildren?'pr-0':'pr-2'"
        container="body"
        placement="top">
-      <i class="!top-0" *ngIf="alert.hasChildren" [ngClass]="loadingChildren && alert.expanded ? 'icon-spinner2 spinner' : alert.expanded ? 'icon-arrow-down32' : 'icon-arrow-right32'"></i>
       <span>Echoes</span>
-      <small class="text-xs">{{ alert.echoes }}</small>
+      <span class="text-xs my-auto h-fit  ">{{ alert.echoes }}</span>
+      <i class="top-0 w-fit" *ngIf="alert.hasChildren" [ngClass]="loadingChildren && alert.expanded ? 'icon-spinner2 spinner' : alert.expanded ? 'icon-arrow-down32' : 'icon-arrow-right32'"></i>
     </button>
-  </div>
-</div>
