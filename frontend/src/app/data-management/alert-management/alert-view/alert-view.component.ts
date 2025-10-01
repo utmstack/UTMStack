@@ -54,6 +54,7 @@ import {AlertTagService} from '../shared/services/alert-tag.service';
 import {OPEN_ALERTS_KEY, OpenAlertsService} from '../shared/services/open-alerts.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
 import {AlertActionRefreshService} from "../shared/services/alert-action-refresh.service";
+import {TimelineItem} from 'src/app/shared/types/utm-timeline-item'
 
 @Component({
   selector: 'app-alert-view',
@@ -604,7 +605,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
 
     if (alert.expanded) {
       this.loadingChildren = true;
-      this.elasticDataService.search(this.currentChildrenPage, this.pageSizeChildren,
+      this.elasticDataService.search(this.currentChildrenPage, alert.echoes,
         100000000, this.dataNature,
         sanitizeFilters(this.filtersChildren), this.sortBy, true).subscribe(
         (res: HttpResponse<any>) => {
@@ -635,4 +636,15 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
     this.alertActionRefreshService.clearValues();
   }
+
+
+  getChildTimeSeries(childrenAlerts: UtmAlertType[]): TimelineItem[] {
+    return childrenAlerts.map(cha => ({
+      startDate: cha['@timestamp'],
+      name: cha.name,
+      metadata: cha,
+      iconUrl: 'assets/icons/echoes/echoes_default.png'
+    }));
+  }
+
 }

@@ -28,6 +28,7 @@ import {PasswordStrengthBarComponent} from './components/auth/password-strength/
 import { TfaSetupComponent } from './components/auth/tfa-setup/tfa-setup.component';
 import {TotpComponent} from './components/auth/totp/totp.component';
 import {ContactUsComponent} from './components/contact-us/contact-us.component';
+import {UtmTimeLineComponent} from './components/utm-timeline/utm-timeline.component';
 import {
   EmailSettingNotificactionComponent
 } from './components/email-setting-notification/email-setting-notificaction.component';
@@ -238,7 +239,7 @@ import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {TimePeriodPipe} from './pipes/time-period.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
-
+import { NgxEchartsModule } from 'ngx-echarts';
 
 
 @NgModule({
@@ -258,6 +259,7 @@ import {UtmNotifier} from './websocket/utm-notifier';
     AssetsApplyNoteModule,
     AssetsGroupAddModule,
     InfiniteScrollModule,
+    NgxEchartsModule
   ],
   declarations: [
     ElasticFilterComponent,
@@ -268,6 +270,7 @@ import {UtmNotifier} from './websocket/utm-notifier';
     HasAnyAuthorityDirective,
     NotFoundComponent,
     SidebarComponent,
+    UtmTimeLineComponent,
     PasswordResetInitComponent,
     PasswordResetFinishComponent,
     PasswordStrengthBarComponent,
@@ -407,6 +410,7 @@ import {UtmNotifier} from './websocket/utm-notifier';
     SidebarComponent,
     PasswordResetInitComponent,
     PasswordResetFinishComponent,
+    UtmTimeLineComponent,
     PasswordStrengthBarComponent,
     SortByComponent,
     UtmSpinnerComponent,
