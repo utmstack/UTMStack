@@ -1,28 +1,26 @@
 .btn-expand {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  height: 33.07px;
-  border: 1px solid #0277bd;
-  border-radius: 4px;
+  border: 1px solid #004b8b;
   background-color: white;
-  color: #0277bd ;
-  font-size: 14px;
-  font-weight: 500;
+  color: #004b8b ;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  white-space: nowrap;
+  gap:0.3rem;
 }
 
+.text-xs{
+  font-size:0.58rem !important;
+}
+
+
+
 .btn-expand:hover:not(:disabled) {
-  background-color: #0277bd ;
+  background-color: #004b8b ;
   color: white;
-  border-color: #0277bd ;
+  border-color: #004b8b ;
 }
 
 .btn-expand:active:not(:disabled) {
-  background-color: #0277bd ;
+  background-color: #004b8b ;
   border-color: #004b8a;
   transform: scale(0.98);
 }
@@ -34,8 +32,9 @@
 
 .btn-expand i {
   font-size: 12px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  align-content: right;
 }
 
 .btn-expand .spinner {
@@ -52,3 +51,4 @@
   width: 70px;
   height: 32px;
 }
+
