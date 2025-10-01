@@ -1,169 +1,200 @@
-import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
-import * as echarts from 'echarts';
+import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import {TimelineItem} from '../../types/utm-timeline-item'
+
 
 @Component({
   selector: 'utm-timeline',
-  template: `
-    <div class="timeline-wrapper">
-      <div #chartContainer class="chart-container"></div>
-    </div>
-  `,
-  styles: [`
-    .timeline-wrapper {
-      width: 100%;
-      height: 100%;
-      min-height: 500px;
-    }
-    .chart-container {
-      width: 100%;
-      height: 100%;
-    }
-  `]
+  templateUrl: './utm-timeline.component.html',
+  styleUrls: ['./utm-timeline.component.scss']
 })
-export class UtmTimeLineComponent implements OnInit, OnDestroy {
-  @ViewChild('chartContainer') chartContainer: ElementRef;
+export class UtmTimeLineComponent implements OnChanges {
+  @Input() items: TimelineItem[] = [];
+  @Input() title: string = '';
+  @Output() itemClick = new EventEmitter<TimelineItem>();
 
-  private chart: any;
-  public timelineData: any[] = [];
+  chartOption: any = {};
 
-  ngOnInit() {
-    // Datos de ejemplo
-    this.timelineData = [
-      { name: 'Proyecto A', tasks: [
-        { task: 'Diseño', start: '2024-01-01', end: '2024-02-15', color: '#5470c6' },
-        { task: 'Desarrollo', start: '2024-02-16', end: '2024-05-30', color: '#91cc75' }
-      ]},
-      { name: 'Proyecto B', tasks: [
-        { task: 'Investigación', start: '2024-01-15', end: '2024-03-01', color: '#5470c6' },
-        { task: 'Implementación', start: '2024-03-02', end: '2024-06-15', color: '#91cc75' }
-      ]},
-      { name: 'Proyecto C', tasks: [
-        { task: 'Testing', start: '2024-04-01', end: '2024-05-15', color: '#fac858' }
-      ]}
-    ];
-  }
-
-  ngAfterViewInit() {
-    setTimeout(() => this.initChart(), 0);
-  }
-
-  ngOnDestroy() {
-    if (this.chart) {
-      this.chart.dispose();
+  ngOnChanges(changes: SimpleChanges): void {
+    if ((this.items.length || 0) > 0) {
+      this.buildChart();
     }
   }
 
-  private initChart() {
-    this.chart = echarts.init(this.chartContainer.nativeElement);
+  private buildChart() {
+    const groups: Record<number, TimelineItem[]> = {};
+    this.items.forEach(item => {
+      const ts = new Date(item.startDate).getTime();
+      if (!groups[ts]) groups[ts] = [];
+      groups[ts].push(item);
+    });
 
-    const categories: string[] = [];
-    const data: any[] = [];
+    const seriesData: any[] = [];
+    Object.keys(groups).forEach(tsStr => {
+      const ts = Number(tsStr);
+      const group = groups[ts];
 
-    // Preparar datos
-    this.timelineData.forEach((project, idx) => {
-      categories.push(project.name);
-      project.tasks.forEach((task: any) => {
-        data.push({
-          name: task.task,
+      group.forEach((item, idx) => {
+        seriesData.push({
           value: [
-            idx,
-            new Date(task.start).getTime(),
-            new Date(task.end).getTime(),
-            new Date(task.end).getTime() - new Date(task.start).getTime()
+            ts,                                              // index 0: timestamp
+            0,                                               // index 1: Y coordinate
+            item.name,                                       // index 2: name
+            new Date(item.startDate).toLocaleString(),      //  index 3:formatted date
+            !!item.iconUrl?item.iconUrl:'',                 //  index 4: offsetIndex
+            idx,                                             // index 5: offsetIndex
+            group.length                                     // index 6: groupSize
           ],
-          itemStyle: { color: task.color }
+          itemData: item
         });
       });
     });
 
-    const option = {
-      tooltip: {
-        formatter: (params: any) => {
-          const start = new Date(params.value[1]);
-          const end = new Date(params.value[2]);
-          const days = Math.ceil(params.value[3] / (1000 * 60 * 60 * 24));
-          return `<b>${params.name}</b><br/>
-                  Inicio: ${start.toLocaleDateString()}<br/>
-                  Fin: ${end.toLocaleDateString()}<br/>
-                  Duración: ${days} días`;
+    this.chartOption = {
+      title: {
+        text: this.title,
+        left: 'center',
+        textStyle: {
+          fontSize: 16,
+          fontWeight: 'bold'
         }
       },
-      title: {
-        text: 'Timeline de Proyectos',
-        left: 'center'
+      grid:{
+        left:0,
+        right:0
       },
-      dataZoom: [{
-        type: 'slider',
-        filterMode: 'weakFilter',
-        height: 20,
-        bottom: 20,
-        start: 0,
-        end: 100,
-        handleIcon: 'M10.7,11.9H9.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4h1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
-        handleSize: '80%',
-        showDetail: false
-      }, {
-        type: 'inside',
-        filterMode: 'weakFilter'
-      }],
-      grid: {
-        top: 60,
-        bottom: 80,
-        left: 100,
-        right: 50
+      tooltip: {
+        trigger: 'item',
+        formatter: (params: any) =>
+          `<b>${params.data.value[2]}</b><br/>${params.data.value[3]}`
       },
       xAxis: {
         type: 'time',
-        axisLabel: {
-          formatter: (val: number) => new Date(val).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })
-        }
-      },
-      yAxis: {
-        type: 'category',
-        data: categories
-      },
-      series: [{
-        type: 'custom',
-        renderItem: (params: any, api: any) => {
-          const categoryIndex = api.value(0);
-          const start = api.coord([api.value(1), categoryIndex]);
-          const end = api.coord([api.value(2), categoryIndex]);
-          const height = api.size([0, 1])[1] * 0.6;
-
-          return {
-            type: 'rect',
-            shape: {
-              x: start[0],
-              y: start[1] - height / 2,
-              width: end[0] - start[0],
-              height: height
-            },
-            style: api.style()
-          };
+        //let a space between init of the timeline and the first/last element so they can be showed
+       min: (value: any) => {
+          return value.min - 5 * 1000;
         },
-        encode: { x: [1, 2], y: 0 },
-        data: data
-      }]
+        max: (value: any) => {
+          return value.max + 10 * 1000;
+        },
+        axisLabel: {
+          formatter: (val: number) => {
+            const date = new Date(val)
+            return `${date.getHours()%12}:${date.getMinutes() < 10 ? '0' : ''}${date.getMinutes()}:${date.getSeconds() < 10 ? '0' : ''}${date.getSeconds()} \n ${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}  `
+          }
+        },
+      },
+      yAxis: { show: false, type: 'value'},
+      series: [
+        {
+          type: 'custom',
+          data: seriesData,
+          renderItem: (params: any, api: any) => {
+            const timestamp = api.value(0);
+            const coord = api.coord([timestamp, 0]);
+
+            const cardHeight = 60;
+            const spacing = 10;
+            const offsetIndex = api.value(5) || 0;
+            const totalOffset = (cardHeight + spacing) * offsetIndex + 80;
+
+            const name = api.value(2);
+            const date = api.value(3);
+            const iconUrl = api.value(4);
+
+            const iconPadding = 0;
+
+            return {
+              type: 'group',
+              children: [
+                {
+                  type: 'rect',
+                  shape: {
+                    x: coord[0] - 75,
+                    y: coord[1] - totalOffset - cardHeight,
+                    width: 250,
+                    height: cardHeight,
+                    r: 8
+                  },
+                  style: {
+                    fill: '#fefefe',
+                    stroke: '#0277bd',
+                    lineWidth: 1,
+                    shadowBlur: 8,
+                    shadowColor: 'rgba(0,0,0,0.2)',
+                    cursor: 'pointer',
+                    overflow:'hidden'
+                  }
+                },
+                {
+                  type: 'image',
+                  style: {
+                    image: iconUrl,
+                    x: coord[0] - 75 + iconPadding +1.5,
+                    y: coord[1] - totalOffset - cardHeight+1.5,
+                    width: cardHeight-2.5,
+                    height:cardHeight-2.5,
+                    r: 8
+                  }
+                },
+                {
+                  type: 'text',
+                  style: {
+                    x: coord[0] - 75 + iconPadding + cardHeight + 10,
+                    y: coord[1] - totalOffset - cardHeight + 20,
+                    text:this.truncateText(name,150),
+                    textAlign: 'left',
+                    fill: '#000',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    width: 150 - cardHeight - iconPadding * 2 - 10,
+                    overflow: 'break',
+                    ellipsis: '...'
+                  }
+                },
+                {
+                  type: 'text',
+                  style: {
+                    x: coord[0] - 75 + iconPadding + cardHeight + 10,
+                    y: coord[1] - totalOffset - cardHeight + 40,
+                    text: date,
+                    textAlign: 'left',
+                    fill: '#666',
+                    fontSize: 10
+                  }
+                },
+                {
+                  type: 'line',
+                  shape: {
+                    x1: coord[0],
+                    y1: coord[1] - totalOffset,
+                    x2: coord[0],
+                    y2: coord[1]
+                  },
+                  style: { stroke: '#0277bd', lineWidth: 1.5 }
+                }
+              ]
+            };
+          },
+          encode: { x: 0, y: 1 }
+        }
+      ],
+      dataZoom: [
+        { type: 'slider', xAxisIndex: 0 },
+        { type: 'inside', xAxisIndex: 0 }
+      ]
     };
-
-    this.chart.setOption(option);
-    window.addEventListener('resize', () => this.chart.resize());
   }
 
-  // Métodos públicos
-  public setData(data: any[]) {
-    this.timelineData = data;
-    this.initChart();
+  onChartClick(event: any): void {
+    if (event.data && event.data.itemData) {
+      this.itemClick.emit(event.data.itemData.metadata);
+    }
   }
 
-  public addProject(project: any) {
-    this.timelineData.push(project);
-    this.initChart();
-  }
+ truncateText(text: string, maxWidth: number) {
+  const avgCharWidth = 7;
+  const maxChars = Math.floor(maxWidth / avgCharWidth);
+  return text.length > maxChars ? text.substring(0, maxChars - 3) + '...' : text;
+};
 
-  public clear() {
-    this.timelineData = [];
-    this.initChart();
-  }
 }
-
