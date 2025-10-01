@@ -638,12 +638,13 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   }
 
 
-  getChildTimeSeries(childrenAlerts:UtmAlertType[]):TimelineItem[]{
-    return childrenAlerts.map(cha=>({
-      startDate:cha['@timestamp'],
-      name:cha.name,metadata:cha,
-      iconUrl:'assets/icons/echoes/echoes_default.png'
-    }))
+  getChildTimeSeries(childrenAlerts: UtmAlertType[]): TimelineItem[] {
+    return childrenAlerts.map(cha => ({
+      startDate: cha['@timestamp'],
+      name: cha.name,
+      metadata: cha,
+      iconUrl: 'assets/icons/echoes/echoes_default.png'
+    }));
   }
 
 }
