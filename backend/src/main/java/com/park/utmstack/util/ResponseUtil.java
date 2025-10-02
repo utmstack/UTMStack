@@ -32,6 +32,10 @@ public class ResponseUtil {
         return buildErrorResponse(HttpStatus.PRECONDITION_FAILED, msg);
     }
 
+    public static <T> ResponseEntity<T> buildTooManyRequestResponse(String msg) {
+        return buildErrorResponse(HttpStatus.TOO_MANY_REQUESTS, msg);
+    }
+
     public static <T> ResponseEntity<T> buildNotFoundResponse(String msg) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, msg);
     }

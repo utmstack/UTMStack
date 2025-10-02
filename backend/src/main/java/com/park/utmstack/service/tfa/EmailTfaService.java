@@ -10,6 +10,7 @@ import com.park.utmstack.service.UserService;
 import com.park.utmstack.service.dto.tfa.init.Delivery;
 import com.park.utmstack.service.dto.tfa.init.TfaInitResponse;
 import com.park.utmstack.service.dto.tfa.verify.TfaVerifyResponse;
+import com.park.utmstack.util.exceptions.TooManyRequestsException;
 import com.park.utmstack.util.exceptions.UtmMailException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,7 @@ public class EmailTfaService implements TfaMethodService {
             String secret = tfaService.generateSecret();
             String code = tfaService.generateCode(secret);
 
-            long expiresAt = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Constants.EXPIRES_IN_SECONDS) * 10 * 1000;
+            long expiresAt = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(30);
             TfaSetupState state = new TfaSetupState(secret, expiresAt);
             cache.storeState(user.getLogin(), TfaMethod.EMAIL, state);
 
@@ -88,13 +89,19 @@ public class EmailTfaService implements TfaMethodService {
     @Override
     @Loggable
     public void generateChallenge(User user) {
-        String secret = user.getTfaSecret();
-        String code = tfaService.generateCode(secret);
+        TfaSetupState state = cache.getState(user.getLogin(), TfaMethod.EMAIL)
+                .orElseThrow(() -> new IllegalStateException("No TFA setup found for user: " + user.getLogin()));
 
-        TfaSetupState state = new TfaSetupState(secret, System.currentTimeMillis() + Constants.EXPIRES_IN_SECONDS * 1000 * 10);
-        cache.storeState(user.getLogin(), TfaMethod.EMAIL, state);
+        if (state.canRequestChallenge()){
+            state.setExpiresAt(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(30));
+            state.markChallengeRequested();
 
-        mailService.sendTfaVerificationCode(user, code);
+            cache.storeState(user.getLogin(), TfaMethod.EMAIL, state);
+
+            mailService.sendTfaVerificationCode(user, tfaService.generateCode(state.getSecret()));
+        } else {
+            throw new TooManyRequestsException("Challenge request is on cooldown. Try again in " + state.getCooldownRemainingSeconds() + " seconds.");
+        }
 
     }
 }

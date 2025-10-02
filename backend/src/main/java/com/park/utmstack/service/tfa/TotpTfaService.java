@@ -13,6 +13,7 @@ import com.park.utmstack.service.UserService;
 import com.park.utmstack.service.dto.tfa.init.Delivery;
 import com.park.utmstack.service.dto.tfa.init.TfaInitResponse;
 import com.park.utmstack.service.dto.tfa.verify.TfaVerifyResponse;
+import com.park.utmstack.util.exceptions.TooManyRequestsException;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import org.springframework.stereotype.Service;
 
@@ -89,10 +90,18 @@ public class TotpTfaService implements TfaMethodService {
     @Override
     @Loggable
     public void generateChallenge(User user) {
-        cache.clear(user.getLogin(), TfaMethod.TOTP);
-        String secret = user.getTfaSecret();
-        TfaSetupState state = new TfaSetupState(secret, System.currentTimeMillis() + (Constants.EXPIRES_IN_SECONDS + 10) * 1000);
-        cache.storeState(user.getLogin(), TfaMethod.TOTP, state);
+
+        TfaSetupState state = cache.getState(user.getLogin(), TfaMethod.TOTP)
+                .orElseThrow(() -> new IllegalStateException("No TFA setup found for user: " + user.getLogin()));
+
+        if (state.canRequestChallenge()){
+            state.setExpiresAt(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(30));
+            state.markChallengeRequested();
+            cache.storeState(user.getLogin(), TfaMethod.TOTP, state);
+        } else {
+            throw new TooManyRequestsException("Challenge request too soon. Please wait " + state.getCooldownRemainingSeconds() + " seconds.");
+        }
+
     }
 
     private String generateQrBase64(String uri) {

@@ -5,6 +5,7 @@ import com.park.utmstack.security.TooMuchLoginAttemptsException;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.exceptions.TfaVerificationException;
+import com.park.utmstack.util.exceptions.TooManyRequestsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<?> handleNotFound(NoSuchElementException e, HttpServletRequest request) {
         return ResponseUtil.buildNotFoundResponse(e.getMessage());
+    }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<?> handleTooManyRequests(TooManyRequestsException e, HttpServletRequest request) {
+        return ResponseUtil.buildErrorResponse(HttpStatus.TOO_MANY_REQUESTS, e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

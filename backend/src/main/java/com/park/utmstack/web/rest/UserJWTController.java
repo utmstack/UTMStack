@@ -31,6 +31,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -58,6 +61,8 @@ public class UserJWTController {
     private final UtmFederationServiceClientRepository fsClientRepository;
     private final TfaService tfaService;
     private final LogContextBuilder logContextBuilder;
+    private final UserDetailsService userDetailsService;
+    private final PasswordEncoder passwordEncoder;
 
     @AuditEvent(
             attemptType = ApplicationEventType.AUTH_ATTEMPT,
@@ -124,10 +129,10 @@ public class UserJWTController {
         final String ctx = CLASSNAME + ".checkPassword";
         try {
             User user = userService.getCurrentUserLogin();
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(user.getLogin(), password);
-            Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
-            if (authentication.isAuthenticated()) {
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(user.getLogin());
+
+            if (passwordEncoder.matches(password, userDetails.getPassword())) {
                 return new ResponseEntity<>(checkUUID, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(checkUUID, HttpStatus.BAD_REQUEST);

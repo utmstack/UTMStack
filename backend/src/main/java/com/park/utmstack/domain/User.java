@@ -2,7 +2,8 @@ package com.park.utmstack.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.park.utmstack.config.Constants;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.BatchSize;
 
@@ -22,7 +23,8 @@ import java.util.Set;
  * A user.
  */
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "jhi_user")
 public class User extends AbstractAuditingEntity implements Serializable {
 
