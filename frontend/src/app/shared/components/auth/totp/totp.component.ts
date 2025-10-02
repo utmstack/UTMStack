@@ -66,7 +66,6 @@ export class TotpComponent implements OnInit, OnDestroy {
   }
 
   onExpire() {
-    console.log('expired');
     this.authService.renewCode().subscribe();
   }
 
