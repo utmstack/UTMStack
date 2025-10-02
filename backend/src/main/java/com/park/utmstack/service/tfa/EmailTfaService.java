@@ -89,19 +89,31 @@ public class EmailTfaService implements TfaMethodService {
     @Override
     @Loggable
     public void generateChallenge(User user) {
+        String secret = user.getTfaSecret();
+        String code = tfaService.generateCode(secret);
+
+        TfaSetupState state = new TfaSetupState(secret, System.currentTimeMillis() + Constants.EXPIRES_IN_SECONDS * 1000 * 10);
+        cache.storeState(user.getLogin(), TfaMethod.EMAIL, state);
+
+        mailService.sendTfaVerificationCode(user, code);
+    }
+
+    @Override
+    @Loggable
+    public void regenerateChallenge(User user) {
+
         TfaSetupState state = cache.getState(user.getLogin(), TfaMethod.EMAIL)
                 .orElseThrow(() -> new IllegalStateException("No TFA setup found for user: " + user.getLogin()));
 
-        if (state.canRequestChallenge()){
-            state.setExpiresAt(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(30));
-            state.markChallengeRequested();
-
-            cache.storeState(user.getLogin(), TfaMethod.EMAIL, state);
-
-            mailService.sendTfaVerificationCode(user, tfaService.generateCode(state.getSecret()));
-        } else {
-            throw new TooManyRequestsException("Challenge request is on cooldown. Try again in " + state.getCooldownRemainingSeconds() + " seconds.");
+        if (!state.canRequestChallenge()){
+            throw new TooManyRequestsException("Challenge request too soon. Please wait " + state.getCooldownRemainingSeconds() + " seconds.");
         }
+
+        state.setExpiresAt(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Constants.EXPIRES_IN_SECONDS));
+        state.markChallengeRequested();
+
+        mailService.sendTfaVerificationCode(user, tfaService.generateCode(state.getSecret()));
+        cache.storeState(user.getLogin(), TfaMethod.EMAIL, state);
 
     }
 }

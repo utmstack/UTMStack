@@ -49,5 +49,13 @@ public class TfaService {
         TfaMethodService selected = getMethodService(method);
         selected.generateChallenge(user);
     }
+
+    public void regenerateChallenge(User user) {
+
+        TfaMethod method = TfaMethod.valueOf(user.getTfaMethod());
+
+        TfaMethodService selected = getMethodService(method);
+        selected.regenerateChallenge(user);
+    }
 }
 

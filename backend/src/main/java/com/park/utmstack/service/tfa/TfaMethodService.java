@@ -16,5 +16,7 @@ public interface TfaMethodService {
 
     void generateChallenge(User user);
 
+    void regenerateChallenge(User user);
+
 }
 

@@ -10,7 +10,7 @@ public class TfaSetupState {
     private  long setupStartedAt;
 
     private long lastChallengeAt;
-    private static final long COOLDOWN_MS = 30_000;
+    private static final long COOLDOWN_MS = 28_000;
 
     public TfaSetupState(String secret, long expiresAt) {
         this.secret = secret;

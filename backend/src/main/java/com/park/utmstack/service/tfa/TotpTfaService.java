@@ -47,7 +47,7 @@ public class TotpTfaService implements TfaMethodService {
     @Loggable
     public TfaInitResponse initiateSetup(User user) {
         String secret = authenticator.createCredentials().getKey();
-        long expiresAt = System.currentTimeMillis() + Constants.EXPIRES_IN_SECONDS * 10 * 1000;
+        long expiresAt = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Constants.EXPIRES_IN_SECONDS);
         TfaSetupState state = new TfaSetupState(secret, expiresAt);
         cache.storeState(user.getLogin(), TfaMethod.TOTP, state);
 
@@ -90,18 +90,27 @@ public class TotpTfaService implements TfaMethodService {
     @Override
     @Loggable
     public void generateChallenge(User user) {
+        cache.clear(user.getLogin(), TfaMethod.TOTP);
+        String secret = user.getTfaSecret();
+        TfaSetupState state = new TfaSetupState(secret, System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Constants.EXPIRES_IN_SECONDS));
+        cache.storeState(user.getLogin(), TfaMethod.TOTP, state);
+    }
+
+    @Override
+    @Loggable
+    public void regenerateChallenge(User user) {
 
         TfaSetupState state = cache.getState(user.getLogin(), TfaMethod.TOTP)
                 .orElseThrow(() -> new IllegalStateException("No TFA setup found for user: " + user.getLogin()));
 
-        if (state.canRequestChallenge()){
-            state.setExpiresAt(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(30));
-            state.markChallengeRequested();
-            cache.storeState(user.getLogin(), TfaMethod.TOTP, state);
-        } else {
+        if (!state.canRequestChallenge()){
             throw new TooManyRequestsException("Challenge request too soon. Please wait " + state.getCooldownRemainingSeconds() + " seconds.");
         }
 
+        state.setExpiresAt(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Constants.EXPIRES_IN_SECONDS));
+        state.markChallengeRequested();
+
+        cache.storeState(user.getLogin(), TfaMethod.TOTP, state);
     }
 
     private String generateQrBase64(String uri) {

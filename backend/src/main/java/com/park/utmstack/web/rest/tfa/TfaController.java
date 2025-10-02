@@ -24,6 +24,7 @@ import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.exceptions.TfaVerificationException;
 import com.park.utmstack.util.exceptions.UtmMailException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -89,11 +90,12 @@ public class TfaController {
     }
 
     @GetMapping("/generate-challenge")
+    @Hidden
     public ResponseEntity<Void> generateChallenge() {
         final String ctx = CLASSNAME + ".generateChallenge";
         try {
             User user = userService.getCurrentUserLogin();
-            tfaService.generateChallenge(user);
+            tfaService.regenerateChallenge(user);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
