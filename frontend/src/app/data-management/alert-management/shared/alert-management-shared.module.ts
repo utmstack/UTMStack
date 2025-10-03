@@ -61,6 +61,7 @@ import {RowToFiltersComponent} from './components/filters/row-to-filter/row-to-f
 import {StatusFilterComponent} from './components/filters/status-filter/status-filter.component';
 import { AlertActionSelectComponent } from './components/alert-action-select/alert-action-select.component';
 import { AlertChildColumnComponent } from './components/alert-child-column/alert-child-column.component';
+import {TimelineService} from "./components/utm-timeline/timeline.service";
 
 @NgModule({
   declarations: [
@@ -184,7 +185,10 @@ import { AlertChildColumnComponent } from './components/alert-child-column/alert
         DataMgmtSharedModule,
         RouterModule,
         InlineSVGModule,
-    ]
+    ],
+  providers: [
+    TimelineService
+  ],
 })
 export class AlertManagementSharedModule {
 }
