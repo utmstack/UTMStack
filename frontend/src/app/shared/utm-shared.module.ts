@@ -28,7 +28,7 @@ import {PasswordStrengthBarComponent} from './components/auth/password-strength/
 import { TfaSetupComponent } from './components/auth/tfa-setup/tfa-setup.component';
 import {TotpComponent} from './components/auth/totp/totp.component';
 import {ContactUsComponent} from './components/contact-us/contact-us.component';
-import {UtmTimeLineComponent} from './components/utm-timeline/utm-timeline.component';
+import {UtmTimeLineComponent} from '../data-management/alert-management/shared/components/utm-timeline/utm-timeline.component';
 import {
   EmailSettingNotificactionComponent
 } from './components/email-setting-notification/email-setting-notificaction.component';
