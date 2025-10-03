@@ -1,7 +1,7 @@
 <app-utm-modal-header [name]="formConfigs[0].section.section" [showCloseButton]="false" class="w-100"></app-utm-modal-header>
 <div class="container-fluid p-3">
 <form [formGroup]="dynamicForm" (ngSubmit)="onSubmit()">
-  <div *ngIf="formConfigs && formConfigs.length > 0">
+  <div *ngIf="formConfigs && formConfigs.length > 0" class="mb-7">
     <p class="mb-3 mt-3">{{ formConfigs[0].section.description }}</p>
     <div *ngFor="let config of formConfigs" class="form-group">
       <label [attr.for]="getName(config.confParamShort)">{{ config.confParamLarge }}</label>

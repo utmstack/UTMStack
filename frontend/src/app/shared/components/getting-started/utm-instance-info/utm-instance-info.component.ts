@@ -7,7 +7,7 @@ import {LocationService, SelectOption} from '../../../services/location.service'
 import {ConfigDataTypeEnum, SectionConfigParamType} from '../../../types/configuration/section-config-param.type';
 
 @Component({
-  selector: 'app-utm-admin-change-email',
+  selector: 'app-utm-instance-info',
   templateUrl: './utm-instance-info.component.html',
   styleUrls: ['./utm-instance-info.component.css']
 })

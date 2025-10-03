@@ -80,8 +80,7 @@ export class WelcomeToUtmstackComponent implements OnInit, OnDestroy {
       modal.componentInstance.formConfigs = formConfigs;
 
       modal.result.then((result) => {
-        console.log(result);
-      })
+      });
   }
 
   setUpAdmin(gettingStarted: boolean) {
