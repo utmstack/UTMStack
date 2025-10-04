@@ -28,7 +28,7 @@ import {PasswordStrengthBarComponent} from './components/auth/password-strength/
 import { TfaSetupComponent } from './components/auth/tfa-setup/tfa-setup.component';
 import {TotpComponent} from './components/auth/totp/totp.component';
 import {ContactUsComponent} from './components/contact-us/contact-us.component';
-import {UtmTimeLineComponent} from '../data-management/alert-management/shared/components/utm-timeline/utm-timeline.component';
+import {AlertEchoesTimelineComponent} from '../data-management/alert-management/shared/components/alert-echoes-timeline/alert-echoes-timeline.component';
 import {
   EmailSettingNotificactionComponent
 } from './components/email-setting-notification/email-setting-notificaction.component';
@@ -270,7 +270,7 @@ import { NgxEchartsModule } from 'ngx-echarts';
     HasAnyAuthorityDirective,
     NotFoundComponent,
     SidebarComponent,
-    UtmTimeLineComponent,
+    AlertEchoesTimelineComponent,
     PasswordResetInitComponent,
     PasswordResetFinishComponent,
     PasswordStrengthBarComponent,
@@ -410,7 +410,7 @@ import { NgxEchartsModule } from 'ngx-echarts';
     SidebarComponent,
     PasswordResetInitComponent,
     PasswordResetFinishComponent,
-    UtmTimeLineComponent,
+    AlertEchoesTimelineComponent,
     PasswordStrengthBarComponent,
     SortByComponent,
     UtmSpinnerComponent,
