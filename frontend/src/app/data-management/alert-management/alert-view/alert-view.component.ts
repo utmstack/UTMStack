@@ -8,6 +8,7 @@ import {NgxSpinnerService} from 'ngx-spinner';
 import {LocalStorageService} from 'ngx-webstorage';
 import {Observable, Subject} from 'rxjs';
 import {filter, takeUntil, tap} from 'rxjs/operators';
+import {TimelineItem} from 'src/app/shared/types/utm-timeline-item';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {
   ElasticFilterDefaultTime
@@ -50,11 +51,10 @@ import {AlertFiltersBehavior} from '../shared/behavior/alert-filters.behavior';
 import {AlertStatusBehavior} from '../shared/behavior/alert-status.behavior';
 import {RowToFiltersComponent} from '../shared/components/filters/row-to-filter/row-to-filters.component';
 import {EventDataTypeEnum} from '../shared/enums/event-data-type.enum';
+import {AlertActionRefreshService} from '../shared/services/alert-action-refresh.service';
 import {AlertTagService} from '../shared/services/alert-tag.service';
 import {OPEN_ALERTS_KEY, OpenAlertsService} from '../shared/services/open-alerts.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
-import {AlertActionRefreshService} from "../shared/services/alert-action-refresh.service";
-import {TimelineItem} from 'src/app/shared/types/utm-timeline-item'
 
 @Component({
   selector: 'app-alert-view',
@@ -136,7 +136,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   ALERT_TARGET_FIELD = ALERT_TARGET_FIELD;
   currentChildrenPage = 1;
   totalChildren: number;
-  pageSizeChildren = ITEMS_PER_PAGE;
+  pageSizeChildren = ITEMS_PER_PAGE * 4;
   readonly ALERT_STATUS_FIELD = ALERT_STATUS_FIELD;
   readonly Math = Math;
 
@@ -577,58 +577,25 @@ export class AlertViewComponent implements OnInit, OnDestroy {
 
   openIncidentResponseAutomationModal(alert: UtmAlertType) {
        this.router.navigate(['soar/create-flow'], {
-            queryParams:{alertName:alert.name}
-          })
+            queryParams: {alertName: alert.name}
+          });
   }
 
   getFilterTime() {
     return this.filters.find(f => f.field === ALERT_TIMESTAMP_FIELD);
   }
 
-  loadChildrenAlerts(alert: UtmAlertType, from: 'pagination' | 'expand' = 'expand') {
-
-    if (from === 'expand') {
-      this.totalChildren = 0;
-      this.currentChildrenPage = 1;
-      this.childrenAlerts = [];
-      alert.expanded = !alert.expanded;
-
-      this.filtersChildren = this.filters.filter(value => value.field !== ALERT_PARENT_ID);
-
-      this.filtersChildren.push({
-        field: ALERT_PARENT_ID,
-        operator: ElasticOperatorsEnum.IS,
-        value: alert.id
+  loadChildrenAlerts(alert: UtmAlertType) {
+    console.log(alert);
+    if (alert.expanded) {
+      this.alerts = this.alerts.map(a => {
+        if (a.id !== alert.id) {
+          a.expanded = false;
+        }
+        return a;
       });
     }
 
-
-    if (alert.expanded) {
-      this.loadingChildren = true;
-      this.elasticDataService.search(this.currentChildrenPage, alert.echoes,
-        100000000, this.dataNature,
-        sanitizeFilters(this.filtersChildren), this.sortBy, true).subscribe(
-        (res: HttpResponse<any>) => {
-          this.totalChildren = Number(res.headers.get('X-Total-Count'));
-          this.childrenAlerts = res.body;
-          this.loadingChildren = false;
-        },
-        (res: HttpResponse<any>) => {
-          this.utmToastService.showError('Error', 'An error occurred while listing the alerts. Please try again later.');
-          this.loadingChildren = false;
-        }
-      );
-    }
-  }
-
-  prevPage(alert: UtmAlertType) {
-    this.currentChildrenPage = this.currentChildrenPage - 1;
-    this.loadChildrenAlerts(alert, 'pagination');
-  }
-
-  nextPage(alert: UtmAlertType) {
-    this.currentChildrenPage = this.currentChildrenPage + 1;
-    this.loadChildrenAlerts(alert, 'pagination');
   }
 
   ngOnDestroy(): void {
@@ -636,15 +603,4 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
     this.alertActionRefreshService.clearValues();
   }
-
-
-  getChildTimeSeries(childrenAlerts: UtmAlertType[]): TimelineItem[] {
-    return childrenAlerts.map(cha => ({
-      startDate: cha['@timestamp'],
-      name: cha.name,
-      metadata: cha,
-      iconUrl: 'assets/icons/echoes/echoes_default.png'
-    }));
-  }
-
 }

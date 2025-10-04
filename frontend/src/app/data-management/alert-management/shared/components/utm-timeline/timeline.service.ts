@@ -4,6 +4,7 @@ import {TimelineItem} from '../../../../../shared/types/utm-timeline-item';
 export interface TimelineGroup {
   startTimestamp: number;
   items: TimelineItem[];
+  yOffset?: number;
 }
 
 @Injectable()
@@ -13,7 +14,9 @@ export class TimelineService {
    * Groups timeline items by a fixed time interval (milliseconds)
    */
   groupByInterval(items: TimelineItem[], intervalMs: number): TimelineGroup[] {
-    const sorted = [...items].sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+    const sorted = [...items].sort(
+      (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+    );
     const groups: TimelineGroup[] = [];
     let currentGroup: TimelineGroup = null;
 
@@ -24,6 +27,10 @@ export class TimelineService {
         groups.push(currentGroup);
       }
       currentGroup.items.push(item);
+
+      if (ts > currentGroup.startTimestamp) {
+        currentGroup.startTimestamp = ts;
+      }
     });
 
     return groups;

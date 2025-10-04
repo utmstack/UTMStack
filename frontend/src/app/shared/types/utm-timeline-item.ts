@@ -3,4 +3,5 @@ export interface TimelineItem {
   name: string;
   metadata: any;
   iconUrl: string | undefined | null;
+  yOffset?: number;
 }

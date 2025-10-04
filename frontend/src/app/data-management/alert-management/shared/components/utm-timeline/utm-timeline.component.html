@@ -1,17 +1,4 @@
 <div class="timeline-container">
-
-  <!-- Overview: Mini histogram showing density of events per interval -->
-  <div class="timeline-overview text-center"
-       style="display: flex; align-items: flex-end; margin-bottom: 10px;">
-
-    <div *ngFor="let count of overviewData"
-         class="overview-bar"
-         [style.height.px]="count * 5"
-         style="width: 5px; margin: 0 1px; background-color: #0277bd;">
-    </div>
-
-  </div>
-
   <!-- Main ECharts timeline -->
   <div echarts
        [options]="chartOption"
@@ -22,20 +9,20 @@
 
   <!-- Pagination controls -->
   <div class="timeline-pagination text-center" style="margin-top: 10px;">
-    <button class="btn btn-default"
+    <button class="font-weight-semibold"
             (click)="prevPage()"
-            [disabled]="page === 0">
-      <i class="icon-left"></i> Previous
+            [disabled]="page === 1">
+      Back
     </button>
 
-    <span style="margin: 0 15px;">
-      Page {{ page + 1 }} / {{ Math.ceil(items.length / (pageSize * 1.0)) }}
+    <span class="px-2">
+      Page {{ page }} of {{ total < pageSize ? 1 : Math.ceil(total / pageSize) }}
     </span>
 
-    <button class="btn btn-default"
+    <button class="font-weight-semibold"
             (click)="nextPage()"
-            [disabled]="(page + 1) * pageSize >= items.length">
-      Next <i class="icon-right"></i>
+            [disabled]="page * pageSize >= total">
+      Next
     </button>
   </div>
 

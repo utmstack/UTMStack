@@ -238,13 +238,54 @@
   </tr>
 
   <ng-container *ngIf="alert.expanded">
-
-        <tr >
-          <td [attr.colspan]="9" >
-        <utm-timeline [items]="getChildTimeSeries(childrenAlerts)" (itemClick)="viewDetailAlert($event, {field:0})"  ></utm-timeline>
+        <tr>
+          <td style="height: 500px" [attr.colspan]="9" >
+                <utm-timeline [alert]="alert"
+                              [page]="currentChildrenPage"
+                              [pageSize]="pageSizeChildren"
+                              [total]="totalChildren"
+                              (itemClick)="viewDetailAlert($event, {field:0})" >
+                </utm-timeline>
           </td>
         </tr>
   </ng-container>
+
+  <!--<ng-container *ngIf="alert.expanded">
+
+    <tr *ngFor="let child of childrenAlerts; let isFirst = first" class="bg-light">
+      &lt;!&ndash; <td [ngClass]="{'pt-4': isFirst}"  class="text-center pl-3">
+         <ng-container *ngTemplateOutlet="actionContent; context: { $implicit: child }"></ng-container>
+       </td>&ndash;&gt;
+      <td [ngClass]="{'pt-4': isFirst}"  class="text-center pl-3">
+
+      </td>
+      <ng-container *ngFor="let td of childrenFields">
+        <td *ngIf="td.visible"
+            [ngClass]="{'min-width': td.field === ALERT_ADVERSARY_FIELD || td.field === ALERT_TARGET_FIELD, 'pt-4': isFirst}"
+            (click)="viewDetailAlert(child, td)">
+          <app-data-field-render [data]="child"
+                                 [field]="td"
+                                 [dataType]="dataType"
+                                 [showStatusChange]="true"
+                                 (refreshData)="onRefreshData($event)">
+          </app-data-field-render>
+        </td>
+      </ng-container>
+
+      <td></td>
+      <td></td>
+    </tr>
+
+
+    <tr *ngIf="totalChildren > 0" class="bg-light">
+      <td [attr.colspan]="childrenFields.length + 2" class="text-center border-0 pt-2 pb-3">
+        <button class="font-weight-semibold" (click)="prevPage(alert)" [disabled]="currentChildrenPage === 1">Back</button>
+        <span class="px-2">Page {{ currentChildrenPage }} of {{ Math.round(totalChildren / pageSizeChildren) }}</span>
+        <button class="font-weight-semibold" (click)="nextPage(alert)" [disabled]="currentChildrenPage * pageSizeChildren >= totalChildren">Next</button>
+      </td>
+    </tr>
+
+  </ng-container>-->
 </ng-template>
 
 <ng-template #actionContent let-alert>
