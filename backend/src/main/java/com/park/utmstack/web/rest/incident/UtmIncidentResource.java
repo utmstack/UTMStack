@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import com.park.utmstack.aop.logging.AuditEvent;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -74,6 +75,12 @@ public class UtmIncidentResource {
      * @throws IllegalArgumentException if the input data is invalid.
      */
     @PostMapping("/utm-incidents")
+    @om.park.utmstack.aop.logging.AuditEvent(
+        attemptType = ApplicationEventType.INCIDENT_CREATION_ATTEMPT,
+        attemptMessage = "Attempt to create a new incident initiated",
+        successType = ApplicationEventType.INCIDENT_CREATION_SUCCESS,
+        successMessage = "Incident created successfully"
+    )
     public ResponseEntity<UtmIncident> createUtmIncident(@Valid @RequestBody NewIncidentDTO newIncidentDTO) {
         final String ctx = ".createUtmIncident";
         try {
@@ -123,6 +130,12 @@ public class UtmIncidentResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/utm-incidents/add-alerts")
+    @AuditEvent(
+        attemptType = ApplicationEventType.INCIDENT_ALERT_ADD_ATTEMPT,
+        attemptMessage = "Attempt to add alerts to incident initiated",
+        successType = ApplicationEventType.INCIDENT_ALERT_ADD_SUCCESS,
+        successMessage = "Alerts added to incident successfully"
+    )
     public ResponseEntity<UtmIncident> addAlertsToUtmIncident(@Valid @RequestBody AddToIncidentDTO addToIncidentDTO) throws URISyntaxException {
         final String ctx = ".addAlertsToUtmIncident";
         try {
@@ -165,6 +178,12 @@ public class UtmIncidentResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/utm-incidents/change-status")
+    @AuditEvent(
+        attemptType = ApplicationEventType.INCIDENT_UPDATE_ATTEMPT,
+        attemptMessage = "Attempt to update incident status initiated",
+        successType = ApplicationEventType.INCIDENT_UPDATE_SUCCESS,
+        successMessage = "Incident status updated successfully"
+    )
     public ResponseEntity<UtmIncident> updateUtmIncident(@Valid @RequestBody UtmIncident utmIncident) throws URISyntaxException {
         final String ctx = ".updateUtmIncident";
         try {
