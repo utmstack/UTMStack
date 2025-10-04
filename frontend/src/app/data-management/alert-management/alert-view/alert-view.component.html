@@ -240,12 +240,12 @@
   <ng-container *ngIf="alert.expanded">
         <tr>
           <td style="height: 500px" [attr.colspan]="9" >
-                <utm-timeline [alert]="alert"
+                <app-alert-echoes-timeline [alert]="alert"
                               [page]="currentChildrenPage"
                               [pageSize]="pageSizeChildren"
                               [total]="totalChildren"
                               (itemClick)="viewDetailAlert($event, {field:0})" >
-                </utm-timeline>
+                </app-alert-echoes-timeline>
           </td>
         </tr>
   </ng-container>

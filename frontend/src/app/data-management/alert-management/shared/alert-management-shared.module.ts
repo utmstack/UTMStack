@@ -61,7 +61,7 @@ import {RowToFiltersComponent} from './components/filters/row-to-filter/row-to-f
 import {StatusFilterComponent} from './components/filters/status-filter/status-filter.component';
 import { AlertActionSelectComponent } from './components/alert-action-select/alert-action-select.component';
 import { AlertChildColumnComponent } from './components/alert-child-column/alert-child-column.component';
-import {TimelineService} from "./components/utm-timeline/timeline.service";
+import {AlertEchoesTimelineService} from "./components/alert-echoes-timeline/alert-echoes-timeline.service";
 
 @NgModule({
   declarations: [
@@ -187,7 +187,7 @@ import {TimelineService} from "./components/utm-timeline/timeline.service";
         InlineSVGModule,
     ],
   providers: [
-    TimelineService
+    AlertEchoesTimelineService
   ],
 })
 export class AlertManagementSharedModule {
