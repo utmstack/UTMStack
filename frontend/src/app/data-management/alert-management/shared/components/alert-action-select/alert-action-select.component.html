@@ -67,6 +67,7 @@
           <ng-container *ngIf="alert.status !== action.value" >
             <ng-container [ngSwitch] = "action.action">
               <app-alert-tags-apply *ngSwitchCase="AlertActionType.ADD_FALSE_POSITIVE_TAG_RULE"
+                                    (click)="popover.close()"
                                     [alert]="alert"
                                     [tags]="tags"
                                     [template]="'menu-item'"
@@ -93,6 +94,7 @@
 <ng-template #subPopover let-action="action">
     <ng-container [ngSwitch] = "action.action">
       <app-alert-apply-incident *ngSwitchCase="AlertActionType.ADD_OR_CREATE_INCIDENT"
+                                       (click)="popover.close()"
                                        [alert]="alert"
                                        [eventType]="dataType"
                                        [template]="'menu-item'"
