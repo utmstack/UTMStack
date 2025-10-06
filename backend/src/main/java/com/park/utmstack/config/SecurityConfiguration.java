@@ -76,15 +76,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public FilterRegistrationBean<MdcCleanupFilter> mdcCleanupFilter() {
-        FilterRegistrationBean<MdcCleanupFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(new MdcCleanupFilter());
-        registrationBean.setOrder(Integer.MAX_VALUE);
-        registrationBean.addUrlPatterns("/*");
-        return registrationBean;
-    }
-
-    @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
                 .antMatchers(HttpMethod.OPTIONS, "/**")
