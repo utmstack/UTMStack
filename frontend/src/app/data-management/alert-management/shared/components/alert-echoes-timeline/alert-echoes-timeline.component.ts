@@ -85,6 +85,7 @@ export class AlertEchoesTimelineComponent implements OnInit {
       group.startTimestamp = Math.floor(timestamps.reduce((sum, t) => sum + t, 0) / timestamps.length);
 
       const rep = group.items[0] || ({} as any); // representative item
+      console.log('group', group, rep);
       seriesData.push({
         value: [
           group.startTimestamp,                         // 0: timestamp (start of minute)
@@ -94,7 +95,8 @@ export class AlertEchoesTimelineComponent implements OnInit {
           rep.iconUrl || 'assets/images/default-echo.png', // 4: icon url
           group.items.length,                             // 5: count of echoes
           index,
-          group.yOffset || 0
+          group.yOffset || 0,
+          rep.metadata
         ],
         groupData: group.items,                         // full list for drill-down
       });
@@ -169,8 +171,8 @@ export class AlertEchoesTimelineComponent implements OnInit {
   }
 
   onChartClick(event: any) {
-    if (event.data && event.data.itemData) {
-      this.itemClick.emit(event.data.itemData);
+    if (event.data && event.data.value) {
+      this.itemClick.emit(event.data.value[8] || {} as UtmAlertType);
     }
   }
 

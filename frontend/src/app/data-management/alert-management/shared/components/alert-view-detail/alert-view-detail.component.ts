@@ -16,8 +16,6 @@ import {
   ALERT_SEVERITY_FIELD_LABEL,
   ALERT_STATUS_FIELD, ALERT_TACTIC_FIELD, ALERT_TECHNIQUE_FIELD, ALERT_TIMESTAMP_FIELD
 } from '../../../../../shared/constants/alert/alert-field.constant';
-import {LOG_ANALYZER_TOTAL_ITEMS} from '../../../../../shared/constants/log-analyzer.constant';
-import {ITEMS_PER_PAGE} from '../../../../../shared/constants/pagination.constants';
 import {IncidentOriginTypeEnum} from '../../../../../shared/enums/incident-response/incident-origin-type.enum';
 import {AlertTags} from '../../../../../shared/types/alert/alert-tag.type';
 import {AlertStatusEnum, UtmAlertType} from '../../../../../shared/types/alert/utm-alert.type';
