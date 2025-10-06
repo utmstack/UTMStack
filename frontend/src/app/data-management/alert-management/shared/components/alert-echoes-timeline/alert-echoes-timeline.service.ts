@@ -19,77 +19,84 @@ export class AlertEchoesTimelineService {
 
   renderItem(params: any, api: any) {
     const ts = api.value(0);
-    const coord = api.coord([ts, 0]);
+    const coord = api.coord([ts, 0]) as number[];
     const chartWidth = params.coordSys.width;
     api.getHeight();
 
-// Calculate horizontal position (centered, but respecting canvas borders)
+    // Horizontal position (centered, respecting canvas borders)
     let x = coord[0] - cardWidth / 2;
     x = Math.max(0, Math.min(x, chartWidth - cardWidth));
 
-    // Calculate vertical stacking offset
+    // Vertical stacking offset
     const level = api.value(7) || 0; // stack level
     const levelOffset = level * (cardHeight + spacing);
     let yCard = coord[1] - baseOffset - levelOffset - cardHeight;
 
-    // Ensure card stays within the canvas
+    // Ensure card stays within canvas
     if (yCard < 0) { yCard = 0; }
 
-    // Build children (card + text + line)
-    const children = [
-      // Card background
-      {
-        type: 'rect',
-        shape: { x, y: yCard, width: cardWidth, height: cardHeight, r: 10 },
-        style: {
-          fill: '#ffffff',
-          stroke: '#0277bd',
-          lineWidth: 1,
-          shadowBlur: 8,
-          shadowColor: 'rgba(0,0,0,0.2)',
-          cursor: 'pointer'
-        }
-      },
-      // Icon
-      {
-        type: 'image',
-        style: {
-          image: api.value(4),
-          x: x + 5,
-          y: yCard + 5,
-          width: cardHeight - 10,
-          height: cardHeight - 10
-        }
-      },
-      // Title
-      {
-        type: 'text',
-        style: {
-          x: x + (cardHeight - 2.5) + 15,
-          y: yCard + 5,
-          text: this.truncateText(api.value(2) || '', 150),
-          textAlign: 'left',
-          fill: '#000',
-          fontSize: 14,
-          fontWeight: 600,
-          width: cardWidth - (cardHeight - 2.5) - 25,
-          overflow: 'break',
-          ellipsis: '...'
-        }
-      },
-      // Subtitle / date
-      {
-        type: 'text',
-        style: {
-          x: x + (cardHeight - 2.5) + 15,
-          y: yCard + 25,
-          text: api.value(3),
-          textAlign: 'left',
-          fill: '#666',
-          fontSize: 12
-        }
+    // Generic type for children to satisfy TS
+    const children: {
+      type: string;
+      shape?: Record<string, number | string>;
+      style?: Record<string, number | string>;
+    }[] = [];
+
+    // Card background
+    children.push({
+      type: 'rect',
+      shape: { x, y: yCard, width: cardWidth, height: cardHeight, r: 10 },
+      style: {
+        fill: '#ffffff',
+        stroke: '#0277bd',
+        lineWidth: 1,
+        shadowBlur: 8,
+        shadowColor: 'rgba(0,0,0,0.2)',
+        cursor: 'pointer'
       }
-    ];
+    });
+
+    // Icon
+    children.push({
+      type: 'image',
+      style: {
+        image: api.value(4),
+        x: x + 5,
+        y: yCard + 5,
+        width: cardHeight - 10,
+        height: cardHeight - 10
+      }
+    });
+
+    // Title
+    children.push({
+      type: 'text',
+      style: {
+        x: x + (cardHeight - 2.5) + 15,
+        y: yCard + 5,
+        text: this.truncateText(api.value(2) || '', 150),
+        textAlign: 'left',
+        fill: '#000',
+        fontSize: 14,
+        fontWeight: 600,
+        width: cardWidth - (cardHeight - 2.5) - 25,
+        overflow: 'break',
+        ellipsis: '...'
+      }
+    });
+
+    // Subtitle / date
+    children.push({
+      type: 'text',
+      style: {
+        x: x + (cardHeight - 2.5) + 15,
+        y: yCard + 25,
+        text: api.value(3),
+        textAlign: 'left',
+        fill: '#666',
+        fontSize: 12
+      }
+    });
 
     // Total echoes
     if (api.value(5) > 1) {

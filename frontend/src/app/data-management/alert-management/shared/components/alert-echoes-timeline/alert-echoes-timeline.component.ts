@@ -106,6 +106,8 @@ export class AlertEchoesTimelineComponent implements OnInit {
     const maxTimestamp = Math.max(...allTimestamps);
     const padding = (maxTimestamp - minTimestamp) * 0.1;
 
+    const expand = (allTimestamps.length === 1) ? 30 * 60 * 1000 : (maxTimestamp - minTimestamp) * 0.1;
+
     this.chartOption = {
       title: {text: this.title, left: 'center', textStyle: {fontSize: 16, fontWeight: 'bold'}},
       tooltip: {
@@ -122,9 +124,20 @@ export class AlertEchoesTimelineComponent implements OnInit {
       },
       xAxis: {
         type: 'time',
-        min: minTimestamp - padding,
-        max: maxTimestamp + padding,
-        axisLabel: {formatter: (val: number) => new Date(val).toLocaleTimeString()},
+        min: minTimestamp - expand,
+        max: maxTimestamp + expand,
+        axisLabel: {
+          formatter: (val: number) => {
+            const d = new Date(val);
+            const year = d.getUTCFullYear();
+            const month = (d.getUTCMonth() + 1).toString().padStart(2, '0');
+            const day = d.getUTCDate().toString().padStart(2, '0');
+            const hours = d.getUTCHours().toString().padStart(2, '0');
+            const minutes = d.getUTCMinutes().toString().padStart(2, '0');
+            const seconds = d.getUTCSeconds().toString().padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+          },
+        },
         splitLine: {
           show: true,
           lineStyle: {

@@ -239,7 +239,7 @@
 
   <ng-container *ngIf="alert.expanded">
         <tr>
-          <td style="height: 500px" [attr.colspan]="9" >
+          <td style="height: 500px" [attr.colspan]="fields.length + 2" >
                 <app-alert-echoes-timeline [alert]="alert"
                               [page]="currentChildrenPage"
                               [pageSize]="pageSizeChildren"
