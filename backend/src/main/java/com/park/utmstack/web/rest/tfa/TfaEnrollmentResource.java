@@ -1,9 +1,17 @@
 package com.park.utmstack.web.rest.tfa;
 
+import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.User;
+import com.park.utmstack.domain.UtmConfigurationParameter;
 import com.park.utmstack.service.UserService;
+import com.park.utmstack.service.UtmConfigurationParameterService;
 import com.park.utmstack.service.dto.tfa.enroll.TfaEnrollRequest;
-import com.park.utmstack.service.tfa.TfaEnrollmentService;
+import com.park.utmstack.service.dto.tfa.init.TfaInitResponse;
+import com.park.utmstack.service.dto.tfa.save.TfaSaveRequest;
+import com.park.utmstack.service.dto.tfa.verify.TfaVerifyResponse;
+import com.park.utmstack.service.tfa.TfaService;
+import com.park.utmstack.util.ResponseUtil;
+import com.park.utmstack.util.exceptions.InvalidTfaStageException;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,26 +21,59 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
+import static com.park.utmstack.config.Constants.PROP_TFA_METHOD;
+
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 @Hidden
-@RequestMapping("api/tfa")
+@RequestMapping("api/enrollment/tfa")
 public class TfaEnrollmentResource {
 
     private static final String CLASSNAME = "TfaEnrollmentController";
 
     private final UserService userService;
-    private final TfaEnrollmentService tfaEnrollmentService;
+    private final TfaService tfaService;
+    private final UtmConfigurationParameterService utmConfigurationParameterService;
 
 
-    @PostMapping("/enroll")
+    @PostMapping
     public ResponseEntity<?> enrollTfa(@RequestBody TfaEnrollRequest request) {
-        final String ctx = CLASSNAME + ".enrollTfa";
         User user = userService.getCurrentUserLogin();
 
-        tfaEnrollmentService.enrollTfa(user, request);
-        return ResponseEntity.ok().build();
+            return switch (request.getStage()) {
+                case INIT -> {
+                    TfaInitResponse initResponse = tfaService.initiateSetup(user, request.getMethod());
+                    yield ResponseEntity.ok(initResponse);
+                }
+                case VERIFY -> {
+                    TfaVerifyResponse verifyResponse = tfaService.verifyCode(user, request.toVerifyRequest());
+                    yield ResponseEntity.ok(verifyResponse);
+                }
+                case COMPLETE -> {
+                    List<UtmConfigurationParameter> tfaParams = utmConfigurationParameterService
+                            .getConfigParameterBySectionId(Constants.TFA_SETTING_ID);
+
+                    for (UtmConfigurationParameter param : tfaParams) {
+                        switch (param.getConfParamShort()) {
+                            case PROP_TFA_METHOD:
+                                param.setConfParamValue(String.valueOf(request.getMethod()));
+                                break;
+                            case Constants.PROP_TFA_ENABLE:
+                                param.setConfParamValue(String.valueOf(request.isEnable()));
+                                break;
+                        }
+                    }
+
+                    tfaService.persistConfiguration(request.getMethod());
+                    utmConfigurationParameterService.saveAllConfigParams(tfaParams);
+                    tfaService.generateChallenge(user);
+                    yield ResponseEntity.ok().build();
+                }
+                default -> throw new InvalidTfaStageException("Invalid TFA stage: " + request.getStage());
+            };
     }
 }
 
