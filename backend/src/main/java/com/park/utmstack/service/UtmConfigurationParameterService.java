@@ -162,13 +162,13 @@ public class UtmConfigurationParameterService {
         }
     }
 
-    public List<UtmConfigurationParameter> getConfigParameterBySectionId(long sectionId) throws Exception {
+    public List<UtmConfigurationParameter> getConfigParameterBySectionId(long sectionId) {
         final String ctx = CLASSNAME + ".getConfigParameterBySectionId";
         try {
             return new ArrayList<>(configParamRepository
                     .findAllBySectionId(sectionId));
         } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
+            throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
 

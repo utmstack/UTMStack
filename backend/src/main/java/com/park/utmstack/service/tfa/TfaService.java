@@ -36,7 +36,7 @@ public class TfaService {
         return selected.verifyCode(user, request.getCode());
     }
 
-    public void persistConfiguration(TfaMethod method) throws Exception {
+    public void persistConfiguration(TfaMethod method) {
         User user = userService.getCurrentUserLogin();
         TfaMethodService selected = getMethodService(method);
         selected.persistConfiguration(user);

@@ -23,12 +23,9 @@ import com.park.utmstack.service.tfa.TfaService;
 import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.exceptions.TfaVerificationException;
 import com.park.utmstack.util.exceptions.UtmMailException;
-import com.park.utmstack.web.rest.util.HeaderUtil;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +35,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.park.utmstack.config.Constants.PROP_TFA_METHOD;
@@ -46,8 +42,9 @@ import static com.park.utmstack.config.Constants.PROP_TFA_METHOD;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@Hidden
 @RequestMapping("api/tfa")
-public class TfaController {
+public class TfaResource {
 
     private static final String CLASSNAME = "TfaController";
 
@@ -90,7 +87,6 @@ public class TfaController {
     }
 
     @GetMapping("/generate-challenge")
-    @Hidden
     public ResponseEntity<Void> generateChallenge() {
         final String ctx = CLASSNAME + ".generateChallenge";
         try {
