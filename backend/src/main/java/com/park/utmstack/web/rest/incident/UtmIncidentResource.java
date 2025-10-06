@@ -75,7 +75,7 @@ public class UtmIncidentResource {
      * @throws IllegalArgumentException if the input data is invalid.
      */
     @PostMapping("/utm-incidents")
-    @om.park.utmstack.aop.logging.AuditEvent(
+    @AuditEvent(
         attemptType = ApplicationEventType.INCIDENT_CREATION_ATTEMPT,
         attemptMessage = "Attempt to create a new incident initiated",
         successType = ApplicationEventType.INCIDENT_CREATION_SUCCESS,
