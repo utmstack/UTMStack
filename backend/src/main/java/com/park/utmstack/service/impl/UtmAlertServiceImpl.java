@@ -169,7 +169,8 @@ public class UtmAlertServiceImpl implements UtmAlertService {
             String alertsIds = String.join(",", alertIds);
             Map<String, Object> extra = Map.of(
                     "alertIds", alertsIds,
-                    "newStatus", status
+                    "newStatus", status,
+                    "source", "service"
             );
 
             String attemptMsg = String.format("Attempt to update status to %1$s for alerts with ids: %2$s",

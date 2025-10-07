@@ -3,8 +3,11 @@ package com.park.utmstack.config;
 import ch.qos.logback.classic.LoggerContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.park.utmstack.loggin.filter.MdcCleanupFilter;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import tech.jhipster.config.JHipsterProperties;
 
@@ -44,5 +47,14 @@ public class LoggingConfiguration {
         if (loggingProperties.isUseJsonFormat() || logstashProperties.isEnabled()) {
             addContextListener(context, customFields, loggingProperties);
         }
+    }
+
+    @Bean
+    public FilterRegistrationBean<MdcCleanupFilter> mdcCleanupFilter() {
+        FilterRegistrationBean<MdcCleanupFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new MdcCleanupFilter());
+        registrationBean.setOrder(Integer.MAX_VALUE);
+        registrationBean.addUrlPatterns("/*");
+        return registrationBean;
     }
 }

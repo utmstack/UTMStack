@@ -47,7 +47,7 @@ public class TotpTfaService implements TfaMethodService {
     @Loggable
     public TfaInitResponse initiateSetup(User user) {
         String secret = authenticator.createCredentials().getKey();
-        long expiresAt = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Constants.EXPIRES_IN_SECONDS);
+        long expiresAt = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Constants.EXPIRES_IN_SECONDS_TOTP * 10);
         TfaSetupState state = new TfaSetupState(secret, expiresAt);
         cache.storeState(user.getLogin(), TfaMethod.TOTP, state);
 
@@ -57,7 +57,7 @@ public class TotpTfaService implements TfaMethodService {
         String qrBase64 = generateQrBase64(uri);
         Delivery delivery = new Delivery(TfaMethod.TOTP, qrBase64);
 
-        return new TfaInitResponse("pending", delivery, Constants.EXPIRES_IN_SECONDS * 10);
+        return new TfaInitResponse("pending", delivery, Constants.EXPIRES_IN_SECONDS_TOTP * 10);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class TotpTfaService implements TfaMethodService {
     public void generateChallenge(User user) {
         cache.clear(user.getLogin(), TfaMethod.TOTP);
         String secret = user.getTfaSecret();
-        TfaSetupState state = new TfaSetupState(secret, System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Constants.EXPIRES_IN_SECONDS));
+        TfaSetupState state = new TfaSetupState(secret, System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Constants.EXPIRES_IN_SECONDS_TOTP));
         cache.storeState(user.getLogin(), TfaMethod.TOTP, state);
     }
 
@@ -107,7 +107,7 @@ public class TotpTfaService implements TfaMethodService {
             throw new TooManyRequestsException("Challenge request too soon. Please wait " + state.getCooldownRemainingSeconds() + " seconds.");
         }
 
-        state.setExpiresAt(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Constants.EXPIRES_IN_SECONDS));
+        state.setExpiresAt(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Constants.EXPIRES_IN_SECONDS_TOTP));
         state.markChallengeRequested();
 
         cache.storeState(user.getLogin(), TfaMethod.TOTP, state);
@@ -124,6 +124,11 @@ public class TotpTfaService implements TfaMethodService {
         } catch (Exception e) {
             throw new RuntimeException("Error al generar QR", e);
         }
+    }
+
+    @Override
+    public long expirationTimeSeconds() {
+        return Constants.EXPIRES_IN_SECONDS_TOTP;
     }
 
 }

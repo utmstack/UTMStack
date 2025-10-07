@@ -94,9 +94,10 @@ public class UserJWTController {
 
         boolean isTfaSetup = isTfaEnabled && user.getTfaMethod() != null && !user.getTfaMethod().isEmpty() && !isAuth;
         Map<String, Object> args = logContextBuilder.buildArgs(request);
+        Long tfaExpiresInSeconds = 0L;
 
         if (isTfaSetup) {
-            tfaService.generateChallenge(user);
+            tfaExpiresInSeconds = tfaService.generateChallenge(user);
 
             args.put("tfaMethod", user.getTfaMethod());
             applicationEventService.createEvent(
@@ -118,6 +119,7 @@ public class UserJWTController {
                 .success(true)
                 .tfaConfigured(isTfaSetup)
                 .forceTfa(!isAuth)
+                .tfaExpiresInSeconds(tfaExpiresInSeconds)
                 .build();
 
         return ResponseEntity.ok(response);

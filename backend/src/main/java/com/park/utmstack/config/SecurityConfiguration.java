@@ -76,15 +76,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public FilterRegistrationBean<MdcCleanupFilter> mdcCleanupFilter() {
-        FilterRegistrationBean<MdcCleanupFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(new MdcCleanupFilter());
-        registrationBean.setOrder(Integer.MAX_VALUE);
-        registrationBean.addUrlPatterns("/*");
-        return registrationBean;
-    }
-
-    @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
                 .antMatchers(HttpMethod.OPTIONS, "/**")
@@ -119,7 +110,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/account/reset-password/init").permitAll()
                 .antMatchers("/api/account/reset-password/finish").permitAll()
                 .antMatchers("/api/images/all").permitAll()
-                .antMatchers("/api/tfa/**").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER, AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
+                .antMatchers("/api/enrollment/**").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER)
+                .antMatchers("/api/tfa/verify-code").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)
+                .antMatchers("/api/tfa/refresh").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)
+                .antMatchers("/api/tfa/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
                 .antMatchers("/api/utm-incident-jobs").hasAuthority(AuthoritiesConstants.ADMIN)
                 .antMatchers("/api/utm-incident-jobs/**").hasAuthority(AuthoritiesConstants.ADMIN)
                 .antMatchers("/api/utm-incident-variables/**").hasAuthority(AuthoritiesConstants.ADMIN)

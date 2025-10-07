@@ -9,7 +9,7 @@ import dev.samstevens.totp.time.SystemTimeProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import static com.park.utmstack.config.Constants.EXPIRES_IN_SECONDS;
+import static com.park.utmstack.config.Constants.EXPIRES_IN_SECONDS_EMAIL;
 
 @Service
 public class EmailTotpService {
@@ -38,7 +38,7 @@ public class EmailTotpService {
         try {
             Assert.hasText(secret, "Secret value is missing");
             CodeGenerator codeGenerator = new DefaultCodeGenerator();
-            return codeGenerator.generate(secret, Math.floorDiv(timeProvider.getTime(), EXPIRES_IN_SECONDS));
+            return codeGenerator.generate(secret, Math.floorDiv(timeProvider.getTime(), EXPIRES_IN_SECONDS_EMAIL));
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
@@ -57,7 +57,7 @@ public class EmailTotpService {
             Assert.hasText(code, "Code value is missing");
 
             DefaultCodeVerifier verifier = new DefaultCodeVerifier(new DefaultCodeGenerator(), timeProvider);
-            verifier.setTimePeriod(EXPIRES_IN_SECONDS);
+            verifier.setTimePeriod(EXPIRES_IN_SECONDS_EMAIL);
             verifier.setAllowedTimePeriodDiscrepancy(1);
 
             return verifier.isValidCode(secret, code);

@@ -92,7 +92,7 @@ public class EmailTfaService implements TfaMethodService {
         String secret = user.getTfaSecret();
         String code = tfaService.generateCode(secret);
 
-        TfaSetupState state = new TfaSetupState(secret, System.currentTimeMillis() + Constants.EXPIRES_IN_SECONDS * 1000 * 10);
+        TfaSetupState state = new TfaSetupState(secret, System.currentTimeMillis() + (Constants.EXPIRES_IN_SECONDS_EMAIL * 4) * 1000 * 10);
         cache.storeState(user.getLogin(), TfaMethod.EMAIL, state);
 
         mailService.sendTfaVerificationCode(user, code);
@@ -109,12 +109,17 @@ public class EmailTfaService implements TfaMethodService {
             throw new TooManyRequestsException("Challenge request too soon. Please wait " + state.getCooldownRemainingSeconds() + " seconds.");
         }
 
-        state.setExpiresAt(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Constants.EXPIRES_IN_SECONDS));
+        state.setExpiresAt(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Constants.EXPIRES_IN_SECONDS_EMAIL));
         state.markChallengeRequested();
 
         mailService.sendTfaVerificationCode(user, tfaService.generateCode(state.getSecret()));
         cache.storeState(user.getLogin(), TfaMethod.EMAIL, state);
 
+    }
+
+    @Override
+    public long expirationTimeSeconds() {
+        return Constants.EXPIRES_IN_SECONDS_EMAIL;
     }
 }
 

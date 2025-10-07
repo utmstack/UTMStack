@@ -4,6 +4,8 @@ package com.park.utmstack.advice;
 import com.park.utmstack.security.TooMuchLoginAttemptsException;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.util.ResponseUtil;
+import com.park.utmstack.util.exceptions.IncidentAlertConflictException;
+import com.park.utmstack.util.exceptions.NoAlertsProvidedException;
 import com.park.utmstack.util.exceptions.TfaVerificationException;
 import com.park.utmstack.util.exceptions.TooManyRequestsException;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +49,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TooManyRequestsException.class)
     public ResponseEntity<?> handleTooManyRequests(TooManyRequestsException e, HttpServletRequest request) {
         return ResponseUtil.buildErrorResponse(HttpStatus.TOO_MANY_REQUESTS, e.getMessage());
+    }
+
+    @ExceptionHandler({NoAlertsProvidedException.class})
+    public ResponseEntity<?> handleNoAlertsProvided(Exception e, HttpServletRequest request) {
+        return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler(IncidentAlertConflictException.class)
+    public ResponseEntity<?> handleConflict(IncidentAlertConflictException e, HttpServletRequest request) {
+        return ResponseUtil.buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

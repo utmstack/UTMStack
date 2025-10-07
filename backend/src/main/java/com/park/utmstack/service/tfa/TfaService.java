@@ -36,18 +36,20 @@ public class TfaService {
         return selected.verifyCode(user, request.getCode());
     }
 
-    public void persistConfiguration(TfaMethod method) throws Exception {
+    public void persistConfiguration(TfaMethod method) {
         User user = userService.getCurrentUserLogin();
         TfaMethodService selected = getMethodService(method);
         selected.persistConfiguration(user);
     }
 
-    public void generateChallenge(User user) {
+    public long generateChallenge(User user) {
 
         TfaMethod method = TfaMethod.valueOf(user.getTfaMethod());
 
         TfaMethodService selected = getMethodService(method);
         selected.generateChallenge(user);
+
+        return selected.expirationTimeSeconds();
     }
 
     public void regenerateChallenge(User user) {

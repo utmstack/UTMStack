@@ -17,6 +17,7 @@ import com.park.utmstack.service.dto.incident.AlertIncidentStatusChangeDTO;
 import com.park.utmstack.service.dto.incident.NewIncidentDTO;
 import com.park.utmstack.service.dto.incident.RelatedIncidentAlertsDTO;
 import com.park.utmstack.service.incident.util.ResolveIncidentStatus;
+import com.park.utmstack.util.exceptions.IncidentAlertConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -27,10 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.validation.Valid;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -76,7 +74,6 @@ public class UtmIncidentService {
      */
     public UtmIncident save(UtmIncident utmIncident) {
         final String ctx = ".save";
-        log.debug("Request to save UtmIncident : {}", utmIncident);
         try {
             return utmIncidentRepository.save(utmIncident);
         } catch (Exception e) {
@@ -140,6 +137,8 @@ public class UtmIncidentService {
     public UtmIncident createIncident(NewIncidentDTO newIncidentDTO) {
         final String ctx = CLASSNAME + ".createIncident";
         try {
+            validateAlertsNotAlreadyLinked(newIncidentDTO.getAlertList(), ctx);
+
             UtmIncident utmIncident = new UtmIncident();
             utmIncident.setIncidentName(newIncidentDTO.getIncidentName());
             utmIncident.setIncidentDescription(newIncidentDTO.getIncidentDescription());
@@ -177,10 +176,25 @@ public class UtmIncidentService {
         final String ctx = CLASSNAME + ".addAlertsIncident";
         try {
             log.debug("Request to add alert to UtmIncident : {}", addToIncidentDTO);
+
+            List<RelatedIncidentAlertsDTO> alertIds = addToIncidentDTO.getAlertList();
+
+            String alertsIds = alertIds.stream().map(RelatedIncidentAlertsDTO::getAlertId).collect(Collectors.joining(","));
+            Map<String, Object> extra = Map.of(
+                    "alertIds", alertsIds,
+                    "source", "service"
+            );
+            String attemptMsg = String.format("Attempt to add %d alerts to incident %d", addToIncidentDTO.getAlertList().size(), addToIncidentDTO.getIncidentId());
+            eventService.createEvent(attemptMsg, ApplicationEventType.INCIDENT_ALERT_ADD_ATTEMPT, extra);
+
+            validateAlertsNotAlreadyLinked(addToIncidentDTO.getAlertList(), ctx);
             UtmIncident utmIncident = utmIncidentRepository.findById(addToIncidentDTO.getIncidentId()).orElseThrow(() -> new RuntimeException(ctx + ": Incident not found"));
             saveRelatedAlerts(addToIncidentDTO.getAlertList(), utmIncident.getId());
             String historyMessage = String.format("New %d alerts added to incident", addToIncidentDTO.getAlertList().size());
             utmIncidentHistoryService.createHistory(IncidentHistoryActionEnum.INCIDENT_ALERT_ADD, utmIncident.getId(), "New alerts added to incident", historyMessage);
+
+            eventService.createEvent(historyMessage, ApplicationEventType.INCIDENT_ALERTS_ADDED, extra);
+
             return utmIncident;
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
@@ -282,6 +296,22 @@ public class UtmIncidentService {
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             eventService.createEvent(msg, ApplicationEventType.ERROR);
+        }
+    }
+
+    private void validateAlertsNotAlreadyLinked(List<RelatedIncidentAlertsDTO> alertList, String ctx) {
+
+        List<String> alertIds = alertList.stream()
+                .map(RelatedIncidentAlertsDTO::getAlertId)
+                .collect(Collectors.toList());
+
+        List<String> alertsFound = utmIncidentAlertService.existsAnyAlert(alertIds);
+
+        if (!alertsFound.isEmpty()) {
+            String alertIdsList = String.join(", ", alertIds);
+            String msg = "Some alerts are already linked to another incident. Alert IDs: " + alertIdsList + ". Check the related incidents for more details.";
+
+            throw new IncidentAlertConflictException(ctx + ": " + msg);
         }
     }
 }

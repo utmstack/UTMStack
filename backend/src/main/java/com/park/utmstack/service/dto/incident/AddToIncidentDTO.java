@@ -1,9 +1,17 @@
 package com.park.utmstack.service.dto.incident;
 
+import com.park.utmstack.service.dto.auditable.AuditableDTO;
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-public class AddToIncidentDTO {
+@Setter
+@Getter
+public class AddToIncidentDTO implements AuditableDTO {
     @NotNull
     public Long incidentId;
     @NotNull
@@ -12,19 +20,15 @@ public class AddToIncidentDTO {
     public AddToIncidentDTO() {
     }
 
-    public Long getIncidentId() {
-        return incidentId;
-    }
+    @Override
+    public Map<String, Object> toAuditMap() {
+        List<String> alertIds = alertList.stream()
+                .map(RelatedIncidentAlertsDTO::getAlertId)
+                .toList();
 
-    public void setIncidentId(Long incidentId) {
-        this.incidentId = incidentId;
-    }
-
-    public List<RelatedIncidentAlertsDTO> getAlertList() {
-        return alertList;
-    }
-
-    public void setAlertList(List<RelatedIncidentAlertsDTO> alertList) {
-        this.alertList = alertList;
+        return Map.of(
+                "incidentId", incidentId,
+                "alertIds", alertIds
+        );
     }
 }
