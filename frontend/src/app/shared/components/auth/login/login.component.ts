@@ -143,7 +143,7 @@ export class LoginComponent implements OnInit {
             .then(() => this.spinner.hide());
         } else {
           this.spinner.show();
-          this.router.navigate(['/tfa-setup'])
+          this.router.navigate(['/enroll-tfa'])
             .then(() => this.spinner.hide());
         }
       })

@@ -6,6 +6,12 @@ import {SERVER_API_URL} from '../../app.constants';
 import {HttpCancelService} from '../../blocks/service/httpcancel.service';
 import {Account} from '../user/account.model';
 import {AuthServerProvider} from './auth-jwt.service';
+import {extractQueryParamsForNavigation} from "../../shared/util/query-params-to-filter.util";
+import {ADMIN_DEFAULT_EMAIL, ADMIN_ROLE} from "../../shared/constants/global.constant";
+import {StateStorageService} from "./state-storage.service";
+import {Router} from "@angular/router";
+import {NgxSpinnerService} from "ngx-spinner";
+import {UtmToastService} from "../../shared/alert/utm-toast.service";
 
 @Injectable({providedIn: 'root'})
 export class AccountService {
@@ -13,7 +19,13 @@ export class AccountService {
   private authenticated = false;
   private authenticationState = new Subject<any>();
 
-  constructor(private http: HttpClient, private authServerProvider: AuthServerProvider, private httpCancelService: HttpCancelService) {
+  constructor(private http: HttpClient,
+              private authServerProvider: AuthServerProvider,
+              private httpCancelService: HttpCancelService,
+              private stateStorageService: StateStorageService,
+              private router: Router,
+              private spinner: NgxSpinnerService,
+              private utmToast: UtmToastService) {
   }
 
   fetch(): Observable<HttpResponse<Account>> {
@@ -125,5 +137,24 @@ export class AccountService {
     if (this.userIdentity) {
       return this.userIdentity.openvasUserID;
     }
+  }
+
+  startNavigation() {
+    this.identity(true).then(account => {
+      if (account) {
+        const { path, queryParams } =
+          extractQueryParamsForNavigation(this.stateStorageService.getUrl() ? this.stateStorageService.getUrl() : '' );
+        if (path) {
+          this.stateStorageService.resetPreviousUrl();
+        }
+        const redirectTo = (account.authorities.includes(ADMIN_ROLE) && account.email === ADMIN_DEFAULT_EMAIL)
+          ? '/getting-started' : !!path ? path : '/dashboard/overview';
+        console.log(redirectTo);
+        this.router.navigate([redirectTo], {queryParams})
+          .then(() => this.spinner.hide());
+      } else {
+        this.utmToast.showError('Login error', 'User without privileges.');
+      }
+    });
   }
 }

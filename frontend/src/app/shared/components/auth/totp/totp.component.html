@@ -92,8 +92,8 @@
               </div>
 
               <!-- Help Actions -->
-              <!--<div class="text-center mt-3">
-                <ng-container *ngIf="method === TfaMethod.EMAIL">
+              <div class="text-center mt-3">
+                <ng-container *ngIf="method === TfaMethod.TOTP && showResend">
                   <small class="text-muted">
                     Didn't receive the code?
                     <button type="button"
@@ -107,7 +107,7 @@
                   </small>
                 </ng-container>
 
-                <ng-container *ngIf="method === TfaMethod.TOTP">
+                <!--<ng-container *ngIf="method === TfaMethod.TOTP">
                   <small class="text-muted">
                     Having trouble?
                     <button type="button"
@@ -117,8 +117,8 @@
                       Get Help
                     </button>
                   </small>
-                </ng-container>
-              </div>-->
+                </ng-container>-->
+              </div>
 
               <!-- Troubleshooting Help -->
               <!--<div *ngIf="showTroubleshooting && method === TfaMethod.TOTP"

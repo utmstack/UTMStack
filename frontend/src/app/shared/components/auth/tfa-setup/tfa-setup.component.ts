@@ -4,8 +4,9 @@ import {Router} from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import {UtmToastService} from '../../../alert/utm-toast.service';
 import {ThemeChangeBehavior} from '../../../behaviors/theme-change.behavior';
-import {TfaMethod, TfaService} from '../../../services/tfa/tfa.service';
+import {TfaMethod, TfaService, TfaStage} from '../../../services/tfa/tfa.service';
 import {AuthServerProvider} from "../../../../core/auth/auth-jwt.service";
+import {AccountService} from "../../../../core/auth/account.service";
 
 @Component({
   selector: 'app-tfa-setup',
@@ -38,19 +39,13 @@ export class TfaSetupComponent implements OnInit, OnDestroy {
                private router: Router,
                private tfaService: TfaService,
                private utmToastService: UtmToastService,
+               private accountService: AccountService,
                private authServerProvider: AuthServerProvider
   ) {}
 
   ngOnInit(): void {
     this.loginImage$ = this.themeChangeBehavior.$themeIcon.asObservable();
   }
-
-  ngOnDestroy(): void {
-    if (this.timerSubscription) {
-      this.timerSubscription.unsubscribe();
-    }
-  }
-
 
   selectMethod(method: TfaMethod): void {
     this.selectedMethod = method;
@@ -60,8 +55,9 @@ export class TfaSetupComponent implements OnInit, OnDestroy {
   }
 
   private initTfa(): void {
-    this.tfaService.initTfa({
-      method: this.selectedMethod
+    this.tfaService.enrollTfa({
+      method: this.selectedMethod,
+      stage: TfaStage.INIT
     }).subscribe((response) => {
       if (this.selectedMethod === TfaMethod.TOTP) {
         this.qrCodeUrl = response.delivery.target ?
@@ -108,8 +104,9 @@ export class TfaSetupComponent implements OnInit, OnDestroy {
 
   onSubmit() {
     this.verifying = true;
-    this.tfaService.verifyTfa({
+    this.tfaService.enrollTfa({
       method: this.selectedMethod,
+      stage: TfaStage.VERIFY,
       code: this.code
     }).subscribe(response => {
       this.verifying = false;
@@ -143,12 +140,16 @@ export class TfaSetupComponent implements OnInit, OnDestroy {
 
   completeSetup(): void {
     this.verifying = true;
-    this.tfaService.completeTfa({
+    this.tfaService.enrollTfa({
+      stage: TfaStage.COMPLETE,
       method: this.selectedMethod,
       enable: true
     }).subscribe(response => {
-      this.authServerProvider.tfaMethod = this.selectedMethod;
-      this.router.navigate(['/totp']);
+
+      /*this.authServerProvider.tfaMethod = this.selectedMethod;
+      this.router.navigate(['/totp']);*/
+      this.authServerProvider.storeAuthenticationToken(response.token);
+      this.accountService.startNavigation();
     }, error => {
       this.verifying = false;
       this.verifying = false;
@@ -161,5 +162,11 @@ export class TfaSetupComponent implements OnInit, OnDestroy {
    */
   skipSetup(): void {
     this.router.navigate(['/']);
+  }
+
+  ngOnDestroy(): void {
+    if (this.timerSubscription) {
+      this.timerSubscription.unsubscribe();
+    }
   }
 }

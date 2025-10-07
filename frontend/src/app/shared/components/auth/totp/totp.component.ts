@@ -25,9 +25,12 @@ export class TotpComponent implements OnInit, OnDestroy {
   loginImage$: Observable<string>;
   TfaMethod = TfaMethod;
   method: TfaMethod;
+  tfaExpireTimeInSec: number;
   isVerified = false;
   verificationCode = '';
   private expireSub: Subscription;
+  resending = false;
+  showResend = false;
 
   constructor(private authService: AuthServerProvider,
               private router: Router,
@@ -41,9 +44,12 @@ export class TotpComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.method = this.authService.tfaMethod;
+    this.tfaExpireTimeInSec = this.authService.tfaExpireTimeInSec;
     this.loginImage$ = this.themeChangeBehavior.$themeIcon.asObservable();
 
-    this.expireSub = interval(30 * 1000).subscribe(() => this.onExpire());
+    if (this.method === TfaMethod.TOTP) {
+      this.expireSub = interval(this.tfaExpireTimeInSec * 1000).subscribe(() => this.onExpire());
+    }
   }
 
 
@@ -66,7 +72,17 @@ export class TotpComponent implements OnInit, OnDestroy {
   }
 
   onExpire() {
-    this.authService.renewCode().subscribe();
+    console.log('TFA EXPIRED');
+    if (this.method === TfaMethod.EMAIL) {
+      this.authService.renewCode().subscribe();
+    } else {
+      this.showResend = true;
+    }
+  }
+
+  resendVerificationCode() {
+    this.authService.renewCode()
+      .subscribe(() => this.showResend = false);
   }
 
   clearError() {

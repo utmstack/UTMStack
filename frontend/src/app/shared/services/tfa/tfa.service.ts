@@ -3,6 +3,12 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
 
+export enum TfaStage {
+  INIT,
+  VERIFY,
+  COMPLETE
+}
+
 export enum TfaMethod {
   EMAIL = 'EMAIL',
   TOTP = 'TOTP'
@@ -38,11 +44,19 @@ export interface TfaVerifyResponse {
   expiresInSeconds?: number;
 }
 
+export interface TfaEnrollRequest {
+  initMethod: TfaMethod;
+  verifyMethod?: TfaMethod;
+  verifyCode?: string;
+  completeRequest?: TfaSaveRequest;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class TfaService {
   private readonly baseUrl = `${SERVER_API_URL}api/tfa`;
+  private readonly enrollBaseUrl = `${SERVER_API_URL}api/enrollment/tfa`;
 
   constructor(private http: HttpClient) {}
 
@@ -57,4 +71,11 @@ export class TfaService {
   completeTfa(request: TfaSaveRequest): Observable<TfaVerifyResponse> {
     return this.http.post<TfaVerifyResponse>(`${this.baseUrl}/complete`, request);
   }
+
+
+  enrollTfa(request: any): Observable<any> {
+    return this.http.post<TfaVerifyResponse>(`${this.enrollBaseUrl}`, request);
+  }
+
+
 }

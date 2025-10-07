@@ -14,6 +14,7 @@ import {CSRFService} from './csrf.service';
 export class AuthServerProvider {
 
   private _tfaMethod: TfaMethod;
+  private _tfaExpireTimeInSec: number;
 
   constructor(private http: HttpClient,
               private $localStorage: LocalStorageService,
@@ -37,6 +38,7 @@ export class AuthServerProvider {
       this.storeAuthenticationToken(resp.body.token);
       if (resp.body.method && resp.body.forceTfa) {
         this.tfaMethod = resp.body.method as TfaMethod;
+        this.tfaExpireTimeInSec = resp.body.tfaExpiresInSeconds;
       }
       return resp.body;
     };
@@ -46,7 +48,7 @@ export class AuthServerProvider {
   }
 
   renewCode(): Observable<any> {
-    return this.http.get(SERVER_API_URL + 'api/tfa/generate-challenge');
+    return this.http.get(SERVER_API_URL + 'api/tfa/refresh');
   }
 
   verifyCode(code): Observable<any> {
@@ -54,7 +56,7 @@ export class AuthServerProvider {
       this.storeAuthenticationToken(resp.body.id_token);
       return resp.body.authenticated;
     };
-    return this.http.post(SERVER_API_URL + 'api/tfa/verifyCode',
+    return this.http.post(SERVER_API_URL + 'api/tfa/verify-code',
       code, {observe: 'response'}).pipe(map(authenticateSuccess.bind(this)));
   }
 
@@ -110,6 +112,14 @@ export class AuthServerProvider {
 
   set tfaMethod(ftaMethod: TfaMethod) {
     this._tfaMethod = ftaMethod;
+  }
+
+  get tfaExpireTimeInSec(): number {
+    return this._tfaExpireTimeInSec;
+  }
+
+  set tfaExpireTimeInSec(tfaExpireTimeInSec: number) {
+    this._tfaExpireTimeInSec = tfaExpireTimeInSec;
   }
 
 }
