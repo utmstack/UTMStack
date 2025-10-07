@@ -13,5 +13,6 @@ public class LoginResponseDTO {
     private boolean forceTfa;
     private String method;
     private String token;
+    private long tfaExpiresInSeconds;
 }
 

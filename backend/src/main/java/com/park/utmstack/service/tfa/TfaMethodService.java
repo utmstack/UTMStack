@@ -18,5 +18,7 @@ public interface TfaMethodService {
 
     void regenerateChallenge(User user);
 
+    long expirationTimeSeconds();
+
 }
 

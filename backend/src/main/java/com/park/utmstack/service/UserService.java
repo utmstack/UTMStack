@@ -218,6 +218,8 @@ public class UserService {
                 .orElseThrow(() -> new NoSuchElementException(String.format("User %1$s not found", userLogin)));
             user.setTfaMethod(tfaMethod);
             user.setTfaSecret(tfaSecret);
+
+            userRepository.save(user);
     }
 
     public void deleteUser(String login) {

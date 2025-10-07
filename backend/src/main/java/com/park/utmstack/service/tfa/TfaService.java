@@ -42,12 +42,14 @@ public class TfaService {
         selected.persistConfiguration(user);
     }
 
-    public void generateChallenge(User user) {
+    public long generateChallenge(User user) {
 
         TfaMethod method = TfaMethod.valueOf(user.getTfaMethod());
 
         TfaMethodService selected = getMethodService(method);
         selected.generateChallenge(user);
+
+        return selected.expirationTimeSeconds();
     }
 
     public void regenerateChallenge(User user) {

@@ -86,7 +86,7 @@ public class TfaResource {
         }
     }
 
-    @GetMapping("/generate-challenge")
+    @GetMapping("/refresh")
     public ResponseEntity<Void> generateChallenge() {
         final String ctx = CLASSNAME + ".generateChallenge";
         try {
@@ -148,7 +148,7 @@ public class TfaResource {
             successType = ApplicationEventType.AUTH_SUCCESS,
             successMessage = "Login successfully completed"
     )
-    @PostMapping("/verifyCode")
+    @PostMapping("/verify-code")
     public ResponseEntity<JWTToken> verifyCode(@RequestBody String code, HttpServletRequest request) {
         final String ctx = CLASSNAME + ".verifyCode";
         User user = userService.getCurrentUserLogin();
