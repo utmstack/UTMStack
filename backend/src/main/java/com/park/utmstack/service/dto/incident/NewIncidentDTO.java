@@ -1,10 +1,17 @@
 package com.park.utmstack.service.dto.incident;
 
+import com.park.utmstack.service.dto.auditable.AuditableDTO;
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.List;
+import java.util.Map;
 
-public class NewIncidentDTO {
+@Setter
+@Getter
+public class NewIncidentDTO implements AuditableDTO {
     @NotNull
     @Pattern(regexp = "^[^\"]*$", message = "Double quotes are not allowed")
     public String incidentName;
@@ -16,36 +23,16 @@ public class NewIncidentDTO {
     public NewIncidentDTO() {
     }
 
-    public String getIncidentName() {
-        return incidentName;
-    }
+    @Override
+    public Map<String, Object> toAuditMap() {
+        List<String> alertIds = alertList.stream()
+                .map(RelatedIncidentAlertsDTO::getAlertId)
+                .toList();
 
-    public void setIncidentName(String incidentName) {
-        this.incidentName = incidentName;
-    }
-
-    public String getIncidentDescription() {
-        return incidentDescription;
-    }
-
-    public void setIncidentDescription(String incidentDescription) {
-        this.incidentDescription = incidentDescription;
-    }
-
-    public String getIncidentAssignedTo() {
-        return incidentAssignedTo;
-    }
-
-    public void setIncidentAssignedTo(String incidentAssignedTo) {
-        this.incidentAssignedTo = incidentAssignedTo;
-    }
-
-    public List<RelatedIncidentAlertsDTO> getAlertList() {
-        return alertList;
-    }
-
-    public void setAlertList(List<RelatedIncidentAlertsDTO> alertList) {
-        this.alertList = alertList;
+        return Map.of(
+                "incidentName", incidentName,
+                "alertIds", alertIds
+        );
     }
 
     @Deprecated

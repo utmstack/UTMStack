@@ -17,7 +17,6 @@ import com.park.utmstack.service.dto.incident.AlertIncidentStatusChangeDTO;
 import com.park.utmstack.service.dto.incident.NewIncidentDTO;
 import com.park.utmstack.service.dto.incident.RelatedIncidentAlertsDTO;
 import com.park.utmstack.service.incident.util.ResolveIncidentStatus;
-import com.park.utmstack.util.enums.AlertStatus;
 import com.park.utmstack.util.exceptions.IncidentAlertConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,17 +137,6 @@ public class UtmIncidentService {
     public UtmIncident createIncident(NewIncidentDTO newIncidentDTO) {
         final String ctx = CLASSNAME + ".createIncident";
         try {
-            List<RelatedIncidentAlertsDTO> alertIds = newIncidentDTO.getAlertList();
-
-            String alertsIds = alertIds.stream().map(RelatedIncidentAlertsDTO::getAlertId).collect(Collectors.joining(","));
-            Map<String, Object> extra = Map.of(
-                    "alertIds", alertsIds,
-                    "source", "service"
-            );
-            String attemptMsg = String.format("Attempt to create incident with %d alerts", newIncidentDTO.getAlertList().size());
-
-            eventService.createEvent(attemptMsg, ApplicationEventType.INCIDENT_CREATION_ATTEMPT, extra);
-
             validateAlertsNotAlreadyLinked(newIncidentDTO.getAlertList(), ctx);
 
             UtmIncident utmIncident = new UtmIncident();
@@ -169,8 +157,6 @@ public class UtmIncidentService {
 
             String historyMessage = String.format("Incident created with %d alerts", newIncidentDTO.getAlertList().size());
             utmIncidentHistoryService.createHistory(IncidentHistoryActionEnum.INCIDENT_CREATED, savedIncident.getId(), "Incident Created", historyMessage);
-
-            eventService.createEvent(historyMessage, ApplicationEventType.INCIDENT_CREATED, extra);
 
             return savedIncident;
         } catch (Exception e) {
