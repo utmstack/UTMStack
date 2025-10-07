@@ -143,19 +143,7 @@ public class UtmIncidentResource {
             if (CollectionUtils.isEmpty(addToIncidentDTO.getAlertList())) {
                 throw new BadRequestAlertException("Add utmIncident cannot already have an empty related alerts", ENTITY_NAME, "alertList");
             }
-            List<String> alertIds = addToIncidentDTO.getAlertList().stream()
-                    .map(RelatedIncidentAlertsDTO::getAlertId)
-                    .collect(Collectors.toList());
 
-            List<String> alertsFound = utmIncidentAlertService.existsAnyAlert(alertIds);
-
-            if (!alertsFound.isEmpty()) {
-                String alertIdsList = String.join(", ", alertIds);
-                String msg = "Some alerts are already linked to another incident. Alert IDs: " + alertIdsList + ". Check the related incidents for more details.";
-                log.error(msg);
-                applicationEventService.createEvent(ctx + ": " + msg , ApplicationEventType.ERROR);
-                return ResponseUtil.buildErrorResponse(HttpStatus.CONFLICT, utmIncidentAlertService.formatAlertMessage(alertsFound));
-            }
             UtmIncident result = utmIncidentService.addAlertsIncident(addToIncidentDTO);
             return ResponseEntity.created(new URI("/api/utm-incidents/add-alerts" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
