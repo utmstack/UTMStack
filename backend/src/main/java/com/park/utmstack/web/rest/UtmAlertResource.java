@@ -73,10 +73,6 @@ public class UtmAlertResource {
     public ResponseEntity<Void> updateAlertNotes(@RequestBody(required = false) String notes, @RequestParam String alertId) {
         final String ctx = CLASSNAME + ".updateAlertNotes";
         utmAlertService.updateNotes(alertId, notes);
-        applicationEventService.createEvent(
-                "Alert notes updated successfully",
-                ApplicationEventType.ALERT_NOTE_UPDATE_SUCCESS
-        );
         return ResponseEntity.ok().build();
     }
 
