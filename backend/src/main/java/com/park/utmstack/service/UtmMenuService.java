@@ -17,7 +17,7 @@ public interface UtmMenuService {
      */
     UtmMenu save(UtmMenu menu) throws Exception;
 
-    List<UtmMenu> saveAll(List<UtmMenu> menus) throws Exception;
+    List<UtmMenu> saveAll(List<UtmMenu> menus);
 
     /**
      * Get all UtmMenu.

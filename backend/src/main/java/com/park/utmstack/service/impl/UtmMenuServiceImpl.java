@@ -57,13 +57,8 @@ public class UtmMenuServiceImpl implements UtmMenuService {
     }
 
     @Override
-    public List<UtmMenu> saveAll(List<UtmMenu> menus) throws Exception {
-        final String ctx = CLASS_NAME + ".saveAll";
-        try {
-            return menuRepository.saveAll(menus);
-        } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
-        }
+    public List<UtmMenu> saveAll(List<UtmMenu> menus) {
+        return menuRepository.saveAll(menus);
     }
 
     @Override
