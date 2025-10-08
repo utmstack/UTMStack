@@ -72,8 +72,7 @@ export class TotpComponent implements OnInit, OnDestroy {
   }
 
   onExpire() {
-    console.log('TFA EXPIRED');
-    if (this.method === TfaMethod.EMAIL) {
+    if (this.method === TfaMethod.TOTP) {
       this.authService.renewCode().subscribe();
     } else {
       this.showResend = true;
