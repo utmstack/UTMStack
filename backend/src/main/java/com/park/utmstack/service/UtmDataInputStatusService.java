@@ -24,6 +24,7 @@ import com.park.utmstack.util.enums.AlertSeverityEnum;
 import com.park.utmstack.util.enums.AlertStatus;
 import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
 import com.utmstack.opensearch_connector.types.BucketAggregation;
+import lombok.RequiredArgsConstructor;
 import org.apache.http.conn.util.InetAddressUtils;
 import org.opensearch.client.json.JsonData;
 import org.opensearch.client.opensearch._types.SortOrder;
@@ -51,6 +52,7 @@ import java.util.stream.Collectors;
  * Service Implementation for managing UtmDataInputStatus.
  */
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class UtmDataInputStatusService {
 
@@ -65,22 +67,6 @@ public class UtmDataInputStatusService {
     private final UtmDataTypesRepository dataTypesRepository;
     private final UtmNetworkScanRepository networkScanRepository;
 
-
-    public UtmDataInputStatusService(UtmDataInputStatusRepository dataInputStatusRepository,
-                                     UtmServerModuleService serverModuleService,
-                                     ApplicationEventService applicationEventService,
-                                     UtmNetworkScanService networkScanService,
-                                     ElasticsearchService elasticsearchService,
-                                     UtmDataTypesRepository dataTypesRepository,
-                                     UtmNetworkScanRepository networkScanRepository) {
-        this.dataInputStatusRepository = dataInputStatusRepository;
-        this.serverModuleService = serverModuleService;
-        this.applicationEventService = applicationEventService;
-        this.networkScanService = networkScanService;
-        this.elasticsearchService = elasticsearchService;
-        this.dataTypesRepository = dataTypesRepository;
-        this.networkScanRepository = networkScanRepository;
-    }
 
     /**
      * Save a utmDataInputStatus.

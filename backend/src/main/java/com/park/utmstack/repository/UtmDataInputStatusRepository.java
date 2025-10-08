@@ -52,4 +52,7 @@ public interface UtmDataInputStatusRepository extends JpaRepository<UtmDataInput
 
     Optional<UtmDataInputStatus> findByDataType(String dataType);
     Optional<UtmDataInputStatus> findBySourceAndDataType(String source, String dataType);
+
+    @Query("SELECT s FROM UtmDataInputStatus s WHERE s.source = :ip OR s.source = :hostname")
+    List<UtmDataInputStatus> findByIpOrHostname(@Param("ip") String ip, @Param("hostname") String hostname);
 }
