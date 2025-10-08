@@ -31,7 +31,7 @@ public class UtmMenuServiceImpl implements UtmMenuService {
     }
 
     @Override
-    public UtmMenu save(UtmMenu menu) throws Exception {
+    public UtmMenu save(UtmMenu menu)  {
         final String ctx = CLASS_NAME + ".save";
 
         try {
@@ -52,17 +52,17 @@ public class UtmMenuServiceImpl implements UtmMenuService {
 
             return menuRepository.save(menu);
         } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
+            throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
 
     @Override
-    public List<UtmMenu> saveAll(List<UtmMenu> menus) throws Exception {
+    public List<UtmMenu> saveAll(List<UtmMenu> menus)  {
         final String ctx = CLASS_NAME + ".saveAll";
         try {
             return menuRepository.saveAll(menus);
         } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
+            throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
 
@@ -91,9 +91,9 @@ public class UtmMenuServiceImpl implements UtmMenuService {
 
     /**
      * @return
-     * @throws Exception
+     * @
      */
-    public List<MenuType> getMenus(boolean includeModulesMenus) throws Exception {
+    public List<MenuType> getMenus(boolean includeModulesMenus)  {
         final String ctx = CLASS_NAME + ".getMenus";
         try {
             List<UtmMenu> parents = menuRepository.findAllByParentIdIsNull();
@@ -140,7 +140,7 @@ public class UtmMenuServiceImpl implements UtmMenuService {
             menus.sort(Comparator.comparing(MenuType::getPosition));
             return menus;
         } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
+            throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
 
@@ -156,7 +156,7 @@ public class UtmMenuServiceImpl implements UtmMenuService {
     /**
      * @param menus
      */
-    public Boolean saveMenuStructure(List<MenuType> menus) throws Exception {
+    public Boolean saveMenuStructure(List<MenuType> menus)  {
         final String ctx = CLASS_NAME + ".saveMenuStructure";
 
         try {
@@ -178,36 +178,36 @@ public class UtmMenuServiceImpl implements UtmMenuService {
             }
             return true;
         } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
+            throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
 
-    private UtmMenu updateMenuStructure(MenuType menu) throws Exception {
+    private UtmMenu updateMenuStructure(MenuType menu)  {
         final String ctx = CLASS_NAME + ".updateMenuStructure";
         try {
             return save(new UtmMenu(menu));
         } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
+            throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
 
     @Override
-    public List<UtmMenu> findAllByModuleNameShort(String nameShort) throws Exception {
+    public List<UtmMenu> findAllByModuleNameShort(String nameShort)  {
         final String ctx = CLASS_NAME + ".findAllByModuleNameShort";
         try {
             return menuRepository.findAllByModuleNameShort(nameShort);
         } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
+            throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
 
     @Override
-    public void deleteSysMenusNotIn(List<Long> ids) throws Exception {
+    public void deleteSysMenusNotIn(List<Long> ids)  {
         final String ctx = CLASS_NAME + ".findAllByModuleNameShort";
         try {
             menuRepository.deleteSysMenusNotIn(ids);
         } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
+            throw new RuntimeException(ctx + ": " + e.getMessage());
         }
 
     }

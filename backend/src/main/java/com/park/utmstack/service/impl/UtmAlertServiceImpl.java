@@ -8,6 +8,7 @@ import com.park.utmstack.domain.application_modules.enums.ModuleName;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.domain.index_pattern.enums.SystemIndexPattern;
+import com.park.utmstack.domain.shared_types.ApplicationLayer;
 import com.park.utmstack.domain.shared_types.alert.AlertType;
 import com.park.utmstack.domain.shared_types.LogType;
 import com.park.utmstack.domain.shared_types.static_dashboard.CardType;
@@ -170,7 +171,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
             Map<String, Object> extra = Map.of(
                     "alertIds", alertsIds,
                     "newStatus", status,
-                    "source", "service"
+                    "layer", ApplicationLayer.SERVICE.name()
             );
 
             String attemptMsg = String.format("Attempt to update status to %1$s for alerts with ids: %2$s",

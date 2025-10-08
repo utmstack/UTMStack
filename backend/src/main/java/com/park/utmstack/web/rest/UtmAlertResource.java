@@ -4,6 +4,9 @@ import com.park.utmstack.aop.logging.AuditEvent;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.service.UtmAlertService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.service.dto.alert.ConvertToIncidentRequestBody;
+import com.park.utmstack.service.dto.alert.UpdateAlertStatusRequestBody;
+import com.park.utmstack.service.dto.alert.UpdateAlertTagsRequestBody;
 import com.park.utmstack.util.AlertUtil;
 import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.enums.AlertStatus;
@@ -70,10 +73,6 @@ public class UtmAlertResource {
     public ResponseEntity<Void> updateAlertNotes(@RequestBody(required = false) String notes, @RequestParam String alertId) {
         final String ctx = CLASSNAME + ".updateAlertNotes";
         utmAlertService.updateNotes(alertId, notes);
-        applicationEventService.createEvent(
-                "Alert notes updated successfully",
-                ApplicationEventType.ALERT_NOTE_UPDATE_SUCCESS
-        );
         return ResponseEntity.ok().build();
     }
 
@@ -86,7 +85,7 @@ public class UtmAlertResource {
     )
     public ResponseEntity<Void> updateAlertTags(@RequestBody @Valid UpdateAlertTagsRequestBody body) {
         final String ctx = CLASSNAME + ".updateAlertTags";
-        utmAlertService.updateTags(body.getAlertIds(), body.getTags(), body.isCreateRule());
+        utmAlertService.updateTags(body.getAlertIds(), body.getTags(), body.getCreateRule());
         return ResponseEntity.ok().build();
     }
 
@@ -115,115 +114,6 @@ public class UtmAlertResource {
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
-        }
-    }
-
-    public static class UpdateAlertTagsRequestBody {
-        @NotNull
-        private List<String> alertIds;
-        private List<String> tags;
-        @NotNull
-        private Boolean createRule;
-
-        public List<String> getAlertIds() {
-            return alertIds;
-        }
-
-        public void setAlertIds(List<String> alertIds) {
-            this.alertIds = alertIds;
-        }
-
-        public List<String> getTags() {
-            return tags;
-        }
-
-        public void setTags(List<String> tags) {
-            this.tags = tags;
-        }
-
-        public Boolean isCreateRule() {
-            return createRule;
-        }
-
-        public void setCreateRule(Boolean createRule) {
-            this.createRule = createRule;
-        }
-    }
-
-    @Data
-    public static class UpdateAlertStatusRequestBody {
-        @NotNull
-        private List<String> alertIds;
-        private String statusObservation;
-        @NotNull
-        private int status;
-        boolean addFalsePositiveTag;
-    }
-
-    public static class UpdateAlertSolutionRequestBody {
-        @NotNull
-        private String alertName;
-        @NotNull
-        private String solution;
-
-        public String getAlertName() {
-            return alertName;
-        }
-
-        public void setAlertName(String alertName) {
-            this.alertName = alertName;
-        }
-
-        public String getSolution() {
-            return solution;
-        }
-
-        public void setSolution(String solution) {
-            this.solution = solution;
-        }
-    }
-
-    public static class ConvertToIncidentRequestBody {
-        @NotNull
-        private List<String> eventIds;
-        @NotNull
-        @Pattern(regexp = "^[^\"]*$", message = "Double quotes are not allowed")
-        private String incidentName;
-        @NotNull
-        private Integer incidentId;
-        @NotNull
-        private String incidentSource;
-
-        public List<String> getEventIds() {
-            return eventIds;
-        }
-
-        public void setEventIds(List<String> eventIds) {
-            this.eventIds = eventIds;
-        }
-
-        public String getIncidentName() {
-            return incidentName;
-        }
-
-        public void setIncidentName(String incidentName) {
-            this.incidentName = incidentName;
-        }
-
-        public Integer getIncidentId() {
-            return incidentId;
-        }
-
-        public void setIncidentId(Integer incidentId) {
-            this.incidentId = incidentId;
-        }
-
-        public String getIncidentSource() {
-            return incidentSource;
-        }
-
-        public void setIncidentSource(String incidentSource) {
-            this.incidentSource = incidentSource;
         }
     }
 }

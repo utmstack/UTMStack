@@ -3,6 +3,7 @@ package com.park.utmstack.aop.logging.impl;
 import com.park.utmstack.aop.logging.AuditEvent;
 import com.park.utmstack.aop.logging.NoLogException;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
+import com.park.utmstack.domain.shared_types.ApplicationLayer;
 import com.park.utmstack.loggin.LogContextBuilder;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.auditable.AuditableDTO;
@@ -31,22 +32,21 @@ public class AuditAspect {
     @Around("@annotation(auditEvent)")
     public Object logAuditEvent(ProceedingJoinPoint joinPoint, AuditEvent auditEvent) throws Throwable {
         return handleAudit(joinPoint, auditEvent.attemptType(), auditEvent.successType(),
-                auditEvent.attemptMessage(), auditEvent.successMessage(), "controller");
+                auditEvent.attemptMessage(), auditEvent.successMessage());
     }
 
     private Object handleAudit(ProceedingJoinPoint joinPoint,
                                ApplicationEventType attemptType,
                                ApplicationEventType successType,
                                String attemptMessage,
-                               String successMessage,
-                               String layer) throws Throwable {
+                               String successMessage) throws Throwable {
 
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         String context = signature.getDeclaringType().getSimpleName() + "." + signature.getMethod().getName();
         MDC.put("context", context);
 
         Map<String, Object> extra = extractAuditData(joinPoint.getArgs());
-        extra.put("layer", layer);
+        extra.put("layer", ApplicationLayer.CONTROLLER.getValue());
 
         try {
             applicationEventService.createEvent(attemptMessage, attemptType, extra);
