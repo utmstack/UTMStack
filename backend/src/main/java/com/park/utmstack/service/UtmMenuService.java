@@ -52,7 +52,7 @@ public interface UtmMenuService {
 
     Boolean saveMenuStructure(List<MenuType> menus) throws Exception;
 
-    List<UtmMenu> findAllByModuleNameShort(String nameShort) throws Exception;
+    List<UtmMenu> findAllByModuleNameShort(String nameShort);
 
     void deleteSysMenusNotIn(@Param("ids") List<Long> ids) throws Exception;
 
