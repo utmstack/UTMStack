@@ -44,7 +44,6 @@ public class TotpTfaService implements TfaMethodService {
     }
 
     @Override
-    @Loggable
     public TfaInitResponse initiateSetup(User user) {
         String secret = authenticator.createCredentials().getKey();
         long expiresAt = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Constants.EXPIRES_IN_SECONDS_TOTP * 10);
@@ -61,7 +60,6 @@ public class TotpTfaService implements TfaMethodService {
     }
 
     @Override
-    @Loggable
     public TfaVerifyResponse verifyCode(User user, String code) {
         TfaSetupState tfaSetupState = cache.getState(user.getLogin(), TfaMethod.TOTP)
                 .orElseThrow(() -> new IllegalStateException("No TFA setup found for user: " + user.getLogin()));
@@ -78,7 +76,6 @@ public class TotpTfaService implements TfaMethodService {
 
 
     @Override
-    @Loggable
     public void persistConfiguration(User user) {
         String secret = cache.getState(user.getLogin(), TfaMethod.TOTP)
                 .orElseThrow(() -> new IllegalStateException("No TFA setup found for user: " + user.getLogin()))
@@ -88,7 +85,6 @@ public class TotpTfaService implements TfaMethodService {
     }
 
     @Override
-    @Loggable
     public void generateChallenge(User user) {
         cache.clear(user.getLogin(), TfaMethod.TOTP);
         String secret = user.getTfaSecret();
@@ -97,7 +93,6 @@ public class TotpTfaService implements TfaMethodService {
     }
 
     @Override
-    @Loggable
     public void regenerateChallenge(User user) {
 
         TfaSetupState state = cache.getState(user.getLogin(), TfaMethod.TOTP)

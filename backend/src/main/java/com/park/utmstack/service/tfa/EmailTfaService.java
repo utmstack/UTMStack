@@ -77,7 +77,6 @@ public class EmailTfaService implements TfaMethodService {
     }
 
     @Override
-    @Loggable
     public void persistConfiguration(User user) {
         String secret = cache.getState(user.getLogin(), TfaMethod.EMAIL)
                 .orElseThrow(() -> new IllegalStateException("No TFA setup found for user: " + user.getLogin()))
@@ -87,7 +86,6 @@ public class EmailTfaService implements TfaMethodService {
     }
 
     @Override
-    @Loggable
     public void generateChallenge(User user) {
         String secret = user.getTfaSecret();
         String code = tfaService.generateCode(secret);
@@ -99,7 +97,6 @@ public class EmailTfaService implements TfaMethodService {
     }
 
     @Override
-    @Loggable
     public void regenerateChallenge(User user) {
 
         TfaSetupState state = cache.getState(user.getLogin(), TfaMethod.EMAIL)
