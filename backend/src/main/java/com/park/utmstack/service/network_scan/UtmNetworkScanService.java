@@ -16,6 +16,7 @@ import com.park.utmstack.service.dto.network_scan.NetworkScanDTO;
 import com.park.utmstack.util.PdfUtil;
 import com.park.utmstack.util.UtilPagination;
 import com.park.utmstack.web.rest.errors.AgentNotfoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.domain.Page;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
  * Service Implementation for managing UtmNetworkScan.
  */
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class UtmNetworkScanService {
 
@@ -50,22 +52,6 @@ public class UtmNetworkScanService {
     private final UtmImagesService imagesService;
     private final UtmDataInputStatusRepository utmDataInputStatusRepository;
     private final AgentGrpcService agentGrpcService;
-
-    public UtmNetworkScanService(UtmNetworkScanRepository networkScanRepository,
-                                 UtmAssetMetricsRepository assetMetricsRepository,
-                                 EntityManager em, PdfUtil pdfUtil,
-                                 UtmPortsService portsService, UtmImagesService imagesService,
-                                 UtmDataInputStatusRepository utmDataInputStatusRepository,
-                                 AgentGrpcService agentGrpcService) {
-        this.networkScanRepository = networkScanRepository;
-        this.assetMetricsRepository = assetMetricsRepository;
-        this.em = em;
-        this.pdfUtil = pdfUtil;
-        this.portsService = portsService;
-        this.imagesService = imagesService;
-        this.utmDataInputStatusRepository = utmDataInputStatusRepository;
-        this.agentGrpcService = agentGrpcService;
-    }
 
     public void saveOrUpdateCustomAsset(NetworkScanDTO assetDto) throws Exception {
         final String ctx = CLASSNAME + ".saveOrUpdateCustomAsset";
@@ -170,7 +156,7 @@ public class UtmNetworkScanService {
         try {
             return networkScanRepository.findById(id).map(m -> {
                 m.setMetrics(assetMetricsRepository.findAllByAssetName(m.getAssetName()));
-                return new NetworkScanDTO(m, true);
+                return new NetworkScanDTO(m, true, utmDataInputStatusRepository);
             });
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
@@ -189,7 +175,7 @@ public class UtmNetworkScanService {
         final String ctx = CLASSNAME + ".searchByFilters";
         try {
             Page<UtmNetworkScan> page = filter(f, p);
-            return page.map(m -> new NetworkScanDTO(m, false));
+            return page.map(m -> new NetworkScanDTO(m, false, utmDataInputStatusRepository));
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }

@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 public enum CompositePropertyFilter implements Property {
 
     RULE_DATA_TYPES(new String[]{"u0.dataType"}, "UtmCorrelationRules", new String[]{"p.dataTypes"}),
-    DATA_TYPES(new String[]{"u0.dataType", "u1.dataType"}, "UtmNetworkScan", new String[]{"p.dataInputSourceList", "p.dataInputIpList"});
+
+    DATA_TYPES(new String[]{"u.dataType"}, "UtmNetworkScan", new String[]{});
 
     private final String[] propertyNames;
 
@@ -29,15 +30,17 @@ public enum CompositePropertyFilter implements Property {
 
     @Override
     public String getJoinTable() {
-        StringBuilder joinClause = new StringBuilder();
+        if (this == DATA_TYPES) {
+            return " JOIN UtmDataInputStatus u ON u.source = p.assetIp OR u.source = p.assetName";
+        }
 
+        StringBuilder joinClause = new StringBuilder();
         for (int i = 0; i < joinTables.length; i++) {
             joinClause.append(" LEFT JOIN ")
                     .append(joinTables[i])
                     .append(" u")
                     .append(i);
         }
-
         return joinClause.toString();
     }
 }
