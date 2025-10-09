@@ -62,7 +62,7 @@ export class AlertActionSelectComponent implements OnInit, OnDestroy {
       icon: REVIEW_ICON, background: 'border-info-400 text-info-400' },
     {label: 'Completed', value: AlertStatusEnum.COMPLETED, group: 'Estado', icon: CLOSED_ICON,
       background: 'border-blue-800 text-blue-800'},
-    {label: 'Completed as False Positive', value: AlertStatusEnum.COMPLETED, group: 'Estado', icon: 'icon-checkmark',
+    {label: 'Completed as False Positive', value: AlertStatusEnum.COMPLETED_AS_FALSE_POSITIVE, group: 'Estado', icon: 'icon-checkmark',
       background: 'border-warning-400 text-warning-800'},
       /*subActions: [
         { label: 'Completed', value: 'completed_plain', group: 'Estado', icon: CLOSED_ICON,
@@ -163,26 +163,29 @@ export class AlertActionSelectComponent implements OnInit, OnDestroy {
   changeStatus(status: number) {
     const alert = this.alert;
     this.changing = true;
-    if (status === AlertStatusEnum.COMPLETED) {
-      const modalRef = this.modalService.open(AlertCompleteComponent, {centered: true});
-      modalRef.componentInstance.alertsIDs = [alert.id];
-      modalRef.componentInstance.canCreateRule = true;
-      modalRef.componentInstance.status = status;
-      modalRef.componentInstance.alert = this.alert;
-      modalRef.componentInstance.statusClose.subscribe(() => {
-        this.changing = false;
-      });
-      modalRef.componentInstance.statusChange.subscribe((statusChange) => {
-        this.changing = false;
-        if (statusChange === 'success') {
-          this.statusChange.emit(status);
-          this.alertUpdateHistoryBehavior.$refreshHistory.next(true);
-          this.statusChangedSuccess(status);
-          this.syncIncidentAlertStatus([this.alert.id], status);
-        } else {
+    if (status === AlertStatusEnum.COMPLETED || status === AlertStatusEnum.COMPLETED_AS_FALSE_POSITIVE) {
+        console.log('status', status);
+        const modalRef = this.modalService.open(AlertCompleteComponent, {centered: true});
+        modalRef.componentInstance.alertsIDs = [alert.id];
+        modalRef.componentInstance.canCreateRule = true;
+        modalRef.componentInstance.status = AlertStatusEnum.COMPLETED;
+        modalRef.componentInstance.asFalsePositive = status === AlertStatusEnum.COMPLETED_AS_FALSE_POSITIVE;
+        modalRef.componentInstance.alert = this.alert;
+        modalRef.componentInstance.statusClose.subscribe(() => {
           this.changing = false;
-        }
-      });
+        });
+
+        modalRef.componentInstance.statusChange.subscribe((statusChange) => {
+          this.changing = false;
+          if (statusChange === 'success') {
+            this.statusChange.emit(status);
+            this.alertUpdateHistoryBehavior.$refreshHistory.next(true);
+            this.statusChangedSuccess(status);
+            this.syncIncidentAlertStatus([this.alert.id], status);
+          } else {
+            this.changing = false;
+          }
+        });
     } else {
       this.alertServiceManagement.updateAlertStatus([this.alert.id], status).subscribe(al => {
         this.statusChangedSuccess(status);

@@ -10,7 +10,7 @@
   <div class="d-flex justify-content-between align-items-center span-small-icon">
     <div [ngClass]="background" class="border-left-1 p-1 px-2">
       <i [ngClass]="changing ? 'icon-spinner2 spinner' :icon"></i>&nbsp;
-      <span>{{label|translate}}</span>
+      <span>{{ label | translate}}</span>
     </div>
     <span class="cursor-pointer d-flex justify-content-center text-grey-100">
       <i [ngClass]="popover.isOpen() ? 'icon-arrow-right32' : 'icon-arrow-down32'" class="p-1 top-0"></i>

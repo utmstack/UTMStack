@@ -20,6 +20,7 @@ export class AlertCompleteComponent implements OnInit {
   @Input() status: number;
   @Input() alert: any;
   @Input() canCreateRule = true;
+  @Input() asFalsePositive = false;
   CLOSED = CLOSED;
   IGNORED = IGNORED;
   @Output() statusChange: EventEmitter<string> = new EventEmitter();
@@ -43,7 +44,7 @@ export class AlertCompleteComponent implements OnInit {
   changeStatus() {
     this.creating = true;
     this.alertServiceManagement.updateAlertStatus(this.alertsIDs,
-      this.status, this.observations).subscribe(al => {
+      this.status, this.observations, this.asFalsePositive).subscribe(al => {
       if (this.canCreateRule && this.rule) {
         this.alertRulesService.create(this.rule).subscribe(value => {
           this.utmToastService.showSuccessBottom('Rule ' + this.rule.name + ' created successfully');

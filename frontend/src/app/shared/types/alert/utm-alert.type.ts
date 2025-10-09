@@ -48,6 +48,7 @@ export enum AlertStatusEnum {
   IN_REVIEW = 3,
   IGNORED = 4,
   COMPLETED = 5,
+  COMPLETED_AS_FALSE_POSITIVE = 6,
 
 }
 

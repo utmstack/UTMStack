@@ -85,8 +85,6 @@ export class StatusFilterComponent implements OnInit, OnDestroy {
             const staIndex = this.statusValueArray.findIndex(arr => arr.key === statusNum);
             this.statusValueArray[staIndex].value = Number(value.body[keys]);
           }
-
-          console.log('Response:', value.body);
         });
       });
     });
