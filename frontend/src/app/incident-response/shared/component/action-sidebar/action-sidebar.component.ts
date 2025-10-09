@@ -14,7 +14,7 @@ export class ActionSidebarComponent implements OnInit, OnDestroy {
 
   request = {
     page: 0,
-    size: 5,
+    size: 10,
     'systemOwner.equals': true
   };
 
