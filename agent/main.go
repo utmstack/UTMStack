@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	pb "github.com/utmstack/UTMStack/agent/agent"
@@ -93,12 +94,116 @@ func main() {
 			integration := os.Args[2]
 			proto := os.Args[3]
 
-			port, err := modules.ChangeIntegrationStatus(integration, proto, arg == "enable-integration")
+			tlsEnabled := false
+			for _, arg := range os.Args[4:] {
+				if arg == "--tls" {
+					tlsEnabled = true
+					break
+				}
+			}
+
+			var port string
+			var err error
+
+			if arg == "enable-integration" && tlsEnabled {
+				port, err = modules.ChangeIntegrationStatus(integration, proto, true, true)
+			} else if arg == "enable-integration" {
+				port, err = modules.ChangeIntegrationStatus(integration, proto, true, false)
+			} else {
+				port, err = modules.ChangeIntegrationStatus(integration, proto, false)
+			}
+
 			if err != nil {
-				fmt.Println("Error trying to change integration status: ", err)
+				fmt.Println("Error:", err)
 				os.Exit(1)
 			}
-			fmt.Printf("Action %s %s %s correctly in port %s\n", arg, integration, proto, port)
+
+			if arg == "enable-integration" && tlsEnabled {
+				fmt.Printf("Integration %s %s enabled with TLS on port %s\n", integration, proto, port)
+			} else if arg == "enable-integration" {
+				fmt.Printf("Integration %s %s enabled on port %s\n", integration, proto, port)
+			} else {
+				fmt.Printf("Integration %s %s disabled (port %s freed)\n", integration, proto, port)
+			}
+			time.Sleep(5 * time.Second)
+
+		case "load-tls-certs":
+			if len(os.Args) < 4 {
+				fmt.Println("Usage: ./utmstack_agent load-tls-certs <certificate_path> <private_key_path> [ca_certificate_path]")
+				fmt.Println("Example: ./utmstack_agent load-tls-certs /path/to/server.crt /path/to/server.key /path/to/ca.crt")
+				os.Exit(1)
+			}
+
+			userCertPath := os.Args[2]
+			userKeyPath := os.Args[3]
+			var userCAPath string
+			if len(os.Args) > 4 {
+				userCAPath = os.Args[4]
+			}
+
+			fmt.Println("Loading user TLS certificates ...")
+
+			fmt.Print("Validating certificate files ... ")
+			if err := utils.ValidateIntegrationCertificates(userCertPath, userKeyPath); err != nil {
+				fmt.Printf("\nError: Invalid certificate files: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Println("[OK]")
+
+			fmt.Print("Installing certificates ... ")
+			src := utils.CertificateFiles{
+				CertPath: userCertPath,
+				KeyPath:  userKeyPath,
+				CAPath:   userCAPath,
+			}
+			dest := utils.CertificateFiles{
+				CertPath: config.IntegrationCertPath,
+				KeyPath:  config.IntegrationKeyPath,
+				CAPath:   config.IntegrationCAPath,
+			}
+			if err := utils.LoadUserCertificatesWithStruct(src, dest); err != nil {
+				fmt.Printf("\nError loading certificates: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Println("[OK]")
+
+			fmt.Println("TLS certificates loaded successfully!")
+			fmt.Println("NOTE: You may need to restart integrations with TLS enabled for changes to take effect.")
+			time.Sleep(5 * time.Second)
+
+		case "check-tls-certs":
+			fmt.Println("Checking TLS certificates status ...")
+
+			status := utils.GetTLSStatus(
+				config.IntegrationCertPath,
+				config.IntegrationKeyPath,
+				config.IntegrationCAPath,
+			)
+
+			fmt.Printf("Certificate file exists: %v\n", status.CertExists)
+			fmt.Printf("Private key file exists: %v\n", status.KeyExists)
+			fmt.Printf("CA certificate file exists: %v\n", status.CAExists)
+			fmt.Printf("TLS Available: %v\n", status.Available)
+			fmt.Printf("Certificates Valid: %v\n", status.Valid)
+
+			if status.Error != "" {
+				fmt.Printf("Error: %s\n", status.Error)
+			}
+
+			if status.Available {
+				fmt.Println("\n" + strings.Repeat("=", 50))
+				details, err := utils.GetCertificateDetails(config.IntegrationCertPath)
+				if err == nil {
+					fmt.Println(details)
+				}
+				fmt.Println("TLS is ready for use!")
+				fmt.Println("Use: ./utmstack_agent enable-tls <integration> tcp")
+			} else {
+				fmt.Println("\n" + strings.Repeat("=", 50))
+				fmt.Println("TLS is NOT available.")
+				fmt.Println("To enable TLS:")
+				fmt.Println("  Load your certificates: ./utmstack_agent load-tls-certs <cert> <key> [ca]")
+			}
 			time.Sleep(5 * time.Second)
 
 		case "change-port":
@@ -179,11 +284,13 @@ func Help() {
 	fmt.Println("Usage:")
 	fmt.Println("  To run the service:                     ./utmstack_agent run")
 	fmt.Println("  To install the service:                 ./utmstack_agent install")
-	fmt.Println("  To enable integration:                  ./utmstack_agent enable-integration <integration> <protocol>")
+	fmt.Println("  To enable integration:                  ./utmstack_agent enable-integration <integration> <protocol> [--tls]")
 	fmt.Println("  To disable integration:                 ./utmstack_agent disable-integration <integration> <protocol>")
 	fmt.Println("  To change integration port:             ./utmstack_agent change-port <integration> <protocol> <new_port>")
 	fmt.Println("  To change log retention:                ./utmstack_agent change-retention <new_retention>")
 	fmt.Println("  To clean old logs:                      ./utmstack_agent clean-logs")
+	fmt.Println("  To load user TLS certificates:          ./utmstack_agent load-tls-certs <cert> <key> [ca]")
+	fmt.Println("  To check TLS certificates:              ./utmstack_agent check-tls-certs")
 	fmt.Println("  To uninstall the service:               ./utmstack_agent uninstall")
 	fmt.Println("  For help (this message):                ./utmstack_agent help")
 	fmt.Println()
@@ -191,12 +298,26 @@ func Help() {
 	fmt.Println("  run                      Run the UTMStackAgent service")
 	fmt.Println("  install                  Install the UTMStackAgent service")
 	fmt.Println("  enable-integration       Enable integration for a specific <integration> and <protocol>")
-	fmt.Println("  disable-integration      Disable integration for a specific <integration> and <protocol>")
+	fmt.Println("                           Available flag: --tls (enable TLS for TCP only)")
+	fmt.Println("  disable-integration      Disable integration for a specific <integration> and <protocol> (auto-disables TLS)")
 	fmt.Println("  change-port              Change the port for a specific <integration> and <protocol> to <new_port>")
 	fmt.Println("  change-retention         Change the log retention to <new_retention>. Retention must be a number of megabytes. Example: 20")
 	fmt.Println("  clean-logs               Clean old logs from the database")
+	fmt.Println("  load-tls-certs           Load your own TLS certificates (RECOMMENDED for production)")
+	fmt.Println("  check-tls-certs          Check status and validity of TLS certificates")
 	fmt.Println("  uninstall                Uninstall the UTMStackAgent service")
 	fmt.Println("  help                     Display this help message")
+	fmt.Println()
+	fmt.Println("TLS Certificate Management:")
+	fmt.Println("  # Load your own certificates (RECOMMENDED)")
+	fmt.Println("  ./utmstack_agent load-tls-certs /path/to/server.crt /path/to/server.key /path/to/ca.crt")
+	fmt.Println("  ./utmstack_agent load-tls-certs /path/to/server.crt /path/to/server.key  # Without CA")
+	fmt.Println()
+	fmt.Println("TLS Integration Examples:")
+	fmt.Println("  ./utmstack_agent enable-integration syslog tcp --tls       # Enable with TLS")
+	fmt.Println("  ./utmstack_agent enable-integration syslog tcp            # Enable without TLS (default)")
+	fmt.Println("  ./utmstack_agent disable-integration syslog tcp           # Disable (auto-disables TLS)")
+	fmt.Println("  ./utmstack_agent check-tls-certs                          # Check certificate status")
 	fmt.Println()
 	fmt.Println("Note:")
 	fmt.Println("  - Make sure to run commands with appropriate permissions.")

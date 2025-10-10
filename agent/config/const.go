@@ -35,6 +35,11 @@ var (
 	VersionPath         = filepath.Join(utils.GetMyPath(), "version.json")
 	UpdaterSelfLinux    = "utmstack_updater_self"
 
+	// TLS Configuration for Integrations
+	IntegrationCertPath = filepath.Join(utils.GetMyPath(), "certs", "integration.crt")
+	IntegrationKeyPath  = filepath.Join(utils.GetMyPath(), "certs", "integration.key")
+	IntegrationCAPath   = filepath.Join(utils.GetMyPath(), "certs", "integration-ca.crt")
+
 	DataTypeWindowsAgent        DataType = "wineventlog"
 	DataTypeSyslog              DataType = "syslog"
 	DataTypeVmware              DataType = "vmware-esxi"

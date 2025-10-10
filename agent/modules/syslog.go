@@ -3,7 +3,9 @@ package modules
 import (
 	"bufio"
 	"context"
+	"crypto/tls"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -26,11 +28,12 @@ type SyslogModule struct {
 }
 
 type listenerTCP struct {
-	Listener  net.Listener
-	CTX       context.Context
-	Cancel    context.CancelFunc
-	IsEnabled bool
-	Port      string
+	Listener   net.Listener
+	CTX        context.Context
+	Cancel     context.CancelFunc
+	IsEnabled  bool
+	Port       string
+	TLSEnabled bool
 }
 
 type listenerUDP struct {
@@ -92,12 +95,20 @@ func (m *SyslogModule) GetPort(proto string) string {
 	}
 }
 
-func (m *SyslogModule) EnablePort(proto string) {
+func (m *SyslogModule) EnablePort(proto string, enableTLS bool) error {
 	switch proto {
 	case "tcp":
+		m.TCPListener.TLSEnabled = enableTLS
 		go m.enableTCP()
+		return nil
 	case "udp":
+		if enableTLS {
+			return fmt.Errorf("TLS not supported for UDP protocol")
+		}
 		go m.enableUDP()
+		return nil
+	default:
+		return fmt.Errorf("unsupported protocol: %s", proto)
 	}
 }
 
@@ -113,17 +124,14 @@ func (m *SyslogModule) DisablePort(proto string) {
 func (m *SyslogModule) enableTCP() {
 	if !m.TCPListener.IsEnabled && m.TCPListener.Port != "" {
 		utils.Logger.Info("Server %s listening in port: %s protocol: TCP", m.DataType, m.TCPListener.Port)
+		if m.TCPListener.TLSEnabled {
+			utils.Logger.Info("Server %s TLS enabled in port: %s protocol: TCP", m.DataType, m.TCPListener.Port)
+		}
 		m.TCPListener.IsEnabled = true
 
-		listener, err := net.Listen("tcp", "0.0.0.0"+":"+m.TCPListener.Port)
+		listener, err := net.Listen("tcp", "0.0.0.0:"+m.TCPListener.Port)
 		if err != nil {
-			utils.Logger.ErrorF("error listening TCp in port %s: %v", m.TCPListener.Port, err)
-			return
-		}
-
-		tcpListener, ok := listener.(*net.TCPListener)
-		if !ok {
-			utils.Logger.ErrorF("could not assert to *net.TCPListener")
+			utils.Logger.ErrorF("error listening TCP in port %s: %v", m.TCPListener.Port, err)
 			return
 		}
 
@@ -142,7 +150,6 @@ func (m *SyslogModule) enableTCP() {
 				case <-m.TCPListener.CTX.Done():
 					return
 				default:
-					tcpListener.SetDeadline(time.Now().Add(1 * time.Second))
 					conn, err := m.TCPListener.Listener.Accept()
 					if err != nil {
 						if errors.Is(err, net.ErrClosed) {
@@ -158,11 +165,16 @@ func (m *SyslogModule) enableTCP() {
 						utils.Logger.ErrorF("error connecting with tcp listener: %v", err)
 						continue
 					}
-					go m.handleConnectionTCP(conn)
+
+					// Connection handling based on TLS configuration
+					if m.TCPListener.TLSEnabled {
+						go m.handleTLSConnection(conn)
+					} else {
+						go m.handleConnectionTCP(conn)
+					}
 				}
 			}
 		}()
-		select {}
 	}
 }
 
@@ -277,6 +289,25 @@ func (m *SyslogModule) handleConnectionTCP(c net.Conn) {
 		}
 	}
 
+	// Detect and reject TLS connections when TLS is disabled
+	c.SetReadDeadline(time.Now().Add(5 * time.Second))
+	firstBytes := make([]byte, 3)
+	n, err := reader.Read(firstBytes)
+	if err != nil {
+		utils.Logger.ErrorF("error reading initial bytes from %s: %v", remoteAddr, err)
+		return
+	}
+
+	// TLS handshake starts with: 0x16 (22 decimal) for TLS 1.0-1.3
+	if n >= 1 && firstBytes[0] == 0x16 {
+		utils.Logger.ErrorF("TLS connection rejected from %s: TLS is disabled, only plain text connections accepted", remoteAddr)
+		return
+	}
+
+	// Reset deadline and create a new reader that includes the read bytes
+	c.SetReadDeadline(time.Time{})
+	reader = bufio.NewReader(io.MultiReader(strings.NewReader(string(firstBytes[:n])), reader))
+
 	msgChannel := make(chan config.MSGDS)
 	go m.handleMessageTCP(msgChannel)
 
@@ -291,6 +322,71 @@ func (m *SyslogModule) handleConnectionTCP(c net.Conn) {
 					return
 				}
 				utils.Logger.ErrorF("error reading tcp data: %v", err)
+				return
+			}
+			msgChannel <- config.MSGDS{
+				DataSource: remoteAddr,
+				Message:    message,
+			}
+		}
+	}
+}
+
+func (m *SyslogModule) handleTLSConnection(conn net.Conn) {
+	defer conn.Close()
+
+	remoteAddr := conn.RemoteAddr().String()
+	remoteAddr, _, err := net.SplitHostPort(remoteAddr)
+	if err != nil {
+		utils.Logger.ErrorF("error splitting host and port: %v", err)
+		remoteAddr = "unknown"
+	}
+
+	if remoteAddr == "127.0.0.1" {
+		if hostname, err := os.Hostname(); err == nil {
+			remoteAddr = hostname
+		}
+	}
+
+	tlsConfig, err := utils.LoadIntegrationTLSConfig(
+		config.IntegrationCertPath,
+		config.IntegrationKeyPath,
+	)
+	if err != nil {
+		utils.Logger.ErrorF("error loading TLS config: %v", err)
+		return
+	}
+
+	tlsConn := tls.Server(conn, tlsConfig)
+
+	conn.SetDeadline(time.Now().Add(10 * time.Second))
+	if err := tlsConn.Handshake(); err != nil {
+		utils.Logger.ErrorF("TLS handshake failed from %s: %v", remoteAddr, err)
+		return
+	}
+	// Keep a reasonable read timeout instead of removing it entirely
+	conn.SetDeadline(time.Now().Add(30 * time.Second))
+
+	reader := bufio.NewReader(tlsConn)
+	msgChannel := make(chan config.MSGDS)
+	go m.handleMessageTCP(msgChannel)
+
+	for {
+		select {
+		case <-m.TCPListener.CTX.Done():
+			return
+		default:
+			// Set read timeout for each message
+			conn.SetDeadline(time.Now().Add(30 * time.Second))
+			message, err := reader.ReadString('\n')
+			if err != nil {
+				if err == io.EOF {
+					return
+				}
+				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+					return
+				}
+				utils.Logger.ErrorF("error reading TLS data from %s: %v", remoteAddr, err)
 				return
 			}
 			msgChannel <- config.MSGDS{
