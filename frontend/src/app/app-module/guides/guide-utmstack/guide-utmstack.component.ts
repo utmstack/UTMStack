@@ -36,6 +36,7 @@ export class GuideUtmstackComponent implements OnInit {
     ngOnInit(): void {
         this.ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
         this.getToken();
+        this.loadArchitectures();
     }
 
     getToken() {
@@ -58,5 +59,54 @@ export class GuideUtmstackComponent implements OnInit {
 
   onDisable() {
     this.disablePreAction = true;
+  }
+
+  private loadArchitectures() {
+    this.architectures = [
+      {
+        id: 1, name: 'Ubuntu 16/18/20+',
+        install: this.getCommandUbuntu('utmstack_agent_service'),
+        uninstall: this.getUninstallCommand('utmstack_agent_service'),
+        shell: ''
+      },
+      {
+        id: 2, name: 'Centos 7/Red Hat Enterprise Linux',
+        install: this.getCommandCentos7RedHat('utmstack_agent_service'),
+        uninstall: this.getUninstallCommand('utmstack_agent_service'),
+        shell: ''
+      },
+    ];
+  }
+
+  getCommandUbuntu(installerName: string): string {
+    const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
+
+    return `sudo bash -c "apt update -y && apt install wget -y && mkdir -p /opt/utmstack-collector && \
+            wget --no-check-certificate -P /opt/utmstack-collector \
+            https://${ip}:9001/private/dependencies/collector/${installerName} && \
+            chmod -R 777 /opt/utmstack-collector/${installerName} && \
+            /opt/utmstack-collector/${installerName} install ${ip} <secret>${this.token}</secret> yes"`;
+  }
+
+  getCommandCentos7RedHat(installerName: string): string {
+    const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
+
+    return `sudo bash -c "yum install wget -y && mkdir -p /opt/utmstack-collector && \
+            wget --no-check-certificate -P /opt/utmstack-collector \
+            https://${ip}:9001/private/dependencies/collector/${installerName} && \
+            chmod -R 777 /opt/utmstack-collector/${installerName} && \
+            /opt/utmstack-collector/${installerName} install ${ip} <secret>${this.token}</secret> yes"`;
+  }
+
+  getUninstallCommand(installerName: string): string {
+    return `sudo bash -c "/opt/utmstack-linux-agent/${installerName} uninstall || true; \
+    systemctl stop UTMStackAgent 2>/dev/null || true; systemctl disable UTMStackAgent 2>/dev/null || true; \
+    rm -f /etc/systemd/system/UTMStackAgent.service 2>/dev/null || true; \
+    systemctl stop UTMStackModulesLogsCollector 2>/dev/null || true; \
+    systemctl disable UTMStackModulesLogsCollector 2>/dev/null || true; \
+    rm -f /etc/systemd/system/UTMStackModulesLogsCollector.service 2>/dev/null || true; \
+    systemctl daemon-reload 2>/dev/null || true; \
+    echo 'Removing UTMStack Agent dependencies...' && sleep 10 && rm -rf /opt/utmstack-linux-agent 2>/dev/null || true; \
+    echo 'UTMStack Agent dependencies removed successfully.'"`;
   }
 }
