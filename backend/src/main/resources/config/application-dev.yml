@@ -1,8 +1,10 @@
 logging:
     level:
-        ROOT: error
-        tech.jhipster: error
-        com.park.utmstack: info
+        ROOT: debug
+        tech.jhipster: DEBUG
+        org.hibernate.SQL: DEBUG
+        com.park.utmstack: debug
+        org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 spring:
     devtools:
