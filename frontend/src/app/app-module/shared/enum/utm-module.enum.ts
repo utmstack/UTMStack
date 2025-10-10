@@ -68,5 +68,6 @@ export enum UtmModulesEnum {
   AS_400 = 'AS_400',
   SOC_AI = 'SOC_AI',
   ORACLE = 'ORACLE',
-  SURICATA= 'SURICATA'
+  SURICATA= 'SURICATA',
+  UTMSTACK= 'UTMSTACK'
 }

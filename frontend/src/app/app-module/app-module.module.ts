@@ -62,6 +62,7 @@ import {UtmListComponent} from './guides/shared/components/utm-list.component';
 import {ModuleIntegrationComponent} from './module-integration/module-integration.component';
 import {ModuleService} from './services/module.service';
 import {AppModuleSharedModule} from './shared/app-module-shared.module';
+import {GuideUtmstackComponent} from "./guides/guide-utmstack/guide-utmstack.component";
 
 
 @NgModule({
@@ -119,7 +120,8 @@ import {AppModuleSharedModule} from './shared/app-module-shared.module';
     AgentActionCommandComponent,
     InstallLogCollectorComponent,
     AgentInstallSelectorComponent,
-    OracleComponent
+    OracleComponent,
+    GuideUtmstackComponent
   ],
   imports: [
     CommonModule,
