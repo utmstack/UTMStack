@@ -5,11 +5,11 @@ import { Rule } from '../../../models/rule.model';
 import * as yaml from 'js-yaml';
 
 @Component({
-  selector: 'app-see-rule',
-  templateUrl: './see-rule.component.html',
-  styleUrls: ['./see-rule.component.scss'],
+  selector: 'app-rule-view',
+  templateUrl: './rule-view.component.html',
+  styleUrls: ['./rule-view.component.scss'],
 })
-export class SeeRuleComponent {
+export class RuleViewComponent {
  @Input() rowDocument: Rule;
 
   copied = false;
@@ -18,7 +18,6 @@ export class SeeRuleComponent {
     try {
       return yaml.dump(this.rowDocument, { indent: 2 });
     } catch (e) {
-      console.log(e)
       return 'Error parsing YAML';
     }
   }

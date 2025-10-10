@@ -35,9 +35,9 @@ import {ImportRuleComponent} from './app-rule/components/import-rules/import-rul
 import {ImportRuleService} from './app-rule/components/import-rules/import-rule.service';
 import {AddReferenceComponent} from './app-rule/components/reference/add-reference.component';
 import {RuleGenericFilterComponent} from './app-rule/components/rule-generic-filter/rule-generic-filter.component';
-import {RuleDetailComponent} from './app-rule/components/rule-list/components/rule-detail/rule-detail.component';
 import {RuleFieldComponent} from './app-rule/components/rule-list/components/rule-field/rule-field.component';
 import {RuleListComponent} from './app-rule/components/rule-list/rule-list.component';
+import {RuleViewComponent} from './app-rule/components/see-rule/rule-view.component'
 import {RuleManagementRoutingModule} from './rule-management.routing.module';
 import { DataTypeService } from './services/data-type.service';
 import {FilterService} from './services/filter.service';
@@ -45,16 +45,16 @@ import {RuleResolverService} from './services/rule.resolver.service';
 import {RuleService} from './services/rule.service';
 import {RulesResolverService} from './services/rules.resolver.service';
 import {GenericFilterComponent} from './share/generic-filter/generic-filter.component';
-import {SeeRuleComponent} from './app-rule/components/see-rule/see-rule.component'
+import {RuleDetailComponent} from "./app-rule/components/rule-list/components/rule-detail/rule-detail.component";
 
 
 @NgModule({
   declarations: [
       AppRuleComponent,
-      SeeRuleComponent,
+      RuleViewComponent,
       RuleListComponent,
       RuleFieldComponent,
-      RuleDetailComponent,
+      RuleViewComponent,
       AddRuleComponent,
       ImportRuleComponent,
       SidebarComponent,
@@ -72,7 +72,8 @@ import {SeeRuleComponent} from './app-rule/components/see-rule/see-rule.componen
       AddVariableComponent,
       AddAfterEventComponent,
       DeduplicateFieldsComponent,
-      ExpressionConsoleComponent
+      ExpressionConsoleComponent,
+      RuleDetailComponent
 
   ],
     imports: [
@@ -107,7 +108,7 @@ import {SeeRuleComponent} from './app-rule/components/see-rule/see-rule.componen
        AddPatternComponent,
        AddAssetComponent,
        ImportRuleComponent,
-      SeeRuleComponent,
+       RuleViewComponent,
    ]
 })
 export class RuleManagementModule { }

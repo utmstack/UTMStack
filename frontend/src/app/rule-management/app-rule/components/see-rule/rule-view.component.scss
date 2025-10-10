@@ -1,0 +1,36 @@
+app-utm-modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.rule-view-container {
+  max-height: 650px;
+}
+.copy-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.copied-msg {
+  color: green;
+  font-size: 12px;
+}
+
+.floating-btn {
+  position: absolute;
+  top: 4.5rem;
+  right: 1.5rem;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  color: #fff;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}

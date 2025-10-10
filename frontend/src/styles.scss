@@ -1414,6 +1414,12 @@ app-utm-items-per-page {
   transform: translateY(-50%);
 }
 
+.view-rule-modal{
+  .modal-content {
+    overflow: hidden!important;
+  }
+}
+
 
 
 
