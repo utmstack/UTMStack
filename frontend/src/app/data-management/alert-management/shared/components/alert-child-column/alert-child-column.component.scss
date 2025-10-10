@@ -1,5 +1,5 @@
 .btn-expand {
-  border: 1px solid #004b8b;
+  // border: 1px solid #004b8b;
   background-color: white;
   color: #004b8b ;
   cursor: pointer;
@@ -14,14 +14,12 @@
 
 
 .btn-expand:hover:not(:disabled) {
-  background-color: #004b8b ;
-  color: white;
   border-color: #004b8b ;
 }
 
 .btn-expand:active:not(:disabled) {
   background-color: #004b8b ;
-  border-color: #004b8a;
+  // border-color: #004b8a;
   transform: scale(0.98);
 }
 
@@ -51,4 +49,6 @@
   width: 70px;
   height: 32px;
 }
-
+.echoes-icons{
+  filter: invert(30%) sepia(94%) saturate(2000%) hue-rotate(190deg) brightness(95%) contrast(101%);
+}

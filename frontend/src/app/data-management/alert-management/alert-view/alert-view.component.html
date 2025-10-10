@@ -105,7 +105,6 @@
                                             icon="icon-table"
                                             tooltipClass="utm-tooltip-top"></app-utm-dtable-columns>
                   </th>
-                  <th>Echoes</th>
                   <th (sort)="onSortBy($event)"
                       *ngFor="let item of fields; let i=index"
                       [hidden]="!item.visible"
@@ -216,25 +215,29 @@
     <td class="text-center">
       <ng-container *ngTemplateOutlet="actionContent; context: { $implicit: alert }"></ng-container>
     </td>
-    <td>
-      <app-alert-child-column [loadingChildren]="loadingChildren"
-        (toggleExpand)="loadChildrenAlerts(alert)"
-        [alert]="alert">
-      </app-alert-child-column>
-    </td>
     <ng-container *ngFor="let td of fields">
       <td *ngIf="td.visible"
           [ngClass]="{'min-width': td.field === ALERT_ADVERSARY_FIELD || td.field === ALERT_TARGET_FIELD}"
-          (click)="viewDetailAlert(alert, td)">
+          (click)="viewDetailAlert(alert, td)"
+      >
+
         <app-data-field-render [data]="alert"
                                [tags]="tags"
                                [field]="td"
                                [dataType]="dataType"
                                [showStatusChange]="true"
                                (refreshData)="onRefreshData($event)">
+
+          <app-alert-child-column echoes [loadingChildren]="loadingChildren"
+                (toggleExpand)="loadChildrenAlerts(alert)"
+                [alert]="alert">
+          </app-alert-child-column>
+
         </app-data-field-render>
       </td>
     </ng-container>
+    <td>
+    </td>
   </tr>
 
   <ng-container *ngIf="alert.expanded">

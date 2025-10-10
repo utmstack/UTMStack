@@ -32,6 +32,7 @@ export const ALERT_TARGET_FIELD = 'target';
 export const ALERT_ADVERSARY_FIELD = 'adversary';
 export const ALERT_TECHNIQUE_FIELD = 'technique';
 export const ALERT_PARENT_ID = 'parentId';
+export const ALERT_ECHOES_FIELD = 'echoes';
 
 // SOURCE
 export const ALERT_SOURCE_HOSTNAME_FIELD = 'source.host';
@@ -145,6 +146,12 @@ export const ALERT_FIELDS: UtmFieldType[] = [
     label: 'Sensor',
     field: ALERT_SENSOR_FIELD,
     type: ElasticDataTypesEnum.STRING,
+    visible: true,
+  },
+  {
+    label: 'Echoes',
+    field: ALERT_ECHOES_FIELD,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: true,
   },
   {
