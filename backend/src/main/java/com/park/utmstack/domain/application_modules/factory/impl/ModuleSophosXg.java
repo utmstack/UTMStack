@@ -40,4 +40,9 @@ public class ModuleSophosXg implements IModule {
     public List<ModuleConfigurationKey> getConfigurationKeys(Long groupId) throws Exception {
         return Collections.emptyList();
     }
+
+    @Override
+    public ModuleName getName() {
+        return ModuleName.SOPHOS_XG;
+    }
 }

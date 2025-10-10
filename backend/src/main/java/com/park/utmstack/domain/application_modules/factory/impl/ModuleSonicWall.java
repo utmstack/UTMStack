@@ -83,4 +83,9 @@ public class ModuleSonicWall  implements IModule {
             .build());
         return keys;
     }
+
+    @Override
+    public ModuleName getName() {
+        return ModuleName.SONIC_WALL;
+    }
 }

@@ -50,4 +50,9 @@ public class ModuleFileIntegrity implements IModule {
     public List<ModuleConfigurationKey> getConfigurationKeys(Long groupId) throws Exception {
         return Collections.emptyList();
     }
+
+    @Override
+    public ModuleName getName() {
+        return ModuleName.FILE_INTEGRITY;
+    }
 }

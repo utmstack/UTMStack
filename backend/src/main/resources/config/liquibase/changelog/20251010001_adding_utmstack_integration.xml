@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20251010001" author="Manuel">
+        <createProcedure dbms="postgresql">
+        <![CDATA[
+            CREATE OR REPLACE FUNCTION public.register_integration_utmstack(srv_id integer)RETURNS void
+            LANGUAGE plpgsql
+            AS
+                $function$
+                declare
+                    grp_id integer;
+                    mod_id bigint;
+
+                        begin
+                            INSERT INTO utm_module (pretty_name, module_description, module_active, module_icon, module_name,
+                                                    server_id, module_category, needs_restart, lite_version, is_activatable)
+                            VALUES ('Utmstack',
+                                    'UTMStack is an open‑source SIEM and XDR platform that centralizes telemetry, real‑time detection, and automated response.',
+                                    FALSE,
+                                    'utmstack.png',
+                                    'UTMSTACK',
+                                    srv_id,
+                                    'Device',
+                                    FALSE,
+                                    TRUE,
+                                    TRUE)
+                                ON CONFLICT (module_name, server_id) DO UPDATE SET pretty_name        = 'Utmstack',
+                                                                            module_icon        = 'utmstack.png',
+                                                                            module_name        = 'UTMSTACK',
+                                                                            module_category    = 'Device',
+                                                                            module_description = 'UTMStack is an open‑source SIEM and XDR platform that centralizes telemetry, real‑time detection, and automated response.',
+                                                                            lite_version       = TRUE,
+                                                                            server_id          = srv_id;
+
+                            end;
+                $function$;
+            ]]>
+        </createProcedure>
+
+        <createProcedure dbms="postgresql">
+            <![CDATA[
+                create or replace function register_integrations(srv_id integer, srv_type character varying)
+                    returns void
+                    language plpgsql
+                    as
+                $$
+                BEGIN
+
+                    perform public.register_integration_netflow(srv_id);
+
+                    perform public.register_integration_window_agent(srv_id);
+
+                    perform public.register_integration_syslog(srv_id);
+
+                    perform public.register_integration_vmware(srv_id);
+
+                    perform public.register_integration_linux_agent(srv_id);
+
+                    perform public.register_integration_apache(srv_id);
+
+                    perform public.register_integration_linux_audit_demon(srv_id);
+
+                    perform public.register_integration_elasticsearch(srv_id);
+
+                    perform public.register_integration_hap(srv_id);
+
+                    perform public.register_integration_kafka(srv_id);
+
+                    perform public.register_integration_kibana(srv_id);
+
+                    perform public.register_integration_logstash(srv_id);
+
+                    perform public.register_integration_mongodb(srv_id);
+
+                    perform public.register_integration_mysql(srv_id);
+
+                    perform public.register_integration_nats(srv_id);
+
+                    perform public.register_integration_nginx(srv_id);
+
+                    perform public.register_integration_osquery(srv_id);
+
+                    perform public.register_integration_postgresql(srv_id);
+
+                    perform public.register_integration_redis(srv_id);
+
+                    perform public.register_integration_traefik(srv_id);
+
+                    perform public.register_integration_cisco(srv_id);
+
+                    perform public.register_integration_cisco_meraki(srv_id);
+
+                    perform public.register_integration_json(srv_id);
+
+                    perform public.register_integration_iis(srv_id);
+
+                    perform public.register_integration_kaspersky(srv_id);
+
+                    perform public.register_integration_eset(srv_id);
+
+                    perform public.register_integration_sentinel_one(srv_id);
+
+                    perform public.register_integration_fortigate(srv_id);
+
+                    perform public.register_integration_sophosxg(srv_id);
+
+                    perform public.register_integration_macos(srv_id);
+
+
+                IF srv_type = 'aio' THEN
+
+                    perform public.register_integration_file_integrity(srv_id);
+
+                    perform public.register_integration_azure(srv_id);
+
+                    perform public.register_integration_o365(srv_id);
+
+                    perform public.register_integration_aws(srv_id);
+
+                    perform public.register_integration_sophos_central(srv_id);
+
+                    perform public.register_integration_gcp(srv_id);
+
+                    perform public.register_integration_fire_power(srv_id);
+
+                    perform public.register_integration_mikrotik(srv_id);
+
+                    perform public.register_integration_palo_alto(srv_id);
+
+                    perform public.register_integration_cisco_switch(srv_id);
+
+                    perform public.register_integration_sonic_wall(srv_id);
+
+                    perform public.register_integration_deceptive_bytes(srv_id);
+
+                    perform public.register_integration_github(srv_id);
+
+                    perform public.register_integration_bitdefender(srv_id);
+
+                    perform public.register_integration_soc_ai(srv_id);
+
+                    perform public.register_integration_suricata(srv_id);
+
+                    perform public.register_integration_utmstack(srv_id);
+
+                END IF;
+
+                perform public.update_module_dependencies();
+            END;
+            $$;
+            ]]>
+        </createProcedure>
+        <createProcedure dbms="postgresql">
+            do
+            $$
+            begin
+                perform public.execute_register_integration_function();
+            end;
+            $$
+            language plpgsql;
+        </createProcedure>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            INSERT INTO utm_data_types (id, data_type, data_type_name, data_type_description, last_update, included, system_owner)
+            VALUES (50, 'utmstack', 'Utmstack', 'Used to filter logs and apply alerting rules related to Utmstack integration', '2025-10-10 21:35:38.627000', true, true);
+
+                INSERT INTO utm_logstash_filter (id, logstash_filter, filter_name, filter_group_id, system_owner, module_name, is_active, filter_version, data_type_id)
+                VALUES (1531, $$
+                    # Utmstack filter version 1.0.0
+                    # Support json format
+                        
+                    pipeline:
+                      - dataTypes:
+                          - utmstack
+                        steps:
+                          - json:
+                              source: raw
+
+                    $$, 'utmstack', null, true, 'UTMSTACK', false, '2.0.0', 50);
+            ]]>
+        </sql>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+                    INSERT INTO public.utm_logstash_pipeline (id, pipeline_id, pipeline_name, pipeline_status, module_name, system_owner, pipeline_description, pipeline_internal, events_out)
+                    VALUES (56, 'utmstack', 'Utmstack', 'down', 'UTMSTACK', true, null, false, 0);
+
+                    INSERT INTO utm_group_logstash_pipeline_filters (filter_id, pipeline_id, relation)
+                    VALUES (1531, 56, 'PIPELINE_FILTER');
+
+                    INSERT INTO utm_index_pattern (id, pattern, pattern_module, pattern_system, is_active)
+                    VALUES (69,'v11-log-utmstack-*', 'Utmstack', true, true);
+
+                    INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
+                    VALUES (267, 'Utmstack', 'discover/log-analyzer?patternId=69&indexPattern=v11-log-utmstack-*', 200, 1, null, 67, false, false, null, 'UTMSTACK');
+
+                    INSERT INTO utm_menu_authority (menu_id, authority_name)
+                    VALUES ( 267, 'ROLE_USER');
+
+                    INSERT INTO utm_menu_authority (menu_id, authority_name)
+                    VALUES ( 267, 'ROLE_ADMIN');
+
+            ]]>
+
+
+        </sql>
+    </changeSet>
+</databaseChangeLog>

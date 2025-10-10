@@ -81,4 +81,9 @@ public class ModulePaloAlto implements IModule {
             .build());
         return keys;
     }
+
+    @Override
+    public ModuleName getName() {
+        return ModuleName.PALO_ALTO;
+    }
 }

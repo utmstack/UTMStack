@@ -83,4 +83,9 @@ public class ModuleCiscoSwitch implements IModule  {
             .build());
         return keys;
     }
+
+    @Override
+    public ModuleName getName() {
+        return ModuleName.CISCO_SWITCH;
+    }
 }

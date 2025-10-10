@@ -64,5 +64,6 @@ public enum ModuleName {
     SOC_AI,
     PFSENSE,
     ORACLE,
-    SURICATA
+    SURICATA,
+    UTMSTACK
 }

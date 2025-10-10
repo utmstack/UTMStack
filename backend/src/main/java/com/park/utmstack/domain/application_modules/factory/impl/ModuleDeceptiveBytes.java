@@ -82,4 +82,9 @@ public class ModuleDeceptiveBytes implements IModule  {
             .build());
         return keys;
     }
+
+    @Override
+    public ModuleName getName() {
+        return ModuleName.DECEPTIVE_BYTES;
+    }
 }

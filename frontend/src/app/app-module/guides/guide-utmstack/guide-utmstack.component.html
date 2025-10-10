@@ -1,0 +1,53 @@
+<div class="w-100 h-100">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="card-title mb-0 text-primary">
+            UTMStack
+        </h4>
+    </div>
+
+    <div class="card-body">
+        <div class="alert alert-warning alert-styled-right mb-3">
+          This integration can only be installed on an instance of UTMStack.
+        </div>
+        <ol class="setup_list">
+            <app-utm-list [items]="steps">
+                <ng-template stepTemplateRef let-step>
+                    <li>
+                        <app-step>
+                            <span stepNumber>{{step.id}}</span>
+                            <div [innerHtml]="step.name"></div>
+                            <ng-container *ngIf="step.content">
+
+                              <ng-template [ngIf]="step.content.id === 'stepContent1'">
+                                <div  class="mt-3">
+                                  <ul class="mt-3 pl-3" style="list-style-type: circle !important;">
+                                    <li>This integration can only be installed on Ubuntu or Red Hat.</li>
+                                  </ul>
+                                </div>
+                              </ng-template>
+
+                              <ng-template [ngIf]="step.content.id === 'stepContent2'">
+                                <app-agent-install-selector [platforms]="architectures"></app-agent-install-selector>
+                              </ng-template>
+
+                                <ng-template [ngIf]="step.content.id === 'stepContent3'">
+                                    <div  class="mt-3">
+                                        <app-app-module-activate-button [module]="module.UTMSTACK" [type]="'integration'"
+                                                                        [disabled]="configValidity"
+                                                                        [serverId]="serverId"
+                                                                        [performPreAction]= performPreAction
+                                                                        (disableModuleClicked)="onDisable()">
+                                        </app-app-module-activate-button>
+                                    </div>
+                                </ng-template>
+
+                            </ng-container>
+                        </app-step>
+                    </li>
+                </ng-template>
+            </app-utm-list>
+        </ol>
+    </div>
+</div>
+
+

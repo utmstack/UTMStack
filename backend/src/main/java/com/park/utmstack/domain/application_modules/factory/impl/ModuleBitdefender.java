@@ -88,4 +88,9 @@ public class ModuleBitdefender implements IModule {
     public boolean validateConfiguration(UtmModule module, List<UtmModuleGroupConfiguration> configuration) throws Exception {
         return utmStackConfigValidator.validate(module, configuration);
     }
+
+    @Override
+    public ModuleName getName() {
+        return ModuleName.BITDEFENDER;
+    }
 }

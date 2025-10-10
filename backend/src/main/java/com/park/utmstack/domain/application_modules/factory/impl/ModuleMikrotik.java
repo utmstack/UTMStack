@@ -83,4 +83,9 @@ public class ModuleMikrotik implements IModule {
         return keys;
     }
 
+    @Override
+    public ModuleName getName() {
+        return ModuleName.MIKROTIK;
+    }
+
 }

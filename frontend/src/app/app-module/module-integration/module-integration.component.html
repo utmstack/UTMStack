@@ -173,6 +173,9 @@
         <app-guide-as400 *ngSwitchCase="moduleEnum.AS_400" [serverId]="serverId"
                          [integrationId]="module.id"></app-guide-as400>
 
+        <app-guide-utmstack *ngSwitchCase="moduleEnum.UTMSTACK" [serverId]="serverId"
+                         [integrationId]="module.id"></app-guide-utmstack>
+
         <app-guide-soc-ai *ngSwitchCase="moduleEnum.SOC_AI" [serverId]="serverId"
                           [integrationId]="module.id"></app-guide-soc-ai>
 
