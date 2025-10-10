@@ -251,5 +251,7 @@
 
     <include file="/config/liquibase/changelog/20250805001_add_correlation_rules.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251010001_adding_utmstack_integration.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
