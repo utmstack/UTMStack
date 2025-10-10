@@ -12,12 +12,12 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class ModuleWindowsAgent implements IModule {
-    private static final String CLASSNAME = "ModuleWindowsAgent";
+public class ModuleUtmstack implements IModule {
+    private static final String CLASSNAME = "ModuleUtmstack";
 
     private final UtmModuleService moduleService;
 
-    public ModuleWindowsAgent(UtmModuleService moduleService) {
+    public ModuleUtmstack(UtmModuleService moduleService) {
         this.moduleService = moduleService;
     }
 
@@ -25,7 +25,7 @@ public class ModuleWindowsAgent implements IModule {
     public UtmModule getDetails(Long serverId) throws Exception {
         final String ctx = CLASSNAME + ".getDetails";
         try {
-            return moduleService.findByServerIdAndModuleName(serverId, ModuleName.WINDOWS_AGENT);
+            return moduleService.findByServerIdAndModuleName(serverId, ModuleName.UTMSTACK);
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
         }
@@ -43,6 +43,6 @@ public class ModuleWindowsAgent implements IModule {
 
     @Override
     public ModuleName getName() {
-        return ModuleName.WINDOWS_AGENT;
+        return ModuleName.UTMSTACK;
     }
 }

@@ -68,4 +68,9 @@ public class ModuleIbmAs400 implements IModule {
 
         return keys;
     }
+
+    @Override
+    public ModuleName getName() {
+        return ModuleName.AS_400;
+    }
 }

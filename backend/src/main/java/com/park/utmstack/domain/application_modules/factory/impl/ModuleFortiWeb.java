@@ -40,4 +40,9 @@ public class ModuleFortiWeb implements IModule {
     public List<ModuleConfigurationKey> getConfigurationKeys(Long groupId) throws Exception {
         return Collections.emptyList();
     }
+
+    @Override
+    public ModuleName getName() {
+        return ModuleName.FORTIWEB;
+    }
 }

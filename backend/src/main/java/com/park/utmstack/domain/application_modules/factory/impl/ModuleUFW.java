@@ -82,4 +82,9 @@ public class ModuleUFW implements IModule {
             .build());
         return keys;
     }
+
+    @Override
+    public ModuleName getName() {
+        return ModuleName.UFW;
+    }
 }

@@ -85,4 +85,8 @@ public class ModuleFirePower implements IModule {
         return keys;
     }
 
+    @Override
+    public ModuleName getName() {
+        return ModuleName.FIRE_POWER;
+    }
 }

@@ -82,4 +82,9 @@ public class ModuleMacOS implements IModule {
             .build());
         return keys;
     }
+
+    @Override
+    public ModuleName getName() {
+        return ModuleName.MACOS;
+    }
 }
