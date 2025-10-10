@@ -1,0 +1,8 @@
+# UTMStack filter, version 1.0.0
+
+pipeline:
+  - dataTypes:
+      - utmstack
+    steps:
+      - json:
+          source: raw
