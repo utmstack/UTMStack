@@ -99,14 +99,11 @@ export class GuideUtmstackComponent implements OnInit {
   }
 
   getUninstallCommand(installerName: string): string {
-    return `sudo bash -c "/opt/utmstack-linux-agent/${installerName} uninstall || true; \
-    systemctl stop UTMStackAgent 2>/dev/null || true; systemctl disable UTMStackAgent 2>/dev/null || true; \
-    rm -f /etc/systemd/system/UTMStackAgent.service 2>/dev/null || true; \
-    systemctl stop UTMStackModulesLogsCollector 2>/dev/null || true; \
-    systemctl disable UTMStackModulesLogsCollector 2>/dev/null || true; \
-    rm -f /etc/systemd/system/UTMStackModulesLogsCollector.service 2>/dev/null || true; \
-    systemctl daemon-reload 2>/dev/null || true; \
-    echo 'Removing UTMStack Agent dependencies...' && sleep 10 && rm -rf /opt/utmstack-linux-agent 2>/dev/null || true; \
-    echo 'UTMStack Agent dependencies removed successfully.'"`;
+    return `sudo bash -c "/opt/utmstack-collector/${installerName} uninstall || true; \
+            systemctl stop UTMStackCollector 2>/dev/null || true; systemctl disable UTMStackCollector 2>/dev/null || true; \
+            rm -f /etc/systemd/system/UTMStackCollector.service 2>/dev/null || true; \
+            systemctl daemon-reload 2>/dev/null || true; \
+            echo 'Removing UTMStack Collector dependencies...' && sleep 10 && rm -rf /opt/utmstack-collector 2>/dev/null || true; \
+            echo 'UTMStack Collector dependencies removed successfully.'"`;
   }
 }
