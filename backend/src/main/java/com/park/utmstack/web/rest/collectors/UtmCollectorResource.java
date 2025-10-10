@@ -270,7 +270,6 @@ public class UtmCollectorResource {
             collectorService.listCollector(ListRequest.newBuilder()
                     .setPageNumber(0)
                     .setPageSize(1000000)
-                    .setSearchQuery("module.Is=" + CollectorModuleEnum.AS_400)
                     .setSortBy("")
                     .build());
             Page<CollectorDTO> page = this.utmCollectorService.searchByFilters(filters, pageable);
