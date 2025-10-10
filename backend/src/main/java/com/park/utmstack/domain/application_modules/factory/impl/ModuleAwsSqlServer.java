@@ -43,6 +43,6 @@ public class ModuleAwsSqlServer implements IModule {
 
     @Override
     public ModuleName getName() {
-        return ModuleName.AWS_POSTGRESQL;
+        return ModuleName.AWS_SQL_SERVER;
     }
 }
