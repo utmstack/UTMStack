@@ -18,7 +18,7 @@ const (
 )
 
 var (
-	DependUrl        = "https://%s:%s/private/dependencies/collectors/%s"
+	DependUrl        = "https://%s:%s/private/dependencies/collector/%s"
 	AgentManagerPort = "9000"
 	LogAuthProxyPort = "50051"
 	DependenciesPort = "9001"

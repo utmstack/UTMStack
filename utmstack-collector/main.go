@@ -11,6 +11,7 @@ import (
 	"github.com/utmstack/UTMStack/utmstack-collector/logservice"
 	"github.com/utmstack/UTMStack/utmstack-collector/models"
 	"github.com/utmstack/UTMStack/utmstack-collector/serv"
+	"github.com/utmstack/UTMStack/utmstack-collector/updates"
 	"github.com/utmstack/UTMStack/utmstack-collector/utils"
 )
 
@@ -47,6 +48,13 @@ func main() {
 			fmt.Print("Checking server connection ... ")
 			if err := utils.ArePortsReachable(cnf.Server, config.AgentManagerPort, config.LogAuthProxyPort, config.DependenciesPort); err != nil {
 				fmt.Println("\nError trying to connect to server: ", err)
+				os.Exit(1)
+			}
+			fmt.Println("[OK]")
+
+			fmt.Print("Downloading Version ... ")
+			if err := updates.DownloadVersion(cnf.Server, cnf.SkipCertValidation); err != nil {
+				fmt.Println("\nError downloading version: ", err)
 				os.Exit(1)
 			}
 			fmt.Println("[OK]")
