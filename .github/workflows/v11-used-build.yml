@@ -113,7 +113,16 @@ jobs:
           else
             echo "Skipping signing for Alpha environment."
           fi
-      
+
+      - name: Build UTMStack Collector
+        run: |
+          echo "Building UTMStack Collector..."
+          cd ${{ github.workspace }}/utmstack-collector
+
+          GOOS=linux GOARCH=amd64 go build -o utmstack_collector -v -ldflags "-X 'github.com/utmstack/UTMStack/utmstack-collector/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+
+          echo "UTMStack Collector built successfully."
+
       - name: Build Plugins
         env:
           GOOS: linux
@@ -172,6 +181,10 @@ jobs:
           cp "${{ github.workspace }}/agent/utmstack_agent_service.exe" ./dependencies/agent/
           cp "${{ github.workspace }}/agent/utmstack_agent_service_arm64.exe" ./dependencies/agent/
           cp "${{ github.workspace }}/agent/version.json" ./dependencies/agent/
+
+          mkdir -p ./dependencies/collector/
+          cp "${{ github.workspace }}/utmstack-collector/utmstack_collector" ./dependencies/collector/
+          cp "${{ github.workspace }}/utmstack-collector/version.json" ./dependencies/collector/
 
           docker build -t ghcr.io/utmstack/utmstack/agent-manager:${{ inputs.version_tag }}-community .
           docker push ghcr.io/utmstack/utmstack/agent-manager:${{ inputs.version_tag }}-community
