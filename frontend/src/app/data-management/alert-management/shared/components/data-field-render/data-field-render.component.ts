@@ -39,7 +39,7 @@ export class DataFieldRenderComponent implements OnInit {
   utmFormatDate = UtmDateFormatEnum.UTM_SHORT_UTC;
   ALERT_TARGET_IP_FIELD = ALERT_TARGET_IP_FIELD;
   ALERT_ADVERSARY_IP_FIELD = ALERT_ADVERSARY_IP_FIELD;
-  ALERT_ECHOES_FIELD=ALERT_ECHOES_FIELD
+  ALERT_ECHOES_FIELD = ALERT_ECHOES_FIELD;
 
   constructor() {
   }
