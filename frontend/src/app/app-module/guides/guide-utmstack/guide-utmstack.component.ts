@@ -70,7 +70,7 @@ export class GuideUtmstackComponent implements OnInit {
         shell: ''
       },
       {
-        id: 2, name: 'Centos 7/Red Hat Enterprise Linux',
+        id: 2, name: 'CentOS 8+/Red Hat Enterprise Linux',
         install: this.getCommandCentos7RedHat('utmstack_collector'),
         uninstall: this.getUninstallCommandRedHat('utmstack_collector'),
         shell: ''
