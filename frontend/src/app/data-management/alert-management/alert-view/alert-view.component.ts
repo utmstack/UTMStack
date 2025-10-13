@@ -26,7 +26,8 @@ import {
   EVENT_FIELDS,
   EVENT_IS_ALERT,
   FALSE_POSITIVE_OBJECT,
-  INCIDENT_FIELDS
+  INCIDENT_FIELDS,
+  ALERT_ECHOES_FIELD
 } from '../../../shared/constants/alert/alert-field.constant';
 import {AUTOMATIC_REVIEW, IGNORED} from '../../../shared/constants/alert/alert-status.constant';
 import {ADMIN_ROLE} from '../../../shared/constants/global.constant';
@@ -475,8 +476,12 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     return this.alertDetail.name;
   }
 
-  viewDetailAlert(alert: any, td: UtmFieldType) {
-    if (td.field !== ALERT_STATUS_FIELD) {
+  viewDetailAlert(alert: UtmAlertType, td: UtmFieldType) {
+    if (td.field !== ALERT_STATUS_FIELD && td.field !== ALERT_ECHOES_FIELD) {
+      if (alert.echoes > 0) {
+        alert.expanded = true;
+        this.loadChildrenAlerts(alert);
+      }
       this.alertDetail = alert;
       this.viewAlertDetail = true;
     }
@@ -586,7 +591,6 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   }
 
   loadChildrenAlerts(alert: UtmAlertType) {
-    console.log(alert);
     if (alert.expanded) {
       this.alerts = this.alerts.map(a => {
         if (a.id !== alert.id) {
