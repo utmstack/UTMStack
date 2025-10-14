@@ -218,13 +218,13 @@ export const ALERT_FIELDS: UtmFieldType[] = [
         label: 'Target Host',
         field: ALERT_TARGET_HOST_FIELD,
         type: ElasticDataTypesEnum.STRING,
-        visible: false,
+        visible: true,
       },
       {
         label: 'Target User',
         field: ALERT_TARGET_USER_FIELD,
         type: ElasticDataTypesEnum.STRING,
-        visible: false,
+        visible: true,
       }
     ]
   },
@@ -292,13 +292,13 @@ export const ALERT_FIELDS: UtmFieldType[] = [
         label: 'Adversary Host',
         field: ALERT_ADVERSARY_HOST_FIELD,
         type: ElasticDataTypesEnum.STRING,
-        visible: false,
+        visible: true,
       },
       {
         label: 'Adversary User',
-        field: ALERT_ADVERSARY_URL_FIELD,
+        field: ALERT_ADVERSARY_USER_FIELD,
         type: ElasticDataTypesEnum.STRING,
-        visible: false,
+        visible: true,
       }
     ]
   },
