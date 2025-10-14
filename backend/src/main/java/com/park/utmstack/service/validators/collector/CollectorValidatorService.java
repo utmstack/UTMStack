@@ -2,7 +2,6 @@ package com.park.utmstack.service.validators.collector;
 
 import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
 import com.park.utmstack.service.dto.collectors.dto.CollectorConfigKeysDTO;
-import com.park.utmstack.web.rest.application_modules.UtmModuleGroupConfigurationResource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
