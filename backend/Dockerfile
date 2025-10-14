@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 eclipse-temurin:11
+FROM eclipse-temurin:11
 
 ADD target/utmstack.war ./
 
