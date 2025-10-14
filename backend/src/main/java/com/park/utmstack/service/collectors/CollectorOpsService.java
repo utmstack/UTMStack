@@ -482,12 +482,14 @@ public class CollectorOpsService {
 
     @Transactional
     public void deleteCollector(Long id) throws Exception {
+
         Optional<UtmCollector> collector = utmCollectorRepository.findById(id);
+
         if (collector.isEmpty()) {
             log.error(String.format("Collector with %1$s not found", id));
             throw new RuntimeException(String.format("Collector with %1$s not found", id));
         } else if (collector.get().isActive()) {
-            this.deleteCollector(collector.get().getHostname(), CollectorModuleEnum.AS_400);
+            this.deleteCollector(collector.get().getHostname(), CollectorModuleEnum.valueOf(collector.get().getModule()));
 
             List<UtmModuleGroup> modules = this.utmModuleGroupRepository.findAllByCollector(id.toString());
             if(!modules.isEmpty()){
