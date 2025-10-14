@@ -164,8 +164,8 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
       this.selected = this.rule.tags.length > 0 ? [...this.rule.tags] : [];
     }
 
-    if(this.isFalsePositiveRule){
-      this.selected.push(FALSE_POSITIVE_OBJECT)
+    if (this.isFalsePositiveRule) {
+      this.selected.push(FALSE_POSITIVE_OBJECT);
     }
 
     this.alerts$ = this.alertService.onRefresh$
