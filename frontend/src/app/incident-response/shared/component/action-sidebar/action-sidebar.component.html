@@ -6,7 +6,7 @@
     </label>
   </div>
 
-  <div class="card-body d-flex flex-column p-0 flex-grow-1">
+  <div class="card-body d-flex flex-column p-0 flex-grow-1 m-h-0">
     <!-- search -->
     <div class="p-2">
       <app-utm-search-input (searchFor)="searchReport($event)"
@@ -21,9 +21,8 @@
     <div class="d-flex px-2 flex-column h-100 m-h-0">
       <div infiniteScroll
            (scrolled)="onScroll()"
-           [fromRoot]="true"
            [infiniteScrollDistance]="1"
-           [infiniteScrollThrottle]="80"
+           [infiniteScrollThrottle]="150"
            [scrollWindow]="false"
            class="px-1 pb-0 mb-1 overflow-auto flex-grow-1">
         <div *ngFor="let action of actionSidebarService.actionTemplates$ | async; trackBy: trackByFn; let last = last"
@@ -40,7 +39,6 @@
             </div>
           </div>
         </div>
-
       </div>
       <app-utm-spinner *ngIf="actionSidebarService.loading$ | async as loading"
                        class="position-absolute top-50 right-35"

@@ -1,9 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {last} from 'rxjs/operators';
 import {WorkflowActionsService} from '../../services/workflow-actions.service';
 import {ActionTerminalComponent} from '../action-terminal/action-terminal.component';
 import {ActionSidebarService} from './action-sidebar.service';
-import {last} from "rxjs/operators";
 
 @Component({
   selector: 'app-action-sidebar',
@@ -12,6 +12,10 @@ import {last} from "rxjs/operators";
 })
 export class ActionSidebarComponent implements OnInit, OnDestroy {
 
+  constructor(private workFlowActionService: WorkflowActionsService,
+              public actionSidebarService: ActionSidebarService,
+              private modalService: NgbModal) { }
+
   request = {
     page: 0,
     size: 10,
@@ -19,10 +23,7 @@ export class ActionSidebarComponent implements OnInit, OnDestroy {
   };
 
   searching: any;
-
-  constructor(private workFlowActionService: WorkflowActionsService,
-              public actionSidebarService: ActionSidebarService,
-              private modalService: NgbModal) { }
+  readonly last = last;
 
   ngOnInit() {
     this.actionSidebarService.loadData({
@@ -56,9 +57,14 @@ export class ActionSidebarComponent implements OnInit, OnDestroy {
   }
 
   onScroll() {
-    this.actionSidebarService.loadData({
+
+    this.request = {
       ...this.request,
-      size: this.request.size + 10,
+      size: this.request.size + 10
+    };
+
+    this.actionSidebarService.loadData({
+      ...this.request
     });
   }
 
@@ -69,6 +75,4 @@ export class ActionSidebarComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.actionSidebarService.reset();
   }
-
-  protected readonly last = last;
 }
