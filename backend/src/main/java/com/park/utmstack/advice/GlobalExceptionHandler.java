@@ -1,0 +1,68 @@
+package com.park.utmstack.advice;
+
+
+import com.park.utmstack.security.TooMuchLoginAttemptsException;
+import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.exceptions.IncidentAlertConflictException;
+import com.park.utmstack.util.exceptions.NoAlertsProvidedException;
+import com.park.utmstack.util.exceptions.TfaVerificationException;
+import com.park.utmstack.util.exceptions.TooManyRequestsException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.NoSuchElementException;
+
+@Slf4j
+@RestControllerAdvice
+@RequiredArgsConstructor
+public class GlobalExceptionHandler {
+
+    private final ApplicationEventService applicationEventService;
+
+    @ExceptionHandler(TfaVerificationException.class)
+    public ResponseEntity<?> TfaVerificationException(TfaVerificationException e, HttpServletRequest request) {
+        return UtilResponse.buildErrorResponse(HttpStatus.PRECONDITION_FAILED, e.getMessage());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<?> handleForbidden(BadCredentialsException e, HttpServletRequest request) {
+        return UtilResponse.buildUnauthorizedResponse(e.getMessage());
+    }
+
+    @ExceptionHandler(TooMuchLoginAttemptsException.class)
+    public ResponseEntity<?> handleTooManyLoginAttempts(TooMuchLoginAttemptsException e, HttpServletRequest request) {
+        return UtilResponse.buildLockedResponse(e.getMessage());
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<?> handleNotFound(NoSuchElementException e, HttpServletRequest request) {
+        return UtilResponse.buildNotFoundResponse(e.getMessage());
+    }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<?> handleTooManyRequests(TooManyRequestsException e, HttpServletRequest request) {
+        return UtilResponse.buildErrorResponse(HttpStatus.TOO_MANY_REQUESTS, e.getMessage());
+    }
+
+    @ExceptionHandler({NoAlertsProvidedException.class})
+    public ResponseEntity<?> handleNoAlertsProvided(Exception e, HttpServletRequest request) {
+        return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler(IncidentAlertConflictException.class)
+    public ResponseEntity<?> handleConflict(IncidentAlertConflictException e, HttpServletRequest request) {
+        return UtilResponse.buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleGenericException(Exception e, HttpServletRequest request) {
+        return UtilResponse.buildInternalServerErrorResponse(e.getMessage());
+    }
+}

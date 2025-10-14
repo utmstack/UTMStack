@@ -2,30 +2,38 @@
 <!DOCTYPE configuration>
 
 <configuration scan="true">
-    <include resource="org/springframework/boot/logging/logback/base.xml"/>
-
-<!-- The FILE and ASYNC appenders are here as examples for a production configuration -->
-<!--
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>90</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <charset>utf-8</charset>
-            <Pattern>%d %-5level [%thread] %logger{0}: %msg%n</Pattern>
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <!--<encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"app":"utmstack-backend"}</customFields>
+            <includeMdcKeyName>username</includeMdcKeyName>
+            <includeMdcKeyName>requestId</includeMdcKeyName>
+            <includeMdcKeyName>path</includeMdcKeyName>
+        </encoder>-->
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <fieldName>timestamp</fieldName>
+                </timestamp>
+                <logLevel>
+                    <fieldName>severity</fieldName>
+                </logLevel>
+                <message>
+                    <fieldName>msg</fieldName>
+                </message>
+               <!-- <stackTrace>
+                    <fieldName>trace</fieldName>
+                </stackTrace>-->
+                <arguments>
+                </arguments>
+            </providers>
         </encoder>
     </appender>
 
-    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
-        <queueSize>512</queueSize>
-        <appender-ref ref="FILE"/>
-    </appender>
-
-    <root level="${logging.level.root}">
-        <appender-ref ref="ASYNC"/>
+    <root level="INFO">
+        <appender-ref ref="JSON_CONSOLE"/>
     </root>
--->
+
+  <!--  <include resource="org/springframework/boot/logging/logback/base.xml"/>-->
 
     <logger name="javax.activation" level="WARN"/>
     <logger name="javax.mail" level="WARN"/>
@@ -41,8 +49,8 @@
     <logger name="org.apache" level="WARN"/>
     <logger name="org.apache.catalina.startup.DigesterFactory" level="OFF"/>
     <logger name="org.bson" level="WARN"/>
-    <logger name="org.hibernate.validator" level="WARN"/>
-    <logger name="org.hibernate" level="WARN"/>
+    <logger name="org.hibernate.validator" level="ERROR"/>
+    <logger name="org.hibernate" level="ERROR"/>
     <logger name="org.hibernate.ejb.HibernatePersistence" level="OFF"/>
     <logger name="org.springframework" level="WARN"/>
     <logger name="org.springframework.web" level="WARN"/>
@@ -55,6 +63,13 @@
     <logger name="liquibase" level="WARN"/>
     <logger name="LiquibaseSchemaResolver" level="INFO"/>
     <logger name="sun.rmi.transport" level="WARN"/>
+    <logger name="org.postgresql" level="WARN"/>
+    <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" level="OFF"/>
+    <logger name="org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController" level="OFF"/>
+    <logger name="org.springframework.boot.web.servlet.error.DefaultErrorAttributes" level="OFF"/>
+    <logger name="org.springframework.web.method.support.InvocableHandlerMethod" level="OFF"/>
+    <logger name="org.springframework.web.servlet.DispatcherServlet" level="OFF"/>
+
 
     <!-- https://logback.qos.ch/manual/configuration.html#shutdownHook and https://jira.qos.ch/browse/LOGBACK-1090 -->
     <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
