@@ -33,25 +33,21 @@ export class GuideUtmstackComponent implements OnInit {
                 private federationConnectionService: FederationConnectionService) {
     }
 
-    ngOnInit(): void {
-        this.ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
-        this.getToken();
-        this.loadArchitectures();
-    }
+  ngOnInit() {
+    this.getToken();
+  }
 
-    getToken() {
-        this.federationConnectionService.getToken().subscribe(response => {
-            if (response.body !== null && response.body !== '') {
-                this.token = response.body;
-            } else {
-                this.token = '';
-            }
-            this.vars = {
-                V_IP: this.ip,
-                V_TOKEN: this.token
-            };
-        });
-    }
+
+  getToken() {
+    this.federationConnectionService.getToken().subscribe(response => {
+      if (response.body !== null && response.body !== '') {
+        this.token = response.body;
+      } else {
+        this.token = '';
+      }
+      this.loadArchitectures();
+    });
+  }
 
   configValidChange($event: boolean) {
     this.configValidity = !$event;
@@ -81,13 +77,13 @@ export class GuideUtmstackComponent implements OnInit {
   getCommandUbuntu(installerName: string): string {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
 
-    return `sudo bash -c "apt update -y && \
+    return `sudo bash -c 'apt update -y && \
             apt install wget -y && \
             mkdir -p /opt/utmstack-collector && \
             wget --no-check-certificate -P /opt/utmstack-collector \
             https://${ip}:9001/private/dependencies/collector/${installerName} && \
             chmod -R 777 /opt/utmstack-collector/${installerName} && \
-            /opt/utmstack-collector/${installerName} install ${ip} <secret>${this.token}</secret> yes"`;
+            /opt/utmstack-collector/${installerName} install ${ip} <secret>${this.token}</secret>' yes'`;
   }
 
 
