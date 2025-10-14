@@ -63,6 +63,7 @@ import {AlertActionRefreshService} from "../../services/alert-action-refresh.ser
 export class AlertRuleCreateComponent implements OnInit, OnDestroy {
   @Input() alert: UtmAlertType;
   @Input() isForComplete = false;
+  @Input() isFalsePositiveRule = false;
   @Input() action: 'create' | 'update' | 'select' = 'create';
   @Input() rule: AlertRuleType;
   @Output() ruleAdd = new EventEmitter<AlertRuleType>();
@@ -159,8 +160,12 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
     });
 
     if (this.rule) {
-      this.filters = [... this.rule.conditions];
+      this.filters = [...this.rule.conditions];
       this.selected = this.rule.tags.length > 0 ? [...this.rule.tags] : [];
+    }
+
+    if(this.isFalsePositiveRule){
+      this.selected.push(FALSE_POSITIVE_OBJECT)
     }
 
     this.alerts$ = this.alertService.onRefresh$
@@ -362,7 +367,7 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
   }
 
   isFalsePositive() {
-    return this.selected.findIndex(value => value.tagName.includes('False positive')) !== -1;
+    return this.isFalsePositiveRule || this.selected.findIndex(value => value.tagName.includes('False positive')) !== -1;
   }
 
   getOperators(conditionField: string) {
