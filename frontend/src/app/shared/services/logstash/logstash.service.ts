@@ -11,7 +11,7 @@ import {createRequestOption} from '../../util/request-util';
   providedIn: 'root'
 })
 export class LogstashService {
-  public logstashFilterResourceUrl = SERVER_API_URL + 'api/logstash-filters';
+  public logstashFilterResourceUrl = SERVER_API_URL + 'api/utm-filters';
 
   constructor(private http: HttpClient) {
   }
