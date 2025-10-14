@@ -8,6 +8,7 @@ import com.park.utmstack.domain.logstash_filter.UtmLogstashFilter;
 import com.park.utmstack.repository.UtmModuleGroupRepository;
 import com.park.utmstack.repository.application_modules.UtmModuleRepository;
 import com.park.utmstack.service.UtmMenuService;
+import com.park.utmstack.service.dto.application_modules.ModuleActivationDTO;
 import com.park.utmstack.service.index_pattern.UtmIndexPatternService;
 import com.park.utmstack.service.logstash_filter.UtmLogstashFilterService;
 import org.slf4j.Logger;
@@ -53,14 +54,17 @@ public class UtmModuleService {
     /**
      * Activate or deactivate the module requested
      *
-     * @param nameShort        Short name of the module
-     * @param activationStatus Activation status
+     * @param moduleActivationDTO The module activation information
      * @return The current module information
-     * @throws Exception In case of any error
+     * @throws NoSuchElementException In case the module definition is not found for the server
      */
-    public UtmModule activateDeactivate(Long serverId, ModuleName nameShort, Boolean activationStatus) throws Exception {
+    public UtmModule activateDeactivate(ModuleActivationDTO moduleActivationDTO) {
         final String ctx = CLASSNAME + ".activateDeactivate";
         try {
+            long serverId = moduleActivationDTO.getServerId();
+            ModuleName nameShort = moduleActivationDTO.getModuleName();
+            boolean activationStatus = moduleActivationDTO.getActivationStatus();
+
             UtmModule module = moduleRepository.findByServerIdAndModuleName(serverId, nameShort);
 
             if (Objects.isNull(module))
@@ -79,7 +83,7 @@ public class UtmModuleService {
             enableDisableModuleFilter(nameShort, activationStatus);
             return module;
         } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
+            throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
 
