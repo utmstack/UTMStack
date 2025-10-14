@@ -7,6 +7,7 @@ import com.park.utmstack.domain.Authority;
 import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.federation_service.UtmFederationServiceClient;
+import com.park.utmstack.loggin.LogContextBuilder;
 import com.park.utmstack.repository.federation_service.UtmFederationServiceClientRepository;
 import com.park.utmstack.security.TooMuchLoginAttemptsException;
 import com.park.utmstack.security.jwt.JWTFilter;
@@ -36,8 +37,10 @@ import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -57,18 +60,17 @@ public class UserJWTController {
     private final MailService mailService;
     private final LoginAttemptService loginAttemptService;
     private final UtmFederationServiceClientRepository fsClientRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final LogContextBuilder logContextBuilder;
 
 
     @AuditEvent(
             attemptType = ApplicationEventType.AUTH_ATTEMPT,
             attemptMessage = "Authentication attempt registered",
-            successType = ApplicationEventType.AUTH_SUCCESS,
-            successMessage = "Authentication successful"
+            successType = ApplicationEventType.UNDEFINED,
+            successMessage = ""
     )
     @PostMapping("/authenticate")
-    public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM) {
-
+    public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM, HttpServletRequest request) {
 
             if (loginAttemptService.isBlocked()) {
                 String ip = loginAttemptService.getClientIP();
@@ -85,12 +87,24 @@ public class UserJWTController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             String jwt = tokenProvider.createToken(authentication, rememberMe, authenticated);
+            Map<String, Object> args = logContextBuilder.buildArgs(request);
 
             if (!authenticated) {
                 String secret = tfaService.generateSecret();
                 String code = tfaService.generateCode(secret);
                 User user = userService.updateUserTfaSecret(loginVM.getUsername(), secret);
+
+                applicationEventService.createEvent(
+                        "TFA challenge issued for user '" + user.getLogin(),
+                        ApplicationEventType.TFA_CODE_SENT,
+                        args
+                );
                 mailService.sendTfaVerificationCode(user, code);
+            } else {
+                applicationEventService.createEvent(
+                        "Login successfully completed for user '" + loginVM.getUsername() + "'",
+                        ApplicationEventType.AUTH_SUCCESS,
+                        args);
             }
 
             HttpHeaders httpHeaders = new HttpHeaders();
@@ -146,6 +160,12 @@ public class UserJWTController {
 
     }
 
+    @AuditEvent(
+            attemptType = ApplicationEventType.TFA_CODE_VERIFY_ATTEMPT,
+            attemptMessage = "Verification attempt for second-factor authentication",
+            successType = ApplicationEventType.AUTH_SUCCESS,
+            successMessage = "Login successfully completed"
+    )
     @GetMapping("/tfa/verifyCode")
     public ResponseEntity<JWTToken> verifyCode(@RequestParam String code) {
 
