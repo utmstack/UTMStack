@@ -48,4 +48,28 @@ public class AlertUtil {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
+
+    public Long countAllAlertsByStatus(int status) {
+        final String ctx = CLASSNAME + ".countAlertsByStatus";
+        final String AGG_NAME = "count_open_alerts";
+        try {
+            if (!elasticsearchService.indexExist(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS)))
+                return 0L;
+
+            List<FilterType> filters = new ArrayList<>();
+            filters.add(new FilterType(Constants.alertStatus, OperatorType.IS, status));
+            filters.add(new FilterType(Constants.alertTags, OperatorType.DOES_NOT_CONTAIN, Constants.FALSE_POSITIVE_TAG));
+
+            SearchRequest.Builder srb = new SearchRequest.Builder();
+            srb.query(SearchUtil.toQuery(filters))
+                    .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS))
+                    .aggregations(AGG_NAME, a -> a.valueCount(c -> c.field(Constants.alertStatus)))
+                    .size(0);
+
+            SearchResponse<Object> response = elasticsearchService.search(srb.build(), Object.class);
+            return (long) response.aggregations().get(AGG_NAME).valueCount().value();
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage());
+        }
+    }
 }
