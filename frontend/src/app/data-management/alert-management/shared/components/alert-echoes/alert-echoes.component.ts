@@ -2,8 +2,7 @@ import {HttpResponse} from '@angular/common/http';
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {
-  ALERT_ADVERSARY_FIELD,
-  ALERT_FIELDS, ALERT_PARENT_ID,
+  ALERT_ADVERSARY_FIELD, ALERT_ECHOES_FIELDS, ALERT_PARENT_ID,
   ALERT_STATUS_FIELD_AUTO, ALERT_TAGS_FIELD,
   ALERT_TARGET_FIELD, ALERT_TIMESTAMP_FIELD, FALSE_POSITIVE_OBJECT
 } from '../../../../../shared/constants/alert/alert-field.constant';
@@ -30,7 +29,7 @@ export class AlertEchoesComponent implements OnInit {
 
   page = 1;
   totalItems = 0;
-  readonly fields = ALERT_FIELDS;
+  readonly fields = ALERT_ECHOES_FIELDS;
   readonly ALERT_ADVERSARY_FIELD = ALERT_ADVERSARY_FIELD;
   readonly ALERT_TARGET_FIELD = ALERT_TARGET_FIELD;
   itemsPerPage = ITEMS_PER_PAGE;

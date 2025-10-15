@@ -9,6 +9,7 @@ import {
   ViewChild, ViewChildren,
   ViewContainerRef
 } from '@angular/core';
+import {container} from '@angular/core/src/render3';
 import {Subject} from 'rxjs';
 import {IndexPatternBehavior} from '../../../../../../log-analyzer/shared/behaviors/index-pattern.behavior';
 import {SortEvent} from '../../../../../directives/sortable/type/sort-event';
@@ -20,7 +21,6 @@ import {
   extractValueFromObjectByPath
 } from '../../../../../util/get-value-object-from-property-path.util';
 import {SUMMARY_COLUMNS} from './summary-fields';
-import {container} from "@angular/core/src/render3";
 
 @Component({
   selector: 'app-dynamic-table',
@@ -86,11 +86,14 @@ export class UtmDynamicTableComponent implements OnInit, OnChanges, OnDestroy {
   /**
    * Determine if show edit columns property
    */
+  @Input() pageable = true;
+
+  @Input() initialExpandedId?: number;
+
   @Input() editableColumn = true;
   @ViewChild('container', {read: ViewContainerRef}) entry: ViewContainerRef;
   @ViewChild('container') containerRef!: ElementRef<HTMLDivElement>;
   viewDetail = -1;
-  @Input() pageable = true;
   dataTypeEnum = ElasticDataTypesEnum;
   utmDateFormat = UtmDateFormatEnum;
   destroy$: Subject<void> = new Subject<void>();
@@ -100,6 +103,9 @@ export class UtmDynamicTableComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChildren('summaryWrapper') summaryWrappers: QueryList<ElementRef>;
 
   ngOnInit(): void {
+    if (this.initialExpandedId !== undefined) {
+      this.viewDetail = this.initialExpandedId;
+    }
   }
 
   onSort($event: SortEvent) {

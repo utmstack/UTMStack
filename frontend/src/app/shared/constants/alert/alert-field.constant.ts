@@ -396,6 +396,39 @@ export const ALERT_FIELDS: UtmFieldType[] = [
   },
 ];
 
+export const ALERT_ECHOES_FIELDS: UtmFieldType[] = [
+  {
+    label: 'Alert name',
+    field: ALERT_NAME_FIELD,
+    type: ElasticDataTypesEnum.STRING,
+    visible: true,
+  },
+  {
+    label: 'Severity',
+    field: ALERT_SEVERITY_FIELD_LABEL,
+    type: ElasticDataTypesEnum.NUMBER,
+    visible: true,
+  },
+  {
+    label: 'Status',
+    field: ALERT_STATUS_FIELD,
+    type: ElasticDataTypesEnum.NUMBER,
+    visible: true,
+  },
+  {
+    label: 'Time',
+    field: ALERT_TIMESTAMP_FIELD,
+    type: ElasticDataTypesEnum.DATE,
+    visible: true,
+  },
+  {
+    label: 'Sensor',
+    field: ALERT_SENSOR_FIELD,
+    type: ElasticDataTypesEnum.STRING,
+    visible: true,
+  }
+];
+
 
 export const ALERT_FILTERS_FIELDS: UtmFieldType[] = [
   {
