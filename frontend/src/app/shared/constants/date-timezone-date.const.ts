@@ -25,6 +25,8 @@ export const TIMEZONES: Array<{ label: string; timezone: string, zone: string }>
   {label: 'Sydney (AEST)', timezone: 'Australia/Sydney', zone: 'Australia'},
   {label: 'Melbourne (AEST)', timezone: 'Australia/Melbourne', zone: 'Australia'},
   {label: 'Perth (AWST)', timezone: 'Australia/Perth', zone: 'Australia'},
+  {label: 'New Zealand (NZST)', timezone: 'Pacific/Auckland', zone: 'Pacific'},
+  {label: 'Fiji (FJT)', timezone: 'Pacific/Fiji', zone: 'Pacific'},
   {label: 'Beijing (CST)', timezone: 'Asia/Shanghai', zone: 'Asia'},
   {label: 'Tokyo (JST)', timezone: 'Asia/Tokyo', zone: 'Asia'},
   {label: 'Seoul (KST)', timezone: 'Asia/Seoul', zone: 'Asia'},
@@ -37,7 +39,6 @@ export const TIMEZONES: Array<{ label: string; timezone: string, zone: string }>
   {label: 'Buenos Aires (ART)', timezone: 'America/Argentina/Buenos_Aires', zone: 'America'},
   {label: 'São Paulo (BRT)', timezone: 'America/Sao_Paulo', zone: 'America'},
 ];
-
 export const DATE_FORMATS: Array<{ label: string; format: string; equivalentTo: string }> = [
   {label: 'Short', format: 'short', equivalentTo: 'M/d/yy, h:mm a'},
   {label: 'Medium', format: 'medium', equivalentTo: 'MMM d, y, h:mm:ss a'},
