@@ -137,6 +137,7 @@ public final class Constants {
     // Defines the index pattern for querying Elasticsearch statistics indexes.
     // ----------------------------------------------------------------------------------
     public static final String STATISTICS_INDEX_PATTERN = "v11-statistics-*";
+    public static final String V11_API_ACCESS_LOGS = "v11-api-access-logs-*";
 
     // Logging
     public static final String TRACE_ID_KEY = "traceId";

@@ -1,3 +1,49 @@
+package com.park.utmstack.web.rest.api_key;
+
+import com.insecureweb.api.domain.User;
+import com.insecureweb.api.domain.apikey.index.ApiKeyUsageLogIndexDocument;
+import com.insecureweb.api.security.AuthoritiesConstants;
+import com.insecureweb.api.security.SecurityUtils;
+import com.insecureweb.api.service.ApiKeyService;
+import com.insecureweb.api.service.criteria.apikey.ApiKeyUsageLogCriteria;
+import com.insecureweb.api.service.dto.SearchHitsResponseDTO;
+import com.insecureweb.api.service.dto.apikey.ApiKeyResponseDTO;
+import com.insecureweb.api.service.dto.apikey.ApiKeyUpsertDTO;
+import com.insecureweb.api.service.exceptions.*;
+import com.insecureweb.api.service.user.UserService;
+import com.insecureweb.api.util.ResponseUtil;
+import com.insecureweb.api.web.rest.restutil.ResponseSearchHitsUtil;
+import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
+import com.park.utmstack.domain.chart_builder.types.query.FilterType;
+import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
+import com.park.utmstack.util.ResponseUtil;
+import com.park.utmstack.util.UtilPagination;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.AllArgsConstructor;
+import org.opensearch.client.opensearch.core.SearchResponse;
+import org.opensearch.client.opensearch.core.search.Hit;
+import org.opensearch.client.opensearch.core.search.HitsMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tech.jhipster.web.util.PaginationUtil;
+
+import java.util.*;
+
 @RestController
 @RequestMapping("/api/api-keys")
 @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.USER + "\")")
@@ -174,6 +220,32 @@ public class ApiKeyResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg, e);
             return ResponseUtil.buildInternalServerErrorResponse(msg);
+        }
+    }
+
+    @GetMapping("/usage")
+    public ResponseEntity<List<Map>> search(@RequestBody(required = false) List<FilterType> filters,
+                                            @RequestParam Integer top, @RequestParam String indexPattern,
+                                            @RequestParam(required = false, defaultValue = "false") boolean includeChildren,
+                                            Pageable pageable) {
+        final String ctx = CLASSNAME + ".search";
+        try {
+            SearchResponse<Map> searchResponse = elasticsearchService.search(filters, top, indexPattern,
+                    pageable, Map.class);
+
+            if (Objects.isNull(searchResponse) || Objects.isNull(searchResponse.hits()) || searchResponse.hits().total().value() == 0)
+                return ResponseEntity.ok(Collections.emptyList());
+
+            HitsMetadata<Map> hits = searchResponse.hits();
+            HttpHeaders headers = UtilPagination.generatePaginationHttpHeaders(Math.min(hits.total().value(), top),
+                    pageable.getPageNumber(), pageable.getPageSize(), "/api/elasticsearch/search");
+
+            return ResponseEntity.ok().headers(headers).body(results);
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return com.park.utmstack.util.ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 }
