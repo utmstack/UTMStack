@@ -3,6 +3,7 @@ package com.park.utmstack.service.api_key;
 import com.park.utmstack.domain.api_keys.ApiKey;
 import com.park.utmstack.domain.api_keys.ApiKeyUsageLog;
 import com.park.utmstack.repository.api_key.ApiKeyRepository;
+import com.park.utmstack.service.UserService;
 import com.park.utmstack.service.dto.api_key.ApiKeyResponseDTO;
 import com.park.utmstack.service.dto.api_key.ApiKeyUpsertDTO;
 import com.park.utmstack.service.elasticsearch.OpensearchClientBuilder;
@@ -35,11 +36,13 @@ public class ApiKeyService {
     private final ApiKeyRepository apiKeyRepository;
     private final ApiKeyMapper apiKeyMapper;
     private final OpensearchClientBuilder client;
+    private final UserService userService;
 
 
-    public ApiKeyResponseDTO createApiKey(Long userId, ApiKeyUpsertDTO dto) {
+    public ApiKeyResponseDTO createApiKey(ApiKeyUpsertDTO dto) {
         final String ctx = CLASSNAME + ".createApiKey";
         try {
+            Long userId = userService.getCurrentUserLogin().getId();
             apiKeyRepository.findByNameAndUserId(dto.getName(), userId)
                 .ifPresent(apiKey -> {
                     throw new ApiKeyExistException("Api key already exists");
@@ -60,9 +63,10 @@ public class ApiKeyService {
         }
     }
 
-    public String generateApiKey(Long userId, UUID apiKeyId) {
+    public String generateApiKey(UUID apiKeyId) {
         final String ctx = CLASSNAME + ".generateApiKey";
         try {
+            Long userId = userService.getCurrentUserLogin().getId();
             ApiKey apiKey = apiKeyRepository.findByIdAndUserId(apiKeyId, userId)
                 .orElseThrow(() -> new ApiKeyNotFoundException("API key not found"));
             String plainKey = generateRandomKey();
@@ -75,9 +79,10 @@ public class ApiKeyService {
         }
     }
 
-    public ApiKeyResponseDTO updateApiKey(Long userId, UUID apiKeyId, ApiKeyUpsertDTO dto) {
+    public ApiKeyResponseDTO updateApiKey(UUID apiKeyId, ApiKeyUpsertDTO dto) {
         final String ctx = CLASSNAME + ".updateApiKey";
         try {
+            Long userId = userService.getCurrentUserLogin().getId();
             ApiKey apiKey = apiKeyRepository.findByIdAndUserId(apiKeyId, userId)
                 .orElseThrow(() -> new ApiKeyNotFoundException("API key not found"));
             apiKey.setName(dto.getName());
@@ -94,9 +99,10 @@ public class ApiKeyService {
         }
     }
 
-    public ApiKeyResponseDTO getApiKey(Long userId, UUID apiKeyId) {
+    public ApiKeyResponseDTO getApiKey(UUID apiKeyId) {
         final String ctx = CLASSNAME + ".getApiKey";
         try {
+            Long userId = userService.getCurrentUserLogin().getId();
             ApiKey apiKey = apiKeyRepository.findByIdAndUserId(apiKeyId, userId)
                 .orElseThrow(() -> new ApiKeyNotFoundException("API key not found"));
             return apiKeyMapper.toDto(apiKey);
@@ -105,9 +111,10 @@ public class ApiKeyService {
         }
     }
 
-    public Page<ApiKeyResponseDTO> listApiKeys(Long userId, Pageable pageable) {
+    public Page<ApiKeyResponseDTO> listApiKeys(Pageable pageable) {
         final String ctx = CLASSNAME + ".listApiKeys";
         try {
+            Long userId = userService.getCurrentUserLogin().getId();
             return apiKeyRepository.findByUserId(userId, pageable).map(apiKeyMapper::toDto);
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
@@ -115,9 +122,10 @@ public class ApiKeyService {
     }
 
 
-    public void deleteApiKey(Long userId, UUID apiKeyId) {
+    public void deleteApiKey(UUID apiKeyId) {
         final String ctx = CLASSNAME + ".deleteApiKey";
         try {
+            Long userId = userService.getCurrentUserLogin().getId();
             ApiKey apiKey = apiKeyRepository.findByIdAndUserId(apiKeyId, userId)
                 .orElseThrow(() -> new ApiKeyNotFoundException("API key not found"));
             apiKeyRepository.delete(apiKey);
