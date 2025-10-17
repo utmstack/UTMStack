@@ -4,10 +4,7 @@ package com.park.utmstack.advice;
 import com.park.utmstack.security.TooMuchLoginAttemptsException;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.util.ResponseUtil;
-import com.park.utmstack.util.exceptions.IncidentAlertConflictException;
-import com.park.utmstack.util.exceptions.NoAlertsProvidedException;
-import com.park.utmstack.util.exceptions.TfaVerificationException;
-import com.park.utmstack.util.exceptions.TooManyRequestsException;
+import com.park.utmstack.util.exceptions.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -41,8 +38,9 @@ public class GlobalExceptionHandler {
         return ResponseUtil.buildLockedResponse(e.getMessage());
     }
 
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<?> handleNotFound(NoSuchElementException e, HttpServletRequest request) {
+    @ExceptionHandler({NoSuchElementException.class,
+                       ApiKeyNotFoundException.class})
+    public ResponseEntity<?> handleNotFound(Exception e, HttpServletRequest request) {
         return ResponseUtil.buildNotFoundResponse(e.getMessage());
     }
 
@@ -56,8 +54,9 @@ public class GlobalExceptionHandler {
         return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
-    @ExceptionHandler(IncidentAlertConflictException.class)
-    public ResponseEntity<?> handleConflict(IncidentAlertConflictException e, HttpServletRequest request) {
+    @ExceptionHandler({IncidentAlertConflictException.class,
+                       ApiKeyExistException.class})
+    public ResponseEntity<?> handleConflict(Exception e, HttpServletRequest request) {
         return ResponseUtil.buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
     }
 
