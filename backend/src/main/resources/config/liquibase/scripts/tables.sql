@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS public.utm_gvm_scan_result;
 DROP TABLE IF EXISTS public.utm_gvm_task;
 DROP TABLE IF EXISTS public.utm_module_modal;
 DROP TABLE IF EXISTS public.utm_system_restart;
+DROP TABLE IF EXISTS public.utm_api_keys;
 
 CREATE TABLE IF NOT EXISTS public.jhi_authority
 (
@@ -830,3 +831,23 @@ CREATE TABLE IF NOT EXISTS public.utm_space_notification_control
     next_notification timestamp without time zone                                                      NOT NULL,
     CONSTRAINT utm_space_notification_control_pkey PRIMARY KEY (id)
 );
+
+CREATE TABLE IF NOT EXISTS public.utm_api_keys
+(
+    id           uuid default uuid_generate_v4() not null
+        primary key,
+    account_id   uuid                            not null,
+    name         varchar(255)                    not null,
+    api_key      varchar(255)                    not null,
+    allowed_ip   text,
+    created_at   timestamp                       not null,
+    expires_at   timestamp,
+    generated_at timestamp
+);
+
+alter table utm_api_keys
+    owner to postgres;
+
+create unique index uk_api_keys_api_key
+    on utm_api_keys (api_key);
+
