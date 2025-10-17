@@ -1,0 +1,109 @@
+<div class="modal-header">
+  <h4 class="modal-title">Create API Key</h4>
+  <button
+    type="button"
+    class="close"
+    aria-label="Close"
+    (click)="activeModal.dismiss('Cross click')"
+  >
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div class="modal-body">
+  <!-- Error Alert -->
+  <div *ngIf="errorMsg" class="alert alert-danger alert-sm py-2">
+    {{ errorMsg }}
+  </div>
+
+  <form [formGroup]="apiKeyForm">
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input
+        type="text"
+        id="name"
+        class="form-control"
+        formControlName="name"
+        placeholder="Enter a descriptive name"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Allowed IPs</label>
+      <div class="input-group">
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="ipInput"
+          [ngModelOptions]="{ standalone: true }"
+          placeholder="Enter IP address"
+          (keyup.enter)="addIp()"
+        />
+        <div class="input-group-append">
+          <button
+            class="btn btn-outline-secondary btn-sm"
+            type="button"
+            (click)="addIp()"
+          >
+            Add IP
+          </button>
+        </div>
+      </div>
+      <ul class="mt-1" *ngIf="allowedIp.controls.length > 0">
+        <li
+          class="list-group-item mt-2 py-1 d-flex justify-content-between align-items-center"
+          *ngFor="let ip of allowedIp.controls; let i = index"
+        >
+          {{ ip.value }}
+          <button
+            type="button"
+            class="close my-auto"
+            aria-label="Remove IP"
+            (click)="removeIp(i)"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="form-group">
+      <label for="expiresAt">Expires At</label>
+      <input
+        type="datetime-local"
+        id="expiresAt"
+        class="form-control"
+        formControlName="expiresAt"
+      />
+    </div>
+  </form>
+</div>
+
+<div class="modal-footer">
+  <button
+    type="button"
+    class="btn btn-outline-dark"
+    [disabled]="loading"
+    (click)="activeModal.close('Close click')"
+  >
+    Close
+  </button>
+
+  <button
+    type="button"
+    class="btn btn-primary"
+    (click)="create()"
+    [disabled]="loading"
+  >
+    <span *ngIf="!loading">Create</span>
+    <span *ngIf="loading">
+      <span
+        class="spinner-border spinner-border-sm mr-2"
+        role="status"
+        aria-hidden="true"
+      ></span>
+      Creating...
+    </span>
+  </button>
+</div>
+

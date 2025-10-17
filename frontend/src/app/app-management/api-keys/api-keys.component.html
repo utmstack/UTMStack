@@ -1,0 +1,53 @@
+<div class="card  text-light shadow-sm mt-4">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h4 class="mb-0">API Keys</h4>
+        <p class="text-muted mb-0 small">
+          The API key is a simple encrypted string that identifies you in the application.
+        </p>
+      </div>
+      <button class="btn btn-primary" (click)="openCreateModal()">
+        <i class="fa fa-key mr-2"></i> Create New API Key
+      </button>
+    </div>
+
+    <div class="table-responsive mt-3">
+      <table class="table table- table-hover mb-0 align-middle">
+        <thead class="thead-light">
+          <tr>
+            <th>NAME</th>
+            <th>ALLOWED IPs</th>
+            <th>CREATED AT</th>
+            <th>EXPIRES AT</th>
+            <th class="text-center">ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody *ngIf="!loading && apiKeys.length; else loadingOrEmpty">
+          <tr *ngFor="let key of apiKeys">
+            <td><i class="fa fa-info-circle text-warning mr-2"></i> {{ key.name }}</td>
+            <td>{{ key.allowedIp?.join(', ') || '—' }}</td>
+            <td>{{ key.createdAt | date:'M/d/yy, h:mm a' }}</td>
+            <td>{{ key.expiresAt ? (key.expiresAt | date:'M/d/yy, h:mm a') : '—' }}</td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-light mr-2" (click)="regenerateKey(key.id)">
+                <i class="fa fa-sync-alt"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-info mr-2" (click)="openCreateModal()">
+                <i class="fa fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="deleteKey(key.id)">
+                <i class="fa fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #loadingOrEmpty>
+      <tr *ngIf="loading"><td colspan="5" class="text-center py-4">Loading...</td></tr>
+      <tr *ngIf="!loading && !apiKeys.length"><td colspan="5" class="text-center py-4 text-muted">No API Keys found.</td></tr>
+    </ng-template>
+  </div>
+</div>
