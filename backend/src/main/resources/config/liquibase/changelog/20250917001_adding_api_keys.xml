@@ -4,12 +4,12 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20250401001-create-api-keys-table" author="JD">
+    <changeSet id="20250917001-create-api-keys-table" author="Manuel">
         <createTable tableName="api_keys">
             <column name="id" type="UUID" defaultValueComputed="uuid_generate_v4()">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="account_id" type="UUID">
+            <column name="user_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(255)">
@@ -24,20 +24,17 @@
             </column>
             <column name="expires_at" type="TIMESTAMP"/>
         </createTable>
+
         <createIndex indexName="uk_api_keys_api_key" tableName="api_keys" unique="true">
             <column name="api_key"/>
         </createIndex>
-    </changeSet>
-    <changeSet id="20250401002-migrate-data" author="JD">
-        <sql>
-            INSERT INTO api_keys (account_id, name, api_key, created_at)
-            SELECT account_id::uuid, 'DefaultApiKey', api_key, CURRENT_TIMESTAMP
-            FROM jhi_user
-            WHERE api_key IS NOT NULL;
-        </sql>
-    </changeSet>
-    <changeSet id="20250401003-drop-api-key-column" author="JD">
-        <dropColumn tableName="jhi_user" columnName="api_key"/>
-    </changeSet>
 
+        <addForeignKeyConstraint
+                baseTableName="api_keys"
+                baseColumnNames="user_id"
+                constraintName="fk_api_keys_user"
+                referencedTableName="jhi_user"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
 </databaseChangeLog>
