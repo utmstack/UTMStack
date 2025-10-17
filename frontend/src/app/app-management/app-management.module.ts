@@ -45,9 +45,13 @@ import {UtmApiDocComponent} from './utm-api-doc/utm-api-doc.component';
 import {
   UtmNotificationViewComponent
 } from "./utm-notification/components/notifications-view/utm-notification-view.component";
+import { ApiKeysComponent } from './api-keys/api-keys.component';
+import { ApiKeyModalComponent } from './api-keys/shared/components/api-key-modal/api-key-modal.component';
 
 @NgModule({
   declarations: [
+    ApiKeysComponent,
+    ApiKeyModalComponent,
     AppManagementComponent,
     AppManagementSidebarComponent,
     IndexPatternHelpComponent,
@@ -84,6 +88,7 @@ import {
     HealthDetailComponent,
     MenuDeleteDialogComponent,
     TokenActivateComponent,
+    ApiKeyModalComponent,
     IndexDeleteComponent],
   imports: [
     CommonModule,
