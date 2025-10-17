@@ -1,23 +1,14 @@
 package com.park.utmstack.web.rest.api_key;
 
-import com.insecureweb.api.domain.User;
-import com.insecureweb.api.domain.apikey.index.ApiKeyUsageLogIndexDocument;
-import com.insecureweb.api.security.AuthoritiesConstants;
-import com.insecureweb.api.security.SecurityUtils;
-import com.insecureweb.api.service.ApiKeyService;
-import com.insecureweb.api.service.criteria.apikey.ApiKeyUsageLogCriteria;
-import com.insecureweb.api.service.dto.SearchHitsResponseDTO;
-import com.insecureweb.api.service.dto.apikey.ApiKeyResponseDTO;
-import com.insecureweb.api.service.dto.apikey.ApiKeyUpsertDTO;
-import com.insecureweb.api.service.exceptions.*;
-import com.insecureweb.api.service.user.UserService;
-import com.insecureweb.api.util.ResponseUtil;
-import com.insecureweb.api.web.rest.restutil.ResponseSearchHitsUtil;
-import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
+
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
-import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
-import com.park.utmstack.util.ResponseUtil;
+import com.park.utmstack.security.AuthoritiesConstants;
+import com.park.utmstack.service.api_key.ApiKeyService;
+import com.park.utmstack.service.dto.api_key.ApiKeyResponseDTO;
+import com.park.utmstack.service.dto.api_key.ApiKeyUpsertDTO;
+import com.park.utmstack.service.elasticsearch.ElasticsearchService;
 import com.park.utmstack.util.UtilPagination;
+import com.park.utmstack.web.rest.elasticsearch.ElasticsearchResource;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -26,12 +17,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.opensearch.client.opensearch.core.search.Hit;
 import org.opensearch.client.opensearch.core.search.HitsMetadata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springdoc.core.annotations.ParameterObject;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -43,24 +33,18 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/api-keys")
 @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.USER + "\")")
+@Slf4j
 @AllArgsConstructor
 @Hidden
 public class ApiKeyResource {
 
-    private static final String CLASSNAME = "ApiKeyResource";
-    private final Logger log = LoggerFactory.getLogger(ApiKeyResource.class);
-
     private final ApiKeyService apiKeyService;
-    private final UserService userService;
-
-    private UUID getCurrentAccountId() throws CurrentUserLoginNotFoundException {
-        User user = userService.getUserWithAuthoritiesByLogin(SecurityUtils.currentUserLogin());
-        return UUID.fromString(user.getAccountId());
-    }
+    private final ElasticsearchService elasticsearchService;
 
     @Operation(summary = "Create API key",
         description = "Creates a new API key record using the provided settings. The plain text key is not generated at creation.")
@@ -75,18 +59,8 @@ public class ApiKeyResource {
     })
     @PostMapping
     public ResponseEntity<ApiKeyResponseDTO> createApiKey(@RequestBody ApiKeyUpsertDTO dto) {
-        final String ctx = CLASSNAME + ".createApiKey";
-        try {
-            UUID accountId = getCurrentAccountId();
-            ApiKeyResponseDTO responseDTO = apiKeyService.createApiKey(accountId, dto);
+            ApiKeyResponseDTO responseDTO = apiKeyService.createApiKey(dto);
             return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
-        } catch (ApiKeyExistException e) {
-            return ResponseUtil.buildConflictResponse(e.getMessage());
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg, e);
-            return ResponseUtil.buildInternalServerErrorResponse(msg);
-        }
     }
 
     @Operation(summary = "Generate a new API key",
@@ -102,18 +76,8 @@ public class ApiKeyResource {
     })
     @PostMapping("/{id}/generate")
     public ResponseEntity<String> generateApiKey(@PathVariable("id") UUID apiKeyId) {
-        final String ctx = CLASSNAME + ".generateApiKey";
-        try {
-            UUID accountId = getCurrentAccountId();
-            String plainKey = apiKeyService.generateApiKey(accountId, apiKeyId);
-            return ResponseEntity.ok(plainKey);
-        } catch (ApiKeyNotFoundException e) {
-            return ResponseUtil.buildNotFoundResponse(e.getMessage());
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg, e);
-            return ResponseUtil.buildInternalServerErrorResponse(msg);
-        }
+        String plainKey = apiKeyService.generateApiKey(apiKeyId);
+        return ResponseEntity.ok(plainKey);
     }
 
     @Operation(summary = "Retrieve API key",
@@ -129,18 +93,8 @@ public class ApiKeyResource {
     })
     @GetMapping("/{id}")
     public ResponseEntity<ApiKeyResponseDTO> getApiKey(@PathVariable("id") UUID apiKeyId) {
-        final String ctx = CLASSNAME + ".getApiKey";
-        try {
-            UUID accountId = getCurrentAccountId();
-            ApiKeyResponseDTO responseDTO = apiKeyService.getApiKey(accountId, apiKeyId);
-            return ResponseEntity.ok(responseDTO);
-        } catch (ApiKeyNotFoundException e) {
-            return ResponseUtil.buildNotFoundResponse(e.getMessage());
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg, e);
-            return ResponseUtil.buildInternalServerErrorResponse(msg);
-        }
+        ApiKeyResponseDTO responseDTO = apiKeyService.getApiKey(apiKeyId);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @Operation(summary = "List API keys",
@@ -156,17 +110,10 @@ public class ApiKeyResource {
     })
     @GetMapping("")
     public ResponseEntity<List<ApiKeyResponseDTO>> listApiKeys(@ParameterObject Pageable pageable) {
-        final String ctx = CLASSNAME + ".listApiKeys";
-        try {
-            UUID accountId = getCurrentAccountId();
-            Page<ApiKeyResponseDTO> page = apiKeyService.listApiKeys(accountId, pageable);
-            HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-            return ResponseEntity.ok().headers(headers).body(page.getContent());
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg, e);
-            return ResponseUtil.buildInternalServerErrorResponse(msg);
-        }
+        Page<ApiKeyResponseDTO> page = apiKeyService.listApiKeys(pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @Operation(summary = "Update API key",
@@ -183,18 +130,10 @@ public class ApiKeyResource {
     @PutMapping("/{id}")
     public ResponseEntity<ApiKeyResponseDTO> updateApiKey(@PathVariable("id") UUID apiKeyId,
                                                           @RequestBody ApiKeyUpsertDTO dto) {
-        final String ctx = CLASSNAME + ".updateApiKey";
-        try {
-            UUID accountId = getCurrentAccountId();
-            ApiKeyResponseDTO responseDTO = apiKeyService.updateApiKey(accountId, apiKeyId, dto);
-            return ResponseEntity.ok(responseDTO);
-        } catch (ApiKeyNotFoundException e) {
-            return ResponseUtil.buildNotFoundResponse(e.getMessage());
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg, e);
-            return ResponseUtil.buildInternalServerErrorResponse(msg);
-        }
+
+        ApiKeyResponseDTO responseDTO = apiKeyService.updateApiKey(apiKeyId, dto);
+        return ResponseEntity.ok(responseDTO);
+
     }
 
     @Operation(summary = "Delete API key",
@@ -209,18 +148,9 @@ public class ApiKeyResource {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteApiKey(@PathVariable("id") UUID apiKeyId) {
-        final String ctx = CLASSNAME + ".deleteApiKey";
-        try {
-            UUID accountId = getCurrentAccountId();
-            apiKeyService.deleteApiKey(accountId, apiKeyId);
-            return ResponseEntity.noContent().build();
-        } catch (ApiKeyNotFoundException e) {
-            return ResponseUtil.buildNotFoundResponse(e.getMessage());
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg, e);
-            return ResponseUtil.buildInternalServerErrorResponse(msg);
-        }
+
+        apiKeyService.deleteApiKey(apiKeyId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/usage")
@@ -228,24 +158,19 @@ public class ApiKeyResource {
                                             @RequestParam Integer top, @RequestParam String indexPattern,
                                             @RequestParam(required = false, defaultValue = "false") boolean includeChildren,
                                             Pageable pageable) {
-        final String ctx = CLASSNAME + ".search";
-        try {
-            SearchResponse<Map> searchResponse = elasticsearchService.search(filters, top, indexPattern,
-                    pageable, Map.class);
 
-            if (Objects.isNull(searchResponse) || Objects.isNull(searchResponse.hits()) || searchResponse.hits().total().value() == 0)
-                return ResponseEntity.ok(Collections.emptyList());
+        SearchResponse<Map> searchResponse = elasticsearchService.search(filters, top, indexPattern,
+                pageable, Map.class);
 
-            HitsMetadata<Map> hits = searchResponse.hits();
-            HttpHeaders headers = UtilPagination.generatePaginationHttpHeaders(Math.min(hits.total().value(), top),
-                    pageable.getPageNumber(), pageable.getPageSize(), "/api/elasticsearch/search");
+        if (Objects.isNull(searchResponse) || Objects.isNull(searchResponse.hits()) || searchResponse.hits().total().value() == 0)
+            return ResponseEntity.ok(Collections.emptyList());
 
-            return ResponseEntity.ok().headers(headers).body(results);
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return com.park.utmstack.util.ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
-        }
+        HitsMetadata<Map> hits = searchResponse.hits();
+        HttpHeaders headers = UtilPagination.generatePaginationHttpHeaders(Math.min(hits.total().value(), top),
+                pageable.getPageNumber(), pageable.getPageSize(), "/api/elasticsearch/search");
+
+        return ResponseEntity.ok().headers(headers).body(hits.hits().stream()
+                .map(Hit::source).collect(Collectors.toList()));
+
     }
 }
