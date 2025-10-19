@@ -40,7 +40,7 @@ public class ApplicationEventService {
                 .message(message).timestamp(Instant.now().toString())
                 .source(ApplicationEventSource.PANEL.name()).type(type.name())
                 .build();
-            /*client.getClient().index(".utmstack-logs", applicationEvent);*/
+            client.getClient().index(".utmstack-logs", applicationEvent);
         } catch (Exception e) {
             log.error(ctx + ": {}", e.getMessage());
         }
