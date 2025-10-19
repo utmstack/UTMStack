@@ -2,7 +2,9 @@ package com.park.utmstack.config;
 
 import com.park.utmstack.domain.index_pattern.enums.SystemIndexPattern;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class Constants {
@@ -151,6 +153,9 @@ public final class Constants {
 
     public static final String ENV_TFA_ENABLE = "APP_TFA_ENABLED";
     public static final String TFA_EXEMPTION_HEADER = "X-Bypass-TFA";
+
+    public static final String API_KEY_HEADER = "api-key";
+    public static final List<String> API_ENDPOINT_IGNORE = Collections.emptyList();
 
     private Constants() {
     }
