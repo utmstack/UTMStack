@@ -17,7 +17,7 @@ import java.util.UUID;
 public class ApiKeyResponseDTO {
 
     @Schema(description = "Unique identifier of the API key")
-    private UUID id;
+    private Long id;
 
     @Schema(description = "User-friendly API key name")
     private String name;
