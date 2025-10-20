@@ -52,7 +52,6 @@ public class ApiKeyFilter extends OncePerRequestFilter {
     private final ApiKeyService apiKeyService;
     private final ConcurrentMap<String, Boolean> invalidApiKeyBlackList = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, SubnetUtils> cidrCache = new ConcurrentHashMap<>();
-    private final ApplicationEventService applicationEventService;
     private final ApiKeyUsageLoggingService apiKeyUsageLoggingService;
 
     @Override
