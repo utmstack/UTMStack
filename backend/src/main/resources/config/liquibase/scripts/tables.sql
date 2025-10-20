@@ -12,7 +12,6 @@ DROP TABLE IF EXISTS public.utm_gvm_scan_result;
 DROP TABLE IF EXISTS public.utm_gvm_task;
 DROP TABLE IF EXISTS public.utm_module_modal;
 DROP TABLE IF EXISTS public.utm_system_restart;
-DROP TABLE IF EXISTS public.utm_api_keys;
 
 CREATE TABLE IF NOT EXISTS public.jhi_authority
 (
