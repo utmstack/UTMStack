@@ -62,8 +62,8 @@ public class EventProcessorManagerService {
         Set<UtmModuleGroup> groups = module.getModuleGroups();
         groups.forEach((gp) -> {
             gp.getModuleGroupConfigurations().forEach((gpc) -> {
-                if ((gpc.getConfDataType().equals("password") && StringUtils.hasText(gpc.getConfValue()))
-                        || (gpc.getConfDataType().equals("file") && StringUtils.hasText(gpc.getConfValue())) && typeFileNeedsDecryptList.contains(module.getModuleName())) {
+                if ((gpc.getConfDataType().equals(Constants.CONF_TYPE_PASSWORD) && StringUtils.hasText(gpc.getConfValue()))
+                        || (gpc.getConfDataType().equals(Constants.CONF_TYPE_FILE) && StringUtils.hasText(gpc.getConfValue())) && typeFileNeedsDecryptList.contains(module.getModuleName())) {
                     gpc.setConfValue(CipherUtil.decrypt(gpc.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
                 }
             });

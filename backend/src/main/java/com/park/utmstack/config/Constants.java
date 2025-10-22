@@ -154,6 +154,11 @@ public final class Constants {
     public static final String ENV_TFA_ENABLE = "APP_TFA_ENABLED";
     public static final String TFA_EXEMPTION_HEADER = "X-Bypass-TFA";
 
+    // Configuration data types for moduleGroupConfiguration
+
+    public static final String CONF_TYPE_PASSWORD = "password";
+    public static final String CONF_TYPE_FILE = "file";
+
     public static final String API_KEY_HEADER = "api-key";
     public static final List<String> API_ENDPOINT_IGNORE = Collections.emptyList();
 
