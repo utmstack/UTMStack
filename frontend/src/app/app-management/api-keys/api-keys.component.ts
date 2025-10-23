@@ -3,6 +3,7 @@ import { ApiKeysService } from './shared/service/api-keys.service';
 import { ApiKeyResponse } from './shared/models/ApiKeyResponse';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ApiKeyModalComponent } from './shared/components/api-key-modal/api-key-modal.component';
+import {SortEvent} from "../../shared/directives/sortable/type/sort-event";
 
 @Component({
   selector: 'app-api-keys',
@@ -49,5 +50,9 @@ export class ApiKeysComponent implements OnInit {
     this.apiKeyService.generate(id).subscribe((res) => {
       alert('New API Key: ' + res.body);
     });
+  }
+
+  onSortBy($event: SortEvent | string) {
+
   }
 }

@@ -16,6 +16,7 @@ import {MenuComponent} from './menu/menu.component';
 import {RolloverConfigComponent} from './rollover-config/rollover-config.component';
 import {UtmApiDocComponent} from './utm-api-doc/utm-api-doc.component';
 import {UtmNotificationViewComponent} from './utm-notification/components/notifications-view/utm-notification-view.component';
+import {ApiKeysComponent} from "./api-keys/api-keys.component";
 
 const routes: Routes = [
   {path: '', redirectTo: 'settings', pathMatch: 'full'},
@@ -123,7 +124,16 @@ const routes: Routes = [
         data: {
           authorities: [ADMIN_ROLE]
         },
-      }],
+      },
+      {
+        path: 'api-keys',
+        component: ApiKeysComponent,
+        canActivate: [UserRouteAccessService],
+        data: {
+          authorities: [ADMIN_ROLE]
+        },
+      }
+      ],
   },
 ];
 
