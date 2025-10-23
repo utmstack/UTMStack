@@ -30,12 +30,15 @@ export class ApiKeysComponent implements OnInit {
         this.apiKeys = res.body || [];
         this.loading = false;
       },
-      error: () => (this.loading = false)
+      error: () =>  {
+        this.loading = false;
+        this.apiKeys = [];
+      }
     });
   }
 
   openCreateModal(): void {
-    const modalRef = this.modalService.open(ApiKeyModalComponent, { centered: true, size: 'lg' });
+    const modalRef = this.modalService.open(ApiKeyModalComponent, { centered: true });
     modalRef.result.then((result) => {
       if (result === 'created') this.loadKeys();
     }).catch(() => {});
