@@ -1,16 +1,6 @@
-<div class="modal-header">
-  <h4 class="modal-title">Create API Key</h4>
-  <button
-    type="button"
-    class="close"
-    aria-label="Close"
-    (click)="activeModal.dismiss('Cross click')"
-  >
-    <span aria-hidden="true">&times;</span>
-  </button>
-</div>
+<app-utm-modal-header [name]="apiKey?.id ? 'Edit Api Key' : 'Create Api Key'"></app-utm-modal-header>
 
-<div class="modal-body">
+<div class="container-fluid p-3">
   <!-- Error Alert -->
   <div *ngIf="errorMsg" class="alert alert-danger alert-sm py-2">
     {{ errorMsg }}
@@ -77,33 +67,26 @@
       />
     </div>
   </form>
+
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button
+      type="button"
+      class="btn utm-button utm-button-grey mr-3"
+      [disabled]="loading"
+      (click)="activeModal.close('Close click')">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+
+    <button (click)="create()"
+            [disabled]="!apiKeyForm.valid"
+            class="btn utm-button utm-button-primary
+             d-flex justify-content-center
+              align-items-center">
+      <i [ngClass]="isSaving ? 'icon-spinner2 spinner' : 'icon-key'"></i>&nbsp;
+      {{apiKey?.id ? 'Edit Api Key' : 'Create Api Key'}}
+    </button>
+  </div>
 </div>
 
-<div class="modal-footer">
-  <button
-    type="button"
-    class="btn btn-outline-dark"
-    [disabled]="loading"
-    (click)="activeModal.close('Close click')"
-  >
-    Close
-  </button>
-
-  <button
-    type="button"
-    class="btn btn-primary"
-    (click)="create()"
-    [disabled]="loading"
-  >
-    <span *ngIf="!loading">Create</span>
-    <span *ngIf="loading">
-      <span
-        class="spinner-border spinner-border-sm mr-2"
-        role="status"
-        aria-hidden="true"
-      ></span>
-      Creating...
-    </span>
-  </button>
-</div>
 
