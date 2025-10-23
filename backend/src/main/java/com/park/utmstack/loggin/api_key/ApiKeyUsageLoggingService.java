@@ -8,6 +8,7 @@ import com.park.utmstack.service.application_events.ApplicationEventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
@@ -16,6 +17,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.UUID;
+
+import static org.postgresql.PGProperty.APPLICATION_NAME;
 
 @Service
 @Slf4j
@@ -26,8 +29,8 @@ public class ApiKeyUsageLoggingService {
     private final ApplicationEventService applicationEventService;
     private static final String LOG_USAGE_FLAG = "LOG_USAGE_DONE";
 
-    public void logUsage(HttpServletRequest request,
-                         HttpServletResponse response,
+    public void logUsage(ContentCachingRequestWrapper request,
+                         ContentCachingResponseWrapper response,
                          ApiKey apiKey,
                          String ipAddress,
                          String message) {
@@ -41,7 +44,7 @@ public class ApiKeyUsageLoggingService {
             String errorText = extractErrorText(response);
             int status = safeStatus(response);
 
-            ApiKeyUsageLog usage = buildUsageLog(apiKey, ipAddress, request, status, errorText, payload, message);
+            ApiKeyUsageLog usage = buildUsageLog(apiKey, ipAddress, request, status, errorText, payload);
 
             apiKeyService.logUsage(usage);
 
@@ -70,28 +73,27 @@ public class ApiKeyUsageLoggingService {
         }
     }
 
-    private String extractPayload(HttpServletRequest request) {
-        if (request instanceof ContentCachingRequestWrapper wrapper) {
-            byte[] buf = wrapper.getContentAsByteArray();
-            if (buf.length > 0) {
-                return extractBody(buf);
+    private String extractPayload(ContentCachingRequestWrapper request) {
+        try {
+            if (!"GET".equalsIgnoreCase(request.getMethod()) && !"DELETE".equalsIgnoreCase(request.getMethod())) {
+                byte[] content = request.getContentAsByteArray();
+                return content.length > 0 ? new String(content, StandardCharsets.UTF_8) : null;
             }
+        } catch (Exception ex) {
+            log.error("Error extracting payload: {}", ex.getMessage());
         }
         return null;
     }
 
-    private String extractErrorText(HttpServletResponse response) {
-        if (response instanceof ContentCachingResponseWrapper wrapper) {
-            byte[] buf = wrapper.getContentAsByteArray();
-            if (buf.length > 0) {
-                return extractBody(buf);
-            }
+    private String extractErrorText(ContentCachingResponseWrapper response) {
+        int statusCode = response.getStatus();
+        if (statusCode >= 400) {
+            byte[] content = response.getContentAsByteArray();
+            String responseError = content.length > 0 ? new String(content, StandardCharsets.UTF_8) : null;
+            String errorHeader = response.getHeader("X-" + APPLICATION_NAME + "-error");
+            return StringUtils.hasText(responseError) ? responseError : errorHeader;
         }
         return null;
-    }
-
-    private String extractBody(byte[] buf) {
-        return buf.length > 0 ? new String(buf, StandardCharsets.UTF_8) : null;
     }
 
     private ApiKeyUsageLog buildUsageLog(ApiKey apiKey,
@@ -99,8 +101,7 @@ public class ApiKeyUsageLoggingService {
                                          HttpServletRequest request,
                                          int status,
                                          String errorText,
-                                         String payload,
-                                         String message) {
+                                         String payload) {
 
         String id = UUID.randomUUID().toString();
         String apiKeyId = apiKey != null && apiKey.getId() != null ? apiKey.getId().toString() : null;

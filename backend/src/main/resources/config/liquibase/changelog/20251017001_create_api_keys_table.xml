@@ -19,7 +19,11 @@
                 <constraints nullable="false"/>
             </column>
             <column name="allowed_ip" type="text"/>
+
             <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="generated_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
             <column name="expires_at" type="TIMESTAMP"/>
