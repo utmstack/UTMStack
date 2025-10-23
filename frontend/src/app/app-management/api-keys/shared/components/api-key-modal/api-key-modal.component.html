@@ -19,53 +19,86 @@
     </div>
 
     <div class="form-group">
-      <label>Allowed IPs</label>
+      <label for="expiresAt" class="control-label">Expires At</label>
       <div class="input-group">
         <input
-          type="text"
+          style="background-color: transparent!important;"
           class="form-control"
-          [(ngModel)]="ipInput"
-          [ngModelOptions]="{ standalone: true }"
-          placeholder="Enter IP address"
-          (keyup.enter)="addIp()"
+          id="expiresAt"
+          name="expiresAt"
+          placeholder="yyyy-mm-dd"
+          formControlName="expiresAt"
+          ngbDatepicker
+          #dp="ngbDatepicker"
+          readonly
         />
         <div class="input-group-append">
           <button
-            class="btn btn-outline-secondary btn-sm"
             type="button"
-            (click)="addIp()"
+            class="btn utm-button utm-button-primary"
+            (click)="dp.toggle()"
           >
-            Add IP
+            <i class="icon-calendar22"></i>
           </button>
         </div>
       </div>
-      <ul class="mt-1" *ngIf="allowedIp.controls.length > 0">
-        <li
-          class="list-group-item mt-2 py-1 d-flex justify-content-between align-items-center"
-          *ngFor="let ip of allowedIp.controls; let i = index"
-        >
-          {{ ip.value }}
-          <button
-            type="button"
-            class="close my-auto"
-            aria-label="Remove IP"
-            (click)="removeIp(i)"
-          >
-            <span aria-hidden="true">&times;</span>
-          </button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Allowed IPs</label>
+
+      <div class="input-group">
+        <input
+          type="text"
+          class="form-control disabled-rounded-ends"
+          [(ngModel)]="ipInput"
+          [ngModelOptions]="{ standalone: true }"
+          placeholder="Add IP address or CIDR (e.g., 192.168.1.0/24)"
+          (keyup.enter)="addIp()"
+          [class.is-invalid]="ipInputError"
+        />
+        <button
+          class="btn utm-button utm-button-primary disabled-rounded-start"
+          type="button"
+          (click)="addIp()">
+          <i class="icon-add"></i>
+        </button>
+      </div>
+
+      <div *ngIf="ipInputError" class="text-danger mt-1">
+        {{ ipInputError }}
+      </div>
+
+      <ul class="list-group mt-3 border-0" *ngIf="allowedIp.controls.length > 0">
+        <li class="list-group-item"
+          style="min-height: 44px;
+                  padding: 10px 12px;
+                  margin-bottom: 6px;
+                  border: 1px solid #e5e5e5;
+                  border-radius: 4px;"
+          *ngFor="let ip of allowedIp.controls; let i = index">
+
+          <div class="row" style="display: flex; align-items: center;">
+            <div class="col-xs-8 col-sm-9" style="display: flex; align-items: center;">
+              <i class="icon-checkmark-circle text-success" style="margin-right: 6px; font-size: 16px;"></i>
+              <strong style="margin-right: 6px;">{{ ip.value }}</strong>
+              <span class="label label-primary">{{ getIpType(ip.value) }}</span>
+            </div>
+            <div class="col-xs-4 col-sm-3 text-right">
+              <button
+                type="button"
+                class="btn bg-light m-0 p-1 cursor-pointer medium-icon"
+                (click)="removeIp(i)"
+                style="min-height: 28px; display: inline-flex; align-items: center;">
+                <i class="icon-cross2" style="margin-right: 4px;"></i>
+              </button>
+            </div>
+          </div>
         </li>
       </ul>
     </div>
 
-    <div class="form-group">
-      <label for="expiresAt">Expires At</label>
-      <input
-        type="datetime-local"
-        id="expiresAt"
-        class="form-control"
-        formControlName="expiresAt"
-      />
-    </div>
+
   </form>
 
   <div class="button-container d-flex justify-content-end mt-4">
