@@ -127,6 +127,16 @@
 
     <a *appHasAnyAuthority="adminAuth"
        class="list-group-item"
+       routerLink="/app-management/settings/api-keys"
+       routerLinkActive="router-link-active">
+          <span class="font-weight-semibold">
+             <i class="icon-key font-size-sm"></i>&nbsp;
+            API Keys
+          </span>
+    </a>
+
+    <a *appHasAnyAuthority="adminAuth"
+       class="list-group-item"
        routerLink="/app-management/settings/about"
        routerLinkActive="router-link-active">
           <span class="font-weight-semibold">
