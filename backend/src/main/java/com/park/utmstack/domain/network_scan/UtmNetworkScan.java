@@ -140,12 +140,6 @@ public class UtmNetworkScan implements Serializable {
     @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)
     private List<UtmAssetMetrics> metrics;
 
-    /*@OneToMany(mappedBy = "assetName", fetch = FetchType.LAZY)
-    private List<UtmDataInputStatus> dataInputSourceList;
-
-    @OneToMany(mappedBy = "assetIp", fetch = FetchType.LAZY)
-    private List<UtmDataInputStatus> dataInputIpList;*/
-
     @OneToOne
     @JoinColumn(name = "group_id", referencedColumnName = "id", insertable = false, updatable = false)
     private UtmAssetGroup assetGroup;
