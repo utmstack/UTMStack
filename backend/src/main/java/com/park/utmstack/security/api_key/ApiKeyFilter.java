@@ -37,10 +37,9 @@ import java.util.regex.Pattern;
 
 import static com.park.utmstack.config.Constants.API_ENDPOINT_IGNORE;
 
-@Order(1)
-@AllArgsConstructor
 @Slf4j
 @Component
+@AllArgsConstructor
 public class ApiKeyFilter extends OncePerRequestFilter {
 
     private static final String LOG_USAGE_FLAG = "LOG_USAGE_DONE";
@@ -50,10 +49,11 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
     private final UserRepository userRepository;
     private final ApiKeyService apiKeyService;
-    private final ConcurrentMap<String, Boolean> invalidApiKeyBlackList = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Boolean> invalidApiKeyBlackList = new ConcurrentHashMap<>();;
     private final ConcurrentMap<String, SubnetUtils> cidrCache = new ConcurrentHashMap<>();
     private final ApplicationEventService applicationEventService;
     private final ApiKeyUsageLoggingService apiKeyUsageLoggingService;
+
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -91,14 +91,14 @@ public class ApiKeyFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (ApiKeyInvalidAccessException e) {
-            apiKeyUsageLoggingService.logUsage(wrappedRequest, response, key, ipAddress, e.getMessage());
+            apiKeyUsageLoggingService.logUsage(wrappedRequest, wrappedResponse, key, ipAddress, e.getMessage());
             throw e;
         }
 
         filterChain.doFilter(wrappedRequest, wrappedResponse);
         wrappedResponse.copyBodyToResponse();
 
-        apiKeyUsageLoggingService.logUsage(wrappedRequest, response, key, ipAddress, null);
+        apiKeyUsageLoggingService.logUsage(wrappedRequest, wrappedResponse, key, ipAddress, null);
     }
 
     private ApiKey getApiKey(String apiKey) {
