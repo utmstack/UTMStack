@@ -53,7 +53,11 @@ export class ApiKeyModalComponent implements OnInit {
     }
 
     this.loading = true;
-    this.apiKeyService.create(this.apiKeyForm.value).subscribe({
+    const payload = {
+      ...this.apiKeyForm.value,
+      expiresAt: this.apiKeyForm.value.expiresAt + ':00.000Z',
+    };
+    this.apiKeyService.create(payload).subscribe({
       next: () => {
         this.loading = false;
         this.activeModal.close('created');

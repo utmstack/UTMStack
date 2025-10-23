@@ -1,25 +1,47 @@
-<div class="card  text-light shadow-sm mt-4">
-  <div class="card-body">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div>
-        <h4 class="mb-0">API Keys</h4>
-        <p class="text-muted mb-0 small">
-          The API key is a simple encrypted string that identifies you in the application.
-        </p>
-      </div>
-      <button class="btn btn-primary" (click)="openCreateModal()">
-        <i class="fa fa-key mr-2"></i> Create New API Key
-      </button>
+<div class="card w-100 h-100 m-h-0">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="mb-0 d-flex flex-column">
+      <h6 class="card-title label-header text-uppercase">
+        API Keys
+      </h6>
+      <span class="text-gray-500 mt-1 fw-semibold fs-6">
+        The API key is a simple encrypted string that identifies you in the application. With this key, you can access the REST API.
+      </span>
     </div>
-
-    <div class="table-responsive mt-3">
-      <table class="table table- table-hover mb-0 align-middle">
-        <thead class="thead-light">
+    <button (click)="openCreateModal()"
+            class="btn utm-button utm-button-primary">
+      <i class="icon-key mr-2"></i> Create New API Key
+    </button>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive resizable-table-responsive m-h-0 mt-3">
+      <table class="table table text-nowrap">
+        <thead>
           <tr>
-            <th>NAME</th>
-            <th>ALLOWED IPs</th>
-            <th>CREATED AT</th>
-            <th>EXPIRES AT</th>
+            <th (sort)="onSortBy($event)"
+              [sortable]="'name'" appColumnSortable
+              class="font-weight-semibold cursor-pointer"
+              scope="col">
+              Name
+            </th>
+            <th (sort)="onSortBy($event)"
+                [sortable]="'allowedIp'" appColumnSortable
+                class="font-weight-semibold cursor-pointer"
+                scope="col">
+              Allowed IPs
+            </th>
+            <th (sort)="onSortBy($event)"
+                [sortable]="'expiresAt'" appColumnSortable
+                class="font-weight-semibold cursor-pointer"
+                scope="col">
+              Expires At
+            </th>
+            <th (sort)="onSortBy($event)"
+                [sortable]="'createdAt'" appColumnSortable
+                class="font-weight-semibold cursor-pointer"
+                scope="col">
+              Created At
+            </th>
             <th class="text-center">ACTIONS</th>
           </tr>
         </thead>
@@ -27,17 +49,17 @@
           <tr *ngFor="let key of apiKeys">
             <td><i class="fa fa-info-circle text-warning mr-2"></i> {{ key.name }}</td>
             <td>{{ key.allowedIp?.join(', ') || '—' }}</td>
-            <td>{{ key.createdAt | date:'M/d/yy, h:mm a' }}</td>
-            <td>{{ key.expiresAt ? (key.expiresAt | date:'M/d/yy, h:mm a') : '—' }}</td>
+            <td>{{ key.expiresAt ? (key.expiresAt | date:'dd/MM/yy HH:mm' :'UTC') : '—' }}</td>
+            <td>{{ key.createdAt | date:'dd/MM/yy HH:mm' :'UTC' }}</td>
             <td class="text-center">
-              <button class="btn btn-sm btn-outline-light mr-2" (click)="regenerateKey(key.id)">
-                <i class="fa fa-sync-alt"></i>
+              <button class="btn bg-light m-0 p-1 cursor-pointer medium-icon mr-2" (click)="regenerateKey(key.id)">
+                <i class="icon-sync"></i>
               </button>
-              <button class="btn btn-sm btn-outline-info mr-2" (click)="openCreateModal()">
-                <i class="fa fa-edit"></i>
+              <button class="btn bg-light m-0 p-1 cursor-pointer medium-icon mr-2" (click)="openCreateModal()">
+                <i class="icon-pencil3"></i>
               </button>
-              <button class="btn btn-sm btn-outline-danger" (click)="deleteKey(key.id)">
-                <i class="fa fa-trash"></i>
+              <button class="btn bg-light m-0 p-1 cursor-pointer medium-icon" (click)="deleteKey(key.id)">
+                <i class="icon-cross2"></i>
               </button>
             </td>
           </tr>
