@@ -56,11 +56,11 @@ public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, 
         "AND ((cast(:initDate as timestamp) is null) or (cast(:endDate as timestamp) is null) or (ns.discoveredAt BETWEEN :initDate AND :endDate)) " +
         "AND (:dataTypes IS NULL OR EXISTS (\n" +
         "       SELECT 1 FROM UtmDataInputStatus ip\n" +
-        "       WHERE ip.assetIp = ns.assetIp AND ip.dataType IN :dataTypes\n" +
+        "       WHERE ip.source = ns.assetIp AND ip.dataType IN :dataTypes\n" +
         "     ) \n" +
         "     OR EXISTS (\n" +
         "       SELECT 1 FROM UtmDataInputStatus src\n" +
-        "       WHERE src.assetName = ns.assetName AND src.dataType IN :dataTypes\n" +
+        "       WHERE src.source = ns.assetName AND src.dataType IN :dataTypes\n" +
         "     ))" +
         "AND (:ports IS NULL OR ns.id IN (" +
         "   SELECT p.scanId FROM UtmPorts p WHERE p.port IN :ports))")
