@@ -3,6 +3,7 @@ package com.park.utmstack.web.rest.api_key;
 
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.security.AuthoritiesConstants;
+import com.park.utmstack.service.UserService;
 import com.park.utmstack.service.api_key.ApiKeyService;
 import com.park.utmstack.service.dto.api_key.ApiKeyResponseDTO;
 import com.park.utmstack.service.dto.api_key.ApiKeyUpsertDTO;
@@ -45,6 +46,7 @@ public class ApiKeyResource {
 
     private final ApiKeyService apiKeyService;
     private final ElasticsearchService elasticsearchService;
+    private final UserService userService;
 
     @Operation(summary = "Create API key",
         description = "Creates a new API key record using the provided settings. The plain text key is not generated at creation.")
@@ -59,7 +61,8 @@ public class ApiKeyResource {
     })
     @PostMapping
     public ResponseEntity<ApiKeyResponseDTO> createApiKey(@RequestBody ApiKeyUpsertDTO dto) {
-            ApiKeyResponseDTO responseDTO = apiKeyService.createApiKey(dto);
+            Long userId = userService.getCurrentUserLogin().getId();
+            ApiKeyResponseDTO responseDTO = apiKeyService.createApiKey(userId, dto);
             return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
@@ -76,7 +79,8 @@ public class ApiKeyResource {
     })
     @PostMapping("/{id}/generate")
     public ResponseEntity<String> generateApiKey(@PathVariable("id") UUID apiKeyId) {
-        String plainKey = apiKeyService.generateApiKey(apiKeyId);
+        Long userId = userService.getCurrentUserLogin().getId();
+        String plainKey = apiKeyService.generateApiKey(userId, apiKeyId);
         return ResponseEntity.ok(plainKey);
     }
 
@@ -93,7 +97,8 @@ public class ApiKeyResource {
     })
     @GetMapping("/{id}")
     public ResponseEntity<ApiKeyResponseDTO> getApiKey(@PathVariable("id") UUID apiKeyId) {
-        ApiKeyResponseDTO responseDTO = apiKeyService.getApiKey(apiKeyId);
+        Long userId = userService.getCurrentUserLogin().getId();
+        ApiKeyResponseDTO responseDTO = apiKeyService.getApiKey(userId, apiKeyId);
         return ResponseEntity.ok(responseDTO);
     }
 
@@ -110,7 +115,8 @@ public class ApiKeyResource {
     })
     @GetMapping("")
     public ResponseEntity<List<ApiKeyResponseDTO>> listApiKeys(@ParameterObject Pageable pageable) {
-        Page<ApiKeyResponseDTO> page = apiKeyService.listApiKeys(pageable);
+        Long userId = userService.getCurrentUserLogin().getId();
+        Page<ApiKeyResponseDTO> page = apiKeyService.listApiKeys(userId,pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
         return ResponseEntity.ok().headers(headers).body(page.getContent());
@@ -131,7 +137,8 @@ public class ApiKeyResource {
     public ResponseEntity<ApiKeyResponseDTO> updateApiKey(@PathVariable("id") UUID apiKeyId,
                                                           @RequestBody ApiKeyUpsertDTO dto) {
 
-        ApiKeyResponseDTO responseDTO = apiKeyService.updateApiKey(apiKeyId, dto);
+        Long userId = userService.getCurrentUserLogin().getId();
+        ApiKeyResponseDTO responseDTO = apiKeyService.updateApiKey(userId, apiKeyId, dto);
         return ResponseEntity.ok(responseDTO);
 
     }
@@ -149,7 +156,8 @@ public class ApiKeyResource {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteApiKey(@PathVariable("id") UUID apiKeyId) {
 
-        apiKeyService.deleteApiKey(apiKeyId);
+        Long userId = userService.getCurrentUserLogin().getId();
+        apiKeyService.deleteApiKey(userId, apiKeyId);
         return ResponseEntity.noContent().build();
     }
 
