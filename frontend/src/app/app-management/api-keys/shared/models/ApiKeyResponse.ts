@@ -2,7 +2,7 @@ export interface ApiKeyResponse {
   id: string;
   name: string;
   allowedIp: string[];
-  createdAt: Date;
-  expiresAt?: Date;
-  generatedAt?: Date;
+  createdAt: string;
+  expiresAt?: string;
+  generatedAt?: string;
 }
