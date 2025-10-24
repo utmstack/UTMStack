@@ -80,6 +80,13 @@ export class ApiKeysService {
     );
   }
 
+  generateApiKey(apiKeyId: string): Observable<HttpResponse<string>> {
+    return this.http.post(`${this.resourceUrl}/${apiKeyId}/generate`, null, {
+      observe: 'response',
+      responseType: 'text'
+    });
+  }
+
   /**
    * Search API key usage in Elasticsearch
    */

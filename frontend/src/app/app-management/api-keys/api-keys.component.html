@@ -47,12 +47,20 @@
         </thead>
         <tbody *ngIf="!loading && apiKeys.length; else loadingOrEmpty">
           <tr *ngFor="let key of apiKeys">
-            <td><i class="fa fa-info-circle text-warning mr-2"></i> {{ key.name }}</td>
+            <td><i class="fa fa-info-circle text-warning mr-2 cursor-pointer"></i> {{ key.name }}</td>
             <td>{{ key.allowedIp?.join(', ') || '—' }}</td>
-            <td>{{ key.expiresAt ? (key.expiresAt | date:'dd/MM/yy HH:mm' :'UTC') : '—' }}</td>
+            <td>
+              <ng-container *ngIf="getDaysUntilExpire(key.expiresAt) <= 7">
+                <span class="text-warning"
+                      [ngbTooltip]=" 'This key will expire soon'">
+                  <i class="fa fa-info-circle text-warning mr-2 cursor-pointer"></i>
+                </span>
+              </ng-container>
+              {{ key.expiresAt ? (key.expiresAt | date:'dd/MM/yy HH:mm' :'UTC') : '—' }}
+            </td>
             <td>{{ key.createdAt | date:'dd/MM/yy HH:mm' :'UTC' }}</td>
             <td class="text-center">
-              <button class="btn bg-light m-0 p-1 cursor-pointer medium-icon mr-2" (click)="regenerateKey(key.id)">
+              <button class="btn bg-light m-0 p-1 cursor-pointer medium-icon mr-2" (click)="generateKey(key)">
                 <i class="icon-sync"></i>
               </button>
               <button class="btn bg-light m-0 p-1 cursor-pointer medium-icon mr-2" (click)="openCreateModal()">
@@ -73,3 +81,32 @@
     </ng-template>
   </div>
 </div>
+
+<ng-template #generatedModal let-modal>
+  <app-utm-modal-header [name]="'Generated API Key'"
+                        [showCloseButton]="false">
+  </app-utm-modal-header>
+
+  <div class="container-fluid p-3 d-flex flex-column">
+    <h6 class="card-title label-header text-uppercase">
+      Copy it now because it will be shown only once!
+    </h6>
+    <div class="d-flex justify-content-center input-group mt-3">
+      <code class="fs-3 pt-1 w-75">{{ maskSecrets(generatedApiKey) }}</code>
+      <button class="btn btn utm-button utm-button-primary" type="button" (click)="copyToClipboard()">
+        <i [ngClass]="!copied ? 'icon-copy2' : 'icon-check2'"></i>
+        {{  copied ? 'copied' : 'copy' }}
+      </button>
+    </div>
+    <div class="d-flex align-items-center pt-1" *ngIf="generatedApiKey">
+      <i class="icon-info22 fs-2 pl-4 text-warning mr-2"></i>
+      <span class="text-warning">{{ 'Keep this key safeKeep this key safe' }}</span>
+    </div>
+  </div>
+  <div class="d-flex justify-content-center my-3">
+    <button class="btn btn utm-button utm-button-primary me-3" (click)="close()"
+            [disabled]="!copied">
+      {{ 'Close' }}
+    </button>
+  </div>
+</ng-template>
