@@ -1,9 +1,12 @@
+import {HttpErrorResponse} from '@angular/common/http';
 import {Component, Input, OnInit} from '@angular/core';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ApiKeysService } from '../../service/api-keys.service';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import {IpFormsValidators} from '../../../../../rule-management/app-rule/validators/ip.forms.validators';
+import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {ApiKeyUpsert} from '../../models/ApiKeyUpsert';
-import {IpFormsValidators} from "../../../../../rule-management/app-rule/validators/ip.forms.validators";
+import { ApiKeysService } from '../../service/api-keys.service';
+import {ApiKeyResponse} from "../../models/ApiKeyResponse";
 
 @Component({
   selector: 'app-api-key-modal',
@@ -19,12 +22,13 @@ export class ApiKeyModalComponent implements OnInit {
   loading = false;
   errorMsg = '';
   isSaving: string | string[] | Set<string> | { [p: string]: any };
-  ipInputError: string = '';
+  minDate = { year: new Date().getFullYear(), month: new Date().getMonth() + 1, day: new Date().getDate() };
+  ipInputError = '';
 
-  constructor(
-    public activeModal: NgbActiveModal,
-    private apiKeyService: ApiKeysService,
-    private fb: FormBuilder) {
+  constructor(  public activeModal: NgbActiveModal,
+                private apiKeyService: ApiKeysService,
+                private fb: FormBuilder,
+                private toastService: UtmToastService) {
 
     this.apiKeyForm = this.fb.group({
       name: ['', Validators.required],
@@ -86,18 +90,31 @@ export class ApiKeyModalComponent implements OnInit {
     }
 
     this.loading = true;
+
+    const rawDate = this.apiKeyForm.get('expiresAt').value;
+    let formattedDate = rawDate;
+
+    if (rawDate && typeof rawDate === 'object') {
+      formattedDate = `${rawDate.year}-${String(rawDate.month).padStart(2, '0')}-${String(rawDate.day).padStart(2, '0')}T00:00:00.000Z`;
+    }
+
     const payload = {
       ...this.apiKeyForm.value,
-      expiresAt: this.apiKeyForm.value.expiresAt + ':00.000Z',
+      expiresAt: formattedDate,
     };
     this.apiKeyService.create(payload).subscribe({
-      next: () => {
+      next: (response) => {
         this.loading = false;
-        this.activeModal.close('created');
+        this.activeModal.close(response.body as ApiKeyResponse);
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         this.loading = false;
-        this.errorMsg = err.error.message || 'An error occurred while creating the API key.';
+        if (err.status === 409) {
+          this.toastService.showError('Error', 'An API key with this name already exists.');
+        } else if (err.status === 500) {
+          this.toastService.showError('Error', 'Server error occurred while creating the API key.');
+        }
+
       }
     });
   }
