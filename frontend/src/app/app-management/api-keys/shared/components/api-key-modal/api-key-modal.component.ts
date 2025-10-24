@@ -4,9 +4,8 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import {IpFormsValidators} from '../../../../../rule-management/app-rule/validators/ip.forms.validators';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
-import {ApiKeyUpsert} from '../../models/ApiKeyUpsert';
+import {ApiKeyResponse} from '../../models/ApiKeyResponse';
 import { ApiKeysService } from '../../service/api-keys.service';
-import {ApiKeyResponse} from "../../models/ApiKeyResponse";
 
 @Component({
   selector: 'app-api-key-modal',
@@ -15,7 +14,7 @@ import {ApiKeyResponse} from "../../models/ApiKeyResponse";
 })
 export class ApiKeyModalComponent implements OnInit {
 
-  @Input() apiKey: ApiKeyUpsert = null;
+  @Input() apiKey: ApiKeyResponse = null;
 
   apiKeyForm: FormGroup;
   ipInput = '';
@@ -29,16 +28,23 @@ export class ApiKeyModalComponent implements OnInit {
                 private apiKeyService: ApiKeysService,
                 private fb: FormBuilder,
                 private toastService: UtmToastService) {
-
-    this.apiKeyForm = this.fb.group({
-      name: ['', Validators.required],
-      allowedIp: this.fb.array([]),
-      expiresAt: ['', Validators.required],
-    });
-
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+
+    const expiresAtDate = this.apiKey && this.apiKey.expiresAt ? new Date(this.apiKey.expiresAt) : null;
+    const expiresAtNgbDate = expiresAtDate ? {
+      year: expiresAtDate.getUTCFullYear(),
+      month: expiresAtDate.getUTCMonth() + 1,
+      day: expiresAtDate.getUTCDate()
+    } : null;
+
+    this.apiKeyForm = this.fb.group({
+      name: [ this.apiKey ? this.apiKey.name : '', Validators.required],
+      allowedIp: this.fb.array(this.apiKey ? this.apiKey.allowedIp : []),
+      expiresAt: [expiresAtNgbDate, Validators.required],
+    });
+  }
 
   get allowedIp(): FormArray {
     return this.apiKeyForm.get('allowedIp') as FormArray;
@@ -102,7 +108,11 @@ export class ApiKeyModalComponent implements OnInit {
       ...this.apiKeyForm.value,
       expiresAt: formattedDate,
     };
-    this.apiKeyService.create(payload).subscribe({
+
+    const save = this.apiKey ? this.apiKeyService.update(this.apiKey.id, payload) :
+      this.apiKeyService.create(payload);
+
+    save.subscribe({
       next: (response) => {
         this.loading = false;
         this.activeModal.close(response.body as ApiKeyResponse);
@@ -114,7 +124,6 @@ export class ApiKeyModalComponent implements OnInit {
         } else if (err.status === 500) {
           this.toastService.showError('Error', 'Server error occurred while creating the API key.');
         }
-
       }
     });
   }

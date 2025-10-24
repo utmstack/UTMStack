@@ -1,6 +1,10 @@
 import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
+import {UtmToastService} from "../../shared/alert/utm-toast.service";
+import {
+  ModalConfirmationComponent
+} from "../../shared/components/utm/util/modal-confirmation/modal-confirmation.component";
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
 import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
 import { ApiKeyModalComponent } from './shared/components/api-key-modal/api-key-modal.component';
@@ -28,9 +32,9 @@ export class ApiKeysComponent implements OnInit {
   generatedModalRef!: NgbModalRef;
   copied = false;
 
-  constructor(
-    private apiKeyService: ApiKeysService,
-    private modalService: NgbModal
+  constructor( private toastService: UtmToastService,
+               private apiKeyService: ApiKeysService,
+               private modalService: NgbModal
   ) {}
 
   ngOnInit(): void {
@@ -67,9 +71,44 @@ export class ApiKeysComponent implements OnInit {
     });
   }
 
-  deleteKey(id: string): void {
-    if (!confirm('Are you sure you want to delete this API key?')) { return; }
-    this.apiKeyService.delete(id).subscribe(() => this.loadKeys());
+  editKey(key: ApiKeyResponse): void {
+    const modalRef = this.modalService.open(ApiKeyModalComponent, {centered: true});
+    modalRef.componentInstance.apiKey = key;
+
+    modalRef.result.then((key: ApiKeyResponse) => {
+      if (key) {
+        this.generateKey(key);
+      }
+    });
+  }
+
+  deleteKey(apiKey: ApiKeyResponse): void {
+    const modalRef = this.modalService.open(ModalConfirmationComponent, {centered: true});
+    modalRef.componentInstance.header = `Delete API Key: ${apiKey.name}`;
+    modalRef.componentInstance.message = 'Are you sure you want to delete this API key?';
+    modalRef.componentInstance.confirmBtnType = 'delete';
+    modalRef.componentInstance.type = 'danger';
+    modalRef.componentInstance.confirmBtnText = 'Delete';
+    modalRef.componentInstance.confirmBtnIcon = 'icon-cross-circle';
+
+    modalRef.result.then(reason => {
+      if (reason === 'ok') {
+        this.delete(apiKey);
+      }
+    });
+  }
+
+  delete(apiKey: ApiKeyResponse): void {
+    this.apiKeyService.delete(apiKey.id).subscribe({
+      next: () => {
+        this.toastService.showSuccess('API key deleted successfully.');
+        this.loadKeys();
+      },
+      error: (err) => {
+        this.toastService.showError('Error', 'An error occurred while deleting the API key.');
+        throw err;
+      }
+    });
   }
 
   getDaysUntilExpire(expiresAt: string): number {
