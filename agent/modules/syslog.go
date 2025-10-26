@@ -258,6 +258,13 @@ func (m *SyslogModule) enableUDP() {
 func (m *SyslogModule) disableTCP() {
 	if m.TCPListener.IsEnabled && m.TCPListener.Port != "" {
 		utils.Logger.Info("Server %s closed in port: %s protocol: TCP", m.DataType, m.TCPListener.Port)
+
+		if m.TCPListener.Listener != nil {
+			if err := m.TCPListener.Listener.Close(); err != nil {
+				utils.Logger.ErrorF("error closing TCP listener: %v", err)
+			}
+		}
+
 		m.TCPListener.Cancel()
 		m.TCPListener.IsEnabled = false
 	}
@@ -266,6 +273,13 @@ func (m *SyslogModule) disableTCP() {
 func (m *SyslogModule) disableUDP() {
 	if m.UDPListener.IsEnabled && m.UDPListener.Port != "" {
 		utils.Logger.Info("Server %s closed in port: %s protocol: UDP", m.DataType, m.UDPListener.Port)
+
+		if m.UDPListener.Listener != nil {
+			if err := m.UDPListener.Listener.Close(); err != nil {
+				utils.Logger.ErrorF("error closing UDP listener: %v", err)
+			}
+		}
+
 		m.UDPListener.Cancel()
 		m.UDPListener.IsEnabled = false
 	}
