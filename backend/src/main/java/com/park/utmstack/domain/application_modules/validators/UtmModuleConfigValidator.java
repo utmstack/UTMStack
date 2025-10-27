@@ -21,47 +21,40 @@ public class UtmModuleConfigValidator {
     private final UtmModuleGroupConfigurationRepository moduleGroupConfigurationRepository;
     private final UtmStackConnectionService utmStackConnectionService;
 
-    /**
-     * Validates if the given configuration allows a successful connection to UTMStack.
-     *
-     * @param keys A list of configuration keys that should include at least `ipAddress` and `connectionKey`.
-     * @return true if login and ping are successful; false otherwise.
-     * @throws Exception If required fields are missing or the connection fails.
-     */
     public boolean validate(UtmModule module, List<UtmModuleGroupConfiguration> keys) throws Exception {
         if (keys.isEmpty()) return false;
 
-        List<UtmModuleGroupConfiguration> configurations = moduleGroupConfigurationRepository
-                .findAllByGroupId(keys.get(0).getGroupId())
-                .stream()
-                .map(c -> {
-                    if (this.containsConfigInKeys(keys, c.getConfKey()) != null) {
-                        return this.containsConfigInKeys(keys, c.getConfKey());
-                    } else {
-                        if ("password".equals(c.getConfDataType())) {
-                            c.setConfValue(CipherUtil.decrypt(
-                                    c.getConfValue(),
-                                    System.getenv(Constants.ENV_ENCRYPTION_KEY)
-                            ));
-                        }
-                        return c;
-                    }
-                })
-                .collect(Collectors.toList());
+        List<UtmModuleGroupConfiguration> dbConfigs = moduleGroupConfigurationRepository
+                .findAllByGroupId(keys.get(0).getGroupId());
 
-        List<UtmModuleGroupConfDTO> configDTOs = configurations.stream()
-                .map(entity -> new UtmModuleGroupConfDTO(entity.getConfKey(), entity.getConfValue()))
-                .collect(Collectors.toList());
+        List<UtmModuleGroupConfDTO> configDTOs = dbConfigs.stream()
+                .map(dbConf -> {
+                    UtmModuleGroupConfiguration override = findInKeys(keys, dbConf.getConfKey());
+                    UtmModuleGroupConfiguration source = override != null ? override : dbConf;
+
+                    return new UtmModuleGroupConfDTO(
+                            source.getConfKey(),
+                            decryptIfNeeded(source.getConfDataType(), source.getConfValue())
+                    );
+                })
+                .toList();
 
         UtmModuleGroupConfWrapperDTO body = new UtmModuleGroupConfWrapperDTO(configDTOs);
 
-        return utmStackConnectionService.testConnection(module.getModuleName().name(),body);
+        return utmStackConnectionService.testConnection(module.getModuleName().name(), body);
     }
 
-    private UtmModuleGroupConfiguration containsConfigInKeys(List<UtmModuleGroupConfiguration> keys, String confKey) {
+    private UtmModuleGroupConfiguration findInKeys(List<UtmModuleGroupConfiguration> keys, String confKey) {
         return keys.stream()
-                .filter(key -> key.getConfKey().equals(confKey))
+                .filter(k -> k.getConfKey().equals(confKey))
                 .findFirst()
                 .orElse(null);
+    }
+
+    private String decryptIfNeeded(String dataType, String value) {
+        if (Constants.CONF_TYPE_PASSWORD.equals(dataType) || Constants.CONF_TYPE_FILE.equals(dataType)) {
+            return CipherUtil.decrypt(value, System.getenv(Constants.ENV_ENCRYPTION_KEY));
+        }
+        return value;
     }
 }

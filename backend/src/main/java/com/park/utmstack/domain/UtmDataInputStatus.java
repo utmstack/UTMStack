@@ -35,16 +35,6 @@ public class UtmDataInputStatus implements Serializable {
     @Column(name = "source", length = 256, nullable = false)
     private String source;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "source", referencedColumnName = "asset_name", insertable = false, updatable = false, nullable = false)
-    @JsonIgnore
-    private UtmNetworkScan assetName;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "source", referencedColumnName = "asset_ip", insertable = false, updatable = false, nullable = false)
-    @JsonIgnore
-    private UtmNetworkScan assetIp;
-
     @NotNull
     @Size(max = 50)
     @Column(name = "data_type", length = 50, nullable = false)

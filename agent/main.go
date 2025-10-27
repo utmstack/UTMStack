@@ -168,7 +168,6 @@ func main() {
 			fmt.Println("[OK]")
 
 			fmt.Println("TLS certificates loaded successfully!")
-			fmt.Println("NOTE: You may need to restart integrations with TLS enabled for changes to take effect.")
 			time.Sleep(5 * time.Second)
 
 		case "check-tls-certs":

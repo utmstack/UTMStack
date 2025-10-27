@@ -151,7 +151,7 @@ export class LoginComponent implements OnInit {
         this.startLogin = false;
         this.authenticationError = true;
         const utmStackError = err.headers.get('X-UtmStack-error');
-        if (utmStackError.includes('UserJWTController.authorize: blocked')) {
+        if (utmStackError && utmStackError.includes('UserJWTController.authorize: blocked')) {
           this.utmToast.showError('Login blocked', 'Your ip was blocked due multiple login failures, please try again in 10 minutes');
         } else {
           this.utmToast.showError('Login fail', 'Authentication error, ' +
