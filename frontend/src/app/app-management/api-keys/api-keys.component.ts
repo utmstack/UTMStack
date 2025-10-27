@@ -1,15 +1,15 @@
 import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
-import {UtmToastService} from "../../shared/alert/utm-toast.service";
+import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {
   ModalConfirmationComponent
-} from "../../shared/components/utm/util/modal-confirmation/modal-confirmation.component";
+} from '../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
 import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
-import { ApiKeyModalComponent } from './shared/components/api-key-modal/api-key-modal.component';
-import { ApiKeyResponse } from './shared/models/ApiKeyResponse';
-import { ApiKeysService } from './shared/service/api-keys.service';
+import {ApiKeyModalComponent} from './shared/components/api-key-modal/api-key-modal.component';
+import {ApiKeyResponse} from './shared/models/ApiKeyResponse';
+import {ApiKeysService} from './shared/service/api-keys.service';
 
 @Component({
   selector: 'app-api-keys',
@@ -19,18 +19,23 @@ import { ApiKeysService } from './shared/service/api-keys.service';
 export class ApiKeysComponent implements OnInit {
 
   generating: string[] = [];
+  noData = false;
   apiKeys: ApiKeyResponse[] = [];
   loading = false;
   generatedApiKey = '';
   @ViewChild('generatedModal') generatedModal!: TemplateRef<any>;
-  request =
-    {
-      sort: 'createdAt,desc',
-      page: 0,
-      size: ITEMS_PER_PAGE
-    };
   generatedModalRef!: NgbModalRef;
   copied = false;
+  readonly itemsPerPage = ITEMS_PER_PAGE;
+  totalItems = 0;
+  page = 0;
+  size = this.itemsPerPage;
+
+  request = {
+    sort: 'createdAt,desc',
+    page: this.page,
+    size: this.size
+  };
 
   constructor( private toastService: UtmToastService,
                private apiKeyService: ApiKeysService,
@@ -43,9 +48,11 @@ export class ApiKeysComponent implements OnInit {
 
   loadKeys(): void {
     this.loading = true;
-    this.apiKeyService.list().subscribe({
+    this.apiKeyService.list(this.request).subscribe({
       next: (res) => {
+        this.totalItems = Number(res.headers.get('X-Total-Count'));
         this.apiKeys = res.body || [];
+        this.noData = this.apiKeys.length === 0;
         this.loading = false;
       },
       error: () =>  {
@@ -113,15 +120,17 @@ export class ApiKeysComponent implements OnInit {
 
   getDaysUntilExpire(expiresAt: string): number {
     if (!expiresAt) {
-      return 0;
+      return -1;
     }
-    const today = moment();
-    const expireDate = moment(expiresAt);
+
+    const today = moment().startOf('day');
+    const expireDate = moment(expiresAt).startOf('day');
     return expireDate.diff(today, 'days');
   }
 
-  onSortBy($event: SortEvent | string) {
-
+  onSortBy($event: SortEvent) {
+    this.request.sort = $event.column + ',' + $event.direction;
+    this.loadKeys();
   }
 
   maskSecrets(str: string): string {
@@ -159,5 +168,24 @@ export class ApiKeysComponent implements OnInit {
     this.generatedModalRef.close();
     this.copied = false;
     this.generatedApiKey = '';
+  }
+
+  loadPage($event: number) {
+    this.page = $event - 1;
+    this.request = {
+      ...this.request,
+      page: this.page
+    };
+    this.loadKeys();
+  }
+
+  onItemsPerPageChange($event: number) {
+    this.request = {
+      ...this.request,
+      size: $event,
+      page: 0
+    };
+    this.page = 0;
+    this.loadKeys();
   }
 }

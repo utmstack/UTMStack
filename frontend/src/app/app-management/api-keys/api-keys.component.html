@@ -45,19 +45,26 @@
             <th class="text-center">ACTIONS</th>
           </tr>
         </thead>
-        <tbody *ngIf="!loading && apiKeys.length; else loadingOrEmpty">
+        <tbody *ngIf="!loading && apiKeys.length;">
           <tr *ngFor="let key of apiKeys">
             <td><i class="fa fa-info-circle text-warning mr-2 cursor-pointer"></i> {{ key.name }}</td>
             <td>{{ key.allowedIp?.join(', ') || '—' }}</td>
             <td>
-              <ng-container *ngIf="getDaysUntilExpire(key.expiresAt) <= 7">
-                <span class="text-warning"
-                      [ngbTooltip]=" 'This key will expire soon'">
+              <ng-container *ngIf="getDaysUntilExpire(key.expiresAt) >= 0 && getDaysUntilExpire(key.expiresAt) <= 7">
+                <span class="text-warning" [ngbTooltip]="'This key will expire soon'">
                   <i class="fa fa-info-circle text-warning mr-2 cursor-pointer"></i>
                 </span>
               </ng-container>
-              {{ key.expiresAt ? (key.expiresAt | date:'dd/MM/yy HH:mm' :'UTC') : '—' }}
+
+              <ng-container *ngIf="getDaysUntilExpire(key.expiresAt) < 0">
+                <span class="text-danger" [ngbTooltip]="'This key has expired'">
+                  <i class="fa fa-exclamation-circle text-danger mr-2 cursor-pointer"></i>
+                </span>
+              </ng-container>
+
+              {{ key.expiresAt ? (key.expiresAt | date:'dd/MM/yy HH:mm':'UTC') : '—' }}
             </td>
+
             <td>{{ key.createdAt | date:'dd/MM/yy HH:mm' :'UTC' }}</td>
             <td class="text-center">
               <button class="btn bg-light m-0 p-1 cursor-pointer medium-icon mr-2" (click)="generateKey(key)">
@@ -71,14 +78,46 @@
               </button>
             </td>
           </tr>
+          <ng-container *ngIf="!loading && apiKeys.length === 0">
+            <tr>
+              <td [attr.colspan]="5">
+                <app-no-data-found></app-no-data-found>
+              </td>
+            </tr>
+          </ng-container>
+
+          <ng-container *ngIf="loading">
+            <tr>
+              <td [attr.colspan]="5">
+                <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+                  <app-utm-spinner [height]="'35px'"
+                                   [label]="'Loading...'"
+                                   [loading]="loading"
+                                   [width]="'35px'">
+                  </app-utm-spinner>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
         </tbody>
       </table>
     </div>
 
-    <ng-template #loadingOrEmpty>
-      <tr *ngIf="loading"><td colspan="5" class="text-center py-4">Loading...</td></tr>
-      <tr *ngIf="!loading && !apiKeys.length"><td colspan="5" class="text-center py-4 text-muted">No API Keys found.</td></tr>
-    </ng-template>
+    <div *ngIf="!noData" class="mb-3 mt-3">
+      <div class="row justify-content-center">
+        <ngb-pagination (pageChange)="loadPage($event)"
+                        [boundaryLinks]="true"
+                        [collectionSize]="totalItems"
+                        [maxSize]="10"
+                        [pageSize]="itemsPerPage"
+                        [rotate]="true"
+                        [size]="'sm'">
+        </ngb-pagination>
+        <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)" class="ml-3">
+        </app-utm-items-per-page>
+      </div>
+      <!-- TABLE END-->
+    </div>
   </div>
 </div>
 
