@@ -58,11 +58,11 @@ public class ApiKeyService {
 
             return apiKeyMapper.toDto(apiKeyRepository.save(apiKey));
         } catch (Exception e) {
-            throw new RuntimeException(ctx + ": " + e.getMessage());
+            throw new ApiKeyExistException(ctx + ": " + e.getMessage());
         }
     }
 
-    public String generateApiKey(Long userId, UUID apiKeyId) {
+    public String generateApiKey(Long userId, Long apiKeyId) {
         final String ctx = CLASSNAME + ".generateApiKey";
         try {
             ApiKey apiKey = apiKeyRepository.findByIdAndUserId(apiKeyId, userId)
@@ -77,7 +77,7 @@ public class ApiKeyService {
         }
     }
 
-    public ApiKeyResponseDTO updateApiKey(Long userId, UUID apiKeyId, ApiKeyUpsertDTO dto) {
+    public ApiKeyResponseDTO updateApiKey(Long userId, Long apiKeyId, ApiKeyUpsertDTO dto) {
         final String ctx = CLASSNAME + ".updateApiKey";
         try {
             ApiKey apiKey = apiKeyRepository.findByIdAndUserId(apiKeyId, userId)
@@ -96,7 +96,7 @@ public class ApiKeyService {
         }
     }
 
-    public ApiKeyResponseDTO getApiKey(Long userId, UUID apiKeyId) {
+    public ApiKeyResponseDTO getApiKey(Long userId, Long apiKeyId) {
         final String ctx = CLASSNAME + ".getApiKey";
         try {
             ApiKey apiKey = apiKeyRepository.findByIdAndUserId(apiKeyId, userId)
@@ -117,7 +117,7 @@ public class ApiKeyService {
     }
 
 
-    public void deleteApiKey(Long userId, UUID apiKeyId) {
+    public void deleteApiKey(Long userId, Long apiKeyId) {
         final String ctx = CLASSNAME + ".deleteApiKey";
         try {
             ApiKey apiKey = apiKeyRepository.findByIdAndUserId(apiKeyId, userId)

@@ -78,7 +78,7 @@ public class ApiKeyResource {
         })
     })
     @PostMapping("/{id}/generate")
-    public ResponseEntity<String> generateApiKey(@PathVariable("id") UUID apiKeyId) {
+    public ResponseEntity<String> generateApiKey(@PathVariable("id") Long apiKeyId) {
         Long userId = userService.getCurrentUserLogin().getId();
         String plainKey = apiKeyService.generateApiKey(userId, apiKeyId);
         return ResponseEntity.ok(plainKey);
@@ -96,7 +96,7 @@ public class ApiKeyResource {
         })
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ApiKeyResponseDTO> getApiKey(@PathVariable("id") UUID apiKeyId) {
+    public ResponseEntity<ApiKeyResponseDTO> getApiKey(@PathVariable("id") Long apiKeyId) {
         Long userId = userService.getCurrentUserLogin().getId();
         ApiKeyResponseDTO responseDTO = apiKeyService.getApiKey(userId, apiKeyId);
         return ResponseEntity.ok(responseDTO);
@@ -134,7 +134,7 @@ public class ApiKeyResource {
         })
     })
     @PutMapping("/{id}")
-    public ResponseEntity<ApiKeyResponseDTO> updateApiKey(@PathVariable("id") UUID apiKeyId,
+    public ResponseEntity<ApiKeyResponseDTO> updateApiKey(@PathVariable("id") Long apiKeyId,
                                                           @RequestBody ApiKeyUpsertDTO dto) {
 
         Long userId = userService.getCurrentUserLogin().getId();
@@ -154,7 +154,7 @@ public class ApiKeyResource {
         })
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteApiKey(@PathVariable("id") UUID apiKeyId) {
+    public ResponseEntity<Void> deleteApiKey(@PathVariable("id") Long apiKeyId) {
 
         Long userId = userService.getCurrentUserLogin().getId();
         apiKeyService.deleteApiKey(userId, apiKeyId);
