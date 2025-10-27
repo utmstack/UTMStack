@@ -113,7 +113,7 @@ public class ApiKeyResource {
             @Header(name = "X-App-Error", description = "Technical error details")
         })
     })
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<List<ApiKeyResponseDTO>> listApiKeys(@ParameterObject Pageable pageable) {
         Long userId = userService.getCurrentUserLogin().getId();
         Page<ApiKeyResponseDTO> page = apiKeyService.listApiKeys(userId,pageable);
