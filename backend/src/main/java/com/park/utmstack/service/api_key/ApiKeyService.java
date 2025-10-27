@@ -20,6 +20,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Optional;
@@ -67,9 +68,22 @@ public class ApiKeyService {
         try {
             ApiKey apiKey = apiKeyRepository.findByIdAndUserId(apiKeyId, userId)
                 .orElseThrow(() -> new ApiKeyNotFoundException("API key not found"));
+
+            Instant now = Instant.now();
+            Instant originalCreated = apiKey.getGeneratedAt() != null ? apiKey.getGeneratedAt() : apiKey.getCreatedAt();
+            Instant originalExpires = apiKey.getExpiresAt();
+
+            Duration duration;
+            if (originalCreated != null && originalExpires != null && !originalExpires.isBefore(originalCreated)) {
+                duration = Duration.between(originalCreated, originalExpires);
+            } else {
+                duration = Duration.ofDays(7);
+            }
+
             String plainKey = generateRandomKey();
             apiKey.setApiKey(plainKey);
             apiKey.setGeneratedAt(Instant.now());
+            apiKey.setExpiresAt(now.plus(duration));
             apiKeyRepository.save(apiKey);
             return plainKey;
         } catch (Exception e) {
