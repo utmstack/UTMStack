@@ -14,9 +14,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ApiKeyRepository extends JpaRepository<ApiKey, UUID> {
+public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
 
-    Optional<ApiKey> findByIdAndUserId(UUID id, Long userId);
+    Optional<ApiKey> findByIdAndUserId(Long id, Long userId);
 
     Page<ApiKey> findByUserId(Long userId, Pageable pageable);
 
