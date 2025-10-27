@@ -122,9 +122,6 @@ func main() {
 }
 
 func (p *parsingServer) ParseLog(_ context.Context, transform *plugins.Transform) (*plugins.Draft, error) {
-	m := utils.NewMeter("ParseLog")
-	defer m.Elapsed("finished")
-
 	source, ok := transform.Step.Dynamic.Params["source"]
 	if !ok {
 		return transform.Draft, catcher.Error("'source' parameter required", nil, nil)

@@ -3,12 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/threatwinds/go-sdk/utils"
 	"runtime"
 	"sync"
 	"time"
+
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 
 	"github.com/threatwinds/go-sdk/opensearch"
 	"github.com/tidwall/gjson"
@@ -60,16 +60,6 @@ func startQueue() {
 	numCPU := runtime.NumCPU() * 2
 	for i := 0; i < numCPU; i++ {
 		go func() {
-			ndM := utils.NewMeter("NDJson", utils.MeterOptions{
-				LogSlow:       true,
-				SlowThreshold: 20 * time.Millisecond,
-			})
-
-			bulkM := utils.NewMeter("Bulk", utils.MeterOptions{
-				LogSlow:       true,
-				SlowThreshold: 1 * time.Second,
-			})
-
 			var ndMutex = &sync.Mutex{}
 			var nd = make([]opensearch.BulkItem, 0, 10)
 
@@ -81,7 +71,6 @@ func startQueue() {
 					}
 
 					ndMutex.Lock()
-					bulkM.Reset()
 
 					err := opensearch.Bulk(context.Background(), nd)
 					if err != nil {
@@ -91,23 +80,17 @@ func startQueue() {
 					nd = make([]opensearch.BulkItem, 0, 10)
 
 					ndMutex.Unlock()
-					bulkM.Elapsed("bulk sent")
 				}
 			}()
 
 			for {
 				l := <-logs
 
-				ndM.Reset()
-
 				dataType := gjson.Get(l, "dataType").String()
 				id := gjson.Get(l, "id").String()
 				index := opensearch.BuildCurrentIndex("v11", "log", dataType)
 
-				ndM.Elapsed("get index and id")
-
 				ndMutex.Lock()
-				ndM.Reset()
 
 				nd = append(nd, opensearch.BulkItem{
 					Index:  index,
@@ -117,7 +100,6 @@ func startQueue() {
 				})
 
 				ndMutex.Unlock()
-				ndM.Elapsed("append to NDJson list")
 			}
 		}()
 	}
