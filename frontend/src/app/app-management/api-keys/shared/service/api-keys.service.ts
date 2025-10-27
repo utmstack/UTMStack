@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { SERVER_API_URL } from '../../../../app.constants';
 import { ApiKeyResponse } from '../models/ApiKeyResponse';
 import { ApiKeyUpsert } from '../models/ApiKeyUpsert';
+import {createRequestOption} from "../../../../shared/util/request-util";
 
 /**
  * Service for managing API keys
@@ -53,9 +54,10 @@ export class ApiKeysService {
    * List all API keys (with optional pagination)
    */
   list(params?: any): Observable<HttpResponse<ApiKeyResponse[]>> {
+    const httpParams = createRequestOption(params);
     return this.http.get<ApiKeyResponse[]>(
       this.resourceUrl,
-      { observe: 'response', params }
+      { observe: 'response', params: httpParams },
     );
   }
 
