@@ -35,7 +35,7 @@ import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
     </div>
     <ng-container *ngIf="(selectedProtocol && selectedPlatform && selectedAction || (hideActions && hideProtocols && selectedPlatform))">
       <span class="font-weight-semibold mb-2">{{selectedPlatform.shell}}</span>
-      <app-utm-code-view class="" [code]=command></app-utm-code-view>
+      <app-utm-code-view *ngFor="let command of commands" class="" [code]=command></app-utm-code-view>
     </ng-container>
   `,
   styles: [`
@@ -59,7 +59,8 @@ export class AgentActionCommandComponent implements OnInit{
   @Input() hideProtocols = false;
   @Input() protocols = [
     {id: 1, name: 'TCP'},
-    {id: 2, name: 'UDP'}
+    {id: 2, name: 'TCP/TLS'},
+    {id: 3, name: 'UDP'}
   ];
 
   actions = [
@@ -75,16 +76,25 @@ export class AgentActionCommandComponent implements OnInit{
   constructor(private modalService: ModalService) {
   }
 
-  ngOnInit(): void {
-   console.log(this.selectedPlatform);
-  }
+  ngOnInit(): void {}
 
-  get command() {
-    return replaceCommandTokens(this.selectedPlatform.command, {
-        PORT: this.selectedProtocol && this.selectedProtocol.name.toLowerCase() || '',
+  get commands() {
+
+    const protocol = this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS' ? 'tcp' : this.selectedProtocol.name.toLowerCase();
+
+    const command = replaceCommandTokens(this.selectedPlatform.command, {
+        PROTOCOL: protocol,
         AGENT_NAME: this.agent,
-        ACTION: this.selectedAction && this.selectedAction.action || ''
+        ACTION: this.selectedAction && this.selectedAction.action || '',
+        TLS: this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS' ? ' --tls' : ''
       });
+
+    if (this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS') {
+      const extras = this.selectedPlatform.extraCommands ? this.selectedPlatform.extraCommands : [];
+      return [...extras, command];
+    }
+
+    return [command];
   }
 
   get selectedPlatform() {

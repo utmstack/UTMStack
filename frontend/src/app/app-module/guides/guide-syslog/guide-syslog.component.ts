@@ -85,9 +85,7 @@ export class GuideSyslogComponent implements OnInit {
   }
 
   ngOnInit() {}
-  getImage(): SyslogModuleImages {
-    return this.moduleImages.filter(value => value.module === this.moduleEnum)[0];
-  }
+
   getPorts(): SyslogModulePorts[] {
     return this.syslogPorts.filter(value => value.module === this.moduleEnum);
   }
