@@ -161,7 +161,7 @@ public class ApiKeyResource {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/usage")
+    @PostMapping("/usage")
     public ResponseEntity<List<Map>> search(@RequestBody(required = false) List<FilterType> filters,
                                             @RequestParam Integer top, @RequestParam String indexPattern,
                                             @RequestParam(required = false, defaultValue = "false") boolean includeChildren,
