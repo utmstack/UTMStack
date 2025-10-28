@@ -59,8 +59,6 @@ export class AlertEntityDisplayComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-     console.log('type', this.type);
-     console.log('field', this.field);
      if (this.alert[this.key]) {
        this.fields = Object.keys(this.alert[this.key]);
        if (this.alert[this.key].geolocation) {
