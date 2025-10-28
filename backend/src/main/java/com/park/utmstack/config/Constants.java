@@ -162,6 +162,11 @@ public final class Constants {
     public static final String API_KEY_HEADER = "Utm-Api-Key";
     public static final List<String> API_ENDPOINT_IGNORE = Collections.emptyList();
 
+    // Configuration data types for moduleGroupConfiguration
+
+    public static final String CONF_TYPE_PASSWORD = "password";
+    public static final String CONF_TYPE_FILE = "file";
+
     private Constants() {
     }
 }
