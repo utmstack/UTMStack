@@ -54,7 +54,7 @@ export class ApiKeyModalComponent implements OnInit {
     const trimmedIp = this.ipInput.trim();
 
     if (!trimmedIp) {
-      this.ipInputError = 'Please enter an IP address or CIDR'; // Se asigna el error
+      this.ipInputError = 'Please enter an IP address or CIDR'; // Error is assigned
       return;
     }
 
