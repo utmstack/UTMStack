@@ -139,7 +139,7 @@ Desktop.ini
 ######################
 !.mvn/wrapper/maven-wrapper.jar
 mvnw
-mvn.cmd
+mvnw.cmd
 
 ######################
 # ESLint
