@@ -63,9 +63,50 @@ export class ApiKeysComponent implements OnInit {
   }
 
   copyToClipboard(): void {
-    (navigator as any).clipboard.writeText(this.generatedApiKey).then(() => {
-      this.copied = true;
-    });
+    if (!this.generatedApiKey) { return; }
+
+    if (navigator && (navigator as any).clipboard && (navigator as any).clipboard.writeText) {
+      (navigator as any).clipboard.writeText(this.generatedApiKey)
+        .then(() => this.copied = true)
+        .catch(err => {
+          console.error('Error al copiar con clipboard API', err);
+          this.fallbackCopy(this.generatedApiKey);
+        });
+    } else {
+      this.fallbackCopy(this.generatedApiKey);
+    }
+  }
+
+  private fallbackCopy(text: string): void {
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+
+      textarea.style.position = 'fixed';
+      textarea.style.top = '0';
+      textarea.style.left = '0';
+      textarea.style.opacity = '0';
+
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textarea);
+
+      if (successful) {
+        this.showCopiedFeedback();
+      } else {
+        console.warn('Fallback copy failed');
+      }
+    } catch (err) {
+      console.error('Error en fallback copy', err);
+    }
+  }
+
+  private showCopiedFeedback(): void {
+    this.copied = true;
+    setTimeout(() => this.copied = false, 2000);
   }
 
   openCreateModal(): void {
