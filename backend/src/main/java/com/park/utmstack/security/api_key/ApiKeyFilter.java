@@ -107,14 +107,14 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
     private ApiKey getApiKey(String apiKey) {
         if (invalidApiKeyBlackList.containsKey(apiKey)) {
-            log.info("API key invalid (cached)");
+            log.warn("Access attempt with invalid API key (cached)");
             throw new ApiKeyInvalidAccessException("Invalid API key");
         }
 
         return apiKeyService.findOneByApiKey(apiKey)
                 .orElseGet(() -> {
                     invalidApiKeyBlackList.put(apiKey, Boolean.TRUE);
-                    log.info("API key invalid (not found)");
+                    log.warn("Access attempt with invalid API key (not found in DB)");
                     throw new ApiKeyInvalidAccessException("Invalid API key");
                 });
     }
