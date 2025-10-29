@@ -3,6 +3,7 @@ package com.park.utmstack.security.api_key;
 
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.api_keys.ApiKey;
+import com.park.utmstack.domain.shared_types.ApplicationLayer;
 import com.park.utmstack.loggin.api_key.ApiKeyUsageLoggingService;
 import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.service.api_key.ApiKeyService;
@@ -31,6 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
@@ -44,8 +47,9 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
     private static final String LOG_USAGE_FLAG = "LOG_USAGE_DONE";
     private static final Pattern CIDR_PATTERN = Pattern.compile(
-        "^((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)(\\.(?!$)|$)){4}/(\\d|[1-2]\\d|3[0-2])$"
+            "^((25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)\\.){3}(25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)/(\\d|[1-2]\\d|3[0-2])$"
     );
+
 
     private final UserRepository userRepository;
     private final ApiKeyService apiKeyService;
@@ -103,45 +107,54 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
     private ApiKey getApiKey(String apiKey) {
         if (invalidApiKeyBlackList.containsKey(apiKey)) {
+            log.info("API key invalid (cached)");
             throw new ApiKeyInvalidAccessException("Invalid API key");
         }
+
         return apiKeyService.findOneByApiKey(apiKey)
-            .orElseThrow(() -> {
-                invalidApiKeyBlackList.put(apiKey, Boolean.TRUE);
-                return new ApiKeyInvalidAccessException("Invalid API key");
-            });
+                .orElseGet(() -> {
+                    invalidApiKeyBlackList.put(apiKey, Boolean.TRUE);
+                    log.info("API key invalid (not found)");
+                    throw new ApiKeyInvalidAccessException("Invalid API key");
+                });
     }
 
     public UsernamePasswordAuthenticationToken getAuthentication(ApiKey apiKey, String remoteIpAddress) {
-        try {
+        Objects.requireNonNull(apiKey, "API key must not be null");
+        Objects.requireNonNull(remoteIpAddress, "Remote IP address must not be null");
 
-            if (!allowAccessToRemoteIp(apiKey.getAllowedIp(), remoteIpAddress)) {
-                throw new ApiKeyInvalidAccessException("Invalid IP address, if you recognize this IP address, add to allowed ip list");
-            }
-
-            if (apiKey.getExpiresAt() != null && !apiKey.getExpiresAt().isAfter(Instant.now())) {
-                throw new ApiKeyInvalidAccessException("API key expired at " + apiKey.getExpiresAt());
-            }
-
-            var userEntity = userRepository
-                .findById(apiKey.getUserId())
-                .orElseThrow(() -> new ApiKeyInvalidAccessException("User not found for api key"));
-
-            if (!userEntity.getActivated()) {
-                throw new ApiKeyInvalidAccessException("User not activated");
-            }
-
-            List<SimpleGrantedAuthority> authorities = userEntity.getAuthorities().stream()
-                    .map(auth -> new SimpleGrantedAuthority(auth.getName()))
-                    .toList();
-
-            User principal = new User(userEntity.getLogin(), "", authorities);
-
-            return new UsernamePasswordAuthenticationToken(principal, apiKey.getApiKey(), authorities);
-
-        } catch (Exception e) {
-            throw new ApiKeyInvalidAccessException(e.getMessage());
+        if (!allowAccessToRemoteIp(apiKey.getAllowedIp(), remoteIpAddress)) {
+            log.warn("Access denied: IP [{}] not allowed for API key [{}]", remoteIpAddress, apiKey.getApiKey());
+            throw new ApiKeyInvalidAccessException(
+                    "Invalid IP address: " + remoteIpAddress + ". If you recognize this IP, add it to allowed IP list."
+            );
         }
+
+        if (apiKey.getExpiresAt() != null && !apiKey.getExpiresAt().isAfter(Instant.now())) {
+            log.warn("Access denied: API key [{}] expired at {}", apiKey.getApiKey(), apiKey.getExpiresAt());
+            throw new ApiKeyInvalidAccessException("API key expired at " + apiKey.getExpiresAt());
+        }
+
+        var userEntityOpt = userRepository.findById(apiKey.getUserId());
+        if (userEntityOpt.isEmpty()) {
+            log.warn("Access denied: User [{}] not found for API key [{}]", apiKey.getUserId(), apiKey.getApiKey());
+            throw new ApiKeyInvalidAccessException("User not found for API key");
+        }
+
+        var userEntity = userEntityOpt.get();
+
+        if (!userEntity.getActivated()) {
+            log.warn("Access denied: User [{}] not activated", userEntity.getLogin());
+            throw new ApiKeyInvalidAccessException("User not activated");
+        }
+
+        List<SimpleGrantedAuthority> authorities = userEntity.getAuthorities().stream()
+                .map(auth -> new SimpleGrantedAuthority(auth.getName()))
+                .toList();
+
+        User principal = new User(userEntity.getLogin(), "", authorities);
+
+        return new UsernamePasswordAuthenticationToken(principal, apiKey.getApiKey(), authorities);
     }
 
     public boolean allowAccessToRemoteIp(String allowedIpList, String remoteIp) {
