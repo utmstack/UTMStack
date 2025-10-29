@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+       http://www.liquibase.org/xml/ns/dbchangelog
+       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.21.xsd">
+
+    <changeSet id="20251029001" author="manuel">
+        <createTable tableName="utm_identity_provider_config">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="provider_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="client_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="client_secret" type="VARCHAR(512)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="redirect_uri" type="VARCHAR(512)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="scopes" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="allowed_domains" type="VARCHAR(512)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="utm_identity_provider_config" indexName="idx_idp_provider_type">
+            <column name="provider_type"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>
