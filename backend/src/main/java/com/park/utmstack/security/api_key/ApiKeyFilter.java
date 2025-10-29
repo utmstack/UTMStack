@@ -3,7 +3,6 @@ package com.park.utmstack.security.api_key;
 
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.api_keys.ApiKey;
-import com.park.utmstack.domain.shared_types.ApplicationLayer;
 import com.park.utmstack.loggin.api_key.ApiKeyUsageLoggingService;
 import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.service.api_key.ApiKeyService;
@@ -12,7 +11,6 @@ import com.park.utmstack.util.exceptions.ApiKeyInvalidAccessException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.util.SubnetUtils;
-import org.springframework.core.annotation.Order;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,7 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -55,7 +52,6 @@ public class ApiKeyFilter extends OncePerRequestFilter {
     private final ApiKeyService apiKeyService;
     private final ConcurrentMap<String, Boolean> invalidApiKeyBlackList = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, SubnetUtils> cidrCache = new ConcurrentHashMap<>();
-    private final ApplicationEventService applicationEventService;
     private final ApiKeyUsageLoggingService apiKeyUsageLoggingService;
 
 
