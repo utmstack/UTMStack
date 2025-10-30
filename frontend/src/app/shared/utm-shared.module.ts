@@ -240,6 +240,7 @@ import {TimePeriodPipe} from './pipes/time-period.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
 import { NgxEchartsModule } from 'ngx-echarts';
+import { LoginProvidersComponent } from './components/auth/login-providers/login-providers.component';
 
 
 @NgModule({
@@ -400,7 +401,8 @@ import { NgxEchartsModule } from 'ngx-echarts';
     RelativeTimePipe,
     UtmTfaConfCheckComponent,
     UtmTfaVerificationComponent,
-    TfaSetupComponent
+    TfaSetupComponent,
+    LoginProvidersComponent
   ],
   exports: [
     IndexPatternCreateComponent,
