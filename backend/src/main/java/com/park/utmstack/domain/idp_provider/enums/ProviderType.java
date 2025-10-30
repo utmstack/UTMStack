@@ -1,11 +1,10 @@
 package com.park.utmstack.domain.idp_provider.enums;
 
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
 public enum ProviderType {
-    GOOGLE("GOOGLE"),
-    MICROSOFT("MICROSOFT");
+    GOOGLE,
+    MICROSOFT;
 
-    private final String type;
+    public static ProviderType from(String value) {
+        return ProviderType.valueOf(value.toUpperCase());
+    }
 }

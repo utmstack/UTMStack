@@ -1,5 +1,6 @@
 package com.park.utmstack.domain.idp_provider;
 
+import com.park.utmstack.domain.idp_provider.enums.ClientAuthMethod;
 import com.park.utmstack.domain.idp_provider.enums.ProviderType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,18 +26,40 @@ public class IdentityProviderConfig {
     private String name;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private ProviderType providerType;
 
+    @Column(nullable = false)
     private String clientId;
+
+    @Column(nullable = false)
     private String clientSecret;
+
+    @Column(nullable = false)
     private String authUri;
+
+    @Column(nullable = false)
     private String tokenUri;
+
+    @Column(nullable = false)
     private String redirectUri;
+
+    private String userInfoUri;
+    private String jwksUri;
+
+    @Enumerated(EnumType.STRING)
+    private ClientAuthMethod clientAuthMethod;
+
     private String scopes;
     private String allowedDomains;
+
+    @Column(nullable = false)
     private Boolean active;
 
+    @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
 }

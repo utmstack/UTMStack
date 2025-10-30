@@ -40,7 +40,7 @@ public class IdentityProviderConfigResource {
 
 
     @GetMapping
-    public ResponseEntity<Page<IdentityProviderConfigResponseDto>> getAll(@RequestParam Pageable pageable) {
+    public ResponseEntity<Page<IdentityProviderConfigResponseDto>> getAll(Pageable pageable) {
 
         Page<IdentityProviderConfigResponseDto> result = service.findAll(pageable);
         return ResponseEntity.ok(result);
