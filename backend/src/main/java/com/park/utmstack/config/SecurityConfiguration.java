@@ -14,8 +14,9 @@ import com.park.utmstack.security.jwt.TokenProvider;
 import com.park.utmstack.service.api_key.ApiKeyService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.net.util.SubnetUtils;
+import com.park.utmstack.security.oauth.OAuth2LoginSuccessHandler;
+import com.park.utmstack.service.idp_provider.CustomOAuth2UserService;
 import org.springframework.beans.factory.BeanInitializationException;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -53,6 +54,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final CorsFilter corsFilter;
     private final InternalApiKeyProvider internalApiKeyProvider;
     private final ApiKeyFilter apiKeyFilter;
+    private final CustomOAuth2UserService customOAuth2UserService;
+
+    public SecurityConfiguration(AuthenticationManagerBuilder authenticationManagerBuilder,
+                                 UserDetailsService userDetailsService,
+                                 TokenProvider tokenProvider,
+                                 CorsFilter corsFilter, InternalApiKeyProvider internalApiKeyProvider,
+                                 CustomOAuth2UserService customOAuth2UserService) {
+
+        this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.userDetailsService = userDetailsService;
+        this.tokenProvider = tokenProvider;
+        this.corsFilter = corsFilter;
+        this.internalApiKeyProvider = internalApiKeyProvider;
+        this.customOAuth2UserService = customOAuth2UserService;
+    }
 
     @PostConstruct
     public void init() {
@@ -125,6 +141,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/ws/**").permitAll()
                 .antMatchers("/management/info").permitAll()
                 .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
+                .and()
+                .oauth2Login()
+                .authorizationEndpoint().baseUri("/oauth2/authorization").and()
+                .redirectionEndpoint().baseUri("/login/oauth2/code/*").and()
+                .userInfoEndpoint().userService(customOAuth2UserService).and()
+                .successHandler(new OAuth2LoginSuccessHandler(tokenProvider))
                 .and()
                 .apply(securityConfigurerAdapterForJwt())
                 .and()

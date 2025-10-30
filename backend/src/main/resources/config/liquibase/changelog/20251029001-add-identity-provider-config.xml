@@ -32,6 +32,14 @@
                 <constraints nullable="false"/>
             </column>
 
+            <column name="auth_uri" type="VARCHAR(512)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="token_uri" type="VARCHAR(512)">
+                <constraints nullable="false"/>
+            </column>
+
             <column name="scopes" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>

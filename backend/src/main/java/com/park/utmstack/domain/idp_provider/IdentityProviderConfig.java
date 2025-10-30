@@ -29,6 +29,8 @@ public class IdentityProviderConfig {
 
     private String clientId;
     private String clientSecret;
+    private String authUri;
+    private String tokenUri;
     private String redirectUri;
     private String scopes;
     private String allowedDomains;
