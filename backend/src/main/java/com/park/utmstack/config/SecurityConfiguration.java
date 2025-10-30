@@ -3,6 +3,7 @@ package com.park.utmstack.config;
 import com.park.utmstack.loggin.api_key.ApiKeyUsageLoggingService;
 import com.park.utmstack.loggin.filter.MdcCleanupFilter;
 import com.park.utmstack.repository.UserRepository;
+import com.park.utmstack.config.oauth.OAuth2ClientRegistrationRepository;
 import com.park.utmstack.security.AuthoritiesConstants;
 import com.park.utmstack.security.api_key.ApiKeyConfigurer;
 import com.park.utmstack.security.api_key.ApiKeyFilter;
@@ -125,7 +126,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/healthcheck").permitAll()
                 .antMatchers("/api/releaseInfo").permitAll()
                 .antMatchers("/api/account/reset-password/init").permitAll()
-                .antMatchers("/api/account/reset-password/finish").permitAll()
+                .antMatchers("/api/utm-providers").permitAll()
+                .antMatchers("/api/images/all").permitAll()
                 .antMatchers("/api/images/all").permitAll()
                 .antMatchers("/api/enrollment/**").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER)
                 .antMatchers("/api/tfa/verify-code").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)

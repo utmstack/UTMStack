@@ -6,7 +6,7 @@
        http://www.liquibase.org/xml/ns/dbchangelog
        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.21.xsd">
 
-    <changeSet id="20251029001" author="manuel">
+    <changeSet id="20251030001" author="manuel">
         <createTable tableName="utm_identity_provider_config">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -40,6 +40,18 @@
                 <constraints nullable="false"/>
             </column>
 
+            <column name="user_info_uri" type="VARCHAR(512)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="jwks_uri" type="VARCHAR(512)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="client_auth_method" type="VARCHAR(50)">
+                <constraints nullable="true"/>
+            </column>
+
             <column name="scopes" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
@@ -65,6 +77,14 @@
             <column name="provider_type"/>
         </createIndex>
 
+        <createIndex tableName="utm_identity_provider_config" indexName="idx_idp_provider_type_active">
+            <column name="provider_type"/>
+            <column name="active"/>
+        </createIndex>
+
+        <addUniqueConstraint tableName="utm_identity_provider_config"
+                             columnNames="provider_type"
+                             constraintName="uc_provider_type"/>
     </changeSet>
 
 </databaseChangeLog>

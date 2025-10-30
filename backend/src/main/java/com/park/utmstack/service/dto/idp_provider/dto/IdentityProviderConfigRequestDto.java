@@ -26,6 +26,12 @@ public class IdentityProviderConfigRequestDto {
     private String clientSecret;
 
     @NotBlank
+    private String authUri;
+
+    @NotBlank
+    private String tokenUri;
+
+    @NotBlank
     private String redirectUri;
 
     private String scopes;

@@ -1,6 +1,7 @@
-package com.park.utmstack.repository.idp_provider;
+package com.park.utmstack.config.oauth;
 
-import org.springframework.context.annotation.Configuration;
+import com.park.utmstack.domain.idp_provider.enums.ClientAuthMethod;
+import com.park.utmstack.repository.idp_provider.IdentityProviderConfigRepository;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -8,31 +9,40 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.util.StringUtils;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Configuration
 public class OAuth2ClientRegistrationRepository implements ClientRegistrationRepository {
 
     private final Map<String, ClientRegistration> registrations = new ConcurrentHashMap<>();
-    private final IdentityProviderConfigRepository jpaClientRegistrationRepository;
 
     public OAuth2ClientRegistrationRepository(IdentityProviderConfigRepository jpaClientRegistrationRepository) {
 
-        this.jpaClientRegistrationRepository = jpaClientRegistrationRepository;
+        jpaClientRegistrationRepository.findAll().forEach(entity -> {
+            ClientAuthenticationMethod authMethod = Optional.ofNullable(entity.getClientAuthMethod())
+                    .map(ClientAuthMethod::toSpringMethod)
+                    .orElse(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 
-        this.jpaClientRegistrationRepository.findAll().forEach(entity -> {
-            ClientRegistration registration = ClientRegistration.withRegistrationId(entity.getProviderType().name().toLowerCase())
+            ClientRegistration.Builder builder = ClientRegistration.withRegistrationId(entity.getProviderType().name().toLowerCase())
                     .clientId(entity.getClientId())
                     .clientSecret(entity.getClientSecret())
-                    .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                    .clientAuthenticationMethod(authMethod)
                     .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                     .redirectUri(entity.getRedirectUri())
                     .scope(StringUtils.commaDelimitedListToStringArray(entity.getScopes()))
                     .authorizationUri(entity.getAuthUri())
                     .tokenUri(entity.getTokenUri())
-                    .clientName(entity.getProviderType().name().toLowerCase())
-                    .build();
-            registrations.put(entity.getProviderType().name().toLowerCase(), registration);
+                    .clientName(entity.getName());
+
+            if (entity.getUserInfoUri() != null) {
+                builder.userInfoUri(entity.getUserInfoUri());
+            }
+
+            if (entity.getJwksUri() != null) {
+                builder.jwkSetUri(entity.getJwksUri());
+            }
+
+            registrations.put(entity.getProviderType().name().toLowerCase(), builder.build());
         });
 
     }
