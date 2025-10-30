@@ -1,5 +1,6 @@
 package com.park.utmstack.config;
 
+import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.loggin.api_key.ApiKeyUsageLoggingService;
 import com.park.utmstack.loggin.filter.MdcCleanupFilter;
 import com.park.utmstack.repository.UserRepository;
@@ -16,7 +17,7 @@ import com.park.utmstack.service.api_key.ApiKeyService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.net.util.SubnetUtils;
 import com.park.utmstack.security.oauth.OAuth2LoginSuccessHandler;
-import com.park.utmstack.service.idp_provider.CustomOAuth2UserService;
+import com.park.utmstack.security.oauth.CustomOAuth2UserService;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,19 +57,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final InternalApiKeyProvider internalApiKeyProvider;
     private final ApiKeyFilter apiKeyFilter;
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final UserRepository userRepository;
 
     public SecurityConfiguration(AuthenticationManagerBuilder authenticationManagerBuilder,
                                  UserDetailsService userDetailsService,
                                  TokenProvider tokenProvider,
-                                 CorsFilter corsFilter, InternalApiKeyProvider internalApiKeyProvider,
-                                 CustomOAuth2UserService customOAuth2UserService) {
+                                 CorsFilter corsFilter, InternalApiKeyProvider internalApiKeyProvider, UserRepository userRepository) {
 
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.userDetailsService = userDetailsService;
         this.tokenProvider = tokenProvider;
         this.corsFilter = corsFilter;
         this.internalApiKeyProvider = internalApiKeyProvider;
-        this.customOAuth2UserService = customOAuth2UserService;
+        this.userRepository = userRepository;
     }
 
     @PostConstruct
@@ -145,9 +146,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
                 .and()
                 .oauth2Login()
-                .authorizationEndpoint().baseUri("/oauth2/authorization").and()
-                .redirectionEndpoint().baseUri("/login/oauth2/code/*").and()
-                .userInfoEndpoint().userService(customOAuth2UserService).and()
+                .authorizationEndpoint().baseUri("/oauth2/authorization")
+                .and()
+                .redirectionEndpoint().baseUri("/login/oauth2/code/*")
+                .and()
+                .userInfoEndpoint()
+                    .oidcUserService(customOAuth2UserService(userRepository))
+                .and()
                 .successHandler(new OAuth2LoginSuccessHandler(tokenProvider))
                 .and()
                 .apply(securityConfigurerAdapterForJwt())
@@ -158,6 +163,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 
     }
+
+    @Bean
+    public CustomOAuth2UserService customOAuth2UserService(UserRepository userRepository) {
+        return new CustomOAuth2UserService(userRepository);
+    }
+
 
     private JWTConfigurer securityConfigurerAdapterForJwt() {
         return new JWTConfigurer(tokenProvider);

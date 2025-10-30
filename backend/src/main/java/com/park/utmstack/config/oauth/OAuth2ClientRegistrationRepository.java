@@ -1,7 +1,10 @@
 package com.park.utmstack.config.oauth;
 
+import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.idp_provider.enums.ClientAuthMethod;
+import com.park.utmstack.domain.idp_provider.enums.ProviderType;
 import com.park.utmstack.repository.idp_provider.IdentityProviderConfigRepository;
+import com.park.utmstack.util.CipherUtil;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -25,7 +28,9 @@ public class OAuth2ClientRegistrationRepository implements ClientRegistrationRep
 
             ClientRegistration.Builder builder = ClientRegistration.withRegistrationId(entity.getProviderType().name().toLowerCase())
                     .clientId(entity.getClientId())
-                    .clientSecret(entity.getClientSecret())
+                    .clientSecret(CipherUtil.decrypt(entity.getClientSecret(), System.getenv(Constants.ENV_ENCRYPTION_KEY)))
+                    .userInfoUri(entity.getUserInfoUri())
+                    .userNameAttributeName(this.getUserNameAttributeName(entity.getProviderType()))
                     .clientAuthenticationMethod(authMethod)
                     .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                     .redirectUri(entity.getRedirectUri())
@@ -50,5 +55,13 @@ public class OAuth2ClientRegistrationRepository implements ClientRegistrationRep
     @Override
     public ClientRegistration findByRegistrationId(String registrationId) {
         return registrations.get(registrationId);
+    }
+
+    private String getUserNameAttributeName(ProviderType providerType) {
+        return switch (providerType) {
+            case GOOGLE -> "sub";
+            case MICROSOFT -> "oid";
+            default -> "sub";
+        };
     }
 }
