@@ -4,12 +4,9 @@ import (
 	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/pem"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 )
 
@@ -169,98 +166,4 @@ func LoadUserCertificatesWithStruct(src, dest CertificateFiles) error {
 	}
 
 	return nil
-}
-
-func GetTLSStatus(certPath, keyPath, caPath string) TLSStatus {
-	status := TLSStatus{
-		CertExists: CheckIfPathExist(certPath),
-		KeyExists:  CheckIfPathExist(keyPath),
-		CAExists:   CheckIfPathExist(caPath),
-	}
-
-	if status.CertExists && status.KeyExists {
-		err := ValidateIntegrationCertificates(certPath, keyPath)
-		if err == nil {
-			status.Available = true
-			status.Valid = true
-		} else {
-			status.Error = err.Error()
-		}
-	} else {
-		status.Error = "Certificate or private key files not found"
-	}
-
-	return status
-}
-
-func GetCertificateDetails(certPath string) (string, error) {
-	if !CheckIfPathExist(certPath) {
-		return "", fmt.Errorf("certificate file not found: %s", certPath)
-	}
-
-	// Parse certificate directly
-	certData, err := os.ReadFile(certPath)
-	if err != nil {
-		return "", fmt.Errorf("error reading certificate: %w", err)
-	}
-
-	block, _ := pem.Decode(certData)
-	if block == nil {
-		return "", fmt.Errorf("failed to decode certificate PEM")
-	}
-
-	cert, err := x509.ParseCertificate(block.Bytes)
-	if err != nil {
-		return "", fmt.Errorf("failed to parse certificate: %w", err)
-	}
-
-	return formatCertificateDetails(cert), nil
-}
-
-func formatCertificateDetails(cert *x509.Certificate) string {
-	var builder strings.Builder
-
-	builder.WriteString(fmt.Sprintf("Subject: %s\n", cert.Subject.String()))
-	builder.WriteString(fmt.Sprintf("Issuer: %s\n", cert.Issuer.String()))
-	builder.WriteString(fmt.Sprintf("Valid from: %s\n", cert.NotBefore.Format("2006-01-02 15:04:05 UTC")))
-	builder.WriteString(fmt.Sprintf("Valid until: %s\n", cert.NotAfter.Format("2006-01-02 15:04:05 UTC")))
-	builder.WriteString(fmt.Sprintf("Serial Number: %s\n", cert.SerialNumber.String()))
-
-	if len(cert.DNSNames) > 0 || len(cert.IPAddresses) > 0 {
-		builder.WriteString("Subject Alternative Names: ")
-
-		for i, dns := range cert.DNSNames {
-			if i > 0 {
-				builder.WriteString(", ")
-			}
-			builder.WriteString(dns)
-		}
-
-		for i, ip := range cert.IPAddresses {
-			if i > 0 || len(cert.DNSNames) > 0 {
-				builder.WriteString(", ")
-			}
-			builder.WriteString(ip.String())
-		}
-		builder.WriteString("\n")
-	}
-
-	return builder.String()
-}
-
-func copyFile(src, dst string) error {
-	sourceFile, err := os.Open(src)
-	if err != nil {
-		return err
-	}
-	defer sourceFile.Close()
-
-	destFile, err := os.Create(dst)
-	if err != nil {
-		return err
-	}
-	defer destFile.Close()
-
-	_, err = io.Copy(destFile, sourceFile)
-	return err
 }
