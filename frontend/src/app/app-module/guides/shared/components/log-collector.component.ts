@@ -5,6 +5,7 @@ import {
 } from '../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {replaceCommandTokens} from "../../../../shared/util/replace-command-tokens.util";
 import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
+import {PLATFORMS} from "../constant";
 
 @Component({
   selector: 'app-log-colletor',
@@ -32,7 +33,7 @@ import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
     </div>
     <ng-container *ngIf="selectedProtocol && selectedPlatform && selectedAction">
       <span class="font-weight-semibold mb-2">{{selectedPlatform.shell}}</span>
-      <app-utm-code-view class="" [code]=commands></app-utm-code-view>
+      <app-utm-code-view *ngFor="let command of commands" class="" [code]=command></app-utm-code-view>
     </ng-container>
   `,
   styles: [`
@@ -51,7 +52,7 @@ import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
 export class LogCollectorComponent {
 
   @Input() agent: string;
-  @Input() platforms: any[];
+  @Input() platforms: any[] = PLATFORMS;
   @Input() hideActions = false;
   @Input() hideProtocols = false;
   @Input() protocols = [
