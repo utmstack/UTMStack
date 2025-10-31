@@ -69,6 +69,9 @@ func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool, tlsOpt
 		// Handle TLS configuration if specified
 		if len(tlsOptions) > 0 && isEnabled {
 			if tlsOptions[0] {
+				if !utils.CheckIfPathExist(config.IntegrationCertPath) || !utils.CheckIfPathExist(config.IntegrationKeyPath) {
+					return "", fmt.Errorf("TLS certificates not found. Please load certificates first")
+				}
 				// Enable TLS
 				integration.TCP.TLSEnabled = true
 				mod := GetModule(logTyp)
