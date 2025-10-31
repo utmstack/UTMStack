@@ -5,14 +5,16 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/utils"
 )
 
 type Port struct {
-	IsListen bool   `json:"enabled"`
-	Port     string `json:"value"`
+	IsListen   bool   `json:"enabled"`
+	Port       string `json:"value"`
+	TLSEnabled bool   `json:"tls_enabled,omitempty"`
 }
 
 type Integration struct {
@@ -59,7 +61,7 @@ func ConfigureCollectorFirstTime() error {
 	return WriteCollectorConfig(integrations, config.CollectorFileName)
 }
 
-func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool) (string, error) {
+func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool, tlsOptions ...bool) (string, error) {
 	var port string
 	cnf, err := ReadCollectorConfig()
 	if err != nil {
@@ -78,9 +80,49 @@ func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool) (strin
 	case "tcp":
 		integration.TCP.IsListen = isEnabled
 		port = integration.TCP.Port
+
+		// Handle TLS configuration if specified
+		if len(tlsOptions) > 0 && isEnabled {
+			if tlsOptions[0] {
+				// Enable TLS
+				integration.TCP.TLSEnabled = true
+				mod := GetModule(logTyp)
+				if mod != nil && mod.IsPortListen(proto) {
+					mod.DisablePort(proto)
+					time.Sleep(100 * time.Millisecond)
+					err := mod.EnablePort(proto, true)
+					if err != nil {
+						return "", fmt.Errorf("error enabling TLS on running module: %v", err)
+					}
+				}
+			} else {
+				// Disable TLS
+				integration.TCP.TLSEnabled = false
+				mod := GetModule(logTyp)
+				if mod != nil && mod.IsPortListen(proto) {
+					mod.DisablePort(proto)
+					time.Sleep(100 * time.Millisecond)
+					err := mod.EnablePort(proto, false)
+					if err != nil {
+						return "", fmt.Errorf("error disabling TLS on running module: %v", err)
+					}
+				}
+			}
+		}
+
+		// Auto-disable TLS when disabling integration
+		if !isEnabled {
+			integration.TCP.TLSEnabled = false
+		}
+
 	case "udp":
 		integration.UDP.IsListen = isEnabled
 		port = integration.UDP.Port
+
+		// TLS validation for UDP
+		if len(tlsOptions) > 0 && tlsOptions[0] {
+			return "", fmt.Errorf("TLS is not supported for UDP protocol. Use TCP for TLS connections")
+		}
 	}
 
 	cnf.Integrations[logTyp] = integration
@@ -145,7 +187,11 @@ func WriteCollectorConfig(integrations map[string]Integration, filename string) 
 	for name, integration := range integrations {
 		fileContent += fmt.Sprintf("        \"%s\": {\n", name)
 		if integration.TCP.Port != "" {
-			fileContent += fmt.Sprintf("            \"tcp_port\": {\"enabled\": %t, \"value\": \"%s\"},\n", integration.TCP.IsListen, integration.TCP.Port)
+			fileContent += fmt.Sprintf("            \"tcp_port\": {\"enabled\": %t, \"value\": \"%s\"", integration.TCP.IsListen, integration.TCP.Port)
+			if integration.TCP.TLSEnabled {
+				fileContent += fmt.Sprintf(", \"tls_enabled\": %t", integration.TCP.TLSEnabled)
+			}
+			fileContent += "},\n"
 		}
 		if integration.UDP.Port != "" {
 			fileContent += fmt.Sprintf("            \"udp_port\": {\"enabled\": %t, \"value\": \"%s\"},\n", integration.UDP.IsListen, integration.UDP.Port)
@@ -183,4 +229,74 @@ func WriteCollectorConfigFromModules(mod []Module, filename string) error {
 		}
 	}
 	return WriteCollectorConfig(integrations, filename)
+}
+
+func EnableTLSForIntegration(logTyp string, proto string) (string, error) {
+	cnf, err := ReadCollectorConfig()
+	if err != nil {
+		return "", fmt.Errorf("error reading collector config: %v", err)
+	}
+
+	if valid := config.ValidateModuleType(logTyp); valid == "nil" {
+		return "", fmt.Errorf("invalid integration: %s", logTyp)
+	}
+
+	integration := cnf.Integrations[logTyp]
+	var port string
+
+	switch proto {
+	case "tcp":
+		if integration.TCP.Port == "" {
+			return "", fmt.Errorf("TCP port not configured for %s", logTyp)
+		}
+		port = integration.TCP.Port
+		integration.TCP.TLSEnabled = true
+
+		mod := GetModule(logTyp)
+		if mod != nil && mod.IsPortListen(proto) {
+			mod.DisablePort(proto)
+			time.Sleep(100 * time.Millisecond)
+			err := mod.EnablePort(proto, true)
+			if err != nil {
+				return port, fmt.Errorf("error enabling TLS on running module: %v", err)
+			}
+		}
+	case "udp":
+		return "", fmt.Errorf("TLS not supported for UDP protocol")
+	default:
+		return "", fmt.Errorf("invalid protocol: %s", proto)
+	}
+
+	cnf.Integrations[logTyp] = integration
+	return port, WriteCollectorConfig(cnf.Integrations, config.CollectorFileName)
+}
+
+func DisableTLSForIntegration(logTyp string, proto string) error {
+	cnf, err := ReadCollectorConfig()
+	if err != nil {
+		return fmt.Errorf("error reading collector config: %v", err)
+	}
+
+	integration := cnf.Integrations[logTyp]
+	switch proto {
+	case "tcp":
+		integration.TCP.TLSEnabled = false
+
+		mod := GetModule(logTyp)
+		if mod != nil && mod.IsPortListen(proto) {
+			mod.DisablePort(proto)
+			time.Sleep(100 * time.Millisecond)
+			err := mod.EnablePort(proto, false)
+			if err != nil {
+				return fmt.Errorf("error disabling TLS on running module: %v", err)
+			}
+		}
+	case "udp":
+		return fmt.Errorf("TLS not supported for UDP protocol")
+	default:
+		return fmt.Errorf("invalid protocol: %s", proto)
+	}
+
+	cnf.Integrations[logTyp] = integration
+	return WriteCollectorConfig(cnf.Integrations, config.CollectorFileName)
 }
