@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -96,6 +97,12 @@ func (m *SyslogModule) GetPort(proto string) string {
 func (m *SyslogModule) EnablePort(proto string, enableTLS bool) error {
 	switch proto {
 	case "tcp":
+		if enableTLS {
+			if !utils.CheckIfPathExist(config.IntegrationCertPath) || !utils.CheckIfPathExist(config.IntegrationKeyPath) {
+				return fmt.Errorf("TLS certificates not found. Please load certificates first")
+			}
+		}
+
 		// Update TLS configuration before enabling
 		m.TCPListener.TLSEnabled = enableTLS
 		go m.enableTCP()
