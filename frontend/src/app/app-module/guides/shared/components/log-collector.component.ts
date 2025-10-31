@@ -79,7 +79,7 @@ export class LogCollectorComponent {
 
     const command = replaceCommandTokens(this.selectedPlatform.command, {
         PROTOCOL: protocol,
-        AGENT_NAME: this.agent,
+        AGENT_NAME: this.agentName(),
         ACTION: this.selectedAction && this.selectedAction.action || '',
         TLS: this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS' ? ' --tls' : ''
       });
