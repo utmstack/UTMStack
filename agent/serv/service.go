@@ -40,19 +40,6 @@ func (p *program) run() {
 		utils.Logger.Fatal("error getting config: %v", err)
 	}
 
-	if utils.CheckIfPathExist(config.IntegrationCertPath) && utils.CheckIfPathExist(config.IntegrationKeyPath) {
-		err = utils.ValidateIntegrationCertificates(config.IntegrationCertPath, config.IntegrationKeyPath)
-		if err != nil {
-			utils.Logger.ErrorF("TLS certificates are invalid: %v", err)
-			utils.Logger.Info("TLS functionality will be disabled. Use 'load-tls-certs' command to fix this.")
-		} else {
-			utils.Logger.Info("TLS certificates are valid and ready for use")
-		}
-	} else {
-		utils.Logger.Info("No TLS certificates found. TLS functionality is disabled.")
-		utils.Logger.Info("Use 'load-tls-certs' command to load your certificates.")
-	}
-
 	db := database.GetDB()
 	err = db.Migrate(models.Log{})
 	if err != nil {
