@@ -37,8 +37,8 @@ export class AccountService {
   }
 
   checkPassword(password: string, uuid: string): Observable<HttpResponse<string>> {
-    const sanitized_password = encodeURIComponent(password)
-    return this.http.get(SERVER_API_URL + `api/check-credentials?password=${sanitized_password}&checkUUID=${uuid}`, {
+    const body = { password, checkUUID: uuid };
+    return this.http.post(SERVER_API_URL + 'api/check-credentials', body, {
       observe: 'response',
       responseType: 'text'
     });
