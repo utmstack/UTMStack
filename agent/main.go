@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	pb "github.com/utmstack/UTMStack/agent/agent"
@@ -168,41 +167,6 @@ func main() {
 			fmt.Println("[OK]")
 
 			fmt.Println("TLS certificates loaded successfully!")
-			time.Sleep(5 * time.Second)
-
-		case "check-tls-certs":
-			fmt.Println("Checking TLS certificates status ...")
-
-			status := utils.GetTLSStatus(
-				config.IntegrationCertPath,
-				config.IntegrationKeyPath,
-				config.IntegrationCAPath,
-			)
-
-			fmt.Printf("Certificate file exists: %v\n", status.CertExists)
-			fmt.Printf("Private key file exists: %v\n", status.KeyExists)
-			fmt.Printf("CA certificate file exists: %v\n", status.CAExists)
-			fmt.Printf("TLS Available: %v\n", status.Available)
-			fmt.Printf("Certificates Valid: %v\n", status.Valid)
-
-			if status.Error != "" {
-				fmt.Printf("Error: %s\n", status.Error)
-			}
-
-			if status.Available {
-				fmt.Println("\n" + strings.Repeat("=", 50))
-				details, err := utils.GetCertificateDetails(config.IntegrationCertPath)
-				if err == nil {
-					fmt.Println(details)
-				}
-				fmt.Println("TLS is ready for use!")
-				fmt.Println("Use: ./utmstack_agent enable-tls <integration> tcp")
-			} else {
-				fmt.Println("\n" + strings.Repeat("=", 50))
-				fmt.Println("TLS is NOT available.")
-				fmt.Println("To enable TLS:")
-				fmt.Println("  Load your certificates: ./utmstack_agent load-tls-certs <cert> <key> [ca]")
-			}
 			time.Sleep(5 * time.Second)
 
 		case "change-port":
