@@ -3,9 +3,9 @@ import {ModalService} from '../../../../core/modal/modal.service';
 import {
   ModalConfirmationComponent
 } from '../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
-import {replaceCommandTokens} from "../../../../shared/util/replace-command-tokens.util";
+import {replaceCommandTokens} from '../../../../shared/util/replace-command-tokens.util';
 import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
-import {PLATFORMS} from "../constant";
+import {PLATFORMS} from '../constant';
 
 @Component({
   selector: 'app-log-colletor',
@@ -78,13 +78,15 @@ export class LogCollectorComponent {
     const protocol = this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS' ? 'tcp' : this.selectedProtocol.name.toLowerCase();
 
     const command = replaceCommandTokens(this.selectedPlatform.command, {
-        PROTOCOL: protocol,
-        AGENT_NAME: this.agentName(),
         ACTION: this.selectedAction && this.selectedAction.action || '',
-        TLS: this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS' ? ' --tls' : ''
+        AGENT_NAME: this.agentName(),
+        PROTOCOL: protocol,
+        TLS: this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS' &&
+          this.selectedAction.name === 'ENABLE' ? `--tls` : ''
       });
 
-    if (this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS') {
+    if (this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS' &&
+      this.selectedAction.name === 'ENABLE') {
       const extras = this.selectedPlatform.extraCommands ? this.selectedPlatform.extraCommands : [];
       return [...extras, command];
     }
@@ -177,14 +179,6 @@ export class LogCollectorComponent {
       case UtmModulesEnum.MERAKI:
         return 'cisco';
     }
-  }
-
-  replaceAll(command, wordsToReplace) {
-    return Object.keys(wordsToReplace).reduce(
-      (f, s, i) =>
-        `${f}`.replace(new RegExp(s, 'ig'), wordsToReplace[s]),
-      command
-    );
   }
 
   onChangeAction(action: any) {
