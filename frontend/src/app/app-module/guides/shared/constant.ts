@@ -97,8 +97,8 @@ export const createFileBeatsPlatforms = (
 ];
 
 export const PLATFORMS = createPlatforms(
-  'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service.exe" -ArgumentList \'ACTION\', \'AGENT_NAME\', \'PROTOCOL\' TLS -NoNewWindow -Wait\n',
-  'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service_arm64.exe" -ArgumentList \'ACTION\', \'AGENT_NAME\', \'PROTOCOL\' TLS -NoNewWindow -Wait\n',
+  'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service.exe" -ArgumentList \'ACTION\', \'AGENT_NAME\', \'PROTOCOL\', \'TLS\' -NoNewWindow -Wait\n',
+  'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service_arm64.exe" -ArgumentList \'ACTION\', \'AGENT_NAME\', \'PROTOCOL\, \'TLS\' -NoNewWindow -Wait\n',
   'sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_service ACTION AGENT_NAME PROTOCOL TLS"'
 );
 

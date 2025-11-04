@@ -83,13 +83,15 @@ export class AgentActionCommandComponent implements OnInit{
     const protocol = this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS' ? 'tcp' : this.selectedProtocol.name.toLowerCase();
 
     const command = replaceCommandTokens(this.selectedPlatform.command, {
-        PROTOCOL: protocol,
-        AGENT_NAME: this.agent,
         ACTION: this.selectedAction && this.selectedAction.action || '',
-        TLS: this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS' ? ' --tls' : ''
+        AGENT_NAME: this.agent || '',
+        PROTOCOL: protocol,
+        TLS: this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS' &&
+          this.selectedAction.name === 'ENABLE' ? `--tls` : ''
       });
 
-    if (this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS') {
+    if (this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS' &&
+      this.selectedAction.name === 'ENABLE') {
       const extras = this.selectedPlatform.extraCommands ? this.selectedPlatform.extraCommands : [];
       return [...extras, command];
     }
