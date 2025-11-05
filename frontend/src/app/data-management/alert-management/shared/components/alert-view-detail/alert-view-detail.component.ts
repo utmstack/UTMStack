@@ -5,6 +5,7 @@ import {
   UtmTableDetailComponent
 } from '../../../../../shared/components/utm/table/utm-table/utm-table-detail/utm-table-detail.component';
 import {
+  ALERT_ADVERSARY_FIELD,
   ALERT_CASE_ID_FIELD,
   ALERT_CATEGORY_FIELD,
   ALERT_FIELDS,
@@ -158,6 +159,8 @@ export class AlertViewDetailComponent implements OnInit {
   isEmptyResponse() {
     return Object.entries(this.log).length === 0;
   }
+
+  protected readonly ALERT_ADVERSARY_FIELD = ALERT_ADVERSARY_FIELD;
 }
 
 export enum AlertDetailTabEnum {

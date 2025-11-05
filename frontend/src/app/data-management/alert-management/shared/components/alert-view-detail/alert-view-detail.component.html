@@ -139,6 +139,10 @@
         <span class="text-blue-800 font-weight-light has-minimum-width">Technique :</span>&nbsp;
         <app-data-field-render [data]="alert" [field]="getFieldByName(ALERT_TECHNIQUE_FIELD)"></app-data-field-render>
       </div>
+      <div  *ngIf="!hideEmptyField || (hideEmptyField && alert.adversary && alert.adversary !== '')" class="alert-details w-100 d-flex justify-content-start mb-2 ">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Adversary :</span>&nbsp;
+        <app-data-field-render [data]="alert" [field]="getFieldByName(ALERT_ADVERSARY_FIELD)"></app-data-field-render>
+      </div>
       <div *ngIf="!hideEmptyField || (hideEmptyField && !hideLastChange)" class="alert-details w-100 d-flex justify-content-start mb-2 align-items-start">
         <span class="text-blue-800 font-weight-light has-minimum-width">Last change:</span>
         <app-alert-view-last-change [action]="null"
