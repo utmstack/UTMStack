@@ -1,19 +1,19 @@
-<ng-container *ngIf="providers.length > 0">
-  <div
-    *ngFor="let provider of providers"
-    class="d-flex flex-column align-items-center justify-content-center mb-5"
-  >
-    <button
-      class="btn btn-light-primary btn-lg w-100 mb-3"
-      (click)="loginWithProvider(provider)"
-    >
-      <img
-        [src]="provider.iconUrl"
-        alt="{{ provider.name }} logo"
-        class="me-3"
-        style="height: 24px; width: 24px;"
-      />
-      {{ 'auth.login.continueWith' | translate }} {{ provider.name }}
+<ng-container *ngIf="providers && providers.length > 0">
+  <div class="providers-divider">
+    <div class="divider-line"></div>
+    <span class="divider-text">OR</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="providers-list">
+    <button *ngFor="let provider of providers"
+            class="btn btn-block provider-button"
+            [ngClass]="'provider-' + provider.providerType.toLowerCase()"
+            [disabled]="!provider.active"
+            (click)="loginWithProvider(provider)"
+            type="button">
+      <i class="fa provider-icon" [ngClass]="getProviderIcon(provider.providerType)"></i>
+      <span class="provider-text">Login with {{ provider.name }}</span>
     </button>
   </div>
 </ng-container>

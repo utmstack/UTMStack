@@ -2,7 +2,6 @@ import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {SERVER_API_URL} from '../../app.constants';
 import {createRequestOption} from '../util/request-util';
-import {Observable} from "rxjs";
 
 export enum ProviderType {
   GOOGLE = 'GOOGLE',
@@ -13,6 +12,16 @@ export enum ProviderType {
   FACEBOOK = 'FACEBOOK',
   LINKEDIN = 'LINKEDIN'
 }
+
+export const PROVIDER_ICONS: Record<ProviderType, string> = {
+  [ProviderType.GOOGLE]: 'fa-brands fa-google',
+  [ProviderType.AZURE]: 'fa-brands fa-microsoft',
+  [ProviderType.OKTA]: 'fa-solid fa-shield-halved', // No hay icono específico de Okta
+  [ProviderType.GITHUB]: 'fa-brands fa-github',
+  [ProviderType.AUTH0]: 'fa-solid fa-lock', // No hay icono específico de Auth0
+  [ProviderType.FACEBOOK]: 'fa-brands fa-facebook',
+  [ProviderType.LINKEDIN]: 'fa-brands fa-linkedin'
+};
 
 export interface IdentityProviderDto {
   id: number;

@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import {IdentityProviderDto, LoginProviderService} from '../../../services/login-provider.service';
+import {
+  IdentityProviderDto,
+  LoginProviderService,
+  PROVIDER_ICONS,
+  ProviderType
+} from '../../../services/login-provider.service';
 
 @Component({
   selector: 'app-login-providers',
@@ -32,6 +37,10 @@ export class LoginProvidersComponent implements OnInit {
         this.providers = [];
       }
     );
+  }
+
+  getProviderIcon(providerType: ProviderType) {
+    return PROVIDER_ICONS[providerType] || 'bi-shield-lock';
   }
 
   loginWithProvider(provider: IdentityProviderDto) {

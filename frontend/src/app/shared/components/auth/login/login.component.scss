@@ -21,7 +21,6 @@
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  //padding: 100px 39%;
 }
 
 .wrap-login {
@@ -29,7 +28,6 @@
   background: #fff;
   border-radius: 10px;
   overflow: hidden;
-
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-box;
@@ -39,7 +37,6 @@
   justify-content: space-around;
   align-items: center;
   padding: 20px 0;
-
 }
 
 /*------------------------------------------------------------------
@@ -47,11 +44,17 @@
 .login-pic {
   width: 100px;
   text-align: center;
+  padding: 20px 0;
 }
 
 .login-pic img {
   max-width: 100%;
   max-height: 100px;
+  transition: transform 0.3s ease;
+}
+
+.login-pic img:hover {
+  transform: scale(1.05);
 }
 
 /*------------------------------------------------------------------
@@ -66,7 +69,6 @@
   color: #333333;
   line-height: 1.2;
   text-align: center;
-
   width: 100%;
   display: block;
   padding-bottom: 54px;
@@ -103,7 +105,6 @@
   justify-content: center;
   align-items: center;
   padding: 0 25px;
-
   -webkit-transition: all 0.4s;
   -o-transition: all 0.4s;
   -moz-transition: all 0.4s;
@@ -118,10 +119,6 @@
 [ Responsive ]*/
 
 @media (max-width: 992px) {
-  .wrap-login {
-    // padding: 177px 90px 33px 85px;
-  }
-
   .login-pic {
     width: 35%;
   }
@@ -132,10 +129,6 @@
 }
 
 @media (max-width: 768px) {
-  .wrap-login {
-    // padding: 100px 80px 33px 80px;
-  }
-
   .login-pic {
     display: none;
   }
@@ -146,8 +139,9 @@
 }
 
 @media (max-width: 576px) {
-  .wrap-login {
-    //padding: 100px 15px 33px 15px;
+  .w-350px {
+    width: 90% !important;
+    max-width: 350px;
   }
 }
 
@@ -174,16 +168,13 @@
   transform: translateY(-50%);
   right: 8px;
   pointer-events: none;
-
   font-family: Poppins-Medium;
   color: #c80000;
   font-size: 13px;
   line-height: 1.4;
   text-align: left;
-
   visibility: hidden;
   opacity: 0;
-
   -webkit-transition: opacity 0.4s;
   -o-transition: opacity 0.4s;
   -moz-transition: opacity 0.4s;
@@ -218,80 +209,231 @@
   }
 }
 
+// ============================================
+// MEJORAS VISUALES MODERNAS
+// ============================================
+
 .utm-login-cover {
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
   right: 0;
+  z-index: 1;
+  padding: 20px;
 }
 
 .w-350px {
   width: 350px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+  }
 }
 
 .card {
   box-shadow: unset;
 }
 
-.utm-login-cover {
-  position: fixed;
-  top: 0; bottom: 0; left: 0; right: 0;
-  z-index: 1;
-  padding: 20px;
-}
-
-.login-pic img {
-  max-height: 100px;
-  max-width: 100%;
-}
-
+// Form Controls mejorados
 .form-control {
-  border-radius: 6px;
-  border-color: #ccc;
+  border-radius: 8px;
+  border: 1px solid #ddd;
   box-shadow: none;
+  padding: 12px 40px 12px 33px;
+  height: 48px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+
+  &::placeholder {
+    color: #999;
+    opacity: 1;
+  }
+
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    outline: none;
+  }
+
+  &:hover:not(:focus) {
+    border-color: #bbb;
+  }
 }
 
-.form-control:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0,123,255,0.1);
+// Form group feedback position
+.form-group-feedback-right .form-control-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+
+  i {
+    font-size: 16px;
+  }
 }
 
+// Botones mejorados
 .utm-button {
-  border-radius: 6px;
-  padding: 10px 16px;
+  border-radius: 8px;
+  padding: 12px 24px;
   font-weight: 600;
   font-size: 15px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  &:hover::before {
+    width: 300px;
+    height: 300px;
+  }
 }
 
 .utm-button-primary {
-/*  background-color: #007bff;
-  border-color: #007bff;*/
   color: white;
-  transition: background-color 0.3s ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba($primary-color, 0.4);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba($primary-color, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .spinner {
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+  }
 }
 
-.utm-button-primary:hover:not(:disabled) {
-/*  background-color: #0056b3;
-  border-color: #004085;*/
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
+// Links y textos
 .cursor-pointer {
   cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: inline-block;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
 }
 
-.txt1, .txt2 {
+.txt1 {
   font-size: 13px;
- /* color: #007bff;*/
+  color: #666;
+  margin-right: 4px;
 }
 
-.txt2:hover {
-  text-decoration: underline;
+.txt2 {
+  font-size: 13px;
+  color: $primary-color;
+  transition: all 0.2s ease;
+  font-weight: 500;
+
+  &:hover {
+    color: darken($primary-color, 10%);
+    text-decoration: underline;
+  }
 }
 
 .border-grey {
-  border: 1px solid #ccc!important;
+  border: 1px solid #e0e0e0 !important;
 }
 
+// Mensaje de demo
+.text-danger.font-weight-semibold {
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+  border-top: 1px solid #ffe0e0;
+  border-radius: 0 0 1rem 1rem;
+  animation: fadeIn 0.5s ease;
+}
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
+// Mejora de espaciado
+.my-2 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+.mt-5 {
+  margin-top: 2rem !important;
+}
+
+// Card body
+.card-body {
+  padding: 1.5rem;
+}
+
+// Smooth rendering
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Loading states
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+}
+
+// Focus visible para accesibilidad
+button:focus,
+.form-control:focus,
+a:focus {
+  outline: none;
+}
+
+button:focus-visible,
+.form-control:focus-visible,
+a:focus-visible {
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}
