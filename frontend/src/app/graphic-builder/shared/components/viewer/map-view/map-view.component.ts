@@ -2,14 +2,17 @@ import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output
 import {UUID} from 'angular2-uuid';
 import * as L from 'leaflet';
 import {Observable, Observer, of, Subject} from 'rxjs';
+import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {DashboardBehavior} from '../../../../../shared/behaviors/dashboard.behavior';
+import {TimeFilterBehavior} from '../../../../../shared/behaviors/time-filter.behavior';
 import {EchartClickAction} from '../../../../../shared/chart/types/action/echart-click-action';
 import {UtmScatterMapOptionType} from '../../../../../shared/chart/types/charts/scatter/utm-scatter-map-option.type';
 import {LeafletMapType} from '../../../../../shared/chart/types/map/leaflet/leaflet-map.type';
 import {VisualizationType} from '../../../../../shared/chart/types/visualization.type';
 import {ElasticFilterDefaultTime} from '../../../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
 import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
+import {RefreshService, RefreshType} from '../../../../../shared/services/util/refresh.service';
 import {TimeFilterType} from '../../../../../shared/types/time-filter.type';
 import {mergeParams, sanitizeFilters} from '../../../../../shared/util/elastic-filter.util';
 import {getBucketLabel} from '../../../../chart-builder/chart-property-builder/shared/functions/visualization-util';
@@ -18,9 +21,6 @@ import {RunVisualizationService} from '../../../services/run-visualization.servi
 import {UtmChartClickActionService} from '../../../services/utm-chart-click-action.service';
 import {rebuildVisualizationFilterTime} from '../../../util/chart-filter/chart-filter.util';
 import {resolveDefaultVisualizationTime} from '../../../util/visualization/visualization-render.util';
-import {RefreshService, RefreshType} from "../../../../../shared/services/util/refresh.service";
-import {catchError, filter, map, switchMap, takeUntil, tap} from "rxjs/operators";
-import {TimeFilterBehavior} from "../../../../../shared/behaviors/time-filter.behavior";
 
 @Component({
   selector: 'app-map-view',
@@ -54,168 +54,168 @@ export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
   // tslint:disable-next-line:max-line-length
   res: { name: string, value: number[] }[] = [
     {
-      "name": "57.135.189.63",
-      "value": [
+      name: '57.135.189.63',
+      value: [
         26.2729,
         -80.26,
         28.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:6463:35f3:3a5f:c61f",
-      "value": [
+      name: '2601:58a:8984:9240:6463:35f3:3a5f:c61f',
+      value: [
         37.751,
         -97.822,
         22.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:5c36:dc9f:f881:d87c",
-      "value": [
+      name: '2601:58a:8984:9240:5c36:dc9f:f881:d87c',
+      value: [
         37.751,
         -97.822,
         9.0
       ]
     },
     {
-      "name": "88.196.79.239",
-      "value": [
+      name: '88.196.79.239',
+      value: [
         59.433,
         24.7323,
         7.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:c08d:edc:4c08:ca06",
-      "value": [
+      name: '2601:58a:8984:9240:c08d:edc:4c08:ca06',
+      value: [
         37.751,
         -97.822,
         6.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:a015:cc03:ee94:b65a",
-      "value": [
+      name: '2601:58a:8984:9240:a015:cc03:ee94:b65a',
+      value: [
         37.751,
         -97.822,
         4.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:b509:9ea9:cb8c:ba47",
-      "value": [
+      name: '2601:58a:8984:9240:b509:9ea9:cb8c:ba47',
+      value: [
         37.751,
         -97.822,
         4.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:1c73:b69d:5b2b:5b81",
-      "value": [
+      name: '2601:58a:8984:9240:1c73:b69d:5b2b:5b81',
+      value: [
         37.751,
         -97.822,
         3.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:5863:8f23:93eb:4f60",
-      "value": [
+      name: '2601:58a:8984:9240:5863:8f23:93eb:4f60',
+      value: [
         37.751,
         -97.822,
         3.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:6182:367b:f8f5:99cb",
-      "value": [
+      name: '2601:58a:8984:9240:6182:367b:f8f5:99cb',
+      value: [
         37.751,
         -97.822,
         3.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:6cca:ff0:72c2:98e1",
-      "value": [
+      name: '2601:58a:8984:9240:6cca:ff0:72c2:98e1',
+      value: [
         37.751,
         -97.822,
         3.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:916a:63e6:9196:57ee",
-      "value": [
+      name: '2601:58a:8984:9240:916a:63e6:9196:57ee',
+      value: [
         37.751,
         -97.822,
         3.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:9587:4412:99a:4169",
-      "value": [
+      name: '2601:58a:8984:9240:9587:4412:99a:4169',
+      value: [
         37.751,
         -97.822,
         3.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:9ddb:ce24:5ea2:2f84",
-      "value": [
+      name: '2601:58a:8984:9240:9ddb:ce24:5ea2:2f84',
+      value: [
         37.751,
         -97.822,
         3.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:b13f:97f3:2728:950",
-      "value": [
+      name: '2601:58a:8984:9240:b13f:97f3:2728:950',
+      value: [
         37.751,
         -97.822,
         3.0
       ]
     },
     {
-      "name": "2600:1700:234c:ac10:d0cb:fe60:ca36:8c59",
-      "value": [
+      name: '2600:1700:234c:ac10:d0cb:fe60:ca36:8c59',
+      value: [
         25.6958,
         -80.3626,
         2.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:217b:7bdc:ab48:e41a",
-      "value": [
+      name: '2601:58a:8984:9240:217b:7bdc:ab48:e41a',
+      value: [
         37.751,
         -97.822,
         2.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:9d3d:d2e1:d3f2:b458",
-      "value": [
+      name: '2601:58a:8984:9240:9d3d:d2e1:d3f2:b458',
+      value: [
         37.751,
         -97.822,
         2.0
       ]
     },
     {
-      "name": "107.202.154.128",
-      "value": [
+      name: '107.202.154.128',
+      value: [
         25.7689,
         -80.1946,
         1.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:a589:cf0c:9737:f4c6",
-      "value": [
+      name: '2601:58a:8984:9240:a589:cf0c:9737:f4c6',
+      value: [
         37.751,
         -97.822,
         1.0
       ]
     },
     {
-      "name": "2601:58a:8984:9240:ccbc:1190:7f84:c0b8",
-      "value": [
+      name: '2601:58a:8984:9240:ccbc:1190:7f84:c0b8',
+      value: [
         37.751,
         -97.822,
         1.0
@@ -322,8 +322,8 @@ export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
 
-    this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
-    if(!this.defaultTime){
+    if (!this.defaultTime) {
+      this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
       this.refreshService.sendRefresh(this.refreshType);
     }
   }

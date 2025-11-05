@@ -85,7 +85,6 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnInit() {
-    this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
     this.refreshType = `${this.chartId}`;
 
     this.data$ = this.refreshService.refresh$
@@ -127,6 +126,7 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
       });
 
     if (!this.defaultTime) {
+      this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
       this.refreshService.sendRefresh(this.refreshType);
     }
   }
