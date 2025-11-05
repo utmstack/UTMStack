@@ -31,7 +31,8 @@ import {PLATFORMS} from '../constant';
                  class="flex-item">
       </ng-select>
     </div>
-    <div *ngIf="this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS'" class="alert alert-info alert-styled-right mt-2">
+    <div *ngIf="this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS' && selectedAction"
+         class="alert alert-info alert-styled-right mt-2">
       After the TLS certificates have been successfully loaded into the system,
       it is not necessary to repeat the certificate loading process when enabling
       additional integrations that use TLS. The system will automatically apply the
