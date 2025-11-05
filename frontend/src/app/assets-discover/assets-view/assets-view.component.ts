@@ -434,6 +434,10 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
     return item.id;
   }
 
+  trackByDataInputFn(index: number, item: UtmDataInputStatus) {
+    return item.id;
+  }
+
   ngOnDestroy(): void {
     this.stopInterval(true);
     this.assetFiltersBehavior.$assetFilter.next(null);
