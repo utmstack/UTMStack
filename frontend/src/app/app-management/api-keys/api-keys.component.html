@@ -1,0 +1,151 @@
+<div class="card w-100 h-100 m-h-0">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="mb-0 d-flex flex-column">
+      <h6 class="card-title label-header text-uppercase">
+        API Keys
+      </h6>
+      <span class="text-gray-500 mt-1 fw-semibold fs-6">
+        The API key is a simple encrypted string that identifies you in the application. With this key, you can access the REST API.
+      </span>
+    </div>
+    <button (click)="openCreateModal()"
+            class="btn utm-button utm-button-primary">
+      <i class="icon-key mr-2"></i> Create New API Key
+    </button>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive resizable-table-responsive m-h-0 mt-3">
+      <table class="table table text-nowrap">
+        <thead>
+          <tr>
+            <th (sort)="onSortBy($event)"
+              [sortable]="'name'" appColumnSortable
+              class="font-weight-semibold cursor-pointer"
+              scope="col">
+              Name
+            </th>
+            <th (sort)="onSortBy($event)"
+                [sortable]="'allowedIp'" appColumnSortable
+                class="font-weight-semibold cursor-pointer"
+                scope="col">
+              Allowed IPs
+            </th>
+            <th (sort)="onSortBy($event)"
+                [sortable]="'expiresAt'" appColumnSortable
+                class="font-weight-semibold cursor-pointer"
+                scope="col">
+              Expires At
+            </th>
+            <th (sort)="onSortBy($event)"
+                [sortable]="'createdAt'" appColumnSortable
+                class="font-weight-semibold cursor-pointer"
+                scope="col">
+              Created At
+            </th>
+            <th class="text-center">ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody *ngIf="!loading && apiKeys.length;">
+          <tr *ngFor="let key of apiKeys">
+            <td><i class="fa fa-info-circle text-warning mr-2 cursor-pointer"></i> {{ key.name }}</td>
+            <td>{{ key.allowedIp?.join(', ') || '—' }}</td>
+            <td>
+              <ng-container *ngIf="getDaysUntilExpire(key.expiresAt) >= 0 && getDaysUntilExpire(key.expiresAt) <= 7">
+                <span class="text-warning" [ngbTooltip]="'This key will expire soon'">
+                  <i class="fa fa-info-circle text-warning mr-2 cursor-pointer"></i>
+                </span>
+              </ng-container>
+
+              <ng-container *ngIf="getDaysUntilExpire(key.expiresAt) < 0">
+                <span class="text-danger" [ngbTooltip]="'This key has expired'">
+                  <i class="fa fa-exclamation-circle text-danger mr-2 cursor-pointer"></i>
+                </span>
+              </ng-container>
+
+              {{ key.expiresAt ? (key.expiresAt | date:'dd/MM/yy HH:mm':'UTC') : '—' }}
+            </td>
+
+            <td>{{ key.createdAt | date:'dd/MM/yy HH:mm' :'UTC' }}</td>
+            <td class="text-center">
+              <button class="btn bg-light m-0 p-1 cursor-pointer medium-icon mr-2" (click)="generateKey(key)">
+                <i class="icon-sync"></i>
+              </button>
+              <button class="btn bg-light m-0 p-1 cursor-pointer medium-icon mr-2" (click)="editKey(key)">
+                <i class="icon-pencil3"></i>
+              </button>
+              <button class="btn bg-light m-0 p-1 cursor-pointer medium-icon" (click)="deleteKey(key)">
+                <i class="icon-cross2"></i>
+              </button>
+            </td>
+          </tr>
+          <ng-container *ngIf="!loading && apiKeys.length === 0">
+            <tr>
+              <td [attr.colspan]="5">
+                <app-no-data-found></app-no-data-found>
+              </td>
+            </tr>
+          </ng-container>
+
+          <ng-container *ngIf="loading">
+            <tr>
+              <td [attr.colspan]="5">
+                <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+                  <app-utm-spinner [height]="'35px'"
+                                   [label]="'Loading...'"
+                                   [loading]="loading"
+                                   [width]="'35px'">
+                  </app-utm-spinner>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="!noData" class="mb-3 mt-3">
+      <div class="row justify-content-center">
+        <ngb-pagination (pageChange)="loadPage($event)"
+                        [boundaryLinks]="true"
+                        [collectionSize]="totalItems"
+                        [maxSize]="10"
+                        [pageSize]="itemsPerPage"
+                        [rotate]="true"
+                        [size]="'sm'">
+        </ngb-pagination>
+        <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)" class="ml-3">
+        </app-utm-items-per-page>
+      </div>
+      <!-- TABLE END-->
+    </div>
+  </div>
+</div>
+
+<ng-template #generatedModal let-modal>
+  <app-utm-modal-header [name]="'Generated API Key'"
+                        [showCloseButton]="false">
+  </app-utm-modal-header>
+
+  <div class="container-fluid p-3 d-flex flex-column">
+    <h6 class="card-title label-header text-uppercase">
+      Copy it now because it will be shown only once!
+    </h6>
+    <div class="d-flex justify-content-center input-group mt-3">
+      <code class="fs-3 pt-1 w-75">{{ maskSecrets(generatedApiKey) }}</code>
+      <button class="btn btn utm-button utm-button-primary" type="button" (click)="copyToClipboard()">
+        <i [ngClass]="!copied ? 'icon-copy2' : 'icon-check2'"></i>
+        {{  copied ? 'copied' : 'copy' }}
+      </button>
+    </div>
+    <div class="d-flex align-items-center pt-1" *ngIf="generatedApiKey">
+      <i class="icon-info22 fs-2 pl-4 text-warning mr-2"></i>
+      <span class="text-warning">{{ 'Keep this key safeKeep this key safe' }}</span>
+    </div>
+  </div>
+  <div class="d-flex justify-content-center my-3">
+    <button class="btn btn utm-button utm-button-primary me-3" (click)="close()"
+            [disabled]="!copied">
+      {{ 'Close' }}
+    </button>
+  </div>
+</ng-template>

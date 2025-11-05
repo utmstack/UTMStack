@@ -1,0 +1,127 @@
+<app-utm-modal-header [name]="apiKey?.id ? 'Edit Api Key' : 'Create Api Key'"></app-utm-modal-header>
+
+<div class="container-fluid p-3">
+  <!-- Error Alert -->
+  <div *ngIf="errorMsg" class="alert alert-danger alert-sm py-2">
+    {{ errorMsg }}
+  </div>
+
+  <form [formGroup]="apiKeyForm">
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input
+        type="text"
+        id="name"
+        class="form-control"
+        formControlName="name"
+        placeholder="Enter a descriptive name"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="expiresAt" class="control-label">Expires At</label>
+      <div class="input-group">
+        <input
+          style="background-color: transparent!important;"
+          class="form-control"
+          id="expiresAt"
+          name="expiresAt"
+          [minDate]="minDate"
+          placeholder="yyyy-mm-dd"
+          formControlName="expiresAt"
+          ngbDatepicker
+          #dp="ngbDatepicker"
+          readonly
+        />
+        <div class="input-group-append">
+          <button
+            type="button"
+            class="btn utm-button utm-button-primary"
+            (click)="dp.toggle()"
+          >
+            <i class="icon-calendar22"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Allowed IPs</label>
+
+      <div class="input-group">
+        <input
+          type="text"
+          class="form-control disabled-rounded-ends"
+          [(ngModel)]="ipInput"
+          [ngModelOptions]="{ standalone: true }"
+          placeholder="Add IP address or CIDR (e.g., 192.168.1.0/24)"
+          (keyup.enter)="addIp()"
+          [class.is-invalid]="ipInputError"
+        />
+        <button
+          class="btn utm-button utm-button-primary disabled-rounded-start"
+          type="button"
+          (click)="addIp()">
+          <i class="icon-add"></i>
+        </button>
+      </div>
+
+      <div *ngIf="ipInputError" class="text-danger mt-1">
+        {{ ipInputError }}
+      </div>
+
+      <ul class="list-group mt-3 border-0" *ngIf="allowedIp.controls.length > 0">
+        <li class="list-group-item"
+          style="min-height: 44px;
+                  padding: 10px 12px;
+                  margin-bottom: 6px;
+                  border: 1px solid #e5e5e5;
+                  border-radius: 4px;"
+          *ngFor="let ip of allowedIp.controls; let i = index">
+
+          <div class="row" style="display: flex; align-items: center;">
+            <div class="col-xs-8 col-sm-9" style="display: flex; align-items: center;">
+              <i class="icon-checkmark-circle text-success" style="margin-right: 6px; font-size: 16px;"></i>
+              <strong style="margin-right: 6px;">{{ ip.value }}</strong>
+              <span class="label label-primary">{{ getIpType(ip.value) }}</span>
+            </div>
+            <div class="col-xs-4 col-sm-3 text-right">
+              <button
+                type="button"
+                class="btn bg-light m-0 p-1 cursor-pointer medium-icon"
+                (click)="removeIp(i)"
+                style="min-height: 28px; display: inline-flex; align-items: center;">
+                <i class="icon-cross2" style="margin-right: 4px;"></i>
+              </button>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+
+  </form>
+
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button
+      type="button"
+      class="btn utm-button utm-button-grey mr-3"
+      [disabled]="loading"
+      (click)="activeModal.close('Close click')">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+
+    <button (click)="create()"
+            [disabled]="!apiKeyForm.valid"
+            class="btn utm-button utm-button-primary
+             d-flex justify-content-center
+              align-items-center">
+      <i [ngClass]="isSaving ? 'icon-spinner2 spinner' : 'icon-key'"></i>&nbsp;
+      {{apiKey?.id ? 'Edit Api Key' : 'Create Api Key'}}
+    </button>
+  </div>
+</div>
+
+
+

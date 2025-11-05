@@ -301,6 +301,7 @@ public class UserService {
 
     public User getCurrentUserLogin() {
         String userLogin = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new CurrentUserLoginNotFoundException("No current user login was found"));
-        return userRepository.findOneWithAuthoritiesByLogin(userLogin).orElseThrow(() -> new CurrentUserLoginNotFoundException(String.format("No user with login %1$s was found", userLogin)));
+        return userRepository.findOneWithAuthoritiesByLogin(userLogin)
+                .orElseThrow(() -> new CurrentUserLoginNotFoundException(String.format("No user with login %1$s was found", userLogin)));
     }
 }

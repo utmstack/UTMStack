@@ -7,6 +7,7 @@ import lombok.Getter;
 @Getter
 public enum ApplicationLayer {
     SERVICE ("SERVICE"),
+    API ("API"),
     CONTROLLER ("CONTROLLER");
 
     private final String value;
