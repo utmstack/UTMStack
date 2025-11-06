@@ -18,9 +18,10 @@ import {UtmPipeline} from '../shared/types/logstash-stats.type';
 })
 export class LogstashFiltersComponent implements OnInit {
   @Input() pipeline: UtmPipeline;
+  @Input() enableQuickCreate = false;
   filters: LogstashFilterType[] = [];
   filter: LogstashFilterType = {} as LogstashFilterType;
-  loading = true;
+  loading = false;
   totalItems: any;
   requestParams =
     {
@@ -42,6 +43,7 @@ export class LogstashFiltersComponent implements OnInit {
 
   ngOnInit() {
     if (this.pipeline) {
+      this.loading = true;
       this.requestParams = {
         ...this.requestParams,
         pipelineId: this.pipeline.id
@@ -69,8 +71,14 @@ export class LogstashFiltersComponent implements OnInit {
   }
 
   onFilterEditClose() {
+    this.enableQuickCreate = false;
     this.requestParams.page = 0;
     this.getLogsFilters();
+    this.openEditJson = false;
+  }
+
+  onFilterEditDismiss() {
+    this.enableQuickCreate = false;
     this.openEditJson = false;
   }
 
@@ -102,6 +110,10 @@ export class LogstashFiltersComponent implements OnInit {
     this.filters = data;
     this.filter = data[0] || {};
     this.loading = false;
+
+    if (this.enableQuickCreate) {
+      this.addCustomFilter();
+    }
   }
 
   private onError(error) {
@@ -126,6 +138,11 @@ export class LogstashFiltersComponent implements OnInit {
 
   viewFilter(filter: LogstashFilterType) {
     this.filterEdit = filter;
+    this.openEditJson = true;
+  }
+
+  addCustomFilter() {
+    this.filterEdit = null;
     this.openEditJson = true;
   }
 }

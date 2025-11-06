@@ -24,6 +24,7 @@ export class LogstashPipelinesComponent implements OnInit, OnDestroy, AfterViewC
   img3: string;
   img4: string;
   img5: string;
+  enableQuickCreate = false;
 
   constructor(private elasticHealthService: ElasticHealthService,
               private logstashService: LogstashService,
@@ -33,10 +34,10 @@ export class LogstashPipelinesComponent implements OnInit, OnDestroy, AfterViewC
   ngOnInit() {
     this.getHealth();
     this.getLogstashStats();
-    this.interval = setInterval(() => {
+    /*this.interval = setInterval(() => {
       this.getHealth();
       this.getLogstashStats();
-    }, 5000);
+    }, 5000);*/
     this.imageChangeInterval = setInterval(() => this.setImages(), 8000);
   }
 
@@ -71,6 +72,7 @@ export class LogstashPipelinesComponent implements OnInit, OnDestroy, AfterViewC
 
   closeDetail() {
     this.pipelineDetail = null;
+    this.enableQuickCreate = false;
   }
 
   getClusterHealth() {
@@ -99,5 +101,10 @@ export class LogstashPipelinesComponent implements OnInit, OnDestroy, AfterViewC
   getModuleSvg(module: string): string {
     const icon = this.svgMap[module];
     return icon ? icon : 'generic.svg';
+  }
+
+  addCustomFilter(pipeline: UtmPipeline) {
+      this.enableQuickCreate = true;
+      this.viewPipeline(pipeline);
   }
 }

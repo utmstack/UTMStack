@@ -13,15 +13,20 @@
            *ngFor="let pipeline of logstashPipelines.pipelines"
            [ngClass]="{'card-pipeline-selected':pipelineDetail && pipeline.pipelineId === pipelineDetail.pipelineId}"
            (click)="viewPipeline(pipeline)">
-        <h6 class="text-blue-800 d-flex justify-content-start w-100">
+        <div class="d-flex justify-content-between w-100 align-items-center" >
+          <h6 class="text-blue-800 d-flex justify-content-start">
           <span
             [ngClass]="pipeline.pipelineStatus==='up'?'text-success':'text-danger'"
             class="span-small-icon d-flex justify-content-start align-items-center">
                   <i
                     [ngClass]="'icon-circle2'"
                     class="mr-2"></i></span>
-          {{ pipeline.pipelineName }}
-        </h6>
+            {{ pipeline.pipelineName }}
+          </h6>
+          <button [ngbTooltip]="'Add filter'" (click)="addCustomFilter(pipeline)" class="btn btn-small btn-icon btn-outline-info">
+            <i class="small-md-icon icon-database-add"></i>
+          </button>
+        </div>
         <img class="p-3 mt-2 mt-1"
              [alt]="pipeline.moduleName"
              [src]="'/assets/img/guides/logos/' + getModuleSvg(pipeline.moduleName)">
@@ -174,7 +179,10 @@
           *ngTemplateOutlet="pipelineEventTemplate; context: { pipeline: pipelineDetail, showColum:false }"></ng-container>
       </div>
 
-      <app-logstash-filters *ngIf="pipelineDetail" [pipeline]="pipelineDetail"></app-logstash-filters>
+      <app-logstash-filters *ngIf="pipelineDetail"
+                            [enableQuickCreate]="enableQuickCreate"
+                            [pipeline]="pipelineDetail">
+      </app-logstash-filters>
     </div>
   </div>
 </div>

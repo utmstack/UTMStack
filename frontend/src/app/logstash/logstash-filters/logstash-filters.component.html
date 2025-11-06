@@ -1,6 +1,6 @@
-<div class="d-flex justify-content-between w-100 align-items-center" >
+<div *ngIf="filters.length > 0" class="d-flex justify-content-between w-100 align-items-center" >
   <h6 class="font-weight-semibold  m-0">Pipeline filters</h6>
-  <button (click)="filterEdit = null;openEditJson = true"
+  <button (click)="addCustomFilter()"
           class="btn utm-button utm-button-primary">
     <i class="icon-database-add mr-2"></i> Add filter
   </button>
@@ -11,8 +11,7 @@
   <code [innerHTML]="pipeline.reloads.lastError.message | safe:'html'"></code>
 </div>-->
 
-<div class="row w-100 m-0 mt-3 d-flex justify-content-center align-items-center container-pipeline flex-column"
-     *ngIf="filters.length>0 && !loading">
+<div *ngIf="filters.length > 0 && !loading; else isLoading" class="row w-100 m-0 mt-3 d-flex justify-content-center align-items-center container-pipeline flex-column" >
   <span inlineSVG="assets/icons/system/DATA-FILTER.svg"
         class="svg-icon svg-icon-4x svg-icon-grey text-grey-300"></span>
   <div class="pipeline-line pipeline-{{lineColor}}">
@@ -56,6 +55,16 @@
 
 </div>
 
+<ng-template #isLoading>
+  <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+    <app-utm-spinner [height]="'35px'"
+                     [label]="'Loading filters...'"
+                     [loading]="loading"
+                     [width]="'35px'">
+    </app-utm-spinner>
+  </div>
+</ng-template>
+
 
 <div *ngIf="openEditJson" class="utm-right-container">
   <div (click)="openEditJson= undefined" class="overlay overlay-lg"></div>
@@ -70,10 +79,12 @@
         <div class="close-icon"></div>
       </button>
     </div>
-    <app-logstash-filter-create *ngIf="filter" (filterEditClose)="onFilterEditClose()"
+    <app-logstash-filter-create *ngIf="filter"
+                                (filterEditClose)="onFilterEditClose()"
                                 [disable] = "filterEdit && filterEdit.systemOwner"
-                                (close)="openEditJson= undefined"
+                                (close)="onFilterEditDismiss()"
                                 [dataType]="filter.datatype"
-                                [filter]="filterEdit" [pipeline]="pipeline"></app-logstash-filter-create>
+                                [filter]="filterEdit" [pipeline]="pipeline">
+    </app-logstash-filter-create>
   </div>
 </div>
