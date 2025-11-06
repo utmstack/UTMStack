@@ -1,7 +1,7 @@
 package com.utmstack.userauditor.service;
 
 import com.utmstack.userauditor.model.*;
-import com.utmstack.userauditor.model.winevent.EventLog;
+import com.utmstack.userauditor.model.event.Event;
 import com.utmstack.userauditor.repository.UserRepository;
 import com.utmstack.userauditor.repository.UserSourceRepository;
 import com.utmstack.userauditor.service.interfaces.Source;
@@ -69,7 +69,7 @@ public class UserService {
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("Class not found"));
             try {
-                Map<String, List<EventLog>> users = source.findUsers(logSource);
+                Map<String, List<Event>> users = source.findUsers(logSource);
                 this.synchronizeUsers(users, logSource);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -77,7 +77,7 @@ public class UserService {
         });
     }
 
-    private void synchronizeUsers(Map<String, List<EventLog>> users, UserSource userSource) {
+    private void synchronizeUsers(Map<String, List<Event>> users, UserSource userSource) {
         users.forEach((s, eventLogs) -> {
 
             // The DWM (Desktop Windows Manager) and Usermode Font Driver Host accesses are discarded.
@@ -109,10 +109,14 @@ public class UserService {
         });
     }
 
-    private List<UserAttribute> synchronizeAttributes(User user, EventLog eventLog) {
-        int eventId = eventLog.logx.wineventlog.eventId;
-        user.setSid(eventId == EventType.USER_LAST_LOGON.getEventId() ? eventLog.logx.wineventlog.eventData.targetUserSid :
-                eventLog.logx.wineventlog.eventData.targetSid);
+    private List<UserAttribute> synchronizeAttributes(User user, Event eventLog) {
+        int eventId = Integer.parseInt(eventLog.getLog().get("eventCode").toString());
+
+        user.setSid(
+                eventId == EventType.USER_LAST_LOGON.getEventId()
+                        ? (String) eventLog.getLog().get("winlogEventDataTargetUserSid")
+                        : (String) eventLog.getLog().get("winlogEventDataTargetSid"));
+
 
         List<UserAttribute> attributes = new ArrayList<>();
 
@@ -123,7 +127,7 @@ public class UserService {
         return attributes;
     }
 
-    private UserAttribute createUserAttributes(User user, WindowsAttributes attribute, EventLog eventLog) {
+    private UserAttribute createUserAttributes(User user, WindowsAttributes attribute, Event eventLog) {
         return UserAttribute
                 .builder()
                 .attributeKey(attribute.getValue())
@@ -133,34 +137,41 @@ public class UserService {
                 .build();
     }
 
-    private boolean isDeleteEvent(List<EventLog> eventLog) {
-        return eventLog.stream().anyMatch(e -> e.logx.wineventlog.eventId == EventType.USER_DELETED.getEventId());
+    private boolean isDeleteEvent(List<Event> eventLog) {
+        return eventLog.stream().anyMatch(e -> Integer.parseInt(e.getLog().get("eventCode").toString()) == EventType.USER_DELETED.getEventId());
     }
 
-    private EventLog getRecentEvent(List<EventLog> events) {
-       return events.stream().filter(s -> (s.logx.wineventlog.eventId == EventType.USER_CREATED.getEventId()
-               || (s.logx.wineventlog.eventId == EventType.USER_LAST_LOGON.getEventId())))
-               .max(Comparator.comparing(e -> e.timestamp))
+    private Event getRecentEvent(List<Event> events) {
+       return events.stream().filter(s -> (Integer.parseInt(s.getLog().get("eventCode").toString()) == EventType.USER_CREATED.getEventId()
+               || (Integer.parseInt(s.getLog().get("eventCode").toString()) == EventType.USER_LAST_LOGON.getEventId())))
+               .max(Comparator.comparing(Event::getTimestamp))
                .orElse(null);
 
     }
 
-    private String attributeByKey(WindowsAttributes key, EventLog eventLog) {
+    private String attributeByKey(WindowsAttributes key, Event eventLog) {
+        int eventId = Integer.parseInt(Objects.toString(eventLog.getLog().get("eventCode"), "0"));
         switch (key) {
             case SAMAccountName:
-                return eventLog.logx.wineventlog.eventData.targetUserName;
+                return Objects.toString(
+                        eventLog.getTarget() != null ? eventLog.getTarget().getUser() : null, "");
 
             case ObjectSID:
-                return eventLog.logx.wineventlog.eventData.targetUserSid;
+                return Objects.toString(eventLog.getLog().get("winlogEventDataTargetUserSid"), "");
 
             case CreatedAt:
-                return eventLog.logx.wineventlog.event.code.equals(String.valueOf(EventType.USER_CREATED.getEventId())) ? eventLog.logx.wineventlog.event.created : "";
+                return eventId == EventType.USER_CREATED.getEventId()
+                        ? Objects.toString(eventLog.getLog().get("winlogEventDataCreatedAt"), "")
+                        : "";
 
             case LastLogon:
-                return eventLog.logx.wineventlog.event.code.equals(String.valueOf(EventType.USER_LAST_LOGON.getEventId())) ? eventLog.logx.wineventlog.event.created : "";
+                return eventId == EventType.USER_LAST_LOGON.getEventId()
+                        ? Objects.toString(eventLog.getLog().get("winlogEventDataCreatedAt"), "")
+                        : "";
 
             default:
                 return "";
         }
     }
+
 }

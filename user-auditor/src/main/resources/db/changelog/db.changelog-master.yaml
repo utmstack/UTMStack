@@ -5,3 +5,7 @@ databaseChangeLog:
       file: classpath:/db/changelog/changes/002-2024-01-09-change-next-execution-date.sql
   - include:
       file: classpath:/db/changelog/changes/003-2024-05-29-clean-source-scans.sql
+  - include:
+      file: classpath:/db/changelog/changes/004-2025-11-06-update_index_pattern.sql
+  - include:
+        file: classpath:/db/changelog/changes/005-2025-11-06-update_filter_fields.sql

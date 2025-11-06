@@ -1,11 +1,9 @@
-package com.utmstack.userauditor.model.winevent;
+package com.utmstack.userauditor.model.event;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.opensearch.client.opensearch._types.aggregations.TopHitsAggregate;
-
-import java.util.List;
 
 @Builder
 @Getter
