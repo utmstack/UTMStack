@@ -32,10 +32,10 @@ import java.util.Optional;
  * REST controller for managing UtmLogstashFilter.
  */
 @RestController
-@RequestMapping("/api")
-public class UtmLogstashFilterResource {
+@RequestMapping("/api/utm-filters")
+public class UtmFilterResource {
 
-    private final Logger log = LoggerFactory.getLogger(UtmLogstashFilterResource.class);
+    private final Logger log = LoggerFactory.getLogger(UtmFilterResource.class);
 
     private static final String CLASSNAME = "UtmLogstashFilterResource";
 
@@ -45,9 +45,9 @@ public class UtmLogstashFilterResource {
     private final UtmLogstashPipelineService pipelineService;
     private final ApplicationEventService applicationEventService;
 
-    public UtmLogstashFilterResource(UtmLogstashFilterService utmLogstashFilterService,
-                                     UtmLogstashFilterQueryService logstashFilterQueryService,
-                                     UtmGroupLogstashPipelineFiltersService groupLogstashPipelineFiltersService, UtmLogstashPipelineService pipelineService, ApplicationEventService applicationEventService) {
+    public UtmFilterResource(UtmLogstashFilterService utmLogstashFilterService,
+                             UtmLogstashFilterQueryService logstashFilterQueryService,
+                             UtmGroupLogstashPipelineFiltersService groupLogstashPipelineFiltersService, UtmLogstashPipelineService pipelineService, ApplicationEventService applicationEventService) {
         this.logstashFilterService = utmLogstashFilterService;
         this.logstashFilterQueryService = logstashFilterQueryService;
         this.groupLogstashPipelineFiltersService = groupLogstashPipelineFiltersService;
@@ -61,7 +61,7 @@ public class UtmLogstashFilterResource {
      * @param logstashFilter the utmLogstashFilter to create
      * @return the ResponseEntity with status 201 (Created) and with body the new utmLogstashFilter, or with status 400 (Bad Request) if the utmLogstashFilter has already an ID
      */
-    @PostMapping("/logstash-filters")
+    @PostMapping
     public ResponseEntity<UtmLogstashFilter> createLogstashFilter(@Valid @RequestBody UtmLogstashFilter logstashFilter,
                                                                   @RequestParam Long pipelineId) {
         final String ctx = CLASSNAME + ".createLogstashFilter";
@@ -104,7 +104,7 @@ public class UtmLogstashFilterResource {
      * or with status 400 (Bad Request) if the utmLogstashFilter is not valid,
      * or with status 500 (Internal Server Error) if the utmLogstashFilter couldn't be updated
      */
-    @PutMapping("/logstash-filters")
+    @PutMapping
     public ResponseEntity<UtmLogstashFilter> updateLogstashFilter(@Valid @RequestBody UtmLogstashFilter logstashFilter) {
         final String ctx = CLASSNAME + ".updateLogstashFilter";
         try {
@@ -132,7 +132,7 @@ public class UtmLogstashFilterResource {
      * @param pageable the pagination information
      * @return the ResponseEntity with status 200 (OK) and the list of utmLogstashFilters in body
      */
-    @GetMapping("/logstash-filters")
+    @GetMapping
     public ResponseEntity<List<UtmLogstashFilter>> getAllLogstashFilters(UtmLogstashFilterCriteria criteria, Pageable pageable) {
         final String ctx = CLASSNAME + ".getAllLogstashFilters";
         try {
@@ -154,7 +154,7 @@ public class UtmLogstashFilterResource {
      * @param pipelineId the pipeline Id to search for
      * @return the ResponseEntity with status 200 (OK) and the list of {@link UtmLogstashFilter} in body
      */
-    @GetMapping("/logstash-filters/by-pipelineid")
+    @GetMapping("/by-pipelineid")
     public ResponseEntity<List<UtmLogstashFilter>> filtersByPipelineId(@RequestParam Long pipelineId) {
         final String ctx = CLASSNAME + ".filtersByPipelineId";
         try {
@@ -175,7 +175,7 @@ public class UtmLogstashFilterResource {
      * @param id the id of the utmLogstashFilter to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the utmLogstashFilter, or with status 404 (Not Found)
      */
-    @GetMapping("/logstash-filters/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<UtmLogstashFilter> getLogstashFilter(@PathVariable Long id) {
         final String ctx = CLASSNAME + ".getLogstashFilter";
         try {
@@ -196,7 +196,7 @@ public class UtmLogstashFilterResource {
      * @param id the id of the utmLogstashFilter to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/logstash-filters/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLogstashFilter(@PathVariable Long id) {
         final String ctx = CLASSNAME + ".deleteLogstashFilter";
         try {
