@@ -40,9 +40,9 @@ export const createPlatforms = (
     WINDOWS_SHELL,
     windowsPath,
     windowsRestart,[
-      `Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service.exe" \`
-  -ArgumentList 'load-tls-certs', '[YOUR_CERT_PATH]', '[YOUR_KEY_PATH]' \`
-  -NoNewWindow -Wait`
+      'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service.exe" ' +
+      '-ArgumentList \'load-tls-certs\', \'[YOUR_CERT_PATH]\', \'[YOUR_KEY_PATH]\' ' +
+      '-NoNewWindow -Wait'
     ]
   ),
   createPlatform(
@@ -53,9 +53,9 @@ export const createPlatforms = (
     windowsPath,
     windowsRestart,
     [
-      `Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service_arm64.exe" \`
-  -ArgumentList 'load-tls-certs', '[YOUR_CERT_PATH]', '[YOUR_KEY_PATH]' \`
-  -NoNewWindow -Wait`
+      'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service_arm64.exe" ' +
+      '-ArgumentList \'load-tls-certs\', \'[YOUR_CERT_PATH]\', \'[YOUR_KEY_PATH]\' ' +
+      '-NoNewWindow -Wait'
     ]
   ),
   createPlatform(
