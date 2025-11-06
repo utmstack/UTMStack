@@ -93,8 +93,8 @@ export class GoalViewComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
     if (!this.defaultTime) {
+      this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
       this.refreshService.sendRefresh(this.refreshType);
     }
   }

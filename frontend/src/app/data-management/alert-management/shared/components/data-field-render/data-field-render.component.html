@@ -1,21 +1,26 @@
 <div [ngSwitch]="field.field">
-  <!--<app-alert-status (statusChange)="onStatusChange($event)"
-                    *ngSwitchCase="STATUS_FIELD"
+
+  <ng-container *ngSwitchCase="STATUS_FIELD">
+    <app-alert-status *ngIf="isEcho"
                     [alert]="data"
                     [dataType]="dataType"
-                    [showDrop]="showStatusChange"
+                    [showDrop]="false"
                     [statusField]="STATUS_FIELD">
-  </app-alert-status>-->
-  <app-alert-action-select *ngSwitchCase="STATUS_FIELD"
-                           [alert]="data"
-                           [tags]="tags"
-                           [dataType]="dataType"
-                           [showDrop]="showStatusChange"
-                           [statusField]="STATUS_FIELD"
-                           (statusChange)="onStatusChange($event)">
+  </app-alert-status>
+
+    <app-alert-action-select *ngIf="!isEcho"
+                             [alert]="data"
+                             [tags]="tags"
+                             [dataType]="dataType"
+                             [showDrop]="showStatusChange"
+                             [statusField]="STATUS_FIELD"
+                             (statusChange)="onStatusChange($event)">
+    </app-alert-action-select>
+  </ng-container>
 
 
-  </app-alert-action-select>
+
+
   <ng-content *ngSwitchCase="ALERT_ECHOES_FIELD"  select="[echoes]"></ng-content>
   <app-alert-ip *ngSwitchCase="ALERT_TARGET_IP_FIELD" [alert]="data" [type]="'target'"></app-alert-ip>
   <app-alert-ip *ngSwitchCase="ALERT_ADVERSARY_IP_FIELD" [alert]="data" [type]="'adversary'"></app-alert-ip>

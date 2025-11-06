@@ -253,5 +253,7 @@
 
     <include file="/config/liquibase/changelog/20251010001_adding_utmstack_integration.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251017001_create_api_keys_table.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

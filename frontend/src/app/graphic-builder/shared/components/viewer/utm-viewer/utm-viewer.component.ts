@@ -24,8 +24,7 @@ export class UtmViewerComponent implements OnInit {
   constructor() {
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   onRunVisualization($event: string) {
     this.runned.emit($event);

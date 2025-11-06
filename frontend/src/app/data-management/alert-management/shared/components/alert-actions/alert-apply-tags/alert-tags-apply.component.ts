@@ -53,7 +53,11 @@ export class AlertTagsApplyComponent implements OnInit, OnChanges {
   }
 
   addNewTagRule(isFalsePositive: boolean = false) {
-    const modalRef = this.modalService.open(AlertRuleCreateComponent, {centered: true, size: 'lg'});
+    const modalRef = this.modalService.open(AlertRuleCreateComponent, {
+      centered: true,
+      size: 'lg',
+      windowClass: 'alert-rule-modal'
+    });
     modalRef.componentInstance.alert = this.alert;
     modalRef.componentInstance.action = 'select';
     modalRef.componentInstance.isFalsePositiveRule = isFalsePositive;

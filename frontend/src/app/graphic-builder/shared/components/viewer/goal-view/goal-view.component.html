@@ -11,16 +11,8 @@
                              [invertContent]="true">
     </app-elastic-filter-time>
   </div>
-  <div *ngIf="data$ | async as data"
+  <div *ngIf="data$ | async as data; else isLoading"
        [ngStyle]="{'height':height,'width':width}" class="card-body p-2 overflow-auto">
-    <div *ngIf="runningChart"
-         class="loading-chart h-100
-                 d-flex justify-content-center
-                 align-items-center">
-      <app-utm-spinner [height]="'35px'" [loading]="runningChart" [width]="'35px'"
-                       label="Loading chart">
-      </app-utm-spinner>
-    </div>
     <div *ngIf="data && data.length===0 && !runningChart"
          class="h-100 w-100 d-flex justify-content-center align-items-center">
       <app-no-data-chart [error]="error" [typeChart]="GOAL_CHART"></app-no-data-chart>
@@ -44,3 +36,13 @@
     </div>
   </div>
 </div>
+
+<ng-template #isLoading>
+  <div class="loading-chart w-100 h-100
+                 d-flex justify-content-center
+                 align-items-center">
+    <app-utm-spinner [height]="'35px'" [loading]="runningChart" [width]="'35px'"
+                     label="Loading chart">
+    </app-utm-spinner>
+  </div>
+</ng-template>

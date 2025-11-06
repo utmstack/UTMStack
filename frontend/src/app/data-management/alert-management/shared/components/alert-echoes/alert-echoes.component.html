@@ -62,7 +62,7 @@
     <ng-container *ngFor="let td of fields">
       <td *ngIf="td.visible"
           [ngClass]="{'min-width': td.field === ALERT_ADVERSARY_FIELD || td.field === ALERT_TARGET_FIELD}">
-        <app-data-field-render [data]="alert" [field]="td" [dataType]="dataType" [showStatusChange]="true"
+        <app-data-field-render [data]="alert" [field]="td" [dataType]="dataType" [isEcho]="true" [showStatusChange]="true"
                                (refreshData)="onRefreshData($event)">
         </app-data-field-render>
       </td>

@@ -57,7 +57,6 @@ export class MetricViewComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
-    this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
     this.refreshType = `${this.chartId}`;
 
     this.data$ = this.refreshService.refresh$
@@ -100,6 +99,7 @@ export class MetricViewComponent implements OnInit, OnDestroy {
     });
 
     if (!this.defaultTime) {
+      this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
       this.refreshService.sendRefresh(this.refreshType);
     }
   }

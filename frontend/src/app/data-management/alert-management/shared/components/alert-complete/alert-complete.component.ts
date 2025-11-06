@@ -62,7 +62,11 @@ export class AlertCompleteComponent implements OnInit {
   }
 
   createRule() {
-    const modal = this.modalService.open(AlertRuleCreateComponent, {centered: true, size: 'lg'});
+    const modal = this.modalService.open(AlertRuleCreateComponent, {
+      centered: true,
+      size: 'lg',
+      windowClass: 'alert-rule-modal'
+    });
     const falsePositive: AlertTags[] = [FALSE_POSITIVE_OBJECT];
     if (this.rule) {
       modal.componentInstance.rule = this.rule;
