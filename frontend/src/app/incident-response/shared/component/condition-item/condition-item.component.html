@@ -59,11 +59,12 @@
         <ng-select
           class="input-sm"
           [clearable]="false"
-          [items]="fields"
+          [items]="filteredFields"
           bindLabel="name"
           bindValue="name"
           placeholder="Select field"
           formControlName="field"
+          (search)="onSearch($event)"
           (change)="getValuesForField($event.name)">
         </ng-select>
       </div>

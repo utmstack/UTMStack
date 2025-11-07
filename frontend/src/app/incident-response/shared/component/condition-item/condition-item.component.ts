@@ -21,6 +21,8 @@ export class ConditionItemComponent implements OnInit {
   @Input() index: number;
   @Input() fields: ElasticSearchFieldInfoType[];
   @Output() delete: EventEmitter<number> = new EventEmitter();
+  filteredFields: ElasticSearchFieldInfoType[] = [];
+  protected readonly operatorEnum = ElasticOperatorsEnum;
   selectableOperators = [ElasticOperatorsEnum.IS_ONE_OF,
     ElasticOperatorsEnum.IS_NOT_ONE_OF,
     ElasticOperatorsEnum.CONTAIN_ONE_OF,
@@ -40,6 +42,7 @@ export class ConditionItemComponent implements OnInit {
               private operatorsService: OperatorService) { }
 
   ngOnInit() {
+    this.filteredFields = this.fields.filter(field => field.name && !field.name.includes('.keyword'));
   }
 
   onScroll() {
@@ -133,5 +136,22 @@ export class ConditionItemComponent implements OnInit {
     this.isMultipleSelectValue();
   }
 
-  protected readonly operatorEnum = ElasticOperatorsEnum;
+  onSearch(term: { term: string }) {
+    this.filteredFields = this.fields.filter(field => field.name && !field.name.includes('.keyword'));
+    if (!term.term) {
+      return;
+    }
+
+    const searchTerm = term.term.toLowerCase();
+    this.filteredFields = this.filteredFields
+      .filter(field => field.name.toLowerCase().includes(searchTerm))
+      .sort((a, b) => {
+        const aStarts = a.name.toLowerCase().startsWith(searchTerm);
+        const bStarts = b.name.toLowerCase().startsWith(searchTerm);
+
+        if (aStarts && !bStarts) { return -1; }
+        if (!aStarts && bStarts) { return 1; }
+        return a.name.localeCompare(b.name);
+      });
+  }
 }
