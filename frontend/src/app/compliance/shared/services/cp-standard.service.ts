@@ -5,6 +5,7 @@ import {SERVER_API_URL} from '../../../app.constants';
 import {createRequestOption} from '../../../shared/util/request-util';
 import {ComplianceStandardType} from '../type/compliance-standard.type';
 import {RefreshDataService} from '../../../shared/services/util/refresh-data.service';
+import {map} from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
@@ -38,7 +39,12 @@ export class CpStandardService extends RefreshDataService<boolean, HttpResponse<
     return this.http.get<ComplianceStandardType[]>(this.resourceUrl, {
       params: options,
       observe: 'response'
-    });
+    }).pipe(
+      map((response) => {
+        const data = response.body as ComplianceStandardType[];
+        return response.clone({body: data.filter(s => s.id >= 500 ) || []});
+      })
+    );
   }
 
   delete(standard: number): Observable<HttpResponse<any>> {
