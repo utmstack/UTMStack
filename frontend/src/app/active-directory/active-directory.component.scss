@@ -2,6 +2,14 @@
 @import "../../assets/styles/var";
 @import "../../assets/styles/custom-elements";
 
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
 .vul-container {
   .tab-header {
     .nav {

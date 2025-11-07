@@ -1,8 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Event} from "../../../../shared/types/event/event";
+import {Event} from '../../../../shared/types/event/event';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {TreeObjectBehavior} from '../../behavior/tree-object.behvior';
-import {WinlogbeatEventType} from '../../types/winlogbeat-event.type';
 
 @Component({
   selector: 'app-active-directory-event',
