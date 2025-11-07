@@ -201,7 +201,10 @@ export class RuleListComponent implements OnInit, OnDestroy {
   }
 
   editRule(rule: Rule) {
-    const modal = this.modalService.open(AddRuleComponent, {size: 'lg', centered: true});
+    const modal = this.modalService.open(AddRuleComponent, {
+      size: 'lg',
+      centered: true,
+      windowClass: 'add-rule-modal'});
     modal.componentInstance.rule = rule;
     modal.componentInstance.mode = 'EDIT';
 

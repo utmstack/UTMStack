@@ -225,6 +225,14 @@
             <app-deduplicate-fields [rule]="rule" [formGroup]="ruleForm"></app-deduplicate-fields>
           </div>
         </div>
+        <div class="w-100 alert alert-info alert-styled-right mb-3">
+          <span class="font-weight-semibold">
+            After Events
+          </span>
+          <p class="mb-0 mt-2">
+            Define actions that will execute on all historically stored data when the correlation rule expression evaluates successfully.
+          </p>
+        </div>
         <div formArrayName="afterEvents">
           <fieldset class="form-fieldset border p-3">
             <legend>

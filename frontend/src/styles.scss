@@ -637,6 +637,7 @@ app-header {
 
 .add-rule-modal {
   .modal-content {
+    max-height: 900px !important;
     overflow-y: hidden;
   }
 }
