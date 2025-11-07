@@ -2,11 +2,15 @@ package com.park.utmstack.domain.index_template;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class IndexTemplate {
 
@@ -21,30 +25,6 @@ public class IndexTemplate {
     private IndexTemplate(List<String> indexPatterns, Integer priority, Template template) {
         this.indexPatterns = indexPatterns;
         this.priority = priority;
-        this.template = template;
-    }
-
-    public List<String> getIndexPatterns() {
-        return indexPatterns;
-    }
-
-    public void setIndexPatterns(List<String> indexPatterns) {
-        this.indexPatterns = indexPatterns;
-    }
-
-    public Integer getPriority() {
-        return priority;
-    }
-
-    public void setPriority(Integer priority) {
-        this.priority = priority;
-    }
-
-    public Template getTemplate() {
-        return template;
-    }
-
-    public void setTemplate(Template template) {
         this.template = template;
     }
 
