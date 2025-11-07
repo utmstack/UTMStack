@@ -257,5 +257,9 @@
 
     <include file="/config/liquibase/changelog/20251106001_update_incident_menu_position.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251107001_hide_compliance_menu_items.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20251107002_update_filters_fields_visualization.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
