@@ -2,8 +2,8 @@ import {HttpClient, HttpResponse} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
+import {Event} from '../../../shared/types/event/event';
 import {createRequestOption} from '../../../shared/util/request-util';
-import {WinlogbeatEventType} from '../types/winlogbeat-event.type';
 
 
 @Injectable({
@@ -15,9 +15,9 @@ export class WinlogbeatService {
   constructor(private http: HttpClient) {
   }
 
-  query(req?: any): Observable<HttpResponse<WinlogbeatEventType[]>> {
+  query(req?: any): Observable<HttpResponse<Event[]>> {
     const options = createRequestOption(req);
-    return this.http.get<WinlogbeatEventType[]>(this.resourceUrl, {params: options, observe: 'response'});
+    return this.http.get<Event[]>(this.resourceUrl, {params: options, observe: 'response'});
   }
 
 }

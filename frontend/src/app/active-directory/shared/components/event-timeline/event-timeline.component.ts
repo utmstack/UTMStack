@@ -9,6 +9,7 @@ import {TreeObjectBehavior} from '../../behavior/tree-object.behvior';
 import {WinlogbeatService} from '../../services/winlogbeat.service';
 import {ActiveDirectoryTreeType} from '../../types/active-directory-tree.type';
 import {WinlogbeatEventType} from '../../types/winlogbeat-event.type';
+import {Event} from "../../../../shared/types/event/event";
 
 @Component({
   selector: 'app-event-timeline',
@@ -21,7 +22,7 @@ export class EventTimelineComponent implements OnInit, AfterViewInit {
   @Output() eventChange = new EventEmitter<WinlogbeatEventType>();
   objectId: ActiveDirectoryTreeType;
   sevenDaysRange: ElasticFilterCommonType = {time: ElasticTimeEnum.DAY, last: 7, label: 'last 7 days'};
-  items: WinlogbeatEventType[] = [];
+  items: Event[] = [];
   loadingMore = false;
   totalItems: any;
   page = 1;
@@ -133,13 +134,14 @@ export class EventTimelineComponent implements OnInit, AfterViewInit {
   }
 
 
-  selectEvent(item: WinlogbeatEventType) {
+  selectEvent(item: Event) {
     this.itemSelected = this.getUniqueEventId(item);
     this.eventChange.emit(item);
   }
 
-  getUniqueEventId(item: WinlogbeatEventType) {
-    return item.id + '-' + item.logx.wineventlog.eventId + '-' + new Date(item.timestamp).getTime();
+  getUniqueEventId(item: Event) {
+    const eventCode = item.log && item.log.eventCode;
+    return item.id + '-' + eventCode + '-' + new Date(item.timestamp).getTime();
   }
 
   onFilterTimeChange($event: TimeFilterType) {

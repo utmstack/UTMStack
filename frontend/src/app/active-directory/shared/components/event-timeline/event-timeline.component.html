@@ -18,10 +18,10 @@
             <time [attr.datetime]="item['@timestamp']" class="utm_tmtime">
               <span class="w-75">{{item['@timestamp'] | date:formatDateEnum.UTM_SHORT:'UTC'}}</span>
             </time>
-            <div [class]=" getUniqueEventId(item)===itemSelected?resolveClassSelected(item.logx.wineventlog['event_id']):''"
-                 [ngClass]="resolveClassByEventType(item.logx.wineventlog['event_id'])"
+            <div [class]=" getUniqueEventId(item)===itemSelected ? resolveClassSelected(item.log.eventCode) : ''"
+                 [ngClass]="resolveClassByEventType(item.log.eventCode)"
                  class="utm_tmlabel cursor-pointer">
-              <p [innerHTML]="item.logx.wineventlog['event_name']"></p>
+              <p [innerHTML]="item.log.eventName"></p>
             </div>
           </li>
         </ul>
