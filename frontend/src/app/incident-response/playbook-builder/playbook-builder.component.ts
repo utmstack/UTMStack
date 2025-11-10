@@ -89,12 +89,26 @@ export class PlaybookBuilderComponent implements OnInit, OnDestroy {
               map(res => res.body));
         })
       ).subscribe(rule => {
-        console.log(rule.conditions);
-        this.rule = rule;
+
+        const isTemplate = this.route.snapshot.queryParams.template === 'true';
+        const ruleData = isTemplate ? { ...rule, id: null } : rule;
+        const actions = isTemplate ? ruleData.actions.map(item => {
+          return {
+            ...item,
+            id: null
+          };
+        }) : ruleData.actions;
+
+        this.rule = ruleData;
+        this.rule.actions = actions;
+
         this.exist = false;
         this.typing = false;
         this.rulePrefix = getElementPrefix(this.rule.name);
-        this.formRule.patchValue(this.rule, {emitEvent: false});
+
+
+        this.formRule.patchValue(ruleData, { emitEvent: false });
+
         const name = this.formRule.get('name').value;
         this.formRule.get('name').setValue(this.replacePrefixInName(name));
 
@@ -122,9 +136,9 @@ export class PlaybookBuilderComponent implements OnInit, OnDestroy {
     this.route.queryParams
       .pipe(
         filter(params => !!params && !!params.alertName),
-        map(params => params.alertName)).subscribe((alertName)=>{
+        map(params => params.alertName)).subscribe((alertName) => {
         this.addRuleCondition();
-        const rc = this.ruleConditions.at(this.ruleConditions.length-1);
+        const rc = this.ruleConditions.at(this.ruleConditions.length - 1);
         rc.patchValue({
           field: 'name',
           value: alertName,
@@ -180,7 +194,7 @@ export class PlaybookBuilderComponent implements OnInit, OnDestroy {
   }
 
   createRule() {
-    if (this.rule) {
+    if (this.rule.id) {
       this.editRule();
     } else {
       this.saveRule();

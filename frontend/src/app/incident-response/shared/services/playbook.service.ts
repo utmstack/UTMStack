@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, of, Subject } from 'rxjs';
 import { catchError, filter, finalize, map, switchMap } from 'rxjs/operators';
-import { UtmToastService } from '../../shared/alert/utm-toast.service';
-import { IncidentResponseRuleService } from '../shared/services/incident-response-rule.service';
+import { UtmToastService } from '../../../shared/alert/utm-toast.service';
+import { IncidentResponseRuleService } from './incident-response-rule.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class PlaybookService {
   private request$ = new Subject<any>();
   private loading = new BehaviorSubject<boolean>(false);
