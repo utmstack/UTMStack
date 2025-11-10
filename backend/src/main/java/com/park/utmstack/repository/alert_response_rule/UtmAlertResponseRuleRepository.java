@@ -1,12 +1,14 @@
 package com.park.utmstack.repository.alert_response_rule;
 
 import com.park.utmstack.domain.alert_response_rule.UtmAlertResponseRule;
+import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -23,5 +25,7 @@ public interface UtmAlertResponseRuleRepository extends JpaRepository<UtmAlertRe
     List<String> findUserValues();
 
     List<UtmAlertResponseRule> findAllByRuleActiveIsTrue();
+
+    Optional<UtmAlertResponseRule> findFirstBySystemOwnerIsTrueOrderByIdDesc();
 
 }

@@ -62,6 +62,8 @@ public class UtmAlertResponseRuleDTO {
 
     private List<UtmAlertResponseActionTemplateDTO> actions;
 
+    private Boolean systemOwner;
+
     public UtmAlertResponseRuleDTO(UtmAlertResponseRule rule) {
         this.id = rule.getId();
         this.name = rule.getRuleName();
@@ -81,6 +83,7 @@ public class UtmAlertResponseRuleDTO {
         this.createdDate = rule.getCreatedDate();
         this.lastModifiedBy = rule.getLastModifiedBy();
         this.lastModifiedDate = rule.getLastModifiedDate();
+        this.systemOwner = rule.getSystemOwner();
 
         if (rule.getUtmAlertResponseActionTemplates() != null) {
             this.actions = rule.getUtmAlertResponseActionTemplates()

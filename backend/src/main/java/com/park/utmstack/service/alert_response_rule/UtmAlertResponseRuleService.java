@@ -70,10 +70,10 @@ public class UtmAlertResponseRuleService {
 
 
 
-    public UtmAlertResponseRule save(UtmAlertResponseRule alertResponseRule) {
+    public UtmAlertResponseRule save(UtmAlertResponseRule alertResponseRule, boolean isCreate) {
         final String ctx = CLASSNAME + ".save";
         try {
-            if (alertResponseRule.getId() != null) {
+            if (!isCreate) {
                 String alertRuleId = String.valueOf(alertResponseRule.getId());
                 UtmAlertResponseRule current = alertResponseRuleRepository.findById(alertResponseRule.getId())
                         .orElseThrow(() -> new RuntimeException(String.format("Incident response rule with ID: %1$s not found", alertRuleId)));
@@ -356,5 +356,11 @@ public class UtmAlertResponseRuleService {
 
             target.getUtmAlertResponseActionTemplates().addAll(managedTemplates);
         }
+    }
+
+    public Long getSystemSequenceNextValue() {
+        return alertResponseRuleRepository.findFirstBySystemOwnerIsTrueOrderByIdDesc()
+                .map(rule -> rule.getId() + 1)
+                .orElse(1L);
     }
 }
