@@ -261,5 +261,7 @@
 
     <include file="/config/liquibase/changelog/20251107002_update_filters_fields_visualization.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251110001_disable_correlation_rules_with_regex.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
