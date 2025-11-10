@@ -6,7 +6,7 @@
                     [dataType]="dataType"
                     [showDrop]="false"
                     [statusField]="STATUS_FIELD">
-  </app-alert-status>
+    </app-alert-status>
 
     <app-alert-action-select *ngIf="!isEcho"
                              [alert]="data"
@@ -17,9 +17,6 @@
                              (statusChange)="onStatusChange($event)">
     </app-alert-action-select>
   </ng-container>
-
-
-
 
   <ng-content *ngSwitchCase="ALERT_ECHOES_FIELD"  select="[echoes]"></ng-content>
   <app-alert-ip *ngSwitchCase="ALERT_TARGET_IP_FIELD" [alert]="data" [type]="'target'"></app-alert-ip>

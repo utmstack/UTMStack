@@ -29,12 +29,6 @@
         <div *ngIf="isInclude(field.field, [ALERT_TARGET_GEOLOCATION_ASO_FIELD, ALERT_ADVERSARY_GEOLOCATION_ASO_FIELD])">
           <app-alert-badge-field [tooltip]="'Aso'" [iconClass]="'icon-briefcase'" [value]="getValue(field.field)"></app-alert-badge-field>
         </div>
-        <div *ngIf="isInclude(field.field, [ALERT_TARGET_GEOLOCATION_ASO_FIELD, ALERT_ADVERSARY_GEOLOCATION_ASO_FIELD])">
-          <app-alert-badge-field [tooltip]="'Aso'" [iconClass]="'icon-briefcase'" [value]="getValue(field.field)"></app-alert-badge-field>
-        </div>
-        <div *ngIf="isInclude(field.field, [ALERT_TARGET_GEOLOCATION_ASO_FIELD, ALERT_ADVERSARY_GEOLOCATION_ASO_FIELD])">
-          <app-alert-badge-field [tooltip]="'Aso'" [iconClass]="'icon-briefcase'" [value]="getValue(field.field)"></app-alert-badge-field>
-        </div>
         <app-alert-ip *ngIf="isInclude(field.field, [ALERT_TARGET_IP_FIELD ,ALERT_ADVERSARY_IP_FIELD])" [alert]="alert" [type]="type"></app-alert-ip>
       </ng-container>
     </div>
