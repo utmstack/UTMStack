@@ -36,6 +36,12 @@ var (
 	MESSAGE_HEADER       = "utm_stack_agent_ds"
 	BatchCapacity        = 100
 
+	// TLS Configuration for Integrations
+	IntegrationCertPath = filepath.Join(utils.GetMyPath(), "certs", "integration.crt")
+	IntegrationKeyPath  = filepath.Join(utils.GetMyPath(), "certs", "integration.key")
+	IntegrationCAPath   = filepath.Join(utils.GetMyPath(), "certs", "integration-ca.crt")
+
+
 	// MaxConnectionTime     = 120 * time.Second
 	// SERV_NAME            = "UTMStackAgent"
 	// SERV_LOG             = "utmstack_agent.log"

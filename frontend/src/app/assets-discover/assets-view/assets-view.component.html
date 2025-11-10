@@ -98,7 +98,7 @@
               <th (sort)="onSortBy($event)"
                   [isSortable]="true"
                   [sortEvent]="sortEvent"
-                  [sortable]="'assetIp'"
+                  [sortable]="'displayName'"
                   appColumnSortable
                   class="font-weight-semibold cursor-pointer">
                 Source
@@ -143,7 +143,7 @@
                   <app-asset-status [asset]="asset"></app-asset-status>
                 </td>
                 <td>
-                  {{getAssetSource(asset)}}
+                  {{ asset.displayName }}
                 </td>
                 <td>
                   <div class="d-flex justify-content-start align-items-start flex-wrap w-100 h-100"
