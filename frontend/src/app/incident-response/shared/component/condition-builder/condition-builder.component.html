@@ -39,7 +39,7 @@
 </div>
 
 <!-- Existing Condition Builder Section -->
-<div class="condition-builder card-body" [formGroup]="group">
+<div *ngIf="fields && fields.length > 0" class="condition-builder card-body" [formGroup]="group">
   <div formArrayName="conditions" class="d-flex flex-column gap-4">
 
     <div *ngFor="let condition of ruleConditions.controls; let i = index"
