@@ -46,17 +46,17 @@ export class NewPlaybookComponent implements OnInit, AfterViewInit {
     this.playbookService.loadData({...this.request});
   }
 
-  createNewPlaybook() {
-    this.router.navigate(['/soar/create-flow']);
+  createNewPlaybook(params?: any) {
+    this.router.navigate(['/soar/create-flow'], { queryParams: params });
     this.activeModal.close();
   }
 
   searchByRule($event: string | number) {
-
-  }
-
-  selectPlatform(platform: string) {
-
+    this.request['name.contains'] = $event;
+    this.playbookService.loadData({
+      ...this.request,
+      page: 0,
+    });
   }
 
   trackByFn(index: number, item: any) {

@@ -13,10 +13,8 @@
       </div>
 
       <div class="playbook-list-container m-h-0 d-flex flex-column gap-3 overflow-auto mt-3 px-1">
-        <div *ngFor="let item of playbookService.playbooks$ | async; trackBy: trackByFn"
-             class="playbook-item-card d-flex align-items-center rounded border p-3 cursor-pointer"
-             [routerLink]="['/soar/create-flow']"
-             [queryParams]="{ id: item.id, template: true }">
+        <div (click)="createNewPlaybook({ id: item.id, template: true })" *ngFor="let item of playbookService.playbooks$ | async; trackBy: trackByFn"
+             class="playbook-item-card d-flex align-items-center rounded border p-3 cursor-pointer">
 
           <div class="playbook-icon-small d-flex justify-content-center align-items-center flex-shrink-0">
             <i class="fa fa-sitemap"></i>
