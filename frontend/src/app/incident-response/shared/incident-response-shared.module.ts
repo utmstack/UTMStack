@@ -26,6 +26,8 @@ import {NewPlaybookComponent} from './component/new-playbook/new-playbook.compon
 import { AgentSidebarComponent } from './component/agent-sidebar/agent-sidebar.component';
 import { AgentInfoComponent } from './component/agent-info/agent-info.component';
 import { InteractiveConsoleComponent } from './component/interactive-console/interactive-console.component';
+import {PlaybookService} from "./services/playbook.service";
+import {RouterModule} from "@angular/router";
 
 @NgModule({
   declarations: [IrJobCreateComponent,
@@ -84,7 +86,8 @@ import { InteractiveConsoleComponent } from './component/interactive-console/int
     InfiniteScrollModule,
     FormsModule,
     NgSelectModule,
-    UtmDashboardSharedModule
+    UtmDashboardSharedModule,
+    RouterModule
   ]
 })
 export class IncidentResponseSharedModule {

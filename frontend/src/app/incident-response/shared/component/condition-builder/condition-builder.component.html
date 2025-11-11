@@ -39,7 +39,7 @@
 </div>
 
 <!-- Existing Condition Builder Section -->
-<div class="condition-builder card-body" [formGroup]="group">
+<div *ngIf="fields && fields.length > 0" class="condition-builder card-body" [formGroup]="group">
   <div formArrayName="conditions" class="d-flex flex-column gap-4">
 
     <div *ngFor="let condition of ruleConditions.controls; let i = index"
@@ -54,7 +54,7 @@
       </div>
     </div>
 
-    <div *ngIf="ruleConditions.length === 0" class="alert alert-warning">
+    <div *ngIf="ruleConditions.hasError('minLengthArray') && ruleConditions.touched" class="text-danger">
       You must define at least one condition.
     </div>
 
@@ -66,4 +66,5 @@
 
   </div>
 </div>
+
 

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20251106001" author="Manuel">
+        <comment>Update Incidents menu position to appear before Tagging rules</comment>
+
+        <!-- Update Tagging rules position from 1 to 2 -->
+        <update tableName="utm_menu">
+            <column name="position" valueNumeric="2"/>
+            <where>id = 314 AND parent_id = 300</where>
+        </update>
+
+        <!-- Keep Incidents position at 1 (already set, but ensuring it's correct) -->
+        <update tableName="utm_menu">
+            <column name="position" valueNumeric="1"/>
+            <where>id = 402 AND parent_id = 300</where>
+        </update>
+
+        <rollback>
+            <update tableName="utm_menu">
+                <column name="position" valueNumeric="1"/>
+                <where>id = 314 AND parent_id = 300</where>
+            </update>
+            <update tableName="utm_menu">
+                <column name="position" valueNumeric="1"/>
+                <where>id = 402 AND parent_id = 300</where>
+            </update>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

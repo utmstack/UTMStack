@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
+import {Event} from '../../../../shared/types/event/event';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {TreeObjectBehavior} from '../../behavior/tree-object.behvior';
-import {WinlogbeatEventType} from '../../types/winlogbeat-event.type';
 
 @Component({
   selector: 'app-active-directory-event',
@@ -13,7 +13,7 @@ export class AdEventComponent implements OnInit {
   @Input() eventsFilter: string[];
   @Input() time: TimeFilterType;
   message: string;
-  event: WinlogbeatEventType;
+  event: Event;
 
   constructor(private treeObjectBehavior: TreeObjectBehavior) {
   }
@@ -29,8 +29,8 @@ export class AdEventComponent implements OnInit {
     return msg;
   }
 
-  onEventChange($event: WinlogbeatEventType) {
+  onEventChange($event: Event) {
     this.event = $event;
-    this.message = this.event ? this.replaceDetail($event.logx.wineventlog.message) : '';
+    this.message = this.event ? this.replaceDetail(this.event.log.message) : '';
   }
 }

@@ -40,16 +40,17 @@
 }
 
 .output {
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: 100%;
 }
 
 .terminal {
-  max-height: 400px;
-  height: 400px;
-  overflow-y: auto;
   padding: 10px;
   font-family: monospace;
   font-size: 16px;
   color: #22da26;
+  overflow: hidden;
 
   .console-info {
     font-size: 16px;
@@ -67,7 +68,13 @@
 }
 
 .command-header {
-  display: block;
-  height: 28px;
   background: #C6C6C6;
+}
+
+.h-450px {
+  height: 450px;
+}
+
+.top-zero {
+  top: 0 !important;
 }

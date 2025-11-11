@@ -3,14 +3,12 @@ import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ResizeEvent} from 'angular-resizable-element';
 import {Observable} from 'rxjs';
-import {tap} from 'rxjs/operators';
 import {AdReportCreateComponent} from '../../reports/ad-report-create/ad-report-create.component';
 import {TreeObjectBehavior} from '../../shared/behavior/tree-object.behvior';
 import {resolveType} from '../../shared/functions/ad-util.function';
 import {ActiveDirectoryService} from '../../shared/services/active-directory.service';
-import {ActiveDirectoryUsers} from '../../shared/types/active-directory-users';
+import {ActiveDirectoryTreeType} from '../../shared/types/active-directory-tree.type';
 import {AdTrackerCreateComponent} from '../../tracker/ad-tracker-create/ad-tracker-create.component';
-import {ActiveDirectoryTreeType} from "../../shared/types/active-directory-tree.type";
 
 @Component({
   selector: 'app-active-directory-view',

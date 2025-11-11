@@ -25,14 +25,13 @@ export class UtmAgentDetailComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.agent);
     this.agentIp = this.agent.ip;
     this.ips = this.agent.addresses !== '' ? this.agent.addresses.split(',') : [];
     this.macs = this.agent.mac !== '' ? this.agent.mac.split(',') : [];
   }
 
   public getAgentIcon(): string {
-    if (this.agent) {
+    if (this.agent && this.agent.os) {
       if (this.agent.os.toLowerCase().includes('windows')) {
         return 'icon-windows8';
       } else if (this.agent.os.toLowerCase().includes('linux')) {

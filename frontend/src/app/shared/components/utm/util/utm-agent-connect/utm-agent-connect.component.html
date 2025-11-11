@@ -34,8 +34,11 @@
     <span class="font-weight-semibold">Info! </span>
     <span>The agent is offline. Data shown is from the last successful sync.</span>
   </div>
-  <app-utm-agent-console *ngIf="agent && connectToAgent" [websocketCommand]="websocketCommand"
+  <app-utm-agent-console *ngIf="agent && connectToAgent"
+                         [template]="'default'"
+                         [websocketCommand]="websocketCommand"
                          (close)="connectToAgent = false"
-                         [hostname]="agent.hostname"></app-utm-agent-console>
+                         [hostname]="agent.hostname">
+  </app-utm-agent-console>
 </ng-container>
 

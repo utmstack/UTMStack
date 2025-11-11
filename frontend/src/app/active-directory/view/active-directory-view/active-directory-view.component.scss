@@ -2,15 +2,15 @@
 @import "../../../../assets/styles/var";
 @import "../../../../assets/styles/custom-elements";
 
-.active-directory-tree {
-
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
 }
 
-.active-directory-tree {
-  //max-height: 90vh;
-  min-height: 82vh;
-  //height: 90vh;
-}
+
 
 .card-right-detail {
   .card-detail {

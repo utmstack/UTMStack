@@ -1,17 +1,19 @@
-<div class="container-fluid p-0 h-100">
+<div class="d-flex flex-column p-0 h-100">
   <div class="row h-100">
-    <div class="col-lg-7 col-md-12 col-sm-12 pl-2 pr-0">
+    <div class="d-flex h-100 m-h-0 col-lg-7 col-md-12 col-sm-12 pl-2 pr-0">
       <app-event-timeline (eventChange)="onEventChange($event)"
                           [events]="[]"
                           [time]=""></app-event-timeline>
     </div>
-    <div class="col-lg-5 col-md-12 col-sm-12 pl-2">
-      <div class="card m-0 card-detail">
+    <div class="d-flex flex-column h-100 m-h-0 col-lg-5 col-md-12 col-sm-12 pl-2">
+      <div class="card m-0 h-100 m-h-0 card-detail">
         <div class="card-header header-elements-sm-inline p-2">
           <h6 class="card-title font-weight-light pb-0 text-blue-800">Event detail</h6>
         </div>
-        <div *ngIf="event" class="card-body message-container p-2">
-          <p [innerHTML]="message" class=""></p>
+        <div *ngIf="event" class="card-body message-container p-2 h-100 m-h-0">
+          <div class="d-flex flex-column h-100 overflow-auto">
+            <p [innerHTML]="message" class=""></p>
+          </div>
         </div>
         <div *ngIf="!event" class="card-body message-container pl-2 h-100">
           <div class="h-100 w-100 d-flex justify-content-center align-items-center flex-column">

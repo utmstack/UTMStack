@@ -94,8 +94,8 @@ public class UtmIncidentService {
         try {
             log.debug("Request to save UtmIncident : {}", utmIncident);
             String oldIncident = ResolveIncidentStatus.incidentLabel(utmIncidentRepository.
-                findById(utmIncident.getId())
-                .orElseThrow(() -> new RuntimeException("Incident not found")));
+                    findById(utmIncident.getId())
+                    .orElseThrow(() -> new RuntimeException("Incident not found")));
 
             UtmIncident incident = utmIncidentRepository.save(utmIncident);
             List<UtmIncidentAlert> alerts = utmIncidentAlertService.findAllByIncidentId(incident.getId());
@@ -136,34 +136,30 @@ public class UtmIncidentService {
      */
     public UtmIncident createIncident(NewIncidentDTO newIncidentDTO) {
         final String ctx = CLASSNAME + ".createIncident";
-        try {
-            validateAlertsNotAlreadyLinked(newIncidentDTO.getAlertList(), ctx);
 
-            UtmIncident utmIncident = new UtmIncident();
-            utmIncident.setIncidentName(newIncidentDTO.getIncidentName());
-            utmIncident.setIncidentDescription(newIncidentDTO.getIncidentDescription());
-            utmIncident.setIncidentStatus(IncidentStatusEnum.OPEN);
-            Integer severity = newIncidentDTO.getAlertList().stream()
+        validateAlertsNotAlreadyLinked(newIncidentDTO.getAlertList(), ctx);
+
+        UtmIncident utmIncident = new UtmIncident();
+        utmIncident.setIncidentName(newIncidentDTO.getIncidentName());
+        utmIncident.setIncidentDescription(newIncidentDTO.getIncidentDescription());
+        utmIncident.setIncidentStatus(IncidentStatusEnum.OPEN);
+        Integer severity = newIncidentDTO.getAlertList().stream()
                 .mapToInt(RelatedIncidentAlertsDTO::getAlertSeverity).max().orElse(0);
-            utmIncident.setIncidentSeverity(severity);
-            utmIncident.setIncidentAssignedTo(newIncidentDTO.getIncidentAssignedTo());
-            utmIncident.setIncidentCreatedDate(new Date().toInstant());
+        utmIncident.setIncidentSeverity(severity);
+        utmIncident.setIncidentAssignedTo(newIncidentDTO.getIncidentAssignedTo());
+        utmIncident.setIncidentCreatedDate(new Date().toInstant());
 
-            UtmIncident savedIncident = utmIncidentRepository.save(utmIncident);
+        UtmIncident savedIncident = utmIncidentRepository.save(utmIncident);
 
-            saveRelatedAlerts(newIncidentDTO.getAlertList(), savedIncident.getId());
+        saveRelatedAlerts(newIncidentDTO.getAlertList(), savedIncident.getId());
 
-            sendIncidentsEmail(newIncidentDTO.getAlertList().stream().map(RelatedIncidentAlertsDTO::getAlertId).collect(Collectors.toList()), savedIncident);
+        sendIncidentsEmail(newIncidentDTO.getAlertList().stream().map(RelatedIncidentAlertsDTO::getAlertId).collect(Collectors.toList()), savedIncident);
 
-            String historyMessage = String.format("Incident created with %d alerts", newIncidentDTO.getAlertList().size());
-            utmIncidentHistoryService.createHistory(IncidentHistoryActionEnum.INCIDENT_CREATED, savedIncident.getId(), "Incident Created", historyMessage);
+        String historyMessage = String.format("Incident created with %d alerts", newIncidentDTO.getAlertList().size());
+        utmIncidentHistoryService.createHistory(IncidentHistoryActionEnum.INCIDENT_CREATED, savedIncident.getId(), "Incident Created", historyMessage);
 
-            return savedIncident;
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            eventService.createEvent(msg, ApplicationEventType.ERROR);
-            throw new RuntimeException(msg);
-        }
+        return savedIncident;
+
     }
 
     /**
@@ -174,33 +170,29 @@ public class UtmIncidentService {
      */
     public UtmIncident addAlertsIncident(@Valid AddToIncidentDTO addToIncidentDTO) {
         final String ctx = CLASSNAME + ".addAlertsIncident";
-        try {
-            log.debug("Request to add alert to UtmIncident : {}", addToIncidentDTO);
 
-            List<RelatedIncidentAlertsDTO> alertIds = addToIncidentDTO.getAlertList();
+        log.debug("Request to add alert to UtmIncident : {}", addToIncidentDTO);
 
-            String alertsIds = alertIds.stream().map(RelatedIncidentAlertsDTO::getAlertId).collect(Collectors.joining(","));
-            Map<String, Object> extra = Map.of(
-                    "alertIds", alertsIds,
-                    "source", "service"
-            );
-            String attemptMsg = String.format("Attempt to add %d alerts to incident %d", addToIncidentDTO.getAlertList().size(), addToIncidentDTO.getIncidentId());
-            eventService.createEvent(attemptMsg, ApplicationEventType.INCIDENT_ALERT_ADD_ATTEMPT, extra);
+        List<RelatedIncidentAlertsDTO> alertIds = addToIncidentDTO.getAlertList();
 
-            validateAlertsNotAlreadyLinked(addToIncidentDTO.getAlertList(), ctx);
-            UtmIncident utmIncident = utmIncidentRepository.findById(addToIncidentDTO.getIncidentId()).orElseThrow(() -> new RuntimeException(ctx + ": Incident not found"));
-            saveRelatedAlerts(addToIncidentDTO.getAlertList(), utmIncident.getId());
-            String historyMessage = String.format("New %d alerts added to incident", addToIncidentDTO.getAlertList().size());
-            utmIncidentHistoryService.createHistory(IncidentHistoryActionEnum.INCIDENT_ALERT_ADD, utmIncident.getId(), "New alerts added to incident", historyMessage);
+        String alertsIds = alertIds.stream().map(RelatedIncidentAlertsDTO::getAlertId).collect(Collectors.joining(","));
+        Map<String, Object> extra = Map.of(
+                "alertIds", alertsIds,
+                "source", "service"
+        );
+        String attemptMsg = String.format("Attempt to add %d alerts to incident %d", addToIncidentDTO.getAlertList().size(), addToIncidentDTO.getIncidentId());
+        eventService.createEvent(attemptMsg, ApplicationEventType.INCIDENT_ALERT_ADD_ATTEMPT, extra);
 
-            eventService.createEvent(historyMessage, ApplicationEventType.INCIDENT_ALERTS_ADDED, extra);
+        validateAlertsNotAlreadyLinked(addToIncidentDTO.getAlertList(), ctx);
+        UtmIncident utmIncident = utmIncidentRepository.findById(addToIncidentDTO.getIncidentId()).orElseThrow(() -> new RuntimeException(ctx + ": Incident not found"));
+        saveRelatedAlerts(addToIncidentDTO.getAlertList(), utmIncident.getId());
+        String historyMessage = String.format("New %d alerts added to incident", addToIncidentDTO.getAlertList().size());
+        utmIncidentHistoryService.createHistory(IncidentHistoryActionEnum.INCIDENT_ALERT_ADD, utmIncident.getId(), "New alerts added to incident", historyMessage);
 
-            return utmIncident;
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            eventService.createEvent(msg, ApplicationEventType.ERROR);
-            throw new RuntimeException(msg);
-        }
+        eventService.createEvent(historyMessage, ApplicationEventType.INCIDENT_ALERTS_ADDED, extra);
+
+        return utmIncident;
+
     }
 
     @Async
@@ -289,7 +281,7 @@ public class UtmIncidentService {
                 return;
 
             String[] addressToNotify = Constants.CFG.get(Constants.PROP_ALERT_ADDRESS_TO_NOTIFY_INCIDENTS)
-                .replace(" ", "").split(",");
+                    .replace(" ", "").split(",");
 
             mailService.sendIncidentEmail(Arrays.asList(addressToNotify), alerts, utmIncident);
 

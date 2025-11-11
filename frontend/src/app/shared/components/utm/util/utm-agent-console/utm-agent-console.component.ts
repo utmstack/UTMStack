@@ -1,4 +1,6 @@
 import {
+  AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -28,13 +30,14 @@ import {replaceBreakLine} from '../../../../util/string-util';
   templateUrl: './utm-agent-console.component.html',
   styleUrls: ['./utm-agent-console.component.scss']
 })
-export class UtmAgentConsoleComponent implements OnInit, OnChanges, OnDestroy {
+export class UtmAgentConsoleComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @Input() hostname: string;
   @Input() websocketCommand: IncidentCommandType;
   @Input() template: 'on-demand' | 'default' = 'default';
   @Output() close = new EventEmitter<boolean>();
   @ViewChild('contentWrapper', {read: ElementRef}) contentWrapper!: ElementRef;
-  @ViewChild('commandInput') commandInput!: ElementRef;
+  @ViewChild('commandInput') commandInput: ElementRef;
+  @ViewChild('passwordInput') passwordInput: ElementRef;
   account: Account;
   commandInProgress = false;
   private token: string;
@@ -54,18 +57,24 @@ export class UtmAgentConsoleComponent implements OnInit, OnChanges, OnDestroy {
               private agentManagerService: UtmAgentManagerService,
               private accountService: AccountService,
               private toast: UtmToastService,
-              private sessionStorage: SessionStorageService) {
+              private sessionStorage: SessionStorageService,
+              private cdr: ChangeDetectorRef) {
   }
 
   scrollToBottom() {
-    if (this.contentWrapper) {
-      const element = this.contentWrapper.nativeElement as HTMLElement;
-      element.scrollTop = element.scrollHeight;
-    }
+    console.log('scrollToBottom');
+    setTimeout(() => {
+      if (this.contentWrapper && this.contentWrapper.nativeElement) {
+        const element = this.contentWrapper.nativeElement as HTMLElement;
+        element.scrollTop = element.scrollHeight;
+        console.log('Scroll height:', element.scrollHeight, 'Scroll top:', element.scrollTop);
+      } else {
+        console.warn('contentWrapper no disponible');
+      }
+    }, 0);
   }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   ngOnChanges(changes: SimpleChanges) {
     this.agent = null;
@@ -75,6 +84,10 @@ export class UtmAgentConsoleComponent implements OnInit, OnChanges, OnDestroy {
     this.token = null;
     this.command = null;
     this.pass = '';
+  }
+
+  ngAfterViewInit() {
+    this.passwordInput.nativeElement.focus();
   }
 
   startConnection() {
@@ -118,15 +131,11 @@ export class UtmAgentConsoleComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   focusCommandInput() {
-    if (this.commandInput) {
-      this.commandInput.nativeElement.focus();
-    }
-  }
-
-  ngOnDestroy(): void {
-    if (this.authorize && this.stompClient !== null) {
-      this.stompClient.disconnect();
-    }
+    setTimeout(() => {
+      if (this.commandInput) {
+        this.commandInput.nativeElement.focus();
+      }
+    }, 150);
   }
 
   initializeWebSocketConnection() {
@@ -138,6 +147,8 @@ export class UtmAgentConsoleComponent implements OnInit, OnChanges, OnDestroy {
       this.stompClient.crossDomain = true;
       this.stompClient.connect({}, (frame) => {
         this.openSocket();
+        this.authorize = true;
+        this.cdr.detectChanges();
         this.focusCommandInput();
       }, this.errorCallBack);
     } else {
@@ -145,8 +156,9 @@ export class UtmAgentConsoleComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  errorCallBack(error) {
+  errorCallBack = (error) => {
     console.log('errorCallBack -> ' + error);
+    this.connectionError = true;
     setTimeout(() => {
       this.initializeWebSocketConnection();
     }, 5000);
@@ -169,6 +181,7 @@ export class UtmAgentConsoleComponent implements OnInit, OnChanges, OnDestroy {
       setTimeout(() => {
         this.scrollToBottom();
         this.focusCommandInput();
+        this.cdr.detectChanges();
       }, 150);
     });
   }
@@ -215,12 +228,12 @@ export class UtmAgentConsoleComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   checkPassword() {
+    this.passwordInput.nativeElement.blur();
     const uuid = UUID.UUID();
     this.accountService.checkPassword(this.pass, uuid).subscribe(response => {
       if (response.body !== uuid) {
         this.toast.showError('Invalid check UUID', 'UUID to check your password does not match');
       } else {
-        this.authorize = true;
         this.startConnection();
       }
     }, () => {
@@ -230,5 +243,11 @@ export class UtmAgentConsoleComponent implements OnInit, OnChanges, OnDestroy {
 
   insertVariablePlaceholder($event: string) {
     this.command += `$[${$event}]`;
+  }
+
+  ngOnDestroy(): void {
+    if (this.authorize && this.stompClient !== null) {
+      this.stompClient.disconnect();
+    }
   }
 }

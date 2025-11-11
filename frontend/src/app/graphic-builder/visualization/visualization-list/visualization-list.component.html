@@ -101,7 +101,6 @@
                 </div>
                 <ng-template #popPreview let-visualization="vis">
                   <div class="tooltip-fixed-height w-100 h-100">
-                    <app-utm-spinner [loading]="loadingPreview" label="Loading visualization..."></app-utm-spinner>
                     <app-utm-viewer [building]="true"
                                     [chart]="vis.chartType"
                                     [chartId]="vis.id"

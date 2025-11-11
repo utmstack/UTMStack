@@ -329,16 +329,25 @@ public class UtmAlertServiceImpl implements UtmAlertService {
 
             Instant incidentCreationDate = Instant.now();
             String incidentCreatedBy = SecurityUtils.getCurrentUserLogin().orElse("system");
+            String formattedDate = incidentCreationDate.toString();
 
-            String script = String.format("ctx._source.isIncident=true;" +
-                            "if(ctx._source.incidentDetail == null) {" +
-                            "ctx._source.incidentDetail = new HashMap();}" +
-                            "ctx._source.incidentDetail.incidentName=\"%1$s\";" +
-                            "ctx._source.incidentDetail.incidentId=\"%2$s\";" +
-                            "ctx._source.incidentDetail.creationDate=\"%3$s\";" +
-                            "ctx._source.incidentDetail.createdBy=\"%4$s\";" +
-                            "ctx._source.incidentDetail.source=\"%5$s\";",
-                    incidentName, incidentId, incidentCreationDate, incidentCreatedBy, incidentSource);
+            String script = String.format(
+                    "ctx._source.isIncident = true; " +
+                            "if (ctx._source.incidentDetail == null) { " +
+                            "ctx._source.incidentDetail = [:]; " +
+                            "} " +
+                            "ctx._source.incidentDetail.incidentName = '%s'; " +
+                            "ctx._source.incidentDetail.incidentId = '%s'; " +
+                            "ctx._source.incidentDetail.creationDate = '%s'; " +
+                            "ctx._source.incidentDetail.createdBy = '%s'; " +
+                            "ctx._source.incidentDetail.source = '%s';",
+                    incidentName.replace("'", "\\'"),
+                    incidentId,
+                    formattedDate,
+                    incidentCreatedBy,
+                    incidentSource
+            );
+
 
             List<FilterType> filters = new ArrayList<>();
             filters.add(new FilterType(Constants.alertIdKeyword, OperatorType.IS_ONE_OF_TERMS, alertIds));

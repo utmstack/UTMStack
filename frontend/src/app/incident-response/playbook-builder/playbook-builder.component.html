@@ -86,7 +86,7 @@
           <button (click)="createRule()" class="btn utm-button utm-button-primary ml-2"
           [disabled]="!formRule.valid">
             <i class="icon-terminal mr-2"></i>
-            {{ (rule ? 'Update' : 'Create') + ' flow' }}
+            {{ (rule?.id ? 'Update' : 'Create') + ' flow' }}
           </button>
         </div>
       </div>
