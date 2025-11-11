@@ -4,8 +4,8 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {Observable, of} from 'rxjs';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {InputClassResolve} from '../../../../shared/util/input-class-resolve';
-import {PlaybookService} from '../../services/playbook.service';
 import {IncidentResponseRuleService} from '../../services/incident-response-rule.service';
+import {PlaybookService} from '../../services/playbook.service';
 import {IncidentActionType} from '../../type/incident-action.type';
 
 @Component({
