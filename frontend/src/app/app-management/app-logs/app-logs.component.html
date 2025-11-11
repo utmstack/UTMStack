@@ -4,15 +4,15 @@
       Application logs
     </h6>
     <div class="d-flex justify-content-center align-items-center">
-      <ng-select (change)="filterBySelect($event,'source')"
+      <!--<ng-select (change)="filterBySelect($event,'source')"
                  [clearable]="true"
                  [items]="sources"
                  [searchable]="false"
                  class="has-minimum-width mr-3"
                  placeholder="Source"
                  style="min-width: 100px"
-      ></ng-select>
-      <ng-select (change)="filterBySelect($event,'type')"
+      ></ng-select>-->
+      <ng-select (change)="filterBySelect($event,'log.severity')"
                  [clearable]="true"
                  [items]="types"
                  [searchable]="false"
