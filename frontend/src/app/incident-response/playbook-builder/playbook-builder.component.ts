@@ -23,6 +23,7 @@ import {createElementPrefix, getElementPrefix} from '../../shared/util/string-ut
 import {IncidentResponseRuleService} from '../shared/services/incident-response-rule.service';
 import {WorkflowActionsService} from '../shared/services/workflow-actions.service';
 import {IncidentRuleType} from '../shared/type/incident-rule.type';
+import {minLengthArray} from "../../rule-management/custom-validators";
 
 @Component({
   selector: 'app-playbook-builder',
@@ -61,7 +62,7 @@ export class PlaybookBuilderComponent implements OnInit, OnDestroy {
       id: [null],
       name: ['', Validators.required],
       description: ['', Validators.required],
-      conditions: this.fb.array([]),
+      conditions: this.fb.array([], minLengthArray(1)),
       command: ['', Validators.required],
       actions: [[]],
       active: [true],

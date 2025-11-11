@@ -54,7 +54,7 @@
       </div>
     </div>
 
-    <div *ngIf="ruleConditions.length === 0" class="alert alert-warning">
+    <div *ngIf="ruleConditions.hasError('minLengthArray') && ruleConditions.touched" class="text-danger">
       You must define at least one condition.
     </div>
 
@@ -66,4 +66,5 @@
 
   </div>
 </div>
+
 
