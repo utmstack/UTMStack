@@ -23,9 +23,13 @@
       <div class="alert alert-info alert-styled-right mb-2 info-dismissible">
         <span class="font-weight-semibold">Info! </span>
         <span>
-          By default, the agent detecting the alert is responsible for executing the SOAR workflow. However, you may select a different agent to use as a proxy for specific SOAR workflows. A good example are workflows that access external systems such as firewalls to block an IP address.
-        </span>
+          By default, the agent that detects an alert is responsible for executing its corresponding SOAR workflow.
+          However, you can designate an alternative agent to serve as a proxy for specific workflows.
+          This is particularly beneficial for workflows that require interaction with external systems,
+          such as firewall integrations for IP blocking or endpoint security platforms for threat containment.
+  </span>
       </div>
+
 
       <div class="d-flex mt-3 mb-3 flex-column">
         <app-utm-toggle (toggleChange)="onChangeToggle($event)"
