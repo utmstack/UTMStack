@@ -63,7 +63,7 @@
     <logger name="liquibase" level="WARN"/>
     <logger name="LiquibaseSchemaResolver" level="INFO"/>
     <logger name="sun.rmi.transport" level="WARN"/>
-    <logger name="org.postgresql" level="WARN"/>
+    <logger name="org.postgresql" level="ERROR"/>
     <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" level="OFF"/>
     <logger name="org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController" level="OFF"/>
     <logger name="org.springframework.boot.web.servlet.error.DefaultErrorAttributes" level="OFF"/>
