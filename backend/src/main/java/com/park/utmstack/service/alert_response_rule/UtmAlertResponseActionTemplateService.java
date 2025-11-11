@@ -29,7 +29,7 @@ public class UtmAlertResponseActionTemplateService {
     public UtmAlertResponseActionTemplate save(UtmAlertResponseActionTemplate alertResponseActionTemplate) {
         final String ctx = CLASSNAME + ".save";
         try {
-            if (!utmStackService.isInDevelop()) {
+            if (utmStackService.isInDevelop()) {
                 alertResponseActionTemplate.setId(this.getSystemSequenceNextValue());
                 alertResponseActionTemplate.setSystemOwner(true);
             } else {
