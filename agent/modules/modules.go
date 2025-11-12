@@ -20,7 +20,7 @@ type Module interface {
 	IsPortListen(proto string) bool
 	SetNewPort(proto string, port string)
 	GetPort(proto string) string
-	EnablePort(proto string)
+	EnablePort(proto string, enableTLS bool) error
 	DisablePort(proto string)
 }
 
@@ -88,7 +88,12 @@ func StartModules() {
 				if changeAllowed {
 					moCache[index].SetNewPort(proto, port)
 					if conf[1] {
-						moCache[index].EnablePort(proto)
+						enableTLS := proto == "tcp" && cnf.TCP.TLSEnabled
+
+						err := moCache[index].EnablePort(proto, enableTLS)
+						if err != nil {
+							utils.Logger.ErrorF("error enabling port for %s %s: %v", intType, proto, err)
+						}
 					}
 				} else {
 					utils.Logger.Info("change in port %s protocol %s not allowed for %s or out range %s-%s", port, proto, intType, config.PortRangeMin, config.PortRangeMax)

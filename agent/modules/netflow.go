@@ -45,15 +45,20 @@ func GetNetflowModule() *NetflowModule {
 	return netflowModule
 }
 
-func (m *NetflowModule) EnablePort(proto string) {
+func (m *NetflowModule) EnablePort(proto string, enableTLS bool) error {
 	if proto == "udp" && !m.IsEnabled {
+		// NetFlow over UDP doesn't support TLS
+		if enableTLS {
+			utils.Logger.Info("TLS not supported for NetFlow (UDP protocol), ignoring TLS flag")
+		}
+
 		utils.Logger.Info("Server %s listening in port: %s protocol: UDP", m.DataType, config.ProtoPorts[config.DataTypeNetflow].UDP)
 		m.IsEnabled = true
 
 		port, err := strconv.Atoi(config.ProtoPorts[config.DataTypeNetflow].UDP)
 		if err != nil {
 			utils.Logger.ErrorF("error converting port to int: %v", err)
-			return
+			return err
 		}
 
 		m.Listener, err = net.ListenUDP("udp", &net.UDPAddr{
@@ -62,7 +67,7 @@ func (m *NetflowModule) EnablePort(proto string) {
 		})
 		if err != nil {
 			utils.Logger.ErrorF("error listening netflow: %v", err)
-			return
+			return err
 		}
 
 		m.CTX, m.Cancel = context.WithCancel(context.Background())
@@ -122,6 +127,7 @@ func (m *NetflowModule) EnablePort(proto string) {
 			}
 		}()
 	}
+	return nil
 }
 
 func (m *NetflowModule) DisablePort(proto string) {

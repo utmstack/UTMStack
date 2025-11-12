@@ -109,5 +109,9 @@
 
     <include file="/config/liquibase/changelog/20250814001_adding_suricata.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251107001_update_filter_pfsense.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20251107002_update_filter_sonicwall.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

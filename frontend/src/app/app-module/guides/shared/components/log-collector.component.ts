@@ -3,7 +3,9 @@ import {ModalService} from '../../../../core/modal/modal.service';
 import {
   ModalConfirmationComponent
 } from '../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
+import {replaceCommandTokens} from '../../../../shared/util/replace-command-tokens.util';
 import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
+import {PLATFORMS} from '../constant';
 
 @Component({
   selector: 'app-log-colletor',
@@ -29,9 +31,16 @@ import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
                  class="flex-item">
       </ng-select>
     </div>
+    <div *ngIf="this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS' && selectedAction"
+         class="alert alert-info alert-styled-right mt-2">
+      After the TLS certificates have been successfully loaded into the system,
+      it is not necessary to repeat the certificate loading process when enabling
+      additional integrations that use TLS. The system will automatically apply the
+      previously configured certificates to ensure secure communication.
+    </div>
     <ng-container *ngIf="selectedProtocol && selectedPlatform && selectedAction">
       <span class="font-weight-semibold mb-2">{{selectedPlatform.shell}}</span>
-      <app-utm-code-view class="" [code]=command></app-utm-code-view>
+      <app-utm-code-view *ngFor="let command of commands" class="" [code]=command></app-utm-code-view>
     </ng-container>
   `,
   styles: [`
@@ -49,9 +58,14 @@ import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
 
 export class LogCollectorComponent {
 
+  @Input() agent: string;
+  @Input() platforms: any[] = PLATFORMS;
+  @Input() hideActions = false;
+  @Input() hideProtocols = false;
   @Input() protocols = [
     {id: 1, name: 'TCP'},
-    {id: 2, name: 'UDP'}
+    {id: 2, name: 'TCP/TLS'},
+    {id: 3, name: 'UDP'}
   ];
 
   actions = [
@@ -59,46 +73,39 @@ export class LogCollectorComponent {
     {id: 2, name: 'DISABLE', action: 'disable-integration'}
   ];
 
-  platforms = [
-    {
-      id: 1, name: 'WINDOWS (ARM64)',
-      command: 'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service_arm64.exe" -ArgumentList \'ACTION\', \'AGENTNAME\', \'PORT\' -NoNewWindow -Wait\n',
-      shell: 'Windows Powershell terminal as “ADMINISTRATOR”'
-    },
-    {
-      id: 2, name: 'WINDOWS (AMD64)',
-      command: 'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service.exe" -ArgumentList \'ACTION\', \'AGENTNAME\', \'PORT\' -NoNewWindow -Wait\n',
-      shell: 'Windows Powershell terminal as “ADMINISTRATOR”'
-    },
-    {
-      id: 3,
-      name: 'LINUX', command: 'sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_service ACTION AGENTNAME PORT"',
-      shell: 'Linux bash terminal'
-    }
-  ];
-
-  @Input() agent: string;
-
   _selectedProtocol: any;
   _selectedPlatform: any;
   _selectedAction: any;
   module = UtmModulesEnum;
 
-  constructor(private modalService: ModalService) {
-  }
+  constructor(private modalService: ModalService) {}
 
-  get command() {
-    return this.replaceAll(this.selectedPlatform.command, {
-      PORT: this.selectedProtocol.name.toLowerCase(),
-      AGENTNAME: this.agentName(),
-      ACTION: this.selectedAction.action
-    });
+  get commands() {
+
+    const protocol = this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS' ? 'tcp' : this.selectedProtocol.name.toLowerCase();
+
+    const command = replaceCommandTokens(this.selectedPlatform.command, {
+        ACTION: this.selectedAction && this.selectedAction.action || '',
+        AGENT_NAME: this.agentName(),
+        PROTOCOL: protocol,
+        TLS: this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS' &&
+          this.selectedAction.name === 'ENABLE' ? `--tls` : ''
+      });
+
+    if (this.selectedProtocol && this.selectedProtocol.name === 'TCP/TLS' &&
+      this.selectedAction.name === 'ENABLE') {
+      const extras = this.selectedPlatform.extraCommands ? this.selectedPlatform.extraCommands : [];
+      return [...extras, command];
+    }
+
+    return [command];
   }
 
   get selectedPlatform() {
     return this._selectedPlatform;
   }
 
+  @Input()
   set selectedPlatform(platform) {
     this._selectedPlatform = platform;
   }
@@ -179,14 +186,6 @@ export class LogCollectorComponent {
       case UtmModulesEnum.MERAKI:
         return 'cisco';
     }
-  }
-
-  replaceAll(command, wordsToReplace) {
-    return Object.keys(wordsToReplace).reduce(
-      (f, s, i) =>
-        `${f}`.replace(new RegExp(s, 'ig'), wordsToReplace[s]),
-      command
-    );
   }
 
   onChangeAction(action: any) {

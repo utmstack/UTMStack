@@ -1,4 +1,17 @@
-filter {
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20251107001" author="JocLRojas">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='2.1.0',
+            logstash_filter='filter {
 
 # pfSense filter version 2.1.0
 # Based on https://docs.netgate.com/pfsense/en/latest/monitoring/logs/raw-filter-format.html
@@ -24,7 +37,7 @@ filter {
       }
 
       if ![dataType] {
-# The log destination is already identified by the agent so, don't need an entry point
+# The log destination is already identified by the agent so, don''t need an entry point
 #......................................................................# 
 #Generating dataType field required by CurrelationRulesEngine
         mutate {
@@ -247,4 +260,9 @@ filter {
       mutate {
         remove_field => "[logx][pfsense][message]"
       }
-}
+}'
+	WHERE id=1522;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

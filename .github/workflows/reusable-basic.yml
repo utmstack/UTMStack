@@ -1,11 +1,11 @@
-name: Docker Image Basic
+name: Build & Push Basic Docker Image
 on:
   workflow_call:
     inputs:
       image_name:
         required: true
         type: string
-      environment:
+      tag:
         required: true
         type: string
 
@@ -28,4 +28,4 @@ jobs:
         with:
           context: ./${{inputs.image_name}}
           push: true
-          tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.environment}}
+          tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.tag}}

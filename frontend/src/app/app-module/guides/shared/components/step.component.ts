@@ -22,7 +22,7 @@ export class StepDirective {
   `
 })
 
-export class StepComponent{
+export class StepComponent {
 
   @Input() step: Step;
   constructor() {

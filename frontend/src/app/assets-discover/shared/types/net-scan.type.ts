@@ -35,4 +35,6 @@ export class NetScanType {
   assetOsPlatform?: string;
   assetOsMinorVersion?: string;
   assetOsMajorVersion?: string;
+  displayName?: string;
+  sortKey?: string;
 }
