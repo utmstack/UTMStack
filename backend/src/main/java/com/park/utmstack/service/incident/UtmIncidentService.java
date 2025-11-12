@@ -6,7 +6,7 @@ import com.park.utmstack.domain.incident.UtmIncident;
 import com.park.utmstack.domain.incident.UtmIncidentAlert;
 import com.park.utmstack.domain.incident.enums.IncidentHistoryActionEnum;
 import com.park.utmstack.domain.incident.enums.IncidentStatusEnum;
-import com.park.utmstack.domain.shared_types.alert.AlertType;
+import com.park.utmstack.domain.shared_types.alert.UtmAlert;
 import com.park.utmstack.repository.incident.UtmIncidentRepository;
 import com.park.utmstack.service.MailService;
 import com.park.utmstack.service.UserService;
@@ -275,7 +275,7 @@ public class UtmIncidentService {
     private void sendIncidentsEmail(List<String> alertIds, UtmIncident utmIncident) {
         final String ctx = CLASSNAME + ".sendIncidentsEmail";
         try {
-            List<AlertType> alerts = utmAlertService.getAlertsByIds(alertIds);
+            List<UtmAlert> alerts = utmAlertService.getAlertsByIds(alertIds);
 
             if (CollectionUtils.isEmpty(alerts))
                 return;

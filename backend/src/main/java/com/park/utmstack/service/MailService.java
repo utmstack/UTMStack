@@ -5,7 +5,7 @@ import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.incident.UtmIncident;
 import com.park.utmstack.domain.mail_sender.MailConfig;
-import com.park.utmstack.domain.shared_types.alert.AlertType;
+import com.park.utmstack.domain.shared_types.alert.UtmAlert;
 import com.park.utmstack.domain.shared_types.LogType;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.mail_sender.BaseMailSender;
@@ -250,7 +250,7 @@ public class MailService {
     }
 
     @Async
-    public void sendAlertEmail(List<String> emailsTo, AlertType alert, List<LogType> relatedLogs) {
+    public void sendAlertEmail(List<String> emailsTo, UtmAlert alert, List<LogType> relatedLogs) {
         final String ctx = CLASS_NAME + ".sendAlertEmail";
         try {
             JavaMailSender javaMailSender = getJavaMailSender();
@@ -289,7 +289,7 @@ public class MailService {
     }
 
     @Async
-    public void sendIncidentEmail(List<String> emailsTo, List<AlertType> alerts, UtmIncident incident) {
+    public void sendIncidentEmail(List<String> emailsTo, List<UtmAlert> alerts, UtmIncident incident) {
         final String ctx = CLASS_NAME + ".sendIncidentEmail";
         try {
             JavaMailSender javaMailSender = getJavaMailSender();
@@ -332,7 +332,7 @@ public class MailService {
      * @return ByteArrayResource object with attachment to alert mail
      * @throws Exception In case of any error
      */
-    private ByteArrayResource buildAlertEmailAttachment(Context context, AlertType alert,
+    private ByteArrayResource buildAlertEmailAttachment(Context context, UtmAlert alert,
                                                         List<LogType> relatedLogs) throws Exception {
         final String ctx = CLASS_NAME + ".buildAlertEmailAttachment";
         try {

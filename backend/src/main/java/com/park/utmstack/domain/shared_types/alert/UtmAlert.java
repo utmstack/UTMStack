@@ -18,7 +18,7 @@ import java.util.Locale;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
-public class AlertType {
+public class UtmAlert {
     @JsonProperty("@timestamp")
     private String timestamp;
 
@@ -105,6 +105,10 @@ public class AlertType {
 
     @JsonProperty("logs")
     private List<String> logs;
+
+    private String assetGroupName;
+
+    private Long assetGroupId;
 
     public Instant getTimestampAsInstant() {
         if (StringUtils.hasText(timestamp))
