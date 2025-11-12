@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20251110003" author="Manuel">
+
+        <sqlFile
+                path="config/liquibase/data/utm_alert_response_rule.sql"
+                relativeToChangelogFile="false"
+                splitStatements="false"
+                stripComments="false"
+                encoding="UTF-8"/>
+        <sqlFile
+                path="config/liquibase/data/utm_response_action_template.sql"
+                relativeToChangelogFile="false"
+                splitStatements="false"
+                stripComments="false"
+                encoding="UTF-8"/>
+
+        <sqlFile
+                path="config/liquibase/data/utm_alert_response_rule_template.sql"
+                relativeToChangelogFile="false"
+                splitStatements="false"
+                stripComments="false"
+                encoding="UTF-8"/>
+    </changeSet>
+
+</databaseChangeLog>

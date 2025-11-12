@@ -22,8 +22,14 @@
 
       <div class="alert alert-info alert-styled-right mb-2 info-dismissible">
         <span class="font-weight-semibold">Info! </span>
-        <span>Select the agent handling strategy for the automation. If <strong>not active</strong>, commands will run on specified platform agents if the trigger conditions and dataSource field value of the alert match. Alternatively, choose a <strong>default agent</strong> to run the automation if no other agent matches the criteria. If this option is <strong>active</strong>, commands will run only on specified platform agents if the trigger conditions and dataSource field value of the alert match, if not, the <strong>automation won't be executed</strong>.</span>
+        <span>
+          By default, the agent that detects an alert is responsible for executing its corresponding SOAR workflow.
+          However, you can designate an alternative agent to serve as a proxy for specific workflows.
+          This is particularly beneficial for workflows that require interaction with external systems,
+          such as firewall integrations for IP blocking or endpoint security platforms for threat containment.
+  </span>
       </div>
+
 
       <div class="d-flex mt-3 mb-3 flex-column">
         <app-utm-toggle (toggleChange)="onChangeToggle($event)"

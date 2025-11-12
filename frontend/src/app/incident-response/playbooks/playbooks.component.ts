@@ -11,13 +11,14 @@ import {UtmAlertType} from '../../shared/types/alert/utm-alert.type';
 import {TimeFilterType} from '../../shared/types/time-filter.type';
 import {IncidentResponseRuleService} from '../shared/services/incident-response-rule.service';
 import {IncidentRuleType} from '../shared/type/incident-rule.type';
-import {PlaybookService} from './playbook.service';
+import {PlaybookService} from '../shared/services/playbook.service';
 import {NewPlaybookComponent} from "../shared/component/new-playbook/new-playbook.component";
 
 @Component({
   selector: 'app-playbooks',
   templateUrl: './playbooks.component.html',
-  styleUrls: ['./playbooks.component.scss']
+  styleUrls: ['./playbooks.component.scss'],
+  providers: [PlaybookService]
 })
 export class PlaybooksComponent implements OnInit, AfterViewInit, OnDestroy {
   loading = true;
@@ -31,7 +32,8 @@ export class PlaybooksComponent implements OnInit, AfterViewInit, OnDestroy {
     sort: '',
     'active.equals': null,
     'agentPlatform.equals': null,
-    'createdBy.equals': null
+    'createdBy.equals': null,
+    'systemOwner.equals': false
   };
   platforms: string[];
   users: string[];

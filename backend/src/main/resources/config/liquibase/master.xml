@@ -263,5 +263,11 @@
 
     <include file="/config/liquibase/changelog/20251110001_disable_correlation_rules_with_regex.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251110002_add_system_owner_to_alert_response_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20251110003_add_alert-response_rule_data.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20251111001_set_alert-response_rule_seq.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

@@ -1,0 +1,35 @@
+
+INSERT INTO public.utm_alert_response_rule_template VALUES (46, 67);
+INSERT INTO public.utm_alert_response_rule_template VALUES (27, 67);
+INSERT INTO public.utm_alert_response_rule_template VALUES (38, 67);
+INSERT INTO public.utm_alert_response_rule_template VALUES (37, 67);
+INSERT INTO public.utm_alert_response_rule_template VALUES (29, 91);
+INSERT INTO public.utm_alert_response_rule_template VALUES (1, 91);
+INSERT INTO public.utm_alert_response_rule_template VALUES (48, 91);
+INSERT INTO public.utm_alert_response_rule_template VALUES (40, 91);
+INSERT INTO public.utm_alert_response_rule_template VALUES (30, 91);
+INSERT INTO public.utm_alert_response_rule_template VALUES (38, 91);
+INSERT INTO public.utm_alert_response_rule_template VALUES (28, 91);
+INSERT INTO public.utm_alert_response_rule_template VALUES (37, 91);
+INSERT INTO public.utm_alert_response_rule_template VALUES (33, 81);
+INSERT INTO public.utm_alert_response_rule_template VALUES (31, 81);
+INSERT INTO public.utm_alert_response_rule_template VALUES (34, 81);
+INSERT INTO public.utm_alert_response_rule_template VALUES (36, 81);
+INSERT INTO public.utm_alert_response_rule_template VALUES (32, 78);
+INSERT INTO public.utm_alert_response_rule_template VALUES (31, 78);
+INSERT INTO public.utm_alert_response_rule_template VALUES (33, 75);
+INSERT INTO public.utm_alert_response_rule_template VALUES (31, 75);
+INSERT INTO public.utm_alert_response_rule_template VALUES (36, 75);
+INSERT INTO public.utm_alert_response_rule_template VALUES (29, 73);
+INSERT INTO public.utm_alert_response_rule_template VALUES (48, 73);
+INSERT INTO public.utm_alert_response_rule_template VALUES (41, 43);
+INSERT INTO public.utm_alert_response_rule_template VALUES (29, 70);
+INSERT INTO public.utm_alert_response_rule_template VALUES (48, 70);
+INSERT INTO public.utm_alert_response_rule_template VALUES (44, 70);
+INSERT INTO public.utm_alert_response_rule_template VALUES (30, 72);
+INSERT INTO public.utm_alert_response_rule_template VALUES (47, 64);
+INSERT INTO public.utm_alert_response_rule_template VALUES (35, 16);
+INSERT INTO public.utm_alert_response_rule_template VALUES (42, 47);
+INSERT INTO public.utm_alert_response_rule_template VALUES (45, 54);
+INSERT INTO public.utm_alert_response_rule_template VALUES (43, 59);
+
