@@ -12,10 +12,12 @@ import com.park.utmstack.repository.UtmAlertTagRuleRepository;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
 import com.park.utmstack.service.elasticsearch.SearchUtil;
+import com.park.utmstack.service.network_scan.AlertAssetGroupService;
 import com.park.utmstack.util.AlertUtil;
 import com.park.utmstack.util.enums.AlertStatus;
 import com.park.utmstack.util.events.RulesEvaluationEndEvent;
 import com.park.utmstack.web.rest.vm.AlertTagRuleFilterVM;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.jpa.TypedParameterValue;
 import org.hibernate.type.BooleanType;
 import org.hibernate.type.LongType;
@@ -38,6 +40,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -46,6 +49,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UtmAlertTagRuleService {
 
     private final Logger log = LoggerFactory.getLogger(UtmAlertTagRuleService.class);
@@ -58,22 +62,8 @@ public class UtmAlertTagRuleService {
     private final AlertPointcut alertPointcut;
     private final UtmAlertTagService alertTagService;
     private final ElasticsearchService elasticsearchService;
+    private final AlertAssetGroupService alertAssetGroupService;
 
-    public UtmAlertTagRuleService(UtmAlertTagRuleRepository alertTagRuleRepository,
-                                  AlertUtil alertUtil,
-                                  ApplicationEventPublisher publisher,
-                                  ApplicationEventService eventService,
-                                  AlertPointcut alertPointcut,
-                                  UtmAlertTagService alertTagService,
-                                  ElasticsearchService elasticsearchService) {
-        this.alertTagRuleRepository = alertTagRuleRepository;
-        this.alertUtil = alertUtil;
-        this.publisher = publisher;
-        this.eventService = eventService;
-        this.alertPointcut = alertPointcut;
-        this.alertTagService = alertTagService;
-        this.elasticsearchService = elasticsearchService;
-    }
 
     /**
      * Save a utmTagRule.
@@ -147,6 +137,9 @@ public class UtmAlertTagRuleService {
             // If no new alerts have been received, stop execution
             if (alertUtil.countAllAlertsByStatus(AlertStatus.AUTOMATIC_REVIEW.getCode()) == 0)
                 return;
+
+            // Assigning asset groups to alerts in automatic review
+            this.assignAssetGroupsToReviewAlerts();
 
             // Getting all registered rules
             List<UtmAlertTagRule> tagRules = alertTagRuleRepository.findAll();
@@ -245,6 +238,63 @@ public class UtmAlertTagRuleService {
                 eventService.createEvent(msg, ApplicationEventType.ERROR);
                 log.error(msg, e.getMessage(), e);
             }
+        }
+    }
+
+
+    private void assignAssetGroupsToReviewAlerts() {
+        final String ctx = CLASSNAME + ".assignAssetGroupsToReviewAlerts";
+        try {
+
+            Map<String, Map<String, Object>> assetGroups =
+                    alertAssetGroupService.getAssetGroupsMapForAlerts();
+
+            if (assetGroups.isEmpty()) {
+                log.debug("{}: No asset-group mappings found", ctx);
+                return;
+            }
+
+            StringBuilder scriptBuilder = new StringBuilder();
+            scriptBuilder.append("if (ctx._source.containsKey('dataSource') && ctx._source.dataSource != null) {\n");
+
+            for (Map.Entry<String, Map<String, Object>> entry : assetGroups.entrySet()) {
+                String assetName = entry.getKey();
+                Long groupId = (Long) entry.getValue().get("id");
+                String groupName = (String) entry.getValue().get("name");
+
+                scriptBuilder.append(String.format(
+                        """
+                                  if (ctx._source.dataSource == '%s') {
+                                    ctx._source.assetGroupId = %dL;
+                                    ctx._source.assetGroupName = '%s';
+                                  }
+                                """,
+                        assetName.replace("'", "\\'"), // Escapar comillas simples
+                        groupId,
+                        groupName.replace("'", "\\'")
+                ));
+            }
+
+            scriptBuilder.append("}");
+            String script = scriptBuilder.toString();
+
+
+            List<FilterType> filters = new ArrayList<>();
+            filters.add(new FilterType(Constants.alertStatus, OperatorType.IS,
+                    AlertStatus.AUTOMATIC_REVIEW.getCode()));
+            filters.add(new FilterType("dataSource", OperatorType.IS_NOT, null));
+
+            Query query = SearchUtil.toQuery(filters);
+            String indexPattern = Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS);
+
+            elasticsearchService.updateByQuery(query, indexPattern, script);
+
+            log.info("{}: Asset groups assigned to {} alerts", ctx, assetGroups.size());
+
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
+            log.error(msg, e);
         }
     }
 }

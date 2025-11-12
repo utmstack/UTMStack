@@ -5,7 +5,7 @@ import com.park.utmstack.domain.UtmAlertLog;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.domain.index_pattern.enums.SystemIndexPattern;
-import com.park.utmstack.domain.shared_types.alert.AlertType;
+import com.park.utmstack.domain.shared_types.alert.UtmAlert;
 import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.UtmAlertLogService;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
@@ -87,14 +87,14 @@ public class AlertLoggingAspect {
             Integer status = (Integer) args[1];
             String statusObservation = (String) args[2];
 
-            List<AlertType> alerts = getAlerts(alertIds);
+            List<UtmAlert> alerts = getAlerts(alertIds);
 
             joinPoint.proceed();
 
             if (CollectionUtils.isEmpty(alerts))
                 return null;
 
-            for (AlertType alert : alerts) {
+            for (UtmAlert alert : alerts) {
                 UtmAlertLog alertLog = new UtmAlertLog();
                 alertLog.setAlertId(alert.getId());
                 alertLog.setLogUser(SecurityUtils.getCurrentUserLogin().orElse("system"));
@@ -146,19 +146,19 @@ public class AlertLoggingAspect {
                 .size(Constants.LOG_ANALYZER_TOTAL_RESULTS)
                 .query(query));
 
-            HitsMetadata<AlertType> response = elasticsearchService.search(sr, AlertType.class).hits();
+            HitsMetadata<UtmAlert> response = elasticsearchService.search(sr, UtmAlert.class).hits();
 
             joinPoint.proceed();
 
             if (response.total().value() <= 0)
                 return null;
 
-            List<AlertType> alerts = response.hits().stream().map(Hit::source).collect(Collectors.toList());
+            List<UtmAlert> alerts = response.hits().stream().map(Hit::source).collect(Collectors.toList());
 
             if (CollectionUtils.isEmpty(alerts))
                 return null;
 
-            for (AlertType alert : alerts) {
+            for (UtmAlert alert : alerts) {
                 UtmAlertLog alertLog = new UtmAlertLog();
                 alertLog.setAlertId(alert.getId());
                 alertLog.setLogUser("system");
@@ -197,7 +197,7 @@ public class AlertLoggingAspect {
             List alertIds = (List) args[0];
             List tags = (List) args[1];
 
-            List<AlertType> alerts = getAlerts(alertIds);
+            List<UtmAlert> alerts = getAlerts(alertIds);
 
             joinPoint.proceed();
 
@@ -206,7 +206,7 @@ public class AlertLoggingAspect {
 
             String user = SecurityUtils.getCurrentUserLogin().orElse("system");
 
-            for (AlertType alert : alerts) {
+            for (UtmAlert alert : alerts) {
                 UtmAlertLog alertLog = new UtmAlertLog();
                 alertLog.setAlertId(alert.getId());
                 alertLog.setLogUser(user);
@@ -247,21 +247,21 @@ public class AlertLoggingAspect {
             SearchRequest request = SearchRequest.of(s -> s.query(query)
                 .size(Constants.LOG_ANALYZER_TOTAL_RESULTS).index(indexPattern));
 
-            HitsMetadata<AlertType> hits = elasticsearchService.search(request, AlertType.class).hits();
+            HitsMetadata<UtmAlert> hits = elasticsearchService.search(request, UtmAlert.class).hits();
 
             joinPoint.proceed();
 
             if (hits.total().value() <= 0)
                 return null;
 
-            List<AlertType> alerts = hits.hits().stream().map(Hit::source).collect(Collectors.toList());
+            List<UtmAlert> alerts = hits.hits().stream().map(Hit::source).collect(Collectors.toList());
 
             if (CollectionUtils.isEmpty(alerts))
                 return null;
 
             String user = SecurityUtils.getCurrentUserLogin().orElse("system");
 
-            for (AlertType alert : alerts) {
+            for (UtmAlert alert : alerts) {
                 UtmAlertLog alertLog = new UtmAlertLog();
                 alertLog.setAlertId(alert.getId());
                 alertLog.setLogUser(user);
@@ -294,7 +294,7 @@ public class AlertLoggingAspect {
             String alertId = (String) args[0];
             String notes = (String) args[1];
 
-            List<AlertType> alerts = getAlerts(Collections.singletonList(alertId));
+            List<UtmAlert> alerts = getAlerts(Collections.singletonList(alertId));
 
             joinPoint.proceed();
 
@@ -303,7 +303,7 @@ public class AlertLoggingAspect {
 
             String user = SecurityUtils.getCurrentUserLogin().orElse("system");
 
-            for (AlertType alert : alerts) {
+            for (UtmAlert alert : alerts) {
                 UtmAlertLog alertLog = new UtmAlertLog();
                 alertLog.setAlertId(alert.getId());
                 alertLog.setLogUser(user);
@@ -347,19 +347,19 @@ public class AlertLoggingAspect {
             SearchRequest request = SearchRequest.of(s -> s.size(Constants.LOG_ANALYZER_TOTAL_RESULTS)
                 .query(query).index(indexPattern));
 
-            HitsMetadata<AlertType> hits = elasticsearchService.search(request, AlertType.class).hits();
+            HitsMetadata<UtmAlert> hits = elasticsearchService.search(request, UtmAlert.class).hits();
 
             joinPoint.proceed();
 
             if (hits.total().value() <= 0)
                 return null;
 
-            List<AlertType> alerts = hits.hits().stream().map(Hit::source).collect(Collectors.toList());
+            List<UtmAlert> alerts = hits.hits().stream().map(Hit::source).collect(Collectors.toList());
 
             if (CollectionUtils.isEmpty(alerts))
                 return null;
 
-            for (AlertType alert : alerts) {
+            for (UtmAlert alert : alerts) {
                 UtmAlertLog alertLog = new UtmAlertLog();
                 alertLog.setAlertId(alert.getId());
                 alertLog.setLogUser(incidentCreatedBy);
@@ -393,14 +393,14 @@ public class AlertLoggingAspect {
      * @return
      * @throws Exception
      */
-    private List<AlertType> getAlerts(List<?> ids) throws Exception {
+    private List<UtmAlert> getAlerts(List<?> ids) throws Exception {
         final String ctx = CLASS_NAME + ".getAlerts";
         try {
             List<FilterType> filters = new ArrayList<>();
             filters.add(new FilterType(Constants.alertIdKeyword, OperatorType.IS_ONE_OF_TERMS, ids));
             SearchRequest request = SearchRequest.of(s -> s.query(SearchUtil.toQuery(filters))
                 .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS)));
-            HitsMetadata<AlertType> hits = elasticsearchService.search(request, AlertType.class).hits();
+            HitsMetadata<UtmAlert> hits = elasticsearchService.search(request, UtmAlert.class).hits();
             if (hits.total().value() <= 0)
                 return Collections.emptyList();
             return hits.hits().stream().map(Hit::source).collect(Collectors.toList());

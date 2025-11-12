@@ -1,20 +1,20 @@
 package com.park.utmstack.domain.reports.types;
 
 import com.park.utmstack.domain.incident_response.UtmIncidentJob;
-import com.park.utmstack.domain.shared_types.alert.AlertType;
+import com.park.utmstack.domain.shared_types.alert.UtmAlert;
 
 import java.util.List;
 
 public class IncidentType {
-    private AlertType incident;
+    private UtmAlert incident;
     private List<UtmIncidentJob> srcResponses;
     private List<UtmIncidentJob> destResponses;
 
-    public AlertType getIncident() {
+    public UtmAlert getIncident() {
         return incident;
     }
 
-    public void setIncident(AlertType incident) {
+    public void setIncident(UtmAlert incident) {
         this.incident = incident;
     }
 
