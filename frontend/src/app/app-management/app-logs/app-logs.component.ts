@@ -82,7 +82,7 @@ export class AppLogsComponent implements OnInit {
     this.loadAll();
   }
 
-  filterBySelect($event: any, field: 'source' | 'type') {
+  filterBySelect($event: any, field: string) {
     const index = this.req.filters.findIndex(value => value.field === field);
     if (index === -1) {
       this.req.filters.push({field, operator: ElasticOperatorsEnum.IS, value: $event});
