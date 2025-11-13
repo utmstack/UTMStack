@@ -67,18 +67,35 @@ jobs:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
 
-      - name: Build and Sign Agent
+      - name: Build Linux Agent
+        env:
+          GOOS: linux
+          GOARCH: amd64
         run: |
-          echo "Building Agent..."
           cd ${{ github.workspace }}/agent
+          go build -o utmstack_agent_service -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
-          GOOS=linux GOARCH=amd64 go build -o utmstack_agent_service -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
-          GOOS=windows GOARCH=amd64 go build -o utmstack_agent_service.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
-          GOOS=windows GOARCH=arm64 go build -o utmstack_agent_service_arm64.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+      - name: Build Windows Agent (amd64)
+        env:
+          GOOS: windows
+          GOARCH: amd64
+        run: |
+          cd ${{ github.workspace }}/agent
+          go build -o utmstack_agent_service.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
-          echo "Signing Windows Agent..."
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{{{${{ secrets.SIGN_KEY }}}}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service.exe"
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{{{${{ secrets.SIGN_KEY }}}}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service_arm64.exe"
+      - name: Build Windows Agent (arm64)
+        env:
+          GOOS: windows
+          GOARCH: arm64
+        run: |
+          cd ${{ github.workspace }}/agent
+          go build -o utmstack_agent_service_arm64.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+
+      - name: Sign Windows Agents
+        run: |
+          cd ${{ github.workspace }}/agent
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service.exe"
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service_arm64.exe"
 
       - name: Upload signed binaries as artifacts
         uses: actions/upload-artifact@v4
