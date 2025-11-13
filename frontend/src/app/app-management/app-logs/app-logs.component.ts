@@ -15,7 +15,7 @@ import {AppLogType} from './shared/type/app-log.type';
   styleUrls: ['./app-logs.component.css']
 })
 export class AppLogsComponent implements OnInit {
-  logs: AppLogType[] = [];
+  logs: any[] = [];
   links: any;
   totalItems: number;
   page = 1;
@@ -26,8 +26,9 @@ export class AppLogsComponent implements OnInit {
   message: string;
   req: { filters: ElasticFilterType[], index: string, top: number } = {
     filters: [
-      {field: '@timestamp', operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['now-7d', 'now']}
-    ], index: '.utmstack-logs*', top: 10000000
+      {field: '@timestamp', operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['now-7d', 'now']},
+      {field: 'log.containerName.keyword', operator: ElasticOperatorsEnum.IS, value: 'utmstack_backend'}
+    ], index: 'v11-log-utmstack-*', top: 10000000
   };
   sources = ['PANEL', 'AGENT'];
   types = ['ERROR', 'WARNING', 'INFO'];
@@ -81,7 +82,7 @@ export class AppLogsComponent implements OnInit {
     this.loadAll();
   }
 
-  filterBySelect($event: any, field: 'source' | 'type') {
+  filterBySelect($event: any, field: string) {
     const index = this.req.filters.findIndex(value => value.field === field);
     if (index === -1) {
       this.req.filters.push({field, operator: ElasticOperatorsEnum.IS, value: $event});
@@ -100,7 +101,18 @@ export class AppLogsComponent implements OnInit {
   }
 
   getPreview(message: string): string {
-    const preview = message.substring(0, message.indexOf(':')).substring(0, 200);
-    return preview.length > 200 ? (preview + '..') : preview;
+    if (!message) { return ''; }
+
+    const colonIndex = message.indexOf(':');
+    const textToTruncate = colonIndex !== -1
+      ? message.substring(0, colonIndex)
+      : message;
+
+    if (textToTruncate.length > 200) {
+      return textToTruncate.substring(0, 200) + '..';
+    }
+
+    return textToTruncate;
   }
+
 }

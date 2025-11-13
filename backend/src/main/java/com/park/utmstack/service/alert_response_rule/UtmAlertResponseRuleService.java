@@ -15,7 +15,7 @@ import com.park.utmstack.domain.alert_response_rule.enums.RuleNonExecutionCause;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
-import com.park.utmstack.domain.shared_types.alert.AlertType;
+import com.park.utmstack.domain.shared_types.alert.UtmAlert;
 import com.park.utmstack.repository.alert_response_rule.UtmAlertResponseActionTemplateRepository;
 import com.park.utmstack.repository.alert_response_rule.UtmAlertResponseRuleExecutionRepository;
 import com.park.utmstack.repository.alert_response_rule.UtmAlertResponseRuleHistoryRepository;
@@ -70,10 +70,10 @@ public class UtmAlertResponseRuleService {
 
 
 
-    public UtmAlertResponseRule save(UtmAlertResponseRule alertResponseRule) {
+    public UtmAlertResponseRule save(UtmAlertResponseRule alertResponseRule, boolean isCreate) {
         final String ctx = CLASSNAME + ".save";
         try {
-            if (alertResponseRule.getId() != null) {
+            if (!isCreate) {
                 String alertRuleId = String.valueOf(alertResponseRule.getId());
                 UtmAlertResponseRule current = alertResponseRuleRepository.findById(alertResponseRule.getId())
                         .orElseThrow(() -> new RuntimeException(String.format("Incident response rule with ID: %1$s not found", alertRuleId)));
@@ -120,7 +120,7 @@ public class UtmAlertResponseRuleService {
     }
 
     @Async
-    public void evaluateRules(List<AlertType> alerts) {
+    public void evaluateRules(List<UtmAlert> alerts) {
         final String ctx = CLASSNAME + ".evaluateRules";
         try {
             if (CollectionUtils.isEmpty(alerts))
@@ -356,5 +356,11 @@ public class UtmAlertResponseRuleService {
 
             target.getUtmAlertResponseActionTemplates().addAll(managedTemplates);
         }
+    }
+
+    public Long getSystemSequenceNextValue() {
+        return alertResponseRuleRepository.findFirstBySystemOwnerIsTrueOrderByIdDesc()
+                .map(rule -> rule.getId() + 1)
+                .orElse(1L);
     }
 }

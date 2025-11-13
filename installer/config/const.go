@@ -16,8 +16,6 @@ const (
 
 	ImagesPath = "/utmstack/images"
 
-	CMServer = "https://customermanager.utmstack.com"
-
 	RequiredMinCPUCores  = 2
 	RequiredMinDiskSpace = 30
 	RequiredDistroUbuntu = "ubuntu"
@@ -45,5 +43,8 @@ var (
 
 func GetCMServer() string {
 	cnf := GetConfig()
-	return CMServer + "/" + cnf.Branch
+	if cnf.Branch == "alpha" {
+		return "https://cm.dev.utmstack.com"
+	}
+	return "https://cm.utmstack.com"
 }

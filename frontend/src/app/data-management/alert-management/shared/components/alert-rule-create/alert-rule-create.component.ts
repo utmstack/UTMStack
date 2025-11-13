@@ -103,7 +103,7 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
   formRule: FormGroup;
   exist: boolean;
   typing = false;
-  viewFieldDetail = false;
+  viewFieldDetail = true;
   uuid = UUID.UUID();
   tagging = false;
   ElasticOperatorsEnum = ElasticOperatorsEnum;
@@ -165,7 +165,7 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
     }
 
     if (this.isFalsePositiveRule) {
-      this.selected.push(FALSE_POSITIVE_OBJECT);
+      this.selectValue(FALSE_POSITIVE_OBJECT);
     }
 
     this.alerts$ = this.alertService.onRefresh$

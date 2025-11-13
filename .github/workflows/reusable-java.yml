@@ -1,0 +1,107 @@
+name: "Build & Push Java Docker Image"
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        required: true
+        type: string
+        description: "Name of the Docker image to build"
+      tag:
+        required: true
+        type: string
+        description: "Docker image tag"
+      java_version:
+        required: false
+        type: string
+        default: "11"
+        description: "Java version (11, 17, 21, etc.)"
+      use_version_file:
+        required: false
+        type: boolean
+        default: false
+        description: "Read version from version.yml file"
+      use_tag_as_version:
+        required: false
+        type: boolean
+        default: false
+        description: "Use tag as Maven version (-Drevision)"
+      maven_profile:
+        required: false
+        type: string
+        default: ""
+        description: "Maven profile to use (e.g., 'prod')"
+      maven_goals:
+        required: false
+        type: string
+        default: "clean install"
+        description: "Maven goals to execute"
+
+jobs:
+  build:
+    name: Build & Push Java ${{ inputs.java_version }} Image
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out code into the right branch
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ inputs.java_version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ inputs.java_version }}
+          distribution: "temurin"
+
+      - name: Read version from config
+        if: ${{ inputs.use_version_file }}
+        id: read_version
+        uses: CumulusDS/get-yaml-paths-action@v1.0.2
+        with:
+          file: version.yml
+          version: version
+
+      - name: Build with Maven
+        working-directory: ./${{ inputs.image_name }}
+        run: |
+          echo "Building with maven"
+
+          # Build Maven command dynamically
+          MVN_CMD="mvn -B"
+
+          # Add revision based on version source
+          if [[ "${{ inputs.use_version_file }}" == "true" ]]; then
+            echo "The configured version is: ${{ steps.read_version.outputs.version }}"
+            MVN_CMD="$MVN_CMD -Drevision=${{ steps.read_version.outputs.version }}"
+          elif [[ "${{ inputs.use_tag_as_version }}" == "true" ]]; then
+            echo "The configured version is: ${{ inputs.tag }}"
+            MVN_CMD="$MVN_CMD -Drevision=${{ inputs.tag }}"
+          fi
+
+          # Add profile if specified
+          if [[ -n "${{ inputs.maven_profile }}" ]]; then
+            MVN_CMD="$MVN_CMD -P${{ inputs.maven_profile }}"
+          fi
+
+          # Add goals
+          MVN_CMD="$MVN_CMD ${{ inputs.maven_goals }}"
+
+          # Add settings file
+          MVN_CMD="$MVN_CMD -s settings.xml"
+
+          echo "Executing: $MVN_CMD"
+          $MVN_CMD
+        env:
+          MAVEN_TK: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: utmstack
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push the Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ inputs.image_name }}
+          push: true
+          tags: ghcr.io/utmstack/utmstack/${{ inputs.image_name }}:${{ inputs.tag }}

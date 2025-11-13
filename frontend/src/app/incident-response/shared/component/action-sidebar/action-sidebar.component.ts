@@ -32,7 +32,11 @@ export class ActionSidebarComponent implements OnInit, OnDestroy {
   }
 
   addToWorkFlow(action: any) {
-    this.workFlowActionService.addActions(action);
+    const actionToAdd = {
+      ...action,
+      id: null
+    };
+    this.workFlowActionService.addActions(actionToAdd);
   }
 
   searchReport($event: string ) {

@@ -83,6 +83,9 @@ public class UtmAlertResponseRuleQueryService extends QueryService<UtmAlertRespo
             if (criteria.getLastModifiedDate() != null) {
                 specification = specification.and(buildRangeSpecification(criteria.getLastModifiedDate(), UtmAlertResponseRule_.lastModifiedDate));
             }
+            if (criteria.getSystemOwner() != null) {
+                specification = specification.and(buildSpecification(criteria.getSystemOwner(), UtmAlertResponseRule_.systemOwner));
+            }
         }
         return specification;
     }

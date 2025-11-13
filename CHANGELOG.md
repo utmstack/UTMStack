@@ -1,6 +1,17 @@
-# UTMStack 11.0.0-beta.1 Release Notes
+# UTMStack 11.0.0 Release Notes
 
 This is the release notes for **UTMStack v11**, a major update from v10. This version introduces significant improvements and new features aimed at enhancing performance, scalability, and security.
+
+## ⚠️ BREAKING CHANGE - Migration Required
+
+**IMPORTANT:** UTMStack v11 introduces fundamental architectural changes that make it **incompatible with v10**.
+
+- **Direct upgrades from v10 to v11 are NOT supported**
+- A **complete migration** is required to move from v10 to v11
+- We are currently developing a **migration tool** to facilitate this process
+- **Do not attempt to upgrade** your v10 installation to v11 until the migration tool is available
+
+Please contact our support team for guidance on migration planning and timeline.
 
 ## Key Highlights
 

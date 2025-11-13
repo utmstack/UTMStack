@@ -1,4 +1,4 @@
-<div class="d-flex active-directory-tree flex-nowrap">
+<div class="d-flex active-directory-tree flex-nowrap h-100 m-h-0 overflow-hidden pb-3">
   <div [ngStyle]="{'width':treeWidth}"
        mwlResizable
        [enableGhostResize]="true"
@@ -37,7 +37,7 @@
           </ul>
         </div>
       </div>
-      <div *ngIf="object" class="p-0 h-100">
+      <div *ngIf="object" class="d-flex flex-column p-0 h-100">
         <app-active-directory-detail *ngIf="view==='detail'"
                                      [user]="object"
                                      [adInfo]="object">

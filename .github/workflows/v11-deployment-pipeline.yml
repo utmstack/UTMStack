@@ -1,0 +1,420 @@
+name: "v11 - Build & Deploy Pipeline"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: "Version to deploy.(e.g., v11.0.0-dev.1, v11.1.0)"
+        required: true
+      event_processor_tag:
+        description: "Event processor version to use for this deployment.(e.g., 1.0.0-beta)"
+        required: true
+        default: "1.0.0-beta"
+
+jobs:
+  validations:
+    name: Validate permissions
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check permissions
+        run: |
+          echo "Checking permissions..."
+
+          # Check if version is production format (v11.x.x) or dev format (v11.x.x-dev.x, etc.)
+          if [[ "${{ github.event.inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "🔍 Detected PRODUCTION version format: ${{ github.event.inputs.version_tag }}"
+
+            # For production versions, only administrators can deploy
+            echo "Validating user permissions against administrators team..."
+            RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
+            -H "Accept: application/vnd.github.json" \
+            "https://api.github.com/orgs/utmstack/teams/administrators/memberships/${{ github.actor }}")
+
+            if echo "$RESPONSE" | grep -q '"state": "active"'; then
+              echo "✅ User ${{ github.actor }} is a member of the administrators team."
+            else
+              echo "⛔ ERROR: User ${{ github.actor }} is not a member of the administrators team."
+              echo "Production deployments require administrator permissions."
+              echo $RESPONSE
+              exit 1
+            fi
+
+          elif [[ "${{ github.event.inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-dev\.[0-9]+$ ]]; then
+            echo "🔍 Detected DEV version format: ${{ github.event.inputs.version_tag }}"
+
+            if [[ "${{ github.ref }}" =~ ^refs/heads/(release/|feature/) ]]; then
+              echo "✅ Base branch ${{ github.ref }} is valid."
+            else
+              echo "⛔ ERROR: Base branch ${{ github.ref }} is not valid. It should be release/ or feature/."
+              exit 1
+            fi
+
+            # For dev versions, check administrators first, then integration-developers, then core-developers
+            echo "Validating user permissions..."
+            RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
+            -H "Accept: application/vnd.github.json" \
+            "https://api.github.com/orgs/utmstack/teams/administrators/memberships/${{ github.actor }}")
+
+            if echo "$RESPONSE" | grep -q '"state": "active"'; then
+              echo "✅ User ${{ github.actor }} is a member of the administrators team."
+            else
+              RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
+              -H "Accept: application/vnd.github.json" \
+              "https://api.github.com/orgs/utmstack/teams/integration-developers/memberships/${{ github.actor }}")
+
+              if echo "$RESPONSE" | grep -q '"state": "active"'; then
+                echo "✅ User ${{ github.actor }} is a member of the integration-developers team."
+              else
+                RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
+                -H "Accept: application/vnd.github.json" \
+                "https://api.github.com/orgs/utmstack/teams/core-developers/memberships/${{ github.actor }}")
+
+                if echo "$RESPONSE" | grep -q '"state": "active"'; then
+                  echo "✅ User ${{ github.actor }} is a member of the core-developers team."
+                else
+                  echo "⛔ ERROR: User ${{ github.actor }} is not a member of administrators, integration-developers, or core-developers teams."
+                  echo $RESPONSE
+                  exit 1
+                fi
+              fi
+            fi
+
+          else
+            echo "⛔ Version tag format is incorrect."
+            echo "Expected formats:"
+            echo "  - Production: vX.Y.Z (e.g., v11.0.0)"
+            echo "  - Development: vX.Y.Z-dev.N (e.g., v11.0.0-dev.1)"
+            exit 1
+          fi
+
+  build_agent:
+    name: Build and Sign Agent
+    needs: [validations]
+    runs-on: utmstack-signer
+    steps:
+      - name: Check out code into the right branch
+        uses: actions/checkout@v4
+
+      - name: Build Linux Agent
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          cd ${{ github.workspace }}/agent
+          go build -o utmstack_agent_service -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+
+      - name: Build Windows Agent (amd64)
+        env:
+          GOOS: windows
+          GOARCH: amd64
+        run: |
+          cd ${{ github.workspace }}/agent
+          go build -o utmstack_agent_service.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+
+      - name: Build Windows Agent (arm64)
+        env:
+          GOOS: windows
+          GOARCH: arm64
+        run: |
+          cd ${{ github.workspace }}/agent
+          go build -o utmstack_agent_service_arm64.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+
+      - name: Sign Windows Agents
+        run: |
+          cd ${{ github.workspace }}/agent
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service.exe"
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service_arm64.exe"
+
+      - name: Upload signed binaries as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-agents
+          path: |
+            ${{ github.workspace }}/agent/utmstack_agent_service
+            ${{ github.workspace }}/agent/utmstack_agent_service.exe
+            ${{ github.workspace }}/agent/utmstack_agent_service_arm64.exe
+          retention-days: 1
+  
+  build_utmstack_collector:
+    name: Build UTMStack Collector
+    needs: [validations]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out code into the right branch
+        uses: actions/checkout@v4
+
+      - name: Build UTMStack Collector
+        run: |
+          echo "Building UTMStack Collector..."
+          cd ${{ github.workspace }}/utmstack-collector
+
+          GOOS=linux GOARCH=amd64 go build -o utmstack_collector -v -ldflags "-X 'github.com/utmstack/UTMStack/utmstack-collector/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+
+      - name: Upload collector binary as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: utmstack-collector
+          path: ${{ github.workspace }}/utmstack-collector/utmstack_collector
+          retention-days: 1
+
+  build_agent_manager:
+    name: Build Agent Manager Microservice
+    needs: [validations, build_agent, build_utmstack_collector]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out code into the right branch
+        uses: actions/checkout@v4
+
+      - name: Download signed agents from artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: signed-agents
+          path: ${{ github.workspace }}/agent
+
+      - name: Download UTMStack Collector from artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: utmstack-collector
+          path: ${{ github.workspace }}/utmstack-collector
+      
+      - name: Prepare dependencies for Agent Manager Image
+        run: |
+          cd ${{ github.workspace }}/agent-manager
+          GOOS=linux GOARCH=amd64  go build -o agent-manager -v .
+
+          mkdir -p ./dependencies/collector
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/collector/linux-as400-collector.zip" -o ./dependencies/collector/linux-as400-collector.zip
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/collector/windows-as400-collector.zip" -o ./dependencies/collector/windows-as400-collector.zip
+
+          cp "${{ github.workspace }}/utmstack-collector/utmstack_collector" ./dependencies/collector/
+          cp "${{ github.workspace }}/utmstack-collector/version.json" ./dependencies/collector/
+
+          mkdir -p ./dependencies/agent/
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/agent/utmstack_agent_dependencies_linux.zip" -o ./dependencies/agent/utmstack_agent_dependencies_linux.zip
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/agent/utmstack_agent_dependencies_windows.zip" -o ./dependencies/agent/utmstack_agent_dependencies_windows.zip
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/agent/utmstack_agent_dependencies_windows_arm64.zip" -o ./dependencies/agent/utmstack_agent_dependencies_windows_arm64.zip
+
+          cp "${{ github.workspace }}/agent/utmstack_agent_service" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent/utmstack_agent_service.exe" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent/utmstack_agent_service_arm64.exe" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent/version.json" ./dependencies/agent/
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: utmstack
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push the Agent Manager Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./agent-manager
+          push: true
+          tags: ghcr.io/utmstack/utmstack/agent-manager:${{ inputs.version_tag }}-community
+  
+  build_event_processor:
+    name: Build Event Processor Microservice
+    needs: [validations]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out code into the right branch
+        uses: actions/checkout@v4
+
+      - name: Build Plugins
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          cd ${{ github.workspace }}/plugins/alerts; go build -o com.utmstack.alerts.plugin -v .
+          cd ${{ github.workspace }}/plugins/aws; go build -o com.utmstack.aws.plugin -v .
+          cd ${{ github.workspace }}/plugins/azure; go build -o com.utmstack.azure.plugin -v .
+          cd ${{ github.workspace }}/plugins/bitdefender; go build -o com.utmstack.bitdefender.plugin -v .
+          cd ${{ github.workspace }}/plugins/config; go build -o com.utmstack.config.plugin -v .
+          cd ${{ github.workspace }}/plugins/events; go build -o com.utmstack.events.plugin -v .
+          cd ${{ github.workspace }}/plugins/gcp; go build -o com.utmstack.gcp.plugin -v .
+          cd ${{ github.workspace }}/plugins/geolocation; go build -o com.utmstack.geolocation.plugin -v .
+          cd ${{ github.workspace }}/plugins/inputs; go build -o com.utmstack.inputs.plugin -v .
+          cd ${{ github.workspace }}/plugins/o365; go build -o com.utmstack.o365.plugin -v .
+          cd ${{ github.workspace }}/plugins/sophos; go build -o com.utmstack.sophos.plugin -v .
+          cd ${{ github.workspace }}/plugins/stats; go build -o com.utmstack.stats.plugin -v .
+          cd ${{ github.workspace }}/plugins/soc-ai; go build -o com.utmstack.soc-ai.plugin -v .
+          cd ${{ github.workspace }}/plugins/modules-config; go build -o com.utmstack.modules-config.plugin -v .
+
+      - name: Prepare Dependencies for Event Processor Image
+        run: |
+          mkdir -p ./geolocation
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/geolocation/asn-blocks-v4.csv" -o ./geolocation/asn-blocks-v4.csv
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/geolocation/asn-blocks-v6.csv" -o ./geolocation/asn-blocks-v6.csv
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/geolocation/blocks-v4.csv" -o ./geolocation/blocks-v4.csv
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/geolocation/blocks-v6.csv" -o ./geolocation/blocks-v6.csv
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/geolocation/locations-en.csv" -o ./geolocation/locations-en.csv
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: utmstack
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push the Event Processor Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./event_processor.Dockerfile
+          push: true
+          tags: ghcr.io/utmstack/utmstack/eventprocessor:${{ inputs.version_tag }}-community
+          build-args: |
+            BASE_IMAGE=ghcr.io/threatwinds/eventprocessor/base:${{ inputs.event_processor_tag }}
+
+  build_backend:
+    name: Build Backend Microservice
+    needs: [validations]
+    uses: ./.github/workflows/reusable-java.yml
+    with:
+      image_name: backend
+      tag: ${{ inputs.version_tag }}-community
+      java_version: '17'
+      use_tag_as_version: true
+      maven_profile: 'prod'
+      maven_goals: 'clean package'
+  
+  build_frontend:
+    name: Build Frontend Microservice
+    needs: [validations]
+    uses: ./.github/workflows/reusable-node.yml
+    with:
+      image_name: frontend
+      tag: ${{ inputs.version_tag }}-community
+  
+  build_user_auditor:
+    name: Build User-Auditor Microservice
+    needs: [validations]
+    uses: ./.github/workflows/reusable-java.yml
+    with:
+      image_name: user-auditor
+      tag: ${{ inputs.version_tag }}-community
+      java_version: '11'
+      use_version_file: false
+      maven_goals: 'clean install -U'
+  
+  build_web_pdf:
+    name: Build Web-PDF Microservice
+    needs: [validations]
+    uses: ./.github/workflows/reusable-java.yml
+    with:
+      image_name: web-pdf
+      tag: ${{ inputs.version_tag }}-community
+      java_version: '11'
+      use_version_file: false
+      maven_goals: 'clean install -U'
+
+  all_builds_complete:
+    name: All Builds Complete
+    needs: [
+      build_agent_manager,
+      build_event_processor,
+      build_backend,
+      build_frontend,
+      build_user_auditor,
+      build_web_pdf
+    ]
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo "✅ All builds completed successfully."
+  
+  publish_new_version:
+    name: Publish New Version to Customer Manager
+    needs: all_builds_complete
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Publish version
+        run: |
+          changelog=$(cat CHANGELOG.md)
+
+          # Determine environment and CM_AUTH based on version format
+          if [[ "${{ inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "🔍 Detected PRODUCTION version"
+            cmAuth=$(echo '${{ secrets.CM_AUTH }}' | jq -r '.')
+            cm_url="https://cm.utmstack.com/api/v1/versions/register"
+          elif [[ "${{ inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-dev\.[0-9]+$ ]]; then
+            echo "🔍 Detected DEV version"
+            cmAuth=$(echo '${{ secrets.CM_AUTH_DEV }}' | jq -r '.')
+            cm_url="https://cm.dev.utmstack.com/api/v1/versions/register"
+          else
+            echo "⛔ Version format not recognized"
+            exit 1
+          fi
+
+          id=$(echo "$cmAuth" | jq -r '.id')
+          key=$(echo "$cmAuth" | jq -r '.key')
+
+          body=$(jq -n \
+            --arg version "${{ inputs.version_tag }}" \
+            --arg changelog "$changelog" \
+            '{version: $version, changelog: $changelog}'
+          )
+
+          response=$(curl -s -X POST "$cm_url" \
+            -H "Content-Type: application/json" \
+            -H "id: $id" \
+            -H "key: $key" \
+            -d "$body")
+
+          echo "Response: $response"
+
+  schedule:
+    name: Schedule release to our instances
+    needs: publish_new_version
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Run publisher
+        run: |
+          # Determine environment, instance IDs, and auth token based on version format
+          if [[ "${{ inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "🔍 Detected PRODUCTION version"
+            environment="prod"
+            instance_ids="${{ vars.SCHEDULE_INSTANCES_PROD }}"
+            auth_token="${{ secrets.CM_SCHEDULE_TOKEN_PROD }}"
+          elif [[ "${{ inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-dev\.[0-9]+$ ]]; then
+            echo "🔍 Detected DEV version"
+            environment="dev"
+            instance_ids="${{ vars.SCHEDULE_INSTANCES_DEV }}"
+            auth_token="${{ secrets.CM_SCHEDULE_TOKEN_DEV }}"
+          else
+            echo "⛔ Version format not recognized"
+            exit 1
+          fi
+
+          # Download cm-version-publisher
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/cm-version-publisher" -o ./cm-version-publisher
+          chmod +x ./cm-version-publisher
+
+          # Parse IDs (handle single ID or comma-separated IDs)
+          IFS=',' read -ra ID_ARRAY <<< "$instance_ids"
+
+          # Iterate over each instance ID
+          for instance_id in "${ID_ARRAY[@]}"; do
+            # Trim whitespace
+            instance_id=$(echo "$instance_id" | xargs)
+
+            echo "📅 Scheduling release for instance: $instance_id"
+            ./cm-version-publisher \
+              --env "$environment" \
+              --instance-id "$instance_id" \
+              --version "${{ inputs.version_tag }}" \
+              --auth-token "$auth_token"
+
+            if [ $? -eq 0 ]; then
+              echo "✅ Successfully scheduled for instance: $instance_id"
+            else
+              echo "❌ Failed to schedule for instance: $instance_id"
+              exit 1
+            fi
+          done
+
+          echo "✅ Scheduled release for all instances with version ${{ inputs.version_tag }}"
+    

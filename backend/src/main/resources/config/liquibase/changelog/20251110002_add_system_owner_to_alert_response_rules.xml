@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20251110002" author="Manuel">
+        <addColumn tableName="utm_alert_response_rule">
+            <column name="system_owner" type="BOOLEAN" defaultValueBoolean="true"/>
+        </addColumn>
+        <update tableName="utm_alert_response_rule">
+            <column name="system_owner" valueBoolean="true"/>
+        </update>
+        <addNotNullConstraint tableName="utm_alert_response_rule" columnName="system_owner" columnDataType="BOOLEAN"/>
+        <rollback>
+            <dropColumn tableName="utm_alert_response_rule" columnName="system_owner"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

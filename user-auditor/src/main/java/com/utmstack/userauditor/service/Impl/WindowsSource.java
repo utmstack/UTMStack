@@ -3,8 +3,8 @@ package com.utmstack.userauditor.service.Impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.utmstack.userauditor.model.*;
-import com.utmstack.userauditor.model.winevent.EventLog;
-import com.utmstack.userauditor.model.winevent.UserEvent;
+import com.utmstack.userauditor.model.event.Event;
+import com.utmstack.userauditor.model.event.UserEvent;
 import com.utmstack.userauditor.repository.SourceScanRepository;
 import com.utmstack.userauditor.service.elasticsearch.ElasticsearchService;
 import com.utmstack.userauditor.service.elasticsearch.SearchUtil;
@@ -26,10 +26,8 @@ import java.io.IOException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -44,14 +42,14 @@ public class WindowsSource implements Source {
     @Value("${app.elasticsearch.searchIntervalMinutes}")
     private int searchIntervalMinutes;
 
-    Map<String, List<EventLog>> userEvents;
+    Map<String, List<Event>> userEvents;
     final ElasticsearchService elasticsearchService;
 
     final SourceScanRepository sourceScanRepository;
 
     private static final String TARGET_AGG_NAME = "TARGET_USER_NAME";
 
-    private static final String FIELD = "logx.wineventlog.event_data.TargetUserName.keyword";
+    private static final String FIELD = "target.user.keyword";
 
     private static final int ITEMS_PER_PAGE = 1000;
 
@@ -75,7 +73,7 @@ public class WindowsSource implements Source {
     }
 
     @Override
-    public Map<String, List<EventLog>> findUsers(UserSource userSource) throws Exception {
+    public Map<String, List<Event>> findUsers(UserSource userSource) throws Exception {
 
         this.userEvents = new HashMap<>();
 
@@ -159,23 +157,21 @@ public class WindowsSource implements Source {
         return srb;
     }
 
-    List<EventLog> getLastEvents(TopHitsAggregate topEvents) {
-        List<EventLog> eventLogs = new ArrayList<>();
+    List<Event> getLastEvents(TopHitsAggregate topEvents) {
         List<Hit<JsonData>> searchHits = topEvents.hits().hits();
-
-        searchHits.forEach(hit -> {
-            JsonData jsonData = hit.source();
-            try {
-                if (jsonData != null) {
-                    eventLogs.add(objectMapper.readValue(jsonData.toString(), EventLog.class));
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        return eventLogs;
+        return searchHits.stream()
+                .map(Hit::source)
+                .filter(Objects::nonNull)
+                .map(jsonData -> {
+                    try {
+                        return objectMapper.readValue(jsonData.toString(), Event.class);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
     }
+
 
     private LocalDateTime executionDate(LocalDateTime startDate) {
 

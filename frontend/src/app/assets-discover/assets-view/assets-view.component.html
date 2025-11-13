@@ -120,7 +120,7 @@
             </thead>
             <tbody *ngIf="assets$ | async as assets">
             <ng-container *ngFor="let asset of assets; trackBy: trackByFn">
-              <tr>
+              <tr class="cursor-pointer" (click)="viwAgentDetail($event, asset)">
                 <td class="text-center">
                   <div class="d-flex justify-content-between align-items-center h-100 w-100 small-md-icon">
                     <div class="list-icons span-small-icon">
@@ -149,7 +149,7 @@
                   <app-asset-status [asset]="asset"></app-asset-status>
                 </td>
                 <td>
-                  {{ getAssetSource(asset) }}
+                  {{ asset.displayName }}
                 </td>
                 <td>
                   <div class="d-flex justify-content-start align-items-start flex-wrap w-100 h-100"
@@ -192,7 +192,7 @@
 
                   </div>
                 </td>
-                <td (click)="viwAgentDetail($event, asset)">
+                <td>
                   {{ getLastInput(asset) }}
                 </td>
 

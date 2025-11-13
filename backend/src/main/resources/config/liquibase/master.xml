@@ -255,6 +255,20 @@
 
     <include file="/config/liquibase/changelog/20251017001_create_api_keys_table.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251106001_update_incident_menu_position.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20251107001_hide_compliance_menu_items.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20251107002_update_filters_fields_visualization.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20251110001_disable_correlation_rules_with_regex.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20251110002_add_system_owner_to_alert_response_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20251110003_add_alert-response_rule_data.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20251111001_set_alert-response_rule_seq.xml" relativeToChangelogFile="false"/>
+
     <include file="/config/liquibase/changelog/20251029001-add-identity-provider-config.xml" relativeToChangelogFile="false"/>
 
 

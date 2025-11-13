@@ -35,6 +35,7 @@ import {AssetFilterType} from '../shared/types/asset-filter.type';
 import {UtmDataInputStatus} from '../shared/types/data-source-input.type';
 import {NetScanType} from '../shared/types/net-scan.type';
 import {SourceDataTypeConfigComponent} from '../source-data-type-config/source-data-type-config.component';
+import {SortDirection} from "../../shared/directives/sortable/type/sort-direction.type";
 
 @Component({
   selector: 'app-assets-view',
@@ -126,13 +127,18 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
               asset.dataInputList = [];
             }
 
-            return asset;
+            const displayName = asset.assetName && asset.assetIp ? `${asset.assetName} (${asset.assetIp})`
+              : asset.assetName ? asset.assetName : asset.assetIp ? asset.assetIp : 'Unknown source';
+
+            const sortKey = (asset.assetName || '') + (asset.assetIp || '');
+
+            return { ...asset, displayName, sortKey };
           });
         })
       );
 
     this.utmNetScanService.notifyRefresh(true);
-    this.starInterval();
+    //this.starInterval();
   }
 
   setInitialWidth() {
@@ -145,14 +151,6 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
     this.page = page - 1;
     this.requestParam.page = this.page;
     this.utmNetScanService.notifyRefresh(true);
-  }
-
-  trackByFn(index: number, item: NetScanType) {
-    return item.id;
-  }
-
-  trackByDataInputFn(index: number, item: UtmDataInputStatus) {
-    return item.dataType;
   }
 
   onItemsPerPageChange($event: number) {
@@ -180,8 +178,42 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   }
 
   onSortBy($event: SortEvent) {
-    this.requestParam.sort = $event.column + ',' + $event.direction;
-    this.utmNetScanService.notifyRefresh(true);
+    if ($event.column === 'displayName') {
+      this.sortAssets($event.direction);
+    } else {
+      this.requestParam.sort = $event.column + ',' + $event.direction;
+      this.getAssets();
+    }
+  }
+
+  sortAssets(direction: SortDirection) {
+    this.assets.sort((a, b) => {
+
+      if (a.displayName === 'Unknown source') { return 1; }
+      if (b.displayName === 'Unknown source') { return -1; }
+
+      const aVal = a.sortKey;
+      const bVal = b.sortKey;
+
+      const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+      const aIsIP = ipRegex.test(aVal);
+      const bIsIP = ipRegex.test(bVal);
+
+      if (aIsIP && bIsIP) {
+        const aOctets = aVal.split('.').map(Number);
+        const bOctets = bVal.split('.').map(Number);
+        for (let i = 0; i < 4; i++) {
+          if (aOctets[i] !== bOctets[i]) { return direction === 'asc' ? aOctets[i] - bOctets[i] : bOctets[i] - aOctets[i]; }
+        }
+        return 0;
+      }
+
+      if (aIsIP) { return direction === 'asc' ? -1 : 1; }
+      if (bIsIP) { return direction === 'asc' ? 1 : -1; }
+
+      const cmp = aVal.localeCompare(bVal, undefined, { numeric: true, sensitivity: 'base' });
+      return direction === 'asc' ? cmp : -cmp;
+    });
   }
 
   toggleCheck() {
@@ -308,19 +340,6 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
     });
   }
 
-
-  getAssetSource(asset: NetScanType) {
-    if (asset.assetName && asset.assetIp) {
-      return asset.assetName + ' (' + asset.assetIp + ')';
-    } else if (asset.assetName) {
-      return asset.assetName;
-    } else if (asset.assetIp) {
-      return asset.assetIp;
-    } else {
-      return 'Unknown source';
-    }
-  }
-
   navigateToDataManagement(ip: string) {
     const queryParams = {alertType: 'ALERT'};
     queryParams[ALERT_SENSOR_FIELD] = ElasticOperatorsEnum.IS + ChartValueSeparator.BUCKET_SEPARATOR + ip;
@@ -403,12 +422,20 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
     if (!this.interval) {
       this.interval = setInterval(() => {
         this.utmNetScanService.notifyRefresh(true);
-      }, 30000);
+      }, 60000);
     }
   }
 
-  getAssets(){
+  getAssets() {
     this.utmNetScanService.notifyRefresh(true);
+  }
+
+  trackByFn(index: number, item: any) {
+    return item.id;
+  }
+
+  trackByDataInputFn(index: number, item: UtmDataInputStatus) {
+    return item.id;
   }
 
   ngOnDestroy(): void {

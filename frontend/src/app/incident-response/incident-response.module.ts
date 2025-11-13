@@ -20,7 +20,8 @@ import {IncidentResponseSharedModule} from './shared/incident-response-shared.mo
 @NgModule({
   declarations:
     [
-      IncidentResponseViewComponent, IncidentResponseCommandComponent,
+      IncidentResponseViewComponent,
+      IncidentResponseCommandComponent,
       IncidentResponseAutomationComponent,
       PlaybookBuilderComponent,
       PlaybooksComponent,
@@ -40,6 +41,7 @@ import {IncidentResponseSharedModule} from './shared/incident-response-shared.mo
       ReactiveFormsModule
     ],
   entryComponents: [],
+  providers: []
 })
 export class IncidentResponseModule {
 }

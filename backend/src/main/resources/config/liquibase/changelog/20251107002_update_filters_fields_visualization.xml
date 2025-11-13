@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20251107002" author="Manuel">
+        <!-- filters -->
+        <update tableName="utm_visualization">
+            <column name="filters" valueComputed="REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(filters::text, 'log.winlog.event_id', 'log.winlogEventId'), 'log.winlog.event_data.SubjectUserName', 'log.winlogEventDataSubjectUserName'), 'log.winlog.event_data.TargetUserName', 'log.winlogEventDataTargetUserName'), 'log.winlog.event_data.NewProcessName.keyword', 'winlogEventDataProcessName.keyword'), 'log.winlog.event.code.keyword', 'log.eventCode'), 'log.winlog.event_name.keyword', 'log.eventName'), 'log.winlog.event_data.SubjectUserSid.keyword', 'log.winlogEventDataSubjectUserSid'), 'log.winlog.beat.hostname.keyword', 'dataSource.keyword'), 'log.winlog.event_data.LogonType.keyword', 'log.winlogEventDataLogonType.keyword')::json"/>
+            <where>
+                filters::text LIKE '%log.winlog.event_id%' OR
+                filters::text LIKE '%log.winlog.event_data.SubjectUserName%' OR
+                filters::text LIKE '%log.winlog.event_data.TargetUserName%' OR
+                filters::text LIKE '%log.winlog.event_data.NewProcessName.keyword%' OR
+                filters::text LIKE '%log.winlog.event.code.keyword%' OR
+                filters::text LIKE '%log.winlog.event_name.keyword%' OR
+                filters::text LIKE '%log.winlog.event_data.SubjectUserSid.keyword%' OR
+                filters::text LIKE '%log.winlog.beat.hostname.keyword%' OR
+                filters::text LIKE '%log.winlog.event_data.LogonType.keyword%'
+            </where>
+        </update>
+
+        <!-- aggregation -->
+        <update tableName="utm_visualization">
+            <column name="aggregation" valueComputed="REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(aggregation::text, 'log.winlog.event_id', 'log.winlogEventId.keyword'), 'log.winlog.event_data.SubjectUserName', 'log.winlogEventDataSubjectUserName.keyword'), 'log.winlog.event_data.TargetUserName', 'log.winlogEventDataTargetUserName.keyword'), 'log.winlog.event_data.NewProcessName.keyword', 'winlogEventDataProcessName.keyword'), 'log.winlog.event.code.keyword', 'log.eventCode'), 'log.winlog.event_name.keyword', 'log.eventName.keyword'), 'log.winlog.event_data.SubjectUserSid.keyword', 'log.winlogEventDataSubjectUserSid.keyword'), 'log.winlog.beat.hostname.keyword', 'dataSource.keyword'), 'log.winlog.event_data.LogonType.keyword', 'log.winlogEventDataLogonType.keyword')::json"/>
+            <where>
+                aggregation::text LIKE '%log.winlog.event_id%' OR
+                aggregation::text LIKE '%log.winlog.event_data.SubjectUserName%' OR
+                aggregation::text LIKE '%log.winlog.event_data.TargetUserName%' OR
+                aggregation::text LIKE '%log.winlog.event_data.NewProcessName.keyword%' OR
+                aggregation::text LIKE '%log.winlog.event.code.keyword%' OR
+                aggregation::text LIKE '%log.winlog.event_name.keyword%' OR
+                aggregation::text LIKE '%log.winlog.event_data.SubjectUserSid.keyword%' OR
+                aggregation::text LIKE '%log.winlog.beat.hostname.keyword%' OR
+                aggregation::text LIKE '%log.winlog.event_data.LogonType.keyword%'
+            </where>
+        </update>
+
+        <rollback>
+            <!-- filters rollback -->
+            <update tableName="utm_visualization">
+                <column name="filters" valueComputed="REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(filters::text, 'log.winlogEventDataLogonType.keyword', 'log.winlog.event_data.LogonType.keyword'), 'dataSource.keyword', 'log.winlog.beat.hostname.keyword'), 'log.winlogEventDataSubjectUserSid', 'log.winlog.event_data.SubjectUserSid.keyword'), 'log.eventName', 'log.winlog.event_name.keyword'), 'log.eventCode', 'log.winlog.event.code.keyword'), 'winlogEventDataProcessName.keyword', 'log.winlog.event_data.NewProcessName.keyword'), 'log.winlogEventDataTargetUserName', 'log.winlog.event_data.TargetUserName'), 'log.winlogEventDataSubjectUserName', 'log.winlog.event_data.SubjectUserName'), 'log.winlogEventId', 'log.winlog.event_id')::json"/>
+                <where>
+                    filters::text LIKE '%log.winlogEventId%' OR
+                    filters::text LIKE '%log.winlogEventDataSubjectUserName%' OR
+                    filters::text LIKE '%log.winlogEventDataTargetUserName%' OR
+                    filters::text LIKE '%winlogEventDataProcessName.keyword%' OR
+                    filters::text LIKE '%log.eventCode%' OR
+                    filters::text LIKE '%log.eventName%' OR
+                    filters::text LIKE '%log.winlogEventDataSubjectUserSid%' OR
+                    filters::text LIKE '%dataSource.keyword%' OR
+                    filters::text LIKE '%log.winlogEventDataLogonType.keyword%'
+                </where>
+            </update>
+
+            <!-- aggregation rollback -->
+            <update tableName="utm_visualization">
+                <column name="aggregation" valueComputed="REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(aggregation::text, 'log.winlogEventDataLogonType.keyword', 'log.winlog.event_data.LogonType.keyword'), 'dataSource.keyword', 'log.winlog.beat.hostname.keyword'), 'log.winlogEventDataSubjectUserSid', 'log.winlog.event_data.SubjectUserSid.keyword'), 'log.eventName', 'log.winlog.event_name.keyword'), 'log.eventCode', 'log.winlog.event.code.keyword'), 'winlogEventDataProcessName.keyword', 'log.winlog.event_data.NewProcessName.keyword'), 'log.winlogEventDataTargetUserName', 'log.winlog.event_data.TargetUserName'), 'log.winlogEventDataSubjectUserName', 'log.winlog.event_data.SubjectUserName'), 'log.winlogEventId', 'log.winlog.event_id')::json"/>
+                <where>
+                    aggregation::text LIKE '%log.winlogEventId%' OR
+                    aggregation::text LIKE '%log.winlogEventDataSubjectUserName%' OR
+                    aggregation::text LIKE '%log.winlogEventDataTargetUserName%' OR
+                    aggregation::text LIKE '%winlogEventDataProcessName.keyword%' OR
+                    aggregation::text LIKE '%log.eventCode%' OR
+                    aggregation::text LIKE '%log.eventName%' OR
+                    aggregation::text LIKE '%log.winlogEventDataSubjectUserSid%' OR
+                    aggregation::text LIKE '%dataSource.keyword%' OR
+                    aggregation::text LIKE '%log.winlogEventDataLogonType.keyword%'
+                </where>
+            </update>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

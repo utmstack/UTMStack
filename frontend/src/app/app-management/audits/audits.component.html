@@ -48,7 +48,7 @@
           </td>
         </tr>
         </tbody>
-        <tbody *ngIf="(audits.length===0 && !loading)">
+        <tbody *ngIf="(audits?.length===0 && !loading)">
         <tr>
           <td colspan="5">
             <app-no-data-found></app-no-data-found>

@@ -4,7 +4,7 @@
      autoClose="outside"
      [ngClass]="background"
      class="d-flex justify-content-start align-items-center cursor-pointer border-1 border-radius-1 flex-grow-1"
-     placement="bottom-right"
+     [placement]="['bottom-right', 'top-right', 'bottom-left', 'top-left']"
      popoverClass="utm-alert-action-select" style="white-space: nowrap">
 
   <div class="d-flex justify-content-between align-items-center span-small-icon">

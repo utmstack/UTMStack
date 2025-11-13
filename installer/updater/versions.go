@@ -127,7 +127,8 @@ func ParseVersion(versionStr string) Version {
 	versionStr = strings.TrimPrefix(versionStr, "V")
 
 	// Parse version with regex: X.Y.Z or X.Y.Z-type.num
-	re := regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)(?:-(alpha|beta|rc)\.(\d+))?$`)
+	// Supports: dev, alpha, beta, rc
+	re := regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)(?:-(dev|alpha|beta|rc)\.(\d+))?$`)
 	matches := re.FindStringSubmatch(versionStr)
 
 	if len(matches) > 1 {
@@ -161,11 +162,30 @@ func CompareVersions(v1, v2 Version) int {
 		return v1.Patch - v2.Patch
 	}
 
-	if v1.PrereleaseNum != v2.PrereleaseNum {
-		return v1.PrereleaseNum - v2.PrereleaseNum
+	// Handle stable vs prerelease versions
+	// According to semver: stable version (no prerelease) is GREATER than any prerelease
+	// Example: v11.0.0 > v11.0.0-rc.1 > v11.0.0-beta.1 > v11.0.0-alpha.1 > v11.0.0-dev.1
+	if v1.PrereleaseName == "" && v2.PrereleaseName != "" {
+		return 1 // v1 is stable, v2 is prerelease → v1 > v2
+	}
+	if v1.PrereleaseName != "" && v2.PrereleaseName == "" {
+		return -1 // v1 is prerelease, v2 is stable → v1 < v2
 	}
 
-	return 0
+	// Both are prereleases or both are stable
+	if v1.PrereleaseName != v2.PrereleaseName {
+		// Compare prerelease type names: dev < alpha < beta < rc
+		order := map[string]int{
+			"dev":   1,
+			"alpha": 2,
+			"beta":  3,
+			"rc":    4,
+		}
+		return order[v1.PrereleaseName] - order[v2.PrereleaseName]
+	}
+
+	// Same prerelease type, compare numbers
+	return v1.PrereleaseNum - v2.PrereleaseNum
 }
 
 func SortVersions(versions []map[string]string) []map[string]string {

@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.park.utmstack.service.dto.UtmAlertResponseRuleDTO;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -30,7 +31,8 @@ public class UtmAlertResponseRule implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GenericGenerator(name = "CustomIdentityGenerator", strategy = "com.park.utmstack.util.CustomIdentityGenerator")
+    @GeneratedValue(generator = "CustomIdentityGenerator")
     private Long id;
     @Column(name = "rule_name", length = 150, nullable = false)
     private String ruleName;
@@ -62,6 +64,9 @@ public class UtmAlertResponseRule implements Serializable {
     @Column(name = "last_modified_date")
     private Instant lastModifiedDate;
 
+    @Column(name = "system_owner", nullable = false)
+    private Boolean systemOwner;
+
     @OneToMany(mappedBy = "rule", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<UtmAlertResponseRuleExecution> utmAlertResponseRuleExecutions;
 
@@ -87,6 +92,7 @@ public class UtmAlertResponseRule implements Serializable {
         this.ruleActive = dto.getActive();
         this.agentPlatform = dto.getAgentPlatform();
         this.defaultAgent = dto.getDefaultAgent();
+        this.systemOwner = dto.getSystemOwner();
         if (!CollectionUtils.isEmpty(dto.getExcludedAgents()))
             this.excludedAgents = String.join(",", dto.getExcludedAgents());
         else
@@ -102,6 +108,7 @@ public class UtmAlertResponseRule implements Serializable {
                         template.setTitle(templateDto.getTitle());
                         template.setDescription(templateDto.getDescription());
                         template.setCommand(templateDto.getCommand());
+                        template.setSystemOwner(false);
                         return template;
                     })
                     .collect(Collectors.toList());
