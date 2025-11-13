@@ -15,7 +15,7 @@ import com.park.utmstack.domain.alert_response_rule.enums.RuleNonExecutionCause;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
-import com.park.utmstack.domain.shared_types.alert.AlertType;
+import com.park.utmstack.domain.shared_types.alert.UtmAlert;
 import com.park.utmstack.repository.alert_response_rule.UtmAlertResponseActionTemplateRepository;
 import com.park.utmstack.repository.alert_response_rule.UtmAlertResponseRuleExecutionRepository;
 import com.park.utmstack.repository.alert_response_rule.UtmAlertResponseRuleHistoryRepository;
@@ -120,7 +120,7 @@ public class UtmAlertResponseRuleService {
     }
 
     @Async
-    public void evaluateRules(List<AlertType> alerts) {
+    public void evaluateRules(List<UtmAlert> alerts) {
         final String ctx = CLASSNAME + ".evaluateRules";
         try {
             if (CollectionUtils.isEmpty(alerts))

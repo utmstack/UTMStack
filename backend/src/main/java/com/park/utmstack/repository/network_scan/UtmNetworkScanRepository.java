@@ -123,4 +123,10 @@ public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, 
 
     @Query(nativeQuery = true, value = "select n.asset_name from utm_network_scan n where n.asset_name is not null and n.is_agent is true and n.asset_alive is true and n.asset_status <> 'MISSING' and n.asset_os_platform = :platform")
     List<String> findAgentNamesByPlatform(@Param("platform") String platform);
+
+    @Query("SELECT ns.assetName, ns.groupId, ag.groupName " +
+            "FROM UtmNetworkScan ns " +
+            "JOIN UtmAssetGroup ag ON ns.groupId = ag.id " +
+            "WHERE ns.groupId IS NOT NULL")
+    List<Object[]> findAllAssetGroupMappings();
 }
