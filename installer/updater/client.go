@@ -115,24 +115,20 @@ func (c *UpdaterClient) CheckUpdate() error {
 		updates = append(updates, newUpdate)
 	}
 
-	currentVersion, err := GetVersion()
-	if err != nil {
-		return fmt.Errorf("error getting current version: %v", err)
-	}
-
 	sortedUpdates := SortVersions(updates)
 
 	for _, update := range sortedUpdates {
-		if update["version"] != currentVersion.Version {
-			err := c.UpdateToNewVersion(update["version"], update["edition"], update["changelog"])
+		// Apply all updates from the server regardless of current version
+		// This allows for rollbacks, pre-release type changes (alpha→dev), and ensures all updates are applied in order
+		// The server is responsible for only sending pending updates (marked as sent after application)
+		err := c.UpdateToNewVersion(update["version"], update["edition"], update["changelog"])
+		if err != nil {
+			return fmt.Errorf("error updating to new version: %v", err)
+		}
+		if update["id"] != "offline" {
+			err = c.MarkUpdateSent(update["id"])
 			if err != nil {
-				return fmt.Errorf("error updating to new version: %v", err)
-			}
-			if update["id"] != "offline" {
-				err = c.MarkUpdateSent(update["id"])
-				if err != nil {
-					return fmt.Errorf("error marking update as sent: %v", err)
-				}
+				return fmt.Errorf("error marking update as sent: %v", err)
 			}
 		}
 	}
