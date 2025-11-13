@@ -2,15 +2,36 @@
 @import "../../../../../../assets/styles/var";
 @import "../../../../../../assets/styles/custom-elements";
 
-.utm-modal-header {
-  h6 {
-    font-size: 18px;
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e9ecef;
+
+  h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #333;
   }
 
-  border-radius: 0;
-  background-color: $utm-header-color;
-}
+  .btn-close {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.25rem;
+    border: none;
+    background: transparent;
+    color: #999;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-.utm-modal-delete {
-  background-color: $danger-color;
+    &:hover {
+      background: #f8f9fa;
+      color: #333;
+    }
+  }
 }

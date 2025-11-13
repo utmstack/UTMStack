@@ -11,6 +11,8 @@ import {ComplianceManagementModule} from '../compliance/compliance-management/co
 import {NavBehavior} from '../shared/behaviors/nav.behavior';
 import {VersionUpdateBehavior} from '../shared/behaviors/version-update.behavior';
 import {UtmSharedModule} from '../shared/utm-shared.module';
+import { ApiKeysComponent } from './api-keys/api-keys.component';
+import { ApiKeyModalComponent } from './api-keys/shared/components/api-key-modal/api-key-modal.component';
 import {AppConfigComponent} from './app-config/app-config.component';
 import {AppLogsComponent} from './app-logs/app-logs.component';
 import {AppManagementRoutingModule} from './app-management-routing.module';
@@ -30,6 +32,9 @@ import {TokenActivateComponent} from './connection-key/token-activate/token-acti
 import {HealthChecksComponent} from './health-checks/health-checks.component';
 import {HealthClusterComponent} from './health-checks/health-cluster/health-cluster.component';
 import {HealthDetailComponent} from './health-checks/health-detail/health-detail.component';
+import { IdentityProviderComponent } from './identity-provider/identity-provider.component';
+import { ProviderFormComponent } from './identity-provider/shared/components/provider-form/provider-form.component';
+import { ProviderComponent } from './identity-provider/shared/components/provider/provider.component';
 import {IndexDeleteComponent} from './index-management/index-delete/index-delete.component';
 import {IndexManagementComponent} from './index-management/index-management.component';
 import {IndexPatternDeleteComponent} from './index-pattern/index-pattern-delete/index-pattern-delete.component';
@@ -44,11 +49,8 @@ import {AppManagementSharedModule} from './shared/app-management-shared.module';
 import {UtmApiDocComponent} from './utm-api-doc/utm-api-doc.component';
 import {
   UtmNotificationViewComponent
-} from "./utm-notification/components/notifications-view/utm-notification-view.component";
-import { ApiKeysComponent } from './api-keys/api-keys.component';
-import { ApiKeyModalComponent } from './api-keys/shared/components/api-key-modal/api-key-modal.component';
-import { IdentityProviderComponent } from './identity-provider/identity-provider.component';
-import { ProviderComponent } from './identity-provider/shared/components/provider/provider.component';
+} from './utm-notification/components/notifications-view/utm-notification-view.component';
+import { IdentityProviderModalComponent } from './identity-provider/shared/components/identity-provider-modal/identity-provider-modal.component';
 
 @NgModule({
   declarations: [
@@ -85,7 +87,9 @@ import { ProviderComponent } from './identity-provider/shared/components/provide
     UtmServicesOverviewComponent,
     UtmNotificationViewComponent,
     IdentityProviderComponent,
-    ProviderComponent
+    ProviderComponent,
+    ProviderFormComponent,
+    IdentityProviderModalComponent
   ],
   entryComponents: [
     IndexPatternHelpComponent,
@@ -94,7 +98,8 @@ import { ProviderComponent } from './identity-provider/shared/components/provide
     MenuDeleteDialogComponent,
     TokenActivateComponent,
     ApiKeyModalComponent,
-    IndexDeleteComponent
+    IndexDeleteComponent,
+    IdentityProviderModalComponent
   ],
   imports: [
     CommonModule,

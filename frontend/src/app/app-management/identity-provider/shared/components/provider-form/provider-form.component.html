@@ -1,0 +1,278 @@
+<form [formGroup]="providerForm" class="provider-form">
+  <!-- Basic Info -->
+  <div class="form-section">
+    <h5 class="section-title">
+      <i class="icon-info22"></i>
+      Basic Information
+    </h5>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label class="form-label required">Provider Name</label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="name"
+            placeholder="Enter provider name"
+            [class.is-invalid]="providerForm.get('name')?.touched && providerForm.get('name')?.invalid">
+          <div class="invalid-feedback" *ngIf="providerForm.get('name')?.touched && providerForm.get('name')?.invalid">
+            Provider name is required
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="form-group">
+          <label class="form-label required">Provider Type</label>
+          <ng-select
+            formControlName="providerType"
+            [items]="providerTypes"
+            placeholder="Select provider type"
+            (change)="onProviderTypeChange()"
+            [clearable]="false"
+            [searchable]="false">
+            <ng-template ng-option-tmp let-item="item">
+              <div class="d-flex align-items-center">
+                <i [class]="getProviderIcon(item)" class="mr-2"></i>
+                <span>{{item}}</span>
+              </div>
+            </ng-template>
+          </ng-select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OAuth Configuration -->
+  <div class="form-section">
+    <h5 class="section-title">
+      <i class="icon-key"></i>
+      OAuth 2.0 Configuration
+    </h5>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label class="form-label required">Client ID</label>
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control"
+              formControlName="clientId"
+              placeholder="your-client-id.apps.googleusercontent.com"
+              [class.is-invalid]="providerForm.get('clientId')?.touched && providerForm.get('clientId')?.invalid">
+            <div class="input-group-append">
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                title="Copy Client ID"
+                (click)="copyToClipboard(providerForm.get('clientId')?.value)">
+                <i class="icon-copy"></i>
+              </button>
+            </div>
+          </div>
+          <div class="invalid-feedback d-block" *ngIf="providerForm.get('clientId')?.touched && providerForm.get('clientId')?.invalid">
+            Client ID is required
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="form-group">
+          <label class="form-label required">Client Secret</label>
+          <div class="input-group">
+            <input
+              [type]="showClientSecret ? 'text' : 'password'"
+              class="form-control"
+              formControlName="clientSecret"
+              placeholder="••••••••••••••••"
+              [class.is-invalid]="providerForm.get('clientSecret')?.touched && providerForm.get('clientSecret')?.invalid">
+            <div class="input-group-append">
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                (click)="showClientSecret = !showClientSecret">
+                <i [class]="showClientSecret ? 'icon-eye-blocked' : 'icon-eye'"></i>
+              </button>
+            </div>
+          </div>
+          <div class="invalid-feedback d-block" *ngIf="providerForm.get('clientSecret')?.touched && providerForm.get('clientSecret')?.invalid">
+            Client Secret is required
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="form-group">
+          <label class="form-label required">Redirect URI</label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="redirectUri"
+            placeholder="http://localhost:8080/login/oauth2/code/google"
+            [class.is-invalid]="providerForm.get('redirectUri')?.touched && providerForm.get('redirectUri')?.invalid">
+          <small class="form-text text-muted">
+            This URI must match exactly with the one configured in your OAuth provider
+          </small>
+          <div class="invalid-feedback" *ngIf="providerForm.get('redirectUri')?.touched && providerForm.get('redirectUri')?.invalid">
+            Redirect URI is required
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="form-group">
+          <label class="form-label">Client Authentication Method</label>
+          <ng-select
+            formControlName="clientAuthMethod"
+            [items]="authMethods"
+            placeholder="Select authentication method"
+            [clearable]="false">
+          </ng-select>
+          <small class="form-text text-muted">
+            Method used to authenticate the client with the provider
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Endpoints -->
+  <div class="form-section">
+    <h5 class="section-title">
+      <i class="icon-link"></i>
+      OAuth Endpoints
+    </h5>
+
+    <div class="alert alert-info alert-styled-left">
+      <span class="font-weight-semibold">Auto-configuration:</span>
+      Select a provider type to automatically fill these endpoints
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label class="form-label required">Authorization URI</label>
+          <input
+            type="url"
+            class="form-control"
+            formControlName="authUri"
+            placeholder="https://accounts.google.com/o/oauth2/auth"
+            [class.is-invalid]="providerForm.get('authUri')?.touched && providerForm.get('authUri')?.invalid">
+          <div class="invalid-feedback" *ngIf="providerForm.get('authUri')?.touched && providerForm.get('authUri')?.invalid">
+            Authorization URI is required
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="form-group">
+          <label class="form-label required">Token URI</label>
+          <input
+            type="url"
+            class="form-control"
+            formControlName="tokenUri"
+            placeholder="https://oauth2.googleapis.com/token"
+            [class.is-invalid]="providerForm.get('tokenUri')?.touched && providerForm.get('tokenUri')?.invalid">
+          <div class="invalid-feedback" *ngIf="providerForm.get('tokenUri')?.touched && providerForm.get('tokenUri')?.invalid">
+            Token URI is required
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="form-group">
+          <label class="form-label required">User Info URI</label>
+          <input
+            type="url"
+            class="form-control"
+            formControlName="userInfoUri"
+            placeholder="https://www.googleapis.com/oauth2/v2/userinfo"
+            [class.is-invalid]="providerForm.get('userInfoUri')?.touched && providerForm.get('userInfoUri')?.invalid">
+          <div class="invalid-feedback" *ngIf="providerForm.get('userInfoUri')?.touched && providerForm.get('userInfoUri')?.invalid">
+            User Info URI is required
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="form-group">
+          <label class="form-label">JWKS URI</label>
+          <input
+            type="url"
+            class="form-control"
+            formControlName="jwksUri"
+            placeholder="https://www.googleapis.com/oauth2/v3/certs">
+          <small class="form-text text-muted">Optional: For token validation</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Advanced Settings -->
+  <div class="form-section">
+    <h5 class="section-title">
+      <i class="icon-cog"></i>
+      Advanced Settings
+    </h5>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label class="form-label required">Scopes</label>
+          <ng-select
+            formControlName="scopes"
+            [items]="availableScopes"
+            [multiple]="true"
+            [addTag]="true"
+            placeholder="Select or type custom scopes"
+            bindLabel="label"
+            bindValue="value">
+          </ng-select>
+          <small class="form-text text-muted">
+            OAuth scopes to request. You can add custom scopes by typing and pressing Enter
+          </small>
+          <div class="invalid-feedback d-block" *ngIf="providerForm.get('scopes')?.touched && providerForm.get('scopes')?.invalid">
+            At least one scope is required
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="form-group">
+          <label class="form-label">Allowed Domains</label>
+          <ng-select
+            formControlName="allowedDomains"
+            [items]="[]"
+            [multiple]="true"
+            [addTag]="true"
+            placeholder="example.com, company.com">
+          </ng-select>
+          <small class="form-text text-muted">
+            Restrict authentication to specific email domains. Leave empty to allow all domains
+          </small>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="form-group">
+          <div class="custom-control custom-switch custom-control-inline">
+            <input
+              type="checkbox"
+              class="custom-control-input"
+              id="providerActive"
+              formControlName="active">
+            <label class="custom-control-label" for="providerActive">
+              Enable this provider
+            </label>
+          </div>
+          <small class="form-text text-muted">
+            Users will only be able to authenticate with this provider if it's enabled
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</form>

@@ -1,0 +1,47 @@
+
+<app-utm-modal-header
+  [name]="(editMode ? 'Edit' : 'Add') + ' Identity Provider'">
+</app-utm-modal-header>
+
+
+<div class="modal-body">
+  <app-provider-form
+    #providerForm
+    [provider]="selectedProvider"
+    [loading]="loading"
+    [testingConnection]="testingConnection"
+    (save)="saveProvider($event)"
+    (test)="testConnection()"
+    (cancel)="closeModal()">
+  </app-provider-form>
+</div>
+
+
+<div class="modal-footer">
+  <button
+    type="button"
+    class="btn btn-light mr-2"
+    (click)="closeModal()"
+    [disabled]="loading">
+    <i class="icon-cross2 mr-2"></i>
+    Cancel
+  </button>
+
+  <button
+    type="button"
+    class="btn btn-info mr-2"
+    (click)="testConnection()"
+    [disabled]="loading || testingConnection || !providerForm.providerForm?.valid">
+    <i [class]="testingConnection ? 'icon-spinner2 spinner mr-2' : 'icon-pulse2 mr-2'"></i>
+    {{testingConnection ? 'Testing...' : 'Test Connection'}}
+  </button>
+
+  <button
+    type="button"
+    class="btn btn-primary"
+    (click)="providerForm.onSave()"
+    [disabled]="loading || !providerForm.providerForm?.valid">
+    <i [class]="loading ? 'icon-spinner2 spinner mr-2' : 'icon-checkmark3 mr-2'"></i>
+    {{loading ? 'Saving...' : 'Save Provider'}}
+  </button>
+</div>
