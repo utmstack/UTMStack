@@ -20,7 +20,7 @@ export class PlaybookService {
   playbooks$ = this.request$.pipe(
     filter(request =>  !!request),
     switchMap(request => {
-      this.loading.next(true);
+      setTimeout(() => this.loading.next(true), 300);
       return this.incidentResponseRuleService.query(request).pipe(
         map(response => {
           this.totalItems.next(Number(response.headers.get('X-Total-Count')));
@@ -30,7 +30,7 @@ export class PlaybookService {
           this.utmToastService.showError('Error', 'An error occurred while fetching playbooks.');
           return of([]);
         }),
-        finalize(() => this.loading.next(false))
+        finalize(() =>  setTimeout(() => this.loading.next(false), 200))
       );
     })
   );

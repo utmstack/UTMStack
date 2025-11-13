@@ -481,6 +481,36 @@ export const ALERT_FILTERS_FIELDS: UtmFieldType[] = [
     visible: false,
   },
   {
+    label: 'Category',
+    field: ALERT_CATEGORY_FIELD,
+    type: ElasticDataTypesEnum.STRING,
+    visible: true,
+  },
+  {
+    label: 'Sensor',
+    field: ALERT_SENSOR_FIELD,
+    type: ElasticDataTypesEnum.STRING,
+    visible: true,
+  },
+  {
+    label: 'Time',
+    field: ALERT_TIMESTAMP_FIELD,
+    type: ElasticDataTypesEnum.DATE,
+    visible: false,
+  },
+  {
+    label: 'Incident Name',
+    field: ALERT_INCIDENT_NAME_FIELD,
+    type: ElasticDataTypesEnum.STRING,
+    visible: true,
+  },
+  {
+    label: 'Tags',
+    field: ALERT_TAGS_FIELD,
+    type: ElasticDataTypesEnum.STRING,
+    visible: true,
+  },
+  {
     label: 'Adversary IP',
     field: ALERT_ADVERSARY_IP_FIELD,
     type: ElasticDataTypesEnum.STRING,
@@ -575,37 +605,7 @@ export const ALERT_FILTERS_FIELDS: UtmFieldType[] = [
     field: ALERT_TARGET_GEOLOCATION_LONGITUDE_FIELD,
     type: ElasticDataTypesEnum.STRING,
     visible: false,
-  },
-  {
-    label: 'Category',
-    field: ALERT_CATEGORY_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: true,
-  },
-  {
-    label: 'Sensor',
-    field: ALERT_SENSOR_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: true,
-  },
-  {
-    label: 'Time',
-    field: ALERT_TIMESTAMP_FIELD,
-    type: ElasticDataTypesEnum.DATE,
-    visible: false,
-  },
-  {
-    label: 'Incident Name',
-    field: ALERT_INCIDENT_NAME_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: true,
-  },
-  {
-    label: 'Tags',
-    field: ALERT_TAGS_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: true,
-  },
+  }
 ];
 
 export const EVENT_FIELDS: UtmFieldType[] = [

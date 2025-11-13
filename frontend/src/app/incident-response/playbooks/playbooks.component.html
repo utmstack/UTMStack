@@ -102,20 +102,20 @@
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="col-12 text-center py-5">
       <ng-container *ngIf="{ loading: playbookService.loading$ | async,
                               totalItems: playbookService.totalItems$ | async
                            } as data">
         <ng-container *ngIf="!data.loading && data.totalItems === 0">
-          <i class="icon-play text-muted mb-3" style="font-size: 48px;"></i>
-          <h4 class="mb-1 font-weight-semibold text-muted">Start building</h4>
-          <p class="text-muted mb-4">Begin with a template, or start from scratch.</p>
-          <a (click)="newPlaybook()" class="btn utm-button utm-button-primary">
-            <i class="icon-plus2 mr-1"></i>
-            New Flow
-          </a>
+          <div class="d-flex flex-column align-items-center justify-content-center">
+            <i class="icon-play text-muted mb-3" style="font-size: 48px;"></i>
+            <h4 class="mb-1 font-weight-semibold text-muted">Start building</h4>
+            <p class="text-muted mb-4">Begin with a template, or start from scratch.</p>
+            <a (click)="newPlaybook()" class="btn utm-button utm-button-primary">
+              <i class="icon-plus2 mr-1"></i>
+              New Flow
+            </a>
+          </div>
         </ng-container>
         <app-utm-spinner
           class="position-absolute right-50"
@@ -126,6 +126,8 @@
         </app-utm-spinner>
       </ng-container>
     </div>
+
+
 
 
 
