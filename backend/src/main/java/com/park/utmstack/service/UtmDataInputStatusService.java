@@ -10,7 +10,7 @@ import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import com.park.utmstack.domain.network_scan.UtmNetworkScan;
 import com.park.utmstack.domain.network_scan.enums.AssetStatus;
 import com.park.utmstack.domain.network_scan.enums.UpdateLevel;
-import com.park.utmstack.domain.shared_types.alert.AlertType;
+import com.park.utmstack.domain.shared_types.alert.UtmAlert;
 import com.park.utmstack.repository.UtmDataInputStatusRepository;
 import com.park.utmstack.repository.correlation.config.UtmDataTypesRepository;
 import com.park.utmstack.repository.network_scan.UtmNetworkScanRepository;
@@ -326,7 +326,7 @@ public class UtmDataInputStatusService {
      * Create the alert object for datasource down
      *
      * @param input: Datasource information
-     * @return A ${@link AlertType} to index
+     * @return A ${@link UtmAlert} to index
      */
     private Map<String, Object> createAlertForDatasourceDown(UtmDataInputStatus input) {
         List<String> cloudTypes = Arrays.asList("aws", "o365", "office365", "azure", "gcp", "google", "nids", "netflow");

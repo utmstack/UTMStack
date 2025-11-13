@@ -9,7 +9,7 @@ import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.domain.index_pattern.enums.SystemIndexPattern;
 import com.park.utmstack.domain.shared_types.ApplicationLayer;
-import com.park.utmstack.domain.shared_types.alert.AlertType;
+import com.park.utmstack.domain.shared_types.alert.UtmAlert;
 import com.park.utmstack.domain.shared_types.LogType;
 import com.park.utmstack.domain.shared_types.static_dashboard.CardType;
 import com.park.utmstack.repository.UtmAlertLastRepository;
@@ -91,12 +91,12 @@ public class UtmAlertServiceImpl implements UtmAlertService {
 
             SearchRequest build = srb.build();
 
-            HitsMetadata<AlertType> hitsMetadata = elasticsearchService.search(build, AlertType.class).hits();
+            HitsMetadata<UtmAlert> hitsMetadata = elasticsearchService.search(build, UtmAlert.class).hits();
 
-            if (hitsMetadata.total().value() <= 0)
+            if (hitsMetadata.total() != null && hitsMetadata.total().value() <= 0)
                 return;
 
-            List<AlertType> alerts = hitsMetadata.hits().stream().map(Hit::source).collect(Collectors.toList());
+            List<UtmAlert> alerts = hitsMetadata.hits().stream().map(Hit::source).collect(Collectors.toList());
 
             if (CollectionUtils.isEmpty(alerts))
                 return;
@@ -104,7 +104,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
             initialDate.setLastAlertTimestamp(alerts.get(alerts.size() - 1).getTimestampAsInstant());
             lastAlertRepository.save(initialDate);
 
-            for (AlertType alert : alerts) {
+            for (UtmAlert alert : alerts) {
                 List<LogType> relatedLogs;
                 try {
                     relatedLogs = getRelatedAlerts(alert.getLogs());
@@ -129,7 +129,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
             alertResponseRuleService.evaluateRules(alerts);
 
             if (moduleService.isModuleActive(ModuleName.SOC_AI))
-                socAIService.requestSocAiProcess(alerts.stream().map(AlertType::getId).collect(Collectors.toList()));
+                socAIService.requestSocAiProcess(alerts.stream().map(UtmAlert::getId).collect(Collectors.toList()));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
@@ -362,7 +362,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
         }
     }
 
-    public List<AlertType> getAlertsByIds(List<String> alertIds) throws UtmElasticsearchException {
+    public List<UtmAlert> getAlertsByIds(List<String> alertIds) throws UtmElasticsearchException {
         final String ctx = CLASS_NAME + ".getAlertsByIds";
         try {
             if (CollectionUtils.isEmpty(alertIds))
@@ -376,12 +376,12 @@ public class UtmAlertServiceImpl implements UtmAlertService {
                     .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS))
                     .size(Constants.LOG_ANALYZER_TOTAL_RESULTS));
 
-            HitsMetadata<AlertType> hits = elasticsearchService.search(request, AlertType.class).hits();
+            HitsMetadata<UtmAlert> hits = elasticsearchService.search(request, UtmAlert.class).hits();
 
             if (hits.total().value() <= 0)
                 return new ArrayList<>();
 
-            List<AlertType> alerts = hits.hits().stream().map(Hit::source).collect(Collectors.toList());
+            List<UtmAlert> alerts = hits.hits().stream().map(Hit::source).collect(Collectors.toList());
 
             if (CollectionUtils.isEmpty(alerts))
                 return new ArrayList<>();

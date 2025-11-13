@@ -14,6 +14,8 @@ export const ALERT_SEVERITY_FIELD = 'severity';
 export const ALERT_IMPACT_FIELD = 'impact';
 export const ALERT_SEVERITY_FIELD_LABEL = 'severityLabel';
 export const ALERT_TAGS_FIELD = 'tags';
+export const ALERT_ASSETS_GROUP_NAME_FIELD = 'assetGroupName';
+export const ALERT_ASSETS_GROUP_ID_FIELD = 'assetGroupId';
 export const ALERT_NOTE_FIELD = 'notes';
 export const ALERT_OBSERVATION_FIELD = 'statusObservation';
 export const ALERT_TIMESTAMP_FIELD = '@timestamp';
@@ -436,6 +438,12 @@ export const ALERT_FILTERS_FIELDS: UtmFieldType[] = [
     field: ALERT_NAME_FIELD,
     type: ElasticDataTypesEnum.STRING,
     customStyle: 'text-blue-800',
+    visible: true,
+  },
+  {
+    label: 'Datasource Group',
+    field: ALERT_ASSETS_GROUP_NAME_FIELD,
+    type: ElasticDataTypesEnum.STRING,
     visible: true,
   },
   {

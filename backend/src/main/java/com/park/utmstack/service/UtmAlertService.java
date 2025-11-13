@@ -1,7 +1,7 @@
 package com.park.utmstack.service;
 
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
-import com.park.utmstack.domain.shared_types.alert.AlertType;
+import com.park.utmstack.domain.shared_types.alert.UtmAlert;
 import com.park.utmstack.domain.shared_types.static_dashboard.CardType;
 import com.park.utmstack.util.exceptions.DashboardOverviewException;
 import com.park.utmstack.util.exceptions.ElasticsearchIndexDocumentUpdateException;
@@ -26,7 +26,7 @@ public interface UtmAlertService {
 
     void convertToIncident(List<String> eventIds, String incidentName, Integer incidentId, String incidentSource) throws ElasticsearchIndexDocumentUpdateException;
 
-    List<AlertType> getAlertsByIds(List<String> ids) throws UtmElasticsearchException;
+    List<UtmAlert> getAlertsByIds(List<String> ids) throws UtmElasticsearchException;
 
     void updateStatusAndTag(List<String> alertIds, int status, String statusObservation) throws UtmElasticsearchException,
             IOException, ElasticsearchIndexDocumentUpdateException;
