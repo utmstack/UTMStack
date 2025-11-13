@@ -1,0 +1,173 @@
+<div class="card w-100 h-100 m-h-0">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="mb-0 d-flex flex-column">
+      <h6 class="card-title label-header text-uppercase">
+        Identity Providers
+      </h6>
+      <span class="text-gray-500 mt-1 fw-semibold fs-6">
+        Configure OAuth 2.0 / OpenID Connect providers.
+      </span>
+    </div>
+    <button (click)="openModal()"
+            class="btn utm-button utm-button-primary">
+      <i class="icon-plus2 mr-2"></i> Add Provider
+    </button>
+  </div>
+
+  <div class="card-body">
+    <!-- Empty State -->
+    <div *ngIf="!loading && providers.length === 0" class="text-center py-5">
+      <i class="icon-shield icon-3x text-muted-300 mb-3"></i>
+      <h5 class="text-muted">No providers configured</h5>
+      <p class="text-muted">Add your first OAuth provider to enable SSO login</p>
+      <button type="button" class="btn utm-button utm-button-primary mt-3" (click)="openModal()">
+        <i class="icon-plus2 mr-1"></i>
+        Add Provider
+      </button>
+    </div>
+
+    <!-- Providers Grid -->
+    <div *ngIf="!loading && providers.length > 0" class="row">
+      <div class="col-xl-4 col-md-6" *ngFor="let provider of providers">
+        <app-provider-card
+          [provider]="provider"
+          (edit)="openModal($event)"
+          (delete)="deleteProvider($event)"
+          (toggleStatus)="toggleActive($event)">
+        </app-provider-card>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <app-utm-spinner *ngIf="loading" [loading]="true" label="Loading providers"></app-utm-spinner>
+  </div>
+</div>
+
+<!-- Modal -->
+<div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{editMode ? 'Edit' : 'Add'}} Identity Provider</h3>
+      <button class="btn-close" (click)="closeModal()">
+        <i class="icon-cross"></i>
+      </button>
+    </div>
+
+    <form [formGroup]="providerForm" class="modal-body">
+      <!-- Basic Info -->
+      <div class="form-section">
+        <h4 class="section-title">Basic Information</h4>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Provider Name *</label>
+            <input type="text" formControlName="name" placeholder="Google Workspace">
+          </div>
+
+          <div class="form-group">
+            <label>Provider Type *</label>
+            <select formControlName="providerType" (change)="onProviderTypeChange()">
+              <option *ngFor="let type of providerTypes" [value]="type">{{type}}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- OAuth Configuration -->
+      <div class="form-section">
+        <h4 class="section-title">OAuth 2.0 Configuration</h4>
+
+        <div class="form-group">
+          <label>Client ID *</label>
+          <input type="text" formControlName="clientId" placeholder="your-client-id.apps.googleusercontent.com">
+        </div>
+
+        <div class="form-group">
+          <label>Client Secret *</label>
+          <input type="password" formControlName="clientSecret" placeholder="••••••••••••••••">
+        </div>
+
+        <div class="form-group">
+          <label>Redirect URI *</label>
+          <input type="text" formControlName="redirectUri" placeholder="http://localhost:8080/login/oauth2/code/google">
+        </div>
+
+        <div class="form-group">
+          <label>Client Authentication Method</label>
+          <select formControlName="clientAuthMethod">
+            <option *ngFor="let method of authMethods" [value]="method">{{method}}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Endpoints -->
+      <div class="form-section">
+        <h4 class="section-title">OAuth Endpoints</h4>
+
+        <div class="form-group">
+          <label>Authorization URI *</label>
+          <input type="text" formControlName="authUri" placeholder="https://accounts.google.com/o/oauth2/auth">
+        </div>
+
+        <div class="form-group">
+          <label>Token URI *</label>
+          <input type="text" formControlName="tokenUri" placeholder="https://oauth2.googleapis.com/token">
+        </div>
+
+        <div class="form-group">
+          <label>User Info URI *</label>
+          <input type="text" formControlName="userInfoUri" placeholder="https://www.googleapis.com/oauth2/v2/userinfo">
+        </div>
+
+        <div class="form-group">
+          <label>JWKS URI</label>
+          <input type="text" formControlName="jwksUri" placeholder="https://www.googleapis.com/oauth2/v3/certs">
+        </div>
+      </div>
+
+      <!-- Advanced -->
+      <div class="form-section">
+        <h4 class="section-title">Advanced Settings</h4>
+
+        <div class="form-group">
+          <label>Scopes *</label>
+          <input type="text" formControlName="scopes" placeholder="openid,email,profile">
+          <small>Comma-separated list of OAuth scopes</small>
+        </div>
+
+        <div class="form-group">
+          <label>Allowed Domains</label>
+          <input type="text" formControlName="allowedDomains" placeholder="example.com,company.com">
+          <small>Comma-separated list of allowed email domains</small>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" formControlName="active">
+            <span>Active</span>
+          </label>
+        </div>
+      </div>
+    </form>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeModal()" [disabled]="loading">
+        Cancel
+      </button>
+      <button
+        class="btn-test"
+        (click)="testConnection()"
+        [disabled]="loading || testingConnection || providerForm.invalid">
+        <i *ngIf="testingConnection" class="icon-spinner2 spinner"></i>
+        <span>{{testingConnection ? 'Testing...' : 'Test Connection'}}</span>
+      </button>
+      <button
+        class="btn-primary"
+        (click)="saveProvider()"
+        [disabled]="loading || providerForm.invalid">
+        <i *ngIf="loading" class="icon-spinner2 spinner"></i>
+        <span>{{loading ? 'Saving...' : 'Save Provider'}}</span>
+      </button>
+    </div>
+  </div>
+</div>

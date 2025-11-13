@@ -1,0 +1,99 @@
+<div class="provider-card"
+     [class.provider-active]="provider.active"
+     (click)="openModal(provider)">
+  <!-- Header -->
+  <div class="provider-header">
+    <div class="provider-brand">
+      <div class="provider-icon-wrapper"
+           [ngClass]="'icon-wrapper-' + provider.providerType.toLowerCase()">
+        <i [class]="getProviderIcon(provider.providerType)"></i>
+      </div>
+      <div class="provider-meta">
+        <h5 class="provider-name">{{provider.name}}</h5>
+        <span class="provider-type-badge">{{provider.providerType}}</span>
+      </div>
+    </div>
+
+    <div class="provider-actions" (click)="$event.stopPropagation()">
+      <!-- Toggle Switch -->
+      <div class="status-toggle">
+        <label class="switch">
+          <input type="checkbox"
+                 [checked]="provider.active"
+                 (change)="toggleActive(provider)">
+          <span class="slider"></span>
+        </label>
+        <span class="status-label">
+          {{provider.active ? 'Active' : 'Inactive'}}
+        </span>
+      </div>
+
+      <!-- Delete Button -->
+      <button class="btn-delete"
+              type="button"
+              (click)="deleteProvider(provider)"
+              title="Delete Provider">
+        <i class="icon-trash"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="provider-body">
+    <!-- Client ID -->
+    <div class="provider-detail">
+      <div class="detail-icon">
+        <i class="icon-key"></i>
+      </div>
+      <div class="detail-content">
+        <span class="detail-label">Client ID</span>
+        <div class="detail-value">
+          <code>{{provider.clientId | slice:0:40}}<span *ngIf="provider.clientId?.length > 40">...</span></code>
+          <button class="btn-copy"
+                  type="button"
+                  (click)="$event.stopPropagation()"
+                  title="Copy to clipboard">
+            <i class="icon-copy"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Redirect URI -->
+    <div class="provider-detail">
+      <div class="detail-icon">
+        <i class="icon-link2"></i>
+      </div>
+      <div class="detail-content">
+        <span class="detail-label">Redirect URI</span>
+        <div class="detail-value">
+          <span class="text-truncate">{{provider.redirectUri}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Allowed Domains -->
+    <div *ngIf="provider.allowedDomains" class="provider-detail">
+      <div class="detail-icon">
+        <i class="icon-shield-check"></i>
+      </div>
+      <div class="detail-content">
+        <span class="detail-label">Allowed Domains</span>
+        <div class="detail-value">
+          <span class="badge-outline">{{provider.allowedDomains}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="provider-footer">
+    <div class="status-indicator" [class.status-active]="provider.active">
+      <i class="icon-circle"></i>
+      <span>{{provider.active ? 'Connected' : 'Disconnected'}}</span>
+    </div>
+    <span class="last-updated" *ngIf="provider.updatedAt">
+      Updated {{provider.updatedAt | date:'short'}}
+    </span>
+  </div>
+</div>

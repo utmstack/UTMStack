@@ -47,6 +47,8 @@ import {
 } from "./utm-notification/components/notifications-view/utm-notification-view.component";
 import { ApiKeysComponent } from './api-keys/api-keys.component';
 import { ApiKeyModalComponent } from './api-keys/shared/components/api-key-modal/api-key-modal.component';
+import { IdentityProviderComponent } from './identity-provider/identity-provider.component';
+import { ProviderComponent } from './identity-provider/shared/components/provider/provider.component';
 
 @NgModule({
   declarations: [
@@ -81,7 +83,10 @@ import { ApiKeyModalComponent } from './api-keys/shared/components/api-key-modal
     TokenActivateComponent,
     UtmHttpRequestsPreviewComponent,
     UtmServicesOverviewComponent,
-    UtmNotificationViewComponent],
+    UtmNotificationViewComponent,
+    IdentityProviderComponent,
+    ProviderComponent
+  ],
   entryComponents: [
     IndexPatternHelpComponent,
     IndexPatternDeleteComponent,
@@ -89,7 +94,8 @@ import { ApiKeyModalComponent } from './api-keys/shared/components/api-key-modal
     MenuDeleteDialogComponent,
     TokenActivateComponent,
     ApiKeyModalComponent,
-    IndexDeleteComponent],
+    IndexDeleteComponent
+  ],
   imports: [
     CommonModule,
     AppManagementRoutingModule,

@@ -137,6 +137,16 @@
 
     <a *appHasAnyAuthority="adminAuth"
        class="list-group-item"
+       routerLink="/app-management/settings/providers"
+       routerLinkActive="router-link-active">
+          <span class="font-weight-semibold">
+             <i class="icon-shield-check font-size-sm"></i>&nbsp;
+            Identity Providers
+          </span>
+    </a>
+
+    <a *appHasAnyAuthority="adminAuth"
+       class="list-group-item"
        routerLink="/app-management/settings/about"
        routerLinkActive="router-link-active">
           <span class="font-weight-semibold">
