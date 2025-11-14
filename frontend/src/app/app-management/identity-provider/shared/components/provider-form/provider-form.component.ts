@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ClientAuthMethod, ProviderType, UtmIdentityProvider,} from '../../models/utm-identity-provider.model';
+import {ClientAuthMethod, ProviderType, UtmIdentityProvider, } from '../../models/utm-identity-provider.model';
 
 @Component({
   selector: 'app-provider-form',
@@ -15,18 +15,36 @@ export class ProviderFormComponent implements OnInit {
   @Output() save = new EventEmitter<UtmIdentityProvider>();
   @Output() test = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
+  editMode = false;
 
   providerForm!: FormGroup;
 
-  providerTypes = Object.values(ProviderType);
-  authMethods = Object.values(ClientAuthMethod);
+  providerTypes = Object.values(ProviderType).map((value) => ({
+    label: value,
+    value
+  }));
+  authMethods = Object.values(ClientAuthMethod).map((value) => ({
+    label: value,
+    value
+  }));
+
+  availableScopes = [
+    'openid',
+    'email',
+    'profile',
+  ];
 
   constructor(private fb: FormBuilder) {}
 
   ngOnInit(): void {
     this.initForm();
     if (this.provider) {
+      this.editMode = true;
       this.providerForm.patchValue(this.provider);
+
+      this.providerForm.get('providerType').disable();
+      this.providerForm.get('scopes').setValue(this.provider.scopes.split(','));
+      this.providerForm.get('allowedDomains').setValue(this.provider.allowedDomains.split(','));
     }
   }
 
@@ -37,12 +55,11 @@ export class ProviderFormComponent implements OnInit {
       clientId: ['', Validators.required],
       clientSecret: ['', Validators.required],
       redirectUri: ['', Validators.required],
-      clientAuthMethod: ['client_secret_basic'],
       authUri: ['', Validators.required],
       tokenUri: ['', Validators.required],
       userInfoUri: ['', Validators.required],
       jwksUri: [''],
-      scopes: ['openid,email,profile', Validators.required],
+      scopes: ['', Validators.required],
       allowedDomains: [''],
       active: [true]
     });
