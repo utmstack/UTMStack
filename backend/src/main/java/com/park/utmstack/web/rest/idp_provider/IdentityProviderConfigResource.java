@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/idp-configs")
+@RequestMapping("/api/identity-providers")
 @RequiredArgsConstructor
 @Hidden
 public class IdentityProviderConfigResource {
