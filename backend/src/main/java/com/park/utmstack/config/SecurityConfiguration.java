@@ -8,6 +8,7 @@ import com.park.utmstack.security.internalApiKey.InternalApiKeyConfigurer;
 import com.park.utmstack.security.internalApiKey.InternalApiKeyProvider;
 import com.park.utmstack.security.jwt.JWTConfigurer;
 import com.park.utmstack.security.jwt.TokenProvider;
+import com.park.utmstack.security.oauth.OAuth2LoginFailureHandler;
 import lombok.RequiredArgsConstructor;
 import com.park.utmstack.security.oauth.OAuth2LoginSuccessHandler;
 import com.park.utmstack.security.oauth.CustomOAuth2UserService;
@@ -27,6 +28,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
@@ -133,6 +135,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .oidcUserService(customOAuth2UserService(userRepository))
                 .and()
                 .successHandler(new OAuth2LoginSuccessHandler(tokenProvider))
+                .failureHandler(new OAuth2LoginFailureHandler())
                 .and()
                 .apply(securityConfigurerAdapterForJwt())
                 .and()

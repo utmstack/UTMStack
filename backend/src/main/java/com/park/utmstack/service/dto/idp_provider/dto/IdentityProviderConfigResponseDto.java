@@ -14,10 +14,13 @@ public class IdentityProviderConfigResponseDto {
     private Long id;
     private String name;
     private ProviderType providerType;
+    private String clientId;
     private String authUri;
     private String tokenUri;
     private String redirectUri;
     private String scopes;
     private String allowedDomains;
     private Boolean active;
+    private String jwksUri;
+    private String userInfoUri;
 }

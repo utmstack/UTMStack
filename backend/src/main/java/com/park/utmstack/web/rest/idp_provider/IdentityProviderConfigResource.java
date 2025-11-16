@@ -30,7 +30,7 @@ public class IdentityProviderConfigResource {
     public ResponseEntity<IdentityProviderConfigResponseDto> create(@RequestBody @Valid IdentityProviderConfigRequestDto dto) {
         IdentityProviderConfigResponseDto result = service.create(dto);
         return ResponseEntity
-                .created(URI.create("/api/idp-configs/" + result.getId()))
+                .created(URI.create("/api/identity-providers/" + result.getId()))
                 .body(result);
     }
 

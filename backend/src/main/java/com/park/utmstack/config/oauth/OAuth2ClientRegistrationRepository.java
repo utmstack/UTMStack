@@ -64,4 +64,37 @@ public class OAuth2ClientRegistrationRepository implements ClientRegistrationRep
             default -> "sub";
         };
     }
+
+    public void reloadProviders(IdentityProviderConfigRepository jpaClientRegistrationRepository) {
+        registrations.clear();
+        jpaClientRegistrationRepository.findAll().forEach(entity -> {
+            ClientAuthenticationMethod authMethod = Optional.ofNullable(entity.getClientAuthMethod())
+                    .map(ClientAuthMethod::toSpringMethod)
+                    .orElse(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+
+            ClientRegistration.Builder builder = ClientRegistration.withRegistrationId(entity.getProviderType().name().toLowerCase())
+                    .clientId(entity.getClientId())
+                    .clientSecret(CipherUtil.decrypt(entity.getClientSecret(), System.getenv(Constants.ENV_ENCRYPTION_KEY)))
+                    .userInfoUri(entity.getUserInfoUri())
+                    .userNameAttributeName(this.getUserNameAttributeName(entity.getProviderType()))
+                    .clientAuthenticationMethod(authMethod)
+                    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                    .redirectUri(entity.getRedirectUri())
+                    .scope(StringUtils.commaDelimitedListToStringArray(entity.getScopes()))
+                    .authorizationUri(entity.getAuthUri())
+                    .tokenUri(entity.getTokenUri())
+                    .clientName(entity.getName());
+
+            if (entity.getUserInfoUri() != null) {
+                builder.userInfoUri(entity.getUserInfoUri());
+            }
+
+            if (entity.getJwksUri() != null) {
+                builder.jwkSetUri(entity.getJwksUri());
+            }
+
+            registrations.put(entity.getProviderType().name().toLowerCase(), builder.build());
+        });
+    }
+
 }
