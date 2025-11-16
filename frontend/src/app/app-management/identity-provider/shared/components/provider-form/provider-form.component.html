@@ -26,18 +26,13 @@
         <div class="form-group">
           <label class="form-label required">Provider Type</label>
           <ng-select
+            class="flex-item"
             formControlName="providerType"
             [items]="providerTypes"
             placeholder="Select provider type"
             (change)="onProviderTypeChange()"
             [clearable]="false"
             [searchable]="false">
-            <ng-template ng-option-tmp let-item="item">
-              <div class="d-flex align-items-center">
-                <i [class]="getProviderIcon(item)" class="mr-2"></i>
-                <span>{{item}}</span>
-              </div>
-            </ng-template>
           </ng-select>
         </div>
       </div>
@@ -62,15 +57,6 @@
               formControlName="clientId"
               placeholder="your-client-id.apps.googleusercontent.com"
               [class.is-invalid]="providerForm.get('clientId')?.touched && providerForm.get('clientId')?.invalid">
-            <div class="input-group-append">
-              <button
-                class="btn btn-outline-secondary"
-                type="button"
-                title="Copy Client ID"
-                (click)="copyToClipboard(providerForm.get('clientId')?.value)">
-                <i class="icon-copy"></i>
-              </button>
-            </div>
           </div>
           <div class="invalid-feedback d-block" *ngIf="providerForm.get('clientId')?.touched && providerForm.get('clientId')?.invalid">
             Client ID is required
@@ -83,19 +69,11 @@
           <label class="form-label required">Client Secret</label>
           <div class="input-group">
             <input
-              [type]="showClientSecret ? 'text' : 'password'"
+              [type]= "'password'"
               class="form-control"
               formControlName="clientSecret"
               placeholder="••••••••••••••••"
               [class.is-invalid]="providerForm.get('clientSecret')?.touched && providerForm.get('clientSecret')?.invalid">
-            <div class="input-group-append">
-              <button
-                class="btn btn-outline-secondary"
-                type="button"
-                (click)="showClientSecret = !showClientSecret">
-                <i [class]="showClientSecret ? 'icon-eye-blocked' : 'icon-eye'"></i>
-              </button>
-            </div>
           </div>
           <div class="invalid-feedback d-block" *ngIf="providerForm.get('clientSecret')?.touched && providerForm.get('clientSecret')?.invalid">
             Client Secret is required
@@ -110,7 +88,7 @@
             type="text"
             class="form-control"
             formControlName="redirectUri"
-            placeholder="http://localhost:8080/login/oauth2/code/google"
+            placeholder="http://yourdomain/login/oauth2/code/google"
             [class.is-invalid]="providerForm.get('redirectUri')?.touched && providerForm.get('redirectUri')?.invalid">
           <small class="form-text text-muted">
             This URI must match exactly with the one configured in your OAuth provider
@@ -118,21 +96,6 @@
           <div class="invalid-feedback" *ngIf="providerForm.get('redirectUri')?.touched && providerForm.get('redirectUri')?.invalid">
             Redirect URI is required
           </div>
-        </div>
-      </div>
-
-      <div class="col-md-12">
-        <div class="form-group">
-          <label class="form-label">Client Authentication Method</label>
-          <ng-select
-            formControlName="clientAuthMethod"
-            [items]="authMethods"
-            placeholder="Select authentication method"
-            [clearable]="false">
-          </ng-select>
-          <small class="form-text text-muted">
-            Method used to authenticate the client with the provider
-          </small>
         </div>
       </div>
     </div>
@@ -226,7 +189,7 @@
             [items]="availableScopes"
             [multiple]="true"
             [addTag]="true"
-            placeholder="Select or type custom scopes"
+            placeholder="openid,email,profile"
             bindLabel="label"
             bindValue="value">
           </ng-select>
