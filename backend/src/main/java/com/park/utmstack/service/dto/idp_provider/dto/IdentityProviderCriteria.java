@@ -1,7 +1,6 @@
 package com.park.utmstack.service.dto.idp_provider.dto;
 
 import com.park.utmstack.domain.idp_provider.enums.ProviderType;
-import com.park.utmstack.domain.network_scan.enums.AssetStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
