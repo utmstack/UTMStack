@@ -39,9 +39,11 @@
   <button
     type="button"
     class="btn btn-primary"
-    (click)="providerForm.onSave()"
+    (click)="saveProvider()"
     [disabled]="loading || !providerForm.providerForm?.valid">
     <i [class]="loading ? 'icon-spinner2 spinner mr-2' : 'icon-checkmark3 mr-2'"></i>
     {{loading ? 'Saving...' : 'Save Provider'}}
   </button>
+
+  {{ providerForm.providerForm?.valid }}
 </div>

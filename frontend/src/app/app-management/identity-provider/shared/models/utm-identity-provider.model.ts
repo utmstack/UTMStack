@@ -3,6 +3,11 @@ export enum ProviderType {
   MICROSOFT = 'MICROSOFT'
 }
 
+export const PROVIDER_ICONS: Record<ProviderType, string> = {
+  [ProviderType.GOOGLE]: 'fa-brands fa-google',
+  [ProviderType.MICROSOFT]: 'fa-brands fa-microsoft'
+};
+
 export enum ClientAuthMethod {
   CLIENT_SECRET_BASIC = 'CLIENT_SECRET_BASIC',
   CLIENT_SECRET_POST = 'CLIENT_SECRET_POST',

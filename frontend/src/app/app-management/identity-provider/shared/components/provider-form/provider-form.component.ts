@@ -23,10 +23,6 @@ export class ProviderFormComponent implements OnInit {
     label: value,
     value
   }));
-  authMethods = Object.values(ClientAuthMethod).map((value) => ({
-    label: value,
-    value
-  }));
 
   availableScopes = [
     'openid',
@@ -37,12 +33,13 @@ export class ProviderFormComponent implements OnInit {
   constructor(private fb: FormBuilder) {}
 
   ngOnInit(): void {
+    this.editMode = !!this.provider;
     this.initForm();
-    if (this.provider) {
-      this.editMode = true;
+    if (this.editMode) {
+
+      this.providerTypes = this.providerTypes.filter(pt => pt.value === this.provider.providerType);
       this.providerForm.patchValue(this.provider);
 
-      this.providerForm.get('providerType').disable();
       this.providerForm.get('scopes').setValue(this.provider.scopes.split(','));
       this.providerForm.get('allowedDomains').setValue(this.provider.allowedDomains.split(','));
     }
@@ -51,9 +48,9 @@ export class ProviderFormComponent implements OnInit {
   initForm(): void {
     this.providerForm = this.fb.group({
       name: ['', Validators.required],
-      providerType: ['Google', Validators.required],
+      providerType: ['', Validators.required],
       clientId: ['', Validators.required],
-      clientSecret: ['', Validators.required],
+      clientSecret: this.editMode ? [''] : ['', Validators.required],
       redirectUri: ['', Validators.required],
       authUri: ['', Validators.required],
       tokenUri: ['', Validators.required],
@@ -67,7 +64,7 @@ export class ProviderFormComponent implements OnInit {
 
   onProviderTypeChange(): void {
     const type = this.providerForm.get('providerType').value;
-    const presets = this.getProviderPresets(type);
+    const presets = this.getProviderPresets(type.value);
 
     if (presets) {
       this.providerForm.patchValue(presets);

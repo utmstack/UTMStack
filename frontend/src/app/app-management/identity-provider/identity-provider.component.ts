@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
-import {ProviderFormComponent} from './shared/components/provider-form/provider-form.component';
-import {UtmIdentityProvider} from './shared/models/utm-identity-provider.model';
-import {UtmIdentityProviderService} from './shared/services/utm-identity-provider.service';
 import {
   IdentityProviderModalComponent
-} from "./shared/components/identity-provider-modal/identity-provider-modal.component";
+} from './shared/components/identity-provider-modal/identity-provider-modal.component';
+import {UtmIdentityProvider} from './shared/models/utm-identity-provider.model';
+import {UtmIdentityProviderService} from './shared/services/utm-identity-provider.service';
 
 @Component({
   selector: 'app-identity-provider-config',
@@ -34,7 +33,7 @@ export class IdentityProviderComponent implements OnInit {
 
   loadProviders(): void {
     this.loading = true;
-    this.providerService.query().subscribe({
+    this.providerService.query({page: 0, size: 10}).subscribe({
       next: (res) => {
         this.providers = res.body || [];
         this.loading = false;

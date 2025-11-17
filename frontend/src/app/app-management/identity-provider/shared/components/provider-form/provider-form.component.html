@@ -66,20 +66,24 @@
 
       <div class="col-md-12">
         <div class="form-group">
-          <label class="form-label required">Client Secret</label>
-          <div class="input-group">
-            <input
-              [type]= "'password'"
-              class="form-control"
-              formControlName="clientSecret"
-              placeholder="••••••••••••••••"
-              [class.is-invalid]="providerForm.get('clientSecret')?.touched && providerForm.get('clientSecret')?.invalid">
-          </div>
-          <div class="invalid-feedback d-block" *ngIf="providerForm.get('clientSecret')?.touched && providerForm.get('clientSecret')?.invalid">
-            Client Secret is required
+          <label class="form-label" [class.required]="!editMode">
+            Client Secret
+          </label>
+          <input
+            type="password"
+            class="form-control"
+            formControlName="clientSecret"
+            [placeholder]="editMode ? '••••••••••••••••' : 'Enter client secret'"
+            [class.is-invalid]="providerForm.get('clientSecret')?.touched && providerForm.get('clientSecret')?.invalid">
+          <small *ngIf="editMode" class="form-text text-muted">
+            ℹ️ Leave blank to keep current secret, or enter a new one to update it
+          </small>
+          <div class="invalid-feedback" *ngIf="providerForm.get('clientSecret')?.touched && providerForm.get('clientSecret')?.invalid">
+            Client secret is required
           </div>
         </div>
       </div>
+
 
       <div class="col-md-12">
         <div class="form-group">

@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import {
-  IdentityProviderDto,
-  LoginProviderService,
   PROVIDER_ICONS,
-  ProviderType
+  ProviderType,
+  UtmIdentityProvider
+} from '../../../../app-management/identity-provider/shared/models/utm-identity-provider.model';
+import {
+  LoginProviderService,
 } from '../../../services/login-provider.service';
 
 @Component({
@@ -14,11 +16,12 @@ import {
 export class LoginProvidersComponent implements OnInit {
 
   request = {
+    'active.equals': false,
     page: 0,
     size: 10
   };
 
-  providers: IdentityProviderDto[] = [] as IdentityProviderDto[];
+  providers: UtmIdentityProvider[] = [] as UtmIdentityProvider[];
 
   constructor(private loginProviderService: LoginProviderService) { }
 
@@ -27,9 +30,8 @@ export class LoginProvidersComponent implements OnInit {
   }
 
   loadAllProviders() {
-    this.loginProviderService.getAllProviders(this.request).subscribe(
+    this.loginProviderService.getProviders(this.request).subscribe(
       response => {
-        console.log('Login Providers:', response.body);
         this.providers = response.body || [];
       },
       error => {
@@ -43,7 +45,7 @@ export class LoginProvidersComponent implements OnInit {
     return PROVIDER_ICONS[providerType] || 'bi-shield-lock';
   }
 
-  loginWithProvider(provider: IdentityProviderDto) {
+  loginWithProvider(provider: UtmIdentityProvider) {
     if (!provider.active) {
       console.warn(`Provider ${provider.name} is inactive.`);
       return;
