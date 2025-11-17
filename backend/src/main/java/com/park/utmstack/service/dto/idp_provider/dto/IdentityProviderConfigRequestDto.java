@@ -13,6 +13,8 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class IdentityProviderConfigRequestDto {
 
+    private Long id;
+
     @NotBlank
     private String name;
 
@@ -22,7 +24,6 @@ public class IdentityProviderConfigRequestDto {
     @NotBlank
     private String clientId;
 
-    @NotBlank
     private String clientSecret;
 
     @NotBlank
@@ -39,4 +40,8 @@ public class IdentityProviderConfigRequestDto {
     private String allowedDomains;
 
     private Boolean active;
+
+    private String jwksUri;
+
+    private String userInfoUri;
 }

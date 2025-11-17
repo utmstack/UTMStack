@@ -3,13 +3,14 @@ package com.park.utmstack.service.idp_provider;
 
 import com.park.utmstack.domain.idp_provider.IdentityProviderConfig;
 import com.park.utmstack.repository.idp_provider.IdentityProviderConfigRepository;
-import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderConfigRequestDto;
-import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderConfigResponseDto;
-import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderMapper;
+import com.park.utmstack.service.dto.idp_provider.dto.*;
+import com.park.utmstack.util.events.ProviderChangedEvent;
 import com.park.utmstack.util.exceptions.IdpNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ public class IdentityProviderService {
 
     private final IdentityProviderMapper mapper;
     private final IdentityProviderConfigRepository repository;
+    private final ApplicationEventPublisher publisher;
 
     public List<IdentityProviderConfig> getAllActiveProviders() {
         return repository.findAllByActiveTrue();
@@ -36,6 +38,7 @@ public class IdentityProviderService {
         entity.setUpdatedAt(LocalDateTime.now());
 
         IdentityProviderConfig saved = repository.save(entity);
+        publisher.publishEvent(new ProviderChangedEvent(saved));
         return mapper.toDto(saved);
     }
 
@@ -46,9 +49,12 @@ public class IdentityProviderService {
                 .orElseThrow(() -> new IdpNotFoundException("IdentityProviderConfig not found: " + id));
 
         existing.setName(dto.getName());
-        existing.setProviderType(dto.getProviderType());
         existing.setClientId(dto.getClientId());
-        existing.setClientSecret(mapper.toEntity(dto).getClientSecret());
+
+        if (dto.getClientSecret() != null) {
+            existing.setClientSecret(mapper.toEntity(dto).getClientSecret());
+        }
+
         existing.setRedirectUri(dto.getRedirectUri());
         existing.setScopes(dto.getScopes());
         existing.setAllowedDomains(dto.getAllowedDomains());
@@ -56,17 +62,18 @@ public class IdentityProviderService {
         existing.setUpdatedAt(LocalDateTime.now());
 
         IdentityProviderConfig updated = repository.save(existing);
+        publisher.publishEvent(new ProviderChangedEvent(updated));
         return mapper.toDto(updated);
     }
 
 
     @Transactional(readOnly = true)
-    public Page<IdentityProviderConfigResponseDto> findAll(Pageable pageable) {
-
-        Page<IdentityProviderConfig> result = repository.findAll(pageable);
-
+    public Page<IdentityProviderConfigResponseDto> findAll(IdentityProviderCriteria criteria, Pageable pageable) {
+        Specification<IdentityProviderConfig> spec = IdentityProviderSpecification.build(criteria);
+        Page<IdentityProviderConfig> result = repository.findAll(spec, pageable);
         return result.map(mapper::toDto);
     }
+
 
 
     @Transactional(readOnly = true)
