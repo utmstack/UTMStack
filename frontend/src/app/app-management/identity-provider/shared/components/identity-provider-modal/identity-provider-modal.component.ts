@@ -40,11 +40,13 @@ export class IdentityProviderModalComponent implements OnInit {
     const formValue = this.providerFormComponent.providerForm.value;
     const providerData: UtmIdentityProvider = {
       ...formValue,
-      id: this.provider.id,
+      id: this.provider ? this.provider.id : null,
       scopes: Array.isArray(formValue.scopes) ? formValue.scopes.join(',') : formValue.scopes,
       allowedDomains: Array.isArray(formValue.allowedDomains)
         ? formValue.allowedDomains.join(',')
-        : formValue.allowedDomains
+        : formValue.allowedDomains,
+      providerType: (formValue && formValue.providerType && formValue.providerType.value)
+      ? formValue.providerType.value : formValue.providerType,
     };
 
     const request = this.editMode && this.provider.id

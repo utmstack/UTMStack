@@ -49,12 +49,12 @@
         <span class="detail-label">Client ID</span>
         <div class="detail-value">
           <code>{{provider.clientId | slice:0:40}}<span *ngIf="provider.clientId?.length > 40">...</span></code>
-          <button class="btn-copy"
+          <!--<button class="btn-copy"
                   type="button"
                   (click)="$event.stopPropagation()"
                   title="Copy to clipboard">
             <i class="icon-copy"></i>
-          </button>
+          </button>-->
         </div>
       </div>
     </div>

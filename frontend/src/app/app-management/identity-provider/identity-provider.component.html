@@ -28,7 +28,7 @@
 
     <!-- Providers Grid -->
     <div *ngIf="!loading && providers.length > 0" class="row">
-      <div class="col-xl-4 col-md-6" *ngFor="let provider of providers">
+      <div class="col-xl-4 cursor-pointer col-md-6" *ngFor="let provider of providers">
         <app-provider-card
           [provider]="provider"
           (edit)="openModal($event)"

@@ -2,6 +2,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import {SERVER_API_URL} from '../../../../app.constants';
+import {createRequestOption} from "../../../../shared/util/request-util";
 import { UtmIdentityProvider } from '../models/utm-identity-provider.model';
 
 @Injectable({
@@ -24,16 +25,13 @@ export class UtmIdentityProviderService {
     return this.http.get<UtmIdentityProvider>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
-  query(): Observable<HttpResponse<UtmIdentityProvider[]>> {
-    return this.http.get<UtmIdentityProvider[]>(this.resourceUrl, { observe: 'response' });
+  query(request: any): Observable<HttpResponse<UtmIdentityProvider[]>> {
+    const params = createRequestOption(request);
+    return this.http.get<UtmIdentityProvider[]>(this.resourceUrl, { params, observe: 'response' });
   }
 
   delete(id: number): Observable<HttpResponse<any>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
-  }
-
-  toggleActive(id: number): Observable<HttpResponse<UtmIdentityProvider>> {
-    return this.http.patch<UtmIdentityProvider>(`${this.resourceUrl}/${id}/toggle-active`, {}, { observe: 'response' });
   }
 
   testConnection(provider: UtmIdentityProvider): Observable<HttpResponse<{ success: boolean; message: string }>> {
