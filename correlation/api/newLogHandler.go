@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/utmstack/UTMStack/correlation/ti"
+	// "github.com/utmstack/UTMStack/correlation/ti"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -79,7 +79,7 @@ func NewLog(c *gin.Context) {
 	}
 
 	cache.AddToCache(l)
-	ti.Enqueue(l)
+	// ti.Enqueue(l)
 	search.AddToQueue(l)
 	response["status"] = "queued"
 	c.JSON(http.StatusOK, response)
