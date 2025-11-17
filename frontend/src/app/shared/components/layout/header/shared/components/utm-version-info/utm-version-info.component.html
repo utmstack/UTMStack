@@ -1,4 +1,4 @@
-<ng-container *ngIf="currentVersion$ | async  as currentVersion">
+<ng-container *ngIf="versionInfo  as currentVersion">
   <span *ngIf="currentVersion.build"
     [ngClass]="'badge-success-800'"
     class="badge badge-pill version-info cursor-pointer text-white">

@@ -1,8 +1,8 @@
 <div class="module-card card text-center p-2 m-0 d-flex flex-column align-items-center justify-content-between">
   <div class="d-flex flex-column w-100">
-    <div *ngIf="version === versionType.COMMUNITY && ModulesEnterprise.includes(module.moduleName)" class="d-flex justify-content-end">
+    <!--<div *ngIf="version === versionType.COMMUNITY && ModulesEnterprise.includes(module.moduleName)" class="d-flex justify-content-end">
       <span class="badge p-1 border-1 m-1 bg-success-300"> Enterprise </span>
-    </div>
+    </div>-->
     <div class="d-flex justify-content-center">
       <img class="p-3 mb-3 mt-1"
            [alt]="module.prettyName"
@@ -18,16 +18,15 @@
     </p>
   </div>
 
-  <button *ngIf="version === versionType.COMMUNITY && !ModulesEnterprise.includes(module.moduleName)"
-    class="btn utm-button mb-3 " (click)="showIntegration()"
+  <button class="btn utm-button mb-3 " (click)="showIntegration()"
           [ngClass]="module.moduleActive?'utm-button-success':'utm-button-primary'">
     <i class="mr-1 icon-puzzle2"></i>
     {{module.moduleActive ? 'Enabled' : 'View integration'}}
   </button>
 
-  <button *ngIf="version === versionType.COMMUNITY && ModulesEnterprise.includes(module.moduleName)"
+  <!--<button *ngIf="version === versionType.COMMUNITY && ModulesEnterprise.includes(module.moduleName)"
           class="btn utm-button utm-button-primary mb-3" (click)="showMessage()">
     <i class="mr-1 icon-lock2"></i>
     Upgrade to Enterprise
-  </button>
+  </button>-->
 </div>

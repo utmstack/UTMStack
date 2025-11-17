@@ -12,8 +12,7 @@ import {VersionInfo} from '../../../../../../types/updates/updates.type';
   styleUrls: ['./utm-version-info.component.css']
 })
 export class UtmVersionInfoComponent implements OnInit {
-  currentVersion$: Observable<VersionInfo> = EMPTY;
-  destroy$ = new Subject<void>();
+  versionInfo: VersionInfo;
 
   constructor(private checkForUpdatesService: CheckForUpdatesService,
               private utmToastService: UtmToastService,
@@ -21,26 +20,30 @@ export class UtmVersionInfoComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getVersionInfo();
-  }
-
-  getVersionInfo() {
-    this.currentVersion$ = this.checkForUpdatesService.getVersion()
+    this.checkForUpdatesService.getVersion()
       .pipe(
         map(response => response.body || null),
         tap((versionInfo: VersionInfo) => {
-          console.log('versionInfo', versionInfo);
           const version = versionInfo && versionInfo.build && versionInfo.build.version || '';
-          const versionType = version.includes('community') || version === '' ? VersionType.COMMUNITY : VersionType.ENTERPRISE;
+          const versionType = version.includes('community') || version === ''
+            ? VersionType.COMMUNITY
+            : VersionType.ENTERPRISE;
 
           if (versionType !== this.versionTypeService.versionType()) {
             this.versionTypeService.changeVersionType(versionType);
           }
         }),
         catchError(() => {
-          this.utmToastService.showError('Error fetching version info', 'An error occurred while fetching version info.');
+          this.utmToastService.showError(
+            'Error fetching version info',
+            'An error occurred while fetching version info.'
+          );
           return EMPTY;
         })
-      );
+      )
+      .subscribe(versionInfo => {
+        this.versionInfo = versionInfo;
+      });
   }
+
 }
