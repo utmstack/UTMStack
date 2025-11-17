@@ -7,6 +7,9 @@ import {
 } from './shared/components/identity-provider-modal/identity-provider-modal.component';
 import {UtmIdentityProvider} from './shared/models/utm-identity-provider.model';
 import {UtmIdentityProviderService} from './shared/services/utm-identity-provider.service';
+import {
+  ModalConfirmationComponent
+} from "../../shared/components/utm/util/modal-confirmation/modal-confirmation.component";
 
 @Component({
   selector: 'app-identity-provider-config',
@@ -67,25 +70,32 @@ export class IdentityProviderComponent implements OnInit {
   }
 
   deleteProvider(provider: UtmIdentityProvider): void {
-    if (!confirm(`Are you sure you want to delete ${provider.name}?`)) {
-      return;
-    }
+    const deleteModalRef = this.modalService.open(ModalConfirmationComponent, {centered: true});
 
-    this.providerService.delete(provider.id).subscribe({
-      next: () => {
-        this.toast.showSuccess('Provider deleted successfully');
-        this.loadProviders();
-      },
-      error: () => {
-        this.toast.showError( 'Error', 'An error occurred while deleting the provider');
-      }
+    deleteModalRef.componentInstance.header = 'Confirm delete operation';
+    deleteModalRef.componentInstance.message = 'Are you sure that you want to delete the provider: ' + provider.providerType;
+    deleteModalRef.componentInstance.confirmBtnText = 'Delete';
+    deleteModalRef.componentInstance.confirmBtnIcon = 'icon-database-remove';
+    deleteModalRef.componentInstance.confirmBtnType = 'delete';
+    deleteModalRef.result.then(() => {
+
+      this.providerService.delete(provider.id).subscribe({
+        next: () => {
+          this.toast.showSuccess('Provider deleted successfully');
+          this.loadProviders();
+        },
+        error: () => {
+          this.toast.showError( 'Error', 'An error occurred while deleting the provider');
+        }
+      });
+
     });
   }
 
   toggleActive(provider: UtmIdentityProvider): void {
-    this.providerService.toggleActive(provider.id).subscribe({
+    this.providerService.update(provider).subscribe({
       next: () => {
-        this.toast.showSuccess(`Provider ${provider.active ? 'deactivated' : 'activated'}`);
+        this.toast.showSuccess(`Provider ${provider.active ? 'activated' : 'deactivated'}`);
         this.loadProviders();
       },
       error: () => {

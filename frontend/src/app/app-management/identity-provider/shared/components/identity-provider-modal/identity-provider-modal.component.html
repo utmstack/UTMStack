@@ -20,30 +20,28 @@
 <div class="modal-footer">
   <button
     type="button"
-    class="btn btn-light mr-2"
+    class="btn btn utm-button utm-button-grey mr-2"
     (click)="closeModal()"
     [disabled]="loading">
     <i class="icon-cross2 mr-2"></i>
     Cancel
   </button>
 
-  <button
+  <!--<button
     type="button"
     class="btn btn-info mr-2"
     (click)="testConnection()"
     [disabled]="loading || testingConnection || !providerForm.providerForm?.valid">
     <i [class]="testingConnection ? 'icon-spinner2 spinner mr-2' : 'icon-pulse2 mr-2'"></i>
     {{testingConnection ? 'Testing...' : 'Test Connection'}}
-  </button>
+  </button>-->
 
   <button
     type="button"
-    class="btn btn-primary"
+    class="btn utm-button utm-button-primary"
     (click)="saveProvider()"
     [disabled]="loading || !providerForm.providerForm?.valid">
     <i [class]="loading ? 'icon-spinner2 spinner mr-2' : 'icon-checkmark3 mr-2'"></i>
-    {{loading ? 'Saving...' : 'Save Provider'}}
+    {{loading ? 'Saving...' : 'Save'}}
   </button>
-
-  {{ providerForm.providerForm?.valid }}
 </div>
