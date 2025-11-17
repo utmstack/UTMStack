@@ -1,6 +1,7 @@
 package com.park.utmstack.config.oauth;
 
 import com.park.utmstack.config.Constants;
+import com.park.utmstack.domain.idp_provider.IdentityProviderConfig;
 import com.park.utmstack.domain.idp_provider.enums.ClientAuthMethod;
 import com.park.utmstack.domain.idp_provider.enums.ProviderType;
 import com.park.utmstack.repository.idp_provider.IdentityProviderConfigRepository;
@@ -20,36 +21,7 @@ public class OAuth2ClientRegistrationRepository implements ClientRegistrationRep
     private final Map<String, ClientRegistration> registrations = new ConcurrentHashMap<>();
 
     public OAuth2ClientRegistrationRepository(IdentityProviderConfigRepository jpaClientRegistrationRepository) {
-
-        jpaClientRegistrationRepository.findAll().forEach(entity -> {
-            ClientAuthenticationMethod authMethod = Optional.ofNullable(entity.getClientAuthMethod())
-                    .map(ClientAuthMethod::toSpringMethod)
-                    .orElse(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
-
-            ClientRegistration.Builder builder = ClientRegistration.withRegistrationId(entity.getProviderType().name().toLowerCase())
-                    .clientId(entity.getClientId())
-                    .clientSecret(CipherUtil.decrypt(entity.getClientSecret(), System.getenv(Constants.ENV_ENCRYPTION_KEY)))
-                    .userInfoUri(entity.getUserInfoUri())
-                    .userNameAttributeName(this.getUserNameAttributeName(entity.getProviderType()))
-                    .clientAuthenticationMethod(authMethod)
-                    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                    .redirectUri(entity.getRedirectUri())
-                    .scope(StringUtils.commaDelimitedListToStringArray(entity.getScopes()))
-                    .authorizationUri(entity.getAuthUri())
-                    .tokenUri(entity.getTokenUri())
-                    .clientName(entity.getName());
-
-            if (entity.getUserInfoUri() != null) {
-                builder.userInfoUri(entity.getUserInfoUri());
-            }
-
-            if (entity.getJwksUri() != null) {
-                builder.jwkSetUri(entity.getJwksUri());
-            }
-
-            registrations.put(entity.getProviderType().name().toLowerCase(), builder.build());
-        });
-
+        loadProviders(jpaClientRegistrationRepository);
     }
 
     @Override
@@ -67,34 +39,41 @@ public class OAuth2ClientRegistrationRepository implements ClientRegistrationRep
 
     public void reloadProviders(IdentityProviderConfigRepository jpaClientRegistrationRepository) {
         registrations.clear();
-        jpaClientRegistrationRepository.findAll().forEach(entity -> {
-            ClientAuthenticationMethod authMethod = Optional.ofNullable(entity.getClientAuthMethod())
-                    .map(ClientAuthMethod::toSpringMethod)
-                    .orElse(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+        loadProviders(jpaClientRegistrationRepository);
+    }
 
-            ClientRegistration.Builder builder = ClientRegistration.withRegistrationId(entity.getProviderType().name().toLowerCase())
-                    .clientId(entity.getClientId())
-                    .clientSecret(CipherUtil.decrypt(entity.getClientSecret(), System.getenv(Constants.ENV_ENCRYPTION_KEY)))
-                    .userInfoUri(entity.getUserInfoUri())
-                    .userNameAttributeName(this.getUserNameAttributeName(entity.getProviderType()))
-                    .clientAuthenticationMethod(authMethod)
-                    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                    .redirectUri(entity.getRedirectUri())
-                    .scope(StringUtils.commaDelimitedListToStringArray(entity.getScopes()))
-                    .authorizationUri(entity.getAuthUri())
-                    .tokenUri(entity.getTokenUri())
-                    .clientName(entity.getName());
-
-            if (entity.getUserInfoUri() != null) {
-                builder.userInfoUri(entity.getUserInfoUri());
-            }
-
-            if (entity.getJwksUri() != null) {
-                builder.jwkSetUri(entity.getJwksUri());
-            }
-
-            registrations.put(entity.getProviderType().name().toLowerCase(), builder.build());
+    private void loadProviders(IdentityProviderConfigRepository jpaClientRegistrationRepository) {
+        jpaClientRegistrationRepository.findAllByActiveTrue().forEach(entity -> {
+            ClientRegistration registration = buildClientRegistration(entity);
+            registrations.put(entity.getProviderType().name().toLowerCase(), registration);
         });
     }
 
+    private ClientRegistration buildClientRegistration(IdentityProviderConfig entity) {
+        ClientAuthenticationMethod authMethod = Optional.ofNullable(entity.getClientAuthMethod())
+                .map(ClientAuthMethod::toSpringMethod)
+                .orElse(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+
+        ClientRegistration.Builder builder = ClientRegistration.withRegistrationId(entity.getProviderType().name().toLowerCase())
+                .clientId(entity.getClientId())
+                .clientSecret(CipherUtil.decrypt(entity.getClientSecret(), System.getenv(Constants.ENV_ENCRYPTION_KEY)))
+                .userNameAttributeName(this.getUserNameAttributeName(entity.getProviderType()))
+                .clientAuthenticationMethod(authMethod)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri(entity.getRedirectUri())
+                .scope(StringUtils.commaDelimitedListToStringArray(entity.getScopes()))
+                .authorizationUri(entity.getAuthUri())
+                .tokenUri(entity.getTokenUri())
+                .clientName(entity.getName());
+
+        if (entity.getUserInfoUri() != null) {
+            builder.userInfoUri(entity.getUserInfoUri());
+        }
+
+        if (entity.getJwksUri() != null) {
+            builder.jwkSetUri(entity.getJwksUri());
+        }
+
+        return builder.build();
+    }
 }

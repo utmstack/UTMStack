@@ -3,15 +3,14 @@ package com.park.utmstack.service.idp_provider;
 
 import com.park.utmstack.domain.idp_provider.IdentityProviderConfig;
 import com.park.utmstack.repository.idp_provider.IdentityProviderConfigRepository;
-import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderConfigRequestDto;
-import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderConfigResponseDto;
-import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderMapper;
+import com.park.utmstack.service.dto.idp_provider.dto.*;
 import com.park.utmstack.util.events.ProviderChangedEvent;
 import com.park.utmstack.util.exceptions.IdpNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,12 +68,12 @@ public class IdentityProviderService {
 
 
     @Transactional(readOnly = true)
-    public Page<IdentityProviderConfigResponseDto> findAll(Pageable pageable) {
-
-        Page<IdentityProviderConfig> result = repository.findAll(pageable);
-
+    public Page<IdentityProviderConfigResponseDto> findAll(IdentityProviderCriteria criteria, Pageable pageable) {
+        Specification<IdentityProviderConfig> spec = IdentityProviderSpecification.build(criteria);
+        Page<IdentityProviderConfig> result = repository.findAll(spec, pageable);
         return result.map(mapper::toDto);
     }
+
 
 
     @Transactional(readOnly = true)
