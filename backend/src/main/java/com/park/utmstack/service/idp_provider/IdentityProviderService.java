@@ -51,7 +51,11 @@ public class IdentityProviderService {
 
         existing.setName(dto.getName());
         existing.setClientId(dto.getClientId());
-        existing.setClientSecret(mapper.toEntity(dto).getClientSecret());
+
+        if (dto.getClientSecret() != null) {
+            existing.setClientSecret(mapper.toEntity(dto).getClientSecret());
+        }
+
         existing.setRedirectUri(dto.getRedirectUri());
         existing.setScopes(dto.getScopes());
         existing.setAllowedDomains(dto.getAllowedDomains());

@@ -3,6 +3,7 @@ package com.park.utmstack.web.rest.idp_provider;
 
 import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderConfigRequestDto;
 import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderConfigResponseDto;
+import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderCreateConfigDto;
 import com.park.utmstack.service.idp_provider.IdentityProviderService;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -27,7 +28,7 @@ public class IdentityProviderConfigResource {
     private final IdentityProviderService service;
 
     @PostMapping
-    public ResponseEntity<IdentityProviderConfigResponseDto> create(@RequestBody @Valid IdentityProviderConfigRequestDto dto) {
+    public ResponseEntity<IdentityProviderConfigResponseDto> create(@RequestBody @Valid IdentityProviderCreateConfigDto dto) {
         IdentityProviderConfigResponseDto result = service.create(dto);
         return ResponseEntity
                 .created(URI.create("/api/identity-providers/" + result.getId()))
@@ -36,7 +37,7 @@ public class IdentityProviderConfigResource {
 
     @PutMapping("/{id}")
     public ResponseEntity<IdentityProviderConfigResponseDto> update(@PathVariable Long id,
-                                                                    @RequestBody IdentityProviderConfigRequestDto dto) {
+                                                                    @RequestBody @Valid IdentityProviderConfigRequestDto dto) {
         IdentityProviderConfigResponseDto result = service.update(id, dto);
         return ResponseEntity.ok(result);
     }

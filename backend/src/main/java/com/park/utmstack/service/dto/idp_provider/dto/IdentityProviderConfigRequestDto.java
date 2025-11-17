@@ -24,7 +24,6 @@ public class IdentityProviderConfigRequestDto {
     @NotBlank
     private String clientId;
 
-    @NotBlank
     private String clientSecret;
 
     @NotBlank
