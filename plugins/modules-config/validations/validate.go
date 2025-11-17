@@ -20,6 +20,10 @@ func ValidateModuleConfig(moduleName string, config *config.ModuleGroup) error {
 		if err := ValidateBdgzConfig(config); err != nil {
 			return fmt.Errorf("%v", err)
 		}
+	case "CROWDSTRIKE":
+		if err := ValidateCrowdstrikeConfig(config); err != nil {
+			return fmt.Errorf("%v", err)
+		}
 	case "GCP":
 		if err := ValidateGcpConfig(config); err != nil {
 			return fmt.Errorf("%v", err)
