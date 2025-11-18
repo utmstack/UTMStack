@@ -67,8 +67,8 @@ export class LoginComponent implements OnInit, OnDestroy {
         switchMap(() => this.activatedRoute.queryParams),
         takeUntil(this.destroy$)
       )
-      .subscribe(result => {
-        if (result) {
+      .subscribe(params => {
+        if (params) {
           this.activatedRoute.queryParams.subscribe(params => {
             if (params.token) {
                 this.loadingLogin = false;
