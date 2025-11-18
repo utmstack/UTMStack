@@ -269,5 +269,7 @@
 
     <include file="/config/liquibase/changelog/20251111001_set_alert-response_rule_seq.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251118001_add_adversary_view_menu.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
