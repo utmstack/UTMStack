@@ -17,6 +17,7 @@ enum PluginType {
     O365 = 5;
     SOC_AI = 6;
     SOPHOS = 7;
+    CROWDSTRIKE = 8;
 }
 
 message BiDirectionalMessage {

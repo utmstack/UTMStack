@@ -128,6 +128,8 @@ func (s *ConfigServer) NotifyUpdate(moduleName string, section *ConfigurationSec
 		pluginType = PluginType_SOC_AI
 	case "SOPHOS":
 		pluginType = PluginType_SOPHOS
+	case "CROWDSTRIKE":
+		pluginType = PluginType_CROWDSTRIKE
 	default:
 		_ = catcher.Error("unknown module name", fmt.Errorf("module: %s", moduleName), nil)
 		return
@@ -165,6 +167,7 @@ func (s *ConfigServer) SyncConfigs(backend string, internalKey string) {
 		"O365":         PluginType_O365,
 		"SOC_AI":       PluginType_SOC_AI,
 		"SOPHOS":       PluginType_SOPHOS,
+		"CROWDSTRIKE":  PluginType_CROWDSTRIKE,
 	}
 
 	for name, t := range AllModules {
