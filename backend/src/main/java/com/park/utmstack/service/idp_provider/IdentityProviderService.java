@@ -31,7 +31,7 @@ public class IdentityProviderService {
         return repository.findAllByActiveTrue();
     }
 
-    public IdentityProviderConfigResponseDto create(IdentityProviderConfigRequestDto dto) {
+    public IdentityProviderConfigResponseDto create(IdentityProviderCreateConfigDto dto) {
 
         IdentityProviderConfig entity = mapper.toEntity(dto);
         entity.setCreatedAt(LocalDateTime.now());
