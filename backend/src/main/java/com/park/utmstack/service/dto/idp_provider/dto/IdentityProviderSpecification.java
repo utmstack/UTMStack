@@ -43,6 +43,9 @@ public class IdentityProviderSpecification {
             if (criteria.getLastModifiedDate() != null && criteria.getLastModifiedDate().getEquals() != null) {
                 predicate = cb.and(predicate, cb.equal(root.get("lastModifiedDate"), criteria.getLastModifiedDate().getEquals()));
             }
+            if (criteria.getActive() != null && criteria.getActive().getEquals() != null) {
+                predicate = cb.and(predicate, cb.equal(root.get("active"), criteria.getActive().getEquals()));
+            }
 
             return predicate;
         };
