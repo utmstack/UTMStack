@@ -7,12 +7,6 @@ import {UtmModulesService} from '../shared/services/utm-modules.service';
 import {UtmServerService} from '../shared/services/utm-server.service';
 import {UtmServerType} from '../shared/type/utm-server.type';
 
-export const ModulesEnterprise = [
-  UtmModulesEnum.MACOS,
-  UtmModulesEnum.AS_400
-];
-
-
 export interface RequestModule {
   'moduleCategory.equals'?: string | null;
   'prettyName.contains'?: string | null;

@@ -1,25 +1,32 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {LicenceChangeBehavior} from '../../../shared/behaviors/licence-change.behavior';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 import {ADMIN_ROLE} from '../../../shared/constants/global.constant';
 import {CheckLicenseService} from '../../../shared/services/license/check-license.service';
+import {EnterpriseFeatures, VersionType, VersionTypeService} from '../../../shared/services/util/version-type.service';
 import {isSubdomainOfUtmstack} from '../../../shared/util/url.util';
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'app-management-builder-sidebar',
   templateUrl: './app-management-sidebar.component.html',
   styleUrls: ['./app-management-sidebar.component.scss']
 })
-export class AppManagementSidebarComponent implements OnInit {
+export class AppManagementSidebarComponent implements OnInit, OnDestroy {
   adminAuth = ADMIN_ROLE;
   alertDocumentationRoute = '/app-management/settings/alert-documentation';
   rolloverRoute = '/app-management/settings/rollover';
   isFree: boolean;
   inSass: boolean;
+  destroy$: Subject<void> = new Subject<void>();
+  ModulesEnterprise = EnterpriseFeatures;
+  versionType = VersionType;
+  version: VersionType;
 
   constructor(public router: Router,
-              private licenceChangeBehavior: LicenceChangeBehavior,
+              public versionTypeService: VersionTypeService,
               private checkLicenseService: CheckLicenseService,
               private spinner: NgxSpinnerService) {
   }
@@ -34,6 +41,9 @@ export class AppManagementSidebarComponent implements OnInit {
         }
       });
     }*/
+    this.versionTypeService.versionType$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(versionType => this.version = versionType);
   }
 
   private updateView(): void {
@@ -58,5 +68,10 @@ export class AppManagementSidebarComponent implements OnInit {
     this.router.navigate([link]).then(() => {
       this.spinner.hide('licenseSpinner');
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

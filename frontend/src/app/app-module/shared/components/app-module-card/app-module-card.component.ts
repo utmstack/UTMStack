@@ -5,8 +5,11 @@ import {takeUntil} from 'rxjs/operators';
 import {
   ModalConfirmationComponent
 } from '../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
-import {VersionType, VersionTypeService} from '../../../../shared/services/util/version-type.service';
-import {ModulesEnterprise} from '../../../services/module.service';
+import {
+  EnterpriseFeatures,
+  VersionType,
+  VersionTypeService
+} from '../../../../shared/services/util/version-type.service';
 import {UtmModulesEnum} from '../../enum/utm-module.enum';
 import {UtmModuleType} from '../../type/utm-module.type';
 
@@ -19,7 +22,7 @@ import {UtmModuleType} from '../../type/utm-module.type';
 export class AppModuleCardComponent implements OnInit, OnDestroy {
 
   constructor(private versionTypeService: VersionTypeService,
-              private modalService: NgbModal,) {
+              private modalService: NgbModal) {
   }
   @Input() module: UtmModuleType;
   @Output() showModuleIntegration = new EventEmitter<UtmModuleType>();
@@ -27,7 +30,7 @@ export class AppModuleCardComponent implements OnInit, OnDestroy {
   version: VersionType;
   modules = UtmModulesEnum;
   destroy$: Subject<void> = new Subject<void>();
-  ModulesEnterprise = ModulesEnterprise;
+  ModulesEnterprise = EnterpriseFeatures;
 
   ngOnInit() {
     this.versionTypeService.versionType$
