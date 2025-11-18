@@ -29,6 +29,9 @@ export class ProviderComponent {
   }
 
   toggleActive(provider: UtmIdentityProvider): void {
-    this.toggleStatus.emit(provider);
+    this.toggleStatus.emit({
+      ...provider,
+      active: !provider.active
+    });
   }
 }

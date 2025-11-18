@@ -16,9 +16,7 @@ import {
 export class LoginProvidersComponent implements OnInit {
 
   request = {
-    criteria: {
-      'active.equals': true,
-    },
+    'active.equals': true,
     page: 0,
     size: 10
   };

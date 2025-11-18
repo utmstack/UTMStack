@@ -40,8 +40,11 @@ export class ProviderFormComponent implements OnInit {
       this.providerTypes = this.providerTypes.filter(pt => pt.value === this.provider.providerType);
       this.providerForm.patchValue(this.provider);
 
-      this.providerForm.get('scopes').setValue(this.provider.scopes?.split(',') || []);
-      this.providerForm.get('allowedDomains').setValue(this.provider.allowedDomains?.split(',') || []);
+      const scopes = this.provider.scopes ? this.provider.scopes.split(',') : [];
+      const allowedDomains = this.provider.allowedDomains ? this.provider.allowedDomains.split(',') : [];
+
+      this.providerForm.get('scopes').setValue(scopes);
+      this.providerForm.get('allowedDomains').setValue(allowedDomains);
     }
   }
 
