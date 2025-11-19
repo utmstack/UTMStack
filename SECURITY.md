@@ -13,10 +13,15 @@
 |  7.x      | :x:                | Jan 15, 2022 |
 |  8.x      | :x:                | Jan 15, 2023 |
 |  9.x      | :x:                | Jan 15, 2024 |
-|  10.x     | :white_check_mark: | Jan 15, 2026 |
-|  11.x LTS | :date:             | Jan 15, 2030 |
-|  12.x LTS | :clock1:           | Jan 15, 2036 |
+|  10.x     | :clock1:           | Jul 15, 2026 |
+|  11.x LTS | :white_check_mark: | Jan 15, 2030 |
 
-:white_check_mark: Supported | :x: Unsupported | :date: Will be released soon | :clock1: Planned
+### Legend
+```list
+✅ Features, Security and Bug Fix
+🕐 Security and Bug Fix Only
+📅 Planned
+❌ Unsupported
+```
 
 Please report security vulnerabilities to support@utmstack.com
