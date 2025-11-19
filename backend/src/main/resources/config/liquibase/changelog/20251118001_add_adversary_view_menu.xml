@@ -8,7 +8,7 @@
         <insert tableName="utm_menu">
             <column name="id" value="316"/>
             <column name="name" value="Adversary View"/>
-            <column name="url" value="/data/alert/adversary-view"/>
+            <column name="url" value="/data/adversary/view"/>
             <column name="parent_id" value="300"/>
             <column name="type" value="1"/>
             <column name="dashboard_id" valueNumeric="NULL"/>
