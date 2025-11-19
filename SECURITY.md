@@ -14,7 +14,7 @@
 |  8.x      | :x:                | Jan 15, 2023 |
 |  9.x      | :x:                | Jan 15, 2024 |
 |  10.x     | :clock1:           | Jul 15, 2026 |
-|  11.x LTS | :white_check_mark: | Jan 15, 2030 |
+|  11.x LTS | :white_check_mark: | Nov 15, 2030 |
 
 ### Legend
 ```list
