@@ -77,6 +77,7 @@ export class AlertGenericFilterComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((filters: ElasticFilterType[]) => {
       if (filters) {
+        console.log('here filters generic', filters);
         this.activeFilters = filters;
         this.getFieldValues();
         const index = filters.findIndex(value => value.field
