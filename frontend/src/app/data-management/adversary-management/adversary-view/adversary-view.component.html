@@ -12,7 +12,17 @@
 
     <div class="flex-grow-1">
       <div class="card h-100">
-
+        <div class="card-header p-2 w-100">
+          <div class="d-flex mt-2">
+            <app-elastic-filter-time (timeFilterChange)="onTimeFilterChange($event)"
+                                     *ngIf="defaultTime"
+                                     [container]="'body'"
+                                     [changeOnInit]="'NO'"
+                                     [defaultTime]="defaultTime"
+                                     [template]="'log-explorer'">
+            </app-elastic-filter-time>
+          </div>
+        </div>
       </div>
     </div>
   </div>
