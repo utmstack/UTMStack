@@ -1,5 +1,6 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {
+  ADVERSARY_FILTERS_FIELDS,
   ALERT_FILTERS_FIELDS,
   EVENT_FILTERS_FIELDS,
   INCIDENT_FILTERS_FIELDS
@@ -10,13 +11,16 @@ import {ElasticFilterType} from '../../../../../../shared/types/filter/elastic-f
 import {UtmFieldType} from '../../../../../../shared/types/table/utm-field.type';
 import {AlertDataTypeBehavior} from '../../../behavior/alert-data-type.behavior';
 import {EventDataTypeEnum} from '../../../enums/event-data-type.enum';
+import {takeUntil} from "rxjs/operators";
+import {Subject} from "rxjs";
 
 @Component({
   selector: 'app-alert-filter',
   templateUrl: './alert-filter.component.html',
   styleUrls: ['./alert-filter.component.scss']
 })
-export class AlertFilterComponent implements OnInit {
+export class AlertFilterComponent implements OnInit, OnDestroy {
+
   fieldFilters: UtmFieldType[];
   alertPrefix = NatureDataPrefixEnum.ALERT + '*';
   @Input() dataType: EventDataTypeEnum;
@@ -24,12 +28,25 @@ export class AlertFilterComponent implements OnInit {
   @Output() filterReset = new EventEmitter<boolean>();
   canClickFor = 5000;
   isResettingFilters = false;
+  destroy$ = new Subject<void>();
 
-  constructor(private alertDataTypeBehavior: AlertDataTypeBehavior) {
+  filterFields: Record<EventDataTypeEnum, UtmFieldType[]> = {
+    [EventDataTypeEnum.INCIDENT]: INCIDENT_FILTERS_FIELDS,
+    [EventDataTypeEnum.EVENT]: EVENT_FILTERS_FIELDS,
+    [EventDataTypeEnum.ALERT]: ALERT_FILTERS_FIELDS,
+    [EventDataTypeEnum.FALSE_POSITIVE]: ALERT_FILTERS_FIELDS,
+    [EventDataTypeEnum.ADVERSARY]: ADVERSARY_FILTERS_FIELDS
+  };
+
+
+  constructor(private alertDataTypeBehavior: AlertDataTypeBehavior,
+              private cdr: ChangeDetectorRef) {
   }
 
   ngOnInit() {
-    this.alertDataTypeBehavior.$alertDataType.subscribe(dataType => {
+    this.alertDataTypeBehavior.$alertDataType
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(dataType => {
       if (dataType) {
         this.fieldFilters = this.resolveFiltersField(dataType);
       }
@@ -37,16 +54,7 @@ export class AlertFilterComponent implements OnInit {
   }
 
   resolveFiltersField(dataType: EventDataTypeEnum): UtmFieldType[] {
-    switch (dataType) {
-      case EventDataTypeEnum.INCIDENT:
-        return INCIDENT_FILTERS_FIELDS;
-      case EventDataTypeEnum.EVENT:
-        return EVENT_FILTERS_FIELDS;
-      case EventDataTypeEnum.ALERT:
-        return ALERT_FILTERS_FIELDS;
-      case EventDataTypeEnum.FALSE_POSITIVE:
-        return ALERT_FILTERS_FIELDS;
-    }
+    return this.filterFields[dataType];
   }
 
   onFilterGenericChange($event: ElasticFilterType) {
@@ -69,5 +77,10 @@ export class AlertFilterComponent implements OnInit {
     setTimeout(() => {
       this.isResettingFilters = false;
     }, this.canClickFor);
+  }
+
+  ngOnDestroy(): void {
+   this.destroy$.next();
+   this.destroy$.complete();
   }
 }
