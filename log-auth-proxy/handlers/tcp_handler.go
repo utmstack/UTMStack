@@ -5,10 +5,10 @@ import (
 	"net"
 	"strings"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/log-auth-proxy/config"
 	"github.com/utmstack/UTMStack/log-auth-proxy/logservice"
 	"github.com/utmstack/UTMStack/log-auth-proxy/middleware"
-	"github.com/utmstack/UTMStack/log-auth-proxy/utils"
 )
 
 func HandleRequest(conn net.Conn, interceptor *middleware.LogAuthInterceptor, logOutputService *logservice.LogOutputService) {
@@ -20,7 +20,7 @@ func HandleRequest(conn net.Conn, interceptor *middleware.LogAuthInterceptor, lo
 
 		parts := strings.Split(message, ",LOG:")
 		if len(parts) != 2 {
-			utils.Logger.ErrorF("INVALID FORMAT expecting AUTH:<token>,LOG:<log>")
+			catcher.Error("INVALID FORMAT expecting AUTH:<token>,LOG:<log>", nil, nil)
 			conn.Write([]byte("INVALID FORMAT expecting AUTH:<token>,LOG:<log>\n"))
 			continue
 		}
@@ -39,6 +39,6 @@ func HandleRequest(conn net.Conn, interceptor *middleware.LogAuthInterceptor, lo
 	}
 
 	if err := scanner.Err(); err != nil {
-		utils.Logger.ErrorF("Error reading from connection: %s", err.Error())
+		catcher.Error("Error reading from connection:", err, nil)
 	}
 }

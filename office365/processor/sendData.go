@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/office365/configuration"
-	"github.com/utmstack/UTMStack/office365/utils"
 )
 
 var transport = &http.Transport{
@@ -29,11 +29,11 @@ func SendToLogstash(data []TransformedLog) *logger.Error {
 	for _, str := range data {
 		body, err := json.Marshal(str)
 		if err != nil {
-			utils.Logger.ErrorF("error encoding log to JSON: %v", err)
+			catcher.Error("error encoding log to JSON", err, nil)
 			continue
 		}
 		if err := sendLogs(body); err != nil {
-			utils.Logger.ErrorF("error sending logs to logstach: %v", err)
+			catcher.Error("error sending logs to logstach", err, nil)
 			continue
 		}
 	}
@@ -45,17 +45,17 @@ func sendLogs(log []byte) error {
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(log))
 	if err != nil {
-		return utils.Logger.ErrorF("error creating request: %v", err.Error())
+		return catcher.Error("error creating request", err, nil)
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return utils.Logger.ErrorF("error sending logs: %v", err.Error())
+		return catcher.Error("error sending logs: %v", err, nil)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return utils.Logger.ErrorF("error sending logs with http code %d", resp.StatusCode)
+		return catcher.Error("error sending logs with http code", nil, map[string]any{"status_code": resp.StatusCode})
 	}
 	return nil
 }

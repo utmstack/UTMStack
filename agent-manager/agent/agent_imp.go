@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/util"
 	"google.golang.org/grpc/codes"
@@ -39,7 +40,7 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthRespo
 				Key: oldAgent.AgentKey,
 			}, nil
 		} else {
-			util.Logger.ErrorF("Agent with hostname %s already exists", agent.Hostname)
+			catcher.Error("Agent already exists", nil, map[string]any{"host_name": agent.Hostname})
 			return nil, status.Errorf(codes.AlreadyExists, "hostname has already been registered")
 		}
 	}
@@ -48,7 +49,7 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthRespo
 	agent.AgentKey = key
 	err = agentService.Create(agent)
 	if err != nil {
-		util.Logger.ErrorF("Failed to create agent: %v", err)
+		catcher.Error("Failed to create agent", err, nil)
 		return nil, err
 	}
 
@@ -58,7 +59,7 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthRespo
 
 	err = lastSeenService.Set(key, time.Now())
 	if err != nil {
-		util.Logger.ErrorF("Failed to set last seen: %v", err)
+		catcher.Error("Failed to set last seen", err, nil)
 		return nil, err
 	}
 	res := &AuthResponse{
@@ -66,7 +67,7 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthRespo
 		Key: key,
 	}
 
-	util.Logger.Info("Agent %s with id %d registered correctly", agent.Hostname, agent.ID)
+	catcher.Info("Agent was registered correctly", map[string]any{"hostname": agent.Hostname, "id": agent.ID})
 	return res, nil
 }
 
@@ -88,7 +89,7 @@ func (s *Grpc) UpdateAgent(ctx context.Context, req *AgentRequest) (*AuthRespons
 
 	agent, err := agentService.FindByID(uint(id))
 	if err != nil {
-		util.Logger.ErrorF("Failed to find agent: %v", err)
+		catcher.Error("Failed to find agent", err, nil)
 		return nil, err
 	}
 
@@ -119,7 +120,7 @@ func (s *Grpc) UpdateAgent(ctx context.Context, req *AgentRequest) (*AuthRespons
 
 	err = agentService.Update(agent)
 	if err != nil {
-		util.Logger.ErrorF("Failed to update agent: %v", err)
+		catcher.Error("Failed to update agent", err, nil)
 		return nil, err
 	}
 
@@ -128,7 +129,7 @@ func (s *Grpc) UpdateAgent(ctx context.Context, req *AgentRequest) (*AuthRespons
 		Key: agent.AgentKey,
 	}
 
-	util.Logger.Info("Agent %s with id %d updated correctly", agent.Hostname, agent.ID)
+	catcher.Info("Agent was updated correctly", map[string]any{"hostname": agent.Hostname, "id": agent.ID})
 	return res, nil
 }
 
@@ -146,7 +147,7 @@ func (s *Grpc) DeleteAgent(ctx context.Context, req *AgentDelete) (*AuthResponse
 
 	id, err := agentService.Delete(uuid.MustParse(key), req.DeletedBy)
 	if err != nil {
-		util.Logger.ErrorF("Unable to delete agent: %v", err)
+		catcher.Error("Unable to delete agent", err, nil)
 		return &AuthResponse{}, status.Error(codes.Internal, fmt.Sprintf("unable to delete agent: %v", err.Error()))
 	}
 
@@ -158,7 +159,7 @@ func (s *Grpc) DeleteAgent(ctx context.Context, req *AgentDelete) (*AuthResponse
 	delete(s.AgentStreamMap, key)
 	s.agentStreamMutex.Unlock()
 
-	util.Logger.Info("Agent with key %s deleted by %s", key, req.DeletedBy)
+	catcher.Info("Agent was deleted", map[string]any{"key": key, "deleted_by": req.DeletedBy})
 
 	return &AuthResponse{
 		Id:  uint32(id),
@@ -173,7 +174,7 @@ func (s *Grpc) ListAgents(ctx context.Context, req *ListRequest) (*ListAgentsRes
 
 	agents, total, err := agentService.ListAgents(page, filter)
 	if err != nil {
-		util.Logger.ErrorF("failed to fetch agents: %v", err)
+		catcher.Error("failed to fetch agents", err, nil)
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
 	}
 	return convertToAgentResponse(agents, total)
@@ -202,7 +203,7 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 				delete(s.AgentStreamMap, agentKey)
 				s.agentStreamMutex.Unlock()
 
-				util.Logger.ErrorF("failed to reconnect to client: %v", err)
+				catcher.Error("failed to reconnect to client", err, nil)
 				return fmt.Errorf("failed to reconnect to client: %v", err)
 			}
 
@@ -226,10 +227,10 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 
 		switch msg := in.StreamMessage.(type) {
 		case *BidirectionalStream_Command:
-			util.Logger.Info("Received command: %s", msg.Command.CmdId)
+			catcher.Info("Received command", map[string]any{"cmd_id": msg.Command.CmdId})
 
 		case *BidirectionalStream_Result:
-			util.Logger.Info("Received command result: %s", msg.Result.CmdId)
+			catcher.Info("Received command result", map[string]any{"cmd_id": msg.Result.CmdId})
 
 			cmdID := msg.Result.GetCmdId()
 
@@ -244,7 +245,7 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 					},
 				},
 			}); err != nil {
-				util.Logger.ErrorF("Failed to send result to server: %v", err)
+				catcher.Error("Failed to send result to server", err, nil)
 			}
 			s.resultChannelM.Lock()
 			if resultChan, ok := s.ResultChannel[cmdID]; ok {
@@ -256,7 +257,7 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 				}
 
 			} else {
-				util.Logger.ErrorF("Failed to find result channel for CmdID: %s", cmdID)
+				catcher.Error("Failed to find result channel for CmdID", nil, map[string]any{"cmd_id": cmdID})
 			}
 			s.resultChannelM.Unlock()
 		}
@@ -346,12 +347,12 @@ func (s *Grpc) ProcessCommand(stream PanelService_ProcessCommandServer) error {
 
 func (s *Grpc) UpdateAgentGroup(ctx context.Context, req *AgentGroupUpdate) (*Agent, error) {
 	if req.AgentId == 0 || req.AgentGroup == 0 {
-		util.Logger.ErrorF("Error in req")
+		catcher.Error("Error in req", nil, nil)
 		return nil, status.Errorf(codes.FailedPrecondition, "error in req")
 	}
 	agent, err := agentService.UpdateAgentGroup(uint(req.AgentId), uint(req.AgentGroup))
 	if err != nil {
-		util.Logger.ErrorF("Unable to update group: %v", err)
+		catcher.Error("Unable to update group", err, nil)
 		return nil, status.Errorf(codes.Internal, "unable to update group: %v", err)
 	}
 	return parseAgentToProto(agent), nil
@@ -359,12 +360,12 @@ func (s *Grpc) UpdateAgentGroup(ctx context.Context, req *AgentGroupUpdate) (*Ag
 
 func (s *Grpc) GetAgentByHostname(ctx context.Context, req *Hostname) (*Agent, error) {
 	if req.Hostname == "" {
-		util.Logger.ErrorF("Error in req")
+		catcher.Error("Error in req", nil, nil)
 		return nil, status.Errorf(codes.FailedPrecondition, "error in req")
 	}
 	agent, err := agentService.FindByHostname(req.Hostname)
 	if err != nil {
-		util.Logger.ErrorF("Unable to find agent with hostname: %v", err)
+		catcher.Error("Unable to find agent with hostname", err, nil)
 		return nil, status.Errorf(codes.NotFound, "unable to find agent with hostname: %v", err)
 	}
 	return parseAgentToProto(*agent), nil
@@ -376,7 +377,7 @@ func (s *Grpc) UpdateAgentType(ctx context.Context, req *AgentTypeUpdate) (*Agen
 	}
 	agent, err := agentService.UpdateAgentType(uint(req.AgentId), uint(req.AgentType))
 	if err != nil {
-		util.Logger.ErrorF("Unable to update type: %v", err)
+		catcher.Error("Unable to update type", err, nil)
 		return nil, status.Errorf(codes.Internal, "unable to update type: %v", err)
 	}
 	return parseAgentToProto(agent), nil
@@ -387,7 +388,7 @@ func (s *Grpc) LoadAgentCacheFromDatabase() error {
 	// Fill the agentCache map with agentID and agentToken pairs
 	agents, err := agentService.FindAll()
 	if err != nil {
-		util.Logger.ErrorF("Failed to fetch agents from database: %v", err)
+		catcher.Error("Failed to fetch agents from database", err, nil)
 		return err
 	}
 	for _, agent := range agents {
@@ -403,7 +404,7 @@ func (s *Grpc) ListAgentsWithCommands(ctx context.Context, req *ListRequest) (*L
 
 	agents, total, err := agentService.ListAgentWithCommands(page, filter)
 	if err != nil {
-		util.Logger.ErrorF("failed to fetch agents: %v", err)
+		catcher.Error("failed to fetch agents", err, nil)
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
 	}
 
@@ -459,14 +460,14 @@ func createHistoryCommand(cmd *UtmCommand, cmdID string) {
 	}
 	err := agentCommandService.Create(cmdHistory)
 	if err != nil {
-		util.Logger.ErrorF("Unable to create a new command history")
+		catcher.Error("Unable to create a new command history", err, nil)
 	}
 }
 
 func updateHistoryCommand(cmdResult *CommandResult, cmdID string) {
 	err := agentCommandService.UpdateCommandStatusAndResult(findAgentIdByKey(CacheAgent, cmdResult.AgentKey), cmdID, models.Executed, cmdResult.Result)
 	if err != nil {
-		util.Logger.ErrorF("Failed to update command status")
+		catcher.Error("Failed to update command status", nil, nil)
 	}
 }
 

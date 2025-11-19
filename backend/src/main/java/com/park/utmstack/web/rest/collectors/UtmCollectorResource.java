@@ -16,6 +16,7 @@ import com.park.utmstack.service.application_modules.UtmModuleGroupConfiguration
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
 import com.park.utmstack.service.collectors.CollectorOpsService;
 import com.park.utmstack.service.collectors.UtmCollectorService;
+import com.park.utmstack.service.dto.collectors.dto.CollectorConfigKeysDTO;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
@@ -94,7 +95,7 @@ public class UtmCollectorResource {
      */
     @PostMapping("/collector-config")
     public ResponseEntity<Void> upsertCollectorConfig(
-            @Valid @RequestBody UtmModuleGroupConfigurationResource.UpdateConfigurationKeysBody collectorConfig,
+            @Valid @RequestBody CollectorConfigKeysDTO collectorConfig,
             CollectorDTO collectorDTO) {
         final String ctx = CLASSNAME + ".upsertCollectorConfig";
 

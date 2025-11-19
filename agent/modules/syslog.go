@@ -9,6 +9,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,6 +18,20 @@ import (
 	"github.com/utmstack/UTMStack/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/parser"
 	"github.com/utmstack/UTMStack/agent/utils"
+)
+
+const (
+	MinBufferSize         = 480
+	RecommendedBufferSize = 2048
+	MaxBufferSize         = 8192
+	UDPBufferSize         = 2048
+)
+
+type FramingMethod int
+
+const (
+	FramingNewline FramingMethod = iota
+	FramingOctetCounting
 )
 
 type SyslogModule struct {
@@ -206,7 +221,7 @@ func (m *SyslogModule) enableUDP() {
 		m.UDPListener.Listener = listener
 		m.UDPListener.CTX, m.UDPListener.Cancel = context.WithCancel(context.Background())
 
-		buffer := make([]byte, 1024)
+		buffer := make([]byte, UDPBufferSize)
 		msgChannel := make(chan string)
 
 		go m.handleConnectionUDP(msgChannel)
@@ -291,6 +306,88 @@ func (m *SyslogModule) disableUDP() {
 	}
 }
 
+// detectFramingMethod detects the syslog framing method by peeking at the first byte
+func detectFramingMethod(reader *bufio.Reader) (FramingMethod, error) {
+	firstByte, err := reader.Peek(1)
+	if err != nil {
+		utils.Logger.ErrorF("failed to peek first byte for framing detection: %v", err)
+		return 0, fmt.Errorf("failed to peek first byte: %w", err)
+	}
+
+	if firstByte[0] >= '0' && firstByte[0] <= '9' {
+		return FramingOctetCounting, nil
+	}
+
+	if firstByte[0] == '<' {
+		return FramingNewline, nil
+	}
+
+	utils.Logger.ErrorF("unknown framing method detected, first byte: 0x%02x", firstByte[0])
+	return 0, fmt.Errorf("unknown framing method, first byte: 0x%02x", firstByte[0])
+}
+
+// readOctetCountingFrame reads a syslog message using octet counting framing method
+func readOctetCountingFrame(reader *bufio.Reader) (string, error) {
+	lengthStr, err := reader.ReadString(' ')
+	if err != nil {
+		utils.Logger.ErrorF("failed to read message length in octet counting frame: %v", err)
+		return "", fmt.Errorf("failed to read message length: %w", err)
+	}
+
+	lengthStr = strings.TrimSuffix(lengthStr, " ")
+	msgLen, err := strconv.Atoi(lengthStr)
+	if err != nil {
+		utils.Logger.ErrorF("invalid message length '%s' in octet counting frame: %v", lengthStr, err)
+		return "", fmt.Errorf("invalid message length '%s': %w", lengthStr, err)
+	}
+
+	if msgLen < 1 {
+		utils.Logger.ErrorF("message length %d is too small (minimum 1 byte)", msgLen)
+		return "", fmt.Errorf("message length %d is too small (minimum 1)", msgLen)
+	}
+	if msgLen > MaxBufferSize {
+		utils.Logger.ErrorF("message length %d exceeds maximum %d bytes", msgLen, MaxBufferSize)
+		return "", fmt.Errorf("message length %d exceeds maximum %d", msgLen, MaxBufferSize)
+	}
+
+	msgBytes := make([]byte, msgLen)
+	_, err = io.ReadFull(reader, msgBytes)
+	if err != nil {
+		utils.Logger.ErrorF("failed to read %d byte message body: %v", msgLen, err)
+		return "", fmt.Errorf("failed to read %d byte message body: %w", msgLen, err)
+	}
+
+	return string(msgBytes), nil
+}
+
+// readNewlineFrame reads a syslog message using newline-delimited framing method
+func readNewlineFrame(reader *bufio.Reader) (string, error) {
+	message, err := reader.ReadString('\n')
+	if err != nil {
+		utils.Logger.ErrorF("failed to read newline-delimited message: %v", err)
+		return "", fmt.Errorf("failed to read newline-delimited message: %w", err)
+	}
+	return message, nil
+}
+
+// readSyslogMessage reads a syslog message with automatic framing detection
+func readSyslogMessage(reader *bufio.Reader) (string, error) {
+	method, err := detectFramingMethod(reader)
+	if err != nil {
+		return "", err
+	}
+
+	switch method {
+	case FramingOctetCounting:
+		return readOctetCountingFrame(reader)
+	case FramingNewline:
+		return readNewlineFrame(reader)
+	default:
+		utils.Logger.ErrorF("unsupported framing method: %d", method)
+		return "", fmt.Errorf("unsupported framing method: %d", method)
+	}
+}
+
 func (m *SyslogModule) handleConnectionTCP(c net.Conn) {
 	defer c.Close()
 	reader := bufio.NewReader(c)
@@ -336,12 +433,17 @@ func (m *SyslogModule) handleConnectionTCP(c net.Conn) {
 		case <-m.TCPListener.CTX.Done():
 			return
 		default:
-			message, err := reader.ReadString('\n')
+			message, err := readSyslogMessage(reader)
 			if err != nil {
-				if err == io.EOF || err.(net.Error).Timeout() {
+				if err == io.EOF {
+					utils.Logger.Info("TCP connection closed by %s", remoteAddr)
 					return
 				}
-				utils.Logger.ErrorF("error reading tcp data: %v", err)
+				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+					utils.Logger.Info("TCP connection timeout from %s", remoteAddr)
+					return
+				}
+				utils.Logger.ErrorF("error reading syslog message from %s: %v", remoteAddr, err)
 				return
 			}
 			message = config.GetMessageFormated(remoteAddr, message)
@@ -396,15 +498,17 @@ func (m *SyslogModule) handleTLSConnection(conn net.Conn) {
 		default:
 			// Set read timeout for each message
 			conn.SetDeadline(time.Now().Add(30 * time.Second))
-			message, err := reader.ReadString('\n')
+			message, err := readSyslogMessage(reader)
 			if err != nil {
 				if err == io.EOF {
+					utils.Logger.Info("TLS connection closed by %s", remoteAddr)
 					return
 				}
 				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+					utils.Logger.Info("TLS connection timeout from %s", remoteAddr)
 					return
 				}
-				utils.Logger.ErrorF("error reading TLS data from %s: %v", remoteAddr, err)
+				utils.Logger.ErrorF("error reading syslog message from %s via TLS: %v", remoteAddr, err)
 				return
 			}
 			message = config.GetMessageFormated(remoteAddr, message)

@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/agent-manager/util"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -15,7 +16,7 @@ func (s *Grpc) ListAgentCommands(ctx context.Context, req *ListRequest) (*ListAg
 
 	commands, total, err := agentCommandService.ListAgentCommands(page, filter)
 	if err != nil {
-		util.Logger.ErrorF("failed to fetch agents: %v", err)
+		catcher.Error("failed to fetch agents", err, nil)
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
 	}
 

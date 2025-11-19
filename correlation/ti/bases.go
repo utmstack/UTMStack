@@ -1,53 +1,54 @@
 package ti
 
-import (
-	"bufio"
-	"log"
-	"os"
-	"path/filepath"
-)
+// import (
+// 	"bufio"
+// 	"os"
+// 	"path/filepath"
 
-func Load() {
-	log.Printf("Loading Threat Intelligence Feeds")
+// 	"github.com/threatwinds/go-sdk/catcher"
+// )
 
-	var files = []string{
-		"ip_level1.list",
-		"ip_level2.list",
-		"ip_level3.list",
-	}
+// func Load() {
+// 	catcher.Info("Loading Threat Intelligence Feeds", nil)
 
-	for _, file := range files {
-		var t string
+// 	var files = []string{
+// 		"ip_level1.list",
+// 		"ip_level2.list",
+// 		"ip_level3.list",
+// 	}
 
-		switch file {
-		case "ip_level1.list":
-			t = "Low"
-		case "ip_level2.list":
-			t = "Medium"
-		case "ip_level3.list":
-			t = "High"
-		default:
-		}
+// 	for _, file := range files {
+// 		var t string
 
-		f, err := os.Open(filepath.Join("/app", file))
-		if err != nil {
-			log.Printf("Could not open file: %v", err)
-			continue
-		}
+// 		switch file {
+// 		case "ip_level1.list":
+// 			t = "Low"
+// 		case "ip_level2.list":
+// 			t = "Medium"
+// 		case "ip_level3.list":
+// 			t = "High"
+// 		default:
+// 		}
 
-		scanner := bufio.NewScanner(f)
+// 		f, err := os.Open(filepath.Join("/app", file))
+// 		if err != nil {
+// 			catcher.Error("Could not open file", err, nil)
+// 			continue
+// 		}
 
-		for scanner.Scan() {
-			element := scanner.Text()
-			if element == "" {
-				continue
-			}
+// 		scanner := bufio.NewScanner(f)
 
-			blockList[element] = t
-		}
+// 		for scanner.Scan() {
+// 			element := scanner.Text()
+// 			if element == "" {
+// 				continue
+// 			}
 
-		_ = f.Close()
-	}
+// 			blockList[element] = t
+// 		}
 
-	log.Printf("Threat Intelligence feeds loaded")
-}
+// 		_ = f.Close()
+// 	}
+
+// 	catcher.Info("Threat Intelligence feeds loaded", nil)
+// }

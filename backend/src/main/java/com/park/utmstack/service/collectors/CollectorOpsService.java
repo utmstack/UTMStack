@@ -28,6 +28,7 @@ import com.park.utmstack.repository.collector.UtmCollectorRepository;
 import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
 import com.park.utmstack.service.application_modules.UtmModuleService;
+import com.park.utmstack.service.dto.application_modules.ModuleActivationDTO;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
@@ -481,7 +482,11 @@ public class CollectorOpsService {
                             .collect(Collectors.toList());
 
                     if(modules.isEmpty()){
-                        this.utmModuleService.activateDeactivate(module.getServerId(), module.getModuleName(), false);
+                        this.utmModuleService.activateDeactivate(ModuleActivationDTO.builder()
+                                        .serverId(module.getServerId())
+                                        .moduleName(module.getModuleName())
+                                        .activationStatus(false)
+                                .build());
                     }
                 }
             }

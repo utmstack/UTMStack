@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/repository"
-	"github.com/utmstack/UTMStack/agent-manager/util"
 )
 
 type LastSeenService struct {
@@ -31,7 +31,7 @@ func NewLastSeenService() *LastSeenService {
 func (s *LastSeenService) Start() {
 	pings, err := s.repo.GetAll()
 	if err != nil {
-		util.Logger.ErrorF("Failed to populate LastSeen cache: %v", err)
+		catcher.Error("Failed to populate LastSeen cache", err, nil)
 	} else {
 		s.Populate(pings)
 	}
@@ -71,7 +71,7 @@ func (s *LastSeenService) flushCachePeriodically() {
 			// Flush the cache to the database
 			err := s.flushCacheToDB()
 			if err != nil {
-				util.Logger.ErrorF("Failed to flush LastSeen cache to database: %v", err)
+				catcher.Error("Failed to flush LastSeen cache to database", err, nil)
 			}
 		case <-s.stopCh:
 			return

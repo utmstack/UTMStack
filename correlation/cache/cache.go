@@ -1,11 +1,11 @@
 package cache
 
 import (
-	"log"
 	"runtime"
 	"sync"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/tidwall/gjson"
 	"github.com/utmstack/UTMStack/correlation/rules"
 	"github.com/utmstack/UTMStack/correlation/utils"
@@ -19,10 +19,10 @@ var storage []string
 
 func Status() {
 	for {
-		log.Printf("Logs in cache: %v", len(storage))
+		catcher.Info("Logs in cache", map[string]any{"count": len(storage)})
 		if len(storage) != 0 {
 			est := gjson.Get(storage[0], "@timestamp").String()
-			log.Printf("Old document in cache: %s", est)
+			catcher.Info("Old document in cache", map[string]any{"timestamp": est})
 		}
 		time.Sleep(60 * time.Second)
 	}
@@ -47,7 +47,7 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int64) []string {
 		est := gjson.Get(storage[i], "@timestamp").String()
 		eit, err := time.Parse(time.RFC3339Nano, est)
 		if err != nil {
-			log.Printf("Could not parse @timestamp: %v", err)
+			catcher.Error("Could not parse @timestamp:", err, nil)
 			continue
 		}
 		if eit.Unix() < ait {
@@ -85,7 +85,7 @@ var logs = make(chan string, bufferSize)
 
 func AddToCache(l string) {
 	if len(logs) == bufferSize {
-		log.Printf("Buffer is full, you could be lossing events")
+		catcher.Info("Buffer is full, you could be lossing events", nil)
 		return
 	}
 	logs <- l
@@ -116,7 +116,7 @@ func Clean() {
 				old := gjson.Get(storage[0], "@timestamp").String()
 				oldTime, err := time.Parse(time.RFC3339Nano, old)
 				if err != nil {
-					log.Printf("Could not parse old log timestamp. Cleaning up")
+					catcher.Error("Could not parse old log timestamp. Cleaning up", err, nil)
 					clean = true
 				}
 

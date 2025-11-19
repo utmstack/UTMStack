@@ -1,10 +1,12 @@
 package main
 
 import (
+	"os"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/office365/configuration"
 	"github.com/utmstack/UTMStack/office365/processor"
 	"github.com/utmstack/UTMStack/office365/utils"
@@ -14,11 +16,12 @@ import (
 )
 
 func main() {
-	utils.Logger.Info("Starting O365 module")
+	catcher.Info("Starting O365 module", nil)
 	intKey := configuration.GetInternalKey()
 	panelServ := configuration.GetPanelServiceName()
 	if intKey == "" || panelServ == "" {
-		utils.Logger.Fatal("Internal key or panel service name is not set. Exiting...")
+		catcher.Error("Internal key or panel service name is not set. Exiting...", nil, nil)
+		os.Exit(1)
 	}
 	client := utmconf.NewUTMClient(intKey, "http://"+panelServ)
 
@@ -30,20 +33,20 @@ func main() {
 
 	for range ticker.C {
 		if err := utils.ConnectionChecker(configuration.LoginUrl); err != nil {
-			utils.Logger.ErrorF("External connection failure detected: %v", err)
+			catcher.Error("External connection failure detected", err, nil)
 		}
 
 		endTime := time.Now().UTC()
 
-		utils.Logger.Info("Syncing logs from %s to %s", startTime, endTime)
+		catcher.Info("Syncing logs", map[string]any{"start_time": startTime, "end_time": endTime})
 
 		moduleConfig, err := client.GetUTMConfig(enum.O365)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
-				utils.Logger.LogF(100, "error getting configuration of the O365 module: backend is not available")
+				catcher.Error("error getting configuration of the O365 module: backend is not available", nil, nil)
 			}
 			if strings.TrimSpace(err.Error()) != "" {
-				utils.Logger.ErrorF("error getting configuration of the O365 module: %v", err)
+				catcher.Error("error getting configuration of the O365 module", err, nil)
 			}
 			continue
 		}
@@ -59,7 +62,7 @@ func main() {
 
 					for _, cnf := range group.Configurations {
 						if strings.TrimSpace(cnf.ConfValue) == "" {
-							utils.Logger.LogF(100, "program not configured yet for group: %s", group.GroupName)
+							catcher.Error("program not configured yet for group", nil, map[string]any{"group_name": group.GroupName})
 							skip = true
 							break
 						}
@@ -73,7 +76,7 @@ func main() {
 			wg.Wait()
 		}
 
-		utils.Logger.Info("sync completed from %v to %v, waiting 5 minutes", startTime, endTime)
+		catcher.Info("sync completed, waiting 5 minutes", map[string]any{"start_time": startTime, "end_time": endTime})
 		startTime = endTime.Add(time.Nanosecond)
 	}
 }

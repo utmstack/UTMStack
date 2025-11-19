@@ -213,7 +213,7 @@ public class UserService {
         }).map(UserDTO::new);
     }
 
-    public User updateUserTfaSecret(String userLogin, String tfaSecret) throws Exception {
+    public User updateUserTfaSecret(String userLogin, String tfaSecret) {
         final String ctx = CLASS_NAME + ".updateUserTfaSecret";
         try {
             User user = userRepository.findOneByLogin(userLogin)
@@ -221,7 +221,7 @@ public class UserService {
             user.setTfaSecret(tfaSecret);
             return userRepository.save(user);
         } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
+            throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
 

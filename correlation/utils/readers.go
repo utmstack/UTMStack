@@ -2,37 +2,37 @@ package utils
 
 import (
 	"encoding/csv"
-	"log"
 	"os"
 	"reflect"
 	"strconv"
 	"strings"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"gopkg.in/yaml.v3"
 )
 
 func ReadYaml(url string, result interface{}) {
 	f, err := os.Open(url)
 	if err != nil {
-		log.Printf("Could not open file: %v", err)
+		catcher.Error("Could not open file", err, nil)
 	}
 	defer f.Close()
 	d := yaml.NewDecoder(f)
 	if err := d.Decode(result); err != nil {
-		log.Printf("Could not decode YAML: %v", err)
+		catcher.Error("Could not decode YAML", err, nil)
 	}
 }
 
 func ReadCSV(url string) [][]string {
 	f, err := os.Open(url)
 	if err != nil {
-		log.Printf("Could not open file: %v", err)
+		catcher.Error("Could not open file", err, nil)
 	}
 	defer f.Close()
 	r := csv.NewReader(f)
 	result, err := r.ReadAll()
 	if err != nil {
-		log.Printf("Could not read CSV: %v", err)
+		catcher.Error("Could not read CSV", err, nil)
 	}
 	return result
 }
@@ -51,13 +51,13 @@ func ReadEnvVars(cfg interface{}) {
 		// Check if the environment variable exists
 		envValue, exists := os.LookupEnv(envTag)
 		if !exists {
-			log.Printf("Environment variable %s not set, skipping...", envTag)
+			catcher.Error("Environment variable not set", nil, map[string]any{"env_var": envTag})
 			continue
 		}
 
 		fieldValue := v.Field(i)
 		if !fieldValue.CanSet() {
-			log.Printf("Cannot set field %s, skipping...", field.Name)
+			catcher.Error("Cannot set field", nil, map[string]any{"field": field.Name})
 			continue
 		}
 
@@ -68,25 +68,25 @@ func ReadEnvVars(cfg interface{}) {
 			if intValue, err := strconv.ParseInt(envValue, 10, fieldValue.Type().Bits()); err == nil {
 				fieldValue.SetInt(intValue)
 			} else {
-				log.Printf("Failed to convert %s to int for field %s: %v", envValue, field.Name, err)
+				catcher.Error("Failed to convert to int", err, map[string]any{"value": envValue, "field": field.Name})
 			}
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			if uintValue, err := strconv.ParseUint(envValue, 10, fieldValue.Type().Bits()); err == nil {
 				fieldValue.SetUint(uintValue)
 			} else {
-				log.Printf("Failed to convert %s to uint for field %s: %v", envValue, field.Name, err)
+				catcher.Error("Failed to convert to uint", err, map[string]any{"value": envValue, "field": field.Name})
 			}
 		case reflect.Float32, reflect.Float64:
 			if floatValue, err := strconv.ParseFloat(envValue, fieldValue.Type().Bits()); err == nil {
 				fieldValue.SetFloat(floatValue)
 			} else {
-				log.Printf("Failed to convert %s to float for field %s: %v", envValue, field.Name, err)
+				catcher.Error("Failed to convert to float", err, map[string]any{"value": envValue, "field": field.Name})
 			}
 		case reflect.Bool:
 			if boolValue, err := strconv.ParseBool(envValue); err == nil {
 				fieldValue.SetBool(boolValue)
 			} else {
-				log.Printf("Failed to convert %s to bool for field %s: %v", envValue, field.Name, err)
+				catcher.Error("Failed to convert to bool", err, map[string]any{"value": envValue, "field": field.Name})
 			}
 		case reflect.Slice:
 			elements := reflect.MakeSlice(fieldValue.Type(), 0, 0)
@@ -98,7 +98,7 @@ func ReadEnvVars(cfg interface{}) {
 			ptr := reflect.New(fieldValue.Type().Elem())
 			fieldValue.Set(ptr)
 		default:
-			log.Printf("Unsupported field type %s for field %s", fieldValue.Kind(), field.Name)
+			catcher.Error("Unsupported field type", nil, map[string]any{"field": field.Name, "type": fieldValue.Kind()})
 		}
 	}
 }

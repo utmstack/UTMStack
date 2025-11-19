@@ -1,22 +1,22 @@
 package rules
 
 import (
-	"log"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/correlation/utils"
 )
 
 func ListRulesFiles() []string {
 	var files []string
 	cnf := utils.GetConfig()
-	log.Printf("Listing rules files in %s", cnf.RulesFolder)
+	catcher.Info("Listing rules files", map[string]any{"folder": cnf.RulesFolder})
 	err := filepath.Walk(cnf.RulesFolder, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			log.Printf("Could not list rules files: %v", err)
+			catcher.Error("Could not list rules files", err, nil)
 		}
 
 		if filepath.Ext(path) == ".yml" {
@@ -25,7 +25,7 @@ func ListRulesFiles() []string {
 		return nil
 	})
 	if err != nil {
-		log.Printf("Could not list rules files: %v", err)
+		catcher.Error("Could not list rules files", err, nil)
 	}
 
 	return files
@@ -76,15 +76,15 @@ func GetRules() []Rule {
 	var rules []Rule
 
 	for _, file := range ListRulesFiles() {
-		log.Printf("Reading rules from: %s", file)
+		catcher.Info("Reading rules from", map[string]any{"file": file})
 		utils.ReadYaml(file, &tmpRules)
-		log.Printf("%v rule/s found", len(tmpRules))
+		catcher.Info("rule/s found", map[string]any{"count": len(tmpRules)})
 		for _, tr := range tmpRules {
 			n := true
 			for _, r := range rules {
 				if r.Name == tr.Name {
 					n = false
-					log.Printf("Ignoring rule: '%s' from: %s", r.Name, file)
+					catcher.Info("Ignoring rule", map[string]any{"name": r.Name, "file": file})
 					break
 				}
 			}
@@ -101,7 +101,7 @@ func Changes(signals chan os.Signal) {
 	cnf := utils.GetConfig()
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Printf("Could not create a new watcher: %v", err)
+		catcher.Error("Could not create a new watcher", err, nil)
 	}
 	defer watcher.Close()
 
@@ -111,16 +111,16 @@ func Changes(signals chan os.Signal) {
 			select {
 			case err, ok := <-watcher.Errors:
 				if !ok {
-					log.Printf("Could not detect changes in ruleset: %v", err)
+					catcher.Error("Could not detect changes in ruleset", err, nil)
 				}
 			case event, ok := <-watcher.Events:
 				if !ok {
-					log.Printf("Error trying to detect changes in ruleset.")
+					catcher.Error("Error trying to detect changes in ruleset", err, nil)
 				}
 				if event.Op&fsnotify.Write == fsnotify.Write {
 					if event.Name != cnf.RulesFolder+"system/.git/FETCH_HEAD" {
-						log.Printf("Changes detected in: %s", event.Name)
-						log.Printf("Restarting correlation engine")
+						catcher.Info("Changes detected in", map[string]any{"file": event.Name})
+						catcher.Info("Restarting correlation engine", nil)
 						signals <- os.Interrupt
 					}
 				}
@@ -134,7 +134,7 @@ func Changes(signals chan os.Signal) {
 		for {
 			err := filepath.Walk(cnf.RulesFolder, func(path string, info os.FileInfo, err error) error {
 				if err != nil {
-					log.Printf("Could not list rules folders: %v", err)
+					catcher.Error("Could not list rules folders", err, nil)
 				}
 				n := true
 				if info.IsDir() {
@@ -147,7 +147,7 @@ func Changes(signals chan os.Signal) {
 					if n {
 						folders = append(folders, path)
 						if err := watcher.Add(path); err != nil {
-							log.Printf("Could not start watcher for a rules folder: %v", err)
+							catcher.Error("Could not start watcher for a rules folder", err, nil)
 						}
 
 					}
@@ -155,7 +155,7 @@ func Changes(signals chan os.Signal) {
 				return nil
 			})
 			if err != nil {
-				log.Printf("Could not list rules folders: %v", err)
+				catcher.Error("Could not list rules folders", err, nil)
 				continue
 			}
 

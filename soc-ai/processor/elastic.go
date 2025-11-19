@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/soc-ai/configurations"
 	"github.com/utmstack/soc-ai/elastic"
 	"github.com/utmstack/soc-ai/schema"
-	"github.com/utmstack/soc-ai/utils"
 )
 
 func (p *Processor) processAlertToElastic() {
@@ -30,16 +30,16 @@ func (p *Processor) processAlertToElastic() {
 		if gptConfig.ChangeAlertStatus {
 			err = elastic.ChangeAlertStatus(alert.AlertID, configurations.API_ALERT_COMPLETED_STATUS_CODE, alert.GPTClassification+" - "+alert.GPTReasoning)
 			if err != nil {
-				utils.Logger.ErrorF("error while changing alert status in elastic: %v", err)
+				catcher.Error("error while changing alert status in elastic", err, nil)
 				continue
 			}
-			utils.Logger.Info("alert %s status changed to COMPLETED in Panel", alert.AlertID)
+			catcher.Info("alert status changed to COMPLETED in Panel", map[string]any{"alert": alert.AlertID})
 		}
 
 		if gptConfig.AutomaticIncidentCreation && alert.GPTClassification == "possible incident" {
 			incidentsDetails, err := elastic.GetIncidentsByPattern("Incident in " + alert.DataSource)
 			if err != nil {
-				utils.Logger.ErrorF("error while getting incidents by pattern: %v", err)
+				catcher.Error("error while getting incidents by pattern", err, nil)
 				continue
 			}
 
@@ -50,7 +50,7 @@ func (p *Processor) processAlertToElastic() {
 						incidentExists = true
 						err = elastic.AddAlertToIncident(incident.ID, alert)
 						if err != nil {
-							utils.Logger.ErrorF("error while adding alert to incident: %v", err)
+							catcher.Error("error while adding alert to incident", err, nil)
 							continue
 						}
 					}
@@ -60,14 +60,14 @@ func (p *Processor) processAlertToElastic() {
 			if !incidentExists {
 				err = elastic.CreateNewIncident(alert)
 				if err != nil {
-					utils.Logger.ErrorF("error while creating incident: %v", err)
+					catcher.Error("error while creating incident", err, nil)
 					continue
 				}
 			}
-			utils.Logger.Info("alert %s added to incident in Panel", alert.AlertID)
+			catcher.Info("alert added to incident in Panel", map[string]any{"alert": alert.AlertID})
 		}
 
-		utils.Logger.Info("alert %s processed correctly", alert.AlertID)
+		catcher.Info("alert processed correctly", map[string]any{"alert": alert.AlertID})
 
 	}
 }

@@ -4,7 +4,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/threatwinds/go-sdk/catcher"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -29,7 +29,7 @@ func (s *Grpc) Ping(stream PingService_PingServer) error {
 		}
 		err = lastSeenService.Set(key, time.Now())
 		if err != nil {
-			util.Logger.ErrorF("unable to update last seen for: %s with error:%s", key, err)
+			catcher.Error("unable to update", err, map[string]any{"key": key})
 		}
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/bitdefender/configuration"
 	"github.com/utmstack/UTMStack/bitdefender/server"
 	"github.com/utmstack/UTMStack/bitdefender/utils"
@@ -21,18 +22,21 @@ var (
 func main() {
 	path, err := utils.GetMyPath()
 	if err != nil {
-		utils.Logger.Fatal("failed to get current path: %v", err)
+		catcher.Error("failed to get current path", err, nil)
+		os.Exit(1)
 	}
 
 	certsPath := filepath.Join(path, "certs")
 	err = utils.CreatePathIfNotExist(certsPath)
 	if err != nil {
-		utils.Logger.Fatal("error creating path: %s", err)
+		catcher.Error("error creating path", err, nil)
+		os.Exit(1)
 	}
 
 	err = utils.GenerateCerts(certsPath)
 	if err != nil {
-		utils.Logger.Fatal("error generating certificates: %v", err)
+		catcher.Error("error generating certificates", err, nil)
+		os.Exit(1)
 	}
 
 	server.ServerUp(&moduleConfig, certsPath)

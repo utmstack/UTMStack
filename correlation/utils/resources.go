@@ -1,11 +1,11 @@
 package utils
 
 import (
-	"log"
 	"runtime"
 	"time"
 
 	"github.com/shirou/gopsutil/v3/mem"
+	"github.com/threatwinds/go-sdk/catcher"
 )
 
 var AssignedMemory float32
@@ -29,11 +29,11 @@ func UsedByEngineMemory() uint64 {
 func Status() {
 	for {
 		usedByEngine := UsedByEngineMemory()
-		log.Printf("Memory used by engine: %v MB", usedByEngine)
-		log.Printf("Free memory: %v MB", FreeMemory())
-		log.Printf("Physical memory: %v MB", TotalMemory())
+		catcher.Info("Memory used by engine", map[string]any{"used_by_engine": usedByEngine})
+		catcher.Info("Free memory", map[string]any{"free_memory": FreeMemory()})
+		catcher.Info("Physical memory", map[string]any{"physical_memory": TotalMemory()})
 		AssignedMemory = float32(usedByEngine) / float32(TotalMemory()/4) * 100
-		log.Printf("Assigned memory used: %v %%", AssignedMemory)
+		catcher.Info("Assigned memory used", map[string]any{"assigned_memory_used": AssignedMemory})
 		time.Sleep(60 * time.Second)
 	}
 }

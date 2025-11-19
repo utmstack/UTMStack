@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/threatwinds/logger"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/sophos/configuration"
 	"github.com/utmstack/UTMStack/sophos/utils"
 	"github.com/utmstack/config-client-go/types"
@@ -35,7 +35,7 @@ func getSophosCentralProcessor(group types.ModuleGroup) SophosCentralProcessor {
 	return sophosProcessor
 }
 
-func (p *SophosCentralProcessor) getAccessToken() (string, *logger.Error) {
+func (p *SophosCentralProcessor) getAccessToken() (string, error) {
 	data := url.Values{}
 	data.Set("grant_type", "client_credentials")
 	data.Set("client_id", p.ClientID)
@@ -48,17 +48,17 @@ func (p *SophosCentralProcessor) getAccessToken() (string, *logger.Error) {
 
 	response, _, err := utils.DoReq[map[string]any](configuration.AUTHURL, []byte(data.Encode()), http.MethodPost, headers)
 	if err != nil {
-		return "", utils.Logger.ErrorF("error making auth request: %v", err)
+		return "", catcher.Error("error making auth request", err, nil)
 	}
 
 	accessToken, ok := response["access_token"].(string)
 	if !ok || accessToken == "" {
-		return "", utils.Logger.ErrorF("access_token not found in response")
+		return "", catcher.Error("access_token not found in response", nil, nil)
 	}
 
 	expiresIn, ok := response["expires_in"].(float64)
 	if !ok {
-		return "", utils.Logger.ErrorF("expires_in not found in response")
+		return "", catcher.Error("expires_in not found in response", nil, nil)
 	}
 
 	p.AccessToken = accessToken
@@ -76,7 +76,7 @@ type ApiHosts struct {
 	DataRegion string `json:"dataRegion"`
 }
 
-func (p *SophosCentralProcessor) getTenantInfo(accessToken string) *logger.Error {
+func (p *SophosCentralProcessor) getTenantInfo(accessToken string) error {
 	headers := map[string]string{
 		"accept":        "application/json",
 		"Authorization": "Bearer " + accessToken,
@@ -84,23 +84,23 @@ func (p *SophosCentralProcessor) getTenantInfo(accessToken string) *logger.Error
 
 	response, _, err := utils.DoReq[WhoamiResponse](configuration.WHOAMIURL, nil, http.MethodGet, headers)
 	if err != nil {
-		return utils.Logger.ErrorF("error making whoami request: %v", err)
+		return catcher.Error("error making whoami request", err, nil)
 	}
 
 	if response.ID == "" {
-		return utils.Logger.ErrorF("tenant ID not found in whoami response")
+		return catcher.Error("tenant ID not found in whoami response", nil, nil)
 	}
 	p.TenantID = response.ID
 
 	if response.ApiHosts.DataRegion == "" {
-		return utils.Logger.ErrorF("dataRegion not found in whoami response")
+		return catcher.Error("dataRegion not found in whoami response", nil, nil)
 	}
 	p.DataRegion = response.ApiHosts.DataRegion
 
 	return nil
 }
 
-func (p *SophosCentralProcessor) getValidAccessToken() (string, *logger.Error) {
+func (p *SophosCentralProcessor) getValidAccessToken() (string, error) {
 	if p.AccessToken != "" && time.Now().Before(p.ExpiresAt) {
 		return p.AccessToken, nil
 	}
@@ -119,15 +119,15 @@ type Pages struct {
 	MaxSize int64  `json:"maxSize"`
 }
 
-func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string, group types.ModuleGroup) ([]TransformedLog, string, *logger.Error) {
+func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string, group types.ModuleGroup) ([]TransformedLog, string, error) {
 	accessToken, err := p.getValidAccessToken()
 	if err != nil {
-		return nil, "", utils.Logger.ErrorF("error getting access token: %v", err)
+		return nil, "", catcher.Error("error getting access token", err, nil)
 	}
 
 	if p.TenantID == "" || p.DataRegion == "" {
 		if err := p.getTenantInfo(accessToken); err != nil {
-			return nil, "", utils.Logger.ErrorF("error getting tenant information: %v", err)
+			return nil, "", catcher.Error("error getting tenant information", err, nil)
 		}
 	}
 
@@ -138,7 +138,7 @@ func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string, group t
 	for {
 		u, err := p.buildURL(fromTime, currentNextKey)
 		if err != nil {
-			return nil, "", utils.Logger.ErrorF("error building URL: %v", err)
+			return nil, "", catcher.Error("error building URL", err, nil)
 		}
 
 		headers := map[string]string{
@@ -165,11 +165,11 @@ func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string, group t
 	return transformedLogs, currentNextKey, nil
 }
 
-func (p *SophosCentralProcessor) buildURL(fromTime int64, nextKey string) (*url.URL, *logger.Error) {
+func (p *SophosCentralProcessor) buildURL(fromTime int64, nextKey string) (*url.URL, error) {
 	baseURL := p.DataRegion + "/siem/v1/events"
 	u, parseErr := url.Parse(baseURL)
 	if parseErr != nil {
-		return nil, utils.Logger.ErrorF("error parsing url: %v", parseErr)
+		return nil, catcher.Error("error parsing url", parseErr, make(map[string]any))
 	}
 
 	params := url.Values{}

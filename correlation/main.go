@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/utmstack/UTMStack/correlation/ti"
+	// "github.com/utmstack/UTMStack/correlation/ti"
 	"os"
 	"os/signal"
 	"syscall"
@@ -33,7 +33,7 @@ import (
 func main() {
 	sqldb.Connect()
 	geo.Load()
-	ti.Load()
+	// ti.Load()
 
 	rulesL := rules.GetRules()
 	for _, rule := range rulesL {
@@ -46,7 +46,7 @@ func main() {
 	go cache.ProcessQueue()
 	go search.ProcessQueue()
 	go statistics.Update()
-	go ti.IsBlocklisted()
+	// go ti.IsBlocklisted()
 
 	go func() {
 		gin.SetMode(gin.ReleaseMode)

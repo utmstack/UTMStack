@@ -4,15 +4,16 @@ import (
 	"context"
 	"crypto/tls"
 	"net"
+	"os"
 
 	_ "net/http/pprof"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	pb "github.com/utmstack/UTMStack/agent-manager/agent"
 	"github.com/utmstack/UTMStack/agent-manager/auth"
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/migration"
 	"github.com/utmstack/UTMStack/agent-manager/updates"
-	"github.com/utmstack/UTMStack/agent-manager/util"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
@@ -22,28 +23,30 @@ import (
 )
 
 func main() {
-	util.Logger.Info("Starting UTMStack Agent Manager")
+	catcher.Info("Starting UTMStack Agent Manager", nil)
 
 	defer func() {
 		if r := recover(); r != nil {
 			// Handle the panic here
-			util.Logger.ErrorF("Panic occurred: %v", r)
+			catcher.Error("Panic occurred", nil, map[string]any{"message": r})
 		}
 	}()
 
-	util.Logger.Info("Initializing database...")
+	catcher.Info("Initializing database...", nil)
 	config.InitDb()
 	migration.MigrateDatabase()
-	util.Logger.Info("[OK] Database initialized")
+	catcher.Info("[OK] Database initialized", nil)
 
 	s, err := pb.InitGrpc()
 	if err != nil {
-		util.Logger.Fatal("Failed to inititialize gRPC: %v", err)
+		catcher.Error("Failed to initialize gRPC", err, nil)
+		os.Exit(1)
 	}
 
 	cert, err := tls.LoadX509KeyPair("/cert/utm.crt", "/cert/utm.key")
 	if err != nil {
-		util.Logger.Fatal("failed to load server certificates: %v", err)
+		catcher.Error("failed to load server certificates", err, nil)
+		os.Exit(1)
 	}
 
 	tlsConfig := &tls.Config{
@@ -81,12 +84,14 @@ func main() {
 
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {
-		util.Logger.Fatal("Failed to listen: %v", err)
+		catcher.Error("Failed to listen", err, nil)
+		os.Exit(1)
 	}
 
-	util.Logger.Info("Starting gRPC server on 0.0.0.0:50051")
+	catcher.Info("Starting gRPC server on 0.0.0.0:50051", nil)
 	if err := grpcServer.Serve(lis); err != nil {
-		util.Logger.Fatal("Failed to serve: %v", err)
+		catcher.Error("Failed to serve", err, nil)
+		os.Exit(1)
 	}
 }
 
@@ -98,7 +103,7 @@ func recoverInterceptor(
 ) (resp interface{}, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			util.Logger.ErrorF("Panic occurred: %v", r)
+			catcher.Error("Panic occurred", nil, map[string]any{"message": r})
 			err = status.Errorf(codes.Internal, "Internal server error")
 		}
 	}()

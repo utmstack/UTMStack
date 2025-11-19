@@ -2,15 +2,16 @@ package correlation
 
 import (
 	"encoding/json"
-	"github.com/google/uuid"
-	"github.com/levigross/grequests"
-	"github.com/utmstack/UTMStack/correlation/geo"
-	"github.com/utmstack/UTMStack/correlation/search"
-	"github.com/utmstack/UTMStack/correlation/utils"
-	"log"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/levigross/grequests"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/UTMStack/correlation/geo"
+	"github.com/utmstack/UTMStack/correlation/search"
+	"github.com/utmstack/UTMStack/correlation/utils"
 )
 
 type Host struct {
@@ -100,7 +101,7 @@ func Alert(name, severity, description, solution, category, tactic string, refer
 		}
 	}
 
-	log.Printf("Reporting alert: %s", name)
+	catcher.Info("Reporting alert", map[string]any{"name": name})
 
 	if !UpdateAlert(name, severity, fields) {
 		NewAlert(name, severity, description, solution, category, tactic, reference, dataType, dataSource,
@@ -113,7 +114,7 @@ func UpdateAlert(name, severity string, details map[string]string) bool {
 
 	index, err := search.IndexBuilder("alert", time.Now().UTC().Format(time.RFC3339Nano))
 	if err != nil {
-		log.Printf("Could not build index name: %v", err)
+		catcher.Error("Could not build index name", err, nil)
 		return true
 	}
 
@@ -208,7 +209,7 @@ func UpdateAlert(name, severity string, details map[string]string) bool {
 		JSON: request,
 	})
 	if err != nil {
-		log.Printf("Could not check existent alert: %v", err)
+		catcher.Error("Could not check existent alert", err, nil)
 		return false
 	}
 
@@ -221,7 +222,7 @@ func UpdateAlert(name, severity string, details map[string]string) bool {
 	err = json.Unmarshal([]byte(resultStr), &resultObj)
 
 	if err != nil {
-		log.Printf("Could not check existent alert: %v", err)
+		catcher.Error("Could not check existent alert", err, nil)
 		return false
 	}
 
@@ -242,7 +243,7 @@ func UpdateAlert(name, severity string, details map[string]string) bool {
 						},
 					})
 					if err != nil {
-						log.Printf("Could not update existent alert: %v", err)
+						catcher.Error("Could not update existent alert", err, nil)
 						return false
 					}
 
@@ -362,13 +363,13 @@ func NewAlert(name, severity, description, solution, category, tactic string, re
 			url := cnf.Elasticsearch + "/" + index + "/_doc"
 			_, err := utils.DoPost(url, "application/json", body)
 			if err != nil {
-				log.Printf("Could not send alert to Elasticsearch: %v", err)
+				catcher.Error("Could not send alert to Elasticsearch", err, nil)
 			}
 		} else {
-			log.Printf("Could not build index name: %v", err)
+			catcher.Error("Could not build index name", err, nil)
 		}
 	} else {
-		log.Printf("Could not encode alert in JSON: %v", err)
+		catcher.Error("Could not encode alert in JSON", err, nil)
 	}
 	time.Sleep(3 * time.Second)
 }

@@ -1,15 +1,16 @@
 package geo
 
 import (
-	"github.com/utmstack/UTMStack/correlation/utils"
-	"log"
 	"net"
 	"path/filepath"
 	"strconv"
+
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/UTMStack/correlation/utils"
 )
 
 func Load() {
-	log.Printf("Loading GeoIP databases")
+	catcher.Info("Loading GeoIP databases", nil)
 
 	var files = []string{
 		"asn-blocks-v4.csv",
@@ -38,10 +39,10 @@ func Load() {
 		}
 	}
 
-	log.Printf("asnBlocks rows: %v", len(asnBlocks))
-	log.Printf("cityBlocks rows: %v", len(cityBlocks))
-	log.Printf("cityLocations rows: %v", len(cityLocations))
-	log.Printf("GeoIP databases loaded")
+	catcher.Info("asnBlocks rows", map[string]any{"count": len(asnBlocks)})
+	catcher.Info("cityBlocks rows", map[string]any{"count": len(cityBlocks)})
+	catcher.Info("cityLocations rows", map[string]any{"count": len(cityLocations)})
+	catcher.Info("GeoIP databases loaded", nil)
 }
 
 func populateASNBlocks(csv [][]string) {
@@ -51,13 +52,13 @@ func populateASNBlocks(csv [][]string) {
 		}
 		_, n, err := net.ParseCIDR(line[0])
 		if err != nil {
-			log.Printf("Could not get CIDR in populateASNBlocks: %v", err)
+			catcher.Error("Could not get CIDR in populateASNBlocks", err, nil)
 			continue
 		}
 
 		asn, err := strconv.Atoi(line[1])
 		if err != nil {
-			log.Printf("Could not get ASN in populateASNBlocks: %v", err)
+			catcher.Error("Could not get ASN in populateASNBlocks", err, nil)
 			continue
 		}
 
@@ -78,7 +79,7 @@ func populateCityBlocks(csv [][]string) {
 		}
 		_, n, err := net.ParseCIDR(line[0])
 		if err != nil {
-			log.Printf("Could not parse CIDR in populateCityBlocks: %v", err)
+			catcher.Error("Could not parse CIDR in populateCityBlocks", err, nil)
 			continue
 		}
 
@@ -88,13 +89,13 @@ func populateCityBlocks(csv [][]string) {
 
 		geonameID, err := strconv.Atoi(line[1])
 		if err != nil {
-			log.Printf("Could not parse geonameID in populateCityBlocks: %v", err)
+			catcher.Error("Could not parse geonameID in populateCityBlocks", err, nil)
 			continue
 		}
 
 		isAnonymousProxy, err := strconv.Atoi(line[4])
 		if err != nil {
-			log.Printf("Could not parse isAnonymousProxy in populateCityBlocks: %v", err)
+			catcher.Error("Could not parse isAnonymousProxy in populateCityBlocks", err, nil)
 			continue
 		}
 
@@ -105,7 +106,7 @@ func populateCityBlocks(csv [][]string) {
 
 		isSatelliteProvider, err := strconv.Atoi(line[5])
 		if err != nil {
-			log.Printf("Could not parse isSatelliteProvider in populateCityBlocks: %v", err)
+			catcher.Error("Could not parse isSatelliteProvider in populateCityBlocks", err, nil)
 			continue
 		}
 
@@ -116,19 +117,19 @@ func populateCityBlocks(csv [][]string) {
 
 		latitude, err := strconv.ParseFloat(line[7], 64)
 		if err != nil {
-			log.Printf("Could not parse latitude in populateCityBlocks: %v", err)
+			catcher.Error("Could not parse latitude in populateCityBlocks", err, nil)
 			continue
 		}
 
 		longitude, err := strconv.ParseFloat(line[8], 64)
 		if err != nil {
-			log.Printf("Could not parse longitude in populateCityBlocks: %v", err)
+			catcher.Error("Could not parse longitude in populateCityBlocks", err, nil)
 			continue
 		}
 
 		accuracyRadius, err := strconv.Atoi(line[9])
 		if err != nil {
-			log.Printf("Could not parse accuracyRadius in populateCityBlocks: %v", err)
+			catcher.Error("Could not parse accuracyRadius in populateCityBlocks", err, nil)
 			continue
 		}
 
@@ -153,13 +154,13 @@ func populateCityLocations(csv [][]string) {
 		}
 		geonameID, err := strconv.Atoi(line[0])
 		if err != nil {
-			log.Printf("Could not parse geonameID in populateCityLocations: %v", err)
+			catcher.Error("Could not parse geonameID in populateCityLocations", err, nil)
 			continue
 		}
 
 		isInEuropeanUnion, err := strconv.Atoi(line[13])
 		if err != nil {
-			log.Printf("Could not parse isInEuropeanUnion in populateCityLocations: %v", err)
+			catcher.Error("Could not parse isInEuropeanUnion in populateCityLocations", err, nil)
 			continue
 		}
 
