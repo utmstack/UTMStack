@@ -1,3 +1,5 @@
+import moment from 'moment-timezone';
+
 export const DATE_SECTION_ID = 5;
 
 export const DEFAULT_DATE_SETTING_TIMEZONE = 'UTC';
@@ -51,6 +53,7 @@ export const TIMEZONES: Array<{ label: string; timezone: string; zone: string }>
   {label: 'Buenos Aires (ART)', timezone: 'America/Argentina/Buenos_Aires', zone: 'America'},
   {label: 'São Paulo (BRT)', timezone: 'America/Sao_Paulo', zone: 'America'},
 ];*/
+
 export const DATE_FORMATS: Array<{ label: string; format: string; equivalentTo: string }> = [
   {label: 'Short', format: 'short', equivalentTo: 'M/d/yy, h:mm a'},
   {label: 'Medium', format: 'medium', equivalentTo: 'MMM d, y, h:mm:ss a'},
