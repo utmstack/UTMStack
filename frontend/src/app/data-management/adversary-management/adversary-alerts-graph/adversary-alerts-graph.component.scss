@@ -7,7 +7,5 @@
 }
 
 .sankey-chart {
-  width: 100%;
-  min-height: 0;
-  height: auto;
+ overflow: auto;
 }

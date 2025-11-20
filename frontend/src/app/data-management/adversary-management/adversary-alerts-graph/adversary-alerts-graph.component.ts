@@ -95,12 +95,15 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
       },
       series: [{
         type: 'sankey',
-        layout: 'none',
-        nodeWidth: 20,
-        nodeGap: 12,
         data: nodes,
         links,
-        emphasis: { focus: 'adjacency' }
+        emphasis: { focus: 'adjacency' },
+        nodeWidth: 20,
+        nodeGap: 12,
+        left: 80,
+        right: 120,
+        top: 60,
+        bottom: 30
       }]
     };
   }
