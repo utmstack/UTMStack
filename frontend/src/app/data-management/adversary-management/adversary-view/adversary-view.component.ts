@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {UtmToastService} from "../../../shared/alert/utm-toast.service";
+import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {
   ElasticFilterDefaultTime
 } from '../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
@@ -10,6 +10,7 @@ import {
   FALSE_POSITIVE_OBJECT
 } from '../../../shared/constants/alert/alert-field.constant';
 import {AUTOMATIC_REVIEW} from '../../../shared/constants/alert/alert-status.constant';
+import {ChartTypeEnum} from '../../../shared/enums/chart-type.enum';
 import {ElasticOperatorsEnum} from '../../../shared/enums/elastic-operators.enum';
 import {ElasticFilterType} from '../../../shared/types/filter/elastic-filter.type';
 import {TimeFilterType} from '../../../shared/types/time-filter.type';
@@ -34,6 +35,7 @@ export class AdversaryViewComponent implements OnInit {
   defaultTime: ElasticFilterDefaultTime;
   adversaryAlerts: AdversaryAlerts[] = [];
   loading = false;
+  readonly ChartTypeEnum = ChartTypeEnum;
 
   constructor(private alertDataTypeBehavior: AlertDataTypeBehavior,
               private alertFiltersBehavior: AlertFiltersBehavior,
