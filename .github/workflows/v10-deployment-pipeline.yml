@@ -3,7 +3,7 @@ name: V10 - Build & Deploy Pipeline
 on:
   push:
     branches: [ 'v10', 'release/v10**' ]
-    tags: [ 'v10.*' ]
+    tags: [ 'v10**' ]
   pull_request:
     branches: [ 'v10' ]
 
