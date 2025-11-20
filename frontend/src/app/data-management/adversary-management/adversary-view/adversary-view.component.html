@@ -23,6 +23,14 @@
             </app-elastic-filter-time>
           </div>
         </div>
+        <div class="card-body">
+          <app-adversary-alerts-graph *ngIf="!loading && adversaryAlerts.length > 0; else noData" [data]="adversaryAlerts">
+          </app-adversary-alerts-graph>
+
+          <ng-template #noData>
+            <app-no-data-found></app-no-data-found>
+          </ng-template>
+        </div>
       </div>
     </div>
   </div>
