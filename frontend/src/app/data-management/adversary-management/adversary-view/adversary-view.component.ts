@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import {UtmToastService} from "../../../shared/alert/utm-toast.service";
 import {
   ElasticFilterDefaultTime
 } from '../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
@@ -15,6 +16,8 @@ import {TimeFilterType} from '../../../shared/types/time-filter.type';
 import {AlertDataTypeBehavior} from '../../alert-management/shared/behavior/alert-data-type.behavior';
 import {AlertFiltersBehavior} from '../../alert-management/shared/behavior/alert-filters.behavior';
 import {EventDataTypeEnum} from '../../alert-management/shared/enums/event-data-type.enum';
+import {AdversaryAlerts} from '../models';
+import {AdversaryAlertService} from '../services/adversary-alert-.service';
 
 @Component({
   selector: 'app-adversary-view',
@@ -30,19 +33,42 @@ export class AdversaryViewComponent implements OnInit {
     {field: ALERT_TIMESTAMP_FIELD, operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['now-7d', 'now']}
   ];
   defaultTime: ElasticFilterDefaultTime;
+  adversaryAlerts: AdversaryAlerts[] = [];
+  loading = false;
 
   constructor(private alertDataTypeBehavior: AlertDataTypeBehavior,
-              private alertFiltersBehavior: AlertFiltersBehavior) { }
+              private alertFiltersBehavior: AlertFiltersBehavior,
+              private adversaryAlertService: AdversaryAlertService,
+              private toastService: UtmToastService) { }
 
   ngOnInit() {
     this.alertDataTypeBehavior.$alertDataType.next(EventDataTypeEnum.ADVERSARY);
     this.alertFiltersBehavior.$filters.next(this.filters);
     this.defaultTime = new ElasticFilterDefaultTime('now-7d', 'now');
+
+    this.loadData();
   }
 
 
-  protected onFilterChange($event: any) {
+  onFilterChange($event: any) {
+    this.processFilters($event).then(filters => {
+      this.filters = filters;
+      this.loadData();
+      // this.updateStatusServiceBehavior.$updateStatus.next(true);
+      this.alertFiltersBehavior.$filters.next(this.filters);
+    });
+  }
 
+  processFilters(filter: ElasticFilterType): Promise<ElasticFilterType[]> {
+    return new Promise<ElasticFilterType[]>(resolve => {
+      const indexFilters = this.filters.findIndex(value => filter.field === value.field && value.value !== FALSE_POSITIVE_OBJECT.tagName);
+      if (indexFilters === -1) {
+        this.filters.push(filter);
+      } else {
+        this.filters[indexFilters] = filter;
+      }
+      resolve(this.filters);
+    });
   }
 
   onTimeFilterChange($event: TimeFilterType) {
@@ -57,6 +83,20 @@ export class AdversaryViewComponent implements OnInit {
       this.filters[timeFilterIndex].value = [$event.timeFrom, $event.timeTo];
     }
     this.alertFiltersBehavior.$filters.next(this.filters);
-   // this.getAlert('on time filter change');
+    this.loadData();
+  }
+
+  loadData() {
+    this.loading = true;
+    this.adversaryAlertService.query(this.filters)
+      .subscribe( data => {
+        this.adversaryAlerts = data ? data : [];
+        this.loading = false;
+      },
+       error => {
+        this.loading = false;
+        this.adversaryAlerts = [];
+        this.toastService.showError('Error', 'An error occurred while loading adversary alerts data.');
+       });
   }
 }

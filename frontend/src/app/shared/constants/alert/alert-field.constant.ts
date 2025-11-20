@@ -1609,8 +1609,8 @@ export const ADVERSARY_FILTERS_FIELDS: UtmFieldType[] = [
     visible: true,
   },
   {
-    label: 'Adversary IP',
-    field: ALERT_ADVERSARY_IP_FIELD,
+    label: 'Adversary',
+    field: ALERT_ADVERSARY_HOST_FIELD,
     type: ElasticDataTypesEnum.STRING,
     visible: true,
   },
