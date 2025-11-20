@@ -5,6 +5,7 @@ import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.domain.shared_types.CsvExportingParams;
 import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.service.dto.elastic.SqlSearchDto;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
 import com.park.utmstack.service.elasticsearch.processor.SearchProcessorRegistry;
 import com.park.utmstack.service.elasticsearch.processor.SearchResultProcessor;
@@ -17,6 +18,8 @@ import com.park.utmstack.util.exceptions.OpenSearchIndexNotFoundException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import com.utmstack.opensearch_connector.types.ElasticCluster;
+import com.utmstack.opensearch_connector.types.SearchSqlResponse;
+import com.utmstack.opensearch_connector.types.SqlQueryRequest;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.client.opensearch.cat.indices.IndicesRecord;
 import org.opensearch.client.opensearch.core.SearchResponse;
@@ -202,6 +205,29 @@ public class ElasticsearchResource {
             UtilCsv.prepareToDownload(response, params.getColumns(), hits);
 
             return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+        }
+    }
+
+    @PostMapping("/search/sql")
+    public ResponseEntity<List<Map>> searchBySql(@RequestBody @Valid SqlSearchDto request,
+                                                 Pageable pageable) {
+        final String ctx = CLASSNAME + ".searchBySql";
+        try {
+            SearchSqlResponse<Map> response = elasticsearchService
+                    .searchBySql(new SqlQueryRequest(request.getQuery(), request.getFetchSize()), Map.class);
+
+            if (Objects.isNull(response) || response.getSize() == 0)
+                return ResponseEntity.ok(Collections.emptyList());
+
+            HttpHeaders headers = UtilPagination.generatePaginationHttpHeaders(Long.valueOf(response.getSize()),
+                    pageable.getPageNumber(), pageable.getPageSize(), "/api/elasticsearch/search/sql");
+
+            return ResponseEntity.ok().headers(headers).body(response.getData());
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
