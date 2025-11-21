@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output} from '@angular/core';
 import {ECharts} from 'echarts';
 import {AdversaryAlerts} from '../models';
 
@@ -174,7 +174,6 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
       });
     });
 
-
     const totalNodes = nodes.length;
     this.chartHeight = this.baseHeight + totalNodes * this.nodeGap;
 
@@ -228,107 +227,4 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
       }]
     };
   }
-
-
-  /*private buildOption(adversaryAlerts: AdversaryAlerts[]): any {
-    const nodes: any[] = [];
-    const links: any[] = [];
-    const nodeSet = new Set<string>();
-    const colorMap = new Map<string, string>();
-    const adversaryColors = ['#5470C6', '#91CC75', '#EE6666', '#FAC858', '#73C0DE', '#3BA272', '#FC8452'];
-    let colorIndex = 0;
-
-    const nodeKey = (id: string, name: string) => `${id}::${name}`;
-    const truncate = (text: string, max = 30) => text.length > max ? text.slice(0, max) + '…' : text;
-
-    adversaryAlerts.forEach(group => {
-      const advId = group.adversary.host || group.adversary.user || 'adv';
-      const advName = truncate(advId);
-      const advKey = nodeKey(advId, advName);
-      const advColor = adversaryColors[colorIndex++ % adversaryColors.length];
-      colorMap.set(advKey, advColor);
-
-      if (!nodeSet.has(advKey)) {
-        nodes.push({
-          name: advKey,
-          label: { formatter: advName },
-          itemStyle: { color: advColor },
-          depth: 0  // COLUMNA 0: Adversarios
-        });
-        nodeSet.add(advKey);
-      }
-
-      group.alerts.forEach(alertWithChildren => {
-        const alertKey = nodeKey(alertWithChildren.alert.id, alertWithChildren.alert.name);
-        const alertLabel = truncate(alertWithChildren.alert.name);
-        if (!nodeSet.has(alertKey)) {
-          nodes.push({
-            name: alertKey,
-            label: { formatter: alertLabel },
-            itemStyle: { color: advColor },
-            depth: 1  // COLUMNA 1: Alerts
-          });
-          nodeSet.add(alertKey);
-        }
-
-        links.push({
-          source: advKey,
-          target: alertKey,
-          value: alertWithChildren.children.length || 1,
-          lineStyle: { color: advColor }
-        });
-
-        alertWithChildren.children.forEach(child => {
-          const childKey = nodeKey(child.id, child.name);
-          const childLabel = truncate(child.name);
-          if (!nodeSet.has(childKey)) {
-            nodes.push({
-              name: childKey,
-              label: { formatter: childLabel },
-              itemStyle: { color: advColor },
-              depth: 2  // COLUMNA 2: Echoes
-            });
-            nodeSet.add(childKey);
-          }
-
-          links.push({
-            source: alertKey,
-            target: childKey,
-            value: 1,
-            lineStyle: { color: advColor }
-          });
-        });
-      });
-    });
-
-    return {
-      tooltip: {
-        trigger: 'item',
-        formatter: (params: any) => params.name.split('::')[1] || params.name
-      },
-      series: [{
-        type: 'sankey',
-        orient: 'horizontal',
-        data: nodes,
-        links,
-        emphasis: { focus: 'adjacency' },
-        nodeWidth: 15,
-        nodeGap: 6,
-        nodeAlign: 'left',
-        layoutIterations: 32,
-        left: 20,
-        right: 180,
-        top: 20,
-        bottom: 40,
-        label: {
-          position: 'right',
-          fontSize: 10,
-          formatter: (params: any) => params.name.split('::')[1] || params.name
-        }
-      }]
-    };
-
-  }*/
-
-
 }

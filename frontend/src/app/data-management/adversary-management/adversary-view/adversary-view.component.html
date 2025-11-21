@@ -14,18 +14,9 @@
       <div class="card h-100">
         <div class="card-header p-2 w-100">
           <div class="d-flex mt-2">
-            <!--<app-elastic-filter-time (timeFilterChange)="onTimeFilterChange($event)"
-                                     *ngIf="defaultTime"
-                                     [container]="'body'"
-                                     [changeOnInit]="'NO'"
-                                     [defaultTime]="defaultTime"
-                                     [template]="'log-explorer'">
-            </app-elastic-filter-time>-->
           </div>
         </div>
         <div class="d-flex h-100 m-h-0 flex-column">
-          <!--<app-adversary-alerts-graph *ngIf="!loading && adversaryAlerts.length > 0; else noData" [data]="adversaryAlerts">
-          </app-adversary-alerts-graph>-->
           <div class="utm-panel-chart card m-2 h-100 m-h-0">
             <div class="card-header card-header-chart p-2 d-flex justify-content-between align-items-center bg-white">
               <label [ngbTooltip]="'Adversary alerts over time'"
@@ -39,7 +30,7 @@
               </app-elastic-filter-time>
             </div>
             <div class="card-body h-100 m-h-0">
-              <div *ngIf="!loading && adversaryAlerts.length === 0" class="h-100 w-100">
+              <div *ngIf="!loading && isEmptyData()" class="h-100 w-100">
                 <app-no-data-chart [typeChart]="ChartTypeEnum.METRIC_CHART">
                 </app-no-data-chart>
               </div>

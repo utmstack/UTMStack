@@ -100,4 +100,8 @@ export class AdversaryViewComponent implements OnInit {
         this.toastService.showError('Error', 'An error occurred while loading adversary alerts data.');
        });
   }
+
+  isEmptyData(): boolean {
+    return !this.adversaryAlerts || this.adversaryAlerts.length === 0 || this.adversaryAlerts.every(a => a.alerts.length === 0);
+  }
 }

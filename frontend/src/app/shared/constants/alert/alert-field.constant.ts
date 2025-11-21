@@ -1584,6 +1584,12 @@ export const ALERTS_CHILDREN_FIELDS: UtmFieldType[] = [
 
 export const ADVERSARY_FILTERS_FIELDS: UtmFieldType[] = [
   {
+    label: 'Adversary',
+    field: ALERT_ADVERSARY_HOST_FIELD,
+    type: ElasticDataTypesEnum.STRING,
+    visible: true,
+  },
+  {
     label: 'Alert Name',
     field: ALERT_NAME_FIELD,
     type: ElasticDataTypesEnum.STRING,
@@ -1609,26 +1615,8 @@ export const ADVERSARY_FILTERS_FIELDS: UtmFieldType[] = [
     visible: true,
   },
   {
-    label: 'Adversary',
-    field: ALERT_ADVERSARY_HOST_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: true,
-  },
-  {
     label: 'Adversary Domain',
     field: ALERT_ADVERSARY_DOMAIN_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: true,
-  },
-  {
-    label: 'Target IP',
-    field: ALERT_TARGET_IP_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: true,
-  },
-  {
-    label: 'Target Domain',
-    field: ALERT_TARGET_DOMAIN_FIELD,
     type: ElasticDataTypesEnum.STRING,
     visible: true,
   }
