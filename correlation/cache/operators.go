@@ -94,13 +94,13 @@ func compare(operator, val1, val2 string) bool {
 		return in(val1, val2)
 	case "not in":
 		return !in(val1, val2)
-	case "start with":
+	case "start with", "starts with":
 		return startWith(val1, val2)
-	case "not start with":
+	case "not start with", "not starts with":
 		return !startWith(val1, val2)
-	case "end with":
+	case "end with", "ends with":
 		return endWith(val1, val2)
-	case "not end with":
+	case "not end with", "not ends with":
 		return !endWith(val1, val2)
 	case "regexp":
 		matched, err := expression(val2, val1)
@@ -138,7 +138,7 @@ func compare(operator, val1, val2 string) bool {
 			return false
 		}
 		return f1 >= f2
-	case "exist":
+	case "exist", "exists":
 		return true
 	case "in cidr":
 		matched, err := inCIDR(val1, val2)
