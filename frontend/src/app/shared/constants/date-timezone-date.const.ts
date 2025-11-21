@@ -1,3 +1,5 @@
+import moment from 'moment-timezone';
+
 export const DATE_SECTION_ID = 5;
 
 export const DEFAULT_DATE_SETTING_TIMEZONE = 'UTC';
@@ -6,7 +8,19 @@ export const DEFAULT_DATE_SETTING_DATE = 'medium';
 export const DATE_SETTING_TIMEZONE_SHORT = 'utmstack.time.zone';
 export const DATE_SETTING_FORMAT_SHORT = 'utmstack.time.dateformat';
 
-export const TIMEZONES: Array<{ label: string; timezone: string, zone: string }> = [
+export const TIMEZONES: Array<{ label: string; timezone: string; zone: string }> =
+  moment.tz.names().map((tz) => {
+    const parts = tz.split('/');
+    const zone = parts[0] || 'Other';
+    const label = tz.replace(/_/g, ' ');
+    return {
+      label,
+      timezone: tz,
+      zone
+    };
+  });
+
+/*export const TIMEZONES: Array<{ label: string; timezone: string, zone: string }> = [
   {label: 'UTC', timezone: 'UTC', zone: 'UTC'},
   {label: 'Eastern Standard Time (New York)', timezone: 'America/New_York', zone: 'America'},
   {label: 'Pacific Standard Time (Los Angeles)', timezone: 'America/Los_Angeles', zone: 'America'},
@@ -38,7 +52,8 @@ export const TIMEZONES: Array<{ label: string; timezone: string, zone: string }>
   {label: 'Jerusalem (IST)', timezone: 'Asia/Jerusalem', zone: 'Asia'},
   {label: 'Buenos Aires (ART)', timezone: 'America/Argentina/Buenos_Aires', zone: 'America'},
   {label: 'São Paulo (BRT)', timezone: 'America/Sao_Paulo', zone: 'America'},
-];
+];*/
+
 export const DATE_FORMATS: Array<{ label: string; format: string; equivalentTo: string }> = [
   {label: 'Short', format: 'short', equivalentTo: 'M/d/yy, h:mm a'},
   {label: 'Medium', format: 'medium', equivalentTo: 'MMM d, y, h:mm:ss a'},
