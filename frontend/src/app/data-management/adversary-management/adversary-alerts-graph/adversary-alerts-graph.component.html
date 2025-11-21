@@ -1,10 +1,10 @@
-<div class="d-flex flex-column h-100 m-h-0">
+<div class="d-flex flex-column h-100 m-h-0 overflow-auto">
   <div class="flex-grow-1 h-100">
     <div echarts
          [options]="option"
          (chartInit)="onChartInit($event)"
          class="sankey-chart"
-         style="height: 100%; min-height: 0;">
+         [ngStyle]="{ height: chartHeight + 'px' }">
     </div>
   </div>
 </div>

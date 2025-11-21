@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, OnInit} from '@angular/core';
+import {ECharts} from 'echarts';
 import {AdversaryAlerts} from '../models';
-import {ECharts} from "echarts";
 
 @Component({
   selector: 'app-adversary-alerts-graph',
@@ -9,13 +9,14 @@ import {ECharts} from "echarts";
 })
 export class AdversaryAlertsGraphComponent implements OnChanges {
   @Input() data!: AdversaryAlerts[];
-
+  chartHeight: number;
+  baseHeight = 600;
+  nodeGap = 6;
   option: any;
 
   ngOnChanges(): void {
     if (this.data) {
       this.option = this.buildOption(this.data);
-      console.log(this.option);
     }
   }
 
@@ -173,13 +174,17 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
       });
     });
 
+
+    const totalNodes = nodes.length;
+    this.chartHeight = this.baseHeight + totalNodes * this.nodeGap;
+
     return {
       tooltip: {
         trigger: 'item',
         formatter: (params: any) => {
           const name = params.name.split('::')[1] || params.name;
           const meta = params.data.meta;
-          if (!meta) return name;
+          if (!meta) { return name; }
 
           return `
           <strong>${name}</strong><br/>
@@ -208,7 +213,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
           }
         },
         nodeWidth: 15,
-        nodeGap: 6,
+        nodeGap: this.nodeGap,
         nodeAlign: 'left',
         layoutIterations: 32,
         left: 20,
