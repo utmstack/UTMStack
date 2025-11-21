@@ -28,6 +28,7 @@ export class AppModuleCardComponent implements OnInit, OnDestroy {
   modules = UtmModulesEnum;
   destroy$: Subject<void> = new Subject<void>();
   ModulesEnterprise = ModulesEnterprise;
+  readonly UtmModulesEnum = UtmModulesEnum;
 
   ngOnInit() {
     this.versionTypeService.versionType$
