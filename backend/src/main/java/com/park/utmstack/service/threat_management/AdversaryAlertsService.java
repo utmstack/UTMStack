@@ -36,21 +36,31 @@ public class AdversaryAlertsService {
                         .aggregations("adversary_obj", ag -> ag
                                 .topHits(th -> th
                                         .size(1)
+                                        .sort(srt -> srt.field(f -> f.field("@timestamp")
+                                                .order(SortOrder.Desc)))
                                         .source(src -> src.filter(f -> f.includes(List.of("adversary"))))
                                 )
                         )
                         .aggregations("alerts", ag -> ag
-                                .topHits(th -> th
-                                        .size(100)
-                                        .sort(srt -> srt.field(f -> f.field("@timestamp")
-                                                .order(SortOrder.Desc)))
+                                .filter(flt -> flt
+                                        .bool(b -> b
+                                                .mustNot(mn -> mn.exists(e -> e.field("parentId")))
+                                        )
                                 )
-                        )
-                        .aggregations("child_alerts", ag -> ag
-                                .terms(t -> t.field("parentId.keyword").size(1000))
-                                .aggregations("child_hits", ch -> ch
+                                .aggregations("alerts_hits", subAg -> subAg
                                         .topHits(th -> th
                                                 .size(100)
+                                                .sort(srt -> srt.field(f -> f.field("@timestamp")
+                                                        .order(SortOrder.Desc)))
+                                        )
+                                )
+                        )
+
+                        .aggregations("child_alerts", ag -> ag
+                                .terms(t -> t.field("parentId.keyword").size(50))
+                                .aggregations("child_hits", ch -> ch
+                                        .topHits(th -> th
+                                                .size(50)
                                                 .sort(srt -> srt.field(f -> f.field("@timestamp")
                                                         .order(SortOrder.Desc)))
                                         )
@@ -76,10 +86,12 @@ public class AdversaryAlertsService {
                 Adversary adversaryWrapper = adversaryHit.source().to(Adversary.class);
                 Side adversary = adversaryWrapper.getAdversary();
 
-                var topHitsAgg = bucket.aggregations().get("alerts").topHits();
+                var topHitsAgg = bucket.aggregations().get("alerts").filter().aggregations()
+                        .get("alerts_hits").topHits();
                 List<UtmAlert> alerts = topHitsAgg.hits().hits().stream()
                         .filter(hit -> hit.source() != null)
                         .map(hit -> hit.source().to(UtmAlert.class))
+                        .filter(alert -> Objects.isNull(alert.getParentId()))
                         .toList();
 
                 Map<String, List<UtmAlert>> childMap = new HashMap<>();
