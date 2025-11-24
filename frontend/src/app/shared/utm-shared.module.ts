@@ -27,6 +27,7 @@ import {PasswordResetInitComponent} from './components/auth/password-reset/init/
 import {PasswordStrengthBarComponent} from './components/auth/password-strength/password-strength-bar.component';
 import { TfaSetupComponent } from './components/auth/tfa-setup/tfa-setup.component';
 import {TotpComponent} from './components/auth/totp/totp.component';
+import {CodeEditorComponent} from './components/code-editor/code-editor.component';
 import {ContactUsComponent} from './components/contact-us/contact-us.component';
 import {AlertEchoesTimelineComponent} from '../data-management/alert-management/shared/components/alert-echoes-timeline/alert-echoes-timeline.component';
 import {
@@ -240,8 +241,6 @@ import {TimePeriodPipe} from './pipes/time-period.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
 import { NgxEchartsModule } from 'ngx-echarts';
-
-
 @NgModule({
   imports: [
     InlineSVGModule,
@@ -400,7 +399,8 @@ import { NgxEchartsModule } from 'ngx-echarts';
     RelativeTimePipe,
     UtmTfaConfCheckComponent,
     UtmTfaVerificationComponent,
-    TfaSetupComponent
+    TfaSetupComponent,
+    CodeEditorComponent
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -507,7 +507,8 @@ import { NgxEchartsModule } from 'ngx-echarts';
     FilterPipe,
     UtmInstanceInfoComponent,
     UtmCpCronEditorComponent,
-    RelativeTimePipe
+    RelativeTimePipe,
+    CodeEditorComponent
   ],
   entryComponents: [
     LoginComponent,

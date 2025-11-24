@@ -1,4 +1,3 @@
-<!-- html -->
 <div class="editor-container">
   <div class="editor-header pr-2">
     <div class="header-title">
@@ -8,31 +7,31 @@
     <div class="header-actions">
       <button
         class="btn utm-button utm-button-primary"
+        ngbTooltip="Execute Query" tooltipClass="utm-tooltip-top"
         (click)="executeQuery()"
         [disabled]="isExecuting || !sqlQuery.trim()"
       >
         <i [ngClass]="isExecuting ? 'icon-spinner4 spinner' : 'icon-play3'"></i>
       </button>
       <button class="btn utm-button utm-button-primary"
+              ngbTooltip="Format SQL" tooltipClass="utm-tooltip-top"
               (click)="formatQuery()"
-              title="Format SQL"
               [disabled]="isExecuting || !sqlQuery.trim()"
       >
         <i class="fa fa-indent"></i>
       </button>
       <button class="btn utm-button utm-button-primary"
+              ngbTooltip="Copy Query" tooltipClass="utm-tooltip-top"
               (click)="copyQuery()"
-              title="Copy Query"
               [disabled]="isExecuting || !sqlQuery.trim()"
       >
         <i class="icon-copy3"></i>
       </button>
       <button class="btn utm-button utm-button-primary"
+              ngbTooltip="Clear" tooltipClass="utm-tooltip-top"
               (click)="clearQuery()"
-              title="Clear"
-              [disabled]="isExecuting || !sqlQuery.trim()"
-      >
-        <i class="icon-trash text-white"></i>
+              [disabled]="isExecuting || !sqlQuery.trim()">
+        <i class="icon-trash"></i>
       </button>
     </div>
   </div>

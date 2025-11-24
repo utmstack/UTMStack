@@ -153,11 +153,17 @@ export class CodeEditorComponent implements OnInit, OnChanges {
   private extractFunctions(upperQuery: string): Set<string> {
     const funcPattern = /\b([A-Z]+)\s*\(/g;
     const funcs = new Set<string>();
-    const match = funcPattern.exec(upperQuery);
-    while (match) {
+
+    while (true) {
+      const match = funcPattern.exec(upperQuery);
+      if (!match) {
+        break;
+      }
       funcs.add(match[1]);
     }
+
     return funcs;
   }
+
 
 }

@@ -56,3 +56,11 @@
 .spinner {
   animation: spinner 1s linear infinite;
 }
+
+.icon-trash:before {
+  color: #fff !important;
+}
+
+textarea:focus, input:focus {
+  border: 1px solid rgba(0, 0, 0, 0.125) !important;
+}
