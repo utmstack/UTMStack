@@ -23,7 +23,7 @@ export class ModuleIntegrationComponent implements OnInit {
 
   getVersionInfo() {
     this.checkForUpdatesService.getVersion().subscribe(response => {
-      this.currentVersion = response.body.build.version;
+      this.currentVersion = response.body.version;
     });
   }
 
