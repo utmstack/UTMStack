@@ -162,6 +162,9 @@ public final class Constants {
     public static final String API_KEY_HEADER = "Utm-Api-Key";
     public static final List<String> API_ENDPOINT_IGNORE = Collections.emptyList();
 
+    // Application version file
+    public static final String APP_VERSION_FILE = "/utmstack//version/version.json";
+
     private Constants() {
     }
 }
