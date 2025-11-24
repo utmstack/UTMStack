@@ -35,45 +35,45 @@ public class SqlSelectOnlyValidator implements ConstraintValidator<SqlSelectOnly
         String upper = query.toUpperCase();
 
         if (!START_PATTERN.matcher(query).matches()) {
-            return addConstraintViolation(context, "Query must start with SELECT");
+            return addConstraintViolation(context, "Query must start with SELECT.");
         }
 
         if (FORBIDDEN_PATTERN.matcher(query).find()) {
-            return addConstraintViolation(context, "Query contains forbidden SQL keywords");
+            return addConstraintViolation(context, "Query contains forbidden SQL keywords.");
         }
 
         if (COMMENT_PATTERN.matcher(query).find()) {
-            return addConstraintViolation(context, "Query must not contain SQL comments (-- or /* */)");
+            return addConstraintViolation(context, "Query must not contain SQL comments (-- or /* */).");
         }
 
         if (query.contains(";")) {
-            return addConstraintViolation(context, "Query must not contain internal semicolons");
+            return addConstraintViolation(context, "Query must not contain internal semicolons.");
         }
 
         if (!isBalancedQuotes(query)) {
-            return addConstraintViolation(context, "Quotes are not balanced");
+            return addConstraintViolation(context, "Quotes are not balanced.");
         }
 
         if (!isBalancedParentheses(query)) {
-            return addConstraintViolation(context, "Parentheses are not balanced");
+            return addConstraintViolation(context, "Parentheses are not balanced.");
         }
 
         if (query.toUpperCase().matches("(?i).*FROM\\s+(GROUP|WHERE|ORDER|$).*")) {
-            return addConstraintViolation(context, "FROM clause must contain a valid index or pattern");
+            return addConstraintViolation(context, "FROM clause must contain a valid index or pattern.");
         }
 
         if (hasMisplacedCommas(query)) {
-            return addConstraintViolation(context, "Query contains misplaced commas");
+            return addConstraintViolation(context, "Query contains misplaced commas.");
         }
 
         for (String func : extractFunctions(upper)) {
             if (!ALLOWED_FUNCTIONS.contains(func)) {
-                return addConstraintViolation(context, "Unsupported SQL function: " + func);
+                return addConstraintViolation(context, "Unsupported SQL function: " + func + ".");
             }
         }
 
         if (upper.contains("HAVING") && !upper.contains("GROUP BY")) {
-            return addConstraintViolation(context, "HAVING clause requires GROUP BY");
+            return addConstraintViolation(context, "HAVING clause requires GROUP BY.");
         }
 
         return true;
