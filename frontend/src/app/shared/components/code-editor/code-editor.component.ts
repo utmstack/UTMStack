@@ -88,13 +88,19 @@ export class CodeEditorComponent implements OnInit, OnChanges {
     const upper = trimmed.toUpperCase();
 
     const startPattern = /^\s*SELECT\b/i;
+    if (!startPattern.test(trimmed)) {
+      return 'Query must start with SELECT.';
+    }
+
+    const minimalPattern = /^\s*SELECT\s+.+\s+FROM\s+.+/is;
+    if (!minimalPattern.test(trimmed)) {
+      return 'Query must be at least: SELECT <columns> FROM <table>.';
+    }
+
     const forbiddenPattern = /\b(INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|REPLACE|TRUNCATE|MERGE|GRANT|REVOKE|EXEC|EXECUTE|COMMIT|ROLLBACK|INTO)\b/i;
     const commentPattern = /(--.*?$|\/\*.*?\*\/)/gm;
     const allowedFunctions = new Set(['COUNT', 'AVG', 'MIN', 'MAX', 'SUM']);
 
-    if (!startPattern.test(trimmed)) {
-      return 'Query must start with SELECT.';
-    }
     if (forbiddenPattern.test(upper)) {
       return 'Query contains forbidden SQL keywords.';
     }
@@ -109,8 +115,8 @@ export class CodeEditorComponent implements OnInit, OnChanges {
     }
     if (!this.balancedParentheses(trimmed)) {
       return 'Parentheses are not balanced.';
-
     }
+
     const functions = this.extractFunctions(upper);
     for (const func of functions) {
       if (!allowedFunctions.has(func)) {
@@ -152,7 +158,7 @@ export class CodeEditorComponent implements OnInit, OnChanges {
   }
 
   private extractFunctions(upperQuery: string): string[] {
-    const funcPattern = /\b([A-Z]+)\s*\(/g;
+    const funcPattern = /\b(COUNT|AVG|MIN|MAX|SUM)\s*\(/g;
     const funcs: string[] = [];
 
     let match: RegExpExecArray | null = funcPattern.exec(upperQuery);
