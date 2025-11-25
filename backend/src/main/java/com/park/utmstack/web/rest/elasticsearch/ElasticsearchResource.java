@@ -14,6 +14,7 @@ import com.park.utmstack.util.UtilPagination;
 import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.chart_builder.IndexPropertyType;
 import com.park.utmstack.util.chart_builder.IndexType;
+import com.park.utmstack.util.elastic.SqlPaginationUtil;
 import com.park.utmstack.util.exceptions.OpenSearchIndexNotFoundException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
@@ -215,17 +216,23 @@ public class ElasticsearchResource {
 
     @PostMapping("/search/sql")
     public ResponseEntity<List<Map>> searchBySql(@RequestBody @Valid SqlSearchDto request,
-                                                 Pageable pageable) {
+                                                                     Pageable pageable) {
         final String ctx = CLASSNAME + ".searchBySql";
         try {
+            String sqlQuery = SqlPaginationUtil.applyPagination(request.getQuery(), pageable);
+
             SearchSqlResponse<Map> response = elasticsearchService
-                    .searchBySql(new SqlQueryRequest(request.getQuery(), request.getFetchSize()), Map.class);
+                    .searchBySql(new SqlQueryRequest(sqlQuery, null), Map.class);
 
-            if (Objects.isNull(response) || response.getSize() == 0)
-                return ResponseEntity.ok(Collections.emptyList());
+            String countQuery = "SELECT COUNT(*) FROM (" + request.getQuery() + ") AS total_count";
+            SearchSqlResponse<Map> countResponse = elasticsearchService
+                    .searchBySql(new SqlQueryRequest(countQuery, null), Map.class);
 
-            HttpHeaders headers = UtilPagination.generatePaginationHttpHeaders(Long.valueOf(response.getSize()),
-                    pageable.getPageNumber(), pageable.getPageSize(), "/api/elasticsearch/search/sql");
+            String countString = countResponse.getData().get(0).get("COUNT(*)").toString();
+            int totalElements = (int) Double.parseDouble(countString);
+
+            HttpHeaders headers = UtilPagination.generatePaginationHttpHeaders((long) Math.min(totalElements, 10000),
+                    pageable.getPageNumber(), pageable.getPageSize(), "/api/elasticsearch/search");
 
             return ResponseEntity.ok().headers(headers).body(response.getData());
         } catch (Exception e) {
