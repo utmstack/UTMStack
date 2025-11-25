@@ -163,7 +163,7 @@ public final class Constants {
     public static final List<String> API_ENDPOINT_IGNORE = Collections.emptyList();
 
     // Application version file
-    public static final String APP_VERSION_FILE = "/utmstack//version/version.json";
+    public static final String APP_VERSION_FILE = "/updates/version.json";
 
     private Constants() {
     }
