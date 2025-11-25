@@ -90,30 +90,17 @@ func main() {
 	for range ticker.C {
 		endTime := time.Now().UTC()
 
-		defaultConfig := GetCloudConfig(CloudCommercial)
-		if err := ConnectionChecker(defaultConfig.LoginAuthority); err != nil {
-			_ = catcher.Error("External connection failure detected: %v", err, nil)
-		}
-
 		moduleConfig := config.GetConfig()
 		if moduleConfig != nil && moduleConfig.ModuleActive {
+			checkConfiguredEnvironments(moduleConfig.ModuleGroups)
+
 			var wg sync.WaitGroup
 			wg.Add(len(moduleConfig.ModuleGroups))
 
 			for _, grp := range moduleConfig.ModuleGroups {
 				go func(group *config.ModuleGroup) {
 					defer wg.Done()
-					var invalid bool
-					for _, c := range group.ModuleGroupConfigurations {
-						if strings.TrimSpace(c.ConfValue) == "" {
-							invalid = true
-							break
-						}
-					}
-
-					if !invalid {
-						pull(startTime, endTime, group)
-					}
+					pull(startTime, endTime, group)
 				}(grp)
 			}
 
@@ -122,6 +109,34 @@ func main() {
 
 		startTime = endTime.Add(1 * time.Nanosecond)
 	}
+}
+
+func checkConfiguredEnvironments(groups []*config.ModuleGroup) {
+	uniqueAuthorities := make(map[string]CloudEnvironment)
+
+	for _, group := range groups {
+		env := getGroupEnvironment(group)
+		cloudConfig := GetCloudConfig(env)
+		uniqueAuthorities[cloudConfig.LoginAuthority] = env
+	}
+
+	for authority, env := range uniqueAuthorities {
+		if err := ConnectionChecker(authority); err != nil {
+			_ = catcher.Error("External connection failure detected", err, map[string]any{
+				"environment": env,
+				"authority":   authority,
+			})
+		}
+	}
+}
+
+func getGroupEnvironment(group *config.ModuleGroup) CloudEnvironment {
+	for _, cnf := range group.ModuleGroupConfigurations {
+		if cnf.ConfKey == "office365_cloud_environment" && cnf.ConfValue != "" {
+			return CloudEnvironment(cnf.ConfValue)
+		}
+	}
+	return CloudCommercial
 }
 
 func pull(startTime time.Time, endTime time.Time, group *config.ModuleGroup) {
