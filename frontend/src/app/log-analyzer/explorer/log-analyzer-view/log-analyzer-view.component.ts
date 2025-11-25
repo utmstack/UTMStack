@@ -84,6 +84,8 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   destroy$ = new Subject<void>();
   filterWidth: number;
   tableWidth: number;
+  isSqlMode = false;
+  sqlError: string | null = null;
 
   constructor(private indexPatternBehavior: IndexPatternBehavior,
               private logAnalyzerService: ElasticDataService,
@@ -265,6 +267,47 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  getDataBySqlQuery(sql: string) {
+    const dateStart = new Date();
+    this.sqlError = null;
+
+    if (!this.runningQuery) {
+      this.runningQuery = true;
+
+      this.loading = true;
+      this.logAnalyzerService.searchBySqlQuery(
+        sql,
+        10000,
+        this.filters,
+        this.page,
+        this.itemsPerPage
+      ).subscribe(
+        (res: HttpResponse<any>) => {
+          this.counter = moment(new Date()).diff(dateStart, 'seconds', true);
+          this.totalItems = Number(res.headers.get('X-Total-Count'));
+          this.rows = res.body;
+          this.loading = false;
+          this.error = false;
+          this.runningQuery = false;
+          this.queryRunBehavior.$runQueryFinished.next(true);
+        },
+        (res: HttpResponse<any>) => {
+          this.counter = moment(new Date()).diff(dateStart, 'seconds', true);
+          this.loading = false;
+          this.runningQuery = false;
+          if (res.status !== 500) {
+            this.sqlError = res.headers.get('X-UtmStack-error');
+          }
+          this.error = true;
+          this.rows = [];
+        }
+      );
+    } else {
+      this.utmToastService.showInfo('Processing', 'Query still running, please wait to finish');
+    }
+  }
+
+
   onSortBy($event: string) {
     this.sortBy = $event;
     this.logFilterBehavior.$logFilter.next({filter: this.filters, sort: this.sortBy});
@@ -387,6 +430,16 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
 
   loadQuery() {
     this.router.navigate(['/discover/log-analyzer-queries']);
+  }
+
+  toggleSqlMode() {
+    if (this.filters.length > 0 && this.filters[0].field === '@timestamp') {
+      this.filters = [this.filters[0]];
+    } else {
+      this.filters = [];
+    }
+    this.rows = [];
+    this.isSqlMode = !this.isSqlMode;
   }
 
   ngOnDestroy(): void {
