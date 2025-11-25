@@ -71,7 +71,8 @@ public class UtmModuleGroupConfiguration implements Serializable {
         this.confDataType = key.getConfDataType();
         this.confRequired = key.getConfRequired();
         this.confOptions = key.getConfOptions();
-        this.confVisibility = key.getConfOptions();
+        this.confValue = key.getConfValue();
+        this.confVisibility = String.valueOf(key.getConfVisibility());
     }
 
 }

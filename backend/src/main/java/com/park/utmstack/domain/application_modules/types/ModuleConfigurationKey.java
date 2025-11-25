@@ -1,72 +1,22 @@
 package com.park.utmstack.domain.application_modules.types;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class ModuleConfigurationKey {
     private Long groupId;
     private String confKey;
     private String confName;
+    private String confValue;
     private String confDescription;
     private String confDataType;
     private String confOptions;
-
+    private String confVisibility;
     private Boolean confRequired;
 
     private ModuleConfigurationKey() {
-    }
-
-    public Long getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(Long groupId) {
-        this.groupId = groupId;
-    }
-
-    public String getConfKey() {
-        return confKey;
-    }
-
-    public void setConfKey(String confKey) {
-        this.confKey = confKey;
-    }
-
-    public String getConfName() {
-        return confName;
-    }
-
-    public void setConfName(String confName) {
-        this.confName = confName;
-    }
-
-    public String getConfDescription() {
-        return confDescription;
-    }
-
-    public void setConfDescription(String confDescription) {
-        this.confDescription = confDescription;
-    }
-
-    public String getConfDataType() {
-        return confDataType;
-    }
-
-    public void setConfDataType(String confDataType) {
-        this.confDataType = confDataType;
-    }
-
-    public Boolean getConfRequired() {
-        return confRequired;
-    }
-
-    public void setConfRequired(Boolean confRequired) {
-        this.confRequired = confRequired;
-    }
-
-    public String getConfOptions() {
-        return confOptions;
-    }
-
-    public void setConfOptions(String confOptions) {
-        this.confOptions = confOptions;
     }
 
     public static Builder builder() {
@@ -77,11 +27,11 @@ public class ModuleConfigurationKey {
         private Long groupId;
         private String confKey;
         private String confName;
+        private String confValue;
         private String confDescription;
         private String confDataType;
         private Boolean confRequired;
-        private Boolean confVisible = true;
-
+        private String confVisibility;
         private String confOptions;
 
         public Builder withGroupId(Long groupId) {
@@ -119,6 +69,16 @@ public class ModuleConfigurationKey {
             return this;
         }
 
+        public Builder withConfValue(String confValue) {
+            this.confValue = confValue;
+            return this;
+        }
+
+        public Builder withConfVisibility(String confVisibility) {
+            this.confVisibility = confVisibility;
+            return this;
+        }
+
         public ModuleConfigurationKey build() {
             ModuleConfigurationKey key = new ModuleConfigurationKey();
             key.setGroupId(groupId);
@@ -128,6 +88,8 @@ public class ModuleConfigurationKey {
             key.setConfDataType(confDataType);
             key.setConfRequired(confRequired);
             key.setConfOptions(confOptions);
+            key.setConfValue(confValue);
+            key.setConfVisibility(confVisibility);
             return key;
         }
     }
