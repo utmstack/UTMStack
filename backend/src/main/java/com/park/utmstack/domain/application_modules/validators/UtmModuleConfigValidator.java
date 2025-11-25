@@ -34,7 +34,7 @@ public class UtmModuleConfigValidator {
 
                     return new UtmModuleGroupConfDTO(
                             source.getConfKey(),
-                            decryptIfNeeded(source.getConfDataType(), source.getConfValue())
+                            override != null ? source.getConfValue() : decryptIfNeeded(source.getConfDataType(), source.getConfValue())
                     );
                 })
                 .toList();
