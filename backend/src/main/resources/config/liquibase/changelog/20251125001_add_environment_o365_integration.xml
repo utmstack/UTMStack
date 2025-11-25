@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20251125001" author="Manuel">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS result
+                FROM public.utm_module_group
+                WHERE module_id = 34
+            </sqlCheck>
+        </preConditions>
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            INSERT INTO public.utm_module_group_configuration (
+                group_id,
+                conf_key,
+                conf_value,
+                conf_name,
+                conf_description,
+                conf_data_type,
+                conf_required,
+                conf_options,
+                conf_visibility
+            )
+            SELECT
+                g.id,
+                'office365_cloud_environment',
+                'Commercial',
+                'Cloud Environment',
+                'Select the Microsoft cloud environment for Office 365 integration.',
+                'select',
+                false,
+                '[
+                    { "value": "Commercial", "label": "Commercial - Azure commercial global (Default)" },
+                    { "value": "GCC", "label": "GCC - US Government Community Cloud" },
+                    { "value": "GCCHigh", "label": "GCC High - US Government Community Cloud High (DoD IL4)" },
+                    { "value": "DoD", "label": "DoD - US Department of Defense (DoD IL5)" }
+                ]',
+                null
+            FROM public.utm_module_group g
+            WHERE g.module_id = 34;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
