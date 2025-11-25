@@ -4,7 +4,7 @@ import {catchError, map, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../../../alert/utm-toast.service';
 import {CheckForUpdatesService} from '../../../../../../services/updates/check-for-updates.service';
 import {VersionType, VersionTypeService} from '../../../../../../services/util/version-type.service';
-import {VersionInfo} from '../../../../../../types/updates/updates.type';
+import {AppVersionInfo, VersionInfo} from '../../../../../../types/updates/updates.type';
 
 @Component({
   selector: 'app-utm-version-info',
@@ -12,7 +12,7 @@ import {VersionInfo} from '../../../../../../types/updates/updates.type';
   styleUrls: ['./utm-version-info.component.css']
 })
 export class UtmVersionInfoComponent implements OnInit {
-  versionInfo: VersionInfo;
+  versionInfo: AppVersionInfo;
 
   constructor(private checkForUpdatesService: CheckForUpdatesService,
               private utmToastService: UtmToastService,
@@ -23,9 +23,9 @@ export class UtmVersionInfoComponent implements OnInit {
     this.checkForUpdatesService.getVersion()
       .pipe(
         map(response => response.body || null),
-        tap((versionInfo: VersionInfo) => {
-          const version = versionInfo && versionInfo.build && versionInfo.build.version || '';
-          const versionType = version.includes('community') || version === ''
+        tap((versionInfo: AppVersionInfo) => {
+          const version = versionInfo && versionInfo.version || '';
+          const versionType = versionInfo.edition.includes('community') || version === ''
             ? VersionType.COMMUNITY
             : VersionType.ENTERPRISE;
 

@@ -18,4 +18,9 @@ export class VersionInfo {
   activeProfiles: string[];
 }
 
+export interface AppVersionInfo {
+  version: string;
+  edition: string;
+}
+
 
