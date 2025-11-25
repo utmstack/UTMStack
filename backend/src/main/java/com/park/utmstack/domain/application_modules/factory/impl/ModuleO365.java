@@ -82,7 +82,7 @@ public class ModuleO365 implements IModule {
                 .withConfRequired(false)
                 .withConfValue("Commercial")
                 .withConfOptions("[" +
-                        "{ \"value\": \"Commercial\", \"label\": \"Commercial - Azure comercial global (Default)\" }," +
+                        "{ \"value\": \"Commercial\", \"label\": \"Commercial - Azure commercial global (Default)\" }," +
                         "{ \"value\": \"GCC\", \"label\": \"GCC - US Government Community Cloud\" }," +
                         "{ \"value\": \"GCCHigh\", \"label\": \"GCC High - US Government Community Cloud High (DoD IL4)\" }," +
                         "{ \"value\": \"DoD\", \"label\": \"DoD - US Department of Defense (DoD IL5)\" }" +
