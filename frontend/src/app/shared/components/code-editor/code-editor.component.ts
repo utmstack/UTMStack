@@ -35,7 +35,8 @@ export class CodeEditorComponent implements OnInit, OnChanges {
     }
 
     try {
-      this.execute.emit(query);
+      const cleanedQuery = query.replace(/\n/g, ' ');
+      this.execute.emit(cleanedQuery);
     } catch (err) {
       this.errorMessage = err instanceof Error ? err.message : String(err);
     }
@@ -150,20 +151,16 @@ export class CodeEditorComponent implements OnInit, OnChanges {
     return (sq % 2 === 0) && (dq % 2 === 0);
   }
 
-  private extractFunctions(upperQuery: string): Set<string> {
+  private extractFunctions(upperQuery: string): string[] {
     const funcPattern = /\b([A-Z]+)\s*\(/g;
-    const funcs = new Set<string>();
+    const funcs: string[] = [];
 
-    while (true) {
-      const match = funcPattern.exec(upperQuery);
-      if (!match) {
-        break;
-      }
-      funcs.add(match[1]);
+    let match: RegExpExecArray | null = funcPattern.exec(upperQuery);
+    while (match !== null) {
+      funcs.push(match[1]);
+      match = funcPattern.exec(upperQuery);
     }
 
     return funcs;
   }
-
-
 }

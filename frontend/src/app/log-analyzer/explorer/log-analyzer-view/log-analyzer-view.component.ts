@@ -85,6 +85,7 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   filterWidth: number;
   tableWidth: number;
   isSqlMode = false;
+  sqlQuery = '';
   sqlError: string | null = null;
 
   constructor(private indexPatternBehavior: IndexPatternBehavior,
@@ -205,13 +206,21 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
 
   onPageChange($event: number) {
     this.page = $event;
-    this.getData();
+    if (this.isSqlMode) {
+      this.getDataBySqlQuery();
+    } else {
+      this.getData();
+    }
   }
 
   onSizeChange($event: number) {
     this.itemsPerPage = $event;
     this.page = 1;
-    this.getData();
+    if (this.isSqlMode) {
+      this.getDataBySqlQuery();
+    } else {
+      this.getData();
+    }
   }
 
   onColumnChange($event: ElasticSearchFieldInfoType[]) {
@@ -267,7 +276,7 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
     }
   }
 
-  getDataBySqlQuery(sql: string) {
+  getDataBySqlQuery() {
     const dateStart = new Date();
     this.sqlError = null;
 
@@ -276,7 +285,7 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
 
       this.loading = true;
       this.logAnalyzerService.searchBySqlQuery(
-        sql,
+        this.sqlQuery,
         10000,
         this.filters,
         this.page,
@@ -439,7 +448,13 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
       this.filters = [];
     }
     this.rows = [];
+    this.sqlQuery = '';
     this.isSqlMode = !this.isSqlMode;
+  }
+
+  executeSqlQuery($event) {
+    this.sqlQuery = $event;
+    this.getDataBySqlQuery();
   }
 
   ngOnDestroy(): void {
