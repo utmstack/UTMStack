@@ -8,6 +8,10 @@ import tech.jhipster.service.filter.*;
 
 import java.io.Serializable;
 
+/**
+ * Criteria class for filtering IdentityProviderConfig entities.
+ * Adapted for SAML providers only.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,13 +23,15 @@ public class IdentityProviderCriteria implements Serializable {
     private LongFilter id;
     private StringFilter name;
     private ProviderTypeFilter providerType;
-    private StringFilter redirectUri;
-    private StringFilter scopes;
-    private StringFilter authUri;
-    private StringFilter tokenUri;
-    private StringFilter userInfoUri;
-    private StringFilter jwksUri;
+
+    private StringFilter entityId;       // IdP entityID
+    private StringFilter ssoUrl;         // SingleSignOnService URL
+    private StringFilter sloUrl;         // SingleLogoutService URL
+    private StringFilter certPem;        // PEM certificate
+    private StringFilter nameIdFormat;   // NameID format (emailAddress, persistent, etc.)
+    private StringFilter binding;        // HTTP-POST, Redirect, etc.
+
+    private BooleanFilter active;
     private InstantFilter createdDate;
     private InstantFilter lastModifiedDate;
-    private BooleanFilter active;
 }

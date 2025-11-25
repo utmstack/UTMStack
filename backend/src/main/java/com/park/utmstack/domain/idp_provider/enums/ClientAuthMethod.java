@@ -1,3 +1,4 @@
+/*
 package com.park.utmstack.domain.idp_provider.enums;
 
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -17,3 +18,4 @@ public enum ClientAuthMethod {
     }
 }
 
+*/
