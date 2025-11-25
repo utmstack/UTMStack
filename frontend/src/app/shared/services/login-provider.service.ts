@@ -16,6 +16,6 @@ export class LoginProviderService {
   }
 
   loginWithProvider(provider: string): void {
-    window.location.href = `${SERVER_API_URL}oauth2/authorization/${provider}`;
+    window.location.href = `${SERVER_API_URL}saml2/authenticate/${provider}`;
   }
 }
