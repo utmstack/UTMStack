@@ -11,63 +11,42 @@
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-
-            <column name="name" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-
             <column name="provider_type" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-
-            <column name="client_id" type="VARCHAR(255)">
+            <column name="name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-
-            <column name="client_secret" type="VARCHAR(512)">
+            <column name="entity_id" type="VARCHAR(512)">
                 <constraints nullable="false"/>
             </column>
-
-            <column name="redirect_uri" type="VARCHAR(512)">
+            <column name="sso_url" type="VARCHAR(512)">
                 <constraints nullable="false"/>
             </column>
-
-            <column name="auth_uri" type="VARCHAR(512)">
+            <column name="slo_url" type="VARCHAR(512)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="cert_pem" type="TEXT">
                 <constraints nullable="false"/>
             </column>
-
-            <column name="token_uri" type="VARCHAR(512)">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="user_info_uri" type="VARCHAR(512)">
+            <column name="nameid_format" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-
-            <column name="jwks_uri" type="VARCHAR(512)">
+            <column name="binding" type="VARCHAR(50)">
                 <constraints nullable="true"/>
             </column>
-
-            <column name="client_auth_method" type="VARCHAR(50)">
+            <column name="sp_private_key_pem" type="CLOB">
                 <constraints nullable="true"/>
             </column>
-
-            <column name="scopes" type="VARCHAR(255)">
+            <column name="sp_certificate_pem" type="CLOB">
                 <constraints nullable="true"/>
             </column>
-
-            <column name="allowed_domains" type="VARCHAR(512)">
-                <constraints nullable="true"/>
-            </column>
-
             <column name="active" type="BOOLEAN" defaultValueBoolean="true">
                 <constraints nullable="false"/>
             </column>
-
             <column name="created_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-
             <column name="updated_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -77,14 +56,12 @@
             <column name="provider_type"/>
         </createIndex>
 
-        <createIndex tableName="utm_identity_provider_config" indexName="idx_idp_provider_type_active">
-            <column name="provider_type"/>
-            <column name="active"/>
+        <createIndex tableName="utm_identity_provider_config" indexName="idx_idp_entity_id">
+            <column name="entity_id"/>
         </createIndex>
 
         <addUniqueConstraint tableName="utm_identity_provider_config"
-                             columnNames="provider_type"
-                             constraintName="uc_provider_type"/>
+                             columnNames="provider_type,name"
+                             constraintName="uc_provider_type_name"/>
     </changeSet>
-
 </databaseChangeLog>

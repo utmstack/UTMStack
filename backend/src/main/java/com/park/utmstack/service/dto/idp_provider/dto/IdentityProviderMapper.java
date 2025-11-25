@@ -14,8 +14,6 @@ public interface IdentityProviderMapper {
 
     IdentityProviderConfigResponseDto toDto(IdentityProviderConfig entity);
 
-    @Mapping(target = "clientSecret",
-            expression = "java(CipherUtil.encrypt(request.getClientSecret(), System.getenv(Constants.ENV_ENCRYPTION_KEY)))")
     IdentityProviderConfig toEntity(IdentityProviderConfigRequestDto request);
 
     List<IdentityProviderConfigResponseDto> toDtoList(List<IdentityProviderConfig> entities);

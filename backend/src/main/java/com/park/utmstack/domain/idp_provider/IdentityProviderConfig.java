@@ -1,11 +1,11 @@
 package com.park.utmstack.domain.idp_provider;
 
-import com.park.utmstack.domain.idp_provider.enums.ClientAuthMethod;
 import com.park.utmstack.domain.idp_provider.enums.ProviderType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -29,29 +29,32 @@ public class IdentityProviderConfig {
     @Column(nullable = false)
     private ProviderType providerType;
 
-    @Column(nullable = false)
-    private String clientId;
+    @Column(nullable = false, length = 512)
+    private String entityId; // IdP entityID
 
-    @Column(nullable = false)
-    private String clientSecret;
+    @Column(nullable = false, length = 512)
+    private String ssoUrl; // SingleSignOnService URL
 
-    @Column(nullable = false)
-    private String authUri;
+    @Column(name = "nameid_format", length = 255)
+    private String nameIdFormat; // e.g. emailAddress
 
-    @Column(nullable = false)
-    private String tokenUri;
+    @Column(length = 512)
+    private String sloUrl; // SingleLogoutService URL (optional)
 
-    @Column(nullable = false)
-    private String redirectUri;
+    @Type(type = "text")
+    @Column(name = "cert_pem", nullable = false, columnDefinition = "TEXT")
+    private String certPem;
 
-    private String userInfoUri;
-    private String jwksUri;
+    @Type(type = "text")
+    @Column(name = "sp_private_key_pem", columnDefinition = "TEXT")
+    private String spPrivateKeyPem;
 
-    @Enumerated(EnumType.STRING)
-    private ClientAuthMethod clientAuthMethod;
+    @Type(type = "text")
+    @Column(name = "sp_certificate_pem", columnDefinition = "TEXT")
+    private String spCertificatePem;
 
-    private String scopes;
-    private String allowedDomains;
+    @Column(length = 50)
+    private String binding; // HTTP-POST, Redirect, etc.
 
     @Column(nullable = false)
     private Boolean active;

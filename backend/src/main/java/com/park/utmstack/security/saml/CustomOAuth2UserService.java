@@ -1,4 +1,5 @@
-package com.park.utmstack.security.oauth;
+/*
+package com.park.utmstack.security.saml;
 
 import com.park.utmstack.domain.idp_provider.CustomOidcUser;
 import com.park.utmstack.repository.UserRepository;
@@ -33,3 +34,4 @@ public class CustomOAuth2UserService implements OAuth2UserService<OidcUserReques
 
 }
 
+*/

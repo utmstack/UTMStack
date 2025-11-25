@@ -1,3 +1,4 @@
+/*
 package com.park.utmstack.domain.idp_provider;
 
 import com.park.utmstack.domain.User;
@@ -50,3 +51,4 @@ public class CustomOidcUser implements OidcUser {
     }
 }
 
+*/

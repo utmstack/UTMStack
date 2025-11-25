@@ -8,10 +8,9 @@ import com.park.utmstack.security.internalApiKey.InternalApiKeyConfigurer;
 import com.park.utmstack.security.internalApiKey.InternalApiKeyProvider;
 import com.park.utmstack.security.jwt.JWTConfigurer;
 import com.park.utmstack.security.jwt.TokenProvider;
-import com.park.utmstack.security.oauth.OAuth2LoginFailureHandler;
+import com.park.utmstack.security.saml.Saml2LoginFailureHandler;
+import com.park.utmstack.security.saml.Saml2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
-import com.park.utmstack.security.oauth.OAuth2LoginSuccessHandler;
-import com.park.utmstack.security.oauth.CustomOAuth2UserService;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +27,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
@@ -125,7 +123,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/management/info").permitAll()
                 .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
                 .and()
-                .oauth2Login()
+                /*.oauth2Login()
                 .authorizationEndpoint().baseUri("/oauth2/authorization")
                 .and()
                 .redirectionEndpoint().baseUri("/login/oauth2/code/*")
@@ -134,7 +132,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .oidcUserService(customOAuth2UserService(userRepository))
                 .and()
                 .successHandler(new OAuth2LoginSuccessHandler(tokenProvider))
-                .failureHandler(new OAuth2LoginFailureHandler())
+                .failureHandler(new OAuth2LoginFailureHandler())*/
+                .saml2Login()
+                .successHandler(new Saml2LoginSuccessHandler(tokenProvider))
+                .failureHandler(new Saml2LoginFailureHandler())
                 .and()
                 .apply(securityConfigurerAdapterForJwt())
                 .and()
@@ -143,11 +144,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .apply(securityConfigurerAdapterForApiKey())    ;
 
 
-    }
-
-    @Bean
-    public CustomOAuth2UserService customOAuth2UserService(UserRepository userRepository) {
-        return new CustomOAuth2UserService(userRepository);
     }
 
 

@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
-
+/**
+ * Response DTO for Identity Provider configuration.
+ * Adapted for SAML providers only.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,13 +16,12 @@ public class IdentityProviderConfigResponseDto {
     private Long id;
     private String name;
     private ProviderType providerType;
-    private String clientId;
-    private String authUri;
-    private String tokenUri;
-    private String redirectUri;
-    private String scopes;
-    private String allowedDomains;
+
+    private String entityId;       // IdP entityID
+    private String ssoUrl;         // SingleSignOnService URL
+    private String sloUrl;         // SingleLogoutService URL
+    private String nameIdFormat;   // NameID format (emailAddress, persistent, etc.)
+    private String binding;        // HTTP-POST, Redirect, etc.
+
     private Boolean active;
-    private String jwksUri;
-    private String userInfoUri;
 }

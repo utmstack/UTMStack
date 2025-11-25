@@ -49,15 +49,8 @@ public class IdentityProviderService {
                 .orElseThrow(() -> new IdpNotFoundException("IdentityProviderConfig not found: " + id));
 
         existing.setName(dto.getName());
-        existing.setClientId(dto.getClientId());
+        existing.setEntityId(dto.getEntityId());
 
-        if (dto.getClientSecret() != null) {
-            existing.setClientSecret(mapper.toEntity(dto).getClientSecret());
-        }
-
-        existing.setRedirectUri(dto.getRedirectUri());
-        existing.setScopes(dto.getScopes());
-        existing.setAllowedDomains(dto.getAllowedDomains());
         existing.setActive(dto.getActive());
         existing.setUpdatedAt(LocalDateTime.now());
 
