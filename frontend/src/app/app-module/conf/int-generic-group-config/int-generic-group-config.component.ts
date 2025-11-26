@@ -172,9 +172,13 @@ export class IntGenericGroupConfigComponent implements OnInit {
   saveConfig(group: UtmModuleGroupType) {
     this.savingConfig = true;
     const configs = this.changes.keys.filter(change => change.groupId === group.id);
+    const keys = configs.map(config => ({
+      ...config,
+      confOptions: config.confOptions ? JSON.stringify(config.confOptions) : null
+    }));
     this.utmModuleGroupConfService.update({
       moduleId: group.moduleId,
-      keys: configs
+      keys
     }).subscribe(response => {
       this.savingConfig = false;
       this.pendingChanges = false;

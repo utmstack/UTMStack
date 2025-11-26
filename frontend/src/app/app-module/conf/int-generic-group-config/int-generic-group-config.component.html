@@ -101,6 +101,7 @@
 
           <ng-select *ngIf="integrationConfig.confDataType === 'select'"
                      #options="ngModel"
+                     (change)="addChange(integrationConfig)"
                      [items]="integrationConfig.confOptions"
                      bindLabel="label"
                      bindValue="value"
