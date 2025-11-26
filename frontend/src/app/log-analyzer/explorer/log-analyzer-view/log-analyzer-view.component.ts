@@ -452,6 +452,10 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
     this.isSqlMode = !this.isSqlMode;
   }
 
+  onClearData() {
+    this.rows = [];
+  }
+
   executeSqlQuery($event) {
     this.sqlQuery = $event;
     this.getDataBySqlQuery();

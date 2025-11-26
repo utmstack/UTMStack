@@ -3,7 +3,7 @@ import {
   Input, OnChanges, OnInit, Output, SimpleChanges
 } from '@angular/core';
 
-interface MonacoOptions {
+interface ConsoleOptions {
   value?: string;
   language?: string;
   theme?: 'vs' | 'vs-dark' | 'hc-black' | string;
@@ -25,9 +25,10 @@ interface MonacoOptions {
   templateUrl: './code-editor.component.html',
   styleUrls: ['./code-editor.component.scss']
 })
-export class CodeEditorComponent implements OnInit, OnChanges {
-  @Input() consoleOptions?: MonacoOptions;
+export class CodeEditorComponent implements OnInit {
+  @Input() consoleOptions?: ConsoleOptions;
   @Output() execute = new EventEmitter<string>();
+  @Output() clearData = new EventEmitter<void>();
   @Input() queryError: string | null = null;
 
   isExecuting = false;
@@ -35,7 +36,7 @@ export class CodeEditorComponent implements OnInit, OnChanges {
   errorMessage = '';
   successMessage = '';
 
-  readonly defaultOptions: MonacoOptions = {
+  readonly defaultOptions: ConsoleOptions = {
     value: this.sqlQuery,
     language: 'sql',
     theme: 'myCustomTheme',
@@ -45,7 +46,7 @@ export class CodeEditorComponent implements OnInit, OnChanges {
     renderLineHighlight: 'none',
     scrollbar: {
       vertical: 'auto',
-      horizontal: 'none'
+      horizontal: 'hidden'
     },
     overviewRulerLanes: 0,
     wordWrap: 'on',
@@ -84,6 +85,7 @@ export class CodeEditorComponent implements OnInit, OnChanges {
   clearQuery(): void {
     this.sqlQuery = '';
     this.resetMessages();
+    this.clearData.emit();
   }
 
   formatQuery(): void {
@@ -107,14 +109,6 @@ export class CodeEditorComponent implements OnInit, OnChanges {
     this.resetMessages();
     (navigator as any).clipboard.writeText(this.sqlQuery);
     this.successMessage = 'Query copied to clipboard.';
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.queryError && this.queryError) {
-      this.resetMessages();
-      this.errorMessage = this.queryError;
-      this.isExecuting = false;
-    }
   }
 
   resetMessages(): void {
