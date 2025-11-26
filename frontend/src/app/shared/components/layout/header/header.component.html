@@ -7,7 +7,7 @@
       <div class="navbar-img mr-3 d-flex justify-content-start align-items-center">
         <img *ngIf="logoImage" [alt]="altImage" [src]="sanitizer.bypassSecurityTrustUrl(logoImage)"
              class="cursor-pointer" routerLink="/dashboard/overview">
-        <app-utm-version-info></app-utm-version-info>
+        <app-utm-version-info [version]="currentVersion"></app-utm-version-info>
 
         <!--<app-utm-license-info class="ml-4"></app-utm-license-info>-->
         <app-utm-vault-status class="ml-4"></app-utm-vault-status>

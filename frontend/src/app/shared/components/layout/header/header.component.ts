@@ -1,15 +1,11 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
-import {UtmModulesService} from '../../../../app-module/shared/services/utm-modules.service';
 import {AccountService} from '../../../../core/auth/account.service';
-import {LoginService} from '../../../../core/login/login.service';
 import {User} from '../../../../core/user/user.model';
-import {NavBehavior} from '../../../behaviors/nav.behavior';
 import {ThemeChangeBehavior} from '../../../behaviors/theme-change.behavior';
 import {ADMIN_ROLE} from '../../../constants/global.constant';
 import {AppThemeLocationEnum} from '../../../enums/app-theme-location.enum';
-import {ActiveAdModuleActiveService} from '../../../services/active-modules/active-ad-module.service';
-import {UtmRunModeService} from '../../../services/active-modules/utm-run-mode.service';
+import {CheckForUpdatesService} from '../../../services/updates/check-for-updates.service';
 
 @Component({
   selector: 'app-header',
@@ -23,15 +19,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   place = AppThemeLocationEnum;
   logoImage: string;
   altImage: string;
+  currentVersion: any;
 
-  constructor(private loginService: LoginService,
-              private accountService: AccountService,
-              private adModuleActiveService: ActiveAdModuleActiveService,
+  constructor(private accountService: AccountService,
               public sanitizer: DomSanitizer,
-              private moduleService: UtmModulesService,
-              private navBehavior: NavBehavior,
-              private utmRunModeService: UtmRunModeService,
-              private themeChangeBehavior: ThemeChangeBehavior) {
+              private themeChangeBehavior: ThemeChangeBehavior,
+              private checkForUpdatesService: CheckForUpdatesService) {
   }
 
   ngOnInit() {
@@ -42,6 +35,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
     this.accountService.identity().then(account => {
       this.user = account;
+    });
+
+    this.getVersionInfo();
+  }
+
+  getVersionInfo() {
+    this.checkForUpdatesService.getVersion().subscribe(response => {
+      this.currentVersion = response.body;
     });
   }
 
