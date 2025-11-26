@@ -3,16 +3,17 @@ module github.com/utmstack/UTMStack/plugins/azure
 go 1.24.2
 
 require (
-	github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/v2 v2.0.0
+	github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/v2 v2.0.1
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.6.1
 	github.com/google/uuid v1.6.0
 	github.com/threatwinds/go-sdk v1.0.43
-	github.com/utmstack/config-client-go v1.2.7
+	google.golang.org/grpc v1.74.2
+	google.golang.org/protobuf v1.36.6
 )
 
 require (
 	cel.dev/expr v0.24.0 // indirect
-	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.18.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.18.1 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.11.1 // indirect
 	github.com/Azure/go-amqp v1.4.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
@@ -49,8 +50,6 @@ require (
 	golang.org/x/text v0.27.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250721164621-a45f3dfb1074 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250721164621-a45f3dfb1074 // indirect
-	google.golang.org/grpc v1.74.2 // indirect
-	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	sigs.k8s.io/yaml v1.5.0 // indirect
 )
