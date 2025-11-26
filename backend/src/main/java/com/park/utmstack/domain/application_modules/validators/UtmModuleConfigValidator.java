@@ -4,7 +4,7 @@ import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
 import com.park.utmstack.repository.UtmModuleGroupConfigurationRepository;
-import com.park.utmstack.service.application_modules.connectors.UtmStackConnectionService;
+import com.park.utmstack.service.application_modules.connectors.ModuleConfigurationValidationService;
 import com.park.utmstack.service.dto.application_modules.UtmModuleGroupConfDTO;
 import com.park.utmstack.service.dto.application_modules.UtmModuleGroupConfWrapperDTO;
 import com.park.utmstack.util.CipherUtil;
@@ -12,20 +12,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UtmModuleConfigValidator {
 
     private final UtmModuleGroupConfigurationRepository moduleGroupConfigurationRepository;
-    private final UtmStackConnectionService utmStackConnectionService;
+    private final ModuleConfigurationValidationService utmStackConnectionService;
 
-    public boolean validate(UtmModule module, List<UtmModuleGroupConfiguration> keys) throws Exception {
+    public boolean validate(UtmModule module, List<UtmModuleGroupConfiguration> keys) {
         if (keys.isEmpty()) return false;
 
         List<UtmModuleGroupConfiguration> dbConfigs = moduleGroupConfigurationRepository
                 .findAllByGroupId(keys.get(0).getGroupId());
+
+        return validate(module, keys, dbConfigs);
+    }
+
+    public boolean validate(UtmModule module, List<UtmModuleGroupConfiguration> keys, List<UtmModuleGroupConfiguration> dbConfigs) {
+        if (keys.isEmpty()) return false;
 
         List<UtmModuleGroupConfDTO> configDTOs = dbConfigs.stream()
                 .map(dbConf -> {
@@ -41,7 +46,7 @@ public class UtmModuleConfigValidator {
 
         UtmModuleGroupConfWrapperDTO body = new UtmModuleGroupConfWrapperDTO(configDTOs);
 
-        return utmStackConnectionService.testConnection(module.getModuleName().name(), body);
+        return utmStackConnectionService.validateModuleConfiguration(module.getModuleName().name(), body);
     }
 
     private UtmModuleGroupConfiguration findInKeys(List<UtmModuleGroupConfiguration> keys, String confKey) {
