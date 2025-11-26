@@ -55,7 +55,7 @@ func UpdateDependencies(cnf *config.Config) {
 			}
 
 			if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-				if err = utils.Execute("chmod", utils.GetMyPath(), "-R", "777", filepath.Join(utils.GetMyPath(), fmt.Sprintf(config.ServiceFile, "_new"))); err != nil {
+				if err = utils.Execute("chmod", utils.GetMyPath(), "-R", "755", filepath.Join(utils.GetMyPath(), fmt.Sprintf(config.ServiceFile, "_new"))); err != nil {
 					utils.Logger.ErrorF("error executing chmod: %v", err)
 				}
 			}
