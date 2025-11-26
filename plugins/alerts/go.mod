@@ -6,7 +6,7 @@ require (
 	github.com/threatwinds/go-sdk v1.0.43
 	github.com/tidwall/gjson v1.18.0
 	google.golang.org/grpc v1.74.2
-	google.golang.org/protobuf v1.36.6
+	google.golang.org/protobuf v1.36.10
 )
 
 require (
