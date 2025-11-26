@@ -2,6 +2,8 @@ package com.park.utmstack.validation.elasticsearch;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.HashSet;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Set;
 
@@ -111,14 +113,13 @@ public class SqlSelectOnlyValidator implements ConstraintValidator<SqlSelectOnly
     }
 
     private Set<String> extractFunctions(String upperQuery) {
-        Pattern funcPattern = Pattern.compile("\\b([A-Z]+)\\s*\\(");
-        var matcher = funcPattern.matcher(upperQuery);
-        Set<String> funcs = new java.util.HashSet<>();
+        Pattern funcPattern = Pattern.compile("\\b(COUNT|AVG|MIN|MAX|SUM)\\s*\\(");
+        Matcher matcher = funcPattern.matcher(upperQuery);
+
+        Set<String> funcs = new HashSet<>();
         while (matcher.find()) {
             String func = matcher.group(1);
-            if (!ALLOWED_FUNCTIONS.contains(func) && !KEYWORDS_TO_IGNORE.contains(func)) {
-                funcs.add(func);
-            }
+            funcs.add(func);
         }
         return funcs;
     }
@@ -126,13 +127,25 @@ public class SqlSelectOnlyValidator implements ConstraintValidator<SqlSelectOnly
     private boolean hasMisplacedCommas(String query) {
         String upperQuery = query.toUpperCase();
 
-        if (upperQuery.startsWith("SELECT ,") || upperQuery.contains(",,"))
+        if (upperQuery.startsWith("SELECT ,") || upperQuery.contains(",,")) {
             return true;
+        }
 
         String selectPart = query.replaceAll("(?i)^SELECT\\s+", "")
                 .replaceAll("(?i)\\s+FROM.*", "")
                 .trim();
+
+        if (selectPart.startsWith(",") || selectPart.endsWith(",")) {
+            return true;
+        }
+
         String[] fields = selectPart.split(",");
-        return fields.length < 2 && selectPart.contains(" ");
+        for (String f : fields) {
+            if (f.trim().isEmpty()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
