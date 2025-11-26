@@ -1,5 +1,24 @@
-import {Component, EventEmitter,
-  Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {
+  Component, EventEmitter,
+  Input, OnChanges, OnInit, Output, SimpleChanges
+} from '@angular/core';
+
+interface MonacoOptions {
+  value?: string;
+  language?: string;
+  theme?: 'vs' | 'vs-dark' | 'hc-black' | string;
+  minimap?: { enabled: boolean };
+  renderLineHighlight?: 'none' | 'line' | 'gutter' | 'all';
+  scrollbar?: {
+    vertical?: 'auto' | 'visible' | 'hidden';
+    horizontal?: 'auto' | 'visible' | 'hidden';
+    verticalScrollbarSize?: number;
+    horizontalScrollbarSize?: number;
+  };
+  overviewRulerLanes?: number;
+  wordWrap?: 'off' | 'on' | 'wordWrapColumn' | 'bounded';
+  automaticLayout: boolean;
+}
 
 @Component({
   selector: 'app-code-editor',
@@ -7,6 +26,7 @@ import {Component, EventEmitter,
   styleUrls: ['./code-editor.component.scss']
 })
 export class CodeEditorComponent implements OnInit, OnChanges {
+  @Input() consoleOptions?: MonacoOptions;
   @Output() execute = new EventEmitter<string>();
   @Input() queryError: string | null = null;
 
@@ -15,9 +35,28 @@ export class CodeEditorComponent implements OnInit, OnChanges {
   errorMessage = '';
   successMessage = '';
 
+  readonly defaultOptions: MonacoOptions = {
+    value: this.sqlQuery,
+    language: 'sql',
+    theme: 'myCustomTheme',
+    minimap: {
+      enabled: false
+    },
+    renderLineHighlight: 'none',
+    scrollbar: {
+      vertical: 'auto',
+      horizontal: 'none'
+    },
+    overviewRulerLanes: 0,
+    wordWrap: 'on',
+    automaticLayout: true
+  };
+
   constructor() {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.consoleOptions = { ...this.defaultOptions, ...this.consoleOptions };
+  }
 
   executeQuery(): void {
     this.resetMessages();

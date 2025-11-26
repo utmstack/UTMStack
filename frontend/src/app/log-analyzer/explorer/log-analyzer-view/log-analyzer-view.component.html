@@ -42,7 +42,7 @@
   </div>
 </div>
 <!--header-->
-<div class="px-3 w-100 h-25 m-0" *ngIf="isSqlMode">
+<div class="px-3 w-100 h-50 m-0" *ngIf="isSqlMode">
   <app-code-editor
     (execute)="executeSqlQuery($event)"
     [queryError]="sqlError">
