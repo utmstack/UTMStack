@@ -219,12 +219,17 @@ public class ElasticsearchResource {
                                                                      Pageable pageable) {
         final String ctx = CLASSNAME + ".searchBySql";
         try {
-            String sqlQuery = SqlPaginationUtil.applyPagination(request.getQuery(), pageable);
+            String sanitizedQuery = request.getQuery()
+                    .trim()
+                    .replaceAll(";+$", "")
+                    .trim();
+
+            String sqlQuery = SqlPaginationUtil.applyPagination(sanitizedQuery, pageable); // Quitar
 
             SearchSqlResponse<Map> response = elasticsearchService
                     .searchBySql(new SqlQueryRequest(sqlQuery, null), Map.class);
 
-            String countQuery = "SELECT COUNT(*) FROM (" + request.getQuery() + ") AS total_count";
+            String countQuery = "SELECT COUNT(*) FROM (" + sanitizedQuery + ") AS total_count";
             SearchSqlResponse<Map> countResponse = elasticsearchService
                     .searchBySql(new SqlQueryRequest(countQuery, null), Map.class);
 
