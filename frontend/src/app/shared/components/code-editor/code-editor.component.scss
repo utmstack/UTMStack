@@ -36,7 +36,6 @@
     .editor-area {
       height: 100%;
       width: 100%;
-      padding: .5rem;
       border: 1px solid rgba(0,0,0,.125);
     }
   }
@@ -61,6 +60,6 @@
   color: #fff !important;
 }
 
-textarea:focus, input:focus {
-  border: 1px solid rgba(0, 0, 0, 0.125) !important;
+::ng-deep .monaco-editor {
+  padding-top: 10px;
 }

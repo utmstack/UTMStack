@@ -34,7 +34,7 @@
         </button>
         <button (click)="exportToCsv()"
                 [disabled]="(fields && fields.length === 0) || !rows || csvExport"
-                class="btn utm-button utm-button-primary">
+                class="btn utm-button utm-button-primary" *ngIf="!isSqlMode">
           <i [ngClass]="csvExport ? 'icon-download10' : 'icon-table2'"></i>
           {{csvExport ? 'Generating...' : 'Export to CSV'}}
         </button>
@@ -42,9 +42,10 @@
   </div>
 </div>
 <!--header-->
-<div class="px-3 w-100 h-25 m-0" *ngIf="isSqlMode">
+<div class="px-3 w-100 h-50 m-0" *ngIf="isSqlMode">
   <app-code-editor
-    (execute)="getDataBySqlQuery($event)"
+    (execute)="executeSqlQuery($event)"
+    (clearData)="onClearData()"
     [queryError]="sqlError">
   </app-code-editor>
 </div>

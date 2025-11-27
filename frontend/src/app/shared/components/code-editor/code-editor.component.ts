@@ -1,13 +1,34 @@
-import {Component, EventEmitter,
-  Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {
+  Component, EventEmitter,
+  Input, OnChanges, OnInit, Output, SimpleChanges
+} from '@angular/core';
+
+interface ConsoleOptions {
+  value?: string;
+  language?: string;
+  theme?: 'vs' | 'vs-dark' | 'hc-black' | string;
+  minimap?: { enabled: boolean };
+  renderLineHighlight?: 'none' | 'line' | 'gutter' | 'all';
+  scrollbar?: {
+    vertical?: 'auto' | 'visible' | 'hidden';
+    horizontal?: 'auto' | 'visible' | 'hidden';
+    verticalScrollbarSize?: number;
+    horizontalScrollbarSize?: number;
+  };
+  overviewRulerLanes?: number;
+  wordWrap?: 'off' | 'on' | 'wordWrapColumn' | 'bounded';
+  automaticLayout: boolean;
+}
 
 @Component({
   selector: 'app-code-editor',
   templateUrl: './code-editor.component.html',
   styleUrls: ['./code-editor.component.scss']
 })
-export class CodeEditorComponent implements OnInit, OnChanges {
+export class CodeEditorComponent implements OnInit {
+  @Input() consoleOptions?: ConsoleOptions;
   @Output() execute = new EventEmitter<string>();
+  @Output() clearData = new EventEmitter<void>();
   @Input() queryError: string | null = null;
 
   isExecuting = false;
@@ -15,9 +36,28 @@ export class CodeEditorComponent implements OnInit, OnChanges {
   errorMessage = '';
   successMessage = '';
 
+  readonly defaultOptions: ConsoleOptions = {
+    value: this.sqlQuery,
+    language: 'sql',
+    theme: 'myCustomTheme',
+    minimap: {
+      enabled: false
+    },
+    renderLineHighlight: 'none',
+    scrollbar: {
+      vertical: 'auto',
+      horizontal: 'hidden'
+    },
+    overviewRulerLanes: 0,
+    wordWrap: 'on',
+    automaticLayout: true
+  };
+
   constructor() {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.consoleOptions = { ...this.defaultOptions, ...this.consoleOptions };
+  }
 
   executeQuery(): void {
     this.resetMessages();
@@ -35,7 +75,8 @@ export class CodeEditorComponent implements OnInit, OnChanges {
     }
 
     try {
-      this.execute.emit(query);
+      const cleanedQuery = query.replace(/\n/g, ' ');
+      this.execute.emit(cleanedQuery);
     } catch (err) {
       this.errorMessage = err instanceof Error ? err.message : String(err);
     }
@@ -44,6 +85,7 @@ export class CodeEditorComponent implements OnInit, OnChanges {
   clearQuery(): void {
     this.sqlQuery = '';
     this.resetMessages();
+    this.clearData.emit();
   }
 
   formatQuery(): void {
@@ -69,14 +111,6 @@ export class CodeEditorComponent implements OnInit, OnChanges {
     this.successMessage = 'Query copied to clipboard.';
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.queryError && this.queryError) {
-      this.resetMessages();
-      this.errorMessage = this.queryError;
-      this.isExecuting = false;
-    }
-  }
-
   resetMessages(): void {
     this.errorMessage = '';
     this.successMessage = '';
@@ -87,13 +121,19 @@ export class CodeEditorComponent implements OnInit, OnChanges {
     const upper = trimmed.toUpperCase();
 
     const startPattern = /^\s*SELECT\b/i;
+    if (!startPattern.test(trimmed)) {
+      return 'Query must start with SELECT.';
+    }
+
+    const minimalPattern = /^\s*SELECT\s+.+\s+FROM\s+.+/is;
+    if (!minimalPattern.test(trimmed)) {
+      return 'Query must be at least: SELECT <columns> FROM <table>.';
+    }
+
     const forbiddenPattern = /\b(INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|REPLACE|TRUNCATE|MERGE|GRANT|REVOKE|EXEC|EXECUTE|COMMIT|ROLLBACK|INTO)\b/i;
     const commentPattern = /(--.*?$|\/\*.*?\*\/)/gm;
     const allowedFunctions = new Set(['COUNT', 'AVG', 'MIN', 'MAX', 'SUM']);
 
-    if (!startPattern.test(trimmed)) {
-      return 'Query must start with SELECT.';
-    }
     if (forbiddenPattern.test(upper)) {
       return 'Query contains forbidden SQL keywords.';
     }
@@ -108,8 +148,8 @@ export class CodeEditorComponent implements OnInit, OnChanges {
     }
     if (!this.balancedParentheses(trimmed)) {
       return 'Parentheses are not balanced.';
-
     }
+
     const functions = this.extractFunctions(upper);
     for (const func of functions) {
       if (!allowedFunctions.has(func)) {
@@ -150,20 +190,16 @@ export class CodeEditorComponent implements OnInit, OnChanges {
     return (sq % 2 === 0) && (dq % 2 === 0);
   }
 
-  private extractFunctions(upperQuery: string): Set<string> {
-    const funcPattern = /\b([A-Z]+)\s*\(/g;
-    const funcs = new Set<string>();
+  private extractFunctions(upperQuery: string): string[] {
+    const funcPattern = /\b(COUNT|AVG|MIN|MAX|SUM)\s*\(/g;
+    const funcs: string[] = [];
 
-    while (true) {
-      const match = funcPattern.exec(upperQuery);
-      if (!match) {
-        break;
-      }
-      funcs.add(match[1]);
+    let match: RegExpExecArray | null = funcPattern.exec(upperQuery);
+    while (match !== null) {
+      funcs.push(match[1]);
+      match = funcPattern.exec(upperQuery);
     }
 
     return funcs;
   }
-
-
 }
