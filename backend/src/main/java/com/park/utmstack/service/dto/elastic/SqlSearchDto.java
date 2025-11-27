@@ -15,6 +15,5 @@ public class SqlSearchDto {
     @SqlSelectOnly
     private String query;
 
-    @NotNull
     private Integer fetchSize;
 }

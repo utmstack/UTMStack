@@ -68,6 +68,10 @@ public class SqlSelectOnlyValidator implements ConstraintValidator<SqlSelectOnly
             return addConstraintViolation(context, "Query contains misplaced commas.");
         }
 
+        if (hasSubqueryWithoutAlias(query)) {
+            return addConstraintViolation(context, "Subquery in FROM must have an alias.");
+        }
+
         for (String func : extractFunctions(upper)) {
             if (!ALLOWED_FUNCTIONS.contains(func)) {
                 return addConstraintViolation(context, "Unsupported SQL function: " + func + ".");
@@ -131,6 +135,10 @@ public class SqlSelectOnlyValidator implements ConstraintValidator<SqlSelectOnly
             return true;
         }
 
+        if (upperQuery.matches(".*\\,\\s*FROM.*")) {
+            return true;
+        }
+
         String selectPart = query.replaceAll("(?i)^SELECT\\s+", "")
                 .replaceAll("(?i)\\s+FROM.*", "")
                 .trim();
@@ -147,5 +155,17 @@ public class SqlSelectOnlyValidator implements ConstraintValidator<SqlSelectOnly
         }
 
         return false;
+    }
+
+    private boolean hasSubqueryWithoutAlias(String query) {
+        Pattern subqueryPattern = Pattern.compile("(?i)FROM\\s*\\([^)]*\\)");
+        Matcher subqueryMatcher = subqueryPattern.matcher(query);
+        if (!subqueryMatcher.find()) {
+            return false;
+        }
+
+        Pattern aliasPattern = Pattern.compile("(?i)FROM\\s*\\([^)]*\\)\\s+(AS\\s+\\w+|\\w+)");
+        Matcher aliasMatcher = aliasPattern.matcher(query);
+        return !aliasMatcher.find();
     }
 }
