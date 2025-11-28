@@ -23,14 +23,6 @@ public class IdentityProviderCriteria implements Serializable {
     private LongFilter id;
     private StringFilter name;
     private ProviderTypeFilter providerType;
-
-    private StringFilter entityId;       // IdP entityID
-    private StringFilter ssoUrl;         // SingleSignOnService URL
-    private StringFilter sloUrl;         // SingleLogoutService URL
-    private StringFilter certPem;        // PEM certificate
-    private StringFilter nameIdFormat;   // NameID format (emailAddress, persistent, etc.)
-    private StringFilter binding;        // HTTP-POST, Redirect, etc.
-
     private BooleanFilter active;
     private InstantFilter createdDate;
     private InstantFilter lastModifiedDate;

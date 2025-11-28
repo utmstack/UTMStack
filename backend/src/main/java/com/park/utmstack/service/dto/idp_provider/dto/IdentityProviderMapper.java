@@ -4,7 +4,6 @@ import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.idp_provider.IdentityProviderConfig;
 import com.park.utmstack.util.CipherUtil;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.util.List;

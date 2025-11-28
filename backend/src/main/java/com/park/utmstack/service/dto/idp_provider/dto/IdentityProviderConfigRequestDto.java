@@ -7,10 +7,11 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 /**
  * DTO for Identity Provider configuration requests.
- * Adapted for SAML providers only.
+ * Extended for SAML providers.
  */
 @Data
 @NoArgsConstructor
@@ -23,23 +24,19 @@ public class IdentityProviderConfigRequestDto {
     private String name;
 
     @NotNull
-    private ProviderType providerType; // KEYCLOAK, GOOGLE, OKTA, etc.
+    private ProviderType providerType;
 
     @NotBlank
-    private String entityId; // IdP entityID from metadata
+    private String metadataUrl;
 
     @NotBlank
-    private String ssoUrl; // SingleSignOnService URL
-
-    private String sloUrl; // SingleLogoutService URL (optional)
-
-    @NotBlank
-    private String certPem; // PEM formatted certificate
-
-    private String nameIdFormat; // e.g. emailAddress
-
-    private String binding; // HTTP-POST, Redirect, etc.
+    private String spPrivateKeyPem;
 
     @NotNull
     private Boolean active;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
 }

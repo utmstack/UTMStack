@@ -16,6 +16,6 @@ import javax.validation.constraints.NotNull;
 public class IdentityProviderCreateConfigDto extends IdentityProviderConfigRequestDto {
 
     @NotBlank
-    private String clientSecret;
+    private String spCertificatePem;
 
 }

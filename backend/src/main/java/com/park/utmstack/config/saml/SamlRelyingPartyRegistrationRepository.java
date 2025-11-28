@@ -7,7 +7,6 @@ import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations;
-import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
@@ -40,6 +39,7 @@ public class SamlRelyingPartyRegistrationRepository implements RelyingPartyRegis
     }
 
     private RelyingPartyRegistration buildRelyingPartyRegistration(IdentityProviderConfig entity) {
+
         PrivateKey spKey = PemUtils.parsePrivateKey(entity.getSpPrivateKeyPem());
         X509Certificate spCert = PemUtils.parseCertificate(entity.getSpCertificatePem());
 
