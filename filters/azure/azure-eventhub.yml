@@ -11,16 +11,6 @@ pipeline:
           source: raw
 
       # .......................................................................#
-      # Expand log.records data
-      # .......................................................................#
-      - expand:
-          source: log.records
-          to: log.recordsExpand
-
-      - json:
-          source: log.recordsExpand
-
-      # .......................................................................#
       # Renaming fields
       # .......................................................................#
       - rename:
@@ -727,7 +717,3 @@ pipeline:
             key: actionResult
             value: 'accepted'
           where: safe("statusCode", 0.0) >= double(200) && safe("statusCode", 0.0) <= double(299) || (safe("statusCode", 0.0) >= double(300) && safe("statusCode", 0.0) <= double(399) && safe("origin.bytesReceived", 0.0) > double(0))
-
-      - delete:
-          fields:
-            - log.recordsExpand
