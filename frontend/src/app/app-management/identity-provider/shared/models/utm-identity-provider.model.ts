@@ -1,12 +1,19 @@
 export enum ProviderType {
   GOOGLE = 'GOOGLE',
-  MICROSOFT = 'MICROSOFT'
+  MICROSOFT = 'MICROSOFT',
+  OKTA = 'OKTA',
+  KEYCLOAK = 'KEYCLOAK',
+  GENERIC = 'GENERIC'
 }
 
 export const PROVIDER_ICONS: Record<ProviderType, string> = {
   [ProviderType.GOOGLE]: 'fa-brands fa-google',
-  [ProviderType.MICROSOFT]: 'fa-brands fa-microsoft'
+  [ProviderType.MICROSOFT]: 'fa-brands fa-microsoft',
+  [ProviderType.OKTA]: 'fa-solid fa-shield',
+  [ProviderType.KEYCLOAK]: 'fa-solid fa-key',
+  [ProviderType.GENERIC]: 'fa-solid fa-lock'
 };
+
 
 export enum ClientAuthMethod {
   CLIENT_SECRET_BASIC = 'CLIENT_SECRET_BASIC',
@@ -19,17 +26,11 @@ export interface UtmIdentityProvider {
   id?: number;
   name: string;
   providerType: ProviderType;
-  clientId: string;
-  clientSecret: string;
-  redirectUri: string;
-  authUri: string;
-  tokenUri: string;
-  userInfoUri: string;
-  jwksUri?: string;
-  clientAuthMethod?: ClientAuthMethod;
-  scopes: string;
-  allowedDomains?: string;
+  metadataUrl: string;
+  spPrivateKeyPem: string;
+  spCertificatePem: string;
   active: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
+

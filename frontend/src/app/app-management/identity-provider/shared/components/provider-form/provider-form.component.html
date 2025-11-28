@@ -14,10 +14,10 @@
             type="text"
             class="form-control"
             formControlName="name"
-            placeholder="Enter provider name"
+            placeholder="e.g., Company Okta"
             [class.is-invalid]="providerForm.get('name')?.touched && providerForm.get('name')?.invalid">
           <div class="invalid-feedback" *ngIf="providerForm.get('name')?.touched && providerForm.get('name')?.invalid">
-            Provider name is required
+            Provider name is required (minimum 3 characters)
           </div>
         </div>
       </div>
@@ -30,201 +30,257 @@
             formControlName="providerType"
             [items]="providerTypes"
             placeholder="Select provider type"
-            (change)="onProviderTypeChange()"
+            bindLabel="label"
+            bindValue="value"
+            [searchable]="false"
             [clearable]="false"
-            [searchable]="false">
+            [disabled]="true">
           </ng-select>
+          <small class="form-text text-muted d-block mt-2">
+            SAML 2.0 is the only supported protocol
+          </small>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- OAuth Configuration -->
+  <!-- SAML Metadata URL -->
   <div class="form-section">
     <h5 class="section-title">
-      <i class="icon-key"></i>
-      OAuth 2.0 Configuration
-    </h5>
-
-    <div class="row">
-      <div class="col-md-12">
-        <div class="form-group">
-          <label class="form-label required">Client ID</label>
-          <div class="input-group">
-            <input
-              type="text"
-              class="form-control"
-              formControlName="clientId"
-              placeholder="your-client-id.apps.googleusercontent.com"
-              [class.is-invalid]="providerForm.get('clientId')?.touched && providerForm.get('clientId')?.invalid">
-          </div>
-          <div class="invalid-feedback d-block" *ngIf="providerForm.get('clientId')?.touched && providerForm.get('clientId')?.invalid">
-            Client ID is required
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-12">
-        <div class="form-group">
-          <label class="form-label" [class.required]="!editMode">
-            Client Secret
-          </label>
-          <input
-            type="password"
-            class="form-control"
-            formControlName="clientSecret"
-            [placeholder]="editMode ? '••••••••••••••••' : 'Enter client secret'"
-            [class.is-invalid]="providerForm.get('clientSecret')?.touched && providerForm.get('clientSecret')?.invalid">
-          <small *ngIf="editMode" class="form-text text-muted">
-            ℹ️ Leave blank to keep current secret, or enter a new one to update it
-          </small>
-          <div class="invalid-feedback" *ngIf="providerForm.get('clientSecret')?.touched && providerForm.get('clientSecret')?.invalid">
-            Client secret is required
-          </div>
-        </div>
-      </div>
-
-
-      <div class="col-md-12">
-        <div class="form-group">
-          <label class="form-label required">Redirect URI</label>
-          <input
-            type="text"
-            class="form-control"
-            formControlName="redirectUri"
-            placeholder="http://yourdomain/login/oauth2/code/google"
-            [class.is-invalid]="providerForm.get('redirectUri')?.touched && providerForm.get('redirectUri')?.invalid">
-          <small class="form-text text-muted">
-            This URI must match exactly with the one configured in your OAuth provider
-          </small>
-          <div class="invalid-feedback" *ngIf="providerForm.get('redirectUri')?.touched && providerForm.get('redirectUri')?.invalid">
-            Redirect URI is required
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Endpoints -->
-  <div class="form-section">
-    <h5 class="section-title">
-      <i class="icon-link"></i>
-      OAuth Endpoints
+      <i class="icon-shield"></i>
+      SAML 2.0 Metadata
     </h5>
 
     <div class="alert alert-info alert-styled-left">
-      <span class="font-weight-semibold">Auto-configuration:</span>
-      Select a provider type to automatically fill these endpoints
+      <span class="font-weight-semibold">
+        <i class="icon-info22"></i>
+        IdP Metadata Configuration
+      </span>
+      <p class="mt-2 mb-0">
+        The metadata URL should point to your Identity Provider's SAML metadata endpoint.
+        This will be automatically parsed to extract signing certificates and endpoints.
+      </p>
     </div>
 
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-12">
         <div class="form-group">
-          <label class="form-label required">Authorization URI</label>
+          <label class="form-label required">Metadata URL</label>
           <input
             type="url"
             class="form-control"
-            formControlName="authUri"
-            placeholder="https://accounts.google.com/o/oauth2/auth"
-            [class.is-invalid]="providerForm.get('authUri')?.touched && providerForm.get('authUri')?.invalid">
-          <div class="invalid-feedback" *ngIf="providerForm.get('authUri')?.touched && providerForm.get('authUri')?.invalid">
-            Authorization URI is required
+            formControlName="metadataUrl"
+            placeholder="https://your-idp.com/metadata.xml"
+            [class.is-invalid]="providerForm.get('metadataUrl')?.touched && providerForm.get('metadataUrl')?.invalid">
+          <small class="form-text text-muted d-block mt-2">
+            Examples:
+          </small>
+          <small class="form-text text-muted d-block">
+            • Okta: <code>https://your-org.okta.com/app/exk123456/sso/saml/metadata</code>
+          </small>
+          <small class="form-text text-muted d-block">
+            • Keycloak: <code>https://your-keycloak.com/realms/REALM/protocol/saml/descriptor</code>
+          </small>
+          <div class="invalid-feedback d-block" *ngIf="providerForm.get('metadataUrl')?.touched && providerForm.get('metadataUrl')?.invalid">
+            Valid HTTPS URL is required
           </div>
-        </div>
-      </div>
-
-      <div class="col-md-6">
-        <div class="form-group">
-          <label class="form-label required">Token URI</label>
-          <input
-            type="url"
-            class="form-control"
-            formControlName="tokenUri"
-            placeholder="https://oauth2.googleapis.com/token"
-            [class.is-invalid]="providerForm.get('tokenUri')?.touched && providerForm.get('tokenUri')?.invalid">
-          <div class="invalid-feedback" *ngIf="providerForm.get('tokenUri')?.touched && providerForm.get('tokenUri')?.invalid">
-            Token URI is required
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-6">
-        <div class="form-group">
-          <label class="form-label required">User Info URI</label>
-          <input
-            type="url"
-            class="form-control"
-            formControlName="userInfoUri"
-            placeholder="https://www.googleapis.com/oauth2/v2/userinfo"
-            [class.is-invalid]="providerForm.get('userInfoUri')?.touched && providerForm.get('userInfoUri')?.invalid">
-          <div class="invalid-feedback" *ngIf="providerForm.get('userInfoUri')?.touched && providerForm.get('userInfoUri')?.invalid">
-            User Info URI is required
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-6">
-        <div class="form-group">
-          <label class="form-label">JWKS URI</label>
-          <input
-            type="url"
-            class="form-control"
-            formControlName="jwksUri"
-            placeholder="https://www.googleapis.com/oauth2/v3/certs">
-          <small class="form-text text-muted">Optional: For token validation</small>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Advanced Settings -->
+  <!-- SP Certificates Section -->
+  <div class="form-section">
+    <h5 class="section-title">
+      <i class="icon-key"></i>
+      Service Provider Certificates
+    </h5>
+
+    <div class="alert alert-info alert-styled-left">
+      <span class="font-weight-semibold">
+        <i class="icon-warning"></i>
+        Generate RSA Key Pair
+      </span>
+      <p class="mt-2 mb-0">
+        If you don't have certificates, generate them using OpenSSL:
+      </p>
+      <code class="small d-block mt-2 p-2 bg-white rounded">
+        openssl genrsa -out private.pem 2048<br>
+        openssl req -new -x509 -key private.pem -out certificate.pem -days 365
+      </code>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label class="form-label required">Service Provider Private Key (PEM)</label>
+
+          <div *ngIf="editMode" class="alert alert-warning mb-3">
+            <i class="icon-info22 mr-2"></i>
+            <span>Private key is already configured. Upload a new one only if you want to replace it.</span>
+          </div>
+
+          <div class="custom-file mb-2">
+            <input
+              type="file"
+              class="custom-file-input"
+              id="privateKeyInput"
+              accept=".pem,.key,.txt"
+              (change)="onPrivateKeySelected($event)"
+              [class.is-invalid]="!editMode && !privateKeyFile">
+            <label class="custom-file-label" for="privateKeyInput">
+              {{ privateKeyFileName || 'Choose private key file...' }}
+            </label>
+            <div class="invalid-feedback" *ngIf="!editMode && !privateKeyFile">
+              Private key file is required
+            </div>
+          </div>
+
+          <small *ngIf="privateKeyFileName" class="form-text text-success d-block mb-2">
+            <i class="icon-check mr-1"></i>
+            {{ privateKeyFileName }} selected
+            <button
+              type="button"
+              class="btn btn-link btn-sm p-0 ml-2"
+              (click)="clearPrivateKeyFile()">
+              <i class="icon-x mr-1"></i>Clear
+            </button>
+          </small>
+
+          <small class="form-text text-muted d-block mt-2">
+            Select your RSA private key file in PEM format (.pem, .key). Keep this secure and never share it.
+          </small>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="form-group">
+          <label class="form-label required">Service Provider Certificate (PEM)</label>
+
+          <div class="custom-file mb-2">
+            <input
+              type="file"
+              class="custom-file-input"
+              id="certificateInput"
+              accept=".pem,.crt,.cer,.txt"
+              (change)="onCertificateSelected($event)"
+              [class.is-invalid]="!editMode && !certificateFile">
+            <label class="custom-file-label" for="certificateInput">
+              {{ certificateFileName || 'Choose certificate file...' }}
+            </label>
+            <div class="invalid-feedback" *ngIf="!editMode && !certificateFile">
+              Certificate file is required
+            </div>
+          </div>
+
+          <small *ngIf="certificateFileName" class="form-text text-success d-block mb-2">
+            <i class="icon-check mr-1"></i>
+            {{ certificateFileName }} selected
+            <button
+              type="button"
+              class="btn btn-link btn-sm p-0 ml-2"
+              (click)="clearCertificateFile()">
+              <i class="icon-x mr-1"></i>Clear
+            </button>
+          </small>
+
+          <small class="form-text text-muted d-block mt-2">
+            Select your public certificate file in PEM format (.pem, .crt, .cer). This will be shared with your IdP.
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service Provider Configuration Guide -->
+  <div class="form-section">
+    <h5 class="section-title">
+      <i class="icon-settings"></i>
+      Service Provider Configuration (Setup in Your IdP)
+    </h5>
+
+    <div class="alert alert-danger alert-styled-left">
+      <span class="font-weight-semibold">
+        <i class="icon-alert"></i>
+        Required: Configure These Values in Your IdP
+      </span>
+      <p class="mt-2 mb-0">
+        Copy and paste these values into your SAML Identity Provider configuration
+      </p>
+    </div>
+
+    <!-- Entity ID -->
+    <div class="card mb-3 border-left-primary">
+      <div class="card-body">
+        <h6 class="card-title font-weight-bold">
+          <i class="icon-key mr-2"></i>
+          1. Entity ID (SP Entity ID / Audience URI)
+        </h6>
+        <p class="card-text small text-muted mb-2">
+          This is the unique identifier of our Service Provider. Configure it as the Entity ID / Audience URI in your IdP.
+        </p>
+        <div class="input-group mb-2">
+          <input
+            type="text"
+            class="form-control font-monospace"
+            [value]="spEntityId"
+            readonly>
+          <div class="input-group-append">
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="copyToClipboard('Entity ID', spEntityId)"
+              title="Copy to clipboard">
+              <i class="icon-copy mr-1"></i>
+              Copy
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACS URL -->
+    <div class="card mb-3 border-left-success">
+      <div class="card-body">
+        <h6 class="card-title font-weight-bold">
+          <i class="icon-link mr-2"></i>
+          2. Assertion Consumer Service (ACS) URL
+        </h6>
+        <p class="card-text small text-muted mb-2">
+          This is the endpoint where we receive the SAML response from your IdP. Configure it as the Assertion Consumer Service URL.
+        </p>
+        <div class="input-group mb-2">
+          <input
+            type="text"
+            class="form-control font-monospace"
+            [value]="spAcsUrl"
+            readonly>
+          <div class="input-group-append">
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="copyToClipboard('ACS URL', spAcsUrl)"
+              title="Copy to clipboard">
+              <i class="icon-copy mr-1"></i>
+              Copy
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status -->
   <div class="form-section">
     <h5 class="section-title">
       <i class="icon-cog"></i>
-      Advanced Settings
+      Status
     </h5>
 
     <div class="row">
       <div class="col-md-12">
         <div class="form-group">
-          <label class="form-label required">Scopes</label>
-          <ng-select
-            formControlName="scopes"
-            [items]="availableScopes"
-            [multiple]="true"
-            [addTag]="true"
-            placeholder="openid,email,profile"
-            bindLabel="label"
-            bindValue="value">
-          </ng-select>
-          <small class="form-text text-muted">
-            OAuth scopes to request. You can add custom scopes by typing and pressing Enter
-          </small>
-          <div class="invalid-feedback d-block" *ngIf="providerForm.get('scopes')?.touched && providerForm.get('scopes')?.invalid">
-            At least one scope is required
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-12">
-        <div class="form-group">
-          <label class="form-label">Allowed Domains</label>
-          <ng-select
-            formControlName="allowedDomains"
-            [items]="[]"
-            [multiple]="true"
-            [addTag]="true"
-            placeholder="example.com, company.com">
-          </ng-select>
-          <small class="form-text text-muted">
-            Restrict authentication to specific email domains. Leave empty to allow all domains
-          </small>
-        </div>
-      </div>
-
-      <div class="col-md-12">
-        <div class="form-group">
-          <div class="custom-control custom-switch custom-control-inline">
+          <div class="custom-control custom-switch">
             <input
               type="checkbox"
               class="custom-control-input"
@@ -242,4 +298,44 @@
     </div>
   </div>
 
+  <!-- Form Actions -->
+  <div class="form-actions mt-4">
+    <button
+      type="submit"
+      class="btn btn-primary"
+      (click)="saveProvider()"
+      [disabled]="!providerForm.valid || loading || (!editMode && (!privateKeyFile || !certificateFile))">
+      <span *ngIf="!loading">
+        <i class="icon-check mr-2"></i>
+        {{ editMode ? 'Update Provider' : 'Create Provider' }}
+      </span>
+      <span *ngIf="loading">
+        <i class="icon-spinner mr-2"></i>
+        Saving...
+      </span>
+    </button>
+
+    <button
+      type="button"
+      class="btn btn-secondary ml-2"
+      (click)="testConnection()"
+      [disabled]="!providerForm.valid || testingConnection">
+      <span *ngIf="!testingConnection">
+        <i class="icon-play mr-2"></i>
+        Test Connection
+      </span>
+      <span *ngIf="testingConnection">
+        <i class="icon-spinner mr-2"></i>
+        Testing...
+      </span>
+    </button>
+
+    <button
+      type="button"
+      class="btn btn-outline-secondary ml-2"
+      (click)="cancelForm()">
+      <i class="icon-x mr-2"></i>
+      Cancel
+    </button>
+  </div>
 </form>

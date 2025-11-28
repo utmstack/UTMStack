@@ -3,13 +3,13 @@ import { FormGroup } from '@angular/forms';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {
+  ModalConfirmationComponent
+} from '../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
+import {
   IdentityProviderModalComponent
 } from './shared/components/identity-provider-modal/identity-provider-modal.component';
 import {UtmIdentityProvider} from './shared/models/utm-identity-provider.model';
 import {UtmIdentityProviderService} from './shared/services/utm-identity-provider.service';
-import {
-  ModalConfirmationComponent
-} from "../../shared/components/utm/util/modal-confirmation/modal-confirmation.component";
 
 @Component({
   selector: 'app-identity-provider-config',

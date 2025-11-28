@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {ProviderType, UtmIdentityProvider} from '../../models/utm-identity-provider.model';
+import {PROVIDER_ICONS, ProviderType, UtmIdentityProvider} from '../../models/utm-identity-provider.model';
 
 @Component({
   selector: 'app-provider-card',
@@ -13,11 +13,7 @@ export class ProviderComponent {
   @Output() toggleStatus = new EventEmitter<UtmIdentityProvider>();
 
   getProviderIcon(type: ProviderType): string {
-    const icons: Record<ProviderType, string> = {
-      [ProviderType.GOOGLE]: 'icon-google',
-      [ProviderType.MICROSOFT]: 'icon-windows8',
-    };
-    return icons[type] || 'icon-key';
+    return PROVIDER_ICONS[type] || 'icon-key';
   }
 
   openModal(provider: UtmIdentityProvider): void {

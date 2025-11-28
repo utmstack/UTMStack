@@ -43,7 +43,10 @@ export class AppManagementSidebarComponent implements OnInit, OnDestroy {
     }*/
     this.versionTypeService.versionType$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(versionType => this.version = versionType);
+      .subscribe(versionType => {
+        console.log(versionType);
+        this.version = versionType;
+      });
   }
 
   private updateView(): void {
