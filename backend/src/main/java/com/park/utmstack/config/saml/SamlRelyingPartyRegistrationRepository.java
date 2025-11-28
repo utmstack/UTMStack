@@ -6,6 +6,7 @@ import com.park.utmstack.util.saml.PemUtils;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 
 import java.security.PrivateKey;
@@ -39,24 +40,19 @@ public class SamlRelyingPartyRegistrationRepository implements RelyingPartyRegis
     }
 
     private RelyingPartyRegistration buildRelyingPartyRegistration(IdentityProviderConfig entity) {
-        X509Certificate idpCert = PemUtils.parseCertificate(entity.getCertPem());
-
         PrivateKey spKey = PemUtils.parsePrivateKey(entity.getSpPrivateKeyPem());
         X509Certificate spCert = PemUtils.parseCertificate(entity.getSpCertificatePem());
 
-        return RelyingPartyRegistration
-                .withRegistrationId(entity.getName())
-                .entityId("http://localhost:8080/saml/sp") // Issuer del SP (Client ID en Keycloak)
-                .assertingPartyDetails(party -> party
-                        .entityId("https://localhost:8443/realms/UTMSTACK") // Issuer del IdP
-                        .singleSignOnServiceLocation("https://localhost:8443/realms/UTMSTACK/protocol/saml")
-                        .singleSignOnServiceBinding(Saml2MessageBinding.POST) // o REDIRECT según tu config
-                        .wantAuthnRequestsSigned(true)
-                        .verificationX509Credentials(c -> c.add(Saml2X509Credential.verification(idpCert)))
+        // Build registration directly from IdP metadata URL
+        return RelyingPartyRegistrations
+                .fromMetadataLocation(entity.getMetadataUrl())
+                .registrationId(entity.getName())
+                .entityId("http://localhost:8080/saml/sp")
+                .assertionConsumerServiceLocation(
+                        "http://localhost:8080/login/saml2/sso/" + entity.getProviderType().name().toLowerCase()
                 )
-                .assertionConsumerServiceLocation("http://localhost:8080/login/saml2/sso/" + entity.getProviderType().name().toLowerCase())
                 .signingX509Credentials(c -> c.add(Saml2X509Credential.signing(spKey, spCert)))
                 .build();
-
     }
+
 }

@@ -23,46 +23,51 @@ public class IdentityProviderConfig {
     @EqualsAndHashCode.Include
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProviderType providerType;
 
-    @Column(nullable = false, length = 512)
-    private String entityId; // IdP entityID
+    /**
+     * Metadata URL of the IdP (Keycloak, Okta, Azure, etc.)
+     * Example: https://localhost:8443/realms/UTMSTACK/protocol/saml/descriptor
+     */
+    @Column(name = "metadata_url", nullable = false, length = 512)
+    private String metadataUrl;
 
-    @Column(nullable = false, length = 512)
-    private String ssoUrl; // SingleSignOnService URL
-
-    @Column(name = "nameid_format", length = 255)
-    private String nameIdFormat; // e.g. emailAddress
-
-    @Column(length = 512)
-    private String sloUrl; // SingleLogoutService URL (optional)
-
+    /**
+     * Service Provider private key in PEM format
+     * Used to sign AuthnRequests and other outgoing SAML messages
+     */
     @Type(type = "text")
-    @Column(name = "cert_pem", nullable = false, columnDefinition = "TEXT")
-    private String certPem;
-
-    @Type(type = "text")
-    @Column(name = "sp_private_key_pem", columnDefinition = "TEXT")
+    @Column(name = "sp_private_key_pem", nullable = false, columnDefinition = "TEXT")
     private String spPrivateKeyPem;
 
+    /**
+     * Service Provider public certificate in PEM format
+     * Shared with IdP so it can validate signed requests from the SP
+     */
     @Type(type = "text")
-    @Column(name = "sp_certificate_pem", columnDefinition = "TEXT")
+    @Column(name = "sp_certificate_pem", nullable = false, columnDefinition = "TEXT")
     private String spCertificatePem;
 
-    @Column(length = 50)
-    private String binding; // HTTP-POST, Redirect, etc.
-
+    /**
+     * Flag to enable or disable this IdP configuration
+     */
     @Column(nullable = false)
     private Boolean active;
 
+    /**
+     * Timestamp when the record was created
+     */
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    /**
+     * Timestamp when the record was last updated
+     */
     @Column(nullable = false)
     private LocalDateTime updatedAt;
-
 }
