@@ -163,17 +163,6 @@ pipeline:
             - log.jsonPayload.sourceIP
           to: origin.ip
 
-      # Expand jsonPayload.structuredRdata
-      - expand:
-          source: log.jsonPayload.structuredRdata
-          to: log.jsonPayloadStructuredRdata
-          where: exists("log.jsonPayload.structuredRdata")
-
-      # Parsing log.jsonPayloadStructuredRdata
-      - json:
-          source: log.jsonPayloadStructuredRdata
-          where: exists("log.jsonPayloadStructuredRdata")
-            
       - rename:
           from:
             - log.class
