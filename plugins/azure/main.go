@@ -140,19 +140,12 @@ func detectCloudFromConnectionString(connectionString string) (CloudEndpoints, e
 		return CloudEndpoints{}, fmt.Errorf("connection string is empty")
 	}
 
-	connStrLower := strings.ToLower(connectionString)
-
 	for _, cloud := range SupportedClouds {
-		if strings.Contains(connStrLower, strings.ToLower(cloud.EventHubSuffix)) {
+		if strings.Contains(connectionString, cloud.EventHubSuffix+"/") {
 			return cloud, nil
 		}
-		if strings.Contains(connStrLower, strings.ToLower(cloud.StorageSuffix)) {
-			return cloud, nil
-		}
-	}
 
-	for _, cloud := range SupportedClouds {
-		if cloud.Name == AzurePublic {
+		if strings.Contains(connectionString, "EndpointSuffix="+cloud.StorageSuffix) {
 			return cloud, nil
 		}
 	}
