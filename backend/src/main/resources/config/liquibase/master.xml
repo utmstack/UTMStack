@@ -269,6 +269,8 @@
 
     <include file="/config/liquibase/changelog/20251111001_set_alert-response_rule_seq.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251125001_add_environment_o365_integration.xml" relativeToChangelogFile="false"/>
+
     <include file="/config/liquibase/changelog/20251029001-add-identity-provider-config.xml" relativeToChangelogFile="false"/>
 
 

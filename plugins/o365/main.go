@@ -17,31 +17,56 @@ import (
 	"github.com/utmstack/UTMStack/plugins/o365/config"
 )
 
+type CloudEnvironment string
+
 const (
-	loginUrl                  = "https://login.microsoftonline.com/"
-	GRANTTYPE                 = "client_credentials"
-	SCOPE                     = "https://manage.office.com/.default"
-	endPointLogin             = "/oauth2/v2.0/token"
-	endPointStartSubscription = "/activity/feed/subscriptions/start"
-	endPointContent           = "/activity/feed/subscriptions/content"
-	BASEURL                   = "https://manage.office.com/api/v1.0/"
-	DefaultTenant             = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+	GRANTTYPE                                  = "client_credentials"
+	endPointLogin                              = "/oauth2/v2.0/token"
+	endPointStartSubscription                  = "/activity/feed/subscriptions/start"
+	endPointContent                            = "/activity/feed/subscriptions/content"
+	DefaultTenant                              = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+	apiVersion                                 = "api/v1.0/"
+	CloudCommercial           CloudEnvironment = "Commercial"
+	CloudGCC                  CloudEnvironment = "GCC"
+	CloudGCCHigh              CloudEnvironment = "GCCHigh"
+	CloudDoD                  CloudEnvironment = "DoD"
 )
 
-func GetMicrosoftLoginLink(tenant string) string {
-	return fmt.Sprintf("%s%s%s", loginUrl, tenant, endPointLogin)
+type CloudConfig struct {
+	LoginAuthority     string
+	ManagementEndpoint string
+	Scope              string
 }
 
-func GetStartSubscriptionLink(tenant string) string {
-	return fmt.Sprintf("%s%s%s", BASEURL, tenant, endPointStartSubscription)
-}
+func GetCloudConfig(env CloudEnvironment) CloudConfig {
+	configs := map[CloudEnvironment]CloudConfig{
+		CloudCommercial: {
+			LoginAuthority:     "https://login.microsoftonline.com/",
+			ManagementEndpoint: "https://manage.office.com/",
+			Scope:              "https://manage.office.com/.default",
+		},
+		CloudGCC: {
+			LoginAuthority:     "https://login.microsoftonline.com/",
+			ManagementEndpoint: "https://manage-gcc.office.com/",
+			Scope:              "https://manage-gcc.office.com/.default",
+		},
+		CloudGCCHigh: {
+			LoginAuthority:     "https://login.microsoftonline.us/",
+			ManagementEndpoint: "https://manage.office365.us/",
+			Scope:              "https://manage.office365.us/.default",
+		},
+		CloudDoD: {
+			LoginAuthority:     "https://login.microsoftonline.us/",
+			ManagementEndpoint: "https://manage.protection.apps.mil/",
+			Scope:              "https://manage.protection.apps.mil/.default",
+		},
+	}
 
-func GetContentLink(tenant string) string {
-	return fmt.Sprintf("%s%s%s", BASEURL, tenant, endPointContent)
-}
-
-func GetTenantId() string {
-	return DefaultTenant
+	config, exists := configs[env]
+	if !exists {
+		return configs[CloudCommercial]
+	}
+	return config
 }
 
 func main() {
@@ -65,29 +90,17 @@ func main() {
 	for range ticker.C {
 		endTime := time.Now().UTC()
 
-		if err := ConnectionChecker(loginUrl); err != nil {
-			_ = catcher.Error("External connection failure detected: %v", err, nil)
-		}
-
 		moduleConfig := config.GetConfig()
 		if moduleConfig != nil && moduleConfig.ModuleActive {
+			checkConfiguredEnvironments(moduleConfig.ModuleGroups)
+
 			var wg sync.WaitGroup
 			wg.Add(len(moduleConfig.ModuleGroups))
 
 			for _, grp := range moduleConfig.ModuleGroups {
 				go func(group *config.ModuleGroup) {
 					defer wg.Done()
-					var invalid bool
-					for _, c := range group.ModuleGroupConfigurations {
-						if strings.TrimSpace(c.ConfValue) == "" {
-							invalid = true
-							break
-						}
-					}
-
-					if !invalid {
-						pull(startTime, endTime, group)
-					}
+					pull(startTime, endTime, group)
 				}(grp)
 			}
 
@@ -96,6 +109,34 @@ func main() {
 
 		startTime = endTime.Add(1 * time.Nanosecond)
 	}
+}
+
+func checkConfiguredEnvironments(groups []*config.ModuleGroup) {
+	uniqueAuthorities := make(map[string]CloudEnvironment)
+
+	for _, group := range groups {
+		env := getGroupEnvironment(group)
+		cloudConfig := GetCloudConfig(env)
+		uniqueAuthorities[cloudConfig.LoginAuthority] = env
+	}
+
+	for authority, env := range uniqueAuthorities {
+		if err := ConnectionChecker(authority); err != nil {
+			_ = catcher.Error("External connection failure detected", err, map[string]any{
+				"environment": env,
+				"authority":   authority,
+			})
+		}
+	}
+}
+
+func getGroupEnvironment(group *config.ModuleGroup) CloudEnvironment {
+	for _, cnf := range group.ModuleGroupConfigurations {
+		if cnf.ConfKey == "office365_cloud_environment" && cnf.ConfValue != "" {
+			return CloudEnvironment(cnf.ConfValue)
+		}
+	}
+	return CloudCommercial
 }
 
 func pull(startTime time.Time, endTime time.Time, group *config.ModuleGroup) {
@@ -117,7 +158,7 @@ func pull(startTime time.Time, endTime time.Time, group *config.ModuleGroup) {
 	for _, log := range logs {
 		plugins.EnqueueLog(&plugins.Log{
 			Id:         uuid.New().String(),
-			TenantId:   GetTenantId(),
+			TenantId:   agent.TenantId,
 			DataType:   "o365",
 			DataSource: group.GroupName,
 			Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
@@ -127,11 +168,13 @@ func pull(startTime time.Time, endTime time.Time, group *config.ModuleGroup) {
 }
 
 type OfficeProcessor struct {
-	Credentials   MicrosoftLoginResponse
-	TenantId      string
-	ClientId      string
-	ClientSecret  string
-	Subscriptions []string
+	Credentials      MicrosoftLoginResponse
+	TenantId         string
+	ClientId         string
+	ClientSecret     string
+	Subscriptions    []string
+	CloudEnvironment CloudEnvironment
+	CloudConfig      CloudConfig
 }
 
 type MicrosoftLoginResponse struct {
@@ -162,7 +205,10 @@ type ContentList struct {
 type ContentDetailsResponse []map[string]any
 
 func GetOfficeProcessor(group *config.ModuleGroup) OfficeProcessor {
-	offProc := OfficeProcessor{}
+	offProc := OfficeProcessor{
+		CloudEnvironment: CloudCommercial,
+	}
+
 	for _, cnf := range group.ModuleGroupConfigurations {
 		switch cnf.ConfKey {
 		case "office365_client_id":
@@ -171,27 +217,34 @@ func GetOfficeProcessor(group *config.ModuleGroup) OfficeProcessor {
 			offProc.ClientSecret = cnf.ConfValue
 		case "office365_tenant_id":
 			offProc.TenantId = cnf.ConfValue
+		case "office365_cloud_environment":
+			if cnf.ConfValue != "" {
+				offProc.CloudEnvironment = CloudEnvironment(cnf.ConfValue)
+			}
 		}
 	}
 
-	offProc.Subscriptions = append(offProc.Subscriptions, []string{
+	offProc.CloudConfig = GetCloudConfig(offProc.CloudEnvironment)
+
+	offProc.Subscriptions = []string{
 		"Audit.AzureActiveDirectory",
 		"Audit.Exchange",
 		"Audit.General",
 		"DLP.All",
-		"Audit.SharePoint"}...)
+		"Audit.SharePoint",
+	}
 
 	return offProc
 }
 
 func (o *OfficeProcessor) GetAuth() error {
-	requestUrl := GetMicrosoftLoginLink(o.TenantId)
+	requestUrl := fmt.Sprintf("%s%s%s", o.CloudConfig.LoginAuthority, o.TenantId, endPointLogin)
 
 	data := url.Values{}
 	data.Set("grant_type", GRANTTYPE)
 	data.Set("client_id", o.ClientId)
 	data.Set("client_secret", o.ClientSecret)
-	data.Set("scope", SCOPE)
+	data.Set("scope", o.CloudConfig.Scope)
 
 	headers := map[string]string{
 		"Content-Type": "application/x-www-form-urlencoded",
@@ -230,7 +283,12 @@ func (o *OfficeProcessor) GetAuth() error {
 
 func (o *OfficeProcessor) StartSubscriptions() error {
 	for _, subscription := range o.Subscriptions {
-		link := GetStartSubscriptionLink(o.TenantId) + "?contentType=" + subscription
+		link := fmt.Sprintf("%s%s%s%s?contentType=%s",
+			o.CloudConfig.ManagementEndpoint,
+			apiVersion,
+			o.TenantId,
+			endPointStartSubscription,
+			subscription)
 		headers := map[string]string{
 			"Content-Type":  "application/json",
 			"Authorization": fmt.Sprintf("%s %s", o.Credentials.TokenType, o.Credentials.AccessToken),
@@ -277,7 +335,11 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 }
 
 func (o *OfficeProcessor) GetContentList(subscription string, startTime time.Time, endTime time.Time) ([]ContentList, error) {
-	link := GetContentLink(o.TenantId) + fmt.Sprintf("?startTime=%s&endTime=%s&contentType=%s",
+	link := fmt.Sprintf("%s%s%s%s?startTime=%s&endTime=%s&contentType=%s",
+		o.CloudConfig.ManagementEndpoint,
+		apiVersion,
+		o.TenantId,
+		endPointContent,
 		startTime.UTC().Format("2006-01-02T15:04:05"),
 		endTime.UTC().Format("2006-01-02T15:04:05"),
 		subscription)

@@ -60,23 +60,26 @@ export class ModuleService {
     return this.serversCache$.pipe(
       filter(response => !!response),
       tap(() => this.loadingBehaviorSubject$.next(true)),
-      switchMap(response => this.getModules({
-        ...request,
-        'serverId.equals': response.body[0].id
-      }))
+      switchMap(response =>
+        this.getModules({
+          ...request,
+          'serverId.equals': response.body[0].id
+        })
+      )
     );
   }
 
   private getModules(req: RequestModule): Observable<any[]> {
-    return this.utmModulesService.getModules(req).pipe(
-      map(response => {
-        response.body.map(m => {
-          if (m.moduleName === this.utmModulesEnum.BITDEFENDER) {
-            m.prettyName = m.prettyName + ' GravityZone';
-          }
-        });
-        return response.body;
-      }),
+    return this.utmModulesService.getModules(req)
+      .pipe(
+        map(response => {
+          response.body.map(m => {
+            if (m.moduleName === this.utmModulesEnum.BITDEFENDER) {
+              m.prettyName = m.prettyName + ' GravityZone';
+            }
+          });
+          return response.body.filter(m => m.moduleName !== this.utmModulesEnum.AS_400);
+        }),
       catchError(error => {
         console.error(error);
         this.utmToastService.showError(

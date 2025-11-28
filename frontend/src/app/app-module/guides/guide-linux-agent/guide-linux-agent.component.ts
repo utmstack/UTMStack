@@ -39,7 +39,7 @@ export class GuideLinuxAgentComponent implements OnInit {
     return `sudo bash -c "apt update -y && apt install wget -y && mkdir -p /opt/utmstack-linux-agent && \
     wget --no-check-certificate -P /opt/utmstack-linux-agent \
     https://${ip}:9001/private/dependencies/agent/${installerName} && \
-    chmod -R 777 /opt/utmstack-linux-agent/${installerName} && \
+    chmod -R 755 /opt/utmstack-linux-agent/${installerName} && \
     /opt/utmstack-linux-agent/${installerName} install ${ip} <secret>${this.token}</secret> yes"`;
   }
 
@@ -49,7 +49,7 @@ export class GuideLinuxAgentComponent implements OnInit {
     return `sudo bash -c "yum install wget -y && mkdir -p /opt/utmstack-linux-agent && \
     wget --no-check-certificate -P /opt/utmstack-linux-agent \
     https://${ip}:9001/private/dependencies/agent/${installerName} && \
-    chmod -R 777 /opt/utmstack-linux-agent/${installerName} && \
+    chmod -R 755 /opt/utmstack-linux-agent/${installerName} && \
     /opt/utmstack-linux-agent/${installerName} install ${ip} <secret>${this.token}</secret> yes"`;
   }
 
@@ -59,7 +59,7 @@ export class GuideLinuxAgentComponent implements OnInit {
     return `sudo bash -c "dnf install wget -y && mkdir -p /opt/utmstack-linux-agent && \
     wget --no-check-certificate -P /opt/utmstack-linux-agent \
     https://${ip}:9001/private/dependencies/agent/${installerName} && \
-    chmod -R 777 /opt/utmstack-linux-agent/${installerName} && \
+    chmod -R 755 /opt/utmstack-linux-agent/${installerName} && \
     /opt/utmstack-linux-agent/${installerName} install ${ip} <secret>${this.token}</secret> yes"`;
   }
 

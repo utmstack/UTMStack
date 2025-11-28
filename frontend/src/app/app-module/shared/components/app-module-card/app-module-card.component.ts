@@ -5,11 +5,8 @@ import {takeUntil} from 'rxjs/operators';
 import {
   ModalConfirmationComponent
 } from '../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
-import {
-  EnterpriseFeatures,
-  VersionType,
-  VersionTypeService
-} from '../../../../shared/services/util/version-type.service';
+import {VersionType, VersionTypeService} from '../../../../shared/services/util/version-type.service';
+import {ModulesEnterprise} from '../../../services/module.service';
 import {UtmModulesEnum} from '../../enum/utm-module.enum';
 import {UtmModuleType} from '../../type/utm-module.type';
 
@@ -30,7 +27,8 @@ export class AppModuleCardComponent implements OnInit, OnDestroy {
   version: VersionType;
   modules = UtmModulesEnum;
   destroy$: Subject<void> = new Subject<void>();
-  ModulesEnterprise = EnterpriseFeatures;
+  ModulesEnterprise = ModulesEnterprise;
+  readonly UtmModulesEnum = UtmModulesEnum;
 
   ngOnInit() {
     this.versionTypeService.versionType$
