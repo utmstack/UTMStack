@@ -5,30 +5,30 @@
     </h4>
   </div>
   <div class="card-body">
-    <div class="alert alert-info alert-styled-right">
-      This feature is part of a paid subscription. Please contact our support team to receive the appropriate installation dependencies.
-    </div>
     <p class="font-size-base text-justify mb-3">
       The MacOS agent captures system and application logs and sends them to a UTMStack master server or probe/proxy, monitors system activity, and executes incident response commands.
       The UTMStack agents communicate over ports 9000, 9001 and 50051. Please make sure these ports are open.
     </p>
     <ol class="setup_list">
-      <app-utm-list [items]="steps">
-        <ng-template stepTemplateRef let-step>
-          <li>
-            <app-step>
-              <span stepNumber>{{step.id}}</span>
-              <div [innerHtml]="step.name"></div>
-              <ng-container *ngIf="step.content">
-
-                <ng-template [ngIf]="step.content.id === 'stepContent3'">
-                  <app-agent-install-selector [platforms]="architectures" [_selectedPlatform]="architectures[0]"></app-agent-install-selector>
-                </ng-template>
-              </ng-container>
-            </app-step>
-          </li>
-        </ng-template>
-      </app-utm-list>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          Download the <a [href]="getDownloadUrl()" download="utmstack-macos-agent.pkg"><strong>utmstack-macos-agent.pkg</strong></a> file.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>
+          Run the <strong>utmstack-macos-agent.pkg</strong> file. This will download and install the required components for the UTMStack agent.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">3</span>
+          Use the following command according to the action you wish to perform (install or uninstall):
+        </p>
+        <app-agent-install-selector [platforms]="architectures" [_selectedPlatform]="architectures[0]"></app-agent-install-selector>
+      </li>
     </ol>
   </div>
 </div>

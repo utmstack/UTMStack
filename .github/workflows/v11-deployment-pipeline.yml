@@ -193,6 +193,7 @@ jobs:
           curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/agent/utmstack_agent_dependencies_linux.zip" -o ./dependencies/agent/utmstack_agent_dependencies_linux.zip
           curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/agent/utmstack_agent_dependencies_windows.zip" -o ./dependencies/agent/utmstack_agent_dependencies_windows.zip
           curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/agent/utmstack_agent_dependencies_windows_arm64.zip" -o ./dependencies/agent/utmstack_agent_dependencies_windows_arm64.zip
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/agent/utmstack-macos-agent-v10.pkg" -o ./dependencies/agent/utmstack-macos-agent.pkg
 
           cp "${{ github.workspace }}/agent/utmstack_agent_service" ./dependencies/agent/
           cp "${{ github.workspace }}/agent/utmstack_agent_service.exe" ./dependencies/agent/

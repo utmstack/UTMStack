@@ -2,7 +2,7 @@ import {HttpClient, HttpResponse} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
-import {VersionInfo} from '../../types/updates/updates.type';
+import {AppVersionInfo, VersionInfo} from '../../types/updates/updates.type';
 
 
 @Injectable({
@@ -15,8 +15,8 @@ export class CheckForUpdatesService {
   constructor(private http: HttpClient) {
   }
 
-  getVersion(): Observable<HttpResponse<VersionInfo>> {
-    return this.http.get<VersionInfo>(this.resourceInfo + 'info', {observe: 'response'});
+  getVersion(): Observable<HttpResponse<AppVersionInfo>> {
+    return this.http.get<AppVersionInfo>(this.resourceUrl + 'info/version', {observe: 'response'});
   }
 
   getMode(): Observable<HttpResponse<boolean>> {

@@ -35,7 +35,7 @@ RUN yum update -y && \
     rm -rf /usr/share/man /usr/share/doc /usr/share/info /tmp/* /var/tmp/*
 
 # Assign permissions and ownership to the extracted folder
-RUN chmod -R 777 /usr/share/opensearch/.utm_geoip && \
+RUN chmod -R 755 /usr/share/opensearch/.utm_geoip && \
     chown -R opensearch:opensearch /usr/share/opensearch/.utm_geoip
 
 # Restore OpenSearch user

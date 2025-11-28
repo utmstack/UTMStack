@@ -39,7 +39,7 @@ func handleDependenciesPostDownload(dependencies []string) error {
 			}
 
 			if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-				if err := utils.Execute("chmod", utils.GetMyPath(), "-R", "777", fmt.Sprintf(config.UpdaterSelf, "")); err != nil {
+				if err := utils.Execute("chmod", utils.GetMyPath(), "-R", "755", fmt.Sprintf(config.UpdaterSelf, "")); err != nil {
 					return fmt.Errorf("error executing chmod on %s: %v", fmt.Sprintf(config.UpdaterSelf, ""), err)
 				}
 			}
@@ -48,7 +48,7 @@ func handleDependenciesPostDownload(dependencies []string) error {
 				return fmt.Errorf("error removing file %s: %v", file, err)
 			}
 		} else if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-			if err := utils.Execute("chmod", utils.GetMyPath(), "-R", "777", file); err != nil {
+			if err := utils.Execute("chmod", utils.GetMyPath(), "-R", "755", file); err != nil {
 				return fmt.Errorf("error executing chmod on %s: %v", file, err)
 			}
 		}

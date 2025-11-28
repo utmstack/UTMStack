@@ -72,6 +72,22 @@ public class ModuleO365 implements IModule {
             .withConfDataType("text")
             .withConfRequired(true)
             .build());
+
+        keys.add(ModuleConfigurationKey.builder()
+                .withGroupId(groupId)
+                .withConfKey("office365_cloud_environment")
+                .withConfName("Cloud Environment")
+                .withConfDescription("Select the Microsoft cloud environment for Office 365 integration.")
+                .withConfDataType("select")
+                .withConfRequired(false)
+                .withConfValue("Commercial")
+                .withConfOptions("[" +
+                        "{ \"value\": \"Commercial\", \"label\": \"Commercial - Azure commercial global (Default)\" }," +
+                        "{ \"value\": \"GCC\", \"label\": \"GCC - US Government Community Cloud\" }," +
+                        "{ \"value\": \"GCCHigh\", \"label\": \"GCC High - US Government Community Cloud High (DoD IL4)\" }," +
+                        "{ \"value\": \"DoD\", \"label\": \"DoD - US Department of Defense (DoD IL5)\" }" +
+                        "]")
+                .build());
         return keys;
     }
 
