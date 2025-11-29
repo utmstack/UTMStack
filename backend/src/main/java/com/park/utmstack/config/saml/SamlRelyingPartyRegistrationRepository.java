@@ -1,7 +1,9 @@
 package com.park.utmstack.config.saml;
 
+import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.idp_provider.IdentityProviderConfig;
 import com.park.utmstack.repository.idp_provider.IdentityProviderConfigRepository;
+import com.park.utmstack.util.CipherUtil;
 import com.park.utmstack.util.saml.PemUtils;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
@@ -40,7 +42,10 @@ public class SamlRelyingPartyRegistrationRepository implements RelyingPartyRegis
 
     private RelyingPartyRegistration buildRelyingPartyRegistration(IdentityProviderConfig entity) {
 
-        PrivateKey spKey = PemUtils.parsePrivateKey(entity.getSpPrivateKeyPem());
+        PrivateKey spKey = PemUtils.parsePrivateKey(CipherUtil.decrypt(
+                entity.getSpPrivateKeyPem(),
+                System.getenv(Constants.ENV_ENCRYPTION_KEY)
+        ));
         X509Certificate spCert = PemUtils.parseCertificate(entity.getSpCertificatePem());
 
         // Build registration directly from IdP metadata URL

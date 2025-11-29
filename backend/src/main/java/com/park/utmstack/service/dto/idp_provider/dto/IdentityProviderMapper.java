@@ -4,6 +4,7 @@ import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.idp_provider.IdentityProviderConfig;
 import com.park.utmstack.util.CipherUtil;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.util.List;
@@ -13,7 +14,8 @@ public interface IdentityProviderMapper {
 
     IdentityProviderConfigResponseDto toDto(IdentityProviderConfig entity);
 
-    IdentityProviderConfig toEntity(IdentityProviderConfigRequestDto request);
+    @Mapping(target = "spPrivateKeyPem", expression = "java(CipherUtil.encrypt(request.getSpPrivateKeyPem(), System.getenv(Constants.ENV_ENCRYPTION_KEY)))")
+    IdentityProviderConfig toEntity(IdentityProviderCreateConfigDto request);
 
     List<IdentityProviderConfigResponseDto> toDtoList(List<IdentityProviderConfig> entities);
 
