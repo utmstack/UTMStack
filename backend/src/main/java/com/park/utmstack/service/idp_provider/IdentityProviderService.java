@@ -49,7 +49,6 @@ public class IdentityProviderService {
                 .orElseThrow(() -> new IdpNotFoundException("IdentityProviderConfig not found: " + id));
 
         existing.setName(dto.getName());
-        existing.setEntityId(dto.getEntityId());
 
         existing.setActive(dto.getActive());
         existing.setUpdatedAt(LocalDateTime.now());

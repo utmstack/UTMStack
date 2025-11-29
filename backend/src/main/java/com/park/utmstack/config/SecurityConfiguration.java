@@ -1,6 +1,5 @@
 package com.park.utmstack.config;
 
-import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.security.AuthoritiesConstants;
 import com.park.utmstack.security.api_key.ApiKeyConfigurer;
 import com.park.utmstack.security.api_key.ApiKeyFilter;
@@ -31,6 +30,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.filter.CorsFilter;
 import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 
+
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 
@@ -48,7 +48,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final CorsFilter corsFilter;
     private final InternalApiKeyProvider internalApiKeyProvider;
     private final ApiKeyFilter apiKeyFilter;
-    private final UserRepository userRepository;
 
 
     @PostConstruct
@@ -123,16 +122,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/management/info").permitAll()
                 .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
                 .and()
-                /*.oauth2Login()
-                .authorizationEndpoint().baseUri("/oauth2/authorization")
-                .and()
-                .redirectionEndpoint().baseUri("/login/oauth2/code/*")
-                .and()
-                .userInfoEndpoint()
-                    .oidcUserService(customOAuth2UserService(userRepository))
-                .and()
-                .successHandler(new OAuth2LoginSuccessHandler(tokenProvider))
-                .failureHandler(new OAuth2LoginFailureHandler())*/
                 .saml2Login()
                 .successHandler(new Saml2LoginSuccessHandler(tokenProvider))
                 .failureHandler(new Saml2LoginFailureHandler())
@@ -145,7 +134,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 
     }
-
 
     private JWTConfigurer securityConfigurerAdapterForJwt() {
         return new JWTConfigurer(tokenProvider);

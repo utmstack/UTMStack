@@ -1,6 +1,7 @@
 package com.park.utmstack.web.rest.idp_provider;
 
 
+import com.park.utmstack.domain.idp_provider.enums.ProviderType;
 import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderConfigRequestDto;
 import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderConfigResponseDto;
 import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderCreateConfigDto;
@@ -12,11 +13,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,13 +33,32 @@ public class IdentityProviderConfigResource {
 
     private final IdentityProviderService service;
 
-    @PostMapping
-    public ResponseEntity<IdentityProviderConfigResponseDto> create(@RequestBody @Valid IdentityProviderCreateConfigDto dto) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<IdentityProviderConfigResponseDto> create(
+            @RequestParam String name,
+            @RequestParam String providerType,
+            @RequestParam String metadataUrl,
+            @RequestParam Boolean active,
+            @RequestPart("spPrivateKeyFile") MultipartFile privateKeyFile,
+            @RequestPart("spCertificateFile") MultipartFile certificateFile
+    ) throws IOException {
+        String privateKeyPem = new String(privateKeyFile.getBytes(), StandardCharsets.UTF_8);
+        String certPem = new String(certificateFile.getBytes(), StandardCharsets.UTF_8);
+
+        IdentityProviderCreateConfigDto dto = new IdentityProviderCreateConfigDto();
+        dto.setName(name);
+        dto.setProviderType(ProviderType.valueOf(providerType));
+        dto.setMetadataUrl(metadataUrl);
+        dto.setActive(active);
+        dto.setSpPrivateKeyPem(privateKeyPem);
+        dto.setSpCertificatePem(certPem);
+
         IdentityProviderConfigResponseDto result = service.create(dto);
         return ResponseEntity
                 .created(URI.create("/api/identity-providers/" + result.getId()))
                 .body(result);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<IdentityProviderConfigResponseDto> update(@PathVariable Long id,
