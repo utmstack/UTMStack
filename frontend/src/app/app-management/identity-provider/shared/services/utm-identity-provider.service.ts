@@ -2,7 +2,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import {SERVER_API_URL} from '../../../../app.constants';
-import {createRequestOption} from "../../../../shared/util/request-util";
+import {createRequestOption} from '../../../../shared/util/request-util';
 import { UtmIdentityProvider } from '../models/utm-identity-provider.model';
 
 @Injectable({
@@ -13,11 +13,11 @@ export class UtmIdentityProviderService {
 
   constructor(private http: HttpClient) {}
 
-  create(provider: UtmIdentityProvider): Observable<HttpResponse<UtmIdentityProvider>> {
+  create(provider: FormData): Observable<HttpResponse<UtmIdentityProvider>> {
     return this.http.post<UtmIdentityProvider>(this.resourceUrl, provider, { observe: 'response' });
   }
 
-  update(provider: UtmIdentityProvider): Observable<HttpResponse<UtmIdentityProvider>> {
+  update(provider: FormData): Observable<HttpResponse<UtmIdentityProvider>> {
     return this.http.put<UtmIdentityProvider>(`${this.resourceUrl}/${provider.id}`, provider, { observe: 'response' });
   }
 

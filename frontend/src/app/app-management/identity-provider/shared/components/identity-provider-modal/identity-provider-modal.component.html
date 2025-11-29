@@ -12,7 +12,9 @@
     [testingConnection]="testingConnection"
     (save)="saveProvider($event)"
     (test)="testConnection()"
-    (cancel)="closeModal()">
+    (cancel)="closeModal()"
+    (privateCertificateFileChange)="onChangePrivateCertificateFile($event)"
+  >
   </app-provider-form>
 </div>
 

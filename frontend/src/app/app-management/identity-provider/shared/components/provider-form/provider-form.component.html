@@ -122,6 +122,7 @@
 
           <div class="custom-file mb-2">
             <input
+              #privateKeyInput
               type="file"
               class="custom-file-input"
               id="privateKeyInput"
@@ -296,46 +297,5 @@
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Form Actions -->
-  <div class="form-actions mt-4">
-    <button
-      type="submit"
-      class="btn btn-primary"
-      (click)="saveProvider()"
-      [disabled]="!providerForm.valid || loading || (!editMode && (!privateKeyFile || !certificateFile))">
-      <span *ngIf="!loading">
-        <i class="icon-check mr-2"></i>
-        {{ editMode ? 'Update Provider' : 'Create Provider' }}
-      </span>
-      <span *ngIf="loading">
-        <i class="icon-spinner mr-2"></i>
-        Saving...
-      </span>
-    </button>
-
-    <button
-      type="button"
-      class="btn btn-secondary ml-2"
-      (click)="testConnection()"
-      [disabled]="!providerForm.valid || testingConnection">
-      <span *ngIf="!testingConnection">
-        <i class="icon-play mr-2"></i>
-        Test Connection
-      </span>
-      <span *ngIf="testingConnection">
-        <i class="icon-spinner mr-2"></i>
-        Testing...
-      </span>
-    </button>
-
-    <button
-      type="button"
-      class="btn btn-outline-secondary ml-2"
-      (click)="cancelForm()">
-      <i class="icon-x mr-2"></i>
-      Cancel
-    </button>
   </div>
 </form>

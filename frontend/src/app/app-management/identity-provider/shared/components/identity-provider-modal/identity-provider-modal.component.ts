@@ -38,20 +38,13 @@ export class IdentityProviderModalComponent implements OnInit {
     this.loading = true;
 
     const formValue = this.providerFormComponent.providerForm.value;
-    const providerData: UtmIdentityProvider = {
-      ...formValue,
-      id: this.provider ? this.provider.id : null,
-      scopes: Array.isArray(formValue.scopes) ? formValue.scopes.join(',') : formValue.scopes,
-      allowedDomains: Array.isArray(formValue.allowedDomains)
-        ? formValue.allowedDomains.join(',')
-        : formValue.allowedDomains,
-      providerType: (formValue && formValue.providerType && formValue.providerType.value)
-      ? formValue.providerType.value : formValue.providerType,
-    };
+
+    const formData = this.convertToFormData(formValue, this.providerFormComponent.privateKeyFile,
+      this.providerFormComponent.certificateFile);
 
     const request = this.editMode && this.provider.id
-      ? this.providerService.update(providerData)
-      : this.providerService.create(providerData);
+      ? this.providerService.update(formData)
+      : this.providerService.create(formData);
 
     request.subscribe({
       next: () => {
@@ -67,7 +60,6 @@ export class IdentityProviderModalComponent implements OnInit {
 
   testConnection(): void {
     if (this.providerFormComponent.providerForm && !this.providerFormComponent.providerForm.valid) {
-      // ✅ Usar función helper para marcar todos los controles como touched
       this.markFormGroupTouched(this.providerFormComponent.providerForm);
       return;
     }
@@ -99,5 +91,30 @@ export class IdentityProviderModalComponent implements OnInit {
         this.markFormGroupTouched(control);
       }
     });
+  }
+
+  onChangePrivateCertificateFile($event: { file: File; name: string }): void {
+    this.providerFormComponent.certificateFile = $event.file;
+    this.providerFormComponent.certificateFileName = $event.name;
+  }
+
+  private convertToFormData(data: any, privateKey?: File | null, certificate?: File | null): FormData {
+    const formData = new FormData();
+
+    // Agregar campos del formulario
+    formData.append('name', data.name);
+    formData.append('providerType', data.providerType);
+    formData.append('metadataUrl', data.metadataUrl);
+    formData.append('active', data.active.toString());
+
+    // Agregar archivos si existen
+    if (privateKey) {
+      formData.append('spPrivateKeyFile', privateKey);
+    }
+    if (certificate) {
+      formData.append('spCertificateFile', certificate);
+    }
+
+    return formData;
   }
 }

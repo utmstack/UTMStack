@@ -25,11 +25,11 @@ export class ProviderFormComponent implements OnInit {
 
   providerTypes = Object.values(ProviderType).map((value) => ({
     label: value.charAt(0) + value.slice(1).toLowerCase(),
-    value: value
+    value
   }));
 
-  spEntityId: string = '';
-  spAcsUrl: string = '';
+  spEntityId = '';
+  spAcsUrl = '';
 
   constructor(private fb: FormBuilder) {}
 
@@ -48,7 +48,7 @@ export class ProviderFormComponent implements OnInit {
   initForm(): void {
     this.providerForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
-      providerType: [ProviderType.SAML, Validators.required],
+      providerType: [ProviderType.GOOGLE, Validators.required],
       metadataUrl: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)]],
       active: [true]
     });
@@ -90,7 +90,7 @@ export class ProviderFormComponent implements OnInit {
     this.certificateFileName = '';
   }
 
-  saveProvider(): void {
+  /*saveProvider(): void {
     if (!this.providerForm.valid) {
       return;
     }
@@ -109,29 +109,9 @@ export class ProviderFormComponent implements OnInit {
       return;
     }
 
-    const formData = this.convertToFormData(this.providerForm.value, this.privateKeyFile, this.certificateFile);
+
     this.save.emit(formData);
-  }
-
-  private convertToFormData(data: any, privateKey?: File | null, certificate?: File | null): FormData {
-    const formData = new FormData();
-
-    // Agregar campos del formulario
-    formData.append('name', data.name);
-    formData.append('providerType', data.providerType);
-    formData.append('metadataUrl', data.metadataUrl);
-    formData.append('active', data.active.toString());
-
-    // Agregar archivos si existen
-    if (privateKey) {
-      formData.append('spPrivateKeyFile', privateKey);
-    }
-    if (certificate) {
-      formData.append('spCertificateFile', certificate);
-    }
-
-    return formData;
-  }
+  }*/
 
   testConnection(): void {
     this.test.emit();
