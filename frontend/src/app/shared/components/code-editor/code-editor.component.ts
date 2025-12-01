@@ -30,8 +30,6 @@ export class CodeEditorComponent implements OnInit {
   @Output() execute = new EventEmitter<string>();
   @Output() clearData = new EventEmitter<void>();
   @Input() queryError: string | null = null;
-
-  isExecuting = false;
   sqlQuery = '';
   errorMessage = '';
   successMessage = '';
@@ -61,7 +59,6 @@ export class CodeEditorComponent implements OnInit {
 
   executeQuery(): void {
     this.resetMessages();
-
     const query = this.sqlQuery ? this.sqlQuery.trim() : '';
     if (!query) {
       this.errorMessage = 'The query cannot be empty.';

@@ -9,28 +9,28 @@
         class="btn utm-button utm-button-primary"
         ngbTooltip="Execute Query" tooltipClass="utm-tooltip-top"
         (click)="executeQuery()"
-        [disabled]="isExecuting || !sqlQuery.trim()"
+        [disabled]="!sqlQuery.trim()"
       >
-        <i [ngClass]="isExecuting ? 'icon-spinner4 spinner' : 'icon-play3'"></i>
+        <i [ngClass]="'icon-play4'"></i>
       </button>
       <button class="btn utm-button utm-button-primary"
               ngbTooltip="Format SQL" tooltipClass="utm-tooltip-top"
               (click)="formatQuery()"
-              [disabled]="isExecuting || !sqlQuery.trim()"
+              [disabled]="!sqlQuery.trim()"
       >
         <i class="fa fa-indent"></i>
       </button>
       <button class="btn utm-button utm-button-primary"
               ngbTooltip="Copy Query" tooltipClass="utm-tooltip-top"
               (click)="copyQuery()"
-              [disabled]="isExecuting || !sqlQuery.trim()"
+              [disabled]="!sqlQuery.trim()"
       >
         <i class="icon-copy3"></i>
       </button>
       <button class="btn utm-button utm-button-primary"
               ngbTooltip="Clear" tooltipClass="utm-tooltip-top"
               (click)="clearQuery()"
-              [disabled]="isExecuting || !sqlQuery.trim()">
+              [disabled]="!sqlQuery.trim()">
         <i class="icon-trash"></i>
       </button>
     </div>
