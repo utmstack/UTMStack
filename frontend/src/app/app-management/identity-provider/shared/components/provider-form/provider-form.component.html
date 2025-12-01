@@ -124,7 +124,7 @@
             <input
               #privateKeyInput
               type="file"
-              class="custom-file-input"
+              class="custom-file-input cursor-pointer"
               id="privateKeyInput"
               accept=".pem,.key,.txt"
               (change)="onPrivateKeySelected($event)"
@@ -139,12 +139,13 @@
 
           <small *ngIf="privateKeyFileName" class="form-text text-success d-block mb-2">
             <i class="icon-check mr-1"></i>
-            {{ privateKeyFileName }} selected
+            {{ privateKeyFileName }}
             <button
               type="button"
               class="btn btn-link btn-sm p-0 ml-2"
-              (click)="clearPrivateKeyFile()">
-              <i class="icon-x mr-1"></i>Clear
+              (click)="clearPrivateKeyFile()"
+              style="vertical-align: baseline;">
+              <i class="icon-x"></i>
             </button>
           </small>
 
@@ -161,7 +162,7 @@
           <div class="custom-file mb-2">
             <input
               type="file"
-              class="custom-file-input"
+              class="custom-file-input cursor-pointer"
               id="certificateInput"
               accept=".pem,.crt,.cer,.txt"
               (change)="onCertificateSelected($event)"
@@ -180,10 +181,12 @@
             <button
               type="button"
               class="btn btn-link btn-sm p-0 ml-2"
-              (click)="clearCertificateFile()">
-              <i class="icon-x mr-1"></i>Clear
+              (click)="clearCertificateFile()"
+              style="vertical-align: baseline;">
+              <i class="icon-x"></i>
             </button>
           </small>
+
 
           <small class="form-text text-muted d-block mt-2">
             Select your public certificate file in PEM format (.pem, .crt, .cer). This will be shared with your IdP.
@@ -228,12 +231,12 @@
             readonly>
           <div class="input-group-append">
             <button
+              style="height: 35px"
               type="button"
-              class="btn btn-outline-secondary"
+              class="btn btn-outline-secondary d-flex align-items-center"
               (click)="copyToClipboard('Entity ID', spEntityId)"
               title="Copy to clipboard">
               <i class="icon-copy mr-1"></i>
-              Copy
             </button>
           </div>
         </div>
@@ -258,12 +261,12 @@
             readonly>
           <div class="input-group-append">
             <button
+              style="height: 35px"
               type="button"
               class="btn btn-outline-secondary"
               (click)="copyToClipboard('ACS URL', spAcsUrl)"
               title="Copy to clipboard">
               <i class="icon-copy mr-1"></i>
-              Copy
             </button>
           </div>
         </div>

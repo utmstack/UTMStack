@@ -13,12 +13,18 @@ export class UtmIdentityProviderService {
 
   constructor(private http: HttpClient) {}
 
-  create(provider: FormData): Observable<HttpResponse<UtmIdentityProvider>> {
-    return this.http.post<UtmIdentityProvider>(this.resourceUrl, provider, { observe: 'response' });
+  create(provider: UtmIdentityProvider, privateKey?: File | null, certificate?: File | null)
+    : Observable<HttpResponse<UtmIdentityProvider>> {
+
+    const formData = this.convertToFormData(provider, privateKey, certificate);
+    return this.http.post<UtmIdentityProvider>(this.resourceUrl, formData, { observe: 'response' });
   }
 
-  update(provider: FormData): Observable<HttpResponse<UtmIdentityProvider>> {
-    return this.http.put<UtmIdentityProvider>(`${this.resourceUrl}/${provider.id}`, provider, { observe: 'response' });
+  update(id: number, provider: UtmIdentityProvider, privateKey?: File | null, certificate?: File | null):
+    Observable<HttpResponse<UtmIdentityProvider>> {
+
+    const formData = this.convertToFormData(provider, privateKey, certificate);
+    return this.http.put<UtmIdentityProvider>(`${this.resourceUrl}/${id}`, formData, { observe: 'response' });
   }
 
   find(id: number): Observable<HttpResponse<UtmIdentityProvider>> {
@@ -36,5 +42,23 @@ export class UtmIdentityProviderService {
 
   testConnection(provider: UtmIdentityProvider): Observable<HttpResponse<{ success: boolean; message: string }>> {
     return this.http.post<{ success: boolean; message: string }>(`${this.resourceUrl}/test`, provider, { observe: 'response' });
+  }
+
+  private convertToFormData(data: any, privateKey?: File | null, certificate?: File | null): FormData {
+    const formData = new FormData();
+
+    formData.append('name', data.name);
+    formData.append('providerType', data.providerType);
+    formData.append('metadataUrl', data.metadataUrl);
+    formData.append('active', data.active.toString());
+
+    if (privateKey) {
+      formData.append('spPrivateKeyFile', privateKey);
+    }
+    if (certificate) {
+      formData.append('spCertificateFile', certificate);
+    }
+
+    return formData;
   }
 }

@@ -1,5 +1,7 @@
+import {HttpErrorResponse} from "@angular/common/http";
 import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {UtmIdentityProvider} from '../../models/utm-identity-provider.model';
 import {UtmIdentityProviderService} from '../../services/utm-identity-provider.service';
 import {ProviderFormComponent} from '../provider-form/provider-form.component';
@@ -19,9 +21,9 @@ export class IdentityProviderModalComponent implements OnInit {
   loading = false;
   testingConnection = false;
 
-  constructor(
-    public activeModal: NgbActiveModal,
-    private providerService: UtmIdentityProviderService
+  constructor(public activeModal: NgbActiveModal,
+              private providerService: UtmIdentityProviderService,
+              private toastService: UtmToastService
   ) {}
 
   ngOnInit(): void {
@@ -39,21 +41,25 @@ export class IdentityProviderModalComponent implements OnInit {
 
     const formValue = this.providerFormComponent.providerForm.value;
 
-    const formData = this.convertToFormData(formValue, this.providerFormComponent.privateKeyFile,
-      this.providerFormComponent.certificateFile);
-
     const request = this.editMode && this.provider.id
-      ? this.providerService.update(formData)
-      : this.providerService.create(formData);
+      ? this.providerService.update(this.provider.id, formValue, this.providerFormComponent.privateKeyFile, this.providerFormComponent.certificateFile)
+      : this.providerService.create(formValue, this.providerFormComponent.privateKeyFile, this.providerFormComponent.certificateFile);
 
     request.subscribe({
       next: () => {
         this.loading = false;
         this.activeModal.close(true);
+        this.toastService.showSuccessProcess('Success', `Provider ${this.editMode ? 'updated' : 'created'} successfully.`);
       },
-      error: (error) => {
+      error: (error: HttpErrorResponse) => {
         this.loading = false;
-        console.error('Error saving provider:', error);
+
+        if (error.status === 400) {
+          this.toastService.showError('Validation Error', 'Please check the form for errors and try again.');
+        } else {
+          this.toastService.showError('Error',
+            `An error occurred while ${this.editMode ? 'updating' : 'creating'} the provider`);
+        }
       }
     });
   }
@@ -69,11 +75,11 @@ export class IdentityProviderModalComponent implements OnInit {
     this.providerService.testConnection(this.providerFormComponent.providerForm.value).subscribe({
       next: () => {
         this.testingConnection = false;
-        alert('✅ Connection test successful!');
+        this.toastService.showSuccessProcess('Success', 'Connection test succeeded.');
       },
       error: (error) => {
         this.testingConnection = false;
-        alert('❌ Connection test failed: ' + error.message);
+        this.toastService.showError('Error', `Connection test failed`);
       }
     });
   }
@@ -96,25 +102,5 @@ export class IdentityProviderModalComponent implements OnInit {
   onChangePrivateCertificateFile($event: { file: File; name: string }): void {
     this.providerFormComponent.certificateFile = $event.file;
     this.providerFormComponent.certificateFileName = $event.name;
-  }
-
-  private convertToFormData(data: any, privateKey?: File | null, certificate?: File | null): FormData {
-    const formData = new FormData();
-
-    // Agregar campos del formulario
-    formData.append('name', data.name);
-    formData.append('providerType', data.providerType);
-    formData.append('metadataUrl', data.metadataUrl);
-    formData.append('active', data.active.toString());
-
-    // Agregar archivos si existen
-    if (privateKey) {
-      formData.append('spPrivateKeyFile', privateKey);
-    }
-    if (certificate) {
-      formData.append('spCertificateFile', certificate);
-    }
-
-    return formData;
   }
 }

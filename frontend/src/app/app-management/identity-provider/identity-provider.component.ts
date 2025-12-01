@@ -93,7 +93,7 @@ export class IdentityProviderComponent implements OnInit {
   }
 
   toggleActive(provider: UtmIdentityProvider): void {
-    this.providerService.update(provider).subscribe({
+    this.providerService.update(provider, null).subscribe({
       next: () => {
         this.toast.showSuccess(`Provider ${provider.active ? 'activated' : 'deactivated'}`);
         this.loadProviders();
