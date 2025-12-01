@@ -14,6 +14,7 @@ import {ProviderFormComponent} from '../provider-form/provider-form.component';
 export class IdentityProviderModalComponent implements OnInit {
   @Input() provider?: UtmIdentityProvider;
   @Input() editMode = false;
+  @Input() providers: UtmIdentityProvider[] = [];
 
   @ViewChild('providerForm') providerFormComponent!: ProviderFormComponent;
 

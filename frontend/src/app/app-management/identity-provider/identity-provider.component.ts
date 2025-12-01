@@ -56,6 +56,7 @@ export class IdentityProviderComponent implements OnInit {
 
     modalRef.componentInstance.provider = provider;
     modalRef.componentInstance.editMode = !!provider;
+    modalRef.componentInstance.providers = this.providers.length ? this.providers : [];
 
     modalRef.result.then(
       (result) => {

@@ -13,6 +13,7 @@ export class ProviderFormComponent implements OnInit {
   @Input() provider?: UtmIdentityProvider;
   @Input() loading = false;
   @Input() testingConnection = false;
+  @Input() providers: UtmIdentityProvider[] = [];
 
   @Output() save = new EventEmitter<FormData>();
   @Output() test = new EventEmitter<void>();
@@ -25,10 +26,7 @@ export class ProviderFormComponent implements OnInit {
   privateKeyFileName = '';
   certificateFileName = '';
 
-  providerTypes = Object.values(ProviderType).map((value) => ({
-    label: value.charAt(0) + value.slice(1).toLowerCase(),
-    value
-  }));
+  providerTypes: { label: string; value: ProviderType }[] = [];
 
   spEntityId = '';
   spAcsUrl = '';
@@ -38,6 +36,12 @@ export class ProviderFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.editMode = !!this.provider;
+    this.providerTypes = Object.values(ProviderType)
+      .filter(type => !this.providers.some(p => p.providerType === type))
+      .map((value) => ({
+        label: value.charAt(0) + value.slice(1).toLowerCase(),
+        value
+      }));
     this.generateSpIdentifiers();
     this.initForm();
 
