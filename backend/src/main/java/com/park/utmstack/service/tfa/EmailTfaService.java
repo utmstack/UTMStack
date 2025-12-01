@@ -43,7 +43,7 @@ public class EmailTfaService implements TfaMethodService {
             String secret = tfaService.generateSecret();
             String code = tfaService.generateCode(secret);
 
-            long expiresAt = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(30);
+            long expiresAt = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Constants.EXPIRES_IN_SECONDS_TOTP * 10);
             TfaSetupState state = new TfaSetupState(secret, expiresAt);
             cache.storeState(user.getLogin(), TfaMethod.EMAIL, state);
 

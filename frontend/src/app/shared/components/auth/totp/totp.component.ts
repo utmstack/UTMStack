@@ -111,6 +111,8 @@ export class TotpComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.expireSub.unsubscribe();
+    if (this.expireSub) {
+      this.expireSub.unsubscribe();
+    }
   }
 }

@@ -1,5 +1,18 @@
-# Azure Envent-Hub filter, version 2.0.3
-# 
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20251201005" author="JocLRojas">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='2.0.3',
+                logstash_filter='# Azure Envent-Hub filter, version 2.0.3
+#
 # Documentations
 # 1- https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log
 # 2- https://learn.microsoft.com/en-us/azure/azure-monitor/platform/activity-log-schema
@@ -607,22 +620,22 @@ pipeline:
       # Adding severity based on log.level
       # .......................................................................#
       - add:
-          function: 'string'
+          function: ''string''
           params:
             key: severity
-            value: 'high'
+            value: ''high''
           where: safe("log.level", "") in ["ERROR", "Error", "FATAL", "CRITICAL", "Critical"]
       - add:
-          function: 'string'
+          function: ''string''
           params:
             key: severity
-            value: 'medium'
+            value: ''medium''
           where: safe("log.level", "") in ["WARN", "Warning"]
       - add:
-          function: 'string'
+          function: ''string''
           params:
             key: severity
-            value: 'low'
+            value: ''low''
           where: safe("log.level", "") in ["Information", "Informational", "INFO", "DEBUG", "TRACE"]
 
       # .......................................................................#
@@ -639,40 +652,40 @@ pipeline:
       # Normalizing request method and renaming to action
       # .......................................................................#
       - add:
-          function: 'string'
+          function: ''string''
           params:
             key: action
-            value: 'get'
+            value: ''get''
           where: safe("log.propertiesRequestMethod", "") == "GET"
       - add:
-          function: 'string'
+          function: ''string''
           params:
             key: action
-            value: 'post'
+            value: ''post''
           where: safe("log.propertiesRequestMethod", "") == "POST"
       - add:
-          function: 'string'
+          function: ''string''
           params:
             key: action
-            value: 'put'
+            value: ''put''
           where: safe("log.propertiesRequestMethod", "") == "PUT"
       - add:
-          function: 'string'
+          function: ''string''
           params:
             key: action
-            value: 'delete'
+            value: ''delete''
           where: safe("log.propertiesRequestMethod", "") == "DELETE"
       - add:
-          function: 'string'
+          function: ''string''
           params:
             key: action
-            value: 'patch'
+            value: ''patch''
           where: safe("log.propertiesRequestMethod", "") == "PATCH"
       - add:
-          function: 'string'
+          function: ''string''
           params:
             key: action
-            value: 'request'
+            value: ''request''
           where: safe("log.propertiesRequestMethod", "") == "REQUEST"
 
       # .......................................................................#
@@ -707,13 +720,18 @@ pipeline:
       # denied by default
       # .......................................................................#
       - add:
-          function: 'string'
+          function: ''string''
           params:
             key: actionResult
-            value: 'denied'
+            value: ''denied''
       - add:
-          function: 'string'
+          function: ''string''
           params:
             key: actionResult
-            value: 'accepted'
-          where: safe("statusCode", 0.0) >= double(200) && safe("statusCode", 0.0) <= double(299) || (safe("statusCode", 0.0) >= double(300) && safe("statusCode", 0.0) <= double(399) && safe("origin.bytesReceived", 0.0) > double(0))
+            value: ''accepted''
+          where: safe("statusCode", 0.0) >= double(200) && safe("statusCode", 0.0) <= double(299) || (safe("statusCode", 0.0) >= double(300) && safe("statusCode", 0.0) <= double(399) && safe("origin.bytesReceived", 0.0) > double(0))'
+            WHERE id=201;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>
