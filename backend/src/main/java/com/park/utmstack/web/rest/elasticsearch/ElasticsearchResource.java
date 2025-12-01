@@ -224,7 +224,7 @@ public class ElasticsearchResource {
                     .replaceAll(";+$", "")
                     .trim();
 
-            String sqlQuery = SqlPaginationUtil.applyPagination(sanitizedQuery, pageable); // Quitar
+            String sqlQuery = SqlPaginationUtil.applyPagination(sanitizedQuery, pageable);
 
             SearchSqlResponse<Map> response = elasticsearchService
                     .searchBySql(new SqlQueryRequest(sqlQuery, null), Map.class);
