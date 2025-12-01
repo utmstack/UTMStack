@@ -22,7 +22,6 @@ public class IdentityProviderCreateConfigDto extends IdentityProviderConfigReque
     private String spPrivateKeyPem;
 
     @NotBlank
-    @ValidCertificate
     private String spCertificatePem;
 
 }

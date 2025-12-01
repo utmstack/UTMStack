@@ -4,6 +4,7 @@ package com.park.utmstack.web.rest.idp_provider;
 import com.park.utmstack.domain.idp_provider.enums.ProviderType;
 import com.park.utmstack.service.dto.idp_provider.dto.*;
 import com.park.utmstack.service.idp_provider.IdentityProviderService;
+import com.park.utmstack.util.saml.PemUtils;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,7 @@ public class IdentityProviderConfigResource {
                                                                     @RequestPart("spCertificateFile") MultipartFile certificateFile) {
 
 
-
+        PemUtils.validateFilesForCreate(privateKeyFile, certificateFile);
         IdentityProviderCreateConfigDto dto = mapper.toCreateConfigDto(name, providerType, metadataUrl, active, privateKeyFile, certificateFile);
 
         IdentityProviderConfigResponseDto result = service.create(dto);
@@ -56,9 +57,10 @@ public class IdentityProviderConfigResource {
                                                                     @RequestParam String providerType,
                                                                     @RequestParam String metadataUrl,
                                                                     @RequestParam Boolean active,
-                                                                    @RequestPart("spPrivateKeyFile") MultipartFile privateKeyFile,
-                                                                    @RequestPart("spCertificateFile") MultipartFile certificateFile) {
+                                                                    @RequestPart(value = "spPrivateKeyFile", required = false) MultipartFile privateKeyFile,
+                                                                    @RequestPart(value = "spCertificateFile", required = false) MultipartFile certificateFile) {
 
+        PemUtils.validateFilesForUpdate(privateKeyFile, certificateFile);
         IdentityProviderCreateConfigDto dto = mapper.toCreateConfigDto(name, providerType, metadataUrl, active, privateKeyFile, certificateFile);
 
         IdentityProviderConfigResponseDto result = service.update(id, dto);
