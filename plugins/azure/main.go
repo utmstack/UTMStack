@@ -282,23 +282,54 @@ func processPartition(pc *azeventhubs.ProcessorPartitionClient, groupName string
 				continue
 			}
 
-			jsonLog, err := json.Marshal(logData)
-			if err != nil {
-				_ = catcher.Error("cannot encode log to JSON", err, map[string]any{
-					"group":       groupName,
-					"partitionID": pc.PartitionID(),
-				})
-				continue
-			}
+			if records, ok := logData["records"].([]any); ok && len(records) > 0 {
+				for _, record := range records {
+					recordMap, ok := record.(map[string]any)
+					if !ok {
+						_ = catcher.Error("invalid record format in records array", nil, map[string]any{
+							"group":       groupName,
+							"partitionID": pc.PartitionID(),
+						})
+						continue
+					}
 
-			plugins.EnqueueLog(&plugins.Log{
-				Id:         uuid.New().String(),
-				TenantId:   defaultTenant,
-				DataType:   "azure",
-				DataSource: groupName,
-				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
-				Raw:        string(jsonLog),
-			})
+					jsonLog, err := json.Marshal(recordMap)
+					if err != nil {
+						_ = catcher.Error("cannot encode record to JSON", err, map[string]any{
+							"group":       groupName,
+							"partitionID": pc.PartitionID(),
+						})
+						continue
+					}
+
+					plugins.EnqueueLog(&plugins.Log{
+						Id:         uuid.New().String(),
+						TenantId:   defaultTenant,
+						DataType:   "azure",
+						DataSource: groupName,
+						Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
+						Raw:        string(jsonLog),
+					})
+				}
+			} else {
+				jsonLog, err := json.Marshal(logData)
+				if err != nil {
+					_ = catcher.Error("cannot encode log to JSON", err, map[string]any{
+						"group":       groupName,
+						"partitionID": pc.PartitionID(),
+					})
+					continue
+				}
+
+				plugins.EnqueueLog(&plugins.Log{
+					Id:         uuid.New().String(),
+					TenantId:   defaultTenant,
+					DataType:   "azure",
+					DataSource: groupName,
+					Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
+					Raw:        string(jsonLog),
+				})
+			}
 		}
 
 		if err := pc.UpdateCheckpoint(context.Background(), events[len(events)-1], nil); err != nil {
