@@ -101,11 +101,11 @@
 
             <ng-select *ngIf="integrationConfig.confDataType === 'select'"
                        #options="ngModel"
-                        (change)="onChange($event, integrationConfig)"
+                       (change)="onChange($event, integrationConfig)"
                        [items]="integrationConfig.confOptions"
                        bindLabel="label"
                        bindValue="value"
-                       [searchable]="true"
+                       [searchable]="integrationConfig.confOptions.length > 10"
                        [multiple]="false"
                        [clearable]="false"
                        [virtualScroll]="true"

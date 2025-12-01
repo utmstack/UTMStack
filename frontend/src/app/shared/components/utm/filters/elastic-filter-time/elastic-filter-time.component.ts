@@ -195,6 +195,10 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
         this.timeFilterChange.emit({
           timeFrom: resolveUTCDate(this.dateFrom), timeTo: resolveUTCDate(this.dateTo)
         });
+
+        this.maxDateFrom = null;
+        this.maxDateTo = null;
+
       }
     }
   }
@@ -221,11 +225,13 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
 
   // Function called every time the 'timeFrom' date is changed
   onTimeFromChange() {
+    this.maxDateFrom = null;
     this.updateMaxDates('from');  // Update maxDates when timeFrom changes
   }
 
   // Function called every time the 'timeTo' date is changed
   onTimeToChange() {
+    this.maxDateTo = null;
     this.updateMaxDates('to');  // Update maxDates when timeTo changes
   }
 
@@ -263,7 +269,7 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
     return false;
   }
 
-  isDirty(){
+  isDirty() {
     return this.rangeTimeFrom !== undefined && this.rangeTimeTo !== undefined;
   }
 
@@ -284,6 +290,14 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
 
       default:
         return 0;
+    }
+  }
+
+  onCustomRange() {
+    this.isCollapsed = !this.isCollapsed;
+    if (this.isCollapsed) {
+      this.maxDateFrom = null;
+      this.maxDateTo = null;
     }
   }
 

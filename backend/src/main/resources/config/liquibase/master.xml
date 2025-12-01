@@ -269,6 +269,12 @@
 
     <include file="/config/liquibase/changelog/20251111001_set_alert-response_rule_seq.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251125001_add_environment_o365_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20251201001_update_filter_azure.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20251201002_update_filter_google.xml" relativeToChangelogFile="false"/>
+
     <include file="/config/liquibase/changelog/20251118001_add_adversary_view_menu.xml" relativeToChangelogFile="false"/>
 
 

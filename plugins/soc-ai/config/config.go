@@ -3,7 +3,6 @@ package config
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	sync "sync"
 	"time"
@@ -151,7 +150,7 @@ func StartConfigurationSystem() {
 
 			switch message := in.Payload.(type) {
 			case *BiDirectionalMessage_Config:
-				log.Printf("Received configuration update: %v", message.Config)
+				catcher.Info("Received configuration update", map[string]any{"config": message.Config})
 				updateConfigFromGRPC(message.Config)
 			}
 		}

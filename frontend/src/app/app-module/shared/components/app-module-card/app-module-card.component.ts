@@ -19,7 +19,7 @@ import {UtmModuleType} from '../../type/utm-module.type';
 export class AppModuleCardComponent implements OnInit, OnDestroy {
 
   constructor(private versionTypeService: VersionTypeService,
-              private modalService: NgbModal,) {
+              private modalService: NgbModal) {
   }
   @Input() module: UtmModuleType;
   @Output() showModuleIntegration = new EventEmitter<UtmModuleType>();
@@ -28,6 +28,7 @@ export class AppModuleCardComponent implements OnInit, OnDestroy {
   modules = UtmModulesEnum;
   destroy$: Subject<void> = new Subject<void>();
   ModulesEnterprise = ModulesEnterprise;
+  readonly UtmModulesEnum = UtmModulesEnum;
 
   ngOnInit() {
     this.versionTypeService.versionType$

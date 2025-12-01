@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net"
 	"net/http"
 
@@ -36,7 +35,8 @@ func startGRPCServer() error {
 func startHTTPServer() {
 	gin.SetMode(gin.ReleaseMode)
 
-	router := gin.Default()
+	router := gin.New()
+	router.Use(gin.Recovery())
 	modules := router.Group("/api/v1/modules-config")
 	modules.POST("", HttpMiddleware(), UpdateModuleConfig)
 	modules.POST("/validate", HttpMiddleware(), ValidateModuleConfig)
@@ -71,7 +71,7 @@ func UpdateModuleConfig(c *gin.Context) {
 	if len(body) != 0 {
 		config.GetConfigServer().NotifyUpdate(moduleName, &body[0])
 	} else {
-		fmt.Println("Received empty configuration body, no updates made")
+		catcher.Info("Received empty configuration body, no updates made", nil)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": "Module configuration updated successfully"})

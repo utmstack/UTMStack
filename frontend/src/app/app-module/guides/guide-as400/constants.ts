@@ -32,7 +32,7 @@ export const PLATFORM = [
                   `/opt/utmstack-linux-collectors/as400 && cd /opt/utmstack-linux-collectors/as400 && ` +
                   `wget --no-check-certificate ` +
                   `https://V_IP:9001/private/dependencies/collector/linux-as400-collector.zip ` +
-                  `&& unzip linux-as400-collector.zip && rm linux-as400-collector.zip && chmod -R 777 ` +
+                  `&& unzip linux-as400-collector.zip && rm linux-as400-collector.zip && chmod -R 755 ` +
                   `utmstack_collectors_installer && ./utmstack_collectors_installer install as400 ` +
                   `V_IP <secret>V_TOKEN<secret>"`,
 

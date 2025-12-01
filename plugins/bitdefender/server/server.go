@@ -112,27 +112,8 @@ func StartServer() {
 		TLSConfig:      tlsConfig,
 	}
 
-	go func() {
-		maxRetries := 3
-		retryDelay := 2 * time.Second
-
-		for retry := 0; retry < maxRetries; retry++ {
-			err := server.ListenAndServeTLS("", "")
-			if err == nil {
-				return
-			}
-
-			_ = catcher.Error("error creating server, retrying", err, map[string]any{
-				"retry":      retry + 1,
-				"maxRetries": maxRetries,
-			})
-
-			if retry < maxRetries-1 {
-				time.Sleep(retryDelay)
-				retryDelay *= 2
-			} else {
-				_ = catcher.Error("all retries failed when creating server", err, nil)
-			}
-		}
-	}()
+	err = server.ListenAndServeTLS("", "")
+	if err != nil {
+		_ = catcher.Error("server stopped unexpectedly", err, nil)
+	}
 }

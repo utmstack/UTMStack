@@ -21,11 +21,48 @@ import (
 	"github.com/utmstack/UTMStack/plugins/azure/config"
 )
 
+type AzureCloud string
+
 const (
-	defaultTenant      string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
-	urlCheckConnection        = "https://login.microsoftonline.com/"
-	wait                      = 1 * time.Second
+	defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+	wait                 = 1 * time.Second
+
+	AzurePublic     AzureCloud = "AzurePublic"
+	AzureGovernment AzureCloud = "AzureGovernment"
+	AzureChina      AzureCloud = "AzureChina"
 )
+
+type CloudEndpoints struct {
+	Name           AzureCloud
+	EventHubSuffix string
+	StorageSuffix  string
+	LoginAuthority string
+	Description    string
+}
+
+var SupportedClouds = []CloudEndpoints{
+	{
+		Name:           AzureGovernment,
+		EventHubSuffix: ".servicebus.usgovcloudapi.net",
+		StorageSuffix:  ".core.usgovcloudapi.net",
+		LoginAuthority: "https://login.microsoftonline.us/",
+		Description:    "Azure Government (US)",
+	},
+	{
+		Name:           AzureChina,
+		EventHubSuffix: ".servicebus.chinacloudapi.cn",
+		StorageSuffix:  ".core.chinacloudapi.cn",
+		LoginAuthority: "https://login.chinacloudapi.cn/",
+		Description:    "Azure China (21Vianet)",
+	},
+	{
+		Name:           AzurePublic,
+		EventHubSuffix: ".servicebus.windows.net",
+		StorageSuffix:  ".core.windows.net",
+		LoginAuthority: "https://login.microsoftonline.com/",
+		Description:    "Azure Public Cloud",
+	},
+}
 
 func main() {
 	mode := plugins.GetCfg().Env.Mode
@@ -46,12 +83,18 @@ func main() {
 	defer ticker.Stop()
 
 	for range ticker.C {
-		if err := connectionChecker(urlCheckConnection); err != nil {
-			_ = catcher.Error("External connection failure detected: %v", err, nil)
-		}
-
 		moduleConfig := config.GetConfig()
 		if moduleConfig != nil && moduleConfig.ModuleActive {
+			cloudsInUse := detectCloudsInUse(moduleConfig)
+			for cloudName, loginAuthority := range cloudsInUse {
+				if err := connectionChecker(loginAuthority); err != nil {
+					catcher.Info("Airgap or limited connectivity detected", map[string]any{
+						"cloud":          cloudName,
+						"loginAuthority": loginAuthority,
+					})
+				}
+			}
+
 			var wg sync.WaitGroup
 			wg.Add(len(moduleConfig.ModuleGroups))
 			for _, grp := range moduleConfig.ModuleGroups {
@@ -74,6 +117,40 @@ func main() {
 		}
 
 	}
+}
+
+func detectCloudsInUse(moduleConfig *config.ConfigurationSection) map[string]string {
+	cloudsMap := make(map[string]string)
+
+	for _, group := range moduleConfig.ModuleGroups {
+		for _, cnf := range group.ModuleGroupConfigurations {
+			if cnf.ConfKey == "eventHubConnection" || cnf.ConfKey == "storageConnection" {
+				if cloud, err := detectCloudFromConnectionString(cnf.ConfValue); err == nil {
+					cloudsMap[string(cloud.Name)] = cloud.LoginAuthority
+				}
+			}
+		}
+	}
+
+	return cloudsMap
+}
+
+func detectCloudFromConnectionString(connectionString string) (CloudEndpoints, error) {
+	if connectionString == "" {
+		return CloudEndpoints{}, fmt.Errorf("connection string is empty")
+	}
+
+	for _, cloud := range SupportedClouds {
+		if strings.Contains(connectionString, cloud.EventHubSuffix+"/") {
+			return cloud, nil
+		}
+
+		if strings.Contains(connectionString, "EndpointSuffix="+cloud.StorageSuffix) {
+			return cloud, nil
+		}
+	}
+
+	return CloudEndpoints{}, fmt.Errorf("unable to detect Azure cloud from connection string")
 }
 
 func pull(group *config.ModuleGroup) {
@@ -205,23 +282,54 @@ func processPartition(pc *azeventhubs.ProcessorPartitionClient, groupName string
 				continue
 			}
 
-			jsonLog, err := json.Marshal(logData)
-			if err != nil {
-				_ = catcher.Error("cannot encode log to JSON", err, map[string]any{
-					"group":       groupName,
-					"partitionID": pc.PartitionID(),
-				})
-				continue
-			}
+			if records, ok := logData["records"].([]any); ok && len(records) > 0 {
+				for _, record := range records {
+					recordMap, ok := record.(map[string]any)
+					if !ok {
+						_ = catcher.Error("invalid record format in records array", nil, map[string]any{
+							"group":       groupName,
+							"partitionID": pc.PartitionID(),
+						})
+						continue
+					}
 
-			plugins.EnqueueLog(&plugins.Log{
-				Id:         uuid.New().String(),
-				TenantId:   defaultTenant,
-				DataType:   "azure",
-				DataSource: groupName,
-				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
-				Raw:        string(jsonLog),
-			})
+					jsonLog, err := json.Marshal(recordMap)
+					if err != nil {
+						_ = catcher.Error("cannot encode record to JSON", err, map[string]any{
+							"group":       groupName,
+							"partitionID": pc.PartitionID(),
+						})
+						continue
+					}
+
+					plugins.EnqueueLog(&plugins.Log{
+						Id:         uuid.New().String(),
+						TenantId:   defaultTenant,
+						DataType:   "azure",
+						DataSource: groupName,
+						Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
+						Raw:        string(jsonLog),
+					})
+				}
+			} else {
+				jsonLog, err := json.Marshal(logData)
+				if err != nil {
+					_ = catcher.Error("cannot encode log to JSON", err, map[string]any{
+						"group":       groupName,
+						"partitionID": pc.PartitionID(),
+					})
+					continue
+				}
+
+				plugins.EnqueueLog(&plugins.Log{
+					Id:         uuid.New().String(),
+					TenantId:   defaultTenant,
+					DataType:   "azure",
+					DataSource: groupName,
+					Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
+					Raw:        string(jsonLog),
+				})
+			}
 		}
 
 		if err := pc.UpdateCheckpoint(context.Background(), events[len(events)-1], nil); err != nil {

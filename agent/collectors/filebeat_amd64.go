@@ -68,7 +68,7 @@ func (f Filebeat) Install() error {
 				return fmt.Errorf("error creating %s service: %v", config.ModulesServName, err)
 			}
 
-			if err = utils.Execute("chmod", filebLogPath, "-R", "777", "filebeat"); err != nil {
+			if err = utils.Execute("chmod", filebLogPath, "-R", "755", "filebeat"); err != nil {
 				return fmt.Errorf("error executing chmod: %v", err)
 			}
 
