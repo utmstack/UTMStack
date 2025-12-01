@@ -153,9 +153,4 @@ public class ModuleSocAi implements IModule {
     public ModuleName getName() {
         return ModuleName.SOC_AI;
     }
-
-    @Override
-    public ModuleName getName() {
-        return ModuleName.SOC_AI;
-    }
 }
