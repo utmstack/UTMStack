@@ -19,7 +19,6 @@ import {AlertReportFilterComponent} from './alert-reports/shared/components/aler
 import {SaveAlertReportComponent} from './alert-reports/shared/components/save-report/save-report.component';
 import {AlertViewComponent} from './alert-view/alert-view.component';
 import {AlertManagementSharedModule} from './shared/alert-management-shared.module';
-import {InfiniteScrollModule} from "ngx-infinite-scroll";
 
 @NgModule({
   declarations: [

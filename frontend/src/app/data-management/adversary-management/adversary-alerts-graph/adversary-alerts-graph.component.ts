@@ -21,7 +21,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
   }
 
   onChartInit(chart: ECharts) {
-    // Paso 1: capturar mouseover en nodos
+
     chart.on('mouseover', (params) => {
       if (params.dataType === 'node') {
         chart.getDom().style.cursor = 'pointer';
@@ -34,11 +34,8 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
       }
     });
 
-    // Extra: capturar click en nodo
     chart.on('click', (params) => {
       if (params.dataType === 'node') {
-        console.log('Nodo clicado:', params.data);
-        // aquí puedes abrir un modal o navegar a detalle
       }
     });
   }

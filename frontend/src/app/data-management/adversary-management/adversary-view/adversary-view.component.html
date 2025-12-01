@@ -31,8 +31,7 @@
             </div>
             <div class="card-body h-100 m-h-0">
               <div *ngIf="!loading && isEmptyData()" class="h-100 w-100">
-                <app-no-data-chart [typeChart]="ChartTypeEnum.METRIC_CHART">
-                </app-no-data-chart>
+                <app-no-data-found></app-no-data-found>
               </div>
               <app-adversary-alerts-graph *ngIf="!loading && adversaryAlerts.length > 0" [data]="adversaryAlerts">
               </app-adversary-alerts-graph>
