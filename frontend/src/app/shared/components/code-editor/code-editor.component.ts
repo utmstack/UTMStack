@@ -30,8 +30,6 @@ export class CodeEditorComponent implements OnInit {
   @Output() execute = new EventEmitter<string>();
   @Output() clearData = new EventEmitter<void>();
   @Input() queryError: string | null = null;
-
-  isExecuting = false;
   sqlQuery = '';
   errorMessage = '';
   successMessage = '';
@@ -61,7 +59,6 @@ export class CodeEditorComponent implements OnInit {
 
   executeQuery(): void {
     this.resetMessages();
-
     const query = this.sqlQuery ? this.sqlQuery.trim() : '';
     if (!query) {
       this.errorMessage = 'The query cannot be empty.';
@@ -150,6 +147,14 @@ export class CodeEditorComponent implements OnInit {
       return 'Parentheses are not balanced.';
     }
 
+    if (this.hasMisplacedCommas(trimmed)) {
+      return 'Query contains misplaced commas.';
+    }
+
+    if (this.hasSubqueryWithoutAlias(trimmed)) {
+      return 'Subquery in FROM must have an alias.';
+    }
+
     const functions = this.extractFunctions(upper);
     for (const func of functions) {
       if (!allowedFunctions.has(func)) {
@@ -202,4 +207,44 @@ export class CodeEditorComponent implements OnInit {
 
     return funcs;
   }
+
+  private hasMisplacedCommas(query: string): boolean {
+    const upperQuery = query.toUpperCase();
+
+    if (upperQuery.startsWith('SELECT ,') || upperQuery.includes(',,')) {
+      return true;
+    }
+
+    if (/,\s*FROM/i.test(upperQuery)) {
+      return true;
+    }
+
+    const selectPart = query
+      .replace(/^SELECT\s+/i, '')
+      .replace(/\s+FROM.*$/i, '')
+      .trim();
+
+    if (selectPart.startsWith(',') || selectPart.endsWith(',')) {
+      return true;
+    }
+
+    const fields = selectPart.split(',');
+    for (const f of fields) {
+      if (f.trim() === '') {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private hasSubqueryWithoutAlias(query: string): boolean {
+    const subqueryRegex = /FROM\s*\([^)]*\)/i;
+    if (!subqueryRegex.test(query)) {
+      return false;
+    }
+    const aliasRegex = /FROM\s*\([^)]*\)\s+(AS\s+\w+|\w+)/i;
+    return !aliasRegex.test(query);
+  }
+
 }
