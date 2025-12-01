@@ -136,11 +136,6 @@ public class ModuleSocAi implements IModule {
         return utmStackConfigValidator.validate(module, configuration, filteredConfigs);
     }
 
-    @Override
-    public ModuleName getName() {
-        return ModuleName.SOC_AI;
-    }
-
     private List<UtmModuleGroupConfiguration> filterCustomConfigs(List<UtmModuleGroupConfiguration> configs) {
         return configs.stream()
                 .filter(config -> !config.getConfKey().equals("utmstack.socai.model"))
