@@ -2,10 +2,7 @@ package com.park.utmstack.web.rest.idp_provider;
 
 
 import com.park.utmstack.domain.idp_provider.enums.ProviderType;
-import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderConfigRequestDto;
-import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderConfigResponseDto;
-import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderCreateConfigDto;
-import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderCriteria;
+import com.park.utmstack.service.dto.idp_provider.dto.*;
 import com.park.utmstack.service.idp_provider.IdentityProviderService;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -32,26 +29,19 @@ import java.util.Optional;
 public class IdentityProviderConfigResource {
 
     private final IdentityProviderService service;
+    private final IdentityProviderMapper mapper;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<IdentityProviderConfigResponseDto> create(
-            @RequestParam String name,
-            @RequestParam String providerType,
-            @RequestParam String metadataUrl,
-            @RequestParam Boolean active,
-            @RequestPart("spPrivateKeyFile") MultipartFile privateKeyFile,
-            @RequestPart("spCertificateFile") MultipartFile certificateFile
-    ) throws IOException {
-        String privateKeyPem = new String(privateKeyFile.getBytes(), StandardCharsets.UTF_8);
-        String certPem = new String(certificateFile.getBytes(), StandardCharsets.UTF_8);
+    public ResponseEntity<IdentityProviderConfigResponseDto> create(@RequestParam String name,
+                                                                    @RequestParam String providerType,
+                                                                    @RequestParam String metadataUrl,
+                                                                    @RequestParam Boolean active,
+                                                                    @RequestPart("spPrivateKeyFile") MultipartFile privateKeyFile,
+                                                                    @RequestPart("spCertificateFile") MultipartFile certificateFile) {
 
-        IdentityProviderCreateConfigDto dto = new IdentityProviderCreateConfigDto();
-        dto.setName(name);
-        dto.setProviderType(ProviderType.valueOf(providerType));
-        dto.setMetadataUrl(metadataUrl);
-        dto.setActive(active);
-        dto.setSpPrivateKeyPem(privateKeyPem);
-        dto.setSpCertificatePem(certPem);
+
+
+        IdentityProviderCreateConfigDto dto = mapper.toCreateConfigDto(name, providerType, metadataUrl, active, privateKeyFile, certificateFile);
 
         IdentityProviderConfigResponseDto result = service.create(dto);
         return ResponseEntity
@@ -62,7 +52,15 @@ public class IdentityProviderConfigResource {
 
     @PutMapping("/{id}")
     public ResponseEntity<IdentityProviderConfigResponseDto> update(@PathVariable Long id,
-                                                                    @RequestBody @Valid IdentityProviderConfigRequestDto dto) {
+                                                                    @RequestParam String name,
+                                                                    @RequestParam String providerType,
+                                                                    @RequestParam String metadataUrl,
+                                                                    @RequestParam Boolean active,
+                                                                    @RequestPart("spPrivateKeyFile") MultipartFile privateKeyFile,
+                                                                    @RequestPart("spCertificateFile") MultipartFile certificateFile) {
+
+        IdentityProviderCreateConfigDto dto = mapper.toCreateConfigDto(name, providerType, metadataUrl, active, privateKeyFile, certificateFile);
+
         IdentityProviderConfigResponseDto result = service.update(id, dto);
         return ResponseEntity.ok(result);
     }

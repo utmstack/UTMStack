@@ -29,9 +29,6 @@ public class IdentityProviderConfigRequestDto {
     @NotBlank
     private String metadataUrl;
 
-    @NotBlank
-    private String spPrivateKeyPem;
-
     @NotNull
     private Boolean active;
 

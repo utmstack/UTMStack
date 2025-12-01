@@ -4,6 +4,7 @@ package com.park.utmstack.service.idp_provider;
 import com.park.utmstack.domain.idp_provider.IdentityProviderConfig;
 import com.park.utmstack.repository.idp_provider.IdentityProviderConfigRepository;
 import com.park.utmstack.service.dto.idp_provider.dto.*;
+import com.park.utmstack.util.CipherUtil;
 import com.park.utmstack.util.events.ProviderChangedEvent;
 import com.park.utmstack.util.exceptions.IdpNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -43,15 +44,23 @@ public class IdentityProviderService {
     }
 
 
-    public IdentityProviderConfigResponseDto update(Long id, IdentityProviderConfigRequestDto dto) {
+    public IdentityProviderConfigResponseDto update(Long id, IdentityProviderCreateConfigDto dto) {
 
         IdentityProviderConfig existing = repository.findById(id)
                 .orElseThrow(() -> new IdpNotFoundException("IdentityProviderConfig not found: " + id));
 
         existing.setName(dto.getName());
-
+        existing.setMetadataUrl(dto.getMetadataUrl());
         existing.setActive(dto.getActive());
         existing.setUpdatedAt(LocalDateTime.now());
+
+        if(dto.getSpPrivateKeyPem() != null) {
+            existing.setSpPrivateKeyPem(CipherUtil.encrypt(dto.getSpPrivateKeyPem(), System.getenv("ENCRYPTION_KEY")));
+        }
+
+        if(dto.getSpCertificatePem() != null) {
+            existing.setSpCertificatePem(CipherUtil.encrypt(dto.getSpCertificatePem(), System.getenv("ENCRYPTION_KEY")));
+        }
 
         IdentityProviderConfig updated = repository.save(existing);
         publisher.publishEvent(new ProviderChangedEvent(updated));
