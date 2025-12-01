@@ -275,5 +275,7 @@
 
     <include file="/config/liquibase/changelog/20251201002_update_filter_google.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251118001_add_adversary_view_menu.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

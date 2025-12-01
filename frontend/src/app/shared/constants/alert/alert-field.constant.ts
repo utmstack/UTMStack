@@ -1581,3 +1581,43 @@ export const ALERTS_CHILDREN_FIELDS: UtmFieldType[] = [
     visible: false,
   },
 ];
+
+export const ADVERSARY_FILTERS_FIELDS: UtmFieldType[] = [
+  {
+    label: 'Adversary',
+    field: ALERT_ADVERSARY_HOST_FIELD,
+    type: ElasticDataTypesEnum.STRING,
+    visible: true,
+  },
+  {
+    label: 'Alert Name',
+    field: ALERT_NAME_FIELD,
+    type: ElasticDataTypesEnum.STRING,
+    customStyle: 'text-blue-800',
+    visible: true,
+  },
+  {
+    label: 'Datasource Group',
+    field: ALERT_ASSETS_GROUP_NAME_FIELD,
+    type: ElasticDataTypesEnum.STRING,
+    visible: true,
+  },
+  {
+    label: 'Severity',
+    field: ALERT_SEVERITY_FIELD_LABEL,
+    type: ElasticDataTypesEnum.STRING,
+    visible: true,
+  },
+  {
+    label: 'Sensor',
+    field: ALERT_SENSOR_FIELD,
+    type: ElasticDataTypesEnum.STRING,
+    visible: true,
+  },
+  {
+    label: 'Adversary Domain',
+    field: ALERT_ADVERSARY_DOMAIN_FIELD,
+    type: ElasticDataTypesEnum.STRING,
+    visible: true,
+  }
+];
