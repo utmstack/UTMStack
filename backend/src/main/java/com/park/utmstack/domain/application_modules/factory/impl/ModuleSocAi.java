@@ -153,4 +153,9 @@ public class ModuleSocAi implements IModule {
                         !config.getConfKey().equals("utmstack.socai.custom.url"))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public ModuleName getName() {
+        return ModuleName.SOC_AI;
+    }
 }
