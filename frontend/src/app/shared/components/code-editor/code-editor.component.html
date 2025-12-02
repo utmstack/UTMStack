@@ -41,7 +41,8 @@
       class="editor-area"
       [options]="consoleOptions"
       [(ngModel)]="sqlQuery"
-      (ngModelChange)="resetMessages()">
+      (ngModelChange)="resetMessages()"
+      (onInit)="onEditorInit()">>
     </ngx-monaco-editor>
   </div>
 

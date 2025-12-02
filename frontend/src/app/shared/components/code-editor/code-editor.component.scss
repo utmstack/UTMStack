@@ -63,3 +63,7 @@
 ::ng-deep .monaco-editor {
   padding-top: 10px;
 }
+
+.monaco-editor .suggest-widget .codicon {
+  display: none !important;
+}
