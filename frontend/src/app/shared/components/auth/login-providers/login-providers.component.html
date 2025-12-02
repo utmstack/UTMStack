@@ -12,8 +12,8 @@
             [disabled]="!provider.active"
             (click)="loginWithProvider(provider)"
             type="button">
-      <i class="fa provider-icon" [ngClass]="getProviderIcon(provider.providerType)"></i>
-      <span class="provider-text">Login with {{ provider.name }}</span>
+      <i class="provider-icon" [ngClass]="getProviderIcon(provider.providerType)"></i>
+      <span class="provider-text">Login with {{ provider.providerType }}</span>
     </button>
   </div>
 </ng-container>
