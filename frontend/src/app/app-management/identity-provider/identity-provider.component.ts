@@ -82,7 +82,7 @@ export class IdentityProviderComponent implements OnInit {
 
       this.providerService.delete(provider.id).subscribe({
         next: () => {
-          this.toast.showSuccess('Provider deleted successfully');
+          this.toast.showSuccessProcess('Success', 'Provider deleted successfully');
           this.loadProviders();
         },
         error: () => {

@@ -1,8 +1,8 @@
+import {HttpClient} from "@angular/common/http";
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProviderType, UtmIdentityProvider } from '../../models/utm-identity-provider.model';
-import {validateMetadataUrl} from "../../validators/validator";
-import {HttpClient} from "@angular/common/http";
+import {validateMetadataUrl} from '../../validators/validator';
 
 @Component({
   selector: 'app-provider-form',
