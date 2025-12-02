@@ -1,4 +1,4 @@
-import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams, HttpResponse} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
@@ -30,6 +30,27 @@ export class ElasticDataService {
       filters
       , {observe: 'response'});
   }
+
+  searchBySqlQuery(sql: string, fetchSize: number, filters: any = {},
+                   page: number, size: number): Observable<HttpResponse<any>> {
+
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    const body = {
+      query: sql,
+      fetchSize: fetchSize,
+      filters: filters
+    };
+
+    return this.http.post<any>(
+      `${this.resourceUrl}search/sql`,
+      body,
+      { observe: 'response', params }
+    );
+  }
+
 
   exists(pattern: string, filters?: any): Observable<boolean> {
     const query = new QueryType();

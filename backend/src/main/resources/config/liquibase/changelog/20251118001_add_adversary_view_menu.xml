@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20251118001" author="Manuel">
+        <insert tableName="utm_menu">
+            <column name="id" value="316"/>
+            <column name="name" value="Adversary View"/>
+            <column name="url" value="/data/adversary/view"/>
+            <column name="parent_id" value="300"/>
+            <column name="type" value="1"/>
+            <column name="dashboard_id" valueNumeric="NULL"/>
+            <column name="position" value="3"/>
+            <column name="menu_active" valueBoolean="true"/>
+            <column name="menu_action" valueBoolean="true"/>
+            <column name="menu_icon" value="NULL"/>
+            <column name="module_name_short" value="NULL"/>
+        </insert>
+        <insert tableName="utm_menu_authority">
+            <column name="menu_id" value="316"/>
+            <column name="authority_name" value="ROLE_ADMIN"/>
+        </insert>
+        <insert tableName="utm_menu_authority">
+            <column name="menu_id" value="316"/>
+            <column name="authority_name" value="ROLE_USER"/>
+        </insert>
+    </changeSet>
+
+
+</databaseChangeLog>

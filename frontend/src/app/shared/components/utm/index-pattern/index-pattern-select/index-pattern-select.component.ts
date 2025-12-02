@@ -16,6 +16,7 @@ export class IndexPatternSelectComponent implements OnInit {
   @Input() patterRegex;
   @Output() indexPatternChange = new EventEmitter<UtmIndexPattern>();
   @Input() template: 'default' | 'log-explorer' = 'default';
+  @Output() indexPatternInitialized = new EventEmitter<string[]>();
   order: 'asc' | 'desc' = 'asc';
   @ViewChild('popover') popover: NgbPopover;
   indexPatternList = [];
@@ -67,6 +68,8 @@ export class IndexPatternSelectComponent implements OnInit {
   private onSuccess(data, headers, init) {
     this.patterns = data;
     this.indexPatternList = this.getListPatterns();
+    const indexPatternNames = this.indexPatternList.map(f => f.name);
+    this.indexPatternInitialized.emit(indexPatternNames);
     if (init) {
       this.pattern = this.patterns[0];
       this.indexPatternChange.emit(this.pattern);

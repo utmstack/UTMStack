@@ -1,41 +1,58 @@
 <div class="px-3 w-100 m-0 d-flex">
   <div style="border-left: 1px #dee2e6 solid" class="d-flex flex-grow-1 p-2 bg-white gap-2">
-    <div class="d-flex align-items-center justify-content-start">
-      <app-index-pattern-select
-        (indexPatternChange)="changeFields($event)"
-        [template]="'log-explorer'"
-        [pattern]="pattern">
-      </app-index-pattern-select>
-    </div>
-    <div class="d-flex search-container flex-grow-5 align-items-center gap-1">
-      <app-utm-search-input
-        (searchFor)="onSearchInAll($event)"
-        [placeholder]="'Search in ' + (pattern ? pattern.pattern : '...')"
-        class="w-100">
-      </app-utm-search-input>
-      <button (click)="getData()" class="btn btn-primary btn-refresh" [ngbTooltip]="'Refresh'">
-        <i class="icon-reload-alt"></i>
-      </button>
+    <div *ngIf="!isSqlMode" class="d-flex align-items-center gap-2">
+      <div class="d-flex align-items-center justify-content-start">
+        <app-index-pattern-select
+          (indexPatternChange)="changeFields($event)"
+          [template]="'log-explorer'"
+          [pattern]="pattern"
+          (indexPatternInitialized) ="indexPatternLoaded($event)">
+        </app-index-pattern-select>
+      </div>
+      <div class="d-flex search-container flex-grow-5 align-items-center gap-1">
+        <app-utm-search-input
+          (searchFor)="onSearchInAll($event)"
+          [placeholder]="'Search in ' + (pattern ? pattern.pattern : '...')"
+          class="w-100">
+        </app-utm-search-input>
+        <button (click)="getData()" class="btn btn-primary btn-refresh" [ngbTooltip]="'Refresh'">
+          <i class="icon-reload-alt"></i>
+        </button>
+      </div>
     </div>
     <div class="log-analyzer-actions d-flex flex-grow-1 justify-content-end gap-2">
-        <button (click)="saveQuery()" [ngbTooltip]="'Save query'" class="btn utm-button utm-button-primary">
+      <button
+        class="btn utm-button utm-button-primary"
+        (click)="toggleSqlMode()"
+      >
+        {{ isSqlMode ? 'Switch to Classic' : 'Try SQL' }}
+      </button>
+        <button (click)="saveQuery()" [ngbTooltip]="'Save query'" class="btn utm-button utm-button-primary" *ngIf="!isSqlMode">
           <i class="icon-floppy-disk"></i>&nbsp;Save
         </button>
-        <button (click)="loadQuery()" [ngbTooltip]="'Load query'" class="btn utm-button utm-button-primary">
+        <button (click)="loadQuery()" [ngbTooltip]="'Load query'" class="btn utm-button utm-button-primary" *ngIf="!isSqlMode">
           <i class="icon-zoomin3"></i>&nbsp;Load
         </button>
         <button (click)="exportToCsv()"
                 [disabled]="(fields && fields.length === 0) || !rows || csvExport"
-                class="btn utm-button utm-button-primary">
+                class="btn utm-button utm-button-primary" *ngIf="!isSqlMode">
           <i [ngClass]="csvExport ? 'icon-download10' : 'icon-table2'"></i>
           {{csvExport ? 'Generating...' : 'Export to CSV'}}
         </button>
     </div>
   </div>
 </div>
-
-
 <!--header-->
+<div class="px-3 w-100 h-50 m-0" *ngIf="isSqlMode">
+  <app-code-editor
+    (execute)="executeSqlQuery($event)"
+    (clearData)="onClearData()"
+    [queryError]="sqlError"
+    [customKeywords]="indexPatternNames.concat(fieldsNames)"
+  >
+  </app-code-editor>
+</div>
+
 <app-utm-elastic-filter (filterChange)="onFilterChange($event)"
                         (onSaveQuery)="saveQuery()"
                         [filters]="filters"

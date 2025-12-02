@@ -50,7 +50,7 @@ export class LogAnalyzerFieldComponent implements OnInit, OnDestroy {
         this.pageStart = 0;
         this.pageEnd = 100;
         this.pattern = dataChange.pattern.pattern;
-        this.loadFields()
+        this.loadFields();
       });
 
     this.indexFieldController.$field.subscribe(async (field) => {

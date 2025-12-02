@@ -5,6 +5,7 @@ import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.domain.shared_types.CsvExportingParams;
 import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.service.dto.elastic.SqlSearchDto;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
 import com.park.utmstack.service.elasticsearch.processor.SearchProcessorRegistry;
 import com.park.utmstack.service.elasticsearch.processor.SearchResultProcessor;
@@ -13,10 +14,13 @@ import com.park.utmstack.util.UtilPagination;
 import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.chart_builder.IndexPropertyType;
 import com.park.utmstack.util.chart_builder.IndexType;
+import com.park.utmstack.util.elastic.SqlPaginationUtil;
 import com.park.utmstack.util.exceptions.OpenSearchIndexNotFoundException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import com.utmstack.opensearch_connector.types.ElasticCluster;
+import com.utmstack.opensearch_connector.types.SearchSqlResponse;
+import com.utmstack.opensearch_connector.types.SqlQueryRequest;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.client.opensearch.cat.indices.IndicesRecord;
 import org.opensearch.client.opensearch.core.SearchResponse;
@@ -202,6 +206,40 @@ public class ElasticsearchResource {
             UtilCsv.prepareToDownload(response, params.getColumns(), hits);
 
             return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+        }
+    }
+
+    @PostMapping("/search/sql")
+    public ResponseEntity<List<Map>> searchBySql(@RequestBody @Valid SqlSearchDto request,
+                                                                     Pageable pageable) {
+        final String ctx = CLASSNAME + ".searchBySql";
+        try {
+            String sanitizedQuery = request.getQuery()
+                    .trim()
+                    .replaceAll(";+$", "")
+                    .trim();
+
+            String sqlQuery = SqlPaginationUtil.applyPagination(sanitizedQuery, pageable);
+
+            SearchSqlResponse<Map> response = elasticsearchService
+                    .searchBySql(new SqlQueryRequest(sqlQuery, null), Map.class);
+
+            String countQuery = "SELECT COUNT(*) FROM (" + sanitizedQuery + ") AS total_count";
+            SearchSqlResponse<Map> countResponse = elasticsearchService
+                    .searchBySql(new SqlQueryRequest(countQuery, null), Map.class);
+
+            String countString = countResponse.getData().get(0).get("COUNT(*)").toString();
+            int totalElements = (int) Double.parseDouble(countString);
+
+            HttpHeaders headers = UtilPagination.generatePaginationHttpHeaders((long) Math.min(totalElements, 10000),
+                    pageable.getPageNumber(), pageable.getPageSize(), "/api/elasticsearch/search");
+
+            return ResponseEntity.ok().headers(headers).body(response.getData());
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
