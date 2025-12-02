@@ -6,34 +6,34 @@ import {ResizeEvent} from 'angular-resizable-element';
 import * as moment from 'moment';
 import {Observable, Subject} from 'rxjs';
 import {filter, takeUntil} from 'rxjs/operators';
-import {UtmToastService} from '../../../shared/alert/utm-toast.service';
-import {
-  ElasticFilterDefaultTime
-} from '../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
-import {
-  UtmFilterBehavior
-} from '../../../shared/components/utm/filters/utm-elastic-filter/shared/behavior/utm-filter.behavior';
-import {
-  UtmTableDetailComponent
-} from '../../../shared/components/utm/table/utm-table/utm-table-detail/utm-table-detail.component';
+
 import {ADMIN_ROLE} from '../../../shared/constants/global.constant';
-import {LOG_ANALYZER_TOTAL_ITEMS} from '../../../shared/constants/log-analyzer.constant';
+import {ALERT_INDEX_PATTERN, LOG_INDEX_PATTERN} from '../../../shared/constants/main-index-pattern.constant';
 import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
+import {LOG_ANALYZER_TOTAL_ITEMS} from '../../../shared/constants/log-analyzer.constant';
+
 import {ElasticDataTypesEnum} from '../../../shared/enums/elastic-data-types.enum';
 import {ElasticOperatorsEnum} from '../../../shared/enums/elastic-operators.enum';
 import {DataNatureTypeEnum, NatureDataPrefixEnum} from '../../../shared/enums/nature-data.enum';
 import {ElasticDataExportService} from '../../../shared/services/elasticsearch/elastic-data-export.service';
 import {ElasticDataService} from '../../../shared/services/elasticsearch/elastic-data.service';
+import {LocalFieldService} from '../../../shared/services/elasticsearch/local-field.service';
 import {TimezoneFormatService} from '../../../shared/services/utm-timezone.service';
+
+import {UtmToastService} from '../../../shared/alert/utm-toast.service';
+
+import {ElasticFilterDefaultTime} from '../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
+import {UtmFilterBehavior} from '../../../shared/components/utm/filters/utm-elastic-filter/shared/behavior/utm-filter.behavior';
+import {UtmTableDetailComponent} from '../../../shared/components/utm/table/utm-table/utm-table-detail/utm-table-detail.component';
+
 import {DatePipeDefaultOptions} from '../../../shared/types/date-pipe-default-options';
 import {ElasticSearchFieldInfoType} from '../../../shared/types/elasticsearch/elastic-search-field-info.type';
 import {ElasticFilterType} from '../../../shared/types/filter/elastic-filter.type';
 import {UtmIndexPattern} from '../../../shared/types/index-pattern/utm-index-pattern';
 import {UtmFieldType} from '../../../shared/types/table/utm-field.type';
 import {parseQueryParamsToFilter} from '../../../shared/util/query-params-to-filter.util';
-import {
-  LogAnalyzerQueryCreateComponent
-} from '../../queries/log-analyzer-query-create/log-analyzer-query-create.component';
+
+import {LogAnalyzerQueryCreateComponent} from '../../queries/log-analyzer-query-create/log-analyzer-query-create.component';
 import {IndexFieldController} from '../../shared/behaviors/index-field-controller.behavior';
 import {IndexPatternBehavior} from '../../shared/behaviors/index-pattern.behavior';
 import {LogFilterBehavior} from '../../shared/behaviors/log-filter.behavior';
@@ -62,6 +62,8 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
     value: ['now-24h', 'now']
   }];
   selectedFields: ElasticSearchFieldInfoType[] = [{name: '@timestamp', type: ElasticDataTypesEnum.DATE}];
+  fieldsNames: string[] = [];
+  indexPatternNames: string[] = [];
   dataNature: string = DataNatureTypeEnum.EVENT;
   queryParams: any;
   counter: any;
@@ -84,6 +86,9 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   destroy$ = new Subject<void>();
   filterWidth: number;
   tableWidth: number;
+  isSqlMode = false;
+  sqlQuery = '';
+  sqlError: string | null = null;
 
   constructor(private indexPatternBehavior: IndexPatternBehavior,
               private logAnalyzerService: ElasticDataService,
@@ -96,7 +101,8 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
               private elasticDataExportService: ElasticDataExportService,
               private timezoneFormatService: TimezoneFormatService,
               private logFilterBehavior: LogFilterBehavior,
-              private router: Router) {
+              private router: Router,
+              private localFieldService: LocalFieldService) {
 
     this.detailWidth = (this.pageWidth - 310);
   }
@@ -120,6 +126,7 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
 
       });
     this.dateFormat$ = this.timezoneFormatService.getDateFormatSubject();
+    this.loadFieldNames();
     this.initExplorer();
   }
 
@@ -203,13 +210,21 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
 
   onPageChange($event: number) {
     this.page = $event;
-    this.getData();
+    if (this.isSqlMode) {
+      this.getDataBySqlQuery();
+    } else {
+      this.getData();
+    }
   }
 
   onSizeChange($event: number) {
     this.itemsPerPage = $event;
     this.page = 1;
-    this.getData();
+    if (this.isSqlMode) {
+      this.getDataBySqlQuery();
+    } else {
+      this.getData();
+    }
   }
 
   onColumnChange($event: ElasticSearchFieldInfoType[]) {
@@ -264,6 +279,47 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
       this.utmToastService.showInfo('Processing', 'Query still running,please wait to finish');
     }
   }
+
+  getDataBySqlQuery() {
+    const dateStart = new Date();
+    this.sqlError = null;
+
+    if (!this.runningQuery) {
+      this.runningQuery = true;
+
+      this.loading = true;
+      this.logAnalyzerService.searchBySqlQuery(
+        this.sqlQuery,
+        10000,
+        this.filters,
+        this.page,
+        this.itemsPerPage
+      ).subscribe(
+        (res: HttpResponse<any>) => {
+          this.counter = moment(new Date()).diff(dateStart, 'seconds', true);
+          this.totalItems = Number(res.headers.get('X-Total-Count'));
+          this.rows = res.body;
+          this.loading = false;
+          this.error = false;
+          this.runningQuery = false;
+          this.queryRunBehavior.$runQueryFinished.next(true);
+        },
+        (res: HttpResponse<any>) => {
+          this.counter = moment(new Date()).diff(dateStart, 'seconds', true);
+          this.loading = false;
+          this.runningQuery = false;
+          if (res.status !== 500) {
+            this.sqlError = res.headers.get('X-UtmStack-error');
+          }
+          this.error = true;
+          this.rows = [];
+        }
+      );
+    } else {
+      this.utmToastService.showInfo('Processing', 'Query still running, please wait to finish');
+    }
+  }
+
 
   onSortBy($event: string) {
     this.sortBy = $event;
@@ -389,11 +445,42 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
     this.router.navigate(['/discover/log-analyzer-queries']);
   }
 
+  toggleSqlMode() {
+    if (this.filters.length > 0 && this.filters[0].field === '@timestamp') {
+      this.filters = [this.filters[0]];
+    } else {
+      this.filters = [];
+    }
+    this.rows = [];
+    this.sqlQuery = '';
+    this.isSqlMode = !this.isSqlMode;
+  }
+
+  onClearData() {
+    this.rows = [];
+  }
+
+  executeSqlQuery($event) {
+    this.sqlQuery = $event;
+    this.getDataBySqlQuery();
+  }
+
   ngOnDestroy(): void {
     this.filters = [];
     this.utmFilterBehavior.$filterChange.next(null);
     this.utmFilterBehavior.$filterExistChange.next(null);
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  loadFieldNames() {
+    this.fieldsNames = [
+      ...this.localFieldService.getPatternStoredFields(ALERT_INDEX_PATTERN).map(f => f.name),
+      ...this.localFieldService.getPatternStoredFields(LOG_INDEX_PATTERN).map(f => f.name)
+    ];
+  }
+
+  indexPatternLoaded(indexPatternNames: string[]) {
+    this.indexPatternNames = indexPatternNames;
   }
 }

@@ -11,6 +11,7 @@ import { NgxEchartsModule } from 'ngx-echarts';
 import {NgxFlagIconCssModule} from 'ngx-flag-icon-css';
 import {InfiniteScrollModule} from 'ngx-infinite-scroll';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
+import {MonacoEditorModule} from 'ngx-monaco-editor';
 import {NgxSortableModule} from 'ngx-sortable-2';
 import {LocalStorageService} from 'ngx-webstorage';
 import {AssetsGroupAddModule} from '../assets-discover/shared/components/asset-group-add/assets-group-add.module';
@@ -30,6 +31,7 @@ import {PasswordResetInitComponent} from './components/auth/password-reset/init/
 import {PasswordStrengthBarComponent} from './components/auth/password-strength/password-strength-bar.component';
 import { TfaSetupComponent } from './components/auth/tfa-setup/tfa-setup.component';
 import {TotpComponent} from './components/auth/totp/totp.component';
+import {CodeEditorComponent} from './components/code-editor/code-editor.component';
 import {ContactUsComponent} from './components/contact-us/contact-us.component';
 import {
   EmailSettingNotificactionComponent
@@ -262,7 +264,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     AssetsGroupAddModule,
     InfiniteScrollModule,
     NgxEchartsModule,
-    ResizableModule
+    ResizableModule,
+    MonacoEditorModule.forRoot()
   ],
   declarations: [
     ElasticFilterComponent,
@@ -404,7 +407,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     UtmTfaConfCheckComponent,
     UtmTfaVerificationComponent,
     TfaSetupComponent,
-    ResizableFilterContainerComponent
+    ResizableFilterContainerComponent,
+    CodeEditorComponent
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -512,7 +516,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     UtmInstanceInfoComponent,
     UtmCpCronEditorComponent,
     RelativeTimePipe,
-    ResizableFilterContainerComponent
+    ResizableFilterContainerComponent,
+    CodeEditorComponent
   ],
   entryComponents: [
     LoginComponent,

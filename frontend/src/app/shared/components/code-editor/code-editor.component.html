@@ -1,0 +1,54 @@
+<div #editorContainer class="editor-container">
+  <div class="editor-header pr-2">
+    <div class="header-title">
+      <i class="icon-database"></i>
+      <span>SQL Console</span>
+    </div>
+    <div class="header-actions">
+      <button
+        class="btn utm-button utm-button-primary"
+        ngbTooltip="Execute Query" tooltipClass="utm-tooltip-top"
+        (click)="executeQuery()"
+        [disabled]="!sqlQuery.trim()"
+      >
+        <i [ngClass]="'icon-play4'"></i>
+      </button>
+      <button class="btn utm-button utm-button-primary"
+              ngbTooltip="Format SQL" tooltipClass="utm-tooltip-top"
+              (click)="formatQuery()"
+              [disabled]="!sqlQuery.trim()"
+      >
+        <i class="fa fa-indent"></i>
+      </button>
+      <button class="btn utm-button utm-button-primary"
+              ngbTooltip="Copy Query" tooltipClass="utm-tooltip-top"
+              (click)="copyQuery()"
+              [disabled]="!sqlQuery.trim()"
+      >
+        <i class="icon-copy3"></i>
+      </button>
+      <button class="btn utm-button utm-button-primary"
+              ngbTooltip="Clear" tooltipClass="utm-tooltip-top"
+              (click)="clearQuery()"
+              [disabled]="!sqlQuery.trim()">
+        <i class="icon-trash"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="editor-section">
+    <ngx-monaco-editor
+      class="editor-area"
+      [options]="consoleOptions"
+      [(ngModel)]="sqlQuery"
+      (ngModelChange)="resetMessages()"
+      (onInit)="onEditorInit()">>
+    </ngx-monaco-editor>
+  </div>
+
+  <div class="execution-info" *ngIf="successMessage || errorMessage">
+    <div [ngClass]="errorMessage ? 'text-danger-800' : 'text-green-800'">
+      <span>{{ errorMessage || successMessage }}</span>
+    </div>
+  </div>
+</div>
