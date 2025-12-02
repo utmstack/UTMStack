@@ -17,6 +17,12 @@ const routes: Routes = [
     loadChildren: './file-management/file-management.module#FileManagementModule',
     canActivate: [UserRouteAccessService, ActiveModuleRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE], module: UtmModulesEnum.FILE_INTEGRITY}
+  },
+  {
+    path: 'adversary',
+    loadChildren: './adversary-management/adversary-management.module#AdversaryManagementModule',
+    canActivate: [UserRouteAccessService],
+    data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   }
 
 ];

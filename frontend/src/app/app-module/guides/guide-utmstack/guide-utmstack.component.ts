@@ -82,7 +82,7 @@ export class GuideUtmstackComponent implements OnInit {
             mkdir -p /opt/utmstack-collector && \
             wget --no-check-certificate -P /opt/utmstack-collector \
             https://${ip}:9001/private/dependencies/collector/${installerName} && \
-            chmod -R 777 /opt/utmstack-collector/${installerName} && \
+            chmod -R 755 /opt/utmstack-collector/${installerName} && \
             /opt/utmstack-collector/${installerName} install ${ip} <secret>${this.token}</secret>' yes'`;
   }
 
@@ -95,7 +95,7 @@ export class GuideUtmstackComponent implements OnInit {
             mkdir -p /opt/utmstack-collector && \
             wget --no-check-certificate -P /opt/utmstack-collector \
             https://${ip}:9001/private/dependencies/collector/${installerName} && \
-            chmod -R 777 /opt/utmstack-collector/${installerName} && \
+            chmod -R 755 /opt/utmstack-collector/${installerName} && \
             /opt/utmstack-collector/${installerName} install ${ip} <secret>${this.token}</secret> yes"`;
   }
 

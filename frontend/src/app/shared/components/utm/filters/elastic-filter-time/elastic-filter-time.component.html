@@ -52,10 +52,10 @@
         <input style="width: 60px" [(ngModel)]="lastTime" class="form-control last-time cursor-pointer" [max]="maxTimeValue()" min="1" type="number">
       </div>
 
-      <ng-select [(ngModel)]="timeUnit" [clearable]="true"
+      <ng-select [(ngModel)]="timeUnit"
+                 [clearable]="false"
                  [items]="times"
                  [searchable]="false"
-                 autofocus
                  bindLabel="label"
                  class="mr-2 w-100">
       </ng-select>
@@ -85,7 +85,7 @@
     </div>
   </div>
   <div class="mt-2">
-  <span (click)="isCollapsed = !isCollapsed" class="font-weight-semibold p-2 cursor-pointer">
+  <span (click)="onCustomRange()" class="font-weight-semibold p-2 cursor-pointer">
     <i [ngClass]="isCollapsed?'icon-arrow-up32':'icon-arrow-right32'"></i>
         Custom range
   </span>

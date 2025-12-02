@@ -140,6 +140,7 @@ public final class Constants {
     // ----------------------------------------------------------------------------------
     public static final String STATISTICS_INDEX_PATTERN = "v11-statistics-*";
     public static final String V11_API_ACCESS_LOGS = "v11-api-access-logs-*";
+    public static final String V11_ALERTS_INDEX_PATTERN = "v11-alert-*";
 
     // Logging
     public static final String TRACE_ID_KEY = "traceId";
@@ -161,6 +162,9 @@ public final class Constants {
 
     public static final String API_KEY_HEADER = "Utm-Api-Key";
     public static final List<String> API_ENDPOINT_IGNORE = Collections.emptyList();
+
+    // Application version file
+    public static final String APP_VERSION_FILE = "/updates/version.json";
 
     private Constants() {
     }

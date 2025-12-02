@@ -1,7 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
-import {Step} from '../shared/step';
-import {MAC_STEPS} from './mac.steps';
 import {
   FederationConnectionService
 } from "../../../app-management/connection-key/shared/services/federation-connection.service";
@@ -18,7 +16,6 @@ export class GuideMacosAgentComponent implements OnInit {
   module = UtmModulesEnum;
   @Input() serverId: number;
 
-  steps: Step[] = MAC_STEPS;
   architectures = [];
   token: string;
   constructor(private federationConnectionService: FederationConnectionService,) { }
@@ -51,6 +48,10 @@ export class GuideMacosAgentComponent implements OnInit {
     return `sudo bash -c "/opt/utmstack/${installerName}; launchctl bootout system /Library/LaunchDaemons/UTMStackAgent.plist 2>/dev/null; rm /Library/LaunchDaemons/UTMStackAgent.plist; rm -rf /opt/utmstack"`;
   }
 
+  getDownloadUrl(): string {
+    const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
+    return `https://${ip}:9001/private/dependencies/agent/utmstack-macos-agent.pkg`;
+  }
 
   private loadArchitectures() {
     this.architectures = [

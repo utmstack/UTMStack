@@ -5,6 +5,7 @@ import {RouterModule} from '@angular/router';
 import {NgbActiveModal, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {TranslateModule} from '@ngx-translate/core';
+import {ResizableModule} from 'angular-resizable-element';
 import {InlineSVGModule} from 'ng-inline-svg';
 import { NgxEchartsModule } from 'ngx-echarts';
 import {NgxFlagIconCssModule} from 'ngx-flag-icon-css';
@@ -98,6 +99,7 @@ import {
 import {UtmNotificationComponent} from './components/layout/header/utm-header-notification/utm-notification.component';
 import {SidebarComponent} from './components/layout/sidebar/sidebar.component';
 import {NotFoundComponent} from './components/not-found/not-found.component';
+import { ResizableFilterContainerComponent } from './components/resizable-filter-container/resizable-filter-container.component';
 import { SelectableListComponent } from './components/selectable-list/selectable-list.component';
 import {UtmCpCronEditorComponent} from './components/utm-cp-cron-editor/utm-cp-cron-editor.component';
 import {
@@ -242,6 +244,8 @@ import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {TimePeriodPipe} from './pipes/time-period.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
+
+
 @NgModule({
   imports: [
     InlineSVGModule,
@@ -260,6 +264,7 @@ import {UtmNotifier} from './websocket/utm-notifier';
     AssetsGroupAddModule,
     InfiniteScrollModule,
     NgxEchartsModule,
+    ResizableModule,
     MonacoEditorModule.forRoot()
   ],
   declarations: [
@@ -402,6 +407,7 @@ import {UtmNotifier} from './websocket/utm-notifier';
     UtmTfaConfCheckComponent,
     UtmTfaVerificationComponent,
     TfaSetupComponent,
+    ResizableFilterContainerComponent,
     CodeEditorComponent
   ],
   exports: [
@@ -510,6 +516,7 @@ import {UtmNotifier} from './websocket/utm-notifier';
     UtmInstanceInfoComponent,
     UtmCpCronEditorComponent,
     RelativeTimePipe,
+    ResizableFilterContainerComponent,
     CodeEditorComponent
   ],
   entryComponents: [

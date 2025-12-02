@@ -7,6 +7,7 @@ import com.park.utmstack.domain.application_modules.factory.IModule;
 import com.park.utmstack.domain.application_modules.types.ModuleConfigurationKey;
 import com.park.utmstack.domain.application_modules.types.ModuleRequirement;
 import com.park.utmstack.domain.application_modules.validators.UtmModuleConfigValidator;
+import com.park.utmstack.repository.UtmModuleGroupConfigurationRepository;
 import com.park.utmstack.service.application_modules.UtmModuleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ public class ModuleSocAi implements IModule {
 
     private final UtmModuleService moduleService;
     private final UtmModuleConfigValidator utmStackConfigValidator;
+    private final UtmModuleGroupConfigurationRepository moduleGroupConfigurationRepository;
 
     @Override
     public UtmModule getDetails(Long serverId) throws Exception {
@@ -102,8 +104,49 @@ public class ModuleSocAi implements IModule {
         return keys;
     }
 
-    public boolean validateConfiguration(UtmModule module, List<UtmModuleGroupConfiguration> configuration) throws Exception {
-        return utmStackConfigValidator.validate(module, configuration);
+    public boolean validateConfiguration(UtmModule module, List<UtmModuleGroupConfiguration> configuration) {
+
+        if(configuration == null || configuration.isEmpty()) {
+            throw  new IllegalArgumentException("Configurations cannot be null or empty");
+        }
+
+        Long groupId = configuration.get(0).getGroupId();
+
+        List<UtmModuleGroupConfiguration> dbConfigs = moduleGroupConfigurationRepository
+                .findAllByGroupId(groupId);
+
+        UtmModuleGroupConfiguration providerConfig = configuration.stream()
+                .filter(c -> "utmstack.socai.provider".equals(c.getConfKey()))
+                .findFirst()
+                .orElseGet(() -> dbConfigs.stream()
+                        .filter(c -> "utmstack.socai.provider".equals(c.getConfKey()))
+                        .findFirst()
+                        .orElse(null));
+
+        List<UtmModuleGroupConfiguration> configs = dbConfigs.stream()
+                .filter(c -> !"utmstack.socai.provider".equals(c.getConfKey()))
+                .toList();
+
+        List<UtmModuleGroupConfiguration> filteredConfigs = providerConfig != null && "custom".equals(providerConfig.getConfValue())
+                ? filterCustomConfigs(configs)
+                : filterStandardConfigs(configs);
+
+        filteredConfigs.add(providerConfig);
+
+        return utmStackConfigValidator.validate(module, configuration, filteredConfigs);
+    }
+
+    private List<UtmModuleGroupConfiguration> filterCustomConfigs(List<UtmModuleGroupConfiguration> configs) {
+        return configs.stream()
+                .filter(config -> !config.getConfKey().equals("utmstack.socai.model"))
+                .collect(Collectors.toList());
+    }
+
+    private List<UtmModuleGroupConfiguration> filterStandardConfigs(List<UtmModuleGroupConfiguration> configs) {
+        return configs.stream()
+                .filter(config -> !config.getConfKey().equals("utmstack.socai.custom.model") &&
+                        !config.getConfKey().equals("utmstack.socai.custom.url"))
+                .collect(Collectors.toList());
     }
 
     @Override

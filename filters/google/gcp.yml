@@ -1,4 +1,4 @@
-# GCP filter, version 2.1.0
+# GCP filter, version 2.1.1
 # 
 # Documentations
 # 1- https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry
@@ -163,17 +163,6 @@ pipeline:
             - log.jsonPayload.sourceIP
           to: origin.ip
 
-      # Expand jsonPayload.structuredRdata
-      - expand:
-          source: log.jsonPayload.structuredRdata
-          to: log.jsonPayloadStructuredRdata
-          where: exists("log.jsonPayload.structuredRdata")
-
-      # Parsing log.jsonPayloadStructuredRdata
-      - json:
-          source: log.jsonPayloadStructuredRdata
-          where: exists("log.jsonPayloadStructuredRdata")
-            
       - rename:
           from:
             - log.class
