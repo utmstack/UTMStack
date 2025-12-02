@@ -325,11 +325,6 @@
     cursor: not-allowed;
     transform: none;
   }
-
-  .spinner {
-    animation: spin 1s linear infinite;
-    margin-right: 8px;
-  }
 }
 
 @keyframes spin {
@@ -421,6 +416,7 @@
   display: inline-block;
   width: 16px;
   height: 16px;
+  border: 0!important;
 }
 
 // Focus visible para accesibilidad
