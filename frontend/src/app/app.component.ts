@@ -1,7 +1,7 @@
-import {Component, ElementRef, HostListener, OnInit, Renderer2} from '@angular/core';
+import {Component, HostListener, OnInit, Renderer2} from '@angular/core';
 import {Router} from '@angular/router';
 import {TranslateService} from '@ngx-translate/core';
-import {delay, distinctUntilChanged, filter, tap} from 'rxjs/operators';
+import {delay, distinctUntilChanged, filter, takeUntil, tap} from 'rxjs/operators';
 import {AccountService} from './core/auth/account.service';
 import {ApiServiceCheckerService} from './core/auth/api-checker-service';
 import {MenuBehavior} from './shared/behaviors/menu.behavior';
@@ -24,6 +24,7 @@ export class AppComponent implements OnInit {
   online = false;
   iframeView = false;
   favIcon: HTMLLinkElement;
+  appLoading: HTMLElement;
   hideStatus = false;
   isAuth = false;
   viewportHeight: number;
@@ -65,6 +66,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.favIcon = document.querySelector('#appFavicon');
+    this.appLoading = document.getElementById('app-loading');
     this.viewportHeight = window.innerHeight;
     this.init();
 
@@ -74,26 +76,17 @@ export class AppComponent implements OnInit {
       }
     });
 
-    this.apiServiceCheckerService.isOnlineApi$
-      .pipe(
-        filter(isOnline => isOnline),
-        tap(() => {
-          if (this.offline) {
-            this.init();
-          }
-          this.online = true;
-          console.log('status', this.online);
-        }),
-        delay(1000)
-      )
-      .subscribe(() => {
-        this.offline = false;
-        this.online = false;
-      });
-
     this.accountService.getAuthenticationState()
       .pipe(distinctUntilChanged((prev, next) =>  prev && next && prev.id === next.id))
-      .subscribe(identity => this.isAuth = !!identity);
+      .subscribe(identity => {
+        this.isAuth = !!identity;
+        if (this.isAuth) {
+          const appBg = document.getElementById('app-background');
+          appBg.style.display = 'none';
+        }
+      });
+
+    this.appLoading.style.display = 'none';
   }
 
   @HostListener('window', ['$event'])

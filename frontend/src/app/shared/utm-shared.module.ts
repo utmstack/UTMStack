@@ -25,6 +25,7 @@ import {MenuBehavior} from './behaviors/menu.behavior';
 import {VersionUpdateBehavior} from './behaviors/version-update.behavior';
 import {AppFilterComponent} from './components/app-filter/app-filter.component';
 import {ConfirmIdentityComponent} from './components/auth/confirm-identity/confirm-identity.component';
+import { LoginProvidersComponent } from './components/auth/login-providers/login-providers.component';
 import {LoginComponent} from './components/auth/login/login.component';
 import {PasswordResetFinishComponent} from './components/auth/password-reset/finish/password-reset-finish.component';
 import {PasswordResetInitComponent} from './components/auth/password-reset/init/password-reset-init.component';
@@ -244,8 +245,6 @@ import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {TimePeriodPipe} from './pipes/time-period.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
-import { NgxEchartsModule } from 'ngx-echarts';
-import { LoginProvidersComponent } from './components/auth/login-providers/login-providers.component';
 
 
 @NgModule({

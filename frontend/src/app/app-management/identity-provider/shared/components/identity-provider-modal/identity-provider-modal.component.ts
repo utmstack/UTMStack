@@ -43,7 +43,8 @@ export class IdentityProviderModalComponent implements OnInit {
     const formValue = this.providerFormComponent.providerForm.value;
 
     const request = this.editMode && this.provider.id
-      ? this.providerService.update(this.provider.id, formValue, this.providerFormComponent.privateKeyFile, this.providerFormComponent.certificateFile)
+      ? this.providerService.update(this.provider.id, formValue,
+        this.providerFormComponent.privateKeyFile, this.providerFormComponent.certificateFile)
       : this.providerService.create(formValue, this.providerFormComponent.privateKeyFile, this.providerFormComponent.certificateFile);
 
     request.subscribe({

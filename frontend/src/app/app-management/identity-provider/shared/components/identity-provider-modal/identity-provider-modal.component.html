@@ -8,13 +8,9 @@
   <app-provider-form
     #providerForm
     [provider]="selectedProvider"
+    [providers]="providers"
     [loading]="loading"
-    [testingConnection]="testingConnection"
-    (save)="saveProvider($event)"
-    (test)="testConnection()"
-    (cancel)="closeModal()"
-    (privateCertificateFileChange)="onChangePrivateCertificateFile($event)"
-  >
+    [testingConnection]="testingConnection">
   </app-provider-form>
 </div>
 

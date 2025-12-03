@@ -48,6 +48,8 @@ export class UtmIdentityProviderService {
     const formData = new FormData();
 
     formData.append('name', data.name);
+    formData.append('spEntityId', data.spEntityId);
+    formData.append('spAcsUrl', data.spAcsUrl);
     formData.append('providerType', data.providerType);
     formData.append('metadataUrl', data.metadataUrl);
     formData.append('active', data.active.toString());

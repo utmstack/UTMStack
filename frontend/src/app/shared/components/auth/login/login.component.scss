@@ -44,7 +44,6 @@
 .login-pic {
   width: 100px;
   text-align: center;
-  padding: 20px 0;
 }
 
 .login-pic img {
@@ -242,8 +241,8 @@
   border-radius: 8px;
   border: 1px solid #ddd;
   box-shadow: none;
-  padding: 12px 40px 12px 33px;
-  height: 48px;
+  padding: 12px 40px 12px 40px;
+  height: 48px !important;
   font-size: 14px;
   transition: all 0.3s ease;
 
@@ -325,11 +324,6 @@
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
-  }
-
-  .spinner {
-    animation: spin 1s linear infinite;
-    margin-right: 8px;
   }
 }
 
@@ -422,6 +416,7 @@
   display: inline-block;
   width: 16px;
   height: 16px;
+  border: 0!important;
 }
 
 // Focus visible para accesibilidad

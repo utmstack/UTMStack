@@ -30,4 +30,19 @@ export class ProviderComponent {
       active: !provider.active
     });
   }
+
+  copyToClipboard(label: string, value: string): void {
+    if (!value) {
+      return;
+    }
+
+    (navigator as any).clipboard.writeText(value).then(
+      () => {
+        console.log(`${label} copied to clipboard`);
+      },
+      (err) => {
+        console.error('Error copying to clipboard:', err);
+      }
+    );
+  }
 }

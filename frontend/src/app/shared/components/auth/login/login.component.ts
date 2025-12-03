@@ -71,7 +71,6 @@ export class LoginComponent implements OnInit, OnDestroy {
         if (params) {
           this.activatedRoute.queryParams.subscribe(params => {
             if (params.token) {
-                this.loadingLogin = false;
                 this.loginService.loginWithToken(params.token, true).then(() => {
                 this.loadingLogin = false;
                 this.isInternalNavigation = true;

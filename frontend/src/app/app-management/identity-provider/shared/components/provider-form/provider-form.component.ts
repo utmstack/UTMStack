@@ -1,8 +1,8 @@
+import {HttpClient} from "@angular/common/http";
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProviderType, UtmIdentityProvider } from '../../models/utm-identity-provider.model';
-import {validateMetadataUrl} from "../../validators/validator";
-import {HttpClient} from "@angular/common/http";
+import {validateMetadataUrl} from '../../validators/validator';
 
 @Component({
   selector: 'app-provider-form',
@@ -42,7 +42,6 @@ export class ProviderFormComponent implements OnInit {
         label: value.charAt(0) + value.slice(1).toLowerCase(),
         value
       }));
-    this.generateSpIdentifiers();
     this.initForm();
 
     if (this.editMode && this.provider) {
@@ -50,6 +49,11 @@ export class ProviderFormComponent implements OnInit {
       this.providerForm.patchValue(providerData);
       this.makePrivateKeyOptional();
     }
+    this.generateSpIdentifiers();
+
+    this.providerForm.get('providerType').valueChanges.subscribe(() => {
+      this.generateSpIdentifiers();
+    });
   }
 
   initForm(): void {
@@ -57,7 +61,9 @@ export class ProviderFormComponent implements OnInit {
       name: ['', [Validators.required, Validators.minLength(3)]],
       providerType: [ProviderType.GOOGLE, Validators.required],
       metadataUrl: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)], [validateMetadataUrl(this.http)]],
-      active: [true]
+      active: [true],
+      spEntityId: [''],
+      spAcsUrl: ['']
     });
   }
 
@@ -67,8 +73,14 @@ export class ProviderFormComponent implements OnInit {
 
   private generateSpIdentifiers(): void {
     const origin = window.location.origin;
+    const provider = this.providerForm.get('providerType') ? this.providerForm.get('providerType').value : ProviderType.GOOGLE;
     this.spEntityId = `${origin}/saml/sp`;
-    this.spAcsUrl = `${origin}/login/saml2/sso`;
+    this.spAcsUrl = `${origin}/login/saml2/sso/${provider.toLowerCase()}`;
+
+    this.providerForm.patchValue({
+      spEntityId: this.spEntityId,
+      spAcsUrl: this.spAcsUrl
+    });
   }
 
   onPrivateKeySelected(event: Event): void {

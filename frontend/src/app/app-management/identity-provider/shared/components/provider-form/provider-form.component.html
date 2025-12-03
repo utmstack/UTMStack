@@ -25,7 +25,27 @@
       <div class="col-md-6">
         <div class="form-group">
           <label class="form-label required">Provider Type</label>
+          <div *ngIf="editMode" class="form-control-static">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text">
+                  <i class="icon-shield2 text-primary"></i>
+                </span>
+              </div>
+              <input
+                type="text"
+                class="form-control bg-white"
+                [value]="providerForm.get('providerType')?.value | titlecase"
+                readonly
+                style="cursor: not-allowed; opacity: 0.9;">
+            </div>
+            <small class="form-text text-muted d-block mt-2">
+              Provider type cannot be changed after creation
+            </small>
+
+          </div>
           <ng-select
+            *ngIf="!editMode"
             class="flex-item"
             formControlName="providerType"
             [items]="providerTypes"
@@ -33,21 +53,18 @@
             bindLabel="label"
             bindValue="value"
             [searchable]="false"
-            [clearable]="false"
-            [disabled]="true">
+            [clearable]="false">
           </ng-select>
-          <small class="form-text text-muted d-block mt-2">
-            SAML 2.0 is the only supported protocol
-          </small>
         </div>
       </div>
+
     </div>
   </div>
 
   <!-- SAML Metadata URL -->
   <div class="form-section">
     <h5 class="section-title">
-      <i class="icon-shield"></i>
+      <i class="icon-shield2"></i>
       SAML 2.0 Metadata
     </h5>
 
@@ -199,7 +216,7 @@
   <!-- Service Provider Configuration Guide -->
   <div class="form-section">
     <h5 class="section-title">
-      <i class="icon-settings"></i>
+      <i class="icon-cog2"></i>
       Service Provider Configuration (Setup in Your IdP)
     </h5>
 
@@ -270,6 +287,45 @@
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Required Roles for Authentication -->
+  <div class="form-section">
+    <h5 class="section-title">
+      <i class="icon-lock"></i>
+      Required Roles for Authentication
+    </h5>
+
+    <div class="alert alert-info alert-styled-left">
+    <span class="font-weight-semibold">
+      <i class="icon-info22"></i>
+      User Access Requirements
+    </span>
+      <p class="mt-2 mb-0">
+        Users must have at least one of these roles in your Identity Provider to access this panel:
+      </p>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="required-roles-container">
+          <div class="role-badge-item">
+            <i class="icon-shield text-primary mr-2"></i>
+            <span class="font-weight-500">ROLE_USER</span>
+            <small class="text-muted ml-2">Basic access to the panel</small>
+          </div>
+          <div class="role-badge-item mt-2">
+            <i class="icon-star text-warning mr-2"></i>
+            <span class="font-weight-500">ROLE_ADMIN</span>
+            <small class="text-muted ml-2">Full administrative access</small>
+          </div>
+        </div>
+        <small class="form-text text-muted d-block mt-3">
+          <i class="icon-alert mr-1"></i>
+          Ensure your Identity Provider includes these roles in the SAML assertion for users to authenticate successfully.
+        </small>
       </div>
     </div>
   </div>
