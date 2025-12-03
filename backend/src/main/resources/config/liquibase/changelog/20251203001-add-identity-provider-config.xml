@@ -6,7 +6,7 @@
        http://www.liquibase.org/xml/ns/dbchangelog
        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.21.xsd">
 
-    <changeSet id="20251127001" author="manuel">
+    <changeSet id="20251203001" author="manuel">
         <createTable tableName="utm_identity_provider_config">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
