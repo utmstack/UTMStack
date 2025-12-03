@@ -1,5 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {CheckForUpdatesService} from '../../../../../../services/updates/check-for-updates.service';
+import {Component, Input, OnInit} from '@angular/core';
 import {VersionInfo} from '../../../../../../types/updates/updates.type';
 
 @Component({
@@ -7,23 +6,9 @@ import {VersionInfo} from '../../../../../../types/updates/updates.type';
   templateUrl: './utm-version-info.component.html',
   styleUrls: ['./utm-version-info.component.css']
 })
-export class UtmVersionInfoComponent implements OnInit, OnDestroy {
-  currentVersion: VersionInfo;
+export class UtmVersionInfoComponent implements OnInit {
+  @Input('version') currentVersion: VersionInfo;
 
-  constructor(private checkForUpdatesService: CheckForUpdatesService) {
-  }
-
-  ngOnInit() {
-    this.getVersionInfo();
-  }
-
-  ngOnDestroy() {
-  }
-
-  getVersionInfo() {
-    this.checkForUpdatesService.getVersion().subscribe(response => {
-      this.currentVersion = response.body;
-    });
-  }
+  ngOnInit() {}
 
 }

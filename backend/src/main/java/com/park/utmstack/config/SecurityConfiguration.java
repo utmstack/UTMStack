@@ -1,10 +1,13 @@
 package com.park.utmstack.config;
 
 import com.park.utmstack.security.AuthoritiesConstants;
+import com.park.utmstack.security.api_key.ApiKeyConfigurer;
+import com.park.utmstack.security.api_key.ApiKeyFilter;
 import com.park.utmstack.security.internalApiKey.InternalApiKeyConfigurer;
 import com.park.utmstack.security.internalApiKey.InternalApiKeyProvider;
 import com.park.utmstack.security.jwt.JWTConfigurer;
 import com.park.utmstack.security.jwt.TokenProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +32,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 
 @Configuration
+@RequiredArgsConstructor
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Import(SecurityProblemSupport.class)
@@ -39,17 +43,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final TokenProvider tokenProvider;
     private final CorsFilter corsFilter;
     private final InternalApiKeyProvider internalApiKeyProvider;
-
-    public SecurityConfiguration(AuthenticationManagerBuilder authenticationManagerBuilder,
-                                 UserDetailsService userDetailsService,
-                                 TokenProvider tokenProvider,
-                                 CorsFilter corsFilter, InternalApiKeyProvider internalApiKeyProvider) {
-        this.authenticationManagerBuilder = authenticationManagerBuilder;
-        this.userDetailsService = userDetailsService;
-        this.tokenProvider = tokenProvider;
-        this.corsFilter = corsFilter;
-        this.internalApiKeyProvider = internalApiKeyProvider;
-    }
+    private final ApiKeyFilter apiKeyFilter;
 
     @PostConstruct
     public void init() {
@@ -122,7 +116,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .apply(securityConfigurerAdapterForJwt())
                 .and()
-                .apply(securityConfigurerAdapterForInternalApiKey());
+                .apply(securityConfigurerAdapterForInternalApiKey())
+                .and()
+                .apply(securityConfigurerAdapterForApiKey())    ;
+
 
     }
 
@@ -133,4 +130,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private InternalApiKeyConfigurer securityConfigurerAdapterForInternalApiKey() {
         return new InternalApiKeyConfigurer(internalApiKeyProvider);
     }
+
+    private ApiKeyConfigurer securityConfigurerAdapterForApiKey() {
+        return new ApiKeyConfigurer(apiKeyFilter);
+    }
+
 }

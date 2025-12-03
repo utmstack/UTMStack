@@ -1,4 +1,4 @@
-# UTMStack 10.9.3 Release Notes
+# UTMStack 10.9.5 Release Notes
 
-- Enriched the TIMEZONES constant to include additional IANA zones for broader coverage.
-- Support for additional syslog framing methods (RFC 5424 octet counting).
+– Visual adjustments applied to the SOC AI Integration to ensure consistent behavior and user interaction.
+– Updated the header component to improve version visibility and overall UI consistency.
