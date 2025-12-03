@@ -9,6 +9,7 @@ import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
@@ -48,14 +49,11 @@ public class SamlRelyingPartyRegistrationRepository implements RelyingPartyRegis
         ));
         X509Certificate spCert = PemUtils.parseCertificate(entity.getSpCertificatePem());
 
-        // Build registration directly from IdP metadata URL
         return RelyingPartyRegistrations
                 .fromMetadataLocation(entity.getMetadataUrl())
                 .registrationId(entity.getName())
-                .entityId("http://localhost:8080/saml/sp")
-                .assertionConsumerServiceLocation(
-                        "http://localhost:8080/login/saml2/sso/" + entity.getProviderType().name().toLowerCase()
-                )
+                .entityId(entity.getSpEntityId())
+                .assertionConsumerServiceLocation(entity.getSpAcsUrl())
                 .signingX509Credentials(c -> c.add(Saml2X509Credential.signing(spKey, spCert)))
                 .build();
     }

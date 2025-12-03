@@ -29,6 +29,12 @@ public class IdentityProviderConfigRequestDto {
     @NotBlank
     private String metadataUrl;
 
+    @NotBlank
+    private String spEntityId;
+
+    @NotBlank
+    private String spAcsUrl;
+
     @NotNull
     private Boolean active;
 
