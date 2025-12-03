@@ -50,6 +50,10 @@ export class ProviderFormComponent implements OnInit {
       this.makePrivateKeyOptional();
     }
     this.generateSpIdentifiers();
+
+    this.providerForm.get('providerType').valueChanges.subscribe(() => {
+      this.generateSpIdentifiers();
+    });
   }
 
   initForm(): void {
@@ -57,7 +61,9 @@ export class ProviderFormComponent implements OnInit {
       name: ['', [Validators.required, Validators.minLength(3)]],
       providerType: [ProviderType.GOOGLE, Validators.required],
       metadataUrl: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)], [validateMetadataUrl(this.http)]],
-      active: [true]
+      active: [true],
+      spEntityId: [''],
+      spAcsUrl: ['']
     });
   }
 
@@ -70,6 +76,11 @@ export class ProviderFormComponent implements OnInit {
     const provider = this.providerForm.get('providerType') ? this.providerForm.get('providerType').value : ProviderType.GOOGLE;
     this.spEntityId = `${origin}/saml/sp`;
     this.spAcsUrl = `${origin}/login/saml2/sso/${provider.toLowerCase()}`;
+
+    this.providerForm.patchValue({
+      spEntityId: this.spEntityId,
+      spAcsUrl: this.spAcsUrl
+    });
   }
 
   onPrivateKeySelected(event: Event): void {

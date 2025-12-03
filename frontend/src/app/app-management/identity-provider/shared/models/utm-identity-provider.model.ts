@@ -17,6 +17,8 @@ export const PROVIDER_ICONS: Record<ProviderType, string> = {
 export interface UtmIdentityProvider {
   id?: number;
   name: string;
+  spIdentityId: string;
+  spAcsUrl: string;
   providerType: ProviderType;
   metadataUrl: string;
   spPrivateKeyPem: string;
