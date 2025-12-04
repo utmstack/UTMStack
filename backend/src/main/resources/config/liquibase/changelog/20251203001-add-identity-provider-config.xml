@@ -6,7 +6,7 @@
        http://www.liquibase.org/xml/ns/dbchangelog
        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.21.xsd">
 
-    <changeSet id="20251127001" author="manuel">
+    <changeSet id="20251203001" author="manuel">
         <createTable tableName="utm_identity_provider_config">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -24,6 +24,12 @@
                 <constraints nullable="false"/>
             </column>
             <column name="metadata_url" type="VARCHAR(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sp_entity_id" type="VARCHAR(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sp_acs_url" type="VARCHAR(512)">
                 <constraints nullable="false"/>
             </column>
             <column name="active" type="BOOLEAN" defaultValueBoolean="true">

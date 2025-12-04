@@ -36,13 +36,15 @@ public class IdentityProviderConfigResource {
     public ResponseEntity<IdentityProviderConfigResponseDto> create(@RequestParam String name,
                                                                     @RequestParam String providerType,
                                                                     @RequestParam String metadataUrl,
+                                                                    @RequestParam String spEntityId,
+                                                                    @RequestParam String spAcsUrl,
                                                                     @RequestParam Boolean active,
                                                                     @RequestPart("spPrivateKeyFile") MultipartFile privateKeyFile,
                                                                     @RequestPart("spCertificateFile") MultipartFile certificateFile) {
 
 
         PemUtils.validateFilesForCreate(privateKeyFile, certificateFile);
-        IdentityProviderCreateConfigDto dto = mapper.toCreateConfigDto(name, providerType, metadataUrl, active, privateKeyFile, certificateFile);
+        IdentityProviderCreateConfigDto dto = mapper.toCreateConfigDto(name, providerType, metadataUrl, active, privateKeyFile, certificateFile, spEntityId , spAcsUrl);
 
         IdentityProviderConfigResponseDto result = service.create(dto);
         return ResponseEntity
@@ -56,12 +58,14 @@ public class IdentityProviderConfigResource {
                                                                     @RequestParam String name,
                                                                     @RequestParam String providerType,
                                                                     @RequestParam String metadataUrl,
+                                                                    @RequestParam String spEntityId,
+                                                                    @RequestParam String spAcsUrl,
                                                                     @RequestParam Boolean active,
                                                                     @RequestPart(value = "spPrivateKeyFile", required = false) MultipartFile privateKeyFile,
                                                                     @RequestPart(value = "spCertificateFile", required = false) MultipartFile certificateFile) {
 
         PemUtils.validateFilesForUpdate(privateKeyFile, certificateFile);
-        IdentityProviderCreateConfigDto dto = mapper.toCreateConfigDto(name, providerType, metadataUrl, active, privateKeyFile, certificateFile);
+        IdentityProviderCreateConfigDto dto = mapper.toCreateConfigDto(name, providerType, metadataUrl, active, privateKeyFile, certificateFile, spEntityId , spAcsUrl);
 
         IdentityProviderConfigResponseDto result = service.update(id, dto);
         return ResponseEntity.ok(result);

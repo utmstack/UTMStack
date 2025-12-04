@@ -38,9 +38,13 @@ public class Saml2LoginSuccessHandler implements AuthenticationSuccessHandler {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
+        String scheme = Objects.requireNonNullElse(request.getHeader("X-Forwarded-Proto"), request.getScheme());
+        String host = Objects.requireNonNullElse(request.getHeader("Host"), request.getServerName());
+
+        String frontBaseUrl = scheme + "://" + host;
+
         Saml2AuthenticatedPrincipal samlUser = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
 
-        // Extract NameID (default identifier)
         String username = samlUser.getName();
 
         Collection<? extends GrantedAuthority> authorities = Objects.requireNonNull(samlUser.getAttribute("roles"))
@@ -59,9 +63,11 @@ public class Saml2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String token = tokenProvider.createToken(auth, false, true);
 
         // Redirect to frontend with token
-        URI redirectUri = UriComponentsBuilder.fromHttpUrl(FRONT_BASE_URL)
+        URI redirectUri = UriComponentsBuilder.fromUriString(frontBaseUrl)
+                .path("/")
                 .queryParam("token", token)
-                .build().toUri();
+                .build()
+                .toUri();
 
         response.sendRedirect(redirectUri.toString());
     }

@@ -8,8 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
-
-import static com.park.utmstack.config.Constants.FRONT_BASE_URL;
+import java.util.Objects;
 
 /**
  * Failure handler for SAML2 login.
@@ -21,9 +20,15 @@ public class Saml2LoginFailureHandler implements AuthenticationFailureHandler {
     public void onAuthenticationFailure(HttpServletRequest request,
                                         HttpServletResponse response,
                                         AuthenticationException exception) throws IOException {
-        URI redirectUri = UriComponentsBuilder.fromHttpUrl(FRONT_BASE_URL)
+
+        String scheme = Objects.requireNonNullElse(request.getHeader("X-Forwarded-Proto"), request.getScheme());
+        String host = Objects.requireNonNullElse(request.getHeader("Host"), request.getServerName());
+
+        String frontBaseUrl = scheme + "://" + host;
+
+        URI redirectUri = UriComponentsBuilder.fromHttpUrl(frontBaseUrl)
                 .queryParam("error", "saml2")
-                .queryParam("message", exception.getMessage()) // optional: include error details
+                .queryParam("message", exception.getMessage())
                 .build().toUri();
 
         response.sendRedirect(redirectUri.toString());

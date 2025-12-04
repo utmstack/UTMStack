@@ -29,9 +29,11 @@ public interface IdentityProviderMapper {
     @Mapping(target = "name", source = "name")
     @Mapping(target = "spPrivateKeyPem", source = "privateKeyFile")
     @Mapping(target = "spCertificatePem", source = "certificateFile")
+    @Mapping(target = "spEntityId", source = "spEntityId")
+    @Mapping(target = "spAcsUrl", source = "spAcsUrl")
     @Mapping(target = "providerType", expression = "java(com.park.utmstack.domain.idp_provider.enums.ProviderType.valueOf(providerType))")
     IdentityProviderCreateConfigDto toCreateConfigDto(String name, String providerType, String metadataUrl, Boolean active,
-                                                      MultipartFile privateKeyFile, MultipartFile certificateFile);
+                                                      MultipartFile privateKeyFile, MultipartFile certificateFile, String spEntityId, String spAcsUrl);
 
     default String mapFileToString(MultipartFile file) {
         if (file == null || file.isEmpty()) {

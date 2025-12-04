@@ -53,6 +53,12 @@ public class IdentityProviderConfig {
     @Column(name = "sp_certificate_pem", nullable = false, columnDefinition = "TEXT")
     private String spCertificatePem;
 
+    @Column(name = "sp_entity_id", nullable = false, length = 512)
+    private String spEntityId;
+
+    @Column(name = "sp_acs_url", nullable = false, length = 512)
+    private String spAcsUrl;
+
     /**
      * Flag to enable or disable this IdP configuration
      */

@@ -42,7 +42,8 @@ public class IdentityProviderService {
         IdentityProviderConfig entity = mapper.toEntity(dto);
         entity.setCreatedAt(LocalDateTime.now());
         entity.setUpdatedAt(LocalDateTime.now());
-
+        entity.setSpEntityId(dto.getSpEntityId());
+        entity.setSpAcsUrl(dto.getSpAcsUrl());
         IdentityProviderConfig saved = repository.save(entity);
         publisher.publishEvent(new ProviderChangedEvent(saved));
         return mapper.toDto(saved);
