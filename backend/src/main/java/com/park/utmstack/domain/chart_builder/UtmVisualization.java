@@ -104,6 +104,9 @@ public class UtmVisualization implements Serializable {
     @JsonDeserialize
     private AggregationType aggregationType;
 
+    @Column(name = "sql_query")
+    private String sqlQuery;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_pattern", referencedColumnName = "id", insertable = false, updatable = false)
     private UtmIndexPattern pattern;
@@ -223,6 +226,14 @@ public class UtmVisualization implements Serializable {
         if (aggregationType != null)
             aggregation = UtilSerializer.jsonSerialize(aggregationType);
         this.aggregationType = aggregationType;
+    }
+
+    public String getSqlQuery() {
+        return sqlQuery;
+    }
+
+    public void setSqlQuery(String sqlQuery) {
+        this.sqlQuery = sqlQuery;
     }
 
     public String getChartAction() {

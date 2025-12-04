@@ -279,5 +279,7 @@
 
     <include file="/config/liquibase/changelog/20251203001-add-identity-provider-config.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251203001_add_column_sqlQuery_to_visualization.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

@@ -11,13 +11,17 @@ import com.park.utmstack.service.chart_builder.UtmVisualizationService;
 import com.park.utmstack.service.dto.chart_builder.UtmVisualizationCriteria;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
 import com.park.utmstack.util.ResponseUtil;
+import com.park.utmstack.util.UtilPagination;
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.requests.RequestDsl;
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.ResponseParser;
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.ResponseParserFactory;
+import com.park.utmstack.util.elastic.SqlPaginationUtil;
 import com.park.utmstack.util.exceptions.UtmChartBuilderException;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
+import com.utmstack.opensearch_connector.types.SearchSqlResponse;
+import com.utmstack.opensearch_connector.types.SqlQueryRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +41,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * REST controller for managing UtmVisualization.
@@ -288,6 +289,13 @@ public class UtmVisualizationResource {
         final String ctx = CLASSNAME + ".run";
         try {
             Assert.notNull(visualization, "Param utmVisualization must not be null");
+            if (Objects.nonNull(visualization.getSqlQuery()) && !visualization.getSqlQuery().trim().isEmpty()) {
+                SearchSqlResponse<Map> response = elasticsearchService.searchBySql(new SqlQueryRequest(visualization.getSqlQuery(), null), Map.class);
+
+                HttpHeaders headers = UtilPagination.generatePaginationHttpHeaders((long) Math.min(1, 10000),
+                        page, size, "/api/utm-visualizations/run");
+                return ResponseEntity.ok().body(response.getData());
+            }
 
             if (!elasticsearchService.indexExist(visualization.getPattern().getPattern()))
                 return ResponseEntity.ok(Collections.emptyList());
