@@ -5,7 +5,7 @@ import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {NavBehavior} from '../../shared/behaviors/nav.behavior';
 import {MenuCreateComponent} from '../../shared/components/utm/util/menu-create/menu-create.component';
 import {MenuService} from '../../shared/services/menu/menu.service';
-import {CheckForUpdatesService} from '../../shared/services/updates/check-for-updates.service';
+import {AppVersionService} from '../../shared/services/version/app-version.service';
 import {IMenu, Menu} from '../../shared/types/menu/menu.model';
 import {QueryType} from '../../shared/types/query-type';
 import {MenuDeleteDialogComponent} from './menu-delete/menu-delete-dialog.component';
@@ -38,7 +38,7 @@ export class MenuComponent implements OnInit {
 
   constructor(private menuService: MenuService,
               private modalService: NgbModal,
-              private checkForUpdatesService: CheckForUpdatesService,
+              private checkForUpdatesService: AppVersionService,
               private utmToastService: UtmToastService,
               private navBehavior: NavBehavior) {
   }

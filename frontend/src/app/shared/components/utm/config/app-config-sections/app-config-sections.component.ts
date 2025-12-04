@@ -13,7 +13,7 @@ import {
 import {UtmConfigParamsService} from '../../../../services/config/utm-config-params.service';
 import {LocationService, SelectOption} from '../../../../services/location.service';
 import {NetworkService} from '../../../../services/network.service';
-import {VersionType, VersionTypeService} from '../../../../services/util/version-type.service';
+import {VersionType, VersionInfoService} from '../../../../services/version/version-info.service';
 import {TimezoneFormatService} from '../../../../services/utm-timezone.service';
 import {ConfigDataTypeEnum, SectionConfigParamType} from '../../../../types/configuration/section-config-param.type';
 import {ApplicationConfigSectionEnum, SectionConfigType} from '../../../../types/configuration/section-config.type';

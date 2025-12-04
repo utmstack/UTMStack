@@ -1,15 +1,14 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
-import {EMPTY, Subject} from 'rxjs';
-import {catchError, filter, map, takeUntil, tap} from 'rxjs/operators';
+import {Subject} from 'rxjs';
+import {filter, takeUntil} from 'rxjs/operators';
 import {AccountService} from '../../../../core/auth/account.service';
 import {User} from '../../../../core/user/user.model';
 import {ThemeChangeBehavior} from '../../../behaviors/theme-change.behavior';
 import {ADMIN_ROLE} from '../../../constants/global.constant';
 import {AppThemeLocationEnum} from '../../../enums/app-theme-location.enum';
-import {VersionType, VersionTypeService} from "../../../services/util/version-type.service";
-import {AppVersionInfo} from "../../../types/updates/updates.type";
-import {CheckForUpdatesService} from "../../../services/updates/check-for-updates.service";
+import {VersionInfoService} from '../../../services/version/version-info.service';
+import {AppVersionInfo} from '../../../types/updates/updates.type';
 
 @Component({
   selector: 'app-header',
@@ -29,8 +28,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(private accountService: AccountService,
               public sanitizer: DomSanitizer,
               private themeChangeBehavior: ThemeChangeBehavior,
-              private versionTypeService: VersionTypeService,
-              private checkForUpdatesService: CheckForUpdatesService) {
+              private versionTypeService: VersionInfoService) {
   }
 
   ngOnInit() {
@@ -44,26 +42,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.user = account;
     });
 
-    this.checkForUpdatesService.getVersion()
-      .pipe(
-        map(response => response.body || null),
-        tap((versionInfo: AppVersionInfo) => {
-          const version = versionInfo && versionInfo.version || '';
-          const versionType = versionInfo.edition.includes('community') || version === ''
-            ? VersionType.COMMUNITY
-            : VersionType.ENTERPRISE;
-
-          if (versionType !== this.versionTypeService.versionType()) {
-            this.versionTypeService.changeVersionType(versionType);
-          }
-        }),
-        catchError(() => {
-          return EMPTY;
-        })
-      )
-      .subscribe(versionInfo => {
-        this.versionInfo = versionInfo;
-      });
+    this.versionTypeService.appVersionInfo$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((versionInfo: AppVersionInfo) => this.versionInfo = versionInfo);
   }
 
   ngOnDestroy() {

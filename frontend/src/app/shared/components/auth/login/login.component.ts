@@ -83,9 +83,14 @@ export class LoginComponent implements OnInit, OnDestroy {
                 this.startInternalNavigation(params);
               });
             } else if (params.error) {
-              this.utmToast.showError('Login fail', 'Authentication error, ' +
-              'check your data and try again.');
-              this.loadingAuth = false;
+               if (params.error === 'saml2') {
+                 this.utmToast.showError('Login fail', 'The provided credentials do not match any active' +
+                   ' user account or the account lacks required roles.');
+               } else {
+                 this.utmToast.showError('Login fail', 'Authentication error, ' +
+                   'check your data and try again.');
+               }
+               this.loadingAuth = false;
             } else {
               this.loadingAuth = false;
             }

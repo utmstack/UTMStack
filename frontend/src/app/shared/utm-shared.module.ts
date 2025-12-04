@@ -245,6 +245,7 @@ import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {TimePeriodPipe} from './pipes/time-period.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
+import {IsEnterpriseModuleDirective} from "./directives/enterprise/enterprise.directive";
 
 
 @NgModule({
@@ -410,7 +411,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     TfaSetupComponent,
     ResizableFilterContainerComponent,
     CodeEditorComponent,
-    LoginProvidersComponent
+    LoginProvidersComponent,
+    IsEnterpriseModuleDirective
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -519,7 +521,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     UtmCpCronEditorComponent,
     RelativeTimePipe,
     ResizableFilterContainerComponent,
-    CodeEditorComponent
+    CodeEditorComponent,
+    IsEnterpriseModuleDirective
   ],
   entryComponents: [
     LoginComponent,

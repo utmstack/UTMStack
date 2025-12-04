@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmToastService} from '../../../../../../alert/utm-toast.service';
-import {CheckForUpdatesService} from '../../../../../../services/updates/check-for-updates.service';
+import {AppVersionService} from '../../../../../../services/version/app-version.service';
 import {AppVersionInfo} from '../../../../../../types/updates/updates.type';
 
 @Component({

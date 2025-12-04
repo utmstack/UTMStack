@@ -5,7 +5,7 @@ import {takeUntil} from 'rxjs/operators';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {UtmConfigSectionService} from '../../shared/services/config/utm-config-section.service';
 import {NetworkService} from '../../shared/services/network.service';
-import {VersionType, VersionTypeService} from '../../shared/services/util/version-type.service';
+import {VersionType, VersionInfoService} from '../../shared/services/version/version-info.service';
 import {SectionConfigParamType} from '../../shared/types/configuration/section-config-param.type';
 import {ApplicationConfigSectionEnum, SectionConfigType} from '../../shared/types/configuration/section-config.type';
 
@@ -29,7 +29,7 @@ export class AppConfigComponent implements OnInit, OnDestroy {
               private route: ActivatedRoute,
               private toastService: UtmToastService,
               private networkService: NetworkService,
-              private versionTypeService: VersionTypeService) {
+              private versionTypeService: VersionInfoService) {
   }
 
   ngOnInit() {

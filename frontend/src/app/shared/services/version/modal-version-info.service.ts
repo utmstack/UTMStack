@@ -1,34 +1,13 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ModalConfirmationComponent} from '../../components/utm/util/modal-confirmation/modal-confirmation.component';
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-
-export const EnterpriseFeatures = [
-  'AUTH_WITH_PROVIDERS_MODULE',
-];
-
-
-export enum VersionType {
-  COMMUNITY = 'COMMUNITY',
-  ENTERPRISE = 'ENTERPRISE',
-}
 
 @Injectable({
   providedIn: 'root'
 })
-export class VersionTypeService {
- private versionTypeBehavior = new BehaviorSubject<VersionType>(VersionType.COMMUNITY);
- versionType$ = this.versionTypeBehavior.asObservable();
+export class ModalVersionInfoService {
 
- constructor(private modalService: NgbModal) {}
-
- changeVersionType(versionType: VersionType) {
-   this.versionTypeBehavior.next(versionType);
- }
-
- versionType(): VersionType {
-   return this.versionTypeBehavior.getValue();
- }
+  constructor(private modalService: NgbModal) {}
 
   showVersionInfo() {
     const modalSource = this.modalService.open(ModalConfirmationComponent, { centered: true });
@@ -47,6 +26,4 @@ export class VersionTypeService {
       // optional callback logic
     });
   }
-
-
 }
