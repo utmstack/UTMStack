@@ -137,7 +137,7 @@
 
     <ng-container *appHasAnyAuthority="adminAuth">
 
-      <a *ngIf="version === versionType.ENTERPRISE && ModulesEnterprise.includes('AUTH_WITH_PROVIDERS_MODULE'); else community"
+      <a *appIsEnterpriseModule="'AUTH_WITH_PROVIDERS_MODULE', else community"
          class="list-group-item"
          routerLink="/app-management/settings/providers"
          routerLinkActive="router-link-active">
@@ -149,7 +149,7 @@
 
       <ng-template #community>
         <a
-          (click)="versionTypeService.showVersionInfo()"
+          (click)="modalVersionInfoService.showVersionInfo()"
           class="list-group-item">
           <span class="font-weight-semibold">
              <i class="icon-shield-check font-size-sm"></i>&nbsp;

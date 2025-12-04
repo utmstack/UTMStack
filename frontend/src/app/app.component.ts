@@ -1,7 +1,7 @@
 import {Component, HostListener, OnInit, Renderer2} from '@angular/core';
 import {Router} from '@angular/router';
 import {TranslateService} from '@ngx-translate/core';
-import {delay, distinctUntilChanged, filter, takeUntil, tap} from 'rxjs/operators';
+import {catchError, delay, distinctUntilChanged, filter, map, takeUntil, tap} from 'rxjs/operators';
 import {AccountService} from './core/auth/account.service';
 import {ApiServiceCheckerService} from './core/auth/api-checker-service';
 import {MenuBehavior} from './shared/behaviors/menu.behavior';
@@ -9,6 +9,10 @@ import {ThemeChangeBehavior} from './shared/behaviors/theme-change.behavior';
 import {ADMIN_ROLE, USER_ROLE} from './shared/constants/global.constant';
 import {AppThemeLocationEnum} from './shared/enums/app-theme-location.enum';
 import {UtmAppThemeService} from './shared/services/theme/utm-app-theme.service';
+import {AppVersionInfo} from "./shared/types/updates/updates.type";
+import {VersionType, VersionInfoService} from "./shared/services/version/version-info.service";
+import {EMPTY} from "rxjs";
+import {AppVersionService} from './shared/services/version/app-version.service';
 
 @Component({
   selector: 'app-root',
@@ -36,7 +40,9 @@ export class AppComponent implements OnInit {
     private utmAppThemeService: UtmAppThemeService,
     private router: Router, private renderer: Renderer2,
     private apiServiceCheckerService: ApiServiceCheckerService,
-    private accountService: AccountService) {
+    private accountService: AccountService,
+    private checkForUpdatesService: AppVersionService,
+    private versionTypeService: VersionInfoService) {
 
     this.translate.setDefaultLang('en');
 
@@ -85,6 +91,25 @@ export class AppComponent implements OnInit {
           appBg.style.display = 'none';
         }
       });
+
+    this.checkForUpdatesService.getVersion()
+      .pipe(
+        map(response => response.body || null),
+        tap((versionInfo: AppVersionInfo) => {
+          const version = versionInfo && versionInfo.version || '';
+          const versionType = versionInfo.edition.includes('community') || version === ''
+            ? VersionType.COMMUNITY
+            : VersionType.ENTERPRISE;
+
+          if (versionType !== this.versionTypeService.versionType()) {
+            this.versionTypeService.changeVersionType(versionType);
+          }
+        }),
+        catchError(() => {
+          return EMPTY;
+        })
+      )
+      .subscribe();
 
     this.appLoading.style.display = 'none';
   }

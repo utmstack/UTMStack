@@ -36,12 +36,14 @@ import {AlertIncidentStatusChangeBehavior} from './shared/behaviors/alert-incide
 import {GettingStartedBehavior} from './shared/behaviors/getting-started.behavior';
 import {NavBehavior} from './shared/behaviors/nav.behavior';
 import {NewAlertBehavior} from './shared/behaviors/new-alert.behavior';
+import {AppVersionService} from './shared/services/version/app-version.service';
 import {TimezoneFormatService} from './shared/services/utm-timezone.service';
 import {UtmSharedModule} from './shared/utm-shared.module';
 
 export function initTimezoneFormat(
   timezoneService: TimezoneFormatService,
-  apiChecker: ApiServiceCheckerService
+  apiChecker: ApiServiceCheckerService,
+  appVersionService: AppVersionService
 ) {
   return () =>
     new Promise<void>((resolve, reject) => {
@@ -49,7 +51,10 @@ export function initTimezoneFormat(
         .pipe(first(val => val === true))
         .subscribe({
           next: () => {
-            timezoneService.loadTimezoneAndFormat().then(resolve).catch(reject);
+            timezoneService.loadTimezoneAndFormat()
+              .then(() => appVersionService.loadVersionInfo())
+              .then(resolve)
+              .catch(reject);
           },
           error: reject
         });
@@ -129,7 +134,11 @@ export function initTimezoneFormat(
     {
       provide: APP_INITIALIZER,
       useFactory: initTimezoneFormat,
-      deps: [TimezoneFormatService, ApiServiceCheckerService],
+      deps: [
+        TimezoneFormatService,
+        ApiServiceCheckerService,
+        AppVersionService
+      ],
       multi: true
     },
     NewAlertBehavior,

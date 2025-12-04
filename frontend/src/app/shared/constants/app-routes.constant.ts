@@ -8,6 +8,6 @@ export const SCANNER_ROUTE = 'scanner';
  */
 export const BYPASS_ROUTES = ['/api/images', '/api/menu', '/api/utm-clients', '/api/utm-alerts/count-open-alerts',
   '/system-restart/status', '/ad/exist-index', '/api/utm-module-modals', '/api/account', '/utm-dashboard-visualizations',
-  '/assets/', '/api/check-for-updates', 'api/elasticsearch/cluster/status', '/management/health', '/api/isLiteMode'];
+  '/assets/', '/api/check-for-version', 'api/elasticsearch/cluster/status', '/management/health', '/api/isLiteMode'];
 export const TEXT_CHART_BUILDER_ROUTE = '/creator/builder/text-builder';
 export const CHART_BUILDER_ROUTE = '/creator/builder/chart-builder';
