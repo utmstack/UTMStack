@@ -1,5 +1,6 @@
 package com.park.utmstack.security.saml;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -14,6 +15,7 @@ import java.util.Objects;
  * Failure handler for SAML2 login.
  * Redirects the user to the frontend with an error parameter.
  */
+@Slf4j
 public class Saml2LoginFailureHandler implements AuthenticationFailureHandler {
 
     @Override
@@ -28,7 +30,6 @@ public class Saml2LoginFailureHandler implements AuthenticationFailureHandler {
 
         URI redirectUri = UriComponentsBuilder.fromHttpUrl(frontBaseUrl)
                 .queryParam("error", "saml2")
-                .queryParam("message", exception.getMessage())
                 .build().toUri();
 
         response.sendRedirect(redirectUri.toString());

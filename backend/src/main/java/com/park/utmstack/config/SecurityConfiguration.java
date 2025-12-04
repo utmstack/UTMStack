@@ -1,5 +1,6 @@
 package com.park.utmstack.config;
 
+import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.security.AuthoritiesConstants;
 import com.park.utmstack.security.api_key.ApiKeyConfigurer;
 import com.park.utmstack.security.api_key.ApiKeyFilter;
@@ -48,6 +49,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final CorsFilter corsFilter;
     private final InternalApiKeyProvider internalApiKeyProvider;
     private final ApiKeyFilter apiKeyFilter;
+    private final UserRepository userRepository;
 
 
     @PostConstruct
@@ -107,6 +109,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/account/reset-password/init").permitAll()
                 .antMatchers("/api/utm-providers").permitAll()
                 .antMatchers("/api/images/all").permitAll()
+                .antMatchers("/api/info/version").permitAll()
                 .antMatchers("/api/enrollment/**").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER)
                 .antMatchers("/api/tfa/verify-code").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)
                 .antMatchers("/api/tfa/refresh").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)
@@ -123,7 +126,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
                 .and()
                 .saml2Login()
-                .successHandler(new Saml2LoginSuccessHandler(tokenProvider))
+                .successHandler(new Saml2LoginSuccessHandler(tokenProvider,
+                                                              userRepository,
+                                                              saml2LoginFailureHandler()))
                 .failureHandler(new Saml2LoginFailureHandler())
                 .and()
                 .apply(securityConfigurerAdapterForJwt())
@@ -145,6 +150,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private ApiKeyConfigurer securityConfigurerAdapterForApiKey() {
         return new ApiKeyConfigurer(apiKeyFilter);
+    }
+
+
+    @Bean
+    public Saml2LoginFailureHandler saml2LoginFailureHandler() {
+        return new Saml2LoginFailureHandler();
     }
 
 }

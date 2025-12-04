@@ -1,7 +1,10 @@
 package com.park.utmstack.security.saml;
 
+import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.security.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,9 +31,12 @@ import static com.park.utmstack.config.Constants.FRONT_BASE_URL;
  */
 
 @RequiredArgsConstructor
+@Slf4j
 public class Saml2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final TokenProvider tokenProvider;
+    private final UserRepository userRepository;
+    private final Saml2LoginFailureHandler failureHandler;
 
 
     @Override
@@ -44,8 +50,16 @@ public class Saml2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String frontBaseUrl = scheme + "://" + host;
 
         Saml2AuthenticatedPrincipal samlUser = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
+        var roles = samlUser.getAttribute("roles");
 
         String username = samlUser.getName();
+
+        if (roles == null || ((Collection<?>) roles).isEmpty() || userRepository.findOneByLogin(username).isEmpty()) {
+            log.error("{}: Attempted SAML2 login with invalid roles or non-existing user account.", username);
+            failureHandler.onAuthenticationFailure(request, response,
+                    new BadCredentialsException("The provided credentials do not match any active user account or the account lacks required roles."));
+            return;
+        }
 
         Collection<? extends GrantedAuthority> authorities = Objects.requireNonNull(samlUser.getAttribute("roles"))
                 .stream()
