@@ -8,9 +8,11 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 })
 export class UtmModalHeaderComponent implements OnInit, AfterViewChecked, AfterViewInit {
   @Input() name: string;
-  @Input() type: 'delete' | 'normal';
-  @Output() closeModal = new EventEmitter<boolean>();
+  @Input() type: 'default' | 'delete' | 'warning' | 'success' = 'default';
+  @Input() icon?: string;
   @Input() showCloseButton = true;
+  @Output() closeModal = new EventEmitter<boolean>();
+
 
   constructor(public activeModal: NgbActiveModal,
               private cdr: ChangeDetectorRef) {

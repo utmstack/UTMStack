@@ -277,5 +277,7 @@
 
     <include file="/config/liquibase/changelog/20251118001_add_adversary_view_menu.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251203001-add-identity-provider-config.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

@@ -5,7 +5,7 @@ import {takeUntil} from 'rxjs/operators';
 import {
   ModalConfirmationComponent
 } from '../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
-import {VersionType, VersionTypeService} from '../../../../shared/services/util/version-type.service';
+import {VersionType, VersionInfoService} from '../../../../shared/services/version/version-info.service';
 import {ModulesEnterprise} from '../../../services/module.service';
 import {UtmModulesEnum} from '../../enum/utm-module.enum';
 import {UtmModuleType} from '../../type/utm-module.type';
@@ -18,7 +18,7 @@ import {UtmModuleType} from '../../type/utm-module.type';
 })
 export class AppModuleCardComponent implements OnInit, OnDestroy {
 
-  constructor(private versionTypeService: VersionTypeService,
+  constructor(private versionTypeService: VersionInfoService,
               private modalService: NgbModal) {
   }
   @Input() module: UtmModuleType;

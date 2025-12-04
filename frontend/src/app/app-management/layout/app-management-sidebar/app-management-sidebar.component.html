@@ -135,6 +135,33 @@
           </span>
     </a>
 
+    <ng-container *appHasAnyAuthority="adminAuth">
+
+      <a *appIsEnterpriseModule="'AUTH_WITH_PROVIDERS_MODULE', else community"
+         class="list-group-item"
+         routerLink="/app-management/settings/providers"
+         routerLinkActive="router-link-active">
+          <span class="font-weight-semibold">
+             <i class="icon-shield-check font-size-sm"></i>&nbsp;
+            Identity Providers
+          </span>
+      </a>
+
+      <ng-template #community>
+        <a
+          (click)="modalVersionInfoService.showVersionInfo()"
+          class="list-group-item">
+          <span class="font-weight-semibold">
+             <i class="icon-shield-check font-size-sm"></i>&nbsp;
+            Identity Providers
+          </span>
+        </a>
+      </ng-template>
+
+    </ng-container>
+
+
+
     <a *appHasAnyAuthority="adminAuth"
        class="list-group-item"
        routerLink="/app-management/settings/about"

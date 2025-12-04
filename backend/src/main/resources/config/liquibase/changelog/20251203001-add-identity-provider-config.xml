@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+       http://www.liquibase.org/xml/ns/dbchangelog
+       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.21.xsd">
+
+    <changeSet id="20251203001" author="manuel">
+        <createTable tableName="utm_identity_provider_config">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="provider_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sp_private_key_pem" type="CLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sp_certificate_pem" type="CLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="metadata_url" type="VARCHAR(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sp_entity_id" type="VARCHAR(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sp_acs_url" type="VARCHAR(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="utm_identity_provider_config" indexName="idx_idp_provider_type">
+            <column name="provider_type"/>
+        </createIndex>
+
+        <addUniqueConstraint tableName="utm_identity_provider_config"
+                             columnNames="provider_type,name"
+                             constraintName="uc_provider_type_name"/>
+    </changeSet>
+
+</databaseChangeLog>

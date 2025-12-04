@@ -17,7 +17,6 @@ export class ApiServiceCheckerService {
 
   constructor(private http: HttpClient) {
     this.checkApiAvailability();
-    console.log('ping');
   }
 
   checkApiAvailability() {
