@@ -49,18 +49,6 @@
         </div>
       </div>
     </div>
-
-    <div class="provider-detail" *ngIf="provider.clientSecret">
-      <div class="detail-icon">
-        <i class="icon-key"></i>
-      </div>
-      <div class="detail-content">
-        <span class="detail-label">Client Secret</span>
-        <div class="detail-value">
-          <code>{{ provider.clientSecret | slice:0:40 }}<span *ngIf="provider.clientSecret?.length > 40">...</span></code>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- Footer -->
