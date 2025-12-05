@@ -125,7 +125,9 @@
       </span>
     </a>
 
-    <a *appHasAnyAuthority="adminAuth"
+    <ng-container *appHasAnyAuthority="adminAuth">
+
+      <a *appIsEnterpriseModule="'AUTH_WITH_PROVIDERS_MODULE', else community; menuName: 'API Keys'; cssIcon: 'icon-key'"
        class="list-group-item"
        routerLink="/app-management/settings/api-keys"
        routerLinkActive="router-link-active">
@@ -133,11 +135,12 @@
              <i class="icon-key font-size-sm"></i>&nbsp;
             API Keys
           </span>
-    </a>
+      </a>
+    </ng-container>
 
     <ng-container *appHasAnyAuthority="adminAuth">
 
-      <a *appIsEnterpriseModule="'AUTH_WITH_PROVIDERS_MODULE', else community"
+      <a *appIsEnterpriseModule="'AUTH_WITH_PROVIDERS_MODULE', else community; menuName: 'Identity Providers'; cssIcon: 'icon-shield-check'"
          class="list-group-item"
          routerLink="/app-management/settings/providers"
          routerLinkActive="router-link-active">
@@ -146,17 +149,6 @@
             Identity Providers
           </span>
       </a>
-
-      <ng-template #community>
-        <a
-          (click)="modalVersionInfoService.showVersionInfo()"
-          class="list-group-item">
-          <span class="font-weight-semibold">
-             <i class="icon-shield-check font-size-sm"></i>&nbsp;
-            Identity Providers
-          </span>
-        </a>
-      </ng-template>
 
     </ng-container>
 
@@ -173,3 +165,20 @@
     </a>
   </div>
 </div>
+
+<ng-template #community let-menuName="menuName" let-cssIcon="cssIcon">
+  <a (click)="modalVersionInfoService.showVersionInfo()"
+     class="list-group-item cursor-pointer position-relative">
+    <div class="d-flex align-items-flex-start justify-content-between">
+      <div class="d-flex align-items-center">
+        <i class="icon-lock2 font-size-sm mr-2" aria-hidden="true"></i>
+        <span class="font-weight-semibold">
+          {{ menuName }}
+        </span>
+      </div>
+    </div>
+  </a>
+</ng-template>
+
+
+
