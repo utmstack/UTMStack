@@ -28,7 +28,8 @@ const SQL_KEYWORDS = ['CREATE', 'DROP', 'ALTER', 'TRUNCATE',
   'FROM', 'WHERE', 'GROUP BY', 'HAVING', 'ORDER BY', 'DISTINCT',
   'JOIN', 'INNER', 'LEFT', 'RIGHT', 'FULL', 'UNION', 'INTERSECT',
   'NULL', 'TRUE', 'FALSE',
-  'AS', 'CASE', 'WHEN', 'THEN', 'END'
+  'AS', 'CASE', 'WHEN', 'THEN', 'END',
+  'LIMIT', 'OFFSET'
 ];
 
 @Component({
@@ -122,10 +123,9 @@ export class CodeEditorComponent implements OnInit {
   }
 
   private formatSql(sql: string): string {
-    const keywords = ['SELECT', 'FROM', 'WHERE', 'JOIN', 'LEFT', 'RIGHT', 'INNER', 'ON', 'GROUP BY', 'ORDER BY', 'LIMIT'];
     let formatted = sql;
 
-    keywords.forEach(keyword => {
+    SQL_KEYWORDS.forEach(keyword => {
       const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
       formatted = formatted.replace(regex, `\n${keyword}`);
     });
