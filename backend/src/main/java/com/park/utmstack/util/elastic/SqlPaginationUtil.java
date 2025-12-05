@@ -12,10 +12,10 @@ public class SqlPaginationUtil {
 
         if (hasLimit && hasOffset) {
             return query;
-        } else if (hasLimit && !hasOffset) {
-            int offset = pageable.getPageNumber() * pageable.getPageSize();
+        } else if (hasLimit) {
+            int offset = (pageable.getPageNumber() -1 ) * pageable.getPageSize();
             return query + " OFFSET " + offset;
-        } else if (!hasLimit && hasOffset) {
+        } else if (hasOffset) {
             int pageSize = pageable.getPageSize();
             return query + " LIMIT " + pageSize;
         } else {
