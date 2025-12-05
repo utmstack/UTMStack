@@ -32,8 +32,7 @@ export class PlaybooksComponent implements OnInit, AfterViewInit, OnDestroy {
     sort: '',
     'active.equals': null,
     'agentPlatform.equals': null,
-    'createdBy.equals': null,
-    'systemOwner.equals': false
+    'createdBy.equals': null
   };
   platforms: string[];
   users: string[];
