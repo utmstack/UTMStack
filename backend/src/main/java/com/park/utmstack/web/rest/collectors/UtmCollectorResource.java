@@ -16,14 +16,13 @@ import com.park.utmstack.service.application_modules.UtmModuleGroupConfiguration
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
 import com.park.utmstack.service.collectors.CollectorOpsService;
 import com.park.utmstack.service.collectors.UtmCollectorService;
-import com.park.utmstack.service.dto.collectors.dto.CollectorConfigKeysDTO;
+import com.park.utmstack.service.dto.collectors.dto.CollectorConfigDTO;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
 import com.park.utmstack.service.dto.network_scan.AssetGroupDTO;
 import com.park.utmstack.service.validators.collector.CollectorValidatorService;
 import com.park.utmstack.util.UtilResponse;
-import com.park.utmstack.web.rest.application_modules.UtmModuleGroupConfigurationResource;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.errors.InternalServerErrorException;
 import com.park.utmstack.web.rest.network_scan.UtmNetworkScanResource;
@@ -94,9 +93,7 @@ public class UtmCollectorResource {
      * persist the configurations.
      */
     @PostMapping("/collector-config")
-    public ResponseEntity<Void> upsertCollectorConfig(
-            @Valid @RequestBody CollectorConfigKeysDTO collectorConfig,
-            CollectorDTO collectorDTO) {
+    public ResponseEntity<Void> upsertCollectorConfig(@Valid @RequestBody CollectorConfigDTO collectorConfig) {
         final String ctx = CLASSNAME + ".upsertCollectorConfig";
 
         try {
@@ -112,11 +109,11 @@ public class UtmCollectorResource {
 
             // Get the actual configuration just in case of error when updating local db.
             CollectorConfig cacheConfig = collectorService.getCollectorConfig(
-                    ConfigRequest.newBuilder().setModule(CollectorModule.valueOf(collectorDTO.getModule().toString())).build(),
-                    AuthResponse.newBuilder().setId(collectorDTO.getId()).setKey(collectorDTO.getCollectorKey()).build());
+                    ConfigRequest.newBuilder().setModule(CollectorModule.valueOf(collectorConfig.getCollector().getModule().toString())).build(),
+                    AuthResponse.newBuilder().setId(collectorConfig.getCollector().getId()).setKey(collectorConfig.getCollector().getCollectorKey()).build());
             // Map the configurations to gRPC CollectorConfig and try to insert/update the collector config
             collectorService.upsertCollectorConfig(collectorService.mapToCollectorConfig(
-                    collectorService.mapPasswordConfiguration(collectorConfig.getKeys()), collectorDTO));
+                    collectorService.mapPasswordConfiguration(collectorConfig.getKeys()), collectorConfig.getCollector()));
             // If the update is fine via gRPC, then update the configurations in local db.
             try {
                 moduleGroupConfigurationService.updateConfigurationKeys(collectorConfig.getModuleId(), collectorConfig.getKeys());
