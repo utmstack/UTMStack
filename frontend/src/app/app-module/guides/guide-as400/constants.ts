@@ -7,7 +7,7 @@ export const PLATFORM = [
                   `cd "C:\\Program Files\\UTMStack\\UTMStack Collectors\\AS400"; ` +
                   `& curl.exe -k -o ".\\windows-as400-collector.zip" ` +
                   `"https://V_IP:9001/private/dependencies/collector/windows-as400-collector.zip"; ` +
-                  `Expand-Archive -Path ".\\windows-as400-collector.zip" -DestinationPath "."; ` +  
+                  `Expand-Archive -Path ".\\windows-as400-collector.zip" -DestinationPath "."; ` +
                   `Remove-Item ".\\windows-as400-collector.zip"; Start-Process ".\\utmstack_collectors_installer.exe" ` +
                   `-ArgumentList 'install', 'as400', 'V_IP', '<secret>V_TOKEN</secret>' -NoNewWindow -Wait`,
 
@@ -34,7 +34,7 @@ export const PLATFORM = [
                   `https://V_IP:9001/private/dependencies/collector/linux-as400-collector.zip ` +
                   `&& unzip linux-as400-collector.zip && rm linux-as400-collector.zip && chmod -R 755 ` +
                   `utmstack_collectors_installer && ./utmstack_collectors_installer install as400 ` +
-                  `V_IP <secret>V_TOKEN<secret>"`,
+                  `V_IP <secret>V_TOKEN</secret>"`,
 
 
       uninstall: `sudo bash -c " cd /opt/utmstack-linux-collectors/as400 && ./utmstack_collectors_installer ` +
