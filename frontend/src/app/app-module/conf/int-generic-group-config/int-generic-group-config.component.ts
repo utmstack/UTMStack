@@ -285,14 +285,12 @@ export class IntGenericGroupConfigComponent implements OnInit {
       this.configs.push(...configurations);
     });
     const body = {
-      collectorConfig: {
+        collector: {
+          ... collectorDto,
+          group: null,
+        },
         moduleId: this.moduleId,
         keys: this.configs
-      },
-      collector: {
-        ... collectorDto,
-        group: null,
-      },
     };
     this.collectorService.create(body).subscribe(response => {
       this.savingConfig = false;

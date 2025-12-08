@@ -20,8 +20,7 @@ export class UtmModuleCollectorService {
   }
 
   create(body: any): Observable<HttpResponse<UtmModuleGroupType>> {
-    const options = createRequestOption(body.collector);
-    return this.http.post<any>(`${this.resourceUrl}/collector-config/`, body.collectorConfig, {params: options, observe: 'response'});
+    return this.http.post<any>(`${this.resourceUrl}/collector-config/`, body, {observe: 'response'});
   }
 
   update(conf: UtmModuleGroupType): Observable<HttpResponse<UtmModuleGroupType>> {
