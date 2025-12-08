@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/utmstack/config-client-go v1.2.7
 	google.golang.org/grpc v1.74.2
-	google.golang.org/protobuf v1.36.6
+	google.golang.org/protobuf v1.36.10
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.30.0
 )
