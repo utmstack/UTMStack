@@ -11,8 +11,6 @@ import {ComplianceManagementModule} from '../compliance/compliance-management/co
 import {NavBehavior} from '../shared/behaviors/nav.behavior';
 import {VersionUpdateBehavior} from '../shared/behaviors/version-update.behavior';
 import {UtmSharedModule} from '../shared/utm-shared.module';
-import {ApiKeysComponent} from './api-keys/api-keys.component';
-import {ApiKeyModalComponent} from './api-keys/shared/components/api-key-modal/api-key-modal.component';
 import {AppConfigComponent} from './app-config/app-config.component';
 import {AppLogsComponent} from './app-logs/app-logs.component';
 import {AppManagementRoutingModule} from './app-management-routing.module';
@@ -48,8 +46,6 @@ import {UtmApiDocComponent} from './utm-api-doc/utm-api-doc.component';
 
 @NgModule({
   declarations: [
-    ApiKeysComponent,
-    ApiKeyModalComponent,
     AppManagementComponent,
     AppManagementSidebarComponent,
     IndexPatternHelpComponent,
@@ -85,7 +81,6 @@ import {UtmApiDocComponent} from './utm-api-doc/utm-api-doc.component';
     HealthDetailComponent,
     MenuDeleteDialogComponent,
     TokenActivateComponent,
-    ApiKeyModalComponent,
     IndexDeleteComponent],
   imports: [
     CommonModule,
