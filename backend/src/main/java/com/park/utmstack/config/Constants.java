@@ -146,6 +146,8 @@ public final class Constants {
     public static final String API_KEY_HEADER = "Utm-Api-Key";
     public static final List<String> API_ENDPOINT_IGNORE = Collections.emptyList();
 
+    public static final String TFA_EXEMPTION_HEADER = "X-Bypass-TFA";
+
 
     private Constants() {
     }
