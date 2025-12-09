@@ -2,9 +2,7 @@ package com.park.utmstack.config;
 
 import com.park.utmstack.domain.index_pattern.enums.SystemIndexPattern;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public final class Constants {
@@ -130,7 +128,6 @@ public final class Constants {
     // Defines the index pattern for querying Elasticsearch statistics indexes.
     // ----------------------------------------------------------------------------------
     public static final String STATISTICS_INDEX_PATTERN = "v11-statistics-*";
-    public static final String API_ACCESS_LOGS = ".utmstack-api-logs";
 
     // Logging
     public static final String TRACE_ID_KEY = "traceId";
@@ -142,12 +139,7 @@ public final class Constants {
     public static final String DURATION_KEY = "duration";
     public static final String CAUSE_KEY = "cause";
     public static final String LAYER_KEY = "layer";
-
-    public static final String API_KEY_HEADER = "Utm-Api-Key";
-    public static final List<String> API_ENDPOINT_IGNORE = Collections.emptyList();
-
     public static final String TFA_EXEMPTION_HEADER = "X-Bypass-TFA";
-
 
     private Constants() {
     }
