@@ -17,12 +17,59 @@
   <link href="assets/css/layout.min.css" rel="stylesheet" type="text/css">
   <link href="assets/css/components.min.css" rel="stylesheet" type="text/css">
   <link href="assets/css/colors.min.css" rel="stylesheet" type="text/css">
+
+  <head>
+    <meta charset="utf-8">
+    <title>UTMStack</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <style>
+      #app-loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      .loading-text {
+        font-size: 16px;
+        font-weight: 500;
+        color: #333;
+        margin: 20px 0 8px;
+      }
+
+      .loading-subtext {
+        font-size: 13px;
+        color: #666;
+      }
+    </style>
+  </head>
 </head>
 
 <body id="utm-body">
-<app-root></app-root>
-<script>
-  let global = window;
-</script>
+<div id="app-background" class="bg-image-utmstack"></div>
+  <app-root></app-root>
+  <div id="app-loading">
+    <div style="text-align: center;">
+      <div class="icon-spinner2 spinner text-primary-800"></div>
+      <p class="loading-text">Welcome to UTMStack...</p>
+      <p class="loading-subtext">Preparing your workspace</p>
+    </div>
+  </div>
+  <script>
+    let global = window;
+  </script>
 </body>
 </html>

@@ -1,0 +1,64 @@
+<div class="provider-card"
+     [class.provider-active]="provider.active"
+     (click)="openModal(provider)">
+  <!-- Header -->
+  <div class="provider-header">
+    <div class="provider-brand">
+      <div class="provider-icon-wrapper"
+           [ngClass]="'icon-wrapper-' + provider.providerType.toLowerCase()">
+        <i [class]="getProviderIcon(provider.providerType)"></i>
+      </div>
+      <div class="provider-meta">
+        <h5 class="provider-name">{{ provider.name }}</h5>
+        <span class="provider-type-badge">{{ provider.providerType }}</span>
+      </div>
+    </div>
+
+    <div class="provider-actions" (click)="$event.stopPropagation()">
+      <label class="switch" title="Toggle provider status">
+        <input type="checkbox"
+               [checked]="provider.active"
+               (change)="toggleActive(provider)">
+        <span class="slider"></span>
+      </label>
+      <button class="btn-delete"
+              type="button"
+              (click)="deleteProvider(provider)"
+              title="Delete provider">
+        <i class="icon-trash"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="provider-body">
+    <div class="provider-detail" *ngIf="provider.metadataUrl">
+      <div class="detail-icon">
+        <i class="icon-link"></i>
+      </div>
+      <div class="detail-content">
+        <span class="detail-label">Metadata URL</span>
+        <div class="detail-value">
+          <code class="text-truncate">{{ provider.metadataUrl }}</code>
+          <button class="btn-copy"
+                  type="button"
+                  (click)="$event.stopPropagation(); copyToClipboard('Metadata URL', provider.metadataUrl)"
+                  title="Copy to clipboard">
+            <i class="icon-copy"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="provider-footer">
+    <div class="status-indicator" [class.status-active]="provider.active">
+      <i class="icon-circle"></i>
+      <span>{{ provider.active ? 'Connected' : 'Disconnected' }}</span>
+    </div>
+    <span class="last-updated" *ngIf="provider.updatedAt">
+      Updated {{ provider.updatedAt | date:'short' }}
+    </span>
+  </div>
+</div>

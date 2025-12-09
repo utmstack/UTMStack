@@ -5,6 +5,7 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {TranslateModule} from '@ngx-translate/core';
 import {ResizableModule} from 'angular-resizable-element';
+import {InfiniteScrollModule} from 'ngx-infinite-scroll';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {IncidentSharedModule} from '../../incident/incident-shared/incident-shared.module';
 import {AlertIncidentStatusChangeBehavior} from '../../shared/behaviors/alert-incident-status-change.behavior';
@@ -18,7 +19,6 @@ import {AlertReportFilterComponent} from './alert-reports/shared/components/aler
 import {SaveAlertReportComponent} from './alert-reports/shared/components/save-report/save-report.component';
 import {AlertViewComponent} from './alert-view/alert-view.component';
 import {AlertManagementSharedModule} from './shared/alert-management-shared.module';
-import {InfiniteScrollModule} from "ngx-infinite-scroll";
 
 @NgModule({
   declarations: [

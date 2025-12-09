@@ -1,12 +1,8 @@
-# UTMStack 11.0.3
+# UTMStack 11.1.0
 
-This is the release notes for **UTMStack v11.0.3**, a minor update focused on bug fixes and performance improvements.
+These are the release notes for **UTMStack v11.1.0**, highlighting new features, bug fixes, and performance improvements.
 
-## Fixed Issues
+## Features
 
-- Fixed a bug in the SOC-AI integration that caused occasional failures when generating insights.
-- Fixed a bug when trying to enroll and authenticate by TFA.
-
-## Enhancements
-
-- SIEM configuration now adapts to the Sovereign Cloud Model implemented by the provider in each region for Azure and Microsoft 365 integrations.
+- Introduced SQL query support in LogExplorer, enabling users to execute SQL queries on OpenSearch indices directly from the user interface.
+- Added an interactive Adversary View to the Threat Management module, providing a graphical, filterable visualization of relationships between Adversaries, their generated Alerts, and associated Echoes.

@@ -2,5 +2,6 @@ export enum EventDataTypeEnum {
   EVENT = 'EVENT',
   INCIDENT = 'INCIDENT',
   ALERT = 'ALERT',
+  ADVERSARY = 'ADVERSARY',
   FALSE_POSITIVE = 'FALSE_POSITIVE'
 }

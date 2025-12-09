@@ -1,7 +1,5 @@
 package com.park.utmstack.config;
 
-import com.park.utmstack.loggin.api_key.ApiKeyUsageLoggingService;
-import com.park.utmstack.loggin.filter.MdcCleanupFilter;
 import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.security.AuthoritiesConstants;
 import com.park.utmstack.security.api_key.ApiKeyConfigurer;
@@ -9,13 +7,11 @@ import com.park.utmstack.security.api_key.ApiKeyFilter;
 import com.park.utmstack.security.internalApiKey.InternalApiKeyConfigurer;
 import com.park.utmstack.security.internalApiKey.InternalApiKeyProvider;
 import com.park.utmstack.security.jwt.JWTConfigurer;
-import com.park.utmstack.security.jwt.JWTFilter;
 import com.park.utmstack.security.jwt.TokenProvider;
-import com.park.utmstack.service.api_key.ApiKeyService;
+import com.park.utmstack.security.saml.Saml2LoginFailureHandler;
+import com.park.utmstack.security.saml.Saml2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.net.util.SubnetUtils;
 import org.springframework.beans.factory.BeanInitializationException;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -35,10 +31,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.filter.CorsFilter;
 import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 
+
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+
 
 @Configuration
 @RequiredArgsConstructor
@@ -53,6 +49,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final CorsFilter corsFilter;
     private final InternalApiKeyProvider internalApiKeyProvider;
     private final ApiKeyFilter apiKeyFilter;
+    private final UserRepository userRepository;
+
 
     @PostConstruct
     public void init() {
@@ -110,7 +108,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/releaseInfo").permitAll()
                 .antMatchers("/api/account/reset-password/init").permitAll()
                 .antMatchers("/api/account/reset-password/finish").permitAll()
+                .antMatchers("/api/utm-providers").permitAll()
                 .antMatchers("/api/images/all").permitAll()
+                .antMatchers("/api/info/version").permitAll()
                 .antMatchers("/api/enrollment/**").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER)
                 .antMatchers("/api/tfa/verify-code").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)
                 .antMatchers("/api/tfa/refresh").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)
@@ -125,6 +125,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/ws/**").permitAll()
                 .antMatchers("/management/info").permitAll()
                 .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
+                .and()
+                .saml2Login()
+                .successHandler(new Saml2LoginSuccessHandler(tokenProvider,
+                                                              userRepository,
+                                                              saml2LoginFailureHandler()))
+                .failureHandler(new Saml2LoginFailureHandler())
                 .and()
                 .apply(securityConfigurerAdapterForJwt())
                 .and()
@@ -145,6 +151,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private ApiKeyConfigurer securityConfigurerAdapterForApiKey() {
         return new ApiKeyConfigurer(apiKeyFilter);
+    }
+
+
+    @Bean
+    public Saml2LoginFailureHandler saml2LoginFailureHandler() {
+        return new Saml2LoginFailureHandler();
     }
 
 }

@@ -5,37 +5,42 @@ import {RouterModule} from '@angular/router';
 import {NgbActiveModal, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {TranslateModule} from '@ngx-translate/core';
+import {ResizableModule} from 'angular-resizable-element';
 import {InlineSVGModule} from 'ng-inline-svg';
+import { NgxEchartsModule } from 'ngx-echarts';
 import {NgxFlagIconCssModule} from 'ngx-flag-icon-css';
 import {InfiniteScrollModule} from 'ngx-infinite-scroll';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
+import {MonacoEditorModule} from 'ngx-monaco-editor';
 import {NgxSortableModule} from 'ngx-sortable-2';
 import {LocalStorageService} from 'ngx-webstorage';
 import {AssetsGroupAddModule} from '../assets-discover/shared/components/asset-group-add/assets-group-add.module';
 import {AssetsApplyNoteModule} from '../assets-discover/shared/components/assets-apply-note/assets-apply-note.module';
 import {AssetsApplyTypeModule} from '../assets-discover/shared/components/assets-apply-type/assets-apply-type.module';
 import {AuthServerProvider} from '../core/auth/auth-jwt.service';
+import {AlertEchoesTimelineComponent} from '../data-management/alert-management/shared/components/alert-echoes-timeline/alert-echoes-timeline.component';
 import {UtmToastService} from './alert/utm-toast.service';
 import {DashboardBehavior} from './behaviors/dashboard.behavior';
 import {MenuBehavior} from './behaviors/menu.behavior';
 import {VersionUpdateBehavior} from './behaviors/version-update.behavior';
 import {AppFilterComponent} from './components/app-filter/app-filter.component';
 import {ConfirmIdentityComponent} from './components/auth/confirm-identity/confirm-identity.component';
+import { LoginProvidersComponent } from './components/auth/login-providers/login-providers.component';
 import {LoginComponent} from './components/auth/login/login.component';
 import {PasswordResetFinishComponent} from './components/auth/password-reset/finish/password-reset-finish.component';
 import {PasswordResetInitComponent} from './components/auth/password-reset/init/password-reset-init.component';
 import {PasswordStrengthBarComponent} from './components/auth/password-strength/password-strength-bar.component';
 import { TfaSetupComponent } from './components/auth/tfa-setup/tfa-setup.component';
 import {TotpComponent} from './components/auth/totp/totp.component';
+import {CodeEditorComponent} from './components/code-editor/code-editor.component';
 import {ContactUsComponent} from './components/contact-us/contact-us.component';
-import {AlertEchoesTimelineComponent} from '../data-management/alert-management/shared/components/alert-echoes-timeline/alert-echoes-timeline.component';
 import {
   EmailSettingNotificactionComponent
 } from './components/email-setting-notification/email-setting-notificaction.component';
 import {
   UtmAdminChangeEmailComponent
 } from './components/getting-started/utm-admin-change-email/utm-admin-change-email.component';
-import {UtmInstanceInfoComponent} from "./components/getting-started/utm-instance-info/utm-instance-info.component";
+import {UtmInstanceInfoComponent} from './components/getting-started/utm-instance-info/utm-instance-info.component';
 import {
   WelcomeToUtmstackComponent
 } from './components/getting-started/welcome-to-utmstack/welcome-to-utmstack.component';
@@ -95,8 +100,9 @@ import {
 import {UtmNotificationComponent} from './components/layout/header/utm-header-notification/utm-notification.component';
 import {SidebarComponent} from './components/layout/sidebar/sidebar.component';
 import {NotFoundComponent} from './components/not-found/not-found.component';
+import { ResizableFilterContainerComponent } from './components/resizable-filter-container/resizable-filter-container.component';
 import { SelectableListComponent } from './components/selectable-list/selectable-list.component';
-import {UtmCpCronEditorComponent} from "./components/utm-cp-cron-editor/utm-cp-cron-editor.component";
+import {UtmCpCronEditorComponent} from './components/utm-cp-cron-editor/utm-cp-cron-editor.component';
 import {
   UtmHeaderHealthWarningComponent
 } from './components/utm-header-health-warning/utm-header-health-warning.component';
@@ -116,7 +122,7 @@ import {
 import {UtmEmailConfCheckComponent} from './components/utm/config/shared/components/utm-email-conf-check/utm-email-conf-check.component';
 import {
   UtmTfaConfCheckComponent
-} from "./components/utm/config/shared/components/utm-tfa-conf-check/utm-tfa-conf-check.component";
+} from './components/utm/config/shared/components/utm-tfa-conf-check/utm-tfa-conf-check.component';
 import {
   ElasticMetricHealthComponent
 } from './components/utm/elastic/elastic-metric-health/elastic-metric-health.component';
@@ -233,13 +239,13 @@ import {UtmDatePipe} from './pipes/date.pipe';
 import {FilterPipe} from './pipes/filter.pipe';
 import {ThousandSuffPipe} from './pipes/numbers/thousand-suff.pipe';
 import {KeysPipe} from './pipes/object-keys/keys.pipe';
-import {RelativeTimePipe} from "./pipes/relative-time.pipe";
+import {RelativeTimePipe} from './pipes/relative-time.pipe';
 import {SafePipe} from './pipes/safe.pipe';
 import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {TimePeriodPipe} from './pipes/time-period.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
-import { NgxEchartsModule } from 'ngx-echarts';
+import {IsEnterpriseModuleDirective} from "./directives/enterprise/enterprise.directive";
 
 
 @NgModule({
@@ -259,7 +265,9 @@ import { NgxEchartsModule } from 'ngx-echarts';
     AssetsApplyNoteModule,
     AssetsGroupAddModule,
     InfiniteScrollModule,
-    NgxEchartsModule
+    NgxEchartsModule,
+    ResizableModule,
+    MonacoEditorModule.forRoot()
   ],
   declarations: [
     ElasticFilterComponent,
@@ -400,7 +408,11 @@ import { NgxEchartsModule } from 'ngx-echarts';
     RelativeTimePipe,
     UtmTfaConfCheckComponent,
     UtmTfaVerificationComponent,
-    TfaSetupComponent
+    TfaSetupComponent,
+    ResizableFilterContainerComponent,
+    CodeEditorComponent,
+    LoginProvidersComponent,
+    IsEnterpriseModuleDirective
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -507,7 +519,10 @@ import { NgxEchartsModule } from 'ngx-echarts';
     FilterPipe,
     UtmInstanceInfoComponent,
     UtmCpCronEditorComponent,
-    RelativeTimePipe
+    RelativeTimePipe,
+    ResizableFilterContainerComponent,
+    CodeEditorComponent,
+    IsEnterpriseModuleDirective
   ],
   entryComponents: [
     LoginComponent,

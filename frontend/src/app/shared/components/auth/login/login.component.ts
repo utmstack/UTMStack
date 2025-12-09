@@ -1,10 +1,11 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {DomSanitizer} from '@angular/platform-browser';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {Observable} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
+import {filter, switchMap, takeUntil} from 'rxjs/operators';
 import {AccountService} from '../../../../core/auth/account.service';
 import {ApiServiceCheckerService} from '../../../../core/auth/api-checker-service';
 import {StateStorageService} from '../../../../core/auth/state-storage.service';
@@ -15,14 +16,13 @@ import {ThemeChangeBehavior} from '../../../behaviors/theme-change.behavior';
 import {ADMIN_DEFAULT_EMAIL, ADMIN_ROLE, DEMO_URL, USER_ROLE} from '../../../constants/global.constant';
 import {extractQueryParamsForNavigation, stringParamToQueryParams} from '../../../util/query-params-to-filter.util';
 import {PasswordResetInitComponent} from '../password-reset/init/password-reset-init.component';
-import {AuthServerProvider} from "../../../../core/auth/auth-jwt.service";
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   authenticationError: boolean;
   password: string;
   rememberMe: boolean;
@@ -37,6 +37,7 @@ export class LoginComponent implements OnInit {
   loginImage$: Observable<string>;
   loadingLogin = false;
   isInternalNavigation = false;
+  destroy$ = new  Subject<void>();
 
   constructor(
     private loginService: LoginService,
@@ -60,27 +61,41 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
-    this.apiServiceCheckerService.isOnlineApi$.subscribe(result => {
-      if (result) {
-        this.activatedRoute.queryParams.subscribe(params => {
-          if (params.token) {
-              this.loadingLogin = false;
-              this.loginService.loginWithToken(params.token, true).then(() => {
+    this.apiServiceCheckerService.isOnlineApi$
+      .pipe(
+        filter(result => !!result ),
+        switchMap(() => this.activatedRoute.queryParams),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(params => {
+        if (params) {
+          this.activatedRoute.queryParams.subscribe(params => {
+            if (params.token) {
+                this.loginService.loginWithToken(params.token, true).then(() => {
+                this.loadingLogin = false;
+                this.isInternalNavigation = true;
+                this.startInternalNavigation(params);
+              });
+            } else if (params.key) {
               this.loadingLogin = false;
               this.isInternalNavigation = true;
-              this.startInternalNavigation(params);
-            });
-          } else if (params.key) {
-            this.loadingLogin = false;
-            this.isInternalNavigation = true;
-            this.loginService.loginWithKey(params.key, true).then(() => {
-              this.startInternalNavigation(params);
-            });
-          } else {
-            this.loadingAuth = false;
-          }
-        });
-      }
+              this.loginService.loginWithKey(params.key, true).then(() => {
+                this.startInternalNavigation(params);
+              });
+            } else if (params.error) {
+               if (params.error === 'saml2') {
+                 this.utmToast.showError('Login fail', 'The provided credentials do not match any active' +
+                   ' user account or the account lacks required roles.');
+               } else {
+                 this.utmToast.showError('Login fail', 'Authentication error, ' +
+                   'check your data and try again.');
+               }
+               this.loadingAuth = false;
+            } else {
+              this.loadingAuth = false;
+            }
+          });
+        }
     });
   }
 
@@ -88,7 +103,7 @@ export class LoginComponent implements OnInit {
     this.accountService.identity(true).then(value => {
       setTimeout(() => {
         if (value) {
-          //this.spinner.show('loadingSpinner');
+          // this.spinner.show('loadingSpinner');
           if (url) {
             const urlRoute = url.split('<-PARAMS->');
             const route = urlRoute[0];
@@ -98,7 +113,7 @@ export class LoginComponent implements OnInit {
                 this.router.navigate([route],
                   {queryParams}).then(() => {
                   this.menuBehavior.$menu.next(false);
-                  //this.spinner.hide('loadingSpinner');
+                  // this.spinner.hide('loadingSpinner');
                 });
               });
             } else {
@@ -107,7 +122,7 @@ export class LoginComponent implements OnInit {
             }
           }
         } else {
-          //this.spinner.hide('loadingSpinner');
+          // this.spinner.hide('loadingSpinner');
           this.loadingAuth = false;
         }
       }, 1000);
@@ -199,4 +214,8 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

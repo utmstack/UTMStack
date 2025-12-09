@@ -3,6 +3,7 @@ package updater
 import (
 	"bytes"
 	"fmt"
+	"net/http"
 	"os"
 	"os/exec"
 	"regexp"
@@ -15,19 +16,31 @@ import (
 )
 
 var (
-	version     = VersionFile{}
-	versionOnce sync.Once
+	version         = VersionFile{}
+	versionOnce     sync.Once
+	SpecificVersion string // Version specified via command line flag
 )
 
 func GetVersion() (VersionFile, error) {
 	var err error
 	versionOnce.Do(func() {
 		if !utils.CheckIfPathExist(config.VersionFilePath) {
-			if config.ConnectedToInternet {
-				version.Version = config.INSTALLER_VERSION
+			// Check if a specific version was requested via command line
+			if SpecificVersion != "" {
+				version.Version = SpecificVersion
 				version.Changelog = ""
 				version.Edition = "community"
-
+			} else if config.ConnectedToInternet {
+				latestVersion, errFetch := fetchLatestVersionFromCM()
+				if errFetch != nil {
+					config.Logger().Info("Could not fetch latest version from CM, using installer version: %v", errFetch)
+					version.Version = config.INSTALLER_VERSION
+					version.Changelog = ""
+				} else {
+					version.Version = latestVersion.Version
+					version.Changelog = latestVersion.Changelog
+				}
+				version.Edition = "community"
 			} else {
 				versionFromTar, errB := ExtractVersionFromFolder(config.ImagesPath)
 				if errB == nil {
@@ -205,4 +218,26 @@ func SortVersions(versions []map[string]string) []map[string]string {
 	}
 
 	return versions
+}
+
+func fetchLatestVersionFromCM() (*VersionDTO, error) {
+	url := fmt.Sprintf("%s%s", config.GetCMServer(), config.GetLatestVersionEndpoint)
+
+	resp, status, err := utils.DoReq[VersionDTO](
+		url,
+		nil,
+		http.MethodGet,
+		nil,
+		nil,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("error fetching latest version: %v", err)
+	}
+
+	if status != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", status)
+	}
+
+	return &resp, nil
 }

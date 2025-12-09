@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {CheckForUpdatesService} from '../../shared/services/updates/check-for-updates.service';
+import {AppVersionService} from '../../shared/services/version/app-version.service';
 import {UtmModulesEnum} from '../shared/enum/utm-module.enum';
 import {UtmModuleType} from '../shared/type/utm-module.type';
 
@@ -14,7 +14,7 @@ export class ModuleIntegrationComponent implements OnInit {
   moduleEnum = UtmModulesEnum;
   currentVersion: string;
 
-  constructor(private checkForUpdatesService: CheckForUpdatesService) {
+  constructor(private checkForUpdatesService: AppVersionService) {
   }
 
   ngOnInit() {

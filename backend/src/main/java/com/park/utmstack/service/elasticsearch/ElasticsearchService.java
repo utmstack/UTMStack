@@ -5,7 +5,6 @@ import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.UtmSpaceNotificationControl;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
-import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.domain.index_pattern.enums.SystemIndexPattern;
 import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.service.MailService;
@@ -19,11 +18,10 @@ import com.utmstack.opensearch_connector.enums.TermOrder;
 import com.utmstack.opensearch_connector.exceptions.OpenSearchException;
 import com.utmstack.opensearch_connector.types.ElasticCluster;
 import com.utmstack.opensearch_connector.types.IndexSort;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.opensearch.client.json.JsonData;
+import com.utmstack.opensearch_connector.types.SearchSqlResponse;
+import com.utmstack.opensearch_connector.types.SqlQueryRequest;
 import org.opensearch.client.opensearch._types.SortOrder;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
-import org.opensearch.client.opensearch.cat.CountResponse;
 import org.opensearch.client.opensearch.cat.indices.IndicesRecord;
 import org.opensearch.client.opensearch.core.*;
 import org.slf4j.Logger;
@@ -394,6 +392,15 @@ public class ElasticsearchService {
             return srb.query(SearchUtil.toQuery(filters)).build();
         } catch (Exception e) {
             throw new UtmElasticsearchException(ctx + ": " + e.getMessage());
+        }
+    }
+
+    public <T> SearchSqlResponse<T> searchBySql(SqlQueryRequest request, Class<T> responseType) {
+        final String ctx = CLASSNAME + ".searchBySql";
+        try {
+            return client.getClient().searchBySqlQuery(request, responseType);
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
 }
