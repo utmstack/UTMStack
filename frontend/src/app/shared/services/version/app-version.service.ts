@@ -46,7 +46,7 @@ export class AppVersionService {
           },
           error => {
             console.error('Unable to load version info', error);
-            reject(error);
+            resolve();
           }
         );
     });
