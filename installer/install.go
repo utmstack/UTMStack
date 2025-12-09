@@ -13,8 +13,14 @@ import (
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
-func Install() error {
+func Install(specificVersion string) error {
 	fmt.Println("### Installing UTMStack ###")
+
+	if specificVersion != "" {
+		updater.SpecificVersion = specificVersion
+		fmt.Printf("Installing specific version: %s\n", specificVersion)
+	}
+
 	go updater.MonitorConnection(config.GetCMServer(), 30*time.Second, 3, &config.ConnectedToInternet)
 
 	isInstalledAlready, err := utils.CheckIfServiceIsInstalled("UTMStackComponentsUpdater")
