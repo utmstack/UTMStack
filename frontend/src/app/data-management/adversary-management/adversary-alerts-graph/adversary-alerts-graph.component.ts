@@ -10,6 +10,7 @@ import {AdversaryAlerts} from '../models';
 export class AdversaryAlertsGraphComponent implements OnChanges {
   @Input() data!: AdversaryAlerts[];
   chartHeight: number;
+  chartWidth: number;
   baseHeight = 600;
   nodeGap = 6;
   option: any;
@@ -38,6 +39,63 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
       if (params.dataType === 'node') {
       }
     });
+  }
+
+  private getGraphicElements() {
+    const sankey = {
+      left: 10,
+      right: 180,
+      top: 20,
+      bottom: 40
+    };
+
+    const chartElement = document.querySelector('.chart-container');
+    const chartContainerWidth = chartElement ? chartElement.clientWidth : 1000;
+    const columnWidth = chartContainerWidth / 3;
+
+    const depthPositions = [
+      { left: sankey.left, width: columnWidth },
+      { left: sankey.left + columnWidth, width: columnWidth },
+      { left: sankey.left + (columnWidth * 2), width: columnWidth }
+    ];
+
+    const graphicElements: any[] = [];
+    const labels = ['Adversary', 'Alerts', 'Echoes'];
+    const colors = [
+      { fill: 'rgba(31, 119, 180, 0.06)', text: '#1F77B4' },
+      { fill: 'rgba(255, 127, 14, 0.06)', text: '#FF7F0E' },
+      { fill: 'rgba(44, 160, 44, 0.06)', text: '#2CA02C' }
+    ];
+
+    depthPositions.forEach((pos, index) => {
+      const color = colors[index];
+
+      graphicElements.push({
+        type: 'rect',
+        left: pos.left,
+        top: sankey.top,
+        shape: { width: pos.width - 10, height: this.chartHeight - sankey.top - sankey.bottom },
+        style: {
+          fill: color.fill,
+          stroke: 'none'
+        }
+      });
+
+      graphicElements.push({
+        type: 'text',
+        left: pos.left + (pos.width / 2),
+        top: 0,
+        style: {
+          text: labels[index],
+          fontSize: 12,
+          fontWeight: 'bold',
+          fill: color.text,
+          textAlign: 'center'
+        }
+      });
+    });
+
+    return graphicElements;
   }
 
   private buildOption(adversaryAlerts: AdversaryAlerts[]): any {
@@ -190,6 +248,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
         `;
         }
       },
+      graphic: this.getGraphicElements(),
       series: [{
         type: 'sankey',
         orient: 'horizontal',
