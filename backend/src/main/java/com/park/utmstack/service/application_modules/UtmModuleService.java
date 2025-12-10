@@ -56,30 +56,32 @@ public class UtmModuleService {
     public UtmModule activateDeactivate(ModuleActivationDTO moduleActivationDTO) {
         final String ctx = CLASSNAME + ".activateDeactivate";
 
-            long serverId = moduleActivationDTO.getServerId();
-            ModuleName nameShort = moduleActivationDTO.getModuleName();
-            boolean activationStatus = moduleActivationDTO.getActivationStatus();
+        long serverId = moduleActivationDTO.getServerId();
+        ModuleName nameShort = moduleActivationDTO.getModuleName();
+        boolean activationStatus = moduleActivationDTO.getActivationStatus();
 
-            UtmModule module = moduleRepository.findByServerIdAndModuleName(serverId, nameShort);
+        return moduleRepository.findByServerIdAndModuleName(serverId, nameShort)
+                .map(module -> {
+                    module.setModuleActive(activationStatus);
+                    module = moduleRepository.save(module);
 
-            if (Objects.isNull(module))
-                throw new NoSuchElementException(String.format("Definition of the module %1$s not found for the server ID %2$s", nameShort.name(), serverId));
+                    List<ModuleName> nonRemovableConf = List.of(ModuleName.SOC_AI);
 
-            module.setModuleActive(activationStatus);
-            module = moduleRepository.save(module);
+                    if (!activationStatus && !nonRemovableConf.contains(nameShort))
+                        moduleGroupRepository.deleteAllByModuleId(module.getId());
 
-            List<ModuleName> nonRemovableConf = List.of(ModuleName.SOC_AI);
+                    enableDisableModuleMenus(nameShort, activationStatus);
+                    enableDisableModuleIndexPatterns(nameShort, activationStatus);
+                    enableDisableModuleFilter(nameShort, activationStatus);
 
-            if (!activationStatus && !nonRemovableConf.contains(nameShort))
-                moduleGroupRepository.deleteAllByModuleId(module.getId());
+                    UtmModule detached = SerializationUtils.clone(module);
+                    eventProcessorManagerService.updateModule(detached);
 
-            enableDisableModuleMenus(nameShort, activationStatus);
-            enableDisableModuleIndexPatterns(nameShort, activationStatus);
-            enableDisableModuleFilter(nameShort, activationStatus);
-            UtmModule detached = SerializationUtils.clone(module);
-            eventProcessorManagerService.updateModule(detached);
-
-            return module;
+                    return module;
+                })
+                .orElseThrow(() -> new NoSuchElementException(
+                        String.format("Definition of the module %1$s not found for the server ID %2$s", nameShort.name(), serverId)
+                ));
     }
 
     private void enableDisableModuleMenus(ModuleName nameShort, Boolean activationStatus) {
@@ -186,11 +188,12 @@ public class UtmModuleService {
 
     public UtmModule findByServerIdAndModuleName(Long serverId, ModuleName shortName) {
         final String ctx = CLASSNAME + ".findByServerIdAndModuleName";
-        try {
-            return moduleRepository.findByServerIdAndModuleName(serverId, shortName);
-        } catch (Exception e) {
-            throw new RuntimeException(ctx + ": " + e.getMessage());
-        }
+
+        return moduleRepository.findByServerIdAndModuleName(serverId, shortName)
+                .orElseThrow(() -> new NoSuchElementException(
+                        String.format("%s: The module %s not found for the server ID %s", ctx, shortName.name(), serverId)
+                ));
+
     }
 
     public boolean isModuleActive(ModuleName shortName) {
