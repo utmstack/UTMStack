@@ -10,15 +10,14 @@ import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.Response
 import com.park.utmstack.util.exceptions.UtmChartBuilderException;
 import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
 import com.utmstack.opensearch_connector.types.BucketAggregation;
+import com.utmstack.opensearch_connector.types.SearchSqlResponse;
 import org.opensearch.client.opensearch._types.aggregations.*;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ResponseParserForPieChart implements ResponseParser<PieChartResult> {
     private static final String CLASSNAME = "ResponseParserForPieChart";
@@ -33,7 +32,6 @@ public class ResponseParserForPieChart implements ResponseParser<PieChartResult>
 
             Bucket bucket = aggregationType.getBucket();
 
-            // In pie chart only one metric is allowed
             if (CollectionUtils.isEmpty(aggregationType.getMetrics()) || aggregationType.getMetrics().size() > 1)
                 throw new UtmChartBuilderException("In pie charts it is required one and only one metric type");
 
@@ -113,4 +111,46 @@ public class ResponseParserForPieChart implements ResponseParser<PieChartResult>
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
     }
+
+    @Override
+    public List<PieChartResult> parse(UtmVisualization visualization, SearchSqlResponse<Map> result) {
+        return result.getData().stream()
+                .map(r -> {
+                    if (!(r instanceof Map)) {
+                        return new PieChartResult("UNKNOWN", 0.0, "N/A", "N/A");
+                    }
+
+                    Map<String, Object> map = (Map<String, Object>) r;
+
+                    String bucketKey = null;
+                    double value = 0.0;
+
+                    Map<String, Object> extras = new HashMap<>();
+
+                    for (Map.Entry<?, ?> entry : map.entrySet()) {
+                        String key = entry.getKey().toString();
+                        Object val = entry.getValue();
+
+                        extras.put(key, val);
+
+                        if (bucketKey == null && val != null && !(val instanceof Number)) {
+                            bucketKey = val.toString();
+                        }
+
+                        if (val instanceof Number) {
+                            value = ((Number) val).doubleValue();
+                        } else {
+                            try {
+                                value = Double.parseDouble(val.toString());
+                            } catch (Exception ignore) {
+
+                            }
+                        }
+                    }
+
+                    return new PieChartResult("dynamic", value, bucketKey, extras.toString());
+                })
+                .collect(Collectors.toList());
+    }
+
 }
