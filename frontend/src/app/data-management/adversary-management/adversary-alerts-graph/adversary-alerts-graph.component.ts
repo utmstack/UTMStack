@@ -1,6 +1,9 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output} from '@angular/core';
 import {ECharts} from 'echarts';
+import {UtmAlertType} from '../../../shared/types/alert/utm-alert.type';
 import {AdversaryAlerts} from '../models';
+import {Side} from '../../../shared/types/event/event';
+import {EventDataTypeEnum} from "../../alert-management/shared/enums/event-data-type.enum";
 
 @Component({
   selector: 'app-adversary-alerts-graph',
@@ -10,10 +13,12 @@ import {AdversaryAlerts} from '../models';
 export class AdversaryAlertsGraphComponent implements OnChanges {
   @Input() data!: AdversaryAlerts[];
   chartHeight: number;
-  chartWidth: number;
   baseHeight = 600;
   nodeGap = 6;
   option: any;
+  viewAlertDetail = false;
+  alertDetail: UtmAlertType;
+  EventDataTypeEnum = EventDataTypeEnum;
 
   ngOnChanges(): void {
     if (this.data) {
@@ -37,6 +42,9 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
 
     chart.on('click', (params) => {
       if (params.dataType === 'node') {
+        this.viewAlertDetail = true;
+        this.alertDetail = params.data.meta.alert || {} as UtmAlertType;
+        console.log('clicked node:', params);
       }
     });
   }
@@ -191,7 +199,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
 
         alertWithChildren.children.forEach(child => {
           const childKey = nodeKey(child.id, child.name);
-          const childLabel = truncate(child.name);
+          const childLabel = truncate(this.getLabel(alert));
           const childSeverityColor = severityColors[child.severityLabel.toLowerCase()] || severityColors.default;
 
           if (!nodeSet.has(childKey)) {
@@ -207,6 +215,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
               depth: 2,
               symbolSize: getNodeSize(1),
               meta: {
+                alert: child,
                 severity: child.severityLabel,
                 timestamp: child.timestamp,
                 dataSource: child.dataSource
@@ -282,5 +291,25 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
         }
       }]
     };
+  }
+
+  private getLabel(alert: UtmAlertType) {
+    if (alert.target) {
+      const target: any = alert.target as Side;
+      if (target.ip) {
+        return target.ip;
+      } else if (target.host) {
+        return target.host;
+      } else if (target.user) {
+        return target.user;
+      }
+    } else {
+      return alert.dataSource;
+    }
+  }
+
+   closeDetail() {
+    this.alertDetail = null;
+    this.viewAlertDetail = false;
   }
 }
