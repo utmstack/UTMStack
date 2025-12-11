@@ -22,11 +22,13 @@ export class UtmConsoleCheckComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getAgent(this.hostname).then(value => {
-      this.agent = value;
-      this.canConnect = this.agent.status === AgentStatusEnum.ONLINE;
-      this.emptyValue.emit(!this.canConnect);
-    });
+    this.getAgent(this.hostname)
+      .then(value => {
+        this.agent = value;
+        this.canConnect = this.agent && this.agent.status === AgentStatusEnum.ONLINE;
+        this.emptyValue.emit(!this.canConnect);
+      })
+      .catch(error => this.canConnect = false);
   }
 
   getAgent(hostname: string): Promise<AgentType> {

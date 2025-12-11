@@ -146,8 +146,8 @@
                                     (emptyValue)="hideLastChange = $event"
                                     class=""></app-alert-view-last-change>
       </div>
-      <div class="alert-details w-100 d-flex justify-content-start mb-2 align-items-start"
-           *ngIf="alert.dataSource && (!hideEmptyField || (hideEmptyField && !incidentResponse))">
+      <div *ngIf="alert.dataSource && (!hideEmptyField || (hideEmptyField && !incidentResponse))"
+           class="alert-details w-100 d-flex justify-content-start mb-2 align-items-start">
         <span class="text-blue-800 font-weight-light has-minimum-width mr-2">Incident response:</span>&nbsp;
         <app-utm-console-check [hostname]="alert.dataSource"
                                (emptyValue)="incidentResponse = $event"
