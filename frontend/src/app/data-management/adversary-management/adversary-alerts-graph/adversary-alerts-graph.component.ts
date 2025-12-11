@@ -1,9 +1,9 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output} from '@angular/core';
+import {Component, Input, OnChanges} from '@angular/core';
 import {ECharts} from 'echarts';
 import {UtmAlertType} from '../../../shared/types/alert/utm-alert.type';
-import {AdversaryAlerts} from '../models';
 import {Side} from '../../../shared/types/event/event';
-import {EventDataTypeEnum} from "../../alert-management/shared/enums/event-data-type.enum";
+import {EventDataTypeEnum} from '../../alert-management/shared/enums/event-data-type.enum';
+import {AdversaryAlerts} from '../models';
 
 @Component({
   selector: 'app-adversary-alerts-graph',
