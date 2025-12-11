@@ -13,6 +13,7 @@ import {AdversaryAlerts} from '../models';
 export class AdversaryAlertsGraphComponent implements OnChanges {
   @Input() data!: AdversaryAlerts[];
   chartHeight: number;
+  chartWidth: number;
   baseHeight = 600;
   nodeGap = 6;
   option: any;
