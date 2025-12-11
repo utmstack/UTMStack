@@ -14,6 +14,8 @@ import {VisualizationDeleteComponent} from './visualization-delete/visualization
 import {VisualizationImportComponent} from './visualization-import/visualization-import.component';
 import {VisualizationListComponent} from './visualization-list/visualization-list.component';
 import {VisualizationSaveComponent} from './visualization-save/visualization-save.component';
+import {VisualizationHeaderComponent} from "./visualization-header/visualization-header.component";
+import {ResizableModule} from "angular-resizable-element";
 
 @NgModule({
   declarations: [
@@ -24,7 +26,8 @@ import {VisualizationSaveComponent} from './visualization-save/visualization-sav
     VisualizationImportComponent,
     VisualizationFilterComponent,
     VisualizationChangeNameComponent,
-    VisualizationSelectComponent
+    VisualizationSelectComponent,
+    VisualizationHeaderComponent
   ],
   entryComponents: [
     VisualizationDeleteComponent,
@@ -41,12 +44,14 @@ import {VisualizationSaveComponent} from './visualization-save/visualization-sav
     FormsModule,
     ReactiveFormsModule,
     GraphicBuilderSharedModule,
+    ResizableModule,
 
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
   exports: [
     VisualizationChangeNameComponent,
-    VisualizationSelectComponent
+    VisualizationSelectComponent,
+    VisualizationHeaderComponent
   ],
   providers: [InputClassResolve]
 })

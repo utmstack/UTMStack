@@ -1,9 +1,10 @@
 import {
-  Component, EventEmitter,
+  Component, EventEmitter, forwardRef,
   Input, OnInit, Output
 } from '@angular/core';
+import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 
-interface ConsoleOptions {
+export interface ConsoleOptions {
   value?: string;
   language?: 'sql';
   theme?: 'vs' | 'vs-dark' | 'hc-black' | string;
@@ -17,7 +18,8 @@ interface ConsoleOptions {
   };
   overviewRulerLanes?: number;
   wordWrap?: 'off' | 'on' | 'wordWrapColumn' | 'bounded';
-  automaticLayout: boolean;
+  automaticLayout?: boolean;
+  lineNumbers?: 'off' | 'on';
 }
 
 const SQL_KEYWORDS = ['CREATE', 'DROP', 'ALTER', 'TRUNCATE',
@@ -35,9 +37,17 @@ const SQL_KEYWORDS = ['CREATE', 'DROP', 'ALTER', 'TRUNCATE',
 @Component({
   selector: 'app-code-editor',
   templateUrl: './code-editor.component.html',
-  styleUrls: ['./code-editor.component.scss']
+  styleUrls: ['./code-editor.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => CodeEditorComponent),
+      multi: true
+    }
+  ]
 })
-export class CodeEditorComponent implements OnInit {
+export class CodeEditorComponent implements OnInit, ControlValueAccessor {
+  @Input() showHeader = true;
   @Input() consoleOptions?: ConsoleOptions;
   @Output() execute = new EventEmitter<string>();
   @Output() clearData = new EventEmitter<void>();
@@ -46,7 +56,6 @@ export class CodeEditorComponent implements OnInit {
   sqlQuery = '';
   errorMessage = '';
   successMessage = '';
-
   readonly defaultOptions: ConsoleOptions = {
     value: this.sqlQuery,
     language: 'sql',
@@ -61,16 +70,18 @@ export class CodeEditorComponent implements OnInit {
     },
     overviewRulerLanes: 0,
     wordWrap: 'on',
-    automaticLayout: true
+    automaticLayout: true,
+    lineNumbers: 'on'
   };
-
+  private onChange = (_: any) => {};
+  private onTouched = () => {};
   constructor() {}
 
   ngOnInit(): void {
     this.consoleOptions = { ...this.defaultOptions, ...this.consoleOptions };
   }
 
-  onEditorInit() {
+  onEditorInit(editor: monaco.editor.IStandaloneCodeEditor) {
     monaco.languages.registerCompletionItemProvider('sql', {
       provideCompletionItems: () => {
         const allKeywords = Array.from(new Set([
@@ -87,24 +98,24 @@ export class CodeEditorComponent implements OnInit {
         return { suggestions };
       }
     });
+    editor.onDidChangeModelContent(() => {
+      const val = editor.getValue();
+      this.sqlQuery = val;
+      this.onChange(val);
+      this.onTouched();
+    });
   }
 
   executeQuery(): void {
-    this.resetMessages();
-    const query = this.sqlQuery ? this.sqlQuery.trim() : '';
-    if (!query) {
-      this.errorMessage = 'The query cannot be empty.';
-      return;
-    }
-
-    const validationError = this.validateSqlQuery(query);
-    if (validationError) {
-      this.errorMessage = validationError;
+    //TODO: ELENA comprobar cambio para logExpplorer caso de cadena con solo espacios
+    this.clearMessages();
+    this.validateSqlQuery();
+    if (this.errorMessage) {
       return;
     }
 
     try {
-      const cleanedQuery = query.replace(/\n/g, ' ');
+      const cleanedQuery = this.sqlQuery.replace(/\n/g, ' ');
       this.execute.emit(cleanedQuery);
     } catch (err) {
       this.errorMessage = err instanceof Error ? err.message : String(err);
@@ -113,12 +124,12 @@ export class CodeEditorComponent implements OnInit {
 
   clearQuery(): void {
     this.sqlQuery = '';
-    this.resetMessages();
+    this.clearMessages();
     this.clearData.emit();
   }
 
   formatQuery(): void {
-    this.resetMessages();
+    this.clearMessages();
     this.sqlQuery = this.formatSql(this.sqlQuery);
   }
 
@@ -134,67 +145,63 @@ export class CodeEditorComponent implements OnInit {
   }
 
   copyQuery(): void {
-    this.resetMessages();
+    this.clearMessages();
     (navigator as any).clipboard.writeText(this.sqlQuery);
     this.successMessage = 'Query copied to clipboard.';
   }
 
-  resetMessages(): void {
+  clearMessages(): void {
     this.errorMessage = '';
     this.successMessage = '';
   }
 
-  private validateSqlQuery(query: string): string | null {
-    const trimmed = query.trim().replace(/;+\s*$/, '');
+  public validateSqlQuery(): string | null {
+    const query = this.sqlQuery ? this.sqlQuery.trim() : '';
+    let message: string | null = null;
+
+    const trimmed = query.replace(/;+\s*$/, '');
     const upper = trimmed.toUpperCase();
 
-    const startPattern = /^\s*SELECT\b/i;
-    if (!startPattern.test(trimmed)) {
-      return 'Query must start with SELECT.';
-    }
+    const rules: { test: boolean; message: string }[] = [
+      { test: !query, message: 'The query cannot be empty.' },
+      { test: !/^\s*SELECT\b/i.test(trimmed), message: 'Query must start with SELECT.' },
+      { test: !/^\s*SELECT\s+.+\s+FROM\s+.+/is.test(trimmed), message: 'Query must be at least: SELECT <columns> FROM <table>.' },
+      {
+        test: new RegExp(
+          '\\b(INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|REPLACE|TRUNCATE|MERGE|GRANT|REVOKE|EXEC|EXECUTE|COMMIT|ROLLBACK|INTO)\\b',
+          'i'
+        ).test(upper),
+        message: 'Query contains forbidden SQL keywords.'
+      },
+      { test: /(--.*?$|\/\*.*?\*\/)/gm.test(trimmed), message: 'Query must not contain SQL comments (-- or /* */).' },
+      { test: trimmed.includes(';'), message: 'Query must not contain internal semicolons.' },
+      { test: !this.balancedQuotes(trimmed), message: 'Quotes are not balanced.' },
+      { test: !this.balancedParentheses(trimmed), message: 'Parentheses are not balanced.' },
+      { test: this.hasMisplacedCommas(trimmed), message: 'Query contains misplaced commas.' },
+      { test: this.hasSubqueryWithoutAlias(trimmed), message: 'Subquery in FROM must have an alias.' },
+    ];
 
-    const minimalPattern = /^\s*SELECT\s+.+\s+FROM\s+.+/is;
-    if (!minimalPattern.test(trimmed)) {
-      return 'Query must be at least: SELECT <columns> FROM <table>.';
-    }
-
-    const forbiddenPattern = /\b(INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|REPLACE|TRUNCATE|MERGE|GRANT|REVOKE|EXEC|EXECUTE|COMMIT|ROLLBACK|INTO)\b/i;
-    const commentPattern = /(--.*?$|\/\*.*?\*\/)/gm;
-    const allowedFunctions = new Set(['COUNT', 'AVG', 'MIN', 'MAX', 'SUM']);
-
-    if (forbiddenPattern.test(upper)) {
-      return 'Query contains forbidden SQL keywords.';
-    }
-    if (commentPattern.test(trimmed)) {
-      return 'Query must not contain SQL comments (-- or /* */).';
-    }
-    if (trimmed.includes(';')) {
-      return 'Query must not contain internal semicolons.';
-    }
-    if (!this.balancedQuotes(trimmed)) {
-      return 'Quotes are not balanced.';
-    }
-    if (!this.balancedParentheses(trimmed)) {
-      return 'Parentheses are not balanced.';
-    }
-
-    if (this.hasMisplacedCommas(trimmed)) {
-      return 'Query contains misplaced commas.';
-    }
-
-    if (this.hasSubqueryWithoutAlias(trimmed)) {
-      return 'Subquery in FROM must have an alias.';
-    }
-
-    const functions = this.extractFunctions(upper);
-    for (const func of functions) {
-      if (!allowedFunctions.has(func)) {
-        return `Unsupported SQL function: ${func}.`;
+    for (const rule of rules) {
+      if (rule.test) {
+        message = rule.message;
+        break;
       }
     }
 
-    return null;
+    if (!message) {
+      const allowedFunctions = new Set(['COUNT', 'AVG', 'MIN', 'MAX', 'SUM']);
+      const functions = this.extractFunctions(upper);
+      for (const func of functions) {
+        if (!allowedFunctions.has(func)) {
+          message = `Unsupported SQL function: ${func}.`;
+          break;
+        }
+      }
+    }
+    this.errorMessage = message;
+    return message;
   }
+
 
   private balancedParentheses(query: string): boolean {
     let count = 0;
@@ -278,4 +285,19 @@ export class CodeEditorComponent implements OnInit {
     return !aliasRegex.test(query);
   }
 
+  writeValue(value: any): void {
+    this.sqlQuery = value || '';
+  }
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState?(isDisabled: boolean): void {
+    // Optional: handle disabled state
+  }
 }

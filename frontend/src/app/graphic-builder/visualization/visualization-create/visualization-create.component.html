@@ -1,9 +1,6 @@
 <app-utm-modal-header [name]="'New visualization'" class="w-100"></app-utm-modal-header>
 <div class="container-fluid p-3">
-  <app-index-pattern-select (indexPatternChange)="pattern = $event"></app-index-pattern-select>
-
   <div class="row mt-4">
-
     <div class="col-lg-7 col-md-12 col-sm-12">
       <div class="d-flex justify-content-start align-items-start flex-wrap">
         <div (click)="chartBlur(chart)"
@@ -44,7 +41,7 @@
       Cancel
     </button>
     <button (click)="createVisualization()"
-            [disabled]="!(pattern && chartSelected)"
+            [disabled]="!chartSelected"
             class="btn utm-button utm-button-primary
              d-flex justify-content-center
               align-items-center">

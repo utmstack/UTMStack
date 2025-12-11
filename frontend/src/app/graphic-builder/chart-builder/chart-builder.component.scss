@@ -51,3 +51,27 @@
 app-utm-viewer {
   width: 100%;
 }
+
+.label-header {
+  font-size: 12px;
+  color: #495057 !important;
+  background-color: #fff;
+  border: 1px #dee2e6 solid;
+  border-bottom: 1px solid transparent;
+  border-top-left-radius: .25rem;
+  border-top-right-radius: .25rem;
+  margin-bottom: -1px !important;
+  font-weight: 500;
+}
+
+::ng-deep .metric-data-container app-code-editor {
+  .monaco-editor {
+    height: 250px !important;
+    width: 100% !important;
+  }
+
+  .editor-container .execution-info{
+    padding: 5px 0px !important;
+    border-bottom: none !important;
+  }
+}

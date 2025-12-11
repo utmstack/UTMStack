@@ -1,7 +1,7 @@
 <div class="container-fluid pr-3 pl-3 pt-2">
-  <div class="d-flex justify-content-between align-items-center mb-2">
+  <div class="d-flex justify-content-between align-items-center">
     <h5 *ngIf="visualization && !mode"
-        class="card-title mb-0 text-uppercase label-header">
+        class="mb-0 label-header px-3 py-2">
       Visualization builder
     </h5>
     <h5 *ngIf="visualization && mode==='edit'"
@@ -10,21 +10,29 @@
     </h5>
     <div class="header-elements d-flex">
       <button (click)="saveVisualization()" [disabled]="!(metricNoErrors && bucketNoErrors)"
-              class="btn utm-button utm-button-primary d-flex">
-        <span [ngClass]="chartIconResolver()" class="mr-2 utm-icon-xs utm-icon-white"></span>
+              class="btn utm-button utm-button-primary d-flex" style="background-color: red">
+        <span [ngClass]="chartIconResolver()" class="mr-2 utm-icon-xs utm-icon-white d-flex"></span>
         Save visualization
-      </button>
-      <button class="btn utm-button utm-button-grey d-flex ml-2"
-              (click)="cancel()">
-        Cancel
       </button>
     </div>
   </div>
+
+  <app-visualization-header class="d-flex bg-white"
+      (indexPatternSelected)="indexPatternSelected($event)"
+      [chartType]="chart"
+      (cancelled)="cancel()"
+      (saved)="saveVisualization()"
+      (sqlModeToggled)="toggleSqlMode($event)"
+      (indexPatternInitialized)="indexPatternLoaded($event)"
+      >
+  </app-visualization-header>
+
   <div class="row">
-    <div *ngIf="visualization && visualization.filterType" class="col-lg-12 col-sm-12 col-md-12">
+    <div *ngIf="visualization && visualization.filterType && !isSqlMode" class="col-lg-12 col-sm-12 col-md-12 p-0">
       <app-utm-elastic-filter (filterChange)="onFilterChange($event)"
                               [filters]="visualization.filterType"
                               [pattern]="pattern"
+                              [template]="'log-explorer'"
                               [defaultTime]="defaultTime"
                               class="w-100">
       </app-utm-elastic-filter>
@@ -37,7 +45,7 @@
         <div class="p-2 d-flex
         justify-content-between
         align-items-center bg-utm-bar">
-          <label class="text-white">{{pattern}}</label>
+          <label class="text-white">{{isSqlMode ? '' : pattern}}</label>
           <span (click)="runVisualization()" *ngIf="(metricNoErrors && bucketNoErrors)"
                 class="cursor-pointer"
                 ngbTooltip="Run visualization"
@@ -63,7 +71,7 @@
 
           <div class="metric-property-container">
             <div
-              [hidden]="property!==headers[0].name"
+              [hidden]="property!==headers[0].name || isSqlMode"
               class="pt-2 metric-data-container w-100 h-100">
               <app-metric-aggregation (metricDefChange)="onMetricChange($event)"
                                       [hidden]="chart ===chartTypeEnum.LIST_CHART"
@@ -89,7 +97,16 @@
                                 [mode]="mode"
                                 [visualization]="visualization"></app-list-columns>
             </div>
-            <div *ngIf="visualization" [hidden]="property!==headers[1].name"
+            <div *ngIf="property === headers[0].name && isSqlMode"
+              class="metric-data-container w-100 h-100">
+              <app-code-editor
+                  [showHeader]="false"
+                  [(ngModel)]="sqlQuery"
+                  [customKeywords]="loadFieldNames().concat(indexPatternNames)"
+                  [consoleOptions]="codeEditorOptions">
+              </app-code-editor>
+            </div>
+            <div *ngIf="visualization" [hidden]="property !== headers[1].name"
                  class="pt-2 option-container w-100 h-100">
               <app-metric-properties-option (metricOptions)="onMetricOptionChange($event)"
                                             *ngSwitchCase="chartTypeEnum.METRIC_CHART"

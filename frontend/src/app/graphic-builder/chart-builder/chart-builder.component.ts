@@ -1,4 +1,5 @@
-import {AfterViewChecked, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {Location} from '@angular/common';
+import {AfterViewChecked, ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerService} from 'ngx-spinner';
@@ -16,25 +17,31 @@ import {UtmTagCloudOptionType} from '../../shared/chart/types/charts/tag-cloud/u
 import {MetricAggregationType} from '../../shared/chart/types/metric/metric-aggregation.type';
 import {MetricBucketsType} from '../../shared/chart/types/metric/metric-buckets.type';
 import {VisualizationType} from '../../shared/chart/types/visualization.type';
+import {CodeEditorComponent, ConsoleOptions} from '../../shared/components/code-editor/code-editor.component';
 import {
   ElasticFilterDefaultTime
 } from '../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
 import {UTM_CHART_ICONS} from '../../shared/constants/icons-chart.const';
+import {ALERT_INDEX_PATTERN, LOG_INDEX_PATTERN} from '../../shared/constants/main-index-pattern.constant';
 import {MULTIPLE_METRIC_CHART} from '../../shared/constants/visualization-bucket-metric.constant';
+import {ChartBuilderQueryLanguageEnum} from '../../shared/enums/chart-builder-query-language.enum';
 import {ChartTypeEnum} from '../../shared/enums/chart-type.enum';
 import {ElasticOperatorsEnum} from '../../shared/enums/elastic-operators.enum';
 import {DataNatureTypeEnum} from '../../shared/enums/nature-data.enum';
 import {RouteCallbackEnum} from '../../shared/enums/route-callback.enum';
 import {ElasticSearchIndexService} from '../../shared/services/elasticsearch/elasticsearch-index.service';
 import {FieldDataService} from '../../shared/services/elasticsearch/field-data.service';
+import {LocalFieldService} from '../../shared/services/elasticsearch/local-field.service';
 import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
+import {UtmIndexPattern} from '../../shared/types/index-pattern/utm-index-pattern';
 import {RunVisualizationBehavior} from '../shared/behavior/run-visualization.behavior';
 import {VisualizationQueryParamsEnum} from '../shared/enums/visualization-query-params.enum';
 import {VisualizationService} from '../visualization/shared/services/visualization.service';
 import {VisualizationSaveComponent} from '../visualization/visualization-save/visualization-save.component';
 import {VisualizationBehavior} from './chart-property-builder/shared/behaviors/visualization.behavior';
-import {Location} from "@angular/common";
-import {DashboardStatusEnum} from "../dashboard-builder/shared/enums/dashboard-status.enum";
+
+import {DashboardStatusEnum} from '../dashboard-builder/shared/enums/dashboard-status.enum';
+
 
 @Component({
   selector: 'app-chart-builder',
@@ -62,6 +69,12 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
   private patternId: number;
   defaultTime = new ElasticFilterDefaultTime('now-24h', 'now');
 
+  @ViewChild(CodeEditorComponent) codeEditor: CodeEditorComponent;
+  isSqlMode = false;
+  errorMessage = '';
+  sqlQuery = '';
+  indexPatternNames: string[] = [];
+  codeEditorOptions: ConsoleOptions = {lineNumbers: 'off'};
 
   constructor(private spinner: NgxSpinnerService,
               private route: ActivatedRoute,
@@ -73,12 +86,14 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
               private visualizationService: VisualizationService,
               private runVisualizationBehavior: RunVisualizationBehavior,
               private location: Location,
-              private router: Router) {
+              private router: Router,
+              private localFieldService: LocalFieldService) {
     route.queryParams.subscribe(params => {
-      this.chart = params[VisualizationQueryParamsEnum.CHART];
+      //TODO: ELENA Revisar
+      console.log('chart', params[VisualizationQueryParamsEnum.CHART]);
+      const chartParam = params[VisualizationQueryParamsEnum.CHART];
+      this.chart = chartParam as ChartTypeEnum;
       this.mode = params[VisualizationQueryParamsEnum.MODE];
-      this.pattern = params[VisualizationQueryParamsEnum.PATTERN_NAME];
-      this.patternId = Number(params[VisualizationQueryParamsEnum.PATTERN_ID]);
       if (params[VisualizationQueryParamsEnum.CALLBACK]) {
         this.callback = params[VisualizationQueryParamsEnum.CALLBACK];
       }
@@ -116,6 +131,7 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
           id: this.patternId,
           pattern: this.pattern
         },
+        queryLanguage: ChartBuilderQueryLanguageEnum.DSL
       };
     }
   }
@@ -132,11 +148,24 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
   }
 
   viewProperty($event: string) {
+    console.log('Ele', this.sqlQuery);
     this.property = $event;
   }
 
   runVisualization() {
     this.running = true;
+    if (this.isSqlMode) {
+      const validationError = this.codeEditor.validateSqlQuery();
+      if (validationError) {
+        this.errorMessage = validationError;
+        this.running = false;
+        return;
+      }
+      this.visualization.sqlQuery = this.sqlQuery;
+      this.visualization.queryLanguage = ChartBuilderQueryLanguageEnum.SQL;
+    } else {
+      this.visualization.queryLanguage = ChartBuilderQueryLanguageEnum.DSL;
+    }
     this.runVisualizationBehavior.$run.next(this.tempId);
   }
 
@@ -276,5 +305,29 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
     } else {
       this.location.back();
     }
+  }
+
+  toggleSqlMode($event: boolean) {
+    this.visualization.sqlQuery = '';
+    this.isSqlMode = $event;
+  }
+
+  indexPatternSelected(pattern: UtmIndexPattern) {
+    this.pattern = pattern.pattern;
+    this.visualization.pattern = pattern;
+    this.visualization.idPattern = pattern.id;
+    this.patternId = pattern.id;
+    this.getFields();
+  }
+
+  loadFieldNames() {
+    return [
+      ...this.localFieldService.getPatternStoredFields(ALERT_INDEX_PATTERN).map(f => f.name),
+      ...this.localFieldService.getPatternStoredFields(LOG_INDEX_PATTERN).map(f => f.name)
+    ];
+  }
+
+  indexPatternLoaded(indexPatternNames: string[]) {
+    this.indexPatternNames = indexPatternNames;
   }
 }
