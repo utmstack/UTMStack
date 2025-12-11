@@ -8,12 +8,10 @@ import com.park.utmstack.domain.logstash_filter.UtmLogstashFilter;
 import com.park.utmstack.repository.UtmModuleGroupRepository;
 import com.park.utmstack.repository.application_modules.UtmModuleRepository;
 import com.park.utmstack.service.UtmMenuService;
-import com.park.utmstack.event_processor.EventProcessorManagerService;
 import com.park.utmstack.service.dto.application_modules.ModuleActivationDTO;
 import com.park.utmstack.service.index_pattern.UtmIndexPatternService;
 import com.park.utmstack.service.logstash_filter.UtmLogstashFilterService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -24,7 +22,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -43,7 +40,6 @@ public class UtmModuleService {
     private final UtmIndexPatternService indexPatternService;
     private final UtmLogstashFilterService logstashFilterService;
     private final UtmModuleGroupRepository moduleGroupRepository;
-    private final EventProcessorManagerService eventProcessorManagerService;
 
 
     /**
@@ -73,9 +69,6 @@ public class UtmModuleService {
                     enableDisableModuleMenus(nameShort, activationStatus);
                     enableDisableModuleIndexPatterns(nameShort, activationStatus);
                     enableDisableModuleFilter(nameShort, activationStatus);
-
-                    UtmModule detached = SerializationUtils.clone(module);
-                    eventProcessorManagerService.updateModule(detached);
 
                     return module;
                 })

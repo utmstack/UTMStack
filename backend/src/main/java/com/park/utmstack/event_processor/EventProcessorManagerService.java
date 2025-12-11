@@ -4,6 +4,8 @@ import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.application_modules.enums.ModuleName;
+import com.park.utmstack.service.dto.application_modules.ModuleDTO;
+import com.park.utmstack.service.dto.application_modules.UtmModuleMapper;
 import com.park.utmstack.service.web_clients.rest_template.RestTemplateService;
 import com.park.utmstack.util.CipherUtil;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +36,7 @@ public class EventProcessorManagerService {
             System.getenv(Constants.ENV_EVENT_PROCESSOR_HOST) + ":" +
             System.getenv(Constants.ENV_EVENT_PROCESSOR_PORT);
 
-    public void updateModule(UtmModule module) {
+    public void updateModule(ModuleDTO module) {
         final String ctx = CLASSNAME + ".updateModule";
 
         String url = UriComponentsBuilder
@@ -60,10 +62,19 @@ public class EventProcessorManagerService {
 
     public void decryptModuleConfig (UtmModule module){
         Set<UtmModuleGroup> groups = module.getModuleGroups();
+        decryptModuleGroupsConfig(groups, module.getModuleName());
+    }
+
+    public void decryptModuleConfig (ModuleDTO moduleDTO){
+        Set<UtmModuleGroup> groups = moduleDTO.getModuleGroups();
+        decryptModuleGroupsConfig(groups, moduleDTO.getModuleName());
+    }
+
+    private void decryptModuleGroupsConfig(Set<UtmModuleGroup> groups, ModuleName moduleName) {
         groups.forEach((gp) -> {
             gp.getModuleGroupConfigurations().forEach((gpc) -> {
                 if ((gpc.getConfDataType().equals(Constants.CONF_TYPE_PASSWORD) && StringUtils.hasText(gpc.getConfValue()))
-                        || (gpc.getConfDataType().equals(Constants.CONF_TYPE_FILE) && StringUtils.hasText(gpc.getConfValue())) && typeFileNeedsDecryptList.contains(module.getModuleName())) {
+                        || (gpc.getConfDataType().equals(Constants.CONF_TYPE_FILE) && StringUtils.hasText(gpc.getConfValue())) && typeFileNeedsDecryptList.contains(moduleName)) {
                     gpc.setConfValue(CipherUtil.decrypt(gpc.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
                 }
             });
