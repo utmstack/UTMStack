@@ -74,9 +74,9 @@
   <ng-container *ngIf="alert.expanded">
     <tr>
       <td class="expanded-row-detail" [attr.colspan]="fields.length + 2" >
-        <app-alert-view-detail [isEcho]=" true"
+        <app-alert-view-detail [isEcho]="true"
                                [alert]="alert"
-                               [hideEmptyField]=" true"
+                               [hideEmptyField]="true"
                                [dataType]="dataType">
         </app-alert-view-detail>
       </td>
