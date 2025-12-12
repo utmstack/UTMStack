@@ -13,7 +13,6 @@ import {AdversaryAlerts} from '../models';
 export class AdversaryAlertsGraphComponent implements OnChanges {
   @Input() data!: AdversaryAlerts[];
   chartHeight: number;
-  chartWidth: number;
   baseHeight = 600;
   nodeGap = 6;
   option: any;
@@ -27,7 +26,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
     }
   }
 
-  onChartInit(chart: ECharts) {
+  onChartInit(chart: any) {
 
     chart.on('mouseover', (params) => {
       if (params.dataType === 'node') {
@@ -42,10 +41,11 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
     });
 
     chart.on('click', (params) => {
-      if (params.dataType === 'node') {
-        this.viewAlertDetail = true;
-        this.alertDetail = params.data.meta.alert || {} as UtmAlertType;
-        console.log('clicked node:', params);
+      if (params.componentType === 'series'
+        && params.seriesType === 'sankey'
+        && (params.dataType === 'node' || params.dataType === 'label' || params.dataType === 'edge')) {
+        this.alertDetail = params.data.meta.alert || null;
+        this.viewAlertDetail = !!this.alertDetail;
       }
     });
   }
@@ -179,6 +179,10 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
             depth: 1,
             symbolSize: getNodeSize(childCount),
             meta: {
+              alert: {
+                ...alert,
+                hasChildren: true
+              },
               severity: alert.severityLabel,
               timestamp: alert.timestamp,
               dataSource: alert.dataSource
@@ -200,7 +204,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
 
         alertWithChildren.children.forEach(child => {
           const childKey = nodeKey(child.id, child.name);
-          const childLabel = truncate(this.getLabel(alert));
+          const childLabel = truncate(this.getLabel(child));
           const childSeverityColor = severityColors[child.severityLabel.toLowerCase()] || severityColors.default;
 
           if (!nodeSet.has(childKey)) {
@@ -233,6 +237,9 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
               color: gradientColor(severityColor, childSeverityColor),
               opacity: 0.5,
               curveness: 0.2
+            },
+            meta: {
+              alert: child,
             }
           });
         });
@@ -283,9 +290,10 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
         layoutIterations: 32,
         left: 20,
         right: 180,
-        top: 20,
-        bottom: 40,
+        top: 30,
+        bottom: 50,
         label: {
+          show: true,
           position: 'right',
           fontSize: 10,
           formatter: (params: any) => params.name.split('::')[1] || params.name
