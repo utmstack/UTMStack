@@ -1,5 +1,8 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output} from '@angular/core';
+import {Component, Input, OnChanges} from '@angular/core';
 import {ECharts} from 'echarts';
+import {UtmAlertType} from '../../../shared/types/alert/utm-alert.type';
+import {Side} from '../../../shared/types/event/event';
+import {EventDataTypeEnum} from '../../alert-management/shared/enums/event-data-type.enum';
 import {AdversaryAlerts} from '../models';
 
 @Component({
@@ -13,6 +16,9 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
   baseHeight = 600;
   nodeGap = 6;
   option: any;
+  viewAlertDetail = false;
+  alertDetail: UtmAlertType;
+  EventDataTypeEnum = EventDataTypeEnum;
 
   ngOnChanges(): void {
     if (this.data) {
@@ -20,7 +26,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
     }
   }
 
-  onChartInit(chart: ECharts) {
+  onChartInit(chart: any) {
 
     chart.on('mouseover', (params) => {
       if (params.dataType === 'node') {
@@ -35,9 +41,70 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
     });
 
     chart.on('click', (params) => {
-      if (params.dataType === 'node') {
+      if (params.componentType === 'series'
+        && params.seriesType === 'sankey'
+        && (params.dataType === 'node' || params.dataType === 'label' || params.dataType === 'edge')) {
+        this.alertDetail = params.data.meta.alert || null;
+        this.viewAlertDetail = !!this.alertDetail;
       }
     });
+  }
+
+  private getGraphicElements() {
+    const sankey = {
+      left: 10,
+      right: 180,
+      top: 20,
+      bottom: 40
+    };
+
+    const chartElement = document.querySelector('.chart-container');
+    const chartContainerWidth = chartElement ? chartElement.clientWidth : 1000;
+    const columnWidth = chartContainerWidth / 3;
+
+    const depthPositions = [
+      { left: sankey.left, width: columnWidth },
+      { left: sankey.left + columnWidth, width: columnWidth },
+      { left: sankey.left + (columnWidth * 2), width: columnWidth }
+    ];
+
+    const graphicElements: any[] = [];
+    const labels = ['Adversary', 'Alerts', 'Echoes'];
+    const colors = [
+      { fill: 'rgba(31, 119, 180, 0.06)', text: '#1F77B4' },
+      { fill: 'rgba(255, 127, 14, 0.06)', text: '#FF7F0E' },
+      { fill: 'rgba(44, 160, 44, 0.06)', text: '#2CA02C' }
+    ];
+
+    depthPositions.forEach((pos, index) => {
+      const color = colors[index];
+
+      graphicElements.push({
+        type: 'rect',
+        left: pos.left,
+        top: sankey.top,
+        shape: { width: pos.width - 10, height: this.chartHeight - sankey.top - sankey.bottom },
+        style: {
+          fill: color.fill,
+          stroke: 'none'
+        }
+      });
+
+      graphicElements.push({
+        type: 'text',
+        left: pos.left + (pos.width / 2),
+        top: 0,
+        style: {
+          text: labels[index],
+          fontSize: 12,
+          fontWeight: 'bold',
+          fill: color.text,
+          textAlign: 'center'
+        }
+      });
+    });
+
+    return graphicElements;
   }
 
   private buildOption(adversaryAlerts: AdversaryAlerts[]): any {
@@ -112,6 +179,10 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
             depth: 1,
             symbolSize: getNodeSize(childCount),
             meta: {
+              alert: {
+                ...alert,
+                hasChildren: true
+              },
               severity: alert.severityLabel,
               timestamp: alert.timestamp,
               dataSource: alert.dataSource
@@ -133,7 +204,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
 
         alertWithChildren.children.forEach(child => {
           const childKey = nodeKey(child.id, child.name);
-          const childLabel = truncate(child.name);
+          const childLabel = truncate(this.getLabel(child));
           const childSeverityColor = severityColors[child.severityLabel.toLowerCase()] || severityColors.default;
 
           if (!nodeSet.has(childKey)) {
@@ -149,6 +220,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
               depth: 2,
               symbolSize: getNodeSize(1),
               meta: {
+                alert: child,
                 severity: child.severityLabel,
                 timestamp: child.timestamp,
                 dataSource: child.dataSource
@@ -165,6 +237,9 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
               color: gradientColor(severityColor, childSeverityColor),
               opacity: 0.5,
               curveness: 0.2
+            },
+            meta: {
+              alert: child,
             }
           });
         });
@@ -190,6 +265,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
         `;
         }
       },
+      graphic: this.getGraphicElements(),
       series: [{
         type: 'sankey',
         orient: 'horizontal',
@@ -214,14 +290,35 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
         layoutIterations: 32,
         left: 20,
         right: 180,
-        top: 20,
-        bottom: 40,
+        top: 30,
+        bottom: 50,
         label: {
+          show: true,
           position: 'right',
           fontSize: 10,
           formatter: (params: any) => params.name.split('::')[1] || params.name
         }
       }]
     };
+  }
+
+  private getLabel(alert: UtmAlertType) {
+    if (alert.target) {
+      const target: any = alert.target as Side;
+      if (target.ip) {
+        return target.ip;
+      } else if (target.host) {
+        return target.host;
+      } else if (target.user) {
+        return target.user;
+      }
+    } else {
+      return alert.dataSource;
+    }
+  }
+
+   closeDetail() {
+    this.alertDetail = null;
+    this.viewAlertDetail = false;
   }
 }
