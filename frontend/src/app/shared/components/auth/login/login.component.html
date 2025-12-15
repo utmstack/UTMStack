@@ -1,5 +1,5 @@
 <div class="bg-image-utmstack"></div>
-<div *ngIf="!logged" class="d-flex justify-content-center align-items-center h-100 w-100 mt-auto utm-login-cover">
+<div *ngIf="!logged" class="d-flex justify-content-center align-items-center h-100 w-100 mt-auto utm-auth-cover">
   <!-- Login form -->
   <div  *ngIf="!loadingAuth; else loading" class="bg-white d-flex flex-column align-items-stretch flex-center rounded-4 w-350px p-4 border-grey">
     <div class="text-center my-2 d-flex justify-content-center">
@@ -12,7 +12,7 @@
         </ng-template>
       </div>
     </div>
-    <div class="d-flex flex-center flex-column flex-column-fluid ">
+    <div class="d-flex flex-center flex-column flex-column-fluid">
       <div class="card mb-0 border-0">
         <div class="card-body px-4 pb-2">
           <form (keydown)="keyDownFunction($event)" [formGroup]="formLogin">

@@ -24,7 +24,7 @@
         <ng-container *ngIf="step === 'method-selection'">
           <!-- Header -->
           <div class="text-center mb-4">
-            <h4 class="fw-semibold mb-2 text-dark">Setup Two-Factor Authentication</h4>
+            <h5 class="fw-semibold mb-2 text-dark">Setup Two-Factor Authentication</h5>
             <p class="text-muted mb-0" style="font-size: 14px;">
               Choose how you'd like to receive your authentication codes
             </p>
@@ -86,14 +86,20 @@
           </div>
 
           <!-- Skip Option -->
-          <div class="text-center mt-4">
+          <div class="d-flex flex-column justify-content-center" *ngIf="!isVerified">
             <button type="button"
-                    class="btn btn-link text-muted"
-                    style="font-size: 13px; text-decoration: none; padding: 8px 0;"
-                    (click)="skipSetup()">
-              Back to Login
+                    class="btn btn-link text-muted text-lg"
+                    style="font-size: 0.9rem; text-decoration: none !important;"
+                    (click)="backToLogin()">
+              <div class="d-flex align-items-center justify-content-center">
+                <i class="icon-arrow-left22 ml-2"></i>
+                <span class="txt2">
+        Back to Login
+      </span>
+              </div>
             </button>
           </div>
+
         </ng-container>
 
         <!-- STEP 2: SETUP & VERIFICATION -->
