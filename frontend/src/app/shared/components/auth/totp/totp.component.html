@@ -74,9 +74,7 @@
             </div>
 
             <!-- Verify Button -->
-            <div class="d-grid mb-2 relative"
-                 style="display:none;"
-            >
+            <div class="d-grid mb-2 relative" style="display:none;">
               <button
                 type="submit"
                 class="btn utm-button utm-button-primary w-100"
@@ -105,25 +103,23 @@
 
             </div>
           </form>
+          <div class="d-flex flex-column justify-content-center text-center cursor-pointer" *ngIf="!isVerified">
+            <button type="button"
+                    class="btn btn-link text-muted text-lg"
+                    style="font-size: 0.9rem; text-decoration: none !important;"
+                    (click)="backToLogin()">
+              <div class="d-flex align-items-center justify-content-center">
+                <i class="icon-arrow-left22 ml-2"></i>
+                <span class="txt2">
+                  Back to Login
+                </span>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
-
-    <!-- Back to Login -->
-    <div class="d-flex flex-column justify-content-center" *ngIf="!isVerified">
-      <button type="button"
-              class="btn btn-link text-muted text-lg"
-              style="font-size: 0.9rem; text-decoration: none !important;"
-              (click)="backToLogin()">
-        <div class="d-flex align-items-center justify-content-center">
-          <i class="icon-arrow-left22 ml-2"></i>
-          <span class="txt2">
-        Back to Login
-      </span>
-        </div>
-      </button>
-    </div>
 
     <!-- Security Notice -->
     <div *ngIf="!isVerified" class="mt-2 p-3 rounded"
