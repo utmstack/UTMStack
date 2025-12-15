@@ -8,12 +8,10 @@ import com.park.utmstack.domain.logstash_filter.UtmLogstashFilter;
 import com.park.utmstack.repository.UtmModuleGroupRepository;
 import com.park.utmstack.repository.application_modules.UtmModuleRepository;
 import com.park.utmstack.service.UtmMenuService;
-import com.park.utmstack.event_processor.EventProcessorManagerService;
 import com.park.utmstack.service.dto.application_modules.ModuleActivationDTO;
 import com.park.utmstack.service.index_pattern.UtmIndexPatternService;
 import com.park.utmstack.service.logstash_filter.UtmLogstashFilterService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -24,7 +22,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -43,7 +40,6 @@ public class UtmModuleService {
     private final UtmIndexPatternService indexPatternService;
     private final UtmLogstashFilterService logstashFilterService;
     private final UtmModuleGroupRepository moduleGroupRepository;
-    private final EventProcessorManagerService eventProcessorManagerService;
 
 
     /**
@@ -56,30 +52,29 @@ public class UtmModuleService {
     public UtmModule activateDeactivate(ModuleActivationDTO moduleActivationDTO) {
         final String ctx = CLASSNAME + ".activateDeactivate";
 
-            long serverId = moduleActivationDTO.getServerId();
-            ModuleName nameShort = moduleActivationDTO.getModuleName();
-            boolean activationStatus = moduleActivationDTO.getActivationStatus();
+        long serverId = moduleActivationDTO.getServerId();
+        ModuleName nameShort = moduleActivationDTO.getModuleName();
+        boolean activationStatus = moduleActivationDTO.getActivationStatus();
 
-            UtmModule module = moduleRepository.findByServerIdAndModuleName(serverId, nameShort);
+        return moduleRepository.findByServerIdAndModuleName(serverId, nameShort)
+                .map(module -> {
+                    module.setModuleActive(activationStatus);
+                    module = moduleRepository.save(module);
 
-            if (Objects.isNull(module))
-                throw new NoSuchElementException(String.format("Definition of the module %1$s not found for the server ID %2$s", nameShort.name(), serverId));
+                    List<ModuleName> nonRemovableConf = List.of(ModuleName.SOC_AI);
 
-            module.setModuleActive(activationStatus);
-            module = moduleRepository.save(module);
+                    if (!activationStatus && !nonRemovableConf.contains(nameShort))
+                        moduleGroupRepository.deleteAllByModuleId(module.getId());
 
-            List<ModuleName> nonRemovableConf = List.of(ModuleName.SOC_AI);
+                    enableDisableModuleMenus(nameShort, activationStatus);
+                    enableDisableModuleIndexPatterns(nameShort, activationStatus);
+                    enableDisableModuleFilter(nameShort, activationStatus);
 
-            if (!activationStatus && !nonRemovableConf.contains(nameShort))
-                moduleGroupRepository.deleteAllByModuleId(module.getId());
-
-            enableDisableModuleMenus(nameShort, activationStatus);
-            enableDisableModuleIndexPatterns(nameShort, activationStatus);
-            enableDisableModuleFilter(nameShort, activationStatus);
-            UtmModule detached = SerializationUtils.clone(module);
-            eventProcessorManagerService.updateModule(detached);
-
-            return module;
+                    return module;
+                })
+                .orElseThrow(() -> new NoSuchElementException(
+                        String.format("Definition of the module %1$s not found for the server ID %2$s", nameShort.name(), serverId)
+                ));
     }
 
     private void enableDisableModuleMenus(ModuleName nameShort, Boolean activationStatus) {
@@ -186,11 +181,12 @@ public class UtmModuleService {
 
     public UtmModule findByServerIdAndModuleName(Long serverId, ModuleName shortName) {
         final String ctx = CLASSNAME + ".findByServerIdAndModuleName";
-        try {
-            return moduleRepository.findByServerIdAndModuleName(serverId, shortName);
-        } catch (Exception e) {
-            throw new RuntimeException(ctx + ": " + e.getMessage());
-        }
+
+        return moduleRepository.findByServerIdAndModuleName(serverId, shortName)
+                .orElseThrow(() -> new NoSuchElementException(
+                        String.format("%s: The module %s not found for the server ID %s", ctx, shortName.name(), serverId)
+                ));
+
     }
 
     public boolean isModuleActive(ModuleName shortName) {

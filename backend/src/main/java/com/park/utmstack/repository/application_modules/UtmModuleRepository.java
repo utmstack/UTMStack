@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -19,8 +20,8 @@ import java.util.List;
 @Repository
 public interface UtmModuleRepository extends JpaRepository<UtmModule, Long>, JpaSpecificationExecutor<UtmModule> {
 
-    @EntityGraph(attributePaths = {"moduleGroups", "moduleGroups.moduleGroupConfigurations"})
-    UtmModule findByServerIdAndModuleName(Long serverId, ModuleName shortName);
+    @EntityGraph(attributePaths = {"server", "filters", "moduleGroups", "moduleGroups.moduleGroupConfigurations"})
+    Optional<UtmModule> findByServerIdAndModuleName(Long serverId, ModuleName shortName);
 
     Integer countAllByModuleNameAndModuleActiveIsTrue(ModuleName shortName);
 

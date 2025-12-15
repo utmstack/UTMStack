@@ -8,8 +8,9 @@ import com.park.utmstack.repository.UtmModuleGroupConfigurationRepository;
 import com.park.utmstack.repository.application_modules.UtmModuleRepository;
 import com.park.utmstack.event_processor.EventProcessorManagerService;
 import com.park.utmstack.util.CipherUtil;
+import com.park.utmstack.util.exceptions.ApiException;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.SerializationUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -53,11 +54,11 @@ public class UtmModuleGroupConfigurationService {
      * @param keys List of configuration keys to save
      * @throws Exception In case of any error
      */
-    public void updateConfigurationKeys(Long moduleId, List<UtmModuleGroupConfiguration> keys) throws Exception {
+    public UtmModule updateConfigurationKeys(Long moduleId, List<UtmModuleGroupConfiguration> keys) throws Exception {
         final String ctx = CLASSNAME + ".updateConfigurationKeys";
         try {
             if (CollectionUtils.isEmpty(keys))
-                return;
+                throw new ApiException("No configuration keys were provided to update", HttpStatus.BAD_REQUEST);
             for (UtmModuleGroupConfiguration key : keys) {
                 if (key.getConfRequired() && !StringUtils.hasText(key.getConfValue()))
                     throw new Exception(String.format("No value was found for required configuration: %1$s (%2$s)", key.getConfName(), key.getConfKey()));
@@ -67,14 +68,14 @@ public class UtmModuleGroupConfigurationService {
             moduleConfigurationRepository.saveAll(keys);
 
             List<ModuleName> needRestartModules = Arrays.asList(ModuleName.AWS_IAM_USER, ModuleName.AZURE,
-                ModuleName.GCP, ModuleName.SOPHOS);
+                    ModuleName.GCP, ModuleName.SOPHOS);
 
-            moduleRepository.findById(moduleId).ifPresent(module -> {
-                module.setNeedsRestart(needRestartModules.contains(module.getModuleName()));
-                moduleRepository.save(module);
-                UtmModule detached = SerializationUtils.clone(module);
-                eventProcessorManagerService.updateModule(detached);
-            });
+            return moduleRepository.findById(moduleId)
+                    .map(module -> {
+                        module.setNeedsRestart(needRestartModules.contains(module.getModuleName()));
+                        return moduleRepository.save(module);
+                    })
+                    .orElseThrow(() -> new ApiException(String.format("Module with ID %1$s not found", moduleId), HttpStatus.NOT_FOUND));
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
         }

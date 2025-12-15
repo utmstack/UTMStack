@@ -40,6 +40,7 @@ export class AlertViewDetailComponent implements OnInit {
   @Input() hideEmptyField = false;
   @Input() dataType: EventDataTypeEnum;
   @Input() tags: AlertTags[];
+  @Input() isEcho = false;
   @Input() timeFilter: ElasticFilterType;
   @Output() refreshData = new EventEmitter<boolean>();
   ALERT_NAME = ALERT_NAME_FIELD;

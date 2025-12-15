@@ -13,15 +13,10 @@ import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.application_modules.UtmModuleQueryService;
 import com.park.utmstack.service.application_modules.UtmModuleService;
 import com.park.utmstack.event_processor.EventProcessorManagerService;
-import com.park.utmstack.service.dto.application_modules.CheckRequirementsResponse;
-import com.park.utmstack.service.dto.application_modules.ModuleActivationDTO;
-import com.park.utmstack.service.dto.application_modules.ModuleDTO;
-import com.park.utmstack.service.dto.application_modules.UtmModuleCriteria;
+import com.park.utmstack.service.dto.application_modules.*;
 import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -48,8 +43,8 @@ public class UtmModuleResource {
     private final UtmModuleQueryService utmModuleQueryService;
     private final ApplicationEventService eventService;
     private final UtmServerRepository utmServerRepository;
-    // List of configurations of type 'file' that needs content decryption
     private final EventProcessorManagerService eventProcessorManagerService;
+    private final UtmModuleMapper utmModuleMapper;
 
 
 
@@ -60,14 +55,19 @@ public class UtmModuleResource {
             successMessage = "Module activated/deactivated successfully"
     )
     @PutMapping("/utm-modules/activateDeactivate")
-    public ResponseEntity<UtmModule> activateDeactivate(@RequestParam Long serverId,
+    public ResponseEntity<ModuleDTO> activateDeactivate(@RequestParam Long serverId,
                                                         @RequestParam ModuleName nameShort,
                                                         @RequestParam Boolean activationStatus) {
-        return ResponseEntity.ok(moduleService.activateDeactivate(ModuleActivationDTO.builder()
-                        .serverId(serverId)
-                        .moduleName(nameShort)
-                        .activationStatus(activationStatus)
-                .build()));
+
+        UtmModule module = moduleService.activateDeactivate(ModuleActivationDTO.builder()
+                .serverId(serverId)
+                .moduleName(nameShort)
+                .activationStatus(activationStatus)
+                .build());
+        ModuleDTO moduleDTO = utmModuleMapper.toDto(module, false);
+        eventProcessorManagerService.updateModule(moduleDTO);
+
+        return ResponseEntity.ok(moduleDTO);
     }
 
     /**
