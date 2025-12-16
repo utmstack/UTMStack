@@ -15,6 +15,8 @@ const (
 	LogCollectorEndpoint       = "/api/v1/logcollectors/upload"
 	GetLatestVersionEndpoint   = "/api/v1/versions/latest"
 
+	GitHubReleasesURL = "https://github.com/utmstack/UTMStack/releases/download/%s/installer"
+
 	ImagesPath = "/utmstack/images"
 
 	RequiredMinCPUCores  = 2
