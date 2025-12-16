@@ -43,6 +43,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.sql.DataSource;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -70,13 +71,15 @@ public class UtmLogstashPipelineService {
     private final ElasticsearchService elasticsearchService;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final DataSource dataSource;
 
-    public UtmLogstashPipelineService(UtmLogstashPipelineRepository utmLogstashPipelineRepository, RestTemplateService restTemplateService, UtmGroupLogstashPipelineFiltersRepository utmGroupLogstashPipelineFiltersRepository, UtmLogstashFilterRepository utmLogstashFilterRepository, OpensearchClientBuilder client, ElasticsearchService elasticsearchService) {
+    public UtmLogstashPipelineService(UtmLogstashPipelineRepository utmLogstashPipelineRepository, RestTemplateService restTemplateService, UtmGroupLogstashPipelineFiltersRepository utmGroupLogstashPipelineFiltersRepository, UtmLogstashFilterRepository utmLogstashFilterRepository, OpensearchClientBuilder client, ElasticsearchService elasticsearchService, DataSource dataSource) {
         this.utmLogstashPipelineRepository = utmLogstashPipelineRepository;
         this.restTemplateService = restTemplateService;
         this.utmGroupLogstashPipelineFiltersRepository = utmGroupLogstashPipelineFiltersRepository;
         this.utmLogstashFilterRepository = utmLogstashFilterRepository;
         this.elasticsearchService = elasticsearchService;
+        this.dataSource = dataSource;
     }
 
     /**
@@ -326,7 +329,13 @@ public class UtmLogstashPipelineService {
 
         try {
             activeByServer.forEach((p) -> {
-                StatisticDocument pipeLine = this.getStatisticsDataType(Constants.STATISTICS_INDEX_PATTERN, p.getPipelineName());
+                String dataType = p.getPipelineName();
+                Set<UtmLogstashFilter> filters = p.getUtmModule() != null ? p.getUtmModule().getFilters() : null;
+                dataType = Optional.ofNullable(filters)
+                        .flatMap(fs -> fs.stream().findFirst())
+                        .map(f -> f.getDatatype().getDataType())
+                        .orElse(dataType);
+                StatisticDocument pipeLine = this.getStatisticsDataType(Constants.STATISTICS_INDEX_PATTERN, dataType);
 
                 if (!Objects.isNull(pipeLine)) {
                     p.setEventsOut(pipeLine.getCount());
