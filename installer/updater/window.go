@@ -17,13 +17,7 @@ var windowConfig *MaintenanceWindow
 
 func UpdateWindowConfig() {
 	for {
-		window, err := getWindowMaintaince()
-		if err != nil {
-			if !IsBackendMaintenanceError(err) {
-				config.Logger().ErrorF("Error getting maintenance window config: %v", err)
-			}
-		}
-
+		window, _ := getWindowMaintaince()
 		if window != nil {
 			windowConfig = window
 		}

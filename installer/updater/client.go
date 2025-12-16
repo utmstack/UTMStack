@@ -161,6 +161,8 @@ func (c *UpdaterClient) UpdateToNewVersion(version, edition, changelog string) e
 	config.Logger().Info("UTMStack updated to version %s-%s", version, edition)
 	config.Updating = false
 
+	time.Sleep(3 * time.Minute)
+
 	err = utils.RunCmd("docker", "image", "prune", "-a", "-f")
 	if err != nil {
 		config.Logger().ErrorF("error cleaning up old Docker images after update: %v", err)
@@ -168,7 +170,6 @@ func (c *UpdaterClient) UpdateToNewVersion(version, edition, changelog string) e
 
 	// Restart service to load new installer binary
 	if cnf.Branch == "prod" || cnf.Branch == "" {
-		config.Logger().Info("Restarting service to load new installer binary...")
 		go func() {
 			time.Sleep(5 * time.Second)
 			utils.RestartService("UTMStackComponentsUpdater")
@@ -179,8 +180,6 @@ func (c *UpdaterClient) UpdateToNewVersion(version, edition, changelog string) e
 }
 
 func (c *UpdaterClient) UpdateInstaller(version string) error {
-	config.Logger().Info("Updating installer to version %s...", version)
-
 	execPath, err := os.Executable()
 	if err != nil {
 		return fmt.Errorf("error getting executable path: %v", err)
@@ -225,7 +224,6 @@ func (c *UpdaterClient) UpdateInstaller(version string) error {
 		return fmt.Errorf("error replacing installer binary: %v", err)
 	}
 
-	config.Logger().Info("Installer updated successfully to version %s", version)
 	return nil
 }
 
