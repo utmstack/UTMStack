@@ -96,7 +96,7 @@ export class GuideUtmstackComponent implements OnInit {
           wget --no-check-certificate -P /opt/utmstack-collector \
           https://${ip}:9001/private/dependencies/collector/${installerName} && \
           chmod -R 755 /opt/utmstack-collector/${installerName} && \
-          /opt/utmstack-collector/${installerName} install ${ip} <secret>${this.token}</secret>" yes`;
+          /opt/utmstack-collector/${installerName} install ${ip} <secret>${this.token}</secret> yes"`;
   }
 
 
