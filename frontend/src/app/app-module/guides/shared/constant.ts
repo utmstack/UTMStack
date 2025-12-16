@@ -1,8 +1,8 @@
 const WINDOWS_SHELL =
-  'Run the following PowerShell script as “ADMINISTRATOR” on a server with the UTMStack agent installed.';
+  'Run the following PowerShell script as “ADMINISTRATOR” on a server with the Vortex agent installed.';
 
 const LINUX_SHELL =
-  'Run the following Bash script as “ADMINISTRATOR” on a server with the UTMStack agent installed.';
+  'Run the following Bash script as “ADMINISTRATOR” on a server with the Vortex agent installed.';
 
 export interface Platform {
   id: number;

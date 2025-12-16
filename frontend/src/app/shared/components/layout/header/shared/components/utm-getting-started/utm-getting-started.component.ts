@@ -164,7 +164,7 @@ export class UtmGettingStartedComponent implements OnInit, OnDestroy {
           Now change the status of one of the sample alerts to "Complete", and click on the "Integrations" Menu
         </h5>
         <h5 class="text-justify mb-3 font-weight-thin" *ngSwitchCase="gettingStartedStepEnum.DASHBOARD_BUILDER">
-          UTMStack dashboards are interactive resources that can be easily created and modified. To use a dashboard, click any of
+          Vortex dashboards are interactive resources that can be easily created and modified. To use a dashboard, click any of
           the visualizations.
         </h5>
         <h5 class="text-justify mb-3 font-weight-thin" *ngSwitchCase="gettingStartedStepEnum.INTEGRATIONS">

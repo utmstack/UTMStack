@@ -46,7 +46,7 @@ export class AppModuleCardComponent implements OnInit, OnDestroy {
     modalSource.componentInstance.header = 'Enterprise integration';
     modalSource.componentInstance.message = 'This integration is only available in the Enterprise version of the platform. ' +
       'If you are interested in accessing this feature or need more information, please contact our support team at ' +
-      '<a href="mailto:support@utmstack.com">support@services.utmstack.com</a>.';
+      '<a href="mailto:tanmay@cyberstanc.com">support@services.utmstack.com</a>.';
     modalSource.componentInstance.confirmBtnText = 'Accept';
     modalSource.componentInstance.confirmBtnIcon = 'icon-cog3';
     modalSource.componentInstance.confirmBtnType = 'default';

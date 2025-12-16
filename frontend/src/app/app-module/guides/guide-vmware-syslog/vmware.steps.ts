@@ -44,13 +44,13 @@ export const VMWARE_STEPS: Step[] = [
     }
   },
   {id: '15', name: 'Enable log collector.<br>' +
-                   'To enable the log collector where you have the UTMStack agent installed, ' +
+                   'To enable the log collector where you have the Vortex agent installed, ' +
                     'follow the instructions below based on your operating system and preferred protocol.\n',
     content: {
       id: 'stepContent15'
     }
   },
-  {id: '16', name: 'Click on the button shown below, to activate the UTMStack features related to this integration',
+  {id: '16', name: 'Click on the button shown below, to activate the Vortex features related to this integration',
     content: {
       id: 'stepContent16'
     }

@@ -6,7 +6,7 @@
   </div>
   <div class="card-body">
     <div class="alert alert-warning alert-styled-right">
-      This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you
+      This integration requires a Vortex agent to work properly. Please, make sure you have installed it before you
       continue.
     </div>
     <p class="font-size-base">
@@ -16,20 +16,20 @@
       of congestion. A typical flow monitoring setup (using NetFlow) consists of three main components.
     </p>
     <h6 class="mb-3 mt-3">
-    To receive and process Netflow logs in UTMStack:
+    To receive and process Netflow logs in Vortex:
     </h6>
     <ol class="setup_list">
       <li>
         <p class="step-guide">
           <span class="step_number">1</span>
-          Send them to the UTMStack agent to port <strong>2055/UDP</strong>
+          Send them to the Vortex agent to port <strong>2055/UDP</strong>
         </p>
       </li>
       <li>
         <p class="step-guide">
           <span class="step_number">2</span>
           Enable log collector and this integration in the configuration file which 
-          you can find where your UTMStack Agent is located, in the path:
+          you can find where your Vortex Agent is located, in the path:
         </p>
         <div class="w-75 mt-3" *ngFor="let paths of netflowPaths">
           <span class="font-weight-semibold mb-2">{{paths.os}}</span>
@@ -41,7 +41,7 @@
       <li>
         <p class="step-guide mb-3">
           <span class="step_number">3</span>
-          Click on the button shown below, to activate the UTMStack features related to this integration
+          Click on the button shown below, to activate the Vortex features related to this integration
         </p>
         <app-app-module-activate-button [module]="module.NETFLOW" [type]="'integration'"
                                         [disabled]="false"

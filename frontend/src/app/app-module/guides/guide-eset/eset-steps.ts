@@ -28,7 +28,7 @@ export const ESET_STEPS: Step[] = [
       }]
     }
   },
-  {id: '4', name: 'Scroll down to "Syslog server", enable the “Export logs to Syslog” option and configure ESET Protect to send logs to a UTMStack agent to ports:',
+  {id: '4', name: 'Scroll down to "Syslog server", enable the “Export logs to Syslog” option and configure ESET Protect to send logs to a Vortex agent to ports:',
     content: {
       id: 'stepContent4'
     }
@@ -38,7 +38,7 @@ export const ESET_STEPS: Step[] = [
       id: 'stepContent5'
     }
   },
-  {id: '6', name: 'Click on the button shown below, to activate the UTMStack features related to this integration',
+  {id: '6', name: 'Click on the button shown below, to activate the Vortex features related to this integration',
     content: {
       id: 'stepContent6'
     }

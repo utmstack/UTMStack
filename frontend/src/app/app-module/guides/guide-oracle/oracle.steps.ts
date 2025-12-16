@@ -32,7 +32,7 @@ export const OracleSteps: Step[] = [
     }
   },
   {id: '3', name: 'Replace BASEDIR with the actual Oracle DB working/base path (e.g., /u01/app/oracle)'},
-  {id: '4', name: 'Replace DESTINATION with the UTMStack Agent’s IP address or Fully Qualified Domain Name (FQDN)',
+  {id: '4', name: 'Replace DESTINATION with the Vortex Agent’s IP address or Fully Qualified Domain Name (FQDN)',
     content: {
       id: 'stepContent4',
       commands: ['local5.* @@DESTINATION:7014']
@@ -52,5 +52,5 @@ export const OracleSteps: Step[] = [
       'logger -p local5.info "Test Oracle Alert log message"\n']
     }
   },
-  {id: '7', name: 'Verify that UTMStack received these messages using the Logs Explorer and searching for the test message above.'}
+  {id: '7', name: 'Verify that Vortex received these messages using the Logs Explorer and searching for the test message above.'}
 ];

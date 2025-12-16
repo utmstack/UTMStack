@@ -161,7 +161,7 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
     const deleteModal = this.modalService.open(ModalConfirmationComponent, {centered: true});
     deleteModal.componentInstance.header = this.groupType === GroupTypeEnum.TENANT ? 'Delete tenant' : 'Delete collector';
     deleteModal.componentInstance.message = `By deleting ${group.groupName} ` +
-        `${this.groupName}, UTMStack will no longer receive logs from this source. ` +
+        `${this.groupName}, Vortex will no longer receive logs from this source. ` +
         `${this.groups.length === 1 ? ` Since this is the only ${this.groupName}, the module associated with it will be deactivated.` : ''} ` +
         ` Are you sure that you want to delete this ${this.groupName}`;
 
@@ -354,7 +354,7 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
   deleteCollectorConfig(collector: any) {
     const deleteModal = this.modalService.open(ModalConfirmationComponent, {centered: true});
     deleteModal.componentInstance.header = 'Delete collector';
-    deleteModal.componentInstance.message = 'By deleting this collector, UTMStack will no longer receive logs from this source.' +
+    deleteModal.componentInstance.message = 'By deleting this collector, Vortex will no longer receive logs from this source.' +
       (this.groups.length === 1 ? ' Since this is the only collector, the module associated with it will be deactivated.' : '') +
       ' Are you sure that you want to delete this collector?';
 

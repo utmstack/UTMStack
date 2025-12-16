@@ -1,8 +1,8 @@
 import {Step} from '../shared/step';
 
 export const AS400STEPS: Step[] = [
-  {id: '1', name: 'Install UTMStack AS400 Collector. <br>' +
-                  'To install UTMStack AS400 Collector, follow the instructions below based on your operative system. <br>',
+  {id: '1', name: 'Install Vortex AS400 Collector. <br>' +
+                  'To install Vortex AS400 Collector, follow the instructions below based on your operative system. <br>',
     content: {
       id: 'stepContent1'
     }
@@ -12,7 +12,7 @@ export const AS400STEPS: Step[] = [
       id: 'stepContent2'
     }
   },
-  {id: '3', name: 'Click on the button shown below, to activate the UTMStack features related to this integration',
+  {id: '3', name: 'Click on the button shown below, to activate the Vortex features related to this integration',
     content: {
       id: 'stepContent3'
     }

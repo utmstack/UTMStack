@@ -19,7 +19,7 @@ export const KASP_STEPS: Step[] = [
       }]
     }
   },
-  {id: '3', name: 'Configure Kaspersky Security to send logs in Splunk(CEF) format to a UTMStack agent to ports:',
+  {id: '3', name: 'Configure Kaspersky Security to send logs in Splunk(CEF) format to a Vortex agent to ports:',
     content: {
       id: 'stepContent3'
     }
@@ -29,7 +29,7 @@ export const KASP_STEPS: Step[] = [
       id: 'stepContent4'
     }
   },
-  {id: '5', name: 'Click on the button shown below, to activate the UTMStack features related to this integration',
+  {id: '5', name: 'Click on the button shown below, to activate the Vortex features related to this integration',
     content: {
       id: 'stepContent5'
     }

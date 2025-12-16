@@ -69,5 +69,5 @@ export enum UtmModulesEnum {
   SOC_AI = 'SOC_AI',
   ORACLE = 'ORACLE',
   SURICATA= 'SURICATA',
-  UTMSTACK= 'UTMSTACK'
+  UTMSTACK= 'Vortex'
 }

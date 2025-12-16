@@ -42,7 +42,7 @@ export const SOPHOS_STEPS: Step[] = [
       id: 'stepContent4'
     }
   },
-  {id: '5', name: 'Click on the button shown below, to activate the UTMStack features related to this integration',
+  {id: '5', name: 'Click on the button shown below, to activate the Vortex features related to this integration',
     content: {
       id: 'stepContent5'
     }
