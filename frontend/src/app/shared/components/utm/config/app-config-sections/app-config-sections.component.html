@@ -194,7 +194,8 @@
       </ng-container>
 
       <ng-container *ngIf="conf.confParamDatatype === ConfigDataTypeEnum.Cron">
-        <app-utm-cp-cron-editor [(ngModel)]="conf.confParamValue" (ngModelChange)="save(conf.confParamValue,conf)"></app-utm-cp-cron-editor>
+        <!--<app-utm-cp-cron-editor [(ngModel)]="conf.confParamValue" (ngModelChange)="save(conf.confParamValue,conf)"></app-utm-cp-cron-editor>-->
+        <app-schedule-config></app-schedule-config>
       </ng-container>
 
 

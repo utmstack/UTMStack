@@ -246,6 +246,10 @@ import {TimePeriodPipe} from './pipes/time-period.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
 import {IsEnterpriseModuleDirective} from "./directives/enterprise/enterprise.directive";
+import {
+  ScheduleConfigComponent,
+  UtmScheduleConfigComponent
+} from './components/schedule-config/schedule-config.component';
 
 
 @NgModule({
@@ -412,7 +416,9 @@ import {IsEnterpriseModuleDirective} from "./directives/enterprise/enterprise.di
     ResizableFilterContainerComponent,
     CodeEditorComponent,
     LoginProvidersComponent,
-    IsEnterpriseModuleDirective
+    IsEnterpriseModuleDirective,
+    ScheduleConfigComponent,
+    UtmScheduleConfigComponent
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -522,7 +528,8 @@ import {IsEnterpriseModuleDirective} from "./directives/enterprise/enterprise.di
     RelativeTimePipe,
     ResizableFilterContainerComponent,
     CodeEditorComponent,
-    IsEnterpriseModuleDirective
+    IsEnterpriseModuleDirective,
+    UtmScheduleConfigComponent
   ],
   entryComponents: [
     LoginComponent,

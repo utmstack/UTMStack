@@ -1,0 +1,35 @@
+<div class="schedule-config-container">
+  <div class="schedule-section mb-3">
+    <label class="d-block mb-2 fw-semibold">Days</label>
+    <div class="d-flex gap-2 flex-wrap">
+      <button *ngFor="let day of days"
+              type="button"
+              (click)="toggleDay(day.number)"
+              [ngClass]="{'btn-primary': isDaySelected(day.number), 'btn-outline-secondary': !isDaySelected(day.number)}"
+              class="btn btn-sm">
+        {{ day.name.substring(0, 3) }}
+      </button>
+    </div>
+  </div>
+
+  <div class="schedule-section">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="startTime" class="form-label fw-semibold">Start Time</label>
+        <input type="time"
+               id="startTime"
+               [(ngModel)]="config.startTime"
+               (change)="onTimeChange()"
+               class="form-control">
+      </div>
+      <div class="col-md-6 mb-3">
+        <label for="endTime" class="form-label fw-semibold">End Time</label>
+        <input type="time"
+               id="endTime"
+               [(ngModel)]="config.endTime"
+               (change)="onTimeChange()"
+               class="form-control">
+      </div>
+    </div>
+  </div>
+</div>
