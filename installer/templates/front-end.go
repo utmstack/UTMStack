@@ -19,15 +19,6 @@ const FrontEnd string = `server {
     set $shared_key {{.SharedKey}};
     set $shared_key_header $http_x_shared_key;
 
-    location /login/saml2/ {
-        proxy_pass $utmstack_saml2;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
     location /api {
         proxy_pass  $utmstack_backend;
         proxy_set_header Host $host;

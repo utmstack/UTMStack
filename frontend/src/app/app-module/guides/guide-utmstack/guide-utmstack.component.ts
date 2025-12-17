@@ -77,13 +77,13 @@ export class GuideUtmstackComponent implements OnInit {
   getCommandUbuntu(installerName: string): string {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
 
-    return `sudo bash -c 'apt update -y && \
-            apt install wget -y && \
-            mkdir -p /opt/utmstack-collector && \
-            wget --no-check-certificate -P /opt/utmstack-collector \
-            https://${ip}:9001/private/dependencies/collector/${installerName} && \
-            chmod -R 755 /opt/utmstack-collector/${installerName} && \
-            /opt/utmstack-collector/${installerName} install ${ip} <secret>${this.token}</secret>' yes'`;
+    return `sudo bash -c "apt update -y && \
+          apt install wget -y && \
+          mkdir -p /opt/utmstack-collector && \
+          wget --no-check-certificate -P /opt/utmstack-collector \
+          https://${ip}:9001/private/dependencies/collector/${installerName} && \
+          chmod -R 755 /opt/utmstack-collector/${installerName} && \
+          /opt/utmstack-collector/${installerName} install ${ip} <secret>${this.token}</secret> yes"`;
   }
 
 
@@ -91,13 +91,14 @@ export class GuideUtmstackComponent implements OnInit {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
 
     return `sudo bash -c "dnf update -y && \
-            dnf install wget -y && \
-            mkdir -p /opt/utmstack-collector && \
-            wget --no-check-certificate -P /opt/utmstack-collector \
-            https://${ip}:9001/private/dependencies/collector/${installerName} && \
-            chmod -R 755 /opt/utmstack-collector/${installerName} && \
-            /opt/utmstack-collector/${installerName} install ${ip} <secret>${this.token}</secret> yes"`;
+          dnf install wget -y && \
+          mkdir -p /opt/utmstack-collector && \
+          wget --no-check-certificate -P /opt/utmstack-collector \
+          https://${ip}:9001/private/dependencies/collector/${installerName} && \
+          chmod -R 755 /opt/utmstack-collector/${installerName} && \
+          /opt/utmstack-collector/${installerName} install ${ip} <secret>${this.token}</secret> yes"`;
   }
+
 
   getUninstallCommandUbuntu(installerName: string): string {
     return `sudo bash -c "/opt/utmstack-collector/${installerName} uninstall && \

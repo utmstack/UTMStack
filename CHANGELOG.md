@@ -1,8 +1,8 @@
-# UTMStack 11.1.3
+# UTMStack 11.1.4 – Release Notes
 
-These are the release notes for **UTMStack v11.1.3**, highlighting new features, bug fixes, and performance improvements.
+The **UTMStack v11.1.4** update delivers important fixes and usability improvements to enhance stability and user experience.
 
-## Fixes
-- Updated Nginx configuration to support SAML redirects
-
-
+## Improvements & Fixes
+- Refined the styling of download links to improve clarity and accessibility.
+- Resolved a syntax error in the UTMStack installation command, ensuring smoother setup.
+- Corrected the display of pipeline card statuses and improved accuracy of event processing counts.
