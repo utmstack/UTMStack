@@ -54,7 +54,7 @@
 
 .login-pic img {
   max-width: 100%;
-  max-height: 100px;
+  max-height: 5rem;
   transition: transform 0.3s ease;
 }
 
@@ -108,21 +108,6 @@
     color: darken($primary-color, 10%);
     text-decoration: underline;
   }
-}
-
-.login-pic {
-  width: 100px;
-  text-align: center;
-}
-
-.login-pic img {
-  max-width: 100%;
-  max-height: 100px;
-  transition: transform 0.3s ease;
-}
-
-.login-pic img:hover {
-  transform: scale(1.05);
 }
 
 .form-group-feedback-right .form-control-feedback {
