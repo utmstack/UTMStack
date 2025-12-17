@@ -1,6 +1,8 @@
-# UTMStack 11.1.2
+# UTMStack 11.1.4 – Release Notes
 
-These are the release notes for **UTMStack v11.1.2**, highlighting new features, bug fixes, and performance improvements.
+The **UTMStack v11.1.4** update delivers important fixes and usability improvements to enhance stability and user experience.
 
-## Fixes
-- Fixed initial loading issue in Log Explorer where pattern stored fields were not properly initialized on startup.
+## Improvements & Fixes
+- Refined the styling of download links to improve clarity and accessibility.
+- Resolved a syntax error in the UTMStack installation command, ensuring smoother setup.
+- Corrected the display of pipeline card statuses and improved accuracy of event processing counts.
