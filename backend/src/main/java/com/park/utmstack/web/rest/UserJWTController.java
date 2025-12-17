@@ -77,7 +77,8 @@ public class UserJWTController {
                 throw new TooMuchLoginAttemptsException(String.format("Authentication blocked: IP %s exceeded login attempt threshold", ip));
             }
 
-            boolean authenticated = !Boolean.parseBoolean(Constants.CFG.get(Constants.PROP_TFA_ENABLE));
+            boolean isTfaExempted = this.tokenProvider.canBypassTwoFactorAuth(request);
+            boolean authenticated = !Boolean.parseBoolean(Constants.CFG.get(Constants.PROP_TFA_ENABLE)) || isTfaExempted;
 
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
