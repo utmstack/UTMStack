@@ -24,13 +24,10 @@ public class OpenApiConfiguration {
     public OpenAPI customOpenAPI() {
         final String securitySchemeBearer = "bearerAuth";
         final String securitySchemeApiKey = "ApiKeyAuth";
-
         final String apiTitle = "UTMStack API";
         String version = MapUtil.flattenToStringMap(infoEndpoint.info(), true).get("build.version");
         return new OpenAPI()
-            .addSecurityItem(new SecurityRequirement()
-                    .addList(securitySchemeBearer)
-                    .addList(securitySchemeApiKey))
+            .addSecurityItem(new SecurityRequirement().addList(securitySchemeBearer).addList(securitySchemeApiKey))
             .components(new Components()
                 .addSecuritySchemes(securitySchemeBearer,
                     new SecurityScheme()
@@ -39,7 +36,7 @@ public class OpenApiConfiguration {
                         .scheme("bearer")
                         .bearerFormat("JWT"))
                 .addSecuritySchemes(securitySchemeApiKey, new SecurityScheme()
-                    .name(Constants.API_KEY_HEADER)
+                    .name("Utm-Internal-Key")
                     .type(SecurityScheme.Type.APIKEY)
                     .in(SecurityScheme.In.HEADER)))
             .info(new Info().title(apiTitle).version(version))
