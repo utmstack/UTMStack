@@ -281,5 +281,7 @@
 
     <include file="/config/liquibase/changelog/20251218001_rename_o365_fields.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251218002_rename_filter_fields_dashboard.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
