@@ -260,9 +260,6 @@ func (p *AWSProcessor) getLogs(startTime, endTime time.Time) ([]string, error) {
 		return nil, catcher.Error("all retries failed when getting log groups", err, nil)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
-	defer cancel()
-
 	transformedLogs := make([]string, 0, 10)
 	for _, logGroup := range logGroups {
 		// Retry logic for describing log streams
@@ -313,8 +310,11 @@ func (p *AWSProcessor) getLogs(startTime, endTime time.Time) ([]string, error) {
 				var page *cloudwatchlogs.GetLogEventsOutput
 
 				for retry := 0; retry < maxRetries; retry++ {
+					ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute) 
+					
 					page, err = paginator.NextPage(ctx)
 					if err == nil {
+						cancel()
 						break
 					}
 
@@ -330,6 +330,7 @@ func (p *AWSProcessor) getLogs(startTime, endTime time.Time) ([]string, error) {
 						// Increase delay for next retry
 						retryDelay *= 2
 					}
+					cancel()
 				}
 
 				if err != nil {
