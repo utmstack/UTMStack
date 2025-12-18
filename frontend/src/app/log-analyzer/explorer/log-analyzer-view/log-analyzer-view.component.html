@@ -1,6 +1,6 @@
 <div class="px-3 w-100 m-0 d-flex">
   <div style="border-left: 1px #dee2e6 solid" class="d-flex flex-grow-1 p-2 bg-white gap-2">
-    <div *ngIf="!isSqlMode" class="d-flex align-items-center gap-2">
+    <div *ngIf="!isSqlMode" class="d-flex flex-grow-1 align-items-center gap-2">
       <div class="d-flex align-items-center justify-content-start">
         <app-index-pattern-select
           (indexPatternChange)="changeFields($event)"
@@ -20,7 +20,7 @@
         </button>
       </div>
     </div>
-    <div class="log-analyzer-actions d-flex flex-grow-1 justify-content-end gap-2">
+    <div [ngClass]="{'flex-grow-1': isSqlMode}" class="log-analyzer-actions d-flex justify-content-end gap-2">
       <button
         class="btn utm-button utm-button-primary"
         (click)="toggleSqlMode()"
