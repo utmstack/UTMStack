@@ -17,14 +17,14 @@ export class TfaSetupComponent implements OnInit, OnDestroy {
 
   TfaMethod = TfaMethod;
 
-  step: 'method-selection' | 'setup' | 'verification' | 'success' = 'success';
-  selectedMethod: TfaMethod | null = TfaMethod.EMAIL;
+  step: 'method-selection' | 'setup' | 'verification' | 'success' = 'method-selection';
+  selectedMethod: TfaMethod | null = null;
 
   qrCodeUrl: SafeUrl = '';
 
   code  = '';
   verifying = false;
-  codeVerified = true;
+  codeVerified = false;
   errorMessage = '';
 
   expiresInSeconds = 300;
