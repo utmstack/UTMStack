@@ -94,29 +94,6 @@
   background: $primary-color-hover;
 }
 
-/*------------------------------------------------------------------
-[ Responsive ]*/
-
-@media (max-width: 992px) {
-  .login-pic {
-    width: 35%;
-  }
-
-  .login-form {
-    width: 50%;
-  }
-}
-
-@media (max-width: 768px) {
-  .login-pic {
-    display: none;
-  }
-
-  .login-form {
-    width: 100%;
-  }
-}
-
 @media (max-width: 576px) {
   .w-350px {
     width: 90% !important;
@@ -227,4 +204,25 @@ button:focus-visible,
 a:focus-visible {
   outline: 2px solid $primary-color;
   outline-offset: 2px;
+}
+
+@media (max-height: 900px) {
+  .w-350px {
+    width: 90% !important;
+    max-width: 290px;
+  }
+}
+
+@media (max-height: 750px) {
+  .w-350px {
+    width: 90% !important;
+    max-width: 290px;
+  }
+}
+
+@media (max-height: 650px) {
+  .w-350px {
+    width: 90% !important;
+    max-width: 290px;
+  }
 }

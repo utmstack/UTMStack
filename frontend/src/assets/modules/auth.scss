@@ -190,3 +190,75 @@
     background-color: rgba(0, 0, 0, 0.03);
   }
 }
+
+@media (max-height: 900px) {
+
+  .p-4 {
+    padding: 1rem !important;
+  }
+
+  .card-body {
+    padding: 1.4rem;
+  }
+
+  .login-pic img {
+    max-height: 4.5rem;
+  }
+
+  .mt-5 {
+    margin-top: 1rem !important;
+  }
+}
+
+@media (max-height: 750px) {
+
+  .p-4 {
+    padding: 1.3rem !important;
+  }
+
+  .login-pic {
+    width: 80px;
+  }
+
+  .login-pic img {
+    max-height: 4rem;
+  }
+
+  .card-body {
+    padding: 0.75rem;
+  }
+
+  .form-control {
+    height: 40px !important;
+    padding: 10px 35px;
+  }
+
+  .utm-button {
+    height: 40px;
+  }
+}
+
+@media (max-height: 650px) {
+
+  .p-4 {
+    padding: 1.1rem !important;
+  }
+
+  .utm-auth-cover {
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+
+  .login-pic img {
+    max-height: 3.5rem;
+  }
+
+  .card-body {
+    padding: 0.5rem;
+  }
+
+  .mb-4 {
+    margin-bottom: 0.75rem !important;
+  }
+}
+
