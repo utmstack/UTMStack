@@ -27,6 +27,11 @@ public class AdversaryAlertsService {
     private final ElasticsearchService elasticsearchService;
 
     public List<AdversaryAlertsResponseDto> fetchAdversaryAlerts(List<FilterType> filters){
+
+        if(!elasticsearchService.indexExist(V11_ALERTS_INDEX_PATTERN)) {
+            return Collections.emptyList();
+        }
+
         SearchRequest request = SearchRequest.of(s -> s
                 .index(V11_ALERTS_INDEX_PATTERN)
                 .query(SearchUtil.toQuery(filters))
