@@ -283,5 +283,7 @@
 
     <include file="/config/liquibase/changelog/20251218002_rename_filter_fields_dashboard.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251219001-update-instance-update-frequency.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
