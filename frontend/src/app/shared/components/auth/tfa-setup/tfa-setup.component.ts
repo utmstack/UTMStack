@@ -1,12 +1,12 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 import {Router} from '@angular/router';
-import { Observable, Subscription } from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
+import {AccountService} from '../../../../core/auth/account.service';
+import {AuthServerProvider} from '../../../../core/auth/auth-jwt.service';
 import {UtmToastService} from '../../../alert/utm-toast.service';
 import {ThemeChangeBehavior} from '../../../behaviors/theme-change.behavior';
 import {TfaMethod, TfaService, TfaStage} from '../../../services/tfa/tfa.service';
-import {AuthServerProvider} from "../../../../core/auth/auth-jwt.service";
-import {AccountService} from "../../../../core/auth/account.service";
 
 @Component({
   selector: 'app-tfa-setup',
@@ -17,14 +17,14 @@ export class TfaSetupComponent implements OnInit, OnDestroy {
 
   TfaMethod = TfaMethod;
 
-  step: 'method-selection' | 'setup' | 'verification' | 'success' = 'method-selection';
-  selectedMethod: TfaMethod | null = null;
+  step: 'method-selection' | 'setup' | 'verification' | 'success' = 'success';
+  selectedMethod: TfaMethod | null = TfaMethod.EMAIL;
 
   qrCodeUrl: SafeUrl = '';
 
   code  = '';
   verifying = false;
-  codeVerified = false;
+  codeVerified = true;
   errorMessage = '';
 
   expiresInSeconds = 300;
@@ -77,16 +77,7 @@ export class TfaSetupComponent implements OnInit, OnDestroy {
   }
 
   private sendEmailCode(): void {
-    /*this.resending = true;
 
-    // En producción, llamada al backend
-    setTimeout(() => {
-      this.resending = false;
-      console.log('Código enviado por email');
-      // this.tfaService.sendEmailCode().subscribe(() => {
-      //   this.resending = false;
-      // });
-    }, 1000);*/
   }
 
 
@@ -122,8 +113,8 @@ export class TfaSetupComponent implements OnInit, OnDestroy {
   }
 
   clearError(): void {
-    if(this.code.length == 6 && this.selectedMethod === TfaMethod.TOTP ){
-      this.onSubmit()
+    if (this.code.length == 6 && this.selectedMethod === TfaMethod.TOTP ) {
+      this.onSubmit();
     }
     this.errorMessage = '';
   }

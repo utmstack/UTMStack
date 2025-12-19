@@ -1,23 +1,5 @@
+@import "../../../../../assets/modules/auth";
 
-.login-pic {
-  width: 100px;
-}
-
-@keyframes successPop {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-// Efectos hover para las tarjetas de método
 .method-card {
   transition: all 0.2s ease;
 
@@ -28,7 +10,6 @@
   }
 }
 
-// Estilos para el contenedor de verificación
 .verification-card {
   .card {
     backdrop-filter: blur(10px);
