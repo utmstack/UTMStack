@@ -10,8 +10,10 @@ import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.Response
 import com.utmstack.opensearch_connector.parsers.DateHistogramAggregateParser;
 import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
 import com.utmstack.opensearch_connector.types.BucketAggregation;
+import com.utmstack.opensearch_connector.types.SearchSqlResponse;
 import org.opensearch.client.opensearch._types.aggregations.Aggregate;
 import org.opensearch.client.opensearch.core.SearchResponse;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -150,4 +152,61 @@ public class ResponseParserForHeatMapChart implements ResponseParser<HeatMapChar
             }
         }
     }
+
+    @Override
+    public List<HeatMapChartResult> parse(UtmVisualization visualization, SearchSqlResponse<Map> result) {
+        final String ctx = CLASSNAME + ".parse(SearchSqlResponse)";
+        try {
+            Assert.notNull(visualization, "Param visualization must not be null");
+
+            HeatMapChartResult retValue = new HeatMapChartResult();
+
+            // Definir ejes
+            retValue.addYAxis("Count"); // métrica COUNT
+            // XAxis se llenará dinámicamente con las claves encontradas
+
+            int index = 0;
+            for (Object rowObj : result.getData()) {
+                if (!(rowObj instanceof Map)) continue;
+                Map<String, Object> row = (Map<String, Object>) rowObj;
+
+                // Buscar bucketKey (ej. IP)
+                String bucketKey = null;
+                Double metricValue = null;
+
+                for (Map.Entry<String, Object> entry : row.entrySet()) {
+                    Object val = entry.getValue();
+                    if (val == null) continue;
+
+                    // Si es IP o string, lo usamos como bucketKey
+                    if (bucketKey == null && val instanceof String) {
+                        bucketKey = entry.getKey() + ":=" + val.toString();
+                    }
+                    // Si es número, lo usamos como métrica
+                    if (metricValue == null && val instanceof Number) {
+                        metricValue = ((Number) val).doubleValue();
+                    }
+                }
+
+                if (bucketKey == null || metricValue == null) continue;
+
+                // Añadir XAxis
+                retValue.addXAxis(bucketKey);
+
+                // Construir punto [x, y, value]
+                Double[] data = new Double[3];
+                data[0] = (double) index; // posición en XAxis
+                data[1] = 0.0;            // único eje Y (Count)
+                data[2] = metricValue;
+
+                retValue.addData(data);
+                index++;
+            }
+
+            return Collections.singletonList(retValue);
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage(), e);
+        }
+    }
+
 }

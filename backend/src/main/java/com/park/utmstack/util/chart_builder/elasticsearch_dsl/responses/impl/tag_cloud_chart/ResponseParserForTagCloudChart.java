@@ -9,6 +9,7 @@ import com.park.utmstack.domain.chart_builder.types.aggregation.enums.BucketAggr
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.ResponseParser;
 import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
 import com.utmstack.opensearch_connector.types.BucketAggregation;
+import com.utmstack.opensearch_connector.types.SearchSqlResponse;
 import org.opensearch.client.opensearch._types.aggregations.*;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.springframework.util.Assert;
@@ -78,4 +79,45 @@ public class ResponseParserForTagCloudChart implements ResponseParser<TagCloudCh
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
+
+    @Override
+    public List<TagCloudChartResult> parse(UtmVisualization visualization, SearchSqlResponse<Map> result) {
+        final String ctx = CLASSNAME + ".parse(SearchSqlResponse)";
+        try {
+            Assert.notNull(visualization, "Param visualization must not be null");
+
+            List<TagCloudChartResult> results = new ArrayList<>();
+
+            for (Object rowObj : result.getData()) {
+                if (!(rowObj instanceof Map)) {
+                    continue;
+                }
+                Map<String, Object> row = (Map<String, Object>) rowObj;
+
+                String bucketKey = null;
+                Double value = 0.0;
+
+                for (Map.Entry<String, Object> entry : row.entrySet()) {
+                    Object val = entry.getValue();
+                    if (val instanceof Number) {
+                        value = ((Number) val).doubleValue();
+                    } else {
+                        bucketKey = val != null ? val.toString() : "UNKNOWN";
+                    }
+                }
+
+                results.add(new TagCloudChartResult(
+                        bucketKey,
+                        value,
+                        null,      // metricId, set as needed
+                        null       // bucketId, set as needed
+                ));
+            }
+
+            return results;
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage());
+        }
+    }
+
 }

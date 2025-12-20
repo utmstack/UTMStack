@@ -10,6 +10,7 @@ import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.Response
 import com.utmstack.opensearch_connector.parsers.DateHistogramAggregateParser;
 import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
 import com.utmstack.opensearch_connector.types.BucketAggregation;
+import com.utmstack.opensearch_connector.types.SearchSqlResponse;
 import org.opensearch.client.opensearch._types.aggregations.*;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.springframework.util.CollectionUtils;
@@ -201,4 +202,49 @@ public class ResponseParserForBarChart implements ResponseParser<BarChartResult>
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
     }
+
+    @Override
+    public List<BarChartResult> parse(UtmVisualization visualization, SearchSqlResponse<Map> result) {
+        final String ctx = CLASSNAME + ".parse(SearchSqlResponse)";
+        try {
+            BarChartResult retValue = new BarChartResult();
+
+            // Serie única
+            BarChartResult.Serie serie = new BarChartResult.Serie();
+            serie.setMetricId("1"); // id de la métrica COUNT
+            serie.setName("");      // nombre vacío como en tu ejemplo
+
+            // Recorremos filas y llenamos categorías + datos
+            for (Object rowObj : result.getData()) {
+                if (!(rowObj instanceof Map)) {
+                    continue;
+                }
+                Map<String, Object> row = (Map<String, Object>) rowObj;
+
+                String category = null;
+                Double value = 0.0;
+
+                for (Map.Entry<String, Object> entry : row.entrySet()) {
+                    Object val = entry.getValue();
+                    if (val instanceof Number) {
+                        value = ((Number) val).doubleValue();
+                    } else {
+                        category = val != null ? val.toString() : "UNKNOWN";
+                    }
+                }
+
+                if (category != null) {
+                    retValue.addCategory(category);
+                    serie.addData(value);
+                }
+            }
+
+            retValue.addSerie(serie);
+
+            return Collections.singletonList(retValue);
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage());
+        }
+    }
+
 }

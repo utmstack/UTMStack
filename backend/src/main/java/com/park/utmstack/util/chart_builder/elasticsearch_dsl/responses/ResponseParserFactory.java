@@ -28,24 +28,24 @@ public class ResponseParserFactory {
         final String ctx = CLASS_NAME + ".instance";
 
         if (chartType.equals(ChartType.METRIC_CHART))
-            return new ResponseParserForMetricChart();
+            return new ResponseParserForMetricChart(); // Listo ELENA
         else if (chartType.equals(ChartType.PIE_CHART))
-            return new ResponseParserForPieChart();
+            return new ResponseParserForPieChart(); //Listo ELENA
         else if (chartType.equals(ChartType.GAUGE_CHART) || chartType.equals(ChartType.GOAL_CHART))
-            return new ResponseParserForGaugeGoalChart();
+            return new ResponseParserForGaugeGoalChart(); //Listo ELENA
         else if (chartType.equals(ChartType.TAG_CLOUD_CHART))
-            return new ResponseParserForTagCloudChart();
+            return new ResponseParserForTagCloudChart(); //Listo ELENA
         else if (chartType.equals(ChartType.TABLE_CHART))
-            return new ResponseParserForTableChart();
+            return new ResponseParserForTableChart(); // Listo ELENA
         else if (chartType.equals(ChartType.LINE_CHART) || chartType.equals(ChartType.AREA_CHART) || chartType.equals(
             ChartType.VERTICAL_BAR_CHART) || chartType.equals(ChartType.HORIZONTAL_BAR_CHART))
-            return new ResponseParserForBarChart();
+            return new ResponseParserForBarChart(); // Listo ELENA
         else if (chartType.equals(ChartType.HEATMAP_CHART))
-            return new ResponseParserForHeatMapChart();
+            return new ResponseParserForHeatMapChart(); // Listo ELENA
         else if (chartType.equals(ChartType.COORDINATE_MAP_CHART))
-            return responseParserForCoordinateMapChart;
+            return responseParserForCoordinateMapChart; // Listo ELENA
         else if (chartType.equals(ChartType.LIST_CHART))
-            return new ResponseParserForListChart();
+            return new ResponseParserForListChart(); // Error en el original ELENA
 
         throw new UtmChartBuilderException(ctx + ": No implementation founded for chart type: " + chartType.name());
     }

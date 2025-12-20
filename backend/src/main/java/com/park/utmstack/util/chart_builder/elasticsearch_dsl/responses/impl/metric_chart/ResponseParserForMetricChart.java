@@ -9,6 +9,7 @@ import com.park.utmstack.domain.chart_builder.types.aggregation.enums.BucketAggr
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.ResponseParser;
 import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
 import com.utmstack.opensearch_connector.types.BucketAggregation;
+import com.utmstack.opensearch_connector.types.SearchSqlResponse;
 import org.opensearch.client.opensearch._types.aggregations.*;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.springframework.util.Assert;
@@ -110,6 +111,50 @@ public class ResponseParserForMetricChart implements ResponseParser<MetricChartR
             return _return;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
+        }
+    }
+
+    @Override
+    public List<MetricChartResult> parse(UtmVisualization visualization, SearchSqlResponse<Map> result) {
+        final String ctx = CLASSNAME + ".parse(SearchSqlResponse)";
+        try {
+            Assert.notNull(visualization, "Param visualization must not be null");
+
+            List<MetricChartResult> results = new ArrayList<>();
+
+            // IDs: puedes obtenerlos de la visualización o usar valores por defecto
+            String metricId = "1";
+            String bucketId = "1000";
+
+            for (Object rowObj : result.getData()) {
+                if (!(rowObj instanceof Map)) continue;
+                Map<String, Object> row = (Map<String, Object>) rowObj;
+
+                String bucketKey = "UNKNOWN";
+                Double metricValue = null;
+
+                // recorrer dinámicamente las columnas
+                for (Map.Entry<String, Object> entry : row.entrySet()) {
+                    Object val = entry.getValue();
+                    if (val == null) continue;
+
+                    if (bucketKey.equals("UNKNOWN") && val instanceof String) {
+                        bucketKey = val.toString();
+                    } else if (metricValue == null && val instanceof Number) {
+                        metricValue = ((Number) val).doubleValue();
+                    }
+                }
+
+                if (metricValue == null) {
+                    metricValue = 0.0;
+                }
+
+                results.add(new MetricChartResult(metricId, metricValue, bucketKey, bucketId));
+            }
+
+            return results;
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage(), e);
         }
     }
 }

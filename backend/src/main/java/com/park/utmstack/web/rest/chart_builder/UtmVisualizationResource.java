@@ -77,7 +77,7 @@ public class UtmVisualizationResource {
      * Request) if the utmVisualization has already an ID
      */
     @PostMapping("/utm-visualizations")
-    public ResponseEntity<UtmVisualization> createUtmVisualization(@Valid @RequestBody UtmVisualization utmVisualization) {
+    public ResponseEntity<UtmVisualization> createUtmVisualization(@Valid @RequestBody UtmVisualizationDto utmVisualization) {
         final String ctx = CLASSNAME + ".createUtmVisualization";
 
         UtmVisualization result = null;
@@ -85,8 +85,20 @@ public class UtmVisualizationResource {
             if (utmVisualization.getId() != null)
                 throw new BadRequestAlertException("A new utmVisualization cannot already have an ID", ENTITY_NAME, "idexists");
 
-            RequestDsl requestQuery = new RequestDsl(utmVisualization);
-            utmVisualization.setQuery(requestQuery.getSearchSourceBuilder().toString());
+            if (utmVisualization.getQueryLanguage() == QueryLanguageEnum.DSL) {
+                if (utmVisualization.getPattern() == null) {
+                    throw new BadRequestAlertException("DSL visualization requires a pattern", ENTITY_NAME, "patternmissing");
+                }
+                if (utmVisualization.getAggregationType() == null) {
+                    throw new BadRequestAlertException("DSL visualization requires an aggregationType", ENTITY_NAME, "aggregationmissing");
+                }
+                RequestDsl requestQuery = new RequestDsl(utmVisualizationMapper.toEntity(utmVisualization));
+                utmVisualization.setQuery(requestQuery.getSearchSourceBuilder().toString());
+            } else {
+                if (utmVisualization.getSqlQuery() == null || utmVisualization.getSqlQuery().isBlank()) {
+                    throw new BadRequestAlertException("SQL visualization requires a sqlQuery", ENTITY_NAME, "sqlmissing");
+                }
+            }
 
             SecurityUtils.getCurrentUserLogin().ifPresent(utmVisualization::setUserCreated);
             utmVisualization.setCreatedDate(LocalDateTime.now().toInstant(ZoneOffset.UTC));
@@ -98,7 +110,8 @@ public class UtmVisualizationResource {
                 utmVisualization.setSystemOwner(true);
             }
 
-            result = visualizationService.save(utmVisualization);
+            result = visualizationService.save(utmVisualizationMapper.toEntity(utmVisualization));
+
             return ResponseEntity.created(new URI("/api/utm-visualizations/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString())).body(result);
         } catch (DataIntegrityViolationException e) {
@@ -170,21 +183,27 @@ public class UtmVisualizationResource {
      * couldn't be updated
      */
     @PutMapping("/utm-visualizations")
-    public ResponseEntity<UtmVisualization> updateUtmVisualization(@Valid @RequestBody UtmVisualization utmVisualization) {
+    public ResponseEntity<UtmVisualization> updateUtmVisualization(@Valid @RequestBody UtmVisualizationDto utmVisualization) {
         final String ctx = CLASSNAME + ".updateUtmVisualization";
         if (utmVisualization.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         UtmVisualization result = null;
         try {
-            RequestDsl requestQuery = new RequestDsl(utmVisualization);
-            utmVisualization.setQuery(requestQuery.getSearchSourceBuilder().toString());
+            if (utmVisualization.getQueryLanguage() == QueryLanguageEnum.DSL) {
+                RequestDsl requestQuery = new RequestDsl(utmVisualizationMapper.toEntity(utmVisualization));
+                utmVisualization.setQuery(requestQuery.getSearchSourceBuilder().toString());
+            } else {
+                if (utmVisualization.getSqlQuery() == null || utmVisualization.getSqlQuery().isBlank()) {
+                    throw new BadRequestAlertException("SQL visualization requires a sqlQuery", ENTITY_NAME, "sqlmissing");
+                }
+            }
 
             SecurityUtils.getCurrentUserLogin().ifPresent(utmVisualization::setUserModified);
             utmVisualization.setModifiedDate(Instant.now());
             utmVisualization.setSystemOwner(utmVisualization.getSystemOwner() == null ? utmVisualization.getId() < 1000000 : utmVisualization.getSystemOwner());
 
-            result = visualizationService.save(utmVisualization);
+            result = visualizationService.save(utmVisualizationMapper.toEntity(utmVisualization));
             return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, utmVisualization.getId().toString())).body(result);
         } catch (DataIntegrityViolationException e) {
             String msg = ctx + ": " + e.getMostSpecificCause().getMessage().replaceAll("\n", "");
