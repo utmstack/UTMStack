@@ -14,9 +14,9 @@ export class VisualizationHeaderComponent implements OnInit {
   @Output() indexPatternSelected = new EventEmitter<UtmIndexPattern>();
   @Output() cancelled = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
+  @Input() sqlMode = false;
   @Output() sqlModeToggled = new EventEmitter<boolean>();
-  isSqlMode = false;
-  pattern: UtmIndexPattern;
+  @Input() pattern: UtmIndexPattern;
 
   constructor(public activeModal: NgbActiveModal) {
   }
@@ -42,8 +42,8 @@ export class VisualizationHeaderComponent implements OnInit {
   }
 
   toggleSqlMode() {
-    this.isSqlMode = !this.isSqlMode;
-    this.sqlModeToggled.emit(this.isSqlMode);
+    this.sqlMode = !this.sqlMode;
+    this.sqlModeToggled.emit(this.sqlMode);
   }
 
   chartIconResolver(): string {

@@ -1,20 +1,8 @@
 <div class="container-fluid pr-3 pl-3 pt-2">
   <div class="d-flex justify-content-between align-items-center">
-    <h5 *ngIf="visualization && !mode"
-        class="mb-0 label-header px-3 py-2">
-      Visualization builder
+    <h5 class="mb-0 label-header px-3 py-2">
+      {{mode==='edit' ? visualization.name : 'Visualization builder'}}
     </h5>
-    <h5 *ngIf="visualization && mode==='edit'"
-        class="card-title mb-0 text-uppercase label-header">
-      {{visualization.name}}
-    </h5>
-    <div class="header-elements d-flex">
-      <button (click)="saveVisualization()" [disabled]="!(metricNoErrors && bucketNoErrors)"
-              class="btn utm-button utm-button-primary d-flex" style="background-color: red">
-        <span [ngClass]="chartIconResolver()" class="mr-2 utm-icon-xs utm-icon-white d-flex"></span>
-        Save visualization
-      </button>
-    </div>
   </div>
 
   <app-visualization-header class="d-flex bg-white"
@@ -22,8 +10,11 @@
       [chartType]="chart"
       (cancelled)="cancel()"
       (saved)="saveVisualization()"
+      [sqlMode]="isSqlMode"
       (sqlModeToggled)="toggleSqlMode($event)"
       (indexPatternInitialized)="indexPatternLoaded($event)"
+      [pattern]="visualization.pattern"
+      *ngIf="!loading"
       >
   </app-visualization-header>
 
@@ -71,7 +62,8 @@
 
           <div class="metric-property-container">
             <div
-              [hidden]="property!==headers[0].name || isSqlMode"
+              *ngIf="!isSqlMode"
+              [hidden]="property!==headers[0].name"
               class="pt-2 metric-data-container w-100 h-100">
               <app-metric-aggregation (metricDefChange)="onMetricChange($event)"
                                       [hidden]="chart ===chartTypeEnum.LIST_CHART"
@@ -100,11 +92,17 @@
             <div *ngIf="property === headers[0].name && isSqlMode"
               class="metric-data-container w-100 h-100">
               <app-code-editor
-                  [showHeader]="false"
+                  [showFullEditor]="false"
                   [(ngModel)]="sqlQuery"
+                  (ngModelChange)="clearMessages()"
                   [customKeywords]="loadFieldNames().concat(indexPatternNames)"
                   [consoleOptions]="codeEditorOptions">
               </app-code-editor>
+            </div>
+            <div class="execution-info" *ngIf="errorMessage && isSqlMode">
+              <div class="text-danger-800">
+                <span>{{ errorMessage }}</span>
+              </div>
             </div>
             <div *ngIf="visualization" [hidden]="property !== headers[1].name"
                  class="pt-2 option-container w-100 h-100">
@@ -201,7 +199,7 @@
         </div>
       </div>
     </div>
-    <div class="col-lg-9 col-md-12 col-sm-12 position-relative pl-0 pt-5">
+    <div class="col-lg-9 col-md-12 col-sm-12 position-relative pl-0 pt-5" *ngIf="(pattern && !isSqlMode) || isSqlMode">
       <div class="data-visualization d-flex
       justify-content-center align-items-start w-100 h-100 position-absolute">
         <app-utm-viewer (runned)="onRunVisualization($event)"

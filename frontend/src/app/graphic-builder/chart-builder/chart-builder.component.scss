@@ -53,14 +53,8 @@ app-utm-viewer {
 }
 
 .label-header {
-  font-size: 12px;
-  color: #495057 !important;
-  background-color: #fff;
-  border: 1px #dee2e6 solid;
-  border-bottom: 1px solid transparent;
   border-top-left-radius: .25rem;
   border-top-right-radius: .25rem;
-  margin-bottom: -1px !important;
   font-weight: 500;
 }
 
@@ -74,4 +68,8 @@ app-utm-viewer {
     padding: 5px 0px !important;
     border-bottom: none !important;
   }
+}
+
+.container-fluid {
+  overflow: auto;
 }

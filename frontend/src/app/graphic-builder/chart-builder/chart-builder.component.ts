@@ -29,7 +29,7 @@ import {ChartTypeEnum} from '../../shared/enums/chart-type.enum';
 import {ElasticOperatorsEnum} from '../../shared/enums/elastic-operators.enum';
 import {DataNatureTypeEnum} from '../../shared/enums/nature-data.enum';
 import {RouteCallbackEnum} from '../../shared/enums/route-callback.enum';
-import {ElasticSearchIndexService} from '../../shared/services/elasticsearch/elasticsearch-index.service';
+import {SqlValidationService} from '../../shared/services/code-editor/sql-validation.service';
 import {FieldDataService} from '../../shared/services/elasticsearch/field-data.service';
 import {LocalFieldService} from '../../shared/services/elasticsearch/local-field.service';
 import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
@@ -38,7 +38,6 @@ import {RunVisualizationBehavior} from '../shared/behavior/run-visualization.beh
 import {VisualizationQueryParamsEnum} from '../shared/enums/visualization-query-params.enum';
 import {VisualizationService} from '../visualization/shared/services/visualization.service';
 import {VisualizationSaveComponent} from '../visualization/visualization-save/visualization-save.component';
-import {VisualizationBehavior} from './chart-property-builder/shared/behaviors/visualization.behavior';
 
 import {DashboardStatusEnum} from '../dashboard-builder/shared/enums/dashboard-status.enum';
 
@@ -75,24 +74,21 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
   sqlQuery = '';
   indexPatternNames: string[] = [];
   codeEditorOptions: ConsoleOptions = {lineNumbers: 'off'};
+  loading = true;
 
   constructor(private spinner: NgxSpinnerService,
               private route: ActivatedRoute,
               private modalService: NgbModal,
               private fieldDataBehavior: FieldDataService,
-              private visualizationBehavior: VisualizationBehavior,
               private cdr: ChangeDetectorRef,
-              private indexPatternFieldService: ElasticSearchIndexService,
               private visualizationService: VisualizationService,
               private runVisualizationBehavior: RunVisualizationBehavior,
               private location: Location,
               private router: Router,
-              private localFieldService: LocalFieldService) {
+              private localFieldService: LocalFieldService,
+              private sqlValidationService: SqlValidationService) {
     route.queryParams.subscribe(params => {
-      //TODO: ELENA Revisar
-      console.log('chart', params[VisualizationQueryParamsEnum.CHART]);
-      const chartParam = params[VisualizationQueryParamsEnum.CHART];
-      this.chart = chartParam as ChartTypeEnum;
+      this.chart = params[VisualizationQueryParamsEnum.CHART];
       this.mode = params[VisualizationQueryParamsEnum.MODE];
       if (params[VisualizationQueryParamsEnum.CALLBACK]) {
         this.callback = params[VisualizationQueryParamsEnum.CALLBACK];
@@ -108,8 +104,19 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
     if (this.mode === 'edit') {
       this.visualizationService.find(this.visualizationId).subscribe(vis => {
         this.visualization = vis.body;
+        if (this.visualization.sqlQuery) {
+          this.visualization.queryLanguage = ChartBuilderQueryLanguageEnum.SQL;
+          this.sqlQuery = this.visualization.sqlQuery;
+          this.isSqlMode = true;
+        } else {
+          this.visualization.queryLanguage = ChartBuilderQueryLanguageEnum.DSL;
+          this.pattern = this.visualization.pattern.pattern;
+          this.patternId = this.visualization.pattern.id;
+          this.isSqlMode = false;
+        }
         const defaultFilterTime = this.getDefaultFilterTimeFromVisualization(this.visualization.filterType);
         this.defaultTime = defaultFilterTime ? defaultFilterTime : new ElasticFilterDefaultTime('now-24h', 'now');
+        this.loading = false;
       });
     } else {
       this.visualization = {
@@ -122,17 +129,15 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
         },
         chartAction: new ChartActionType(false),
         filterType: [{field: '@timestamp', operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['now-24h', 'now']}],
-        idPattern: this.patternId,
+        idPattern: null,
         chartType: this.chart,
         eventType: this.type,
         userCreated: null,
         name: '',
-        pattern: {
-          id: this.patternId,
-          pattern: this.pattern
-        },
+        pattern: null,
         queryLanguage: ChartBuilderQueryLanguageEnum.DSL
       };
+      this.loading = false;
     }
   }
 
@@ -148,16 +153,14 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
   }
 
   viewProperty($event: string) {
-    console.log('Ele', this.sqlQuery);
     this.property = $event;
   }
 
   runVisualization() {
     this.running = true;
     if (this.isSqlMode) {
-      const validationError = this.codeEditor.validateSqlQuery();
-      if (validationError) {
-        this.errorMessage = validationError;
+      this.errorMessage = this.sqlValidationService.validateSqlQuery(this.sqlQuery);
+      if (this.errorMessage) {
         this.running = false;
         return;
       }
@@ -171,13 +174,17 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
 
   saveVisualization() {
     const modal = this.modalService.open(VisualizationSaveComponent, {centered: true});
+    if (this.isSqlMode) {
+      this.nullifyUnusedFields();
+      this.visualization.queryLanguage = ChartBuilderQueryLanguageEnum.SQL;
+      this.visualization.sqlQuery = this.sqlQuery;
+    } else {
+      this.visualization.queryLanguage = ChartBuilderQueryLanguageEnum.DSL;
+      this.visualization.sqlQuery = '';
+    }
     modal.componentInstance.visualization = this.visualization;
     modal.componentInstance.callback = this.callback;
     modal.componentInstance.mode = this.mode;
-  }
-
-  chartIconResolver(): string {
-    return UTM_CHART_ICONS[this.chart];
   }
 
   onFilterChange($event: ElasticFilterType[]) {
@@ -330,4 +337,16 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
   indexPatternLoaded(indexPatternNames: string[]) {
     this.indexPatternNames = indexPatternNames;
   }
+
+  nullifyUnusedFields() {
+    this.visualization.aggregationType = null;
+    this.visualization.pattern = null;
+    this.visualization.idPattern = null;
+    this.visualization.filterType = null;
+  }
+
+  clearMessages(): void {
+    this.errorMessage = '';
+  }
+
 }

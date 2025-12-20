@@ -75,8 +75,10 @@ export class VisualizationListComponent implements OnInit {
   editVisualization(vis: VisualizationType) {
     this.spinner.show('loadingSpinner');
     const queryParams = {};
-    queryParams[VisualizationQueryParamsEnum.PATTERN_NAME] = vis.pattern.pattern;
-    queryParams[VisualizationQueryParamsEnum.PATTERN_ID] = vis.pattern.id;
+    if (vis.pattern) {
+      queryParams[VisualizationQueryParamsEnum.PATTERN_NAME] = vis.pattern.pattern;
+      queryParams[VisualizationQueryParamsEnum.PATTERN_ID] = vis.pattern.id;
+    }
     queryParams[VisualizationQueryParamsEnum.CHART] = vis.chartType;
     queryParams[VisualizationQueryParamsEnum.MODE] = 'edit';
     queryParams[VisualizationQueryParamsEnum.VISUALIZATION_ID] = vis.id;

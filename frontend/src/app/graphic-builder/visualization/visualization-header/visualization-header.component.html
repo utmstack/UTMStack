@@ -1,18 +1,19 @@
 <div class="w-100">
   <div class="d-flex p-2 bg-white gap-2 header-border">
-    <div *ngIf="!isSqlMode" class="d-flex align-items-center">
+    <div *ngIf="!sqlMode" class="d-flex align-items-center">
       <app-index-pattern-select
         (indexPatternChange)="indexPatternChange($event)"
         [template]="'log-explorer'"
-        (indexPatternInitialized)="indexPatternLoaded($event)">
+        (indexPatternInitialized)="indexPatternLoaded($event)"
+        [pattern]="pattern">
       </app-index-pattern-select>
     </div>
     <div class="d-flex w-100">
       <div class="visualization-actions d-flex gap-2 ml-auto">
         <button class="btn utm-button utm-button-primary" (click)="toggleSqlMode()">
-          {{ isSqlMode ? 'Switch to Classic' : 'Try SQL' }}
+          {{ sqlMode ? 'DSL Builder' : 'SQL Builder' }}
         </button>
-        <button [ngbTooltip]="'Save visualization'" class="btn utm-button utm-button-primary" (click)="save()">
+        <button [ngbTooltip]="'Save visualization'" class="btn utm-button utm-button-primary d-flex align-items-center" (click)="save()">
           <span [ngClass]="chartIconResolver()" class="mr-2 utm-icon-xs utm-icon-white"></span>&nbsp;Save visualization
         </button>
         <button [ngbTooltip]="'Cancel'" class="btn utm-button utm-button-grey" (click)="cancel()">

@@ -11,6 +11,7 @@ import {PieBuilderResponseType} from '../../../types/response/pie-builder-respon
 import {VisualizationType} from '../../../types/visualization.type';
 import {ChartBuildInterface} from '../chart-build.interface';
 import {ChartOption} from '../chart-option';
+import {ChartBuilderQueryLanguageEnum} from "../../../../enums/chart-builder-query-language.enum";
 
 export class Pie implements ChartBuildInterface {
 
@@ -63,7 +64,11 @@ export class Pie implements ChartBuildInterface {
   extractSeries(data: any[], visualization: VisualizationType): string[] {
     const series: string[] = [];
     for (const dat of data) {
-      series.push(dat.bucketKey ? dat.bucketKey : extractMetricLabel(dat.metricId, visualization));
+      if (visualization.queryLanguage === ChartBuilderQueryLanguageEnum.SQL) {
+        series.push(dat.bucketKey);
+      } else {
+        series.push(dat.bucketKey ? dat.bucketKey : extractMetricLabel(dat.metricId, visualization));
+      }
     }
     return series;
   }
@@ -71,18 +76,24 @@ export class Pie implements ChartBuildInterface {
   extractPieValues(data: PieBuilderResponseType[], visualization: VisualizationType): { name: string, value: number }[] {
     const values: { name: string, value: number }[] = [];
     for (const dat of data) {
-      values.push(
-        {
-          name: dat.bucketKey ? dat.bucketKey : extractMetricLabel(dat.metricId, visualization),
-          value: Number(dat.value.toFixed(2))
-        }
-      );
+      if (visualization.queryLanguage === ChartBuilderQueryLanguageEnum.SQL) {
+        values.push({ name: dat.bucketKey, value: Number(dat.value.toFixed(2)) });
+      } else {
+        values.push(
+          {
+            name: dat.bucketKey ? dat.bucketKey : extractMetricLabel(dat.metricId, visualization),
+            value: Number(dat.value.toFixed(2))
+          }
+        );      }
     }
     return values;
   }
 
   private extractSerieName(data: PieBuilderResponseType[], visualization: VisualizationType): string {
-    return getBucketLabel(0, visualization);
+    if (visualization.queryLanguage === ChartBuilderQueryLanguageEnum.SQL) {
+      return data.length > 0 ? data[0].bucketKey : 'SQL Series';
+    } else {
+      return getBucketLabel(0, visualization);
+    }
   }
-
 }
