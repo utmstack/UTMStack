@@ -8,6 +8,10 @@ func StopService(name string) error {
 	return RunCmd("systemctl", "stop", name)
 }
 
+func RestartService(name string) error {
+	return RunCmd("systemctl", "restart", name)
+}
+
 func UninstallService(name string) error {
 	err := RunCmd("systemctl", "disable", name)
 	if err != nil {

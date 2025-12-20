@@ -15,7 +15,11 @@ func main() {
 			help()
 
 		case "--install", "-i":
-			err := Install()
+			var specificVersion string
+			if len(os.Args) > 3 && (os.Args[2] == "--version" || os.Args[2] == "-V") {
+				specificVersion = os.Args[3]
+			}
+			err := Install(specificVersion)
 			if err != nil {
 				fmt.Printf("\nerror installing UTMStack: %v", err)
 				os.Exit(1)
@@ -48,7 +52,7 @@ func main() {
 			help()
 		}
 	} else {
-		err := Install()
+		err := Install("")
 		if err != nil {
 			fmt.Printf("\nerror installing UTMStack: %v", err)
 			os.Exit(1)
@@ -60,8 +64,12 @@ func help() {
 	fmt.Println("### UTMStack ###")
 	fmt.Println("Usage: installer <argument>")
 	fmt.Println("Arguments:")
-	fmt.Println("  --help, -h              Show this help")
-	fmt.Println("  --install, -i <ID>      Install UTMStack (Requires organization ID)")
-	fmt.Println("  --uninstall, -u         Uninstall UTMStack")
-	fmt.Println("  --version, -v           Show UTMStack version")
+	fmt.Println("  --help, -h                            Show this help")
+	fmt.Println("  --install, -i [--version|-V <ver>]    Install UTMStack (optionally specify version)")
+	fmt.Println("  --uninstall, -u                       Uninstall UTMStack")
+	fmt.Println("  --version, -v                         Show UTMStack version")
+	fmt.Println("")
+	fmt.Println("Examples:")
+	fmt.Println("  installer --install                   Install latest version")
+	fmt.Println("  installer --install --version v11.0.3 Install specific version v11.0.3")
 }

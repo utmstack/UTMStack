@@ -1,12 +1,8 @@
-# UTMStack 11.0.3
+# UTMStack 11.1.4 – Release Notes
 
-This is the release notes for **UTMStack v11.0.3**, a minor update focused on bug fixes and performance improvements.
+The **UTMStack v11.1.4** update delivers important fixes and usability improvements to enhance stability and user experience.
 
-## Fixed Issues
-
-- Fixed a bug in the SOC-AI integration that caused occasional failures when generating insights.
-- Fixed a bug when trying to enroll and authenticate by TFA.
-
-## Enhancements
-
-- SIEM configuration now adapts to the Sovereign Cloud Model implemented by the provider in each region for Azure and Microsoft 365 integrations.
+## Improvements & Fixes
+- Refined the styling of download links to improve clarity and accessibility.
+- Resolved a syntax error in the UTMStack installation command, ensuring smoother setup.
+- Corrected the display of pipeline card statuses and improved accuracy of event processing counts.

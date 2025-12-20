@@ -174,8 +174,16 @@ func (l *LogProcessor) CleanCountedLogs() {
 	for range ticker.C {
 		dataRetention, err := GetDataRetention()
 		if err != nil {
-			utils.Logger.ErrorF("error getting data retention: %s", err)
-			continue
+			utils.Logger.ErrorF("error getting data retention: %s, creating default retention file", err)
+			if err := SetDataRetention(""); err != nil {
+				utils.Logger.ErrorF("error creating default data retention: %s", err)
+				continue
+			}
+			dataRetention, err = GetDataRetention()
+			if err != nil {
+				utils.Logger.ErrorF("error reading newly created data retention: %s", err)
+				continue
+			}
 		}
 		l.db.Lock()
 		_, err = l.db.DeleteOld(&models.Log{}, dataRetention)

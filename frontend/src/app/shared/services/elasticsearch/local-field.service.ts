@@ -14,7 +14,7 @@ export class LocalFieldService {
   }
 
   getPatternStoredFields(indexPattern: string): ElasticSearchFieldInfoType[] {
-    return this.localStorage.retrieve(indexPattern + INDEX_PATTERN_FIELD);
+    return this.localStorage.retrieve(indexPattern + INDEX_PATTERN_FIELD) || [];
   }
 
   setPatternStoredFields(indexPattern: string, fields: ElasticSearchFieldInfoType[]) {

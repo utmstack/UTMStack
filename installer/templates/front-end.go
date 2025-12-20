@@ -15,6 +15,7 @@ const FrontEnd string = `server {
     set $utmstack_agent_manager http://agentmanager:8080;
     set $utmstack_backend_auth http://backend:8080/api/authenticate;
     set $utmstack_ws http://backend:8080/ws;
+    set $utmstack_saml2 http://backend:8080/login/saml2/;
     set $shared_key {{.SharedKey}};
     set $shared_key_header $http_x_shared_key;
 

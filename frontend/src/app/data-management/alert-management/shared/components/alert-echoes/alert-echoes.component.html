@@ -15,29 +15,29 @@
     </tr>
     </thead>
     <tbody *ngIf="alerts && alerts.length > 0">
-    <ng-container *ngFor="let alert of alerts">
-      <ng-container *ngTemplateOutlet="alertRowTemplate; context: { $implicit: alert }"></ng-container>
-    </ng-container>
+      <ng-container *ngFor="let alert of alerts">
+        <ng-container *ngTemplateOutlet="alertRowTemplate; context: { $implicit: alert }"></ng-container>
+      </ng-container>
     </tbody>
     <tbody *ngIf="(alerts && alerts.length===0)  && !loading">
-    <tr>
-      <td [attr.colspan]="fields.length +1">
-        <app-no-data-found></app-no-data-found>
-      </td>
-    </tr>
+      <tr>
+        <td [attr.colspan]="fields.length +1">
+          <app-no-data-found></app-no-data-found>
+        </td>
+      </tr>
     </tbody>
     <tbody *ngIf="loading">
-    <tr>
-      <td [attr.colspan]="fields.length + 1">
-        <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
-          <app-utm-spinner [height]="'35px'"
-                           [label]="'Loading...'"
-                           [loading]="loading"
-                           [width]="'35px'">
-          </app-utm-spinner>
-        </div>
-      </td>
-    </tr>
+      <tr>
+        <td [attr.colspan]="fields.length + 1">
+          <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+            <app-utm-spinner [height]="'35px'"
+                             [label]="'Loading...'"
+                             [loading]="loading"
+                             [width]="'35px'">
+            </app-utm-spinner>
+          </div>
+        </td>
+      </tr>
     </tbody>
   </table>
 </div>
@@ -58,14 +58,28 @@
 </div>
 
 <ng-template #alertRowTemplate let-alert>
-  <tr class="cursor-pointer">
+  <tr (click)="viewDetail(alert)" class="cursor-pointer">
     <ng-container *ngFor="let td of fields">
       <td *ngIf="td.visible"
           [ngClass]="{'min-width': td.field === ALERT_ADVERSARY_FIELD || td.field === ALERT_TARGET_FIELD}">
-        <app-data-field-render [data]="alert" [field]="td" [dataType]="dataType" [isEcho]="true" [showStatusChange]="true"
-                               (refreshData)="onRefreshData($event)">
+        <app-data-field-render [data]="alert"
+                               [field]="td"
+                               [dataType]="dataType"
+                               [isEcho]="true"
+                               [showStatusChange]="true">
         </app-data-field-render>
       </td>
     </ng-container>
   </tr>
+  <ng-container *ngIf="alert.expanded">
+    <tr>
+      <td class="expanded-row-detail" [attr.colspan]="fields.length + 2" >
+        <app-alert-view-detail [isEcho]="true"
+                               [alert]="alert"
+                               [hideEmptyField]="true"
+                               [dataType]="dataType">
+        </app-alert-view-detail>
+      </td>
+    </tr>
+  </ng-container>
 </ng-template>

@@ -13,6 +13,9 @@ const (
 	GetLicenseEndpoint         = "/api/v1/licenses"
 	HealthEndpoint             = "/api/v1/health"
 	LogCollectorEndpoint       = "/api/v1/logcollectors/upload"
+	GetLatestVersionEndpoint   = "/api/v1/versions/latest"
+
+	GitHubReleasesURL = "https://github.com/utmstack/UTMStack/releases/download/%s/installer"
 
 	ImagesPath = "/utmstack/images"
 

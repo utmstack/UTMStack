@@ -105,7 +105,7 @@ The installation can be performed using an installer file or an [ISO image](http
 
 - Execute the installer without parameters: `./installer`
 
-Once UTMStack is installed, use admin as the user and the password generated during the installation for the default user to login. You can found the password and other generated configurations in /root/utmstack.yml
+Once UTMStack is installed, use admin as the user and the password generated during the installation for the default user to login. You can find the password and other generated configurations in /root/utmstack.yml
 Note: Use HTTPS in front of your server name or IP to access the login page.
 
 ### Required ports

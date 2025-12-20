@@ -55,7 +55,10 @@ public class UtmLogstashPipelineDTO {
 
     @JsonIgnore
     public UtmLogstashPipeline getPipeline(UtmLogstashPipeline utmLogstashPipeline) {
-        if (utmLogstashPipeline==null) utmLogstashPipeline = new UtmLogstashPipeline();
+        if (utmLogstashPipeline==null){
+            utmLogstashPipeline = new UtmLogstashPipeline();
+            utmLogstashPipeline.setDefaults();
+        }
         utmLogstashPipeline.setId(this.getId());
         utmLogstashPipeline.setPipelineName(this.getPipelineName());
         utmLogstashPipeline.setModuleName(this.getModuleName());

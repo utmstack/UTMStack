@@ -1,28 +1,25 @@
 package updater
 
 import (
+	"encoding/json"
 	"time"
 
-	"github.com/robfig/cron/v3"
 	"github.com/utmstack/UTMStack/installer/config"
 )
 
-var windowConfig string
+type MaintenanceWindow struct {
+	Days      []int  `json:"days"`      // 0=Sunday, 1=Monday, ..., 6=Saturday
+	StartTime string `json:"startTime"` // Format: "HH:MM"
+	EndTime   string `json:"endTime"`   // Format: "HH:MM"
+}
+
+var windowConfig *MaintenanceWindow
 
 func UpdateWindowConfig() {
 	for {
-		window, err := getWindowMaintaince()
-		if err != nil {
-			// Only log error if it's not a maintenance error
-			if !IsBackendMaintenanceError(err) {
-				config.Logger().ErrorF("Error getting maintenance window config: %v", err)
-			}
-			// If backend is in maintenance, just skip this iteration silently
-		}
-
-		if window != "" {
+		window, _ := getWindowMaintaince()
+		if window != nil {
 			windowConfig = window
-			config.Logger().Info("Updated maintenance window config: %s", windowConfig)
 		}
 
 		time.Sleep(config.CheckUpdatesEvery)
@@ -30,29 +27,65 @@ func UpdateWindowConfig() {
 }
 
 func IsInMaintenanceWindow() bool {
-	if windowConfig == "" {
+	if windowConfig == nil {
 		return true
 	}
 
-	parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
+	if len(windowConfig.Days) == 0 {
+		return true
+	}
 
-	schedule, err := parser.Parse(windowConfig)
+	if windowConfig.StartTime == "" || windowConfig.EndTime == "" {
+		return true
+	}
+
+	startTime, err := time.Parse("15:04", windowConfig.StartTime)
 	if err != nil {
-		config.Logger().ErrorF("Error parsing cron expression %s: %v", windowConfig, err)
+		config.Logger().ErrorF("Error parsing start time %s: %v", windowConfig.StartTime, err)
+		return true
+	}
+
+	endTime, err := time.Parse("15:04", windowConfig.EndTime)
+	if err != nil {
+		config.Logger().ErrorF("Error parsing end time %s: %v", windowConfig.EndTime, err)
+		return true
+	}
+
+	now := time.Now()
+
+	currentDay := int(now.Weekday())
+	dayAllowed := false
+	for _, day := range windowConfig.Days {
+		if day == currentDay {
+			dayAllowed = true
+			break
+		}
+	}
+
+	if !dayAllowed {
 		return false
 	}
 
-	now := time.Now().Truncate(time.Minute)
-	prev := schedule.Next(now.Add(-1 * time.Minute))
+	currentTime, _ := time.Parse("15:04", now.Format("15:04"))
 
-	return prev.Equal(now)
-}
-
-func getWindowMaintaince() (string, error) {
-	backConf, err := getConfigFromBackend(8)
-	if err != nil {
-		return "", err
+	if startTime.Before(endTime) || startTime.Equal(endTime) {
+		return !currentTime.Before(startTime) && !currentTime.After(endTime)
 	}
 
-	return backConf[0].ConfParamValue, nil
+	return !currentTime.Before(startTime) || !currentTime.After(endTime)
+}
+
+func getWindowMaintaince() (*MaintenanceWindow, error) {
+	backConf, err := getConfigFromBackend(8)
+	if err != nil {
+		return nil, err
+	}
+
+	var window MaintenanceWindow
+	err = json.Unmarshal([]byte(backConf[0].ConfParamValue), &window)
+	if err != nil {
+		return nil, err
+	}
+
+	return &window, nil
 }

@@ -66,7 +66,7 @@ var SupportedClouds = []CloudEndpoints{
 
 func main() {
 	mode := plugins.GetCfg().Env.Mode
-	if mode != "manager" {
+	if mode != "worker" {
 		return
 	}
 

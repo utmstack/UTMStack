@@ -140,6 +140,14 @@ func (c *UpdaterClient) UpdateToNewVersion(version, edition, changelog string) e
 	config.Logger().Info("Updating UTMStack to version %s-%s...", version, edition)
 	config.Updating = true
 
+	// Update installer binary first (only in prod branch)
+	cnf := config.GetConfig()
+	if cnf.Branch == "prod" || cnf.Branch == "" {
+		if err := c.UpdateInstaller(version); err != nil {
+			config.Logger().ErrorF("error updating installer: %v", err)
+		}
+	}
+
 	err := docker.StackUP(version + "-" + edition)
 	if err != nil {
 		return fmt.Errorf("error updating UTMStack: %v", err)
@@ -153,9 +161,67 @@ func (c *UpdaterClient) UpdateToNewVersion(version, edition, changelog string) e
 	config.Logger().Info("UTMStack updated to version %s-%s", version, edition)
 	config.Updating = false
 
-	err = utils.RunCmd("docker", "system", "prune", "-f")
+	time.Sleep(3 * time.Minute)
+
+	err = utils.RunCmd("docker", "image", "prune", "-a", "-f")
 	if err != nil {
-		config.Logger().ErrorF("error cleaning up Docker system after update: %v", err)
+		config.Logger().ErrorF("error cleaning up old Docker images after update: %v", err)
+	}
+
+	// Restart service to load new installer binary
+	if cnf.Branch == "prod" || cnf.Branch == "" {
+		go func() {
+			time.Sleep(5 * time.Second)
+			utils.RestartService("UTMStackComponentsUpdater")
+		}()
+	}
+
+	return nil
+}
+
+func (c *UpdaterClient) UpdateInstaller(version string) error {
+	execPath, err := os.Executable()
+	if err != nil {
+		return fmt.Errorf("error getting executable path: %v", err)
+	}
+
+	// Download new installer from GitHub
+	url := fmt.Sprintf(config.GitHubReleasesURL, version)
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("error downloading installer from %s: %v", url, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("error downloading installer: status %d", resp.StatusCode)
+	}
+
+	// Create temp file
+	tmpFile, err := os.CreateTemp("", "installer-*")
+	if err != nil {
+		return fmt.Errorf("error creating temp file: %v", err)
+	}
+	tmpPath := tmpFile.Name()
+
+	// Download to temp file
+	_, err = io.Copy(tmpFile, resp.Body)
+	tmpFile.Close()
+	if err != nil {
+		os.Remove(tmpPath)
+		return fmt.Errorf("error writing installer to temp file: %v", err)
+	}
+
+	// Make executable
+	if err := os.Chmod(tmpPath, 0755); err != nil {
+		os.Remove(tmpPath)
+		return fmt.Errorf("error making installer executable: %v", err)
+	}
+
+	// Replace current binary
+	if err := os.Rename(tmpPath, execPath); err != nil {
+		os.Remove(tmpPath)
+		return fmt.Errorf("error replacing installer binary: %v", err)
 	}
 
 	return nil

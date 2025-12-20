@@ -85,7 +85,6 @@ export class AlertEchoesTimelineComponent implements OnInit {
       group.startTimestamp = Math.floor(timestamps.reduce((sum, t) => sum + t, 0) / timestamps.length);
 
       const rep = group.items[0] || ({} as any); // representative item
-      console.log('group', group, rep);
       seriesData.push({
         value: [
           group.startTimestamp,                         // 0: timestamp (start of minute)

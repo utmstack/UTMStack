@@ -2,10 +2,14 @@ package com.park.utmstack.web.rest.application_modules;
 
 import com.park.utmstack.aop.logging.AuditEvent;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
+import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
+import com.park.utmstack.event_processor.EventProcessorManagerService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.application_modules.UtmModuleGroupConfigurationService;
 import com.park.utmstack.service.dto.application_modules.GroupConfigurationDTO;
+import com.park.utmstack.service.dto.application_modules.ModuleDTO;
+import com.park.utmstack.service.dto.application_modules.UtmModuleMapper;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -27,6 +31,8 @@ public class UtmModuleGroupConfigurationResource {
     private final Logger log = LoggerFactory.getLogger(UtmModuleGroupConfigurationResource.class);
     private final UtmModuleGroupConfigurationService moduleGroupConfigurationService;
     private final ApplicationEventService applicationEventService;
+    private final UtmModuleMapper utmModuleMapper;
+    private final EventProcessorManagerService eventProcessorManagerService;
 
 
     @PutMapping("/module-group-configurations/update")
@@ -39,7 +45,10 @@ public class UtmModuleGroupConfigurationResource {
     public ResponseEntity<Void> updateConfiguration(@Valid @RequestBody GroupConfigurationDTO body) {
         final String ctx = CLASSNAME + ".updateConfiguration";
         try {
-            moduleGroupConfigurationService.updateConfigurationKeys(body.getModuleId(), body.getKeys());
+            UtmModule module = moduleGroupConfigurationService.updateConfigurationKeys(body.getModuleId(), body.getKeys());
+            ModuleDTO moduleDTO = utmModuleMapper.toDto(module, false);
+            eventProcessorManagerService.updateModule(moduleDTO);
+
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();

@@ -13,8 +13,14 @@ import (
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
-func Install() error {
+func Install(specificVersion string) error {
 	fmt.Println("### Installing UTMStack ###")
+
+	if specificVersion != "" {
+		updater.SpecificVersion = specificVersion
+		fmt.Printf("Installing specific version: %s\n", specificVersion)
+	}
+
 	go updater.MonitorConnection(config.GetCMServer(), 30*time.Second, 3, &config.ConnectedToInternet)
 
 	isInstalledAlready, err := utils.CheckIfServiceIsInstalled("UTMStackComponentsUpdater")
@@ -24,6 +30,9 @@ func Install() error {
 
 	if isInstalledAlready {
 		fmt.Println("UTMStack is already installed. If you want to re-install it, please remove the service UTMStackComponentsUpdater first.")
+		if err := utils.RestartService("UTMStackComponentsUpdater"); err != nil {
+			return fmt.Errorf("error restarting service: %v", err)
+		}
 		return nil
 	}
 
