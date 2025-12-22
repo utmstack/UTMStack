@@ -100,7 +100,6 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
 
   ngOnInit() {
     this.tempId = Math.floor(Math.random() * (1000000 - 20000 + 1) + 20000);
-    this.getFields();
     if (this.mode === 'edit') {
       this.visualizationService.find(this.visualizationId).subscribe(vis => {
         this.visualization = vis.body;
