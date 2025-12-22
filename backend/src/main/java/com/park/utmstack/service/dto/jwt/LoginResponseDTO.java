@@ -14,5 +14,6 @@ public class LoginResponseDTO {
     private String method;
     private String token;
     private long tfaExpiresInSeconds;
+    boolean firstLogin;
 }
 
