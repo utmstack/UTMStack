@@ -83,7 +83,9 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
         this.configs = response.body;
 
         this.configs = this.configs.map(conf => {
-          conf.confParamValue = this.deserializeConfigValue(conf);
+          if(conf.confParamDatatype === ConfigDataTypeEnum.Cron) {
+            conf.confParamValue = JSON.parse(conf.confParamValue);
+          }
           return conf;
         });
 
@@ -326,16 +328,6 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
       return JSON.stringify(conf.confParamValue);
     }
     return conf.confParamValue;
-  }
-
-  deserializeConfigValue(conf: SectionConfigParamType): any {
-    if (conf.confParamDatatype === ConfigDataTypeEnum.Cron) {
-      try {
-        return JSON.parse(conf.confParamValue);
-      } catch {
-        return conf.confParamValue;
-      }
-    }
   }
 
   ngOnDestroy(): void {
