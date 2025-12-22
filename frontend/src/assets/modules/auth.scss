@@ -240,6 +240,11 @@
 
 @media (max-height: 650px) {
 
+  .form-control {
+    height: 36px !important;
+    padding: 8px 35px;
+  }
+
   .p-4 {
     padding: 1.1rem !important;
   }
