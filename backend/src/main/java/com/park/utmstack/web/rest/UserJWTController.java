@@ -42,6 +42,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
 
+import static com.park.utmstack.config.Constants.ADMIN_EMAIL;
+
 /**
  * Controller to authenticate users.
  */
@@ -94,7 +96,7 @@ public class UserJWTController {
 
         boolean isTfaSetup = isTfaEnabled && user.getTfaMethod() != null && !user.getTfaMethod().isEmpty() && !isAuth;
         Map<String, Object> args = logContextBuilder.buildArgs(request);
-        Long tfaExpiresInSeconds = 0L;
+        long tfaExpiresInSeconds = 0L;
 
         if (isTfaSetup) {
             tfaExpiresInSeconds = tfaService.generateChallenge(user);
@@ -120,6 +122,7 @@ public class UserJWTController {
                 .tfaConfigured(isTfaSetup)
                 .forceTfa(!isAuth)
                 .tfaExpiresInSeconds(tfaExpiresInSeconds)
+                .firstLogin(user.getEmail().equals(ADMIN_EMAIL))
                 .build();
 
         return ResponseEntity.ok(response);
