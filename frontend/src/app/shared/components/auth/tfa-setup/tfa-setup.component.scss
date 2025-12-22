@@ -1,23 +1,5 @@
+@import "../../../../../assets/modules/auth";
 
-.login-pic {
-  width: 100px;
-}
-
-@keyframes successPop {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-// Efectos hover para las tarjetas de método
 .method-card {
   transition: all 0.2s ease;
 
@@ -28,7 +10,6 @@
   }
 }
 
-// Estilos para el contenedor de verificación
 .verification-card {
   .card {
     backdrop-filter: blur(10px);
@@ -137,7 +118,6 @@ input[name="code"] {
   outline-offset: 2px;
 }
 
-// Estilos para el estado de loading
 .spinner-border-sm {
   animation: spinner-border 0.75s linear infinite;
 }
@@ -163,3 +143,100 @@ input[name="code"] {
 .bg-light {
   background-color: #f8fafc !important;
 }
+
+@media (max-height: 900px) {
+  .card-body {
+    padding: 1rem !important;
+  }
+
+  .qr-code-container img {
+    max-width: 160px !important;
+    max-height: 160px !important;
+  }
+
+  .timer-display {
+    padding: 10px 14px !important;
+    font-size: 22px !important;
+  }
+
+  .method-card {
+    padding: 12px !important;
+  }
+
+  .mb-4 {
+    margin-bottom: 1rem !important;
+  }
+}
+
+@media (max-height: 750px) {
+
+  .card-body {
+    padding: 0.75rem !important;
+  }
+
+  .qr-code-container img {
+    max-width: 130px !important;
+    max-height: 130px !important;
+  }
+
+  .timer-display {
+    padding: 8px 12px !important;
+    font-size: 20px !important;
+  }
+
+  input[name="code"] {
+    height: 42px !important;
+    padding: 8px 30px !important;
+  }
+
+  .utm-button,
+  .btn-primary {
+    height: 42px !important;
+  }
+
+  .method-card {
+    padding: 10px !important;
+  }
+
+  .method-details {
+    font-size: 12px !important;
+  }
+
+  .mb-4 {
+    margin-bottom: 0.75rem !important;
+  }
+}
+
+@media (max-height: 650px) {
+
+  .mb-3 {
+    margin-bottom: 0.5rem !important;
+  }
+  .card-body {
+    padding: 0.5rem !important;
+  }
+
+  .qr-code-container img {
+    max-width: 110px !important;
+    max-height: 110px !important;
+  }
+
+  .timer-display {
+    padding: 6px 10px !important;
+    font-size: 18px !important;
+  }
+
+  .method-card {
+    padding: 8px !important;
+  }
+
+  .alert,
+  .method-badge {
+    font-size: 11px !important;
+  }
+
+  .security-notice {
+    font-size: 10px !important;
+  }
+}
+
