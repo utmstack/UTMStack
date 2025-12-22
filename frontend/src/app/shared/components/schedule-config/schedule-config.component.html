@@ -3,7 +3,6 @@
     <label class="fw-semibold text-dark mb-2 d-block">Days</label>
     <div class="d-flex flex-wrap gap-2">
       <a *ngFor="let day of days"
-              type="button"
               (click)="toggleDay(day.number)"
               [class.active]="isDaySelected(day.number)"
               class="day-link"

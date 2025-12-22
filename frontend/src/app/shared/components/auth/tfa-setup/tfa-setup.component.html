@@ -56,7 +56,7 @@
         </div>
 
         <!-- Email Method -->
-        <div class="method-card mb-3 p-3 rounded border"
+        <div *ngIf="!fistLogin" class="method-card mb-3 p-3 rounded border"
              style="cursor: pointer; transition: all 0.2s ease;"
              [ngClass]="{'border-primary bg-light': selectedMethod === TfaMethod.EMAIL}"
              (click)="selectMethod(TfaMethod.EMAIL)"

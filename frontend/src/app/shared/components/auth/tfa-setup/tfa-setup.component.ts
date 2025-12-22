@@ -29,6 +29,7 @@ export class TfaSetupComponent implements OnInit, OnDestroy {
 
   expiresInSeconds = 300;
   private timerSubscription: Subscription | null = null;
+  fistLogin = false;
 
   resending = false;
 
@@ -44,6 +45,11 @@ export class TfaSetupComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    if (this.authServerProvider.firstLogin === undefined) {
+      this.router.navigate(['/login']);
+      return;
+    }
+    this.fistLogin = this.authServerProvider.firstLogin;
     this.loginImage$ = this.themeChangeBehavior.$themeIcon.asObservable();
   }
 
