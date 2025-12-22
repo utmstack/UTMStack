@@ -13,10 +13,10 @@ import {
 import {UtmConfigParamsService} from '../../../../services/config/utm-config-params.service';
 import {LocationService, SelectOption} from '../../../../services/location.service';
 import {NetworkService} from '../../../../services/network.service';
-import {VersionType, VersionInfoService} from '../../../../services/version/version-info.service';
 import {TimezoneFormatService} from '../../../../services/utm-timezone.service';
 import {ConfigDataTypeEnum, SectionConfigParamType} from '../../../../types/configuration/section-config-param.type';
 import {ApplicationConfigSectionEnum, SectionConfigType} from '../../../../types/configuration/section-config.type';
+import {ScheduleConfigValidator} from '../../../schedule-config/schedule-config.validator';
 import {AppConfigDeleteConfirmComponent} from '../app-config-delete-confirm/app-config-delete-confirm.component';
 
 
@@ -82,6 +82,13 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.configs = response.body;
 
+        this.configs = this.configs.map(conf => {
+          if(conf.confParamDatatype === ConfigDataTypeEnum.Cron) {
+            conf.confParamValue = JSON.parse(conf.confParamValue);
+          }
+          return conf;
+        });
+
         const countryList = this.configs.find(conf => conf.confParamDatatype === ConfigDataTypeEnum.CountryList);
         if (countryList) {
           this.loadSelectOptions(this.getName(countryList.confParamShort));
@@ -96,7 +103,11 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     this.checkedEmailConfig(false);
     this.saving = true;
     if (this.checkConfigValid()) {
-      this.utmConfigParamsService.update(this.configToSave).subscribe(response => {
+      const config = this.configToSave.map(conf => {
+        conf.confParamValue = this.serializeConfigValue(conf);
+        return conf;
+      });
+      this.utmConfigParamsService.update(config).subscribe(response => {
 
           if (this.detectRequiredRestart()) {
             this.restartApiBehavior.$restartSignal.next(true);
@@ -168,6 +179,9 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     switch (config.confParamDatatype) {
       case ConfigDataTypeEnum.EmailList:
         return this.isValid(config);
+
+      case ConfigDataTypeEnum.Cron:
+        return ScheduleConfigValidator.isValid(config.confParamValue);
 
       default:
         return this.isValidConfig(config);
@@ -307,6 +321,13 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
 
   isEnabledTfa(): boolean {
     return this.configs.some(conf => conf.confParamShort === 'utmstack.tfa.enable' && conf.confParamValue === 'true');
+  }
+
+  serializeConfigValue(conf: SectionConfigParamType): string {
+    if (conf.confParamDatatype === ConfigDataTypeEnum.Cron) {
+      return JSON.stringify(conf.confParamValue);
+    }
+    return conf.confParamValue;
   }
 
   ngOnDestroy(): void {

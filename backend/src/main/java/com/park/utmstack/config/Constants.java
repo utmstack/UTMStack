@@ -166,6 +166,9 @@ public final class Constants {
     // Application version file
     public static final String APP_VERSION_FILE = "/updates/version.json";
 
+    public static final String ADMIN_EMAIL = "admin@localhost";
+
+
     private Constants() {
     }
 }

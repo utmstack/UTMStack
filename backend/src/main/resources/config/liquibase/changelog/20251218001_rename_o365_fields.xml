@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20251218001" author="Manuel Abascal">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE utm_visualization
+            SET
+                filters = REPLACE(
+                        REPLACE(
+                                REPLACE(
+                                        REPLACE(
+                                                REPLACE(filters, 'log.o365.Operation.keyword', 'action.keyword'),
+                                                'log.o365.ClientIP.keyword', 'log.clientIP.keyword'
+                                        ),
+                                        'log.o365.UserId.keyword', 'origin.user.keyword'
+                                ),
+                                'log.o365.ResultStatus.keyword', 'actionResult.keyword'
+                        ),
+                        'log.o365.LogonError.keyword', 'log.logonError.keyword'
+                          )
+            WHERE filters IS NOT NULL;
+
+                UPDATE utm_visualization
+                SET
+                    aggregation = REPLACE(
+                            REPLACE(
+                                    REPLACE(
+                                            REPLACE(
+                                                    REPLACE(aggregation, 'log.o365.Operation.keyword', 'action.keyword'),
+                                                    'log.o365.ClientIP.keyword', 'log.clientIP.keyword'
+                                            ),
+                                            'log.o365.UserId.keyword', 'origin.user.keyword'
+                                    ),
+                                    'log.o365.ResultStatus.keyword', 'actionResult.keyword'
+                            ),
+                            'log.o365.LogonError.keyword', 'log.logonError.keyword'
+                                  )
+                WHERE aggregation IS NOT NULL;
+
+
+
+                UPDATE utm_visualization
+                SET
+                    filters = REPLACE(
+                            REPLACE(
+                                    REPLACE(
+                                            REPLACE(
+                                                    REPLACE(
+                                                            REPLACE(filters, 'log.o365.Workload.keyword', 'log.Workload.keyword'),
+                                                            'log.o365.Workload', 'log.Workload'
+                                                    ),
+                                                    'log.o365.Verdict.keyword', 'emailVerdict.keyword'
+                                            ),
+                                            'log.o365.SenderIp.keyword', 'origin.ip.keyword'
+                                    ),
+                                    'log.o365.Recipients.keyword', 'log.Recipients.keyword'
+                            ),
+                            'log.o365.Subject.keyword', 'log.Subject.keyword'
+                              )
+                WHERE filters IS NOT NULL;
+
+                UPDATE utm_visualization
+                SET
+                    aggregation = REPLACE(
+                            REPLACE(
+                                    REPLACE(
+                                            REPLACE(
+                                                    REPLACE(
+                                                            REPLACE(aggregation, 'log.o365.Workload.keyword', 'log.Workload.keyword'),
+                                                            'log.o365.Workload', 'log.Workload'
+                                                    ),
+                                                    'log.o365.Verdict.keyword', 'emailVerdict.keyword'
+                                            ),
+                                            'log.o365.SenderIp.keyword', 'origin.ip.keyword'
+                                    ),
+                                    'log.o365.Recipients.keyword', 'log.Recipients.keyword'
+                            ),
+                            'log.o365.Subject.keyword', 'log.Subject.keyword'
+                                  )
+                WHERE aggregation IS NOT NULL;
+
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>
