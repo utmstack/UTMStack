@@ -41,15 +41,28 @@ export class ScheduleConfigComponent implements OnInit {
     this.config = { ...this.initialConfig };
   }
 
-  writeValue(value: ScheduleConfig): void {
+  writeValue(value: ScheduleConfig | string): void {
     if (value) {
+      let parsedValue: ScheduleConfig;
+
+      if (typeof value === 'string') {
+        parsedValue = JSON.parse(value);
+      } else {
+        parsedValue = value;
+      }
+
       this.config = {
-        days: [...value.days],
-        startTime: this.parseTimeString(value.startTime),
-        endTime: this.parseTimeString(value.endTime)
+        days: parsedValue.days && parsedValue.days.length > 0 ? [...parsedValue.days] : [],
+        startTime: typeof parsedValue.startTime === 'string'
+          ? this.parseTimeString(parsedValue.startTime)
+          : parsedValue.startTime || { hour: 0, minute: 0 },
+        endTime: typeof parsedValue.endTime === 'string'
+          ? this.parseTimeString(parsedValue.endTime)
+          : parsedValue.endTime || { hour: 23, minute: 59 }
       };
     }
   }
+
 
   registerOnChange(fn: (value: ScheduleConfig) => void): void {
     this.onChange = fn;
