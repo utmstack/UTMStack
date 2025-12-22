@@ -24,6 +24,7 @@ public class AdversaryAlertsResource {
 
     @PostMapping("/alerts")
     public ResponseEntity<List<AdversaryAlertsResponseDto>> search(@RequestBody(required = false) List<FilterType> filters) {
+
             List<AdversaryAlertsResponseDto> responseDto = adversaryAlertsService.fetchAdversaryAlerts(filters);
 
             if (responseDto.isEmpty())

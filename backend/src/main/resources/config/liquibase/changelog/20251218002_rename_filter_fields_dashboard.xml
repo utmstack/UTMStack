@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20251218002" author="Manuel Abascal">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE utm_dashboard
+            SET filters = REPLACE(filters, '"indexPattern":"log-o365-', '"indexPattern":"v11-log-o365-');
+
+            UPDATE utm_dashboard
+            SET filters = REPLACE(filters, '"indexPattern":"alert-', '"indexPattern":"v11-alert-');
+
+            UPDATE utm_dashboard
+            SET filters = REPLACE(filters, '"indexPattern":"log-firewall-meraki-', '"indexPattern":"v11-log-firewall-meraki-');
+
+            UPDATE utm_dashboard
+            SET filters = REPLACE(filters, '"indexPattern":"log-wineventlog-', '"indexPattern":"v11-log-wineventlog-');
+
+            UPDATE utm_dashboard
+            SET filters = REPLACE(filters, '"indexPattern":"log-linux-', '"indexPattern":"v11-log-linux-');
+
+            UPDATE utm_dashboard
+            SET filters = REPLACE(filters, '"indexPattern":"log-cisco-switch-', '"indexPattern":"v11-log-cisco-switch-');
+
+            UPDATE utm_dashboard
+            SET filters = REPLACE(filters, '"indexPattern":"log-firewall-cisco-asa-', '"indexPattern":"v11-log-firewall-cisco-asa-');
+
+            UPDATE utm_dashboard
+            SET filters = REPLACE(filters, '"indexPattern":"log-aws-', '"indexPattern":"v11-log-aws-');
+
+            UPDATE utm_dashboard
+            SET filters = REPLACE(filters, '"field":"ogx.wineventlog.event_data.SubjectUserName.keyword"', '"field":"log.winlogEventDataSubjectUserName"');
+
+            UPDATE utm_dashboard
+            SET filters = REPLACE(filters, '"field":"logx.tenant.keyword"', '"field":"tenantId.keyword"');
+
+            UPDATE utm_dashboard
+            SET filters = REPLACE(filters, '"field":"logx.o365.UserId.keyword"', '"field":"origin.user.keyword"');
+
+            UPDATE utm_dashboard
+            SET filters = REPLACE(filters, '"field":"logx.linux.host.name.keyword"', '"field":"origin.host.keyword"');
+
+            UPDATE utm_dashboard
+            SET filters = REPLACE(filters, '"field":"logx.wineventlog.event_data.TargetUserName.keyword"', '"field":"target.user.keyword"');
+
+            UPDATE utm_dashboard
+            SET filters = REPLACE(filters, '"field":"log.winlogEventDataSubjectUserName"', '"field":"log.winlogEventDataSubjectUserName.keyword"');
+
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

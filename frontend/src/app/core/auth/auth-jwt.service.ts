@@ -15,6 +15,7 @@ export class AuthServerProvider {
 
   private _tfaMethod: TfaMethod;
   private _tfaExpireTimeInSec: number;
+  private _firstLogin: boolean;
 
   constructor(private http: HttpClient,
               private $localStorage: LocalStorageService,
@@ -40,6 +41,7 @@ export class AuthServerProvider {
         this.tfaMethod = resp.body.method as TfaMethod;
         this.tfaExpireTimeInSec = resp.body.tfaExpiresInSeconds;
       }
+      this.firstLogin = resp.body.firstLogin;
       return resp.body;
     };
     return this.http.post(SERVER_API_URL + 'api/authenticate',
@@ -120,6 +122,14 @@ export class AuthServerProvider {
 
   set tfaExpireTimeInSec(tfaExpireTimeInSec: number) {
     this._tfaExpireTimeInSec = tfaExpireTimeInSec;
+  }
+
+  get firstLogin(): boolean {
+    return this._firstLogin;
+  }
+
+  set firstLogin(firstLogin: boolean) {
+    this._firstLogin = firstLogin;
   }
 
 }

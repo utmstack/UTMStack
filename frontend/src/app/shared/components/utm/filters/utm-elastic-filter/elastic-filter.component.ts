@@ -164,6 +164,12 @@ export class ElasticFilterComponent implements OnInit, OnDestroy {
     this.indexEdit = index;
   }
 
+  clearFilterSelection() {
+    this.filterSelected = null;
+    this.indexEdit = null;
+    this.editMode = false;
+  }
+
   saveQuery(){
     this.onSaveQuery.emit(true);
   }

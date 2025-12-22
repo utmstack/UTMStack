@@ -114,6 +114,7 @@
           <div class="cursor-pointer d-flex justify-content-center align-items-center mr-2 p-1">
             <span class="btn-right py-1 m-1 border-radius-1 text-blue-800"
                   [ngbTooltip]="'Add filter'"
+                  (click)="clearFilterSelection()"
                   #popoverFilter="ngbPopover"
                   [ngbPopover]="addContent"
                   [popoverTitle]="addTitle"

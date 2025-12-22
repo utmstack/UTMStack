@@ -121,13 +121,10 @@ public class TokenProvider {
     }
 
     public boolean shouldBypassTfa(HttpServletRequest request) {
-        boolean bypassSwagger = Boolean.parseBoolean(request.getHeader(Constants.TFA_EXEMPTION_HEADER));
-
         boolean forceTfaAuth = Boolean.parseBoolean(
                 Optional.ofNullable(System.getenv(Constants.ENV_TFA_ENABLE)).orElse("true")
         );
-
-        return bypassSwagger || !forceTfaAuth;
+        return !forceTfaAuth;
     }
 
 }
