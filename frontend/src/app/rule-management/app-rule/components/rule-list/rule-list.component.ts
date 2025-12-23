@@ -1,11 +1,10 @@
 import {HttpResponse} from '@angular/common/http';
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {NgxSpinnerService} from 'ngx-spinner';
 import {merge, Observable, of, Subject} from 'rxjs';
 import {catchError, filter, finalize, map, switchMap, takeUntil, tap} from 'rxjs/operators';
-import { SortEvent } from 'src/app/shared/directives/sortable/type/sort-event';
+import {SortEvent} from 'src/app/shared/directives/sortable/type/sort-event';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {
   ModalConfirmationComponent
@@ -14,7 +13,7 @@ import {ALERT_TIMESTAMP_FIELD} from '../../../../shared/constants/alert/alert-fi
 import {Actions} from '../../../app-correlation-management/models/config.type';
 import {ConfigService} from '../../../app-correlation-management/services/config.service';
 import {RULE_FIELDS} from '../../../models/rule.constant';
-import { Rule, RULE_REQUEST} from '../../../models/rule.model';
+import {Rule, RULE_REQUEST} from '../../../models/rule.model';
 import {FilterService} from '../../../services/filter.service';
 import {RuleService} from '../../../services/rule.service';
 import {AddRuleComponent} from '../add-rule/add-rule.component';
@@ -29,9 +28,7 @@ import {RuleViewComponent} from '../see-rule/rule-view.component';
 })
 export class RuleListComponent implements OnInit, OnDestroy {
 
-  @Input()
-  // rulesResponse$: Observable<HttpResponse<Rule[]>>;
-  rules$: Observable<Rule[]>;
+  @Input() rules$: Observable<Rule[]>;
   rules: Rule[];
 
   sortEvent: SortEvent;
@@ -57,7 +54,8 @@ export class RuleListComponent implements OnInit, OnDestroy {
               private ruleService: RuleService,
               private modalService: NgbModal,
               private utmToast: UtmToastService,
-              private configService: ConfigService) { }
+              private configService: ConfigService) {
+  }
 
   ngOnInit() {
 
@@ -69,36 +67,36 @@ export class RuleListComponent implements OnInit, OnDestroy {
       this.route.data
         .pipe(
           tap((data: { response: HttpResponse<Rule[]> }) => {
-            this.totalItems = parseInt(data.response.headers.get('X-Total-Count') || '0', 10);
             this.isInitialized = true;
           }),
           map((data: { response: HttpResponse<Rule[]> }) => data.response))
     ).pipe(
-      map(( response: HttpResponse<Rule[]>) => response.body)
+      tap((response: HttpResponse<Rule[]>) => this.totalItems = parseInt(response.headers.get('X-Total-Count') || '0', 10)),
+      map((response: HttpResponse<Rule[]>) => response.body)
     );
 
     this.filterService.filterChange
-        .pipe(
-            takeUntil(this.destroy$),
-            filter( (request: { prop: string, values: any }) => !!request),
-            tap((request) => {
-              if (request && Object.keys(request).length === 0) {
-                this.request = RULE_REQUEST;
-              } else {
-                this.request = {
-                  ...RULE_REQUEST,
-                  [request.prop]: request.values.length > 0 ? request.values : null
-                };
-              }
-              this.ruleService.notifyRefresh(true);
-            })
-        ).subscribe();
+      .pipe(
+        takeUntil(this.destroy$),
+        filter((request: { prop: string, values: any }) => !!request),
+        tap((request) => {
+          if (request && Object.keys(request).length === 0) {
+            this.request = RULE_REQUEST;
+          } else {
+            this.request = {
+              ...RULE_REQUEST,
+              [request.prop]: request.values.length > 0 ? request.values : null
+            };
+          }
+          this.ruleService.notifyRefresh(true);
+        })
+      ).subscribe();
 
     this.configService.action$
       .pipe(
         takeUntil(this.destroy$),
         filter(action => action === Actions.CREATE_RULE || action === Actions.IMPORT_RULE),
-        map(action =>  action === Actions.CREATE_RULE ? 'ADD' : 'IMPORT')
+        map(action => action === Actions.CREATE_RULE ? 'ADD' : 'IMPORT')
       )
       .subscribe((action) => this.addRule(action));
   }
@@ -136,7 +134,7 @@ export class RuleListComponent implements OnInit, OnDestroy {
   }
 
   onSortBy($event: SortEvent) {
-    const sort =  $event.column + ',' + $event.direction;
+    const sort = $event.column + ',' + $event.direction;
     this.request = {
       ...this.request,
       sort
@@ -159,7 +157,7 @@ export class RuleListComponent implements OnInit, OnDestroy {
     this.ruleService.activeRule(params).pipe(
       finalize(() => this.loadingRules.splice(index, 1))
     )
-      .subscribe(() =>  this.ruleService.notifyRefresh(true),
+      .subscribe(() => this.ruleService.notifyRefresh(true),
         () => {
           this.utmToast.showError('Error', 'Error changing rule status');
         });
@@ -204,7 +202,8 @@ export class RuleListComponent implements OnInit, OnDestroy {
     const modal = this.modalService.open(AddRuleComponent, {
       size: 'lg',
       centered: true,
-      windowClass: 'add-rule-modal'});
+      windowClass: 'add-rule-modal'
+    });
     modal.componentInstance.rule = rule;
     modal.componentInstance.mode = 'EDIT';
 
@@ -213,12 +212,12 @@ export class RuleListComponent implements OnInit, OnDestroy {
 
 
   visualizeRule(rule: Rule) {
-      const modal = this.modalService.open(RuleViewComponent, {
-        size: 'lg',
-        centered: true,
-        windowClass: 'view-rule-modal',
-      });
-      modal.componentInstance.rowDocument = rule;
+    const modal = this.modalService.open(RuleViewComponent, {
+      size: 'lg',
+      centered: true,
+      windowClass: 'view-rule-modal',
+    });
+    modal.componentInstance.rowDocument = rule;
   }
 
   handleResponse(modal: NgbModalRef) {
