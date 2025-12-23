@@ -596,6 +596,37 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 	}
 
+	threadwindsIngestionMem := stack.ServiceResources["threadwinds-ingestion"].AssignedMemory
+	c.Services["threadwinds-ingestion"] = Service{
+		Image: utils.Str("ghcr.io/utmstack/utmstack/threadwinds-ingestion:" + conf.Branch),
+		DependsOn: []string{
+			"postgres",
+			"node1",
+			"backend",
+		},
+		Environment: []string{
+			"INTERNAL_KEY=" + conf.InternalKey,
+			"BACKEND_URL=http://backend:8080",
+			"ENV=" + conf.Branch,
+			"OPENSEARCH_HOST=node1",
+			"OPENSEARCH_PORT=9200",
+			"DB_HOST=postgres",
+			"DB_PORT=5432",
+			"DB_USER=postgres",
+			"DB_PASS=" + conf.Password,
+			"DB_NAME=utmstack",
+		},
+		Logging: &dLogging,
+		Deploy: &Deploy{
+			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vM", threadwindsIngestionMem)),
+				},
+			},
+		},
+	}
+
 	webPDFMem := stack.ServiceResources["web-pdf"].AssignedMemory
 	c.Services["web-pdf"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/web-pdf:" + conf.Branch),
