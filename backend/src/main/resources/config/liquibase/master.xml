@@ -289,5 +289,7 @@
 
     <include file="/config/liquibase/changelog/20251223002_update_filters_windows_activity_dashboard.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251223003_update_filter_wineventlog.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
