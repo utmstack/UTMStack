@@ -41,10 +41,7 @@ func NewPostgresClient(cfg *config.TWConfig) (*PostgresClient, error) {
 	db.SetMaxIdleConns(1)
 	db.SetConnMaxLifetime(5 * time.Minute)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	if err := db.PingContext(ctx); err != nil {
+	if err := db.Ping(); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
@@ -52,7 +49,6 @@ func NewPostgresClient(cfg *config.TWConfig) (*PostgresClient, error) {
 	catcher.Info("PostgreSQL connection established via native SQL", map[string]any{
 		"host": cfg.DBHost,
 		"port": cfg.DBPort,
-		"db":   cfg.DBName,
 	})
 
 	return &PostgresClient{db: db}, nil
