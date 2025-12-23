@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20251223001" author="Manuel Abascal">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_visualization
+            SET filters='[{"operator":"EXIST","field":"name"},{"operator":"IS_BETWEEN","field":"@timestamp","value":["now-7d","now"]},{"field":"status","operator":"IS_NOT","value":1},{"field":"tags","operator":"IS_NOT","value":"False positive"},{"field":"parentId","operator":"DOES_NOT_EXIST"}]'
+            WHERE id=486;
+
+            UPDATE public.utm_visualization
+            SET filters='[{"operator":"IS","field":"statusLabel.keyword","value":"Open"},{"operator":"IS_BETWEEN","field":"@timestamp","value":["now-7d","now"]},{"operator":"IS","field":"isIncident","value":"false"},{"field":"status","operator":"IS_NOT","value":1},{"field":"tags","operator":"IS_NOT","value":"False positive"},{"field":"parentId","operator":"DOES_NOT_EXIST"}]'
+            WHERE id=487;
+
+            UPDATE public.utm_visualization
+            SET filters='[{"operator":"IS_BETWEEN","field":"@timestamp","value":["now-7d","now"]},{"operator":"IS","field":"isIncident","value":"true"},{"operator":"IS_ONE_OF","field":"statusLabel.keyword","value":["In review","Open"]},{"field":"status","operator":"IS_NOT","value":1},{"field":"tags","operator":"IS_NOT","value":"False positive"},{"field":"parentId","operator":"DOES_NOT_EXIST"}]'
+            WHERE id=485;
+
+            UPDATE public.utm_visualization
+            SET filters='[{"operator":"IS_BETWEEN","field":"@timestamp","value":["now-7d","now"]},{"operator":"EXIST","field":"severityLabel"},{"field":"status","operator":"IS_NOT","value":1},{"field":"tags","operator":"IS_NOT","value":"False positive"},{"field":"parentId","operator":"DOES_NOT_EXIST"}]'
+            WHERE id=488;
+
+            UPDATE public.utm_visualization
+            SET filters='[{"operator":"EXIST","field":"category"},{"operator":"IS_BETWEEN","field":"@timestamp","value":["now-7d","now"]},{"field":"status","operator":"IS_NOT","value":1},{"field":"tags","operator":"IS_NOT","value":"False positive"},{"field":"parentId","operator":"DOES_NOT_EXIST"}]'
+            WHERE id=489;
+
+            UPDATE public.utm_visualization
+            SET filters='[{"operator":"IS_BETWEEN","field":"@timestamp","value":["now-7d","now"]},{"field":"status","operator":"IS_NOT","value":1},{"field":"tags","operator":"IS_NOT","value":"False positive"},{"field":"parentId","operator":"DOES_NOT_EXIST"}]'
+            WHERE id=490;
+
+            UPDATE public.utm_visualization
+            SET filters='[{"operator":"IS_BETWEEN","field":"@timestamp","value":["now-7d","now"]},{"field":"status","operator":"IS_NOT","value":1},{"field":"tags","operator":"IS_NOT","value":"False positive"},{"field":"parentId","operator":"DOES_NOT_EXIST"}]'
+            WHERE id=491;
+
+            UPDATE public.utm_visualization
+            SET filters='[{"operator":"IS_BETWEEN","field":"@timestamp","value":["now-7d","now"]},{"field":"status","operator":"IS_NOT","value":1},{"field":"tags","operator":"IS_NOT","value":"False positive"},{"field":"parentId","operator":"DOES_NOT_EXIST"}]'
+            WHERE id=492;
+
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

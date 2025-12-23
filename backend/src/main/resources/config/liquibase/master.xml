@@ -285,5 +285,9 @@
 
     <include file="/config/liquibase/changelog/20251219001-update-instance-update-frequency.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20251223001_update_filters_threat_activity_dashboard.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20251223002_update_filters_windows_activity_dashboard.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
