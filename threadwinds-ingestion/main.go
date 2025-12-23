@@ -11,6 +11,7 @@ import (
 	"github.com/utmstack/UTMStack/threadwinds-ingestion/config"
 	"github.com/utmstack/UTMStack/threadwinds-ingestion/internal/client"
 	"github.com/utmstack/UTMStack/threadwinds-ingestion/internal/scheduler"
+	"github.com/utmstack/UTMStack/threadwinds-ingestion/utils"
 )
 
 func main() {
@@ -57,13 +58,26 @@ func main() {
 	}
 
 	if twConfig.APIKey == "" || twConfig.APISecret == "" {
-		catcher.Info("ThreadWinds not configured, registering in platform...", nil)
+		catcher.Info("ThreadWinds not configured, will attempt registration with retry...", nil)
 
-		regResp, err := cmClient.RegisterUserReporter(adminEmail)
+		var regResp *client.RegistrationResponse
+
+		registerFunc := func() error {
+			resp, err := cmClient.RegisterUserReporter(adminEmail)
+			if err != nil {
+				return err
+			}
+			regResp = resp
+			return nil
+		}
+
+		err = utils.InfiniteRetryIfXError(registerFunc, "404", "Not Found", "connection refused")
 		if err != nil {
-			catcher.Error("failed to register in ThreadWinds Platform", err, nil)
+			catcher.Error("failed to register in ThreadWinds Platform after retries", err, nil)
 			os.Exit(1)
 		}
+
+		catcher.Info("ThreadWinds registration successful", nil)
 
 		err = backendClient.SaveThreadWindsCredentials(ctx,
 			regResp.APIKey,
