@@ -13,6 +13,10 @@ type ProtoPort struct {
 	TCP string
 }
 
+const (
+	SERVICE_UPDATER_NAME = "UTMStackUpdater"
+)
+
 var (
 	REPLACE_KEY string
 
@@ -40,7 +44,6 @@ var (
 	IntegrationCertPath = filepath.Join(utils.GetMyPath(), "certs", "integration.crt")
 	IntegrationKeyPath  = filepath.Join(utils.GetMyPath(), "certs", "integration.key")
 	IntegrationCAPath   = filepath.Join(utils.GetMyPath(), "certs", "integration-ca.crt")
-
 
 	// MaxConnectionTime     = 120 * time.Second
 	// SERV_NAME            = "UTMStackAgent"
