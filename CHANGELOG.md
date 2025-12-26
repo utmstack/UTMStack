@@ -3,5 +3,5 @@
 The **UTMStack v11.1.6** update delivers important fixes and usability improvements to enhance stability and user experience.
 
 ## Improvements & Fixes
-- Added Liquibase changelogs to update filters and aggregations for Threat and Windows activity dashboards.
+- Enhanced Threat and Windows activity dashboards with new filters and aggregations for better data analysis.
 
