@@ -1,5 +1,5 @@
 export const RULE_REQUEST: {size: number, page: number, sort: string, search?: string | number} = {
-  size: 25,
+  size: 100,
   page: 0,
   sort: 'ruleLastUpdate,DESC',
 };
