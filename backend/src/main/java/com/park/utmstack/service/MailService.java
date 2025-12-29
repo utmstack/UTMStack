@@ -5,6 +5,7 @@ import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.incident.UtmIncident;
 import com.park.utmstack.domain.mail_sender.MailConfig;
+import com.park.utmstack.domain.shared_types.alert.Event;
 import com.park.utmstack.domain.shared_types.alert.UtmAlert;
 import com.park.utmstack.domain.shared_types.LogType;
 import com.park.utmstack.service.application_events.ApplicationEventService;
@@ -250,7 +251,7 @@ public class MailService {
     }
 
     @Async
-    public void sendAlertEmail(List<String> emailsTo, UtmAlert alert, List<LogType> relatedLogs) {
+    public void sendAlertEmail(List<String> emailsTo, UtmAlert alert, List<Event> relatedLogs) {
         final String ctx = CLASS_NAME + ".sendAlertEmail";
         try {
             JavaMailSender javaMailSender = getJavaMailSender();
@@ -333,7 +334,7 @@ public class MailService {
      * @throws Exception In case of any error
      */
     private ByteArrayResource buildAlertEmailAttachment(Context context, UtmAlert alert,
-                                                        List<LogType> relatedLogs) throws Exception {
+                                                        List<Event> relatedLogs) throws Exception {
         final String ctx = CLASS_NAME + ".buildAlertEmailAttachment";
         try {
             ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -351,9 +352,9 @@ public class MailService {
         }
     }
 
-    private void buildRelatedEventCsvAttachment(List<LogType> relatedLogs, ZipOutputStream zipOut) {
+    private void buildRelatedEventCsvAttachment(List<Event> relatedLogs, ZipOutputStream zipOut) {
         final String ctx = CLASS_NAME + ".buildRelatedEventCsvAttachment";
-        Map<String, List<LogType>> evtTypes = new HashMap<>();
+        Map<String, List<Event>> evtTypes = new HashMap<>();
 
         // Separating event types
         relatedLogs.forEach(doc -> {
