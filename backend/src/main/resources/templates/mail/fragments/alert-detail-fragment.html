@@ -3,7 +3,7 @@
 <body>
 
 <div th:fragment="alert-detail"
-     th:with="source=${alert.getSource()}, destination=${alert.getDestination()}">
+     th:with="source=${alert.getTarget()}, destination=${alert.getAdversary()}">
     <table>
         <thead>
         <tr>
@@ -30,80 +30,74 @@
 
         <tr style="font-family:Roboto, sans-serif;font-size: 13px"
             th:if="${source != null && !#strings.isEmpty(source.getHost())}">
-            <td style="font-weight: bold;vertical-align: top;" th:text="'Source Hostname:'"></td>
+            <td style="font-weight: bold;vertical-align: top;" th:text="'Target Hostname:'"></td>
             <td style="vertical-align: top;" th:text="${source.getHost()}"></td>
         </tr>
 
         <tr style="font-family:Roboto, sans-serif;font-size: 13px"
             th:if="${source != null && !#strings.isEmpty(source.getIp())}">
-            <td style="font-weight: bold;vertical-align: top;" th:text="'Source Ip:'"></td>
+            <td style="font-weight: bold;vertical-align: top;" th:text="'Target Ip:'"></td>
             <td style="vertical-align: top;" th:text="${source.getIp()}"></td>
         </tr>
 
         <tr style="font-family:Roboto, sans-serif;font-size: 13px"
             th:if="${source != null && source.getPort() != null && source.getPort() > 0}">
-            <td style="font-weight: bold;vertical-align: top;" th:text="'Source Port:'"></td>
+            <td style="font-weight: bold;vertical-align: top;" th:text="'Target Port:'"></td>
             <td style="vertical-align: top;" th:text="${source.getPort()}"></td>
         </tr>
 
         <tr style="font-family:Roboto, sans-serif;font-size: 13px"
             th:if="${source != null && !#strings.isEmpty(source.getUser())}">
-            <td style="font-weight: bold;vertical-align: top;" th:text="'Source User:'"></td>
+            <td style="font-weight: bold;vertical-align: top;" th:text="'Target User:'"></td>
             <td style="vertical-align: top;" th:text="${source.getUser()}"></td>
         </tr>
 
         <tr style="font-family:Roboto, sans-serif;font-size: 13px"
-            th:if="${source != null && !#strings.isEmpty(source.getCountry())}">
-            <td style="font-weight: bold;vertical-align: top;" th:text="'Source Country:'"></td>
-            <td style="vertical-align: top;" th:text="${source.getCountry()}"></td>
+            th:if="${source != null && source.getGeolocation() != null && !#strings.isEmpty(source.getGeolocation().getCountry())}">
+            <td style="font-weight: bold;vertical-align: top;" th:text="'Target Country:'"></td>
+            <td style="vertical-align: top;" th:text="${source.getGeolocation().getCountry()}"></td>
         </tr>
 
         <tr style="font-family:Roboto, sans-serif;font-size: 13px"
-            th:if="${source != null && !#strings.isEmpty(source.getCity())}">
-            <td style="font-weight: bold;vertical-align: top;" th:text="'Source City:'"></td>
-            <td style="vertical-align: top;" th:text="${source.getCity()}"></td>
+            th:if="${source != null && source.getGeolocation() != null && !#strings.isEmpty(source.getGeolocation().getCity())}">
+            <td style="font-weight: bold;vertical-align: top;" th:text="'Target City:'"></td>
+            <td style="vertical-align: top;" th:text="${source.getGeolocation().getCity()}"></td>
         </tr>
 
         <tr style="font-family:Roboto, sans-serif;font-size: 13px"
             th:if="${destination != null && !#strings.isEmpty(destination.getHost())}">
-            <td style="font-weight: bold;vertical-align: top;" th:text="'Destination Hostname:'"></td>
+            <td style="font-weight: bold;vertical-align: top;" th:text="'Adversary Hostname:'"></td>
             <td style="vertical-align: top;" th:text="${destination.getHost()}"></td>
         </tr>
 
         <tr style="font-family:Roboto, sans-serif;font-size: 13px"
             th:if="${destination != null && !#strings.isEmpty(destination.getIp())}">
-            <td style="font-weight: bold;vertical-align: top;" th:text="'Destination Ip:'"></td>
+            <td style="font-weight: bold;vertical-align: top;" th:text="'Adversary Ip:'"></td>
             <td style="vertical-align: top;" th:text="${destination.getIp()}"></td>
         </tr>
 
         <tr style="font-family:Roboto, sans-serif;font-size: 13px"
             th:if="${destination != null && destination.getPort() != null && destination.getPort() > 0}">
-            <td style="font-weight: bold;vertical-align: top;" th:text="'Destination Port:'"></td>
+            <td style="font-weight: bold;vertical-align: top;" th:text="'Adversary Port:'"></td>
             <td style="vertical-align: top;" th:text="${destination.getPort()}"></td>
         </tr>
 
         <tr style="font-family:Roboto, sans-serif;font-size: 13px"
             th:if="${destination != null && !#strings.isEmpty(destination.getUser())}">
-            <td style="font-weight: bold;vertical-align: top;" th:text="'Destination User:'"></td>
+            <td style="font-weight: bold;vertical-align: top;" th:text="'Adversary User:'"></td>
             <td style="vertical-align: top;" th:text="${destination.getUser()}"></td>
         </tr>
 
         <tr style="font-family:Roboto, sans-serif;font-size: 13px"
-            th:if="${destination != null && !#strings.isEmpty(destination.getCountry())}">
-            <td style="font-weight: bold;vertical-align: top;" th:text="'Destination Country:'"></td>
-            <td style="vertical-align: top;" th:text="${destination.getCountry()}"></td>
+            th:if="${destination != null && destination.getGeolocation() != null && !#strings.isEmpty(destination.getGeolocation().getCountry())}">
+            <td style="font-weight: bold;vertical-align: top;" th:text="'Adversary Country:'"></td>
+            <td style="vertical-align: top;" th:text="${destination.getGeolocation().getCountry()}"></td>
         </tr>
 
         <tr style="font-family:Roboto, sans-serif;font-size: 13px"
-            th:if="${destination != null && !#strings.isEmpty(destination.getCity())}">
-            <td style="font-weight: bold;vertical-align: top;" th:text="'Destination City:'"></td>
-            <td style="vertical-align: top;" th:text="${destination.getCity()}"></td>
-        </tr>
-
-        <tr style="font-family:Roboto, sans-serif;font-size: 13px"
-            th:if="${!#strings.isEmpty(alert.getProtocol())}">
-            <td style="font-weight: bold;vertical-align: top;" th:text="'Protocol:'"></td>
-            <td style="vertical-align: top;" th:text="${alert.getProtocol()}"></td>
+            th:if="${destination != null && destination.getGeolocation() != null && !#strings.isEmpty(destination.getGeolocation().getCity())}">
+            <td style="font-weight: bold;vertical-align: top;" th:text="'Adversary City:'"></td>
+            <td style="vertical-align: top;" th:text="${destination.getGeolocation().getCity()}"></td>
         </tr>
 
         <tr style="font-family:Roboto, sans-serif;font-size: 13px"

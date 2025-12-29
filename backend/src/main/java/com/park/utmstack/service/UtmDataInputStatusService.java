@@ -38,6 +38,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -157,7 +158,7 @@ public class UtmDataInputStatusService {
 
             long currentTimeInSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
             List<UtmDataInputStatus> inTime = inputs.stream().filter(row -> (currentTimeInSeconds - row.getTimestamp()) < 3600)
-                    .collect(Collectors.toList());
+                    .toList();
             if (!CollectionUtils.isEmpty(inTime))
                 return;
 
@@ -219,7 +220,7 @@ public class UtmDataInputStatusService {
      * Gets the sources from utm_data_input_status that are not registered in utm_network_scan table
      * and create new assets with it. This method is a schedule with a delay of 1 hour
      */
-    @Scheduled(fixedDelay = 15000, initialDelay = 30000)
+    @Scheduled(fixedDelay = 30000, initialDelay = 60000)
     public void syncSourcesToAssets() {
         final String ctx = CLASSNAME + ".syncSourcesToAssets";
         try {
@@ -231,55 +232,73 @@ public class UtmDataInputStatusService {
         }
     }
 
+    @Transactional
     public void synchronizeSourcesToAssets() {
         final String ctx = CLASSNAME + ".syncSourcesToAssets";
+
         try {
-            final List<String> excludeOfTypes = dataTypesRepository.findAllByIncludedFalse().stream()
-                    .map(UtmDataTypes::getDataType).collect(Collectors.toList());
-            excludeOfTypes.addAll(Arrays.asList("utmstack", "UTMStack", DataSourceConstants.IBM_AS400_TYPE));
 
-            List<UtmDataInputStatus> sources = dataInputStatusRepository.extractSourcesToExport(excludeOfTypes);
-            if (!CollectionUtils.isEmpty(sources)) {
-                //return;
+            List<String> excludeDataTypes = dataTypesRepository.findAllByIncludedFalse()
+                    .stream()
+                    .map(UtmDataTypes::getDataType)
+                    .collect(Collectors.toList());
 
-                Map<String, Boolean> sourcesWithStatus = extractSourcesWithUpDownStatus(sources);
-                List<UtmNetworkScan> assets = networkScanService.findAll();
+            excludeDataTypes.addAll(Arrays.asList("utmstack", "UTMStack", DataSourceConstants.IBM_AS400_TYPE));
 
-                List<UtmNetworkScan> saveOrUpdate = new ArrayList<>();
-                sourcesWithStatus.forEach((key, value) -> {
-                    Optional<UtmNetworkScan> assetOpt = assets.stream()
-                            .filter(asset -> ((StringUtils.hasText(asset.getAssetIp()) && asset.getAssetIp().equals(key))
-                                    || (StringUtils.hasText(asset.getAssetName()) && asset.getAssetName().equals(key))))
-                            .findFirst();
-                    if (assetOpt.isPresent()) {
-                        UtmNetworkScan utmAsset = assetOpt.get();
-                        if (Objects.isNull(utmAsset.getUpdateLevel())
-                                || utmAsset.getUpdateLevel().equals(UpdateLevel.DATASOURCE)) {
-                            utmAsset.assetAlive(value)
-                                    .updateLevel(UpdateLevel.DATASOURCE)
-                                    .assetStatus(AssetStatus.CHECK)
-                                    .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
-                            saveOrUpdate.add(utmAsset);
-                        }
-                    } else {
-                        saveOrUpdate.add(new UtmNetworkScan(key, value));
-                    }
-                });
-
-                assets.forEach(asset -> {
-                    if (!sourcesWithStatus.containsKey(asset.getAssetIp()) && !sourcesWithStatus.containsKey(asset.getAssetName())
-                            && !Objects.isNull(asset.getUpdateLevel()) && asset.getUpdateLevel().equals(UpdateLevel.DATASOURCE)) {
-                        asset.assetStatus(AssetStatus.MISSING).updateLevel(null)
-                                .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
-                        saveOrUpdate.add(asset);
-                    }
-                });
-
-                networkScanService.saveAll(saveOrUpdate);
+            List<UtmDataInputStatus> sources = dataInputStatusRepository.extractSourcesToExport(excludeDataTypes);
+            if (CollectionUtils.isEmpty(sources)) {
+                return;
             }
-            // Finally, delete excluded assets
-            networkScanRepository.deleteAllAssetsByDataType(excludeOfTypes);
+
+            Map<String, Boolean> sourcesWithStatus = extractSourcesWithUpDownStatus(sources);
+
+            List<String> keys = new ArrayList<>(sourcesWithStatus.keySet());
+            List<UtmNetworkScan> assets = networkScanRepository.findByAssetIpInOrAssetNameIn(keys, keys);
+
+            Map<String, UtmNetworkScan> assetsByKey = new HashMap<>();
+
+            assets.forEach(a -> {
+                if (StringUtils.hasText(a.getAssetIp())) assetsByKey.put(a.getAssetIp(), a);
+                if (StringUtils.hasText(a.getAssetName())) assetsByKey.put(a.getAssetName(), a);
+            });
+
+            for (Map.Entry<String, Boolean> entry : sourcesWithStatus.entrySet()) {
+                String key = entry.getKey();
+                Boolean alive = entry.getValue();
+
+                UtmNetworkScan asset = assetsByKey.get(key);
+
+                if (asset != null) {
+                    if (asset.getUpdateLevel() == null || asset.getUpdateLevel().equals(UpdateLevel.DATASOURCE) || asset.getUpdateLevel().equals(UpdateLevel.AGENT)) {
+                        asset.assetAlive(alive)
+                             .updateLevel(UpdateLevel.DATASOURCE)
+                             .assetStatus(AssetStatus.CHECK)
+                             .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+
+                        networkScanService.save(asset);
+                    }
+                } else {
+                    networkScanService.save(new UtmNetworkScan(key, alive));
+                }
+            }
+
+            assets.forEach(asset -> {
+                boolean missing = !sourcesWithStatus.containsKey(asset.getAssetIp())
+                        && !sourcesWithStatus.containsKey(asset.getAssetName());
+
+                if (missing && UpdateLevel.DATASOURCE.equals(asset.getUpdateLevel())) {
+                    asset.assetStatus(AssetStatus.MISSING)
+                          .updateLevel(null)
+                          .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+
+                    networkScanService.save(asset);
+                }
+            });
+
+           networkScanRepository.deleteAllAssetsByDataType(excludeDataTypes);
+
         } catch (Exception e) {
+            log.error("{}: Error synchronizing sources to assets - {}", ctx, e.getMessage(), e);
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
     }

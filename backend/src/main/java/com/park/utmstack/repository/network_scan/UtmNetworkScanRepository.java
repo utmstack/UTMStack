@@ -114,8 +114,8 @@ public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, 
 
     @Modifying
     @Query(nativeQuery = true, value = "with sources as (select ds.source from utm_data_input_status ds where ds.data_type in :types)" +
-        " delete from utm_network_scan asset where asset.asset_ip in (select src.source from sources src) " +
-        "or asset.asset_name in (select src.source from sources src)")
+        " delete from utm_network_scan asset where (asset.asset_ip in (select src.source from sources src) " +
+        "or asset.asset_name in (select src.source from sources src)) and asset.is_agent is false")
     void deleteAllAssetsByDataType(@Param("types") List<String> types);
 
     @Query("select distinct n.assetOsPlatform from UtmNetworkScan n where n.assetOsPlatform is not null and n.isAgent is true")
@@ -129,4 +129,11 @@ public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, 
             "JOIN UtmAssetGroup ag ON ns.groupId = ag.id " +
             "WHERE ns.groupId IS NOT NULL")
     List<Object[]> findAllAssetGroupMappings();
+
+    List<UtmNetworkScan> findByAssetIpInOrAssetNameIn(List<String> assetIps, List<String> assetNames);
+
+    List<UtmNetworkScan> findByIsAgentTrue();
+
+    List<UtmNetworkScan> findByAssetNameIn(List<String> assetNames);
+
 }
