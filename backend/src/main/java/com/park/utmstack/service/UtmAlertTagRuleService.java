@@ -269,7 +269,7 @@ public class UtmAlertTagRuleService {
                                     ctx._source.assetGroupName = '%s';
                                   }
                                 """,
-                        assetName.replace("'", "\\'"), // Escapar comillas simples
+                        assetName.replace("'", "\\'"),
                         groupId,
                         groupName.replace("'", "\\'")
                 ));
@@ -282,7 +282,7 @@ public class UtmAlertTagRuleService {
             List<FilterType> filters = new ArrayList<>();
             filters.add(new FilterType(Constants.alertStatus, OperatorType.IS,
                     AlertStatus.AUTOMATIC_REVIEW.getCode()));
-            filters.add(new FilterType("dataSource", OperatorType.IS_NOT, null));
+            filters.add(new FilterType("dataSource", OperatorType.EXIST, null));
 
             Query query = SearchUtil.toQuery(filters);
             String indexPattern = Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS);
