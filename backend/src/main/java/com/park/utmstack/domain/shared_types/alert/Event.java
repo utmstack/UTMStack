@@ -3,12 +3,20 @@ package com.park.utmstack.domain.shared_types.alert;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.park.utmstack.util.MapUtil;
 import lombok.Data;
+import lombok.Getter;
+import org.springframework.util.StringUtils;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Data
+@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Event {
@@ -39,5 +47,18 @@ public class Event {
 
     private List<String> errors;
     private Map<String, ComplianceValues> compliance;
+
+    public Map<String, String> getLogxFlatted() {
+        return MapUtil.flattenToStringMap(log, true);
+    }
+
+    public String getTimestampFormatted() {
+        try {
+            return StringUtils.hasText(timestamp) ? DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withLocale(Locale.getDefault()).withZone(
+                    ZoneId.systemDefault()).format(Instant.parse(timestamp)) : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
 
