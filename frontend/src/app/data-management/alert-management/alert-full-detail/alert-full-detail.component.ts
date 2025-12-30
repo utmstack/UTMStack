@@ -1,5 +1,5 @@
 import {HttpResponse} from '@angular/common/http';
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
 import {ActivatedRoute, Router} from '@angular/router';
 import * as moment from 'moment';
@@ -37,6 +37,7 @@ import {AlertDetailTabEnum} from '../shared/components/alert-view-detail/alert-v
 import {AlertHistoryActionEnum} from '../shared/enums/alert-history-action.enum';
 import {EventDataTypeEnum} from '../shared/enums/event-data-type.enum';
 import {AlertTagService} from '../shared/services/alert-tag.service';
+import {finalize} from "rxjs/operators";
 
 @Component({
   selector: 'app-alert-full-detail',
@@ -100,7 +101,8 @@ export class AlertFullDetailComponent implements OnInit {
               private accountService: AccountService,
               private alertTagService: AlertTagService,
               private themeChangeBehavior: ThemeChangeBehavior,
-              private activatedRoute: ActivatedRoute) {
+              private activatedRoute: ActivatedRoute,
+              private cdr: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -137,34 +139,42 @@ export class AlertFullDetailComponent implements OnInit {
   }
 
   searchAlert() {
-    // this.spinner.show('alertDetail');
     this.elasticDataService.search(1, 1, 1, DataNatureTypeEnum.ALERT, this.filterAlert)
-      .subscribe(response => {
-        this.alert = response.body[0];
-        this.loadingAlert = false;
-        if (this.alert) {
-          this.logs = this.alert.events;
+      .pipe(finalize(() => this.loadingAlert = false))
+      .subscribe({
+        next: response => {
+          this.alert = response.body[0];
+
+          if (!this.alert) {
+            this.noAlertFound = true;
+            return;
+          }
+
+          this.logs = this.alert.events || [];
           this.log = this.alert.lastEvent || null;
           this.countRelatedEvents = this.logs.length;
+
           const ref = this.alert.reference;
-          this.reference = (ref && typeof ref !== 'string') ? ref : [];
+          this.reference = Array.isArray(ref) ? ref : [];
+
           this.relatedTagsRules = this.alert.tagRulesApplied;
+
           this.filterEvent = [{
             field: 'id',
             operator: ElasticOperatorsEnum.IS_ONE_OF,
-            value: this.alert.events.reverse().slice(0, 100)
+            value: [...this.alert.events].reverse().slice(0, 100)
           }];
-          this.resolveDataType().then(type => {
-            this.dataType = type;
-          });
-          // this.searchLastLog();
+
+          this.resolveDataType().then(type => this.dataType = type);
+
           this.searchEventByAlert();
-        } else {
-          this.noAlertFound = true;
+        },
+        error: () => {
           this.spinner.hide('alertDetail');
         }
       });
   }
+
 
   resolveDataType(): Promise<EventDataTypeEnum> {
     return new Promise<EventDataTypeEnum>(resolve => {
@@ -174,12 +184,18 @@ export class AlertFullDetailComponent implements OnInit {
 
   searchEventByAlert() {
     this.elasticDataService.search(1, 100, 100, DataNatureTypeEnum.EVENT, this.filterEvent)
-      .subscribe(reponse => {
-        this.rows = reponse.body;
-        this.loadingEvents = false;
-        this.spinner.hide('alertDetail');
+      .pipe(finalize(() => this.spinner.hide('alertDetail')))
+      .subscribe({
+        next: response => {
+          this.rows = response.body;
+          this.loadingEvents = false;
+        },
+        error: () => {
+          this.loadingEvents = false;
+        }
       });
   }
+
 
   print() {
     this.printFormat = true;
