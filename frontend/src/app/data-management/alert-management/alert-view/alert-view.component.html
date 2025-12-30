@@ -154,7 +154,8 @@
                               [pageSize]="itemsPerPage"
                               [rotate]="true"
                               [size]="'sm'"></ngb-pagination>
-              <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
+              <app-utm-items-per-page [itemsAmount]="itemsPerPage"
+                                      (itemsInPage)="onItemsPerPageChange($event)"
                                       class="ml-3">
               </app-utm-items-per-page>
             </div>

@@ -154,9 +154,9 @@ export class RuleListComponent implements OnInit, OnDestroy {
     };
     this.loadingRules.push(rule.id);
     const index = this.loadingRules.length - 1;
-    this.ruleService.activeRule(params).pipe(
-      finalize(() => this.loadingRules.splice(index, 1))
-    )
+    this.ruleService.activeRule(params)
+      .pipe(
+        finalize(() => this.loadingRules.splice(index, 1)))
       .subscribe(() => this.ruleService.notifyRefresh(true),
         () => {
           this.utmToast.showError('Error', 'Error changing rule status');
