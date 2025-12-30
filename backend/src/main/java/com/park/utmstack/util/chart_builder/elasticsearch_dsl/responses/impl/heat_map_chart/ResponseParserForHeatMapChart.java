@@ -161,16 +161,24 @@ public class ResponseParserForHeatMapChart implements ResponseParser<HeatMapChar
 
             HeatMapChartResult retValue = new HeatMapChartResult();
 
-            // Definir ejes
-            retValue.addYAxis("Count"); // métrica COUNT
-            // XAxis se llenará dinámicamente con las claves encontradas
+            String metricAlias = "Count";
+            if (!result.getData().isEmpty() && result.getData().get(0) instanceof Map) {
+                Map<String, Object> firstRow = (Map<String, Object>) result.getData().get(0);
+                for (Map.Entry<String, Object> entry : firstRow.entrySet()) {
+                    if (entry.getValue() instanceof Number) {
+                        metricAlias = entry.getKey();
+                        break;
+                    }
+                }
+            }
+
+            retValue.addYAxis(metricAlias);
 
             int index = 0;
             for (Object rowObj : result.getData()) {
                 if (!(rowObj instanceof Map)) continue;
                 Map<String, Object> row = (Map<String, Object>) rowObj;
 
-                // Buscar bucketKey (ej. IP)
                 String bucketKey = null;
                 Double metricValue = null;
 
@@ -178,11 +186,9 @@ public class ResponseParserForHeatMapChart implements ResponseParser<HeatMapChar
                     Object val = entry.getValue();
                     if (val == null) continue;
 
-                    // Si es IP o string, lo usamos como bucketKey
                     if (bucketKey == null && val instanceof String) {
                         bucketKey = entry.getKey() + ":=" + val.toString();
                     }
-                    // Si es número, lo usamos como métrica
                     if (metricValue == null && val instanceof Number) {
                         metricValue = ((Number) val).doubleValue();
                     }
@@ -190,13 +196,11 @@ public class ResponseParserForHeatMapChart implements ResponseParser<HeatMapChar
 
                 if (bucketKey == null || metricValue == null) continue;
 
-                // Añadir XAxis
                 retValue.addXAxis(bucketKey);
 
-                // Construir punto [x, y, value]
                 Double[] data = new Double[3];
-                data[0] = (double) index; // posición en XAxis
-                data[1] = 0.0;            // único eje Y (Count)
+                data[0] = (double) index;
+                data[1] = 0.0;
                 data[2] = metricValue;
 
                 retValue.addData(data);
@@ -208,5 +212,4 @@ public class ResponseParserForHeatMapChart implements ResponseParser<HeatMapChar
             throw new RuntimeException(ctx + ": " + e.getMessage(), e);
         }
     }
-
 }

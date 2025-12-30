@@ -123,34 +123,29 @@ public class ResponseParserForPieChart implements ResponseParser<PieChartResult>
                     Map<String, Object> map = (Map<String, Object>) r;
 
                     String bucketKey = null;
-                    double value = 0.0;
+                    String bucketId = null;
 
-                    Map<String, Object> extras = new HashMap<>();
+                    double value = 0.0;
+                    String metricId = null;
 
                     for (Map.Entry<?, ?> entry : map.entrySet()) {
                         String key = entry.getKey().toString();
                         Object val = entry.getValue();
 
-                        extras.put(key, val);
-
-                        if (bucketKey == null && val != null && !(val instanceof Number)) {
-                            bucketKey = val.toString();
-                        }
-
                         if (val instanceof Number) {
                             value = ((Number) val).doubleValue();
+                            metricId = key;
                         } else {
-                            try {
-                                value = Double.parseDouble(val.toString());
-                            } catch (Exception ignore) {
-
-                            }
+                            bucketKey = val != null ? val.toString() : null;
+                            bucketId = key;
                         }
                     }
 
-                    return new PieChartResult("dynamic", value, bucketKey, extras.toString());
+                    if (metricId == null) metricId = "metric";
+                    if (bucketId == null) bucketId = "bucket";
+
+                    return new PieChartResult(metricId, value, bucketKey, bucketId);
                 })
                 .collect(Collectors.toList());
     }
-
 }

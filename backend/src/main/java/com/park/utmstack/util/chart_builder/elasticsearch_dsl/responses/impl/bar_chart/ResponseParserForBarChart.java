@@ -209,12 +209,9 @@ public class ResponseParserForBarChart implements ResponseParser<BarChartResult>
         try {
             BarChartResult retValue = new BarChartResult();
 
-            // Serie única
             BarChartResult.Serie serie = new BarChartResult.Serie();
-            serie.setMetricId("1"); // id de la métrica COUNT
-            serie.setName("");      // nombre vacío como en tu ejemplo
+            serie.setMetricId("1");
 
-            // Recorremos filas y llenamos categorías + datos
             for (Object rowObj : result.getData()) {
                 if (!(rowObj instanceof Map)) {
                     continue;
@@ -228,6 +225,9 @@ public class ResponseParserForBarChart implements ResponseParser<BarChartResult>
                     Object val = entry.getValue();
                     if (val instanceof Number) {
                         value = ((Number) val).doubleValue();
+                        if (serie.getName() == null) {
+                            serie.setName(entry.getKey() != null ? entry.getKey()  : "metric");
+                        }
                     } else {
                         category = val != null ? val.toString() : "UNKNOWN";
                     }

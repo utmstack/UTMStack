@@ -92,25 +92,33 @@ public class ResponseParserForTagCloudChart implements ResponseParser<TagCloudCh
                 if (!(rowObj instanceof Map)) {
                     continue;
                 }
+
                 Map<String, Object> row = (Map<String, Object>) rowObj;
 
                 String bucketKey = null;
-                Double value = 0.0;
+                Double metricValue = 0.0;
+
+                String bucketId = null;
+                String metricId = null;
 
                 for (Map.Entry<String, Object> entry : row.entrySet()) {
+                    String column = entry.getKey();
                     Object val = entry.getValue();
+
                     if (val instanceof Number) {
-                        value = ((Number) val).doubleValue();
+                        metricValue = ((Number) val).doubleValue();
+                        metricId = column;
                     } else {
                         bucketKey = val != null ? val.toString() : "UNKNOWN";
+                        bucketId = column;
                     }
                 }
 
                 results.add(new TagCloudChartResult(
                         bucketKey,
-                        value,
-                        null,      // metricId, set as needed
-                        null       // bucketId, set as needed
+                        metricValue,
+                        metricId,
+                        bucketId
                 ));
             }
 
@@ -119,5 +127,4 @@ public class ResponseParserForTagCloudChart implements ResponseParser<TagCloudCh
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
-
 }

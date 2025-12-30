@@ -128,7 +128,6 @@ public class ResponseParserForCoordinateMapChart implements ResponseParser<Coord
                 String ip = null;
                 Double metricValue = null;
 
-                // Buscar IP y métrica en la fila
                 for (Map.Entry<String, Object> entry : row.entrySet()) {
                     Object val = entry.getValue();
                     if (val == null) continue;
@@ -143,7 +142,6 @@ public class ResponseParserForCoordinateMapChart implements ResponseParser<Coord
 
                 if (ip == null || metricValue == null) continue;
 
-                // Resolver lat/long con tu servicio de GeoIP
                 GeoIp ipInfo;
                 try {
                     ipInfo = ipInfoService.getIpInfo(ip);
@@ -153,7 +151,6 @@ public class ResponseParserForCoordinateMapChart implements ResponseParser<Coord
                     continue;
                 }
 
-                // Construir resultado
                 CoordinateMapChartResult chartResult = new CoordinateMapChartResult();
                 chartResult.setName(ip);
                 chartResult.setValue(new Double[] {

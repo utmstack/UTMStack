@@ -163,7 +163,6 @@ public class ResponseParserForTableChart implements ResponseParser<TableChartRes
 
             TableChartResult table = new TableChartResult();
 
-            // Definir columnas dinámicamente a partir de las claves del primer row
             if (!result.getData().isEmpty() && result.getData().get(0) instanceof Map) {
                 Map<String, Object> firstRow = (Map<String, Object>) result.getData().get(0);
                 for (String key : firstRow.keySet()) {
@@ -171,7 +170,6 @@ public class ResponseParserForTableChart implements ResponseParser<TableChartRes
                 }
             }
 
-            // Recorrer filas del SQL y agregarlas a la tabla
             for (Object rowObj : result.getData()) {
                 if (!(rowObj instanceof Map)) continue;
                 Map<String, Object> row = (Map<String, Object>) rowObj;
