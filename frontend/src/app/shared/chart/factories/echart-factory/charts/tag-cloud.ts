@@ -17,9 +17,12 @@ export class TagCloud implements ChartBuildInterface {
   buildChart(data?: any[], visualization?: VisualizationType): ChartOption {
     const tagOptions: UtmTagCloudOptionType = visualization.chartConfig;
     tagOptions.series[0].data = this.extractTagValues(data, visualization);
-    tagOptions.series[0].name = visualization.queryLanguage === ChartBuilderQueryLanguageEnum.SQL ?
-      tagOptions.series[0].name = data.length > 0 && data[0].bucketId ? data[0].bucketId : 'Count'
-      : getBucketLabel(0, visualization);
+
+    tagOptions.series[0].name =
+      visualization.queryLanguage === ChartBuilderQueryLanguageEnum.SQL
+        ? (data && data.length > 0 && data[0].bucketId ? data[0].bucketId : 'Count')
+        : getBucketLabel(0, visualization);
+
     return tagOptions;
   }
 

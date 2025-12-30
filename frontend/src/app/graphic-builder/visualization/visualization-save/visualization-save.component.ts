@@ -37,7 +37,11 @@ export class VisualizationSaveComponent implements OnInit {
 
   ngOnInit() {
     this.initFormSaveVis();
-    cleanVisualizationData(this.visualization).then(visualization => {
+    const visualizationPromise = this.visualization.chartType === ChartTypeEnum.TAG_CLOUD_CHART
+      ? Promise.resolve(this.visualization)
+      : cleanVisualizationData(this.visualization);
+
+    visualizationPromise.then(visualization => {
       this.visualizationToSave = visualization;
       if (this.mode === 'edit') {
         this.visSaveForm.get('name').setValue(this.visualizationToSave.name);
@@ -45,6 +49,7 @@ export class VisualizationSaveComponent implements OnInit {
       }
     });
   }
+
 
   initFormSaveVis() {
     this.visSaveForm = this.fb.group(
