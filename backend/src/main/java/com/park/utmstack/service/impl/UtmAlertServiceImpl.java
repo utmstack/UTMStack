@@ -79,12 +79,9 @@ public class UtmAlertServiceImpl implements UtmAlertService {
             UtmAlertLast initialDate = lastAlertRepository.findById(1L)
                     .orElse(new UtmAlertLast(Instant.now().atZone(ZoneOffset.UTC).toInstant().minus(1, ChronoUnit.HOURS)));
 
-            Instant ts = initialDate.getLastAlertTimestamp();
-            String formatted = ts.truncatedTo(ChronoUnit.MILLIS).toString();
-
             List<FilterType> filters = new ArrayList<>();
             filters.add(new FilterType(Constants.alertStatus, OperatorType.IS, AlertStatus.OPEN.getCode()));
-            filters.add(new FilterType(Constants.timestamp, OperatorType.IS_GREATER_THAN, formatted));
+            filters.add(new FilterType(Constants.timestamp, OperatorType.IS_GREATER_THAN, initialDate.getLastAlertTimestamp().toString()));
 
             SearchRequest.Builder srb = new SearchRequest.Builder();
             srb.query(SearchUtil.toQuery(filters))
@@ -118,7 +115,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
                 }
 
                 String[] addressToNotify = emails.replace(" ", "").split(",");
-                mailService.sendAlertEmail(Arrays.asList(addressToNotify), alert, alert.getEvents());
+                // mailService.sendAlertEmail(Arrays.asList(addressToNotify), alert, alert.getEvents());
             }
 
             alertResponseRuleService.evaluateRules(alerts);
