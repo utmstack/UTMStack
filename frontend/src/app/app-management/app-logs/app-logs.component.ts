@@ -28,7 +28,7 @@ export class AppLogsComponent implements OnInit {
     filters: [
       {field: '@timestamp', operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['now-7d', 'now']},
       {field: 'log.containerName.keyword', operator: ElasticOperatorsEnum.IS, value: 'utmstack_backend'}
-    ], index: 'v11-log-utmstack-*', top: 10000000
+    ], index: 'v11-log-utmstack-*', top: 100000
   };
   sources = ['PANEL', 'AGENT'];
   types = ['ERROR', 'WARNING', 'INFO'];
