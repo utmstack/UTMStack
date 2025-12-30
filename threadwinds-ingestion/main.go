@@ -71,11 +71,7 @@ func main() {
 			return nil
 		}
 
-		err = utils.InfiniteRetryIfXError(registerFunc, "404", "Not Found", "connection refused")
-		if err != nil {
-			catcher.Error("failed to register in ThreadWinds Platform after retries", err, nil)
-			os.Exit(1)
-		}
+		utils.InfiniteRetry(registerFunc, "ThreadWinds registration")
 
 		catcher.Info("ThreadWinds registration successful", nil)
 
