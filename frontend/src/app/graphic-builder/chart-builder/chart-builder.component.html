@@ -1,7 +1,7 @@
 <div class="container-fluid pr-3 pl-3 pt-2">
   <div class="d-flex justify-content-between align-items-center">
     <h5 class="mb-0 label-header px-3 py-2">
-      {{mode==='edit' ? visualization.name : 'Visualization builder'}}
+      {{mode==='edit' ? visualization && visualization.name : 'Visualization builder'}}
     </h5>
   </div>
 
@@ -14,6 +14,7 @@
       (sqlModeToggled)="toggleSqlMode($event)"
       (indexPatternInitialized)="indexPatternLoaded($event)"
       [pattern]="visualization.pattern"
+      [showModeToggle] = "mode !== 'edit'"
       *ngIf="!loading"
       >
   </app-visualization-header>
@@ -106,11 +107,13 @@
             </div>
             <div *ngIf="visualization" [hidden]="property !== headers[1].name"
                  class="pt-2 option-container w-100 h-100">
-              <app-metric-properties-option (metricOptions)="onMetricOptionChange($event)"
-                                            *ngSwitchCase="chartTypeEnum.METRIC_CHART"
-                                            [mode]="mode"
-                                            [visualization]="visualization">
-              </app-metric-properties-option>
+              <ng-container *ngSwitchCase="chartTypeEnum.METRIC_CHART">
+                <app-metric-properties-option (metricOptions)="onMetricOptionChange($event)"
+                                              *ngIf="!isSqlMode"
+                                              [mode]="mode"
+                                              [visualization]="visualization">
+                </app-metric-properties-option>
+              </ng-container>
               <ng-container *ngSwitchCase="chartTypeEnum.PIE_CHART">
                 <app-pie-properties-options (pieOptions)="onPieOptionsChange($event)"
                                             *ngIf="visualization.chartConfig"
@@ -127,7 +130,7 @@
               </ng-container>
               <ng-container *ngSwitchCase="chartTypeEnum.GOAL_CHART">
                 <app-goal-properties-option (goalOptions)="onGoalOptionChange($event)"
-                                            *ngIf="visualization.chartConfig"
+                                            *ngIf="visualization.chartConfig && !sqlQuery"
                                             [mode]="mode"
                                             [visualization]="visualization">
                 </app-goal-properties-option>

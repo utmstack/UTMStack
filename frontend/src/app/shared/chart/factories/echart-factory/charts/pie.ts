@@ -2,6 +2,7 @@ import {
   extractMetricLabel,
   getBucketLabel
 } from '../../../../../graphic-builder/chart-builder/chart-property-builder/shared/functions/visualization-util';
+import {ChartBuilderQueryLanguageEnum} from '../../../../enums/chart-builder-query-language.enum';
 import {Legend} from '../../../types/charts/chart-properties/legend/legend';
 import {SeriesPie} from '../../../types/charts/chart-properties/series/pie/series-pie';
 import {ItemStyle} from '../../../types/charts/chart-properties/style/item-style';
@@ -11,7 +12,6 @@ import {PieBuilderResponseType} from '../../../types/response/pie-builder-respon
 import {VisualizationType} from '../../../types/visualization.type';
 import {ChartBuildInterface} from '../chart-build.interface';
 import {ChartOption} from '../chart-option';
-import {ChartBuilderQueryLanguageEnum} from "../../../../enums/chart-builder-query-language.enum";
 
 export class Pie implements ChartBuildInterface {
 
@@ -64,11 +64,10 @@ export class Pie implements ChartBuildInterface {
   extractSeries(data: any[], visualization: VisualizationType): string[] {
     const series: string[] = [];
     for (const dat of data) {
-      if (visualization.queryLanguage === ChartBuilderQueryLanguageEnum.SQL) {
-        series.push(dat.bucketKey);
-      } else {
-        series.push(dat.bucketKey ? dat.bucketKey : extractMetricLabel(dat.metricId, visualization));
-      }
+        series.push(dat.bucketKey ? dat.bucketKey :
+          visualization.queryLanguage === ChartBuilderQueryLanguageEnum.DSL ?
+            extractMetricLabel(dat.metricId, visualization)
+        : '');
     }
     return series;
   }
@@ -76,22 +75,22 @@ export class Pie implements ChartBuildInterface {
   extractPieValues(data: PieBuilderResponseType[], visualization: VisualizationType): { name: string, value: number }[] {
     const values: { name: string, value: number }[] = [];
     for (const dat of data) {
-      if (visualization.queryLanguage === ChartBuilderQueryLanguageEnum.SQL) {
-        values.push({ name: dat.bucketKey, value: Number(dat.value.toFixed(2)) });
-      } else {
-        values.push(
-          {
-            name: dat.bucketKey ? dat.bucketKey : extractMetricLabel(dat.metricId, visualization),
-            value: Number(dat.value.toFixed(2))
-          }
-        );      }
+      values.push(
+        {
+          name: dat.bucketKey ? dat.bucketKey :
+            visualization.queryLanguage === ChartBuilderQueryLanguageEnum.DSL ?
+              extractMetricLabel(dat.metricId, visualization)
+              : '',
+          value: Number(dat.value.toFixed(2))
+        }
+      );
     }
     return values;
   }
 
   private extractSerieName(data: PieBuilderResponseType[], visualization: VisualizationType): string {
     if (visualization.queryLanguage === ChartBuilderQueryLanguageEnum.SQL) {
-      return data.length > 0 ? data[0].bucketKey : 'SQL Series';
+      return data.length > 0 ? data[0].bucketId : 'SQL Series';
     } else {
       return getBucketLabel(0, visualization);
     }

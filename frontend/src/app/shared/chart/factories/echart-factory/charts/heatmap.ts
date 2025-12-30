@@ -1,4 +1,5 @@
 import {extractMetricLabel} from '../../../../../graphic-builder/chart-builder/chart-property-builder/shared/functions/visualization-util';
+import {ChartBuilderQueryLanguageEnum} from '../../../../enums/chart-builder-query-language.enum';
 import {ChartTypeEnum} from '../../../../enums/chart-type.enum';
 import {HeatMapPropertiesType} from '../../../types/charts/heatmap/heat-map-properties.type';
 import {HeatMapResponseType} from '../../../types/response/heat-map-response.type';
@@ -19,7 +20,9 @@ export class Heatmap implements ChartBuildInterface {
       heatMapOptions.visualMap.max = undefined;
       heatMapOptions.visualMap.min = undefined;
       heatMapOptions.series = [{
-        name: extractMetricLabel(0, visualization),
+        name: visualization.queryLanguage === ChartBuilderQueryLanguageEnum. DSL ?
+          extractMetricLabel(0, visualization)
+          : '',
         type: 'heatmap',
         data: data[0].data,
       }];

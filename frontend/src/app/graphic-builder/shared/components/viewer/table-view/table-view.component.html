@@ -48,7 +48,7 @@
               *ngFor="let column of data.columns"
               [sortable]="column.split('->')[0]"
               appColumnSortable class="font-weight-semibold cursor-pointer" scope="col">
-            {{column.split('->')[1]}}
+            {{ column.split('->')[1] || column.split('->')[0] }}
           </th>
         </tr>
         </thead>

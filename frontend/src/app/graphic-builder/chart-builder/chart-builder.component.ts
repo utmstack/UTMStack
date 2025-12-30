@@ -172,6 +172,10 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
   }
 
   saveVisualization() {
+    if (this.isSqlMode && this.sqlQuery === '') {
+      this.errorMessage = 'SQL Query cannot be empty';
+      return;
+    }
     const modal = this.modalService.open(VisualizationSaveComponent, {centered: true});
     if (this.isSqlMode) {
       this.nullifyUnusedFields();

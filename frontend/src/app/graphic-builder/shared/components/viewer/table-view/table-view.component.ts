@@ -13,7 +13,7 @@ import {Observable, of, Subject} from 'rxjs';
 import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {DashboardBehavior} from '../../../../../shared/behaviors/dashboard.behavior';
-import {TimeFilterBehavior} from "../../../../../shared/behaviors/time-filter.behavior";
+import {TimeFilterBehavior} from '../../../../../shared/behaviors/time-filter.behavior';
 import {EchartClickAction} from '../../../../../shared/chart/types/action/echart-click-action';
 import {UtmTableOptionType} from '../../../../../shared/chart/types/charts/table/utm-table-option.type';
 import {TableBuilderResponseType} from '../../../../../shared/chart/types/response/table-builder-response.type';
@@ -22,6 +22,7 @@ import {ElasticFilterDefaultTime} from '../../../../../shared/components/utm/fil
 import {SortableDirective} from '../../../../../shared/directives/sortable/sortable.directive';
 import {SortDirection} from '../../../../../shared/directives/sortable/type/sort-direction.type';
 import {SortEvent} from '../../../../../shared/directives/sortable/type/sort-event';
+import {ChartBuilderQueryLanguageEnum} from '../../../../../shared/enums/chart-builder-query-language.enum';
 import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
 import {ChartValueSeparator} from '../../../../../shared/enums/chart-value-separator';
 import {RefreshService, RefreshType} from '../../../../../shared/services/util/refresh.service';
@@ -98,7 +99,9 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe(id => {
       if (id && this.chartId === id) {
         this.refreshService.sendRefresh(this.refreshType);
-        this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
+        this.defaultTime = this.visualization.queryLanguage === ChartBuilderQueryLanguageEnum.DSL ?
+          resolveDefaultVisualizationTime(this.visualization)
+          : new ElasticFilterDefaultTime('now-30d', 'now');
       }
     });
     this.dashboardBehavior.$filterDashboard
@@ -126,7 +129,9 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
       });
 
     if (!this.defaultTime) {
-      this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
+      this.defaultTime = this.visualization.queryLanguage === ChartBuilderQueryLanguageEnum.DSL ?
+        resolveDefaultVisualizationTime(this.visualization)
+        : new ElasticFilterDefaultTime('now-30d', 'now');
       this.refreshService.sendRefresh(this.refreshType);
     }
   }

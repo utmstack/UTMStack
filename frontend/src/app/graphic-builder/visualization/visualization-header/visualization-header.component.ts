@@ -15,6 +15,7 @@ export class VisualizationHeaderComponent implements OnInit {
   @Output() cancelled = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
   @Input() sqlMode = false;
+  @Input() showModeToggle = true;
   @Output() sqlModeToggled = new EventEmitter<boolean>();
   @Input() pattern: UtmIndexPattern;
 
