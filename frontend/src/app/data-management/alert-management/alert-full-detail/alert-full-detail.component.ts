@@ -104,7 +104,6 @@ export class AlertFullDetailComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.spinner.show('alertDetail');
     this.activatedRoute.params.subscribe(params => {
       this.alertId = params.id;
       if (this.alertId) {
@@ -138,12 +137,14 @@ export class AlertFullDetailComponent implements OnInit {
   }
 
   searchAlert() {
+    // this.spinner.show('alertDetail');
     this.elasticDataService.search(1, 1, 1, DataNatureTypeEnum.ALERT, this.filterAlert)
-      .subscribe(reponse => {
-        this.alert = reponse.body[0];
+      .subscribe(response => {
+        this.alert = response.body[0];
         this.loadingAlert = false;
         if (this.alert) {
-          this.logs = this.alert.logs;
+          this.logs = this.alert.events;
+          this.log = this.alert.lastEvent || null;
           this.countRelatedEvents = this.logs.length;
           const ref = this.alert.reference;
           this.reference = (ref && typeof ref !== 'string') ? ref : [];
@@ -151,15 +152,16 @@ export class AlertFullDetailComponent implements OnInit {
           this.filterEvent = [{
             field: 'id',
             operator: ElasticOperatorsEnum.IS_ONE_OF,
-            value: this.alert.logs.reverse().slice(0, 100)
+            value: this.alert.events.reverse().slice(0, 100)
           }];
           this.resolveDataType().then(type => {
             this.dataType = type;
           });
-          this.searchLastLog();
+          // this.searchLastLog();
           this.searchEventByAlert();
         } else {
           this.noAlertFound = true;
+          this.spinner.hide('alertDetail');
         }
       });
   }
@@ -245,7 +247,7 @@ export class AlertFullDetailComponent implements OnInit {
       this.elasticDataService.search(1, 1,
         1, LOG_INDEX_PATTERN, filter).subscribe(
         (res: HttpResponse<any>) => {
-          this.log = res.body[0];
+          this.log = res.body[0] || null;
           this.getLastLog = false;
         },
         (res: HttpResponse<any>) => {
