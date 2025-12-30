@@ -115,7 +115,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
                 }
 
                 String[] addressToNotify = emails.replace(" ", "").split(",");
-                // mailService.sendAlertEmail(Arrays.asList(addressToNotify), alert, alert.getEvents());
+                mailService.sendAlertEmail(Arrays.asList(addressToNotify), alert, alert.getEvents());
             }
 
             alertResponseRuleService.evaluateRules(alerts);
