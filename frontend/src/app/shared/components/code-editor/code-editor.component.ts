@@ -1,9 +1,11 @@
 import {
-  Component, EventEmitter,
-  Input, OnInit, Output
+  Component, EventEmitter, forwardRef,
+  Input, OnDestroy, OnInit, Output
 } from '@angular/core';
+import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
+import {SqlValidationService} from '../../services/code-editor/sql-validation.service';
 
-interface ConsoleOptions {
+export interface ConsoleOptions {
   value?: string;
   language?: 'sql';
   theme?: 'vs' | 'vs-dark' | 'hc-black' | string;
@@ -17,7 +19,8 @@ interface ConsoleOptions {
   };
   overviewRulerLanes?: number;
   wordWrap?: 'off' | 'on' | 'wordWrapColumn' | 'bounded';
-  automaticLayout: boolean;
+  automaticLayout?: boolean;
+  lineNumbers?: 'off' | 'on';
 }
 
 const SQL_KEYWORDS = ['CREATE', 'DROP', 'ALTER', 'TRUNCATE',
@@ -28,24 +31,33 @@ const SQL_KEYWORDS = ['CREATE', 'DROP', 'ALTER', 'TRUNCATE',
   'FROM', 'WHERE', 'GROUP BY', 'HAVING', 'ORDER BY', 'DISTINCT',
   'JOIN', 'INNER', 'LEFT', 'RIGHT', 'FULL', 'UNION', 'INTERSECT',
   'NULL', 'TRUE', 'FALSE',
-  'AS', 'CASE', 'WHEN', 'THEN', 'END'
+  'AS', 'CASE', 'WHEN', 'THEN', 'END',
+  'LIMIT', 'OFFSET'
 ];
 
 @Component({
   selector: 'app-code-editor',
   templateUrl: './code-editor.component.html',
-  styleUrls: ['./code-editor.component.scss']
+  styleUrls: ['./code-editor.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => CodeEditorComponent),
+      multi: true
+    }
+  ]
 })
-export class CodeEditorComponent implements OnInit {
+export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAccessor {
+  @Input() showFullEditor = true;
   @Input() consoleOptions?: ConsoleOptions;
   @Output() execute = new EventEmitter<string>();
   @Output() clearData = new EventEmitter<void>();
   @Input() queryError: string | null = null;
   @Input() customKeywords: string[] = [];
+
   sqlQuery = '';
   errorMessage = '';
   successMessage = '';
-
   readonly defaultOptions: ConsoleOptions = {
     value: this.sqlQuery,
     language: 'sql',
@@ -60,17 +72,28 @@ export class CodeEditorComponent implements OnInit {
     },
     overviewRulerLanes: 0,
     wordWrap: 'on',
-    automaticLayout: true
+    automaticLayout: true,
+    lineNumbers: 'on'
   };
+  private completionProvider?: monaco.IDisposable;
+  private onChange = (_: any) => {};
+  private onTouched = () => {};
 
-  constructor() {}
+  constructor(private sqlValidationService: SqlValidationService) {}
 
   ngOnInit(): void {
     this.consoleOptions = { ...this.defaultOptions, ...this.consoleOptions };
   }
 
-  onEditorInit() {
-    monaco.languages.registerCompletionItemProvider('sql', {
+  ngOnDestroy(): void {
+    if (this.completionProvider) {
+      this.completionProvider.dispose();
+      this.completionProvider = undefined;
+    }
+  }
+
+  onEditorInit(editor: monaco.editor.IStandaloneCodeEditor) {
+    this.completionProvider = monaco.languages.registerCompletionItemProvider('sql', {
       provideCompletionItems: () => {
         const allKeywords = Array.from(new Set([
           ...SQL_KEYWORDS,
@@ -86,24 +109,24 @@ export class CodeEditorComponent implements OnInit {
         return { suggestions };
       }
     });
+
+    editor.onDidChangeModelContent(() => {
+      const val = editor.getValue();
+      this.sqlQuery = val;
+      this.onChange(val);
+      this.onTouched();
+    });
   }
 
   executeQuery(): void {
-    this.resetMessages();
-    const query = this.sqlQuery ? this.sqlQuery.trim() : '';
-    if (!query) {
-      this.errorMessage = 'The query cannot be empty.';
-      return;
-    }
-
-    const validationError = this.validateSqlQuery(query);
-    if (validationError) {
-      this.errorMessage = validationError;
+    this.clearMessages();
+    this.errorMessage = this.sqlValidationService.validateSqlQuery(this.sqlQuery);
+    if (this.errorMessage) {
       return;
     }
 
     try {
-      const cleanedQuery = query.replace(/\n/g, ' ');
+      const cleanedQuery = this.sqlQuery.replace(/\n/g, ' ');
       this.execute.emit(cleanedQuery);
     } catch (err) {
       this.errorMessage = err instanceof Error ? err.message : String(err);
@@ -112,20 +135,19 @@ export class CodeEditorComponent implements OnInit {
 
   clearQuery(): void {
     this.sqlQuery = '';
-    this.resetMessages();
+    this.clearMessages();
     this.clearData.emit();
   }
 
   formatQuery(): void {
-    this.resetMessages();
+    this.clearMessages();
     this.sqlQuery = this.formatSql(this.sqlQuery);
   }
 
   private formatSql(sql: string): string {
-    const keywords = ['SELECT', 'FROM', 'WHERE', 'JOIN', 'LEFT', 'RIGHT', 'INNER', 'ON', 'GROUP BY', 'ORDER BY', 'LIMIT'];
     let formatted = sql;
 
-    keywords.forEach(keyword => {
+    SQL_KEYWORDS.forEach(keyword => {
       const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
       formatted = formatted.replace(regex, `\n${keyword}`);
     });
@@ -134,148 +156,29 @@ export class CodeEditorComponent implements OnInit {
   }
 
   copyQuery(): void {
-    this.resetMessages();
+    this.clearMessages();
     (navigator as any).clipboard.writeText(this.sqlQuery);
     this.successMessage = 'Query copied to clipboard.';
   }
 
-  resetMessages(): void {
+  clearMessages(): void {
     this.errorMessage = '';
     this.successMessage = '';
   }
 
-  private validateSqlQuery(query: string): string | null {
-    const trimmed = query.trim().replace(/;+\s*$/, '');
-    const upper = trimmed.toUpperCase();
-
-    const startPattern = /^\s*SELECT\b/i;
-    if (!startPattern.test(trimmed)) {
-      return 'Query must start with SELECT.';
-    }
-
-    const minimalPattern = /^\s*SELECT\s+.+\s+FROM\s+.+/is;
-    if (!minimalPattern.test(trimmed)) {
-      return 'Query must be at least: SELECT <columns> FROM <table>.';
-    }
-
-    const forbiddenPattern = /\b(INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|REPLACE|TRUNCATE|MERGE|GRANT|REVOKE|EXEC|EXECUTE|COMMIT|ROLLBACK|INTO)\b/i;
-    const commentPattern = /(--.*?$|\/\*.*?\*\/)/gm;
-    const allowedFunctions = new Set(['COUNT', 'AVG', 'MIN', 'MAX', 'SUM']);
-
-    if (forbiddenPattern.test(upper)) {
-      return 'Query contains forbidden SQL keywords.';
-    }
-    if (commentPattern.test(trimmed)) {
-      return 'Query must not contain SQL comments (-- or /* */).';
-    }
-    if (trimmed.includes(';')) {
-      return 'Query must not contain internal semicolons.';
-    }
-    if (!this.balancedQuotes(trimmed)) {
-      return 'Quotes are not balanced.';
-    }
-    if (!this.balancedParentheses(trimmed)) {
-      return 'Parentheses are not balanced.';
-    }
-
-    if (this.hasMisplacedCommas(trimmed)) {
-      return 'Query contains misplaced commas.';
-    }
-
-    if (this.hasSubqueryWithoutAlias(trimmed)) {
-      return 'Subquery in FROM must have an alias.';
-    }
-
-    const functions = this.extractFunctions(upper);
-    for (const func of functions) {
-      if (!allowedFunctions.has(func)) {
-        return `Unsupported SQL function: ${func}.`;
-      }
-    }
-
-    return null;
+  writeValue(value: any): void {
+    this.sqlQuery = value || '';
   }
 
-  private balancedParentheses(query: string): boolean {
-    let count = 0;
-    for (const c of query) {
-      if (c === '(') {
-        count++;
-      } else if (c === ')') {
-        count--;
-      }
-      if (count < 0) {
-        return false;
-      }
-    }
-    return count === 0;
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
   }
 
-  private balancedQuotes(query: string): boolean {
-    let sq = 0;
-    let dq = 0;
-    let escaped = false;    for (const c of query) {
-      if (escaped) { escaped = false; continue; }
-      if (c === '\\') { escaped = true; continue; }
-      if (c === '\'') {
-        sq++;
-      } else {
-        if (c === '"') { dq++; }
-      }
-    }
-    return (sq % 2 === 0) && (dq % 2 === 0);
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
   }
 
-  private extractFunctions(upperQuery: string): string[] {
-    const funcPattern = /\b(COUNT|AVG|MIN|MAX|SUM)\s*\(/g;
-    const funcs: string[] = [];
-
-    let match: RegExpExecArray | null = funcPattern.exec(upperQuery);
-    while (match !== null) {
-      funcs.push(match[1]);
-      match = funcPattern.exec(upperQuery);
-    }
-
-    return funcs;
+  setDisabledState?(isDisabled: boolean): void {
+    // Optional: handle disabled state
   }
-
-  private hasMisplacedCommas(query: string): boolean {
-    const upperQuery = query.toUpperCase();
-
-    if (upperQuery.startsWith('SELECT ,') || upperQuery.includes(',,')) {
-      return true;
-    }
-
-    if (/,\s*FROM/i.test(upperQuery)) {
-      return true;
-    }
-
-    const selectPart = query
-      .replace(/^SELECT\s+/i, '')
-      .replace(/\s+FROM.*$/i, '')
-      .trim();
-
-    if (selectPart.startsWith(',') || selectPart.endsWith(',')) {
-      return true;
-    }
-
-    const fields = selectPart.split(',');
-    for (const f of fields) {
-      if (f.trim() === '') {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  private hasSubqueryWithoutAlias(query: string): boolean {
-    const subqueryRegex = /FROM\s*\([^)]*\)/i;
-    if (!subqueryRegex.test(query)) {
-      return false;
-    }
-    const aliasRegex = /FROM\s*\([^)]*\)\s+(AS\s+\w+|\w+)/i;
-    return !aliasRegex.test(query);
-  }
-
 }
