@@ -1,5 +1,5 @@
 <div #editorContainer class="editor-container">
-  <div class="editor-header pr-2">
+  <div class="editor-header pr-2" *ngIf="showFullEditor">
     <div class="header-title">
       <i class="icon-database"></i>
       <span>SQL Console</span>
@@ -41,12 +41,12 @@
       class="editor-area"
       [options]="consoleOptions"
       [(ngModel)]="sqlQuery"
-      (ngModelChange)="resetMessages()"
-      (onInit)="onEditorInit()">>
+      (ngModelChange)="clearMessages()"
+      (onInit)="onEditorInit($event)">>
     </ngx-monaco-editor>
   </div>
 
-  <div class="execution-info" *ngIf="successMessage || errorMessage">
+  <div class="execution-info" *ngIf="(successMessage || errorMessage) && showFullEditor">
     <div [ngClass]="errorMessage ? 'text-danger-800' : 'text-green-800'">
       <span>{{ errorMessage || successMessage }}</span>
     </div>
