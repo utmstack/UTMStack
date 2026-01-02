@@ -63,7 +63,16 @@ func main() {
 		var regResp *client.RegistrationResponse
 
 		registerFunc := func() error {
-			resp, err := cmClient.RegisterUserReporter(adminEmail)
+			currentEmail, emailErr := postgresClient.GetAdminEmail(ctx)
+			if emailErr != nil {
+				return catcher.Error("failed to get current admin email", emailErr, nil)
+			}
+
+			catcher.Info("attempting ThreadWinds registration", map[string]any{
+				"email": currentEmail.Email,
+			})
+
+			resp, err := cmClient.RegisterUserReporter(currentEmail.Email)
 			if err != nil {
 				return err
 			}

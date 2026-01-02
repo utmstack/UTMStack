@@ -92,6 +92,11 @@ func (c *PostgresClient) GetAdminEmail(ctx context.Context) (*AdminEmailResult, 
 		result.LastModified = lastModifiedDate.Time
 	}
 
+	catcher.Info("retrieved current admin email", map[string]any{
+		"email":            email,
+		"last_modified_by": lastModifiedBy,
+	})
+
 	return result, nil
 }
 

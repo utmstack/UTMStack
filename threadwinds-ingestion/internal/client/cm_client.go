@@ -57,14 +57,17 @@ func (c *CustomersManagerClient) RegisterUserReporter(email string) (*Registrati
 		case http.StatusBadRequest:
 			return nil, catcher.Error("invalid registration data", err, map[string]any{
 				"status": statusCode,
+				"email":  email,
 			})
 		case http.StatusInternalServerError:
 			return nil, catcher.Error("registration service error", err, map[string]any{
 				"status": statusCode,
+				"email":  email,
 			})
 		default:
 			return nil, catcher.Error("registration failed", err, map[string]any{
 				"status": statusCode,
+				"email":  email,
 			})
 		}
 	}
