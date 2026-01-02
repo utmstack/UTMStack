@@ -1,0 +1,21 @@
+.query-suggestions {
+  border-right: 1px solid #e0e0e0;
+  height: 100%;
+  overflow-y: auto;
+
+  ul {
+    list-style: none;
+    padding: 0;
+
+    li {
+      padding: 8px 6px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+  }
+}
+
+.card-field:hover {
+  transform: translateY(2px);
+}

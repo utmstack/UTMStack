@@ -247,6 +247,9 @@ import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
 import {IsEnterpriseModuleDirective} from './directives/enterprise/enterprise.directive';
 import {ScheduleConfigComponent} from './components/schedule-config/schedule-config.component';
+import {
+  QuerySuggestionsComponent
+} from "./components/code-editor/components/query-suggestions/query-suggestions.component";
 
 
 @NgModule({
@@ -414,7 +417,8 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     CodeEditorComponent,
     LoginProvidersComponent,
     IsEnterpriseModuleDirective,
-    ScheduleConfigComponent
+    ScheduleConfigComponent,
+    QuerySuggestionsComponent
   ],
   exports: [
     IndexPatternCreateComponent,

@@ -29,6 +29,8 @@
   }
 
   .editor-section {
+    display: flex;
+    flex-direction: row;
     flex: 1;
     overflow: hidden;
     border-bottom: 1px solid #e0e6ed;
@@ -37,6 +39,8 @@
       height: 100%;
       width: 100%;
       border: 1px solid rgba(0,0,0,.125);
+      flex: 1;
+      min-width: 0;
     }
   }
 
@@ -66,4 +70,8 @@
 
 .monaco-editor .suggest-widget .codicon {
   display: none !important;
+}
+
+app-query-suggestions {
+  min-width: 300px;
 }
