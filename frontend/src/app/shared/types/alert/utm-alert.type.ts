@@ -32,6 +32,7 @@ export class UtmAlertType {
   hasChildren: boolean;
   expanded: boolean;
   echoes: number;
+  lastEvent: any;
 }
 
 export enum AlertStatusLabelEnum {

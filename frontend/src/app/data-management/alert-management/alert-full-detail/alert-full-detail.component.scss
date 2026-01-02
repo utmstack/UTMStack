@@ -1,3 +1,12 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
+
 .print-logo-img {
   img {
     width: 40px;
@@ -59,12 +68,23 @@ a {
   width: 1100px !important;
 }
 
-//.w-1000 {
-//  min-width: 1100px !important;
-//  width: 1100px !important;
-//  padding: 0 15px;
-//}
 
 @media print {
-  .page-break { page-break-inside: avoid; page-break-before: always; }
+  :host {
+    height: auto !important;
+    min-height: auto !important;
+  }
+
+  .overflow-auto {
+    overflow: visible !important;
+  }
+
+  .h-100 {
+    height: auto !important;
+  }
+
+  .d-flex {
+    display: block !important;
+  }
 }
+

@@ -89,7 +89,7 @@ public class UserJWTController {
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String token = tokenProvider.createToken(authentication, false, isAuth);
+        String token = tokenProvider.createToken(authentication, loginVM.isRememberMe(), isAuth);
 
         User user = userService.getUserWithAuthoritiesByLogin(loginVM.getUsername())
                 .orElseThrow(() -> new BadCredentialsException("Authentication failed: user '" + loginVM.getUsername() + "' not found"));

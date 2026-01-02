@@ -105,14 +105,6 @@ public class UtmAlertServiceImpl implements UtmAlertService {
             lastAlertRepository.save(initialDate);
 
             for (UtmAlert alert : alerts) {
-                List<LogType> relatedLogs;
-                try {
-                    relatedLogs = getRelatedAlerts(alert.getLogs());
-                } catch (Exception e) {
-                    log.error(ctx + ": " + e.getMessage());
-                    continue;
-                }
-
                 String emails = Constants.CFG.get(Constants.PROP_ALERT_ADDRESS_TO_NOTIFY_ALERTS);
 
                 if (!StringUtils.hasText(emails)) {
@@ -123,7 +115,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
                 }
 
                 String[] addressToNotify = emails.replace(" ", "").split(",");
-                mailService.sendAlertEmail(Arrays.asList(addressToNotify), alert, relatedLogs);
+                mailService.sendAlertEmail(Arrays.asList(addressToNotify), alert, alert.getEvents());
             }
 
             alertResponseRuleService.evaluateRules(alerts);
