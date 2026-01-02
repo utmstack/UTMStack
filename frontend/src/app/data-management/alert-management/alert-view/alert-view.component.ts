@@ -104,7 +104,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   viewAlertDetail: boolean;
   totalItems: any;
   page = 1;
-  itemsPerPage = ITEMS_PER_PAGE;
+  itemsPerPage = ITEMS_PER_PAGE * 4;
   filters: ElasticFilterType[] = [
     {field: ALERT_STATUS_FIELD_AUTO, operator: ElasticOperatorsEnum.IS_NOT, value: AUTOMATIC_REVIEW},
     {field: ALERT_TAGS_FIELD, operator: ElasticOperatorsEnum.IS_NOT, value: FALSE_POSITIVE_OBJECT.tagName},

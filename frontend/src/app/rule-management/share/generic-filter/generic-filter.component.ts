@@ -65,7 +65,6 @@ export class GenericFilterComponent<T extends UtmFieldType> implements OnInit, A
 
   onScroll() {
     this.requestParams.size += 6;
-    console.log(this.fieldFilter.filterField);
     this.filterService.notifyRefresh(this.fieldFilter.filterField);
   }
 

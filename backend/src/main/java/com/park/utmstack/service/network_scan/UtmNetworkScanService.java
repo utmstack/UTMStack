@@ -77,7 +77,7 @@ public class UtmNetworkScanService {
      * @param utmNetworkScan the entity to save
      * @return the persisted entity
      */
-    public UtmNetworkScan save(UtmNetworkScan utmNetworkScan) throws Exception {
+    public UtmNetworkScan save(UtmNetworkScan utmNetworkScan){
         final String ctx = CLASSNAME + ".save";
         try {
             return networkScanRepository.save(utmNetworkScan);

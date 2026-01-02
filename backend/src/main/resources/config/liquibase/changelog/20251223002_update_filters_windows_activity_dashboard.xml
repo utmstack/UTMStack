@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20251223002" author="Manuel Abascal">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_visualization
+            SET filters = REPLACE(
+                    REPLACE(
+                            REPLACE(filters,
+                                    'log.winlog.event_data.ServiceName.keyword',
+                                    'log.winlogEventDataServiceName.keyword'
+                            ),
+                            'winlog',
+                            'wineventlog'
+                    ),
+                    'log.eventName',
+                    'log.eventName.keyword'
+                          );
+
+            UPDATE public.utm_visualization
+            SET aggregation = REPLACE(
+                    REPLACE(aggregation,
+                            'log.winlog.event_data.ServiceName.keyword',
+                            'log.winlogEventDataServiceName.keyword'
+                    ),
+                    'log.eventName',
+                    'log.eventName.keyword'
+                              );
+
+            ]]>
+        </sql>
+
+    </changeSet>
+</databaseChangeLog>

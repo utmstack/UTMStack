@@ -59,13 +59,11 @@ public class Saml2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         Collection<? extends GrantedAuthority> authorities = Objects.requireNonNull(user.getAuthorities())
                 .stream()
-                .map(Objects::toString)
-                .filter(r -> r.startsWith("ROLE_"))
-                .map(SimpleGrantedAuthority::new)
+                .map(a -> new SimpleGrantedAuthority(a.getName()))
                 .toList();
 
         UsernamePasswordAuthenticationToken auth =
-                new UsernamePasswordAuthenticationToken((Object) username, null, authorities);
+                new UsernamePasswordAuthenticationToken(username, null, authorities);
 
         SecurityContextHolder.getContext().setAuthentication(auth);
 
