@@ -210,7 +210,7 @@ public class UtmDataTypesService {
             synchronizeDataTypes();
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
-            log.error("{} An error occurred during datatypes synchronization: {}", ctx, e.getMessage());;
+            log.error("{} An error occurred during datatypes synchronization: {}", ctx, e.getMessage());
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
         }
     }
