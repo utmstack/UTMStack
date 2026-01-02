@@ -606,6 +606,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 		Environment: []string{
 			"INTERNAL_KEY=" + conf.InternalKey,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"BACKEND_URL=http://backend:8080",
 			"ENV=" + conf.Branch,
 			"OPENSEARCH_HOST=node1",
