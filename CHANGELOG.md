@@ -4,4 +4,5 @@ The **UTMStack v11.1.6** update delivers important fixes and usability improveme
 
 ## Improvements & Fixes
 - Enhanced Threat and Windows activity dashboards with new filters and aggregations for better data analysis.
+- Improved email notifications for alerts, providing clearer information and enhanced formatting for better user experience.
 
