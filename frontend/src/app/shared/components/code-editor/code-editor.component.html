@@ -35,8 +35,10 @@
       </button>
     </div>
   </div>
-
   <div class="editor-section">
+    <app-query-suggestions *ngIf="showSuggestions"
+      (selectQuery)="writeValue($event)">
+    </app-query-suggestions>
     <ngx-monaco-editor
       class="editor-area"
       [options]="consoleOptions"

@@ -49,6 +49,7 @@ const SQL_KEYWORDS = ['CREATE', 'DROP', 'ALTER', 'TRUNCATE',
 })
 export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAccessor {
   @Input() showFullEditor = true;
+  @Input() showSuggestions = false;
   @Input() consoleOptions?: ConsoleOptions;
   @Output() execute = new EventEmitter<string>();
   @Output() clearData = new EventEmitter<void>();
