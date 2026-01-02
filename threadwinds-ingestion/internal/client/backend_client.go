@@ -105,10 +105,14 @@ type ThreadWindsConfig struct {
 }
 
 type ConfigParameter struct {
-	ID             int64  `json:"id"`
-	SectionID      int64  `json:"sectionId"`
-	ConfParamShort string `json:"confParamShort"`
-	ConfParamValue string `json:"confParamValue"`
+	ID                   int64  `json:"id"`
+	SectionID            int64  `json:"sectionId"`
+	ConfParamShort       string `json:"confParamShort"`
+	ConfParamLarge       string `json:"confParamLarge,omitempty"`
+	ConfParamDescription string `json:"confParamDescription,omitempty"`
+	ConfParamValue       string `json:"confParamValue"`
+	ConfParamRequired    bool   `json:"confParamRequired,omitempty"`
+	ConfParamDatatype    string `json:"confParamDatatype,omitempty"`
 }
 
 func (c *BackendClient) GetThreadWindsConfig(ctx context.Context) (*ThreadWindsConfig, error) {
@@ -142,10 +146,10 @@ func (c *BackendClient) GetThreadWindsConfig(ctx context.Context) (*ThreadWindsC
 
 	for _, param := range params {
 		switch param.ConfParamShort {
-		case "THREADWINDS_API_KEY":
+		case "utmstack.tw.apiKey":
 			config.APIKey = param.ConfParamValue
 			config.KeyID = param.ID
-		case "THREADWINDS_API_SECRET":
+		case "utmstack.tw.apiSecret":
 			config.APISecret = param.ConfParamValue
 			config.SecretID = param.ID
 		}
@@ -160,16 +164,24 @@ func (c *BackendClient) SaveThreadWindsCredentials(ctx context.Context, apiKey, 
 
 	params := []ConfigParameter{
 		{
-			ID:             keyID,
-			SectionID:      threadwindsSectionID,
-			ConfParamShort: "THREADWINDS_API_KEY",
-			ConfParamValue: apiKey,
+			ID:                   keyID,
+			SectionID:            threadwindsSectionID,
+			ConfParamShort:       "utmstack.tw.apiKey",
+			ConfParamLarge:       "ThreatWinds API Key",
+			ConfParamDescription: "API Key for ThreatWinds integration.",
+			ConfParamValue:       apiKey,
+			ConfParamRequired:    true,
+			ConfParamDatatype:    "text",
 		},
 		{
-			ID:             secretID,
-			SectionID:      threadwindsSectionID,
-			ConfParamShort: "THREADWINDS_API_SECRET",
-			ConfParamValue: apiSecret,
+			ID:                   secretID,
+			SectionID:            threadwindsSectionID,
+			ConfParamShort:       "utmstack.tw.apiSecret",
+			ConfParamLarge:       "ThreatWinds API Secret",
+			ConfParamDescription: "API Secret for ThreatWinds integration.",
+			ConfParamValue:       apiSecret,
+			ConfParamRequired:    true,
+			ConfParamDatatype:    "password",
 		},
 	}
 
