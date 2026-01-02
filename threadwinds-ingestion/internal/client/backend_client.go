@@ -12,6 +12,7 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/threadwinds-ingestion/config"
 	"github.com/utmstack/UTMStack/threadwinds-ingestion/internal/models"
+	"github.com/utmstack/UTMStack/threadwinds-ingestion/utils"
 )
 
 type BackendClient struct {
@@ -150,7 +151,19 @@ func (c *BackendClient) GetThreadWindsConfig(ctx context.Context) (*ThreadWindsC
 			config.APIKey = param.ConfParamValue
 			config.KeyID = param.ID
 		case "utmstack.tw.apiSecret":
-			config.APISecret = param.ConfParamValue
+			if param.ConfParamDatatype == "password" && param.ConfParamValue != "" {
+				decrypted, err := utils.DecryptValue(param.ConfParamValue)
+				if err != nil {
+					return nil, fmt.Errorf("failed to decrypt API Secret: %w", err)
+				}
+				config.APISecret = decrypted
+				catcher.Info("API Secret decrypted successfully", map[string]any{
+					"encrypted_length": len(param.ConfParamValue),
+					"decrypted_length": len(decrypted),
+				})
+			} else {
+				config.APISecret = param.ConfParamValue
+			}
 			config.SecretID = param.ID
 		}
 	}

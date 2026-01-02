@@ -3,6 +3,7 @@ module github.com/utmstack/UTMStack/threadwinds-ingestion
 go 1.25.4
 
 require (
+	github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0
 	github.com/lib/pq v1.10.9
 	github.com/opensearch-project/opensearch-go/v2 v2.3.0
 	github.com/threatwinds/go-sdk v1.0.47
