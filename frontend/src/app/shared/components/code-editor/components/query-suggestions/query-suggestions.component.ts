@@ -16,19 +16,19 @@ export class QuerySuggestionsComponent {
     },
     {
       label: 'Selecting Nested Field',
-      query: `SELECT lastEvent.log.action AS action FROM v11-alert-*;`
+      query: `SELECT lastEvent.log.action AS action FROM v11-alert-* LIMIT 5;`
     },
     {
       label: 'Top 10 errores',
       query: ``
     },
     {
-      label: 'Subqueries',
-      query: ``
+      label: 'Using Aggregations',
+      query: `SELECT lastEvent.log.action AS action, COUNT(*) AS total FROM v11-alert-* WHERE @timestamp BETWEEN DATE_SUB(NOW(), INTERVAL 30 DAY) AND NOW() GROUP BY action ORDER BY total DESC LIMIT 10;`
     },
     {
-      label: 'Agregacion',
-      query: ``
+      label: 'Using Subqueries',
+      query: `SELECT action, total FROM ( SELECT lastEvent.log.action AS action, COUNT(*) AS total FROM v11-alert-* WHERE @timestamp BETWEEN DATE_SUB(NOW(), INTERVAL 30 DAY) AND NOW() GROUP BY action ) AS sub WHERE total > 50 ORDER BY total DESC;`
     },
   ];
 
