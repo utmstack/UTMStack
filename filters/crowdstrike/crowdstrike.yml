@@ -1,0 +1,12 @@
+# Crowdstrike module filter, version 1.0.0
+# Based in docs and samples provided
+# 
+# Documentations
+# 1- https://docs.cyderes.cloud/parser-knowledge-base/cs_stream
+
+pipeline:
+  - dataTypes:
+      - crowdstrike
+    steps:
+      - json:
+          source: raw
