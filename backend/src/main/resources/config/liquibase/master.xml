@@ -291,5 +291,7 @@
 
     <include file="/config/liquibase/changelog/20251223003_update_filter_wineventlog.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260105001_adding_crowdstrike_integration.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
