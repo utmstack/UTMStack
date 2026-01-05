@@ -56,7 +56,7 @@ public class ModuleCrowdStrike implements IModule {
         keys.add(ModuleConfigurationKey.builder()
                 .withGroupId(groupId)
                 .withConfKey("crowdStrike.client.secret")
-                .withConfName("Secret")
+                .withConfName("Client Secret")
                 .withConfDescription("CrowdStrike Client Secret")
                 .withConfDataType("password")
                 .withConfRequired(true)
@@ -68,7 +68,7 @@ public class ModuleCrowdStrike implements IModule {
             .withConfName("Cloud Region URL")
             .withConfDescription("CrowdStrike Cloud Region URL")
             .withConfDataType("text")
-            .withConfRequired(false)
+            .withConfRequired(true)
             .build());
 
 
@@ -92,6 +92,6 @@ public class ModuleCrowdStrike implements IModule {
 
     @Override
     public ModuleName getName() {
-        return ModuleName.SOC_AI;
+        return ModuleName.CROWDSTRIKE;
     }
 }
