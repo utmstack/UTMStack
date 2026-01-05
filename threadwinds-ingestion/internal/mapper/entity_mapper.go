@@ -90,7 +90,6 @@ func (m *EntityMapper) BuildEntity(entityType string, value any, context EntityE
 		Attributes:   attrs,
 		Reputation:   reputation,
 		Tags:         tags,
-		VisibleBy:    []string{"utmstack"},
 		Associations: nil,
 	}
 
