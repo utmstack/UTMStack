@@ -28,7 +28,9 @@
                            (showModuleIntegration)="showModule($event)"
                            class="module-card m-1">
       </app-app-module-card>
-    <app-utm-spinner class="position-absolute top-35 right-50"  [height]="'110px'" [loading]="(moduleResolver.loading$ | async)" [width]="'110px'"
+    <app-utm-spinner class="position-absolute top-35 right-50"
+                     [height]="'110px'"
+                     [loading]="(moduleResolver.loading$ | async)" [width]="'110px'"
                      label="Loading modules">
     </app-utm-spinner>
   </div>

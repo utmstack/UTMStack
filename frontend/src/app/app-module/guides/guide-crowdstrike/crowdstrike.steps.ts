@@ -3,8 +3,8 @@ import {COLLECTOR_MESSAGE, Step} from '../shared/step';
 export const CROWDSTRIKE_STEPS: Step[] = [
   {
     id: '1',
-    name: 'Open the main menu. Click the hamburger icon in the top‑left corner labeled "Open menu".' +
-      'Navigate to API management. Select **Support and resources** then **API Clients and Keys**.',
+    name: 'Navigate to the main view. Click the hamburger icon in the top‑left corner labeled "Open menu".' +
+          'Select <b>Support and resources</b> then <b>API Clients and Keys</b>.',
     content: {
       id: 'stepContent1',
       images: [{
@@ -15,8 +15,7 @@ export const CROWDSTRIKE_STEPS: Step[] = [
   },
   {
     id: '2',
-    name: 'Create a new API client. Click **Create API Client**, ' +
-      'provide a descriptive client name (used to identify event sources) and select the API scopes required for Event Streams.',
+    name: 'Create a new API client. Click <b>Create API Client</b>. ',
     content: {
       id: 'stepContent2',
       images: [{
@@ -27,7 +26,8 @@ export const CROWDSTRIKE_STEPS: Step[] = [
   },
   {
     id: '3',
-    name: 'Generate credentials. Click **Create** to generate the client credentials and endpoint information.',
+    name: 'Generate API credentials. Provide a descriptive client name (used to identify event sources) and select the API scopes required for Event Streams.' +
+      'Click <b>Create</b> to generate the client credentials and endpoint information.',
     content: {
       id: 'stepContent3',
       images: [{
@@ -38,7 +38,7 @@ export const CROWDSTRIKE_STEPS: Step[] = [
   },
   {
     id: '4',
-    name: 'Record the credentials securely. Note the **Client ID**, **Client Secret** and the **Base URL** for the selected region.',
+    name: 'Record the credentials securely. Note the <b>Client ID</b>, <b>Client Secret</b> and the <b>Base URL</b> for the selected region.',
     content: {
       id: 'stepContent4',
       images: [{
