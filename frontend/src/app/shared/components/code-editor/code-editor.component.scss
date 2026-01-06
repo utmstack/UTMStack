@@ -34,6 +34,7 @@
     flex: 1;
     overflow: hidden;
     border-bottom: 1px solid #e0e6ed;
+    background-color: #fffffe;
 
     .editor-area {
       height: 100%;
@@ -62,10 +63,6 @@
 
 .icon-trash:before {
   color: #fff !important;
-}
-
-::ng-deep .monaco-editor {
-  padding-top: 10px;
 }
 
 .monaco-editor .suggest-widget .codicon {
