@@ -21,6 +21,7 @@ export interface ConsoleOptions {
   wordWrap?: 'off' | 'on' | 'wordWrapColumn' | 'bounded';
   automaticLayout?: boolean;
   lineNumbers?: 'off' | 'on';
+  cursorSmoothCaretAnimation?: 'off' | 'on';
 }
 
 const SQL_KEYWORDS = ['CREATE', 'DROP', 'ALTER', 'TRUNCATE',
@@ -74,7 +75,8 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
     overviewRulerLanes: 0,
     wordWrap: 'on',
     automaticLayout: true,
-    lineNumbers: 'on'
+    lineNumbers: 'on',
+    cursorSmoothCaretAnimation: 'off'
   };
   private completionProvider?: monaco.IDisposable;
   private onChange = (_: any) => {};
@@ -93,7 +95,7 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
     }
   }
 
-  onEditorInit(editor: monaco.editor.IStandaloneCodeEditor) {
+  onEditorInit(editorInstance: monaco.editor.IStandaloneCodeEditor) {
     this.completionProvider = monaco.languages.registerCompletionItemProvider('sql', {
       provideCompletionItems: () => {
         const allKeywords = Array.from(new Set([
@@ -111,8 +113,8 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
       }
     });
 
-    editor.onDidChangeModelContent(() => {
-      const val = editor.getValue();
+    editorInstance.onDidChangeModelContent(() => {
+      const val = editorInstance.getValue();
       this.sqlQuery = val;
       this.onChange(val);
       this.onTouched();
