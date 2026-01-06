@@ -46,7 +46,7 @@ public class ModuleCrowdStrike implements IModule {
 
         keys.add(ModuleConfigurationKey.builder()
             .withGroupId(groupId)
-            .withConfKey("crowdStrike.client.id")
+            .withConfKey("crowdstrike_client_id")
             .withConfName("Client ID")
             .withConfDescription("CrowdStrike Client ID")
             .withConfDataType("text")
@@ -55,7 +55,7 @@ public class ModuleCrowdStrike implements IModule {
 
         keys.add(ModuleConfigurationKey.builder()
                 .withGroupId(groupId)
-                .withConfKey("crowdStrike.client.secret")
+                .withConfKey("crowdstrike_client_secret")
                 .withConfName("Client Secret")
                 .withConfDescription("CrowdStrike Client Secret")
                 .withConfDataType("password")
@@ -64,7 +64,7 @@ public class ModuleCrowdStrike implements IModule {
 
         keys.add(ModuleConfigurationKey.builder()
             .withGroupId(groupId)
-            .withConfKey("crowdStrike.cloud.region.url")
+            .withConfKey("crowdstrike_cloud_region_url")
             .withConfName("Cloud Region URL")
             .withConfDescription("CrowdStrike Cloud Region URL")
             .withConfDataType("text")
@@ -74,7 +74,7 @@ public class ModuleCrowdStrike implements IModule {
 
         keys.add(ModuleConfigurationKey.builder()
                 .withGroupId(groupId)
-                .withConfKey("crowdStrike.app.name")
+                .withConfKey("crowdstrike_app_name")
                 .withConfName("App Name")
                 .withConfDescription("App Name for CrowdStrike integration")
                 .withConfDataType("text")
