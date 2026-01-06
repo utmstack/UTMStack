@@ -33,6 +33,7 @@ import {PasswordStrengthBarComponent} from './components/auth/password-strength/
 import { TfaSetupComponent } from './components/auth/tfa-setup/tfa-setup.component';
 import {TotpComponent} from './components/auth/totp/totp.component';
 import {CodeEditorComponent} from './components/code-editor/code-editor.component';
+import {QuerySuggestionsComponent} from './components/code-editor/components/query-suggestions/query-suggestions.component';
 import {ContactUsComponent} from './components/contact-us/contact-us.component';
 import {
   EmailSettingNotificactionComponent
@@ -247,9 +248,6 @@ import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
 import {IsEnterpriseModuleDirective} from './directives/enterprise/enterprise.directive';
 import {ScheduleConfigComponent} from './components/schedule-config/schedule-config.component';
-import {
-  QuerySuggestionsComponent
-} from "./components/code-editor/components/query-suggestions/query-suggestions.component";
 
 
 @NgModule({
