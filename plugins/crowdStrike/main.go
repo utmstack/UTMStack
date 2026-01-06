@@ -109,13 +109,13 @@ func getCrowdStrikeProcessor(group *config.ModuleGroup) CrowdStrikeProcessor {
 
 	for _, cnf := range group.ModuleGroupConfigurations {
 		switch cnf.ConfKey {
-		case "client_id":
+		case "crowdstrike_client_id":
 			processor.ClientID = cnf.ConfValue
-		case "client_secret":
+		case "crowdstrike_client_secret":
 			processor.ClientSecret = cnf.ConfValue
-		case "cloud":
+		case "crowdstrike_cloud_region_url":
 			processor.Cloud = cnf.ConfValue
-		case "app_name":
+		case "crowdstrike_app_name":
 			processor.AppName = cnf.ConfValue
 		}
 	}
