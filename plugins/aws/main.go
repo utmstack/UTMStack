@@ -26,6 +26,7 @@ const (
 	defaultTenant      = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 	urlCheckConnection = "https://sts.amazonaws.com"
 	wait               = 1 * time.Second
+	targetLogGroup     = "utmstack"
 )
 
 func main() {
@@ -85,7 +86,7 @@ func main() {
 func pull(startTime time.Time, endTime time.Time, group *config.ModuleGroup) {
 	agent := getAWSProcessor(group)
 
-	logs, err := agent.getLogs(startTime, endTime)
+	processedCount, err := agent.getLogs(startTime, endTime, group.GroupName)
 	if err != nil {
 		_ = catcher.Error("cannot get logs", err, map[string]any{
 			"startTime": startTime,
@@ -95,14 +96,10 @@ func pull(startTime time.Time, endTime time.Time, group *config.ModuleGroup) {
 		return
 	}
 
-	for _, log := range logs {
-		_ = plugins.EnqueueLog(&plugins.Log{
-			Id:         uuid.NewString(),
-			TenantId:   defaultTenant,
-			DataType:   "aws",
-			DataSource: group.GroupName,
-			Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
-			Raw:        log,
+	if processedCount > 0 {
+		catcher.Info("Successfully processed logs", map[string]any{
+			"count": processedCount,
+			"group": group.GroupName,
 		})
 	}
 }
@@ -160,26 +157,6 @@ func (p *AWSProcessor) createAWSSession() (aws.Config, error) {
 	return cfg, nil
 }
 
-func (p *AWSProcessor) describeLogGroups(cwl *cloudwatchlogs.Client) ([]string, error) {
-	var logGroups []string
-	paginator := cloudwatchlogs.NewDescribeLogGroupsPaginator(cwl, &cloudwatchlogs.DescribeLogGroupsInput{})
-
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
-	defer cancel()
-
-	for paginator.HasMorePages() {
-		page, err := paginator.NextPage(ctx)
-		if err != nil {
-			return nil, catcher.Error("cannot get log groups", err, nil)
-		}
-		for _, group := range page.LogGroups {
-			logGroups = append(logGroups, *group.LogGroupName)
-		}
-	}
-
-	return logGroups, nil
-}
-
 func (p *AWSProcessor) describeLogStreams(cwl *cloudwatchlogs.Client, logGroup string) ([]string, error) {
 	var logStreams []string
 	paginator := cloudwatchlogs.NewDescribeLogStreamsPaginator(cwl, &cloudwatchlogs.DescribeLogStreamsInput{
@@ -204,80 +181,79 @@ func (p *AWSProcessor) describeLogStreams(cwl *cloudwatchlogs.Client, logGroup s
 	return logStreams, nil
 }
 
-func (p *AWSProcessor) getLogs(startTime, endTime time.Time) ([]string, error) {
+func (p *AWSProcessor) getLogs(startTime, endTime time.Time, dataSource string) (int, error) {
 	awsConfig, err := p.createAWSSession()
 	if err != nil {
-		return nil, catcher.Error("cannot create AWS session", err, nil)
+		return 0, catcher.Error("cannot create AWS session", err, nil)
 	}
 
 	cwl := cloudwatchlogs.NewFromConfig(awsConfig)
 
-	logGroups, err := p.describeLogGroups(cwl)
+	logStreams, err := p.describeLogStreams(cwl, targetLogGroup)
 	if err != nil {
-		return nil, catcher.Error("cannot get log groups", err, nil)
+		return 0, catcher.Error("cannot get log streams for 'utmstack'", err, map[string]any{
+			"logGroup": targetLogGroup,
+		})
 	}
 
-	transformedLogs := make([]string, 0, 10)
-	for _, logGroup := range logGroups {
-		time.Sleep(500 * time.Millisecond)
+	processedCount := 0
 
-		logStreams, err := p.describeLogStreams(cwl, logGroup)
-		if err != nil {
-			_ = catcher.Error("cannot get log streams, skipping log group", err, map[string]any{
-				"logGroup": logGroup,
-			})
-			continue
+	for i, stream := range logStreams {
+		if i > 0 && i%5 == 0 {
+			time.Sleep(2 * time.Second)
+		} else if i > 0 {
+			time.Sleep(300 * time.Millisecond)
 		}
 
-		for i, stream := range logStreams {
-			if i > 0 && i%5 == 0 {
-				time.Sleep(2 * time.Second)
-			} else if i > 0 {
-				time.Sleep(300 * time.Millisecond)
+		paginator := cloudwatchlogs.NewGetLogEventsPaginator(cwl, &cloudwatchlogs.GetLogEventsInput{
+			LogGroupName:  aws.String(targetLogGroup),
+			LogStreamName: aws.String(stream),
+			StartTime:     aws.Int64(startTime.Unix() * 1000),
+			EndTime:       aws.Int64(endTime.Unix() * 1000),
+			StartFromHead: aws.Bool(true),
+		}, func(options *cloudwatchlogs.GetLogEventsPaginatorOptions) {
+			options.StopOnDuplicateToken = true
+			options.Limit = 1000
+		})
+
+		pageCount := 0
+		for paginator.HasMorePages() {
+			if pageCount > 0 {
+				time.Sleep(200 * time.Millisecond)
+			}
+			pageCount++
+
+			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+			page, err := paginator.NextPage(ctx)
+			cancel()
+
+			if err != nil {
+				_ = catcher.Error("cannot get log events, skipping stream", err, map[string]any{
+					"logGroup": targetLogGroup,
+					"stream":   stream,
+				})
+				break
 			}
 
-			paginator := cloudwatchlogs.NewGetLogEventsPaginator(cwl, &cloudwatchlogs.GetLogEventsInput{
-				LogGroupName:  aws.String(logGroup),
-				LogStreamName: aws.String(stream),
-				StartTime:     aws.Int64(startTime.Unix() * 1000),
-				EndTime:       aws.Int64(endTime.Unix() * 1000),
-				StartFromHead: aws.Bool(true),
-			}, func(options *cloudwatchlogs.GetLogEventsPaginatorOptions) {
-				options.StopOnDuplicateToken = true
-				options.Limit = 1000
-			})
+			if page == nil {
+				break
+			}
 
-			pageCount := 0
-			for paginator.HasMorePages() {
-				if pageCount > 0 {
-					time.Sleep(200 * time.Millisecond)
-				}
-				pageCount++
-
-				ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
-				page, err := paginator.NextPage(ctx)
-				cancel()
-
-				if err != nil {
-					_ = catcher.Error("cannot get log events, skipping stream", err, map[string]any{
-						"logGroup": logGroup,
-						"stream":   stream,
-					})
-					break
-				}
-
-				if page == nil {
-					break
-				}
-
-				for _, event := range page.Events {
-					transformedLogs = append(transformedLogs, *event.Message)
-				}
+			for _, event := range page.Events {
+				_ = plugins.EnqueueLog(&plugins.Log{
+					Id:         uuid.NewString(),
+					TenantId:   defaultTenant,
+					DataType:   "aws",
+					DataSource: dataSource,
+					Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
+					Raw:        *event.Message,
+				})
+				processedCount++
 			}
 		}
 	}
 
-	return transformedLogs, nil
+	return processedCount, nil
 }
 
 func connectionChecker(url string) error {
