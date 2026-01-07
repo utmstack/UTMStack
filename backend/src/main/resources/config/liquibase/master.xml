@@ -291,5 +291,9 @@
 
     <include file="/config/liquibase/changelog/20251223003_update_filter_wineventlog.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260107001_add_log_group_name_aws_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260107002_update_filter_aws_integration.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

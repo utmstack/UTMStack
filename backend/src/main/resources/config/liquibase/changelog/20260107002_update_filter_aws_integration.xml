@@ -1,4 +1,15 @@
-# AWS filter, version 1.0.2
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260107002" author="Manuel">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET logstash_filter='# AWS filter, version 1.0.3
 
 pipeline:
   - dataTypes:
@@ -222,4 +233,11 @@ pipeline:
             - log.requestParameters
             - log.responseElements
             - log.userIdentity
-            - log.additionalEventData
+            - log.additionalEventData'
+            WHERE id=1529
+
+            ]]>
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
