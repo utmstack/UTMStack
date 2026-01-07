@@ -1,8 +1,7 @@
-# UTMStack 11.1.6 – Release Notes
+# UTMStack 11.1.7 – Release Notes
 
-The **UTMStack v11.1.6** update delivers important fixes and usability improvements to enhance stability and user experience.
+The **UTMStack v11.1.7** update delivers important fixes and usability improvements to enhance stability and user experience.
 
 ## Improvements & Fixes
-- Enhanced Threat and Windows activity dashboards with new filters and aggregations for better data analysis.
-- Improved email notifications for alerts, providing clearer information and enhanced formatting for better user experience.
+- Improved AWS integration: updated setup guides and more reliable log processing.
 
