@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260107001" author="Manuel">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS result
+                FROM public.utm_module_group
+                WHERE module_id = 35
+            </sqlCheck>
+        </preConditions>
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            INSERT INTO public.utm_module_group_configuration (
+                group_id,
+                conf_key,
+                conf_value,
+                conf_name,
+                conf_description,
+                conf_data_type,
+                conf_required,
+                conf_options,
+                conf_visibility
+            )
+            SELECT
+                g.id,
+                'aws_log_group_name',
+                '',
+                'Log Group Name',
+                'Configure Aws Log Group Name',
+                'text',
+                 true,
+                 null,
+                 null
+            FROM public.utm_module_group g
+            WHERE g.module_id = 35;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

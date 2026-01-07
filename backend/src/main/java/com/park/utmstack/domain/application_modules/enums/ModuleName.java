@@ -65,5 +65,6 @@ public enum ModuleName {
     PFSENSE,
     ORACLE,
     SURICATA,
-    UTMSTACK
+    UTMSTACK,
+    CROWDSTRIKE
 }
