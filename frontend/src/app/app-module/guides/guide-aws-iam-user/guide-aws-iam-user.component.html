@@ -121,7 +121,7 @@
       <li>
         <p class="step-guide">
           <span class="step_number">12</span>
-          <strong>Name and retention.</strong> Enter the log group name <code>ustmstack</code> and set retention to <strong>1 day</strong>. Click <strong>Create log group</strong>.
+          <strong>Name and retention.</strong> Enter the log group name <code>utmstack</code> and set retention to <strong>1 day</strong>. Click <strong>Create log group</strong>.
         </p>
         <img alt="Create log group name and retention" class="step-img"
              src="../../../../assets/img/guides/aws/cloudwatch/3.png">
@@ -148,7 +148,7 @@
           <li><strong>S3 destination:</strong> choose <strong>Create new S3 bucket</strong> (or select an existing bucket) for raw log delivery.</li>
           <li><strong>Encryption:</strong> enable <strong>Log file SSE‑KMS</strong> and select the appropriate KMS key.</li>
           <li><strong>Log file validation:</strong> enable to ensure integrity of delivered logs (recommended).</li>
-          <li><strong>CloudWatch Logs:</strong> enable delivery to CloudWatch and select <strong>Use existing log group</strong>, then enter the exact name <code>ustmstack</code>.</li>
+          <li><strong>CloudWatch Logs:</strong> enable delivery to CloudWatch and select <strong>Use existing log group</strong>, then enter the exact name <code>utmstack</code>.</li>
           <li><strong>IAM role:</strong> provide or create the role CloudTrail will assume to write to S3 and publish to CloudWatch (example: <code>CloudTrail-UTMStack-DeliveryRole</code>).</li>
         </ul>
 
