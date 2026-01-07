@@ -102,39 +102,13 @@ func (c *UpdaterClient) CheckLicense() error {
 			return fmt.Errorf("error unmarshalling decrypted license: %v", err)
 		}
 
-		isCurrentlyEnterprise, err := IsEnterpriseImage("utmstack_event-processor-manager")
-		if err != nil {
-			return fmt.Errorf("error checking if image is enterprise: %v", err)
-		}
-
-		v, err := GetVersion()
-		if err != nil {
-			return fmt.Errorf("error getting version: %v", err)
-		}
-
 		if time.Now().After(finalLicense.ExpiresAt) {
 			config.Logger().ErrorF("license has expired on %s, please renew it", finalLicense.ExpiresAt.Format(time.RFC3339))
 			// TODO: send notification to backend and email to user
-			if isCurrentlyEnterprise {
-				config.Logger().Info("downgrading to community edition after license expiration")
-				err := c.UpdateToNewVersion(v.Version, "community", v.Changelog)
-				if err != nil {
-					return fmt.Errorf("error updating to new version: %v", err)
-				}
-			}
 		} else if time.Now().After(finalLicense.ExpiresAt.Add(-72 * time.Hour)) {
 			config.Logger().Info("license will expire on %s, please renew it", finalLicense.ExpiresAt.Format(time.RFC3339))
 			// TODO: send notification to backend and email to user
 		}
-
-		if !isCurrentlyEnterprise {
-			config.Logger().Info("Upgrading to UTMStack to enterprise after license verification...")
-			err := c.UpdateToNewVersion(v.Version, "enterprise", v.Changelog)
-			if err != nil {
-				return fmt.Errorf("error updating to new version: %v", err)
-			}
-		}
-
 		config.Logger().Info("License updated successfully")
 	}
 
