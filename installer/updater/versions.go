@@ -19,6 +19,7 @@ var (
 	version         = VersionFile{}
 	versionOnce     sync.Once
 	SpecificVersion string // Version specified via command line flag
+	PreReleaseVersion bool = false
 )
 
 func GetVersion() (VersionFile, error) {
@@ -31,15 +32,29 @@ func GetVersion() (VersionFile, error) {
 				version.Changelog = ""
 				version.Edition = "community"
 			} else if config.ConnectedToInternet {
-				latestVersion, errFetch := fetchLatestVersionFromCM()
-				if errFetch != nil {
-					config.Logger().Info("Could not fetch latest version from CM, using installer version: %v", errFetch)
-					version.Version = config.INSTALLER_VERSION
-					version.Changelog = ""
-				} else {
-					version.Version = latestVersion.Version
-					version.Changelog = latestVersion.Changelog
+				if PreReleaseVersion{
+					latestVersion, errFetch := fetchLatestPreReleaseVersionFromCM()
+					if errFetch != nil {
+						config.Logger().Info("Could not fetch latest pre release version from CM, using installer version: %v", errFetch)
+						version.Version = config.INSTALLER_VERSION
+						version.Changelog = ""
+					} else {
+						version.Version = latestVersion.Version
+						version.Changelog = latestVersion.Changelog
+					}
+				}else{
+
+					latestVersion, errFetch := fetchLatestVersionFromCM()
+					if errFetch != nil {
+						config.Logger().Info("Could not fetch latest version from CM, using installer version: %v", errFetch)
+						version.Version = config.INSTALLER_VERSION
+						version.Changelog = ""
+					} else {
+						version.Version = latestVersion.Version
+						version.Changelog = latestVersion.Changelog
+					}
 				}
+
 				version.Edition = "community"
 			} else {
 				versionFromTar, errB := ExtractVersionFromFolder(config.ImagesPath)
@@ -222,6 +237,30 @@ func SortVersions(versions []map[string]string) []map[string]string {
 
 func fetchLatestVersionFromCM() (*VersionDTO, error) {
 	url := fmt.Sprintf("%s%s", config.GetCMServer(), config.GetLatestVersionEndpoint)
+
+	resp, status, err := utils.DoReq[VersionDTO](
+		url,
+		nil,
+		http.MethodGet,
+		nil,
+		nil,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("error fetching latest version: %v", err)
+	}
+
+	if status != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", status)
+	}
+
+	return &resp, nil
+}
+
+
+
+func fetchLatestPreReleaseVersionFromCM() (*VersionDTO, error) {
+	url := fmt.Sprintf("%s%s", config.GetCMServer(), config.GetLatestPreReleaseVersionsEndpoint)
 
 	resp, status, err := utils.DoReq[VersionDTO](
 		url,

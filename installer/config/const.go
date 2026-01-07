@@ -14,6 +14,7 @@ const (
 	HealthEndpoint             = "/api/v1/health"
 	LogCollectorEndpoint       = "/api/v1/logcollectors/upload"
 	GetLatestVersionEndpoint   = "/api/v1/versions/latest"
+	GetLatestPreReleaseVersionsEndpoint        = "/api/v1/versions/latest-prerelease"
 
 	GitHubReleasesURL = "https://github.com/utmstack/UTMStack/releases/download/%s/installer"
 

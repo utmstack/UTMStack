@@ -48,6 +48,14 @@ func main() {
 				os.Exit(1)
 			}
 
+		case "--prerelease":
+			updater.PreReleaseVersion=true
+			err := Install("")
+			if err != nil {
+				fmt.Printf("\nerror installing UTMStack: %v", err)
+				os.Exit(1)
+			}
+
 		default:
 			help()
 		}
