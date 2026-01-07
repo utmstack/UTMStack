@@ -13,10 +13,6 @@ type ProtoPort struct {
 	TCP string
 }
 
-const (
-	SERVICE_UPDATER_NAME = "UTMStackUpdater"
-)
-
 var (
 	REPLACE_KEY string
 

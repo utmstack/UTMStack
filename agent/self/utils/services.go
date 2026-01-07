@@ -110,26 +110,3 @@ func StopService(name string) error {
 	}
 	return nil
 }
-
-func StartService(name string) error {
-	path := GetMyPath()
-	switch runtime.GOOS {
-	case "windows":
-		err := Execute("sc", path, "start", name)
-		if err != nil {
-			return fmt.Errorf("error starting service: %v", err)
-		}
-	case "linux":
-		err := Execute("systemctl", path, "start", name)
-		if err != nil {
-			return fmt.Errorf("error starting service: %v", err)
-		}
-	case "darwin":
-		plistPath := fmt.Sprintf("/Library/LaunchDaemons/%s.plist", name)
-		err := Execute("launchctl", path, "load", plistPath)
-		if err != nil {
-			return fmt.Errorf("error starting macOS service: %v", err)
-		}
-	}
-	return nil
-}
