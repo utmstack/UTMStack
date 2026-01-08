@@ -86,7 +86,6 @@ public class ModuleCrowdStrike implements IModule {
     }
 
     public boolean validateConfiguration(UtmModule module, List<UtmModuleGroupConfiguration> configuration) {
-
         return utmStackConfigValidator.validate(module, configuration);
     }
 

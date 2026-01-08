@@ -72,6 +72,15 @@ public class ModuleAwsIamUser implements IModule {
             .withConfRequired(true)
             .build());
 
+        keys.add(ModuleConfigurationKey.builder()
+                .withGroupId(groupId)
+                .withConfKey("aws_log_group_name")
+                .withConfName("Log Group Name")
+                .withConfDescription("Configure Aws Log Group Name")
+                .withConfDataType("text")
+                .withConfRequired(true)
+                .build());
+
         return keys;
     }
 
