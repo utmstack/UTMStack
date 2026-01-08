@@ -38,9 +38,9 @@ public class UtmModuleGroupConfigurationResource {
     @PutMapping("/module-group-configurations/update")
     @AuditEvent(
             attemptType = ApplicationEventType.CONFIG_UPDATE_ATTEMPT,
-            attemptMessage = "Attempt to update configuration keys initiated",
+            attemptMessage = "Attempt to update configuration keys initiated for moduleId={moduleId}",
             successType = ApplicationEventType.CONFIG_UPDATE_SUCCESS,
-            successMessage = "Configuration keys updated successfully"
+            successMessage = "Configuration keys updated successfully for moduleId={moduleId}"
     )
     public ResponseEntity<Void> updateConfiguration(@Valid @RequestBody GroupConfigurationDTO body) {
         final String ctx = CLASSNAME + ".updateConfiguration";
