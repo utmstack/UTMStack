@@ -157,10 +157,7 @@ func (c *BackendClient) GetThreadWindsConfig(ctx context.Context) (*ThreadWindsC
 					return nil, fmt.Errorf("failed to decrypt API Secret: %w", err)
 				}
 				config.APISecret = decrypted
-				catcher.Info("API Secret decrypted successfully", map[string]any{
-					"encrypted_length": len(param.ConfParamValue),
-					"decrypted_length": len(decrypted),
-				})
+				catcher.Info("API Secret decrypted successfully", nil)
 			} else {
 				config.APISecret = param.ConfParamValue
 			}

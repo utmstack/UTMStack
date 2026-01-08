@@ -39,9 +39,7 @@ func (c *ThreadWindsClient) UpdateCredentials(apiKey, apiSecret string) {
 	c.apiKey = apiKey
 	c.apiSecret = apiSecret
 
-	catcher.Info("ThreadWinds credentials updated", map[string]any{
-		"api_key_length": len(apiKey),
-	})
+	catcher.Info("ThreadWinds credentials updated", nil)
 }
 
 func (c *ThreadWindsClient) ingestEntity(ctx context.Context, entity *entities.Entity) error {
