@@ -22,9 +22,19 @@ import (
 )
 
 const (
-	defaultTenant      = "ce66672c-e36d-4761-a8c8-90058fee1a24"
-	urlCheckConnection = "https://sts.amazonaws.com"
-	wait               = 1 * time.Second
+	defaultTenant       = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+	urlCheckConnection  = "https://sts.amazonaws.com"
+	wait                = 1 * time.Second
+	configCheckInterval = 10 * time.Second
+)
+
+type activeGroupStream struct {
+	cancel context.CancelFunc
+	config AWSProcessor
+}
+
+var (
+	activeStreams = make(map[int32]*activeGroupStream)
 )
 
 func main() {
@@ -44,34 +54,100 @@ func main() {
 	for {
 		if err := connectionChecker(urlCheckConnection); err != nil {
 			_ = catcher.Error("External connection failure detected: %v", err, nil)
+			continue
 		}
-
-		moduleConfig := config.GetConfig()
-		if moduleConfig != nil && moduleConfig.ModuleActive {
-			for _, grp := range moduleConfig.ModuleGroups {
-				go func(group *config.ModuleGroup) {
-					var invalid bool
-					for _, c := range group.ModuleGroupConfigurations {
-						if strings.TrimSpace(c.ConfValue) == "" {
-							invalid = true
-							break
-						}
-					}
-
-					if !invalid {
-						streamLogs(group)
-					}
-				}(grp)
-			}
-			break
-		}
-		time.Sleep(5 * time.Second)
+		break
 	}
 
-	select {}
+	watchConfigChanges()
 }
 
-func streamLogs(group *config.ModuleGroup) {
+func watchConfigChanges() {
+	ticker := time.NewTicker(configCheckInterval)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		moduleConfig := config.GetConfig()
+
+		if moduleConfig == nil || !moduleConfig.ModuleActive {
+			stopAllStreams()
+			continue
+		}
+
+		currentGroupIDs := make(map[int32]bool)
+		for _, group := range moduleConfig.ModuleGroups {
+			currentConfig := getAWSProcessor(group)
+			groupID := group.Id
+			currentGroupIDs[groupID] = true
+
+			existing := activeStreams[groupID]
+
+			if existing == nil {
+				startGroupStream(groupID, group)
+			} else if existing.config != currentConfig {
+				catcher.Info("Configuration changed for group, restarting", map[string]any{
+					"group": group.GroupName,
+				})
+				existing.cancel()
+				delete(activeStreams, groupID)
+				startGroupStream(groupID, group)
+			}
+		}
+
+		for groupID, stream := range activeStreams {
+			if !currentGroupIDs[groupID] {
+				catcher.Info("Group removed, stopping stream", map[string]any{
+					"groupId": groupID,
+				})
+				stream.cancel()
+				delete(activeStreams, groupID)
+			}
+		}
+	}
+}
+
+func startGroupStream(groupID int32, group *config.ModuleGroup) {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	groupConfig := getAWSProcessor(group)
+
+	activeStreams[groupID] = &activeGroupStream{
+		cancel: cancel,
+		config: groupConfig,
+	}
+
+	catcher.Info("Starting stream for group", map[string]any{
+		"group": group.GroupName,
+	})
+
+	go streamLogs(ctx, group)
+}
+
+func stopAllStreams() {
+	if len(activeStreams) == 0 {
+		return
+	}
+
+	catcher.Info("Stopping all active streams", map[string]any{
+		"count": len(activeStreams),
+	})
+
+	for groupID, stream := range activeStreams {
+		stream.cancel()
+		delete(activeStreams, groupID)
+	}
+}
+
+func sleepWithCancel(ctx context.Context, d time.Duration) bool {
+	select {
+	case <-ctx.Done():
+		return false
+	case <-time.After(d):
+		return true
+	}
+}
+
+func streamLogs(ctx context.Context, group *config.ModuleGroup) {
 	agent := getAWSProcessor(group)
 
 	awsConfig, err := agent.createAWSSession()
@@ -90,15 +166,22 @@ func streamLogs(group *config.ModuleGroup) {
 		"startTime": startTime.Format(time.RFC3339),
 	})
 
-	currentStreams := make(map[string]struct{})
+	currentStreams := make(map[string]context.CancelFunc)
+	defer func() {
+		for _, cancel := range currentStreams {
+			cancel()
+		}
+	}()
 
 	for {
-		logStreams, err := agent.describeLogStreams(cwl, agent.LogGroup)
+		logStreams, err := describeLogStreams(ctx, cwl, agent.LogGroup)
 		if err != nil {
 			_ = catcher.Error("cannot get log streams", err, map[string]any{
 				"logGroup": agent.LogGroup,
 			})
-			time.Sleep(30 * time.Second)
+			if !sleepWithCancel(ctx, 30*time.Second) {
+				return
+			}
 			continue
 		}
 
@@ -106,16 +189,35 @@ func streamLogs(group *config.ModuleGroup) {
 			if _, exists := currentStreams[stream]; exists {
 				continue
 			}
-			currentStreams[stream] = struct{}{}
 
-			catcher.Info("Starting to stream log stream", map[string]any{
-				"logGroup":  agent.LogGroup,
-				"logStream": stream,
-			})
-			go streamLogStream(cwl, agent.LogGroup, stream, startTime, group.GroupName)
+			streamCtx, streamCancel := context.WithCancel(ctx)
+			currentStreams[stream] = streamCancel
+
+			go streamLogStream(streamCtx, cwl, agent.LogGroup, stream, startTime, group.GroupName)
 		}
 
-		time.Sleep(5 * time.Minute)
+		awsStreamsMap := make(map[string]bool)
+		for _, stream := range logStreams {
+			awsStreamsMap[stream] = true
+		}
+
+		for streamName, cancel := range currentStreams {
+			if !awsStreamsMap[streamName] {
+				catcher.Info("Log stream expired, stopping", map[string]any{
+					"logGroup":  agent.LogGroup,
+					"logStream": streamName,
+				})
+				cancel()
+				delete(currentStreams, streamName)
+			}
+		}
+
+		if !sleepWithCancel(ctx, 5*time.Minute) {
+			catcher.Info("Stream cancelled for group", map[string]any{
+				"group": group.GroupName,
+			})
+			return
+		}
 	}
 }
 
@@ -175,7 +277,7 @@ func (p *AWSProcessor) createAWSSession() (aws.Config, error) {
 	return cfg, nil
 }
 
-func (p *AWSProcessor) describeLogStreams(cwl *cloudwatchlogs.Client, logGroup string) ([]string, error) {
+func describeLogStreams(ctx context.Context, cwl *cloudwatchlogs.Client, logGroup string) ([]string, error) {
 	var logStreams []string
 	paginator := cloudwatchlogs.NewDescribeLogStreamsPaginator(cwl, &cloudwatchlogs.DescribeLogStreamsInput{
 		LogGroupName: aws.String(logGroup),
@@ -184,9 +286,9 @@ func (p *AWSProcessor) describeLogStreams(cwl *cloudwatchlogs.Client, logGroup s
 	})
 
 	for paginator.HasMorePages() {
-		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+		requestCtx, cancel := context.WithTimeout(ctx, 1*time.Minute)
 
-		page, err := paginator.NextPage(ctx)
+		page, err := paginator.NextPage(requestCtx)
 		if err != nil {
 			cancel()
 			return nil, catcher.Error("cannot get log streams", err, nil)
@@ -201,11 +303,21 @@ func (p *AWSProcessor) describeLogStreams(cwl *cloudwatchlogs.Client, logGroup s
 	return logStreams, nil
 }
 
-func streamLogStream(cwl *cloudwatchlogs.Client, logGroup, streamName string, startTime time.Time, dataSource string) {
+func streamLogStream(ctx context.Context, cwl *cloudwatchlogs.Client, logGroup, streamName string, startTime time.Time, dataSource string) {
 	var nextToken *string
 	processedCount := 0
 
 	for {
+		select {
+		case <-ctx.Done():
+			catcher.Info("Log stream cancelled", map[string]any{
+				"stream":     streamName,
+				"totalCount": processedCount,
+			})
+			return
+		default:
+		}
+
 		input := &cloudwatchlogs.GetLogEventsInput{
 			LogGroupName:  aws.String(logGroup),
 			LogStreamName: aws.String(streamName),
@@ -215,8 +327,8 @@ func streamLogStream(cwl *cloudwatchlogs.Client, logGroup, streamName string, st
 			Limit:         aws.Int32(1000),
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
-		result, err := cwl.GetLogEvents(ctx, input)
+		requestCtx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+		result, err := cwl.GetLogEvents(requestCtx, input)
 		cancel()
 
 		if err != nil {
@@ -224,7 +336,9 @@ func streamLogStream(cwl *cloudwatchlogs.Client, logGroup, streamName string, st
 				"logGroup": logGroup,
 				"stream":   streamName,
 			})
-			time.Sleep(10 * time.Second)
+			if !sleepWithCancel(ctx, 10*time.Second) {
+				return
+			}
 			continue
 		}
 
@@ -249,14 +363,14 @@ func streamLogStream(cwl *cloudwatchlogs.Client, logGroup, streamName string, st
 				"totalCount": processedCount,
 				"dataSource": dataSource,
 			})
-		} else {
-			time.Sleep(5 * time.Second)
 		}
 
 		if result.NextForwardToken != nil {
 			nextToken = result.NextForwardToken
 		} else {
-			time.Sleep(5 * time.Second)
+			if !sleepWithCancel(ctx, 5*time.Second) {
+				return
+			}
 		}
 	}
 }
