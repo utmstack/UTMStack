@@ -47,6 +47,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -173,41 +174,57 @@ public class UtmDataInputStatusService {
         }
     }
 
-    @Scheduled(fixedDelay = 5000, initialDelay = 30000)
+    @Scheduled(fixedDelay = 15000, initialDelay = 30000)
     public void syncDataInputStatus() {
         final String ctx = CLASSNAME + ".syncDataInputStatus";
+
         try {
-            Map<String, StatisticDocument> result = getLatestStatisticsByDataSource();
+            Map<String, StatisticDocument> latestStats = getLatestStatisticsByDataSource();
 
-            result.forEach((key, statisticDoc) -> {
+            Map<String, UtmDataInputStatus> existing = dataInputStatusRepository.findAll()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            e -> e.getDataType() + "-" + e.getSource(),
+                            Function.identity()
+                    ));
+
+            List<UtmDataInputStatus> toSave = new ArrayList<>();
+
+            latestStats.forEach((key, stat) -> {
                 try {
-                    String dataType = statisticDoc.getDataType();
-                    String dataSource = statisticDoc.getDataSource();
-                    long timestamp = Instant.parse(statisticDoc.getTimestamp()).getEpochSecond();
+                    String dataType = stat.getDataType();
+                    String dataSource = stat.getDataSource();
+                    long timestamp = Instant.parse(stat.getTimestamp()).getEpochSecond();
 
-                    Optional<UtmDataInputStatus> existingOpt = dataInputStatusRepository.findBySourceAndDataType(dataSource, dataType);
+                    String compositeKey = dataType + "-" + dataSource;
 
-                    UtmDataInputStatus dataInputStatus = existingOpt
-                            .map(existing -> {
-                                if(timestamp != existing.getTimestamp()) {
-                                    existing.setTimestamp(timestamp);
-                                }
-                                return existing;
-                            })
-                            .orElseGet(() -> UtmDataInputStatus.builder()
-                                    .dataType(dataType)
-                                    .source(dataSource)
-                                    .timestamp(timestamp)
-                                    .median(86400L)
-                                    .id(String.join("-", dataType, dataSource))
-                                    .build());
+                    UtmDataInputStatus status = existing.get(compositeKey);
+                    boolean changed = false;
 
-                    dataInputStatusRepository.save(dataInputStatus);
+                    if (status == null) {
+                        status = UtmDataInputStatus.builder()
+                                .id(compositeKey)
+                                .dataType(dataType)
+                                .source(dataSource)
+                                .timestamp(timestamp)
+                                .median(86400L)
+                                .build();
+                        changed = true;
+                    } else if (status.getTimestamp() != timestamp) {
+                        status.setTimestamp(timestamp);
+                        changed = true;
+                    }
+
+                    if (changed) {
+                        toSave.add(status);
+                    }
 
                 } catch (Exception e) {
-                    log.error("{}: Error processing dataType {} - {}", ctx, statisticDoc.getDataType(), e.getMessage(), e);
+                    log.error("{}: Error processing dataType {} - {}", ctx, stat.getDataType(), e.getMessage(), e);
                 }
             });
+
+            dataInputStatusRepository.saveAll(toSave);
 
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
@@ -423,6 +440,7 @@ public class UtmDataInputStatusService {
     }
 
     private Map<String, StatisticDocument> getLatestStatisticsByDataSource() {
+
         ArrayList<FilterType> filters = new ArrayList<>();
         filters.add(new FilterType("type", OperatorType.IS, "enqueue_success"));
         filters.add(new FilterType("@timestamp", OperatorType.IS_BETWEEN, List.of("now-24h", "now")));
@@ -430,33 +448,35 @@ public class UtmDataInputStatusService {
         SearchRequest sr = SearchRequest.of(s -> s
                 .query(SearchUtil.toQuery(filters))
                 .index(Constants.STATISTICS_INDEX_PATTERN)
-                .aggregations("by_dataSource", agg -> agg
-                        .terms(t -> t.field("dataSource.keyword")
-                                .size(10000))
-                        .aggregations("latest", latest -> latest
-                                .topHits(th -> th.sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc)))
-                                        .size(1))
+                .collapse(c -> c
+                        .field("dataSource.keyword")
+                        .innerHits(ih -> ih
+                                .name("latest")
+                                .size(1)
+                                .sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc)))
                         )
                 )
-                .size(0)
+                .sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc)))
+                .size(10000) // máximo de dataSources esperados
         );
 
-        SearchResponse<StatisticDocument> response = elasticsearchService.search(sr, StatisticDocument.class);
+        SearchResponse<StatisticDocument> response =
+                elasticsearchService.search(sr, StatisticDocument.class);
+
         Map<String, StatisticDocument> result = new HashMap<>();
 
-        List<BucketAggregation> dataTypeBuckets = TermAggregateParser.parse(response.aggregations().get("by_dataSource"));
-
-        for (BucketAggregation bucket : dataTypeBuckets) {
-            TopHitsAggregate topHitsAgg = bucket.getSubAggregations().get("latest").topHits();
-
-            if (topHitsAgg != null && !topHitsAgg.hits().hits().isEmpty()) {
-                JsonData jsonData = topHitsAgg.hits().hits().get(0).source();
-                if (!Objects.isNull(jsonData)) {
-                    StatisticDocument doc = jsonData.to(StatisticDocument.class);
-                    result.put(bucket.getKey(), doc);
+        response.hits().hits().forEach(hit -> {
+            if (hit.innerHits() != null && hit.innerHits().containsKey("latest")) {
+                var inner = hit.innerHits().get("latest").hits().hits();
+                if (!inner.isEmpty()) {
+                    JsonData json = inner.get(0).source();
+                    if (json != null) {
+                        StatisticDocument doc = json.to(StatisticDocument.class);
+                        result.put(doc.getDataSource(), doc);
+                    }
                 }
             }
-        }
+        });
 
         return result;
     }
