@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"runtime"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -26,7 +25,6 @@ const (
 	defaultTenant      = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 	urlCheckConnection = "https://sts.amazonaws.com"
 	wait               = 1 * time.Second
-	targetLogGroup     = "utmstack"
 )
 
 func main() {
@@ -43,26 +41,15 @@ func main() {
 		}()
 	}
 
-	delay := 5 * time.Minute
-	ticker := time.NewTicker(delay)
-	defer ticker.Stop()
-
-	startTime := time.Now().UTC().Add(-delay)
-
-	for range ticker.C {
-		endTime := time.Now().UTC()
-
+	for {
 		if err := connectionChecker(urlCheckConnection); err != nil {
 			_ = catcher.Error("External connection failure detected: %v", err, nil)
 		}
 
 		moduleConfig := config.GetConfig()
 		if moduleConfig != nil && moduleConfig.ModuleActive {
-			var wg sync.WaitGroup
-			wg.Add(len(moduleConfig.ModuleGroups))
 			for _, grp := range moduleConfig.ModuleGroups {
 				go func(group *config.ModuleGroup) {
-					defer wg.Done()
 					var invalid bool
 					for _, c := range group.ModuleGroupConfigurations {
 						if strings.TrimSpace(c.ConfValue) == "" {
@@ -72,35 +59,63 @@ func main() {
 					}
 
 					if !invalid {
-						pull(startTime, endTime, group)
+						streamLogs(group)
 					}
 				}(grp)
 			}
-			wg.Wait()
+			break
 		}
-
-		startTime = endTime.Add(1 * time.Nanosecond)
+		time.Sleep(5 * time.Second)
 	}
+
+	select {}
 }
 
-func pull(startTime time.Time, endTime time.Time, group *config.ModuleGroup) {
+func streamLogs(group *config.ModuleGroup) {
 	agent := getAWSProcessor(group)
 
-	processedCount, err := agent.getLogs(startTime, endTime, group.GroupName)
+	awsConfig, err := agent.createAWSSession()
 	if err != nil {
-		_ = catcher.Error("cannot get logs", err, map[string]any{
-			"startTime": startTime,
-			"endTime":   endTime,
-			"group":     group.GroupName,
-		})
+		_ = catcher.Error("cannot create AWS session", err, nil)
 		return
 	}
 
-	if processedCount > 0 {
-		catcher.Info("Successfully processed logs", map[string]any{
-			"count": processedCount,
-			"group": group.GroupName,
-		})
+	cwl := cloudwatchlogs.NewFromConfig(awsConfig)
+
+	startTime := time.Now().UTC()
+
+	catcher.Info("Starting streaming logs", map[string]any{
+		"group":     group.GroupName,
+		"logGroup":  agent.LogGroup,
+		"startTime": startTime.Format(time.RFC3339),
+	})
+
+	currentStreams := make(map[string]struct{})
+
+	for {
+		logStreams, err := agent.describeLogStreams(cwl, agent.LogGroup)
+		if err != nil {
+			_ = catcher.Error("cannot get log streams", err, map[string]any{
+				"logGroup": agent.LogGroup,
+			})
+			time.Sleep(30 * time.Second)
+			continue
+		}
+
+		for _, stream := range logStreams {
+			if _, exists := currentStreams[stream]; exists {
+				continue
+			}
+			currentStreams[stream] = struct{}{}
+
+			catcher.Info("Starting to stream log stream", map[string]any{
+				"logGroup":  agent.LogGroup,
+				"logStream": stream,
+			})
+			go streamLogStream(cwl, agent.LogGroup, stream, startTime, group.GroupName)
+		}
+
+		time.Sleep(5 * time.Minute)
 	}
 }
 
@@ -108,6 +123,7 @@ type AWSProcessor struct {
 	RegionName      string
 	AccessKey       string
 	SecretAccessKey string
+	LogGroup        string
 }
 
 func getAWSProcessor(group *config.ModuleGroup) AWSProcessor {
@@ -120,6 +136,8 @@ func getAWSProcessor(group *config.ModuleGroup) AWSProcessor {
 			awsPro.AccessKey = cnf.ConfValue
 		case "aws_secret_access_key":
 			awsPro.SecretAccessKey = cnf.ConfValue
+		case "aws_log_group_name":
+			awsPro.LogGroup = cnf.ConfValue
 		}
 	}
 	return awsPro
@@ -165,95 +183,82 @@ func (p *AWSProcessor) describeLogStreams(cwl *cloudwatchlogs.Client, logGroup s
 		Descending:   aws.Bool(true),
 	})
 
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
-	defer cancel()
-
 	for paginator.HasMorePages() {
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+
 		page, err := paginator.NextPage(ctx)
 		if err != nil {
+			cancel()
 			return nil, catcher.Error("cannot get log streams", err, nil)
 		}
 		for _, stream := range page.LogStreams {
 			logStreams = append(logStreams, *stream.LogStreamName)
 		}
+
+		cancel()
 	}
 
 	return logStreams, nil
 }
 
-func (p *AWSProcessor) getLogs(startTime, endTime time.Time, dataSource string) (int, error) {
-	awsConfig, err := p.createAWSSession()
-	if err != nil {
-		return 0, catcher.Error("cannot create AWS session", err, nil)
-	}
-
-	cwl := cloudwatchlogs.NewFromConfig(awsConfig)
-
-	logStreams, err := p.describeLogStreams(cwl, targetLogGroup)
-	if err != nil {
-		return 0, catcher.Error("cannot get log streams for 'utmstack'", err, map[string]any{
-			"logGroup": targetLogGroup,
-		})
-	}
-
+func streamLogStream(cwl *cloudwatchlogs.Client, logGroup, streamName string, startTime time.Time, dataSource string) {
+	var nextToken *string
 	processedCount := 0
 
-	for i, stream := range logStreams {
-		if i > 0 && i%5 == 0 {
-			time.Sleep(2 * time.Second)
-		} else if i > 0 {
-			time.Sleep(300 * time.Millisecond)
+	for {
+		input := &cloudwatchlogs.GetLogEventsInput{
+			LogGroupName:  aws.String(logGroup),
+			LogStreamName: aws.String(streamName),
+			StartTime:     aws.Int64(startTime.Unix() * 1000),
+			StartFromHead: aws.Bool(true),
+			NextToken:     nextToken,
+			Limit:         aws.Int32(1000),
 		}
 
-		paginator := cloudwatchlogs.NewGetLogEventsPaginator(cwl, &cloudwatchlogs.GetLogEventsInput{
-			LogGroupName:  aws.String(targetLogGroup),
-			LogStreamName: aws.String(stream),
-			StartTime:     aws.Int64(startTime.Unix() * 1000),
-			EndTime:       aws.Int64(endTime.Unix() * 1000),
-			StartFromHead: aws.Bool(true),
-		}, func(options *cloudwatchlogs.GetLogEventsPaginatorOptions) {
-			options.StopOnDuplicateToken = true
-			options.Limit = 1000
-		})
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		result, err := cwl.GetLogEvents(ctx, input)
+		cancel()
 
-		pageCount := 0
-		for paginator.HasMorePages() {
-			if pageCount > 0 {
-				time.Sleep(200 * time.Millisecond)
-			}
-			pageCount++
+		if err != nil {
+			_ = catcher.Error("cannot get log events", err, map[string]any{
+				"logGroup": logGroup,
+				"stream":   streamName,
+			})
+			time.Sleep(10 * time.Second)
+			continue
+		}
 
-			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
-			page, err := paginator.NextPage(ctx)
-			cancel()
+		eventsInBatch := 0
+		for _, event := range result.Events {
+			_ = plugins.EnqueueLog(&plugins.Log{
+				Id:         uuid.NewString(),
+				TenantId:   defaultTenant,
+				DataType:   "aws",
+				DataSource: dataSource,
+				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
+				Raw:        *event.Message,
+			})
+			processedCount++
+			eventsInBatch++
+		}
 
-			if err != nil {
-				_ = catcher.Error("cannot get log events, skipping stream", err, map[string]any{
-					"logGroup": targetLogGroup,
-					"stream":   stream,
-				})
-				break
-			}
+		if eventsInBatch > 0 {
+			catcher.Info("Processed logs from stream", map[string]any{
+				"stream":     streamName,
+				"batchCount": eventsInBatch,
+				"totalCount": processedCount,
+				"dataSource": dataSource,
+			})
+		} else {
+			time.Sleep(5 * time.Second)
+		}
 
-			if page == nil {
-				break
-			}
-
-			for _, event := range page.Events {
-				_ = plugins.EnqueueLog(&plugins.Log{
-					Id:         uuid.NewString(),
-					TenantId:   defaultTenant,
-					DataType:   "aws",
-					DataSource: dataSource,
-					Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
-					Raw:        *event.Message,
-				})
-				processedCount++
-			}
+		if result.NextForwardToken != nil {
+			nextToken = result.NextForwardToken
+		} else {
+			time.Sleep(5 * time.Second)
 		}
 	}
-
-	return processedCount, nil
 }
 
 func connectionChecker(url string) error {
