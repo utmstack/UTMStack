@@ -7,149 +7,205 @@ const (
 	Aggregation AssociationMode = "aggregation"
 )
 
-type RuleCategory string
-
-const (
-	CategoryNetwork  RuleCategory = "network"
-	CategoryIdentity RuleCategory = "identity"
-)
-
 type AssociationRule struct {
-	Name        string
-	SourceType  string
-	TargetType  string
-	Mode        AssociationMode
-	Category    RuleCategory
-	Description string
-	Enabled     bool
-	Priority    int
+	Name       string
+	SourceType string
+	TargetType string
+	Mode       AssociationMode
+	Enabled    bool
 }
 
 var DefaultRules = []*AssociationRule{
-	// Network Associations
+	// Network Infrastructure
 	{
-		Name:        "ip-to-port",
-		SourceType:  "ip",
-		TargetType:  "port",
-		Mode:        Association,
-		Category:    CategoryNetwork,
-		Description: "IP exposes port",
-		Enabled:     true,
-		Priority:    10,
+		Name:       "ip-to-port",
+		SourceType: "ip",
+		TargetType: "port",
+		Mode:       Association,
+		Enabled:    true,
 	},
 	{
-		Name:        "port-to-ip",
-		SourceType:  "port",
-		TargetType:  "ip",
-		Mode:        Association,
-		Category:    CategoryNetwork,
-		Description: "Port exposed on IP",
-		Enabled:     true,
-		Priority:    10,
+		Name:       "port-to-service",
+		SourceType: "port",
+		TargetType: "service",
+		Mode:       Aggregation,
+		Enabled:    true,
 	},
 	{
-		Name:        "hostname-to-ip",
-		SourceType:  "hostname",
-		TargetType:  "ip",
-		Mode:        Association,
-		Category:    CategoryNetwork,
-		Description: "Hostname resolves to IP",
-		Enabled:     true,
-		Priority:    10,
+		Name:       "domain-to-ip",
+		SourceType: "domain",
+		TargetType: "ip",
+		Mode:       Association,
+		Enabled:    true,
 	},
 	{
-		Name:        "ip-to-hostname",
-		SourceType:  "ip",
-		TargetType:  "hostname",
-		Mode:        Association,
-		Category:    CategoryNetwork,
-		Description: "IP resolves to hostname",
-		Enabled:     true,
-		Priority:    10,
-	},
-
-	// Identity Associations
-	{
-		Name:        "username-to-ip",
-		SourceType:  "username",
-		TargetType:  "ip",
-		Mode:        Association,
-		Category:    CategoryIdentity,
-		Description: "User accessed from IP",
-		Enabled:     true,
-		Priority:    10,
+		Name:       "ip-to-domain",
+		SourceType: "ip",
+		TargetType: "domain",
+		Mode:       Association,
+		Enabled:    true,
 	},
 	{
-		Name:        "ip-to-username",
-		SourceType:  "ip",
-		TargetType:  "username",
-		Mode:        Association,
-		Category:    CategoryIdentity,
-		Description: "IP accessed by user",
-		Enabled:     true,
-		Priority:    10,
+		Name:       "subdomain-to-domain",
+		SourceType: "domain",
+		TargetType: "domain",
+		Mode:       Aggregation,
+		Enabled:    true,
 	},
 	{
-		Name:        "username-to-hostname",
-		SourceType:  "username",
-		TargetType:  "hostname",
-		Mode:        Association,
-		Category:    CategoryIdentity,
-		Description: "User accessed from hostname",
-		Enabled:     true,
-		Priority:    9,
+		Name:       "url-to-domain",
+		SourceType: "url",
+		TargetType: "domain",
+		Mode:       Aggregation,
+		Enabled:    true,
 	},
 	{
-		Name:        "hostname-to-username",
-		SourceType:  "hostname",
-		TargetType:  "username",
-		Mode:        Association,
-		Category:    CategoryIdentity,
-		Description: "Hostname accessed by user",
-		Enabled:     true,
-		Priority:    9,
+		Name:       "url-to-ip",
+		SourceType: "url",
+		TargetType: "ip",
+		Mode:       Association,
+		Enabled:    true,
 	},
 
-	// ASN Associations
+	// Geographic and ASN
 	{
-		Name:        "ip-to-asn",
-		SourceType:  "ip",
-		TargetType:  "asn",
-		Mode:        Association,
-		Category:    CategoryNetwork,
-		Description: "IP belongs to ASN",
-		Enabled:     true,
-		Priority:    10,
+		Name:       "ip-to-asn",
+		SourceType: "ip",
+		TargetType: "asn",
+		Mode:       Aggregation,
+		Enabled:    true,
 	},
 	{
-		Name:        "asn-to-ip",
-		SourceType:  "asn",
-		TargetType:  "ip",
-		Mode:        Association,
-		Category:    CategoryNetwork,
-		Description: "ASN contains IP",
-		Enabled:     true,
-		Priority:    10,
+		Name:       "asn-to-organization",
+		SourceType: "asn",
+		TargetType: "organization",
+		Mode:       Aggregation,
+		Enabled:    true,
 	},
 	{
-		Name:        "hostname-to-asn",
-		SourceType:  "hostname",
-		TargetType:  "asn",
-		Mode:        Association,
-		Category:    CategoryNetwork,
-		Description: "Hostname resolves to IP in ASN",
-		Enabled:     true,
-		Priority:    9,
+		Name:       "domain-to-asn",
+		SourceType: "domain",
+		TargetType: "asn",
+		Mode:       Association,
+		Enabled:    true,
+	},
+
+	// Identity and Access
+	{
+		Name:       "user-to-ip",
+		SourceType: "user",
+		TargetType: "ip",
+		Mode:       Association,
+		Enabled:    true,
 	},
 	{
-		Name:        "asn-to-hostname",
-		SourceType:  "asn",
-		TargetType:  "hostname",
-		Mode:        Association,
-		Category:    CategoryNetwork,
-		Description: "ASN contains hostname",
-		Enabled:     true,
-		Priority:    9,
+		Name:       "user-to-hostname",
+		SourceType: "user",
+		TargetType: "hostname",
+		Mode:       Association,
+		Enabled:    true,
+	},
+	{
+		Name:       "user-to-account",
+		SourceType: "user",
+		TargetType: "account",
+		Mode:       Aggregation,
+		Enabled:    true,
+	},
+	{
+		Name:       "email-to-user",
+		SourceType: "email",
+		TargetType: "user",
+		Mode:       Aggregation,
+		Enabled:    true,
+	},
+	{
+		Name:       "email-to-domain",
+		SourceType: "email",
+		TargetType: "domain",
+		Mode:       Aggregation,
+		Enabled:    true,
+	},
+
+	// Threat Intelligence
+	{
+		Name:       "malware-to-ip",
+		SourceType: "malware",
+		TargetType: "ip",
+		Mode:       Association,
+		Enabled:    true,
+	},
+	{
+		Name:       "malware-to-domain",
+		SourceType: "malware",
+		TargetType: "domain",
+		Mode:       Association,
+		Enabled:    true,
+	},
+	{
+		Name:       "malware-to-url",
+		SourceType: "malware",
+		TargetType: "url",
+		Mode:       Association,
+		Enabled:    true,
+	},
+	{
+		Name:       "hash-to-malware",
+		SourceType: "hash",
+		TargetType: "malware",
+		Mode:       Aggregation,
+		Enabled:    true,
+	},
+	{
+		Name:       "ip-to-threat-actor",
+		SourceType: "ip",
+		TargetType: "threat-actor",
+		Mode:       Association,
+		Enabled:    true,
+	},
+	{
+		Name:       "domain-to-threat-actor",
+		SourceType: "domain",
+		TargetType: "threat-actor",
+		Mode:       Association,
+		Enabled:    true,
+	},
+	{
+		Name:       "cve-to-exploit",
+		SourceType: "cve",
+		TargetType: "exploit",
+		Mode:       Aggregation,
+		Enabled:    true,
+	},
+	{
+		Name:       "vulnerability-to-ip",
+		SourceType: "vulnerability",
+		TargetType: "ip",
+		Mode:       Association,
+		Enabled:    true,
+	},
+
+	// Legacy (backward compatibility)
+	{
+		Name:       "hostname-to-ip",
+		SourceType: "hostname",
+		TargetType: "ip",
+		Mode:       Association,
+		Enabled:    true,
+	},
+	{
+		Name:       "ip-to-hostname",
+		SourceType: "ip",
+		TargetType: "hostname",
+		Mode:       Association,
+		Enabled:    true,
+	},
+	{
+		Name:       "hostname-to-user",
+		SourceType: "hostname",
+		TargetType: "user",
+		Mode:       Association,
+		Enabled:    true,
 	},
 }
 
