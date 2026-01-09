@@ -5,4 +5,5 @@ package config
 
 var (
 	ServiceFile = "utmstack_agent_service%s.exe"
+	DependFiles = []string{"utmstack_agent_dependencies_windows.zip"}
 )
