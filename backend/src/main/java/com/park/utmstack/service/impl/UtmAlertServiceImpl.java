@@ -104,7 +104,11 @@ public class UtmAlertServiceImpl implements UtmAlertService {
             initialDate.setLastAlertTimestamp(alerts.get(alerts.size() - 1).getTimestampAsInstant());
             lastAlertRepository.save(initialDate);
 
-            for (UtmAlert alert : alerts) {
+            List<UtmAlert> parentsAlert = alerts.stream()
+                    .filter(a -> Objects.isNull(a.getParentId()))
+                    .toList();
+
+            for (UtmAlert alert : parentsAlert) {
                 String emails = Constants.CFG.get(Constants.PROP_ALERT_ADDRESS_TO_NOTIFY_ALERTS);
 
                 if (!StringUtils.hasText(emails)) {
