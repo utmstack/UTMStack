@@ -1,17 +1,19 @@
 package com.park.utmstack.service;
 
 import com.park.utmstack.config.Constants;
-import com.park.utmstack.domain.UtmDataInputStatus;
+import com.park.utmstack.domain.datainput_ingestion.UtmDataInputStatus;
 import com.park.utmstack.domain.UtmServerModule;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.domain.correlation.config.UtmDataTypes;
+import com.park.utmstack.domain.datainput_ingestion.UtmDataInputStatusCheckpoint;
 import com.park.utmstack.domain.network_scan.UtmNetworkScan;
 import com.park.utmstack.domain.network_scan.enums.AssetStatus;
 import com.park.utmstack.domain.network_scan.enums.UpdateLevel;
 import com.park.utmstack.domain.shared_types.alert.UtmAlert;
-import com.park.utmstack.repository.UtmDataInputStatusRepository;
+import com.park.utmstack.repository.datainput_ingestion.UtmDataInputStatusCheckpointRepository;
+import com.park.utmstack.repository.datainput_ingestion.UtmDataInputStatusRepository;
 import com.park.utmstack.repository.correlation.config.UtmDataTypesRepository;
 import com.park.utmstack.repository.network_scan.UtmNetworkScanRepository;
 import com.park.utmstack.service.application_events.ApplicationEventService;
@@ -22,13 +24,10 @@ import com.park.utmstack.service.network_scan.DataSourceConstants;
 import com.park.utmstack.service.network_scan.UtmNetworkScanService;
 import com.park.utmstack.util.enums.AlertSeverityEnum;
 import com.park.utmstack.util.enums.AlertStatus;
-import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
-import com.utmstack.opensearch_connector.types.BucketAggregation;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.conn.util.InetAddressUtils;
 import org.opensearch.client.json.JsonData;
 import org.opensearch.client.opensearch._types.SortOrder;
-import org.opensearch.client.opensearch._types.aggregations.TopHitsAggregate;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.slf4j.Logger;
@@ -38,13 +37,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -68,6 +67,7 @@ public class UtmDataInputStatusService {
     private final ElasticsearchService elasticsearchService;
     private final UtmDataTypesRepository dataTypesRepository;
     private final UtmNetworkScanRepository networkScanRepository;
+    private final UtmDataInputStatusCheckpointRepository checkpointRepository;
 
 
     /**
@@ -441,9 +441,16 @@ public class UtmDataInputStatusService {
 
     private Map<String, StatisticDocument> getLatestStatisticsByDataSource() {
 
+        UtmDataInputStatusCheckpoint checkpoint = this.checkpointRepository.findById(1L)
+                .orElseGet(() -> {
+                    UtmDataInputStatusCheckpoint newCheckpoint = new UtmDataInputStatusCheckpoint();
+                    newCheckpoint.setLastProcessedTimestamp(Instant.now().minus(1, ChronoUnit.HOURS));
+                    return newCheckpoint;
+                });
+
         ArrayList<FilterType> filters = new ArrayList<>();
         filters.add(new FilterType("type", OperatorType.IS, "enqueue_success"));
-        filters.add(new FilterType("@timestamp", OperatorType.IS_BETWEEN, List.of("now-24h", "now")));
+        filters.add(new FilterType("@timestamp", OperatorType.IS_GREATER_THAN, checkpoint.getLastProcessedTimestamp().toString()));
 
         SearchRequest sr = SearchRequest.of(s -> s
                 .query(SearchUtil.toQuery(filters))
@@ -457,7 +464,7 @@ public class UtmDataInputStatusService {
                         )
                 )
                 .sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc)))
-                .size(10000) // máximo de dataSources esperados
+                .size(10000)
         );
 
         SearchResponse<StatisticDocument> response =
@@ -477,6 +484,15 @@ public class UtmDataInputStatusService {
                 }
             }
         });
+
+        Instant lastTimestamp = result.values().stream()
+                .map(doc -> Instant.parse(doc.getTimestamp()))
+                .max(Instant::compareTo)
+                .orElse(Instant.now());
+
+        checkpoint.setLastProcessedTimestamp(lastTimestamp);
+
+        this.checkpointRepository.save(checkpoint);
 
         return result;
     }

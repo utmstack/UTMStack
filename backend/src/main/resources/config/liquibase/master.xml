@@ -297,5 +297,7 @@
 
     <include file="/config/liquibase/changelog/20260105001_adding_crowdstrike_integration.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260109001_create_table_data_input_status_checkpoint.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

@@ -1,6 +1,6 @@
-package com.park.utmstack.repository;
+package com.park.utmstack.repository.datainput_ingestion;
 
-import com.park.utmstack.domain.UtmDataInputStatus;
+import com.park.utmstack.domain.datainput_ingestion.UtmDataInputStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

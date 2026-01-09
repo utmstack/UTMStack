@@ -1,17 +1,13 @@
-package com.park.utmstack.domain;
+package com.park.utmstack.domain.datainput_ingestion;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.park.utmstack.domain.network_scan.UtmNetworkScan;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A UtmDataInputStatus.
