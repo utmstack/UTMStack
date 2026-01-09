@@ -4,7 +4,65 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 )
+
+func CheckIfServiceIsActive(serv string) (bool, error) {
+	var errB bool
+	var output string
+	path := GetMyPath()
+
+	switch runtime.GOOS {
+	case "windows":
+		output, errB = ExecuteWithResult("sc", path, "query", serv)
+	case "linux":
+		output, errB = ExecuteWithResult("systemctl", path, "is-active", serv)
+	case "darwin":
+		output, errB = ExecuteWithResult("launchctl", path, "list", serv)
+	default:
+		return false, fmt.Errorf("unknown operating system")
+	}
+
+	if errB {
+		return false, nil
+	}
+
+	serviceStatus := strings.ToLower(strings.TrimSpace(output))
+
+	switch runtime.GOOS {
+	case "windows":
+		return strings.Contains(serviceStatus, "running"), nil
+	case "linux":
+		return serviceStatus == "active", nil
+	case "darwin":
+		return true, nil
+	default:
+		return false, fmt.Errorf("unsupported operating system")
+	}
+}
+
+func StartService(name string) error {
+	path := GetMyPath()
+	switch runtime.GOOS {
+	case "windows":
+		err := Execute("sc", path, "start", name)
+		if err != nil {
+			return fmt.Errorf("error starting service: %v", err)
+		}
+	case "linux":
+		err := Execute("systemctl", path, "start", name)
+		if err != nil {
+			return fmt.Errorf("error starting service: %v", err)
+		}
+	case "darwin":
+		plistPath := fmt.Sprintf("/Library/LaunchDaemons/%s.plist", name)
+		err := Execute("launchctl", path, "load", plistPath)
+		if err != nil {
+			return fmt.Errorf("error starting macOS service: %v", err)
+		}
+	}
+	return nil
+}
 
 func StopService(name string) error {
 	path := GetMyPath()

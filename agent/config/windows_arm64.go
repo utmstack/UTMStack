@@ -4,7 +4,7 @@
 package config
 
 var (
-	UpdaterSelf = "utmstack_updater_self_arm64%s.exe"
 	ServiceFile = "utmstack_agent_service_arm64%s.exe"
+	UpdaterFile = "utmstack_updater_service%s.exe"
 	DependFiles = []string{"utmstack_agent_dependencies_windows_arm64.zip"}
 )

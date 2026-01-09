@@ -1,8 +1,8 @@
 package com.park.utmstack.service;
 
-import com.park.utmstack.domain.UtmDataInputStatus;
-import com.park.utmstack.domain.UtmDataInputStatus_;
-import com.park.utmstack.repository.UtmDataInputStatusRepository;
+import com.park.utmstack.domain.datainput_ingestion.UtmDataInputStatus;
+import com.park.utmstack.domain.datainput_ingestion.UtmDataInputStatus_;
+import com.park.utmstack.repository.datainput_ingestion.UtmDataInputStatusRepository;
 import com.park.utmstack.service.dto.UtmDataInputStatusCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

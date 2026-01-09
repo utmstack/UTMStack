@@ -1,6 +1,6 @@
 package com.park.utmstack.web.rest;
 
-import com.park.utmstack.domain.UtmDataInputStatus;
+import com.park.utmstack.domain.datainput_ingestion.UtmDataInputStatus;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.service.UtmDataInputStatusQueryService;
 import com.park.utmstack.service.UtmDataInputStatusService;
