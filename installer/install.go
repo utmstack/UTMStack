@@ -193,8 +193,8 @@ func Install(specificVersion string) error {
 	}
 	fmt.Println(" [OK]")
 
-	fmt.Printf("Installing UTMStack version %s-%s. This may take a while.\n", version.Version, version.Edition)
-	err = docker.StackUP(version.Version + "-" + version.Edition)
+	fmt.Printf("Installing UTMStack version %s. This may take a while.\n", version.Version)
+	err = docker.StackUP(version.Version)
 	if err != nil {
 		return err
 	}
