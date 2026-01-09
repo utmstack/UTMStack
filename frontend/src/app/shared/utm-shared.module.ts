@@ -36,8 +36,8 @@ import {CodeEditorComponent} from './components/code-editor/code-editor.componen
 import {QuerySuggestionsComponent} from './components/code-editor/components/query-suggestions/query-suggestions.component';
 import {ContactUsComponent} from './components/contact-us/contact-us.component';
 import {
-  EmailSettingNotificactionComponent
-} from './components/email-setting-notification/email-setting-notificaction.component';
+  EmailSettingNotificationComponent
+} from './components/email-setting-notification/email-setting-notification.component';
 import {
   UtmAdminChangeEmailComponent
 } from './components/getting-started/utm-admin-change-email/utm-admin-change-email.component';
@@ -392,7 +392,7 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     ZoomDirective,
     IrVariableCreateComponent,
     IncidentVariableSelectComponent,
-    EmailSettingNotificactionComponent,
+    EmailSettingNotificationComponent,
     TimezoneOffsetPipe,
     RefreshFilterComponent,
     UtmNotificationComponent,
@@ -510,7 +510,7 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     UtmVersionInfoComponent,
     IrVariableCreateComponent,
     IncidentVariableSelectComponent,
-    EmailSettingNotificactionComponent,
+    EmailSettingNotificationComponent,
     TimezoneOffsetPipe,
     RefreshFilterComponent,
     UtmNotificationComponent,
@@ -571,7 +571,7 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     GettingStartedFinishedModalComponent,
     UtmAdminChangeEmailComponent,
     IrVariableCreateComponent,
-    EmailSettingNotificactionComponent,
+    EmailSettingNotificationComponent,
     ModalAddNoteComponent,
     UtmInstanceInfoComponent,
     UtmTfaVerificationComponent],
