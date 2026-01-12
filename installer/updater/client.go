@@ -28,20 +28,26 @@ var (
 
 func GetUpdaterClient() *UpdaterClient {
 	updaterClientOnce.Do(func() {
+		// config.Logger().Info("[DEBUG] Initializing UpdaterClient...")
 		updaterClient = &UpdaterClient{
 			Config:  InstanceConfig{},
 			License: "",
 		}
 
+		// config.Logger().Info("[DEBUG] Checking instance config at: %s", config.InstanceConfigPath)
 		if !utils.CheckIfPathExist(config.InstanceConfigPath) {
+			// config.Logger().Info("[DEBUG] Instance config not found, registering instance...")
 			err := RegisterInstance()
 			if err != nil {
 				config.Logger().ErrorF("error registering instance: %v", err)
 				return
 			}
+			// config.Logger().Info("[DEBUG] Instance registered successfully")
 		}
 
+		// config.Logger().Info("[DEBUG] Checking license file at: %s", config.LicenseFilePath)
 		if !utils.CheckIfPathExist(config.LicenseFilePath) {
+			//config.Logger().Info("[DEBUG] License file not found, creating empty license file...")
 			err := os.WriteFile(config.LicenseFilePath, []byte{}, 0644)
 			if err != nil {
 				config.Logger().ErrorF("error creating license file: %v", err)
@@ -52,6 +58,7 @@ func GetUpdaterClient() *UpdaterClient {
 		cnf := InstanceConfig{}
 		utils.ReadYAML(config.InstanceConfigPath, &cnf)
 		updaterClient.Config = cnf
+		// config.Logger().Info("[DEBUG] Instance config loaded - InstanceID=%s, Server=%s", cnf.InstanceID, cnf.Server)
 
 		licenseBytes, err := os.ReadFile(config.LicenseFilePath)
 		if err != nil {
@@ -60,30 +67,43 @@ func GetUpdaterClient() *UpdaterClient {
 		}
 
 		updaterClient.License = string(licenseBytes)
+		// config.Logger().Info("[DEBUG] UpdaterClient initialized successfully")
 	})
 
 	return updaterClient
 }
 
 func (c *UpdaterClient) UpdateProcess() {
+	// config.Logger().Info("[DEBUG] UpdateProcess started - checking updates every %v", config.CheckUpdatesEvery)
 	ticker := time.NewTicker(config.CheckUpdatesEvery)
 	defer ticker.Stop()
 
 	for range ticker.C {
-		if !config.Updating && IsInMaintenanceWindow() {
+		// config.Logger().Info("[DEBUG] Update tick triggered - Updating=%v, ConnectedToInternet=%v", config.Updating, config.ConnectedToInternet)
+		inWindow := IsInMaintenanceWindow()
+		// config.Logger().Info("[DEBUG] IsInMaintenanceWindow=%v", inWindow)
+
+		if !config.Updating && inWindow {
+			// config.Logger().Info("[DEBUG] Conditions met, calling CheckUpdate...")
 			err := c.CheckUpdate()
 			if err != nil {
 				config.Logger().ErrorF("error checking update: %v", err)
 			}
-		}
+		} //else {
+		// config.Logger().Info("[DEBUG] Skipping update check - Updating=%v, InMaintenanceWindow=%v", config.Updating, inWindow)
+		//}
 	}
 }
 
 func (c *UpdaterClient) CheckUpdate() error {
+	// config.Logger().Info("[DEBUG] CheckUpdate started - Server=%s, InstanceID=%s", c.Config.Server, c.Config.InstanceID)
 	updates := make([]map[string]string, 0)
 
 	url := fmt.Sprintf("%s%s", c.Config.Server, config.GetUpdatesInfoEndpoint)
+	// config.Logger().Info("[DEBUG] Checking updates from URL: %s", url)
+
 	if config.ConnectedToInternet {
+		// config.Logger().Info("[DEBUG] Connected to internet, fetching updates from server...")
 		resp, status, err := utils.DoReq[[]UpdateDTO](
 			url,
 			nil,
@@ -94,7 +114,9 @@ func (c *UpdaterClient) CheckUpdate() error {
 		if err != nil || status != http.StatusOK {
 			return fmt.Errorf("error getting updates from %s: status: %d, error: %v", url, status, err)
 		}
+		// config.Logger().Info("[DEBUG] Got %d updates from server", len(resp))
 		for _, update := range resp {
+			// config.Logger().Info("[DEBUG] Update found: ID=%s, Version=%s, Edition=%s", update.ID, update.Version.Version, update.Instance.Edition)
 			newUpdate := make(map[string]string)
 			newUpdate["version"] = update.Version.Version
 			newUpdate["edition"] = update.Instance.Edition
@@ -103,6 +125,7 @@ func (c *UpdaterClient) CheckUpdate() error {
 			updates = append(updates, newUpdate)
 		}
 	} else {
+		// config.Logger().Info("[DEBUG] Not connected to internet, checking offline updates...")
 		v, err := ExtractVersionFromFolder(config.ImagesPath)
 		if err != nil {
 			return fmt.Errorf("error extracting version from folder: %v", err)
@@ -116,8 +139,16 @@ func (c *UpdaterClient) CheckUpdate() error {
 	}
 
 	sortedUpdates := SortVersions(updates)
+	// config.Logger().Info("[DEBUG] After sorting: %d updates to apply", len(sortedUpdates))
+
+	// if len(sortedUpdates) == 0 {
+	// 	config.Logger().Info("[DEBUG] No updates to apply")
+	// 	return nil
+	// }
 
 	for _, update := range sortedUpdates {
+		// config.Logger().Info("[DEBUG] Processing update %d/%d: version=%s, edition=%s, id=%s",
+		// 	i+1, len(sortedUpdates), update["version"], update["edition"], update["id"])
 		// Apply all updates from the server regardless of current version
 		// This allows for rollbacks, pre-release type changes (alpha→dev), and ensures all updates are applied in order
 		// The server is responsible for only sending pending updates (marked as sent after application)
@@ -126,6 +157,7 @@ func (c *UpdaterClient) CheckUpdate() error {
 			return fmt.Errorf("error updating to new version: %v", err)
 		}
 		if update["id"] != "offline" {
+			// config.Logger().Info("[DEBUG] Marking update %s as sent", update["id"])
 			err = c.MarkUpdateSent(update["id"])
 			if err != nil {
 				return fmt.Errorf("error marking update as sent: %v", err)
@@ -133,12 +165,16 @@ func (c *UpdaterClient) CheckUpdate() error {
 		}
 	}
 
+	// config.Logger().Info("[DEBUG] All updates processed successfully")
 	return nil
 }
 
 func (c *UpdaterClient) UpdateToNewVersion(version, edition, changelog string) error {
 	config.Logger().Info("Updating UTMStack to version %s-%s...", version, edition)
 	config.Updating = true
+	defer func() {
+		config.Updating = false
+	}()
 
 	// Update installer binary first (only in prod branch)
 	cnf := config.GetConfig()
@@ -159,7 +195,6 @@ func (c *UpdaterClient) UpdateToNewVersion(version, edition, changelog string) e
 	}
 
 	config.Logger().Info("UTMStack updated to version %s-%s", version, edition)
-	config.Updating = false
 
 	time.Sleep(3 * time.Minute)
 
