@@ -27,7 +27,7 @@ func InstallService() {
 		fmt.Println("\nError starting new service: ", err)
 		os.Exit(1)
 	}
-	utils.UpdaterLogger.Info("updater service installed succefull")
+	utils.UpdaterLogger.Info("updater service installed successfully")
 }
 
 func UninstallService() {
