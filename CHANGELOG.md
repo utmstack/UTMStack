@@ -4,4 +4,4 @@ The **UTMStack v11.2.0** release introduces key enhancements, new integrations, 
 
 ## Improvements & Fixes
 - Enhanced AWS integration with updated setup guides and improved log processing reliability.
-- Integrated CrowdStrike Falcon for advanced threat detection and response.
+- Added CrowdStrike Falcon integration for advanced threat detection and response.
