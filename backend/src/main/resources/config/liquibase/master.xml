@@ -299,5 +299,7 @@
 
     <include file="/config/liquibase/changelog/20260109001_create_table_data_input_status_checkpoint.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20260112001_add_threatwinds_credentials_section.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
