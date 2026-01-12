@@ -57,7 +57,7 @@ export class AppLogsComponent implements OnInit {
   private onSuccess(data, headers) {
     this.totalItems = headers.get('X-Total-Count');
     this.logs = data || [];
-    console.log('Logs loaded:', this.logs);
+
     this.loading = false;
   }
 
