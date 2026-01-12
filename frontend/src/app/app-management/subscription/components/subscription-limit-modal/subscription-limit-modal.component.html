@@ -1,0 +1,20 @@
+<div class="modal-header">
+    <h4 class="modal-title">{{ title }}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body text-center">
+    <div class="mb-3">
+        <i class="fas fa-4x" [ngClass]="{
+      'fa-exclamation-triangle text-warning': icon === 'warning',
+      'fa-exclamation-circle text-danger': icon === 'error',
+      'fa-info-circle text-info': icon === 'info'
+    }"></i>
+    </div>
+    <p>{{ message }}</p>
+</div>
+<div class="modal-footer">
+    <button *ngIf="showUpgradeButton" type="button" class="btn btn-success" (click)="upgrade()">Upgrade Plan</button>
+    <button type="button" class="btn btn-primary" (click)="activeModal.close('close')">Got it</button>
+</div>

@@ -13,6 +13,19 @@
       </div>
     </a>
 
+
+    <a *appHasAnyAuthority="adminAuth"
+       class="list-group-item"
+       routerLink="/app-management/settings/subscription"
+       routerLinkActive="router-link-active">
+      <div class="d-flex justify-content-between align-items-center">
+          <span class="font-weight-semibold">
+        <i class="icon-cash font-size-sm"></i>&nbsp;
+          Subscription
+      </span>
+      </div>
+    </a>
+
     <ng-container *ngIf="!inSass">
       <a *appHasAnyAuthority="adminAuth"
 

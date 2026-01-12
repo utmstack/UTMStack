@@ -16,6 +16,7 @@ import {MenuComponent} from './menu/menu.component';
 import {RolloverConfigComponent} from './rollover-config/rollover-config.component';
 import {UtmApiDocComponent} from './utm-api-doc/utm-api-doc.component';
 import {UtmNotificationViewComponent} from './utm-notification/components/notifications-view/utm-notification-view.component';
+import { SubscriptionComponent } from './subscription/subscription.component';
 import {ApiKeysComponent} from "./api-keys/api-keys.component";
 import {IdentityProviderComponent} from "./identity-provider/identity-provider.component";
 
@@ -51,6 +52,12 @@ const routes: Routes = [
       {
         path: 'app-logs',
         component: AppLogsComponent,
+        canActivate: [UserRouteAccessService],
+        data: {authorities: [ADMIN_ROLE]}
+      },
+      {
+        path: 'subscription',
+        component: SubscriptionComponent,
         canActivate: [UserRouteAccessService],
         data: {authorities: [ADMIN_ROLE]}
       },

@@ -1,0 +1,218 @@
+<div class="card card-border shadow-sm mx-auto mb-5 border-0 bg-body rounded-4 w-100 min-w-md" >
+  <div class="card-header bg-transparent border-bottom-0 d-flex justify-content-between align-items-center">
+    lkjkjlkjlk
+
+    <h3 class="card-title fw-bold text-body-emphasis ">
+      {{ mode === 'profile' ? 'Available Plans' : 'Choose a Plan to Start' }}
+        </h3>
+  </div>
+
+
+
+
+    <div class="card-body">
+
+    <div class="row g-4 justify-content-center">
+      <ng-container *ngIf="plans$ | async as plans">
+        <ng-container *ngFor="let plan of plans">
+          <div class="col-12 col-sm-10 col-md-6 col-lg-3">
+            <div
+              class="border rounded-4 p-4 h-100 position-relative bg-body-tertiary text-body d-flex flex-column justify-content-between shadow-sm"
+              [ngClass]="{ 'border-primary-subtle': getSelectedPrice(plan)?.id === currentPriceId }"
+            >
+              <!-- Current Plan Badge -->
+              <span
+                *ngIf="getSelectedPrice(plan)?.id === currentPriceId"
+                class="badge bg-primary text-white position-absolute top-0 end-0 mt-3 me-3"
+              >
+                Current Plan
+              </span>
+
+              <!-- Plan Content -->
+              <div>
+                <h4 class="fw-semibold mb-3 text-body">{{ plan.name }}</h4>
+
+                <!-- Monthly/Annual Toggle (hidden for Free plans) -->
+                <div
+                  class="btn-group mb-3 w-75"
+                  [style.visibility]="(plan.prices.length > 1 && !plan.name.toLowerCase().includes('free')) ? 'visible' : 'hidden'"
+                >
+                  <button
+                    class="btn btn-sm"
+                    [class.btn-primary]="!isAnnualSelected[plan.id]"
+                    [class.btn-outline-primary]="isAnnualSelected[plan.id]"
+                    (click)="setBillingPeriod(plan.id, false)"
+                  >
+                    Monthly
+                  </button>
+                  <button
+                    class="btn btn-sm"
+                    [class.btn-primary]="isAnnualSelected[plan.id]"
+                    [class.btn-outline-primary]="!isAnnualSelected[plan.id]"
+                    (click)="setBillingPeriod(plan.id, true)"
+                  >
+                    Annual
+                  </button>
+
+                </div>
+
+                <!-- Pricing -->
+                <ng-container *ngIf="getSelectedPrice(plan) as selectedPrice">
+                  <div class="fs-4 fw-bold mb-3 text-body-secondary">
+                    <ng-container *ngIf="selectedPrice.price > 0">
+                      ${{ selectedPrice.price }}
+                      <small class="text-muted">{{ selectedPrice.interval === 'month' ? '/mo' : '/year' }}</small>
+                    </ng-container>
+                    <ng-container *ngIf="selectedPrice.price === 0">
+                      Free
+                    </ng-container>
+                  </div>
+                </ng-container>
+
+<!-- Features -->
+<ul class="list-unstyled mt-3 mb-0">
+  <li class="d-flex align-items-start mb-2" *ngIf="plan.allowed_users > 0">
+    <span class="me-2 text-success fw-bold fs-5">✔</span>
+    <span class="fw-semibold text-body">{{ plan.allowed_users }} user{{ plan.allowed_users > 1 ? 's' : '' }}</span>
+  </li>
+
+  <li class="d-flex align-items-start mb-2">
+    <span class="me-2 text-success fw-bold fs-5">✔</span>
+    <span class="fw-semibold text-body">{{ plan.max_resources }} resources</span>
+  </li>
+  <li class="d-flex align-items-start mb-2">
+    <span class="me-2 text-success fw-bold fs-5">✔</span>
+    <span class="fw-semibold text-body">{{ plan.ai_requests }} AI requests / week</span>
+  </li>
+
+  <li class="d-flex align-items-start mb-2">
+    <span
+      class="me-2 fw-bold fs-5"
+      [class.text-success]="plan.custom_domain"
+      [class.text-muted]="!plan.custom_domain"
+    >
+      {{ plan.custom_domain ? '✔' : '✖' }}
+    </span>
+    <span
+      [class.text-body]="plan.custom_domain"
+      [class.text-muted]="!plan.custom_domain"
+      class="fw-semibold"
+    >
+      Custom domain
+    </span>
+  </li>
+
+  <li class="d-flex align-items-start mb-2">
+    <span class="me-2 text-success fw-bold fs-5">✔</span>
+    <span class="fw-semibold text-body">
+      {{plan.active_projects}} Active Projects
+    </span>
+  </li>
+
+
+<li class="d-flex align-items-start mb-2">
+  <span
+    class="me-2 fw-bold fs-5"
+    [class.text-success]="plan.visual_editor"
+    [class.text-muted]="!plan.visual_editor"
+  >
+    {{ plan.visual_editor ? '✔' : '✖' }}
+  </span>
+  <span
+    [class.text-body]="plan.visual_editor"
+    [class.text-muted]="!plan.visual_editor"
+    class="fw-semibold"
+  >
+                      Visual editor
+  </span>
+</li>
+
+
+<li class="d-flex align-items-start mb-2">
+  <span
+    class="me-2 fw-bold fs-5"
+    [class.text-success]="plan.support"
+    [class.text-muted]="!plan.support"
+  >
+    {{ plan.support ? '✔' : '✖' }}
+  </span>
+  <span
+    [class.text-body]="plan.support"
+    [class.text-muted]="!plan.support"
+    class="fw-semibold"
+  >
+                      Customer Service chat
+  </span>
+</li>
+
+
+<li class="d-flex align-items-start mb-2">
+  <span
+    class="me-2 fw-bold fs-5"
+    [class.text-success]="plan.project_level_roles"
+    [class.text-muted]="!plan.project_level_roles"
+  >
+    {{ plan.project_level_roles ? '✔' : '✖' }}
+  </span>
+  <span
+    [class.text-body]="plan.project_level_roles"
+    [class.text-muted]="!plan.project_level_roles"
+    class="fw-semibold"
+  >
+    Project-level roles
+  </span>
+</li>
+</ul>
+              </div>
+
+              <!-- CTA Button -->
+              <button
+                class="btn mt-4 w-100"
+                [ngClass]="{
+                  'btn-outline-primary': subStatus === 'new',
+                  'btn-primary': subStatus !== 'new' && getSelectedPrice(plan)?.id !== currentPriceId,
+                  'btn-secondary': subStatus !== 'new' && getSelectedPrice(plan)?.id === currentPriceId
+                }"
+                (click)="onPlanAction(plan)"
+              >
+                {{ getButtonText(plan) }}
+              </button>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<!-- Promo Code Modal -->
+<div class="modal" tabindex="-1" [ngStyle]="{'display': isPromoCodeModalOpen ? 'block' : 'none'}">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Apply Promotional Code</h5>
+        <button type="button" class="btn-close" (click)="closePromoCodeModal()"></button>
+      </div>
+      <div class="modal-body">
+      <div *ngIf="codeSubscriptionError && codeSubscriptionError!=''" class="alert alert-danger d-flex align-items-center" role="alert">
+        <div>
+            <small>{{codeSubscriptionError}}</small>
+        </div>
+      </div>
+        <p>If you have a promotional code, please enter it below.</p>
+        <input type="text" class="form-control form-control-solid " placeholder="Enter your code" [(ngModel)]="promoCode" name="promoCode" (keyup.enter)="applyPromoCode()">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closePromoCodeModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="applyPromoCode()" [disabled]="!promoCode || codeSubscriptionLoading">
+            <span *ngIf="codeSubscriptionLoading">
+                <i class=" fs-4 me-2 spinner-border spinner-border-sm" role="status" aria-hidden="true"></i>
+              </span>
+            Apply
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="isPromoCodeModalOpen"></div>

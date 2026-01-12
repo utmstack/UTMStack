@@ -51,6 +51,10 @@ import {
   UtmNotificationViewComponent
 } from './utm-notification/components/notifications-view/utm-notification-view.component';
 import { IdentityProviderModalComponent } from './identity-provider/shared/components/identity-provider-modal/identity-provider-modal.component';
+import { SubscriptionComponent } from './subscription/subscription.component';
+import { PlanCardsComponent } from './subscription/components/plans/plans.component';
+import { SubscriptionAllowedDirective } from './subscription/directives/allowed-in-subscription';
+import { SubscriptionLimitModalComponent } from './subscription/components/subscription-limit-modal/subscription-limit-modal.component';
 
 @NgModule({
   declarations: [
@@ -89,7 +93,11 @@ import { IdentityProviderModalComponent } from './identity-provider/shared/compo
     IdentityProviderComponent,
     ProviderComponent,
     ProviderFormComponent,
-    IdentityProviderModalComponent
+    IdentityProviderModalComponent,
+    SubscriptionComponent,
+    PlanCardsComponent,
+    SubscriptionAllowedDirective,
+    SubscriptionLimitModalComponent,
   ],
   entryComponents: [
     IndexPatternHelpComponent,
@@ -99,7 +107,8 @@ import { IdentityProviderModalComponent } from './identity-provider/shared/compo
     TokenActivateComponent,
     ApiKeyModalComponent,
     IndexDeleteComponent,
-    IdentityProviderModalComponent
+    IdentityProviderModalComponent,
+    SubscriptionLimitModalComponent
   ],
   imports: [
     CommonModule,
