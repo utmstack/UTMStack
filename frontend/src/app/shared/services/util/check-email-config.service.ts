@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
+import {Router} from '@angular/router';
 import {map} from 'rxjs/operators';
 import {ModalService} from '../../../core/modal/modal.service';
 import {
-  EmailSettingNotificactionComponent
-} from '../../components/email-setting-notification/email-setting-notificaction.component';
+  EmailSettingNotificationComponent
+} from '../../components/email-setting-notification/email-setting-notification.component';
 import {UtmConfigParamsService} from '../config/utm-config-params.service';
 
 export enum ParamShortType {
@@ -17,7 +18,8 @@ export enum ParamShortType {
 export class CheckEmailConfigService {
 
   constructor(private utmConfigParamsService: UtmConfigParamsService,
-              private modalService: ModalService) { }
+              private modalService: ModalService,
+              private router: Router) { }
 
   check(paramShort: ParamShortType) {
     this.utmConfigParamsService.query({
@@ -30,8 +32,11 @@ export class CheckEmailConfigService {
         map(res =>  res.body[0]))
         .subscribe(section => {
           if (section.confParamValue === '') {
-              const modal = this.modalService.open(EmailSettingNotificactionComponent, {centered: true});
+              const modal = this.modalService.open(EmailSettingNotificationComponent, {centered: true});
               modal.componentInstance.section = section;
+
+              modal.componentInstance.action.subscribe(action =>
+                this.router.navigate(['/app-management/settings/application-config']));
           }
         });
   }
