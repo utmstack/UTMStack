@@ -6,8 +6,7 @@ require (
 	github.com/kardianos/service v1.2.2
 	github.com/threatwinds/go-sdk v1.0.40
 	github.com/threatwinds/logger v1.2.2
-	gopkg.in/yaml.v3 v3.0.1 
-
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -36,10 +35,10 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.14 // indirect
 	golang.org/x/arch v0.18.0 // indirect
-	golang.org/x/crypto v0.39.0 // indirect
-	golang.org/x/net v0.41.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/text v0.26.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
