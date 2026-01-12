@@ -1,0 +1,515 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260105001" author="Manuel">
+        <createProcedure dbms="postgresql">
+        <![CDATA[
+            CREATE OR REPLACE FUNCTION public.register_integration_crowdstrike(srv_id integer)RETURNS void
+            LANGUAGE plpgsql
+            AS
+                $function$
+                declare
+                    grp_id integer;
+                    mod_id bigint;
+
+                        begin
+                            INSERT INTO utm_module (pretty_name, module_description, module_active, module_icon, module_name,
+                                                    server_id, module_category, needs_restart, lite_version, is_activatable)
+                            VALUES ('CrowdStrike',
+                                    'CrowdStrike is a leading cybersecurity company whose cloud-native Falcon platform uses AI, threat intelligence, and a lightweight agent to protect endpoints, cloud workloads, identities, and data.',
+                                    FALSE,
+                                    'crowdstrike.svg',
+                                    'CROWDSTRIKE',
+                                    srv_id,
+                                    'Device',
+                                    FALSE,
+                                    TRUE,
+                                    TRUE)
+                                ON CONFLICT (module_name, server_id) DO UPDATE SET pretty_name        = 'CrowdStrike',
+                                                                            module_icon        = 'crowdstrike.svg',
+                                                                            module_name        = 'CROWDSTRIKE',
+                                                                            module_category    = 'Device',
+                                                                            module_description = 'CrowdStrike is a leading cybersecurity company whose cloud-native Falcon platform uses AI, threat intelligence, and a lightweight agent to protect endpoints, cloud workloads, identities, and data.',
+                                                                            lite_version       = TRUE,
+                                                                            server_id          = srv_id;
+
+                            end;
+                $function$;
+            ]]>
+        </createProcedure>
+
+        <createProcedure dbms="postgresql">
+            <![CDATA[
+                create or replace function register_integrations(srv_id integer, srv_type character varying)
+                    returns void
+                    language plpgsql
+                    as
+                $$
+                BEGIN
+
+                    perform public.register_integration_netflow(srv_id);
+
+                    perform public.register_integration_window_agent(srv_id);
+
+                    perform public.register_integration_syslog(srv_id);
+
+                    perform public.register_integration_vmware(srv_id);
+
+                    perform public.register_integration_linux_agent(srv_id);
+
+                    perform public.register_integration_apache(srv_id);
+
+                    perform public.register_integration_linux_audit_demon(srv_id);
+
+                    perform public.register_integration_elasticsearch(srv_id);
+
+                    perform public.register_integration_hap(srv_id);
+
+                    perform public.register_integration_kafka(srv_id);
+
+                    perform public.register_integration_kibana(srv_id);
+
+                    perform public.register_integration_logstash(srv_id);
+
+                    perform public.register_integration_mongodb(srv_id);
+
+                    perform public.register_integration_mysql(srv_id);
+
+                    perform public.register_integration_nats(srv_id);
+
+                    perform public.register_integration_nginx(srv_id);
+
+                    perform public.register_integration_osquery(srv_id);
+
+                    perform public.register_integration_postgresql(srv_id);
+
+                    perform public.register_integration_redis(srv_id);
+
+                    perform public.register_integration_traefik(srv_id);
+
+                    perform public.register_integration_cisco(srv_id);
+
+                    perform public.register_integration_cisco_meraki(srv_id);
+
+                    perform public.register_integration_json(srv_id);
+
+                    perform public.register_integration_iis(srv_id);
+
+                    perform public.register_integration_kaspersky(srv_id);
+
+                    perform public.register_integration_eset(srv_id);
+
+                    perform public.register_integration_sentinel_one(srv_id);
+
+                    perform public.register_integration_fortigate(srv_id);
+
+                    perform public.register_integration_sophosxg(srv_id);
+
+                    perform public.register_integration_macos(srv_id);
+
+
+                IF srv_type = 'aio' THEN
+
+                    perform public.register_integration_file_integrity(srv_id);
+
+                    perform public.register_integration_azure(srv_id);
+
+                    perform public.register_integration_o365(srv_id);
+
+                    perform public.register_integration_aws(srv_id);
+
+                    perform public.register_integration_sophos_central(srv_id);
+
+                    perform public.register_integration_gcp(srv_id);
+
+                    perform public.register_integration_fire_power(srv_id);
+
+                    perform public.register_integration_mikrotik(srv_id);
+
+                    perform public.register_integration_palo_alto(srv_id);
+
+                    perform public.register_integration_cisco_switch(srv_id);
+
+                    perform public.register_integration_sonic_wall(srv_id);
+
+                    perform public.register_integration_deceptive_bytes(srv_id);
+
+                    perform public.register_integration_github(srv_id);
+
+                    perform public.register_integration_bitdefender(srv_id);
+
+                    perform public.register_integration_soc_ai(srv_id);
+
+                    perform public.register_integration_suricata(srv_id);
+
+                    perform public.register_integration_utmstack(srv_id);
+
+                    perform public.register_integration_crowdstrike(srv_id);
+
+                END IF;
+
+                perform public.update_module_dependencies();
+            END;
+            $$;
+            ]]>
+        </createProcedure>
+        <createProcedure dbms="postgresql">
+            do
+            $$
+            begin
+                perform public.execute_register_integration_function();
+            end;
+            $$
+            language plpgsql;
+        </createProcedure>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            INSERT INTO utm_data_types (id, data_type, data_type_name, data_type_description, last_update, included, system_owner)
+            VALUES (51, 'crowdstrike', 'CrowdStrike', 'Used to filter logs and apply alerting rules related to CrowdStrike integration', NOW(), true, true);
+
+                INSERT INTO utm_logstash_filter (id, logstash_filter, filter_name, filter_group_id, system_owner, module_name, is_active, filter_version, data_type_id)
+                VALUES (1532, $$ # Crowdstrike module filter, version 1.1.0
+# Based in docs and samples provided
+#
+# Documentations
+# 1- https://docs.cyderes.cloud/parser-knowledge-base/cs_stream
+
+pipeline:
+  - dataTypes:
+      - crowdstrike
+    steps:
+      - json:
+          source: raw
+
+      # .......................................................................#
+      # Rename to utmstack format to normalize fields
+      # .......................................................................#
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.APIClientID
+          to: log.eventAttributesAPIClientID
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.actor_cid
+          to: log.eventAttributesActorCid
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.actor_user
+          to: log.eventAttributesActorUser
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.actor_user_uuid
+          to: log.eventAttributesActorUserUUID
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.name
+          to: log.eventAttributesName
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.trace_id
+          to: log.eventAttributesTraceID
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.cid
+          to: log.eventAttributesCid
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.consumes
+          to: log.eventAttributesConsumes
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.elapsed_microseconds
+          to: log.eventAttributesElapsedMicroseconds
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.elapsed_time
+          to: log.eventAttributesElapsedTime
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.produces
+          to: log.eventAttributesProduces
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.received_time
+          to: log.eventAttributesReceivedTime
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.request_content_type
+          to: log.eventAttributesRequestContentType
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.request_method
+          to: log.eventAttributesRequestMethod
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.request_uri_length
+          to: log.eventAttributesRequestURILength
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.status_code
+          to: log.statusCode
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.sub_component_1
+          to: log.eventAttributesSubComponent1
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.sub_component_2
+          to: log.eventAttributesSubComponent2
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.sub_component_3
+          to: log.eventAttributesSubComponent3
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.trace_id
+          to: log.eventAttributesTraceID
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.user_agent
+          to: log.eventAttributesUserAgent
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.eventType
+          to: log.eventAttributesEventType
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.offset
+          to: log.eventAttributesOffset
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.partition
+          to: log.eventAttributesPartition
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.request_accept
+          to: log.eventAttributesRequestAccept
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.request_path
+          to: log.eventAttributesRequestPath
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.request_query
+          to: log.eventAttributesRequestQuery
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.scopes
+          to: log.eventAttributesScopes
+
+      - rename:
+          from:
+            - log.RawMessage.event.AuditKeyValues
+          to: log.eventAuditKeyValues
+
+      - rename:
+          from:
+            - log.RawMessage.event.Message
+          to: log.eventMessage
+
+      - rename:
+          from:
+            - log.RawMessage.event.OperationName
+          to: log.eventOperationName
+
+      - rename:
+          from:
+            - log.RawMessage.event.ServiceName
+          to: log.eventServiceName
+
+      - rename:
+          from:
+            - log.RawMessage.event.Source
+          to: log.eventSource
+
+      - rename:
+          from:
+            - log.RawMessage.event.ServiceName
+          to: log.eventServiceName
+
+      - rename:
+          from:
+            - log.RawMessage.event.SourceIp
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.RawMessage.event.Success
+          to: log.eventSuccess
+
+      - rename:
+          from:
+            - log.RawMessage.event.UTCTimestamp
+          to: log.eventUTCTimestamp
+
+      - rename:
+          from:
+            - log.RawMessage.event.UserId
+          to: log.eventUserId
+
+      - rename:
+          from:
+            - log.RawMessage.metadata.customerIDString
+          to: log.metadataCustomerIDString
+
+      - rename:
+          from:
+            - log.RawMessage.metadata.eventCreationTime
+          to: log.metadataEventCreationTime
+
+      - rename:
+          from:
+            - log.RawMessage.metadata.eventType
+          to: log.metadataEventType
+
+      - rename:
+          from:
+            - log.RawMessage.metadata.offset
+          to: log.metadataOffset
+
+      - rename:
+          from:
+            - log.RawMessage.metadata.version
+          to: log.metadataVersion
+
+      # .......................................................................#
+      # Reformat and field conversions
+      # .......................................................................#
+      - cast:
+          fields:
+            - log.statusCode
+          to: float
+
+      # .......................................................................#
+      # Renaming "log.statusCode" to "statusCode" to add it to the event structure
+      # .......................................................................#
+      - rename:
+          from:
+            - log.statusCode
+          to: statusCode
+
+      # .......................................................................#
+      # Adding geolocation to origin ip
+      # .......................................................................#
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+
+      # .......................................................................#
+      # Normalizing request method and renaming to action
+      # .......................................................................#
+      - add:
+          function: ''string''
+          params:
+            key: action
+            value: ''get''
+          where: safe("log.eventAttributesRequestMethod", "") == "GET"
+
+      - add:
+          function: ''string''
+          params:
+            key: action
+            value: ''post''
+          where: safe("log.eventAttributesRequestMethod", "") == "POST"
+
+      - add:
+          function: ''string''
+          params:
+            key: action
+            value: ''put''
+          where: safe("log.eventAttributesRequestMethod", "") == "PUT"
+
+      - add:
+          function: ''string''
+          params:
+            key: action
+            value: ''delete''
+          where: safe("log.eventAttributesRequestMethod", "") == "DELETE"
+
+      - add:
+          function: ''string''
+          params:
+            key: action
+            value: ''request''
+          where: safe("log.eventAttributesRequestMethod", "") == "REQUEST"
+
+      # .......................................................................#
+      # Removing unused fields
+      # .......................................................................#
+      - delete:
+          fields:
+            - log.statusCode
+            - log.RawMessage.event.Attributes
+            - log.RawMessage.event.UserIp
+            - log.metadata
+            - log.event.AuditKeyValues
+            - log.event.OperationName
+            - log.event.ServiceName
+            - log.event.Success
+            - log.event.UTCTimestamp
+            - log.event.UserId
+            - log.event.UserIp
+
+                    $$, 'CrowdStrike', null, true, 'CROWDSTRIKE', false, '2.0.0', 51);
+            ]]>
+        </sql>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+                    INSERT INTO public.utm_logstash_pipeline (id, pipeline_id, pipeline_name, pipeline_status, module_name, system_owner, pipeline_description, pipeline_internal, events_out)
+                    VALUES (57, 'crowdstrike', 'CrowdStrike', 'down', 'CROWDSTRIKE', true, null, false, 0);
+
+                    INSERT INTO utm_group_logstash_pipeline_filters (filter_id, pipeline_id, relation)
+                    VALUES (1532, 57, 'PIPELINE_FILTER');
+
+                    INSERT INTO utm_index_pattern (id, pattern, pattern_module, pattern_system, is_active)
+                    VALUES (70,'v11-log-crowdstrike-*', 'CrowdStrike', true, true);
+
+                    INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
+                    VALUES (268, 'CrowdStrike', 'discover/log-analyzer?patternId=70&indexPattern=v11-log-crowdstrike-*', 200, 1, null, 68, false, false, null, 'CROWDSTRIKE');
+
+                    INSERT INTO utm_menu_authority (menu_id, authority_name)
+                    VALUES ( 268, 'ROLE_USER');
+
+                    INSERT INTO utm_menu_authority (menu_id, authority_name)
+                    VALUES ( 268, 'ROLE_ADMIN');
+
+            ]]>
+
+
+        </sql>
+    </changeSet>
+</databaseChangeLog>

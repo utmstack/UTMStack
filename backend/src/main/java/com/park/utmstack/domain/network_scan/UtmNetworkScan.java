@@ -3,7 +3,6 @@ package com.park.utmstack.domain.network_scan;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.park.utmstack.domain.UtmAssetMetrics;
-import com.park.utmstack.domain.UtmDataInputStatus;
 import com.park.utmstack.domain.network_scan.enums.AssetRegisteredMode;
 import com.park.utmstack.domain.network_scan.enums.AssetStatus;
 import com.park.utmstack.domain.network_scan.enums.UpdateLevel;

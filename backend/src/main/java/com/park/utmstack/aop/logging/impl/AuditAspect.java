@@ -49,21 +49,25 @@ public class AuditAspect {
         extra.put("layer", ApplicationLayer.CONTROLLER.getValue());
 
         try {
+            attemptMessage = enrichMessage(attemptMessage, extra);
             applicationEventService.createEvent(attemptMessage, attemptType, extra);
 
             Object result = joinPoint.proceed();
 
             if (successType != ApplicationEventType.UNDEFINED) {
+                successMessage = enrichMessage(successMessage, extra);
                 applicationEventService.createEvent(successMessage, successType, extra);
             }
 
             return result;
 
         } catch (Exception e) {
+            String msg = String.format("%s: %s", context, e.getMessage());
             if (!e.getClass().isAnnotationPresent(NoLogException.class)) {
-                String msg = String.format("%s: %s", context, e.getMessage());
                 log.error(msg, e, StructuredArguments.keyValue("args", logContextBuilder.buildArgs(e)));
             }
+
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
 
             throw e;
         }
@@ -77,6 +81,19 @@ public class AuditAspect {
             }
         }
         return extra;
+    }
+
+    private String enrichMessage(String message, Map<String, Object> values) {
+        if (message == null || !message.contains("{")) {
+            return message;
+        }
+
+        String enriched = message;
+        for (Map.Entry<String, Object> entry : values.entrySet()) {
+            enriched = enriched.replace("{" + entry.getKey() + "}", String.valueOf(entry.getValue()));
+        }
+
+        return enriched;
     }
 }
 

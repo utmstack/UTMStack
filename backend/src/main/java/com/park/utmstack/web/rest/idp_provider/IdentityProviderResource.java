@@ -1,7 +1,6 @@
 package com.park.utmstack.web.rest.idp_provider;
 
 
-import com.park.utmstack.domain.UtmDataInputStatus;
 import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderConfigResponseDto;
 import com.park.utmstack.service.dto.idp_provider.dto.IdentityProviderCriteria;
 import com.park.utmstack.service.idp_provider.IdentityProviderService;

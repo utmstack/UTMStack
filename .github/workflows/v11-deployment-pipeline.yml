@@ -95,7 +95,7 @@ jobs:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
 
-      - name: Build Linux Agent
+      - name: Build Linux Binaries
         env:
           GOOS: linux
           GOARCH: amd64
@@ -103,7 +103,10 @@ jobs:
           cd ${{ github.workspace }}/agent
           go build -o utmstack_agent_service -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
-      - name: Build Windows Agent (amd64)
+          cd ${{ github.workspace }}/agent/updater
+          go build -o utmstack_updater_service .
+
+      - name: Build Windows Binaries (amd64)
         env:
           GOOS: windows
           GOARCH: amd64
@@ -111,7 +114,10 @@ jobs:
           cd ${{ github.workspace }}/agent
           go build -o utmstack_agent_service.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
-      - name: Build Windows Agent (arm64)
+          cd ${{ github.workspace }}/agent/updater
+          go build -o utmstack_updater_service.exe .
+
+      - name: Build Windows Binaries (arm64)
         env:
           GOOS: windows
           GOARCH: arm64
@@ -119,11 +125,18 @@ jobs:
           cd ${{ github.workspace }}/agent
           go build -o utmstack_agent_service_arm64.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
+          cd ${{ github.workspace }}/agent/updater
+          go build -o utmstack_updater_service_arm64.exe .
+
       - name: Sign Windows Agents
         run: |
           cd ${{ github.workspace }}/agent
           signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service.exe"
           signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service_arm64.exe"
+
+          cd ${{ github.workspace }}/agent/updater
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_updater_service.exe"
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_updater_service_arm64.exe"
 
       - name: Upload signed binaries as artifacts
         uses: actions/upload-artifact@v4
@@ -133,6 +146,9 @@ jobs:
             ${{ github.workspace }}/agent/utmstack_agent_service
             ${{ github.workspace }}/agent/utmstack_agent_service.exe
             ${{ github.workspace }}/agent/utmstack_agent_service_arm64.exe
+            ${{ github.workspace }}/agent/updater/utmstack_updater_service
+            ${{ github.workspace }}/agent/updater/utmstack_updater_service.exe
+            ${{ github.workspace }}/agent/updater/utmstack_updater_service_arm64.exe
           retention-days: 1
   
   build_utmstack_collector:
@@ -198,6 +214,9 @@ jobs:
           cp "${{ github.workspace }}/agent/utmstack_agent_service" ./dependencies/agent/
           cp "${{ github.workspace }}/agent/utmstack_agent_service.exe" ./dependencies/agent/
           cp "${{ github.workspace }}/agent/utmstack_agent_service_arm64.exe" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent/updater/utmstack_updater_service" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent/updater/utmstack_updater_service.exe" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_arm64.exe" ./dependencies/agent/
           cp "${{ github.workspace }}/agent/version.json" ./dependencies/agent/
       
       - name: Login to GitHub Container Registry
@@ -241,6 +260,7 @@ jobs:
           cd ${{ github.workspace }}/plugins/stats; go build -o com.utmstack.stats.plugin -v .
           cd ${{ github.workspace }}/plugins/soc-ai; go build -o com.utmstack.soc-ai.plugin -v .
           cd ${{ github.workspace }}/plugins/modules-config; go build -o com.utmstack.modules-config.plugin -v .
+          cd ${{ github.workspace }}/plugins/crowdStrike; go build -o com.utmstack.crowdstrike.plugin -v .
 
       - name: Prepare Dependencies for Event Processor Image
         run: |

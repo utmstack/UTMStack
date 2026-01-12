@@ -27,8 +27,7 @@ export class AppLogsComponent implements OnInit {
   req: { filters: ElasticFilterType[], index: string, top: number } = {
     filters: [
       {field: '@timestamp', operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['now-7d', 'now']},
-      {field: 'log.containerName.keyword', operator: ElasticOperatorsEnum.IS, value: 'utmstack_backend'}
-    ], index: 'v11-log-utmstack-*', top: 100000
+    ], index: 'v11-backend-logs', top: 100000
   };
   sources = ['PANEL', 'AGENT'];
   types = ['ERROR', 'WARNING', 'INFO'];
@@ -58,6 +57,7 @@ export class AppLogsComponent implements OnInit {
   private onSuccess(data, headers) {
     this.totalItems = headers.get('X-Total-Count');
     this.logs = data || [];
+
     this.loading = false;
   }
 
