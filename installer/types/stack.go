@@ -39,7 +39,6 @@ var Services = []utils.ServiceConfig{
 	{Name: "socai", Priority: 3, MinMemory: 30, MaxMemory: 512},
 	{Name: "bitdefender", Priority: 3, MinMemory: 30, MaxMemory: 100},
 	{Name: "office365", Priority: 3, MinMemory: 30, MaxMemory: 100},
-	{Name: "threadwinds-ingestion", Priority: 3, MinMemory: 50, MaxMemory: 256},
 }
 
 func (s *StackConfig) Populate(c *Config) error {
