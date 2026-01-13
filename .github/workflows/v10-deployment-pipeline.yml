@@ -249,15 +249,6 @@ jobs:
       image_name: sophos
       tag: ${{ needs.setup_deployment.outputs.tag }}
 
-  build_threadwinds_ingestion:
-    name: Build Threadwinds-Ingestion Microservice
-    needs: [validations,setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' }}
-    uses: ./.github/workflows/reusable-golang.yml
-    with:
-      image_name: threadwinds-ingestion
-      tag: ${{ needs.setup_deployment.outputs.tag }}
-
   build_user_auditor:
     name: Build User-Auditor Microservice
     needs: [validations,setup_deployment]
@@ -290,7 +281,6 @@ jobs:
       build_aws, build_backend, build_correlation, build_frontend,
       build_bitdefender, build_mutate, build_office365,
       build_log_auth_proxy, build_soc_ai, build_sophos,
-      build_threadwinds_ingestion,
       build_user_auditor, build_web_pdf
     ]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
