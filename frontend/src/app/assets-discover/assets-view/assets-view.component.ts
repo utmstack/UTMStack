@@ -355,7 +355,6 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
     });
   }
 
-
   getLastInput(asset: NetScanType) {
     if (asset.dataInputList.length > 0) {
       const lastInput = asset.dataInputList.sort((a, b) => a.timestamp > b.timestamp ? 1 : -1)[0].timestamp;
@@ -366,10 +365,8 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   }
 
   formatTimestampToDate(time: number) {
-    const date = moment.unix(time);
-    return moment.utc(date).format('YYYY-MM-DD HH:mm:ss');
+    return moment.unix(time).utc().toISOString();
   }
-
 
   toggleAsset(asset: NetScanType) {
     if (this.viewAssetDetail && this.viewAssetDetail.id === asset.id) {
