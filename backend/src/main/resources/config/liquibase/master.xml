@@ -301,5 +301,7 @@
 
     <include file="config/liquibase/changelog/20260112001_add_threatwinds_credentials_section.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20260113001_update_macos_integration_category.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
