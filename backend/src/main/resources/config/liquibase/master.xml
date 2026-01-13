@@ -113,7 +113,5 @@
 
     <include file="/config/liquibase/changelog/20251107002_update_filter_sonicwall.xml" relativeToChangelogFile="false"/>
 
-    <include file="/config/liquibase/changelog/20251219001_insert_threatwinds_credentials_section.xml" relativeToChangelogFile="false"/>
-
 
 </databaseChangeLog>
