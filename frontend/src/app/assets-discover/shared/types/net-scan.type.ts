@@ -37,4 +37,6 @@ export class NetScanType {
   assetOsMajorVersion?: string;
   displayName?: string;
   sortKey?: string;
+  lastInput: string;
+  lastInputTimestamp: number;
 }

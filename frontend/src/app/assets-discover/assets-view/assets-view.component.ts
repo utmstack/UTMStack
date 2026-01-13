@@ -14,6 +14,7 @@ import {
 } from '../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {ALERT_SENSOR_FIELD} from '../../shared/constants/alert/alert-field.constant';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
+import {SortDirection} from '../../shared/directives/sortable/type/sort-direction.type';
 import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
 import {ChartValueSeparator} from '../../shared/enums/chart-value-separator';
 import {ElasticOperatorsEnum} from '../../shared/enums/elastic-operators.enum';
@@ -35,7 +36,6 @@ import {AssetFilterType} from '../shared/types/asset-filter.type';
 import {UtmDataInputStatus} from '../shared/types/data-source-input.type';
 import {NetScanType} from '../shared/types/net-scan.type';
 import {SourceDataTypeConfigComponent} from '../source-data-type-config/source-data-type-config.component';
-import {SortDirection} from "../../shared/directives/sortable/type/sort-direction.type";
 
 @Component({
   selector: 'app-assets-view',
@@ -109,14 +109,13 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
       };
     });
 
-    this.assets$ = this.utmNetScanService.onRefresh$
+    this.utmNetScanService.onRefresh$
       .pipe(
         filter(refresh => !!refresh),
         switchMap(() => this.utmNetScanService.fetchData(this.requestParam)),
         tap((response: HttpResponse<NetScanType[]>) => {
           this.totalItems = Number(response.headers.get('X-Total-Count'));
           this.loading = false;
-          this.assets = response.body;
           this.noData = response.body.length === 0;
         }),
         map((response) => {
@@ -127,6 +126,8 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
               asset.dataInputList = [];
             }
 
+            asset.lastInput = this.getLastInput(asset);
+
             const displayName = asset.assetName && asset.assetIp ? `${asset.assetName} (${asset.assetIp})`
               : asset.assetName ? asset.assetName : asset.assetIp ? asset.assetIp : 'Unknown source';
 
@@ -135,10 +136,10 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
             return { ...asset, displayName, sortKey };
           });
         })
-      );
+      ).subscribe( assets => this.assets = assets );
 
     this.utmNetScanService.notifyRefresh(true);
-    //this.starInterval();
+    // this.starInterval();
   }
 
   setInitialWidth() {
@@ -180,11 +181,25 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   onSortBy($event: SortEvent) {
     if ($event.column === 'displayName') {
       this.sortAssets($event.direction);
+    } else if ($event.column === 'lastInput') {
+      this.sortLastInput($event.direction);
     } else {
       this.requestParam.sort = $event.column + ',' + $event.direction;
       this.getAssets();
     }
   }
+
+  sortLastInput(direction: SortDirection) {
+    this.assets.sort((a, b) => {
+      const t1 = a.lastInputTimestamp ? a.lastInputTimestamp : -Infinity;
+      const t2 = b.lastInputTimestamp ? b.lastInputTimestamp : -Infinity;
+
+      return direction === 'asc'
+        ? t1 - t2
+        : t2 - t1;
+    });
+  }
+
 
   sortAssets(direction: SortDirection) {
     this.assets.sort((a, b) => {
@@ -357,12 +372,15 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
 
   getLastInput(asset: NetScanType) {
     if (asset.dataInputList.length > 0) {
-      const lastInput = asset.dataInputList.sort((a, b) => a.timestamp > b.timestamp ? 1 : -1)[0].timestamp;
-      return this.datePipe.transform(this.formatTimestampToDate(lastInput));
-    } else {
-      return 'Unknown';
+      const lastInput = asset.dataInputList[asset.dataInputList.length - 1].timestamp;
+      asset.lastInputTimestamp = lastInput;
+      return this.formatTimestampToDate(lastInput);
     }
+
+    asset.lastInputTimestamp = null;
+    return 'Unknown';
   }
+
 
   formatTimestampToDate(time: number) {
     return moment.unix(time).utc().toISOString();
