@@ -97,10 +97,6 @@ export class PatternsComponent implements OnInit, OnDestroy {
   }
 
   loadPage($event: number) {
-    if (this.isInitialized) {
-      this.isInitialized = false;
-      return;
-    }
     const page = $event - 1;
     this.request = {
       ...this.request,
@@ -133,13 +129,11 @@ export class PatternsComponent implements OnInit, OnDestroy {
   }
 
   onItemsPerPageChange($event: number) {
-    if (this.isInitialized) {
-      this.isInitialized = false;
-      return;
-    }
     this.itemsPerPage = $event;
+    this.page = 0;
     this.request = {
       ...this.request,
+      page: this.page,
       size: this.itemsPerPage
     };
     this.loadRegexPatterns();
