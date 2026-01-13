@@ -15,9 +15,9 @@
               [ngStyle]="{'width': item.width}"
               *ngFor="let item of fields; let i = index"
               [hidden]="!item.visible"
-              [isSortable]="true"
+              [isSortable]="!!item.sortField"
               [sortEvent]="sortEvent"
-              [sortable]="item.field"
+              [sortable]="item.sortField"
               appColumnSortable
               class="font-weight-semibold cursor-pointer">
                 {{item.label}}
