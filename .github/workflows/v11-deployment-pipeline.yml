@@ -474,6 +474,7 @@ jobs:
   schedule:
     name: Schedule release to our instances
     needs: [publish_new_version, setup_deployment]
+    if: ${{ always() && needs.publish_new_version.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     env:
       ENVIRONMENT: ${{ needs.setup_deployment.outputs.environment }}
