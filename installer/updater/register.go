@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/utmstack/UTMStack/installer/config"
@@ -120,6 +122,12 @@ func PollAndUpdateAdminEmail(instanceConf InstanceConfig) {
 			continue
 		}
 
+		// Check if this email was already sent
+		lastEmail, _ := os.ReadFile(config.LastAdminEmailPath)
+		if strings.TrimSpace(string(lastEmail)) == email {
+			return
+		}
+
 		// Email found, update instance details
 		updateReq := InstanceDTOInput{
 			Name:  serverConfig.ServerName,
@@ -145,6 +153,9 @@ func PollAndUpdateAdminEmail(instanceConf InstanceConfig) {
 			config.Logger().ErrorF("error updating instance details: status: %d, error: %v", status, err)
 			continue
 		}
+
+		// Save the email to avoid re-sending
+		_ = os.WriteFile(config.LastAdminEmailPath, []byte(email), 0644)
 
 		config.Logger().Info("Successfully updated instance with admin email: %s", email)
 		return
