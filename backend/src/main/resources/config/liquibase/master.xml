@@ -299,5 +299,8 @@
 
     <include file="/config/liquibase/changelog/20260109001_create_table_data_input_status_checkpoint.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260112001_create_table_compliance_control_config.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260112002_create_table_compliance_control_query_config.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>
