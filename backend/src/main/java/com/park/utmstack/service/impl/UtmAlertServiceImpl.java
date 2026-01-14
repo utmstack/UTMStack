@@ -81,6 +81,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
 
             List<FilterType> filters = new ArrayList<>();
             filters.add(new FilterType(Constants.alertStatus, OperatorType.IS, AlertStatus.OPEN.getCode()));
+            filters.add(new FilterType(Constants.alertTags, OperatorType.DOES_NOT_CONTAIN, Constants.FALSE_POSITIVE_TAG));
             filters.add(new FilterType(Constants.timestamp, OperatorType.IS_GREATER_THAN, initialDate.getLastAlertTimestamp().toString()));
 
             SearchRequest.Builder srb = new SearchRequest.Builder();

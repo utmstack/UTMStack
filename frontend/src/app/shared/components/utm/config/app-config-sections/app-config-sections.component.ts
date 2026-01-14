@@ -14,6 +14,7 @@ import {UtmConfigParamsService} from '../../../../services/config/utm-config-par
 import {LocationService, SelectOption} from '../../../../services/location.service';
 import {NetworkService} from '../../../../services/network.service';
 import {TimezoneFormatService} from '../../../../services/utm-timezone.service';
+import {VersionInfoService, VersionType} from '../../../../services/version/version-info.service';
 import {ConfigDataTypeEnum, SectionConfigParamType} from '../../../../types/configuration/section-config-param.type';
 import {ApplicationConfigSectionEnum, SectionConfigType} from '../../../../types/configuration/section-config.type';
 import {ScheduleConfigValidator} from '../../../schedule-config/schedule-config.validator';
@@ -49,6 +50,8 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   destroy$ = new Subject<void>();
   isOnline = false;
   ConfigDataTypeEnum = ConfigDataTypeEnum;
+  versionType = VersionType.COMMUNITY;
+  VERSION_TYPE = VersionType;
 
 
   constructor(private utmConfigParamsService: UtmConfigParamsService,
@@ -57,7 +60,8 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
               private toastService: UtmToastService,
               private timezoneFormatService: TimezoneFormatService,
               private locationService: LocationService,
-              private networkService: NetworkService) {
+              private networkService: NetworkService,
+              private versionInfoService: VersionInfoService) {
   }
 
 
@@ -68,6 +72,11 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     this.networkService.isOnline$
       .pipe(takeUntil(this.destroy$))
       .subscribe( isOnline => this.isOnline = isOnline);
+
+    this.versionInfoService.versionType$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe( versionType => this.versionType = versionType);
+
   }
 
   getConfigurations() {
