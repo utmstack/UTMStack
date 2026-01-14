@@ -1,12 +1,12 @@
 import {HttpResponse} from '@angular/common/http';
-import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ResizeEvent} from 'angular-resizable-element';
 import * as moment from 'moment';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {Observable} from 'rxjs';
-import {filter, map, switchMap, tap} from 'rxjs/operators';
+import {Observable, Subject} from 'rxjs';
+import {filter, finalize, map, switchMap, take, takeUntil, tap} from 'rxjs/operators';
 import {AccountService} from '../../core/auth/account.service';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {
@@ -53,7 +53,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   sortEvent: any;
   totalItems: any;
   page = 0;
-  loading = true;
+  loading = false;
   itemsPerPage = ITEMS_PER_PAGE;
   viewAssetDetail: NetScanType;
   sortBy = AssetFieldEnum.ASSET_ID + ',asc';
@@ -85,6 +85,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   reasonRun: IncidentCommandType;
   agent: string;
   noData = false;
+  destroy$ = new Subject<void>();
 
   constructor(private utmNetScanService: UtmNetScanService,
               private modalService: NgbModal,
@@ -94,7 +95,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
               private spinner: NgxSpinnerService,
               private accountService: AccountService,
               private assetFiltersBehavior: AssetFiltersBehavior,
-              private datePipe: UtmDatePipe) {
+              private cdr: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -111,11 +112,14 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
 
     this.utmNetScanService.onRefresh$
       .pipe(
+        takeUntil(this.destroy$),
         filter(refresh => !!refresh),
-        switchMap(() => this.utmNetScanService.fetchData(this.requestParam)),
+        switchMap(() => {
+          this.loading = true;
+          return this.utmNetScanService.fetchData(this.requestParam);
+        }),
         tap((response: HttpResponse<NetScanType[]>) => {
           this.totalItems = Number(response.headers.get('X-Total-Count'));
-          this.loading = false;
           this.noData = response.body.length === 0;
         }),
         map((response) => {
@@ -136,7 +140,21 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
             return { ...asset, displayName, sortKey };
           });
         })
-      ).subscribe( assets => this.assets = assets );
+      )
+      .subscribe( {
+        next: (assets: NetScanType[]) => {
+          this.assets = assets;
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.assets = [];
+          this.loading = false;
+          this.cdr.markForCheck();
+          this.utmToastService.showError('Error loading assets',
+            'There was an error while trying to load assets, please try again');
+        }
+      });
 
     this.utmNetScanService.notifyRefresh(true);
     // this.starInterval();
@@ -371,6 +389,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   }
 
   getLastInput(asset: NetScanType) {
+    console.log('getLastInput', asset.lastInput);
     if (asset.dataInputList.length > 0) {
       const lastInput = asset.dataInputList[asset.dataInputList.length - 1].timestamp;
       asset.lastInputTimestamp = lastInput;
@@ -454,6 +473,9 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.utmNetScanService.notifyRefresh(false);
     this.stopInterval(true);
     this.assetFiltersBehavior.$assetFilter.next(null);
   }
