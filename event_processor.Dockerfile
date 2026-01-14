@@ -18,3 +18,4 @@ COPY ./plugins/stats/com.utmstack.stats.plugin /workdir/plugins/utmstack/
 COPY ./plugins/soc-ai/com.utmstack.soc-ai.plugin /workdir/plugins/utmstack/
 COPY ./plugins/modules-config/com.utmstack.modules-config.plugin /workdir/plugins/utmstack/
 COPY ./plugins/crowdStrike/com.utmstack.crowdstrike.plugin /workdir/plugins/utmstack/
+COPY ./plugins/threadwinds-ingestion/com.utmstack.threadwinds-ingestion.plugin /workdir/plugins/utmstack/

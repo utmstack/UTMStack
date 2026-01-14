@@ -293,6 +293,7 @@ jobs:
           cd ${{ github.workspace }}/plugins/soc-ai; go build -o com.utmstack.soc-ai.plugin -v .
           cd ${{ github.workspace }}/plugins/modules-config; go build -o com.utmstack.modules-config.plugin -v .
           cd ${{ github.workspace }}/plugins/crowdStrike; go build -o com.utmstack.crowdstrike.plugin -v .
+          cd ${{ github.workspace }}/plugins/threadwinds-ingestion; go build -o com.utmstack.threadwinds-ingestion.plugin -v .
 
       - name: Prepare Dependencies for Event Processor Image
         run: |
