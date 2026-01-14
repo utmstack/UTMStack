@@ -81,8 +81,7 @@ func GetConfig() *Config {
 			config.InternalKey = utils.GenerateSecret(32)
 		}
 
-		if config.Branch != "alpha" &&
-			config.Branch != "beta" &&
+		if config.Branch != "dev" &&
 			config.Branch != "rc" {
 			config.Branch = DEFAULT_BRANCH
 		}

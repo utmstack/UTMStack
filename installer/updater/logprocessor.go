@@ -40,7 +40,7 @@ func SyncSystemLogs() {
 			}
 		}
 
-		if !config.Updating && active {
+		if active {
 			err := CollectAndShipSwarmLogs()
 			if err != nil {
 				config.Logger().ErrorF("Error collecting and shipping logs: %v", err)

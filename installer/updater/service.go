@@ -5,6 +5,7 @@ import (
 
 	"github.com/kardianos/service"
 	"github.com/utmstack/UTMStack/installer/config"
+	"github.com/utmstack/UTMStack/installer/setup"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
@@ -33,6 +34,36 @@ func (p *program) Stop(s service.Service) error {
 func (p *program) run() {
 	go MonitorConnection(config.GetCMServer(), 30*time.Second, 3, &config.ConnectedToInternet)
 	time.Sleep(5 * time.Second)
+
+	// Check for pending update and apply it
+	pendingUpdate, err := GetPendingUpdate()
+	if err != nil {
+		config.Logger().ErrorF("error getting pending update: %v", err)
+	}
+
+	if pendingUpdate != nil {
+		config.Logger().Info("Applying pending update: %s-%s", pendingUpdate.Version, pendingUpdate.Edition)
+
+		// Apply setup with the pending version
+		if _, err := setup.Apply(pendingUpdate.Version); err != nil {
+			config.Logger().ErrorF("error applying setup for version %s: %v", pendingUpdate.Version, err)
+		} else {
+			config.Logger().Info("Successfully applied update %s", pendingUpdate.Version)
+
+			// Mark as sent in CM after successful apply
+			if pendingUpdate.ID != "offline" {
+				client := GetUpdaterClient()
+				if err := client.MarkUpdateSent(pendingUpdate.ID); err != nil {
+					config.Logger().ErrorF("error marking update %s as sent: %v", pendingUpdate.ID, err)
+				}
+			}
+		}
+
+		// Clear pending update
+		if err := ClearPendingUpdate(); err != nil {
+			config.Logger().ErrorF("error clearing pending update: %v", err)
+		}
+	}
 
 	client := GetUpdaterClient()
 	go UpdateWindowConfig()

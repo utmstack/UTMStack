@@ -83,6 +83,38 @@ CONSTRAINT utm_client_pkey PRIMARY KEY (id)
 	return nil
 }
 
+func GetAdminEmail(c *config.Config) (string, error) {
+	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable database=utmstack",
+		c.Password)
+	db, err := sql.Open("postgres", psqlconn)
+	if err != nil {
+		return "", err
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		return "", err
+	}
+
+	var email string
+	err = db.QueryRow(`
+		SELECT email
+		FROM jhi_user
+		WHERE login = 'admin' AND created_by = 'system' AND email != 'admin@localhost'
+		LIMIT 1
+	`).Scan(&email)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", nil
+		}
+		return "", err
+	}
+
+	return email, nil
+}
+
 func InitPgUserAuditor(c *config.Config) error {
 	// Connecting to PostgreSQL
 	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable",

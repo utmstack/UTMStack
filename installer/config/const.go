@@ -6,14 +6,15 @@ import (
 )
 
 const (
-	RegisterInstanceEndpoint   = "/api/v1/instances/register"
-	GetInstanceDetailsEndpoint = "/api/v1/instances"
-	GetUpdatesInfoEndpoint     = "/api/v1/updates"
+	RegisterInstanceEndpoint      = "/api/v1/instances/register"
+	GetInstanceDetailsEndpoint    = "/api/v1/instances"
+	UpdateInstanceDetailsEndpoint = "/api/v1/instances/details"
+	HeartbeatEndpoint             = "/api/v1/instances/heartbeat"
+	GetUpdatesInfoEndpoint        = "/api/v1/updates"
 	SetUpdateSentEndpoint      = "/api/v1/updates/sent"
 	GetLicenseEndpoint         = "/api/v1/licenses"
 	HealthEndpoint             = "/api/v1/health"
 	LogCollectorEndpoint       = "/api/v1/logcollectors/upload"
-	GetLatestVersionEndpoint   = "/api/v1/versions/latest"
 
 	GitHubReleasesURL = "https://github.com/utmstack/UTMStack/releases/download/%s/installer"
 
@@ -37,11 +38,11 @@ var (
 	ServiceLogPath         = filepath.Join(GetConfig().UpdatesFolder, "logs", "utmstack-updater.log")
 	VersionFilePath        = filepath.Join(GetConfig().UpdatesFolder, "version.json")
 	LicenseFilePath        = filepath.Join(GetConfig().UpdatesFolder, "LICENSE")
+	PendingUpdatesPath     = filepath.Join(GetConfig().UpdatesFolder, "pending-updates.json")
 	EventProcessorLogsPath = filepath.Join(GetConfig().DataDir, "events-engine-workdir", "logs")
 	CheckUpdatesEvery      = 5 * time.Minute
 	SyncSystemLogsEvery    = 5 * time.Minute
 	ConnectedToInternet    = false
-	Updating               = false
 )
 
 func GetCMServer() string {

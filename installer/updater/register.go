@@ -1,13 +1,15 @@
 package updater
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"time"
 
 	"github.com/utmstack/UTMStack/installer/config"
+	"github.com/utmstack/UTMStack/installer/docker"
+	"github.com/utmstack/UTMStack/installer/services"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
@@ -18,31 +20,36 @@ type InstanceConfig struct {
 }
 
 func RegisterInstance() error {
-	instanceInfo := getInstanceInfo()
-
-	v, err := GetVersion()
-	if err != nil {
-		return fmt.Errorf("error getting version: %v", err)
-	}
-
-	instanceInfo.Version = v.Version
-
 	if config.ConnectedToInternet {
+		v, err := GetVersion()
+		if err != nil {
+			return fmt.Errorf("error getting version: %v", err)
+		}
+
 		instanceConf := InstanceConfig{
 			Server: config.GetCMServer(),
 		}
 
-		instanceRegisterReq := InstanceDTOInput{
-			Name:    instanceInfo.Name,
-			Country: instanceInfo.Country,
-			Email:   instanceInfo.Email,
-			Edition: "community",
-			Version: instanceInfo.Version,
+		serverConfig := config.GetConfig()
+		if serverConfig == nil {
+			return fmt.Errorf("error: server config is nil")
 		}
 
-		serverConfig := config.GetConfig()
-		if serverConfig != nil && (serverConfig.MappingName != nil && *serverConfig.MappingName != "") {
+		instanceRegisterReq := InstanceDTOInput{
+			Name:    serverConfig.ServerName,
+			Edition: "community",
+			Version: v.Version,
+		}
+
+		if serverConfig.MappingName != nil && *serverConfig.MappingName != "" {
 			instanceRegisterReq.MappingName = *serverConfig.MappingName
+		}
+
+		// Check if this is a SaaS instance
+		stack := docker.GetStackConfig()
+		saasLockPath := filepath.Join(stack.LocksDir, "saas.lock")
+		if utils.CheckIfPathExist(saasLockPath) {
+			instanceRegisterReq.Tags = "SAAS"
 		}
 
 		instanceJSON, err := json.Marshal(instanceRegisterReq)
@@ -55,7 +62,6 @@ func RegisterInstance() error {
 			return fmt.Errorf("error registering instance: status code: %d, error %v", status, err)
 		}
 
-		instanceInfo.InstanceID = resp.ID
 		instanceConf.InstanceID = resp.ID
 		instanceConf.InstanceKey = resp.Key
 
@@ -63,58 +69,89 @@ func RegisterInstance() error {
 		if err != nil {
 			return fmt.Errorf("error writing instance config file: %v", err)
 		}
-	}
 
-	err = updateInstanceInfo(instanceInfo)
-	if err != nil {
-		return fmt.Errorf("error updating instance info in backend: %v", err)
+		err = updateInstanceInfo(resp.ID)
+		if err != nil {
+			return fmt.Errorf("error updating instance info in backend: %v", err)
+		}
 	}
 
 	return nil
 }
 
-func getInstanceInfo() InstanceInfo {
-	var instanceInfo InstanceInfo
-
+// StartHeartbeat sends heartbeat to CM every minute
+func StartHeartbeat(instanceConf InstanceConfig) {
 	for {
-		time.Sleep(30 * time.Second)
-		backConf, err := getConfigFromBackend(6)
-		if err != nil {
-			// Only log if it's not a maintenance/backend down error
-			if !IsBackendMaintenanceError(err) {
-				config.Logger().Info("instance info not ready yet, retrying after error: %v", err)
-			}
-			continue
-		}
+		time.Sleep(1 * time.Minute)
 
-		for _, c := range backConf {
-			switch c.ConfParamShort {
-			case "utmstack.instance.organization":
-				instanceInfo.Name = c.ConfParamValue
-			case "utmstack.instance.country":
-				instanceInfo.Country = c.ConfParamValue
-			case "utmstack.instance.contact_email":
-				instanceInfo.Email = c.ConfParamValue
-			}
-		}
+		url := fmt.Sprintf("%s%s", instanceConf.Server, config.HeartbeatEndpoint)
+		_, status, err := utils.DoReq[any](
+			url,
+			nil,
+			http.MethodPost,
+			map[string]string{"id": instanceConf.InstanceID, "key": instanceConf.InstanceKey},
+			nil,
+		)
 
-		if instanceInfo.Name == "" || instanceInfo.Country == "" || instanceInfo.Email == "" {
-			config.Logger().Info("instance info not ready yet, retrying after incomplete data")
-			continue
+		if err != nil || status != http.StatusOK {
+			config.Logger().ErrorF("error sending heartbeat: status: %d, error: %v", status, err)
 		}
-
-		break
 	}
-
-	return instanceInfo
 }
 
-func updateInstanceInfo(instanceInfo InstanceInfo) error {
-	jsonData, err := json.Marshal(instanceInfo)
-	if err != nil {
-		return fmt.Errorf("error marshalling instance info: %v", err)
+// PollAndUpdateAdminEmail polls for admin email and updates instance details
+func PollAndUpdateAdminEmail(instanceConf InstanceConfig) {
+	serverConfig := config.GetConfig()
+	if serverConfig == nil {
+		config.Logger().ErrorF("error: server config is nil in PollAndUpdateAdminEmail")
+		return
 	}
-	instanceInfoBase64 := base64.StdEncoding.EncodeToString(jsonData)
+
+	for {
+		time.Sleep(5 * time.Minute)
+
+		email, err := services.GetAdminEmail(serverConfig)
+		if err != nil {
+			config.Logger().ErrorF("error getting admin email: %v", err)
+			continue
+		}
+
+		if email == "" {
+			continue
+		}
+
+		// Email found, update instance details
+		updateReq := InstanceDTOInput{
+			Name:  serverConfig.ServerName,
+			Email: email,
+		}
+
+		reqJSON, err := json.Marshal(updateReq)
+		if err != nil {
+			config.Logger().ErrorF("error marshalling update request: %v", err)
+			continue
+		}
+
+		url := fmt.Sprintf("%s%s", instanceConf.Server, config.UpdateInstanceDetailsEndpoint)
+		_, status, err := utils.DoReq[any](
+			url,
+			reqJSON,
+			http.MethodPut,
+			map[string]string{"id": instanceConf.InstanceID, "key": instanceConf.InstanceKey},
+			nil,
+		)
+
+		if err != nil || status != http.StatusOK {
+			config.Logger().ErrorF("error updating instance details: status: %d, error: %v", status, err)
+			continue
+		}
+
+		config.Logger().Info("Successfully updated instance with admin email: %s", email)
+		return
+	}
+}
+
+func updateInstanceInfo(id string) error {
 
 	backConf, err := getConfigFromBackend(6)
 	if err != nil {
@@ -127,7 +164,7 @@ func updateInstanceInfo(instanceInfo InstanceInfo) error {
 
 	for i, c := range backConf {
 		if c.ConfParamShort == "utmstack.instance.data" {
-			backConf[i].ConfParamValue = instanceInfoBase64
+			backConf[i].ConfParamValue = id
 		}
 	}
 
