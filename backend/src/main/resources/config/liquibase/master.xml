@@ -303,5 +303,7 @@
 
     <include file="config/liquibase/changelog/20260113001_update_macos_integration_category.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260114001_update_section_instance_config.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
