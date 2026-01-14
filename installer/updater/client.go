@@ -5,8 +5,10 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -170,11 +172,6 @@ func (c *UpdaterClient) CheckUpdate() error {
 }
 
 func (c *UpdaterClient) UpdateInstaller(version string) error {
-	execPath, err := os.Executable()
-	if err != nil {
-		return fmt.Errorf("error getting executable path: %v", err)
-	}
-
 	// Download new installer from GitHub
 	url := fmt.Sprintf(config.GitHubReleasesURL, version)
 	resp, err := http.Get(url)
@@ -208,8 +205,8 @@ func (c *UpdaterClient) UpdateInstaller(version string) error {
 		return fmt.Errorf("error making installer executable: %v", err)
 	}
 
-	// Replace current binary
-	if err := os.Rename(tmpPath, execPath); err != nil {
+	// Replace binary at standard location
+	if err := os.Rename(tmpPath, config.InstallerBinPath); err != nil {
 		os.Remove(tmpPath)
 		return fmt.Errorf("error replacing installer binary: %v", err)
 	}
@@ -236,7 +233,7 @@ func (c *UpdaterClient) UploadLogs(ctx context.Context, path string) error {
 	url := fmt.Sprintf("%s%s", c.Config.Server, config.LogCollectorEndpoint)
 
 	buf := &bytes.Buffer{}
-	writer := io.MultiWriter(buf)
+	writer := multipart.NewWriter(buf)
 
 	zipFile, err := os.Open(path)
 	if err != nil {
@@ -244,7 +241,16 @@ func (c *UpdaterClient) UploadLogs(ctx context.Context, path string) error {
 	}
 	defer zipFile.Close()
 
-	if _, err = io.Copy(writer, zipFile); err != nil {
+	part, err := writer.CreateFormFile("file", filepath.Base(path))
+	if err != nil {
+		return err
+	}
+
+	if _, err = io.Copy(part, zipFile); err != nil {
+		return err
+	}
+
+	if err = writer.Close(); err != nil {
 		return err
 	}
 
@@ -252,7 +258,7 @@ func (c *UpdaterClient) UploadLogs(ctx context.Context, path string) error {
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Content-Type", "application/zip")
+	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("id", c.Config.InstanceID)
 	req.Header.Set("key", c.Config.InstanceKey)
 
