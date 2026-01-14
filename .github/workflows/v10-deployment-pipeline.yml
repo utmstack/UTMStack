@@ -2,10 +2,9 @@ name: V10 - Build & Deploy Pipeline
 
 on:
   push:
-    branches: [ 'v10', 'release/v10**' ]
-    tags: [ 'v10.*' ]
-  pull_request:
-    branches: [ 'v10' ]
+    branches: [ 'release/v10**' ]
+  release:
+    types: [ prereleased, released ]
 
 jobs:
   setup_deployment:
@@ -13,19 +12,40 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       tag: ${{ steps.set-env.outputs.tag }}
+      environment: ${{ steps.set-env.outputs.environment }}
+      release_tag: ${{ steps.set-env.outputs.release_tag }}
     steps:
       - name: Determine Build Environment
         id: set-env
         run: |
+          # ===================
+          # DEV Environment
+          # ===================
+          # Triggered by: push to release/v10.x.x branches
           if ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/v10') }}; then
             echo "DEV environment"
             echo "tag=v10-dev" >> $GITHUB_OUTPUT
-          elif ${{ github.event_name == 'push' && github.ref == 'refs/heads/v10' }}; then
+            echo "environment=dev" >> $GITHUB_OUTPUT
+
+          # ===================
+          # RC Environment
+          # ===================
+          # Triggered by: prerelease creation
+          elif ${{ github.event_name == 'release' && github.event.action == 'prereleased' }}; then
             echo "RC environment"
             echo "tag=v10-rc" >> $GITHUB_OUTPUT
-          elif ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v10.') }}; then
-            echo "RELEASE environment"
+            echo "environment=rc" >> $GITHUB_OUTPUT
+            echo "release_tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+
+          # ===================
+          # PROD Environment
+          # ===================
+          # Triggered by: prerelease promoted to release
+          elif ${{ github.event_name == 'release' && github.event.action == 'released' }}; then
+            echo "PROD environment"
             echo "tag=v10" >> $GITHUB_OUTPUT
+            echo "environment=prod" >> $GITHUB_OUTPUT
+            echo "release_tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
           fi
   
   validations:
@@ -288,62 +308,23 @@ jobs:
     steps:
       - run: echo "✅ All builds completed successfully"
   
-  deploy_dev:
-    name: Deploy to v10-dev environment
+  deploy_installer_dev:
+    name: Deploy Installer (Dev)
     needs: [all_builds_complete, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag == 'v10-dev' }}
-    runs-on: utmstack-v10-dev
-    steps:
-      - name: Check out code into the right branch
-        uses: actions/checkout@v4
+    if: ${{ needs.setup_deployment.outputs.environment == 'dev' }}
+    uses: ./.github/workflows/installer-release.yml
+    with:
+      version: ${{ needs.setup_deployment.outputs.tag }}
+      version_major: v10
+      environment: dev
 
-      - name: Set up Go 1.x
-        uses: actions/setup-go@v5
-        with:
-          go-version: ^1.20
-        id: go
-
-      - name: Build
-        working-directory: ./installer
-        env:
-          GOOS: linux
-          GOARCH: amd64
-        run: |
-          go build -o installer -v .
-          mv installer /home/utmstack/installer
-          chmod +x /home/utmstack/installer
-
-      - name: Run
-        working-directory: /home/utmstack
-        run: |
-          sudo ./installer
-
-  deploy_rc:
-    name: Deploy to v10-rc environment
+  deploy_installer_rc:
+    name: Deploy Installer (RC)
     needs: [all_builds_complete, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag == 'v10-rc' }}
-    runs-on: utmstack-v10-rc
-    steps:
-      - name: Check out code into the right branch
-        uses: actions/checkout@v4
-
-      - name: Set up Go 1.x
-        uses: actions/setup-go@v5
-        with:
-          go-version: ^1.20
-        id: go
-
-      - name: Build
-        working-directory: ./installer
-        env:
-          GOOS: linux
-          GOARCH: amd64
-        run: |
-          go build -o installer -v .
-          mv installer /home/utmstack/installer
-          chmod +x /home/utmstack/installer
-
-      - name: Run
-        working-directory: /home/utmstack
-        run: |
-          sudo ./installer
+    if: ${{ needs.setup_deployment.outputs.environment == 'rc' }}
+    uses: ./.github/workflows/installer-release.yml
+    with:
+      version: ${{ needs.setup_deployment.outputs.release_tag }}
+      version_major: v10
+      environment: rc
+      prerelease: true

@@ -8,3 +8,4 @@ installer/installer
 
 **/.vscode
 **/*.plugin
+installer/public_key.crt

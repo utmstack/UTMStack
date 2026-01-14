@@ -24,7 +24,11 @@ export class AssetsApplyNoteComponent implements OnInit {
 
   addNote() {
     this.creating = true;
-    this.utmNetScanService.update(this.asset).subscribe(response => {
+    const asset = {
+      ...this.asset,
+      metrics: []
+    };
+    this.utmNetScanService.update(asset).subscribe(response => {
       this.utmToastService.showSuccessBottom('Comment added successfully');
       this.applyNote.emit('success');
       this.focus.emit(false);

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func GetLock(v int, locksDir string) bool {
@@ -39,4 +40,23 @@ func GetStep() int {
 	}
 
 	return vi
+}
+
+func RemoveLocks(locks string, locksDir string) error {
+	if locks == "" {
+		return nil
+	}
+
+	locksList := strings.Split(locks, ",")
+	for _, lock := range locksList {
+		lock = strings.TrimSpace(lock)
+		if lock == "" {
+			continue
+		}
+		lockPath := fmt.Sprintf("%s/%s.lock", locksDir, lock)
+		if err := os.Remove(lockPath); err != nil && !os.IsNotExist(err) {
+			return fmt.Errorf("error removing lock %s: %v", lock, err)
+		}
+	}
+	return nil
 }

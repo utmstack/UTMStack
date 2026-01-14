@@ -21,6 +21,7 @@ type InstanceDTOInput struct {
 	Edition     string `json:"edition"`
 	CurrentIp   string `json:"current_ip"`
 	MappingName string `json:"mapping_name,omitempty"`
+	Tags        string `json:"tags"`
 }
 
 type InstanceInfo struct {
@@ -32,13 +33,14 @@ type InstanceInfo struct {
 }
 
 type UpdateDTO struct {
-	ID        string           `json:"id"`
-	Instance  InstanceDTOInput `json:"instance,omitempty"`
-	Version   VersionDTO       `json:"version"`
-	Edition   string           `json:"edition"`
-	Sent      bool             `json:"sent"`
-	Approved  bool             `json:"approved"`
-	ApproveAt time.Time        `json:"aprove_at,omitempty"`
+	ID          string           `json:"id"`
+	Instance    InstanceDTOInput `json:"instance,omitempty"`
+	Version     VersionDTO       `json:"version"`
+	Edition     string           `json:"edition"`
+	Sent        bool             `json:"sent"`
+	Approved    bool             `json:"approved"`
+	ApproveAt   time.Time        `json:"aprove_at,omitempty"`
+	UpdateLocks string           `json:"update_locks,omitempty"`
 }
 
 type VersionDTO struct {

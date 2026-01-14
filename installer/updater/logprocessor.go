@@ -40,7 +40,7 @@ func SyncSystemLogs() {
 			}
 		}
 
-		if !config.Updating && active {
+		if active {
 			err := CollectAndShipSwarmLogs()
 			if err != nil {
 				config.Logger().ErrorF("Error collecting and shipping logs: %v", err)
@@ -115,11 +115,13 @@ func CollectAndShipSwarmLogs() error {
 	}
 
 	if config.ConnectedToInternet {
-		if err := GetUpdaterClient().UploadLogs(ctx, archiveName); err != nil {
+		uploadCtx, uploadCancel := context.WithTimeout(context.Background(), 5*time.Minute)
+		err = GetUpdaterClient().UploadLogs(uploadCtx, archiveName)
+		uploadCancel()
+		_ = os.Remove(archiveName)
+		if err != nil {
 			return fmt.Errorf("error uploading logs: %v", err)
 		}
-
-		_ = os.Remove(archiveName)
 	}
 
 	err = disableLogSender()
@@ -151,6 +153,7 @@ func createZip(
 			ShowStderr: true,
 			Timestamps: true,
 			Details:    true,
+			Tail:       "10000",
 		})
 		if err != nil {
 			config.Logger().ErrorF("Error getting logs for container %s: %v", c.ID, err)

@@ -1,12 +1,12 @@
 import {HttpResponse} from '@angular/common/http';
-import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ResizeEvent} from 'angular-resizable-element';
 import * as moment from 'moment';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {Observable} from 'rxjs';
-import {filter, map, switchMap, tap} from 'rxjs/operators';
+import {Observable, Subject} from 'rxjs';
+import {filter, finalize, map, switchMap, take, takeUntil, tap} from 'rxjs/operators';
 import {AccountService} from '../../core/auth/account.service';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {
@@ -14,6 +14,7 @@ import {
 } from '../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {ALERT_SENSOR_FIELD} from '../../shared/constants/alert/alert-field.constant';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
+import {SortDirection} from '../../shared/directives/sortable/type/sort-direction.type';
 import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
 import {ChartValueSeparator} from '../../shared/enums/chart-value-separator';
 import {ElasticOperatorsEnum} from '../../shared/enums/elastic-operators.enum';
@@ -35,7 +36,6 @@ import {AssetFilterType} from '../shared/types/asset-filter.type';
 import {UtmDataInputStatus} from '../shared/types/data-source-input.type';
 import {NetScanType} from '../shared/types/net-scan.type';
 import {SourceDataTypeConfigComponent} from '../source-data-type-config/source-data-type-config.component';
-import {SortDirection} from "../../shared/directives/sortable/type/sort-direction.type";
 
 @Component({
   selector: 'app-assets-view',
@@ -53,7 +53,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   sortEvent: any;
   totalItems: any;
   page = 0;
-  loading = true;
+  loading = false;
   itemsPerPage = ITEMS_PER_PAGE;
   viewAssetDetail: NetScanType;
   sortBy = AssetFieldEnum.ASSET_ID + ',asc';
@@ -85,6 +85,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   reasonRun: IncidentCommandType;
   agent: string;
   noData = false;
+  destroy$ = new Subject<void>();
 
   constructor(private utmNetScanService: UtmNetScanService,
               private modalService: NgbModal,
@@ -94,7 +95,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
               private spinner: NgxSpinnerService,
               private accountService: AccountService,
               private assetFiltersBehavior: AssetFiltersBehavior,
-              private datePipe: UtmDatePipe) {
+              private cdr: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -109,14 +110,16 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
       };
     });
 
-    this.assets$ = this.utmNetScanService.onRefresh$
+    this.utmNetScanService.onRefresh$
       .pipe(
+        takeUntil(this.destroy$),
         filter(refresh => !!refresh),
-        switchMap(() => this.utmNetScanService.fetchData(this.requestParam)),
+        switchMap(() => {
+          this.loading = true;
+          return this.utmNetScanService.fetchData(this.requestParam);
+        }),
         tap((response: HttpResponse<NetScanType[]>) => {
           this.totalItems = Number(response.headers.get('X-Total-Count'));
-          this.loading = false;
-          this.assets = response.body;
           this.noData = response.body.length === 0;
         }),
         map((response) => {
@@ -127,6 +130,8 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
               asset.dataInputList = [];
             }
 
+            asset.lastInput = this.getLastInput(asset);
+
             const displayName = asset.assetName && asset.assetIp ? `${asset.assetName} (${asset.assetIp})`
               : asset.assetName ? asset.assetName : asset.assetIp ? asset.assetIp : 'Unknown source';
 
@@ -135,10 +140,24 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
             return { ...asset, displayName, sortKey };
           });
         })
-      );
+      )
+      .subscribe( {
+        next: (assets: NetScanType[]) => {
+          this.assets = assets;
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.assets = [];
+          this.loading = false;
+          this.cdr.markForCheck();
+          this.utmToastService.showError('Error loading assets',
+            'There was an error while trying to load assets, please try again');
+        }
+      });
 
     this.utmNetScanService.notifyRefresh(true);
-    //this.starInterval();
+    // this.starInterval();
   }
 
   setInitialWidth() {
@@ -180,11 +199,25 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   onSortBy($event: SortEvent) {
     if ($event.column === 'displayName') {
       this.sortAssets($event.direction);
+    } else if ($event.column === 'lastInput') {
+      this.sortLastInput($event.direction);
     } else {
       this.requestParam.sort = $event.column + ',' + $event.direction;
       this.getAssets();
     }
   }
+
+  sortLastInput(direction: SortDirection) {
+    this.assets.sort((a, b) => {
+      const t1 = a.lastInputTimestamp ? a.lastInputTimestamp : -Infinity;
+      const t2 = b.lastInputTimestamp ? b.lastInputTimestamp : -Infinity;
+
+      return direction === 'asc'
+        ? t1 - t2
+        : t2 - t1;
+    });
+  }
+
 
   sortAssets(direction: SortDirection) {
     this.assets.sort((a, b) => {
@@ -355,21 +388,22 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
     });
   }
 
-
   getLastInput(asset: NetScanType) {
+    console.log('getLastInput', asset.lastInput);
     if (asset.dataInputList.length > 0) {
-      const lastInput = asset.dataInputList.sort((a, b) => a.timestamp > b.timestamp ? 1 : -1)[0].timestamp;
-      return this.datePipe.transform(this.formatTimestampToDate(lastInput));
-    } else {
-      return 'Unknown';
+      const lastInput = asset.dataInputList[asset.dataInputList.length - 1].timestamp;
+      asset.lastInputTimestamp = lastInput;
+      return this.formatTimestampToDate(lastInput);
     }
+
+    asset.lastInputTimestamp = null;
+    return 'Unknown';
   }
+
 
   formatTimestampToDate(time: number) {
-    const date = moment.unix(time);
-    return moment.utc(date).format('YYYY-MM-DD HH:mm:ss');
+    return moment.unix(time).utc().toISOString();
   }
-
 
   toggleAsset(asset: NetScanType) {
     if (this.viewAssetDetail && this.viewAssetDetail.id === asset.id) {
@@ -439,6 +473,9 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.utmNetScanService.notifyRefresh(false);
     this.stopInterval(true);
     this.assetFiltersBehavior.$assetFilter.next(null);
   }
