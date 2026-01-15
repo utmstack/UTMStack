@@ -17,7 +17,7 @@ import (
 	"github.com/threatwinds/go-sdk/utils"
 
 	"github.com/google/uuid"
-	"github.com/threatwinds/go-sdk/opensearch"
+	twos "github.com/threatwinds/go-sdk/os"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -105,7 +105,7 @@ func main() {
 	var osConnected bool
 
 	for retry := 0; retry < maxOSRetries; retry++ {
-		err := opensearch.Connect([]string{osUrl})
+		err := twos.Connect([]string{osUrl}, "", "")
 		if err == nil {
 			osConnected = true
 			break
@@ -259,7 +259,7 @@ func saveToOpenSearch[Data any](data Data) {
 	for retry := 0; retry < maxRetries; retry++ {
 		oCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 
-		err := opensearch.IndexDoc(oCtx, &data, fmt.Sprintf("v11-statistics-%s", time.Now().UTC().Format("2006.01")), uuid.NewString())
+		err := twos.IndexDoc(oCtx, &data, fmt.Sprintf("v11-statistics-%s", time.Now().UTC().Format("2006.01")), uuid.NewString())
 		cancel()
 
 		if err == nil {

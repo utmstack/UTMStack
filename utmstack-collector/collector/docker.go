@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/docker/docker/api/types"
+	dockercontainer "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/client"
 	"github.com/google/uuid"
@@ -124,7 +124,7 @@ func (d *DockerCollector) Stop() {
 }
 
 func (d *DockerCollector) discoverContainers() error {
-	containers, err := d.client.ContainerList(d.ctx, types.ContainerListOptions{All: true})
+	containers, err := d.client.ContainerList(d.ctx, dockercontainer.ListOptions{All: true})
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func (d *DockerCollector) discoverContainers() error {
 func (d *DockerCollector) monitorEvents() {
 	utils.Logger.Info("Starting Docker events monitoring")
 
-	eventChan, errChan := d.client.Events(d.ctx, types.EventsOptions{})
+	eventChan, errChan := d.client.Events(d.ctx, events.ListOptions{})
 
 	for {
 		select {
@@ -170,7 +170,7 @@ func (d *DockerCollector) handleDockerEvent(event events.Message) {
 	containerEvent := models.ContainerEvent{
 		ID:          uuid.New().String(),
 		ContainerID: event.Actor.ID,
-		Action:      event.Action,
+		Action:      string(event.Action),
 		Timestamp:   time.Unix(event.Time, 0),
 		Attributes:  event.Actor.Attributes,
 	}
@@ -229,7 +229,7 @@ func (d *DockerCollector) handleContainerDestroy(containerID string) {
 func (d *DockerCollector) streamContainerLogs(container models.Container) {
 	utils.Logger.Info("Starting log stream for container: %s", container.Name)
 
-	options := types.ContainerLogsOptions{
+	options := dockercontainer.LogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
 		Follow:     true,
@@ -300,7 +300,7 @@ func (d *DockerCollector) retryLogStream(container models.Container) {
 
 	utils.Logger.Info("Container %s with ID %s not found, searching by name for Swarm replacement", container.Name, container.ID[:12])
 
-	containers, err := d.client.ContainerList(d.ctx, types.ContainerListOptions{All: false})
+	containers, err := d.client.ContainerList(d.ctx, dockercontainer.ListOptions{All: false})
 	if err != nil {
 		utils.Logger.ErrorF("Failed to list containers while searching for %s: %v", container.Name, err)
 		return
@@ -381,7 +381,7 @@ func (d *DockerCollector) sendToUTMStack(utmLog *plugins.Log) {
 	}
 }
 
-func (d *DockerCollector) convertContainer(c types.Container) models.Container {
+func (d *DockerCollector) convertContainer(c dockercontainer.Summary) models.Container {
 	name := ""
 	if len(c.Names) > 0 {
 		name = strings.TrimPrefix(c.Names[0], "/")
@@ -398,7 +398,7 @@ func (d *DockerCollector) convertContainer(c types.Container) models.Container {
 	}
 }
 
-func (d *DockerCollector) convertContainerJSON(c types.ContainerJSON) models.Container {
+func (d *DockerCollector) convertContainerJSON(c dockercontainer.InspectResponse) models.Container {
 	var created time.Time
 	if c.Created != "" {
 		if parsedTime, err := time.Parse(time.RFC3339Nano, c.Created); err == nil {
@@ -434,7 +434,7 @@ func (d *DockerCollector) periodicRediscovery() {
 }
 
 func (d *DockerCollector) rediscoverContainers() error {
-	containers, err := d.client.ContainerList(d.ctx, types.ContainerListOptions{All: true})
+	containers, err := d.client.ContainerList(d.ctx, dockercontainer.ListOptions{All: true})
 	if err != nil {
 		return utils.Logger.ErrorF("failed to list containers: %v", err)
 	}

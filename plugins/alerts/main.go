@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/opensearch"
+	twos "github.com/threatwinds/go-sdk/os"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
 	"github.com/tidwall/gjson"
@@ -116,7 +116,7 @@ func main() {
 	// Connect to OpenSearch with retry logic
 	for {
 		osUrl := plugins.PluginCfg("com.utmstack", false).Get("opensearch").String()
-		err = opensearch.Connect([]string{osUrl})
+		err = twos.Connect([]string{osUrl}, "", "")
 		if err != nil {
 			_ = catcher.Error("cannot connect to OpenSearch", err, nil)
 			time.Sleep(5 * time.Second)
@@ -174,10 +174,10 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		return nil
 	}
 
-	var filters []opensearch.Query
-	var mustNot []opensearch.Query
+	var filters []twos.Query
+	var mustNot []twos.Query
 
-	filters = append(filters, opensearch.Query{
+	filters = append(filters, twos.Query{
 		Term: map[string]map[string]interface{}{
 			"name.keyword": {
 				"value": alert.Name,
@@ -185,7 +185,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		},
 	})
 
-	mustNot = append(mustNot, opensearch.Query{
+	mustNot = append(mustNot, twos.Query{
 		Exists: map[string]string{
 			"field": "parentId",
 		},
@@ -200,7 +200,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		}
 
 		if value.Type == gjson.String {
-			filters = append(filters, opensearch.Query{
+			filters = append(filters, twos.Query{
 				Term: map[string]map[string]interface{}{
 					fmt.Sprintf("%s.keyword", d): {
 						"value": value.String(),
@@ -210,7 +210,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		}
 
 		if value.Type == gjson.Number {
-			filters = append(filters, opensearch.Query{
+			filters = append(filters, twos.Query{
 				Term: map[string]map[string]interface{}{
 					d: {
 						"value": value.Float(),
@@ -220,7 +220,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		}
 
 		if value.IsBool() {
-			filters = append(filters, opensearch.Query{
+			filters = append(filters, twos.Query{
 				Term: map[string]map[string]interface{}{
 					d: {
 						"value": value.Bool(),
@@ -230,18 +230,18 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		}
 	}
 
-	searchQuery := opensearch.SearchRequest{
+	searchQuery := twos.SearchRequest{
 		Size:    1,
 		From:    0,
 		Version: true,
-		Query: &opensearch.Query{
-			Bool: &opensearch.Bool{
+		Query: &twos.Query{
+			Bool: &twos.Bool{
 				Filter:  filters,
 				MustNot: mustNot,
 			},
 		},
 		StoredFields: []string{"*"},
-		Source:       &opensearch.Source{Excludes: []string{}},
+		Source:       &twos.Source{Excludes: []string{}},
 	}
 
 	// Retry logic for search operation
@@ -252,7 +252,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		hits, err := searchQuery.SearchIn(ctx, []string{opensearch.BuildIndexPattern("v11", "alert")})
+		hits, err := searchQuery.WideSearchIn(ctx, []string{twos.BuildIndexPattern("v11", "alert")})
 		if err == nil {
 			if hits.Hits.Total.Value != 0 {
 
@@ -348,7 +348,7 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 	for retry := 0; retry < maxRetries; retry++ {
 		cancelableContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
-		err := opensearch.IndexDoc(cancelableContext, a, opensearch.BuildCurrentIndex("v11", "alert"), alert.Id)
+		err := twos.IndexDoc(cancelableContext, a, twos.BuildCurrentIndex("v11", "alert"), alert.Id)
 		if err == nil {
 			cancel()
 			return nil
@@ -377,7 +377,7 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 	return nil
 }
 
-func updateParentAlertToOpen(parentHit opensearch.Hit) {
+func updateParentAlertToOpen(parentHit twos.Hit) {
 	defer func() {
 		if r := recover(); r != nil {
 			_ = catcher.Error("recovered from panic in updateParentAlertToOpen", nil, map[string]any{

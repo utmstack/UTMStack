@@ -1,20 +1,19 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"runtime"
-	"sync"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 
-	"github.com/threatwinds/go-sdk/opensearch"
+	twos "github.com/threatwinds/go-sdk/os"
 	"github.com/tidwall/gjson"
 )
 
 var logs = make(chan string, 100*runtime.NumCPU())
+var bulkQueue *twos.BulkQueue
 
 func addToQueue(l string) {
 	if len(logs) >= 100*runtime.NumCPU() {
@@ -36,7 +35,7 @@ func startQueue() {
 	for retry := 0; retry < maxRetries; retry++ {
 		osUrl := plugins.PluginCfg("com.utmstack", false).Get("opensearch").String()
 
-		err := opensearch.Connect([]string{osUrl})
+		err := twos.Connect([]string{osUrl}, "", "")
 		if err == nil {
 			break
 		}
@@ -48,58 +47,36 @@ func startQueue() {
 
 		if retry < maxRetries-1 {
 			time.Sleep(retryDelay)
-			// Increase delay for next retry
 			retryDelay *= 2
 		} else {
-			// If all retries failed, log the error and return
 			_ = catcher.Error("all retries failed when connecting to OpenSearch", err, nil)
 			return
 		}
 	}
 
+	bulkQueue = twos.NewBulkQueue(twos.BulkQueueConfig{
+		FlushInterval: 10 * time.Second,
+		OnError: func(failedItems []twos.BulkItem, err error) {
+			_ = catcher.Error("failed to send logs to OpenSearch", err, map[string]any{
+				"failedCount": len(failedItems),
+			})
+		},
+	})
+
+	if bulkQueue == nil {
+		_ = catcher.Error("failed to create bulk queue", fmt.Errorf("OpenSearch connection not established"), nil)
+		return
+	}
+
 	numCPU := runtime.NumCPU() * 2
 	for i := 0; i < numCPU; i++ {
 		go func() {
-			var ndMutex = &sync.Mutex{}
-			var nd = make([]opensearch.BulkItem, 0, 10)
-
-			go func() {
-				for {
-					if len(nd) == 0 {
-						time.Sleep(10 * time.Second)
-						continue
-					}
-
-					ndMutex.Lock()
-
-					err := opensearch.Bulk(context.Background(), nd)
-					if err != nil {
-						_ = catcher.Error("failed to send logs to OpenSearch", err, nil)
-					}
-
-					nd = make([]opensearch.BulkItem, 0, 10)
-
-					ndMutex.Unlock()
-				}
-			}()
-
-			for {
-				l := <-logs
-
+			for l := range logs {
 				dataType := gjson.Get(l, "dataType").String()
 				id := gjson.Get(l, "id").String()
-				index := opensearch.BuildCurrentIndex("v11", "log", dataType)
+				index := twos.BuildCurrentIndex("v11", "log", dataType)
 
-				ndMutex.Lock()
-
-				nd = append(nd, opensearch.BulkItem{
-					Index:  index,
-					Id:     id,
-					Body:   []byte(l),
-					Action: "index",
-				})
-
-				ndMutex.Unlock()
+				bulkQueue.AddWithID(index, id, l)
 			}
 		}()
 	}
