@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class UtmComplianceControlConfigResponseDto {
-    private Long id;
     private Long standardSectionId;
     private String controlName;
     private String controlSolution;

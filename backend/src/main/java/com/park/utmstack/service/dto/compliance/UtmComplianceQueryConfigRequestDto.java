@@ -8,5 +8,5 @@ public class UtmComplianceQueryConfigRequestDto {
     private String sqlQuery;
     private String evaluationRule;
     private Long indexPatternId;
-    private Long reportConfigId;
+    private Long controlConfigId;
 }
