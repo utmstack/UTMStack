@@ -12,8 +12,8 @@ import java.io.Serializable;
 @Getter
 @Setter
 @Entity
-@Table(name = "utm_compliance_control_query_config")
-public class UtmComplianceControlQueryConfig implements Serializable {
+@Table(name = "utm_compliance_query_config")
+public class UtmComplianceQueryConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

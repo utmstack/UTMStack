@@ -301,6 +301,6 @@
 
     <include file="/config/liquibase/changelog/20260112001_create_table_compliance_control_config.xml" relativeToChangelogFile="false"/>
 
-    <include file="/config/liquibase/changelog/20260112002_create_table_compliance_control_query_config.xml" relativeToChangelogFile="false"/>
+    <include file="/config/liquibase/changelog/20260112002_create_table_compliance_query_config.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

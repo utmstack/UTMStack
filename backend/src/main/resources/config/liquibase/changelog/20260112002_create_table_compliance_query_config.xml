@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
     <changeSet id="20260112002" author="Elena">
-            <createTable tableName="utm_compliance_report_query_config">
+            <createTable tableName="utm_compliance_query_config">
                 <column name="id" type="BIGSERIAL">
                     <constraints primaryKey="true" nullable="false"/>
                 </column>

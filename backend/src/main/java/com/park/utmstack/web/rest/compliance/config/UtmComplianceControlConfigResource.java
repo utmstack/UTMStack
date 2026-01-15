@@ -1,6 +1,5 @@
 package com.park.utmstack.web.rest.compliance.config;
 
-import com.park.utmstack.service.compliance.config.UtmComplianceControlConfigService;
 import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigRequestDto;
 import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigResponseDto;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlConfigMapper;

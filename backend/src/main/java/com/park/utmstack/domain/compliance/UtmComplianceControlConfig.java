@@ -42,5 +42,5 @@ public class UtmComplianceControlConfig implements Serializable {
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "control_config_id")
-    private List<UtmComplianceControlQueryConfig> queriesConfigs;
+    private List<UtmComplianceQueryConfig> queriesConfigs;
 }
