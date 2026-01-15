@@ -1,7 +1,6 @@
 package com.park.utmstack.web.rest.compliance.config;
 
-import com.park.utmstack.service.compliance.config.UtmComplianceControlConfigService;
-import com.park.utmstack.service.mapper.compliance.UtmComplianceControlQueryConfigMapper;
+import com.park.utmstack.service.mapper.compliance.UtmComplianceQueryConfigMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,11 +10,11 @@ import org.springframework.web.bind.annotation.*;
 public class UtmComplianceControlQueryConfigController {
 
     private final UtmComplianceControlConfigService service;
-    private final UtmComplianceControlQueryConfigMapper mapper;
+    private final UtmComplianceQueryConfigMapper mapper;
 
     public UtmComplianceControlQueryConfigController(
             UtmComplianceControlConfigService service,
-            UtmComplianceControlQueryConfigMapper mapper
+            UtmComplianceQueryConfigMapper mapper
     ) {
         this.service = service;
         this.mapper = mapper;
