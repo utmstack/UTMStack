@@ -29,7 +29,7 @@ type GroupModule struct {
 }
 
 func main() {
-	mode := plugins.GetCfg().Env.Mode
+	mode := plugins.GetCfg("plugin_com.utmstack.gcp").Env.Mode
 	if mode != "worker" {
 		return
 	}
@@ -37,8 +37,8 @@ func main() {
 	go config.StartConfigurationSystem()
 
 	for i := 0; i < 2*runtime.NumCPU(); i++ {
-		go plugins.SendLogsFromChannel()
-		go plugins.SendNotificationsFromChannel()
+		go plugins.SendLogsFromChannel("com.utmstack.gcp")
+		go plugins.SendNotificationsFromChannel("com.utmstack.gcp")
 	}
 
 	startGroupModuleManager()
@@ -98,7 +98,7 @@ func (g *GroupModule) PullLogs() {
 				DataSource: g.GroupName,
 				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 				Raw:        string(msg.Data),
-			})
+			}, "com.utmstack.gcp")
 
 			msg.Ack()
 		})

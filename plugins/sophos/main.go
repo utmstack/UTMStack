@@ -104,7 +104,7 @@ func pull(startTime time.Time, group *config.ModuleGroup) {
 				DataSource: group.GroupName,
 				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 				Raw:        log,
-			})
+			}, "com.utmstack.sophos")
 		}
 	}
 
