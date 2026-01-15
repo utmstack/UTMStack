@@ -11,5 +11,5 @@ func RegisterError(message string, id string) {
 	if err != nil {
 		_ = catcher.Error("error while indexing error in elastic: %v", err, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 	}
-	_ = catcher.Error("TODO: Explain this error", errors.New(message), map[string]any{"process": "plugin_com.utmstack.soc-ai"})
+	_ = catcher.Error("soc-ai operation error", errors.New(message), map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 }
