@@ -12,5 +12,8 @@ public interface UtmComplianceControlConfigMapper {
 
     UtmComplianceControlConfigResponseDto toResponse(UtmComplianceControlConfig entity);
 
-    void updateEntity(@MappingTarget UtmComplianceControlConfig entity, UtmComplianceControlConfigRequestDto dto);
+    void updateEntity(
+            @MappingTarget UtmComplianceControlConfig entity,
+            UtmComplianceControlConfigRequestDto dto
+    );
 }

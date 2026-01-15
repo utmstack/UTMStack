@@ -19,10 +19,6 @@ public class UtmComplianceQueryConfigService {
         return repository.save(config);
     }
 
-    public List<UtmComplianceQueryConfig> findByReportConfig(Long reportConfigId) {
-        return repository.findByControlConfigId(reportConfigId);
-    }
-
     public void delete(Long id) {
         repository.deleteById(id);
     }

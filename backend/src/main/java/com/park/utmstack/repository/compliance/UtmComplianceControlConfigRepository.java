@@ -9,6 +9,4 @@ import java.util.List;
 @Repository
 public interface UtmComplianceControlConfigRepository extends JpaRepository<UtmComplianceControlConfig, Long> {
 
-    List<UtmComplianceControlConfig> findBySectionId(Long sectionId);
-
 }

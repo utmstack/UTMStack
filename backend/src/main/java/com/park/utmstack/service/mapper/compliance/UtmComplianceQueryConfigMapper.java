@@ -12,5 +12,8 @@ public interface UtmComplianceQueryConfigMapper {
 
     UtmComplianceQueryConfigResponseDto toResponse(UtmComplianceQueryConfig entity);
 
-    void updateEntity(@MappingTarget UtmComplianceQueryConfig entity, UtmComplianceQueryConfigRequestDto dto);
+    void updateEntity(
+            @MappingTarget UtmComplianceQueryConfig entity,
+            UtmComplianceQueryConfigRequestDto dto
+    );
 }
