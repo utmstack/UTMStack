@@ -38,17 +38,15 @@ Automated CI/CD pipeline for v10 builds and deployments.
 - Production (from tags)
 
 ### 3. **v11-deployment-pipeline.yml**
-Manual deployment pipeline for v11 with version control.
+Automated CI/CD pipeline for v11 builds and deployments.
 
-**Trigger:** Manual (`workflow_dispatch`)
-
-**Required Inputs:**
-- `version_tag`: Version to deploy (e.g., `v11.0.0-dev.1` or `v11.1.0`)
-- `event_processor_tag`: Event processor version (e.g., `1.0.0-beta`)
+**Triggers:**
+- Push to `release/v11**` branches → Deploys to **dev** environment
+- Prerelease created → Deploys to **rc** environment
 
 **Version Formats:**
-- **Dev:** `v11.x.x-dev.N` (e.g., `v11.0.0-dev.1`)
-- **Production:** `v11.x.x` (e.g., `v11.1.0`)
+- **Dev:** `v11.x.x-dev.N` (e.g., `v11.2.1-dev.1`) - Auto-incremented
+- **RC:** `v11.x.x` (e.g., `v11.2.1`) - From prerelease tag
 
 ---
 
@@ -89,46 +87,84 @@ Manual deployment pipeline for v11 with version control.
 
 ```
 ┌─────────────────────────────┐
-│  Manual Workflow Dispatch   │
-│  with version_tag input     │
+│  Push to release/v11.x.x    │
+│  branch                     │
 └──────────────┬──────────────┘
                │
-               ├─── v11.x.x-dev.N ──→ DEV Environment
-               └─── v11.x.x ────────→ PROD Environment
+               ▼
+       Auto-increment version
+       (v11.x.x-dev.N)
+               │
+               ▼
+       Build & Deploy to DEV
+               │
+               ▼
+       Publish to CM Dev
+               │
+               ▼
+       Schedule to Dev Instances
+
+
+┌─────────────────────────────┐
+│  Create Prerelease          │
+│  (tag: v11.x.x)             │
+└──────────────┬──────────────┘
+               │
+               ▼
+       Build & Deploy to RC
+               │
+               ▼
+       Generate Changelog (AI)
+               │
+               ▼
+       Build & Upload Installer
+               │
+               ▼
+       Publish to CM Prod
+               │
+               ▼
+       Schedule to Prod Instances
 ```
 
 ### Jobs
 
-1. **validations** - Validates user permissions and version format
-2. **build_agent** - Builds and signs Windows/Linux agents
-3. **build_utmstack_collector** - Builds UTMStack Collector
-4. **build_agent_manager** - Builds agent-manager Docker image
-5. **build_event_processor** - Builds event processor with plugins
-6. **build_backend** - Builds backend microservice (Java 17)
-7. **build_frontend** - Builds frontend microservice
-8. **build_user_auditor** - Builds user-auditor microservice
-9. **build_web_pdf** - Builds web-pdf microservice
-10. **all_builds_complete** - Checkpoint for all builds
-11. **publish_new_version** - Publishes version to Customer Manager
-12. **schedule** - Schedules release to configured instances
+1. **setup_deployment** - Determines environment and version based on trigger
+2. **validations** - Validates user permissions (team membership)
+3. **build_agent** - Builds and signs Windows/Linux agents
+4. **build_utmstack_collector** - Builds UTMStack Collector
+5. **build_agent_manager** - Builds agent-manager Docker image
+6. **build_event_processor** - Builds event processor with plugins
+7. **build_backend** - Builds backend microservice (Java 17)
+8. **build_frontend** - Builds frontend microservice
+9. **build_user_auditor** - Builds user-auditor microservice
+10. **build_web_pdf** - Builds web-pdf microservice
+11. **all_builds_complete** - Checkpoint for all builds
+12. **generate_changelog** - Generates AI-powered changelog (RC only)
+13. **build_installer_rc** - Builds and uploads installer (RC only)
+14. **deploy_installer_dev** - Deploys installer (Dev only)
+15. **publish_new_version** - Publishes version to Customer Manager
+16. **schedule** - Schedules release to configured instances
 
 ### Permissions
 
-- **Dev versions** (`v11.x.x-dev.N`):
-  - Must run from `release/` or `feature/` branches
-  - Requires: `administrators`, `integration-developers`, or `core-developers` team membership
-
-- **Production versions** (`v11.x.x`):
-  - Requires: `administrators` team membership only
+- Requires: `integration-developers` or `core-developers` team membership
 
 ### Environment Detection
 
-The pipeline automatically detects the environment based on version format:
+The pipeline automatically detects the environment based on trigger:
 
-| Version Format | Environment | CM Auth Secret | CM URL | Schedule Instances Var | Schedule Token Secret |
-|----------------|-------------|----------------|--------|------------------------|----------------------|
-| `v11.x.x-dev.N` | dev | `CM_AUTH_DEV` | `https://cm.dev.utmstack.com` | `SCHEDULE_INSTANCES_DEV` | `CM_SCHEDULE_TOKEN_DEV` |
-| `v11.x.x` | prod | `CM_AUTH` | `https://cm.utmstack.com` | `SCHEDULE_INSTANCES_PROD` | `CM_SCHEDULE_TOKEN_PROD` |
+| Trigger | Environment | CM URL | Service Account | Schedule Instances Var |
+|---------|-------------|--------|-----------------|------------------------|
+| Push to `release/v11**` | dev | `https://cm.dev.utmstack.com` | `CM_SERVICE_ACCOUNT_DEV` | `SCHEDULE_INSTANCES_DEV` |
+| Prerelease created | rc | `https://cm.utmstack.com` | `CM_SERVICE_ACCOUNT_PROD` | `SCHEDULE_INSTANCES_PROD` |
+
+### Version Auto-Increment (Dev)
+
+For dev deployments, the version is automatically calculated:
+1. Extracts base version from branch name (e.g., `release/v11.2.1` → `v11.2.1`)
+2. Queries CM for latest version
+3. If base versions match, increments dev number (e.g., `v11.2.1-dev.9` → `v11.2.1-dev.10`)
+4. If base versions differ, starts fresh (e.g., `v11.2.1-dev.1`)
 
 ---
 
@@ -167,25 +203,28 @@ The pipeline automatically detects the environment based on version format:
 | `SIGN_CERT` | v10, v11 | Code signing certificate path (var) |
 | `SIGN_KEY` | v10, v11 | Code signing key |
 | `SIGN_CONTAINER` | v10, v11 | Code signing container name |
-| `CM_AUTH` | v11 | Customer Manager auth credentials (prod) |
-| `CM_AUTH_DEV` | v11 | Customer Manager auth credentials (dev) |
+| `CM_SERVICE_ACCOUNT_PROD` | v11 | Customer Manager service account credentials (prod/rc) - JSON format `{"id": "...", "key": "..."}` |
+| `CM_SERVICE_ACCOUNT_DEV` | v11 | Customer Manager service account credentials (dev) - JSON format `{"id": "...", "key": "..."}` |
 | `CM_ENCRYPT_SALT` | installer | Encryption salt for installer |
 | `CM_SIGN_PUBLIC_KEY` | installer | Public key for installer verification |
-| `CM_SCHEDULE_TOKEN_PROD` | v11 | Auth token for cm-version-publisher (prod) |
-| `CM_SCHEDULE_TOKEN_DEV` | v11 | Auth token for cm-version-publisher (dev) |
+| `OPENAI_API_KEY` | v11 | OpenAI API key for changelog generation |
 | `GITHUB_TOKEN` | All | Auto-provided by GitHub Actions |
 
 ### Variables
 
 | Variable Name | Used In | Description | Format |
 |---------------|---------|-------------|--------|
-| `SCHEDULE_INSTANCES_PROD` | v11 | Instance IDs for prod scheduling | Comma-separated UUIDs |
+| `SCHEDULE_INSTANCES_PROD` | v11 | Instance IDs for prod/rc scheduling | Comma-separated UUIDs |
 | `SCHEDULE_INSTANCES_DEV` | v11 | Instance IDs for dev scheduling | Comma-separated UUIDs |
+| `TW_EVENT_PROCESSOR_VERSION_PROD` | v11 | ThreatWinds Event Processor version (prod/rc) | Semver (e.g., `1.0.0`) |
+| `TW_EVENT_PROCESSOR_VERSION_DEV` | v11 | ThreatWinds Event Processor version (dev) | Semver (e.g., `1.0.0-beta`) |
 
 **Example Variable Values:**
 ```
 SCHEDULE_INSTANCES_PROD=uuid1,uuid2,uuid3
 SCHEDULE_INSTANCES_DEV=uuid-dev1
+TW_EVENT_PROCESSOR_VERSION_PROD=1.0.0
+TW_EVENT_PROCESSOR_VERSION_DEV=1.0.0-beta
 ```
 
 ---
@@ -219,22 +258,28 @@ git push origin v10.5.0
 ### V11 Deployment
 
 **Dev Environment:**
-1. Navigate to Actions tab
-2. Select "v11 - Build & Deploy Pipeline"
-3. Click "Run workflow"
-4. Fill in:
-   - **version_tag:** `v11.0.0-dev.1`
-   - **event_processor_tag:** `1.0.0-beta`
-5. Click "Run workflow"
+```bash
+git checkout release/v11.2.1
+# Make your changes
+git add .
+git commit -m "Your changes"
+git push origin release/v11.2.1
+# Automatically builds and deploys to dev
+# Version is auto-incremented (e.g., v11.2.1-dev.1, v11.2.1-dev.2, ...)
+```
 
-**Production Release:**
-1. Navigate to Actions tab
-2. Select "v11 - Build & Deploy Pipeline"
-3. Click "Run workflow"
-4. Fill in:
-   - **version_tag:** `v11.1.0`
-   - **event_processor_tag:** `1.0.0`
-5. Click "Run workflow"
+**RC Release:**
+1. Navigate to GitHub Releases
+2. Click "Draft a new release"
+3. Create a new tag (e.g., `v11.2.1`)
+4. Select "Set as a pre-release"
+5. Click "Publish release"
+6. Pipeline automatically:
+   - Builds all microservices
+   - Generates AI-powered changelog
+   - Builds and uploads installer
+   - Publishes version to CM
+   - Schedules updates to RC instances
 
 ---
 
@@ -252,10 +297,11 @@ The following reusable workflows are called by the main pipelines:
 ## 📝 Notes
 
 - All Docker images are pushed to `ghcr.io/utmstack/utmstack/*`
-- V11 uses `-community` suffix for all image tags
 - Agent signing requires `utmstack-signer` runner
 - Artifacts (agents, collector) have 1-day retention
 - Failed deployments will stop the pipeline and report errors
+- Dev versions follow the format `v11.x.x-dev.N` (auto-incremented)
+- RC versions use the prerelease tag directly (e.g., `v11.2.1`)
 
 ---
 
@@ -263,17 +309,21 @@ The following reusable workflows are called by the main pipelines:
 
 **Permission Denied:**
 - Verify you're a member of the required team
-- For v11 prod: Must be in `administrators` team
-- For v11 dev: Can be in `administrators`, `integration-developers`, or `core-developers`
+- For v11: Must be in `integration-developers` or `core-developers` team
 
 **Build Failures:**
 - Check that all required secrets are configured
 - Verify runner availability (especially `utmstack-signer` for agent builds)
 - Review build logs for specific errors
 
-**Version Format Errors:**
-- Dev: Must match `v11.x.x-dev.N` (e.g., `v11.0.0-dev.1`)
-- Prod: Must match `v11.x.x` (e.g., `v11.1.0`)
+**Version Not Incrementing:**
+- Check that the CM API is accessible
+- Verify `CM_SERVICE_ACCOUNT_DEV` or `CM_SERVICE_ACCOUNT_PROD` secrets are correctly configured
+- Ensure the branch name follows the format `release/v11.x.x`
+
+**Changelog Not Generated:**
+- Verify `OPENAI_API_KEY` secret is configured
+- Only applies to RC releases (prereleases)
 
 ---
 

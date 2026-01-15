@@ -448,11 +448,11 @@ jobs:
           echo "CM URL: $CM_URL"
           echo "Tag: $TAG"
 
-          # Select CM_AUTH based on environment
+          # Select CM_SERVICE_ACCOUNT based on environment
           if [ "$ENVIRONMENT" = "dev" ]; then
-            cmAuth=$(echo '${{ secrets.CM_AUTH_DEV }}' | jq -r '.')
+            cmAuth=$(echo '${{ secrets.CM_SERVICE_ACCOUNT_DEV }}' | jq -r '.')
           else
-            cmAuth=$(echo '${{ secrets.CM_AUTH }}' | jq -r '.')
+            cmAuth=$(echo '${{ secrets.CM_SERVICE_ACCOUNT_PROD }}' | jq -r '.')
           fi
 
           id=$(echo "$cmAuth" | jq -r '.id')
@@ -491,11 +491,11 @@ jobs:
           # Select instance IDs and auth based on environment
           if [ "$ENVIRONMENT" = "dev" ]; then
             instance_ids="${{ vars.SCHEDULE_INSTANCES_DEV }}"
-            auth_json='${{ secrets.CM_SCHEDULE_AUTH_DEV }}'
+            auth_json='${{ secrets.CM_SERVICE_ACCOUNT_DEV }}'
           else
             # rc uses prod variables
             instance_ids="${{ vars.SCHEDULE_INSTANCES_PROD }}"
-            auth_json='${{ secrets.CM_SCHEDULE_AUTH_PROD }}'
+            auth_json='${{ secrets.CM_SERVICE_ACCOUNT_PROD }}'
           fi
 
           # Extract id and key from auth JSON
