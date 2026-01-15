@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	mode := plugins.GetCfg().Env.Mode
+	mode := plugins.GetCfg("plugin_com.utmstack.bitdefender").Env.Mode
 	if mode != "manager" {
 		return
 	}
@@ -19,7 +19,7 @@ func main() {
 
 	for t := 0; t < 2*runtime.NumCPU(); t++ {
 		go func() {
-			plugins.SendLogsFromChannel()
+			plugins.SendLogsFromChannel("com.utmstack.bitdefender")
 		}()
 	}
 

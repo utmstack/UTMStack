@@ -43,6 +43,7 @@ func startHTTPServer(middlewares *Middlewares, cert string, key string) {
 		}
 
 		_ = catcher.Error("failed to read the certificate files, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.inputs",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
@@ -53,7 +54,7 @@ func startHTTPServer(middlewares *Middlewares, cert string, key string) {
 			retryDelay *= 2
 		} else {
 			// If all retries failed, log the error and return
-			_ = catcher.Error("could not read the certificate files, all retries failed", err, nil)
+			_ = catcher.Error("could not read the certificate files, all retries failed", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 			return
 		}
 	}
@@ -71,7 +72,7 @@ func startHTTPServer(middlewares *Middlewares, cert string, key string) {
 
 	err = server.ListenAndServeTLS("", "")
 	if err != nil {
-		_ = catcher.Error("could not start http server", err, nil)
+		_ = catcher.Error("could not start http server", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 	}
 
 }
@@ -81,7 +82,7 @@ func Log(c *gin.Context) {
 
 	_, err := buf.ReadFrom(c.Request.Body)
 	if err != nil {
-		e := catcher.Error("failed to read request body", err, nil)
+		e := catcher.Error("failed to read request body", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 		e.GinError(c)
 		return
 	}
@@ -90,9 +91,9 @@ func Log(c *gin.Context) {
 
 	var l = new(plugins.Log)
 
-	err = utils.ToObject(&body, l)
+	err = utils.StringToProtoMessage(&body, l)
 	if err != nil {
-		e := catcher.Error("failed to parse log", err, nil)
+		e := catcher.Error("failed to parse log", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 		e.GinError(c)
 		return
 	}
@@ -131,7 +132,7 @@ func GitHub(c *gin.Context) {
 	buf := new(bytes.Buffer)
 	_, err := buf.ReadFrom(c.Request.Body)
 	if err != nil {
-		e := catcher.Error("failed to read request body", err, nil)
+		e := catcher.Error("failed to read request body", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 		e.GinError(c)
 		return
 	}
@@ -172,6 +173,7 @@ func startGRPCServer(middlewares *Middlewares, cert string, key string) error {
 		}
 
 		_ = catcher.Error("failed to read the certificate files, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.inputs",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
@@ -182,7 +184,7 @@ func startGRPCServer(middlewares *Middlewares, cert string, key string) error {
 			retryDelay *= 2
 		} else {
 			// If all retries failed, log the error and return
-			return catcher.Error("could not read the certificate files, all retries failed", err, nil)
+			return catcher.Error("could not read the certificate files, all retries failed", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 		}
 	}
 
@@ -215,6 +217,7 @@ func startGRPCServer(middlewares *Middlewares, cert string, key string) error {
 		}
 
 		_ = catcher.Error("failed to listen to grpc, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.inputs",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
@@ -225,13 +228,13 @@ func startGRPCServer(middlewares *Middlewares, cert string, key string) error {
 			retryDelay *= 2
 		} else {
 			// If all retries failed, log the error and return
-			return catcher.Error("all retries failed when listening to grpc", err, nil)
+			return catcher.Error("all retries failed when listening to grpc", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 		}
 	}
 
 	// Serve with error handling
 	if err := server.Serve(listener); err != nil {
-		return catcher.Error("failed to serve grpc", err, nil)
+		return catcher.Error("failed to serve grpc", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 	}
 
 	return nil
@@ -269,7 +272,8 @@ func (i *integration) ProcessLog(srv plugins.Integration_ProcessLogServer) error
 
 		if err := srv.Send(&plugins.Ack{LastId: l.Id}); err != nil {
 			return catcher.Error("failed to send ack", err, map[string]any{
-				"lastId": l.Id,
+				"process": "plugin_com.utmstack.inputs",
+				"lastId":  l.Id,
 			})
 		}
 	}

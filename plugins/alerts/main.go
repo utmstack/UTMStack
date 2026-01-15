@@ -3,24 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
-	"net"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
-	twos "github.com/threatwinds/go-sdk/os"
+	sdkos "github.com/threatwinds/go-sdk/os"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
 	"github.com/tidwall/gjson"
 
-	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
-
-type correlationServer struct {
-	plugins.UnimplementedCorrelationServer
-}
 
 type IncidentDetail struct {
 	CreatedBy    string `json:"createdBy"`
@@ -61,89 +54,24 @@ type AlertFields struct {
 }
 
 func main() {
-	// Recover from panics to ensure the main function doesn't terminate
-	defer func() {
-		if r := recover(); r != nil {
-			_ = catcher.Error("recovered from panic in alerts main function", nil, map[string]any{
-				"panic": r,
-			})
-			// Restart the main function after a brief delay
-			time.Sleep(5 * time.Second)
-			go main()
-		}
-	}()
-
-	// Initialize with retry logic instead of exiting
-	var socketsFolder utils.Folder
-	var err error
-	var socketFile string
-	var unixAddress *net.UnixAddr
-	var listener *net.UnixListener
-
-	// Retry loop for initialization
-	for {
-		socketsFolder, err = utils.MkdirJoin(plugins.WorkDir, "sockets")
-		if err != nil {
-			_ = catcher.Error("cannot create socket directory", err, nil)
-			time.Sleep(5 * time.Second)
-			continue
-		}
-
-		socketFile = socketsFolder.FileJoin("com.utmstack.alerts_correlation.sock")
-		_ = os.Remove(socketFile)
-
-		unixAddress, err = net.ResolveUnixAddr("unix", socketFile)
-		if err != nil {
-			_ = catcher.Error("cannot resolve unix address", err, nil)
-			time.Sleep(5 * time.Second)
-			continue
-		}
-
-		listener, err = net.ListenUnix("unix", unixAddress)
-		if err != nil {
-			_ = catcher.Error("cannot listen to unix socket", err, nil)
-			time.Sleep(5 * time.Second)
-			continue
-		}
-
-		// If we got here, initialization was successful
-		break
+	openSearchUrl := plugins.PluginCfg("org.opensearch", false).Get("opensearch").String()
+	err := sdkos.Connect([]string{openSearchUrl}, "", "")
+	if err != nil {
+		_ = catcher.Error("cannot connect to OpenSearch", err, map[string]any{"process": "plugin_com.utmstack.alerts"})
 	}
 
-	grpcServer := grpc.NewServer()
-	plugins.RegisterCorrelationServer(grpcServer, &correlationServer{})
-
-	// Connect to OpenSearch with retry logic
-	for {
-		osUrl := plugins.PluginCfg("com.utmstack", false).Get("opensearch").String()
-		err = twos.Connect([]string{osUrl}, "", "")
-		if err != nil {
-			_ = catcher.Error("cannot connect to OpenSearch", err, nil)
-			time.Sleep(5 * time.Second)
-			continue
-		}
-		// If we got here, connection was successful
-		break
-	}
-
-	// Serve with error handling
-	if err := grpcServer.Serve(listener); err != nil {
-		_ = catcher.Error("cannot serve grpc", err, nil)
-		// Instead of exiting, restart the main function
-		time.Sleep(5 * time.Second)
-		go main()
-		return
-	}
+	_ = plugins.InitCorrelationPlugin("com.utmstack.alerts", correlate)
 }
 
-func (p *correlationServer) Correlate(_ context.Context,
+func correlate(_ context.Context,
 	alert *plugins.Alert) (*emptypb.Empty, error) {
 	// Recover from panics to ensure the method doesn't terminate
 	defer func() {
 		if r := recover(); r != nil {
 			_ = catcher.Error("recovered from panic in Correlate method", nil, map[string]any{
-				"panic": r,
-				"alert": alert.Name,
+				"panic":   r,
+				"alert":   alert.Name,
+				"process": "plugin_com.utmstack.alerts",
 			})
 		}
 	}()
@@ -158,8 +86,9 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 	defer func() {
 		if r := recover(); r != nil {
 			_ = catcher.Error("recovered from panic in getPreviousAlertId", nil, map[string]any{
-				"panic": r,
-				"alert": alert.Name,
+				"panic":   r,
+				"alert":   alert.Name,
+				"process": "plugin_com.utmstack.alerts",
 			})
 		}
 	}()
@@ -168,16 +97,16 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		return nil
 	}
 
-	alertString, err := utils.ToString(alert)
+	alertString, err := utils.ProtoMessageToString(alert)
 	if err != nil {
-		_ = catcher.Error("cannot convert alert to string", err, map[string]any{"alert": alert.Name})
+		_ = catcher.Error("cannot convert alert to string", err, map[string]any{"alert": alert.Name, "process": "plugin_com.utmstack.alerts"})
 		return nil
 	}
 
-	var filters []twos.Query
-	var mustNot []twos.Query
+	var filters []sdkos.Query
+	var mustNot []sdkos.Query
 
-	filters = append(filters, twos.Query{
+	filters = append(filters, sdkos.Query{
 		Term: map[string]map[string]interface{}{
 			"name.keyword": {
 				"value": alert.Name,
@@ -185,7 +114,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		},
 	})
 
-	mustNot = append(mustNot, twos.Query{
+	mustNot = append(mustNot, sdkos.Query{
 		Exists: map[string]string{
 			"field": "parentId",
 		},
@@ -200,7 +129,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		}
 
 		if value.Type == gjson.String {
-			filters = append(filters, twos.Query{
+			filters = append(filters, sdkos.Query{
 				Term: map[string]map[string]interface{}{
 					fmt.Sprintf("%s.keyword", d): {
 						"value": value.String(),
@@ -210,7 +139,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		}
 
 		if value.Type == gjson.Number {
-			filters = append(filters, twos.Query{
+			filters = append(filters, sdkos.Query{
 				Term: map[string]map[string]interface{}{
 					d: {
 						"value": value.Float(),
@@ -220,7 +149,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		}
 
 		if value.IsBool() {
-			filters = append(filters, twos.Query{
+			filters = append(filters, sdkos.Query{
 				Term: map[string]map[string]interface{}{
 					d: {
 						"value": value.Bool(),
@@ -230,18 +159,18 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		}
 	}
 
-	searchQuery := twos.SearchRequest{
+	searchQuery := sdkos.SearchRequest{
 		Size:    1,
 		From:    0,
 		Version: true,
-		Query: &twos.Query{
-			Bool: &twos.Bool{
+		Query: &sdkos.Query{
+			Bool: &sdkos.Bool{
 				Filter:  filters,
 				MustNot: mustNot,
 			},
 		},
 		StoredFields: []string{"*"},
-		Source:       &twos.Source{Excludes: []string{}},
+		Source:       &sdkos.Source{Excludes: []string{}},
 	}
 
 	// Retry logic for search operation
@@ -252,7 +181,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		hits, err := searchQuery.WideSearchIn(ctx, []string{twos.BuildIndexPattern("v11", "alert")})
+		hits, err := searchQuery.WideSearchIn(ctx, []string{sdkos.BuildIndexPattern("v11", "alert")})
 		if err == nil {
 			if hits.Hits.Total.Value != 0 {
 
@@ -267,6 +196,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 			"alert":      alert.Name,
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
+			"process":    "plugin_com.utmstack.alerts",
 		})
 
 		if retry < maxRetries-1 {
@@ -278,7 +208,8 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 
 	// If we get here, all retries failed
 	_ = catcher.Error("all retries failed when searching for previous alerts", nil, map[string]any{
-		"alert": alert.Name,
+		"alert":   alert.Name,
+		"process": "plugin_com.utmstack.alerts",
 	})
 	return nil
 }
@@ -288,8 +219,9 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 	defer func() {
 		if r := recover(); r != nil {
 			_ = catcher.Error("recovered from panic in newAlert", nil, map[string]any{
-				"panic": r,
-				"alert": alert.Name,
+				"panic":   r,
+				"alert":   alert.Name,
+				"process": "plugin_com.utmstack.alerts",
 			})
 		}
 	}()
@@ -348,7 +280,7 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 	for retry := 0; retry < maxRetries; retry++ {
 		cancelableContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
-		err := twos.IndexDoc(cancelableContext, a, twos.BuildCurrentIndex("v11", "alert"), alert.Id)
+		err := sdkos.IndexDoc(cancelableContext, a, sdkos.BuildCurrentIndex("v11", "alert"), alert.Id)
 		if err == nil {
 			cancel()
 			return nil
@@ -359,6 +291,7 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 			"alert":      alert.Name,
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
+			"process":    "plugin_com.utmstack.alerts",
 		})
 
 		if retry < maxRetries-1 {
@@ -368,7 +301,8 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 		} else {
 			// If all retries failed, return the error
 			return catcher.Error("all retries failed when indexing document", err, map[string]any{
-				"alert": alert.Name,
+				"alert":   alert.Name,
+				"process": "plugin_com.utmstack.alerts",
 			})
 		}
 	}
@@ -377,12 +311,13 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 	return nil
 }
 
-func updateParentAlertToOpen(parentHit twos.Hit) {
+func updateParentAlertToOpen(parentHit sdkos.Hit) {
 	defer func() {
 		if r := recover(); r != nil {
 			_ = catcher.Error("recovered from panic in updateParentAlertToOpen", nil, map[string]any{
 				"panic":    r,
 				"parentId": parentHit.ID,
+				"process":  "plugin_com.utmstack.alerts",
 			})
 		}
 	}()
@@ -392,6 +327,7 @@ func updateParentAlertToOpen(parentHit twos.Hit) {
 	if err != nil {
 		_ = catcher.Error("cannot parse parent alert source", err, map[string]any{
 			"parentId": parentHit.ID,
+			"process":  "plugin_com.utmstack.alerts",
 		})
 		return
 	}
@@ -405,6 +341,7 @@ func updateParentAlertToOpen(parentHit twos.Hit) {
 		if err != nil {
 			_ = catcher.Error("cannot set updated parent alert source", err, map[string]any{
 				"parentId": parentHit.ID,
+				"process":  "plugin_com.utmstack.alerts",
 			})
 			return
 		}
@@ -423,6 +360,7 @@ func updateParentAlertToOpen(parentHit twos.Hit) {
 					"parentId":   parentHit.ID,
 					"retry":      retry + 1,
 					"maxRetries": maxRetries,
+					"process":    "alerts-plugin",
 				})
 
 				if retry < maxRetries-1 {
@@ -437,6 +375,7 @@ func updateParentAlertToOpen(parentHit twos.Hit) {
 
 		_ = catcher.Error("all retries failed when updating parent alert to Open", nil, map[string]any{
 			"parentId": parentHit.ID,
+			"process":  "alerts-plugin",
 		})
 	}
 }

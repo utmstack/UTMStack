@@ -17,7 +17,7 @@ func InitUpdatesManager() {
 }
 
 func ServeDependencies() {
-	catcher.Info("Serving dependencies", map[string]any{"path": config.UpdatesDependenciesFolder})
+	catcher.Info("Serving dependencies", map[string]any{"path": config.UpdatesDependenciesFolder, "process": "agent-manager"})
 
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
@@ -33,7 +33,7 @@ func ServeDependencies() {
 
 	loadedCert, err := tls.LoadX509KeyPair(config.CertPath, config.CertKeyPath)
 	if err != nil {
-		catcher.Error("failed to load TLS credentials", err, nil)
+		catcher.Error("failed to load TLS credentials", err, map[string]any{"process": "agent-manager"})
 		os.Exit(1)
 	}
 
@@ -55,9 +55,9 @@ func ServeDependencies() {
 		TLSConfig: tlsConfig,
 	}
 
-	catcher.Info("Starting HTTP server on port 8080", nil)
+	catcher.Info("Starting HTTP server on port 8080", map[string]any{"process": "agent-manager"})
 	if err := server.ListenAndServeTLS("", ""); err != nil {
-		catcher.Error("error starting HTTP server", err, nil)
+		catcher.Error("error starting HTTP server", err, map[string]any{"process": "agent-manager"})
 		return
 	}
 }

@@ -65,7 +65,7 @@ var SupportedClouds = []CloudEndpoints{
 }
 
 func main() {
-	mode := plugins.GetCfg().Env.Mode
+	mode := plugins.GetCfg("plugin_com.utmstack.azure").Env.Mode
 	if mode != "worker" {
 		return
 	}
@@ -74,7 +74,7 @@ func main() {
 
 	for t := 0; t < 2*runtime.NumCPU(); t++ {
 		go func() {
-			plugins.SendLogsFromChannel()
+			plugins.SendLogsFromChannel("com.utmstack.azure")
 		}()
 	}
 
@@ -91,6 +91,7 @@ func main() {
 					catcher.Info("Airgap or limited connectivity detected", map[string]any{
 						"cloud":          cloudName,
 						"loginAuthority": loginAuthority,
+						"process":        "plugin_com.utmstack.azure",
 					})
 				}
 			}
@@ -159,7 +160,8 @@ func pull(group *config.ModuleGroup) {
 	if agent.EventHubConnection == "" || agent.ConsumerGroup == "" ||
 		agent.StorageContainer == "" || agent.StorageConnection == "" {
 		_ = catcher.Error("missing required configuration for Event Hub", nil, map[string]any{
-			"group": agent.GroupName,
+			"group":   agent.GroupName,
+			"process": "plugin_com.utmstack.azure",
 		})
 		return
 	}
@@ -167,7 +169,8 @@ func pull(group *config.ModuleGroup) {
 	eventHubParts := strings.Split(agent.EventHubConnection, ";EntityPath=")
 	if len(eventHubParts) != 2 {
 		_ = catcher.Error("invalid Event Hub connection string format", nil, map[string]any{
-			"group": agent.GroupName,
+			"group":   agent.GroupName,
+			"process": "plugin_com.utmstack.azure",
 		})
 		return
 	}
@@ -178,7 +181,8 @@ func pull(group *config.ModuleGroup) {
 	blobClient, err := azblob.NewClientFromConnectionString(agent.StorageConnection, nil)
 	if err != nil {
 		_ = catcher.Error("cannot create blob client", err, map[string]any{
-			"group": agent.GroupName,
+			"group":   agent.GroupName,
+			"process": "plugin_com.utmstack.azure",
 		})
 		return
 	}
@@ -187,7 +191,8 @@ func pull(group *config.ModuleGroup) {
 		blobClient.ServiceClient().NewContainerClient(agent.StorageContainer), nil)
 	if err != nil {
 		_ = catcher.Error("cannot create checkpoint store", err, map[string]any{
-			"group": agent.GroupName,
+			"group":   agent.GroupName,
+			"process": "plugin_com.utmstack.azure",
 		})
 		return
 	}
@@ -207,6 +212,7 @@ func pull(group *config.ModuleGroup) {
 			"group":      agent.GroupName,
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
+			"process":    "plugin_com.utmstack.azure",
 		})
 
 		if retry < maxRetries-1 {
@@ -218,7 +224,8 @@ func pull(group *config.ModuleGroup) {
 
 	if err != nil {
 		_ = catcher.Error("all retries failed when creating Event Hub consumer client", err, map[string]any{
-			"group": agent.GroupName,
+			"group":   agent.GroupName,
+			"process": "plugin_com.utmstack.azure",
 		})
 		return
 	}
@@ -227,7 +234,8 @@ func pull(group *config.ModuleGroup) {
 	processor, err := azeventhubs.NewProcessor(client, checkpointStore, nil)
 	if err != nil {
 		_ = catcher.Error("cannot create Event Hub processor", err, map[string]any{
-			"group": agent.GroupName,
+			"group":   agent.GroupName,
+			"process": "plugin_com.utmstack.azure",
 		})
 		return
 	}
@@ -247,7 +255,8 @@ func pull(group *config.ModuleGroup) {
 
 	if err := processor.Run(ctx); err != nil && !errors.Is(err, context.Canceled) {
 		_ = catcher.Error("error running Event Hub processor", err, map[string]any{
-			"group": agent.GroupName,
+			"group":   agent.GroupName,
+			"process": "plugin_com.utmstack.azure",
 		})
 	}
 }
@@ -264,6 +273,7 @@ func processPartition(pc *azeventhubs.ProcessorPartitionClient, groupName string
 			_ = catcher.Error("error receiving events", err, map[string]any{
 				"group":       groupName,
 				"partitionID": pc.PartitionID(),
+				"process":     "plugin_com.utmstack.azure",
 			})
 			return
 		}
@@ -278,6 +288,7 @@ func processPartition(pc *azeventhubs.ProcessorPartitionClient, groupName string
 				_ = catcher.Error("cannot parse event body", err, map[string]any{
 					"group":       groupName,
 					"partitionID": pc.PartitionID(),
+					"process":     "plugin_com.utmstack.azure",
 				})
 				continue
 			}
@@ -289,6 +300,7 @@ func processPartition(pc *azeventhubs.ProcessorPartitionClient, groupName string
 						_ = catcher.Error("invalid record format in records array", nil, map[string]any{
 							"group":       groupName,
 							"partitionID": pc.PartitionID(),
+							"process":     "plugin_com.utmstack.azure",
 						})
 						continue
 					}
@@ -298,6 +310,7 @@ func processPartition(pc *azeventhubs.ProcessorPartitionClient, groupName string
 						_ = catcher.Error("cannot encode record to JSON", err, map[string]any{
 							"group":       groupName,
 							"partitionID": pc.PartitionID(),
+							"process":     "plugin_com.utmstack.azure",
 						})
 						continue
 					}
@@ -309,7 +322,7 @@ func processPartition(pc *azeventhubs.ProcessorPartitionClient, groupName string
 						DataSource: groupName,
 						Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 						Raw:        string(jsonLog),
-					})
+					}, "com.utmstack.azure")
 				}
 			} else {
 				jsonLog, err := json.Marshal(logData)
@@ -317,6 +330,7 @@ func processPartition(pc *azeventhubs.ProcessorPartitionClient, groupName string
 					_ = catcher.Error("cannot encode log to JSON", err, map[string]any{
 						"group":       groupName,
 						"partitionID": pc.PartitionID(),
+						"process":     "plugin_com.utmstack.azure",
 					})
 					continue
 				}
@@ -328,7 +342,7 @@ func processPartition(pc *azeventhubs.ProcessorPartitionClient, groupName string
 					DataSource: groupName,
 					Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 					Raw:        string(jsonLog),
-				})
+				}, "com.utmstack.azure")
 			}
 		}
 
@@ -336,6 +350,7 @@ func processPartition(pc *azeventhubs.ProcessorPartitionClient, groupName string
 			_ = catcher.Error("checkpoint error", err, map[string]any{
 				"group":       groupName,
 				"partitionID": pc.PartitionID(),
+				"process":     "plugin_com.utmstack.azure",
 			})
 		}
 	}
@@ -399,7 +414,7 @@ func checkConnection(url string) error {
 	defer func() {
 		err := resp.Body.Close()
 		if err != nil {
-			_ = catcher.Error("cannot close response body", err, nil)
+			_ = catcher.Error("cannot close response body", err, map[string]any{"process": "plugin_com.utmstack.azure"})
 		}
 	}()
 
@@ -413,7 +428,7 @@ func infiniteRetryIfXError(f func() error, exception string) error {
 		err := f()
 		if err != nil && is(err, exception) {
 			if !xErrorWasLogged {
-				_ = catcher.Error("An error occurred (%s), will keep retrying indefinitely...", err, nil)
+				_ = catcher.Error("An error occurred (%s), will keep retrying indefinitely...", err, map[string]any{"process": "azure-plugin"})
 				xErrorWasLogged = true
 			}
 			time.Sleep(wait)

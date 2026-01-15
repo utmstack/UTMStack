@@ -40,7 +40,7 @@ func createHistoryCommand(cmd *UtmCommand, cmdID string, agentId uint) *models.A
 func parseAgentToProto(agent models.Agent) *Agent {
 	agentStatus, lastSeen, err := LastSeenServ.GetLastSeenStatus(agent.ID, "agent")
 	if err != nil {
-		catcher.Error("failed to get last seen status for agent", err, map[string]any{"agent": agent.ID})
+		catcher.Error("failed to get last seen status for agent", err, map[string]any{"agent": agent.ID, "process": "agent-manager"})
 	}
 	agentResult := &Agent{
 		Id:             uint32(agent.ID),
@@ -108,7 +108,7 @@ func replaceSecretValues(input string) string {
 func modelToProtoCollector(model models.Collector) *Collector {
 	collectorStatus, lastSeen, err := LastSeenServ.GetLastSeenStatus(model.ID, "collector")
 	if err != nil {
-		catcher.Error("failed to get last seen status for collector", err, map[string]any{"model": model.ID})
+		catcher.Error("failed to get last seen status for collector", err, map[string]any{"model": model.ID, "process": "agent-manager"})
 	}
 	return &Collector{
 		Id:           int32(model.ID),

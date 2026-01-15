@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/threatwinds/go-sdk/utils"
 	"io"
 	"net"
 	"os"
 	"time"
+
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/threatwinds/go-sdk/utils"
 
 	"google.golang.org/grpc"
 )
@@ -36,6 +37,7 @@ func main() {
 		}
 
 		_ = catcher.Error("cannot create socket directory, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.events",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
@@ -46,7 +48,7 @@ func main() {
 			retryDelay *= 2
 		} else {
 			// If all retries failed, log the error and return
-			_ = catcher.Error("all retries failed when creating socket directory", err, nil)
+			_ = catcher.Error("all retries failed when creating socket directory", err, map[string]any{"process": "plugin_com.utmstack.events"})
 			return
 		}
 	}
@@ -63,6 +65,7 @@ func main() {
 		}
 
 		_ = catcher.Error("cannot resolve unix address, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.events",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
@@ -73,7 +76,7 @@ func main() {
 			retryDelay *= 2
 		} else {
 			// If all retries failed, log the error and return
-			_ = catcher.Error("all retries failed when resolving unix address", err, nil)
+			_ = catcher.Error("all retries failed when resolving unix address", err, map[string]any{"process": "plugin_com.utmstack.events"})
 			return
 		}
 	}
@@ -89,6 +92,7 @@ func main() {
 		}
 
 		_ = catcher.Error("cannot listen to unix socket, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.events",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
@@ -99,7 +103,7 @@ func main() {
 			retryDelay *= 2
 		} else {
 			// If all retries failed, log the error and return
-			_ = catcher.Error("all retries failed when listening to unix socket", err, nil)
+			_ = catcher.Error("all retries failed when listening to unix socket", err, map[string]any{"process": "plugin_com.utmstack.events"})
 			return
 		}
 	}
@@ -109,7 +113,7 @@ func main() {
 
 	// Serve with error handling
 	if err := grpcServer.Serve(listener); err != nil {
-		_ = catcher.Error("cannot serve grpc", err, nil)
+		_ = catcher.Error("cannot serve grpc", err, map[string]any{"process": "plugin_com.utmstack.events"})
 		// Instead of exiting, restart the main function
 		time.Sleep(5 * time.Second)
 		go main()
@@ -117,10 +121,10 @@ func main() {
 	}
 }
 
-func (p *analysisServer) Analyze(event *plugins.Event, _ grpc.ServerStreamingServer[plugins.Alert]) error {
-	jLog, err := utils.ToString(event)
+func (p *analysisServer) Analyze(event *plugins.Event, _ plugins.Analysis_AnalyzeServer) error {
+	jLog, err := utils.ProtoMessageToString(event)
 	if err != nil {
-		return catcher.Error("cannot convert event to json", err, nil)
+		return catcher.Error("cannot convert event to json", err, map[string]any{"process": "plugin_com.utmstack.events"})
 	}
 
 	addToQueue(*jLog)

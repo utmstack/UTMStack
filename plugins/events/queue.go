@@ -8,17 +8,17 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 
-	twos "github.com/threatwinds/go-sdk/os"
+	sdkos "github.com/threatwinds/go-sdk/os"
 	"github.com/tidwall/gjson"
 )
 
 var logs = make(chan string, 100*runtime.NumCPU())
-var bulkQueue *twos.BulkQueue
 
 func addToQueue(l string) {
 	if len(logs) >= 100*runtime.NumCPU() {
 		_ = catcher.Error("cannot enqueue log", fmt.Errorf("queue is full"), map[string]any{
-			"queue": "logs",
+			"process": "plugin_com.utmstack.events",
+			"queue":   "logs",
 		})
 
 		return
@@ -35,48 +35,51 @@ func startQueue() {
 	for retry := 0; retry < maxRetries; retry++ {
 		osUrl := plugins.PluginCfg("com.utmstack", false).Get("opensearch").String()
 
-		err := twos.Connect([]string{osUrl}, "", "")
+		err := sdkos.Connect([]string{osUrl}, "", "")
 		if err == nil {
 			break
 		}
 
 		_ = catcher.Error("cannot connect to OpenSearch, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.events",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
 
 		if retry < maxRetries-1 {
 			time.Sleep(retryDelay)
+			// Increase delay for next retry
 			retryDelay *= 2
 		} else {
-			_ = catcher.Error("all retries failed when connecting to OpenSearch", err, nil)
+			// If all retries failed, log the error and return
+			_ = catcher.Error("all retries failed when connecting to OpenSearch", err, map[string]any{"process": "plugin_com.utmstack.events"})
 			return
 		}
 	}
 
-	bulkQueue = twos.NewBulkQueue(twos.BulkQueueConfig{
-		FlushInterval: 10 * time.Second,
-		OnError: func(failedItems []twos.BulkItem, err error) {
-			_ = catcher.Error("failed to send logs to OpenSearch", err, map[string]any{
-				"failedCount": len(failedItems),
-			})
-		},
+	queue := sdkos.NewBulkQueue("plugin_com.utmstack.events", sdkos.BulkQueueConfig{
+		FlushInterval:  10 * time.Second,
+		FlushThreshold: 50,
+		MaxRetries:     0,
+		RetryDelay:     time.Second,
 	})
-
-	if bulkQueue == nil {
-		_ = catcher.Error("failed to create bulk queue", fmt.Errorf("OpenSearch connection not established"), nil)
-		return
-	}
 
 	numCPU := runtime.NumCPU() * 2
 	for i := 0; i < numCPU; i++ {
 		go func() {
-			for l := range logs {
+			for {
+				l := <-logs
+
 				dataType := gjson.Get(l, "dataType").String()
 				id := gjson.Get(l, "id").String()
-				index := twos.BuildCurrentIndex("v11", "log", dataType)
+				index := sdkos.BuildCurrentIndex("v11", "log", dataType)
 
-				bulkQueue.AddWithID(index, id, l)
+				queue.AddItem(sdkos.BulkItem{
+					Index:      index,
+					DocumentID: id,
+					Document:   []byte(l),
+					Operation:  "index",
+				})
 			}
 		}()
 	}

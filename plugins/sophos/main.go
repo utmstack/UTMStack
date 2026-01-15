@@ -32,7 +32,7 @@ var (
 )
 
 func main() {
-	mode := plugins.GetCfg().Env.Mode
+	mode := plugins.GetCfg("plugin_com.utmstack.sophos").Env.Mode
 	if mode != "manager" {
 		return
 	}
@@ -40,7 +40,7 @@ func main() {
 	go config.StartConfigurationSystem()
 
 	for t := 0; t < 2*runtime.NumCPU(); t++ {
-		go plugins.SendLogsFromChannel()
+		go plugins.SendLogsFromChannel("com.utmstack.sophos")
 	}
 
 	delay := 5 * time.Minute
@@ -53,7 +53,7 @@ func main() {
 		endTime := time.Now().UTC()
 
 		if err := connectionChecker(urlCheckConnection); err != nil {
-			_ = catcher.Error("External connection failure detected: %v", err, nil)
+			_ = catcher.Error("External connection failure detected", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
 			continue
 		}
 
@@ -91,7 +91,7 @@ func pull(startTime time.Time, group *config.ModuleGroup) {
 	agent := getSophosCentralProcessor(group)
 	logs, newNextKey, err := agent.getLogs(startTime.Unix(), prevKey)
 	if err != nil {
-		_ = catcher.Error("error getting logs", err, nil)
+		_ = catcher.Error("error getting logs", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
 		return
 	}
 
@@ -169,6 +169,7 @@ func (p *SophosCentralProcessor) getAccessToken() (string, error) {
 		}
 
 		_ = catcher.Error("error getting access token, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.sophos",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
@@ -181,12 +182,13 @@ func (p *SophosCentralProcessor) getAccessToken() (string, error) {
 	}
 
 	if err != nil {
-		return "", catcher.Error("all retries failed when getting access token", err, nil)
+		return "", catcher.Error("all retries failed when getting access token", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
 	}
 
 	accessToken, ok := response["access_token"].(string)
 	if !ok || accessToken == "" {
 		return "", catcher.Error("access_token not found in response after all retries", nil, map[string]any{
+			"process":  "plugin_com.utmstack.sophos",
 			"response": response,
 		})
 	}
@@ -194,6 +196,7 @@ func (p *SophosCentralProcessor) getAccessToken() (string, error) {
 	expiresIn, ok := response["expires_in"].(float64)
 	if !ok {
 		return "", catcher.Error("expires_in not found in response after all retries", nil, map[string]any{
+			"process":  "plugin_com.utmstack.sophos",
 			"response": response,
 		})
 	}
@@ -237,6 +240,7 @@ func (p *SophosCentralProcessor) getTenantInfo(accessToken string) error {
 		}
 
 		_ = catcher.Error("error getting tenant info, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.sophos",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
@@ -249,11 +253,12 @@ func (p *SophosCentralProcessor) getTenantInfo(accessToken string) error {
 	}
 
 	if err != nil {
-		return catcher.Error("all retries failed when getting tenant info", err, nil)
+		return catcher.Error("all retries failed when getting tenant info", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
 	}
 
 	if response.ID == "" {
 		return catcher.Error("tenant ID not found in whoami response after all retries", nil, map[string]any{
+			"process":  "plugin_com.utmstack.sophos",
 			"response": response,
 		})
 	}
@@ -261,6 +266,7 @@ func (p *SophosCentralProcessor) getTenantInfo(accessToken string) error {
 
 	if response.ApiHosts.DataRegion == "" {
 		return catcher.Error("dataRegion not found in whoami response after all retries", nil, map[string]any{
+			"process":  "plugin_com.utmstack.sophos",
 			"response": response,
 		})
 	}
@@ -303,6 +309,7 @@ func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string) ([]stri
 		}
 
 		_ = catcher.Error("error getting access token, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.sophos",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
@@ -315,7 +322,7 @@ func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string) ([]stri
 	}
 
 	if err != nil {
-		return nil, "", catcher.Error("all retries failed when getting access token", err, nil)
+		return nil, "", catcher.Error("all retries failed when getting access token", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
 	}
 
 	if p.TenantID == "" || p.DataRegion == "" {
@@ -327,6 +334,7 @@ func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string) ([]stri
 			}
 
 			_ = catcher.Error("error getting tenant info, retrying", err, map[string]any{
+				"process":    "plugin_com.utmstack.sophos",
 				"retry":      retry + 1,
 				"maxRetries": maxRetries,
 			})
@@ -339,7 +347,7 @@ func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string) ([]stri
 		}
 
 		if err != nil {
-			return nil, "", catcher.Error("all retries failed when getting tenant info", err, nil)
+			return nil, "", catcher.Error("all retries failed when getting tenant info", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
 		}
 	}
 
@@ -366,6 +374,7 @@ func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string) ([]stri
 			}
 
 			_ = catcher.Error("error getting logs, retrying", err, map[string]any{
+				"process":    "plugin_com.utmstack.sophos",
 				"retry":      retry + 1,
 				"maxRetries": maxRetries,
 			})
@@ -378,13 +387,13 @@ func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string) ([]stri
 		}
 
 		if err != nil {
-			return nil, "", catcher.Error("all retries failed when getting logs", err, nil)
+			return nil, "", catcher.Error("all retries failed when getting logs", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
 		}
 
 		for _, item := range response.Items {
 			jsonItem, err := json.Marshal(item)
 			if err != nil {
-				_ = catcher.Error("error marshalling content details", err, nil)
+				_ = catcher.Error("error marshalling content details", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
 				continue
 			}
 			logs = append(logs, string(jsonItem))
@@ -404,7 +413,8 @@ func (p *SophosCentralProcessor) buildURL(fromTime int64, nextKey string) (*url.
 	u, parseErr := url.Parse(baseURL)
 	if parseErr != nil {
 		return nil, catcher.Error("error parsing url", parseErr, map[string]any{
-			"url": baseURL,
+			"process": "sophos-plugin",
+			"url":     baseURL,
 		})
 	}
 
