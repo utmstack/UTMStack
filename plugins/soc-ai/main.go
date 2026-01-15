@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -11,10 +12,6 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-type socAiServer struct {
-	plugins.UnimplementedCorrelationServer
-}
-
 func main() {
 	utils.Logger.Info("Starting soc-ai plugin...")
 
@@ -23,7 +20,13 @@ func main() {
 	time.Sleep(2 * time.Second)
 	InitializeQueue()
 
-	_ = plugins.InitCorrelationPlugin("com.utmstack.soc-ai", correlate)
+	err := plugins.InitCorrelationPlugin("com.utmstack.soc-ai", correlate)
+	if err != nil {
+		_ = catcher.Error("failed to start correlation plugin", err, map[string]any{
+			"process": "plugin_com.utmstack.soc-ai",
+		})
+		os.Exit(1)
+	}
 }
 
 func correlate(_ context.Context,

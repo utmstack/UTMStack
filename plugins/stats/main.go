@@ -54,7 +54,13 @@ func main() {
 		saveToDB(ctx, "success")
 	}()
 
-	_ = plugins.InitNotificationPlugin("com.utmstack.stats", notify)
+	err = plugins.InitNotificationPlugin("com.utmstack.stats", notify)
+	if err != nil {
+		_ = catcher.Error("failed to start notification plugin", err, map[string]any{
+			"process": "plugin_com.utmstack.stats",
+		})
+		os.Exit(1)
+	}
 
 	cancel()
 	wg.Wait()

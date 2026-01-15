@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -58,9 +59,16 @@ func main() {
 	err := sdkos.Connect([]string{openSearchUrl}, "", "")
 	if err != nil {
 		_ = catcher.Error("cannot connect to OpenSearch", err, map[string]any{"process": "plugin_com.utmstack.alerts"})
+		os.Exit(1)
 	}
 
-	_ = plugins.InitCorrelationPlugin("com.utmstack.alerts", correlate)
+	err = plugins.InitCorrelationPlugin("com.utmstack.alerts", correlate)
+	if err != nil {
+		_ = catcher.Error("com.utmstack.alerts", err, map[string]any{
+			"process": "plugin_com.utmstack.alerts",
+		})
+		os.Exit(1)
+	}
 }
 
 func correlate(_ context.Context,

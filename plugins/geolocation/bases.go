@@ -13,9 +13,7 @@ import (
 
 // loadGeolocationData loads the geolocation files and populates the maps
 func loadGeolocationData() {
-	// Get the geolocation directory from environment variable or use default
-	workdir := plugins.WorkDir
-	geoDir, err := utils.MkdirJoin(workdir, "geolocation")
+	geoDir, err := utils.MkdirJoin(plugins.WorkDir, "geolocation")
 	if err != nil {
 		_ = catcher.Error("could not create geolocation directory", err, map[string]any{"process": "plugin_com.utmstack.geolocation"})
 		return
