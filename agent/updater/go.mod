@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/kardianos/service v1.2.4
-	github.com/threatwinds/go-sdk v1.0.51
+	github.com/threatwinds/go-sdk v1.1.0
 	github.com/threatwinds/logger v1.2.3
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -31,7 +31,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
-	github.com/quic-go/quic-go v0.58.0 // indirect
+	github.com/quic-go/quic-go v0.59.0 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect

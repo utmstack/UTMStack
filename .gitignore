@@ -9,4 +9,4 @@ installer/installer
 **/.vscode
 **/*.plugin
 installer/public_key.crt
-.github/scripts/golang-updater/golang-updater
+.github/scripts/golang-updater/go-updater

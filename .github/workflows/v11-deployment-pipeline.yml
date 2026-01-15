@@ -98,7 +98,7 @@ jobs:
           RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
           -H "Accept: application/vnd.github.json" \
           "https://api.github.com/orgs/utmstack/teams/integration-developers/memberships/${{ github.actor }}")
-          
+
           if echo "$RESPONSE" | grep -q '"state": "active"'; then
             echo "✅ User ${{ github.actor }} is a member of the integration-developers team."
           else
@@ -115,9 +115,31 @@ jobs:
             fi
           fi
 
+  check_go_dependencies:
+    name: Check Go Dependencies
+    runs-on: ubuntu-24.04
+    needs: [validations, setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ^1.20
+
+      - name: Configure git for private modules
+        run: |
+          git config --global url."https://${{ secrets.API_SECRET }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+          echo "GOPRIVATE=github.com/utmstack" >> $GITHUB_ENV
+
+      - name: Check for outdated dependencies
+        run: ${{ github.workspace }}/.github/scripts/golang-updater/golang-updater --check --discover
+
   build_agent:
     name: Build and Sign Agent
-    needs: [validations,setup_deployment]
+    needs: [check_go_dependencies, setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: utmstack-signer
     steps:
@@ -182,7 +204,7 @@ jobs:
   
   build_utmstack_collector:
     name: Build UTMStack Collector
-    needs: [validations,setup_deployment]
+    needs: [check_go_dependencies, setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
@@ -205,7 +227,7 @@ jobs:
 
   build_agent_manager:
     name: Build Agent Manager Microservice
-    needs: [validations, build_agent, build_utmstack_collector, setup_deployment]
+    needs: [build_agent, build_utmstack_collector, setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
@@ -223,7 +245,7 @@ jobs:
         with:
           name: utmstack-collector
           path: ${{ github.workspace }}/utmstack-collector
-      
+
       - name: Prepare dependencies for Agent Manager Image
         run: |
           cd ${{ github.workspace }}/agent-manager
@@ -266,7 +288,7 @@ jobs:
   
   build_event_processor:
     name: Build Event Processor Microservice
-    needs: [validations,setup_deployment]
+    needs: [check_go_dependencies, setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
