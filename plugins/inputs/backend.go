@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
 	"io"
 	"net/http"
+
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 )
 
 func createPanelRequest(method string, endpoint string) (*http.Request, error) {
@@ -17,7 +18,7 @@ func createPanelRequest(method string, endpoint string) (*http.Request, error) {
 
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
-		return nil, catcher.Error("cannot create request", err, nil)
+		return nil, catcher.Error("cannot create request", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 	}
 
 	req.Header.Add(panelAPIKeyHeader, internalKey)
@@ -30,12 +31,12 @@ func GetConnectionKey() ([]byte, error) {
 
 	req, err := createPanelRequest("GET", panelConnectionKeyEndpoint)
 	if err != nil {
-		return nil, catcher.Error("cannot create request", err, nil)
+		return nil, catcher.Error("cannot create request", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, catcher.Error("cannot send request", err, nil)
+		return nil, catcher.Error("cannot send request", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 	}
 
 	defer func() {
@@ -44,7 +45,8 @@ func GetConnectionKey() ([]byte, error) {
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, catcher.Error("cannot get connection key", nil, map[string]any{
-			"status": resp.StatusCode,
+			"process": "plugin_com.utmstack.inputs",
+			"status":  resp.StatusCode,
 		})
 	}
 

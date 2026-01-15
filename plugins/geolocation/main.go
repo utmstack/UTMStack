@@ -34,6 +34,7 @@ func main() {
 		}
 
 		_ = catcher.Error("cannot create directory, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.geolocation",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
@@ -44,7 +45,7 @@ func main() {
 			retryDelay *= 2
 		} else {
 			// If all retries failed, log the error and return
-			_ = catcher.Error("all retries failed when creating directory", err, nil)
+			_ = catcher.Error("all retries failed when creating directory", err, map[string]any{"process": "plugin_com.utmstack.geolocation"})
 			return
 		}
 	}
@@ -63,6 +64,7 @@ func main() {
 		}
 
 		_ = catcher.Error("cannot resolve unix address, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.geolocation",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
@@ -73,7 +75,7 @@ func main() {
 			retryDelay *= 2
 		} else {
 			// If all retries failed, log the error and return
-			_ = catcher.Error("all retries failed when resolving unix address", err, nil)
+			_ = catcher.Error("all retries failed when resolving unix address", err, map[string]any{"process": "plugin_com.utmstack.geolocation"})
 			return
 		}
 	}
@@ -89,6 +91,7 @@ func main() {
 		}
 
 		_ = catcher.Error("cannot listen to unix socket, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.geolocation",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
@@ -99,7 +102,7 @@ func main() {
 			retryDelay *= 2
 		} else {
 			// If all retries failed, log the error and return
-			_ = catcher.Error("all retries failed when listening to unix socket", err, nil)
+			_ = catcher.Error("all retries failed when listening to unix socket", err, map[string]any{"process": "plugin_com.utmstack.geolocation"})
 			return
 		}
 	}
@@ -116,7 +119,7 @@ func main() {
 			break
 		}
 
-		_ = catcher.Error("cannot serve grpc, retrying", err, nil)
+		_ = catcher.Error("cannot serve grpc, retrying", err, map[string]any{"process": "plugin_com.utmstack.geolocation"})
 		time.Sleep(5 * time.Second)
 	}
 }
@@ -124,12 +127,12 @@ func main() {
 func (p *parsingServer) ParseLog(_ context.Context, transform *plugins.Transform) (*plugins.Draft, error) {
 	source, ok := transform.Step.Dynamic.Params["source"]
 	if !ok {
-		return transform.Draft, catcher.Error("'source' parameter required", nil, nil)
+		return transform.Draft, catcher.Error("'source' parameter required", nil, map[string]any{"process": "plugin_com.utmstack.geolocation"})
 	}
 
 	destination, ok := transform.Step.Dynamic.Params["destination"]
 	if !ok {
-		return transform.Draft, catcher.Error("'destination' parameter required", nil, nil)
+		return transform.Draft, catcher.Error("'destination' parameter required", nil, map[string]any{"process": "plugin_com.utmstack.geolocation"})
 	}
 
 	sourceField := source.GetStringValue()
@@ -138,7 +141,8 @@ func (p *parsingServer) ParseLog(_ context.Context, transform *plugins.Transform
 	err := utils.ValidateReservedField(sourceField, false)
 	if err != nil {
 		return transform.Draft, catcher.Error("cannot parse log", err, map[string]any{
-			"field": sourceField,
+			"process": "plugin_com.utmstack.geolocation",
+			"field":   sourceField,
 		})
 	}
 
@@ -148,7 +152,8 @@ func (p *parsingServer) ParseLog(_ context.Context, transform *plugins.Transform
 	err = utils.ValidateReservedField(destinationField, false)
 	if err != nil {
 		return transform.Draft, catcher.Error("cannot parse log", err, map[string]any{
-			"field": destinationField,
+			"process": "plugin_com.utmstack.geolocation",
+			"field":   destinationField,
 		})
 	}
 
@@ -165,7 +170,7 @@ func (p *parsingServer) ParseLog(_ context.Context, transform *plugins.Transform
 
 	transform.Draft.Log, err = sjson.Set(transform.Draft.Log, destinationField, geo)
 	if err != nil {
-		return transform.Draft, catcher.Error("failed to set geolocation", err, nil)
+		return transform.Draft, catcher.Error("failed to set geolocation", err, map[string]any{"process": "plugin_com.utmstack.geolocation"})
 	}
 
 	return transform.Draft, nil

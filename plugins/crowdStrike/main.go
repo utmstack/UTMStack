@@ -27,7 +27,7 @@ const (
 )
 
 func main() {
-	mode := plugins.GetCfg().Env.Mode
+	mode := plugins.GetCfg("plugin_com.utmstack.crowdstrike").Env.Mode
 	if mode != "manager" {
 		return
 	}
@@ -36,7 +36,7 @@ func main() {
 
 	for t := 0; t < 2*runtime.NumCPU(); t++ {
 		go func() {
-			plugins.SendLogsFromChannel()
+			plugins.SendLogsFromChannel("com.utmstack.crowdstrike")
 		}()
 	}
 
@@ -46,7 +46,7 @@ func main() {
 
 	for range ticker.C {
 		if err := connectionChecker(urlCheckConnection); err != nil {
-			_ = catcher.Error("External connection failure detected: %v", err, nil)
+			_ = catcher.Error("External connection failure detected: %v", err, map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
 		}
 
 		moduleConfig := config.GetConfig()
@@ -80,7 +80,8 @@ func pullCrowdStrikeEvents(group *config.ModuleGroup) {
 	events, err := processor.getEvents()
 	if err != nil {
 		_ = catcher.Error("cannot get CrowdStrike events", err, map[string]any{
-			"group": group.GroupName,
+			"group":   group.GroupName,
+			"process": "plugin_com.utmstack.crowdstrike",
 		})
 		return
 	}
@@ -93,7 +94,7 @@ func pullCrowdStrikeEvents(group *config.ModuleGroup) {
 			DataSource: group.GroupName,
 			Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 			Raw:        event,
-		})
+		}, "com.utmstack.crowdstrike")
 	}
 }
 
@@ -125,7 +126,7 @@ func getCrowdStrikeProcessor(group *config.ModuleGroup) CrowdStrikeProcessor {
 func (p *CrowdStrikeProcessor) createClient() (*client.CrowdStrikeAPISpecification, error) {
 	if p.ClientID == "" || p.ClientSecret == "" {
 		return nil, catcher.Error("cannot create CrowdStrike client",
-			errors.New("client ID or client secret is empty"), nil)
+			errors.New("client ID or client secret is empty"), map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
 	}
 
 	client, err := falcon.NewClient(&falcon.ApiConfig{
@@ -135,7 +136,7 @@ func (p *CrowdStrikeProcessor) createClient() (*client.CrowdStrikeAPISpecificati
 		Context:      context.Background(),
 	})
 	if err != nil {
-		return nil, catcher.Error("cannot create CrowdStrike client", err, nil)
+		return nil, catcher.Error("cannot create CrowdStrike client", err, map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
 	}
 
 	return client, nil
@@ -159,17 +160,18 @@ func (p *CrowdStrikeProcessor) getEvents() ([]string, error) {
 		},
 	)
 	if err != nil {
-		return nil, catcher.Error("cannot list available streams", err, nil)
+		return nil, catcher.Error("cannot list available streams", err, map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
 	}
 
 	if err = falcon.AssertNoError(response.Payload.Errors); err != nil {
-		return nil, catcher.Error("CrowdStrike API error", err, nil)
+		return nil, catcher.Error("CrowdStrike API error", err, map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
 	}
 
 	availableStreams := response.Payload.Resources
 	if len(availableStreams) == 0 {
 		_ = catcher.Error("no available streams found", nil, map[string]any{
-			"app_id": p.AppName,
+			"app_id":  p.AppName,
+			"process": "plugin_com.utmstack.crowdstrike",
 		})
 		return []string{}, nil
 	}
@@ -179,7 +181,8 @@ func (p *CrowdStrikeProcessor) getEvents() ([]string, error) {
 		streamEvents, err := p.getStreamEvents(ctx, client, availableStream)
 		if err != nil {
 			_ = catcher.Error("cannot get stream events", err, map[string]any{
-				"stream": availableStream,
+				"stream":  availableStream,
+				"process": "plugin_com.utmstack.crowdstrike",
 			})
 			continue
 		}
@@ -192,12 +195,12 @@ func (p *CrowdStrikeProcessor) getEvents() ([]string, error) {
 func (p *CrowdStrikeProcessor) getStreamEvents(ctx context.Context, client *client.CrowdStrikeAPISpecification, availableStream interface{}) ([]string, error) {
 	stream_v2, ok := availableStream.(*models.MainAvailableStreamV2)
 	if !ok {
-		return nil, catcher.Error("invalid stream type", fmt.Errorf("cannot convert to MainAvailableStreamV2"), nil)
+		return nil, catcher.Error("invalid stream type", fmt.Errorf("cannot convert to MainAvailableStreamV2"), map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
 	}
 
 	stream, err := falcon.NewStream(ctx, client, p.AppName, stream_v2, 0)
 	if err != nil {
-		return nil, catcher.Error("cannot create stream", err, nil)
+		return nil, catcher.Error("cannot create stream", err, map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
 	}
 	defer stream.Close()
 
@@ -209,14 +212,14 @@ func (p *CrowdStrikeProcessor) getStreamEvents(ctx context.Context, client *clie
 		select {
 		case err := <-stream.Errors:
 			if err.Fatal {
-				return events, catcher.Error("fatal stream error", err.Err, nil)
+				return events, catcher.Error("fatal stream error", err.Err, map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
 			} else {
-				_ = catcher.Error("stream error", err.Err, nil)
+				_ = catcher.Error("stream error", err.Err, map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
 			}
 		case event := <-stream.Events:
 			eventJSON, err := json.Marshal(event)
 			if err != nil {
-				_ = catcher.Error("cannot marshal event", err, nil)
+				_ = catcher.Error("cannot marshal event", err, map[string]any{"process": "crowdstrike-plugin"})
 				continue
 			}
 			events = append(events, string(eventJSON))

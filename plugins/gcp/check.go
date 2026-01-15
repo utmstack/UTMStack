@@ -50,7 +50,7 @@ func checkConnection(url string, ctx context.Context) error {
 	defer func() {
 		err := resp.Body.Close()
 		if err != nil {
-			_ = catcher.Error("error closing response body: %v", err, nil)
+			_ = catcher.Error("error closing response body", err, map[string]any{"process": "plugin_com.utmstack.gcp"})
 		}
 	}()
 
@@ -64,7 +64,7 @@ func infiniteRetryIfXError(f func() error, exception string) error {
 		err := f()
 		if err != nil && is(err, exception) {
 			if !xErrorWasLogged {
-				_ = catcher.Error("An error occurred (%s), will keep retrying indefinitely...", err, nil)
+				_ = catcher.Error("An error occurred, will keep retrying indefinitely...", err, map[string]any{"process": "plugin_com.utmstack.gcp"})
 				xErrorWasLogged = true
 			}
 			time.Sleep(wait)

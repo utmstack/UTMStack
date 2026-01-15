@@ -26,7 +26,7 @@ func sendLog() {
 	for {
 		socketsFolder, err = utils.MkdirJoin(plugins.WorkDir, "sockets")
 		if err != nil {
-			_ = catcher.Error("cannot create socket directory", err, nil)
+			_ = catcher.Error("cannot create socket directory", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 			time.Sleep(5 * time.Second)
 			continue
 		}
@@ -36,7 +36,7 @@ func sendLog() {
 		conn, err = grpc.NewClient(fmt.Sprintf("unix://%s", socketFile),
 			grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
-			_ = catcher.Error("failed to connect to engine server", err, nil)
+			_ = catcher.Error("failed to connect to engine server", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 			time.Sleep(5 * time.Second)
 			continue
 		}
@@ -45,7 +45,7 @@ func sendLog() {
 
 		inputClient, err = client.Input(context.Background())
 		if err != nil {
-			_ = catcher.Error("failed to create input client", err, nil)
+			_ = catcher.Error("failed to create input client", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 			if conn != nil {
 				_ = conn.Close()
 			}
@@ -67,7 +67,7 @@ func sendLog() {
 
 			err := inputClient.Send(l)
 			if err != nil {
-				_ = catcher.Error("failed to send log", err, nil)
+				_ = catcher.Error("failed to send log", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 				restart <- true
 				return
 			}
@@ -78,7 +78,7 @@ func sendLog() {
 		for {
 			_, err = inputClient.Recv()
 			if err != nil {
-				_ = catcher.Error("failed to receive ack", err, nil)
+				_ = catcher.Error("failed to receive ack", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 				restart <- true
 				return
 			}

@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/threatwinds/go-sdk/plugins"
 	"net"
 	"strconv"
 	"time"
+
+	"github.com/threatwinds/go-sdk/plugins"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/utils"
@@ -16,7 +17,7 @@ func loadGeolocationData() {
 	workdir := plugins.WorkDir
 	geoDir, err := utils.MkdirJoin(workdir, "geolocation")
 	if err != nil {
-		_ = catcher.Error("could not create geolocation directory", err, nil)
+		_ = catcher.Error("could not create geolocation directory", err, map[string]any{"process": "plugin_com.utmstack.geolocation"})
 		return
 	}
 
@@ -54,6 +55,7 @@ func loadGeolocationData() {
 				}
 
 				_ = catcher.Error("could not read geolocation file, retrying", err, map[string]any{
+					"process":    "plugin_com.utmstack.geolocation",
 					"file":       filePath,
 					"retry":      retry + 1,
 					"maxRetries": maxRetries,
@@ -67,7 +69,8 @@ func loadGeolocationData() {
 
 			if err != nil {
 				_ = catcher.Error("all retries failed when reading geolocation file", err, map[string]any{
-					"file": filePath,
+					"process": "plugin_com.utmstack.geolocation",
+					"file":    filePath,
 				})
 				continue
 			}
@@ -105,7 +108,8 @@ func populateASNBlocksMap(csv [][]string, blocks map[string][]*asnBlock) {
 		_, n, err := net.ParseCIDR(line[0])
 		if err != nil {
 			_ = catcher.Error("could not parse CIDR", err, map[string]any{
-				"cidr": line[0],
+				"process": "plugin_com.utmstack.geolocation",
+				"cidr":    line[0],
 			})
 			continue
 		}
@@ -118,7 +122,8 @@ func populateASNBlocksMap(csv [][]string, blocks map[string][]*asnBlock) {
 		}(), 10, 64)
 		if err != nil {
 			_ = catcher.Error("could not parse ASN", err, map[string]any{
-				"asn": line[1],
+				"process": "plugin_com.utmstack.geolocation",
+				"asn":     line[1],
 			})
 			continue
 		}
@@ -150,7 +155,8 @@ func populateCityBlocksMap(csv [][]string, blocks map[string][]*cityBlock) {
 		_, n, err := net.ParseCIDR(line[0])
 		if err != nil {
 			_ = catcher.Error("could not parse CIDR", err, map[string]any{
-				"cidr": line[0],
+				"process": "plugin_com.utmstack.geolocation",
+				"cidr":    line[0],
 			})
 			continue
 		}
@@ -163,6 +169,7 @@ func populateCityBlocksMap(csv [][]string, blocks map[string][]*cityBlock) {
 		}(), 10, 64)
 		if err != nil {
 			_ = catcher.Error("could not parse geonameID", err, map[string]any{
+				"process":   "plugin_com.utmstack.geolocation",
 				"geonameID": line[1],
 			})
 			continue
@@ -176,6 +183,7 @@ func populateCityBlocksMap(csv [][]string, blocks map[string][]*cityBlock) {
 		}(), 64)
 		if err != nil {
 			_ = catcher.Error("could not parse latitude", err, map[string]any{
+				"process":  "plugin_com.utmstack.geolocation",
 				"latitude": line[7],
 			})
 			continue
@@ -189,6 +197,7 @@ func populateCityBlocksMap(csv [][]string, blocks map[string][]*cityBlock) {
 		}(), 64)
 		if err != nil {
 			_ = catcher.Error("could not parse longitude", err, map[string]any{
+				"process":   "plugin_com.utmstack.geolocation",
 				"longitude": line[8],
 			})
 			continue
@@ -202,6 +211,7 @@ func populateCityBlocksMap(csv [][]string, blocks map[string][]*cityBlock) {
 		}())
 		if err != nil {
 			_ = catcher.Error("could not parse accuracyRadius", err, map[string]any{
+				"process":        "plugin_com.utmstack.geolocation",
 				"accuracyRadius": line[9],
 			})
 			continue
@@ -231,6 +241,7 @@ func populateCityLocationsMap(csv [][]string, locations map[uint64]*cityLocation
 		geonameID, err := strconv.ParseUint(line[0], 10, 64)
 		if err != nil {
 			_ = catcher.Error("could not parse geonameID", err, map[string]any{
+				"process":   "plugin_com.utmstack.geolocation",
 				"geonameID": line[0],
 			})
 			continue

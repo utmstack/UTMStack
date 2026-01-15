@@ -13,7 +13,7 @@ var (
 )
 
 func main() {
-	mode := plugins.GetCfg().Env.Mode
+	mode := plugins.GetCfg("plugin_com.utmstack.modules-config").Env.Mode
 	if mode != "manager" {
 		return
 	}
@@ -23,7 +23,7 @@ func main() {
 	BackendService = utmConfig.Get("backend").String()
 
 	if InternalKey == "" || BackendService == "" {
-		_ = catcher.Error("error getting configuration", fmt.Errorf("internal key or backend service is empty"), nil)
+		_ = catcher.Error("error getting configuration", fmt.Errorf("internal key or backend service is empty"), map[string]any{"process": "plugin_com.utmstack.modules-config"})
 		return
 	}
 

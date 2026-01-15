@@ -4,9 +4,10 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"time"
+
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
-	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -28,14 +29,14 @@ func CheckAgentManagerHealth() {
 		internalKey := pConfig.Get("internalKey").String()
 
 		if agentManager == "" {
-			_ = catcher.Error("Could not connect to the Agent Manager. This is a common occurrence during the startup process and typically resolves on its own after a short while.", fmt.Errorf("configuration is empty"), nil)
+			_ = catcher.Error("Could not connect to the Agent Manager. This is a common occurrence during the startup process and typically resolves on its own after a short while.", fmt.Errorf("configuration is empty"), map[string]any{"process": "plugin_com.utmstack.inputs"})
 			time.Sleep(5 * time.Second)
 			continue
 		}
 
 		conn, err := grpc.NewClient(agentManager, grpc.WithTransportCredentials(tlsCredentials), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(healthMaxMessageSize)))
 		if err != nil {
-			_ = catcher.Error("Could not connect to the Agent Manager. This is a common occurrence during the startup process and typically resolves on its own after a short while.", err, nil)
+			_ = catcher.Error("Could not connect to the Agent Manager. This is a common occurrence during the startup process and typically resolves on its own after a short while.", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 			time.Sleep(5 * time.Second)
 			continue
 		}
@@ -50,7 +51,7 @@ func CheckAgentManagerHealth() {
 		if err != nil {
 			cancel()
 			_ = conn.Close()
-			_ = catcher.Error("Could not connect to the Agent Manager. This is a common occurrence during the startup process and typically resolves on its own after a short while.", err, nil)
+			_ = catcher.Error("Could not connect to the Agent Manager. This is a common occurrence during the startup process and typically resolves on its own after a short while.", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 			time.Sleep(5 * time.Second)
 			continue
 		}

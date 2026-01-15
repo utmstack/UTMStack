@@ -19,14 +19,14 @@ func startGRPCServer() error {
 
 	listener, err := net.Listen("tcp", "0.0.0.0:9003")
 	if err != nil {
-		return catcher.Error("failed to listen on port 9003", err, nil)
+		return catcher.Error("failed to listen on port 9003", err, map[string]any{"process": "plugin_com.utmstack.modules-config"})
 	}
 
 	config.RegisterConfigServiceServer(server, config.GetConfigServer())
 	config.GetConfigServer().SyncConfigs(BackendService, InternalKey)
 
 	if err := server.Serve(listener); err != nil {
-		return catcher.Error("failed to serve grpc", err, nil)
+		return catcher.Error("failed to serve grpc", err, map[string]any{"process": "plugin_com.utmstack.modules-config"})
 	}
 
 	return nil
@@ -50,7 +50,7 @@ func startHTTPServer() {
 
 	err := server.ListenAndServe()
 	if err != nil {
-		_ = catcher.Error("could not start http server", err, nil)
+		_ = catcher.Error("could not start http server", err, map[string]any{"process": "plugin_com.utmstack.modules-config"})
 	}
 
 }
@@ -71,7 +71,7 @@ func UpdateModuleConfig(c *gin.Context) {
 	if len(body) != 0 {
 		config.GetConfigServer().NotifyUpdate(moduleName, &body[0])
 	} else {
-		catcher.Info("Received empty configuration body, no updates made", nil)
+		catcher.Info("Received empty configuration body, no updates made", map[string]any{"process": "plugin_com.utmstack.modules-config"})
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": "Module configuration updated successfully"})

@@ -98,11 +98,12 @@ func EnqueueAlert(alert *plugins.Alert) bool {
 		_ = plugins.EnqueueNotification(plugins.TopicIntegrationFailure, plugins.Message{
 			Id: uuid.NewString(),
 			Message: catcher.Error("Alert Dropped", nil, map[string]any{
+				"process":           "plugin_com.utmstack.soc-ai",
 				"id":                alert.Id,
 				"total_dropped":     totalDropped,
 				"consecutive_drops": consecutiveDrops,
 			}).Error(),
-		})
+		}, "com.utmstack.soc-ai")
 		utils.Logger.ErrorF("QUEUE FULL - Alert %s DROPPED! Queue size: %d/%d, Total dropped: %d, Consecutive: %d.",
 			alert.Id, currentQueueSize, DefaultQueueSize, totalDropped, consecutiveDrops)
 
@@ -140,6 +141,7 @@ func (aq *AlertQueue) processAlert(workerID int, item *AlertQueueItem) {
 		if r := recover(); r != nil {
 			atomic.AddInt64(&aq.errorCount, 1)
 			_ = catcher.Error("recovered from panic in alert processing", nil, map[string]any{
+				"process":  "plugin_com.utmstack.soc-ai",
 				"panic":    r,
 				"alert":    alert.Name,
 				"workerID": workerID,
@@ -157,7 +159,7 @@ func (aq *AlertQueue) processAlert(workerID int, item *AlertQueueItem) {
 	if config.GetConfig().Provider == "openai" {
 		if err := utils.ConnectionChecker(config.GPT_API_ENDPOINT); err != nil {
 			atomic.AddInt64(&aq.errorCount, 1)
-			_ = catcher.Error("Failed to establish internet connection", err, nil)
+			_ = catcher.Error("Failed to establish internet connection", err, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 			elastic.RegisterError("Failed to establish internet connection", alert.ID)
 			return
 		}

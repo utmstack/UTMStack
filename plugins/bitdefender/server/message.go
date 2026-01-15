@@ -28,14 +28,14 @@ func CreateMessage(cnf *config.ConfigurationSection, events []string) {
 					continue
 				}
 
-				plugins.EnqueueLog(&plugins.Log{
+				_ = plugins.EnqueueLog(&plugins.Log{
 					Id:         uuid.New().String(),
 					TenantId:   config.DefaultTenant,
 					DataType:   "antivirus-bitdefender-gz",
 					DataSource: cnf.GroupName,
 					Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 					Raw:        syslogMessage,
-				})
+				}, "com.utmstack.bitdefender")
 
 				break
 			}

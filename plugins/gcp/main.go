@@ -64,6 +64,7 @@ func (g *GroupModule) PullLogs() {
 		}
 
 		_ = catcher.Error("failed to create client, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.gcp",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 			"group":      g.GroupName,
@@ -78,7 +79,8 @@ func (g *GroupModule) PullLogs() {
 
 	if err != nil {
 		_ = catcher.Error("all retries failed when creating client", err, map[string]any{
-			"group": g.GroupName,
+			"process": "plugin_com.utmstack.gcp",
+			"group":   g.GroupName,
 		})
 		return
 	}
@@ -102,7 +104,7 @@ func (g *GroupModule) PullLogs() {
 		})
 
 		if err != nil {
-			_ = catcher.Error("failed to receive message", err, nil)
+			_ = catcher.Error("failed to receive message", err, map[string]any{"process": "plugin_com.utmstack.gcp"})
 			time.Sleep(5 * time.Second)
 			continue
 		}
@@ -143,7 +145,7 @@ func (m *GroupModuleManager) SyncConfigs() {
 
 	for range ticker.C {
 		if err := ConnectionChecker(CHECKCON); err != nil {
-			_ = catcher.Error("External connection failure detected: %v", err, nil)
+			_ = catcher.Error("External connection failure detected", err, map[string]any{"process": "plugin_com.utmstack.gcp"})
 		}
 
 		moduleConfig := config.GetConfig()
