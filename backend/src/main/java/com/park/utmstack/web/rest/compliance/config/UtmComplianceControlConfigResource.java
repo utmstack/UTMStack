@@ -26,17 +26,8 @@ public class UtmComplianceControlConfigResource {
     public ResponseEntity<UtmComplianceControlConfigResponseDto> createControl(
             @RequestBody UtmComplianceControlConfigRequestDto dto
     ) {
-        var entity = controlMapper.toEntity(dto);
-
-        if (entity.getQueriesConfigs() != null) {
-            entity.getQueriesConfigs().forEach(q -> {
-                q.setControlConfigId(entity.getId());
-            });
-        }
-
-        var saved = controlService.create(entity);
-
-        return ResponseEntity.ok(controlMapper.toResponse(saved));
+        var created = controlService.create(dto);
+        return ResponseEntity.ok(created);
     }
 
     @GetMapping("/{id}")
@@ -53,21 +44,8 @@ public class UtmComplianceControlConfigResource {
             @PathVariable Long id,
             @RequestBody UtmComplianceControlConfigRequestDto dto
     ) {
-        var existing = controlService.findById(id);
-        if (existing == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        controlMapper.updateEntity(existing, dto);
-
-        if (existing.getQueriesConfigs() != null) {
-            existing.getQueriesConfigs().forEach(q -> {
-                q.setControlConfigId(id);
-            });
-        }
-
-        var updated = controlService.update(id, existing);
-        return ResponseEntity.ok(controlMapper.toResponse(updated));
+        var updated = controlService.update(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")

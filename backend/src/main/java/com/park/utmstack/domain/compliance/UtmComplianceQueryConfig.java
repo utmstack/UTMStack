@@ -25,10 +25,14 @@ public class UtmComplianceQueryConfig implements Serializable {
     @GeneratedValue(generator = "CustomIdentityGenerator")
     private Long id;
 
-    @Column(name = "query_description", columnDefinition = "TEXT")
+    @Column(name = "query_description",
+            columnDefinition = "TEXT"
+    )
     private String queryDescription;
 
-    @Column(name = "sql_query", columnDefinition = "TEXT")
+    @Column(name = "sql_query",
+            columnDefinition = "TEXT"
+    )
     private String sqlQuery;
 
     @Enumerated(EnumType.STRING)
@@ -39,10 +43,18 @@ public class UtmComplianceQueryConfig implements Serializable {
     private Long indexPatternId;
 
     @ManyToOne
-    @JoinColumn(name = "index_pattern_id", insertable = false, updatable = false)
+    @JoinColumn(name = "index_pattern_id",
+            insertable = false,
+            updatable = false
+    )
     private UtmIndexPattern indexPattern;
-
 
     @Column(name = "control_config_id")
     private Long controlConfigId;
+
+    @ManyToOne @JoinColumn(name = "control_config_id",
+            insertable = false,
+            updatable = false
+    )
+    private UtmComplianceControlConfig controlConfig;
 }

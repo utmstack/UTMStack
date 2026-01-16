@@ -7,6 +7,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -27,10 +28,15 @@ public class UtmComplianceControlConfig implements Serializable {
     private Long standardSectionId;
 
     @ManyToOne
-    @JoinColumn(name = "standard_section_id", insertable = false, updatable = false)
+    @JoinColumn(name = "standard_section_id",
+            insertable = false,
+            updatable = false
+    )
     private UtmComplianceStandardSection section;
 
-    @Column(name = "control_name", length = 50)
+    @Column(name = "control_name",
+            length = 50
+    )
     private String controlName;
 
     @Column(name = "control_solution")
@@ -43,7 +49,10 @@ public class UtmComplianceControlConfig implements Serializable {
     @Column(name = "control_strategy")
     private ComplianceStrategy controlStrategy;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "control_config_id")
-    private List<UtmComplianceQueryConfig> queriesConfigs;
+    @OneToMany(
+            mappedBy = "controlConfig",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<UtmComplianceQueryConfig> queriesConfigs = new ArrayList<>();
 }

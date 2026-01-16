@@ -13,6 +13,5 @@ public class UtmComplianceControlConfigResponseDto {
     private String controlSolution;
     private String controlRemediation;
     private ComplianceStrategy controlStrategy;
-
     private List<UtmComplianceQueryConfigResponseDto> queriesConfigs;
 }
