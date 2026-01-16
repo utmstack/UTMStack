@@ -33,7 +33,7 @@ func startQueue() {
 	retryDelay := 2 * time.Second
 
 	for retry := 0; retry < maxRetries; retry++ {
-		osUrl := plugins.PluginCfg("com.utmstack", false).Get("opensearch").String()
+		osUrl := plugins.PluginCfg("org.opensearch", false).Get("opensearch").String()
 
 		err := sdkos.Connect([]string{osUrl}, "", "")
 		if err == nil {
