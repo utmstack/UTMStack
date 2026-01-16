@@ -23,8 +23,11 @@ public class UtmComplianceControlConfig implements Serializable {
     @GeneratedValue(generator = "CustomIdentityGenerator")
     private Long id;
 
+    @Column(name = "standard_section_id")
+    private Long standardSectionId;
+
     @ManyToOne
-    @JoinColumn(name = "standard_section_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "standard_section_id", insertable = false, updatable = false)
     private UtmComplianceStandardSection section;
 
     @Column(name = "control_name", length = 50)

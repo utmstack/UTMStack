@@ -26,14 +26,14 @@
                     <constraints nullable="true"/>
                 </column>
 
-                <column name="report_config_id" type="BIGINT">
+                <column name="control_config_id" type="BIGINT">
                     <constraints nullable="true"/>
                 </column>
 
             </createTable>
 
             <addForeignKeyConstraint
-                    baseTableName="utm_compliance_report_query_config"
+                    baseTableName="utm_compliance_query_config"
                     baseColumnNames="index_pattern_id"
                     referencedTableName="utm_index_pattern"
                     referencedColumnNames="id"
@@ -41,7 +41,7 @@
 
             <createIndex
                     indexName="idx_query_config_index_pattern"
-                    tableName="utm_compliance_report_query_config">
+                    tableName="utm_compliance_query_config">
                 <column name="index_pattern_id"/>
             </createIndex>
     </changeSet>

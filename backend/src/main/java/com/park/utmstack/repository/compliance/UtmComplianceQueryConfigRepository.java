@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface UtmComplianceQueryConfigRepository extends JpaRepository<UtmComplianceQueryConfig, Long> {
 
+    List<UtmComplianceQueryConfig> findByControlConfigId(Long controlConfigId);
 }
 

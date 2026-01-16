@@ -35,9 +35,13 @@ public class UtmComplianceQueryConfig implements Serializable {
     @Column(name = "evaluation_rule")
     private EvaluationRule evaluationRule;
 
+    @Column(name = "index_pattern_id")
+    private Long indexPatternId;
+
     @ManyToOne
-    @JoinColumn(name = "index_pattern_id", referencedColumnName = "id")
+    @JoinColumn(name = "index_pattern_id", insertable = false, updatable = false)
     private UtmIndexPattern indexPattern;
+
 
     @Column(name = "control_config_id")
     private Long controlConfigId;

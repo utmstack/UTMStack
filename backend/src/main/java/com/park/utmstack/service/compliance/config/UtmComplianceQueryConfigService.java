@@ -22,5 +22,9 @@ public class UtmComplianceQueryConfigService {
     public void delete(Long id) {
         repository.deleteById(id);
     }
-}
 
+    public List<UtmComplianceQueryConfig> findByControlConfigId(Long controlId) {
+        return repository.findByControlConfigId((controlId));
+    }
+
+}
