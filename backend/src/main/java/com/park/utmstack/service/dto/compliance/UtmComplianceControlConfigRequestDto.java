@@ -7,6 +7,7 @@ import java.util.List;
 
 @Data
 public class UtmComplianceControlConfigRequestDto {
+    private Long id;
     private Long standardSectionId;
     private String controlName;
     private String controlSolution;
