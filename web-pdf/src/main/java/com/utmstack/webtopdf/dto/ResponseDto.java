@@ -10,4 +10,5 @@ import lombok.Setter;
 public class ResponseDto {
     private byte[] pdfBytes;
     private String message;
+    private boolean error;
 }
