@@ -22,15 +22,33 @@ public class WebPdfController {
     private final PdfGenerationService pdfGenerationService;
 
     @GetMapping("/generate-pdf")
-    public ResponseEntity<ResponseDto> generatePdf(@RequestParam String baseUrl, @RequestParam String url, @RequestParam String accessType, @RequestParam String accessKey) {
-        try {
-            byte[] pdfBytes = pdfGenerationService.generatePdf(baseUrl, url, accessKey, AccessType.valueOf(accessType.toUpperCase()));
+    public ResponseEntity<ResponseDto> generatePdf(@RequestParam String baseUrl,
+                                                   @RequestParam String url,
+                                                   @RequestParam String accessType,
+                                                   @RequestParam String accessKey) {
 
-            return ResponseEntity.ok().body(ResponseDto.builder().pdfBytes(pdfBytes).build());
 
-        }  catch (Exception e) {
-            log.error("Error generating the PDF for the URL: {}", url, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseDto.builder().message("Error generating the PDF for the URL").build());
+        byte[] pdfBytes = pdfGenerationService.generatePdf(baseUrl,
+                                                           url,
+                                                           accessKey,
+                                                           AccessType.valueOf(accessType.toUpperCase()));
+
+        if (pdfBytes == null || pdfBytes.length == 0) {
+            log.error("PDF generation returned empty bytes for URL: {}", url);
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(ResponseDto.builder()
+                            .error(true)
+                            .message("The")
+                            .build());
         }
+
+        return ResponseEntity.ok(
+                ResponseDto.builder()
+                        .pdfBytes(pdfBytes)
+                        .error(false)
+                        .message("PDF generado correctamente")
+                        .build());
     }
 }
