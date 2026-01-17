@@ -49,12 +49,7 @@ public class UtmComplianceQueryConfig implements Serializable {
     )
     private UtmIndexPattern indexPattern;
 
-    @Column(name = "control_config_id")
-    private Long controlConfigId;
-
-    @ManyToOne @JoinColumn(name = "control_config_id",
-            insertable = false,
-            updatable = false
-    )
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "control_config_id", nullable = false)
     private UtmComplianceControlConfig controlConfig;
 }

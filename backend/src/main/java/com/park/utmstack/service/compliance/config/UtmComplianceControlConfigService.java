@@ -1,6 +1,7 @@
 package com.park.utmstack.service.compliance.config;
 
 import com.park.utmstack.domain.compliance.UtmComplianceControlConfig;
+import com.park.utmstack.domain.compliance.UtmComplianceQueryConfig;
 import com.park.utmstack.repository.compliance.UtmComplianceControlConfigRepository;
 import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigDto;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlConfigMapper;
@@ -8,8 +9,9 @@ import com.park.utmstack.service.mapper.compliance.UtmComplianceQueryConfigMappe
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UtmComplianceControlConfigService {
@@ -29,13 +31,10 @@ public class UtmComplianceControlConfigService {
     @Transactional
     public UtmComplianceControlConfigDto create(UtmComplianceControlConfigDto dto) {
         UtmComplianceControlConfig entity = mapper.toEntity(dto);
-        entity.setQueriesConfigs(new ArrayList<>());
-
-        entity = repository.save(entity);
 
         for (var qdto : dto.getQueriesConfigs()) {
             var q = queryMapper.toEntity(qdto);
-            q.setControlConfigId(entity.getId());
+            q.setControlConfig(entity);
             entity.getQueriesConfigs().add(q);
         }
 
@@ -44,24 +43,32 @@ public class UtmComplianceControlConfigService {
         return mapper.toDto(entity);
     }
 
-
     @Transactional
     public UtmComplianceControlConfigDto update(Long id, UtmComplianceControlConfigDto dto) {
 
-        UtmComplianceControlConfig entity = repository.findById(id)
+        UtmComplianceControlConfig entity = repository.findByIdWithQueries(id)
                 .orElseThrow(() -> new RuntimeException("Control not found"));
 
         mapper.updateEntity(entity, dto);
+
+        Map<Long, UtmComplianceQueryConfig> existing = entity.getQueriesConfigs()
+                .stream()
+                .collect(Collectors.toMap(UtmComplianceQueryConfig::getId, q -> q));
+
         entity.getQueriesConfigs().clear();
 
         for (var qdto : dto.getQueriesConfigs()) {
-            var q = queryMapper.toEntity(qdto);
-            q.setControlConfigId(id);
-            entity.getQueriesConfigs().add(q);
+            if (qdto.getId() != null && existing.containsKey(qdto.getId())) {
+                var q = existing.get(qdto.getId());
+                queryMapper.updateEntity(q, qdto);
+                q.setControlConfig(entity);
+                entity.getQueriesConfigs().add(q);
+            } else {
+                var q = queryMapper.toEntity(qdto);
+                q.setControlConfig(entity);
+                entity.getQueriesConfigs().add(q);
+            }
         }
-
-        entity = repository.save(entity);
-
         return mapper.toDto(entity);
     }
 

@@ -9,11 +9,12 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring", uses = UtmComplianceQueryConfigMapper.class)
 public interface UtmComplianceControlConfigMapper {
 
+    @Mapping(target = "queriesConfigs", ignore = true)
     UtmComplianceControlConfig toEntity(UtmComplianceControlConfigDto dto);
 
     UtmComplianceControlConfigDto toDto(UtmComplianceControlConfig entity);
 
     @Mapping(target = "id", ignore = true)
-    void updateEntity(@MappingTarget UtmComplianceControlConfig entity, UtmComplianceControlConfigDto dto
-    );
+    @Mapping(target = "queriesConfigs", ignore = true)
+    void updateEntity(@MappingTarget UtmComplianceControlConfig entity, UtmComplianceControlConfigDto dto);
 }
