@@ -69,10 +69,13 @@ public class UtmComplianceControlConfigService {
         repository.deleteById(id);
     }
 
-    public UtmComplianceControlConfig findById(Long id) {
-        return repository.findById(id).orElse(null);
+    public UtmComplianceControlConfigDto findById(Long id) {
+        var entity = repository.findByIdWithQueries(id)
+                .orElseThrow(() -> new RuntimeException("Control not found"));
+
+        return mapper.toDto(entity);
     }
-    
+
     public List<UtmComplianceControlConfig> findAll() {
         return repository.findAll();
     }

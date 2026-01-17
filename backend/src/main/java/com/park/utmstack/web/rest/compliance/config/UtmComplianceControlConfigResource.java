@@ -35,7 +35,7 @@ public class UtmComplianceControlConfigResource {
         if (entity == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(controlMapper.toDto(entity));
+        return ResponseEntity.ok(entity);
     }
 
     @PutMapping("/{id}")
