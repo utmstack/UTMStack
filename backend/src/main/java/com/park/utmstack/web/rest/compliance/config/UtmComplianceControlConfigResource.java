@@ -1,8 +1,7 @@
 package com.park.utmstack.web.rest.compliance.config;
 
 import com.park.utmstack.service.compliance.config.UtmComplianceControlConfigService;
-import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigRequestDto;
-import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigResponseDto;
+import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigDto;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlConfigMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,26 +22,26 @@ public class UtmComplianceControlConfigResource {
     }
 
     @PostMapping
-    public ResponseEntity<UtmComplianceControlConfigResponseDto> createControl(
-            @RequestBody UtmComplianceControlConfigRequestDto dto
+    public ResponseEntity<UtmComplianceControlConfigDto> createControl(
+            @RequestBody UtmComplianceControlConfigDto dto
     ) {
         var created = controlService.create(dto);
         return ResponseEntity.ok(created);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UtmComplianceControlConfigResponseDto> getControl(@PathVariable Long id) {
+    public ResponseEntity<UtmComplianceControlConfigDto> getControl(@PathVariable Long id) {
         var entity = controlService.findById(id);
         if (entity == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(controlMapper.toResponse(entity));
+        return ResponseEntity.ok(controlMapper.toDto(entity));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UtmComplianceControlConfigResponseDto> updateControl(
+    public ResponseEntity<UtmComplianceControlConfigDto> updateControl(
             @PathVariable Long id,
-            @RequestBody UtmComplianceControlConfigRequestDto dto
+            @RequestBody UtmComplianceControlConfigDto dto
     ) {
         var updated = controlService.update(id, dto);
         return ResponseEntity.ok(updated);

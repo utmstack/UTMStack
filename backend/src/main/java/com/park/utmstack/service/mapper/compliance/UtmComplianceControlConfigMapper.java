@@ -1,8 +1,7 @@
 package com.park.utmstack.service.mapper.compliance;
 
 import com.park.utmstack.domain.compliance.UtmComplianceControlConfig;
-import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigRequestDto;
-import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigResponseDto;
+import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -10,14 +9,11 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring", uses = UtmComplianceQueryConfigMapper.class)
 public interface UtmComplianceControlConfigMapper {
 
-    @Mapping(source = "standardSectionId", target = "standardSectionId")
-    UtmComplianceControlConfig toEntity(UtmComplianceControlConfigRequestDto dto);
+    UtmComplianceControlConfig toEntity(UtmComplianceControlConfigDto dto);
 
-    UtmComplianceControlConfigResponseDto toResponse(UtmComplianceControlConfig entity);
+    UtmComplianceControlConfigDto toDto(UtmComplianceControlConfig entity);
 
-    @Mapping(source = "standardSectionId", target = "standardSectionId")
-    void updateEntity(
-            @MappingTarget UtmComplianceControlConfig entity,
-            UtmComplianceControlConfigRequestDto dto
+    @Mapping(target = "id", ignore = true)
+    void updateEntity(@MappingTarget UtmComplianceControlConfig entity, UtmComplianceControlConfigDto dto
     );
 }

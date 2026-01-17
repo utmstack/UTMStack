@@ -2,9 +2,7 @@ package com.park.utmstack.service.compliance.config;
 
 import com.park.utmstack.domain.compliance.UtmComplianceControlConfig;
 import com.park.utmstack.repository.compliance.UtmComplianceControlConfigRepository;
-import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigRequestDto;
-import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigResponseDto;
-import com.park.utmstack.service.dto.compliance.UtmComplianceQueryConfigRequestDto;
+import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigDto;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlConfigMapper;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceQueryConfigMapper;
 import org.springframework.stereotype.Service;
@@ -29,7 +27,7 @@ public class UtmComplianceControlConfigService {
     }
 
     @Transactional
-    public UtmComplianceControlConfigResponseDto create(UtmComplianceControlConfigRequestDto dto) {
+    public UtmComplianceControlConfigDto create(UtmComplianceControlConfigDto dto) {
         UtmComplianceControlConfig entity = mapper.toEntity(dto);
         entity.setQueriesConfigs(new ArrayList<>());
 
@@ -43,12 +41,12 @@ public class UtmComplianceControlConfigService {
 
         entity = repository.save(entity);
 
-        return mapper.toResponse(entity);
+        return mapper.toDto(entity);
     }
 
 
     @Transactional
-    public UtmComplianceControlConfigResponseDto update(Long id, UtmComplianceControlConfigRequestDto dto) {
+    public UtmComplianceControlConfigDto update(Long id, UtmComplianceControlConfigDto dto) {
 
         UtmComplianceControlConfig entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Control not found"));
@@ -64,7 +62,7 @@ public class UtmComplianceControlConfigService {
 
         entity = repository.save(entity);
 
-        return mapper.toResponse(entity);
+        return mapper.toDto(entity);
     }
 
     public void delete(Long id) {

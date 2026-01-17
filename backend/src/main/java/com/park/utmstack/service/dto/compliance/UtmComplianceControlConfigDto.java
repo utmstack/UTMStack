@@ -6,12 +6,12 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class UtmComplianceControlConfigResponseDto {
+public class UtmComplianceControlConfigDto {
     private Long id;
     private Long standardSectionId;
     private String controlName;
     private String controlSolution;
     private String controlRemediation;
     private ComplianceStrategy controlStrategy;
-    private List<UtmComplianceQueryConfigResponseDto> queriesConfigs;
+    private List<UtmComplianceQueryConfigDto> queriesConfigs;
 }
