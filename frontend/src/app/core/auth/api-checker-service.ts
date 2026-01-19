@@ -1,7 +1,7 @@
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpResponse} from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, interval, Observable, Subject} from 'rxjs';
-import {first, takeUntil} from 'rxjs/operators';
+import {BehaviorSubject, interval, Observable, of, Subject, Subscription} from 'rxjs';
+import {catchError, distinctUntilChanged, filter, first, map, takeUntil, tap} from 'rxjs/operators';
 import {SERVER_API_URL} from '../../app.constants';
 
 @Injectable({
@@ -10,37 +10,56 @@ import {SERVER_API_URL} from '../../app.constants';
 export class ApiServiceCheckerService {
 
   public resourceUrl = SERVER_API_URL + 'api/ping';
-  private retryInterval = 3000;
-  private isOnline: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
-  public isOnlineApi$: Observable<boolean> = this.isOnline.asObservable();
-  private stopInterval$: Subject<boolean> = new Subject<boolean>();
+  private retryInterval = 5000;
 
-  constructor(private http: HttpClient) {
+  private isOnline = new BehaviorSubject<boolean>(false);
+  public isOnlineApi$ = this.isOnline.asObservable();
+
+  private stopInterval$ = new Subject<void>();
+  private intervalSub?: Subscription;
+
+  constructor(private http: HttpClient) { }
+
+  init() {
     this.checkApiAvailability();
+
+    this.isOnlineApi$
+      .pipe(distinctUntilChanged())
+      .subscribe(isOnline => {
+        if (!isOnline) {
+          this.startCheckApiIsOnline();
+        } else {
+          this.stopChecking();
+        }
+      });
   }
 
-  checkApiAvailability() {
-    interval(this.retryInterval)
+  private checkApiAvailability() {
+    this.checkApiStatus()
+      .subscribe(status => this.isOnline.next(status));
+  }
+
+  private checkApiStatus(): Observable<boolean> {
+    return this.http.get(this.resourceUrl, { observe: 'response' }).pipe(
+      map(res => res.status === 200),
+      catchError(() => of(false))
+    );
+  }
+
+  private startCheckApiIsOnline() {
+    if (this.intervalSub) { return; }
+
+    this.intervalSub = interval(this.retryInterval)
       .pipe(takeUntil(this.stopInterval$))
       .subscribe(() => {
-      this.http
-        .get(this.resourceUrl, { observe: 'response' })
-        .pipe(first())
-        .subscribe(
-          resp => {
-            if (resp.status === 200) {
-              this.isOnline.next(true);
-              this.stopInterval$.next(true);
-            } else {
-              this.isOnline.next(false);
-            }
-          },
-          err => this.isOnline.next(false)
-        );
-    });
+        this.checkApiStatus().
+        subscribe(status => this.isOnline.next(status));
+      });
   }
 
-  setOnlineStatus(status: boolean) {
-    this.isOnline.next(status);
+  private stopChecking() {
+    this.stopInterval$.next();
+    this.intervalSub.unsubscribe();
+    this.intervalSub = undefined;
   }
 }
