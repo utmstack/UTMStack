@@ -2,6 +2,9 @@ package com.utmstack.webtopdf.config.enums;
 
 import lombok.Getter;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 public enum AccessType {
     UTM_TOKEN("Utm_Token", "?token=", "&url="),
     UTM_INTERNAL_KEY("Utm_Internal_Key", "?key=", "&url=");
@@ -18,6 +21,7 @@ public enum AccessType {
     }
 
     public String buildUrlPart(String accessKey, String route) {
-        return accessType + accessKey + url + route;
+        String encodedRoute = URLEncoder.encode(route, StandardCharsets.UTF_8);
+        return accessType + accessKey + url + encodedRoute;
     }
 }
