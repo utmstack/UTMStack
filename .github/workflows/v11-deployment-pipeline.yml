@@ -98,7 +98,7 @@ jobs:
           RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
           -H "Accept: application/vnd.github.json" \
           "https://api.github.com/orgs/utmstack/teams/integration-developers/memberships/${{ github.actor }}")
-          
+
           if echo "$RESPONSE" | grep -q '"state": "active"'; then
             echo "✅ User ${{ github.actor }} is a member of the integration-developers team."
           else
@@ -115,10 +115,32 @@ jobs:
             fi
           fi
 
+  check_go_dependencies:
+    name: Check Go Dependencies
+    runs-on: ubuntu-24.04
+    needs: [validations, setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment == 'rc' }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ^1.20
+
+      - name: Configure git for private modules
+        run: |
+          git config --global url."https://${{ secrets.API_SECRET }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+          echo "GOPRIVATE=github.com/utmstack" >> $GITHUB_ENV
+
+      - name: Check for outdated dependencies
+        run: ${{ github.workspace }}/.github/scripts/golang-updater/golang-updater --check --discover
+
   build_agent:
     name: Build and Sign Agent
-    needs: [validations,setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' }}
+    needs: [check_go_dependencies, setup_deployment]
+    if: ${{ always() && (needs.check_go_dependencies.result == 'success' || needs.check_go_dependencies.result == 'skipped') && needs.setup_deployment.outputs.tag != '' }}
     runs-on: utmstack-signer
     steps:
       - name: Check out code into the right branch
@@ -182,8 +204,8 @@ jobs:
   
   build_utmstack_collector:
     name: Build UTMStack Collector
-    needs: [validations,setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' }}
+    needs: [check_go_dependencies, setup_deployment]
+    if: ${{ always() && (needs.check_go_dependencies.result == 'success' || needs.check_go_dependencies.result == 'skipped') && needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
@@ -205,7 +227,7 @@ jobs:
 
   build_agent_manager:
     name: Build Agent Manager Microservice
-    needs: [validations, build_agent, build_utmstack_collector, setup_deployment]
+    needs: [build_agent, build_utmstack_collector, setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
@@ -223,7 +245,7 @@ jobs:
         with:
           name: utmstack-collector
           path: ${{ github.workspace }}/utmstack-collector
-      
+
       - name: Prepare dependencies for Agent Manager Image
         run: |
           cd ${{ github.workspace }}/agent-manager
@@ -266,8 +288,8 @@ jobs:
   
   build_event_processor:
     name: Build Event Processor Microservice
-    needs: [validations,setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' }}
+    needs: [check_go_dependencies, setup_deployment]
+    if: ${{ always() && (needs.check_go_dependencies.result == 'success' || needs.check_go_dependencies.result == 'skipped') && needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
@@ -448,11 +470,11 @@ jobs:
           echo "CM URL: $CM_URL"
           echo "Tag: $TAG"
 
-          # Select CM_AUTH based on environment
+          # Select CM_SERVICE_ACCOUNT based on environment
           if [ "$ENVIRONMENT" = "dev" ]; then
-            cmAuth=$(echo '${{ secrets.CM_AUTH_DEV }}' | jq -r '.')
+            cmAuth=$(echo '${{ secrets.CM_SERVICE_ACCOUNT_DEV }}' | jq -r '.')
           else
-            cmAuth=$(echo '${{ secrets.CM_AUTH }}' | jq -r '.')
+            cmAuth=$(echo '${{ secrets.CM_SERVICE_ACCOUNT_PROD }}' | jq -r '.')
           fi
 
           id=$(echo "$cmAuth" | jq -r '.id')
@@ -491,11 +513,11 @@ jobs:
           # Select instance IDs and auth based on environment
           if [ "$ENVIRONMENT" = "dev" ]; then
             instance_ids="${{ vars.SCHEDULE_INSTANCES_DEV }}"
-            auth_json='${{ secrets.CM_SCHEDULE_AUTH_DEV }}'
+            auth_json='${{ secrets.CM_SERVICE_ACCOUNT_DEV }}'
           else
             # rc uses prod variables
             instance_ids="${{ vars.SCHEDULE_INSTANCES_PROD }}"
-            auth_json='${{ secrets.CM_SCHEDULE_AUTH_PROD }}'
+            auth_json='${{ secrets.CM_SERVICE_ACCOUNT_PROD }}'
           fi
 
           # Extract id and key from auth JSON

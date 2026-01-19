@@ -38,7 +38,7 @@ var (
 )
 
 func main() {
-	mode := plugins.GetCfg().Env.Mode
+	mode := plugins.GetCfg("plugin_com.utmstack.aws").Env.Mode
 	if mode != "manager" {
 		return
 	}
@@ -47,13 +47,13 @@ func main() {
 
 	for t := 0; t < 2*runtime.NumCPU(); t++ {
 		go func() {
-			plugins.SendLogsFromChannel()
+			plugins.SendLogsFromChannel("com.utmstack.aws")
 		}()
 	}
 
 	for {
 		if err := connectionChecker(urlCheckConnection); err != nil {
-			_ = catcher.Error("External connection failure detected: %v", err, nil)
+			_ = catcher.Error("failed to connect with external service", err, map[string]any{"process": "plugin_com.utmstack.aws"})
 			continue
 		}
 		break
@@ -86,7 +86,8 @@ func watchConfigChanges() {
 				startGroupStream(groupID, group)
 			} else if existing.config != currentConfig {
 				catcher.Info("Configuration changed for group, restarting", map[string]any{
-					"group": group.GroupName,
+					"group":   group.GroupName,
+					"process": "plugin_com.utmstack.aws",
 				})
 				existing.cancel()
 				delete(activeStreams, groupID)
@@ -98,6 +99,7 @@ func watchConfigChanges() {
 			if !currentGroupIDs[groupID] {
 				catcher.Info("Group removed, stopping stream", map[string]any{
 					"groupId": groupID,
+					"process": "plugin_com.utmstack.aws",
 				})
 				stream.cancel()
 				delete(activeStreams, groupID)
@@ -117,7 +119,8 @@ func startGroupStream(groupID int32, group *config.ModuleGroup) {
 	}
 
 	catcher.Info("Starting stream for group", map[string]any{
-		"group": group.GroupName,
+		"group":   group.GroupName,
+		"process": "plugin_com.utmstack.aws",
 	})
 
 	go streamLogs(ctx, group)
@@ -129,7 +132,8 @@ func stopAllStreams() {
 	}
 
 	catcher.Info("Stopping all active streams", map[string]any{
-		"count": len(activeStreams),
+		"count":   len(activeStreams),
+		"process": "plugin_com.utmstack.aws",
 	})
 
 	for groupID, stream := range activeStreams {
@@ -152,7 +156,7 @@ func streamLogs(ctx context.Context, group *config.ModuleGroup) {
 
 	awsConfig, err := agent.createAWSSession()
 	if err != nil {
-		_ = catcher.Error("cannot create AWS session", err, nil)
+		_ = catcher.Error("cannot create AWS session", err, map[string]any{"process": "plugin_com.utmstack.aws"})
 		return
 	}
 
@@ -164,6 +168,7 @@ func streamLogs(ctx context.Context, group *config.ModuleGroup) {
 		"group":     group.GroupName,
 		"logGroup":  agent.LogGroup,
 		"startTime": startTime.Format(time.RFC3339),
+		"process":   "plugin_com.utmstack.aws",
 	})
 
 	currentStreams := make(map[string]context.CancelFunc)
@@ -178,6 +183,7 @@ func streamLogs(ctx context.Context, group *config.ModuleGroup) {
 		if err != nil {
 			_ = catcher.Error("cannot get log streams", err, map[string]any{
 				"logGroup": agent.LogGroup,
+				"process":  "plugin_com.utmstack.aws",
 			})
 			if !sleepWithCancel(ctx, 30*time.Second) {
 				return
@@ -206,6 +212,7 @@ func streamLogs(ctx context.Context, group *config.ModuleGroup) {
 				catcher.Info("Log stream expired, stopping", map[string]any{
 					"logGroup":  agent.LogGroup,
 					"logStream": streamName,
+					"process":   "plugin_com.utmstack.aws",
 				})
 				cancel()
 				delete(currentStreams, streamName)
@@ -214,7 +221,8 @@ func streamLogs(ctx context.Context, group *config.ModuleGroup) {
 
 		if !sleepWithCancel(ctx, 5*time.Minute) {
 			catcher.Info("Stream cancelled for group", map[string]any{
-				"group": group.GroupName,
+				"group":   group.GroupName,
+				"process": "plugin_com.utmstack.aws",
 			})
 			return
 		}
@@ -248,7 +256,7 @@ func getAWSProcessor(group *config.ModuleGroup) AWSProcessor {
 func (p *AWSProcessor) createAWSSession() (aws.Config, error) {
 	if p.RegionName == "" {
 		return aws.Config{}, catcher.Error("cannot create AWS session",
-			errors.New("region name is empty"), nil)
+			errors.New("region name is empty"), map[string]any{"process": "plugin_com.utmstack.aws"})
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
@@ -271,7 +279,7 @@ func (p *AWSProcessor) createAWSSession() (aws.Config, error) {
 		}),
 	)
 	if err != nil {
-		return aws.Config{}, catcher.Error("cannot create AWS session", err, nil)
+		return aws.Config{}, catcher.Error("cannot create AWS session", err, map[string]any{"process": "plugin_com.utmstack.aws"})
 	}
 
 	return cfg, nil
@@ -291,7 +299,7 @@ func describeLogStreams(ctx context.Context, cwl *cloudwatchlogs.Client, logGrou
 		page, err := paginator.NextPage(requestCtx)
 		if err != nil {
 			cancel()
-			return nil, catcher.Error("cannot get log streams", err, nil)
+			return nil, catcher.Error("cannot get log streams", err, map[string]any{"process": "plugin_com.utmstack.aws"})
 		}
 		for _, stream := range page.LogStreams {
 			logStreams = append(logStreams, *stream.LogStreamName)
@@ -313,6 +321,7 @@ func streamLogStream(ctx context.Context, cwl *cloudwatchlogs.Client, logGroup, 
 			catcher.Info("Log stream cancelled", map[string]any{
 				"stream":     streamName,
 				"totalCount": processedCount,
+				"process":    "plugin_com.utmstack.aws",
 			})
 			return
 		default:
@@ -335,6 +344,7 @@ func streamLogStream(ctx context.Context, cwl *cloudwatchlogs.Client, logGroup, 
 			_ = catcher.Error("cannot get log events", err, map[string]any{
 				"logGroup": logGroup,
 				"stream":   streamName,
+				"process":  "plugin_com.utmstack.aws",
 			})
 			if !sleepWithCancel(ctx, 10*time.Second) {
 				return
@@ -351,7 +361,7 @@ func streamLogStream(ctx context.Context, cwl *cloudwatchlogs.Client, logGroup, 
 				DataSource: dataSource,
 				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 				Raw:        *event.Message,
-			})
+			}, "com.utmstack.aws")
 			processedCount++
 			eventsInBatch++
 		}
@@ -362,6 +372,7 @@ func streamLogStream(ctx context.Context, cwl *cloudwatchlogs.Client, logGroup, 
 				"batchCount": eventsInBatch,
 				"totalCount": processedCount,
 				"dataSource": dataSource,
+				"process":    "plugin_com.utmstack.aws",
 			})
 		}
 
@@ -407,7 +418,7 @@ func checkConnection(url string) error {
 	defer func() {
 		err := resp.Body.Close()
 		if err != nil {
-			_ = catcher.Error("error closing response body: %v", err, nil)
+			_ = catcher.Error("error closing response body: %v", err, map[string]any{"process": "plugin_com.utmstack.aws"})
 		}
 	}()
 
@@ -421,7 +432,7 @@ func infiniteRetryIfXError(f func() error, exception string) error {
 		err := f()
 		if err != nil && is(err, exception) {
 			if !xErrorWasLogged {
-				_ = catcher.Error("An error occurred (%s), will keep retrying indefinitely...", err, nil)
+				_ = catcher.Error("An error occurred (%s), will keep retrying indefinitely...", err, map[string]any{"process": "aws-plugin"})
 				xErrorWasLogged = true
 			}
 			time.Sleep(wait)

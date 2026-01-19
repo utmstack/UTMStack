@@ -43,7 +43,7 @@ func StartConfigurationSystem() {
 	for {
 		pluginConfig := plugins.PluginCfg("com.utmstack", false)
 		if !pluginConfig.Exists() {
-			_ = catcher.Error("plugin configuration not found", nil, nil)
+			_ = catcher.Error("plugin configuration not found", nil, map[string]any{"process": "plugin_com.utmstack.sophos"})
 			time.Sleep(reconnectDelay)
 			continue
 		}
@@ -69,7 +69,7 @@ func StartConfigurationSystem() {
 		)
 
 		if err != nil {
-			catcher.Error("Failed to connect to server", err, nil)
+			catcher.Error("Failed to connect to server", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
 			cancel()
 			time.Sleep(reconnectDelay)
 			continue
@@ -77,7 +77,7 @@ func StartConfigurationSystem() {
 
 		state := conn.GetState()
 		if state == connectivity.Shutdown || state == connectivity.TransientFailure {
-			catcher.Error("Connection is in shutdown or transient failure state", nil, nil)
+			catcher.Error("Connection is in shutdown or transient failure state", nil, map[string]any{"process": "plugin_com.utmstack.sophos"})
 			cancel()
 			time.Sleep(reconnectDelay)
 			continue
@@ -86,7 +86,7 @@ func StartConfigurationSystem() {
 		client := NewConfigServiceClient(conn)
 		stream, err := client.StreamConfig(ctx)
 		if err != nil {
-			catcher.Error("Failed to create stream", err, nil)
+			catcher.Error("Failed to create stream", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
 			conn.Close()
 			cancel()
 			time.Sleep(reconnectDelay)
@@ -99,7 +99,7 @@ func StartConfigurationSystem() {
 			},
 		})
 		if err != nil {
-			catcher.Error("Failed to send PluginInit", err, nil)
+			catcher.Error("Failed to send PluginInit", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
 			conn.Close()
 			cancel()
 			time.Sleep(reconnectDelay)
@@ -110,7 +110,7 @@ func StartConfigurationSystem() {
 			in, err := stream.Recv()
 			if err != nil {
 				if strings.Contains(err.Error(), "EOF") {
-					catcher.Info("Stream closed by server, reconnecting...", nil)
+					catcher.Info("Stream closed by server, reconnecting...", map[string]any{"process": "plugin_com.utmstack.sophos"})
 					conn.Close()
 					cancel()
 					time.Sleep(reconnectDelay)
@@ -118,13 +118,13 @@ func StartConfigurationSystem() {
 				}
 				st, ok := status.FromError(err)
 				if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
-					catcher.Error("Stream error: "+st.Message(), err, nil)
+					catcher.Error("Stream error", err, map[string]any{"process": "plugin_com.utmstack.sophos", "status_message": st.Message()})
 					conn.Close()
 					cancel()
 					time.Sleep(reconnectDelay)
 					break
 				} else {
-					catcher.Error("Stream receive error", err, nil)
+					catcher.Error("Stream receive error", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
 					time.Sleep(reconnectDelay)
 					continue
 				}
@@ -132,7 +132,7 @@ func StartConfigurationSystem() {
 
 			switch message := in.Payload.(type) {
 			case *BiDirectionalMessage_Config:
-				catcher.Info("Received configuration update", map[string]any{"config": message.Config})
+				catcher.Info("Received configuration update", map[string]any{"config": message.Config, "process": "plugin_com.utmstack.sophos"})
 				cnf = message.Config
 			}
 		}

@@ -10,11 +10,11 @@ import (
 )
 
 func main() {
-	catcher.Info("Starting Agent Manager v1.0.0 ...", nil)
+	catcher.Info("Starting Agent Manager", map[string]any{"process": "agent-manager"})
 
 	err := database.MigrateDatabase()
 	if err != nil {
-		catcher.Error("failed to migrate database", err, nil)
+		_ = catcher.Error("failed to migrate database", err, map[string]any{"process": "agent-manager"})
 		os.Exit(1)
 	}
 

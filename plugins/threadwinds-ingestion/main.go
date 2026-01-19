@@ -19,7 +19,7 @@ const (
 )
 
 func main() {
-	mode := plugins.GetCfg().Env.Mode
+	mode := plugins.GetCfg("plugin_com.utmstack.threadwinds-ingestion").Env.Mode
 	if mode != "manager" {
 		return
 	}
