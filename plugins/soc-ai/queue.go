@@ -48,7 +48,7 @@ const (
 	QueueFullTimeout   = 100 * time.Millisecond
 )
 
-func InitializeQueue() {
+func initializeQueue() {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	alertQueue = &AlertQueue{
@@ -67,7 +67,7 @@ func InitializeQueue() {
 
 }
 
-func EnqueueAlert(alert *plugins.Alert) bool {
+func enqueueAlert(alert *plugins.Alert) bool {
 	if alertQueue == nil {
 		return false
 	}
@@ -97,10 +97,6 @@ func EnqueueAlert(alert *plugins.Alert) bool {
 			"total_dropped":     totalDropped,
 			"consecutive_drops": consecutiveDrops,
 		})
-		catcher.Error(fmt.Sprintf("QUEUE FULL - Alert %s DROPPED! Queue size: %d/%d, Total dropped: %d, Consecutive: %d.",
-			alert.Id, currentQueueSize, DefaultQueueSize, totalDropped, consecutiveDrops),
-			nil, map[string]any{"process": "plugin_com.utmstack.soc-ai"},
-		)
 
 		elastic.RegisterError(fmt.Sprintf("Alert dropped - Queue FULL (%d/%d)", currentQueueSize, DefaultQueueSize), alert.Id)
 		alertQueue.lastDropAlert = time.Now()
@@ -187,8 +183,13 @@ func (aq *AlertQueue) metricsLogger() {
 			errors := atomic.LoadInt64(&aq.errorCount)
 			queueSize := atomic.LoadInt64(&aq.queueSize)
 
-			catcher.Info(fmt.Sprintf("Queue metrics - Processed: %d, Dropped: %d, Errors: %d, Current queue size: %d",
-				processed, dropped, errors, queueSize), map[string]any{"process": "plugin_com.utmstack.soc-ai"})
+			catcher.Info("SOC-AI queue metrics", map[string]any{
+				"process":   "plugin_com.utmstack.soc-ai",
+				"processed": processed,
+				"dropped":   dropped,
+				"errors":    errors,
+				"queueSize": queueSize,
+			})
 		}
 	}
 }
