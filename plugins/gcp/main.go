@@ -29,6 +29,10 @@ type GroupModule struct {
 }
 
 func main() {
+	if os.Getenv("PLAYGROUND") == "true" {
+		return
+	}
+
 	mode := plugins.GetCfg("plugin_com.utmstack.gcp").Env.Mode
 	if mode != "worker" {
 		return

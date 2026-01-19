@@ -19,6 +19,10 @@ const (
 )
 
 func main() {
+	if os.Getenv("PLAYGROUND") == "true" {
+		return
+	}
+
 	mode := plugins.GetCfg("plugin_com.utmstack.threadwinds-ingestion").Env.Mode
 	if mode != "manager" {
 		return

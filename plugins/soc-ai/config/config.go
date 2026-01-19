@@ -9,7 +9,6 @@ import (
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/utmstack/UTMStack/plugins/soc-ai/utils"
 	"google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	"google.golang.org/grpc/connectivity"
@@ -166,7 +165,6 @@ func updateConfigFromGRPC(grpcConf *ConfigurationSection) {
 	defer configMutex.Unlock()
 
 	if grpcConf == nil {
-		utils.Logger.LogF(100, "Received nil configuration from gRPC")
 		return
 	}
 
@@ -194,7 +192,7 @@ func updateConfigFromGRPC(grpcConf *ConfigurationSection) {
 		case "utmstack.socai.custom.url":
 			customURL = c.ConfValue
 		default:
-			utils.Logger.LogF(100, "Unknown configuration key: %s", c.ConfKey)
+			catcher.Error("Unknown configuration key", nil, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 		}
 	}
 

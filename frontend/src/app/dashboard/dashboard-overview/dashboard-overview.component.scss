@@ -16,3 +16,10 @@
 .card-header-chart {
   padding-right: 0 !important;
 }
+
+@media print {
+  .d-print-block {
+    display: block !important;
+    overflow: visible !important;
+  }
+}

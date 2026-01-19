@@ -12,7 +12,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.41.6
 	github.com/crowdstrike/gofalcon v0.19.0
 	github.com/gin-gonic/gin v1.11.0
-	github.com/threatwinds/go-sdk v1.1.1
+	github.com/threatwinds/go-sdk v1.1.5
 	google.golang.org/api v0.260.0
 	google.golang.org/grpc v1.78.0
 	google.golang.org/protobuf v1.36.11
