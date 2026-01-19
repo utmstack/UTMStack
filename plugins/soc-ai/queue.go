@@ -7,7 +7,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/config"
@@ -92,15 +91,12 @@ func EnqueueAlert(alert *plugins.Alert) bool {
 		totalDropped := atomic.LoadInt64(&alertQueue.droppedCount)
 		consecutiveDrops := atomic.LoadInt64(&alertQueue.consecutiveDrops)
 
-		_ = plugins.EnqueueNotification(plugins.TopicIntegrationFailure, plugins.Message{
-			Id: uuid.NewString(),
-			Message: catcher.Error("Alert Dropped", nil, map[string]any{
-				"process":           "plugin_com.utmstack.soc-ai",
-				"id":                alert.Id,
-				"total_dropped":     totalDropped,
-				"consecutive_drops": consecutiveDrops,
-			}).Error(),
-		}, "com.utmstack.soc-ai")
+		_ = catcher.Error("Alert Dropped due to queue full", nil, map[string]any{
+			"process":           "plugin_com.utmstack.soc-ai",
+			"id":                alert.Id,
+			"total_dropped":     totalDropped,
+			"consecutive_drops": consecutiveDrops,
+		})
 		catcher.Error(fmt.Sprintf("QUEUE FULL - Alert %s DROPPED! Queue size: %d/%d, Total dropped: %d, Consecutive: %d.",
 			alert.Id, currentQueueSize, DefaultQueueSize, totalDropped, consecutiveDrops),
 			nil, map[string]any{"process": "plugin_com.utmstack.soc-ai"},
