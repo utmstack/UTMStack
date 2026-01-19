@@ -127,7 +127,11 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
 
     if (!this.defaultTime) {
       this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
-      this.refreshService.sendRefresh(this.refreshType);
+
+      if (!this.defaultTime) {
+        this.refreshService.sendRefresh(this.refreshType);
+      }
+
     }
   }
 

@@ -45,7 +45,6 @@ export class RefreshService {
     this.refreshSubject.next(null);
     if (this.subscription) {
       this.subscription.unsubscribe();
-      console.log('refresh stopped');
     }
   }
 
