@@ -38,14 +38,13 @@ public class PdfGenerationService {
         try {
             webDriver.get(reportUrl);
 
-            WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(15));
+            WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(5));
 
-            wait.until(d -> ((JavascriptExecutor) d)
-                    .executeScript("return document.readyState").equals("complete"));
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("app-root")));
+            wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("app-loading")));
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".report-loaded")));
 
-            Thread.sleep(500);
-
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".report-loading")));
+            Thread.sleep(1000);
 
             Pdf print = ((PrintsPage) webDriver).print(printOptions);
             return OutputType.BYTES.convertFromBase64Png(print.getContent());

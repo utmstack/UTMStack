@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.park.utmstack.web.rest.util.HeaderUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -15,17 +17,22 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@Slf4j
 public class RestTemplateService {
     private static final String CLASSNAME = "RestTemplateService";
 
     private final RestTemplate rest;
+    private final RestTemplate rawRestTemplate;
     private final RestTemplate restTemplateWithSsl;
 
     private final HttpHeaders headers = new HttpHeaders();
 
-    public RestTemplateService(RestTemplate restTemplate, RestTemplate restTemplateWithSsl) {
+    public RestTemplateService(RestTemplate restTemplate,
+                               RestTemplate restTemplateWithSsl,
+                               @Qualifier("rawRestTemplate") RestTemplate rawRestTemplate) {
         this.rest = restTemplate;
         this.restTemplateWithSsl = restTemplateWithSsl;
+        this.rawRestTemplate = rawRestTemplate;
         headers.add("Content-Type", "application/json");
         headers.add("Accept", "*/*");
     }
@@ -41,6 +48,12 @@ public class RestTemplateService {
                 HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
+
+    public <T> ResponseEntity<T> getRaw(String url, Class<T> type) {
+        HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
+        return rawRestTemplate.exchange(url, HttpMethod.GET, requestEntity, type);
+    }
+
 
     public <T> ResponseEntity<T> get(String url, Class<T> type, HttpHeaders headers) throws Exception {
         final String ctx = CLASSNAME + ".get";
@@ -169,10 +182,4 @@ public class RestTemplateService {
         return this;
     }
 
-    public RestTemplateService acceptingSsl() {
-
-
-        return this;
-
-    }
 }

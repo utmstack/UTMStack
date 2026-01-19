@@ -40,7 +40,7 @@ public class WebPdfController {
                     .status(HttpStatus.BAD_REQUEST)
                     .body(ResponseDto.builder()
                             .error(true)
-                            .message("The")
+                            .message("Failed to generate PDF: No content returned")
                             .build());
         }
 
@@ -48,7 +48,7 @@ public class WebPdfController {
                 ResponseDto.builder()
                         .pdfBytes(pdfBytes)
                         .error(false)
-                        .message("PDF generado correctamente")
+                        .message("PDF generated successfully")
                         .build());
     }
 }

@@ -9,7 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.HostnameVerifier;
@@ -36,6 +38,19 @@ public class RestTemplateConfiguration {
         rest.setErrorHandler(new RestTemplateResponseErrorHandler());
         return rest;
     }
+
+    @Bean(name = "rawRestTemplate")
+    public RestTemplate rawRestTemplate() {
+        RestTemplate rest = new RestTemplate();
+        rest.setErrorHandler(new DefaultResponseErrorHandler() {
+            @Override
+            public boolean hasError(ClientHttpResponse response) {
+                return false;
+            }
+        });
+        return rest;
+    }
+
 
     private HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
         final String ctx = CLASSNAME + ".clientHttpRequestFactory";
