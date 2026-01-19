@@ -8,13 +8,10 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/config"
-	"github.com/utmstack/UTMStack/plugins/soc-ai/utils"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func main() {
-	utils.Logger.Info("Starting soc-ai plugin...")
-
 	go config.StartConfigurationSystem()
 
 	time.Sleep(2 * time.Second)
@@ -43,12 +40,10 @@ func correlate(_ context.Context,
 
 	// Check if the module is active before processing the alert
 	if config.GetConfig() == nil || !config.GetConfig().ModuleActive {
-		utils.Logger.LogF(100, "SOC-AI module is disabled, skipping alert: %s", alert.Id)
 		return &emptypb.Empty{}, nil
 	}
 
 	if !EnqueueAlert(alert) {
-		utils.Logger.LogF(300, "Alert %s was dropped due to full queue", alert.Id)
 		return &emptypb.Empty{}, nil
 	}
 

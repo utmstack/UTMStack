@@ -143,8 +143,9 @@ export class DashboardExportPdfComponent implements OnInit, AfterViewInit {
   }
 
   onVisualizationLoaded() {
-    this.preparingPrint = false;
-    console.log('onVisualizationLoaded');
+    setTimeout(() => {
+      this.preparingPrint = false;
+    });
   }
 
   getTimeFilterValue() {
