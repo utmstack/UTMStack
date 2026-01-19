@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"runtime"
 
 	"github.com/threatwinds/go-sdk/plugins"
@@ -10,6 +11,10 @@ import (
 )
 
 func main() {
+	if os.Getenv("PLAYGROUND") == "true" {
+		return
+	}
+
 	mode := plugins.GetCfg("plugin_com.utmstack.bitdefender").Env.Mode
 	if mode != "manager" {
 		return

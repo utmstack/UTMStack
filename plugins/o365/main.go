@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"runtime"
 	"strings"
 	"sync"
@@ -70,6 +71,10 @@ func GetCloudConfig(env CloudEnvironment) CloudConfig {
 }
 
 func main() {
+	if os.Getenv("PLAYGROUND") == "true" {
+		return
+	}
+
 	mode := plugins.GetCfg("plugin_com.utmstack.o365").Env.Mode
 	if mode != "manager" {
 		return

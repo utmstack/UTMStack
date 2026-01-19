@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"runtime"
 	"strings"
 	"time"
@@ -38,6 +39,10 @@ var (
 )
 
 func main() {
+	if os.Getenv("PLAYGROUND") == "true" {
+		return
+	}
+
 	mode := plugins.GetCfg("plugin_com.utmstack.aws").Env.Mode
 	if mode != "manager" {
 		return

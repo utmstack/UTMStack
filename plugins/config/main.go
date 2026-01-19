@@ -234,6 +234,10 @@ func (f *Filter) FromVar(id int, name any, filter any) {
 }
 
 func main() {
+	if os.Getenv("PLAYGROUND") == "true" {
+		return
+	}
+
 	for {
 		func() {
 			db, err := connect()
