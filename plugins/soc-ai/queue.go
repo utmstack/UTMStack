@@ -66,12 +66,10 @@ func InitializeQueue() {
 
 	go alertQueue.metricsLogger()
 
-	utils.Logger.LogF(100, "Alert queue initialized with %d workers and queue size %d", DefaultWorkerCount, DefaultQueueSize)
 }
 
 func EnqueueAlert(alert *plugins.Alert) bool {
 	if alertQueue == nil {
-		utils.Logger.LogF(500, "Alert queue not initialized")
 		return false
 	}
 
@@ -85,7 +83,6 @@ func EnqueueAlert(alert *plugins.Alert) bool {
 		atomic.AddInt64(&alertQueue.queueSize, 1)
 		// Reset consecutive drops counter on successful enqueue
 		atomic.StoreInt64(&alertQueue.consecutiveDrops, 0)
-		utils.Logger.LogF(100, "Alert %s enqueued for processing", alert.Id)
 		return true
 	case <-time.After(QueueFullTimeout):
 		atomic.AddInt64(&alertQueue.droppedCount, 1)
@@ -104,8 +101,10 @@ func EnqueueAlert(alert *plugins.Alert) bool {
 				"consecutive_drops": consecutiveDrops,
 			}).Error(),
 		}, "com.utmstack.soc-ai")
-		utils.Logger.ErrorF("QUEUE FULL - Alert %s DROPPED! Queue size: %d/%d, Total dropped: %d, Consecutive: %d.",
-			alert.Id, currentQueueSize, DefaultQueueSize, totalDropped, consecutiveDrops)
+		catcher.Error(fmt.Sprintf("QUEUE FULL - Alert %s DROPPED! Queue size: %d/%d, Total dropped: %d, Consecutive: %d.",
+			alert.Id, currentQueueSize, DefaultQueueSize, totalDropped, consecutiveDrops),
+			nil, map[string]any{"process": "plugin_com.utmstack.soc-ai"},
+		)
 
 		elastic.RegisterError(fmt.Sprintf("Alert dropped - Queue FULL (%d/%d)", currentQueueSize, DefaultQueueSize), alert.Id)
 		alertQueue.lastDropAlert = time.Now()
@@ -132,10 +131,7 @@ func (aq *AlertQueue) worker(workerID int) {
 }
 
 func (aq *AlertQueue) processAlert(workerID int, item *AlertQueueItem) {
-	startTime := time.Now()
 	alert := cleanAlerts(alertToAlertFields(item.Alert))
-
-	utils.Logger.LogF(100, "Worker %d processing alert: %s", workerID, alert.ID)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -151,7 +147,6 @@ func (aq *AlertQueue) processAlert(workerID int, item *AlertQueueItem) {
 	}()
 
 	if config.GetConfig() == nil || !config.GetConfig().ModuleActive {
-		utils.Logger.LogF(100, "SOC-AI module is disabled, skipping alert: %s", alert.ID)
 		atomic.AddInt64(&aq.processedCount, 1)
 		return
 	}
@@ -180,11 +175,6 @@ func (aq *AlertQueue) processAlert(workerID int, item *AlertQueueItem) {
 	}
 
 	atomic.AddInt64(&aq.processedCount, 1)
-	duration := time.Since(startTime)
-	queueTime := startTime.Sub(item.Timestamp)
-
-	utils.Logger.LogF(100, "Worker %d completed alert %s in %v (queue time: %v)",
-		workerID, alert.ID, duration, queueTime)
 }
 
 func (aq *AlertQueue) metricsLogger() {
@@ -201,8 +191,8 @@ func (aq *AlertQueue) metricsLogger() {
 			errors := atomic.LoadInt64(&aq.errorCount)
 			queueSize := atomic.LoadInt64(&aq.queueSize)
 
-			utils.Logger.LogF(200, "Queue metrics - Processed: %d, Dropped: %d, Errors: %d, Current queue size: %d",
-				processed, dropped, errors, queueSize)
+			catcher.Info(fmt.Sprintf("Queue metrics - Processed: %d, Dropped: %d, Errors: %d, Current queue size: %d",
+				processed, dropped, errors, queueSize), map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 		}
 	}
 }

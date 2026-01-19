@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/config"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/correlation"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/schema"
@@ -47,8 +48,6 @@ func sendRequestToLLM(alert *schema.AlertFields) error {
 		},
 	}
 
-	utils.Logger.LogF(100, "Sending request to LLM: %v", req)
-
 	requestJson, err := json.Marshal(req)
 	if err != nil {
 		return fmt.Errorf("error marshalling request: %v", err)
@@ -80,8 +79,8 @@ func sendRequestToLLM(alert *schema.AlertFields) error {
 		}
 	}
 
-	utils.Logger.LogF(500, "LLM appears to be DOWN - all %d attempts failed for alert %s. Provider: %s, URL: %s, Last error: %v",
-		maxRetries, alert.ID, config.GetConfig().Provider, config.GetConfig().Url, lastErr)
+	catcher.Error(fmt.Sprintf("LLM appears to be DOWN - all %d attempts failed for alert %s. Provider: %s, URL: %s, Last error: %v",
+		maxRetries, alert.ID, config.GetConfig().Provider, config.GetConfig().Url, lastErr), nil, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 
 	return fmt.Errorf("all attempts to call LLM failed: %v", lastErr)
 }
