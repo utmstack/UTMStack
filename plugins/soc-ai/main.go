@@ -12,10 +12,14 @@ import (
 )
 
 func main() {
+	if plugins.GetCfg("plugin_com.utmstack.soc-ai").GetEnv().Mode == "playground" {
+		return
+	}
+
 	go config.StartConfigurationSystem()
 
 	time.Sleep(2 * time.Second)
-	InitializeQueue()
+	initializeQueue()
 
 	err := plugins.InitCorrelationPlugin("com.utmstack.soc-ai", correlate)
 	if err != nil {
@@ -43,7 +47,7 @@ func correlate(_ context.Context,
 		return &emptypb.Empty{}, nil
 	}
 
-	if !EnqueueAlert(alert) {
+	if !enqueueAlert(alert) {
 		return &emptypb.Empty{}, nil
 	}
 

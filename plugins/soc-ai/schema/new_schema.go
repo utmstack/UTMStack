@@ -31,6 +31,7 @@ type AlertFields struct {
 	Notes             string           `json:"notes"`
 	TagRulesApplied   []int            `json:"tagRulesApplied,omitempty"`
 	DeduplicatedBy    []string         `json:"deduplicatedBy,omitempty"`
+	GroupedBy         []string         `json:"groupedBy,omitempty"`
 	GPTTimestamp      string           `json:"gpt_timestamp,omitempty"`
 	GPTClassification string           `json:"gpt_classification,omitempty"`
 	GPTReasoning      string           `json:"gpt_reasoning,omitempty"`

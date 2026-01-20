@@ -16,17 +16,13 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-type notificationServer struct {
-	plugins.UnimplementedNotificationServer
-}
-
-var statisticsQueue chan map[string]plugins.DataProcessingMessage
-var success map[string]map[string]int64
-var successLock sync.Mutex
+var statisticsQueue chan map[plugins.Topic]plugins.DataProcessingMessage
+var statsMap map[plugins.Topic]map[string]map[string]int64
+var statsLock sync.Mutex
 
 func main() {
-	statisticsQueue = make(chan map[string]plugins.DataProcessingMessage, runtime.NumCPU()*100)
-	success = make(map[string]map[string]int64)
+	statisticsQueue = make(chan map[plugins.Topic]plugins.DataProcessingMessage, runtime.NumCPU()*100)
+	statsMap = make(map[plugins.Topic]map[string]map[string]int64)
 
 	pCfg := plugins.PluginCfg("org.opensearch", false)
 	osUrl := pCfg.Get("opensearch").String()
@@ -68,7 +64,7 @@ func main() {
 
 func notify(_ context.Context, msg *plugins.Message) (*emptypb.Empty, error) {
 	switch plugins.Topic(msg.Topic) {
-	case plugins.TopicEnqueueSuccess:
+	case plugins.TopicEnqueueSuccess, plugins.TopicParsingDropped, plugins.TopicAnalysisDropped, plugins.TopicCorrelationDropped:
 	default:
 		return &emptypb.Empty{}, nil
 	}
@@ -82,7 +78,7 @@ func notify(_ context.Context, msg *plugins.Message) (*emptypb.Empty, error) {
 		return &emptypb.Empty{}, catcher.Error("cannot unmarshal message", err, map[string]any{"process": "plugin_com.utmstack.stats"})
 	}
 
-	statisticsQueue <- map[string]plugins.DataProcessingMessage{msg.Topic: pMsg}
+	statisticsQueue <- map[plugins.Topic]plugins.DataProcessingMessage{plugins.Topic(msg.Topic): pMsg}
 
 	return &emptypb.Empty{}, nil
 }
@@ -91,16 +87,19 @@ func processStatistics(ctx context.Context) {
 	for {
 		select {
 		case msg := <-statisticsQueue:
-			for _, v := range msg {
-				successLock.Lock()
-				if _, ok := success[v.DataSource]; !ok {
-					success[v.DataSource] = make(map[string]int64)
+			for topic, v := range msg {
+				statsLock.Lock()
+				if _, ok := statsMap[topic]; !ok {
+					statsMap[topic] = make(map[string]map[string]int64)
 				}
-				if _, ok := success[v.DataSource][v.DataType]; !ok {
-					success[v.DataSource][v.DataType] = 0
+				if _, ok := statsMap[topic][v.DataSource]; !ok {
+					statsMap[topic][v.DataSource] = make(map[string]int64)
 				}
-				success[v.DataSource][v.DataType]++
-				successLock.Unlock()
+				if _, ok := statsMap[topic][v.DataSource][v.DataType]; !ok {
+					statsMap[topic][v.DataSource][v.DataType] = 0
+				}
+				statsMap[topic][v.DataSource][v.DataType]++
+				statsLock.Unlock()
 			}
 		case <-ctx.Done():
 			return
@@ -127,32 +126,34 @@ func saveToDB(ctx context.Context, t string) {
 	}
 }
 
-func extractSuccess() []Statistic {
-	successLock.Lock()
-	defer successLock.Unlock()
+func extractStats() []Statistic {
+	statsLock.Lock()
+	defer statsLock.Unlock()
 
 	var result []Statistic
 
-	for dataSource, dataTypes := range success {
-		for dataType, count := range dataTypes {
-			result = append(result, Statistic{
-				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
-				DataSource: dataSource,
-				DataType:   dataType,
-				Count:      count,
-				Type:       string(plugins.TopicEnqueueSuccess),
-			})
+	for topic, sourceMap := range statsMap {
+		for dataSource, typeMap := range sourceMap {
+			for dataType, count := range typeMap {
+				result = append(result, Statistic{
+					Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
+					DataSource: dataSource,
+					DataType:   dataType,
+					Count:      count,
+					Type:       string(topic),
+				})
+			}
 		}
 	}
 
-	success = make(map[string]map[string]int64)
+	statsMap = make(map[plugins.Topic]map[string]map[string]int64)
 
 	return result
 }
 
 func sendStatistic(t string) {
-	success := extractSuccess()
-	for _, s := range success {
+	stats := extractStats()
+	for _, s := range stats {
 		saveToOpenSearch(s)
 	}
 }
