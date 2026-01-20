@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"runtime"
 	"strings"
 	"sync"
@@ -28,10 +27,6 @@ const (
 )
 
 func main() {
-	if os.Getenv("PLAYGROUND") == "true" {
-		return
-	}
-
 	mode := plugins.GetCfg("plugin_com.utmstack.crowdstrike").Env.Mode
 	if mode != "manager" {
 		return

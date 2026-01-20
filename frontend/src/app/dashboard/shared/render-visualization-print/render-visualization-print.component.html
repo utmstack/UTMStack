@@ -1,5 +1,5 @@
 <div class="container-fluid container-export">
-  <div *ngIf="visualizationRender"
+  <div *ngIf="visualizationRender && visualizationRender.length > 0"
        class="d-flex flex-column justify-content-center align-items-center">
     <div #container
          *ngFor="let vis of visualizationRender"

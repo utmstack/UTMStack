@@ -120,7 +120,7 @@ func (a *Asset) FromVar(name any, hostnames any, ipAddresses any, confidentialit
 		hostnamesStr := utils.CastString(hostnames)
 		err := json.Unmarshal([]byte(hostnamesStr), &hostnamesList)
 		if err != nil {
-			_ = catcher.Error("failed to unmarshal hostnames list", err, map[string]any{"process": "config-plugin"})
+			_ = catcher.Error("failed to unmarshal hostnames list", err, map[string]any{"process": "plugin_com.utmstack.config"})
 			return
 		}
 	}
@@ -131,7 +131,7 @@ func (a *Asset) FromVar(name any, hostnames any, ipAddresses any, confidentialit
 		ipAddressesStr := utils.CastString(ipAddresses)
 		err := json.Unmarshal([]byte(ipAddressesStr), &ipAddressesList)
 		if err != nil {
-			_ = catcher.Error("failed to unmarshal ip addresses list", err, map[string]any{"process": "config-plugin"})
+			_ = catcher.Error("failed to unmarshal ip addresses list", err, map[string]any{"process": "plugin_com.utmstack.config"})
 			return
 		}
 	}
@@ -157,7 +157,7 @@ func castUint32(value interface{}) uint32 {
 	case string:
 		val, err := strconv.ParseUint(v, 10, 32)
 		if err != nil {
-			_ = catcher.Error("failed to cast string to int64", err, map[string]any{"value": v, "process": "config-plugin"})
+			_ = catcher.Error("failed to cast string to int64", err, map[string]any{"value": v, "process": "plugin_com.utmstack.config"})
 			return 0
 		}
 		return uint32(val)
@@ -176,7 +176,7 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 		referencesStr := utils.CastString(references)
 		err := json.Unmarshal([]byte(referencesStr), &referencesList)
 		if err != nil {
-			_ = catcher.Error("failed to unmarshal references list", err, map[string]any{"process": "config-plugin"})
+			_ = catcher.Error("failed to unmarshal references list", err, map[string]any{"process": "plugin_com.utmstack.config"})
 			return
 		}
 	}
@@ -187,7 +187,7 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 		deduplicateStr := utils.CastString(deduplicate)
 		err := json.Unmarshal([]byte(deduplicateStr), &deduplicateList)
 		if err != nil {
-			_ = catcher.Error("failed to unmarshal deduplicate list", err, map[string]any{"process": "config-plugin"})
+			_ = catcher.Error("failed to unmarshal deduplicate list", err, map[string]any{"process": "plugin_com.utmstack.config"})
 			return
 		}
 	}
@@ -199,7 +199,7 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 		afterStr := utils.CastString(after)
 		err := json.Unmarshal([]byte(afterStr), &afterBackendObj)
 		if err != nil {
-			_ = catcher.Error("failed to unmarshal after list", err, map[string]any{"process": "config-plugin"})
+			_ = catcher.Error("failed to unmarshal after list", err, map[string]any{"process": "plugin_com.utmstack.config"})
 			return
 		}
 
@@ -234,7 +234,7 @@ func (f *Filter) FromVar(id int, name any, filter any) {
 }
 
 func main() {
-	if os.Getenv("PLAYGROUND") == "true" {
+	if plugins.GetCfg("plugin_com.utmstack.config").Env.Mode == "playground" {
 		return
 	}
 
@@ -242,7 +242,7 @@ func main() {
 		func() {
 			db, err := connect()
 			if err != nil {
-				_ = catcher.Error("failed to connect to database", err, map[string]any{"process": "config-plugin"})
+				_ = catcher.Error("failed to connect to database", err, map[string]any{"process": "plugin_com.utmstack.config"})
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -251,7 +251,7 @@ func main() {
 
 			filters, err := getFilters(db)
 			if err != nil {
-				_ = catcher.Error("failed to get filters", err, map[string]any{"process": "config-plugin"})
+				_ = catcher.Error("failed to get filters", err, map[string]any{"process": "plugin_com.utmstack.config"})
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -259,7 +259,7 @@ func main() {
 
 			assets, err := getAssets(db)
 			if err != nil {
-				_ = catcher.Error("failed to get assets", err, map[string]any{"process": "config-plugin"})
+				_ = catcher.Error("failed to get assets", err, map[string]any{"process": "plugin_com.utmstack.config"})
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -267,7 +267,7 @@ func main() {
 
 			rules, err := getRules(db)
 			if err != nil {
-				_ = catcher.Error("failed to get rules", err, map[string]any{"process": "config-plugin"})
+				_ = catcher.Error("failed to get rules", err, map[string]any{"process": "plugin_com.utmstack.config"})
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -275,7 +275,7 @@ func main() {
 
 			patterns, err := getPatterns(db)
 			if err != nil {
-				_ = catcher.Error("failed to get patterns", err, map[string]any{"process": "config-plugin"})
+				_ = catcher.Error("failed to get patterns", err, map[string]any{"process": "plugin_com.utmstack.config"})
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -296,10 +296,10 @@ func main() {
 
 				// Lock not acquired, wait and retry
 				if i < maxRetries-1 {
-					_ = catcher.Error("failed to acquire lock", err, map[string]interface{}{"retry": i + 1, "maxRetries": maxRetries, "process": "config-plugin"})
+					_ = catcher.Error("failed to acquire lock", err, map[string]interface{}{"retry": i + 1, "maxRetries": maxRetries, "process": "plugin_com.utmstack.config"})
 					time.Sleep(plugins.RandomDuration(10, 60))
 				} else {
-					_ = catcher.Error("failed to acquire lock after multiple retries", nil, map[string]any{"process": "config-plugin"})
+					_ = catcher.Error("failed to acquire lock after multiple retries", nil, map[string]any{"process": "plugin_com.utmstack.config"})
 					return
 				}
 			}
@@ -307,13 +307,13 @@ func main() {
 			// Make sure to release the lock when done
 			defer func() {
 				if err := plugins.ReleaseLock(); err != nil {
-					_ = catcher.Error("failed to release lock", err, map[string]any{"process": "config-plugin"})
+					_ = catcher.Error("failed to release lock", err, map[string]any{"process": "plugin_com.utmstack.config"})
 				}
 			}()
 
 			err = cleanUpFilters(filters)
 			if err != nil {
-				_ = catcher.Error("failed to clean up filters", err, map[string]any{"process": "config-plugin"})
+				_ = catcher.Error("failed to clean up filters", err, map[string]any{"process": "plugin_com.utmstack.config"})
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -321,7 +321,7 @@ func main() {
 
 			err = writeFilters(filters)
 			if err != nil {
-				_ = catcher.Error("failed to write filters", err, map[string]any{"process": "config-plugin"})
+				_ = catcher.Error("failed to write filters", err, map[string]any{"process": "plugin_com.utmstack.config"})
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -329,7 +329,7 @@ func main() {
 
 			err = cleanUpRules(rules)
 			if err != nil {
-				_ = catcher.Error("failed to clean up rules", err, map[string]any{"process": "config-plugin"})
+				_ = catcher.Error("failed to clean up rules", err, map[string]any{"process": "plugin_com.utmstack.config"})
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -337,7 +337,7 @@ func main() {
 
 			err = writeRules(rules)
 			if err != nil {
-				_ = catcher.Error("failed to write rules", err, map[string]any{"process": "config-plugin"})
+				_ = catcher.Error("failed to write rules", err, map[string]any{"process": "plugin_com.utmstack.config"})
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -345,7 +345,7 @@ func main() {
 
 			err = writeTenant(tenant)
 			if err != nil {
-				_ = catcher.Error("failed to write tenant", err, map[string]any{"process": "config-plugin"})
+				_ = catcher.Error("failed to write tenant", err, map[string]any{"process": "plugin_com.utmstack.config"})
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return
@@ -353,7 +353,7 @@ func main() {
 
 			err = writePatterns(patterns)
 			if err != nil {
-				_ = catcher.Error("failed to write patterns", err, map[string]any{"process": "config-plugin"})
+				_ = catcher.Error("failed to write patterns", err, map[string]any{"process": "plugin_com.utmstack.config"})
 				// Don't exit, just sleep and retry
 				time.Sleep(30 * time.Second)
 				return

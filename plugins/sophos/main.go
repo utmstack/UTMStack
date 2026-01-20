@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"runtime"
 	"strings"
 	"sync"
@@ -33,10 +32,6 @@ var (
 )
 
 func main() {
-	if os.Getenv("PLAYGROUND") == "true" {
-		return
-	}
-
 	mode := plugins.GetCfg("plugin_com.utmstack.sophos").Env.Mode
 	if mode != "manager" {
 		return
