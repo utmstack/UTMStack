@@ -111,6 +111,10 @@ public class UtmCorrelationRules implements Serializable {
     private List<SearchRequest> afterEvents;
 
     @JsonIgnore
+    @Column(name = "rule_group_by_def")
+    private String ruleGroupByDef;
+
+    @JsonIgnore
     @Column(name = "rule_deduplicate_by_def")
     private String deduplicateByDef;
 
@@ -134,6 +138,28 @@ public class UtmCorrelationRules implements Serializable {
             this.deduplicateByDef = UtilSerializer.jsonSerialize(deduplicateBy);
 
         this.deduplicateBy = deduplicateBy;
+    }
+
+    @Transient
+    @JsonSerialize
+    @JsonDeserialize
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    private List<String> groupBy;
+
+    public List<String> getGroupBy() throws UtmSerializationException {
+        if (StringUtils.hasText(deduplicateByDef))
+            groupBy = UtilSerializer.jsonDeserializeList(String.class, ruleGroupByDef);
+        return groupBy == null ? new ArrayList<>() : groupBy;
+    }
+
+    public void setGroupBy(List<String> groupBy) throws UtmSerializationException {
+        if (CollectionUtils.isEmpty(groupBy))
+            this.ruleGroupByDef = null;
+        else
+            this.ruleGroupByDef = UtilSerializer.jsonSerialize(groupBy);
+
+        this.groupBy = groupBy;
     }
 
     @ManyToMany(fetch = FetchType.EAGER)

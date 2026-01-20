@@ -307,6 +307,8 @@
 
     <include file="/config/liquibase/changelog/20260119001_update_menu_url_for_soc_ai.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260120001_add_rule_group_by_to_correlation_rules.xml" relativeToChangelogFile="false"/>
+
 
 
 
