@@ -35,6 +35,7 @@ public class UtmCorrelationRulesMapper {
             dto.setRuleActive(entity.getRuleActive());
             dto.setAfterEvents(entity.getAfterEvents());
             dto.setDeduplicateBy(entity.getDeduplicateBy());
+            dto.setGroupBy(entity.getGroupBy());
             return dto;
         } catch (UtmSerializationException e) {
             logger.error("Error serializing rule references", e);
@@ -62,6 +63,7 @@ public class UtmCorrelationRulesMapper {
             entity.setRuleLastUpdate(Instant.now(Clock.systemUTC()));
             entity.setAfterEvents(dto.getAfterEvents());
             entity.setDeduplicateBy(dto.getDeduplicateBy());
+            entity.setGroupBy(dto.getGroupBy());
 
             return entity;
         } catch (UtmSerializationException e) {
