@@ -16,10 +16,6 @@ const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 var localLogsChannel chan *plugins.Log
 
 func main() {
-	if os.Getenv("PLAYGROUND") == "true" {
-		return
-	}
-
 	mode := plugins.GetCfg("plugin_com.utmstack.inputs").Env.Mode
 	if mode != "worker" {
 		return

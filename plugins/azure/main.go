@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"runtime"
 	"strings"
 	"sync"
@@ -66,10 +65,6 @@ var SupportedClouds = []CloudEndpoints{
 }
 
 func main() {
-	if os.Getenv("PLAYGROUND") == "true" {
-		return
-	}
-
 	mode := plugins.GetCfg("plugin_com.utmstack.azure").Env.Mode
 	if mode != "worker" {
 		return

@@ -12,6 +12,10 @@ import (
 )
 
 func main() {
+	if plugins.GetCfg("plugin_com.utmstack.soc-ai").GetEnv().Mode == "playground" {
+		return
+	}
+
 	go config.StartConfigurationSystem()
 
 	time.Sleep(2 * time.Second)
