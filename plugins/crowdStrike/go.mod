@@ -5,7 +5,7 @@ go 1.25.5
 require (
 	github.com/crowdstrike/gofalcon v0.19.0
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.1.6
+	github.com/threatwinds/go-sdk v1.1.7
 	google.golang.org/grpc v1.78.0
 	google.golang.org/protobuf v1.36.11
 )
