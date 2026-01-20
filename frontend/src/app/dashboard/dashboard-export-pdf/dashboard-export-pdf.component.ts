@@ -242,7 +242,10 @@ export class DashboardExportPdfComponent implements OnInit, OnDestroy {
   }
 
   applyTimeFilterToVisualizations(visualizations: UtmDashboardVisualizationType[]) {
-    if (!this.filtersValues || this.filtersValues.length === 0) { return; }
+    if (!this.filtersValues || this.filtersValues.length === 0) {
+      this.visualizationRender = visualizations;
+      return;
+    }
 
     this.visualizationRender = visualizations.map(v => ({
       ...v,
