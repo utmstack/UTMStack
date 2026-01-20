@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -52,6 +53,7 @@ type AlertFields struct {
 	Notes             string           `json:"notes"`
 	TagRulesApplied   []int            `json:"tagRulesApplied"`
 	DeduplicatedBy    []string         `json:"deduplicatedBy"`
+	GroupedBy         []string         `json:"groupedBy"`
 }
 
 func main() {
@@ -71,7 +73,7 @@ func main() {
 	}
 }
 
-func correlate(_ context.Context,
+func correlate(ctx context.Context,
 	alert *plugins.Alert) (*emptypb.Empty, error) {
 	// Recover from panics to ensure the method doesn't terminate
 	defer func() {
@@ -86,7 +88,100 @@ func correlate(_ context.Context,
 
 	parentId := getPreviousAlertId(alert)
 
-	return nil, newAlert(alert, parentId)
+	if parentId != nil {
+		if isDuplicate(alert) {
+			return nil, nil
+		}
+		return nil, newAlert(alert, parentId)
+	}
+
+	if len(alert.DeduplicateBy) > 0 {
+		if isDuplicate(alert) {
+			return nil, nil
+		}
+	}
+
+	return nil, newAlert(alert, nil)
+}
+
+func isDuplicate(alert *plugins.Alert) bool {
+	// Recover from panics to ensure the function doesn't terminate
+	defer func() {
+		if r := recover(); r != nil {
+			_ = catcher.Error("recovered from panic in isDuplicate", nil, map[string]any{
+				"panic":   r,
+				"alert":   alert.Name,
+				"process": "plugin_com.utmstack.alerts",
+			})
+		}
+	}()
+
+	alertString, err := utils.ProtoMessageToString(alert)
+	if err != nil {
+		_ = catcher.Error("cannot convert alert to string", err, map[string]any{"alert": alert.Name, "process": "plugin_com.utmstack.alerts"})
+		return false
+	}
+
+	ctx := context.Background()
+	indices := []string{sdkos.BuildIndexPattern("v11", "alert")}
+
+	// Create BoolBuilder
+	bb := sdkos.NewBoolBuilder(ctx, indices, "plugin_com.utmstack.alerts")
+
+	// 1. Filter by Name (always)
+	bb.FilterTerm("name.keyword", alert.Name)
+
+	// Compile regex for array index stripping
+	reArrayIndex := regexp.MustCompile(`\.[0-9]+(\.|$)`)
+
+	for _, d := range alert.DeduplicateBy {
+		d = strings.TrimSuffix(d, ".keyword")
+
+		value := gjson.Get(*alertString, d)
+		if value.Type == gjson.Null {
+			continue
+		}
+
+		// Calculate OpenSearch field name by removing array indices
+		searchField := reArrayIndex.ReplaceAllStringFunc(d, func(s string) string {
+			if strings.HasSuffix(s, ".") {
+				return "."
+			}
+			return ""
+		})
+
+		if value.Type == gjson.String {
+			bb.FilterTerm(fmt.Sprintf("%s.keyword", searchField), value.String())
+		} else if value.Type == gjson.Number {
+			bb.FilterTerm(searchField, value.Float())
+		} else if value.IsBool() {
+			bb.FilterTerm(searchField, value.Bool())
+		}
+	}
+
+	// Create QueryBuilder and inject the Bool query
+	qb := sdkos.NewQueryBuilder(ctx, indices, "plugin_com.utmstack.alerts")
+	qb.Size(1)
+	qb.From(0)
+	qb.IncludeSource("id")
+
+	qb.Filter(bb.Build())
+
+	ctxTimeout, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	searchRequest := qb.Build()
+
+	// Ensure latest data is visible
+	_ = sdkos.RefreshIndex(ctxTimeout, indices[0])
+
+	hits, err := searchRequest.WideSearchIn(ctxTimeout, indices)
+
+	if err == nil && hits.Hits.Total.Value != 0 {
+		return true
+	}
+
+	return false
 }
 
 func getPreviousAlertId(alert *plugins.Alert) *string {
@@ -101,7 +196,12 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		}
 	}()
 
-	if len(alert.DeduplicateBy) == 0 {
+	searchFields := alert.GroupBy
+	if len(searchFields) == 0 {
+		searchFields = alert.DeduplicateBy
+	}
+
+	if len(searchFields) == 0 {
 		return nil
 	}
 
@@ -111,24 +211,23 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		return nil
 	}
 
-	var filters []sdkos.Query
-	var mustNot []sdkos.Query
+	ctx := context.Background()
+	indices := []string{sdkos.BuildIndexPattern("v11", "alert")}
 
-	filters = append(filters, sdkos.Query{
-		Term: map[string]map[string]interface{}{
-			"name.keyword": {
-				"value": alert.Name,
-			},
-		},
-	})
+	// Create BoolBuilder
+	bb := sdkos.NewBoolBuilder(ctx, indices, "plugin_com.utmstack.alerts")
 
-	mustNot = append(mustNot, sdkos.Query{
-		Exists: map[string]string{
-			"field": "parentId",
-		},
-	})
+	// 1. Filter by Name (always)
+	bb.FilterTerm("name.keyword", alert.Name)
 
-	for _, d := range alert.DeduplicateBy {
+	// 2. Must NOT match existing ParentId (we want strictly the parent, or another orphan, not a child)
+	// Original logic: MustNot exists field "parentId"
+	bb.MustNotExists("parentId")
+
+	// Compile regex for array index stripping
+	reArrayIndex := regexp.MustCompile(`\.[0-9]+(\.|$)`)
+
+	for _, d := range searchFields {
 		d = strings.TrimSuffix(d, ".keyword")
 
 		value := gjson.Get(*alertString, d)
@@ -136,65 +235,53 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 			continue
 		}
 
+		// Calculate OpenSearch field name by removing array indices
+		searchField := reArrayIndex.ReplaceAllStringFunc(d, func(s string) string {
+			if strings.HasSuffix(s, ".") {
+				return "."
+			}
+			return ""
+		})
+
 		if value.Type == gjson.String {
-			filters = append(filters, sdkos.Query{
-				Term: map[string]map[string]interface{}{
-					fmt.Sprintf("%s.keyword", d): {
-						"value": value.String(),
-					},
-				},
-			})
-		}
-
-		if value.Type == gjson.Number {
-			filters = append(filters, sdkos.Query{
-				Term: map[string]map[string]interface{}{
-					d: {
-						"value": value.Float(),
-					},
-				},
-			})
-		}
-
-		if value.IsBool() {
-			filters = append(filters, sdkos.Query{
-				Term: map[string]map[string]interface{}{
-					d: {
-						"value": value.Bool(),
-					},
-				},
-			})
+			bb.FilterTerm(fmt.Sprintf("%s.keyword", searchField), value.String())
+		} else if value.Type == gjson.Number {
+			bb.FilterTerm(searchField, value.Float())
+		} else if value.IsBool() {
+			bb.FilterTerm(searchField, value.Bool())
 		}
 	}
 
-	searchQuery := sdkos.SearchRequest{
-		Size:    1,
-		From:    0,
-		Version: true,
-		Query: &sdkos.Query{
-			Bool: &sdkos.Bool{
-				Filter:  filters,
-				MustNot: mustNot,
-			},
-		},
-		StoredFields: []string{"*"},
-		Source:       &sdkos.Source{Excludes: []string{}},
-	}
+	// Create QueryBuilder and inject the Bool query
+	qb := sdkos.NewQueryBuilder(ctx, indices, "plugin_com.utmstack.alerts")
+	qb.Size(1)
+	qb.From(0)
+	qb.Version(true)
+	qb.IncludeSource("*") // Previously StoredFields("*")
+
+	// We use Filter(...) method of QueryBuilder which takes varargs of Query.
+	// bb.Build() returns a Query struct that wraps the Bool query.
+	// Since we built a full Bool query with Filter/MustNot clauses inside bb,
+	// we just need to add this whole Bool query to the QueryBuilder.
+	// qb wraps everything in its own top-level Bool query.
+	// So we can add our 'bb' as a Must or Filter clause of the top-level query.
+	// Since 'bb' contains the logic "Match THIS AND THAT AND NOT THIS", it should be a Must/Filter clause.
+	qb.Filter(bb.Build())
 
 	// Retry logic for search operation
 	maxRetries := 3
 	retryDelay := 2 * time.Second
 
 	for retry := 0; retry < maxRetries; retry++ {
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
+		ctxTimeout, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
-		hits, err := searchQuery.WideSearchIn(ctx, []string{sdkos.BuildIndexPattern("v11", "alert")})
+		searchRequest := qb.Build()
+		hits, err := searchRequest.WideSearchIn(ctxTimeout, indices)
+		cancel()
+
 		if err == nil {
 			if hits.Hits.Total.Value != 0 {
-
 				go updateParentAlertToOpen(hits.Hits.Hits[0])
-
 				return utils.PointerOf(hits.Hits.Hits[0].ID)
 			}
 			return nil
@@ -209,7 +296,6 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 
 		if retry < maxRetries-1 {
 			time.Sleep(retryDelay)
-			// Increase delay for next retry
 			retryDelay *= 2
 		}
 	}
@@ -279,6 +365,7 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 		Impact:         alert.Impact,
 		ImpactScore:    alert.ImpactScore,
 		DeduplicatedBy: alert.DeduplicateBy,
+		GroupedBy:      alert.GroupBy,
 	}
 
 	// Retry logic for indexing operation
