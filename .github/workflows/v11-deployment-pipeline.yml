@@ -119,7 +119,7 @@ jobs:
     name: Check Go Dependencies
     runs-on: ubuntu-24.04
     needs: [validations, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment == 'rc' }}
+    if: ${{ needs.setup_deployment.outputs.environment == 'rc' }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -228,7 +228,7 @@ jobs:
   build_agent_manager:
     name: Build Agent Manager Microservice
     needs: [build_agent, build_utmstack_collector, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' }}
+    if: ${{ always() && needs.build_agent.result == 'success' && needs.build_utmstack_collector.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
@@ -399,6 +399,7 @@ jobs:
       build_user_auditor,
       build_web_pdf
     ]
+    if: ${{ always() && needs.build_agent_manager.result == 'success' && needs.build_event_processor.result == 'success' && needs.build_backend.result == 'success' && needs.build_frontend.result == 'success' && needs.build_user_auditor.result == 'success' && needs.build_web_pdf.result == 'success' }}
     runs-on: ubuntu-24.04
     steps:
       - run: echo "✅ All builds completed successfully."
@@ -432,7 +433,7 @@ jobs:
   deploy_installer_dev:
     name: Deploy Installer (Dev)
     needs: [all_builds_complete, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment == 'dev' }}
+    if: ${{ always() && needs.all_builds_complete.result == 'success' && needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment == 'dev' }}
     uses: ./.github/workflows/installer-release.yml
     with:
       version: ${{ needs.setup_deployment.outputs.tag }}
