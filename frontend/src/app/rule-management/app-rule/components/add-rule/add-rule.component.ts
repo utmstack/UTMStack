@@ -174,6 +174,7 @@ export class AddRuleComponent implements OnInit, OnDestroy {
       definition: [rule ? rule.definition : '', [Validators.required, minWordsValidator(2, 3)]],
       systemOwner: [rule ? rule.systemOwner : false],
       deduplicateBy: [rule ? rule.deduplicateBy || [] : []],
+      groupBy: [rule ? rule.groupBy || [] : []],
       afterEvents: this.fb.array(
         rule && rule.afterEvents && rule.afterEvents.length
           ? rule.afterEvents.map(event => this.buildSearchRequest(event))
