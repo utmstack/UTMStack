@@ -39,7 +39,7 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 	analysisPipeline := PluginsConfig{}
 	analysisPipeline.Plugins = make(map[string]PluginConfig)
 	analysisPipeline.Plugins["analysis"] = PluginConfig{
-		Order: []string{"com.utmstack.events", "cel"},
+		Order: []string{"com.utmstack.events", "cel", "feeds"},
 	}
 
 	correlationPipeline := PluginsConfig{}
