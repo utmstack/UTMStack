@@ -79,6 +79,12 @@ jobs:
             TAG="${{ github.event.release.tag_name }}"
             echo "Tag from prerelease: $TAG"
 
+            # Skip if tag doesn't start with v11 (this pipeline is for v11 only)
+            if [[ ! "$TAG" =~ ^v11\. ]]; then
+              echo "⏭️ Skipping: Tag '$TAG' is not a v11 release. This pipeline handles v11 releases only."
+              exit 0
+            fi
+
             echo "tag=$TAG" >> $GITHUB_OUTPUT
             echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
             echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
