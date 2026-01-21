@@ -160,7 +160,6 @@ export class ImportRuleComponent implements OnInit, OnDestroy {
             };
             const {isValid, errors} = this.importRuleService.isValidRule(rule);
 
-            // move null fields (required and not sended) upper than others
             Object.keys(rule).forEach(key => {
               if (rule[key] === null) {
                 rule = {[key]: null, ...rule};

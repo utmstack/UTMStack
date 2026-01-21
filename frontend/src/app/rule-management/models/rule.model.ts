@@ -74,6 +74,7 @@ export interface Rule {
     isLoading: boolean;
     afterEvents: SearchRequest[];
     deduplicateBy?: string[];
+    groupBy?: string[];
 }
 
 export interface Expression {

@@ -62,5 +62,7 @@ public class UtmCorrelationRulesDTO implements Serializable {
 
     private List<String> deduplicateBy;
 
+    private List<String> groupBy;
+
 }
 

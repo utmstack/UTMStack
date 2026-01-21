@@ -167,18 +167,18 @@ export function extractQueryParamsForNavigation(url: string): { path: string, qu
   const queryParamsStart = url.indexOf('?');
 
   if (queryParamsStart !== -1) {
-    const path = url.slice(0, queryParamsStart); // Obtén la ruta base
+    const path = url.slice(0, queryParamsStart);
     const queryParamsString = url.slice(queryParamsStart + 1);
     const searchParams = new URLSearchParams(queryParamsString);
     const queryParams: Record<string, string> = {};
 
     searchParams.forEach((value, key) => {
-      queryParams[key] = value; // No decodifiques nada aquí
+      queryParams[key] = value;
     });
 
     return { path, queryParams };
   }
 
-  return { path: url, queryParams: {} }; // Si no hay parámetros, devuelve solo la ruta base
+  return { path: url, queryParams: {} };
 }
 
