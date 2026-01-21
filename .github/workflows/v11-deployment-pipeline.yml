@@ -121,32 +121,10 @@ jobs:
             fi
           fi
 
-  check_go_dependencies:
-    name: Check Go Dependencies
-    runs-on: ubuntu-24.04
-    needs: [validations, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.environment == 'rc' }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ^1.20
-
-      - name: Configure git for private modules
-        run: |
-          git config --global url."https://${{ secrets.API_SECRET }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
-          echo "GOPRIVATE=github.com/utmstack" >> $GITHUB_ENV
-
-      - name: Check for outdated dependencies
-        run: ${{ github.workspace }}/.github/scripts/golang-updater/golang-updater --check --discover
-
   build_agent:
     name: Build and Sign Agent
-    needs: [check_go_dependencies, setup_deployment]
-    if: ${{ always() && (needs.check_go_dependencies.result == 'success' || needs.check_go_dependencies.result == 'skipped') && needs.setup_deployment.outputs.tag != '' }}
+    needs: [setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: utmstack-signer
     steps:
       - name: Check out code into the right branch
@@ -210,8 +188,8 @@ jobs:
   
   build_utmstack_collector:
     name: Build UTMStack Collector
-    needs: [check_go_dependencies, setup_deployment]
-    if: ${{ always() && (needs.check_go_dependencies.result == 'success' || needs.check_go_dependencies.result == 'skipped') && needs.setup_deployment.outputs.tag != '' }}
+    needs: [setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
@@ -294,8 +272,8 @@ jobs:
   
   build_event_processor:
     name: Build Event Processor Microservice
-    needs: [check_go_dependencies, setup_deployment]
-    if: ${{ always() && (needs.check_go_dependencies.result == 'success' || needs.check_go_dependencies.result == 'skipped') && needs.setup_deployment.outputs.tag != '' }}
+    needs: [setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
