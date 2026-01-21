@@ -101,7 +101,7 @@ func (b *SearchRequestBackend) ToSearchRequest() SearchRequest {
 	}
 }
 
-func (t *Tenant) FromVar(disabledRules []uint64, assets []Asset) {
+func (t *Tenant) FromVar(disabledRules []uint64, assets []Asset) error {
 	t.Id = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 	t.Name = "Default"
 	t.DisabledRules = disabledRules
@@ -111,17 +111,18 @@ func (t *Tenant) FromVar(disabledRules []uint64, assets []Asset) {
 		sdkAsset := plugins.Asset(asset)
 		t.Assets = append(t.Assets, &sdkAsset)
 	}
+
+	return nil
 }
 
-func (a *Asset) FromVar(name any, hostnames any, ipAddresses any, confidentiality, integrity, availability any) {
+func (a *Asset) FromVar(name any, hostnames any, ipAddresses any, confidentiality, integrity, availability any) error {
 	var hostnamesList []string
 
 	if hostnames != nil {
 		hostnamesStr := utils.CastString(hostnames)
 		err := json.Unmarshal([]byte(hostnamesStr), &hostnamesList)
 		if err != nil {
-			_ = catcher.Error("failed to unmarshal hostnames list", err, map[string]any{"process": "plugin_com.utmstack.config"})
-			return
+			return catcher.Error("failed to unmarshal hostnames list", err, map[string]any{"process": "plugin_com.utmstack.config"})
 		}
 	}
 
@@ -131,8 +132,7 @@ func (a *Asset) FromVar(name any, hostnames any, ipAddresses any, confidentialit
 		ipAddressesStr := utils.CastString(ipAddresses)
 		err := json.Unmarshal([]byte(ipAddressesStr), &ipAddressesList)
 		if err != nil {
-			_ = catcher.Error("failed to unmarshal ip addresses list", err, map[string]any{"process": "plugin_com.utmstack.config"})
-			return
+			return catcher.Error("failed to unmarshal ip addresses list", err, map[string]any{"process": "plugin_com.utmstack.config"})
 		}
 	}
 
@@ -142,6 +142,8 @@ func (a *Asset) FromVar(name any, hostnames any, ipAddresses any, confidentialit
 	a.Availability = castUint32(availability)
 	a.Hostnames = hostnamesList
 	a.Ips = ipAddressesList
+
+	return nil
 }
 
 func castUint32(value interface{}) uint32 {
@@ -157,7 +159,7 @@ func castUint32(value interface{}) uint32 {
 	case string:
 		val, err := strconv.ParseUint(v, 10, 32)
 		if err != nil {
-			_ = catcher.Error("failed to cast string to int64", err, map[string]any{"value": v, "process": "plugin_com.utmstack.config"})
+			_ = catcher.Error("failed to cast string to uint32", err, map[string]any{"value": v, "process": "plugin_com.utmstack.config"})
 			return 0
 		}
 		return uint32(val)
@@ -168,7 +170,7 @@ func castUint32(value interface{}) uint32 {
 
 func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiality any, integrity any,
 	availability any, category any, technique any, description any,
-	references any, where any, adversary any, deduplicate any, after any) {
+	references any, where any, adversary any, deduplicate any, after any) error {
 
 	var referencesList []string
 
@@ -176,8 +178,7 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 		referencesStr := utils.CastString(references)
 		err := json.Unmarshal([]byte(referencesStr), &referencesList)
 		if err != nil {
-			_ = catcher.Error("failed to unmarshal references list", err, map[string]any{"process": "plugin_com.utmstack.config"})
-			return
+			return catcher.Error("failed to unmarshal references list", err, map[string]any{"process": "plugin_com.utmstack.config"})
 		}
 	}
 
@@ -187,8 +188,7 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 		deduplicateStr := utils.CastString(deduplicate)
 		err := json.Unmarshal([]byte(deduplicateStr), &deduplicateList)
 		if err != nil {
-			_ = catcher.Error("failed to unmarshal deduplicate list", err, map[string]any{"process": "plugin_com.utmstack.config"})
-			return
+			return catcher.Error("failed to unmarshal deduplicate list", err, map[string]any{"process": "plugin_com.utmstack.config"})
 		}
 	}
 
@@ -199,8 +199,7 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 		afterStr := utils.CastString(after)
 		err := json.Unmarshal([]byte(afterStr), &afterBackendObj)
 		if err != nil {
-			_ = catcher.Error("failed to unmarshal after list", err, map[string]any{"process": "plugin_com.utmstack.config"})
-			return
+			return catcher.Error("failed to unmarshal after list", err, map[string]any{"process": "plugin_com.utmstack.config"})
 		}
 
 		// Convert each SearchRequestBackend to SearchRequest
@@ -225,12 +224,16 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 	r.AfterEvents = afterObj
 	r.References = referencesList
 	r.Where = utils.CastString(where)
+
+	return nil
 }
 
-func (f *Filter) FromVar(id int, name any, filter any) {
+func (f *Filter) FromVar(id int, name any, filter any) error {
 	f.Id = id
 	f.Name = utils.CastString(name)
 	f.Filter = utils.CastString(filter)
+
+	return nil
 }
 
 func main() {
@@ -282,7 +285,12 @@ func main() {
 			}
 
 			tenant := Tenant{}
-			tenant.FromVar([]uint64{}, assets)
+			err = tenant.FromVar([]uint64{}, assets)
+			if err != nil {
+				_ = catcher.Error("failed to create tenant from variables", err, map[string]any{"process": "plugin_com.utmstack.config"})
+				time.Sleep(30 * time.Second)
+				return
+			}
 
 			// Try to acquire the lock before modifying configuration files
 			maxRetries := 5
@@ -294,7 +302,7 @@ func main() {
 					break
 				}
 
-				// Lock not acquired, wait and retry
+				// Lock wasn't acquired, wait and retry
 				if i < maxRetries-1 {
 					_ = catcher.Error("failed to acquire lock", err, map[string]interface{}{"retry": i + 1, "maxRetries": maxRetries, "process": "plugin_com.utmstack.config"})
 					time.Sleep(plugins.RandomDuration(10, 60))
@@ -376,6 +384,7 @@ func connect() (*sql.DB, error) {
 	connStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%d sslmode=disable", user, password,
 		database, server, port)
 
+	//goland:noinspection GoResourceLeak
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, catcher.Error("failed to open database connection", err, map[string]any{"connStr": connStr})
@@ -405,7 +414,7 @@ func getPatterns(db *sql.DB) (map[string]string, error) {
 
 		err = rows.Scan(&name, &pattern)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %v", err)
+			return nil, catcher.Error("failed to scan row", err, map[string]any{"process": "plugin_com.utmstack.config"})
 		}
 
 		patterns[name] = pattern
@@ -417,7 +426,7 @@ func getPatterns(db *sql.DB) (map[string]string, error) {
 func getFilters(db *sql.DB) ([]Filter, error) {
 	rows, err := db.Query("SELECT id, filter_name, logstash_filter FROM utm_logstash_filter WHERE is_active = true")
 	if err != nil {
-		return nil, fmt.Errorf("failed to get filters: %v", err)
+		return nil, catcher.Error("failed to get filters", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
 
 	defer func() { _ = rows.Close() }()
@@ -433,7 +442,7 @@ func getFilters(db *sql.DB) ([]Filter, error) {
 
 		err = rows.Scan(&id, &name, &body)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %v", err)
+			return nil, catcher.Error("failed to scan row", err, map[string]any{"process": "plugin_com.utmstack.config"})
 		}
 
 		filter := Filter{}
@@ -451,7 +460,7 @@ func getFilters(db *sql.DB) ([]Filter, error) {
 func getAssets(db *sql.DB) ([]Asset, error) {
 	rows, err := db.Query("SELECT id,asset_name,asset_hostname_list_def,asset_ip_list_def,asset_confidentiality,asset_integrity,asset_availability,last_update FROM utm_tenant_config")
 	if err != nil {
-		return nil, fmt.Errorf("failed to get assets: %v", err)
+		return nil, catcher.Error("failed to get assets", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
 
 	defer func() { _ = rows.Close() }()
@@ -473,7 +482,7 @@ func getAssets(db *sql.DB) ([]Asset, error) {
 		err = rows.Scan(&id, &name, &hostnames, &ips, &confidentiality,
 			&integrity, &availability, &lastUpdate)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %v", err)
+			return nil, catcher.Error("failed to scan row", err, map[string]any{"process": "plugin_com.utmstack.config"})
 		}
 
 		asset := Asset{}
@@ -489,7 +498,7 @@ func getAssets(db *sql.DB) ([]Asset, error) {
 func getRules(db *sql.DB) ([]Rule, error) {
 	rows, err := db.Query("SELECT id,rule_name,rule_confidentiality,rule_integrity,rule_availability,rule_category,rule_technique,rule_description,rule_references_def,rule_definition_def,rule_adversary,rule_deduplicate_by_def,rule_after_events_def FROM utm_correlation_rules WHERE rule_active = true")
 	if err != nil {
-		return nil, fmt.Errorf("failed to get rules: %v", err)
+		return nil, catcher.Error("failed to get rules", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
 
 	defer func() { _ = rows.Close() }()
@@ -516,7 +525,7 @@ func getRules(db *sql.DB) ([]Rule, error) {
 		err = rows.Scan(&id, &ruleName, &confidentiality, &integrity, &availability,
 			&category, &technique, &description, &references, &where, &adversary, &deduplicate, &after)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %v", err)
+			return nil, catcher.Error("failed to scan row", err, map[string]any{"process": "plugin_com.utmstack.config"})
 		}
 
 		rule := Rule{}
@@ -537,7 +546,7 @@ func getRules(db *sql.DB) ([]Rule, error) {
 func getRuleDataTypes(db *sql.DB, ruleId int64) ([]string, error) {
 	rows, err := db.Query("SELECT data_type_id FROM utm_group_rules_data_type WHERE rule_id = $1", ruleId)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get data types: %v", err)
+		return nil, catcher.Error("failed to get data types", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
 
 	defer func() { _ = rows.Close() }()
@@ -552,14 +561,14 @@ func getRuleDataTypes(db *sql.DB, ruleId int64) ([]string, error) {
 
 		err = rows.Scan(&dataTypeId)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %v", err)
+			return nil, catcher.Error("failed to scan row", err, map[string]any{"process": "plugin_com.utmstack.config"})
 		}
 
 		row := db.QueryRow("SELECT data_type FROM utm_data_types WHERE id = $1", dataTypeId)
 
 		err := row.Scan(&dataType)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %v", err)
+			return nil, catcher.Error("failed to scan row", err, map[string]any{"process": "plugin_com.utmstack.config"})
 		}
 
 		dataTypes = append(dataTypes, utils.CastString(dataType))
@@ -584,7 +593,7 @@ func listFiles(folder string) ([]string, error) {
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to list files: %v", err)
+		return nil, catcher.Error("failed to list files", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
 
 	return files, nil
@@ -614,7 +623,7 @@ func cleanUpFilters(filters []Filter) error {
 		if !keep {
 			err := os.Remove(file)
 			if err != nil {
-				return fmt.Errorf("failed to remove file: %v", err)
+				return catcher.Error("failed to remove file", err, map[string]any{"process": "plugin_com.utmstack.config"})
 			}
 		}
 	}
@@ -656,24 +665,34 @@ func cleanUpRules(rules []Rule) error {
 
 func writeFilters(filters []Filter) error {
 	for _, filter := range filters {
-		filtersFolder, err := utils.MkdirJoin(plugins.WorkDir, "pipeline", "filters")
-		if err != nil {
-			return catcher.Error("cannot create filters directory", err, nil)
-		}
+		err := func() error {
+			filtersFolder, err := utils.MkdirJoin(plugins.WorkDir, "pipeline", "filters")
+			if err != nil {
+				return catcher.Error("cannot create filters directory", err, nil)
+			}
 
-		file, err := os.Create(filtersFolder.FileJoin(fmt.Sprintf("%d.yaml", filter.Id)))
-		if err != nil {
-			return fmt.Errorf("failed to create file: %v", err)
-		}
+			file, err := os.Create(filtersFolder.FileJoin(fmt.Sprintf("%d.yaml", filter.Id)))
+			if err != nil {
+				return catcher.Error("failed to create file", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
 
-		_, err = file.WriteString(filter.Filter)
-		if err != nil {
-			return fmt.Errorf("failed to write to file: %v", err)
-		}
+			defer func() {
+				err := file.Close()
+				if err != nil {
+					_ = catcher.Error("failed to close file", err, map[string]any{"process": "plugin_com.utmstack.config"})
+				}
+			}()
 
-		err = file.Close()
+			_, err = file.WriteString(filter.Filter)
+			if err != nil {
+				return catcher.Error("failed to write to file", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
+
+			return nil
+		}()
+
 		if err != nil {
-			return fmt.Errorf("failed to close file: %v", err)
+			return err
 		}
 	}
 
@@ -688,8 +707,15 @@ func writeTenant(tenant Tenant) error {
 
 	file, err := os.Create(pipelineFolder.FileJoin("tenants.yaml"))
 	if err != nil {
-		return fmt.Errorf("failed to create file: %v", err)
+		return catcher.Error("failed to create file", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
+
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			_ = catcher.Error("failed to close file", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		}
+	}()
 
 	sdkTenant := plugins.Tenant(tenant)
 
@@ -699,17 +725,12 @@ func writeTenant(tenant Tenant) error {
 
 	bTenants, err := k8syaml.Marshal(tenants)
 	if err != nil {
-		return fmt.Errorf("failed to marshal tenant: %v", err)
+		return catcher.Error("failed to marshal tenant", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
 
 	_, err = file.Write(bTenants)
 	if err != nil {
-		return fmt.Errorf("failed to write to file: %v", err)
-	}
-
-	err = file.Close()
-	if err != nil {
-		return fmt.Errorf("failed to close file: %v", err)
+		return catcher.Error("failed to write to file", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
 
 	return nil
@@ -717,29 +738,44 @@ func writeTenant(tenant Tenant) error {
 
 func writeRules(rules []Rule) error {
 	for _, rule := range rules {
-		filePath, err := utils.MkdirJoin(plugins.WorkDir, "rules", "utmstack")
-		if err != nil {
-			return catcher.Error("cannot create rules directory", err, nil)
-		}
+		err := func() error {
+			filePath, err := utils.MkdirJoin(plugins.WorkDir, "rules", "utmstack")
+			if err != nil {
+				return catcher.Error("cannot create rules directory", err, nil)
+			}
 
-		file, err := os.Create(filePath.FileJoin(fmt.Sprintf("%d.yaml", rule.Id)))
-		if err != nil {
-			return fmt.Errorf("failed to create file: %v", err)
-		}
+			file, err := os.Create(filePath.FileJoin(fmt.Sprintf("%d.yaml", rule.Id)))
+			if err != nil {
+				return catcher.Error("failed to create file", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
 
-		bRule, err := yaml.Marshal([]Rule{rule})
-		if err != nil {
-			return fmt.Errorf("failed to marshal rule: %v", err)
-		}
+			defer func() {
+				err := file.Close()
+				if err != nil {
+					_ = catcher.Error("failed to close file", err, map[string]any{"process": "plugin_com.utmstack.config"})
+				}
+			}()
 
-		_, err = file.Write(bRule)
-		if err != nil {
-			return fmt.Errorf("failed to write to file: %v", err)
-		}
+			bRule, err := yaml.Marshal([]Rule{rule})
+			if err != nil {
+				return catcher.Error("failed to marshal rule", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
 
-		err = file.Close()
+			_, err = file.Write(bRule)
+			if err != nil {
+				return catcher.Error("failed to write to file", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
+
+			err = file.Close()
+			if err != nil {
+				return catcher.Error("failed to close file", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
+
+			return nil
+		}()
+
 		if err != nil {
-			return fmt.Errorf("failed to close file: %v", err)
+			return err
 		}
 	}
 
@@ -751,10 +787,18 @@ func writePatterns(patterns map[string]string) error {
 	if err != nil {
 		return catcher.Error("cannot create pipeline directory", err, nil)
 	}
+
 	file, err := os.Create(filePath.FileJoin("patterns.yaml"))
 	if err != nil {
-		return fmt.Errorf("failed to create file: %v", err)
+		return catcher.Error("failed to create file", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
+
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			_ = catcher.Error("failed to close file", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		}
+	}()
 
 	config := plugins.Config{
 		Patterns: patterns,
@@ -762,17 +806,17 @@ func writePatterns(patterns map[string]string) error {
 
 	bPatterns, err := k8syaml.Marshal(config)
 	if err != nil {
-		return fmt.Errorf("failed to marshal patterns: %v", err)
+		return catcher.Error("failed to marshal patterns", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
 
 	_, err = file.Write(bPatterns)
 	if err != nil {
-		return fmt.Errorf("failed to write to file: %v", err)
+		return catcher.Error("failed to write to file", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
 
 	err = file.Close()
 	if err != nil {
-		return fmt.Errorf("failed to close file: %v", err)
+		return catcher.Error("failed to close file", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
 
 	return nil
