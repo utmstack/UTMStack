@@ -175,8 +175,13 @@ public class UtmCorrelationRulesService {
                     f.getName() == null ? null : "%" + f.getName() + "%",f.getConfidentiality(),f.getIntegrity(),f.getAvailability(),
                     f.getCategory(),
                     f.getAdversary(),
-                    f.getTechnique(),f.getActive(),f.getSystemOwner(),f.getDataTypes(),
-                    f.getInitDate(),f.getEndDate(), f.getSearch() == null ? null :"%" + f.getSearch() + "%", p );
+                    f.getTechnique(),
+                    f.getActive(),
+                    f.getSystemOwner(),
+                    f.getDataTypes(),
+                    f.getInitDate(),f.getEndDate(),
+                    f.getSearch() == null ? null :"%" + f.getSearch() + "%",
+                    p );
 
             List<UtmCorrelationRulesDTO> rulesList = this.utmCorrelationRulesMapper.toListDTO(page.getContent());
             return new PageImpl<>(rulesList, p, page.getTotalElements());
