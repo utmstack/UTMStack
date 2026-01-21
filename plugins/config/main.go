@@ -40,7 +40,9 @@ type Rule struct {
 	Description   string          `yaml:"description"`
 	Where         string          `yaml:"where"`
 	AfterEvents   []SearchRequest `yaml:"afterEvents,omitempty"`
+	Correlation   []SearchRequest `yaml:"correlation,omitempty"`
 	DeduplicateBy []string        `yaml:"deduplicateBy,omitempty"`
+	GroupBy       []string        `yaml:"groupBy,omitempty"`
 }
 
 type SearchRequest struct {
@@ -170,7 +172,7 @@ func castUint32(value interface{}) uint32 {
 
 func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiality any, integrity any,
 	availability any, category any, technique any, description any,
-	references any, where any, adversary any, deduplicate any, after any) error {
+	references any, where any, adversary any, deduplicateBy any, after any, groupBy any) error {
 
 	var referencesList []string
 
@@ -182,13 +184,23 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 		}
 	}
 
-	var deduplicateList []string
+	var deduplicateByList []string
 
-	if deduplicate != nil {
-		deduplicateStr := utils.CastString(deduplicate)
-		err := json.Unmarshal([]byte(deduplicateStr), &deduplicateList)
+	if deduplicateBy != nil {
+		deduplicateStr := utils.CastString(deduplicateBy)
+		err := json.Unmarshal([]byte(deduplicateStr), &deduplicateByList)
 		if err != nil {
 			return catcher.Error("failed to unmarshal deduplicate list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		}
+	}
+
+	var groupByList []string
+
+	if groupBy != nil {
+		groupByStr := utils.CastString(groupBy)
+		err := json.Unmarshal([]byte(groupByStr), &groupByList)
+		if err != nil {
+			return catcher.Error("failed to unmarshal groupBy list", err, map[string]any{"process": "plugin_com.utmstack.config"})
 		}
 	}
 
@@ -220,7 +232,8 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 	r.References = make([]string, len(referencesList))
 	r.Description = utils.CastString(description)
 	r.Adversary = utils.CastString(adversary)
-	r.DeduplicateBy = deduplicateList
+	r.DeduplicateBy = deduplicateByList
+	r.GroupBy = groupByList
 	r.AfterEvents = afterObj
 	r.References = referencesList
 	r.Where = utils.CastString(where)
@@ -504,7 +517,7 @@ func getAssets(db *sql.DB) ([]Asset, error) {
 }
 
 func getRules(db *sql.DB) ([]Rule, error) {
-	rows, err := db.Query("SELECT id,rule_name,rule_confidentiality,rule_integrity,rule_availability,rule_category,rule_technique,rule_description,rule_references_def,rule_definition_def,rule_adversary,rule_deduplicate_by_def,rule_after_events_def FROM utm_correlation_rules WHERE rule_active = true")
+	rows, err := db.Query("SELECT id,rule_name,rule_confidentiality,rule_integrity,rule_availability,rule_category,rule_technique,rule_description,rule_references_def,rule_definition_def,rule_adversary,rule_deduplicate_by_def,rule_after_events_def,rule_group_by_def FROM utm_correlation_rules WHERE rule_active = true")
 	if err != nil {
 		return nil, catcher.Error("failed to get rules", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
@@ -526,12 +539,13 @@ func getRules(db *sql.DB) ([]Rule, error) {
 			references      any
 			where           any
 			adversary       any
-			deduplicate     any
+			deduplicateBy   any
 			after           any
+			groupBy         any
 		)
 
 		err = rows.Scan(&id, &ruleName, &confidentiality, &integrity, &availability,
-			&category, &technique, &description, &references, &where, &adversary, &deduplicate, &after)
+			&category, &technique, &description, &references, &where, &adversary, &deduplicateBy, &after, &groupBy)
 		if err != nil {
 			return nil, catcher.Error("failed to scan row", err, map[string]any{"process": "plugin_com.utmstack.config"})
 		}
@@ -543,7 +557,7 @@ func getRules(db *sql.DB) ([]Rule, error) {
 			continue
 		}
 
-		if err := rule.FromVar(id, dataTypes, ruleName, confidentiality, integrity, availability, category, technique, description, references, where, adversary, deduplicate, after); err != nil {
+		if err := rule.FromVar(id, dataTypes, ruleName, confidentiality, integrity, availability, category, technique, description, references, where, adversary, deduplicateBy, after, groupBy); err != nil {
 			continue
 		}
 
