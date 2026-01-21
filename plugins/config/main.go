@@ -250,7 +250,13 @@ func main() {
 				time.Sleep(30 * time.Second)
 				return
 			}
-			defer func() { _ = db.Close() }()
+
+			defer func() {
+				err := db.Close()
+				if err != nil {
+					_ = catcher.Error("failed to close database connection", err, map[string]any{"process": "plugin_com.utmstack.config"})
+				}
+			}()
 
 			filters, err := getFilters(db)
 			if err != nil {
@@ -446,11 +452,11 @@ func getFilters(db *sql.DB) ([]Filter, error) {
 		}
 
 		filter := Filter{}
-		filter.FromVar(
-			id,
-			name,
-			body,
-		)
+
+		if err := filter.FromVar(id, name, body); err != nil {
+			continue
+		}
+
 		filters = append(filters, filter)
 	}
 
@@ -487,7 +493,9 @@ func getAssets(db *sql.DB) ([]Asset, error) {
 
 		asset := Asset{}
 
-		asset.FromVar(name, hostnames, ips, confidentiality, integrity, availability)
+		if err := asset.FromVar(name, hostnames, ips, confidentiality, integrity, availability); err != nil {
+			continue
+		}
 
 		assets = append(assets, asset)
 	}
@@ -532,10 +540,12 @@ func getRules(db *sql.DB) ([]Rule, error) {
 
 		dataTypes, err := getRuleDataTypes(db, id)
 		if err != nil {
-			return nil, err
+			continue
 		}
 
-		rule.FromVar(id, dataTypes, ruleName, confidentiality, integrity, availability, category, technique, description, references, where, adversary, deduplicate, after)
+		if err := rule.FromVar(id, dataTypes, ruleName, confidentiality, integrity, availability, category, technique, description, references, where, adversary, deduplicate, after); err != nil {
+			continue
+		}
 
 		rules = append(rules, rule)
 	}
