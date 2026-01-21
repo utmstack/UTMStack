@@ -13,11 +13,11 @@
       </button>
     </div>
   </div>
-  <div *ngIf="!preparingPrint" class="report-loading"></div>
+  <div *ngIf="!preparingPrint" class="report-loaded"></div>
   <app-utm-report-header *ngIf="pdfExport" [reportName]="'UTMSTACK Overview'"></app-utm-report-header>
-  <div class="h-100 overflow-hidden pb-3" [ngClass]="{'mt-3':pdfExport}" id="utmDashboardAlert">
+  <div class="h-100 overflow-hidden pb-3 d-print-block" [ngClass]="{'mt-3':pdfExport}" id="utmDashboardAlert">
 
-    <div class="d-flex overflow-auto flex-column h-100 m-h-0 px-1">
+    <div class="d-flex overflow-auto flex-column h-100 m-h-0 px-1 d-print-block">
 
       <div class="w-100 border-bottom-grey-100 border-bottom-1 mb-3 pb-2">
         <label class="font-weight-bold text-uppercase">Alerts</label>

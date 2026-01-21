@@ -16,7 +16,7 @@ import (
 func InitGrpcServer() {
 	err := InitAgentService()
 	if err != nil {
-		catcher.Error("failed to init agent service", err, nil)
+		catcher.Error("failed to init agent service", err, map[string]any{"process": "agent-manager"})
 		os.Exit(1)
 	}
 
@@ -29,13 +29,13 @@ func InitGrpcServer() {
 func StartGrpcServer() {
 	listener, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {
-		catcher.Error("failed to listen", err, nil)
+		catcher.Error("failed to listen", err, map[string]any{"process": "agent-manager"})
 		os.Exit(1)
 	}
 
 	loadedCert, err := tls.LoadX509KeyPair(config.CertPath, config.CertKeyPath)
 	if err != nil {
-		catcher.Error("failed to load TLS credentials: %v", err, nil)
+		catcher.Error("failed to load TLS credentials: %v", err, map[string]any{"process": "agent-manager"})
 		os.Exit(1)
 	}
 
@@ -59,9 +59,9 @@ func StartGrpcServer() {
 	grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)
 	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
 
-	catcher.Info("Starting gRPC server on 0.0.0.0:50051", nil)
+	catcher.Info("Starting gRPC server on 0.0.0.0:50051", map[string]any{"process": "agent-manager"})
 	if err := grpcServer.Serve(listener); err != nil {
-		catcher.Error("failed to serve", err, nil)
+		catcher.Error("failed to serve", err, map[string]any{"process": "agent-manager"})
 		os.Exit(1)
 	}
 }

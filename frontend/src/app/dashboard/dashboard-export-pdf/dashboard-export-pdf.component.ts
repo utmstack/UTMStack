@@ -1,7 +1,9 @@
-import {AfterViewInit, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
 import {ActivatedRoute} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
+import {combineLatest, from, of, Subject} from 'rxjs';
+import {filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {AccountService} from '../../core/auth/account.service';
 import {Account} from '../../core/user/account.model';
 import {DashboardBehavior} from '../../shared/behaviors/dashboard.behavior';
@@ -21,7 +23,7 @@ import {UtmRenderVisualization} from '../shared/services/utm-render-visualizatio
   templateUrl: './dashboard-export-pdf.component.html',
   styleUrls: ['./dashboard-export-pdf.component.scss']
 })
-export class DashboardExportPdfComponent implements OnInit, AfterViewInit {
+export class DashboardExportPdfComponent implements OnInit, OnDestroy {
   dashboardId: number;
   dashboardName: string;
   visualizationRender: UtmDashboardVisualizationType[];
@@ -36,6 +38,7 @@ export class DashboardExportPdfComponent implements OnInit, AfterViewInit {
   filtersValues: ElasticFilterType[] = [];
   filterTime: { from: string, to: string };
   cover: string;
+  destroy$ = new Subject<void>();
 
   constructor(private activatedRoute: ActivatedRoute,
               private accountService: AccountService,
@@ -48,14 +51,7 @@ export class DashboardExportPdfComponent implements OnInit, AfterViewInit {
               private cdr: ChangeDetectorRef) {
   }
 
-  ngAfterViewInit(): void {
-    this.cdr.detectChanges();
-    this.themeChangeBehavior.$themeReportCover.subscribe(img => {
-      this.cover = img;
-    });
-  }
-
-  ngOnInit() {
+  /*ngOnInit() {
     this.activatedRoute.queryParams.subscribe(params => {
       const queryParams = Object.entries(params).length > 0 ? params : null;
       if (queryParams) {
@@ -68,12 +64,7 @@ export class DashboardExportPdfComponent implements OnInit, AfterViewInit {
     this.accountService.identity().then(account => {
       this.account = account;
     });
-    /*window.addEventListener('beforeprint', (event) => {
-      this.printFormat = true;
-    });
-    window.addEventListener('afterprint', (event) => {
-      this.printFormat = false;
-    });*/
+
     this.activatedRoute.params.subscribe(params => {
       this.dashboardId = params.id;
       if (this.dashboardId) {
@@ -93,7 +84,65 @@ export class DashboardExportPdfComponent implements OnInit, AfterViewInit {
         });
       }
     });
+  }*/
+
+  ngOnInit() {
+
+    this.themeChangeBehavior.$themeReportCover
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(img => {
+        this.cover = img;
+      });
+
+    const queryParams$ = this.activatedRoute.queryParams.pipe(
+      map(params => Object.keys(params).length > 0 ? params : null),
+      switchMap(params => {
+        if (!params) { return of(null); }
+        return from(parseQueryParamsToFilter(params));
+      }),
+      tap(filters => {
+        if (filters && filters.length > 0) {
+          this.filtersValues = filters;
+          this.getTimeFilterValue();
+        }
+      })
+    );
+
+    const dashboardId$ = this.activatedRoute.params.pipe(
+      map(params => params.id),
+      tap(id => this.dashboardId = id)
+    );
+
+    combineLatest([queryParams$, dashboardId$])
+      .pipe(
+        filter(([filters, dashboardId]) => !!dashboardId),
+        switchMap(([filters, dashboardId]) => {
+          const request = {
+            page: 0,
+            size: 10000,
+            'idDashboard.equals': dashboardId,
+            sort: 'order,asc'
+          };
+          return this.utmRenderVisualization.query(request);
+        }),
+        tap(vis => {
+          const visualizations = vis.body || [];
+          this.dashboardName = visualizations[0].dashboard.name;
+          this.dashboardDescription = visualizations[0].dashboard.description;
+
+          const filters = JSON.parse(visualizations[0].dashboard.filters);
+          this.dashboardFilters = filters ? filters : [];
+
+          this.applyTimeFilterToVisualizations(visualizations);
+
+          this.loadingVisualizations = false;
+        })
+      )
+      .subscribe();
+
+    this.accountService.identity().then(account => this.account = account);
   }
+
 
   setVisFilter(): Promise<boolean> {
     return new Promise<boolean>(resolve => {
@@ -143,14 +192,15 @@ export class DashboardExportPdfComponent implements OnInit, AfterViewInit {
   }
 
   onVisualizationLoaded() {
-    this.preparingPrint = false;
-    console.log('onVisualizationLoaded');
+    setTimeout(() => {
+      this.preparingPrint = false;
+    });
   }
 
   getTimeFilterValue() {
     this.filterTime = {
       from: this.resolveFromDate(this.getTime()),
-      to: this.resolveToDate(this.getTime()),
+      to: this.resolveFromDate(this.getTime()),
     };
   }
 
@@ -189,5 +239,25 @@ export class DashboardExportPdfComponent implements OnInit, AfterViewInit {
 
   showFilters(): boolean {
     return this.filtersValues.filter(value => value.field !== '@timestamp').length > 0;
+  }
+
+  applyTimeFilterToVisualizations(visualizations: UtmDashboardVisualizationType[]) {
+    if (!this.filtersValues || this.filtersValues.length === 0) {
+      this.visualizationRender = visualizations;
+      return;
+    }
+
+    this.visualizationRender = visualizations.map(v => ({
+      ...v,
+      visualization: {
+        ...v.visualization,
+        filterType: [...v.visualization.filterType, ... this.filtersValues]
+      }
+    }));
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -7,6 +7,10 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
+	"io"
+	"strconv"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
@@ -14,9 +18,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"io"
-	"strconv"
-	"strings"
 )
 
 type Middlewares struct {
@@ -48,13 +49,13 @@ func (m *Middlewares) HttpAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		connectionKey := c.GetHeader(proxyAPIKeyHeader)
 		if connectionKey == "" {
-			e := catcher.Error("missing connection key", nil, nil)
+			e := catcher.Error("missing connection key", nil, map[string]any{"process": "plugin_com.utmstack.inputs"})
 			e.GinError(c)
 			return
 		}
 		isValid := m.AuthService.IsConnectionKeyValid(connectionKey)
 		if !isValid {
-			e := catcher.Error("invalid connection key", nil, nil)
+			e := catcher.Error("invalid connection key", nil, map[string]any{"process": "plugin_com.utmstack.inputs"})
 			e.GinError(c)
 			return
 		}
@@ -66,13 +67,13 @@ func (m *Middlewares) GitHubAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		body, err := io.ReadAll(c.Request.Body)
 		if err != nil {
-			e := catcher.Error("failed to read request body", err, nil)
+			e := catcher.Error("failed to read request body", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 			e.GinError(c)
 			return
 		}
 		sig := c.GetHeader("X-Hub-Signature-256")
 		if len(sig) == 0 {
-			e := catcher.Error("missing X-Hub-Signature-256 header", nil, nil)
+			e := catcher.Error("missing X-Hub-Signature-256 header", nil, map[string]any{"process": "plugin_com.utmstack.inputs"})
 			e.GinError(c)
 			return
 		}
@@ -80,7 +81,7 @@ func (m *Middlewares) GitHubAuth() gin.HandlerFunc {
 		key := m.AuthService.GetConnectionKey()
 		err = verifySignature(body, key, sig)
 		if err != nil {
-			e := catcher.Error("failed to verify signature", err, nil)
+			e := catcher.Error("failed to verify signature", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 			e.GinError(c)
 			return
 		}

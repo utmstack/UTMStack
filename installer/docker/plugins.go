@@ -39,22 +39,13 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 	analysisPipeline := PluginsConfig{}
 	analysisPipeline.Plugins = make(map[string]PluginConfig)
 	analysisPipeline.Plugins["analysis"] = PluginConfig{
-		Order: []string{"com.utmstack.events", "cel"},
+		Order: []string{"com.utmstack.events", "cel", "feeds"},
 	}
 
 	correlationPipeline := PluginsConfig{}
 	correlationPipeline.Plugins = make(map[string]PluginConfig)
 	correlationPipeline.Plugins["correlation"] = PluginConfig{
 		Order: []string{"com.utmstack.alerts", "com.utmstack.soc-ai"},
-	}
-
-	inputPipeline := PluginsConfig{}
-	inputPipeline.Plugins = make(map[string]PluginConfig)
-	inputPipeline.Plugins["http-input"] = PluginConfig{
-		Port: 8082,
-	}
-	inputPipeline.Plugins["grpc-input"] = PluginConfig{
-		Port: 8083,
 	}
 
 	notificationPipeline := PluginsConfig{}
@@ -101,11 +92,6 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 	err = utils.WriteYAML(filepath.Join(pipelineDir, "system_plugins_correlation.yaml"), correlationPipeline)
 	if err != nil {
 		return fmt.Errorf("error writing correlation pipeline config: %w", err)
-	}
-
-	err = utils.WriteYAML(filepath.Join(pipelineDir, "system_plugins_input.yaml"), inputPipeline)
-	if err != nil {
-		return fmt.Errorf("error writing input pipeline config: %w", err)
 	}
 
 	err = utils.WriteYAML(filepath.Join(pipelineDir, "system_plugins_notification.yaml"), notificationPipeline)

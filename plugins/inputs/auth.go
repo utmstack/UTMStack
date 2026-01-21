@@ -4,11 +4,12 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 
 	"github.com/utmstack/UTMStack/plugins/utmstack-inputs/agent"
 	"google.golang.org/grpc"
@@ -57,7 +58,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 	internalKey := pConfig.Get("internalKey").String()
 
 	if agentManager == "" {
-		_ = catcher.Error("Could not sync keys. This is a common occurrence during the startup process and typically resolves on its own after a short while.", fmt.Errorf("configuration is empty"), nil)
+		_ = catcher.Error("Could not sync keys. This is a common occurrence during the startup process and typically resolves on its own after a short while.", fmt.Errorf("configuration is empty"), map[string]any{"process": "plugin_com.utmstack.inputs"})
 		// Don't exit, just return and retry later
 		return
 	}
@@ -69,7 +70,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 	tlsCredentials := credentials.NewTLS(tlsConfig)
 	conn, err := grpc.NewClient(agentManager, grpc.WithTransportCredentials(tlsCredentials), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
 	if err != nil {
-		_ = catcher.Error("Could not sync keys. This is a common occurrence during the startup process and typically resolves on its own after a short while.", err, nil)
+		_ = catcher.Error("Could not sync keys. This is a common occurrence during the startup process and typically resolves on its own after a short while.", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 		return
 	}
 	defer func() {
@@ -91,7 +92,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 		})
 		if err != nil {
 			if !strings.Contains(err.Error(), "error reading server preface: http2: frame too large") {
-				_ = catcher.Error("cannot synchronize collector keys", err, nil)
+				_ = catcher.Error("cannot synchronize collector keys", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 			}
 			return
 		}
@@ -115,7 +116,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 		})
 		if err != nil {
 			if !strings.Contains(err.Error(), "error reading server preface: http2: frame too large") {
-				_ = catcher.Error("cannot synchronize agent keys", err, nil)
+				_ = catcher.Error("cannot synchronize agent keys", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 			}
 			return
 		}

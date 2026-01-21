@@ -1,95 +1,146 @@
 name: "v11 - Build & Deploy Pipeline"
 
 on:
-  workflow_dispatch:
-    inputs:
-      version_tag:
-        description: "Version to deploy.(e.g., v11.0.0-dev.1, v11.1.0)"
-        required: true
-      event_processor_tag:
-        description: "Event processor version to use for this deployment.(e.g., 1.0.0-beta)"
-        required: true
-        default: "1.0.0-beta"
+  push:
+    branches: [ 'release/v11**' ]
+  release:
+    types: [ prereleased ]
 
 jobs:
+  setup_deployment:
+    name: Setup Deployment
+    runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ steps.set-env.outputs.tag }}
+      environment: ${{ steps.set-env.outputs.environment }}
+      cm_url: ${{ steps.set-env.outputs.cm_url }}
+      event_processor_tag: ${{ steps.set-env.outputs.event_processor_tag }}
+    steps:
+      - name: Determine Build Environment
+        id: set-env
+        run: |
+          # ===================
+          # DEV Environment
+          # ===================
+          # Triggered by: push to release/v11.x.x branches
+          if ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/v11') }}; then
+            ENVIRONMENT="dev"
+            CM_URL="https://cm.dev.utmstack.com"
+            echo "Environment: $ENVIRONMENT"
+            echo "CM URL: $CM_URL"
+
+            # Extract version from branch name (e.g., release/v11.2.1 -> v11.2.1)
+            BRANCH_VERSION=$(echo "${{ github.ref }}" | sed 's|refs/heads/release/||')
+            echo "Branch version: $BRANCH_VERSION"
+
+            # Get latest version from CM
+            RESPONSE=$(curl -s "${CM_URL}/api/v1/versions/latest")
+            LATEST_VERSION=$(echo "$RESPONSE" | jq -r '.version // empty')
+            echo "Latest version from CM: $LATEST_VERSION"
+
+            if [ -n "$LATEST_VERSION" ]; then
+              # Extract base version from latest (e.g., v11.2.1-dev.9 -> v11.2.1)
+              LATEST_BASE=$(echo "$LATEST_VERSION" | sed 's/-dev\.[0-9]*$//')
+              echo "Latest base version: $LATEST_BASE"
+
+              if [ "$BRANCH_VERSION" = "$LATEST_BASE" ]; then
+                # Versions match - increment dev number
+                DEV_NUM=$(echo "$LATEST_VERSION" | grep -oP '(?<=-dev\.)\d+')
+                NEW_DEV_NUM=$((DEV_NUM + 1))
+                TAG="${BRANCH_VERSION}-dev.${NEW_DEV_NUM}"
+                echo "Versions match, incrementing: $TAG"
+              else
+                # Versions don't match - CM not updated yet, start at dev.1
+                TAG="${BRANCH_VERSION}-dev.1"
+                echo "Versions don't match, starting fresh: $TAG"
+              fi
+            else
+              # No version found in CM - start at dev.1
+              TAG="${BRANCH_VERSION}-dev.1"
+              echo "No previous version found, starting fresh: $TAG"
+            fi
+
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+            echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
+            echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_DEV }}" >> $GITHUB_OUTPUT
+
+          # ===================
+          # RC Environment
+          # ===================
+          # Triggered by: prerelease creation (tag should be v11.x.x)
+          elif ${{ github.event_name == 'release' && github.event.action == 'prereleased' }}; then
+            ENVIRONMENT="rc"
+            CM_URL="https://cm.utmstack.com"
+            echo "Environment: $ENVIRONMENT"
+            echo "CM URL: $CM_URL"
+
+            # Get the tag from the prerelease event
+            TAG="${{ github.event.release.tag_name }}"
+            echo "Tag from prerelease: $TAG"
+
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+            echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
+            echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_PROD }}" >> $GITHUB_OUTPUT
+          fi
+
   validations:
     name: Validate permissions
     runs-on: ubuntu-24.04
+    needs: setup_deployment
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     steps:
       - name: Check permissions
         run: |
-          echo "Checking permissions..."
+          echo "Validating user permissions..."
 
-          # Check if version is production format (v11.x.x) or dev format (v11.x.x-dev.x, etc.)
-          if [[ "${{ github.event.inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "🔍 Detected PRODUCTION version format: ${{ github.event.inputs.version_tag }}"
+          RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
+          -H "Accept: application/vnd.github.json" \
+          "https://api.github.com/orgs/utmstack/teams/integration-developers/memberships/${{ github.actor }}")
 
-            # For production versions, only administrators can deploy
-            echo "Validating user permissions against administrators team..."
+          if echo "$RESPONSE" | grep -q '"state": "active"'; then
+            echo "✅ User ${{ github.actor }} is a member of the integration-developers team."
+          else
             RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
             -H "Accept: application/vnd.github.json" \
-            "https://api.github.com/orgs/utmstack/teams/administrators/memberships/${{ github.actor }}")
+            "https://api.github.com/orgs/utmstack/teams/core-developers/memberships/${{ github.actor }}")
 
             if echo "$RESPONSE" | grep -q '"state": "active"'; then
-              echo "✅ User ${{ github.actor }} is a member of the administrators team."
+              echo "✅ User ${{ github.actor }} is a member of the core-developers team."
             else
-              echo "⛔ ERROR: User ${{ github.actor }} is not a member of the administrators team."
-              echo "Production deployments require administrator permissions."
+              echo "⛔ ERROR: User ${{ github.actor }} is not a member of the core-developers or integration-developers team."
               echo $RESPONSE
               exit 1
             fi
-
-          elif [[ "${{ github.event.inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-dev\.[0-9]+$ ]]; then
-            echo "🔍 Detected DEV version format: ${{ github.event.inputs.version_tag }}"
-
-            if [[ "${{ github.ref }}" =~ ^refs/heads/(release/|feature/) ]]; then
-              echo "✅ Base branch ${{ github.ref }} is valid."
-            else
-              echo "⛔ ERROR: Base branch ${{ github.ref }} is not valid. It should be release/ or feature/."
-              exit 1
-            fi
-
-            # For dev versions, check administrators first, then integration-developers, then core-developers
-            echo "Validating user permissions..."
-            RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
-            -H "Accept: application/vnd.github.json" \
-            "https://api.github.com/orgs/utmstack/teams/administrators/memberships/${{ github.actor }}")
-
-            if echo "$RESPONSE" | grep -q '"state": "active"'; then
-              echo "✅ User ${{ github.actor }} is a member of the administrators team."
-            else
-              RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
-              -H "Accept: application/vnd.github.json" \
-              "https://api.github.com/orgs/utmstack/teams/integration-developers/memberships/${{ github.actor }}")
-
-              if echo "$RESPONSE" | grep -q '"state": "active"'; then
-                echo "✅ User ${{ github.actor }} is a member of the integration-developers team."
-              else
-                RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
-                -H "Accept: application/vnd.github.json" \
-                "https://api.github.com/orgs/utmstack/teams/core-developers/memberships/${{ github.actor }}")
-
-                if echo "$RESPONSE" | grep -q '"state": "active"'; then
-                  echo "✅ User ${{ github.actor }} is a member of the core-developers team."
-                else
-                  echo "⛔ ERROR: User ${{ github.actor }} is not a member of administrators, integration-developers, or core-developers teams."
-                  echo $RESPONSE
-                  exit 1
-                fi
-              fi
-            fi
-
-          else
-            echo "⛔ Version tag format is incorrect."
-            echo "Expected formats:"
-            echo "  - Production: vX.Y.Z (e.g., v11.0.0)"
-            echo "  - Development: vX.Y.Z-dev.N (e.g., v11.0.0-dev.1)"
-            exit 1
           fi
+
+  check_go_dependencies:
+    name: Check Go Dependencies
+    runs-on: ubuntu-24.04
+    needs: [validations, setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.environment == 'rc' }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ^1.20
+
+      - name: Configure git for private modules
+        run: |
+          git config --global url."https://${{ secrets.API_SECRET }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+          echo "GOPRIVATE=github.com/utmstack" >> $GITHUB_ENV
+
+      - name: Check for outdated dependencies
+        run: ${{ github.workspace }}/.github/scripts/golang-updater/golang-updater --check --discover
 
   build_agent:
     name: Build and Sign Agent
-    needs: [validations]
+    needs: [check_go_dependencies, setup_deployment]
+    if: ${{ always() && (needs.check_go_dependencies.result == 'success' || needs.check_go_dependencies.result == 'skipped') && needs.setup_deployment.outputs.tag != '' }}
     runs-on: utmstack-signer
     steps:
       - name: Check out code into the right branch
@@ -153,7 +204,8 @@ jobs:
   
   build_utmstack_collector:
     name: Build UTMStack Collector
-    needs: [validations]
+    needs: [check_go_dependencies, setup_deployment]
+    if: ${{ always() && (needs.check_go_dependencies.result == 'success' || needs.check_go_dependencies.result == 'skipped') && needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
@@ -175,7 +227,8 @@ jobs:
 
   build_agent_manager:
     name: Build Agent Manager Microservice
-    needs: [validations, build_agent, build_utmstack_collector]
+    needs: [build_agent, build_utmstack_collector, setup_deployment]
+    if: ${{ always() && needs.build_agent.result == 'success' && needs.build_utmstack_collector.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
@@ -192,7 +245,7 @@ jobs:
         with:
           name: utmstack-collector
           path: ${{ github.workspace }}/utmstack-collector
-      
+
       - name: Prepare dependencies for Agent Manager Image
         run: |
           cd ${{ github.workspace }}/agent-manager
@@ -231,11 +284,12 @@ jobs:
         with:
           context: ./agent-manager
           push: true
-          tags: ghcr.io/utmstack/utmstack/agent-manager:${{ inputs.version_tag }}-community
+          tags: ghcr.io/utmstack/utmstack/agent-manager:${{ needs.setup_deployment.outputs.tag }}
   
   build_event_processor:
     name: Build Event Processor Microservice
-    needs: [validations]
+    needs: [check_go_dependencies, setup_deployment]
+    if: ${{ always() && (needs.check_go_dependencies.result == 'success' || needs.check_go_dependencies.result == 'skipped') && needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
@@ -261,6 +315,7 @@ jobs:
           cd ${{ github.workspace }}/plugins/soc-ai; go build -o com.utmstack.soc-ai.plugin -v .
           cd ${{ github.workspace }}/plugins/modules-config; go build -o com.utmstack.modules-config.plugin -v .
           cd ${{ github.workspace }}/plugins/crowdStrike; go build -o com.utmstack.crowdstrike.plugin -v .
+          cd ${{ github.workspace }}/plugins/threadwinds-ingestion; go build -o com.utmstack.threadwinds-ingestion.plugin -v .
 
       - name: Prepare Dependencies for Event Processor Image
         run: |
@@ -284,17 +339,18 @@ jobs:
           context: .
           file: ./event_processor.Dockerfile
           push: true
-          tags: ghcr.io/utmstack/utmstack/eventprocessor:${{ inputs.version_tag }}-community
+          tags: ghcr.io/utmstack/utmstack/eventprocessor:${{ needs.setup_deployment.outputs.tag }}
           build-args: |
-            BASE_IMAGE=ghcr.io/threatwinds/eventprocessor/base:${{ inputs.event_processor_tag }}
+            BASE_IMAGE=ghcr.io/threatwinds/eventprocessor/base:${{ needs.setup_deployment.outputs.event_processor_tag }}
 
   build_backend:
     name: Build Backend Microservice
-    needs: [validations]
+    needs: [validations, setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-java.yml
     with:
       image_name: backend
-      tag: ${{ inputs.version_tag }}-community
+      tag: ${{ needs.setup_deployment.outputs.tag }}
       java_version: '17'
       use_tag_as_version: true
       maven_profile: 'prod'
@@ -302,30 +358,33 @@ jobs:
   
   build_frontend:
     name: Build Frontend Microservice
-    needs: [validations]
+    needs: [validations, setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-node.yml
     with:
       image_name: frontend
-      tag: ${{ inputs.version_tag }}-community
+      tag: ${{ needs.setup_deployment.outputs.tag }}
   
   build_user_auditor:
     name: Build User-Auditor Microservice
-    needs: [validations]
+    needs: [validations, setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-java.yml
     with:
       image_name: user-auditor
-      tag: ${{ inputs.version_tag }}-community
+      tag: ${{ needs.setup_deployment.outputs.tag }}
       java_version: '11'
       use_version_file: false
       maven_goals: 'clean install -U'
   
   build_web_pdf:
     name: Build Web-PDF Microservice
-    needs: [validations]
+    needs: [validations, setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-java.yml
     with:
       image_name: web-pdf
-      tag: ${{ inputs.version_tag }}-community
+      tag: ${{ needs.setup_deployment.outputs.tag }}
       java_version: '11'
       use_version_file: false
       maven_goals: 'clean install -U'
@@ -340,46 +399,95 @@ jobs:
       build_user_auditor,
       build_web_pdf
     ]
+    if: ${{ always() && needs.build_agent_manager.result == 'success' && needs.build_event_processor.result == 'success' && needs.build_backend.result == 'success' && needs.build_frontend.result == 'success' && needs.build_user_auditor.result == 'success' && needs.build_web_pdf.result == 'success' }}
     runs-on: ubuntu-24.04
     steps:
       - run: echo "✅ All builds completed successfully."
-  
+
+  generate_changelog:
+    name: Generate Changelog
+    needs: [all_builds_complete, setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment == 'rc' }}
+    uses: ./.github/workflows/generate-changelog.yml
+    with:
+      current_tag: ${{ needs.setup_deployment.outputs.tag }}
+    secrets:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+  build_installer_rc:
+    name: Build & Upload Installer (RC)
+    needs: [generate_changelog, setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment == 'rc' }}
+    uses: ./.github/workflows/installer-release.yml
+    with:
+      version: ${{ needs.setup_deployment.outputs.tag }}
+      version_major: v11
+      environment: rc
+      prerelease: true
+      changelog: ${{ needs.generate_changelog.outputs.changelog }}
+    secrets:
+      API_SECRET: ${{ secrets.API_SECRET }}
+      CM_ENCRYPT_SALT: ${{ secrets.CM_ENCRYPT_SALT }}
+      CM_SIGN_PUBLIC_KEY: ${{ secrets.CM_SIGN_PUBLIC_KEY }}
+
+  deploy_installer_dev:
+    name: Deploy Installer (Dev)
+    needs: [all_builds_complete, setup_deployment]
+    if: ${{ always() && needs.all_builds_complete.result == 'success' && needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment == 'dev' }}
+    uses: ./.github/workflows/installer-release.yml
+    with:
+      version: ${{ needs.setup_deployment.outputs.tag }}
+      version_major: v11
+      environment: dev
+    secrets:
+      API_SECRET: ${{ secrets.API_SECRET }}
+      CM_ENCRYPT_SALT: ${{ secrets.CM_ENCRYPT_SALT }}
+      CM_SIGN_PUBLIC_KEY: ${{ secrets.CM_SIGN_PUBLIC_KEY }}
+
   publish_new_version:
     name: Publish New Version to Customer Manager
-    needs: all_builds_complete
+    needs: [all_builds_complete, generate_changelog, setup_deployment]
+    if: ${{ always() && needs.all_builds_complete.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code
         uses: actions/checkout@v4
 
       - name: Publish version
+        env:
+          CHANGELOG_CONTENT: ${{ needs.generate_changelog.outputs.changelog }}
+          ENVIRONMENT: ${{ needs.setup_deployment.outputs.environment }}
+          TAG: ${{ needs.setup_deployment.outputs.tag }}
+          CM_URL: ${{ needs.setup_deployment.outputs.cm_url }}
         run: |
-          changelog=$(cat CHANGELOG.md)
-
-          # Determine environment and CM_AUTH based on version format
-          if [[ "${{ inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "🔍 Detected PRODUCTION version"
-            cmAuth=$(echo '${{ secrets.CM_AUTH }}' | jq -r '.')
-            cm_url="https://cm.utmstack.com/api/v1/versions/register"
-          elif [[ "${{ inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-dev\.[0-9]+$ ]]; then
-            echo "🔍 Detected DEV version"
-            cmAuth=$(echo '${{ secrets.CM_AUTH_DEV }}' | jq -r '.')
-            cm_url="https://cm.dev.utmstack.com/api/v1/versions/register"
+          # Use AI changelog for rc, generic for dev
+          if [ "$ENVIRONMENT" = "rc" ] && [ -n "$CHANGELOG_CONTENT" ]; then
+            changelog="$CHANGELOG_CONTENT"
           else
-            echo "⛔ Version format not recognized"
-            exit 1
+            changelog="Development build $TAG - Internal testing release"
+          fi
+
+          echo "Environment: $ENVIRONMENT"
+          echo "CM URL: $CM_URL"
+          echo "Tag: $TAG"
+
+          # Select CM_SERVICE_ACCOUNT based on environment
+          if [ "$ENVIRONMENT" = "dev" ]; then
+            cmAuth=$(echo '${{ secrets.CM_SERVICE_ACCOUNT_DEV }}' | jq -r '.')
+          else
+            cmAuth=$(echo '${{ secrets.CM_SERVICE_ACCOUNT_PROD }}' | jq -r '.')
           fi
 
           id=$(echo "$cmAuth" | jq -r '.id')
           key=$(echo "$cmAuth" | jq -r '.key')
 
           body=$(jq -n \
-            --arg version "${{ inputs.version_tag }}" \
+            --arg version "$TAG" \
             --arg changelog "$changelog" \
             '{version: $version, changelog: $changelog}'
           )
 
-          response=$(curl -s -X POST "$cm_url" \
+          response=$(curl -s -X POST "${CM_URL}/api/v1/versions/register" \
             -H "Content-Type: application/json" \
             -H "id: $id" \
             -H "key: $key" \
@@ -389,53 +497,60 @@ jobs:
 
   schedule:
     name: Schedule release to our instances
-    needs: publish_new_version
+    needs: [publish_new_version, setup_deployment]
+    if: ${{ always() && needs.publish_new_version.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
+    env:
+      ENVIRONMENT: ${{ needs.setup_deployment.outputs.environment }}
+      TAG: ${{ needs.setup_deployment.outputs.tag }}
+      CM_URL: ${{ needs.setup_deployment.outputs.cm_url }}
     steps:
-      - name: Run publisher
+      - name: Schedule updates
         run: |
-          # Determine environment, instance IDs, and auth token based on version format
-          if [[ "${{ inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "🔍 Detected PRODUCTION version"
-            environment="prod"
-            instance_ids="${{ vars.SCHEDULE_INSTANCES_PROD }}"
-            auth_token="${{ secrets.CM_SCHEDULE_TOKEN_PROD }}"
-          elif [[ "${{ inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-dev\.[0-9]+$ ]]; then
-            echo "🔍 Detected DEV version"
-            environment="dev"
+          echo "🔍 Environment: $ENVIRONMENT"
+          echo "🔍 Version: $TAG"
+          echo "🔍 CM URL: $CM_URL"
+
+          # Select instance IDs and auth based on environment
+          if [ "$ENVIRONMENT" = "dev" ]; then
             instance_ids="${{ vars.SCHEDULE_INSTANCES_DEV }}"
-            auth_token="${{ secrets.CM_SCHEDULE_TOKEN_DEV }}"
+            auth_json='${{ secrets.CM_SERVICE_ACCOUNT_DEV }}'
           else
-            echo "⛔ Version format not recognized"
-            exit 1
+            # rc uses prod variables
+            instance_ids="${{ vars.SCHEDULE_INSTANCES_PROD }}"
+            auth_json='${{ secrets.CM_SERVICE_ACCOUNT_PROD }}'
           fi
 
-          # Download cm-version-publisher
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/cm-version-publisher" -o ./cm-version-publisher
-          chmod +x ./cm-version-publisher
+          # Extract id and key from auth JSON
+          auth_id=$(echo "$auth_json" | jq -r '.id')
+          auth_key=$(echo "$auth_json" | jq -r '.key')
 
           # Parse IDs (handle single ID or comma-separated IDs)
           IFS=',' read -ra ID_ARRAY <<< "$instance_ids"
 
           # Iterate over each instance ID
           for instance_id in "${ID_ARRAY[@]}"; do
-            # Trim whitespace
             instance_id=$(echo "$instance_id" | xargs)
 
             echo "📅 Scheduling release for instance: $instance_id"
-            ./cm-version-publisher \
-              --env "$environment" \
-              --instance-id "$instance_id" \
-              --version "${{ inputs.version_tag }}" \
-              --auth-token "$auth_token"
 
-            if [ $? -eq 0 ]; then
+            response=$(curl -s -w "\n%{http_code}" -X POST "${CM_URL}/api/v1/updates" \
+              -H "Content-Type: application/json" \
+              -H "id: $auth_id" \
+              -H "key: $auth_key" \
+              -d "{\"instance_id\": \"$instance_id\", \"version\": \"$TAG\"}")
+
+            http_code=$(echo "$response" | tail -n1)
+            body=$(echo "$response" | sed '$d')
+
+            if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
               echo "✅ Successfully scheduled for instance: $instance_id"
             else
-              echo "❌ Failed to schedule for instance: $instance_id"
+              echo "❌ Failed to schedule for instance: $instance_id (HTTP $http_code)"
+              echo "Response: $body"
               exit 1
             fi
           done
 
-          echo "✅ Scheduled release for all instances with version ${{ inputs.version_tag }}"
+          echo "✅ Scheduled release for all instances with version $TAG"
     

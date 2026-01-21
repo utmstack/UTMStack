@@ -6,15 +6,11 @@
 version: 2
 updates:
   - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/agent/installer" # Location of package manifests
+    directory: "/agent" # Location of package manifests
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/agent/self" # Location of package manifests
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/agent/service" # Location of package manifests
+    directory: "/agent/updater" # Location of package manifests
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
@@ -53,6 +49,10 @@ updates:
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/crowdStrike" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
     directory: "/plugins/events" # Location of package manifests
     schedule:
       interval: "weekly"
@@ -69,7 +69,15 @@ updates:
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/modules-config" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
     directory: "/plugins/o365" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/soc-ai" # Location of package manifests
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
@@ -78,6 +86,14 @@ updates:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
     directory: "/plugins/stats" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/threat-intelligence" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/utmstack-collector" # Location of package manifests
     schedule:
       interval: "weekly"
   

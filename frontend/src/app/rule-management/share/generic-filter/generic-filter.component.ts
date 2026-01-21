@@ -90,6 +90,13 @@ export class GenericFilterComponent<T extends UtmFieldType> implements OnInit, A
     this.filterService.notifyRefresh(this.fieldFilter.filterField);
   }
 
+  formatValue(value: string): string {
+    if (this.fieldFilter.formatValue) {
+      return this.fieldFilter.formatValue(value);
+    }
+    return value;
+  }
+
   ngOnDestroy(): void {
     this.filterService.resetFieldValues();
     this.destroy$.next();

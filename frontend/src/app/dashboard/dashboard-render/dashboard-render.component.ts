@@ -177,8 +177,9 @@ export class DashboardRenderComponent implements OnInit, OnDestroy, AfterViewIni
   exportToPdf() {
     filtersToStringParam(this.filtersValues).then(queryParams => {
       this.spinner.show('buildPrintPDF');
-      const url = '/dashboard/export/' + this.dashboard.id + '/' + normalizeString(this.dashboard.name) + '?' + queryParams;
-      // window.open('/dashboard/export/' + this.dashboardId + '/' + normalizeString(this.dashboard.name) + '?' + queryParams, '_blank');
+      const safeParams = new URLSearchParams(queryParams).toString();
+      const url = `/dashboard/export/${this.dashboard.id}/${normalizeString(this.dashboard.name)}?${safeParams}`;
+
       this.exportPdfService.getPdf(url, this.dashboard.name, 'PDF_TYPE_TOKEN').subscribe(response => {
         this.spinner.hide('buildPrintPDF').then(() =>
           this.exportPdfService.handlePdfResponse(response));

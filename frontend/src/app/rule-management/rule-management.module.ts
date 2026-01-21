@@ -29,7 +29,7 @@ import {AppRuleComponent} from './app-rule/app-rule.component';
 import {AddAfterEventComponent} from './app-rule/components/add-after-event/add-after-event.component';
 import {AddRuleComponent} from './app-rule/components/add-rule/add-rule.component';
 import {AddVariableComponent} from './app-rule/components/add-variable/add-variable.component';
-import {DeduplicateFieldsComponent} from './app-rule/components/deduplicate-fields/deduplicate-fields.component';
+import {FieldsSelectorComponent} from './app-rule/components/fields-selector/fields-selector.component';
 import {ExpressionConsoleComponent} from './app-rule/components/expression-console/expression-console.component';
 import {ImportRuleComponent} from './app-rule/components/import-rules/import-rule.component';
 import {ImportRuleService} from './app-rule/components/import-rules/import-rule.service';
@@ -71,7 +71,7 @@ import {RuleDetailComponent} from "./app-rule/components/rule-list/components/ru
       AddReferenceComponent,
       AddVariableComponent,
       AddAfterEventComponent,
-      DeduplicateFieldsComponent,
+      FieldsSelectorComponent,
       ExpressionConsoleComponent,
       RuleDetailComponent
 

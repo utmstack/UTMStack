@@ -49,7 +49,7 @@
           </span>
     </a>
 
-    <a class="list-group-item"
+   <!-- <a class="list-group-item"
        *appHasAnyAuthority="adminAuth"
        routerLink="/app-management/settings/user-access-audit"
        routerLinkActive="router-link-active">
@@ -57,7 +57,7 @@
         <i class="icon-user-block font-size-sm"></i>&nbsp;
        User access audit
       </span>
-    </a>
+    </a>-->
     <ng-container *ngIf="!inSass">
       <a *appHasAnyAuthority="adminAuth"
          class="list-group-item"
@@ -88,14 +88,14 @@
        Health checks
       </span>
     </a>
-    <a *appHasAnyAuthority="adminAuth"
+    <!--<a *appHasAnyAuthority="adminAuth"
        class="list-group-item"
        routerLink="/app-management/settings/app-logs"
        routerLinkActive="router-link-active">
           <span class="font-weight-semibold">
              <i class="icon-meter-slow font-size-sm"></i>&nbsp;
            Application logs</span>
-    </a>
+    </a>-->
     <a *appHasAnyAuthority="adminAuth"
        class="list-group-item"
        routerLink="/app-management/settings/application-theme"

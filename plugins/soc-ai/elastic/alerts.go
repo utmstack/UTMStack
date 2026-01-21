@@ -28,7 +28,5 @@ func ChangeAlertStatus(id string, status int, dataSource string, observations st
 		return fmt.Errorf("error while doing request: %v, status: %d, response: %v", err, statusCode, string(resp))
 	}
 
-	utils.Logger.LogF(100, "Alert %s status changed successfully", id)
-
 	return nil
 }

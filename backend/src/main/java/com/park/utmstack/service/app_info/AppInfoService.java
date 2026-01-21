@@ -16,7 +16,7 @@ public class AppInfoService {
 
     private static final String CLASSNAME = "AppInfoService";
 
-    public AppInfoDto loadVersionInfo() throws Exception {
+    public AppInfoDto loadVersionInfo() {
         final String ctx = "loadVersionInfo";
         try {
             ObjectMapper mapper = new ObjectMapper();

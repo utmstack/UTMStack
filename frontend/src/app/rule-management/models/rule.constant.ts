@@ -9,6 +9,7 @@ export const RULE_CONFIDENTIALITY = 'confidentiality';
 export const RULE_INTEGRITY = 'integrity';
 export const RULE_AVAILABILITY = 'availability';
 export const RULE_ADVERSARY = 'adversary';
+export const RULE_STATUS = 'active';
 
 // FILTERS FIELDS
 
@@ -17,6 +18,7 @@ export const RULE_FILTER_DATA_TYPES = 'RULE_DATA_TYPES';
 export const RULE_FILTER_CATEGORY = 'RULE_CATEGORY';
 export const RULE_FILTER_TECHNIQUE = 'RULE_TECHNIQUE';
 export const RULE_FILTER_ADVERSARY = 'RULE_ADVERSARY';
+export const RULE_FILTER_STATUS = 'RULE_STATUS';
 export const RULE_FILTER_REFERENCES = 'references';
 
 
@@ -27,7 +29,8 @@ export const RULE_FIELDS: UtmFieldType[] = [
         type: ElasticDataTypesEnum.STRING,
         visible: true,
         filter: false,
-        width: '30%'
+        width: '30%',
+        sortField: 'ruleName',
     },
     {
         label: 'Types',
@@ -45,7 +48,8 @@ export const RULE_FIELDS: UtmFieldType[] = [
         visible: true,
         filter: true,
         filterField: RULE_FILTER_CATEGORY,
-        width: '15%'
+        width: '15%',
+        sortField: 'ruleCategory',
     },
     {
         label: 'Technique',
@@ -54,7 +58,8 @@ export const RULE_FIELDS: UtmFieldType[] = [
         visible: true,
         filter: true,
         filterField: RULE_FILTER_TECHNIQUE,
-        width: '30%'
+        width: '30%',
+        sortField: 'ruleTechnique'
     },
     {
       label: 'Adversary',
@@ -63,7 +68,8 @@ export const RULE_FIELDS: UtmFieldType[] = [
       visible: true,
       filter: true,
       filterField: RULE_FILTER_ADVERSARY,
-      width: '10%'
+      width: '10%',
+      sortField: 'ruleAdversary'
     },
     {
         label: 'Confidentiality',
@@ -71,7 +77,8 @@ export const RULE_FIELDS: UtmFieldType[] = [
         type: ElasticDataTypesEnum.STRING,
         visible: true,
         filter: false,
-        width: '5%'
+        width: '5%',
+        sortField: 'ruleConfidentiality'
     },
     {
       label: 'Integrity',
@@ -79,7 +86,8 @@ export const RULE_FIELDS: UtmFieldType[] = [
       type: ElasticDataTypesEnum.STRING,
       visible: true,
       filter: false,
-      width: '5%'
+      width: '5%',
+      sortField: 'ruleIntegrity'
     },
     {
       label: 'Availability',
@@ -87,11 +95,25 @@ export const RULE_FIELDS: UtmFieldType[] = [
       type: ElasticDataTypesEnum.STRING,
       visible: true,
       filter: false,
-      width: '5%'
+      width: '5%',
+      sortField: 'ruleAvailability'
     },
 ];
 
-export const FILTER_RULE_FIELDS = RULE_FIELDS.filter(f => f.filter);
+export const RULE_FILTERS_FIELDS = [
+  {
+    label: 'Status',
+    field: RULE_STATUS,
+    type: ElasticDataTypesEnum.BOOLEAN,
+    visible: true,
+    filter: true,
+    width: '5%',
+    sortField: 'ruleActive',
+    filterField: RULE_FILTER_STATUS,
+    formatValue: (value: boolean) => value ? 'Active' : 'Inactive'
+  },
+  ... RULE_FIELDS.filter(f => f.filter)
+]
 
 export interface RuleFilterType {
     ruleName?: string;

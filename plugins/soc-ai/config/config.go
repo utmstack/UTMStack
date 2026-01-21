@@ -9,7 +9,6 @@ import (
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/utmstack/UTMStack/plugins/soc-ai/utils"
 	"google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	"google.golang.org/grpc/connectivity"
@@ -56,7 +55,7 @@ func StartConfigurationSystem() {
 	for {
 		pluginConfig := plugins.PluginCfg("com.utmstack", false)
 		if !pluginConfig.Exists() {
-			_ = catcher.Error("plugin configuration not found", nil, nil)
+			_ = catcher.Error("plugin configuration not found", nil, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 			time.Sleep(reconnectDelay)
 			continue
 		}
@@ -86,7 +85,7 @@ func StartConfigurationSystem() {
 		)
 
 		if err != nil {
-			catcher.Error("Failed to connect to server", err, nil)
+			catcher.Error("Failed to connect to server", err, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 			connCancel()
 			time.Sleep(reconnectDelay)
 			continue
@@ -94,7 +93,7 @@ func StartConfigurationSystem() {
 
 		state := conn.GetState()
 		if state == connectivity.Shutdown || state == connectivity.TransientFailure {
-			catcher.Error("Connection is in shutdown or transient failure state", nil, nil)
+			catcher.Error("Connection is in shutdown or transient failure state", nil, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 			conn.Close()
 			connCancel()
 			time.Sleep(reconnectDelay)
@@ -104,7 +103,7 @@ func StartConfigurationSystem() {
 		client := NewConfigServiceClient(conn)
 		stream, err := client.StreamConfig(connCtx)
 		if err != nil {
-			catcher.Error("Failed to create stream", err, nil)
+			catcher.Error("Failed to create stream", err, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 			conn.Close()
 			connCancel()
 			time.Sleep(reconnectDelay)
@@ -117,7 +116,7 @@ func StartConfigurationSystem() {
 			},
 		})
 		if err != nil {
-			catcher.Error("Failed to send PluginInit", err, nil)
+			catcher.Error("Failed to send PluginInit", err, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 			conn.Close()
 			connCancel()
 			time.Sleep(reconnectDelay)
@@ -128,7 +127,7 @@ func StartConfigurationSystem() {
 			in, err := stream.Recv()
 			if err != nil {
 				if strings.Contains(err.Error(), "EOF") {
-					catcher.Info("Stream closed by server, reconnecting...", nil)
+					catcher.Info("Stream closed by server, reconnecting...", map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 					conn.Close()
 					connCancel()
 					time.Sleep(reconnectDelay)
@@ -136,13 +135,13 @@ func StartConfigurationSystem() {
 				}
 				st, ok := status.FromError(err)
 				if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
-					catcher.Error("Stream error: "+st.Message(), err, nil)
+					catcher.Error("Stream error: "+st.Message(), err, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 					conn.Close()
 					connCancel()
 					time.Sleep(reconnectDelay)
 					break
 				} else {
-					catcher.Error("Stream receive error", err, nil)
+					catcher.Error("Stream receive error", err, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 					time.Sleep(reconnectDelay)
 					continue
 				}
@@ -150,7 +149,7 @@ func StartConfigurationSystem() {
 
 			switch message := in.Payload.(type) {
 			case *BiDirectionalMessage_Config:
-				catcher.Info("Received configuration update", map[string]any{"config": message.Config})
+				catcher.Info("Received configuration update", map[string]any{"process": "plugin_com.utmstack.soc-ai", "config": message.Config})
 				updateConfigFromGRPC(message.Config)
 			}
 		}
@@ -166,7 +165,6 @@ func updateConfigFromGRPC(grpcConf *ConfigurationSection) {
 	defer configMutex.Unlock()
 
 	if grpcConf == nil {
-		utils.Logger.LogF(100, "Received nil configuration from gRPC")
 		return
 	}
 
@@ -194,7 +192,7 @@ func updateConfigFromGRPC(grpcConf *ConfigurationSection) {
 		case "utmstack.socai.custom.url":
 			customURL = c.ConfValue
 		default:
-			utils.Logger.LogF(100, "Unknown configuration key: %s", c.ConfKey)
+			catcher.Error("Unknown configuration key", nil, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 		}
 	}
 

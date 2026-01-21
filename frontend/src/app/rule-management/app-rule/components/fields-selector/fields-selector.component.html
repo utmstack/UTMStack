@@ -1,8 +1,8 @@
 <div class="form-group-select">
-  <label>Deduplicated by:</label>
+  <label> {{ controlName && controlName === 'deduplicateBy' ? 'Deduplicated by:' : 'GroupBy:'}}</label>
   <div [formGroup]="formGroup" class="p-2">
     <ng-select
-      formControlName="deduplicateBy"
+      [formControlName]="controlName"
       [items]="fields$ | async"
       bindLabel="name"
       [multiple]="true"

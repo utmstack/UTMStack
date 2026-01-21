@@ -9,9 +9,11 @@ import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.UtmConfigurationParameterCriteria;
 import com.park.utmstack.service.mail_config.MailConfigService;
 import com.park.utmstack.service.validators.email.EmailValidatorService;
+import com.park.utmstack.service.validators.tw_config.TwConfigValidatorService;
 import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.exceptions.UtmMailException;
 import com.park.utmstack.web.rest.util.PaginationUtil;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.api.annotations.ParameterObject;
@@ -35,6 +37,7 @@ import java.util.Optional;
  * REST controller for managing UtmConfigurationParameter.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api")
 public class UtmConfigurationParameterResource {
 
@@ -48,19 +51,7 @@ public class UtmConfigurationParameterResource {
     private final EmailValidatorService emailValidatorService;
     private final MailConfigService mailConfigService;
     private final UtmStackService utmStackService;
-    public UtmConfigurationParameterResource(UtmConfigurationParameterService utmConfigurationParameterService,
-                                             UtmConfigurationParameterQueryService utmConfigurationParameterQueryService,
-                                             ApplicationEventService applicationEventService,
-                                             EmailValidatorService emailValidatorService,
-                                             MailConfigService mailConfigService,
-                                             UtmStackService utmStackService) {
-        this.utmConfigurationParameterService = utmConfigurationParameterService;
-        this.utmConfigurationParameterQueryService = utmConfigurationParameterQueryService;
-        this.applicationEventService = applicationEventService;
-        this.emailValidatorService = emailValidatorService;
-        this.mailConfigService = mailConfigService;
-        this.utmStackService = utmStackService;
-    }
+    private final TwConfigValidatorService twConfigValidatorService;
 
     /**
      * PUT  /utm-configuration-parameters : Updates an existing utmConfigurationParameter.
@@ -76,16 +67,21 @@ public class UtmConfigurationParameterResource {
         try {
             Assert.notEmpty(parameters, "There isn't any parameter to update");
             for (UtmConfigurationParameter parameter : parameters) {
-                if(StringUtils.hasText(parameter.getConfParamRegexp())){
-                    Errors errors = new BeanPropertyBindingResult(parameter, "utmConfigurationParameter");
-                    emailValidatorService.validate(parameter, errors);
+                Errors errors = new BeanPropertyBindingResult(parameter, "utmConfigurationParameter");
 
-                    if (errors.hasErrors()) {
-                        String msg =  String.format("Validation failed for field %s.", parameter.getConfParamShort());
-                        log.error(msg);
-                        applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-                        return ResponseUtil.buildPreconditionFailedResponse(msg);
-                    }
+                if(parameter.getConfParamShort().equals("utmstack.tw.enable")){
+                    twConfigValidatorService.validate(parameter, errors);
+                }
+
+                if(StringUtils.hasText(parameter.getConfParamRegexp())){
+                    emailValidatorService.validate(parameter, errors);
+                }
+
+                if (errors.hasErrors()) {
+                    String msg =  String.format("Validation failed for field %s.", parameter.getConfParamShort());
+                    log.error(msg);
+                    applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+                    return ResponseUtil.buildPreconditionFailedResponse(msg);
                 }
             }
             utmConfigurationParameterService.saveAll(parameters);

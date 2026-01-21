@@ -45,7 +45,7 @@ func (s *ConfigServer) GetModuleGroup(moduleName PluginType) *ConfigurationSecti
 
 	section, exists := s.cache[moduleName]
 	if !exists {
-		catcher.Error("module group not found", fmt.Errorf("module: %s", moduleName), nil)
+		catcher.Error("module group not found", fmt.Errorf("module: %s", moduleName), map[string]any{"process": "plugin_com.utmstack.modules-config"})
 		return nil
 	}
 
@@ -69,7 +69,7 @@ func (s *ConfigServer) StreamConfig(stream ConfigService_StreamConfigServer) err
 		switch payload := msg.Payload.(type) {
 		case *BiDirectionalMessage_PluginInit:
 			pluginType = payload.PluginInit.Type
-			catcher.Info(fmt.Sprintf("Plugin (%s) connected", pluginType), nil)
+			catcher.Info(fmt.Sprintf("Plugin (%s) connected", pluginType), map[string]any{"process": "plugin_com.utmstack.modules-config"})
 
 			s.mu.Lock()
 			s.plugins[pluginType] = append(s.plugins[pluginType], conn)
@@ -89,7 +89,7 @@ func (s *ConfigServer) StreamConfig(stream ConfigService_StreamConfigServer) err
 			go s.monitorDisconnect(pluginType, conn)
 
 		default:
-			catcher.Error("unexpected message type", fmt.Errorf("received: %T", payload), nil)
+			catcher.Error("unexpected message type", fmt.Errorf("received: %T", payload), map[string]any{"process": "plugin_com.utmstack.modules-config"})
 		}
 	}
 
@@ -131,7 +131,7 @@ func (s *ConfigServer) NotifyUpdate(moduleName string, section *ConfigurationSec
 	case "CROWDSTRIKE":
 		pluginType = PluginType_CROWDSTRIKE
 	default:
-		_ = catcher.Error("unknown module name", fmt.Errorf("module: %s", moduleName), nil)
+		_ = catcher.Error("unknown module name", fmt.Errorf("module: %s", moduleName), map[string]any{"process": "plugin_com.utmstack.modules-config"})
 		return
 	}
 
@@ -141,7 +141,7 @@ func (s *ConfigServer) NotifyUpdate(moduleName string, section *ConfigurationSec
 	s.cache[pluginType] = section
 
 	if len(s.plugins[pluginType]) == 0 {
-		catcher.Info(fmt.Sprintf("No active connections for plugin type: %s", pluginType), nil)
+		catcher.Info(fmt.Sprintf("No active connections for plugin type: %s", pluginType), map[string]any{"process": "plugin_com.utmstack.modules-config"})
 		return
 	}
 
@@ -152,7 +152,7 @@ func (s *ConfigServer) NotifyUpdate(moduleName string, section *ConfigurationSec
 			},
 		})
 		if err != nil {
-			_ = catcher.Error("error sending configuration update", err, nil)
+			_ = catcher.Error("error sending configuration update", err, map[string]any{"process": "plugin_com.utmstack.modules-config"})
 			continue
 		}
 	}

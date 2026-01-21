@@ -1,11 +1,8 @@
 package updater
 
 import (
-	"bytes"
 	"fmt"
-	"net/http"
 	"os"
-	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
@@ -16,41 +13,17 @@ import (
 )
 
 var (
-	version         = VersionFile{}
-	versionOnce     sync.Once
-	SpecificVersion string // Version specified via command line flag
+	version     = VersionFile{}
+	versionOnce sync.Once
 )
 
 func GetVersion() (VersionFile, error) {
 	var err error
 	versionOnce.Do(func() {
 		if !utils.CheckIfPathExist(config.VersionFilePath) {
-			// Check if a specific version was requested via command line
-			if SpecificVersion != "" {
-				version.Version = SpecificVersion
-				version.Changelog = ""
-				version.Edition = "community"
-			} else if config.ConnectedToInternet {
-				latestVersion, errFetch := fetchLatestVersionFromCM()
-				if errFetch != nil {
-					config.Logger().Info("Could not fetch latest version from CM, using installer version: %v", errFetch)
-					version.Version = config.INSTALLER_VERSION
-					version.Changelog = ""
-				} else {
-					version.Version = latestVersion.Version
-					version.Changelog = latestVersion.Changelog
-				}
-				version.Edition = "community"
-			} else {
-				versionFromTar, errB := ExtractVersionFromFolder(config.ImagesPath)
-				if errB == nil {
-					version.Version = versionFromTar
-					version.Edition = "enterprise"
-				} else {
-					err = fmt.Errorf("error extracting version from folder: %v", err)
-					return
-				}
-			}
+			version.Version = config.INSTALLER_VERSION
+			version.Changelog = ""
+			version.Edition = "community"
 
 			errB := utils.WriteJSON(config.VersionFilePath, &version)
 			if errB != nil {
@@ -70,9 +43,17 @@ func GetVersion() (VersionFile, error) {
 }
 
 func SaveVersion(vers, edition, changelog string) error {
-	version.Changelog = changelog
-	version.Edition = edition
-	version.Version = vers
+	if vers != "" {
+		version.Version = vers
+	}
+
+	if edition != "" {
+		version.Edition = edition
+	}
+
+	if changelog != "" {
+		version.Changelog = changelog
+	}
 
 	return utils.WriteJSON(config.VersionFilePath, &version)
 }
@@ -84,7 +65,7 @@ func ExtractVersionFromFolder(folder string) (string, error) {
 	}
 
 	// Regex pattern to find versions like 11_0_0
-	versionRegex := regexp.MustCompile(`-(\d+_\d+_\d+)-enterprise\.tar$`)
+	versionRegex := regexp.MustCompile(`-(\d+_\d+_\d+)\.tar$`)
 
 	for _, entry := range entries {
 		if entry.IsDir() {
@@ -92,7 +73,7 @@ func ExtractVersionFromFolder(folder string) (string, error) {
 		}
 
 		name := entry.Name()
-		if strings.HasPrefix(name, "utmstack-") && strings.HasSuffix(name, "-enterprise.tar") {
+		if strings.HasPrefix(name, "utmstack-") && strings.HasSuffix(name, ".tar") {
 			matches := versionRegex.FindStringSubmatch(name)
 			if len(matches) >= 2 {
 				version := strings.ReplaceAll(matches[1], "_", ".")
@@ -102,24 +83,6 @@ func ExtractVersionFromFolder(folder string) (string, error) {
 	}
 
 	return "", fmt.Errorf("valid version not found in folder")
-}
-
-func IsEnterpriseImage(serviceName string) (bool, error) {
-	var outBuf bytes.Buffer
-	var errBuf bytes.Buffer
-
-	cmd := exec.Command("docker", "service", "inspect", serviceName, "--format", "{{.Spec.TaskTemplate.ContainerSpec.Image}}")
-	cmd.Env = os.Environ()
-	cmd.Stdout = &outBuf
-	cmd.Stderr = &errBuf
-
-	err := cmd.Run()
-	if err != nil {
-		return false, fmt.Errorf("error running docker inspect: %v - %s", err, errBuf.String())
-	}
-
-	image := strings.TrimSpace(outBuf.String())
-	return strings.Contains(image, "-enterprise"), nil
 }
 
 // Version sorting functions
@@ -218,26 +181,4 @@ func SortVersions(versions []map[string]string) []map[string]string {
 	}
 
 	return versions
-}
-
-func fetchLatestVersionFromCM() (*VersionDTO, error) {
-	url := fmt.Sprintf("%s%s", config.GetCMServer(), config.GetLatestVersionEndpoint)
-
-	resp, status, err := utils.DoReq[VersionDTO](
-		url,
-		nil,
-		http.MethodGet,
-		nil,
-		nil,
-	)
-
-	if err != nil {
-		return nil, fmt.Errorf("error fetching latest version: %v", err)
-	}
-
-	if status != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", status)
-	}
-
-	return &resp, nil
 }

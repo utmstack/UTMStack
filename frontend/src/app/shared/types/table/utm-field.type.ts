@@ -10,6 +10,8 @@ export class UtmFieldType {
   filter?: boolean;
   width?: string;
   fields?: UtmFieldType[];
+  sortField?: string;
+  formatValue?: (value: any) => string;
 
   static findFieldByNameInArray(fieldName: string, fields: UtmFieldType[]): UtmFieldType | null {
     for (const field of fields) {

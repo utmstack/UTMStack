@@ -66,7 +66,6 @@ export class TypesComponent implements OnInit, OnDestroy {
             tap((data: { response: HttpResponse<DataType[]> }) => {
               this.types = data.response.body;
               this.totalItems = parseInt(data.response.headers.get('X-Total-Count') || '0', 10);
-              console.log('TOTAL', this.totalItems);
               this.isInitialized = true;
             }),
             map((data: { response: HttpResponse<DataType[]> }) =>  data.response.body)

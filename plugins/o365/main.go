@@ -70,7 +70,7 @@ func GetCloudConfig(env CloudEnvironment) CloudConfig {
 }
 
 func main() {
-	mode := plugins.GetCfg().Env.Mode
+	mode := plugins.GetCfg("plugin_com.utmstack.o365").Env.Mode
 	if mode != "manager" {
 		return
 	}
@@ -78,7 +78,7 @@ func main() {
 	go config.StartConfigurationSystem()
 
 	for i := 0; i < 2*runtime.NumCPU(); i++ {
-		go plugins.SendLogsFromChannel()
+		go plugins.SendLogsFromChannel("com.utmstack.o365")
 	}
 
 	delay := 5 * time.Minute
@@ -123,6 +123,7 @@ func checkConfiguredEnvironments(groups []*config.ModuleGroup) {
 	for authority, env := range uniqueAuthorities {
 		if err := ConnectionChecker(authority); err != nil {
 			_ = catcher.Error("External connection failure detected", err, map[string]any{
+				"process":     "plugin_com.utmstack.o365",
 				"environment": env,
 				"authority":   authority,
 			})
@@ -144,13 +145,13 @@ func pull(startTime time.Time, endTime time.Time, group *config.ModuleGroup) {
 
 	err := agent.GetAuth()
 	if err != nil {
-		_ = catcher.Error("error getting auth", err, nil)
+		_ = catcher.Error("error getting auth", err, map[string]any{"process": "plugin_com.utmstack.o365"})
 		return
 	}
 
 	err = agent.StartSubscriptions()
 	if err != nil {
-		_ = catcher.Error("error starting subscriptions", err, nil)
+		_ = catcher.Error("error starting subscriptions", err, map[string]any{"process": "plugin_com.utmstack.o365"})
 		return
 	}
 
@@ -163,7 +164,7 @@ func pull(startTime time.Time, endTime time.Time, group *config.ModuleGroup) {
 			DataSource: group.GroupName,
 			Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 			Raw:        log,
-		})
+		}, "com.utmstack.o365")
 	}
 }
 
@@ -267,6 +268,7 @@ func (o *OfficeProcessor) GetAuth() error {
 		}
 
 		_ = catcher.Error("error getting authentication, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.o365",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
@@ -278,7 +280,7 @@ func (o *OfficeProcessor) GetAuth() error {
 		}
 	}
 
-	return catcher.Error("all retries failed when getting authentication", err, nil)
+	return catcher.Error("all retries failed when getting authentication", err, map[string]any{"process": "plugin_com.utmstack.o365"})
 }
 
 func (o *OfficeProcessor) StartSubscriptions() error {
@@ -312,6 +314,7 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 			}
 
 			_ = catcher.Error("error starting subscription, retrying", err, map[string]any{
+				"process":      "plugin_com.utmstack.o365",
 				"retry":        retry + 1,
 				"maxRetries":   maxRetries,
 				"subscription": subscription,
@@ -326,6 +329,7 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 
 		if err != nil {
 			return catcher.Error("all retries failed when starting subscription", err, map[string]any{
+				"process":      "plugin_com.utmstack.o365",
 				"subscription": subscription,
 			})
 		}
@@ -364,6 +368,7 @@ func (o *OfficeProcessor) GetContentList(subscription string, startTime time.Tim
 		}
 
 		_ = catcher.Error("error getting content list, retrying", err, map[string]any{
+			"process":      "plugin_com.utmstack.o365",
 			"retry":        retry + 1,
 			"maxRetries":   maxRetries,
 			"subscription": subscription,
@@ -378,6 +383,7 @@ func (o *OfficeProcessor) GetContentList(subscription string, startTime time.Tim
 	}
 
 	return []ContentList{}, catcher.Error("all retries failed when getting content list", err, map[string]any{
+		"process":      "plugin_com.utmstack.o365",
 		"subscription": subscription,
 		"status":       status,
 	})
@@ -404,6 +410,7 @@ func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse,
 		}
 
 		_ = catcher.Error("error getting content details, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.o365",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 			"url":        url,
@@ -418,8 +425,9 @@ func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse,
 	}
 
 	return ContentDetailsResponse{}, catcher.Error("all retries failed when getting content details", err, map[string]any{
-		"url":    url,
-		"status": status,
+		"process": "plugin_com.utmstack.o365",
+		"url":     url,
+		"status":  status,
 	})
 }
 
@@ -428,7 +436,7 @@ func (o *OfficeProcessor) GetLogs(startTime, endTime time.Time) []string {
 	for _, subscription := range o.Subscriptions {
 		contentList, err := o.GetContentList(subscription, startTime, endTime)
 		if err != nil {
-			_ = catcher.Error("error getting content list", err, nil)
+			_ = catcher.Error("error getting content list", err, map[string]any{"process": "plugin_com.utmstack.o365"})
 			continue
 		}
 
@@ -436,14 +444,14 @@ func (o *OfficeProcessor) GetLogs(startTime, endTime time.Time) []string {
 			for _, log := range contentList {
 				details, err := o.GetContentDetails(log.ContentUri)
 				if err != nil {
-					_ = catcher.Error("error getting content details", err, nil)
+					_ = catcher.Error("error getting content details", err, map[string]any{"process": "plugin_com.utmstack.o365"})
 					continue
 				}
 				if len(details) > 0 {
 					for _, detail := range details {
 						rawDetail, err := json.Marshal(detail)
 						if err != nil {
-							_ = catcher.Error("error marshalling content details", err, nil)
+							_ = catcher.Error("error marshalling content details", err, map[string]any{"process": "plugin_com.utmstack.o365"})
 							continue
 						}
 						logs = append(logs, string(rawDetail))

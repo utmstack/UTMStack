@@ -18,7 +18,7 @@ func GetLogs() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		conf := config.GetConfig()
 		if conf == nil {
-			_ = catcher.Error("configuration not found", nil, nil)
+			_ = catcher.Error("configuration not found", nil, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
 			http.Error(w, "Configuration not found", http.StatusInternalServerError)
 			return
 		}
@@ -26,12 +26,12 @@ func GetLogs() http.HandlerFunc {
 		if conf.ModuleActive {
 			if r.Header.Get("authorization") == "" {
 				message := "401 Missing Authorization Header"
-				_ = catcher.Error("missing authorization header", nil, nil)
+				_ = catcher.Error("missing authorization header", nil, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
 				j, _ := json.Marshal(message)
 				w.WriteHeader(http.StatusUnauthorized)
 				_, err := w.Write(j)
 				if err != nil {
-					_ = catcher.Error("cannot write response", err, nil)
+					_ = catcher.Error("cannot write response", err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
 				}
 				return
 			}
@@ -45,12 +45,12 @@ func GetLogs() http.HandlerFunc {
 			}
 			if !isAuth {
 				message := "401 Invalid Authentication Credentials"
-				_ = catcher.Error("invalid authentication credentials", nil, nil)
+				_ = catcher.Error("invalid authentication credentials", nil, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
 				j, _ := json.Marshal(message)
 				w.WriteHeader(http.StatusUnauthorized)
 				_, err := w.Write(j)
 				if err != nil {
-					_ = catcher.Error("cannot write response", err, nil)
+					_ = catcher.Error("cannot write response", err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
 				}
 				return
 			}
@@ -58,7 +58,7 @@ func GetLogs() http.HandlerFunc {
 			var newBody schema.BodyEvents
 			err := json.NewDecoder(r.Body).Decode(&newBody)
 			if err != nil {
-				_ = catcher.Error("error decoding body", err, nil)
+				_ = catcher.Error("error decoding body", err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
 				return
 			}
 
@@ -69,10 +69,10 @@ func GetLogs() http.HandlerFunc {
 			w.WriteHeader(http.StatusOK)
 			_, err = w.Write(j)
 			if err != nil {
-				_ = catcher.Error("cannot write response", err, nil)
+				_ = catcher.Error("cannot write response", err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
 			}
 		} else {
-			_ = catcher.Error("bitdefender module disabled", nil, nil)
+			_ = catcher.Error("bitdefender module disabled", nil, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
 		}
 	}
 }
@@ -87,7 +87,7 @@ func StartServer() {
 
 	loadedCerts, err := loadCerts()
 	if err != nil {
-		_ = catcher.Error("error loading certificates", err, nil)
+		_ = catcher.Error("error loading certificates", err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
 		return
 	}
 
@@ -99,8 +99,6 @@ func StartServer() {
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 			tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
 		},
-
-		PreferServerCipherSuites: true,
 	}
 
 	server := &http.Server{
@@ -114,6 +112,6 @@ func StartServer() {
 
 	err = server.ListenAndServeTLS("", "")
 	if err != nil {
-		_ = catcher.Error("server stopped unexpectedly", err, nil)
+		_ = catcher.Error("server stopped unexpectedly", err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
 	}
 }

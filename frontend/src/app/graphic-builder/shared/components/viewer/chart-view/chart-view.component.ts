@@ -78,8 +78,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     this.data$ = this.refreshService.refresh$
       .pipe(
         takeUntil(this.destroy$),
-        filter((refreshType) =>  refreshType === RefreshType.ALL ||
-          refreshType === this.refreshType),
+        filter((refreshType) =>  {
+          return refreshType === RefreshType.ALL ||
+            refreshType === this.refreshType;
+        }),
         switchMap((value, index) => this.runVisualization()));
 
 
@@ -131,7 +133,11 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
     if (!this.defaultTime) {
       this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
-      this.refreshService.sendRefresh(this.refreshType);
+
+      if (!this.defaultTime) {
+        this.refreshService.sendRefresh(this.refreshType);
+      }
+
     }
   }
 

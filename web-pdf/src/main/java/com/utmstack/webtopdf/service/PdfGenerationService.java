@@ -37,16 +37,37 @@ public class PdfGenerationService {
 
         try {
             webDriver.get(reportUrl);
-            WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(10));
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".report-loading")));
+
+            WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(5));
+
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("app-root")));
+            wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("app-loading")));
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".report-loaded")));
+
+            Thread.sleep(1000);
 
             Pdf print = ((PrintsPage) webDriver).print(printOptions);
-            webDriver.quit();
             return OutputType.BYTES.convertFromBase64Png(print.getContent());
+
+        } catch (TimeoutException e) {
+            log.error("Timeout waiting for report to load: {}", e.getMessage());
+            throw new TimeoutException("The report took too long to load.");
+
+        } catch (NoSuchElementException e) {
+            log.error("Required element not found: {}", e.getMessage());
+            throw new NoSuchElementException("A required element was not found while generating the PDF.");
+
         } catch (Exception e) {
-            log.error("Error generating PDF report: {}", e.getMessage(), e);
-            webDriver.quit();
-            return new byte[0];
+            log.error("Unexpected error generating PDF: {}", e.getMessage(), e);
+            throw new RuntimeException("Unexpected error generating the PDF.");
+
+        } finally {
+            try {
+                webDriver.quit();
+            } catch (Exception ex) {
+                log.warn("Error closing WebDriver: {}", ex.getMessage());
+            }
         }
     }
+
 }
