@@ -9,6 +9,7 @@ export const RULE_CONFIDENTIALITY = 'confidentiality';
 export const RULE_INTEGRITY = 'integrity';
 export const RULE_AVAILABILITY = 'availability';
 export const RULE_ADVERSARY = 'adversary';
+export const RULE_STATUS = 'active';
 
 // FILTERS FIELDS
 
@@ -17,6 +18,7 @@ export const RULE_FILTER_DATA_TYPES = 'RULE_DATA_TYPES';
 export const RULE_FILTER_CATEGORY = 'RULE_CATEGORY';
 export const RULE_FILTER_TECHNIQUE = 'RULE_TECHNIQUE';
 export const RULE_FILTER_ADVERSARY = 'RULE_ADVERSARY';
+export const RULE_FILTER_STATUS = 'RULE_STATUS';
 export const RULE_FILTER_REFERENCES = 'references';
 
 
@@ -98,7 +100,20 @@ export const RULE_FIELDS: UtmFieldType[] = [
     },
 ];
 
-export const FILTER_RULE_FIELDS = RULE_FIELDS.filter(f => f.filter);
+export const RULE_FILTERS_FIELDS = [
+  {
+    label: 'Status',
+    field: RULE_STATUS,
+    type: ElasticDataTypesEnum.BOOLEAN,
+    visible: true,
+    filter: true,
+    width: '5%',
+    sortField: 'ruleActive',
+    filterField: RULE_FILTER_STATUS,
+    formatValue: (value: boolean) => value ? 'Active' : 'Inactive'
+  },
+  ... RULE_FIELDS.filter(f => f.filter)
+]
 
 export interface RuleFilterType {
     ruleName?: string;
