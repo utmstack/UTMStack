@@ -1,0 +1,53 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="form-group">
+    <label>Name</label>
+    <input formControlName="name" class="form-control">
+  </div>
+
+  <div class="form-group">
+    <label>Description</label>
+    <textarea formControlName="queryDescription" class="form-control"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>SQL Query</label>
+    <app-code-editor
+      [showFullEditor]="false">
+    </app-code-editor>
+    <textarea formControlName="sqlQuery" class="form-control"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Evaluation Rule</label>
+    <ng-select
+      formControlName="evaluationRule"
+      [items]="['NO_HITS_ALLOWED','MIN_HITS_REQUIRED','THRESHOLD_MAX','MATCH_FIELD_VALUE']">
+    </ng-select>
+  </div>
+
+  <div class="form-group">
+    <label>Index Pattern</label>
+    <ng-select
+      formControlName="indexPatternId"
+      (change)="onIndexPatternChange($event)"
+      [closeOnSelect]="true"
+      [clearable]="false"
+      [items]="patterns"
+      [loadingText]="'Loading sources....'"
+      [markFirst]="true"
+      [loading]="!patterns"
+      bindLabel="pattern"
+      bindValue="id"
+      style="min-width: 200px">
+    </ng-select>
+  </div>
+
+  <div class="d-flex justify-content-end">
+    <button *ngIf="query" type="button" class="btn btn-secondary mr-2" (click)="cancelEdit()">
+      Cancel
+    </button>
+    <button type="submit" class="btn utm-button utm-button-primary">
+      {{ query ? 'Save changes' : 'Add query' }}
+    </button>
+  </div>
+</form>
