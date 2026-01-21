@@ -148,7 +148,7 @@ public class UtmCorrelationRules implements Serializable {
     private List<String> groupBy;
 
     public List<String> getGroupBy() throws UtmSerializationException {
-        if (StringUtils.hasText(deduplicateByDef))
+        if (StringUtils.hasText(ruleGroupByDef))
             groupBy = UtilSerializer.jsonDeserializeList(String.class, ruleGroupByDef);
         return groupBy == null ? new ArrayList<>() : groupBy;
     }
