@@ -20,6 +20,15 @@ import {
   ComplianceTimeWindowsComponent
 } from '../compliance-reports-view/components/compliance-time-window/compliance-time-windows.component';
 import {ReportApplyNoteComponent} from './components/report-apply-note/report-apply-note.component';
+import {
+  UtmComplianceQueryFormComponent
+} from './components/utm-compliance-control-config-create/query-config/utm-compliance-query-form.component';
+import {
+  UtmComplianceQueryListComponent
+} from './components/utm-compliance-control-config-create/query-config/utm-compliance-query-list.component';
+import {
+  UtmComplianceControlConfigCreateComponent
+} from './components/utm-compliance-control-config-create/utm-compliance-control-config-create.component';
 import {UtmComplianceCreateComponent} from './components/utm-compliance-create/utm-compliance-create.component';
 import {
   UtmComplianceScheduleCreateComponent
@@ -35,8 +44,6 @@ import {UtmCpStandardSectionCreateComponent} from './components/utm-cp-standard-
 import {UtmCpStandardSelectComponent} from './components/utm-cp-standard-select/utm-cp-standard-select.component';
 import {UtmReportInfoViewComponent} from './components/utm-report-info-view/utm-report-info-view.component';
 import {UtmSaveAsComplianceComponent} from './components/utm-save-as-compliance/utm-save-as-compliance.component';
-
-
 @NgModule({
   declarations: [
     UtmSaveAsComplianceComponent,
@@ -55,7 +62,10 @@ import {UtmSaveAsComplianceComponent} from './components/utm-save-as-compliance/
     ComplianceReportsViewComponent,
     ComplianceReportDetailComponent,
     ComplianceTimeWindowsComponent,
-    CompliancePrintViewComponent
+    CompliancePrintViewComponent,
+    UtmComplianceControlConfigCreateComponent,
+    UtmComplianceQueryFormComponent,
+    UtmComplianceQueryListComponent
   ],
   imports: [
     CommonModule,
@@ -76,7 +86,8 @@ import {UtmSaveAsComplianceComponent} from './components/utm-save-as-compliance/
     UtmCpStandardSectionCreateComponent,
     UtmComplianceCreateComponent,
     UtmComplianceScheduleCreateComponent,
-    UtmComplianceScheduleDeleteComponent
+    UtmComplianceScheduleDeleteComponent,
+    UtmComplianceControlConfigCreateComponent
   ],
     exports: [
         UtmSaveAsComplianceComponent,

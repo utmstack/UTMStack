@@ -14,7 +14,7 @@ const routes: Routes = [
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
   },
   {
-    path: 'log-analyzer-queries',
+    path: 'log-analyzer-query-config',
     component: LogAnalyzerQueryListComponent,
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}

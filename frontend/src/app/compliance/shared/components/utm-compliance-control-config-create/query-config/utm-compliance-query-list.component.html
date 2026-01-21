@@ -1,0 +1,44 @@
+<div class="query-container">
+  <app-utm-compliance-query-form
+    *ngIf="editingIndex === null"
+    (save)="add.emit($event)">
+  </app-utm-compliance-query-form>
+
+  <!-- ⭐ Formulario de edición -->
+  <app-utm-compliance-query-form
+    *ngIf="editingIndex !== null"
+    [query]="queries[editingIndex]"
+    (save)="finishEdit($event)"
+    (cancel)="cancelEdit()">
+  </app-utm-compliance-query-form>
+
+  <!-- ⭐ Listado abajo -->
+  <table class="table mt-4">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th>SQL</th>
+      <th>Rule</th>
+      <th>Index Pattern</th>
+      <th class="text-right">Actions</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr *ngFor="let q of queries; let i = index">
+      <td>{{ q.name }}</td>
+      <td>{{ q.queryDescription }}</td>
+      <td>{{ q.sqlQuery }}</td>
+      <td>{{ q.evaluationRule }}</td>
+      <td>{{ q.indexPatternId }}</td>
+
+      <td class="text-right">
+        <button class="btn btn-sm btn-primary mr-2" (click)="startEdit(i)">Edit</button>
+        <button class="btn btn-sm btn-danger" (click)="remove(i)">Delete</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+</div>

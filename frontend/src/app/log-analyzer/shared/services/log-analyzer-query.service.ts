@@ -10,7 +10,7 @@ import {LogAnalyzerQueryType} from '../type/log-analyzer-query.type';
 })
 export class LogAnalyzerQueryService {
 
-  public resourceUrl = SERVER_API_URL + 'api/log-analyzer/queries';
+  public resourceUrl = SERVER_API_URL + 'api/log-analyzer/query-config';
 
   constructor(private http: HttpClient) {
   }

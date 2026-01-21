@@ -4,6 +4,10 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ADMIN_ROLE} from '../../../shared/constants/global.constant';
 import {ActionInitParamsEnum, ActionInitParamsValueEnum} from '../../../shared/enums/action-init-params.enum';
 import {CpStandardBehavior} from '../../shared/behavior/cp-standard.behavior';
+import {
+  UtmComplianceControlConfigCreateComponent
+} from '../../shared/components/utm-compliance-control-config-create/utm-compliance-control-config-create.component';
+
 import {UtmComplianceCreateComponent} from '../../shared/components/utm-compliance-create/utm-compliance-create.component';
 import {ComplianceStandardType} from '../../shared/type/compliance-standard.type';
 import {UtmCpExportComponent} from '../utm-cp-export/utm-cp-export.component';
@@ -48,6 +52,7 @@ export class CpStandardManagementComponent implements OnInit {
   }
 
   newCompliance() {
-    this.modalService.open(UtmComplianceCreateComponent, {centered: true});
+    //this.modalService.open(UtmComplianceCreateComponent, {centered: true});
+    this.modalService.open(UtmComplianceControlConfigCreateComponent, {centered: true, size: 'lg'});
   }
 }
