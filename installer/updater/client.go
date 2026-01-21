@@ -5,8 +5,10 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -53,6 +55,9 @@ func GetUpdaterClient() *UpdaterClient {
 		utils.ReadYAML(config.InstanceConfigPath, &cnf)
 		updaterClient.Config = cnf
 
+		go PollAndUpdateAdminEmail(cnf)
+		go StartHeartbeat(cnf)
+
 		licenseBytes, err := os.ReadFile(config.LicenseFilePath)
 		if err != nil {
 			config.Logger().ErrorF("error reading license file: %v", err)
@@ -70,7 +75,9 @@ func (c *UpdaterClient) UpdateProcess() {
 	defer ticker.Stop()
 
 	for range ticker.C {
-		if !config.Updating && IsInMaintenanceWindow() {
+		inWindow := IsInMaintenanceWindow()
+
+		if inWindow {
 			err := c.CheckUpdate()
 			if err != nil {
 				config.Logger().ErrorF("error checking update: %v", err)
@@ -80,9 +87,10 @@ func (c *UpdaterClient) UpdateProcess() {
 }
 
 func (c *UpdaterClient) CheckUpdate() error {
-	updates := make([]map[string]string, 0)
+	var update *PendingUpdate
 
 	url := fmt.Sprintf("%s%s", c.Config.Server, config.GetUpdatesInfoEndpoint)
+
 	if config.ConnectedToInternet {
 		resp, status, err := utils.DoReq[[]UpdateDTO](
 			url,
@@ -94,97 +102,76 @@ func (c *UpdaterClient) CheckUpdate() error {
 		if err != nil || status != http.StatusOK {
 			return fmt.Errorf("error getting updates from %s: status: %d, error: %v", url, status, err)
 		}
-		for _, update := range resp {
-			newUpdate := make(map[string]string)
-			newUpdate["version"] = update.Version.Version
-			newUpdate["edition"] = update.Instance.Edition
-			newUpdate["changelog"] = update.Version.Changelog
-			newUpdate["id"] = update.ID
-			updates = append(updates, newUpdate)
+
+		if len(resp) > 0 {
+			// CM returns only one update at a time (the next one to apply)
+			u := resp[0]
+			update = &PendingUpdate{
+				ID:          u.ID,
+				Version:     u.Version.Version,
+				Edition:     u.Instance.Edition,
+				Changelog:   u.Version.Changelog,
+				UpdateLocks: u.UpdateLocks,
+			}
 		}
 	} else {
 		v, err := ExtractVersionFromFolder(config.ImagesPath)
 		if err != nil {
 			return fmt.Errorf("error extracting version from folder: %v", err)
 		}
-		newUpdate := make(map[string]string)
-		newUpdate["version"] = v
-		newUpdate["edition"] = "enterprise"
-		newUpdate["changelog"] = "No changelog available for offline version"
-		newUpdate["id"] = "offline"
-		updates = append(updates, newUpdate)
-	}
-
-	sortedUpdates := SortVersions(updates)
-
-	for _, update := range sortedUpdates {
-		// Apply all updates from the server regardless of current version
-		// This allows for rollbacks, pre-release type changes (alpha→dev), and ensures all updates are applied in order
-		// The server is responsible for only sending pending updates (marked as sent after application)
-		err := c.UpdateToNewVersion(update["version"], update["edition"], update["changelog"])
-		if err != nil {
-			return fmt.Errorf("error updating to new version: %v", err)
-		}
-		if update["id"] != "offline" {
-			err = c.MarkUpdateSent(update["id"])
-			if err != nil {
-				return fmt.Errorf("error marking update as sent: %v", err)
-			}
+		update = &PendingUpdate{
+			ID:        "offline",
+			Version:   v,
+			Edition:   "enterprise",
+			Changelog: "No changelog available for offline version",
 		}
 	}
 
-	return nil
-}
+	if update == nil {
+		return nil
+	}
 
-func (c *UpdaterClient) UpdateToNewVersion(version, edition, changelog string) error {
-	config.Logger().Info("Updating UTMStack to version %s-%s...", version, edition)
-	config.Updating = true
+	config.Logger().Info("Update available: %s-%s", update.Version, update.Edition)
 
-	// Update installer binary first (only in prod branch)
+	// Save pending update
+	if err := SavePendingUpdate(*update); err != nil {
+		return fmt.Errorf("error saving pending update: %v", err)
+	}
+
+	// Remove locks if provided
+	if update.UpdateLocks != "" {
+		stack := docker.GetStackConfig()
+		if err := utils.RemoveLocks(update.UpdateLocks, stack.LocksDir); err != nil {
+			config.Logger().ErrorF("error removing locks: %v", err)
+		}
+		config.Logger().Info("Removed locks: %s", update.UpdateLocks)
+	}
+
+	// Download the installer for this version
 	cnf := config.GetConfig()
-	if cnf.Branch == "prod" || cnf.Branch == "" {
-		if err := c.UpdateInstaller(version); err != nil {
-			config.Logger().ErrorF("error updating installer: %v", err)
+	if cnf.Branch == "prod" {
+		if err := c.UpdateInstaller(update.Version); err != nil {
+			return fmt.Errorf("error updating installer: %v", err)
 		}
 	}
 
-	err := docker.StackUP(version + "-" + edition)
-	if err != nil {
-		return fmt.Errorf("error updating UTMStack: %v", err)
-	}
-
-	err = SaveVersion(version, edition, changelog)
-	if err != nil {
+	// Save the version
+	if err := SaveVersion(update.Version, update.Edition, update.Changelog); err != nil {
 		return fmt.Errorf("error saving new version: %v", err)
 	}
 
-	config.Logger().Info("UTMStack updated to version %s-%s", version, edition)
-	config.Updating = false
+	config.Logger().Info("Update prepared, restarting service to apply changes...")
 
-	time.Sleep(3 * time.Minute)
-
-	err = utils.RunCmd("docker", "image", "prune", "-a", "-f")
-	if err != nil {
-		config.Logger().ErrorF("error cleaning up old Docker images after update: %v", err)
-	}
-
-	// Restart service to load new installer binary
-	if cnf.Branch == "prod" || cnf.Branch == "" {
-		go func() {
-			time.Sleep(5 * time.Second)
-			utils.RestartService("UTMStackComponentsUpdater")
-		}()
-	}
+	// Restart service - Apply will run on startup and mark as sent after success
+	go func() {
+		time.Sleep(5 * time.Second)
+		utils.RestartService("UTMStackComponentsUpdater")
+	}()
 
 	return nil
 }
 
 func (c *UpdaterClient) UpdateInstaller(version string) error {
-	execPath, err := os.Executable()
-	if err != nil {
-		return fmt.Errorf("error getting executable path: %v", err)
-	}
-
 	// Download new installer from GitHub
 	url := fmt.Sprintf(config.GitHubReleasesURL, version)
 	resp, err := http.Get(url)
@@ -218,8 +205,8 @@ func (c *UpdaterClient) UpdateInstaller(version string) error {
 		return fmt.Errorf("error making installer executable: %v", err)
 	}
 
-	// Replace current binary
-	if err := os.Rename(tmpPath, execPath); err != nil {
+	// Replace binary at standard location
+	if err := os.Rename(tmpPath, config.InstallerBinPath); err != nil {
 		os.Remove(tmpPath)
 		return fmt.Errorf("error replacing installer binary: %v", err)
 	}
@@ -246,7 +233,7 @@ func (c *UpdaterClient) UploadLogs(ctx context.Context, path string) error {
 	url := fmt.Sprintf("%s%s", c.Config.Server, config.LogCollectorEndpoint)
 
 	buf := &bytes.Buffer{}
-	writer := io.MultiWriter(buf)
+	writer := multipart.NewWriter(buf)
 
 	zipFile, err := os.Open(path)
 	if err != nil {
@@ -254,7 +241,16 @@ func (c *UpdaterClient) UploadLogs(ctx context.Context, path string) error {
 	}
 	defer zipFile.Close()
 
-	if _, err = io.Copy(writer, zipFile); err != nil {
+	part, err := writer.CreateFormFile("file", filepath.Base(path))
+	if err != nil {
+		return err
+	}
+
+	if _, err = io.Copy(part, zipFile); err != nil {
+		return err
+	}
+
+	if err = writer.Close(); err != nil {
 		return err
 	}
 
@@ -262,7 +258,7 @@ func (c *UpdaterClient) UploadLogs(ctx context.Context, path string) error {
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Content-Type", "application/zip")
+	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("id", c.Config.InstanceID)
 	req.Header.Set("key", c.Config.InstanceKey)
 

@@ -21,20 +21,17 @@ import {UtmInstanceInfoComponent} from '../utm-instance-info/utm-instance-info.c
   templateUrl: './welcome-to-utmstack.component.html',
   styleUrls: ['./welcome-to-utmstack.component.scss']
 })
-export class WelcomeToUtmstackComponent implements OnInit, OnDestroy {
+export class WelcomeToUtmstackComponent implements OnInit {
   private unsubscriber: Subject<void> = new Subject<void>();
   accountSetup = true;
   onlineDoc = ONLINE_DOCUMENTATION_BASE;
   inSass: boolean;
-  isIncompleteConfig = false;
 
   constructor(private router: Router,
               private accountService: AccountService,
               private utmGettingStartedService: GettingStartedService,
               private gettingStartedBehavior: GettingStartedBehavior,
-              private modalService: NgbModal,
-              private utmConfigParamsService: UtmConfigParamsService,
-              private toastService: UtmToastService) {
+              private modalService: NgbModal) {
 
   }
 
@@ -47,40 +44,10 @@ export class WelcomeToUtmstackComponent implements OnInit, OnDestroy {
     ).subscribe((_) => {
       history.pushState(null, '');
     });
-
-    this.utmConfigParamsService.query({
-      page: 0,
-      size: 10000,
-      'sectionId.equals': ApplicationConfigSectionEnum.INSTANCE_REGISTRATION,
-      sort: 'id,asc'
-    }).pipe(
-      map(res =>
-        res.body.filter(c => c.confParamShort !== 'utmstack.instance.data'
-        && c.confParamShort !== 'utmstack.instance.auth')),
-      tap(config => this.isIncompleteConfig = config.some(c => c.confParamValue === '')),
-      catchError(err => {
-        this.toastService.showError('Error',
-          'Error occurred while fetching instance registration configuration');
-        return of([]);
-      })
-    )
-      .subscribe((response) => {
-        if (this.isIncompleteConfig) {
-          this.loadInstanceForm(response || []);
-        }
-    });
   }
 
   exit() {
     this.setUpAdmin(false);
-  }
-
-  loadInstanceForm(formConfigs: SectionConfigParamType[]) {
-      const modal = this.modalService.open(UtmInstanceInfoComponent, {centered: true});
-      modal.componentInstance.formConfigs = formConfigs;
-
-      modal.result.then((result) => {
-      });
   }
 
   setUpAdmin(gettingStarted: boolean) {
@@ -127,14 +94,5 @@ export class WelcomeToUtmstackComponent implements OnInit, OnDestroy {
         ApplicationConfigSectionEnum.TFA,
         ApplicationConfigSectionEnum.DATE_SETTINGS];
     }
-  }
-
-  isRegister(){
-
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscriber.next();
-    this.unsubscriber.complete();
   }
 }

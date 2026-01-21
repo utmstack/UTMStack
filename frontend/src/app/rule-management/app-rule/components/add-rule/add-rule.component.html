@@ -221,8 +221,11 @@
 
       <div [hidden]="currentStep != RULE_FORM.STEP2">
         <div class="row mb-3">
-          <div class="col-12">
-            <app-deduplicate-fields [rule]="rule" [formGroup]="ruleForm"></app-deduplicate-fields>
+          <div class="col-6">
+            <app-fields-selector [controlName]="'deduplicateBy'" [rule]="rule" [formGroup]="ruleForm"></app-fields-selector>
+          </div>
+          <div class="col-6">
+            <app-fields-selector [controlName]="'groupBy'" [rule]="rule" [formGroup]="ruleForm"></app-fields-selector>
           </div>
         </div>
         <div class="w-100 alert alert-info alert-styled-right mb-3">
@@ -282,9 +285,9 @@
       Next
       <i class="icon-arrow-right32"></i>&nbsp;
     </button>
-    <button *ngIf="currentStep == RULE_FORM.STEP2" (click)="saveRule()" [disabled]="!isRuleFormValid"
+    <button *ngIf="currentStep == RULE_FORM.STEP2" (click)="saveRule()" [disabled]="!isRuleFormValid || isSubmitting"
             class="btn utm-button utm-button-primary">
-      <i [ngClass]="loading ? 'icon-spinner spinner' : 'icon-grid-alt top-0'"></i>&nbsp; Save
+      <i [ngClass]="isSubmitting ? 'icon-spinner spinner' : 'icon-grid-alt top-0'"></i>&nbsp; Save
     </button>
   </div>
 </div>

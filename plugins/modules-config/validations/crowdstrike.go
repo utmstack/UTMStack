@@ -19,13 +19,13 @@ func ValidateCrowdstrikeConfig(config *config.ModuleGroup) error {
 
 	for _, cnf := range config.ModuleGroupConfigurations {
 		switch cnf.ConfKey {
-		case "client_id":
+		case "crowdstrike_client_id":
 			clientID = cnf.ConfValue
-		case "client_secret":
+		case "crowdstrike_client_secret":
 			clientSecret = cnf.ConfValue
-		case "cloud":
+		case "crowdstrike_cloud_region_url":
 			cloud = cnf.ConfValue
-		case "app_name":
+		case "crowdstrike_app_name":
 			appName = cnf.ConfValue
 		}
 	}

@@ -2,7 +2,7 @@ package com.park.utmstack.service.correlation.config;
 
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.correlation.config.UtmDataTypes;
-import com.park.utmstack.repository.UtmDataInputStatusRepository;
+import com.park.utmstack.repository.datainput_ingestion.UtmDataInputStatusRepository;
 import com.park.utmstack.repository.correlation.config.UtmDataTypesRepository;
 import com.park.utmstack.repository.network_scan.UtmNetworkScanRepository;
 import com.park.utmstack.service.UtmDataInputStatusService;
@@ -71,7 +71,8 @@ public class UtmDataTypesService {
      *
      * @param dataTypes The datatype to add
      * @throws BadRequestException Bad Request if the datatype has an id or generic if some error occurs when inserting in DB
-     * */
+     *
+     */
     public void addDataType(UtmDataTypes dataTypes) throws BadRequestException {
         final String ctx = CLASSNAME + ".addDataType";
         if (dataTypes.getId() != null) {
@@ -90,8 +91,9 @@ public class UtmDataTypesService {
      *
      * @param dataTypes The datatype to update
      * @throws BadRequestException Bad Request if the datatype don't have an id, or is a system datatype, or isn't present in database,
-     *         or generic error if some error occurs when updating in DB
-     * */
+     *                             or generic error if some error occurs when updating in DB
+     *
+     */
     public void updateDataType(UtmDataTypes dataTypes) throws BadRequestException {
         final String ctx = CLASSNAME + ".updateDataType";
         if (dataTypes.getId() == null) {
@@ -101,7 +103,7 @@ public class UtmDataTypesService {
         if (find.isEmpty()) {
             throw new BadRequestException(ctx + ": The datatype you're trying to update is not present in database.");
         }
-        if(find.get().getSystemOwner()) {
+        if (find.get().getSystemOwner()) {
             throw new BadRequestException(ctx + ": System's datatype can't be updated.");
         }
         try {
@@ -117,13 +119,13 @@ public class UtmDataTypesService {
      * @param id the id of the entity
      * @throws BadRequestException Bad Request if the datatype is not present in database or is a system datatype
      */
-    public void delete(Long id) throws BadRequestException{
+    public void delete(Long id) throws BadRequestException {
         final String ctx = CLASSNAME + ".delete";
         Optional<UtmDataTypes> find = utmDataTypesRepository.findById(id);
         if (find.isEmpty()) {
             throw new BadRequestException(ctx + ": The datatype you're trying to delete is not present in database.");
         }
-        if(find.get().getSystemOwner()) {
+        if (find.get().getSystemOwner()) {
             throw new BadRequestException(ctx + ": System's datatype can't be removed.");
         }
         try {
@@ -157,7 +159,7 @@ public class UtmDataTypesService {
     public Page<UtmDataTypes> findAll(String search, Pageable p) {
         final String ctx = CLASSNAME + ".findAll";
         try {
-            return utmDataTypesRepository.searchByFilters(search != null ? "%"+search+"%" : null, p);
+            return utmDataTypesRepository.searchByFilters(search != null ? "%" + search + "%" : null, p);
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
@@ -171,15 +173,12 @@ public class UtmDataTypesService {
     public void updateList(List<UtmDataTypes> dataTypes) {
         final String ctx = CLASSNAME + ".updateList";
         try {
-            if (CollectionUtils.isEmpty(dataTypes))
-                return;
-            dataTypes = dataTypes.stream().filter(cfg -> cfg.getId() != null)
-                    .collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(dataTypes))
-                return;
+            if (CollectionUtils.isEmpty(dataTypes)) return;
+            dataTypes = dataTypes.stream().filter(cfg -> cfg.getId() != null).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(dataTypes)) return;
 
             // Search the configs and only change the included field
-            dataTypes = dataTypes.stream().map(c->{
+            dataTypes = dataTypes.stream().map(c -> {
                 Optional<UtmDataTypes> find = utmDataTypesRepository.findById(c.getId());
                 if (find.isPresent()) {
                     UtmDataTypes tmp = find.get();
@@ -191,10 +190,9 @@ public class UtmDataTypesService {
             utmDataTypesRepository.saveAll(dataTypes);
 
             // Get only excluded datatypes
-            dataTypes = dataTypes.stream().filter(cfg-> !cfg.getIncluded()).collect(Collectors.toList());
+            dataTypes = dataTypes.stream().filter(cfg -> !cfg.getIncluded()).collect(Collectors.toList());
 
-            networkScanRepository.deleteAllAssetsByDataType(dataTypes.stream().map(UtmDataTypes::getDataType)
-                    .collect(Collectors.toList()));
+            networkScanRepository.deleteAllAssetsByDataType(dataTypes.stream().map(UtmDataTypes::getDataType).collect(Collectors.toList()));
 
             dataInputStatusService.synchronizeSourcesToAssets();
         } catch (Exception e) {
@@ -212,31 +210,35 @@ public class UtmDataTypesService {
             synchronizeDataTypes();
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
-            log.error(msg);
+            log.error("{} An error occurred during datatypes synchronization: {}", ctx, e.getMessage());
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
         }
     }
 
+    @Transactional
     public void synchronizeDataTypes() {
         final String ctx = CLASSNAME + ".synchronizeDataTypes";
-        try {
-            // Getting new dataTypes
-            List<String> newDataSources = dataInputStatusRepository.findDataSourcesToConfigure(DataSourceConstants.IBM_AS400_TYPE);
+        List<String> newDataSources = dataInputStatusRepository
+                .findDataSourcesToConfigure(DataSourceConstants.IBM_AS400_TYPE);
 
-            // Getting all orphan dataTypes
-            List<UtmDataTypes> orphanConfigurations = utmDataTypesRepository.findOrphanDataSourceConfigurations();
+        List<UtmDataTypes> orphanConfigurations = utmDataTypesRepository
+                .findOrphanDataSourceConfigurations();
 
-            // Adding new dataTypes
-            if (!CollectionUtils.isEmpty(newDataSources))
-                utmDataTypesRepository.saveAll(newDataSources.stream().map(UtmDataTypes::new)
-                        .collect(Collectors.toList()));
-
-            // Setting included field to false, on orphan dataTypes
-            if (!CollectionUtils.isEmpty(orphanConfigurations))
-                updateList(orphanConfigurations.stream().peek(dt-> dt.setIncluded(false))
-                        .collect(Collectors.toList()));
-        } catch (Exception e) {
-            throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
+        if (!newDataSources.isEmpty()) {
+            List<UtmDataTypes> toInsert = new ArrayList<>(newDataSources.size());
+            for (String ds : newDataSources) {
+                toInsert.add(new UtmDataTypes(ds));
+            }
+            utmDataTypesRepository.saveAll(toInsert);
         }
+
+        if (!orphanConfigurations.isEmpty()) {
+            for (UtmDataTypes dt : orphanConfigurations) {
+                dt.setIncluded(false);
+            }
+            utmDataTypesRepository.saveAll(orphanConfigurations);
+        }
+
     }
+
 }

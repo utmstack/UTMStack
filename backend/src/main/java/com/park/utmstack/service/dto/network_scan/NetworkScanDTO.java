@@ -1,13 +1,13 @@
 package com.park.utmstack.service.dto.network_scan;
 
-import com.park.utmstack.domain.UtmDataInputStatus;
+import com.park.utmstack.domain.datainput_ingestion.UtmDataInputStatus;
 import com.park.utmstack.domain.network_scan.UtmAssetGroup;
 import com.park.utmstack.domain.network_scan.UtmAssetTypes;
 import com.park.utmstack.domain.network_scan.UtmNetworkScan;
 import com.park.utmstack.domain.network_scan.UtmPorts;
 import com.park.utmstack.domain.network_scan.enums.AssetRegisteredMode;
 import com.park.utmstack.domain.network_scan.enums.AssetStatus;
-import com.park.utmstack.repository.UtmDataInputStatusRepository;
+import com.park.utmstack.repository.datainput_ingestion.UtmDataInputStatusRepository;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.util.CollectionUtils;
@@ -15,7 +15,6 @@ import org.springframework.util.CollectionUtils;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Getter
 @Setter

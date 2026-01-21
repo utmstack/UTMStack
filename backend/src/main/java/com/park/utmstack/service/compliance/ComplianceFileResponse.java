@@ -1,18 +1,17 @@
 package com.park.utmstack.service.compliance;
 
+import lombok.Builder;
+import lombok.Data;
+
+@Data
+@Builder
 public class ComplianceFileResponse {
-    byte [] pdfBytes;
+    // Success fields
+    private byte[] pdfBytes;
 
-    public ComplianceFileResponse(byte[] pdfBytes) {
-        this.pdfBytes = pdfBytes;
-    }
-    public ComplianceFileResponse(){}
-
-    public byte[] getPdfBytes() {
-        return pdfBytes;
-    }
-
-    public void setPdfBytes(byte[] pdfBytes) {
-        this.pdfBytes = pdfBytes;
-    }
+    // Error fields
+    private boolean error;
+    private String message;
+    private String details;
 }
+

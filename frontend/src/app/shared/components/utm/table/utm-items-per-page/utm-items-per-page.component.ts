@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ITEMS_PER_PAGE} from '../../../../constants/pagination.constants';
 
 @Component({
@@ -9,7 +9,7 @@ import {ITEMS_PER_PAGE} from '../../../../constants/pagination.constants';
 export class UtmItemsPerPageComponent implements OnInit {
   itemsPerPage: number[] = [10, 15, 25, 35, 50, 75, 100];
   @Output() itemsInPage = new EventEmitter<number>();
-  itemsAmount = ITEMS_PER_PAGE;
+  @Input() itemsAmount = ITEMS_PER_PAGE;
 
   constructor() {
   }

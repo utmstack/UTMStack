@@ -9,47 +9,88 @@
       <li>
         <p class="step-guide">
           <span class="step_number">1</span>
-          Go to IAM configuration panel and click on "Users".
+          Open the AWS console, navigate to the IAM dashboard and select <strong>Users</strong>.
         </p>
-        <img alt="IAM configuration" class="step-img"
-             src="../../../../assets/img/guides/aws/beantalk/iam_config.png">
+        <img alt="IAM dashboard - Users" class="step-img"
+             src="../../../../assets/img/guides/aws/iam/1.png">
       </li>
+
       <li>
         <p class="step-guide">
           <span class="step_number">2</span>
-          Add a new user filling the name and marking the access type "Programmatic access". Then click on Next.
+          Click <strong>Add user</strong>, enter a descriptive user name, and proceed to the next step.
         </p>
-        <img alt="Programmatic access" class="step-img"
-             src="../../../../assets/img/guides/aws/beantalk/programmatic_access.png">
+        <img alt="Add new IAM user" class="step-img"
+             src="../../../../assets/img/guides/aws/iam/2.png">
       </li>
+
       <li>
         <p class="step-guide">
           <span class="step_number">3</span>
-          Click on Attach existing policies directly. Find CloudWatchReadOnlyAccess and mark it. Then click on next.
+          Under <strong>Permissions</strong>, attach the required policy. For read-only CloudWatch access select <strong>CloudWatchLogsReadOnlyAccess</strong>.
         </p>
-        <img alt="CloudWatchReadOnlyAccess" class="step-img"
-             src="../../../../assets/img/guides/aws/beantalk/policies_directly.png">
+        <img alt="Attach CloudWatchLogsReadOnlyAccess policy" class="step-img"
+             src="../../../../assets/img/guides/aws/iam/4.png">
       </li>
+
       <li>
         <p class="step-guide">
           <span class="step_number">4</span>
-          In the tags page click on next.
+          Review the configuration and click <strong>Create user</strong> to provision the account.
         </p>
-        <img alt="Tags" class="step-img"
-             src="../../../../assets/img/guides/aws/beantalk/tags.png">
+        <img alt="Create IAM user confirmation" class="step-img"
+             src="../../../../assets/img/guides/aws/iam/5.png">
       </li>
+
       <li>
         <p class="step-guide">
           <span class="step_number">5</span>
-          Create user and then download the csv file with the access and secret keys.
+          Open the newly created user by clicking its name to view details and manage credentials.
         </p>
-        <img alt="Tags" class="step-img"
-             src="../../../../assets/img/guides/aws/beantalk/user_secret.png">
+        <img alt="Select created IAM user" class="step-img"
+             src="../../../../assets/img/guides/aws/iam/6.png">
       </li>
+
       <li>
         <p class="step-guide">
           <span class="step_number">6</span>
-          Fill the following inputs with the info obtained in previous steps.
+          Go to the <strong>Security credentials</strong> tab to create programmatic access keys.
+        </p>
+        <img alt="Security credentials tab" class="step-img"
+             src="../../../../assets/img/guides/aws/iam/8.png">
+      </li>
+
+      <li>
+        <p class="step-guide">
+          <span class="step_number">7</span>
+          Click <strong>Create access key</strong> and choose the option for an application running outside AWS (programmatic access).
+        </p>
+        <img alt="Create access key option" class="step-img"
+             src="../../../../assets/img/guides/aws/iam/9.png">
+      </li>
+
+      <li>
+        <p class="step-guide">
+          <span class="step_number">8</span>
+          Confirm creation of the access key. AWS will generate an Access Key ID and Secret Access Key.
+        </p>
+        <img alt="Access key creation confirmation" class="step-img"
+             src="../../../../assets/img/guides/aws/iam/10.png">
+      </li>
+
+      <li>
+        <p class="step-guide">
+          <span class="step_number">9</span>
+          Download the credentials or copy the Access Key ID and Secret Access Key to a secure location. Treat the secret as sensitive.
+        </p>
+        <img alt="Download access key" class="step-img"
+             src="../../../../assets/img/guides/aws/iam/11.png">
+      </li>
+
+      <li>
+        <p class="step-guide">
+          <span class="step_number">10</span>
+          Enter the obtained credentials into the integration form below and validate the configuration.
         </p>
         <div class="row mt-3">
           <div class="col-lg-12 col-md-12 col-sm-12">
@@ -60,87 +101,129 @@
         </div>
       </li>
     </ol>
+
     <div class="card-header pl-0 d-flex justify-content-between align-items-center">
       <h4 class="card-title mb-0 text-primary">
-        Configuring AWS Cloudwatch
+        Configuring AWS CloudWatch
       </h4>
     </div>
+
     <ol class="setup_list">
       <li>
         <p class="step-guide">
-          <span class="step_number">7</span>
-          In the CloudTrail panel, select “Create trail”.
-        </p>
-        <img alt="Welcome page" class="step-img"
-             src="../../../../assets/img/guides/aws/cloudtrail/welcome-page.png">
-      </li>
-      <li>
-        <p class="step-guide">
-          <span class="step_number">8</span>
-          Fill in the "Trail name" field.
-        </p>
-        <img alt="Trial name" class="step-img"
-             src="../../../../assets/img/guides/aws/cloudtrail/trail-name.png">
-      </li>
-      <li>
-        <p class="step-guide">
-          <span class="step_number">9</span>
-          Mark "Select all S3 buckets in your account".
-        </p>
-        <img alt="Buckets" class="step-img"
-             src="../../../../assets/img/guides/aws/cloudtrail/s3-buckets.png">
-      </li>
-      <li>
-        <p class="step-guide">
-          <span class="step_number">10</span>
-          Fill in the "S3 bucket" field. The name of the bucket must be unique in S3. Then click on “Create”.
-        </p>
-        <img alt="Bucket name" class="step-img"
-             src="../../../../assets/img/guides/aws/cloudtrail/bucket-name.png">
-      </li>
-      <li>
-        <p class="step-guide">
           <span class="step_number">11</span>
-          Click on the name of the trail to edit.
+          <strong>Create a CloudWatch Log Group.</strong> Open the CloudWatch console, choose <strong>Log management</strong> and click <strong>Create log group</strong>.
         </p>
-        <img alt="Edit trial" class="step-img"
-             src="../../../../assets/img/guides/aws/cloudtrail/edit-trail.png">
+        <img alt="CloudWatch Log management - Create log group" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudwatch/1.png">
       </li>
+
       <li>
         <p class="step-guide">
           <span class="step_number">12</span>
-          Configure CloudWatch Logs.
+          <strong>Name and retention.</strong> Enter the log group name <code>utmstack</code> and set retention to <strong>1 day</strong>. Click <strong>Create log group</strong>.
         </p>
-        <img alt="Cloud Watch config" class="step-img"
-             src="../../../../assets/img/guides/aws/cloudtrail/cloud-watch-config.png">
+        <img alt="Create log group name and retention" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudwatch/3.png">
       </li>
+
       <li>
         <p class="step-guide">
           <span class="step_number">13</span>
-          Fill the group name and continue.
+          <strong>Open CloudTrail and start trail creation.</strong> In the CloudTrail console click <strong>Create trail</strong> to begin configuring a new trail.
         </p>
-        <img alt="Cloud Watch config" class="step-img"
-             src="../../../../assets/img/guides/aws/cloudtrail/trial-group.png">
+        <img alt="CloudTrail dashboard" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudwatch/cloudtrail/2.png">
       </li>
+
       <li>
         <p class="step-guide">
           <span class="step_number">14</span>
-          Click on “Allow” to grant CloudTrail permissions.
+          <strong>Configure delivery, validation and CloudWatch integration (single form).</strong>
+          On the CloudTrail creation form set the following options as shown in the screenshot:
         </p>
-        <img alt="CloudTrail permissions." class="step-img"
-             src="../../../../assets/img/guides/aws/cloudtrail/trial-permissions.png">
+
+        <ul class="step-details pt-1">
+          <li><strong>Trail name and scope:</strong> enter a descriptive name; enable <strong>Apply trail to all accounts in my organization</strong> if you require org‑wide collection.</li>
+          <li><strong>S3 destination:</strong> choose <strong>Create new S3 bucket</strong> (or select an existing bucket) for raw log delivery.</li>
+          <li><strong>Encryption:</strong> enable <strong>Log file SSE‑KMS</strong> and select the appropriate KMS key.</li>
+          <li><strong>Log file validation:</strong> enable to ensure integrity of delivered logs (recommended).</li>
+          <li><strong>CloudWatch Logs:</strong> enable delivery to CloudWatch and select <strong>Use existing log group</strong>, then enter the exact name <code>utmstack</code>.</li>
+          <li><strong>IAM role:</strong> provide or create the role CloudTrail will assume to write to S3 and publish to CloudWatch (example: <code>CloudTrail-UTMStack-DeliveryRole</code>).</li>
+        </ul>
+
+        <img alt="CloudTrail configuration: S3, SSE-KMS, Log file validation, CloudWatch Logs and IAM role" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudwatch/cloudtrail/5.png">
       </li>
+
+      <li>
+        <p class="step-guide">
+          <span class="step_number">15</span>
+          <strong>Select event types.</strong>
+          On this screen enable the event categories required for monitoring and auditing. Follow the three sections below and match the checkboxes shown in each screenshot.
+        </p>
+
+        <!-- Management events -->
+        <div class="step-subsection">
+          <p class="step-desc pt-1"><strong>1. Management events</strong></p>
+          <ul class="pl-3">
+            <li>Enable <strong>Management events</strong> and select <strong>All</strong> (or the equivalent option) to record all API activity that manages AWS resources (create, update, delete).</li>
+            <li>Reason: captures administrative changes and configuration actions needed for auditing and incident investigation.</li>
+          </ul>
+          <img alt="CloudTrail select management events" class="step-img"
+               src="../../../../assets/img/guides/aws/cloudwatch/cloudtrail/6.png">
+        </div>
+
+        <!-- Data events -->
+        <div class="step-subsection mt-2">
+          <p class="step-desc pt-1"><strong>2. Data events</strong></p>
+          <ul class="pl-3">
+            <li>Add at least one <strong>Data event</strong>. Choose <strong>S3</strong> and select <strong>Log all events</strong> (or <em>All S3 object-level events</em>) to capture object-level operations such as GetObject and PutObject.</li>
+          </ul>
+          <img alt="CloudTrail select data events" class="step-img"
+               src="../../../../assets/img/guides/aws/cloudwatch/cloudtrail/6.1.png">
+        </div>
+
+        <!-- Network activity events -->
+        <div class="step-subsection">
+          <p class="step-desc"><strong>3. Network activity events (photo: 8.png)</strong></p>
+          <ul>
+            <li>In the Network Activities section add at least one service. For example, select <code>ec2.amazonaws.com</code> and enable <strong>Log all events</strong> for that service.</li>
+          </ul>
+          <img alt="CloudTrail select network activity events" class="step-img"
+               src="../../../../assets/img/guides/aws/cloudwatch/cloudtrail/8.png">
+        </div>
+
+        <p class="step-note">
+          After confirming these selections, click <strong>Next</strong> to continue. Ensure the options match the screenshots and cover the resources you need to audit.
+        </p>
+
+      </li>
+
+
+      <li>
+        <p class="step-guide">
+          <span class="step_number">16</span>
+          <strong>Configure aggregation and review.</strong> On the <strong>Configure event aggregation</strong> screen accept the defaults (or adjust if required). Review all settings and click <strong>Create trail</strong>.
+        </p>
+        <img alt="CloudTrail configure aggregation and review" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudwatch/cloudtrail/12.png">
+      </li>
+
       <li>
         <p class="step-guide mb-3">
-          <span class="step_number">15</span>
-          Click on the button shown below, to activate the UTMStack features related to this integration
+          <span class="step_number">17</span>
+          <strong>Activate the integration.</strong> After the trail is created and events are flowing to <code>utmstack</code>, click the button below to enable UTMStack features for this integration.
         </p>
         <app-app-module-activate-button [module]="module.AWS_IAM_USER"
                                         [disabled]="configValidity"
-                                        [type]="'integration'" [serverId]="serverId"
+                                        [type]="'integration'"
+                                        [serverId]="serverId"
                                         class="mt-3">
         </app-app-module-activate-button>
       </li>
     </ol>
+
+
   </div>
 </div>

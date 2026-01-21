@@ -46,10 +46,11 @@
   </div>
   <p *ngIf="section.description" class="mb-3 mt-3">{{section.description}}</p>
   <div *ngIf="configs.length >0 && !loading" class="d-flex gap-3 flex-wrap w-100">
-    <div *ngFor="let conf of getConfigs()" [ngClass]="conf.confParamDatatype === configDataTypeEnum.List || conf.confParamDatatype === configDataTypeEnum.EmailList || conf.confParamDatatype === ConfigDataTypeEnum.Cron ? 'w-100 order-8':'w-30'"
-         class="form-group mb-4">
-      <label [for]="'sectionParam'+conf.id"
-             class="pb-1 span-small-icon d-flex justify-content-between align-items-center">
+    <ng-container *ngFor="let conf of getConfigs()">
+      <div [ngClass]="conf.confParamDatatype === configDataTypeEnum.List || conf.confParamDatatype === configDataTypeEnum.EmailList || conf.confParamDatatype === ConfigDataTypeEnum.Cron ? 'w-100 order-8':'w-30'"
+           class="form-group mb-4" *ngIf="(conf.confParamShort !== 'utmstack.tw.enable') || (conf.confParamShort === 'utmstack.tw.enable' && versionType === VERSION_TYPE.ENTERPRISE)">
+        <label [for]="'sectionParam'+conf.id"
+               class="pb-1 span-small-icon d-flex justify-content-between align-items-center">
       <span>
         <i *ngIf="conf.confParamRequired"
            [ngClass]="!(conf.confParamRequired &&
@@ -60,7 +61,7 @@
            placement="auto"></i>
         {{conf.confParamLarge}}
       </span>
-        <span>
+          <span>
           <i *ngIf="conf.confParamDescription"
              [ngbTooltip]="conf.confParamDescription"
              class="ml-2 text-primary icon-question3" placement="auto"></i>
@@ -69,143 +70,145 @@
              ngbTooltip="If you change this config an application reload will be necessary,
           when we ready to reload a notice show up" placement="auto"></i>
       </span>
-      </label>
-      <div class="position-relative w-100">
-        <input (input)="save(conf.confParamValue,conf)"
-               *ngIf="conf.confParamDatatype === configDataTypeEnum.Text ||
+        </label>
+        <div class="position-relative w-100">
+          <input (input)="save(conf.confParamValue,conf)"
+                 *ngIf="conf.confParamDatatype === configDataTypeEnum.Text ||
              conf.confParamDatatype === configDataTypeEnum.Tel ||
              conf.confParamDatatype === configDataTypeEnum.Number ||
              conf.confParamDatatype === configDataTypeEnum.Email ||
              conf.confParamDatatype === configDataTypeEnum.Password"
-               [(ngModel)]="conf.confParamValue"
-               [id]="'sectionParam'+conf.id"
-               [required]="conf.confParamRequired"
-               [disabled]="checkDisable(conf)"
-               [type]="conf.confParamDatatype" class="form-control pr-5">
-
-        <i *ngIf="allowCopy(conf)"
-          (click)="copyCode(conf)"
-          class="icon-copy position-absolute top-25 end-0 translate-middle-y me-2 cursor-pointer"
-          ngbTooltip="Copy"
-          style="z-index: 1;"
-        ></i>
-      </div>
-
-      <small *ngIf="conf.confParamRegexp && conf.confParamValue != ''  && !isValid(conf) && conf.confParamDatatype !== configDataTypeEnum.EmailList" class="form-text text-danger">
-        {{ conf.confParamLarge }} is invalid
-      </small>
-
-      <app-utm-toggle (toggleChange)="save($event === true?'true':'false',conf)"
-                      *ngIf="conf.confParamDatatype === configDataTypeEnum.Bool"
-                      [active]="conf.confParamValue ==='true'"
-                      [label]="'Enable/Disable param configuration'"></app-utm-toggle>
-
-      <textarea (input)="save(conf.confParamValue,conf)"
-                *ngIf="conf.confParamDatatype === configDataTypeEnum.List || conf.confParamDatatype === configDataTypeEnum.EmailList"
-                [(ngModel)]="conf.confParamValue"
-                [id]="'sectionParam'+conf.id"
-                [required]="conf.confParamRequired"
-                class="form-control"
-                rows="4"></textarea>
-      <small *ngIf="conf.confParamDatatype === configDataTypeEnum.EmailList && !isValid(conf)" class="form-text text-danger">
-        Please enter valid email addresses separated by commas.
-      </small>
-
-      <ng-select [clearable]="false"
-                 [searchable]="true"
-                 (change)="save(conf.confParamValue,conf)"
-                 *ngIf="conf.confParamDatatype === configDataTypeEnum.TimezoneList"
-                 [items]="timezones"
-                 [loadingText]="'Loading Timezones...'"
-                 [loading]="!timezones"
-                 groupBy="zone"
-                 bindValue="timezone"
                  [(ngModel)]="conf.confParamValue"
-                 id="timezoneSetting">
-                <ng-template ng-option-tmp ng-label-tmp let-item="item">
-                  ({{ item.timezone | timezoneOffset }}) {{ item.label }}
-                </ng-template>
+                 [id]="'sectionParam'+conf.id"
+                 [required]="conf.confParamRequired"
+                 [disabled]="checkDisable(conf)"
+                 [type]="conf.confParamDatatype" class="form-control pr-5">
 
-      </ng-select>
+          <i *ngIf="allowCopy(conf)"
+             (click)="copyCode(conf)"
+             class="icon-copy position-absolute top-25 end-0 translate-middle-y me-2 cursor-pointer"
+             ngbTooltip="Copy"
+             style="z-index: 1;"
+          ></i>
+        </div>
 
-      <ng-select [clearable]="false"
-                 [searchable]="true"
-                 (change)="save(conf.confParamValue,conf)"
-                 *ngIf="conf.confParamDatatype === configDataTypeEnum.DateFormatList"
-                 [items]="dateFormats"
-                 [loadingText]="'Loading Dates formats...'"
-                 [loading]="!dateFormats"
-                 bindValue="format"
-                 [(ngModel)]="conf.confParamValue"
-                 id="dateFormatSetting">
-        <ng-template let-item="item" ng-option-tmp>
-          <span class="span-small-icon">{{item.label + ' (' + item.equivalentTo + ')'}}</span>
-        </ng-template>
-      </ng-select>
+        <small *ngIf="conf.confParamRegexp && conf.confParamValue != ''  && !isValid(conf) && conf.confParamDatatype !== configDataTypeEnum.EmailList" class="form-text text-danger">
+          {{ conf.confParamLarge }} is invalid
+        </small>
 
-      <ng-container *ngIf="conf.confParamDatatype === configDataTypeEnum.Radio && conf.confParamOption">
-        <div class="d-flex justify-content-start align-items-center">
-          <div *ngFor="let option of conf.confParamOption.split(',');let i = index">
-            <div
-              class="d-flex justify-content-start align-items-center alert-radio-container"
-              [ngClass]="{'ml-3':i !== 0}">
+        <app-utm-toggle *ngIf="conf.confParamDatatype === configDataTypeEnum.Bool"
+                        (toggleChange)="save($event === true?'true':'false',conf)"
+                        [active]="conf.confParamValue ==='true'"
+                        [label]="'Enable/Disable param configuration'">
+        </app-utm-toggle>
+
+        <textarea (input)="save(conf.confParamValue,conf)"
+                  *ngIf="conf.confParamDatatype === configDataTypeEnum.List || conf.confParamDatatype === configDataTypeEnum.EmailList"
+                  [(ngModel)]="conf.confParamValue"
+                  [id]="'sectionParam'+conf.id"
+                  [required]="conf.confParamRequired"
+                  class="form-control"
+                  rows="4"></textarea>
+        <small *ngIf="conf.confParamDatatype === configDataTypeEnum.EmailList && !isValid(conf)" class="form-text text-danger">
+          Please enter valid email addresses separated by commas.
+        </small>
+
+        <ng-select [clearable]="false"
+                   [searchable]="true"
+                   (change)="save(conf.confParamValue,conf)"
+                   *ngIf="conf.confParamDatatype === configDataTypeEnum.TimezoneList"
+                   [items]="timezones"
+                   [loadingText]="'Loading Timezones...'"
+                   [loading]="!timezones"
+                   groupBy="zone"
+                   bindValue="timezone"
+                   [(ngModel)]="conf.confParamValue"
+                   id="timezoneSetting">
+          <ng-template ng-option-tmp ng-label-tmp let-item="item">
+            ({{ item.timezone | timezoneOffset }}) {{ item.label }}
+          </ng-template>
+
+        </ng-select>
+
+        <ng-select [clearable]="false"
+                   [searchable]="true"
+                   (change)="save(conf.confParamValue,conf)"
+                   *ngIf="conf.confParamDatatype === configDataTypeEnum.DateFormatList"
+                   [items]="dateFormats"
+                   [loadingText]="'Loading Dates formats...'"
+                   [loading]="!dateFormats"
+                   bindValue="format"
+                   [(ngModel)]="conf.confParamValue"
+                   id="dateFormatSetting">
+          <ng-template let-item="item" ng-option-tmp>
+            <span class="span-small-icon">{{item.label + ' (' + item.equivalentTo + ')'}}</span>
+          </ng-template>
+        </ng-select>
+
+        <ng-container *ngIf="conf.confParamDatatype === configDataTypeEnum.Radio && conf.confParamOption">
+          <div class="d-flex justify-content-start align-items-center">
+            <div *ngFor="let option of conf.confParamOption.split(',');let i = index">
+              <div
+                class="d-flex justify-content-start align-items-center alert-radio-container"
+                [ngClass]="{'ml-3':i !== 0}">
           <span (click)="save(option, conf)"
                 [ngClass]="{'text-blue-800':option==conf.confParamValue}" class="mb-0 cursor-pointer medium-icon">
           <i [ngClass]="option==conf.confParamValue?'icon-radio-checked':'icon-circle'"></i>&nbsp;
           <span class="">{{option}}</span>
         </span>
+              </div>
             </div>
           </div>
-        </div>
-      </ng-container>
+        </ng-container>
 
-      <ng-container *ngIf="conf.confParamDatatype === configDataTypeEnum.CountryList">
-        <ng-select #countryList="ngModel"
-                   [items]="getSelectOptions(getName(conf.confParamShort))"
-                   bindLabel="name"
-                   bindValue="code"
-                   [disabled]="conf.section.id === sectionType.INSTANCE_REGISTRATION"
-                   [searchable]="true"
-                   [multiple]="false"
-                   [clearable]="false"
-                   [loading]="isLoading[getName(conf.confParamShort)]"
-                   [virtualScroll]="true"
-                   [(ngModel)]="conf.confParamValue"
-                   [ngClass]="{'is-invalid': countryList.invalid,
+        <ng-container *ngIf="conf.confParamDatatype === configDataTypeEnum.CountryList">
+          <ng-select #countryList="ngModel"
+                     [items]="getSelectOptions(getName(conf.confParamShort))"
+                     bindLabel="name"
+                     bindValue="code"
+                     [disabled]="conf.section.id === sectionType.INSTANCE_REGISTRATION"
+                     [searchable]="true"
+                     [multiple]="false"
+                     [clearable]="false"
+                     [loading]="isLoading[getName(conf.confParamShort)]"
+                     [virtualScroll]="true"
+                     [(ngModel)]="conf.confParamValue"
+                     [ngClass]="{'is-invalid': countryList.invalid,
                     'is-valid': countryList.valid}">
 
-          <ng-template ng-option-tmp let-item="item">
-            <app-utm-country-flag
-              [showCountry]="true"
-              [country]="item.name"
-              [countryCode]="item.code.toLowerCase()">
-            </app-utm-country-flag>
-          </ng-template>
+            <ng-template ng-option-tmp let-item="item">
+              <app-utm-country-flag
+                [showCountry]="true"
+                [country]="item.name"
+                [countryCode]="item.code.toLowerCase()">
+              </app-utm-country-flag>
+            </ng-template>
 
-          <ng-template ng-label-tmp let-item="item">
-            <app-utm-country-flag
-              [showCountry]="true"
-              [country]="item.name"
-              [countryCode]="item.code.toLowerCase()">
-            </app-utm-country-flag>
-          </ng-template>
+            <ng-template ng-label-tmp let-item="item">
+              <app-utm-country-flag
+                [showCountry]="true"
+                [country]="item.name"
+                [countryCode]="item.code.toLowerCase()">
+              </app-utm-country-flag>
+            </ng-template>
 
-        </ng-select>
-      </ng-container>
+          </ng-select>
+        </ng-container>
 
-      <ng-container *ngIf="conf.confParamDatatype === ConfigDataTypeEnum.Cron">
-        <app-utm-schedule-config [(ngModel)]="conf.confParamValue"
-                                 (ngModelChange)="save(conf.confParamValue, conf)">
-        </app-utm-schedule-config>
-      </ng-container>
+        <ng-container *ngIf="conf.confParamDatatype === ConfigDataTypeEnum.Cron">
+          <app-utm-schedule-config [(ngModel)]="conf.confParamValue"
+                                   (ngModelChange)="save(conf.confParamValue, conf)">
+          </app-utm-schedule-config>
+        </ng-container>
 
 
-      <small *ngIf="conf.confParamRequired &&
+        <small *ngIf="conf.confParamRequired &&
              (conf.confParamValue === '' || conf.confParamValue === null || conf.confParamValue === undefined)"
-             class="text-danger">
-        Param {{conf.confParamLarge}} is required
-      </small>
-    </div>
+               class="text-danger">
+          Param {{conf.confParamLarge}} is required
+        </small>
+      </div>
+    </ng-container>
     <ng-container *ngIf="configs.length<3">
       <div class="dummy-div w-30"></div>
     </ng-container>

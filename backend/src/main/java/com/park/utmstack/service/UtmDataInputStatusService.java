@@ -1,17 +1,19 @@
 package com.park.utmstack.service;
 
 import com.park.utmstack.config.Constants;
-import com.park.utmstack.domain.UtmDataInputStatus;
+import com.park.utmstack.domain.datainput_ingestion.UtmDataInputStatus;
 import com.park.utmstack.domain.UtmServerModule;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.domain.correlation.config.UtmDataTypes;
+import com.park.utmstack.domain.datainput_ingestion.UtmDataInputStatusCheckpoint;
 import com.park.utmstack.domain.network_scan.UtmNetworkScan;
 import com.park.utmstack.domain.network_scan.enums.AssetStatus;
 import com.park.utmstack.domain.network_scan.enums.UpdateLevel;
 import com.park.utmstack.domain.shared_types.alert.UtmAlert;
-import com.park.utmstack.repository.UtmDataInputStatusRepository;
+import com.park.utmstack.repository.datainput_ingestion.UtmDataInputStatusCheckpointRepository;
+import com.park.utmstack.repository.datainput_ingestion.UtmDataInputStatusRepository;
 import com.park.utmstack.repository.correlation.config.UtmDataTypesRepository;
 import com.park.utmstack.repository.network_scan.UtmNetworkScanRepository;
 import com.park.utmstack.service.application_events.ApplicationEventService;
@@ -22,13 +24,10 @@ import com.park.utmstack.service.network_scan.DataSourceConstants;
 import com.park.utmstack.service.network_scan.UtmNetworkScanService;
 import com.park.utmstack.util.enums.AlertSeverityEnum;
 import com.park.utmstack.util.enums.AlertStatus;
-import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
-import com.utmstack.opensearch_connector.types.BucketAggregation;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.conn.util.InetAddressUtils;
 import org.opensearch.client.json.JsonData;
 import org.opensearch.client.opensearch._types.SortOrder;
-import org.opensearch.client.opensearch._types.aggregations.TopHitsAggregate;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.slf4j.Logger;
@@ -44,8 +43,10 @@ import org.springframework.util.StringUtils;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -66,6 +67,7 @@ public class UtmDataInputStatusService {
     private final ElasticsearchService elasticsearchService;
     private final UtmDataTypesRepository dataTypesRepository;
     private final UtmNetworkScanRepository networkScanRepository;
+    private final UtmDataInputStatusCheckpointRepository checkpointRepository;
 
 
     /**
@@ -157,7 +159,7 @@ public class UtmDataInputStatusService {
 
             long currentTimeInSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
             List<UtmDataInputStatus> inTime = inputs.stream().filter(row -> (currentTimeInSeconds - row.getTimestamp()) < 3600)
-                    .collect(Collectors.toList());
+                    .toList();
             if (!CollectionUtils.isEmpty(inTime))
                 return;
 
@@ -172,41 +174,57 @@ public class UtmDataInputStatusService {
         }
     }
 
-    @Scheduled(fixedDelay = 5000, initialDelay = 30000)
+    @Scheduled(fixedDelay = 15000, initialDelay = 30000)
     public void syncDataInputStatus() {
         final String ctx = CLASSNAME + ".syncDataInputStatus";
+
         try {
-            Map<String, StatisticDocument> result = getLatestStatisticsByDataSource();
+            Map<String, StatisticDocument> latestStats = getLatestStatisticsByDataSource();
 
-            result.forEach((key, statisticDoc) -> {
+            Map<String, UtmDataInputStatus> existing = dataInputStatusRepository.findAll()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            e -> e.getDataType() + "-" + e.getSource(),
+                            Function.identity()
+                    ));
+
+            List<UtmDataInputStatus> toSave = new ArrayList<>();
+
+            latestStats.forEach((key, stat) -> {
                 try {
-                    String dataType = statisticDoc.getDataType();
-                    String dataSource = statisticDoc.getDataSource();
-                    long timestamp = Instant.parse(statisticDoc.getTimestamp()).getEpochSecond();
+                    String dataType = stat.getDataType();
+                    String dataSource = stat.getDataSource();
+                    long timestamp = Instant.parse(stat.getTimestamp()).getEpochSecond();
 
-                    Optional<UtmDataInputStatus> existingOpt = dataInputStatusRepository.findBySourceAndDataType(dataSource, dataType);
+                    String compositeKey = dataType + "-" + dataSource;
 
-                    UtmDataInputStatus dataInputStatus = existingOpt
-                            .map(existing -> {
-                                if(timestamp != existing.getTimestamp()) {
-                                    existing.setTimestamp(timestamp);
-                                }
-                                return existing;
-                            })
-                            .orElseGet(() -> UtmDataInputStatus.builder()
-                                    .dataType(dataType)
-                                    .source(dataSource)
-                                    .timestamp(timestamp)
-                                    .median(86400L)
-                                    .id(String.join("-", dataType, dataSource))
-                                    .build());
+                    UtmDataInputStatus status = existing.get(compositeKey);
+                    boolean changed = false;
 
-                    dataInputStatusRepository.save(dataInputStatus);
+                    if (status == null) {
+                        status = UtmDataInputStatus.builder()
+                                .id(compositeKey)
+                                .dataType(dataType)
+                                .source(dataSource)
+                                .timestamp(timestamp)
+                                .median(86400L)
+                                .build();
+                        changed = true;
+                    } else if (status.getTimestamp() != timestamp) {
+                        status.setTimestamp(timestamp);
+                        changed = true;
+                    }
+
+                    if (changed) {
+                        toSave.add(status);
+                    }
 
                 } catch (Exception e) {
-                    log.error("{}: Error processing dataType {} - {}", ctx, statisticDoc.getDataType(), e.getMessage(), e);
+                    log.error("{}: Error processing dataType {} - {}", ctx, stat.getDataType(), e.getMessage(), e);
                 }
             });
+
+            dataInputStatusRepository.saveAll(toSave);
 
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
@@ -219,7 +237,7 @@ public class UtmDataInputStatusService {
      * Gets the sources from utm_data_input_status that are not registered in utm_network_scan table
      * and create new assets with it. This method is a schedule with a delay of 1 hour
      */
-    @Scheduled(fixedDelay = 15000, initialDelay = 30000)
+    @Scheduled(fixedDelay = 30000, initialDelay = 60000)
     public void syncSourcesToAssets() {
         final String ctx = CLASSNAME + ".syncSourcesToAssets";
         try {
@@ -231,55 +249,73 @@ public class UtmDataInputStatusService {
         }
     }
 
+    @Transactional
     public void synchronizeSourcesToAssets() {
         final String ctx = CLASSNAME + ".syncSourcesToAssets";
+
         try {
-            final List<String> excludeOfTypes = dataTypesRepository.findAllByIncludedFalse().stream()
-                    .map(UtmDataTypes::getDataType).collect(Collectors.toList());
-            excludeOfTypes.addAll(Arrays.asList("utmstack", "UTMStack", DataSourceConstants.IBM_AS400_TYPE));
 
-            List<UtmDataInputStatus> sources = dataInputStatusRepository.extractSourcesToExport(excludeOfTypes);
-            if (!CollectionUtils.isEmpty(sources)) {
-                //return;
+            List<String> excludeDataTypes = dataTypesRepository.findAllByIncludedFalse()
+                    .stream()
+                    .map(UtmDataTypes::getDataType)
+                    .collect(Collectors.toList());
 
-                Map<String, Boolean> sourcesWithStatus = extractSourcesWithUpDownStatus(sources);
-                List<UtmNetworkScan> assets = networkScanService.findAll();
+            excludeDataTypes.addAll(Arrays.asList("utmstack", "UTMStack", DataSourceConstants.IBM_AS400_TYPE));
 
-                List<UtmNetworkScan> saveOrUpdate = new ArrayList<>();
-                sourcesWithStatus.forEach((key, value) -> {
-                    Optional<UtmNetworkScan> assetOpt = assets.stream()
-                            .filter(asset -> ((StringUtils.hasText(asset.getAssetIp()) && asset.getAssetIp().equals(key))
-                                    || (StringUtils.hasText(asset.getAssetName()) && asset.getAssetName().equals(key))))
-                            .findFirst();
-                    if (assetOpt.isPresent()) {
-                        UtmNetworkScan utmAsset = assetOpt.get();
-                        if (Objects.isNull(utmAsset.getUpdateLevel())
-                                || utmAsset.getUpdateLevel().equals(UpdateLevel.DATASOURCE)) {
-                            utmAsset.assetAlive(value)
-                                    .updateLevel(UpdateLevel.DATASOURCE)
-                                    .assetStatus(AssetStatus.CHECK)
-                                    .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
-                            saveOrUpdate.add(utmAsset);
-                        }
-                    } else {
-                        saveOrUpdate.add(new UtmNetworkScan(key, value));
-                    }
-                });
-
-                assets.forEach(asset -> {
-                    if (!sourcesWithStatus.containsKey(asset.getAssetIp()) && !sourcesWithStatus.containsKey(asset.getAssetName())
-                            && !Objects.isNull(asset.getUpdateLevel()) && asset.getUpdateLevel().equals(UpdateLevel.DATASOURCE)) {
-                        asset.assetStatus(AssetStatus.MISSING).updateLevel(null)
-                                .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
-                        saveOrUpdate.add(asset);
-                    }
-                });
-
-                networkScanService.saveAll(saveOrUpdate);
+            List<UtmDataInputStatus> sources = dataInputStatusRepository.extractSourcesToExport(excludeDataTypes);
+            if (CollectionUtils.isEmpty(sources)) {
+                return;
             }
-            // Finally, delete excluded assets
-            networkScanRepository.deleteAllAssetsByDataType(excludeOfTypes);
+
+            Map<String, Boolean> sourcesWithStatus = extractSourcesWithUpDownStatus(sources);
+
+            List<String> keys = new ArrayList<>(sourcesWithStatus.keySet());
+            List<UtmNetworkScan> assets = networkScanRepository.findByAssetIpInOrAssetNameIn(keys, keys);
+
+            Map<String, UtmNetworkScan> assetsByKey = new HashMap<>();
+
+            assets.forEach(a -> {
+                if (StringUtils.hasText(a.getAssetIp())) assetsByKey.put(a.getAssetIp(), a);
+                if (StringUtils.hasText(a.getAssetName())) assetsByKey.put(a.getAssetName(), a);
+            });
+
+            for (Map.Entry<String, Boolean> entry : sourcesWithStatus.entrySet()) {
+                String key = entry.getKey();
+                Boolean alive = entry.getValue();
+
+                UtmNetworkScan asset = assetsByKey.get(key);
+
+                if (asset != null) {
+                    if (asset.getUpdateLevel() == null || asset.getUpdateLevel().equals(UpdateLevel.DATASOURCE) || asset.getUpdateLevel().equals(UpdateLevel.AGENT)) {
+                        asset.assetAlive(alive)
+                             .updateLevel(UpdateLevel.DATASOURCE)
+                             .assetStatus(AssetStatus.CHECK)
+                             .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+
+                        networkScanService.save(asset);
+                    }
+                } else {
+                    networkScanService.save(new UtmNetworkScan(key, alive));
+                }
+            }
+
+            assets.forEach(asset -> {
+                boolean missing = !sourcesWithStatus.containsKey(asset.getAssetIp())
+                        && !sourcesWithStatus.containsKey(asset.getAssetName());
+
+                if (missing && UpdateLevel.DATASOURCE.equals(asset.getUpdateLevel())) {
+                    asset.assetStatus(AssetStatus.MISSING)
+                          .updateLevel(null)
+                          .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+
+                    networkScanService.save(asset);
+                }
+            });
+
+           networkScanRepository.deleteAllAssetsByDataType(excludeDataTypes);
+
         } catch (Exception e) {
+            log.error("{}: Error synchronizing sources to assets - {}", ctx, e.getMessage(), e);
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
     }
@@ -404,40 +440,59 @@ public class UtmDataInputStatusService {
     }
 
     private Map<String, StatisticDocument> getLatestStatisticsByDataSource() {
+
+        UtmDataInputStatusCheckpoint checkpoint = this.checkpointRepository.findById(1L)
+                .orElseGet(() -> {
+                    UtmDataInputStatusCheckpoint newCheckpoint = new UtmDataInputStatusCheckpoint();
+                    newCheckpoint.setLastProcessedTimestamp(Instant.now().minus(1, ChronoUnit.HOURS));
+                    return newCheckpoint;
+                });
+
         ArrayList<FilterType> filters = new ArrayList<>();
         filters.add(new FilterType("type", OperatorType.IS, "enqueue_success"));
-        filters.add(new FilterType("@timestamp", OperatorType.IS_BETWEEN, List.of("now-24h", "now")));
+        filters.add(new FilterType("@timestamp", OperatorType.IS_GREATER_THAN, checkpoint.getLastProcessedTimestamp().toString()));
 
         SearchRequest sr = SearchRequest.of(s -> s
                 .query(SearchUtil.toQuery(filters))
                 .index(Constants.STATISTICS_INDEX_PATTERN)
-                .aggregations("by_dataSource", agg -> agg
-                        .terms(t -> t.field("dataSource.keyword")
-                                .size(10000))
-                        .aggregations("latest", latest -> latest
-                                .topHits(th -> th.sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc)))
-                                        .size(1))
+                .collapse(c -> c
+                        .field("dataSource.keyword")
+                        .innerHits(ih -> ih
+                                .name("latest")
+                                .size(1)
+                                .sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc)))
                         )
                 )
-                .size(0)
+                .sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc)))
+                .size(10000)
         );
 
-        SearchResponse<StatisticDocument> response = elasticsearchService.search(sr, StatisticDocument.class);
+        SearchResponse<StatisticDocument> response =
+                elasticsearchService.search(sr, StatisticDocument.class);
+
         Map<String, StatisticDocument> result = new HashMap<>();
 
-        List<BucketAggregation> dataTypeBuckets = TermAggregateParser.parse(response.aggregations().get("by_dataSource"));
-
-        for (BucketAggregation bucket : dataTypeBuckets) {
-            TopHitsAggregate topHitsAgg = bucket.getSubAggregations().get("latest").topHits();
-
-            if (topHitsAgg != null && !topHitsAgg.hits().hits().isEmpty()) {
-                JsonData jsonData = topHitsAgg.hits().hits().get(0).source();
-                if (!Objects.isNull(jsonData)) {
-                    StatisticDocument doc = jsonData.to(StatisticDocument.class);
-                    result.put(bucket.getKey(), doc);
+        response.hits().hits().forEach(hit -> {
+            if (hit.innerHits() != null && hit.innerHits().containsKey("latest")) {
+                var inner = hit.innerHits().get("latest").hits().hits();
+                if (!inner.isEmpty()) {
+                    JsonData json = inner.get(0).source();
+                    if (json != null) {
+                        StatisticDocument doc = json.to(StatisticDocument.class);
+                        result.put(doc.getDataSource(), doc);
+                    }
                 }
             }
-        }
+        });
+
+        Instant lastTimestamp = result.values().stream()
+                .map(doc -> Instant.parse(doc.getTimestamp()))
+                .max(Instant::compareTo)
+                .orElse(Instant.now());
+
+        checkpoint.setLastProcessedTimestamp(lastTimestamp);
+
+        this.checkpointRepository.save(checkpoint);
 
         return result;
     }

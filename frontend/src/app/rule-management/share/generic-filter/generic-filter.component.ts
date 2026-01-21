@@ -65,7 +65,6 @@ export class GenericFilterComponent<T extends UtmFieldType> implements OnInit, A
 
   onScroll() {
     this.requestParams.size += 6;
-    console.log(this.fieldFilter.filterField);
     this.filterService.notifyRefresh(this.fieldFilter.filterField);
   }
 
@@ -89,6 +88,13 @@ export class GenericFilterComponent<T extends UtmFieldType> implements OnInit, A
     this.requestParams.page = 0;
     this.searching = true;
     this.filterService.notifyRefresh(this.fieldFilter.filterField);
+  }
+
+  formatValue(value: string): string {
+    if (this.fieldFilter.formatValue) {
+      return this.fieldFilter.formatValue(value);
+    }
+    return value;
   }
 
   ngOnDestroy(): void {

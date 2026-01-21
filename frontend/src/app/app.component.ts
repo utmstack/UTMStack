@@ -111,7 +111,9 @@ export class AppComponent implements OnInit {
       )
       .subscribe();
 
-    this.appLoading.style.display = 'none';
+    if (this.appLoading && this.appLoading.parentNode) {
+      this.appLoading.parentNode.removeChild(this.appLoading);
+    }
   }
 
   @HostListener('window', ['$event'])
@@ -141,10 +143,8 @@ export class AppComponent implements OnInit {
             break;
         }
       }
-        this.apiServiceCheckerService.setOnlineStatus(true);
     }, error => {
         this.offline = true;
-        this.apiServiceCheckerService.checkApiAvailability();
       });
   }
 

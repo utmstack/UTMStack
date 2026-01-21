@@ -15,9 +15,9 @@
               [ngStyle]="{'width': item.width}"
               *ngFor="let item of fields; let i = index"
               [hidden]="!item.visible"
-              [isSortable]="true"
+              [isSortable]="!!item.sortField"
               [sortEvent]="sortEvent"
-              [sortable]="item.field"
+              [sortable]="item.sortField"
               appColumnSortable
               class="font-weight-semibold cursor-pointer">
                 {{item.label}}
@@ -45,7 +45,7 @@
                   <i (click)="activeRule(rule)"
                      class="cursor-pointer ml-2"
                      [ngClass]="{'icon-blocked': rule.ruleActive, 'icon-check2': !rule.ruleActive}"
-                     ngbTooltip="{{ !rule.ruleActive ? 'Active' : 'Deactivate' }}"
+                     ngbTooltip="{{ !rule.ruleActive ? 'Activate' : 'Deactivate' }}"
                      container="body"
                      *ngIf="!loadingRules.includes(rule.id);else spinner"
                      placement="left"></i>
@@ -103,7 +103,8 @@
                             [pageSize]="request.size"
                             [rotate]="true"
                             [size]="'sm'"></ngb-pagination>
-            <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
+            <app-utm-items-per-page [itemsAmount]="request.size"
+                                   (itemsInPage)="onItemsPerPageChange($event)"
                                     class="ml-3">
             </app-utm-items-per-page>
         </div>

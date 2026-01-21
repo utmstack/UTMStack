@@ -6,6 +6,7 @@ import com.park.utmstack.domain.application_events.types.ApplicationEvent;
 import com.park.utmstack.loggin.LogContextBuilder;
 import com.park.utmstack.service.elasticsearch.OpensearchClientBuilder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.logstash.logback.argument.StructuredArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +18,10 @@ import java.time.Instant;
 import java.util.Map;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ApplicationEventService {
     private static final String CLASSNAME = "ApplicationEventService";
-    private final Logger log = LoggerFactory.getLogger(ApplicationEventService.class);
 
     private final OpensearchClientBuilder client;
     private final LogContextBuilder logContextBuilder;
@@ -35,19 +36,37 @@ public class ApplicationEventService {
     @Async
     public void createEvent(String message, ApplicationEventType type) {
         final String ctx = CLASSNAME + ".createEvent";
+        final String V11_LOCAL_INDEX = "v11-backend-logs";
         try {
             ApplicationEvent applicationEvent = ApplicationEvent.builder()
-                .message(message).timestamp(Instant.now().toString())
-                .source(ApplicationEventSource.PANEL.name()).type(type.name())
+                .message(message)
+                .timestamp(Instant.now().toString())
+                .source(ApplicationEventSource.PANEL.name())
+                .type(type.name())
                 .build();
-            client.getClient().index(".utmstack-logs", applicationEvent);
+            client.getClient().index(V11_LOCAL_INDEX, applicationEvent);
         } catch (Exception e) {
-            log.error(ctx + ": {}", e.getMessage());
+            log.error( "{}: Error creating application event: {}", ctx, e.getMessage(), e);
         }
     }
 
     public void createEvent(String message, ApplicationEventType type, Map<String, Object> details) {
         String msg = String.format("%s: %s", MDC.get("context"), message);
         log.info( msg, StructuredArguments.keyValue("args", logContextBuilder.buildArgs(details)));
+        this.createEvent(message, this.getType(type));
+    }
+
+    private ApplicationEventType getType(ApplicationEventType type) {
+        switch (type) {
+            case ERROR -> {
+                return ApplicationEventType.ERROR;
+            }
+            case WARNING -> {
+                return ApplicationEventType.WARNING;
+            }
+            default ->  {
+                return ApplicationEventType.INFO;
+            }
+        }
     }
 }

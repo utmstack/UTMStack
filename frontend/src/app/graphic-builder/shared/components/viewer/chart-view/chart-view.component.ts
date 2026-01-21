@@ -70,8 +70,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     this.data$ = this.refreshService.refresh$
       .pipe(
         takeUntil(this.destroy$),
-        filter((refreshType) =>  refreshType === RefreshType.ALL ||
-          refreshType === this.refreshType),
+        filter((refreshType) =>  {
+          return refreshType === RefreshType.ALL ||
+            refreshType === this.refreshType;
+        }),
         switchMap((value, index) => this.runVisualization()));
 
 

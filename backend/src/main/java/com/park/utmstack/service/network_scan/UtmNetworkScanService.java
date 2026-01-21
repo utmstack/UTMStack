@@ -8,7 +8,7 @@ import com.park.utmstack.domain.network_scan.enums.AssetStatus;
 import com.park.utmstack.domain.network_scan.enums.PropertyFilter;
 import com.park.utmstack.domain.shared_types.enums.ImageShortName;
 import com.park.utmstack.repository.UtmAssetMetricsRepository;
-import com.park.utmstack.repository.UtmDataInputStatusRepository;
+import com.park.utmstack.repository.datainput_ingestion.UtmDataInputStatusRepository;
 import com.park.utmstack.repository.network_scan.UtmNetworkScanRepository;
 import com.park.utmstack.service.UtmImagesService;
 import com.park.utmstack.service.agent_manager.AgentGrpcService;
@@ -77,7 +77,7 @@ public class UtmNetworkScanService {
      * @param utmNetworkScan the entity to save
      * @return the persisted entity
      */
-    public UtmNetworkScan save(UtmNetworkScan utmNetworkScan) throws Exception {
+    public UtmNetworkScan save(UtmNetworkScan utmNetworkScan){
         final String ctx = CLASSNAME + ".save";
         try {
             return networkScanRepository.save(utmNetworkScan);

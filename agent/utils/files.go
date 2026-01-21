@@ -101,6 +101,8 @@ func GenerateFromTemplate(data interface{}, templateFile string, configFile stri
 		return err
 	}
 
+	defer writer.Close()
+
 	err = ut.Execute(writer, data)
 	if err != nil {
 		return err
@@ -132,6 +134,7 @@ func ReadFileLines(path string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	defer file.Close()
 
 	var lines []string
@@ -148,6 +151,7 @@ func IsDirEmpty(path string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	defer f.Close()
 
 	_, err = f.Readdirnames(1)
@@ -163,12 +167,14 @@ func copyFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
+
 	defer sourceFile.Close()
 
 	destFile, err := os.Create(dst)
 	if err != nil {
 		return err
 	}
+
 	defer destFile.Close()
 
 	_, err = io.Copy(destFile, sourceFile)

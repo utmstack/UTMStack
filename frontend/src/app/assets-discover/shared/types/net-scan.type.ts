@@ -27,7 +27,7 @@ export class NetScanType {
   modifiedAt: Date;
   ports: NetScanPortsType[];
   assetNotes: string;
-  metrics: NetScanMetricsType;
+  metrics: any;
   softwares: NetScanSoftwares[];
   registeredMode: AssetDiscoveryTypeEnum;
   agent: boolean;
@@ -37,4 +37,6 @@ export class NetScanType {
   assetOsMajorVersion?: string;
   displayName?: string;
   sortKey?: string;
+  lastInput: string;
+  lastInputTimestamp: number;
 }

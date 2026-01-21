@@ -16,7 +16,7 @@ const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 var localLogsChannel chan *plugins.Log
 
 func main() {
-	mode := plugins.GetCfg().Env.Mode
+	mode := plugins.GetCfg("plugin_com.utmstack.inputs").Env.Mode
 	if mode != "worker" {
 		return
 	}
@@ -43,6 +43,7 @@ func main() {
 		}
 
 		_ = catcher.Error("cannot load certificates, retrying", err, map[string]any{
+			"process":    "plugin_com.utmstack.inputs",
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
@@ -53,7 +54,7 @@ func main() {
 			retryDelay *= 2
 		} else {
 			// If all retries failed, log the error and return
-			_ = catcher.Error("all retries failed when loading certificates", err, nil)
+			_ = catcher.Error("all retries failed when loading certificates", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
 			return
 		}
 	}

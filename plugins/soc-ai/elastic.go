@@ -33,14 +33,14 @@ func processAlertToElastic(alert *schema.AlertFields) error {
 	if config.GetConfig().ChangeAlertStatus {
 		err = elastic.ChangeAlertStatus(alert.ID, config.API_ALERT_COMPLETED_STATUS_CODE, alert.DataSource, alert.GPTClassification+" - "+alert.GPTReasoning)
 		if err != nil {
-			_ = catcher.Error("error while changing alert status in elastic: %v", err, nil)
+			_ = catcher.Error("error while changing alert status in elastic: %v", err, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 		}
 	}
 
 	if config.GetConfig().AutomaticIncidentCreation && alert.GPTClassification == "possible incident" {
 		incidentsDetails, err := elastic.GetIncidentsByPattern("Incident in " + alert.DataSource)
 		if err != nil {
-			_ = catcher.Error("error while getting incidents by pattern: %v", err, nil)
+			_ = catcher.Error("error while getting incidents by pattern: %v", err, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 		}
 
 		incidentExists := false
@@ -50,7 +50,7 @@ func processAlertToElastic(alert *schema.AlertFields) error {
 					incidentExists = true
 					err = elastic.AddAlertToIncident(incident.ID, alert)
 					if err != nil {
-						_ = catcher.Error("error while adding alert to incident: %v", err, nil)
+						_ = catcher.Error("error while adding alert to incident: %v", err, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 					}
 				}
 			}
@@ -59,7 +59,7 @@ func processAlertToElastic(alert *schema.AlertFields) error {
 		if !incidentExists {
 			err = elastic.CreateNewIncident(alert)
 			if err != nil {
-				_ = catcher.Error("error while creating incident: %v", err, nil)
+				_ = catcher.Error("error while creating incident: %v", err, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 			}
 		}
 	}

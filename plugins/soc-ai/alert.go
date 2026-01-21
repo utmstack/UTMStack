@@ -98,6 +98,7 @@ func alertToAlertFields(alert *plugins.Alert) schema.AlertFields {
 		Impact:         alert.Impact,
 		ImpactScore:    alert.ImpactScore,
 		DeduplicatedBy: alert.DeduplicateBy,
+		GroupedBy:      alert.GroupBy,
 	}
 
 	return a

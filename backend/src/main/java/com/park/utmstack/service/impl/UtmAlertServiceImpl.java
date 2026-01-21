@@ -81,6 +81,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
 
             List<FilterType> filters = new ArrayList<>();
             filters.add(new FilterType(Constants.alertStatus, OperatorType.IS, AlertStatus.OPEN.getCode()));
+            filters.add(new FilterType(Constants.alertTags, OperatorType.DOES_NOT_CONTAIN, Constants.FALSE_POSITIVE_TAG));
             filters.add(new FilterType(Constants.timestamp, OperatorType.IS_GREATER_THAN, initialDate.getLastAlertTimestamp().toString()));
 
             SearchRequest.Builder srb = new SearchRequest.Builder();
@@ -104,15 +105,11 @@ public class UtmAlertServiceImpl implements UtmAlertService {
             initialDate.setLastAlertTimestamp(alerts.get(alerts.size() - 1).getTimestampAsInstant());
             lastAlertRepository.save(initialDate);
 
-            for (UtmAlert alert : alerts) {
-                List<LogType> relatedLogs;
-                try {
-                    relatedLogs = getRelatedAlerts(alert.getLogs());
-                } catch (Exception e) {
-                    log.error(ctx + ": " + e.getMessage());
-                    continue;
-                }
+            List<UtmAlert> parentsAlert = alerts.stream()
+                    .filter(a -> Objects.isNull(a.getParentId()))
+                    .toList();
 
+            for (UtmAlert alert : parentsAlert) {
                 String emails = Constants.CFG.get(Constants.PROP_ALERT_ADDRESS_TO_NOTIFY_ALERTS);
 
                 if (!StringUtils.hasText(emails)) {
@@ -123,7 +120,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
                 }
 
                 String[] addressToNotify = emails.replace(" ", "").split(",");
-                mailService.sendAlertEmail(Arrays.asList(addressToNotify), alert, relatedLogs);
+                mailService.sendAlertEmail(Arrays.asList(addressToNotify), alert, alert.getEvents());
             }
 
             alertResponseRuleService.evaluateRules(alerts);

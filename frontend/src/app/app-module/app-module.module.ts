@@ -63,6 +63,7 @@ import {ModuleIntegrationComponent} from './module-integration/module-integratio
 import {ModuleService} from './services/module.service';
 import {AppModuleSharedModule} from './shared/app-module-shared.module';
 import {GuideUtmstackComponent} from "./guides/guide-utmstack/guide-utmstack.component";
+import {GuideCrowdstrikeComponent} from "./guides/guide-crowdstrike/guide-crowdstrike.component";
 
 
 @NgModule({
@@ -121,7 +122,8 @@ import {GuideUtmstackComponent} from "./guides/guide-utmstack/guide-utmstack.com
     InstallLogCollectorComponent,
     AgentInstallSelectorComponent,
     OracleComponent,
-    GuideUtmstackComponent
+    GuideUtmstackComponent,
+    GuideCrowdstrikeComponent
   ],
   imports: [
     CommonModule,

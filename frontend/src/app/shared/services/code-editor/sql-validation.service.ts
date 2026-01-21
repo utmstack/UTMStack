@@ -67,7 +67,8 @@ export class SqlValidationService {
   private balancedQuotes(query: string): boolean {
     let sq = 0;
     let dq = 0;
-    let escaped = false;    for (const c of query) {
+    let escaped = false;
+    for (const c of query) {
       if (escaped) { escaped = false; continue; }
       if (c === '\\') { escaped = true; continue; }
       if (c === '\'') {

@@ -3,7 +3,7 @@ import {SERVER_API_URL} from '../../app.constants';
 import {EventDataTypeEnum} from '../../data-management/alert-management/shared/enums/event-data-type.enum';
 import {Actions} from '../app-correlation-management/models/config.type';
 import {ConfigService} from '../app-correlation-management/services/config.service';
-import {FILTER_RULE_FIELDS} from '../models/rule.constant';
+import {RULE_FILTERS_FIELDS} from '../models/rule.constant';
 import {FilterService} from '../services/filter.service';
 
 
@@ -21,10 +21,12 @@ export class AppRuleComponent implements OnInit {
     }
 
     dataType: EventDataTypeEnum = EventDataTypeEnum.ALERT;
-    fieldFilters = FILTER_RULE_FIELDS;
+    ruleFilters = RULE_FILTERS_FIELDS;
     filterUrl = `${SERVER_API_URL}api/correlation-rule/search-property-values`;
 
-    ngOnInit() {}
+    ngOnInit() {
+      console.log(this.ruleFilters);
+    }
 
     addRule(action: Actions) {
       this.configService.onAction(action);

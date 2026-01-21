@@ -36,17 +36,16 @@ import {AlertIncidentStatusChangeBehavior} from './shared/behaviors/alert-incide
 import {GettingStartedBehavior} from './shared/behaviors/getting-started.behavior';
 import {NavBehavior} from './shared/behaviors/nav.behavior';
 import {NewAlertBehavior} from './shared/behaviors/new-alert.behavior';
-import {AppVersionService} from './shared/services/version/app-version.service';
 import {TimezoneFormatService} from './shared/services/utm-timezone.service';
+import {AppVersionService} from './shared/services/version/app-version.service';
 import {UtmSharedModule} from './shared/utm-shared.module';
 
-export function initTimezoneFormat(
-  timezoneService: TimezoneFormatService,
-  apiChecker: ApiServiceCheckerService,
-  appVersionService: AppVersionService
-) {
-  return () =>
-    new Promise<void>((resolve, reject) => {
+export function initTimezoneFormat(apiChecker: ApiServiceCheckerService,
+                                   timezoneService: TimezoneFormatService,
+                                   appVersionService: AppVersionService) {
+  return () => {
+    apiChecker.init();
+    return new Promise<void>((resolve, reject) => {
       apiChecker.isOnlineApi$
         .pipe(first(val => val === true))
         .subscribe({
@@ -59,6 +58,8 @@ export function initTimezoneFormat(
           error: reject
         });
     });
+  };
+
 }
 
 @NgModule({
@@ -135,8 +136,8 @@ export function initTimezoneFormat(
       provide: APP_INITIALIZER,
       useFactory: initTimezoneFormat,
       deps: [
-        TimezoneFormatService,
         ApiServiceCheckerService,
+        TimezoneFormatService,
         AppVersionService
       ],
       multi: true

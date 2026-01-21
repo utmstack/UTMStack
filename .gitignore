@@ -8,3 +8,6 @@ installer/installer
 
 **/.vscode
 **/*.plugin
+geolocation/
+installer/public_key.crt
+.github/scripts/golang-updater/go-updater
