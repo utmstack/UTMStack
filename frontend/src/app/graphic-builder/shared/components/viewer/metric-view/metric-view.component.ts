@@ -1,13 +1,16 @@
 import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Observable, of, Subject} from 'rxjs';
+import {catchError, filter, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {DashboardBehavior} from '../../../../../shared/behaviors/dashboard.behavior';
+import {TimeFilterBehavior} from '../../../../../shared/behaviors/time-filter.behavior';
 import {EchartClickAction} from '../../../../../shared/chart/types/action/echart-click-action';
 import {MetricResponse} from '../../../../../shared/chart/types/metric/metric-response';
 import {VisualizationType} from '../../../../../shared/chart/types/visualization.type';
-import {
-  ElasticFilterDefaultTime
-} from '../../../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
+import {ElasticFilterDefaultTime} from '../../../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
+import {ChartBuilderQueryLanguageEnum} from '../../../../../shared/enums/chart-builder-query-language.enum';
 import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
+import {RefreshService, RefreshType} from '../../../../../shared/services/util/refresh.service';
 import {TimeFilterType} from '../../../../../shared/types/time-filter.type';
 import {mergeParams, sanitizeFilters} from '../../../../../shared/util/elastic-filter.util';
 import {extractMetricLabel} from '../../../../chart-builder/chart-property-builder/shared/functions/visualization-util';
@@ -16,10 +19,7 @@ import {RunVisualizationService} from '../../../services/run-visualization.servi
 import {UtmChartClickActionService} from '../../../services/utm-chart-click-action.service';
 import {rebuildVisualizationFilterTime} from '../../../util/chart-filter/chart-filter.util';
 import {resolveDefaultVisualizationTime} from '../../../util/visualization/visualization-render.util';
-import {Observable, of, Subject} from "rxjs";
-import {RefreshService, RefreshType} from "../../../../../shared/services/util/refresh.service";
-import {catchError, filter, switchMap, takeUntil, tap} from 'rxjs/operators';
-import {TimeFilterBehavior} from "../../../../../shared/behaviors/time-filter.behavior";
+
 
 @Component({
   selector: 'app-metric-view',
@@ -125,6 +125,8 @@ export class MetricViewComponent implements OnInit, OnDestroy {
       this.toastService.showError('Error',
         'Error occurred while running visualization');
     });*/
+    this.visualization.queryLanguage = this.visualization.sqlQuery ? ChartBuilderQueryLanguageEnum.SQL
+      : ChartBuilderQueryLanguageEnum.DSL;
 
     return this.runVisualizationService.run(this.visualization)
       .pipe(
@@ -174,8 +176,12 @@ export class MetricViewComponent implements OnInit, OnDestroy {
             const optionIndex = this.visualization.chartConfig.findIndex(value => Number(value.metricId) === Number(d.metricId));
             kpi.push({
               value: d.value,
-              label: extractMetricLabel(this.visualization.aggregationType.metrics[metricIndex].id, this.visualization),
-              group: this.extractGroupName(d.bucketKey),
+              label: this.visualization.queryLanguage === ChartBuilderQueryLanguageEnum.DSL ?
+                extractMetricLabel(this.visualization.aggregationType.metrics[metricIndex].id, this.visualization)
+                : d.metricId ? d.metricId : '',
+              group:  this.visualization.queryLanguage === ChartBuilderQueryLanguageEnum.DSL ?
+                  this.extractGroupName(d.bucketKey)
+                  : d.bucketId + ' - ' + d.bucketKey,
               bucketKey: d.bucketKey,
               color: optionIndex > -1 ? this.visualization.chartConfig[optionIndex].color : null,
               icon: optionIndex > -1 ? this.visualization.chartConfig[optionIndex].icon : null,

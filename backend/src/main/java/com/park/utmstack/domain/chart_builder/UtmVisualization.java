@@ -69,7 +69,6 @@ public class UtmVisualization implements Serializable {
     @Column(name = "system_owner")
     private Boolean systemOwner;
 
-    @NotNull
     @Column(name = "id_pattern")
     private Long idPattern;
 
@@ -104,7 +103,10 @@ public class UtmVisualization implements Serializable {
     @JsonDeserialize
     private AggregationType aggregationType;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Column(name = "sql_query", nullable = true)
+    private String sqlQuery;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
     @JoinColumn(name = "id_pattern", referencedColumnName = "id", insertable = false, updatable = false)
     private UtmIndexPattern pattern;
 
@@ -196,6 +198,10 @@ public class UtmVisualization implements Serializable {
     }
 
     public List<FilterType> getFilterType() throws UtmSerializationException {
+        if (_filters == null) {
+            return null;
+        }
+
         filterType = UtilSerializer.jsonDeserializeList(FilterType.class, _filters);
         return filterType;
     }
@@ -223,6 +229,14 @@ public class UtmVisualization implements Serializable {
         if (aggregationType != null)
             aggregation = UtilSerializer.jsonSerialize(aggregationType);
         this.aggregationType = aggregationType;
+    }
+
+    public String getSqlQuery() {
+        return sqlQuery;
+    }
+
+    public void setSqlQuery(String sqlQuery) {
+        this.sqlQuery = sqlQuery;
     }
 
     public String getChartAction() {

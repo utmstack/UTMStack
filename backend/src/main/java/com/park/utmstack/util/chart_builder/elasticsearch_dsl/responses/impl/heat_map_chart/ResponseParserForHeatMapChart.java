@@ -10,8 +10,10 @@ import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.Response
 import com.utmstack.opensearch_connector.parsers.DateHistogramAggregateParser;
 import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
 import com.utmstack.opensearch_connector.types.BucketAggregation;
+import com.utmstack.opensearch_connector.types.SearchSqlResponse;
 import org.opensearch.client.opensearch._types.aggregations.Aggregate;
 import org.opensearch.client.opensearch.core.SearchResponse;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -148,6 +150,66 @@ public class ResponseParserForHeatMapChart implements ResponseParser<HeatMapChar
                     coord[2] = "";
                     break;
             }
+        }
+    }
+
+    @Override
+    public List<HeatMapChartResult> parse(UtmVisualization visualization, SearchSqlResponse<Map> result) {
+        final String ctx = CLASSNAME + ".parse(SearchSqlResponse)";
+        try {
+            Assert.notNull(visualization, "Param visualization must not be null");
+
+            HeatMapChartResult retValue = new HeatMapChartResult();
+
+            String metricAlias = "Count";
+            if (!result.getData().isEmpty() && result.getData().get(0) instanceof Map) {
+                Map<String, Object> firstRow = (Map<String, Object>) result.getData().get(0);
+                for (Map.Entry<String, Object> entry : firstRow.entrySet()) {
+                    if (entry.getValue() instanceof Number) {
+                        metricAlias = entry.getKey();
+                        break;
+                    }
+                }
+            }
+
+            retValue.addYAxis(metricAlias);
+
+            int index = 0;
+            for (Object rowObj : result.getData()) {
+                if (!(rowObj instanceof Map)) continue;
+                Map<String, Object> row = (Map<String, Object>) rowObj;
+
+                String bucketKey = null;
+                Double metricValue = null;
+
+                for (Map.Entry<String, Object> entry : row.entrySet()) {
+                    Object val = entry.getValue();
+                    if (val == null) continue;
+
+                    if (bucketKey == null && val instanceof String) {
+                        bucketKey = entry.getKey() + ":=" + val.toString();
+                    }
+                    if (metricValue == null && val instanceof Number) {
+                        metricValue = ((Number) val).doubleValue();
+                    }
+                }
+
+                if (bucketKey == null || metricValue == null) continue;
+
+                retValue.addXAxis(bucketKey);
+
+                Double[] data = new Double[3];
+                data[0] = (double) index;
+                data[1] = 0.0;
+                data[2] = metricValue;
+
+                retValue.addData(data);
+                index++;
+            }
+
+            return Collections.singletonList(retValue);
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage(), e);
         }
     }
 }

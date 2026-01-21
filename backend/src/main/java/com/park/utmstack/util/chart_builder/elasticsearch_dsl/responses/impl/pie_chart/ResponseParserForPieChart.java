@@ -10,15 +10,14 @@ import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.Response
 import com.park.utmstack.util.exceptions.UtmChartBuilderException;
 import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
 import com.utmstack.opensearch_connector.types.BucketAggregation;
+import com.utmstack.opensearch_connector.types.SearchSqlResponse;
 import org.opensearch.client.opensearch._types.aggregations.*;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ResponseParserForPieChart implements ResponseParser<PieChartResult> {
     private static final String CLASSNAME = "ResponseParserForPieChart";
@@ -33,7 +32,6 @@ public class ResponseParserForPieChart implements ResponseParser<PieChartResult>
 
             Bucket bucket = aggregationType.getBucket();
 
-            // In pie chart only one metric is allowed
             if (CollectionUtils.isEmpty(aggregationType.getMetrics()) || aggregationType.getMetrics().size() > 1)
                 throw new UtmChartBuilderException("In pie charts it is required one and only one metric type");
 
@@ -112,5 +110,42 @@ public class ResponseParserForPieChart implements ResponseParser<PieChartResult>
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
+    }
+
+    @Override
+    public List<PieChartResult> parse(UtmVisualization visualization, SearchSqlResponse<Map> result) {
+        return result.getData().stream()
+                .map(r -> {
+                    if (!(r instanceof Map)) {
+                        return new PieChartResult("UNKNOWN", 0.0, "N/A", "N/A");
+                    }
+
+                    Map<String, Object> map = (Map<String, Object>) r;
+
+                    String bucketKey = null;
+                    String bucketId = null;
+
+                    double value = 0.0;
+                    String metricId = null;
+
+                    for (Map.Entry<?, ?> entry : map.entrySet()) {
+                        String key = entry.getKey().toString();
+                        Object val = entry.getValue();
+
+                        if (val instanceof Number) {
+                            value = ((Number) val).doubleValue();
+                            metricId = key;
+                        } else {
+                            bucketKey = val != null ? val.toString() : null;
+                            bucketId = key;
+                        }
+                    }
+
+                    if (metricId == null) metricId = "metric";
+                    if (bucketId == null) bucketId = "bucket";
+
+                    return new PieChartResult(metricId, value, bucketKey, bucketId);
+                })
+                .collect(Collectors.toList());
     }
 }

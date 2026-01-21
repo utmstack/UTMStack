@@ -2,6 +2,7 @@ import {
   extractMetricLabel,
   getBucketLabel
 } from '../../../../../graphic-builder/chart-builder/chart-property-builder/shared/functions/visualization-util';
+import {ChartBuilderQueryLanguageEnum} from '../../../../enums/chart-builder-query-language.enum';
 import {UtmTagCloudOptionType} from '../../../types/charts/tag-cloud/utm-tag-cloud-option.type';
 import {PieBuilderResponseType} from '../../../types/response/pie-builder-response.type';
 import {VisualizationType} from '../../../types/visualization.type';
@@ -16,7 +17,12 @@ export class TagCloud implements ChartBuildInterface {
   buildChart(data?: any[], visualization?: VisualizationType): ChartOption {
     const tagOptions: UtmTagCloudOptionType = visualization.chartConfig;
     tagOptions.series[0].data = this.extractTagValues(data, visualization);
-    tagOptions.series[0].name = getBucketLabel(0, visualization);
+
+    tagOptions.series[0].name =
+      visualization.queryLanguage === ChartBuilderQueryLanguageEnum.SQL
+        ? (data && data.length > 0 && data[0].bucketId ? data[0].bucketId : 'Count')
+        : getBucketLabel(0, visualization);
+
     return tagOptions;
   }
 
@@ -28,7 +34,10 @@ export class TagCloud implements ChartBuildInterface {
       for (const dat of data) {
         values.push(
           {
-            name: dat.bucketKey ? dat.bucketKey : extractMetricLabel(dat.metricId, visualization),
+            name: dat.bucketKey ? dat.bucketKey
+              : visualization.queryLanguage === ChartBuilderQueryLanguageEnum.DSL ?
+                extractMetricLabel(dat.metricId, visualization)
+                : 'ALL',
             value: Number(dat.value.toFixed(2)),
             textStyle: this.createRandomItemStyle(tagOptions.series[0].color),
           }

@@ -76,8 +76,9 @@ export class IndexPatternSelectComponent implements OnInit {
     }
   }
 
-  getListPatterns(){
-    return this.patterns.map(pattern => ({ id: pattern.id, name: pattern.pattern, selected: this.pattern.id == pattern.id }));
+  getListPatterns() {
+    return this.patterns.map(pattern => ({ id: pattern.id, name: pattern.pattern, selected:
+        (this.pattern ? this.pattern.id === pattern.id : false) }));
   }
 
   selectedPattern($event,popover) {

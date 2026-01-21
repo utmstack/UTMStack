@@ -1,30 +1,30 @@
 <div class="container-fluid pr-3 pl-3 pt-2">
-  <div class="d-flex justify-content-between align-items-center mb-2">
-    <h5 *ngIf="visualization && !mode"
-        class="card-title mb-0 text-uppercase label-header">
-      Visualization builder
+  <div class="d-flex justify-content-between align-items-center">
+    <h5 class="mb-0 label-header px-3 py-2">
+      {{mode==='edit' ? visualization && visualization.name : 'Visualization builder'}}
     </h5>
-    <h5 *ngIf="visualization && mode==='edit'"
-        class="card-title mb-0 text-uppercase label-header">
-      {{visualization.name}}
-    </h5>
-    <div class="header-elements d-flex">
-      <button (click)="saveVisualization()" [disabled]="!(metricNoErrors && bucketNoErrors)"
-              class="btn utm-button utm-button-primary d-flex">
-        <span [ngClass]="chartIconResolver()" class="mr-2 utm-icon-xs utm-icon-white"></span>
-        Save visualization
-      </button>
-      <button class="btn utm-button utm-button-grey d-flex ml-2"
-              (click)="cancel()">
-        Cancel
-      </button>
-    </div>
   </div>
+
+  <app-visualization-header class="d-flex bg-white"
+      (indexPatternSelected)="indexPatternSelected($event)"
+      [chartType]="chart"
+      (cancelled)="cancel()"
+      (saved)="saveVisualization()"
+      [sqlMode]="isSqlMode"
+      (sqlModeToggled)="toggleSqlMode($event)"
+      (indexPatternInitialized)="indexPatternLoaded($event)"
+      [pattern]="visualization.pattern"
+      [showModeToggle] = "mode !== 'edit'"
+      *ngIf="!loading"
+      >
+  </app-visualization-header>
+
   <div class="row">
-    <div *ngIf="visualization && visualization.filterType" class="col-lg-12 col-sm-12 col-md-12">
+    <div *ngIf="visualization && visualization.filterType && !isSqlMode" class="col-lg-12 col-sm-12 col-md-12 p-0">
       <app-utm-elastic-filter (filterChange)="onFilterChange($event)"
                               [filters]="visualization.filterType"
                               [pattern]="pattern"
+                              [template]="'log-explorer'"
                               [defaultTime]="defaultTime"
                               class="w-100">
       </app-utm-elastic-filter>
@@ -37,7 +37,7 @@
         <div class="p-2 d-flex
         justify-content-between
         align-items-center bg-utm-bar">
-          <label class="text-white">{{pattern}}</label>
+          <label class="text-white">{{isSqlMode ? '' : pattern}}</label>
           <span (click)="runVisualization()" *ngIf="(metricNoErrors && bucketNoErrors)"
                 class="cursor-pointer"
                 ngbTooltip="Run visualization"
@@ -63,6 +63,7 @@
 
           <div class="metric-property-container">
             <div
+              *ngIf="!isSqlMode"
               [hidden]="property!==headers[0].name"
               class="pt-2 metric-data-container w-100 h-100">
               <app-metric-aggregation (metricDefChange)="onMetricChange($event)"
@@ -89,13 +90,30 @@
                                 [mode]="mode"
                                 [visualization]="visualization"></app-list-columns>
             </div>
-            <div *ngIf="visualization" [hidden]="property!==headers[1].name"
+            <div *ngIf="property === headers[0].name && isSqlMode"
+              class="metric-data-container w-100 h-100">
+              <app-code-editor
+                  [showFullEditor]="false"
+                  [(ngModel)]="sqlQuery"
+                  (ngModelChange)="clearMessages()"
+                  [customKeywords]="loadFieldNames().concat(indexPatternNames)"
+                  [consoleOptions]="codeEditorOptions">
+              </app-code-editor>
+            </div>
+            <div class="execution-info" *ngIf="errorMessage && isSqlMode">
+              <div class="text-danger-800">
+                <span>{{ errorMessage }}</span>
+              </div>
+            </div>
+            <div *ngIf="visualization" [hidden]="property !== headers[1].name"
                  class="pt-2 option-container w-100 h-100">
-              <app-metric-properties-option (metricOptions)="onMetricOptionChange($event)"
-                                            *ngSwitchCase="chartTypeEnum.METRIC_CHART"
-                                            [mode]="mode"
-                                            [visualization]="visualization">
-              </app-metric-properties-option>
+              <ng-container *ngSwitchCase="chartTypeEnum.METRIC_CHART">
+                <app-metric-properties-option (metricOptions)="onMetricOptionChange($event)"
+                                              *ngIf="!isSqlMode"
+                                              [mode]="mode"
+                                              [visualization]="visualization">
+                </app-metric-properties-option>
+              </ng-container>
               <ng-container *ngSwitchCase="chartTypeEnum.PIE_CHART">
                 <app-pie-properties-options (pieOptions)="onPieOptionsChange($event)"
                                             *ngIf="visualization.chartConfig"
@@ -112,7 +130,7 @@
               </ng-container>
               <ng-container *ngSwitchCase="chartTypeEnum.GOAL_CHART">
                 <app-goal-properties-option (goalOptions)="onGoalOptionChange($event)"
-                                            *ngIf="visualization.chartConfig"
+                                            *ngIf="visualization.chartConfig && !sqlQuery"
                                             [mode]="mode"
                                             [visualization]="visualization">
                 </app-goal-properties-option>
@@ -184,7 +202,7 @@
         </div>
       </div>
     </div>
-    <div class="col-lg-9 col-md-12 col-sm-12 position-relative pl-0 pt-5">
+    <div class="col-lg-9 col-md-12 col-sm-12 position-relative pl-0 pt-5" *ngIf="(pattern && !isSqlMode) || isSqlMode">
       <div class="data-visualization d-flex
       justify-content-center align-items-start w-100 h-100 position-absolute">
         <app-utm-viewer (runned)="onRunVisualization($event)"

@@ -1,4 +1,5 @@
-import {AfterViewChecked, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {Location} from '@angular/common';
+import {AfterViewChecked, ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerService} from 'ngx-spinner';
@@ -16,25 +17,30 @@ import {UtmTagCloudOptionType} from '../../shared/chart/types/charts/tag-cloud/u
 import {MetricAggregationType} from '../../shared/chart/types/metric/metric-aggregation.type';
 import {MetricBucketsType} from '../../shared/chart/types/metric/metric-buckets.type';
 import {VisualizationType} from '../../shared/chart/types/visualization.type';
+import {CodeEditorComponent, ConsoleOptions} from '../../shared/components/code-editor/code-editor.component';
 import {
   ElasticFilterDefaultTime
 } from '../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
 import {UTM_CHART_ICONS} from '../../shared/constants/icons-chart.const';
+import {ALERT_INDEX_PATTERN, LOG_INDEX_PATTERN} from '../../shared/constants/main-index-pattern.constant';
 import {MULTIPLE_METRIC_CHART} from '../../shared/constants/visualization-bucket-metric.constant';
+import {ChartBuilderQueryLanguageEnum} from '../../shared/enums/chart-builder-query-language.enum';
 import {ChartTypeEnum} from '../../shared/enums/chart-type.enum';
 import {ElasticOperatorsEnum} from '../../shared/enums/elastic-operators.enum';
 import {DataNatureTypeEnum} from '../../shared/enums/nature-data.enum';
 import {RouteCallbackEnum} from '../../shared/enums/route-callback.enum';
-import {ElasticSearchIndexService} from '../../shared/services/elasticsearch/elasticsearch-index.service';
+import {SqlValidationService} from '../../shared/services/code-editor/sql-validation.service';
 import {FieldDataService} from '../../shared/services/elasticsearch/field-data.service';
+import {LocalFieldService} from '../../shared/services/elasticsearch/local-field.service';
 import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
+import {UtmIndexPattern} from '../../shared/types/index-pattern/utm-index-pattern';
 import {RunVisualizationBehavior} from '../shared/behavior/run-visualization.behavior';
 import {VisualizationQueryParamsEnum} from '../shared/enums/visualization-query-params.enum';
 import {VisualizationService} from '../visualization/shared/services/visualization.service';
 import {VisualizationSaveComponent} from '../visualization/visualization-save/visualization-save.component';
-import {VisualizationBehavior} from './chart-property-builder/shared/behaviors/visualization.behavior';
-import {Location} from "@angular/common";
-import {DashboardStatusEnum} from "../dashboard-builder/shared/enums/dashboard-status.enum";
+
+import {DashboardStatusEnum} from '../dashboard-builder/shared/enums/dashboard-status.enum';
+
 
 @Component({
   selector: 'app-chart-builder',
@@ -62,23 +68,28 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
   private patternId: number;
   defaultTime = new ElasticFilterDefaultTime('now-24h', 'now');
 
+  @ViewChild(CodeEditorComponent) codeEditor: CodeEditorComponent;
+  isSqlMode = false;
+  errorMessage = '';
+  sqlQuery = '';
+  indexPatternNames: string[] = [];
+  codeEditorOptions: ConsoleOptions = {lineNumbers: 'off'};
+  loading = true;
 
   constructor(private spinner: NgxSpinnerService,
               private route: ActivatedRoute,
               private modalService: NgbModal,
               private fieldDataBehavior: FieldDataService,
-              private visualizationBehavior: VisualizationBehavior,
               private cdr: ChangeDetectorRef,
-              private indexPatternFieldService: ElasticSearchIndexService,
               private visualizationService: VisualizationService,
               private runVisualizationBehavior: RunVisualizationBehavior,
               private location: Location,
-              private router: Router) {
+              private router: Router,
+              private localFieldService: LocalFieldService,
+              private sqlValidationService: SqlValidationService) {
     route.queryParams.subscribe(params => {
       this.chart = params[VisualizationQueryParamsEnum.CHART];
       this.mode = params[VisualizationQueryParamsEnum.MODE];
-      this.pattern = params[VisualizationQueryParamsEnum.PATTERN_NAME];
-      this.patternId = Number(params[VisualizationQueryParamsEnum.PATTERN_ID]);
       if (params[VisualizationQueryParamsEnum.CALLBACK]) {
         this.callback = params[VisualizationQueryParamsEnum.CALLBACK];
       }
@@ -89,12 +100,22 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
 
   ngOnInit() {
     this.tempId = Math.floor(Math.random() * (1000000 - 20000 + 1) + 20000);
-    this.getFields();
     if (this.mode === 'edit') {
       this.visualizationService.find(this.visualizationId).subscribe(vis => {
         this.visualization = vis.body;
+        if (this.visualization.sqlQuery) {
+          this.visualization.queryLanguage = ChartBuilderQueryLanguageEnum.SQL;
+          this.sqlQuery = this.visualization.sqlQuery;
+          this.isSqlMode = true;
+        } else {
+          this.visualization.queryLanguage = ChartBuilderQueryLanguageEnum.DSL;
+          this.pattern = this.visualization.pattern.pattern;
+          this.patternId = this.visualization.pattern.id;
+          this.isSqlMode = false;
+        }
         const defaultFilterTime = this.getDefaultFilterTimeFromVisualization(this.visualization.filterType);
         this.defaultTime = defaultFilterTime ? defaultFilterTime : new ElasticFilterDefaultTime('now-24h', 'now');
+        this.loading = false;
       });
     } else {
       this.visualization = {
@@ -107,16 +128,15 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
         },
         chartAction: new ChartActionType(false),
         filterType: [{field: '@timestamp', operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['now-24h', 'now']}],
-        idPattern: this.patternId,
+        idPattern: null,
         chartType: this.chart,
         eventType: this.type,
         userCreated: null,
         name: '',
-        pattern: {
-          id: this.patternId,
-          pattern: this.pattern
-        },
+        pattern: null,
+        queryLanguage: ChartBuilderQueryLanguageEnum.DSL
       };
+      this.loading = false;
     }
   }
 
@@ -137,18 +157,37 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
 
   runVisualization() {
     this.running = true;
+    if (this.isSqlMode) {
+      this.errorMessage = this.sqlValidationService.validateSqlQuery(this.sqlQuery);
+      if (this.errorMessage) {
+        this.running = false;
+        return;
+      }
+      this.visualization.sqlQuery = this.sqlQuery;
+      this.visualization.queryLanguage = ChartBuilderQueryLanguageEnum.SQL;
+    } else {
+      this.visualization.queryLanguage = ChartBuilderQueryLanguageEnum.DSL;
+    }
     this.runVisualizationBehavior.$run.next(this.tempId);
   }
 
   saveVisualization() {
+    if (this.isSqlMode && this.sqlQuery === '') {
+      this.errorMessage = 'SQL Query cannot be empty';
+      return;
+    }
     const modal = this.modalService.open(VisualizationSaveComponent, {centered: true});
+    if (this.isSqlMode) {
+      this.nullifyUnusedFields();
+      this.visualization.queryLanguage = ChartBuilderQueryLanguageEnum.SQL;
+      this.visualization.sqlQuery = this.sqlQuery;
+    } else {
+      this.visualization.queryLanguage = ChartBuilderQueryLanguageEnum.DSL;
+      this.visualization.sqlQuery = '';
+    }
     modal.componentInstance.visualization = this.visualization;
     modal.componentInstance.callback = this.callback;
     modal.componentInstance.mode = this.mode;
-  }
-
-  chartIconResolver(): string {
-    return UTM_CHART_ICONS[this.chart];
   }
 
   onFilterChange($event: ElasticFilterType[]) {
@@ -277,4 +316,40 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
       this.location.back();
     }
   }
+
+  toggleSqlMode($event: boolean) {
+    this.visualization.sqlQuery = '';
+    this.isSqlMode = $event;
+  }
+
+  indexPatternSelected(pattern: UtmIndexPattern) {
+    this.pattern = pattern.pattern;
+    this.visualization.pattern = pattern;
+    this.visualization.idPattern = pattern.id;
+    this.patternId = pattern.id;
+    this.getFields();
+  }
+
+  loadFieldNames() {
+    return [
+      ...this.localFieldService.getPatternStoredFields(ALERT_INDEX_PATTERN).map(f => f.name),
+      ...this.localFieldService.getPatternStoredFields(LOG_INDEX_PATTERN).map(f => f.name)
+    ];
+  }
+
+  indexPatternLoaded(indexPatternNames: string[]) {
+    this.indexPatternNames = indexPatternNames;
+  }
+
+  nullifyUnusedFields() {
+    this.visualization.aggregationType = null;
+    this.visualization.pattern = null;
+    this.visualization.idPattern = null;
+    this.visualization.filterType = null;
+  }
+
+  clearMessages(): void {
+    this.errorMessage = '';
+  }
+
 }

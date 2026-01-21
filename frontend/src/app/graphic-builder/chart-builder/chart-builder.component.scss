@@ -51,3 +51,25 @@
 app-utm-viewer {
   width: 100%;
 }
+
+.label-header {
+  border-top-left-radius: .25rem;
+  border-top-right-radius: .25rem;
+  font-weight: 500;
+}
+
+::ng-deep .metric-data-container app-code-editor {
+  .monaco-editor {
+    height: 250px !important;
+    width: 100% !important;
+  }
+
+  .editor-container .execution-info{
+    padding: 5px 0px !important;
+    border-bottom: none !important;
+  }
+}
+
+.container-fluid {
+  overflow: auto;
+}

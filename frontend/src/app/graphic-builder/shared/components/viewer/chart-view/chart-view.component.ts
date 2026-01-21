@@ -1,24 +1,15 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output, SimpleChanges
-} from '@angular/core';
-import { Observable, of, Subject} from 'rxjs';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Observable, of, Subject} from 'rxjs';
 import {catchError, filter, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {DashboardBehavior} from '../../../../../shared/behaviors/dashboard.behavior';
-import EChartOption = echarts.EChartOption;
-import {TimeFilterBehavior} from "../../../../../shared/behaviors/time-filter.behavior";
+import {TimeFilterBehavior} from '../../../../../shared/behaviors/time-filter.behavior';
 import {ChartFactory} from '../../../../../shared/chart/factories/echart-factory/chart-factory';
 import {VisualizationType} from '../../../../../shared/chart/types/visualization.type';
 import {
   ElasticFilterDefaultTime
 } from '../../../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
+import {ChartBuilderQueryLanguageEnum} from '../../../../../shared/enums/chart-builder-query-language.enum';
 import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
 import {ElasticOperatorsEnum} from '../../../../../shared/enums/elastic-operators.enum';
 import {RefreshService, RefreshType} from '../../../../../shared/services/util/refresh.service';
@@ -30,6 +21,7 @@ import {RunVisualizationService} from '../../../services/run-visualization.servi
 import {UtmChartClickActionService} from '../../../services/utm-chart-click-action.service';
 import {rebuildVisualizationFilterTime} from '../../../util/chart-filter/chart-filter.util';
 import {resolveDefaultVisualizationTime} from '../../../util/visualization/visualization-render.util';
+import EChartOption = echarts.EChartOption;
 // @ts-ignore
 require('echarts-wordcloud');
 
@@ -90,7 +82,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       .subscribe(id => {
       if (id && this.chartId === id) {
         this.refreshService.sendRefresh(this.refreshType);
-        this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
+        this.defaultTime = this.visualization.filterType && this.visualization.queryLanguage !== ChartBuilderQueryLanguageEnum.SQL ?
+          resolveDefaultVisualizationTime(this.visualization) : new ElasticFilterDefaultTime('now-30d', 'now');
       }
     });
 
@@ -132,12 +125,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       });
 
     if (!this.defaultTime) {
-      this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
-
-      if (!this.defaultTime) {
-        this.refreshService.sendRefresh(this.refreshType);
-      }
-
+      this.defaultTime = this.visualization.filterType ? resolveDefaultVisualizationTime(this.visualization)
+        : new ElasticFilterDefaultTime('now-30d', 'now');
+      this.refreshService.sendRefresh(this.refreshType);
     }
   }
 
@@ -165,6 +155,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
   runVisualization() {
     this.loadingOption = true;
+    this.visualization.queryLanguage = this.visualization.sqlQuery ? ChartBuilderQueryLanguageEnum.SQL
+        : ChartBuilderQueryLanguageEnum.DSL;
     return this.runVisualizationService.run(this.visualization)
       .pipe(
         tap((data) => {

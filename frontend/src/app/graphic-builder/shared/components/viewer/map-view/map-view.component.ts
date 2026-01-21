@@ -11,6 +11,7 @@ import {UtmScatterMapOptionType} from '../../../../../shared/chart/types/charts/
 import {LeafletMapType} from '../../../../../shared/chart/types/map/leaflet/leaflet-map.type';
 import {VisualizationType} from '../../../../../shared/chart/types/visualization.type';
 import {ElasticFilterDefaultTime} from '../../../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
+import {ChartBuilderQueryLanguageEnum} from '../../../../../shared/enums/chart-builder-query-language.enum';
 import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
 import {RefreshService, RefreshType} from '../../../../../shared/services/util/refresh.service';
 import {TimeFilterType} from '../../../../../shared/types/time-filter.type';
@@ -295,7 +296,9 @@ export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe(id => {
       if (id && this.chartId === id) {
         this.refreshService.sendRefresh(this.refreshType);
-        this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
+        this.defaultTime = this.visualization.queryLanguage === ChartBuilderQueryLanguageEnum.DSL ?
+          resolveDefaultVisualizationTime(this.visualization)
+          : new ElasticFilterDefaultTime('now-30d', 'now');
       }
     });
     this.dashboardBehavior.$filterDashboard
@@ -323,12 +326,10 @@ export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
     if (!this.defaultTime) {
-      this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
-
-      if (!this.defaultTime) {
-        this.refreshService.sendRefresh(this.refreshType);
-      }
-
+      this.defaultTime = this.visualization.queryLanguage === ChartBuilderQueryLanguageEnum.DSL ?
+        resolveDefaultVisualizationTime(this.visualization)
+        : new ElasticFilterDefaultTime('now-30d', 'now');
+      this.refreshService.sendRefresh(this.refreshType);
     }
   }
 
@@ -396,7 +397,7 @@ export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
           'padding-top:10px' +
           'font: 13px / 20px Poppins, sans-serif;' +
           'pointer-events: none;">' +
-          getBucketLabel(0, this.visualization) +
+          this.visualization.queryLanguage === ChartBuilderQueryLanguageEnum.DSL ? getBucketLabel(0, this.visualization) : '' +
           '<br>' +
           '<span style="display:inline-block;' +
           'margin-right:5px;' +
