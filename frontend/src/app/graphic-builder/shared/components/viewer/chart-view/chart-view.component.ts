@@ -165,7 +165,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
           this.runWithError = false;
           this.onChartChange(data);
         }),
-        catchError(() => {
+        catchError((err) => {
+          console.error(err);
           this.loadingOption = false;
           this.runWithError = true;
           this.echartOption = null;
