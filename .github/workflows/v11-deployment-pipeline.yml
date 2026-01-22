@@ -79,6 +79,12 @@ jobs:
             TAG="${{ github.event.release.tag_name }}"
             echo "Tag from prerelease: $TAG"
 
+            # Skip if tag doesn't start with v11 (this pipeline is for v11 only)
+            if [[ ! "$TAG" =~ ^v11\. ]]; then
+              echo "⏭️ Skipping: Tag '$TAG' is not a v11 release. This pipeline handles v11 releases only."
+              exit 0
+            fi
+
             echo "tag=$TAG" >> $GITHUB_OUTPUT
             echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
             echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
@@ -115,32 +121,10 @@ jobs:
             fi
           fi
 
-  check_go_dependencies:
-    name: Check Go Dependencies
-    runs-on: ubuntu-24.04
-    needs: [validations, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.environment == 'rc' }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ^1.20
-
-      - name: Configure git for private modules
-        run: |
-          git config --global url."https://${{ secrets.API_SECRET }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
-          echo "GOPRIVATE=github.com/utmstack" >> $GITHUB_ENV
-
-      - name: Check for outdated dependencies
-        run: ${{ github.workspace }}/.github/scripts/golang-updater/golang-updater --check --discover
-
   build_agent:
     name: Build and Sign Agent
-    needs: [check_go_dependencies, setup_deployment]
-    if: ${{ always() && (needs.check_go_dependencies.result == 'success' || needs.check_go_dependencies.result == 'skipped') && needs.setup_deployment.outputs.tag != '' }}
+    needs: [setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: utmstack-signer
     steps:
       - name: Check out code into the right branch
@@ -204,8 +188,8 @@ jobs:
   
   build_utmstack_collector:
     name: Build UTMStack Collector
-    needs: [check_go_dependencies, setup_deployment]
-    if: ${{ always() && (needs.check_go_dependencies.result == 'success' || needs.check_go_dependencies.result == 'skipped') && needs.setup_deployment.outputs.tag != '' }}
+    needs: [setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
@@ -288,8 +272,8 @@ jobs:
   
   build_event_processor:
     name: Build Event Processor Microservice
-    needs: [check_go_dependencies, setup_deployment]
-    if: ${{ always() && (needs.check_go_dependencies.result == 'success' || needs.check_go_dependencies.result == 'skipped') && needs.setup_deployment.outputs.tag != '' }}
+    needs: [setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
@@ -314,8 +298,8 @@ jobs:
           cd ${{ github.workspace }}/plugins/stats; go build -o com.utmstack.stats.plugin -v .
           cd ${{ github.workspace }}/plugins/soc-ai; go build -o com.utmstack.soc-ai.plugin -v .
           cd ${{ github.workspace }}/plugins/modules-config; go build -o com.utmstack.modules-config.plugin -v .
-          cd ${{ github.workspace }}/plugins/crowdStrike; go build -o com.utmstack.crowdstrike.plugin -v .
-          cd ${{ github.workspace }}/plugins/threadwinds-ingestion; go build -o com.utmstack.threadwinds-ingestion.plugin -v .
+          cd ${{ github.workspace }}/plugins/crowdstrike; go build -o com.utmstack.crowdstrike.plugin -v .
+          cd ${{ github.workspace }}/plugins/feeds; go build -o com.utmstack.feeds.plugin -v .
 
       - name: Prepare Dependencies for Event Processor Image
         run: |
