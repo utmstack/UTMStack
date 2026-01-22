@@ -309,9 +309,6 @@
 
     <include file="/config/liquibase/changelog/20260120001_add_rule_group_by_to_correlation_rules.xml" relativeToChangelogFile="false"/>
 
-
-
     <include file="/config/liquibase/changelog/20251203001_add_column_sqlQuery_to_visualization.xml" relativeToChangelogFile="false"/>
-
 
 </databaseChangeLog>
