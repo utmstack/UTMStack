@@ -32,20 +32,36 @@ jobs:
           # ===================
           # Triggered by: prerelease creation
           elif ${{ github.event_name == 'release' && github.event.action == 'prereleased' }}; then
+            TAG="${{ github.event.release.tag_name }}"
+
+            # Skip if tag doesn't start with v10 (this pipeline is for v10 only)
+            if [[ ! "$TAG" =~ ^v10\. ]]; then
+              echo "⏭️ Skipping: Tag '$TAG' is not a v10 release. This pipeline handles v10 releases only."
+              exit 0
+            fi
+
             echo "RC environment"
             echo "tag=v10-rc" >> $GITHUB_OUTPUT
             echo "environment=rc" >> $GITHUB_OUTPUT
-            echo "release_tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+            echo "release_tag=$TAG" >> $GITHUB_OUTPUT
 
           # ===================
           # PROD Environment
           # ===================
           # Triggered by: prerelease promoted to release
           elif ${{ github.event_name == 'release' && github.event.action == 'released' }}; then
+            TAG="${{ github.event.release.tag_name }}"
+
+            # Skip if tag doesn't start with v10 (this pipeline is for v10 only)
+            if [[ ! "$TAG" =~ ^v10\. ]]; then
+              echo "⏭️ Skipping: Tag '$TAG' is not a v10 release. This pipeline handles v10 releases only."
+              exit 0
+            fi
+
             echo "PROD environment"
             echo "tag=v10" >> $GITHUB_OUTPUT
             echo "environment=prod" >> $GITHUB_OUTPUT
-            echo "release_tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+            echo "release_tag=$TAG" >> $GITHUB_OUTPUT
           fi
   
   validations:
