@@ -178,9 +178,11 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 
 	if references != nil {
 		referencesStr := utils.CastString(references)
-		err := json.Unmarshal([]byte(referencesStr), &referencesList)
-		if err != nil {
-			return catcher.Error("failed to unmarshal references list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		if referencesStr != "" {
+			err := json.Unmarshal([]byte(referencesStr), &referencesList)
+			if err != nil {
+				return catcher.Error("failed to unmarshal references list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
 		}
 	}
 
@@ -188,19 +190,24 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 
 	if deduplicateBy != nil {
 		deduplicateStr := utils.CastString(deduplicateBy)
-		err := json.Unmarshal([]byte(deduplicateStr), &deduplicateByList)
-		if err != nil {
-			return catcher.Error("failed to unmarshal deduplicate list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		if deduplicateStr != "" {
+			err := json.Unmarshal([]byte(deduplicateStr), &deduplicateByList)
+			if err != nil {
+				return catcher.Error("failed to unmarshal deduplicateBy list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
 		}
+
 	}
 
 	var groupByList []string
 
 	if groupBy != nil {
 		groupByStr := utils.CastString(groupBy)
-		err := json.Unmarshal([]byte(groupByStr), &groupByList)
-		if err != nil {
-			return catcher.Error("failed to unmarshal groupBy list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		if groupByStr != "" {
+			err := json.Unmarshal([]byte(groupByStr), &groupByList)
+			if err != nil {
+				return catcher.Error("failed to unmarshal groupBy list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
 		}
 	}
 
@@ -209,14 +216,16 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 	if after != nil {
 		var afterBackendObj []SearchRequestBackend
 		afterStr := utils.CastString(after)
-		err := json.Unmarshal([]byte(afterStr), &afterBackendObj)
-		if err != nil {
-			return catcher.Error("failed to unmarshal after list", err, map[string]any{"process": "plugin_com.utmstack.config"})
-		}
+		if afterStr != "" {
+			err := json.Unmarshal([]byte(afterStr), &afterBackendObj)
+			if err != nil {
+				return catcher.Error("failed to unmarshal correlation list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
 
-		// Convert each SearchRequestBackend to SearchRequest
-		for _, req := range afterBackendObj {
-			afterObj = append(afterObj, req.ToSearchRequest())
+			// Convert each SearchRequestBackend to SearchRequest
+			for _, req := range afterBackendObj {
+				afterObj = append(afterObj, req.ToSearchRequest())
+			}
 		}
 	}
 
