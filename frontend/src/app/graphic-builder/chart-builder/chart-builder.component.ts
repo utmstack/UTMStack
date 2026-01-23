@@ -345,7 +345,7 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
     this.visualization.aggregationType = null;
     this.visualization.pattern = null;
     this.visualization.idPattern = null;
-    this.visualization.filterType = null;
+    // this.visualization.filterType = null;
   }
 
   clearMessages(): void {

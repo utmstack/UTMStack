@@ -127,6 +127,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     if (!this.defaultTime) {
       this.defaultTime = this.visualization.filterType ? resolveDefaultVisualizationTime(this.visualization)
         : new ElasticFilterDefaultTime('now-30d', 'now');
+    }
+
+    if (this.building) {
       this.refreshService.sendRefresh(this.refreshType);
     }
   }
