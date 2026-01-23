@@ -311,4 +311,12 @@
 
     <include file="/config/liquibase/changelog/20251203001_add_column_sqlQuery_to_visualization.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260122001_update_is_activatable_macos_module.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260122002_update_o365_visualizations_filters.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260122003_update_o365_visualizations_agg.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260122004_update_azure_visualizations.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>

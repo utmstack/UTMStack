@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260122004" author="Manuel Abascal">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            ------------------------------------------------------------------
+            -- Azure: requestUri → og.propertiesRequestUri.keyword
+            ------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  'log.azure.properties.requestUri.keyword',
+                                  'log.propertiesRequestUri.keyword')
+                WHERE filters IS NOT NULL;
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      'log.azure.properties.requestUri.keyword',
+                                      'log.propertiesRequestUri.keyword')
+                WHERE aggregation IS NOT NULL;
+
+
+            ------------------------------------------------------------------
+            -- Azure: operationName → log.operationName.keyword
+            ------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  'log.azure.operationName.keyword',
+                                  'log.operationName.keyword')
+                WHERE filters IS NOT NULL;
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      'log.azure.operationName.keyword',
+                                      'log.operationName.keyword')
+                WHERE aggregation IS NOT NULL;
+
+
+            ------------------------------------------------------------------
+            -- Azure: resourceUri → log.resourceId.keyword
+            ------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  'log.azure.resourceUri.keyword',
+                                  'log.resourceId.keyword')
+                WHERE filters IS NOT NULL;
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      'log.azure.resourceUri.keyword',
+                                      'log.resourceId.keyword')
+                WHERE aggregation IS NOT NULL;
+
+
+            ------------------------------------------------------------------
+            -- Azure: message → log.operationName.keyword
+            ------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  'log.azure.message',
+                                  'log.operationName.keyword')
+                WHERE filters IS NOT NULL;
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      'log.azure.message',
+                                      'log.operationName.keyword')
+                WHERE aggregation IS NOT NULL;
+
+
+            ------------------------------------------------------------------
+            -- Visualización 569: override completo de filtros
+            ------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = '[{"operator":"IS_BETWEEN","field":"@timestamp","value":["now-24h","now"]},{"operator":"IS","field":"log.operationName.keyword","value":"Sign-in activity"}]'
+            WHERE id = 569;
+
+
+            ------------------------------------------------------------------
+            -- Azure: clientIp → origin.ip.keyword
+            ------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  'log.azure.properties.clientIp.keyword',
+                                  'origin.ip.keyword')
+            WHERE filters IS NOT NULL;
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      'log.azure.properties.clientIp.keyword',
+                                      'origin.ip.keyword')
+            WHERE aggregation IS NOT NULL;
+
+
+            ------------------------------------------------------------------
+            -- Azure: message → log.message.keyword
+            ------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  'log.azure.properties.message.keyword',
+                                  'log.message.keyword')
+            WHERE filters IS NOT NULL;
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      'log.azure.properties.message.keyword',
+                                      'log.message.keyword')
+            WHERE aggregation IS NOT NULL;
+
+
+            ------------------------------------------------------------------
+            -- Azure: category.localizedValue → log.category.keyword
+            ------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  'log.azure.category.localizedValue.keyword',
+                                  'log.category.keyword')
+            WHERE filters IS NOT NULL;
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      'log.azure.category.localizedValue.keyword',
+                                      'log.category.keyword')
+            WHERE aggregation IS NOT NULL;
+
+
+            ------------------------------------------------------------------
+            -- DELETE visualización con id = 805
+            ------------------------------------------------------------------
+            DELETE FROM utm_visualization
+            WHERE id = 805;
+
+            ]]>
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>
