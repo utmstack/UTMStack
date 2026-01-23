@@ -13,7 +13,7 @@ require (
 	github.com/crowdstrike/gofalcon v0.19.0
 	github.com/gin-gonic/gin v1.11.0
 	github.com/threatwinds/go-sdk v1.1.7
-	google.golang.org/api v0.260.0
+	google.golang.org/api v0.262.0
 	google.golang.org/grpc v1.78.0
 	google.golang.org/protobuf v1.36.11
 )
@@ -21,7 +21,7 @@ require (
 require (
 	cel.dev/expr v0.25.1 // indirect
 	cloud.google.com/go v0.123.0 // indirect
-	cloud.google.com/go/auth v0.18.0 // indirect
+	cloud.google.com/go/auth v0.18.1 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
 	cloud.google.com/go/iam v1.5.3 // indirect
