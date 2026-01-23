@@ -803,11 +803,6 @@ func writeRules(rules []Rule) error {
 				return catcher.Error("failed to write to file", err, map[string]any{"process": "plugin_com.utmstack.config"})
 			}
 
-			err = file.Close()
-			if err != nil {
-				return catcher.Error("failed to close file", err, map[string]any{"process": "plugin_com.utmstack.config"})
-			}
-
 			return nil
 		}()
 
@@ -849,11 +844,6 @@ func writePatterns(patterns map[string]string) error {
 	_, err = file.Write(bPatterns)
 	if err != nil {
 		return catcher.Error("failed to write to file", err, map[string]any{"process": "plugin_com.utmstack.config"})
-	}
-
-	err = file.Close()
-	if err != nil {
-		return catcher.Error("failed to close file", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
 
 	return nil
