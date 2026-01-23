@@ -122,9 +122,11 @@ func (a *Asset) FromVar(name any, hostnames any, ipAddresses any, confidentialit
 
 	if hostnames != nil {
 		hostnamesStr := utils.CastString(hostnames)
-		err := json.Unmarshal([]byte(hostnamesStr), &hostnamesList)
-		if err != nil {
-			return catcher.Error("failed to unmarshal hostnames list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		if hostnamesStr != "" {
+			err := json.Unmarshal([]byte(hostnamesStr), &hostnamesList)
+			if err != nil {
+				return catcher.Error("failed to unmarshal hostnames list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
 		}
 	}
 
@@ -132,9 +134,11 @@ func (a *Asset) FromVar(name any, hostnames any, ipAddresses any, confidentialit
 
 	if ipAddresses != nil {
 		ipAddressesStr := utils.CastString(ipAddresses)
-		err := json.Unmarshal([]byte(ipAddressesStr), &ipAddressesList)
-		if err != nil {
-			return catcher.Error("failed to unmarshal ip addresses list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		if ipAddressesStr != "" {
+			err := json.Unmarshal([]byte(ipAddressesStr), &ipAddressesList)
+			if err != nil {
+				return catcher.Error("failed to unmarshal ip addresses list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
 		}
 	}
 
