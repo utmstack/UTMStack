@@ -1,0 +1,8 @@
+.editor-container {
+  height: 80px;
+}
+
+.execution-info {
+  padding: 12px 0;
+  border-bottom: 1px solid #e0e6ed;
+}

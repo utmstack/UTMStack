@@ -44,6 +44,7 @@ import {UtmCpStandardSectionCreateComponent} from './components/utm-cp-standard-
 import {UtmCpStandardSelectComponent} from './components/utm-cp-standard-select/utm-cp-standard-select.component';
 import {UtmReportInfoViewComponent} from './components/utm-report-info-view/utm-report-info-view.component';
 import {UtmSaveAsComplianceComponent} from './components/utm-save-as-compliance/utm-save-as-compliance.component';
+import {GraphicBuilderSharedModule} from "../../graphic-builder/shared/graphic-builder-shared.module";
 @NgModule({
   declarations: [
     UtmSaveAsComplianceComponent,
@@ -75,7 +76,8 @@ import {UtmSaveAsComplianceComponent} from './components/utm-save-as-compliance/
     ReactiveFormsModule,
     NgbModule,
     UtmDashboardSharedModule,
-    NgxJsonViewerModule
+    NgxJsonViewerModule,
+    GraphicBuilderSharedModule
   ],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: [

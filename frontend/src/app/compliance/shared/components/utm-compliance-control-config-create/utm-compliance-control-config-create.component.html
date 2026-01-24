@@ -4,7 +4,7 @@
     <div class="step-container">
       <div class="step">
          <span class="text-blue-800 font-weight-bold">
-          Standard & Section
+          Report Configuration
         </span>
         <div [ngClass]="isCompleted(1)?'step-success':step===1?'step-active':'step-inactive'"
              class="round-indicator">
@@ -14,7 +14,7 @@
       <div class="step-link"></div>
       <div class="step">
           <span class="text-blue-800 font-weight-bold">
-          View select
+          Queries Configuration
         </span>
         <div [ngClass]="isCompleted(2)?'step-success':step===2?'step-active':'step-inactive'"
              class="round-indicator">
@@ -80,6 +80,11 @@
           [loading]="!strategies"
           class="w-50">
         </ng-select>
+        <div *ngIf="complianceForm.get('strategy').dirty && complianceForm.get('strategy').invalid">
+          <small *ngIf="complianceForm.get('strategy').hasError('required')" class="form-text text-danger">
+            Strategy is required.
+          </small>
+        </div>
       </div>
     </form>
   </div>

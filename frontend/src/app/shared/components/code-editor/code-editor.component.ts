@@ -24,7 +24,8 @@ export interface ConsoleOptions {
   cursorSmoothCaretAnimation?: 'off' | 'on';
 }
 
-const SQL_KEYWORDS = ['CREATE', 'DROP', 'ALTER', 'TRUNCATE',
+const SQL_KEYWORDS = [
+  'CREATE', 'DROP', 'ALTER', 'TRUNCATE',
   'SELECT', 'INSERT', 'UPDATE', 'DELETE',
   'COMMIT', 'ROLLBACK',
   'AND', 'OR', 'NOT', 'BETWEEN', 'IN', 'LIKE', 'EXISTS',
@@ -52,35 +53,36 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
   @Input() showFullEditor = true;
   @Input() showSuggestions = false;
   @Input() consoleOptions?: ConsoleOptions;
-  @Output() execute = new EventEmitter<string>();
-  @Output() clearData = new EventEmitter<void>();
   @Input() queryError: string | null = null;
   @Input() customKeywords: string[] = [];
+
+  @Output() execute = new EventEmitter<string>();
+  @Output() clearData = new EventEmitter<void>();
 
   sqlQuery = '';
   errorMessage = '';
   successMessage = '';
+
+  private editorInstance?: monaco.editor.IStandaloneCodeEditor;
+  private completionProvider?: monaco.IDisposable;
+
+  private onChange = (_: any) => {};
+  private onTouched = () => {};
+  private updatingFromOutside = false;
+
   readonly defaultOptions: ConsoleOptions = {
     value: this.sqlQuery,
     language: 'sql',
     theme: 'myCustomTheme',
-    minimap: {
-      enabled: false
-    },
+    minimap: { enabled: false },
     renderLineHighlight: 'none',
-    scrollbar: {
-      vertical: 'auto',
-      horizontal: 'hidden'
-    },
+    scrollbar: { vertical: 'auto', horizontal: 'hidden' },
     overviewRulerLanes: 0,
     wordWrap: 'on',
     automaticLayout: true,
     lineNumbers: 'on',
     cursorSmoothCaretAnimation: 'off'
   };
-  private completionProvider?: monaco.IDisposable;
-  private onChange = (_: any) => {};
-  private onTouched = () => {};
 
   constructor(private sqlValidationService: SqlValidationService) {}
 
@@ -95,7 +97,16 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
     }
   }
 
-  onEditorInit(editorInstance: monaco.editor.IStandaloneCodeEditor) {
+  // ⭐ Se llama cuando Monaco inicializa el editor
+  onEditorInit(editor: monaco.editor.IStandaloneCodeEditor) {
+    this.editorInstance = editor;
+
+    // Si el formulario ya tenía un valor, lo mostramos
+    if (this.sqlQuery) {
+      editor.setValue(this.sqlQuery);
+    }
+
+    // Autocompletado
     this.completionProvider = monaco.languages.registerCompletionItemProvider('sql', {
       provideCompletionItems: () => {
         const allKeywords = Array.from(new Set([
@@ -103,23 +114,64 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
           ...(this.customKeywords || [])
         ]));
 
-        const suggestions: monaco.languages.CompletionItem[] = allKeywords.map(k => ({
+        const suggestions = allKeywords.map(k => ({
           label: k,
           kind: monaco.languages.CompletionItemKind.Text,
-          insertText: k,
+          insertText: k
         }));
 
         return { suggestions };
       }
     });
 
-    editorInstance.onDidChangeModelContent(() => {
-      const val = editorInstance.getValue();
+    // ⭐ Captura cambios del usuario
+    editor.onDidChangeModelContent(() => {
+      if (this.updatingFromOutside) {
+        return;
+      }
+
+      const val = editor.getValue();
       this.sqlQuery = val;
       this.onChange(val);
       this.onTouched();
     });
   }
+
+  // ⭐ ControlValueAccessor: Angular escribe valores aquí
+  writeValue(value: any): void {
+    this.updatingFromOutside = true;
+
+    this.sqlQuery = value || '';
+
+    if (this.editorInstance) {
+      this.editorInstance.setValue(this.sqlQuery);
+    }
+
+    this.updatingFromOutside = false;
+  }
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState?(isDisabled: boolean): void {
+    if (this.editorInstance) {
+      this.editorInstance.updateOptions({ readOnly: isDisabled });
+    }
+  }
+
+  onEditorInput(value: string) {
+    this.onChange(value);
+    this.onTouched();
+  }
+
+  // -------------------------
+  // Funciones adicionales
+  // -------------------------
 
   executeQuery(): void {
     this.clearMessages();
@@ -140,11 +192,16 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
     this.sqlQuery = '';
     this.clearMessages();
     this.clearData.emit();
+    this.onChange('');
   }
 
   formatQuery(): void {
     this.clearMessages();
     this.sqlQuery = this.formatSql(this.sqlQuery);
+    if (this.editorInstance) {
+      this.editorInstance.setValue(this.sqlQuery);
+    }
+    this.onChange(this.sqlQuery);
   }
 
   private formatSql(sql: string): string {
@@ -167,21 +224,5 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
   clearMessages(): void {
     this.errorMessage = '';
     this.successMessage = '';
-  }
-
-  writeValue(value: any): void {
-    this.sqlQuery = value || '';
-  }
-
-  registerOnChange(fn: any): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: any): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState?(isDisabled: boolean): void {
-    // Optional: handle disabled state
   }
 }

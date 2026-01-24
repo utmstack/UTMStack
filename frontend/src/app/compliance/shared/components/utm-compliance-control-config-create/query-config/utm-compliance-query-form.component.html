@@ -1,52 +1,100 @@
 <form [formGroup]="form" (ngSubmit)="submit()">
   <div class="form-group">
-    <label>Name</label>
-    <input formControlName="name" class="form-control">
+    <label for="queryName">Query Name</label>
+    <input formControlName="name" class="form-control" id="queryName">
+    <div *ngIf="form.get('name').dirty && form.get('name').invalid">
+      <small *ngIf="form.get('name').hasError('required')" class="form-text text-danger">
+        Query name is required.
+      </small>
+      <small *ngIf="form.get('name').hasError('minlength')" class="form-text text-danger">
+        Query name must be at least 10 characters long.
+      </small>
+      <small *ngIf="form.get('name').hasError('maxlength')" class="form-text text-danger">
+        Query name must not exceed 200 characters.
+      </small>
+    </div>
   </div>
 
   <div class="form-group">
-    <label>Description</label>
-    <textarea formControlName="queryDescription" class="form-control"></textarea>
+    <label for="queryDesc">Description ({{ 2000 - ((form.get('queryDescription').value || '').length) }}) </label>
+    <textarea formControlName="queryDescription" class="form-control" id="queryDesc"></textarea>
+    <div *ngIf="form.get('queryDescription').dirty && form.get('queryDescription').invalid">
+      <small *ngIf="form.get('queryDescription').hasError('required')" class="form-text text-danger">
+        Query description is required.
+      </small>
+      <small *ngIf="form.get('queryDescription').hasError('maxlength')" class="form-text text-danger">
+        Query description must not exceed 2000 characters.
+      </small>
+    </div>
   </div>
 
   <div class="form-group">
     <label>SQL Query</label>
-    <app-code-editor
-      [showFullEditor]="false">
-    </app-code-editor>
-    <textarea formControlName="sqlQuery" class="form-control"></textarea>
+    <div class="editor-container">
+      <app-code-editor
+        [showFullEditor]="false"
+        formControlName="sqlQuery"
+        [consoleOptions]="codeEditorOptions"
+        [customKeywords]="loadFieldNames().concat(indexPatternNames)">
+      </app-code-editor>
+    </div>
+    <div *ngIf="errorMessage || (form.get('sqlQuery').invalid && form.get('sqlQuery').touched)">
+      <small class="form-text text-danger">
+        {{ errorMessage || 'SQL Query is required.'}}
+      </small>
+    </div>
   </div>
 
-  <div class="form-group">
-    <label>Evaluation Rule</label>
-    <ng-select
-      formControlName="evaluationRule"
-      [items]="['NO_HITS_ALLOWED','MIN_HITS_REQUIRED','THRESHOLD_MAX','MATCH_FIELD_VALUE']">
-    </ng-select>
-  </div>
+  <div class="d-flex gap-3">
+    <div class="form-group w-50 pr-2">
+      <label for="evalRule">Evaluation Rule</label>
+      <ng-select
+        formControlName="evaluationRule"
+        [items]="evaluationRules"
+        [closeOnSelect]="true"
+        [clearable]="true"
+        id="evalRule">
+      </ng-select>
+      <div *ngIf="form.get('evaluationRule').dirty && form.get('evaluationRule').invalid">
+        <small *ngIf="form.get('evaluationRule').hasError('required')" class="form-text text-danger">
+          Evaluation Rule is required.
+        </small>
+      </div>
+    </div>
 
-  <div class="form-group">
-    <label>Index Pattern</label>
-    <ng-select
-      formControlName="indexPatternId"
-      (change)="onIndexPatternChange($event)"
-      [closeOnSelect]="true"
-      [clearable]="false"
-      [items]="patterns"
-      [loadingText]="'Loading sources....'"
-      [markFirst]="true"
-      [loading]="!patterns"
-      bindLabel="pattern"
-      bindValue="id"
-      style="min-width: 200px">
-    </ng-select>
+    <div class="form-group w-50 pl-2">
+      <label for="indexPatternId">Index Pattern</label>
+      <ng-select
+        formControlName="indexPatternId"
+        [closeOnSelect]="true"
+        [clearable]="true"
+        [items]="indexPatterns"
+        [loadingText]="'Loading sources....'"
+        [markFirst]="false"
+        [loading]="!indexPatterns"
+        bindLabel="pattern"
+        bindValue="id"
+        id="indexPatternId">
+      </ng-select>
+      <div *ngIf="form.get('indexPatternId').dirty && form.get('indexPatternId').invalid">
+        <small *ngIf="form.get('indexPatternId').hasError('required')" class="form-text text-danger">
+          Index Pattern is required.
+        </small>
+      </div>
+    </div>
   </div>
 
   <div class="d-flex justify-content-end">
-    <button *ngIf="query" type="button" class="btn btn-secondary mr-2" (click)="cancelEdit()">
-      Cancel
+    <button *ngIf="query"
+            type="button"
+            class="btn utm-button utm-button-primary"
+            (click)="cancelEdit()">
+        Cancel
     </button>
-    <button type="submit" class="btn utm-button utm-button-primary">
+    <button
+      type="submit"
+      class="btn utm-button utm-button-primary ml-2"
+      [disabled]="form.invalid">
       {{ query ? 'Save changes' : 'Add query' }}
     </button>
   </div>

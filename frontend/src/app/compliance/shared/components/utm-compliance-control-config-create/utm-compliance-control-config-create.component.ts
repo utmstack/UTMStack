@@ -21,7 +21,7 @@ import {ComplianceReportType} from '../../type/compliance-report.type';
 export class UtmComplianceControlConfigCreateComponent implements OnInit {
   @Input() report: ComplianceReportConfigType;
   @Output() reportCreated = new EventEmitter<string>();
-  step = 2;
+  step = 1;
   stepCompleted: number[] = [];
   creating = false;
   viewSection = false;
