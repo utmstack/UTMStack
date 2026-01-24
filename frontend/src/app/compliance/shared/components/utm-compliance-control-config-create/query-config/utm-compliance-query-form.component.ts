@@ -1,87 +1,75 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {ConsoleOptions} from '../../../../../shared/components/code-editor/code-editor.component';
+import {ALERT_INDEX_PATTERN, LOG_INDEX_PATTERN} from '../../../../../shared/constants/main-index-pattern.constant';
+import {SqlValidationService} from '../../../../../shared/services/code-editor/sql-validation.service';
+import {LocalFieldService} from '../../../../../shared/services/elasticsearch/local-field.service';
 import {UtmIndexPattern} from '../../../../../shared/types/index-pattern/utm-index-pattern';
+import {ComplianceEvaluationRuleEnum} from '../../../enums/compliance-evaluation-rule.enum';
 import {UtmComplianceQueryConfigType} from '../../../type/compliance-query-config.type';
-import {HttpResponse} from "@angular/common/http";
-import {IndexPatternService} from "../../../../../shared/services/elasticsearch/index-pattern.service";
 
 @Component({
   selector: 'app-utm-compliance-query-form',
-  templateUrl: './utm-compliance-query-form.component.html'
+  templateUrl: './utm-compliance-query-form.component.html',
+  styleUrls: ['./utm-compliance-query-form.component.css']
 })
 export class UtmComplianceQueryFormComponent implements OnInit {
 
   @Input() query: UtmComplianceQueryConfigType = null;
-
+  @Input() indexPatterns: UtmIndexPattern[] = [];
+  @Input() indexPatternNames: string[] = [];
+  @Input() formBuilder: FormBuilder;
   @Output() save = new EventEmitter<UtmComplianceQueryConfigType>();
   @Output() cancel = new EventEmitter<void>();
 
   form: FormGroup;
-  pattern: UtmIndexPattern;
-  patterns: UtmIndexPattern[];
-  indexPatternList = [];
+  evaluationRules = Object.values(ComplianceEvaluationRuleEnum);
+
+  codeEditorOptions: ConsoleOptions = {lineNumbers: 'off'};
+  errorMessage = '';
 
   constructor(private fb: FormBuilder,
-              private indexPatternService: IndexPatternService) {}
+              private sqlValidationService: SqlValidationService,
+              private localFieldService: LocalFieldService) {}
 
   ngOnInit() {
-    this.getIndexPatterns('init');
     const q = this.query || {};
 
     this.form = this.fb.group({
       id: [q.id || null],
-      name: [q.name || '', Validators.required],
-      queryDescription: [q.queryDescription || '', Validators.required],
-      sqlQuery: [q.sqlQuery || '', Validators.required],
-      evaluationRule: [q.evaluationRule || null, Validators.required],
-      indexPatternId: [q.indexPatternId || null, Validators.required],
+      name: [q.name || '', [Validators.required, Validators.minLength(10), Validators.maxLength(200)]],
+      queryDescription: [q.queryDescription || '', [Validators.required, Validators.maxLength(2000)]],
+      sqlQuery: [q.sqlQuery || '', [Validators.required]],
+      evaluationRule: [q.evaluationRule || null, [Validators.required]],
+      indexPatternId: [q.indexPatternId || null, [Validators.required]],
       controlConfigId: [q.controlConfigId || null]
     });
+
   }
 
   submit() {
     if (this.form.invalid) {
       return;
     }
+
+    const sql = this.form.get('sqlQuery').value;
+    this.errorMessage = this.sqlValidationService.validateSqlQuery(sql);
+    if (this.errorMessage) {
+      return;
+    }
+
     this.save.emit(this.form.value);
+    this.form.reset();
   }
 
   cancelEdit() {
     this.cancel.emit();
   }
 
-  //TODO: ELENA revisar de aqui para abajo
-  onIndexPatternChange($event: any) {
-    this.pattern = $event;
-    //this.indexPatternChange.emit($event);
-  }
-
-  getIndexPatterns(init?: string) {
-    const req = {
-      page: 0,
-      size: 1000,
-      sort: 'id,asc',
-      'isActive.equals': true,
-    };
-    this.indexPatternService.query(req).subscribe(
-      (res: HttpResponse<any>) => this.onSuccess(res.body, res.headers, init),
-      (res: HttpResponse<any>) => this.onError(res.body)
-    );
-  }
-
-  private onSuccess(data, headers, init) {
-    this.patterns = data;
-    this.indexPatternList = this.getListPatterns();
-    if (init) {
-      this.pattern = this.patterns[0];
-    }
-  }
-
-  getListPatterns(){
-    return this.patterns.map(pattern => ({ id: pattern.id, name: pattern.pattern, selected: this.pattern.id == pattern.id }));
-  }
-
-  private onError(error) {
-    // this.alertService.error(error.error, error.message, null);
+  loadFieldNames() {
+    return [
+      ...this.localFieldService.getPatternStoredFields(ALERT_INDEX_PATTERN).map(f => f.name),
+      ...this.localFieldService.getPatternStoredFields(LOG_INDEX_PATTERN).map(f => f.name)
+    ];
   }
 }

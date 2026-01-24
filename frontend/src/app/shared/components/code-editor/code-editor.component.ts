@@ -121,7 +121,7 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
         const suggestions: monaco.languages.CompletionItem[] = allKeywords.map(k => ({
           label: k,
           kind: monaco.languages.CompletionItemKind.Text,
-          insertText: k
+          insertText: k,
         }));
 
         return { suggestions };
