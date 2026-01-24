@@ -97,6 +97,7 @@
                   [(ngModel)]="sqlQuery"
                   (ngModelChange)="clearMessages()"
                   [customKeywords]="loadFieldNames().concat(indexPatternNames)"
+                  (indexPatternChange)="onIndexPatternChange($event)"
                   [consoleOptions]="codeEditorOptions">
               </app-code-editor>
             </div>
