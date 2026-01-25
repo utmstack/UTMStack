@@ -1,13 +1,13 @@
 <div class="query-container">
   <app-utm-compliance-query-form *ngIf="editingIndex === null"
-    (save)="onQueryAdd($event)"
+    (add)="onQueryAdd($event)"
     [indexPatterns]="patterns"
     [indexPatternNames]="indexPatternNames">
   </app-utm-compliance-query-form>
 
   <app-utm-compliance-query-form *ngIf="editingIndex !== null"
      [query]="queries[editingIndex]"
-     (save)="finishEdit($event)"
+     (add)="onQueryAdd($event)"
      [indexPatterns]="patterns"
      [indexPatternNames]="indexPatternNames"
      (cancel)="cancelEdit()">
@@ -28,8 +28,12 @@
       <tbody>
         <ng-container *ngIf="queries && queries.length > 0; else noData">
           <tr *ngFor="let q of queries; let i = index">
-            <td class="text-center pr-0 pl-0">{{ q.name }}</td>
-            <td class="text-center pr-0 pl-0">{{ q.sqlQuery }}</td>
+            <td class="text-center pr-0 pl-0">
+              {{ q.queryName | slice:0:30 }}{{ q.queryName.length > 30 ? '…' : '' }}
+            </td>
+            <td class="text-center pr-0 pl-0">
+              {{ q.sqlQuery | slice:0:30 }}{{ q.sqlQuery.length > 30 ? '…' : '' }}
+            </td>
             <td class="text-center pr-0 pl-0">{{ q.evaluationRule }}</td>
             <td class="text-center pr-0 pl-0">{{ getIndexPatternName(q.indexPatternId) }}</td>
 
@@ -40,7 +44,7 @@
                    ngbTooltip="Edit visualization"
                    tooltipClass="utm-tooltip-top"></i>
 
-                <i (click)="remove(i)"
+                <i (click)="onRemove(i)"
                    class="icon-cross2 cursor-pointer"
                    ngbTooltip="Delete visualization"
                    placement="left"
@@ -58,5 +62,4 @@
       </tbody>
     </table>
   </div>
-
 </div>

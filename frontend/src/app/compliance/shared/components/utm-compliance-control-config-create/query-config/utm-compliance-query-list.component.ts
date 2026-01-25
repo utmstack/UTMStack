@@ -11,56 +11,51 @@ import {UtmComplianceQueryConfigType} from '../../../type/compliance-query-confi
   styleUrls: ['./utm-compliance-query-list.component.scss']
 })
 export class UtmComplianceQueryListComponent implements OnInit {
+  // tslint:disable-next-line:variable-name
+  private _queries: UtmComplianceQueryConfigType[] = [];
+  @Input() set queries(value: UtmComplianceQueryConfigType[]) {
+    this._queries = value || [];
+  }
 
-  queries: UtmComplianceQueryConfigType[] = [];
+  get queries() {
+    return this._queries;
+  }
 
-  @Output() add = new EventEmitter<UtmComplianceQueryConfigType>();
-  @Output() edit = new EventEmitter<{ index: number, query: UtmComplianceQueryConfigType }>();
-  @Output() delete = new EventEmitter<number>();
+  @Output() add = new EventEmitter<{
+    query: UtmComplianceQueryConfigType;
+    index: number | null;
+  }>();
+  @Output() remove = new EventEmitter<number>();
 
-  pattern: UtmIndexPattern;
   patterns: UtmIndexPattern[];
   indexPatternNames = [];
-
   editingIndex: number = null;
+
+  constructor(private indexPatternService: IndexPatternService) {}
 
   ngOnInit() {
     this.getIndexPatterns();
-  }
-
-  constructor(private indexPatternService: IndexPatternService) {
-
   }
 
   startEdit(index: number) {
     this.editingIndex = index;
   }
 
-  finishEdit(query: UtmComplianceQueryConfigType) {
-    if (this.editingIndex !== null && this.queries) {
-      this.queries[this.editingIndex] = query;
-    }
-
-    this.editingIndex = null;
-  }
-
-
   cancelEdit() {
     this.editingIndex = null;
   }
 
-  remove(index: number) {
-    this.queries = this.queries.filter((_, i) => i !== index);
-  }
-
   onQueryAdd(query: UtmComplianceQueryConfigType): void {
-    this.queries = [...this.queries, query];
+    this.add.emit({
+      query,
+      index: this.editingIndex
+    });
+
+    this.editingIndex = null;
   }
 
-  //TODO: ELENA revisar de aqui para abajo
-  onIndexPatternChange($event: any) {
-    this.pattern = $event;
-    //this.indexPatternChange.emit($event);
+  onRemove(index: number) {
+    this.remove.emit(index);
   }
 
   getIndexPatterns() {
@@ -91,11 +86,9 @@ export class UtmComplianceQueryListComponent implements OnInit {
   }
 
   private onError(error) {
-    // this.alertService.error(error.error, error.message, null);
+    //this.alertService.error(error.error, error.message, null);
   }
 
-
-  //TODO: ELENA revisar si puedo reutilizar los nombres
   getIndexPatternName(id: number) {
     if (!this.patterns || !id) {
       return '';
@@ -104,6 +97,4 @@ export class UtmComplianceQueryListComponent implements OnInit {
     const pattern = this.patterns.find(p => p.id === id);
     return pattern ? pattern.pattern : '';
   }
-
-
 }

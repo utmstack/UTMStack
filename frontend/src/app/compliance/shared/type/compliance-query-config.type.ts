@@ -2,7 +2,7 @@ import {ComplianceEvaluationRuleEnum} from '../enums/compliance-evaluation-rule.
 
 export class UtmComplianceQueryConfigType {
   id?: number;
-  name?: string;
+  queryName?: string;
   queryDescription?: string;
   sqlQuery?: string;
   evaluationRule?: ComplianceEvaluationRuleEnum;
