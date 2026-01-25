@@ -1,15 +1,15 @@
 package models
 
 type ReportConfig struct {
-	ID                  int64      `json:"id"`
-	ConfigSolution      string     `json:"configSolution"`
-	ConfigRemediation   *string    `json:"configRemediation"`
-	StandardSectionID   int64      `json:"standardSectionId"`
-	DashboardID         int64      `json:"dashboardId"`
-	ConfigType          string     `json:"configType"`
-	ConfigReportName    string     `json:"configReportName"`
-	Section             *Section   `json:"section"`
-	AssociatedDashboard *Dashboard `json:"associatedDashboard"`
+	ID                int64       `json:"id"`
+	ConfigSolution    string      `json:"configSolution"`
+	ConfigRemediation *string     `json:"configRemediation"`
+	StandardSectionID int64       `json:"standardSectionId"`
+	DashboardID       int64       `json:"dashboardId"`
+	ConfigType        string      `json:"configType"`
+	ConfigReportName  string      `json:"configReportName"`
+	Section           *Section    `json:"section"`
+	Queries           []QuerySpec `json:"queries"`
 }
 
 type Section struct {
@@ -27,16 +27,11 @@ type Standard struct {
 	SystemOwner         bool   `json:"systemOwner"`
 }
 
-type Dashboard struct {
-	ID            int64   `json:"id"`
-	Name          string  `json:"name"`
-	Description   string  `json:"description"`
-	RefreshTime   *string `json:"refreshTime"`
-	CreatedDate   string  `json:"createdDate"`
-	ModifiedDate  string  `json:"modifiedDate"`
-	UserCreated   string  `json:"userCreated"`
-	UserModified  string  `json:"userModified"`
-	Filters       string  `json:"filters"`
-	DashboardType *string `json:"dashboardType"`
-	SystemOwner   bool    `json:"systemOwner"`
+type QuerySpec struct {
+	ID              int64  `json:"id"`
+	Description     string `json:"queryDescription"`
+	SQLQuery        string `json:"sqlQuery"`
+	EvaluationRule  string `json:"evaluationRule"`
+	IndexPatternID  int64  `json:"indexPatternId"`
+	ControlConfigID int64  `json:"controlConfigId"`
 }
