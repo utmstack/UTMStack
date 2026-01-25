@@ -18,8 +18,7 @@ export class UtmComplianceQueryFormComponent implements OnInit {
   @Input() query: UtmComplianceQueryConfigType = null;
   @Input() indexPatterns: UtmIndexPattern[] = [];
   @Input() indexPatternNames: string[] = [];
-  @Input() formBuilder: FormBuilder;
-  @Output() save = new EventEmitter<UtmComplianceQueryConfigType>();
+  @Output() add = new EventEmitter<UtmComplianceQueryConfigType>();
   @Output() cancel = new EventEmitter<void>();
 
   form: FormGroup;
@@ -37,7 +36,7 @@ export class UtmComplianceQueryFormComponent implements OnInit {
 
     this.form = this.fb.group({
       id: [q.id || null],
-      name: [q.name || '', [Validators.required, Validators.minLength(10), Validators.maxLength(200)]],
+      queryName: [q.queryName || '', [Validators.required, Validators.minLength(10), Validators.maxLength(200)]],
       queryDescription: [q.queryDescription || '', [Validators.required, Validators.maxLength(2000)]],
       sqlQuery: [q.sqlQuery || '', [Validators.required]],
       evaluationRule: [q.evaluationRule || null, [Validators.required]],
@@ -58,7 +57,7 @@ export class UtmComplianceQueryFormComponent implements OnInit {
       return;
     }
 
-    this.save.emit(this.form.value);
+    this.add.emit(this.form.value);
     this.form.reset();
   }
 

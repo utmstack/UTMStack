@@ -1,15 +1,15 @@
 <form [formGroup]="form" (ngSubmit)="submit()">
   <div class="form-group">
     <label for="queryName">Query Name</label>
-    <input formControlName="name" class="form-control" id="queryName">
-    <div *ngIf="form.get('name').dirty && form.get('name').invalid">
-      <small *ngIf="form.get('name').hasError('required')" class="form-text text-danger">
+    <input formControlName="queryName" class="form-control" id="queryName">
+    <div *ngIf="form.get('queryName').dirty && form.get('queryName').invalid">
+      <small *ngIf="form.get('queryName').hasError('required')" class="form-text text-danger">
         Query name is required.
       </small>
-      <small *ngIf="form.get('name').hasError('minlength')" class="form-text text-danger">
+      <small *ngIf="form.get('queryName').hasError('minlength')" class="form-text text-danger">
         Query name must be at least 10 characters long.
       </small>
-      <small *ngIf="form.get('name').hasError('maxlength')" class="form-text text-danger">
+      <small *ngIf="form.get('queryName').hasError('maxlength')" class="form-text text-danger">
         Query name must not exceed 200 characters.
       </small>
     </div>
