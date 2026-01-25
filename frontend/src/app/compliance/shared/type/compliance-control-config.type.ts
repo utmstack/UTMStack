@@ -4,14 +4,14 @@ import {UtmComplianceQueryConfigType} from './compliance-query-config.type';
 import {ComplianceStandardSectionType} from './compliance-standard-section.type';
 
 
-export class ComplianceReportConfigType {
+export class ComplianceControlConfigType {
   id?: number;
   section?: ComplianceStandardSectionType;
   standardSectionId?: number;
-  configReportName?: string;
-  configSolution?: string;
-  configRemediation?: string;
-  configStrategy?: ComplianceStrategyEnum;
+  controlName?: string;
+  controlSolution?: string;
+  controlRemediation?: string;
+  controlStrategy?: ComplianceStrategyEnum;
   queriesConfigs?: UtmComplianceQueryConfigType[];
 
   columns?: UtmFieldType[];

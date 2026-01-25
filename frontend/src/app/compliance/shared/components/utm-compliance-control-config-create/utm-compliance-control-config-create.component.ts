@@ -4,9 +4,9 @@ import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {CpReportBehavior} from '../../behavior/cp-report.behavior';
 import {ComplianceStrategyEnum} from '../../enums/compliance-strategy.enum';
-import {CpReportsConfigService} from '../../services/cp-reports-config.service';
+import {CpControlConfigService} from '../../services/cp-control-config.service';
+import {ComplianceControlConfigType} from '../../type/compliance-control-config.type';
 import {UtmComplianceQueryConfigType} from '../../type/compliance-query-config.type';
-import {ComplianceReportConfigType} from '../../type/compliance-report-config.type';
 
 @Component({
   selector: 'app-utm-compliance-control-config-create',
@@ -14,8 +14,8 @@ import {ComplianceReportConfigType} from '../../type/compliance-report-config.ty
   styleUrls: ['./utm-compliance-control-config-create.component.scss']
 })
 export class UtmComplianceControlConfigCreateComponent implements OnInit {
-  @Input() report: ComplianceReportConfigType;
-  @Output() reportCreated = new EventEmitter<string>();
+  @Input() control: ComplianceControlConfigType;
+  @Output() controlCreated = new EventEmitter<string>();
 
   step = 1;
   stepCompleted: number[] = [];
@@ -26,7 +26,7 @@ export class UtmComplianceControlConfigCreateComponent implements OnInit {
   standardSectionId: number;
   strategies = [];
 
-  constructor(private cpReportsConfigService: CpReportsConfigService,
+  constructor(private cpControlConfigService: CpControlConfigService,
               public activeModal: NgbActiveModal,
               private cpReportBehavior: CpReportBehavior,
               private utmToastService: UtmToastService,
@@ -36,11 +36,11 @@ export class UtmComplianceControlConfigCreateComponent implements OnInit {
 
   ngOnInit() {
     this.complianceForm = this.fb.group({
-      reportName: [this.report ? this.report.configReportName : '' ,
+      controlName: [this.control ? this.control.controlName : '' ,
         [Validators.required, Validators.minLength(10), Validators.maxLength(200)]],
-      solution: [this.report ? this.report.configSolution : '', [Validators.maxLength(2000)]],
-      remediation: [this.report && this.report.configRemediation ? this.report.configRemediation : '', [Validators.maxLength(2000)]],
-      strategy: [this.report ? this.report.configStrategy as ComplianceStrategyEnum : null, [Validators.required]],
+      solution: [this.control ? this.control.controlSolution : '', [Validators.maxLength(2000)]],
+      remediation: [this.control && this.control.controlRemediation ? this.control.controlRemediation : '', [Validators.maxLength(2000)]],
+      strategy: [this.control ? this.control.controlStrategy as ComplianceStrategyEnum : null, [Validators.required]],
       queriesConfigs: this.fb.array([], Validators.minLength(1))
     });
 
@@ -51,9 +51,9 @@ export class UtmComplianceControlConfigCreateComponent implements OnInit {
       })
     );
 
-    if (this.report) {
+    if (this.control) {
       this.viewSection = true;
-      this.standardSectionId = this.report.standardSectionId;
+      this.standardSectionId = this.control.standardSectionId;
     }
   }
 
@@ -81,32 +81,32 @@ export class UtmComplianceControlConfigCreateComponent implements OnInit {
 
   createCompliance() {
     this.creating = true;
-    const reportConfigCompliance: ComplianceReportConfigType = {
+    const controlConfigCompliance: ComplianceControlConfigType = {
       standardSectionId: this.standardSectionId,
-      configReportName: this.complianceForm.controls.reportName.value,
-      configSolution: this.complianceForm.controls.solution.value.replace(/\r?\n/g, '<br/>'),
-      configRemediation: this.complianceForm.controls.remediation.value.replace(/\r?\n/g, '<br/>'),
-      configStrategy: this.complianceForm.controls.strategy.value,
+      controlName: this.complianceForm.controls.controlName.value,
+      controlSolution: this.complianceForm.controls.solution.value.replace(/\r?\n/g, '<br/>'),
+      controlRemediation: this.complianceForm.controls.remediation.value.replace(/\r?\n/g, '<br/>'),
+      controlStrategy: this.complianceForm.controls.strategy.value,
       queriesConfigs: this.queriesList
     };
 
     //Edit
-    if (this.report) {
-      reportConfigCompliance.id = this.report.id;
-      this.cpReportsConfigService.update(reportConfigCompliance).subscribe(() => {
+    if (this.control) {
+      controlConfigCompliance.id = this.control.id;
+      this.cpControlConfigService.update(controlConfigCompliance).subscribe(() => {
         this.utmToastService.showSuccessBottom('Compliance report  edited successfully');
         this.activeModal.close();
-        this.reportCreated.emit('edited');
+        this.controlCreated.emit('edited');
       }, error1 => {
         this.creating = false;
         this.utmToastService.showError('Error', 'Error editing compliance report');
       });
     } else {
-      this.cpReportsConfigService.create(reportConfigCompliance).subscribe(() => {
+      this.cpControlConfigService.create(controlConfigCompliance).subscribe(() => {
         this.utmToastService.showSuccessBottom('Compliance report  created successfully');
         this.activeModal.close();
         this.cpReportBehavior.$reportUpdate.next('update');
-        this.reportCreated.emit('created');
+        this.controlCreated.emit('created');
       }, error1 => {
         this.creating = false;
         this.utmToastService.showError('Error', 'Error creating compliance report');

@@ -1,4 +1,4 @@
-<app-utm-modal-header [name]="(report?'Edit':'Create') + ' compliance report'"></app-utm-modal-header>
+<app-utm-modal-header [name]="(control?'Edit':'Create') + ' compliance report'"></app-utm-modal-header>
 <div class="container-fluid p-3">
   <div class="d-flex flex-column justify-content-start align-items-start">
     <div class="step-container">
@@ -29,7 +29,7 @@
         <label class="pb-1" for="standard">Standard</label>
         <app-utm-cp-standard-select
           (standardSelect)="onStandardChange($event)"
-          [standardId]="report ? report.section.standardId : null"
+          [standardId]="control ? control.section.standardId : null"
           id="standard">
         </app-utm-cp-standard-select>
       </div>
@@ -38,34 +38,34 @@
         <app-utm-cp-st-section-select
           (standardSectionSelect)="onStandardSectionChange($event)"
           [onlyWithReport]="false"
-          [standardSectionEditId]="report ? report.standardSectionId : null"
+          [standardSectionEditId]="control ? control.standardSectionId : null"
           id="standardSection">
         </app-utm-cp-st-section-select>
       </div>
       <div class="form-group">
-        <label for="reportName">Compliance Name</label>
-        <input formControlName="reportName" type="text" class="form-control" id="reportName">
-        <div *ngIf="complianceForm.get('reportName').dirty && complianceForm.get('reportName').invalid">
-          <small *ngIf="complianceForm.get('reportName').hasError('required')" class="form-text text-danger">
+        <label for="controlName">Compliance Name</label>
+        <input formControlName="controlName" type="text" class="form-control" id="controlName">
+        <div *ngIf="complianceForm.get('controlName').dirty && complianceForm.get('controlName').invalid">
+          <small *ngIf="complianceForm.get('controlName').hasError('required')" class="form-text text-danger">
             Report name is required.
           </small>
-          <small *ngIf="complianceForm.get('reportName').hasError('minlength')" class="form-text text-danger">
+          <small *ngIf="complianceForm.get('controlName').hasError('minlength')" class="form-text text-danger">
             Report name must be at least 10 characters long.
           </small>
-          <small *ngIf="complianceForm.get('reportName').hasError('maxlength')" class="form-text text-danger">
+          <small *ngIf="complianceForm.get('controlName').hasError('maxlength')" class="form-text text-danger">
             Report name must not exceed 200 characters.
           </small>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="reportDesc">Solution ({{ 2000 - complianceForm.get('solution').value.length }})</label>
-        <textarea formControlName="solution" class="form-control" id="reportDesc" rows="4" maxlength="2000"></textarea>
+        <label for="controlDesc">Solution ({{ 2000 - complianceForm.get('solution').value.length }})</label>
+        <textarea formControlName="solution" class="form-control" id="controlDesc" rows="4" maxlength="2000"></textarea>
       </div>
 
       <div class="form-group">
-        <label for="reportDesc">Remediation ({{ 2000 - complianceForm.get('remediation').value.length }})</label>
-        <textarea formControlName="remediation" class="form-control" id="reportRemediation" rows="4" maxlength="2000"></textarea>
+        <label for="controlRemediation">Remediation ({{ 2000 - complianceForm.get('remediation').value.length }})</label>
+        <textarea formControlName="remediation" class="form-control" id="controlRemediation" rows="4" maxlength="2000"></textarea>
       </div>
 
       <div>
@@ -113,7 +113,7 @@
             [disabled]="complianceForm.invalid"
             class="btn utm-button utm-button-primary ml-2">
       <i [ngClass]="creating?'icon-spinner2 spinner':'icon-shield-check'"></i>
-      {{ report ? 'Edit' : 'Create' }} compliance&nbsp;
+      {{ control ? 'Edit' : 'Create' }} compliance&nbsp;
     </button>
   </div>
 </div>

@@ -4,7 +4,7 @@ import {BehaviorSubject, Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
 import {RefreshDataService} from '../../../shared/services/util/refresh-data.service';
 import {createRequestOption} from '../../../shared/util/request-util';
-import {ComplianceReportConfigType} from '../type/compliance-report-config.type';
+import {ComplianceControlConfigType} from '../type/compliance-control-config.type';
 import {ComplianceReportType} from '../type/compliance-report.type';
 
 export interface ReportParams  {
@@ -16,7 +16,7 @@ export interface ReportParams  {
 @Injectable({
   providedIn: 'root'
 })
-export class CpReportsConfigService extends RefreshDataService<{ sectionId: number,
+export class CpControlConfigService extends RefreshDataService<{ sectionId: number,
                   loading: boolean, reportSelected: number, page?: number }, HttpResponse<ComplianceReportType[]>> {
 
   private resourceUrl = SERVER_API_URL + 'api/compliance/control-config';
@@ -27,37 +27,37 @@ export class CpReportsConfigService extends RefreshDataService<{ sectionId: numb
     super();
   }
 
-  create(report: ComplianceReportConfigType): Observable<HttpResponse<any>> {
-    return this.http.post<ComplianceReportConfigType>(this.resourceUrl, report, {observe: 'response'});
+  create(control: ComplianceControlConfigType): Observable<HttpResponse<any>> {
+    return this.http.post<ComplianceControlConfigType>(this.resourceUrl, control, {observe: 'response'});
   }
 
   import(reports: {
     override: boolean
-    reports: ComplianceReportConfigType[]
+    reports: ComplianceControlConfigType[]
   }): Observable<HttpResponse<any>> {
-    return this.http.post<ComplianceReportConfigType>(this.resourceUrl + '/import', reports, {observe: 'response'});
+    return this.http.post<ComplianceControlConfigType>(this.resourceUrl + '/import', reports, {observe: 'response'});
   }
 
-  update(report: ComplianceReportConfigType): Observable<HttpResponse<any>> {
-    return this.http.put<ComplianceReportConfigType>(this.resourceUrl, report, {observe: 'response'});
+  update(control: ComplianceControlConfigType): Observable<HttpResponse<any>> {
+    return this.http.put<ComplianceControlConfigType>(this.resourceUrl, control, {observe: 'response'});
   }
 
-  find(report: number): Observable<HttpResponse<ComplianceReportConfigType>> {
-    return this.http.get<ComplianceReportConfigType>(`${this.resourceUrl}/${report}`, {observe: 'response'});
+  find(control: number): Observable<HttpResponse<ComplianceControlConfigType>> {
+    return this.http.get<ComplianceControlConfigType>(`${this.resourceUrl}/${control}`, {observe: 'response'});
   }
 
-  query(req?: any): Observable<HttpResponse<ComplianceReportConfigType[]>> {
+  query(req?: any): Observable<HttpResponse<ComplianceControlConfigType[]>> {
     const options = createRequestOption(req);
-    return this.http.get<ComplianceReportConfigType[]>(this.resourceUrl, {
+    return this.http.get<ComplianceControlConfigType[]>(this.resourceUrl, {
       params: options,
       observe: 'response'
     });
   }
 
   // GET /api/compliance/report-config/get-by-report
-  queryByStandard(req?: any): Observable<HttpResponse<ComplianceReportConfigType[]>> {
+  queryByStandard(req?: any): Observable<HttpResponse<ComplianceControlConfigType[]>> {
     const options = createRequestOption(req);
-    return this.http.get<ComplianceReportConfigType[]>(this.resourceUrl + '/get-by-filters', {
+    return this.http.get<ComplianceControlConfigType[]>(this.resourceUrl + '/get-by-filters', {
       params: options,
       observe: 'response'
     });
