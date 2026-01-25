@@ -24,7 +24,7 @@ func NewBackendClient() *BackendClient {
 	raw := plugins.PluginCfg("com.utmstack", false).Get("backend").String()
 
 	if !strings.HasPrefix(raw, "http://") && !strings.HasPrefix(raw, "https://") {
-		raw = "https://" + raw
+		raw = "http://" + raw
 	}
 
 	return &BackendClient{
@@ -100,6 +100,8 @@ func (c *BackendClient) GetRequest(ctx context.Context, url string) ([]byte, err
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Set("utm-internal-key", c.internalKey)
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
