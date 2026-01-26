@@ -21,6 +21,7 @@ func DownloadFile(url string, headers map[string]string, fileName string, path s
 	client := &http.Client{}
 	client.Transport = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: skipTlsVerification},
+		DisableCompression: true,
 	}
 
 	resp, err := client.Do(req)

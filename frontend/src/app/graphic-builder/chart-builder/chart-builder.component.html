@@ -20,7 +20,7 @@
   </app-visualization-header>
 
   <div class="row">
-    <div *ngIf="visualization && visualization.filterType && !isSqlMode" class="col-lg-12 col-sm-12 col-md-12 p-0">
+    <div *ngIf="visualization" class="col-lg-12 col-sm-12 col-md-12 p-0">
       <app-utm-elastic-filter (filterChange)="onFilterChange($event)"
                               [filters]="visualization.filterType"
                               [pattern]="pattern"
@@ -97,6 +97,7 @@
                   [(ngModel)]="sqlQuery"
                   (ngModelChange)="clearMessages()"
                   [customKeywords]="loadFieldNames().concat(indexPatternNames)"
+                  (indexPatternChange)="onIndexPatternChange($event)"
                   [consoleOptions]="codeEditorOptions">
               </app-code-editor>
             </div>

@@ -1,9 +1,9 @@
+import {ChartBuilderQueryLanguageEnum} from "../../enums/chart-builder-query-language.enum";
 import {ChartTypeEnum} from '../../enums/chart-type.enum';
 import {DataNatureTypeEnum} from '../../enums/nature-data.enum';
 import {ElasticFilterType} from '../../types/filter/elastic-filter.type';
 import {UtmIndexPattern} from '../../types/index-pattern/utm-index-pattern';
 import {MetricDataType} from './metric/metric-data.type';
-import {ChartBuilderQueryLanguageEnum} from "../../enums/chart-builder-query-language.enum";
 
 export class VisualizationType {
   chartConfig?: any;

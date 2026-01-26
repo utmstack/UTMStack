@@ -2,11 +2,22 @@ package utils
 
 import (
 	"os"
+	"reflect"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"gopkg.in/yaml.v2"
 )
 
 func ReadYAML(path string, result interface{}) error {
+	if result == nil {
+		return catcher.Error("result interface is nil", nil, nil)
+	}
+
+	rv := reflect.ValueOf(result)
+	if rv.Kind() != reflect.Ptr || rv.IsNil() {
+		return catcher.Error("result must be a non-nil pointer", nil, nil)
+	}
+
 	file, err := os.Open(path)
 	if err != nil {
 		return err
