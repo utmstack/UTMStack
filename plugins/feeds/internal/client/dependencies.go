@@ -22,6 +22,7 @@ func NewClientDependencies(cfg *config.TWConfig) (*ClientDependencies, error) {
 
 	deps := &ClientDependencies{
 		Backend:     NewBackendClient(cfg),
+		CM:          &CustomersManagerClient{},
 		ThreadWinds: NewThreadWindsClient(cfg),
 		OpenSearch:  opensearch,
 	}

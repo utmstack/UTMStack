@@ -122,9 +122,11 @@ func (a *Asset) FromVar(name any, hostnames any, ipAddresses any, confidentialit
 
 	if hostnames != nil {
 		hostnamesStr := utils.CastString(hostnames)
-		err := json.Unmarshal([]byte(hostnamesStr), &hostnamesList)
-		if err != nil {
-			return catcher.Error("failed to unmarshal hostnames list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		if hostnamesStr != "" {
+			err := json.Unmarshal([]byte(hostnamesStr), &hostnamesList)
+			if err != nil {
+				return catcher.Error("failed to unmarshal hostnames list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
 		}
 	}
 
@@ -132,9 +134,11 @@ func (a *Asset) FromVar(name any, hostnames any, ipAddresses any, confidentialit
 
 	if ipAddresses != nil {
 		ipAddressesStr := utils.CastString(ipAddresses)
-		err := json.Unmarshal([]byte(ipAddressesStr), &ipAddressesList)
-		if err != nil {
-			return catcher.Error("failed to unmarshal ip addresses list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		if ipAddressesStr != "" {
+			err := json.Unmarshal([]byte(ipAddressesStr), &ipAddressesList)
+			if err != nil {
+				return catcher.Error("failed to unmarshal ip addresses list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
 		}
 	}
 
@@ -178,9 +182,11 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 
 	if references != nil {
 		referencesStr := utils.CastString(references)
-		err := json.Unmarshal([]byte(referencesStr), &referencesList)
-		if err != nil {
-			return catcher.Error("failed to unmarshal references list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		if referencesStr != "" {
+			err := json.Unmarshal([]byte(referencesStr), &referencesList)
+			if err != nil {
+				return catcher.Error("failed to unmarshal references list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
 		}
 	}
 
@@ -188,19 +194,24 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 
 	if deduplicateBy != nil {
 		deduplicateStr := utils.CastString(deduplicateBy)
-		err := json.Unmarshal([]byte(deduplicateStr), &deduplicateByList)
-		if err != nil {
-			return catcher.Error("failed to unmarshal deduplicate list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		if deduplicateStr != "" {
+			err := json.Unmarshal([]byte(deduplicateStr), &deduplicateByList)
+			if err != nil {
+				return catcher.Error("failed to unmarshal deduplicateBy list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
 		}
+
 	}
 
 	var groupByList []string
 
 	if groupBy != nil {
 		groupByStr := utils.CastString(groupBy)
-		err := json.Unmarshal([]byte(groupByStr), &groupByList)
-		if err != nil {
-			return catcher.Error("failed to unmarshal groupBy list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		if groupByStr != "" {
+			err := json.Unmarshal([]byte(groupByStr), &groupByList)
+			if err != nil {
+				return catcher.Error("failed to unmarshal groupBy list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
 		}
 	}
 
@@ -209,14 +220,16 @@ func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiali
 	if after != nil {
 		var afterBackendObj []SearchRequestBackend
 		afterStr := utils.CastString(after)
-		err := json.Unmarshal([]byte(afterStr), &afterBackendObj)
-		if err != nil {
-			return catcher.Error("failed to unmarshal after list", err, map[string]any{"process": "plugin_com.utmstack.config"})
-		}
+		if afterStr != "" {
+			err := json.Unmarshal([]byte(afterStr), &afterBackendObj)
+			if err != nil {
+				return catcher.Error("failed to unmarshal correlation list", err, map[string]any{"process": "plugin_com.utmstack.config"})
+			}
 
-		// Convert each SearchRequestBackend to SearchRequest
-		for _, req := range afterBackendObj {
-			afterObj = append(afterObj, req.ToSearchRequest())
+			// Convert each SearchRequestBackend to SearchRequest
+			for _, req := range afterBackendObj {
+				afterObj = append(afterObj, req.ToSearchRequest())
+			}
 		}
 	}
 
@@ -790,11 +803,6 @@ func writeRules(rules []Rule) error {
 				return catcher.Error("failed to write to file", err, map[string]any{"process": "plugin_com.utmstack.config"})
 			}
 
-			err = file.Close()
-			if err != nil {
-				return catcher.Error("failed to close file", err, map[string]any{"process": "plugin_com.utmstack.config"})
-			}
-
 			return nil
 		}()
 
@@ -836,11 +844,6 @@ func writePatterns(patterns map[string]string) error {
 	_, err = file.Write(bPatterns)
 	if err != nil {
 		return catcher.Error("failed to write to file", err, map[string]any{"process": "plugin_com.utmstack.config"})
-	}
-
-	err = file.Close()
-	if err != nil {
-		return catcher.Error("failed to close file", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
 
 	return nil
