@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260126001" author="Manuel Abascal">
+
+        <update tableName="utm_configuration_parameter">
+            <column name="conf_param_regexp" value="^(?:https?:\/\/)?(?:\d{1,3}(?:\.\d{1,3}){3}|(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})(?:\/[^\s]*)?$"/>
+            <where> conf_param_short = 'utmstack.mail.baseUrl' </where>
+        </update>
+
+    </changeSet>
+
+</databaseChangeLog>
