@@ -28,22 +28,10 @@ export class CpControlConfigService extends RefreshDataService<{ sectionId: numb
   }
 
   create(control: ComplianceControlConfigType): Observable<HttpResponse<any>> {
-    return this.http.post<ComplianceControlConfigType>(this.resourceUrl, control, {observe: 'response'});
-  }
-
-  import(reports: {
-    override: boolean
-    reports: ComplianceControlConfigType[]
-  }): Observable<HttpResponse<any>> {
-    return this.http.post<ComplianceControlConfigType>(this.resourceUrl + '/import', reports, {observe: 'response'});
-  }
-
-  update(control: ComplianceControlConfigType): Observable<HttpResponse<any>> {
-    return this.http.put<ComplianceControlConfigType>(this.resourceUrl, control, {observe: 'response'});
-  }
-
-  find(control: number): Observable<HttpResponse<ComplianceControlConfigType>> {
-    return this.http.get<ComplianceControlConfigType>(`${this.resourceUrl}/${control}`, {observe: 'response'});
+    return this.http.post<ComplianceControlConfigType>(
+      this.resourceUrl,
+      control,
+      {observe: 'response'});
   }
 
   query(req?: any): Observable<HttpResponse<ComplianceControlConfigType[]>> {
@@ -54,17 +42,47 @@ export class CpControlConfigService extends RefreshDataService<{ sectionId: numb
     });
   }
 
-  // GET /api/compliance/report-config/get-by-report
+
+  update(control: ComplianceControlConfigType): Observable<HttpResponse<any>> {
+    return this.http.put<ComplianceControlConfigType>(
+      `${this.resourceUrl}/${control.id}`,
+      control,
+      { observe: 'response' }
+    );
+  }
+
+  delete(control: number): Observable<HttpResponse<any>> {
+    return this.http.delete(
+      `${this.resourceUrl}/${control}`,
+      {observe: 'response'}
+    );
+  }
+
+
+  //TODO: ELENA revisar el uso de estos de abajo
+  import(control: {
+    override: boolean
+    reports: ComplianceControlConfigType[]
+  }): Observable<HttpResponse<any>> {
+    return this.http.post<ComplianceControlConfigType>(
+      this.resourceUrl + '/import',
+      control, {observe: 'response'}
+    );
+  }
+
+  find(control: number): Observable<HttpResponse<ComplianceControlConfigType>> {
+    return this.http.get<ComplianceControlConfigType>(
+      `${this.resourceUrl}/${control}`,
+      {observe: 'response'}
+    );
+  }
+
   queryByStandard(req?: any): Observable<HttpResponse<ComplianceControlConfigType[]>> {
     const options = createRequestOption(req);
     return this.http.get<ComplianceControlConfigType[]>(this.resourceUrl + '/get-by-filters', {
       params: options,
       observe: 'response'
     });
-  }
-
-  delete(report: number): Observable<HttpResponse<any>> {
-    return this.http.delete(`${this.resourceUrl}/${report}`, {observe: 'response'});
   }
 
   fetchData(request: any): Observable<HttpResponse<ComplianceReportType[]>> {

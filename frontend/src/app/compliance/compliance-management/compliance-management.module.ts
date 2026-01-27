@@ -9,6 +9,10 @@ import {InputClassResolve} from '../../shared/util/input-class-resolve';
 import {UtmSharedModule} from '../../shared/utm-shared.module';
 import {ComplianceSharedModule} from '../shared/compliance-shared.module';
 import {CpStandardManagementComponent} from './cp-standard-management/cp-standard-management.component';
+import {
+  UtmCpControlConfigDeleteComponent
+} from './utm-cp-control-config/utm-cp-control-config-delete/utm-cp-control-config-delete.component';
+import {UtmCpControlConfigComponent} from './utm-cp-control-config/utm-cp-control-config.component';
 import {UtmCpExportComponent} from './utm-cp-export/utm-cp-export.component';
 import {UtmCpImportComponent} from './utm-cp-import/utm-cp-import.component';
 import {UtmCpReportDeleteComponent} from './utm-cp-reports/utm-cp-report-delete/utm-cp-report-delete.component';
@@ -18,6 +22,8 @@ import {UtmCpStandardSectionDeleteComponent} from './utm-cp-standard-section/utm
 import {UtmCpStandardSectionComponent} from './utm-cp-standard-section/utm-cp-standard-section.component';
 import {UtmCpStandardDeleteComponent} from './utm-cp-standard/utm-cp-standard-delete/utm-cp-standard-delete.component';
 import {UtmCpStandardComponent} from './utm-cp-standard/utm-cp-standard.component';
+
+
 
 @NgModule({
   declarations: [
@@ -29,13 +35,17 @@ import {UtmCpStandardComponent} from './utm-cp-standard/utm-cp-standard.componen
     UtmCpReportsComponent,
     UtmCpReportDeleteComponent,
     UtmCpExportComponent,
-    UtmCpImportComponent],
+    UtmCpImportComponent,
+    UtmCpControlConfigComponent,
+    UtmCpControlConfigDeleteComponent],
   entryComponents: [
     UtmCpReportDeleteComponent,
     UtmCpStandardDeleteComponent,
     UtmCpStandardSectionDeleteComponent,
     UtmCpExportComponent,
-    UtmCpImportComponent],
+    UtmCpImportComponent,
+    UtmCpControlConfigDeleteComponent
+  ],
   exports: [CpStandardManagementComponent, UtmCpStandardComponent],
   providers: [InputClassResolve],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],

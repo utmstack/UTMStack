@@ -84,6 +84,28 @@
     </div>
   </div>
 
+  <div class="form-group w-50" *ngIf="form.get('evaluationRule') && form.get('evaluationRule').value !== null && form.get('evaluationRule').value !== 'NO_HITS_ALLOWED'">
+    <label for="ruleValue">Rule Value</label>
+    <input
+      type="number"
+      formControlName="ruleValue"
+      class="form-control"
+      id="ruleValue"
+      min="1">
+    <div *ngIf="form.get('ruleValue').dirty && form.get('ruleValue').invalid">
+      <small *ngIf="form.get('ruleValue').hasError('required')" class="form-text text-danger">
+        Rule value is required.
+      </small>
+      <small *ngIf="form.get('ruleValue').hasError('min')" class="form-text text-danger">
+        Rule value must be greater than 0.
+      </small>
+      <small *ngIf="form.get('ruleValue').hasError('pattern')" class="form-text text-danger">
+        Rule value must be a positive integer.
+      </small>
+    </div>
+  </div>
+
+
   <div class="d-flex justify-content-end">
     <button *ngIf="query"
             type="button"

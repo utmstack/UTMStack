@@ -23,13 +23,13 @@
       </div>
     </div>
   </div>
-  <div *ngIf="step===1" class="configure-step mt-3">
+  <div *ngIf="step===1 && !loading" class="configure-step mt-3">
     <form [formGroup]="complianceForm">
       <div class="d-flex flex-column w-75 mb-3">
         <label class="pb-1" for="standard">Standard</label>
         <app-utm-cp-standard-select
           (standardSelect)="onStandardChange($event)"
-          [standardId]="control ? control.section.standardId : null"
+          [standardId]="control && control.section ? control.section.standardId : null"
           id="standard">
         </app-utm-cp-standard-select>
       </div>

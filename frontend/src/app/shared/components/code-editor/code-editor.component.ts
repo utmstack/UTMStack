@@ -66,8 +66,6 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
   private editorInstance?: monaco.editor.IStandaloneCodeEditor;
   private completionProvider?: monaco.IDisposable;
 
-  private onChange = (_: any) => {};
-  private onTouched = () => {};
   private updatingFromOutside = false;
 
   readonly defaultOptions: ConsoleOptions = {
@@ -90,6 +88,9 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
     this.consoleOptions = { ...this.defaultOptions, ...this.consoleOptions };
   }
 
+  private onChange = (_: any) => {};
+  private onTouched = () => {};
+
   ngOnDestroy(): void {
     if (this.completionProvider) {
       this.completionProvider.dispose();
@@ -97,16 +98,13 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
     }
   }
 
-  // ⭐ Se llama cuando Monaco inicializa el editor
   onEditorInit(editor: monaco.editor.IStandaloneCodeEditor) {
     this.editorInstance = editor;
 
-    // Si el formulario ya tenía un valor, lo mostramos
     if (this.sqlQuery) {
       editor.setValue(this.sqlQuery);
     }
 
-    // Autocompletado
     this.completionProvider = monaco.languages.registerCompletionItemProvider('sql', {
       provideCompletionItems: () => {
         const allKeywords = Array.from(new Set([
@@ -124,7 +122,6 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
       }
     });
 
-    // ⭐ Captura cambios del usuario
     editor.onDidChangeModelContent(() => {
       if (this.updatingFromOutside) {
         return;
@@ -137,7 +134,6 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
     });
   }
 
-  // ⭐ ControlValueAccessor: Angular escribe valores aquí
   writeValue(value: any): void {
     this.updatingFromOutside = true;
 
@@ -163,15 +159,6 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
       this.editorInstance.updateOptions({ readOnly: isDisabled });
     }
   }
-
-  onEditorInput(value: string) {
-    this.onChange(value);
-    this.onTouched();
-  }
-
-  // -------------------------
-  // Funciones adicionales
-  // -------------------------
 
   executeQuery(): void {
     this.clearMessages();

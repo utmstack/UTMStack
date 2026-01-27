@@ -38,12 +38,29 @@ export class UtmComplianceQueryFormComponent implements OnInit {
       id: [q.id || null],
       queryName: [q.queryName || '', [Validators.required, Validators.minLength(10), Validators.maxLength(200)]],
       queryDescription: [q.queryDescription || '', [Validators.required, Validators.maxLength(2000)]],
-      sqlQuery: [q.sqlQuery || '', [Validators.required]],
+      sqlQuery: [q.sqlQuery || '', [Validators.required, Validators.maxLength(2000)]],
       evaluationRule: [q.evaluationRule || null, [Validators.required]],
+      ruleValue: [q.ruleValue || '', ],
       indexPatternId: [q.indexPatternId || null, [Validators.required]],
       controlConfigId: [q.controlConfigId || null]
     });
 
+    this.form.get('evaluationRule').valueChanges.subscribe(rule => {
+      const ruleValueControl = this.form.get('ruleValue');
+
+      if (rule !== null && rule !== 'NO_HITS_ALLOWED') {
+        ruleValueControl.setValidators([
+          Validators.required,
+          Validators.min(1),
+          Validators.pattern(/^[1-9]\d*$/)
+        ]);
+      } else {
+        ruleValueControl.clearValidators();
+        ruleValueControl.setValue(null);
+      }
+
+      ruleValueControl.updateValueAndValidity();
+    });
   }
 
   submit() {
