@@ -12,6 +12,6 @@ export function resolveDefaultVisualizationTime(visualization: VisualizationType
     const to = visualization.filterType[indexTime].value[1];
     return new ElasticFilterDefaultTime(from, to);
   } else {
-    return null;
+    return new ElasticFilterDefaultTime('now-30d', 'now');
   }
 }

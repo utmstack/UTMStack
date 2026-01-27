@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"regexp"
 	"strings"
@@ -86,22 +85,13 @@ func correlate(ctx context.Context,
 		}
 	}()
 
+	if isDuplicate(alert) {
+		return nil, nil
+	}
+
 	parentId := getPreviousAlertId(alert)
 
-	if parentId != nil {
-		if isDuplicate(alert) {
-			return nil, nil
-		}
-		return nil, newAlert(alert, parentId)
-	}
-
-	if len(alert.DeduplicateBy) > 0 {
-		if isDuplicate(alert) {
-			return nil, nil
-		}
-	}
-
-	return nil, newAlert(alert, nil)
+	return nil, newAlert(alert, parentId)
 }
 
 func isDuplicate(alert *plugins.Alert) bool {
@@ -116,6 +106,10 @@ func isDuplicate(alert *plugins.Alert) bool {
 		}
 	}()
 
+	if len(alert.DeduplicateBy) == 0 {
+		return false
+	}
+
 	alertString, err := utils.ProtoMessageToString(alert)
 	if err != nil {
 		_ = catcher.Error("cannot convert alert to string", err, map[string]any{"alert": alert.Name, "process": "plugin_com.utmstack.alerts"})
@@ -129,7 +123,7 @@ func isDuplicate(alert *plugins.Alert) bool {
 	bb := sdkos.NewBoolBuilder(ctx, indices, "plugin_com.utmstack.alerts")
 
 	// 1. Filter by Name (always)
-	bb.FilterTerm("name.keyword", alert.Name)
+	bb.FilterTerm("name", alert.Name)
 
 	// Compile regex for array index stripping
 	reArrayIndex := regexp.MustCompile(`\.[0-9]+(\.|$)`)
@@ -139,7 +133,7 @@ func isDuplicate(alert *plugins.Alert) bool {
 
 		value := gjson.Get(*alertString, d)
 		if value.Type == gjson.Null {
-			continue
+			return false
 		}
 
 		// Calculate OpenSearch field name by removing array indices
@@ -151,7 +145,7 @@ func isDuplicate(alert *plugins.Alert) bool {
 		})
 
 		if value.Type == gjson.String {
-			bb.FilterTerm(fmt.Sprintf("%s.keyword", searchField), value.String())
+			bb.FilterTerm(searchField, value.String())
 		} else if value.Type == gjson.Number {
 			bb.FilterTerm(searchField, value.Float())
 		} else if value.IsBool() {
@@ -196,12 +190,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		}
 	}()
 
-	searchFields := alert.GroupBy
-	if len(searchFields) == 0 {
-		searchFields = alert.DeduplicateBy
-	}
-
-	if len(searchFields) == 0 {
+	if len(alert.GroupBy) == 0 {
 		return nil
 	}
 
@@ -218,7 +207,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 	bb := sdkos.NewBoolBuilder(ctx, indices, "plugin_com.utmstack.alerts")
 
 	// 1. Filter by Name (always)
-	bb.FilterTerm("name.keyword", alert.Name)
+	bb.FilterTerm("name", alert.Name)
 
 	// 2. Must NOT match existing ParentId (we want strictly the parent, or another orphan, not a child)
 	// Original logic: MustNot exists field "parentId"
@@ -227,12 +216,12 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 	// Compile regex for array index stripping
 	reArrayIndex := regexp.MustCompile(`\.[0-9]+(\.|$)`)
 
-	for _, d := range searchFields {
+	for _, d := range alert.GroupBy {
 		d = strings.TrimSuffix(d, ".keyword")
 
 		value := gjson.Get(*alertString, d)
 		if value.Type == gjson.Null {
-			continue
+			return nil
 		}
 
 		// Calculate OpenSearch field name by removing array indices
@@ -244,7 +233,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		})
 
 		if value.Type == gjson.String {
-			bb.FilterTerm(fmt.Sprintf("%s.keyword", searchField), value.String())
+			bb.FilterTerm(searchField, value.String())
 		} else if value.Type == gjson.Number {
 			bb.FilterTerm(searchField, value.Float())
 		} else if value.IsBool() {

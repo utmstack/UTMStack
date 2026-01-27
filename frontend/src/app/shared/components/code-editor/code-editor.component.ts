@@ -56,6 +56,7 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
   @Input() queryError: string | null = null;
   @Input() customKeywords: string[] = [];
 
+  @Output() indexPatternChange = new EventEmitter<string>();
   @Output() execute = new EventEmitter<string>();
   @Output() clearData = new EventEmitter<void>();
 
@@ -211,5 +212,36 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
   clearMessages(): void {
     this.errorMessage = '';
     this.successMessage = '';
+  }
+
+  extractIndexPattern(sql: string): string | null {
+    const normalized = sql
+      .replace(/\s+/g, ' ')
+      .toLowerCase();
+
+    const fromIndex = normalized.indexOf(' from ');
+    if (fromIndex === -1) { return null; }
+
+    const start = fromIndex + 6;
+
+    const keywords = [' where ', ' group by ', ' order by ', ' limit ', ' having '];
+
+    let end = normalized.length;
+    for (const kw of keywords) {
+      const idx = normalized.indexOf(kw, start);
+      if (idx !== -1 && idx < end) {
+        end = idx;
+      }
+    }
+
+    const originalFragment = normalized.substring(start, end).trim();
+
+    if (originalFragment.length > 0) {
+      const indexPatternSelected = this.customKeywords.find(keyword => keyword === originalFragment);
+
+      if (indexPatternSelected) {
+        this.indexPatternChange.emit(indexPatternSelected);
+      }
+    }
   }
 }

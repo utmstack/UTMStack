@@ -92,7 +92,6 @@ export class AppModuleViewComponent implements OnInit, OnDestroy {
                   return res.body ? res.body.sort((a, b) => a > b ? 1 : -1) : [];
                 }),
                 catchError(error => {
-                    console.log(error);
                     this.utmToastService.showError('Failed to fetch categories',
                         'An error occurred while fetching module data.');
                     return of([]);
@@ -116,14 +115,12 @@ export class AppModuleViewComponent implements OnInit, OnDestroy {
   }
 
   filterByCategory($event: any) {
-    console.log('filter');
     this.req['moduleCategory.equals'] = $event;
     this.refreshModules();
 
   }
 
   onSearch($event: string) {
-    console.log('search');
     this.req.page = 0;
     this.req['prettyName.contains'] = $event;
     this.refreshModules();

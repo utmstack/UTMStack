@@ -120,13 +120,14 @@ public class ResponseParserForCoordinateMapChart implements ResponseParser<Coord
 
         try {
             Assert.notNull(visualization, "Param visualization must not be null");
+            List<?> data = result.getData();
 
-            for (Object rowObj : result.getData()) {
+            for (int i = 0; i < data.size(); i++) {
+                Object rowObj = data.get(i);
                 if (!(rowObj instanceof Map)) continue;
                 Map<String, Object> row = (Map<String, Object>) rowObj;
 
                 String ip = null;
-                Double metricValue = null;
 
                 for (Map.Entry<String, Object> entry : row.entrySet()) {
                     Object val = entry.getValue();
@@ -135,12 +136,9 @@ public class ResponseParserForCoordinateMapChart implements ResponseParser<Coord
                     String strVal = val.toString();
                     if (ip == null && isValidIP(strVal)) {
                         ip = strVal;
-                    } else if (metricValue == null && val instanceof Number) {
-                        metricValue = ((Number) val).doubleValue();
                     }
                 }
-
-                if (ip == null || metricValue == null) continue;
+                if (!StringUtils.hasText(ip)) continue;
 
                 GeoIp ipInfo;
                 try {
@@ -156,7 +154,7 @@ public class ResponseParserForCoordinateMapChart implements ResponseParser<Coord
                 chartResult.setValue(new Double[] {
                         ipInfo.getLatitude(),
                         ipInfo.getLongitude(),
-                        metricValue
+                        (double) i
                 });
 
                 retValue.add(chartResult);

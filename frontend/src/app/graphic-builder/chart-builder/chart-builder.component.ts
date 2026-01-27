@@ -21,7 +21,6 @@ import {CodeEditorComponent, ConsoleOptions} from '../../shared/components/code-
 import {
   ElasticFilterDefaultTime
 } from '../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
-import {UTM_CHART_ICONS} from '../../shared/constants/icons-chart.const';
 import {ALERT_INDEX_PATTERN, LOG_INDEX_PATTERN} from '../../shared/constants/main-index-pattern.constant';
 import {MULTIPLE_METRIC_CHART} from '../../shared/constants/visualization-bucket-metric.constant';
 import {ChartBuilderQueryLanguageEnum} from '../../shared/enums/chart-builder-query-language.enum';
@@ -40,6 +39,9 @@ import {VisualizationService} from '../visualization/shared/services/visualizati
 import {VisualizationSaveComponent} from '../visualization/visualization-save/visualization-save.component';
 
 import {DashboardStatusEnum} from '../dashboard-builder/shared/enums/dashboard-status.enum';
+import {HttpResponse} from "@angular/common/http";
+import {IndexPatternService} from "../../shared/services/elasticsearch/index-pattern.service";
+import {map} from "rxjs/operators";
 
 
 @Component({
@@ -75,6 +77,7 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
   indexPatternNames: string[] = [];
   codeEditorOptions: ConsoleOptions = {lineNumbers: 'off'};
   loading = true;
+  indexPattern: UtmIndexPattern[];
 
   constructor(private spinner: NgxSpinnerService,
               private route: ActivatedRoute,
@@ -86,7 +89,9 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
               private location: Location,
               private router: Router,
               private localFieldService: LocalFieldService,
-              private sqlValidationService: SqlValidationService) {
+              private sqlValidationService: SqlValidationService,
+              private indexPatternService: IndexPatternService) {
+
     route.queryParams.subscribe(params => {
       this.chart = params[VisualizationQueryParamsEnum.CHART];
       this.mode = params[VisualizationQueryParamsEnum.MODE];
@@ -138,6 +143,8 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
       };
       this.loading = false;
     }
+
+    this.getIndexPatterns();
   }
 
   getFields() {
@@ -343,13 +350,37 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
 
   nullifyUnusedFields() {
     this.visualization.aggregationType = null;
-    this.visualization.pattern = null;
-    this.visualization.idPattern = null;
-    this.visualization.filterType = null;
   }
 
   clearMessages(): void {
     this.errorMessage = '';
   }
 
+  getIndexPatterns() {
+    const req = {
+      page: 0,
+      size: 1000,
+      sort: 'id,asc',
+      'isActive.equals': true,
+    };
+    this.indexPatternService.query(req)
+      .pipe(
+        map((res: HttpResponse<any>) => res.body || [])
+      )
+      .subscribe({
+        next: data => {
+          this.indexPatternNames = data.map((pattern: UtmIndexPattern) => pattern.pattern);
+          this.indexPattern = data;
+        },
+        error: () => this.indexPatternNames = [],
+      });
+  }
+
+   onIndexPatternChange($event: string) {
+    const indexPattern = this.indexPattern.find(p => p.pattern === $event);
+
+    if (indexPattern) {
+      this.indexPatternSelected(indexPattern);
+    }
+  }
 }

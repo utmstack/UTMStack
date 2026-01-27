@@ -13,6 +13,7 @@ import com.park.utmstack.service.dto.visualization.UtmVisualizationDto;
 import com.park.utmstack.service.dto.visualization.enums.QueryLanguageEnum;
 import com.park.utmstack.service.dto.visualization.mapper.UtmVisualizationMapper;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
+import com.park.utmstack.service.elasticsearch.sql.SqlQueryFilterService;
 import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.UtilPagination;
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.requests.RequestDsl;
@@ -67,6 +68,7 @@ public class UtmVisualizationResource {
     private final UtmStackService utmStackService;
     private final ElasticsearchService elasticsearchService;
     private final UtmVisualizationMapper utmVisualizationMapper;
+    private final SqlQueryFilterService sqlQueryFilterService;
 
 
     /**
@@ -305,7 +307,8 @@ public class UtmVisualizationResource {
             UtmVisualization utmVisualization = utmVisualizationMapper.toEntity(visualization);
 
             if (visualization.getQueryLanguage() == QueryLanguageEnum.SQL && Objects.nonNull(visualization.getSqlQuery()) && !visualization.getSqlQuery().trim().isEmpty()) {
-                SearchSqlResponse<Map> response = elasticsearchService.searchBySql(new SqlQueryRequest(visualization.getSqlQuery(), null), Map.class);
+                String query = sqlQueryFilterService.applyFilters(visualization.getSqlQuery(), visualization.getFilterType());
+                SearchSqlResponse<Map> response = elasticsearchService.searchBySql(new SqlQueryRequest(query, null), Map.class);
                 return ResponseEntity.ok().body(responseParser.parse(utmVisualization, response));
             }
 
