@@ -12,11 +12,11 @@
             </column>
 
             <column name="standard_section_id" type="BIGINT">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
 
-            <column name="control_name" type="VARCHAR(50)">
-                <constraints nullable="true"/>
+            <column name="control_name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
             </column>
 
             <column name="control_solution" type="TEXT">
@@ -28,7 +28,7 @@
             </column>
 
             <column name="control_strategy" type="VARCHAR(50)">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
         </createTable>
 

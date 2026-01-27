@@ -10,23 +10,27 @@
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="query_name" type="TEXT">
-                <constraints nullable="true"/>
+            <column name="query_name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
             </column>
             <column name="query_description" type="TEXT">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
 
             <column name="sql_query" type="TEXT">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
 
             <column name="evaluation_rule" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="rule_value" type="INTEGER">
                 <constraints nullable="true"/>
             </column>
 
             <column name="index_pattern_id" type="BIGINT">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
 
             <column name="control_config_id" type="BIGINT">
