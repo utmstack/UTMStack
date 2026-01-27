@@ -1,24 +1,43 @@
 package com.park.utmstack.web.rest.compliance.config;
 
+import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
+import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.compliance.config.UtmComplianceControlConfigService;
+import com.park.utmstack.service.compliance.config.UtmComplianceControlConfigQueryService;
+import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigCriteria;
 import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigDto;
-import com.park.utmstack.service.mapper.compliance.UtmComplianceControlConfigMapper;
+import com.park.utmstack.web.rest.util.HeaderUtil;
+import com.park.utmstack.web.rest.util.PaginationUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/compliance/control")
+@RequestMapping("/api/compliance/control-config")
 public class UtmComplianceControlConfigResource {
+    private final Logger log = LoggerFactory.getLogger(UtmComplianceControlConfigResource.class);
+    private static final String CLASS_NAME = "UtmComplianceControlConfigResource";
 
     private final UtmComplianceControlConfigService controlService;
-    private final UtmComplianceControlConfigMapper controlMapper;
+    private final UtmComplianceControlConfigQueryService queryService;
+    private final ApplicationEventService applicationEventService;
+
 
     public UtmComplianceControlConfigResource(
             UtmComplianceControlConfigService controlService,
-            UtmComplianceControlConfigMapper controlMapper
+            UtmComplianceControlConfigQueryService queryService,
+            ApplicationEventService applicationEventService
     ) {
         this.controlService = controlService;
-        this.controlMapper = controlMapper;
+        this.queryService = queryService;
+        this.applicationEventService = applicationEventService;
     }
 
     @PostMapping
@@ -52,4 +71,29 @@ public class UtmComplianceControlConfigResource {
         controlService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping
+    public ResponseEntity<List<UtmComplianceControlConfigDto>> getAllComplianceControlConfig(
+            UtmComplianceControlConfigCriteria criteria,
+            Pageable pageable) {
+
+        final String ctx = CLASS_NAME + ".getAllComplianceControlConfig";
+
+        try {
+            Page<UtmComplianceControlConfigDto> page = queryService.findByCriteria(criteria, pageable);
+            HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/compliance/control-config");
+
+            return ResponseEntity.ok().headers(headers).body(page.getContent());
+
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .headers(HeaderUtil.createFailureAlert("", "", msg))
+                    .body(null);
+        }
+    }
+
 }

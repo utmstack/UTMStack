@@ -83,6 +83,7 @@ public class UtmComplianceControlConfigService {
         return mapper.toDto(entity);
     }
 
+    //TODO: ELENA ????
     public List<UtmComplianceControlConfig> findAll() {
         return repository.findAll();
     }

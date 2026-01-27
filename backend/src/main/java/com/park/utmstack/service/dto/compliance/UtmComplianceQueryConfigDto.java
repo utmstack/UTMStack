@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class UtmComplianceQueryConfigDto {
     private Long id;
+    private String queryName;
     private String queryDescription;
     private String sqlQuery;
     private EvaluationRule evaluationRule;

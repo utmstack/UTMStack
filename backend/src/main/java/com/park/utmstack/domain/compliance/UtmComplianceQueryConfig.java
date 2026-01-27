@@ -25,6 +25,11 @@ public class UtmComplianceQueryConfig implements Serializable {
     @GeneratedValue(generator = "CustomIdentityGenerator")
     private Long id;
 
+    @Column(name = "query_name",
+            columnDefinition = "TEXT"
+    )
+    private String queryName;
+
     @Column(name = "query_description",
             columnDefinition = "TEXT"
     )
