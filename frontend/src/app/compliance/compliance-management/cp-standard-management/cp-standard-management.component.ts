@@ -51,6 +51,7 @@ export class CpStandardManagementComponent implements OnInit {
     });
   }
 
+  //TODO: ELENA to be checked
   newCompliance() {
     // this.modalService.open(UtmComplianceCreateComponent, {centered: true});
     this.modalService.open(UtmComplianceControlCreateComponent, {centered: true, size: 'lg'});
