@@ -35,7 +35,8 @@
         [showFullEditor]="false"
         formControlName="sqlQuery"
         [consoleOptions]="codeEditorOptions"
-        [customKeywords]="loadFieldNames().concat(indexPatternNames)">
+        [customKeywords]="loadFieldNames().concat(indexPatternNames)"
+        (indexPatternChange)="indexPatternSelected($event)">
       </app-code-editor>
     </div>
     <div *ngIf="errorMessage || (form.get('sqlQuery').invalid && form.get('sqlQuery').touched)">
@@ -58,27 +59,6 @@
       <div *ngIf="form.get('evaluationRule').dirty && form.get('evaluationRule').invalid">
         <small *ngIf="form.get('evaluationRule').hasError('required')" class="form-text text-danger">
           Evaluation Rule is required.
-        </small>
-      </div>
-    </div>
-
-    <div class="form-group w-50 pl-2">
-      <label for="indexPatternId">Index Pattern</label>
-      <ng-select
-        formControlName="indexPatternId"
-        [closeOnSelect]="true"
-        [clearable]="true"
-        [items]="indexPatterns"
-        [loadingText]="'Loading sources....'"
-        [markFirst]="false"
-        [loading]="!indexPatterns"
-        bindLabel="pattern"
-        bindValue="id"
-        id="indexPatternId">
-      </ng-select>
-      <div *ngIf="form.get('indexPatternId').dirty && form.get('indexPatternId').invalid">
-        <small *ngIf="form.get('indexPatternId').hasError('required')" class="form-text text-danger">
-          Index Pattern is required.
         </small>
       </div>
     </div>
