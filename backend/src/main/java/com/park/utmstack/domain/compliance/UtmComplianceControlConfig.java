@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,9 @@ public class UtmComplianceControlConfig implements Serializable {
     @GeneratedValue(generator = "CustomIdentityGenerator")
     private Long id;
 
-    @Column(name = "standard_section_id")
+    @Column(name = "standard_section_id",
+            nullable = false
+    )
     private Long standardSectionId;
 
     @ManyToOne
@@ -35,18 +38,25 @@ public class UtmComplianceControlConfig implements Serializable {
     private UtmComplianceStandardSection section;
 
     @Column(name = "control_name",
-            length = 50
+            nullable = false
     )
+    @Size(min = 10, max = 200)
     private String controlName;
 
-    @Column(name = "control_solution")
+    @Column(name = "control_solution",
+            length = 2000
+    )
     private String controlSolution;
 
-    @Column(name = "control_remediation")
+    @Column(name = "control_remediation",
+            length = 2000
+    )
     private String controlRemediation;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "control_strategy")
+    @Column(name = "control_strategy",
+            nullable = false
+    )
     private ComplianceStrategy controlStrategy;
 
     @OneToMany(

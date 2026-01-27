@@ -2,10 +2,12 @@ package com.park.utmstack.service.compliance.config;
 
 import com.park.utmstack.domain.compliance.UtmComplianceControlConfig;
 import com.park.utmstack.domain.compliance.UtmComplianceQueryConfig;
+import com.park.utmstack.domain.compliance.enums.EvaluationRule;
 import com.park.utmstack.repository.compliance.UtmComplianceControlConfigRepository;
 import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigDto;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlConfigMapper;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceQueryConfigMapper;
+import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -30,6 +32,9 @@ public class UtmComplianceControlConfigService {
 
     @Transactional
     public UtmComplianceControlConfigDto create(UtmComplianceControlConfigDto dto) {
+
+        validateControlConfig(dto);
+
         UtmComplianceControlConfig entity = mapper.toEntity(dto);
 
         for (var qdto : dto.getQueriesConfigs()) {
@@ -45,6 +50,8 @@ public class UtmComplianceControlConfigService {
 
     @Transactional
     public UtmComplianceControlConfigDto update(Long id, UtmComplianceControlConfigDto dto) {
+
+        validateControlConfig(dto);
 
         UtmComplianceControlConfig entity = repository.findByIdWithQueries(id)
                 .orElseThrow(() -> new RuntimeException("Control not found"));
@@ -83,8 +90,23 @@ public class UtmComplianceControlConfigService {
         return mapper.toDto(entity);
     }
 
-    //TODO: ELENA ????
-    public List<UtmComplianceControlConfig> findAll() {
-        return repository.findAll();
+    private void validateControlConfig(UtmComplianceControlConfigDto dto) {
+        if (dto.getQueriesConfigs() == null || dto.getQueriesConfigs().isEmpty()) {
+            throw new BadRequestAlertException(
+                    "At least one query configuration is required",
+                    "utmComplianceControlConfig",
+                    "queriesConfigsEmpty"
+            );
+        }
+
+        for (var q : dto.getQueriesConfigs()) {
+            if (q.getEvaluationRule() != EvaluationRule.NO_HITS_ALLOWED && q.getRuleValue() == null) {
+                throw new BadRequestAlertException(
+                        "ruleValue is required when evaluationRule is not NO_HITS_ALLOWED",
+                        "utmComplianceQueryConfig",
+                        "ruleValueMissing"
+                );
+            }
+        }
     }
 }
