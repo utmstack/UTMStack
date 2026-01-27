@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260112002" author="Elena">
+            <createTable tableName="utm_compliance_query_config">
+                <column name="id" type="BIGSERIAL">
+                    <constraints primaryKey="true" nullable="false"/>
+                </column>
+
+                <column name="query_description" type="TEXT">
+                    <constraints nullable="true"/>
+                </column>
+
+                <column name="sql_query" type="TEXT">
+                    <constraints nullable="true"/>
+                </column>
+
+                <column name="evaluation_rule" type="VARCHAR(100)">
+                    <constraints nullable="true"/>
+                </column>
+
+                <column name="index_pattern_id" type="BIGINT">
+                    <constraints nullable="true"/>
+                </column>
+
+                <column name="control_config_id" type="BIGINT">
+                    <constraints nullable="true"/>
+                </column>
+
+            </createTable>
+
+            <addForeignKeyConstraint
+                    baseTableName="utm_compliance_query_config"
+                    baseColumnNames="index_pattern_id"
+                    referencedTableName="utm_index_pattern"
+                    referencedColumnNames="id"
+                    constraintName="fk_query_config_index_pattern"/>
+
+            <createIndex
+                    indexName="idx_query_config_index_pattern"
+                    tableName="utm_compliance_query_config">
+                <column name="index_pattern_id"/>
+            </createIndex>
+    </changeSet>
+</databaseChangeLog>

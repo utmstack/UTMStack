@@ -321,4 +321,8 @@
 
     <include file="/config/liquibase/changelog/20260126001_update_regex_for_configuration_parameter_base_url.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260112001_create_table_compliance_control_config.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260112002_create_table_compliance_query_config.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
