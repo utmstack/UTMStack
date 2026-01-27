@@ -32,6 +32,7 @@ public class UtmComplianceControlConfig implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "standard_section_id",
+            referencedColumnName = "id",
             insertable = false,
             updatable = false
     )

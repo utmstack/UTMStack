@@ -15,6 +15,8 @@ public class UtmComplianceControlConfigDto {
     @NotNull
     private Long standardSectionId;
 
+    private UtmComplianceStandardSectionDto section;
+
     @NotNull
     @Size(min = 10, max = 200)
     private String controlName;

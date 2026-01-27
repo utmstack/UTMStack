@@ -11,6 +11,12 @@ import java.util.Optional;
 
 @Repository
 public interface UtmComplianceControlConfigRepository extends JpaRepository<UtmComplianceControlConfig, Long>, JpaSpecificationExecutor<UtmComplianceControlConfig> {
-    @Query(" SELECT c FROM UtmComplianceControlConfig c LEFT JOIN FETCH c.queriesConfigs WHERE c.id = :id")
+    @Query("""
+        SELECT c FROM UtmComplianceControlConfig c
+        LEFT JOIN FETCH c.section s
+        LEFT JOIN FETCH s.standard st
+        LEFT JOIN FETCH c.queriesConfigs q
+        WHERE c.id = :id
+    """)
     Optional<UtmComplianceControlConfig> findByIdWithQueries(@Param("id") Long id);
 }
