@@ -17,6 +17,7 @@ export class UtmComplianceControlConfigCreateComponent implements OnInit {
   @Input() control: ComplianceControlConfigType;
   @Output() controlCreated = new EventEmitter<string>();
 
+  loading = true;
   step = 1;
   stepCompleted: number[] = [];
   creating = false;
@@ -41,7 +42,7 @@ export class UtmComplianceControlConfigCreateComponent implements OnInit {
       solution: [this.control ? this.control.controlSolution : '', [Validators.maxLength(2000)]],
       remediation: [this.control && this.control.controlRemediation ? this.control.controlRemediation : '', [Validators.maxLength(2000)]],
       strategy: [this.control ? this.control.controlStrategy as ComplianceStrategyEnum : null, [Validators.required]],
-      queriesConfigs: this.fb.array([], Validators.minLength(1))
+      queriesConfigs: this.fb.array(this.control ? this.control.queriesConfigs : [], [Validators.minLength(1)])
     });
 
     this.strategies = Object.keys(ComplianceStrategyEnum).map(
@@ -55,6 +56,7 @@ export class UtmComplianceControlConfigCreateComponent implements OnInit {
       this.viewSection = true;
       this.standardSectionId = this.control.standardSectionId;
     }
+    this.loading = false;
   }
 
   backStep() {
@@ -90,7 +92,6 @@ export class UtmComplianceControlConfigCreateComponent implements OnInit {
       queriesConfigs: this.queriesList
     };
 
-    //Edit
     if (this.control) {
       controlConfigCompliance.id = this.control.id;
       this.cpControlConfigService.update(controlConfigCompliance).subscribe(() => {
