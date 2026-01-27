@@ -21,7 +21,6 @@ import {CodeEditorComponent, ConsoleOptions} from '../../shared/components/code-
 import {
   ElasticFilterDefaultTime
 } from '../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
-import {UTM_CHART_ICONS} from '../../shared/constants/icons-chart.const';
 import {ALERT_INDEX_PATTERN, LOG_INDEX_PATTERN} from '../../shared/constants/main-index-pattern.constant';
 import {MULTIPLE_METRIC_CHART} from '../../shared/constants/visualization-bucket-metric.constant';
 import {ChartBuilderQueryLanguageEnum} from '../../shared/enums/chart-builder-query-language.enum';
@@ -92,6 +91,7 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
               private localFieldService: LocalFieldService,
               private sqlValidationService: SqlValidationService,
               private indexPatternService: IndexPatternService) {
+
     route.queryParams.subscribe(params => {
       this.chart = params[VisualizationQueryParamsEnum.CHART];
       this.mode = params[VisualizationQueryParamsEnum.MODE];
