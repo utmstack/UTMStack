@@ -159,7 +159,7 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
   }
 
   clearMessages(): void {
-    console.log('Query:', this.extractIndexPattern(this.sqlQuery));
+    this.extractIndexPattern(this.sqlQuery);
     this.errorMessage = '';
     this.successMessage = '';
   }
