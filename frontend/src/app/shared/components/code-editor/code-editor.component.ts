@@ -73,9 +73,14 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
     value: this.sqlQuery,
     language: 'sql',
     theme: 'myCustomTheme',
-    minimap: { enabled: false },
+    minimap: {
+      enabled: false
+    },
     renderLineHighlight: 'none',
-    scrollbar: { vertical: 'auto', horizontal: 'hidden' },
+    scrollbar: {
+      vertical: 'auto',
+      horizontal: 'hidden'
+    },
     overviewRulerLanes: 0,
     wordWrap: 'on',
     automaticLayout: true,
@@ -113,7 +118,7 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
           ...(this.customKeywords || [])
         ]));
 
-        const suggestions = allKeywords.map(k => ({
+        const suggestions: monaco.languages.CompletionItem[] = allKeywords.map(k => ({
           label: k,
           kind: monaco.languages.CompletionItemKind.Text,
           insertText: k
@@ -210,6 +215,7 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
   }
 
   clearMessages(): void {
+    this.extractIndexPattern(this.sqlQuery);
     this.errorMessage = '';
     this.successMessage = '';
   }
@@ -238,10 +244,7 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
 
     if (originalFragment.length > 0) {
       const indexPatternSelected = this.customKeywords.find(keyword => keyword === originalFragment);
-
-      if (indexPatternSelected) {
-        this.indexPatternChange.emit(indexPatternSelected);
-      }
+      this.indexPatternChange.emit(indexPatternSelected ? indexPatternSelected : null);
     }
   }
 }

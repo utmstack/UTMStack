@@ -88,4 +88,19 @@ export class UtmComplianceQueryFormComponent implements OnInit {
       ...this.localFieldService.getPatternStoredFields(LOG_INDEX_PATTERN).map(f => f.name)
     ];
   }
+
+  indexPatternSelected(event: any) {
+    const selected = this.indexPatterns.find(p => p.pattern === event);
+    if (selected) {
+        this.form.get('indexPatternId').setValue(selected.id);
+        this.errorMessage = '';
+        this.form.get('indexPatternId').markAsPristine();
+        this.form.get('indexPatternId').markAsUntouched();
+
+    } else {
+      this.errorMessage = 'Invalid index pattern.';
+      this.form.get('indexPatternId').setValue('');
+      this.form.get('indexPatternId').markAsDirty();
+    }
+  }
 }
