@@ -10,7 +10,9 @@
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-
+            <column name="query_name" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
             <column name="query_description" type="TEXT">
                 <constraints nullable="true"/>
             </column>
