@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 
 	"gopkg.in/yaml.v3"
 )
@@ -51,12 +52,12 @@ func RunCmd(command string, arg ...string) error {
 
 func RunCmdWithOutput(command string, arg ...string) ([]string, error) {
 	cmd := exec.Command(command, arg...)
-	
+
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("error running command: %v", err)
 	}
-	
+
 	lines := bytes.Split(output, []byte("\n"))
 	result := make([]string, 0, len(lines))
 	for _, line := range lines {
@@ -65,7 +66,7 @@ func RunCmdWithOutput(command string, arg ...string) ([]string, error) {
 			result = append(result, string(trimmed))
 		}
 	}
-	
+
 	return result, nil
 }
 
@@ -127,6 +128,15 @@ func WriteYAML(url string, data any) error {
 }
 
 func ReadYAML(path string, result any) error {
+	if result == nil {
+		return fmt.Errorf("result interface is nil")
+	}
+
+	rv := reflect.ValueOf(result)
+	if rv.Kind() != reflect.Ptr || rv.IsNil() {
+		return fmt.Errorf("result must be a non-nil pointer")
+	}
+
 	file, err := os.Open(path)
 	if err != nil {
 		return err

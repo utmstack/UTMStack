@@ -319,4 +319,6 @@
 
     <include file="/config/liquibase/changelog/20260122004_update_azure_visualizations.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260126001_update_regex_for_configuration_parameter_base_url.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>

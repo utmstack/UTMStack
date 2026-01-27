@@ -2,8 +2,10 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 
 	"gopkg.in/yaml.v2"
 )
@@ -18,6 +20,15 @@ func GetMyPath() string {
 }
 
 func ReadYAML(path string, result interface{}) error {
+	if result == nil {
+		return fmt.Errorf("result interface is nil")
+	}
+
+	rv := reflect.ValueOf(result)
+	if rv.Kind() != reflect.Ptr || rv.IsNil() {
+		return fmt.Errorf("result must be a non-nil pointer")
+	}
+
 	file, err := os.Open(path)
 	if err != nil {
 		return err
