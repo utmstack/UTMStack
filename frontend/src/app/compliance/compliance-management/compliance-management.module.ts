@@ -23,8 +23,6 @@ import {UtmCpStandardSectionComponent} from './utm-cp-standard-section/utm-cp-st
 import {UtmCpStandardDeleteComponent} from './utm-cp-standard/utm-cp-standard-delete/utm-cp-standard-delete.component';
 import {UtmCpStandardComponent} from './utm-cp-standard/utm-cp-standard.component';
 
-
-
 @NgModule({
   declarations: [
     CpStandardManagementComponent,

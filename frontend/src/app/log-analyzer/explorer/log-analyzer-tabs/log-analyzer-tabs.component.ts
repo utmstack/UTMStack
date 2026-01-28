@@ -72,7 +72,7 @@ export class LogAnalyzerTabsComponent implements OnInit, OnDestroy {
     this.router.events.pipe(
       filter(event => event instanceof NavigationStart),
       tap((event: NavigationStart) => {
-        if (event.url !== '/discover/log-analyzer-query-config' && !event.url.includes('/discover/log-analyzer')) {
+        if (event.url !== '/discover/log-analyzer-queries' && !event.url.includes('/discover/log-analyzer')) {
           this.tabService.closeAllTabs();
         }
       }),
