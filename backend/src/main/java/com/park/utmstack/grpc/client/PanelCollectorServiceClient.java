@@ -2,6 +2,7 @@ package com.park.utmstack.grpc.client;
 
 import agent.CollectorOuterClass;
 import agent.PanelCollectorServiceGrpc;
+import com.park.utmstack.grpc.interceptor.GrpcInternalKeyInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 
@@ -18,7 +19,10 @@ public class PanelCollectorServiceClient {
     public CollectorOuterClass.ConfigKnowledge insertCollectorConfig(CollectorOuterClass.CollectorConfig config) {
 
         try {
-            return baseStub.registerCollectorConfig(config);
+            PanelCollectorServiceGrpc.PanelCollectorServiceBlockingStub stub =
+                    baseStub.withInterceptors(new GrpcInternalKeyInterceptor());
+
+            return stub.registerCollectorConfig(config);
 
         } catch (StatusRuntimeException e) {
             throw new RuntimeException("gRPC error inserting collector config: " + e.getMessage(), e);
