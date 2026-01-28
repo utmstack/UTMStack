@@ -49,11 +49,15 @@ updates:
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/plugins/crowdStrike" # Location of package manifests
+    directory: "/plugins/crowdstrike" # Location of package manifests
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
     directory: "/plugins/events" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/feeds" # Location of package manifests
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
@@ -86,10 +90,6 @@ updates:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
     directory: "/plugins/stats" # Location of package manifests
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/plugins/threat-intelligence" # Location of package manifests
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
