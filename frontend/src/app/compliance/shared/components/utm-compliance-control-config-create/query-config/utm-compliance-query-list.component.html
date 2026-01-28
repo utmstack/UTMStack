@@ -1,65 +1,63 @@
-<div class="query-container">
-  <app-utm-compliance-query-form *ngIf="editingIndex === null"
-    (add)="onQueryAdd($event)"
-    [indexPatterns]="patterns"
-    [indexPatternNames]="indexPatternNames">
-  </app-utm-compliance-query-form>
+<app-utm-compliance-query *ngIf="editingIndex === null"
+  (add)="onQueryAdd($event)"
+  [indexPatterns]="patterns"
+  [indexPatternNames]="indexPatternNames">
+</app-utm-compliance-query>
 
-  <app-utm-compliance-query-form *ngIf="editingIndex !== null"
-     [query]="queries[editingIndex]"
-     (add)="onQueryAdd($event)"
-     [indexPatterns]="patterns"
-     [indexPatternNames]="indexPatternNames"
-     (cancel)="cancelEdit()">
-  </app-utm-compliance-query-form>
+<app-utm-compliance-query *ngIf="editingIndex !== null"
+   [query]="queries[editingIndex]"
+   (add)="onQueryAdd($event)"
+   [indexPatterns]="patterns"
+   [indexPatternNames]="indexPatternNames"
+   (cancel)="cancelEdit()">
+</app-utm-compliance-query>
 
-  <div class="table-responsive w-100">
-    <table class="table text-nowrap">
-      <thead>
-      <tr>
-        <th class="text-center font-weight-semibold">Query Name</th>
-        <th class="text-center font-weight-semibold">SQL Query</th>
-        <th class="text-center font-weight-semibold">Evaluation Rule</th>
-        <th class="text-center font-weight-semibold">Index Pattern</th>
-        <th class="text-center font-weight-semibold text-right">Actions</th>
-      </tr>
-      </thead>
+<div class="table-responsive w-100">
+  <table class="table text-nowrap">
+    <thead>
+    <tr>
+      <th class="text-center font-weight-semibold">Query Name</th>
+      <th class="text-center font-weight-semibold">SQL Query</th>
+      <th class="text-center font-weight-semibold">Evaluation Rule</th>
+      <th class="text-center font-weight-semibold">Index Pattern</th>
+      <th class="text-center font-weight-semibold text-right">Actions</th>
+    </tr>
+    </thead>
 
-      <tbody>
-        <ng-container *ngIf="queries && queries.length > 0; else noData">
-          <tr *ngFor="let q of queries; let i = index">
-            <td class="text-center pr-0 pl-0">
-              {{ q.queryName | slice:0:30 }}{{ q.queryName.length > 30 ? '…' : '' }}
-            </td>
-            <td class="text-center pr-0 pl-0">
-              {{ q.sqlQuery | slice:0:30 }}{{ q.sqlQuery.length > 30 ? '…' : '' }}
-            </td>
-            <td class="text-center pr-0 pl-0">{{ q.evaluationRule }}</td>
-            <td class="text-center pr-0 pl-0">{{ getIndexPatternName(q.indexPatternId) }}</td>
-
-            <td class="td-action">
-              <div class="d-flex justify-content-end align-items-center medium-icon">
-                <i (click)="startEdit(i)"
-                   class="icon-pencil3 cursor-pointer mr-3"
-                   ngbTooltip="Edit visualization"
-                   tooltipClass="utm-tooltip-top"></i>
-
-                <i (click)="onRemove(i)"
-                   class="icon-cross2 cursor-pointer"
-                   ngbTooltip="Delete visualization"
-                   placement="left"
-                   tooltipClass="utm-tooltip"></i>
-              </div>
-            </td>
-          </tr>
-        </ng-container>
-
-        <ng-template #noData>
-          <td colspan="5">
-            <app-no-data-found></app-no-data-found>
+    <tbody>
+      <ng-container *ngIf="queries && queries.length > 0; else noData">
+        <tr *ngFor="let q of queries; let i = index">
+          <td class="text-center pr-0 pl-0">
+            {{ q.queryName | slice:0:30 }}{{ q.queryName.length > 30 ? '…' : '' }}
           </td>
-        </ng-template>
-      </tbody>
-    </table>
-  </div>
+          <td class="text-center pr-0 pl-0">
+            {{ q.sqlQuery | slice:0:30 }}{{ q.sqlQuery.length > 30 ? '…' : '' }}
+          </td>
+          <td class="text-center pr-0 pl-0">{{ q.evaluationRule }}</td>
+          <td class="text-center pr-0 pl-0">{{ getIndexPatternName(q.indexPatternId) }}</td>
+
+          <td class="td-action">
+            <div class="d-flex justify-content-end align-items-center medium-icon">
+              <i (click)="startEdit(i)"
+                 class="icon-pencil3 cursor-pointer mr-3"
+                 ngbTooltip="Edit visualization"
+                 tooltipClass="utm-tooltip-top"></i>
+
+              <i (click)="onRemove(i)"
+                 class="icon-cross2 cursor-pointer"
+                 ngbTooltip="Delete visualization"
+                 placement="left"
+                 tooltipClass="utm-tooltip"></i>
+            </div>
+          </td>
+        </tr>
+      </ng-container>
+
+      <ng-template #noData>
+        <td colspan="5">
+          <app-no-data-found></app-no-data-found>
+        </td>
+      </ng-template>
+    </tbody>
+  </table>
 </div>
