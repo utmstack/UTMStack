@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/agent-manager/agent"
@@ -15,6 +16,7 @@ func main() {
 	err := database.MigrateDatabase()
 	if err != nil {
 		_ = catcher.Error("failed to migrate database", err, map[string]any{"process": "agent-manager"})
+		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
 

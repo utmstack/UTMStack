@@ -60,12 +60,12 @@ func ServeDependencies() {
 	}
 
 	server := &http.Server{
-		Addr:      ":8080",
+		Addr:      ":9001",
 		Handler:   r,
 		TLSConfig: tlsConfig,
 	}
 
-	catcher.Info("Starting HTTP server on port 8080", map[string]any{"process": "agent-manager"})
+	catcher.Info("Starting HTTP server on port 9001", map[string]any{"process": "agent-manager"})
 	if err := server.ListenAndServeTLS("", ""); err != nil {
 		_ = catcher.Error("error starting HTTP server", err, map[string]any{"process": "agent-manager"})
 		return

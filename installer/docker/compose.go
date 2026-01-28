@@ -113,8 +113,8 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			conf.UpdatesFolder + ":/updates",
 		},
 		Ports: []string{
-			"9000:50051",
-			"9001:8080",
+			"9000:9000",
+			"9001:9001",
 		},
 		Environment: []string{
 			"DB_PATH=/data/utmstack.db",

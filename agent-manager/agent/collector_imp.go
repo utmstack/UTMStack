@@ -63,7 +63,8 @@ func InitCollectorService() {
 		collectors := []models.Collector{}
 		_, err := CollectorServ.DBConnection.GetAll(&collectors, "")
 		if err != nil {
-			catcher.Error("failed to fetch collectors", err, map[string]any{"process": "agent-manager"})
+			_ = catcher.Error("failed to fetch collectors", err, map[string]any{"process": "agent-manager"})
+			time.Sleep(5 * time.Second)
 			os.Exit(1)
 		}
 		for _, c := range collectors {
