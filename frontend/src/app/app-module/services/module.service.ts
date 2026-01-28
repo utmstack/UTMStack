@@ -83,7 +83,7 @@ export class ModuleService {
               m.prettyName = m.prettyName + ' GravityZone';
             }
           });
-          return response.body;
+          return response.body.filter(m => m.moduleName !== this.utmModulesEnum.AS_400);
         }),
       catchError(error => {
         console.error(error);
