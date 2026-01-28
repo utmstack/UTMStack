@@ -7,7 +7,6 @@ import agent.CollectorOuterClass.CollectorConfig;
 import agent.CollectorOuterClass.Collector;
 import agent.CollectorOuterClass.CollectorModule;
 import agent.CollectorOuterClass.CollectorConfigGroup;
-import agent.CollectorOuterClass.ConfigRequest;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
@@ -22,7 +21,6 @@ import com.park.utmstack.repository.UtmModuleGroupConfigurationRepository;
 import com.park.utmstack.repository.UtmModuleGroupRepository;
 import com.park.utmstack.repository.application_modules.UtmModuleRepository;
 import com.park.utmstack.repository.collector.UtmCollectorRepository;
-import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
 import com.park.utmstack.service.application_modules.UtmModuleService;
 import com.park.utmstack.service.dto.application_modules.ModuleActivationDTO;
@@ -32,8 +30,6 @@ import com.park.utmstack.service.dto.collectors.dto.CollectorConfigKeysDTO;
 import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
 import com.park.utmstack.service.dto.network_scan.AssetGroupDTO;
-import com.park.utmstack.service.grpc.AuthResponse;
-import com.park.utmstack.service.grpc.DeleteRequest;
 import com.park.utmstack.service.grpc.ListRequest;
 import com.park.utmstack.service.validators.collector.CollectorValidatorService;
 import com.park.utmstack.util.CipherUtil;
@@ -42,7 +38,6 @@ import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.utmstack.grpc.exception.CollectorConfigurationGrpcException;
 import com.utmstack.grpc.exception.CollectorServiceGrpcException;
 import com.utmstack.grpc.exception.GrpcConnectionException;
-import com.utmstack.grpc.service.CollectorService;
 import io.grpc.*;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.domain.Page;
@@ -70,7 +65,7 @@ import java.util.stream.Collectors;
 public class CollectorOpsService {
     private final String CLASSNAME = "CollectorOpsService";
     private final Logger log = LoggerFactory.getLogger(CollectorOpsService.class);
-    private final GrpcConnection grpcConnection;
+    private final ManagedChannel channel;
     private final PanelCollectorServiceClient panelCollectorService;
     private final CollectorServiceClient collectorService;
     private final UtmModuleGroupService moduleGroupService;
@@ -92,7 +87,7 @@ public class CollectorOpsService {
 
     private final CollectorValidatorService collectorValidatorService;
 
-    public CollectorOpsService(GrpcConnection grpcConnection,
+    public CollectorOpsService(ManagedChannel channel,
                                UtmModuleGroupService moduleGroupService,
                                UtmModuleGroupConfigurationRepository utmModuleGroupConfigurationRepository,
                                UtmCollectorRepository utmCollectorRepository,
@@ -103,9 +98,9 @@ public class CollectorOpsService {
                                UtmModuleRepository utmModuleRepository,
                                CollectorValidatorService collectorValidatorService) throws GrpcConnectionException {
 
-        this.grpcConnection = grpcConnection;
-        this.panelCollectorService = new PanelCollectorServiceClient(grpcConnection.getChannel());
-        this.collectorService = new CollectorServiceClient(grpcConnection.getChannel());
+        this.channel = channel;
+        this.panelCollectorService = new PanelCollectorServiceClient(channel);
+        this.collectorService = new CollectorServiceClient(channel);
         this.moduleGroupService = moduleGroupService;
         this.utmModuleGroupConfigurationRepository = utmModuleGroupConfigurationRepository;
         this.utmCollectorRepository = utmCollectorRepository;
