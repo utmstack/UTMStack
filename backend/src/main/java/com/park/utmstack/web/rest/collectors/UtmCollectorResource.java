@@ -1,7 +1,6 @@
 package com.park.utmstack.web.rest.collectors;
 
 import agent.CollectorOuterClass.CollectorConfig;
-import agent.Common.ListRequest;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.network_scan.AssetGroupFilter;
@@ -19,6 +18,7 @@ import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.dto.ErrorResponse;
 import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
 import com.park.utmstack.service.dto.network_scan.AssetGroupDTO;
+import com.park.utmstack.service.grpc.ListRequest;
 import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.errors.InternalServerErrorException;
@@ -143,11 +143,6 @@ public class UtmCollectorResource {
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
-        } catch (CollectorServiceGrpcException e) {
-            String msg = ctx + ": UtmCollector manager is not available or was an error getting the collector list. " + e.getLocalizedMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_GATEWAY, msg);
         }
     }
 
@@ -208,11 +203,6 @@ public class UtmCollectorResource {
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
-        } catch (CollectorServiceGrpcException e) {
-            String msg = ctx + ": UtmCollector manager is not available or was an error getting configuration. " + e.getLocalizedMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_GATEWAY, msg);
         }
     }
 
