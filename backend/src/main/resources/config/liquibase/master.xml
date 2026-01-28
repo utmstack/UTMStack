@@ -321,4 +321,10 @@
 
     <include file="/config/liquibase/changelog/20260126001_update_regex_for_configuration_parameter_base_url.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260128001_update_azure_correlation_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260128002_update_o365_correlation_rules.xml" relativeToChangelogFile="false"/>
+
+
+
 </databaseChangeLog>
