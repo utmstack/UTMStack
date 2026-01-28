@@ -180,13 +180,12 @@ jobs:
             -X 'github.com/utmstack/UTMStack/installer/config.INSTALLER_VERSION=${{ inputs.version }}' \
             -X 'github.com/utmstack/UTMStack/installer/config.REPLACE=${{ secrets.CM_ENCRYPT_SALT }}' \
             -X 'github.com/utmstack/UTMStack/installer/config.PUBLIC_KEY=${{ secrets.CM_SIGN_PUBLIC_KEY }}'" .
-          mv installer /home/utmstack/installer
-          chmod +x /home/utmstack/installer
+          mv installer /usr/local/bin/utmstack_installer
+          chmod +x /usr/local/bin/utmstack_installer
 
       - name: Run Installer
-        working-directory: /home/utmstack
         run: |
-          sudo ./installer
+          sudo /usr/local/bin/utmstack_installer
 
   # ============================================
   # V11 RC - Upload to prerelease only
