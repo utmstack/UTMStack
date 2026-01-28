@@ -159,7 +159,7 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
   }
 
   clearMessages(): void {
-    console.log('Query:', this.extractIndexPattern(this.sqlQuery));
+    this.extractIndexPattern(this.sqlQuery);
     this.errorMessage = '';
     this.successMessage = '';
   }
@@ -200,13 +200,12 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
       }
     }
 
-    const originalFragment = sql.substring(start, end).trim();
+    const originalFragment = normalized.substring(start, end).trim();
 
     if (originalFragment.length > 0) {
      const indexPatternSelected = this.customKeywords.find(keyword => keyword === originalFragment);
 
      if (indexPatternSelected) {
-       console.log(indexPatternSelected);
        this.indexPatternChange.emit(indexPatternSelected);
      }
    }

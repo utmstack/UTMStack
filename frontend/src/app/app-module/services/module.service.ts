@@ -40,7 +40,6 @@ export class ModuleService {
     }),
     shareReplay(1),
     catchError(error => {
-      console.error(error);
       this.utmToastService.showError(
         'Failed to fetch servers',
         'An error occurred while fetching server list.'
@@ -84,7 +83,7 @@ export class ModuleService {
               m.prettyName = m.prettyName + ' GravityZone';
             }
           });
-          return response.body.filter(m => m.moduleName !== this.utmModulesEnum.AS_400);
+          return response.body;
         }),
       catchError(error => {
         console.error(error);
