@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	pb "github.com/utmstack/UTMStack/agent/agent"
@@ -213,6 +214,20 @@ func main() {
 
 		case "uninstall":
 			fmt.Println("Uninstalling UTMStackAgent service ...")
+
+			fmt.Print("Stopping UTMStackUpdater service... ")
+			updaterPath := filepath.Join(utils.GetMyPath(), fmt.Sprintf(config.UpdaterFile, ""))
+			if utils.CheckIfPathExist(updaterPath) {
+				err := utils.Execute(updaterPath, utils.GetMyPath(), "uninstall")
+				if err != nil {
+					fmt.Printf("Warning: %v\n", err)
+				} else {
+					fmt.Println("[OK]")
+				}
+				time.Sleep(2 * time.Second)
+			} else {
+				fmt.Println("[SKIPPED - not found]")
+			}
 
 			cnf, err := config.GetCurrentConfig()
 			if err != nil {

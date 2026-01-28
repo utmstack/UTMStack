@@ -84,6 +84,9 @@ func StartModules() {
 				}
 				if conf[0] {
 					moCache[index].DisablePort(proto)
+					if conf[1] {
+						time.Sleep(200 * time.Millisecond)
+					}
 				}
 				if changeAllowed {
 					moCache[index].SetNewPort(proto, port)

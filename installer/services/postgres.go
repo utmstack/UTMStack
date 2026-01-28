@@ -6,6 +6,7 @@ import (
 
 	_ "github.com/lib/pq"
 	"github.com/utmstack/UTMStack/installer/config"
+	"github.com/utmstack/UTMStack/installer/utils"
 )
 
 func InitPgUtmstack(c *config.Config) error {
@@ -83,36 +84,31 @@ CONSTRAINT utm_client_pkey PRIMARY KEY (id)
 	return nil
 }
 
-func GetAdminEmail(c *config.Config) (string, error) {
-	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable database=utmstack",
-		c.Password)
-	db, err := sql.Open("postgres", psqlconn)
+func GetAdminEmail(_ *config.Config) (string, error) {
+	// Get postgres container ID
+	containerIDs, err := utils.RunCmdWithOutput("docker", "ps", "-q", "-f", "name=utmstack_postgres")
 	if err != nil {
-		return "", err
-	}
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error getting postgres container: %v", err)
 	}
 
-	var email string
-	err = db.QueryRow(`
-		SELECT email
-		FROM jhi_user
-		WHERE login = 'admin' AND created_by = 'system' AND email != 'admin@localhost'
-		LIMIT 1
-	`).Scan(&email)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return "", nil
-		}
-		return "", err
+	if len(containerIDs) == 0 {
+		return "", fmt.Errorf("postgres container not found")
 	}
 
-	return email, nil
+	containerID := containerIDs[0]
+
+	// Execute query inside the container
+	query := "SELECT email FROM jhi_user WHERE login = 'admin' AND created_by = 'system' AND email != 'admin@localhost' LIMIT 1"
+	output, err := utils.RunCmdWithOutput("docker", "exec", containerID, "psql", "-U", "postgres", "-d", "utmstack", "-t", "-c", query)
+	if err != nil {
+		return "", fmt.Errorf("error executing query: %v", err)
+	}
+
+	if len(output) == 0 {
+		return "", nil
+	}
+
+	return output[0], nil
 }
 
 func InitPgUserAuditor(c *config.Config) error {

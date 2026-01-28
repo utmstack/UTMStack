@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/tehmaze/netflow"
-	"github.com/tehmaze/netflow/ipfix"
+	goflownetflow "github.com/netsampler/goflow2/decoders/netflow"
+	"github.com/netsampler/goflow2/decoders/netflowlegacy"
 	"github.com/tehmaze/netflow/netflow1"
-	"github.com/tehmaze/netflow/netflow5"
 	"github.com/tehmaze/netflow/netflow6"
 	"github.com/tehmaze/netflow/netflow7"
-	"github.com/tehmaze/netflow/netflow9"
 	"github.com/threatwinds/go-sdk/entities"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/agent/config"
@@ -35,7 +33,7 @@ func GetNetflowParser() *NetflowParser {
 
 type NetflowObject struct {
 	Remote  string
-	Message netflow.Message
+	Message interface{}
 }
 
 func (p *NetflowParser) ProcessData(logMessage interface{}, _ string, queue chan *plugins.Log) error {
@@ -46,18 +44,30 @@ func (p *NetflowParser) ProcessData(logMessage interface{}, _ string, queue chan
 	case NetflowObject:
 		remote = l.Remote
 		switch m := l.Message.(type) {
+		// goflow2 types (primary for v5, v9, IPFIX)
+		case netflowlegacy.PacketNetFlowV5:
+			metrics = pnf.PrepareGoflowV5(remote, &m)
+		case *netflowlegacy.PacketNetFlowV5:
+			metrics = pnf.PrepareGoflowV5(remote, m)
+		case goflownetflow.NFv9Packet:
+			metrics = pnf.PrepareGoflowV9(remote, &m)
+		case *goflownetflow.NFv9Packet:
+			metrics = pnf.PrepareGoflowV9(remote, m)
+		case goflownetflow.IPFIXPacket:
+			metrics = pnf.PrepareGoflowIPFIX(remote, &m)
+		case *goflownetflow.IPFIXPacket:
+			metrics = pnf.PrepareGoflowIPFIX(remote, m)
+
+		// tehmaze types (fallback for v1, v6, v7)
 		case *netflow1.Packet:
 			metrics = pnf.PrepareV1(remote, m)
-		case *netflow5.Packet:
-			metrics = pnf.PrepareV5(remote, m)
 		case *netflow6.Packet:
 			metrics = pnf.PrepareV6(remote, m)
 		case *netflow7.Packet:
 			metrics = pnf.PrepareV7(remote, m)
-		case *netflow9.Packet:
-			metrics = pnf.PrepareV9(remote, m)
-		case *ipfix.Message:
-			metrics = pnf.PrepareIPFIX(remote, m)
+
+		default:
+			return fmt.Errorf("unknown netflow message type: %T", m)
 		}
 	default:
 		return fmt.Errorf("unknown log batch type: %T", l)

@@ -11,6 +11,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/threatwinds/go-sdk/entities"
@@ -19,6 +20,11 @@ import (
 	"github.com/utmstack/UTMStack/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/parser"
 	"github.com/utmstack/UTMStack/agent/utils"
+)
+
+var (
+	syslogModules = make(map[string]*SyslogModule)
+	syslogMutex   sync.RWMutex
 )
 
 const (
@@ -40,6 +46,7 @@ type SyslogModule struct {
 	TCPListener listenerTCP
 	UDPListener listenerUDP
 	Parser      parser.Parser
+	mu          sync.RWMutex
 }
 
 type listenerTCP struct {
@@ -60,7 +67,14 @@ type listenerUDP struct {
 }
 
 func GetSyslogModule(dataType string, protoPorts config.ProtoPort) *SyslogModule {
-	return &SyslogModule{
+	syslogMutex.Lock()
+	defer syslogMutex.Unlock()
+
+	if mod, exists := syslogModules[dataType]; exists {
+		return mod
+	}
+
+	newModule := &SyslogModule{
 		DataType: dataType,
 		TCPListener: listenerTCP{
 			IsEnabled: false,
@@ -72,6 +86,9 @@ func GetSyslogModule(dataType string, protoPorts config.ProtoPort) *SyslogModule
 		},
 		Parser: parser.GetParser(dataType),
 	}
+
+	syslogModules[dataType] = newModule
+	return newModule
 }
 
 func (m *SyslogModule) GetDataType() string {
@@ -79,6 +96,9 @@ func (m *SyslogModule) GetDataType() string {
 }
 
 func (m *SyslogModule) IsPortListen(proto string) bool {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
 	switch proto {
 	case "tcp":
 		return m.TCPListener.IsEnabled
@@ -90,7 +110,9 @@ func (m *SyslogModule) IsPortListen(proto string) bool {
 }
 
 func (m *SyslogModule) SetNewPort(proto string, port string) {
-	// validate port by dataType, ranges allowed and ports in use
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
 	switch proto {
 	case "tcp":
 		m.TCPListener.Port = port
@@ -100,6 +122,9 @@ func (m *SyslogModule) SetNewPort(proto string, port string) {
 }
 
 func (m *SyslogModule) GetPort(proto string) string {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
 	switch proto {
 	case "tcp":
 		return m.TCPListener.Port
@@ -143,140 +168,159 @@ func (m *SyslogModule) DisablePort(proto string) {
 }
 
 func (m *SyslogModule) enableTCP() {
-	if !m.TCPListener.IsEnabled && m.TCPListener.Port != "" {
-		utils.Logger.Info("Server %s listening in port: %s protocol: TCP", m.DataType, m.TCPListener.Port)
-		if m.TCPListener.TLSEnabled {
-			utils.Logger.Info("Server %s TLS enabled in port: %s protocol: TCP", m.DataType, m.TCPListener.Port)
-		}
-		m.TCPListener.IsEnabled = true
+	m.mu.Lock()
+	if m.TCPListener.IsEnabled || m.TCPListener.Port == "" {
+		m.mu.Unlock()
+		return
+	}
 
-		listener, err := net.Listen("tcp", "0.0.0.0:"+m.TCPListener.Port)
-		if err != nil {
-			utils.Logger.ErrorF("error listening TCP in port %s: %v", m.TCPListener.Port, err)
-			return
-		}
+	listener, err := net.Listen("tcp", "0.0.0.0:"+m.TCPListener.Port)
+	if err != nil {
+		m.mu.Unlock()
+		utils.Logger.ErrorF("error listening TCP in port %s: %v", m.TCPListener.Port, err)
+		return
+	}
 
-		m.TCPListener.Listener = listener
-		m.TCPListener.CTX, m.TCPListener.Cancel = context.WithCancel(context.Background())
+	// Solo setear IsEnabled DESPUÉS de confirmar que el listener está activo
+	m.TCPListener.IsEnabled = true
+	m.TCPListener.Listener = listener
+	m.TCPListener.CTX, m.TCPListener.Cancel = context.WithCancel(context.Background())
+	m.mu.Unlock()
 
-		go func() {
-			defer func() {
-				err = m.TCPListener.Listener.Close()
+	utils.Logger.Info("Server %s listening in port: %s protocol: TCP", m.DataType, m.TCPListener.Port)
+	if m.TCPListener.TLSEnabled {
+		utils.Logger.Info("Server %s TLS enabled in port: %s protocol: TCP", m.DataType, m.TCPListener.Port)
+	}
+
+	go func() {
+		defer func() {
+			err = m.TCPListener.Listener.Close()
+			if err != nil {
+				utils.Logger.ErrorF("error closing tcp listener: %v", err)
+			}
+		}()
+		for {
+			select {
+			case <-m.TCPListener.CTX.Done():
+				return
+			default:
+				conn, err := m.TCPListener.Listener.Accept()
 				if err != nil {
-					utils.Logger.ErrorF("error closing tcp listener: %v", err)
-				}
-			}()
-			for {
-				select {
-				case <-m.TCPListener.CTX.Done():
-					return
-				default:
-					conn, err := m.TCPListener.Listener.Accept()
-					if err != nil {
-						if errors.Is(err, net.ErrClosed) {
-							return
-						}
+					if errors.Is(err, net.ErrClosed) {
+						return
+					}
 
-						var netOpErr *net.OpError
-						ok := errors.As(err, &netOpErr)
-						if ok && netOpErr.Timeout() {
-							continue
-						}
-
-						utils.Logger.ErrorF("error connecting with tcp listener: %v", err)
+					var netOpErr *net.OpError
+					ok := errors.As(err, &netOpErr)
+					if ok && netOpErr.Timeout() {
 						continue
 					}
 
-					// Connection handling based on TLS configuration
-					if m.TCPListener.TLSEnabled {
-						go m.handleTLSConnection(conn)
-					} else {
-						go m.handleConnectionTCP(conn)
-					}
+					utils.Logger.ErrorF("error connecting with tcp listener: %v", err)
+					continue
+				}
+
+				// Connection handling based on TLS configuration
+				if m.TCPListener.TLSEnabled {
+					go m.handleTLSConnection(conn)
+				} else {
+					go m.handleConnectionTCP(conn)
 				}
 			}
-		}()
-	}
+		}
+	}()
 }
 
 func (m *SyslogModule) enableUDP() {
-	if !m.UDPListener.IsEnabled && m.UDPListener.Port != "" {
-		utils.Logger.Info("Server %s listening in port: %s protocol: UDP\n", m.DataType, m.UDPListener.Port)
-		m.UDPListener.IsEnabled = true
+	m.mu.Lock()
+	if m.UDPListener.IsEnabled || m.UDPListener.Port == "" {
+		m.mu.Unlock()
+		return
+	}
 
-		listener, err := net.ListenPacket("udp", "0.0.0.0"+":"+m.UDPListener.Port)
-		if err != nil {
-			utils.Logger.ErrorF("error listening UDP in port %s: %v", m.UDPListener.Port, err)
-			return
-		}
+	listener, err := net.ListenPacket("udp", "0.0.0.0:"+m.UDPListener.Port)
+	if err != nil {
+		m.mu.Unlock()
+		utils.Logger.ErrorF("error listening UDP in port %s: %v", m.UDPListener.Port, err)
+		return
+	}
 
-		udpListener, ok := listener.(*net.UDPConn)
-		if !ok {
-			utils.Logger.ErrorF("could not assert to *net.UDPConn")
-			return
-		}
+	udpListener, ok := listener.(*net.UDPConn)
+	if !ok {
+		m.mu.Unlock()
+		utils.Logger.ErrorF("could not assert to *net.UDPConn")
+		listener.Close()
+		return
+	}
 
-		m.UDPListener.Listener = listener
-		m.UDPListener.CTX, m.UDPListener.Cancel = context.WithCancel(context.Background())
+	// Solo setear IsEnabled DESPUÉS de confirmar que el listener está activo
+	m.UDPListener.IsEnabled = true
+	m.UDPListener.Listener = listener
+	m.UDPListener.CTX, m.UDPListener.Cancel = context.WithCancel(context.Background())
+	m.mu.Unlock()
 
-		buffer := make([]byte, UDPBufferSize)
-		msgChannel := make(chan config.MSGDS)
+	utils.Logger.Info("Server %s listening in port: %s protocol: UDP", m.DataType, m.UDPListener.Port)
 
-		go m.handleConnectionUDP(msgChannel)
+	buffer := make([]byte, UDPBufferSize)
+	msgChannel := make(chan config.MSGDS)
 
-		go func() {
-			defer func() {
-				err = m.UDPListener.Listener.Close()
-				if err != nil {
-					utils.Logger.ErrorF("error closing udp listener: %v", err)
-				}
-			}()
-			for {
-				select {
-				case <-m.UDPListener.CTX.Done():
-					return
-				default:
-					udpListener.SetDeadline(time.Now().Add(time.Second * 1))
+	go m.handleConnectionUDP(msgChannel)
 
-					n, add, err := listener.ReadFrom(buffer)
-					if err != nil {
-						if errors.Is(err, net.ErrClosed) {
-							return
-						}
-
-						var netOpErr *net.OpError
-						ok := errors.As(err, &netOpErr)
-						if ok && netOpErr.Timeout() {
-							continue
-						}
-
-						utils.Logger.ErrorF("error connecting with udp listener: %v", err)
-						continue
-					}
-					remoteAddr := add.String()
-					remoteAddr, _, err = net.SplitHostPort(remoteAddr)
-					if err != nil {
-						utils.Logger.ErrorF("error getting remote addr: %v", err)
-						continue
-					}
-					if remoteAddr == "127.0.0.1" {
-						remoteAddr, err = os.Hostname()
-						if err != nil {
-							utils.Logger.ErrorF("error getting hostname: %v\n", err)
-							continue
-						}
-					}
-					msgChannel <- config.MSGDS{
-						DataSource: remoteAddr,
-						Message:    string(buffer[:n]),
-					}
-				}
+	go func() {
+		defer func() {
+			err = m.UDPListener.Listener.Close()
+			if err != nil {
+				utils.Logger.ErrorF("error closing udp listener: %v", err)
 			}
 		}()
-	}
+		for {
+			select {
+			case <-m.UDPListener.CTX.Done():
+				return
+			default:
+				udpListener.SetDeadline(time.Now().Add(time.Second * 1))
+
+				n, add, err := listener.ReadFrom(buffer)
+				if err != nil {
+					if errors.Is(err, net.ErrClosed) {
+						return
+					}
+
+					var netOpErr *net.OpError
+					ok := errors.As(err, &netOpErr)
+					if ok && netOpErr.Timeout() {
+						continue
+					}
+
+					utils.Logger.ErrorF("error connecting with udp listener: %v", err)
+					continue
+				}
+				remoteAddr := add.String()
+				remoteAddr, _, err = net.SplitHostPort(remoteAddr)
+				if err != nil {
+					utils.Logger.ErrorF("error getting remote addr: %v", err)
+					continue
+				}
+				if remoteAddr == "127.0.0.1" {
+					remoteAddr, err = os.Hostname()
+					if err != nil {
+						utils.Logger.ErrorF("error getting hostname: %v\n", err)
+						continue
+					}
+				}
+				msgChannel <- config.MSGDS{
+					DataSource: remoteAddr,
+					Message:    string(buffer[:n]),
+				}
+			}
+		}
+	}()
 }
 
 func (m *SyslogModule) disableTCP() {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
 	if m.TCPListener.IsEnabled && m.TCPListener.Port != "" {
 		utils.Logger.Info("Server %s closed in port: %s protocol: TCP", m.DataType, m.TCPListener.Port)
 
@@ -292,6 +336,9 @@ func (m *SyslogModule) disableTCP() {
 }
 
 func (m *SyslogModule) disableUDP() {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
 	if m.UDPListener.IsEnabled && m.UDPListener.Port != "" {
 		utils.Logger.Info("Server %s closed in port: %s protocol: UDP", m.DataType, m.UDPListener.Port)
 
