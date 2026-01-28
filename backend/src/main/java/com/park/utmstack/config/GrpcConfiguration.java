@@ -2,7 +2,6 @@ package com.park.utmstack.config;
 
 import com.park.utmstack.security.GrpcInterceptor;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
@@ -13,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import javax.annotation.PreDestroy;
 import javax.net.ssl.SSLException;
 
-@Configuration
 public class GrpcConfiguration {
     private ManagedChannel channel;
 
