@@ -37,7 +37,8 @@ func main() {
 	ctx := context.Background()
 	app, err := initializer.NewApp(ctx)
 	if err != nil {
-		catcher.Error("failed to initialize application", err, nil)
+		_ = catcher.Error("failed to initialize application", err, nil)
+		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
 
@@ -60,7 +61,8 @@ func main() {
 	defer shutdownCancel()
 
 	if err := app.Shutdown(shutdownCtx); err != nil {
-		catcher.Error("error during shutdown", err, nil)
+		_ = catcher.Error("error during shutdown", err, nil)
+		time.Sleep(5 * time.Second)
 	}
 
 	catcher.Info("ThreadWinds Ingestion Service stopped", nil)

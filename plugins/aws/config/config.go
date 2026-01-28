@@ -41,7 +41,7 @@ func GetConfig() *ConfigurationSection {
 
 func StartConfigurationSystem() {
 	for {
-		pluginConfig := plugins.PluginCfg("com.utmstack", false)
+		pluginConfig := plugins.PluginCfg("com.utmstack")
 		if !pluginConfig.Exists() {
 			_ = catcher.Error("plugin configuration not found", nil, map[string]any{"process": "plugin_com.utmstack.aws"})
 			time.Sleep(reconnectDelay)

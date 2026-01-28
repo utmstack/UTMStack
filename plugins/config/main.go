@@ -406,7 +406,7 @@ func main() {
 
 // connect to postgres database
 func connect() (*sql.DB, error) {
-	pCfg := plugins.PluginCfg("com.utmstack", false)
+	pCfg := plugins.PluginCfg("com.utmstack")
 	password := pCfg.Get("postgresql.password").String()
 	server := pCfg.Get("postgresql.server").String()
 	port := pCfg.Get("postgresql.port").Int()

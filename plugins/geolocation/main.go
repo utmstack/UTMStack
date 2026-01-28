@@ -20,6 +20,7 @@ func main() {
 		_ = catcher.Error("com.utmstack.geolocation", err, map[string]any{
 			"process": "plugin_com.utmstack.geolocation",
 		})
+		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
 }

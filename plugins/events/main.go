@@ -3,6 +3,7 @@ package main
 import (
 	"io"
 	"os"
+	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
@@ -17,6 +18,7 @@ func main() {
 		_ = catcher.Error("failed to start analysis plugin", err, map[string]any{
 			"process": "plugin_com.utmstack.events",
 		})
+		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
 }

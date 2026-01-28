@@ -54,7 +54,7 @@ func StartConfigurationSystem() {
 		if err := utils.ConnectionChecker(UrlCheckConnection); err != nil {
 			_ = catcher.Error("External connection failure detected: %v", err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
 		}
-		pluginConfig := plugins.PluginCfg("com.utmstack", false)
+		pluginConfig := plugins.PluginCfg("com.utmstack")
 		if !pluginConfig.Exists() {
 			_ = catcher.Error("plugin configuration not found", nil, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
 			time.Sleep(reconnectDelay)
