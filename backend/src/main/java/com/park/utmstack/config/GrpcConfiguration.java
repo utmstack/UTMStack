@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import javax.annotation.PreDestroy;
 import javax.net.ssl.SSLException;
 
+@Configuration
 public class GrpcConfiguration {
     private ManagedChannel channel;
 
