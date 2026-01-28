@@ -21,8 +21,8 @@ import {
 } from '../compliance-reports-view/components/compliance-time-window/compliance-time-windows.component';
 import {ReportApplyNoteComponent} from './components/report-apply-note/report-apply-note.component';
 import {
-  UtmComplianceQueryFormComponent
-} from './components/utm-compliance-control-config-create/query-config/utm-compliance-query-form.component';
+  UtmComplianceQueryComponent
+} from './components/utm-compliance-control-config-create/query-config/utm-compliance-query.component';
 import {
   UtmComplianceQueryListComponent
 } from './components/utm-compliance-control-config-create/query-config/utm-compliance-query-list.component';
@@ -65,7 +65,7 @@ import {GraphicBuilderSharedModule} from "../../graphic-builder/shared/graphic-b
     ComplianceTimeWindowsComponent,
     CompliancePrintViewComponent,
     UtmComplianceControlConfigCreateComponent,
-    UtmComplianceQueryFormComponent,
+    UtmComplianceQueryComponent,
     UtmComplianceQueryListComponent
   ],
   imports: [

@@ -7,9 +7,10 @@
              [loading]="!standardsSection"
              [searchable]="true"
              bindLabel="standardSectionName"
-             bindValue="id">
+             bindValue="id"
+             [ngClass]="{ 'w-100': !showAdd }">
   </ng-select>
-  <div class="text-blue-800 ml-3 cursor-pointer">
+  <div class="text-blue-800 ml-3 cursor-pointer" *ngIf="showAdd">
            <span (click)="newStandardSection()">
              <i class="icon-plus3"></i>
              Add section

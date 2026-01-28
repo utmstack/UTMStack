@@ -9,11 +9,11 @@ import {ComplianceEvaluationRuleEnum} from '../../../enums/compliance-evaluation
 import {UtmComplianceQueryConfigType} from '../../../type/compliance-query-config.type';
 
 @Component({
-  selector: 'app-utm-compliance-query-form',
-  templateUrl: './utm-compliance-query-form.component.html',
-  styleUrls: ['./utm-compliance-query-form.component.css']
+  selector: 'app-utm-compliance-query',
+  templateUrl: './utm-compliance-query.component.html',
+  styleUrls: ['./utm-compliance-query.component.css']
 })
-export class UtmComplianceQueryFormComponent implements OnInit {
+export class UtmComplianceQueryComponent implements OnInit {
 
   @Input() query: UtmComplianceQueryConfigType = null;
   @Input() indexPatterns: UtmIndexPattern[] = [];

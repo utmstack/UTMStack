@@ -15,6 +15,7 @@ export class UtmCpStandardSelectComponent implements OnInit {
   @Input() standardId: number;
   @Input() required: boolean;
   @Output() standardSelect = new EventEmitter<number>();
+  @Input()  showAdd = true;
 
   constructor(private cpStandardService: CpStandardService,
               private modalService: NgbModal,
