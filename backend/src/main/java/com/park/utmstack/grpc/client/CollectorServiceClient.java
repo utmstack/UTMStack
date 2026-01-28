@@ -3,6 +3,7 @@ package com.park.utmstack.grpc.client;
 import agent.CollectorOuterClass;
 import agent.CollectorServiceGrpc;
 import com.park.utmstack.grpc.interceptor.CollectorAuthInterceptor;
+import com.park.utmstack.grpc.interceptor.GrpcInternalKeyInterceptor;
 import com.park.utmstack.service.grpc.AuthResponse;
 import com.park.utmstack.service.grpc.DeleteRequest;
 import com.park.utmstack.service.grpc.ListRequest;
@@ -26,7 +27,12 @@ public class CollectorServiceClient {
     public CollectorOuterClass.ListCollectorResponse listCollectors(ListRequest request) {
         String ctx = "CollectorServiceClient.listCollectors";
         try {
-            return baseStub.listCollector(request);
+
+            CollectorServiceGrpc.CollectorServiceBlockingStub stub =
+                    baseStub.withInterceptors(new GrpcInternalKeyInterceptor());
+
+            return stub.listCollector(request);
+
         } catch (StatusRuntimeException e) {
             log.error("{}: An error occurred while listing collectors: {}", ctx, e.getMessage());
             throw new ApiException(String.format("%s: gRPC error listing collectors", ctx), HttpStatus.INTERNAL_SERVER_ERROR);
