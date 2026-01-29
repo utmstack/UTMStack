@@ -1,4 +1,4 @@
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1505, 'API Management Security Events', 3, 3, 2, 'Defense Evasion, Persistence, Privilege Escalation, Initial Access', 'T1078 - Valid Accounts', 'Detects suspicious API Management activities including authentication failures, unauthorized access attempts, or API policy violations in Azure API Management services.
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5031, 'API Management Security Events', 3, 3, 2, 'Defense Evasion, Persistence, Privilege Escalation, Initial Access', 'T1078 - Valid Accounts', 'Detects suspicious API Management activities including authentication failures, unauthorized access attempts, or API policy violations in Azure API Management services.
 
 Next Steps:
 1. Review the specific API endpoint and operation that triggered the alert
@@ -8,8 +8,8 @@ Next Steps:
 5. Review API Management policies and access controls
 6. Check for any recent changes to API permissions or policies
 7. Consider implementing additional rate limiting or IP restrictions if needed
-', '["https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-use-azure-monitor","https://attack.mitre.org/techniques/T1078/"]', '(contains("log.operationName", "Microsoft.ApiManagement") || equals("log.category", "GatewayLogs")) && (oneOf("statusCode", [401, 403]) || equals("actionResult", "denied"))', '2026-01-28 22:15:19.035794', true, true, 'origin', '["origin.ip"]', '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1506, 'Application Gateway WAF Security Alerts', 3, 3, 2, 'Initial Access', 'T1190 - Exploit Public-Facing Application', 'Detects Web Application Firewall alerts from Azure Application Gateway indicating potential web attacks or malicious activity. This rule triggers when WAF blocks or detects suspicious requests that match OWASP security rules, including SQL injection, cross-site scripting (XSS), command injection, and other common web exploits.
+', '["https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-use-azure-monitor","https://attack.mitre.org/techniques/T1078/"]', '(contains("log.operationName", "Microsoft.ApiManagement") || equals("log.category", "GatewayLogs")) && (oneOf("statusCode", [401, 403]) || equals("actionResult", "denied"))', '2026-01-29 15:51:25.376465', true, false, 'origin', '["origin.ip"]', '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5032, 'Application Gateway WAF Security Alerts', 3, 3, 2, 'Initial Access', 'T1190 - Exploit Public-Facing Application', 'Detects Web Application Firewall alerts from Azure Application Gateway indicating potential web attacks or malicious activity. This rule triggers when WAF blocks or detects suspicious requests that match OWASP security rules, including SQL injection, cross-site scripting (XSS), command injection, and other common web exploits.
 
 **Next Steps:**
 1. Review the specific WAF rule ID and message details to understand the attack type
@@ -20,9 +20,13 @@ insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, r
 6. Consider implementing additional WAF rules or IP blocking if confirmed malicious
 7. Review application logs for any successful bypass attempts
 8. Investigate ruleId and ruleGroup to understand the specific OWASP rule triggered
-', '["https://learn.microsoft.com/en-us/azure/web-application-firewall/ag/web-application-firewall-logs","https://learn.microsoft.com/en-us/azure/application-gateway/application-gateway-diagnostics","https://attack.mitre.org/techniques/T1190/"]', 'equalsIgnoreCase("log.category", "ApplicationGatewayFirewallLog") && (equalsIgnoreCase("log.properties.action", "Blocked") || equalsIgnoreCase("log.properties.action", "Matched") || !equals("log.properties.ruleId", ""))', '2026-01-28 22:15:20.167987', true, true, 'origin', '["origin.ip","log.properties.ruleId"]', '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1507, 'Azure Event Hub Authorization Rule Created or Updated', 2, 3, 2, 'Cloud Storage Object', 'Collection', 'Identifies when an Event Hub Authorization Rule is created or updated in Azure.  An authorization rule is associated with specific rights (Listen, Send, Manage), and carries a pair of cryptographic keys.  When you create an Event Hubs namespace, a policy rule named RootManageSharedAccessKey is created for the namespace.  This has manage permissions for the entire namespace and it''s recommended that you treat this rule like an  administrative root account and don''t use it in your application.  Adversaries may create or modify authorization rules to establish persistence, exfiltrate data, or maintain access to Event Hub streams.', '["https://attack.mitre.org/tactics/TA0009/","https://attack.mitre.org/techniques/T1537/","https://attack.mitre.org/tactics/TA0010/","https://learn.microsoft.com/en-us/azure/event-hubs/authorize-access-shared-access-signature"]', '(equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) && (equalsIgnoreCase("log.operationName", "MICROSOFT.EVENTHUB/NAMESPACES/AUTHORIZATIONRULES/WRITE") || contains("log.operationName", "Microsoft.EventHub/namespaces/authorizationRules/write")) && (equals("log.resultType", "0"))', '2026-01-28 22:15:21.257988', true, true, 'target', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1508, 'Azure AD Conditional Access Policy Bypass Attempt', 3, 3, 1, 'Defense Evasion, Persistence, Privilege Escalation, Initial Access', 'T1078 - Valid Accounts', 'Detects potential attempts to bypass Azure AD Conditional Access policies through policy tampering or unauthorized modifications. Monitors for policy updates and deletions that could weaken security controls such as MFA requirements, device compliance checks, or location-based restrictions. Adversaries may modify or delete conditional access policies to facilitate unauthorized access, bypass security controls, or establish persistence.
+', '["https://learn.microsoft.com/en-us/azure/web-application-firewall/ag/web-application-firewall-logs","https://learn.microsoft.com/en-us/azure/application-gateway/application-gateway-diagnostics","https://attack.mitre.org/techniques/T1190/"]', 'equalsIgnoreCase("log.category", "ApplicationGatewayFirewallLog") &&
+(equalsIgnoreCase("log.properties.action", "Blocked") ||
+equalsIgnoreCase("log.properties.action", "Matched") ||
+!equals("log.properties.ruleId", ""))
+', '2026-01-29 15:51:25.455209', true, false, 'origin', '["origin.ip","log.properties.ruleId"]', '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5033, 'Azure Event Hub Authorization Rule Created or Updated', 2, 3, 2, 'Cloud Storage Object', 'Collection', 'Identifies when an Event Hub Authorization Rule is created or updated in Azure.  An authorization rule is associated with specific rights (Listen, Send, Manage), and carries a pair of cryptographic keys.  When you create an Event Hubs namespace, a policy rule named RootManageSharedAccessKey is created for the namespace.  This has manage permissions for the entire namespace and it''s recommended that you treat this rule like an  administrative root account and don''t use it in your application.  Adversaries may create or modify authorization rules to establish persistence, exfiltrate data, or maintain access to Event Hub streams.', '["https://attack.mitre.org/tactics/TA0009/","https://attack.mitre.org/techniques/T1537/","https://attack.mitre.org/tactics/TA0010/","https://learn.microsoft.com/en-us/azure/event-hubs/authorize-access-shared-access-signature"]', '(equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) && (equalsIgnoreCase("log.operationName", "MICROSOFT.EVENTHUB/NAMESPACES/AUTHORIZATIONRULES/WRITE") || contains("log.operationName", "Microsoft.EventHub/namespaces/authorizationRules/write")) && (equals("log.resultType", "0"))', '2026-01-29 15:51:25.546785', true, false, 'target', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5034, 'Azure AD Conditional Access Policy Bypass Attempt', 3, 3, 1, 'Defense Evasion, Persistence, Privilege Escalation, Initial Access', 'T1078 - Valid Accounts', 'Detects potential attempts to bypass Azure AD Conditional Access policies through policy tampering or unauthorized modifications. Monitors for policy updates and deletions that could weaken security controls such as MFA requirements, device compliance checks, or location-based restrictions. Adversaries may modify or delete conditional access policies to facilitate unauthorized access, bypass security controls, or establish persistence.
 
 Next Steps:
 1. Immediately review the conditional access policy changes made and document all modifications
@@ -33,8 +37,8 @@ Next Steps:
 6. Cross-reference the timing of policy changes with any recent security incidents or suspicious activities
 7. Consider immediately reverting unauthorized changes and implementing stronger approval workflows for future policy modifications
 8. Audit all other conditional access policies for similar unauthorized modifications
-', '["https://danielchronlund.com/2022/01/07/the-attackers-guide-to-azure-ad-conditional-access/","https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview","https://attack.mitre.org/techniques/T1078/"]', '(equalsIgnoreCase("log.category", "AuditLogs") || contains("log.category", "Audit")) && (oneOf("log.operationName", ["Update policy", "Delete policy", "Delete conditional access policy", "Update conditional access policy"]) || contains("log.operationName", "conditionalAccessPolicies")) && equals("log.resultType", "0")', '2026-01-28 22:15:22.389011', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1509, 'Azure Container Registry Critical Vulnerability Detected', 3, 3, 2, 'Initial Access', 'T1190 - Exploit Public-Facing Application', 'Detects critical or high severity vulnerabilities in container images within Azure Container Registry, including newly pushed images or recently scanned images with security issues.
+', '["https://danielchronlund.com/2022/01/07/the-attackers-guide-to-azure-ad-conditional-access/","https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview","https://attack.mitre.org/techniques/T1078/"]', '(equalsIgnoreCase("log.category", "AuditLogs") || contains("log.category", "Audit")) && (oneOf("log.operationName", ["Update policy", "Delete policy", "Delete conditional access policy", "Update conditional access policy"]) || contains("log.operationName", "conditionalAccessPolicies")) && equals("log.resultType", "0")', '2026-01-29 15:51:25.632240', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5035, 'Azure Container Registry Critical Vulnerability Detected', 3, 3, 2, 'Initial Access', 'T1190 - Exploit Public-Facing Application', 'Detects critical or high severity vulnerabilities in container images within Azure Container Registry, including newly pushed images or recently scanned images with security issues.
 
 Next Steps:
 1. Review the vulnerability details and affected container image
@@ -43,10 +47,10 @@ Next Steps:
 4. Implement security scanning in CI/CD pipeline to prevent future issues
 5. Consider quarantining affected images until patched
 6. Monitor for any exploitation attempts against vulnerable containers
-', '["https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-container-registries-introduction","https://attack.mitre.org/techniques/T1190/"]', 'contains("log.OperationName", "Microsoft.ContainerRegistry") && (equalsIgnoreCase("log.ResultType", "VulnerabilityFound") || equalsIgnoreCase("log.Category", "SecurityAssessment")) && (oneOf("severity", ["critical", "high"]) || greaterOrEqual("statusCode", "400"))', '2026-01-28 22:15:23.571950', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1510, 'Azure Key Vault Modified', 3, 3, 2, 'Unsecured Credentials', 'Credential Access', 'Identifies modifications to a Key Vault in Azure. The Key Vault is a service that safeguards encryption keys and secrets like certificates,  connection strings, and passwords. Because this data is sensitive and business critical, access to key vaults should be secured to allow  only authorized applications and users. Adversaries may modify Key Vault configurations to weaken security controls, add unauthorized access policies,  or change network rules to facilitate credential theft and unauthorized access to sensitive secrets.', '["https://attack.mitre.org/techniques/T1552/","https://attack.mitre.org/tactics/TA0006/","https://learn.microsoft.com/en-us/azure/key-vault/general/security-features"]', '(equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) && (equalsIgnoreCase("log.operationName", "MICROSOFT.KEYVAULT/VAULTS/WRITE") || contains("log.operationName", "Microsoft.KeyVault/vaults/write")) && (equals("log.resultType", "0"))', '2026-01-28 22:15:24.747178', true, true, 'target', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1511, 'Azure Storage Account Key Regenerated', 3, 2, 2, 'Application Access Token', 'Credential Access', 'Identifies a rotation to storage account access keys in Azure. Regenerating access keys can affect any applications or Azure services that are dependent on the storage account key. Adversaries may regenerate a key as a means of acquiring credentials to access systems and resources, potentially locking out legitimate users while maintaining their own access. This technique can be used to establish persistence, disrupt operations, or facilitate data exfiltration from Azure Storage.', '["https://attack.mitre.org/techniques/T1528/","https://attack.mitre.org/tactics/TA0006/","https://learn.microsoft.com/en-us/azure/storage/common/storage-account-keys-manage"]', '(equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) && (equalsIgnoreCase("log.operationName", "MICROSOFT.STORAGE/STORAGEACCOUNTS/REGENERATEKEY/ACTION") || contains("log.operationName", "Microsoft.Storage/storageAccounts/regeneratekey/action")) && (equals("log.resultType", "0"))', '2026-01-28 22:15:25.921260', true, true, 'target', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1512, 'Azure Defender for Cloud Critical Security Alert', 3, 3, 2, 'Intrusion Detection', 'T1001 - Initial Access', 'Detects critical and high severity alerts from Microsoft Defender for Cloud (formerly Azure Security Center) indicating potential active threats, malware infections, successful breach attempts, or suspicious activities that require immediate response. These alerts leverage advanced threat detection, behavioral analytics, and machine learning to identify security incidents across Azure resources.
+', '["https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-container-registries-introduction","https://attack.mitre.org/techniques/T1190/"]', 'contains("log.OperationName", "Microsoft.ContainerRegistry") && (equalsIgnoreCase("log.ResultType", "VulnerabilityFound") || equalsIgnoreCase("log.Category", "SecurityAssessment")) && (oneOf("severity", ["critical", "high"]) || greaterOrEqual("statusCode", "400"))', '2026-01-29 15:51:25.718405', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5036, 'Azure Key Vault Modified', 3, 3, 2, 'Unsecured Credentials', 'Credential Access', 'Identifies modifications to a Key Vault in Azure. The Key Vault is a service that safeguards encryption keys and secrets like certificates,  connection strings, and passwords. Because this data is sensitive and business critical, access to key vaults should be secured to allow  only authorized applications and users. Adversaries may modify Key Vault configurations to weaken security controls, add unauthorized access policies,  or change network rules to facilitate credential theft and unauthorized access to sensitive secrets.', '["https://attack.mitre.org/techniques/T1552/","https://attack.mitre.org/tactics/TA0006/","https://learn.microsoft.com/en-us/azure/key-vault/general/security-features"]', '(equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) && (equalsIgnoreCase("log.operationName", "MICROSOFT.KEYVAULT/VAULTS/WRITE") || contains("log.operationName", "Microsoft.KeyVault/vaults/write")) && (equals("log.resultType", "0"))', '2026-01-29 15:51:25.804286', true, false, 'target', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5037, 'Azure Storage Account Key Regenerated', 3, 2, 2, 'Application Access Token', 'Credential Access', 'Identifies a rotation to storage account access keys in Azure. Regenerating access keys can affect any applications or Azure services that are dependent on the storage account key. Adversaries may regenerate a key as a means of acquiring credentials to access systems and resources, potentially locking out legitimate users while maintaining their own access. This technique can be used to establish persistence, disrupt operations, or facilitate data exfiltration from Azure Storage.', '["https://attack.mitre.org/techniques/T1528/","https://attack.mitre.org/tactics/TA0006/","https://learn.microsoft.com/en-us/azure/storage/common/storage-account-keys-manage"]', '(equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) && (equalsIgnoreCase("log.operationName", "MICROSOFT.STORAGE/STORAGEACCOUNTS/REGENERATEKEY/ACTION") || contains("log.operationName", "Microsoft.Storage/storageAccounts/regeneratekey/action")) && (equals("log.resultType", "0"))', '2026-01-29 15:51:25.889704', true, false, 'target', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5038, 'Azure Defender for Cloud Critical Security Alert', 3, 3, 2, 'Intrusion Detection', 'T1001 - Initial Access', 'Detects critical and high severity alerts from Microsoft Defender for Cloud (formerly Azure Security Center) indicating potential active threats, malware infections, successful breach attempts, or suspicious activities that require immediate response. These alerts leverage advanced threat detection, behavioral analytics, and machine learning to identify security incidents across Azure resources.
 
 Next Steps:
 1. Review the full alert details in Microsoft Defender for Cloud portal
@@ -56,8 +60,8 @@ Next Steps:
 5. Review security policies and configurations for the affected resource
 6. Document the incident and update security procedures as needed
 7. Investigate the CompromisedEntity and Entities fields for IOCs
-', '["https://learn.microsoft.com/en-us/azure/defender-for-cloud/alerts-overview","https://learn.microsoft.com/en-us/azure/defender-for-cloud/alerts-schemas","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/securityalert","https://attack.mitre.org/tactics/TA0001/"]', 'equalsIgnoreCase("log.AlertSeverity", "High") || equalsIgnoreCase("severity", "High") && (equalsIgnoreCase("log.ProductName", "Azure Security Center") || equalsIgnoreCase("log.ProductName", "Microsoft Defender for Cloud"))', '2026-01-28 22:15:27.061710', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1513, 'Azure Application Credential Modification', 3, 3, 2, 'Defense Evasion', 'T1098.001 - Account Manipulation: Additional Cloud Credentials', 'Detects when a new credential (certificate or secret) is added to an Azure AD application. Applications can use certificates or secret strings to authenticate when requesting tokens. Adversaries may add additional authentication credentials to existing applications to establish persistence, evade defenses, or enable privilege escalation by impersonating legitimate applications.
+', '["https://learn.microsoft.com/en-us/azure/defender-for-cloud/alerts-overview","https://learn.microsoft.com/en-us/azure/defender-for-cloud/alerts-schemas","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/securityalert","https://attack.mitre.org/tactics/TA0001/"]', 'equalsIgnoreCase("log.AlertSeverity", "High") || equalsIgnoreCase("severity", "High") && (equalsIgnoreCase("log.ProductName", "Azure Security Center") || equalsIgnoreCase("log.ProductName", "Microsoft Defender for Cloud"))', '2026-01-29 15:51:25.977011', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5039, 'Azure Application Credential Modification', 3, 3, 2, 'Defense Evasion', 'T1098.001 - Account Manipulation: Additional Cloud Credentials', 'Detects when a new credential (certificate or secret) is added to an Azure AD application. Applications can use certificates or secret strings to authenticate when requesting tokens. Adversaries may add additional authentication credentials to existing applications to establish persistence, evade defenses, or enable privilege escalation by impersonating legitimate applications.
 
 This technique is commonly used in post-compromise scenarios where attackers:
 - Add secrets to high-privilege applications to maintain access
@@ -74,8 +78,8 @@ Next Steps:
 6. If unauthorized, immediately remove the suspicious credentials
 7. Review application usage logs for potential abuse
 8. Investigate the source IP address and user agent of the modification
-', '["https://attack.mitre.org/techniques/T1098/001/","https://attack.mitre.org/tactics/TA0005/","https://learn.microsoft.com/en-us/azure/active-directory/reports-monitoring/concept-audit-logs","https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities"]', '(equalsIgnoreCase("log.category", "AuditLogs") || contains("log.category", "Audit")) && (contains("log.operationName", "Certificates and secrets management") || equalsIgnoreCase("log.operationName", "Add service principal credentials") || equalsIgnoreCase("log.operationName", "Update application") || equalsIgnoreCase("log.operationName", "Update application - Certificates and secrets management")) && (equalsIgnoreCase("log.resultType", "0"))', '2026-01-28 22:15:28.201021', true, true, 'target', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1514, 'Azure Diagnostic Settings Deletion', 1, 3, 3, 'Defense Evasion', 'T1562.008 - Impair Defenses: Disable Cloud Logs', 'Detects the deletion of diagnostic settings in Azure, which are critical for sending platform logs, metrics, and activity data to destinations like Log Analytics workspaces, Event Hubs, or storage accounts. Adversaries delete diagnostic settings to evade detection by disabling security monitoring and audit logging capabilities.
+', '["https://attack.mitre.org/techniques/T1098/001/","https://attack.mitre.org/tactics/TA0005/","https://learn.microsoft.com/en-us/azure/active-directory/reports-monitoring/concept-audit-logs","https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities"]', '(equalsIgnoreCase("log.category", "AuditLogs") || contains("log.category", "Audit")) && (contains("log.operationName", "Certificates and secrets management") || equalsIgnoreCase("log.operationName", "Add service principal credentials") || equalsIgnoreCase("log.operationName", "Update application") || equalsIgnoreCase("log.operationName", "Update application - Certificates and secrets management")) && (equalsIgnoreCase("log.resultType", "0"))', '2026-01-29 15:51:26.057507', true, false, 'target', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5040, 'Azure Diagnostic Settings Deletion', 1, 3, 3, 'Defense Evasion', 'T1562.008 - Impair Defenses: Disable Cloud Logs', 'Detects the deletion of diagnostic settings in Azure, which are critical for sending platform logs, metrics, and activity data to destinations like Log Analytics workspaces, Event Hubs, or storage accounts. Adversaries delete diagnostic settings to evade detection by disabling security monitoring and audit logging capabilities.
 
 This technique is commonly observed when attackers:
 - Attempt to hide malicious activities from security teams
@@ -97,8 +101,8 @@ Next Steps:
 6. Restore diagnostic settings immediately to resume monitoring
 7. Investigate the caller''s account for potential compromise
 8. Check for other defense evasion techniques in the timeline
-', '["https://attack.mitre.org/techniques/T1562/008/","https://attack.mitre.org/tactics/TA0005/","https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings","https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log"]', '(equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) && (equalsIgnoreCase("log.operationName", "MICROSOFT.INSIGHTS/DIAGNOSTICSETTINGS/DELETE") || contains("log.operationName", "Delete diagnostic setting")) && (equalsIgnoreCase("log.resultType", "0"))', '2026-01-28 22:15:29.378464', true, true, 'target', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1515, 'Azure Service Principal Addition', 2, 3, 2, 'Persistence', 'T1136.003 - Create Account: Cloud Account', 'Detects when a new service principal is created in Azure Active Directory (Entra ID). A service principal is an identity created for use with applications, hosted services, and automated tools to access Azure resources. While service principals are legitimate and necessary for automation, adversaries may create rogue service principals to establish persistent access, escalate privileges, or move laterally within an Azure environment.
+', '["https://attack.mitre.org/techniques/T1562/008/","https://attack.mitre.org/tactics/TA0005/","https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings","https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log"]', '(equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) && (equalsIgnoreCase("log.operationName", "MICROSOFT.INSIGHTS/DIAGNOSTICSETTINGS/DELETE") || contains("log.operationName", "Delete diagnostic setting")) && (equalsIgnoreCase("log.resultType", "0"))', '2026-01-29 15:51:26.146792', true, false, 'target', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5041, 'Azure Service Principal Addition', 2, 3, 2, 'Persistence', 'T1136.003 - Create Account: Cloud Account', 'Detects when a new service principal is created in Azure Active Directory (Entra ID). A service principal is an identity created for use with applications, hosted services, and automated tools to access Azure resources. While service principals are legitimate and necessary for automation, adversaries may create rogue service principals to establish persistent access, escalate privileges, or move laterally within an Azure environment.
 
 Threat Context:
 - Service principals can be granted powerful permissions across Azure subscriptions
@@ -128,41 +132,51 @@ Next Steps:
 6. Verify if the service principal has been used for authentication
 7. Cross-reference with change management tickets or DevOps records
 8. If unauthorized, immediately disable the service principal and rotate credentials
-', '["https://attack.mitre.org/techniques/T1136/003/","https://attack.mitre.org/tactics/TA0003/","https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities","https://learn.microsoft.com/en-us/entra/identity-platform/app-objects-and-service-principals"]', '(equalsIgnoreCase("log.category", "AuditLogs") || contains("log.category", "Audit")) && (equalsIgnoreCase("log.operationName", "Add service principal") || contains("log.operationName", "Create service principal")) && (equalsIgnoreCase("log.resultType", "0") || equalsIgnoreCase("actionResult", "success"))', '2026-01-28 22:15:30.550131', true, true, 'target', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1516, 'Azure Event Hub Deletion', 1, 3, 3, 'Defense Evasion', 'T1562.008 - Impair Defenses: Disable Cloud Logs', 'Detects the deletion of an Azure Event Hub, which is a critical event processing service that ingests and processes large volumes of events, logs, and telemetry data. Event Hubs are commonly used for security monitoring, log aggregation, and SIEM integration. Adversaries may delete Event Hubs to evade detection by disrupting log collection pipelines and preventing security events from reaching monitoring systems.
+', '["https://attack.mitre.org/techniques/T1136/003/","https://attack.mitre.org/tactics/TA0003/","https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities","https://learn.microsoft.com/en-us/entra/identity-platform/app-objects-and-service-principals"]', '(equalsIgnoreCase("log.category", "AuditLogs") || contains("log.category", "Audit")) && (equalsIgnoreCase("log.operationName", "Add service principal") || contains("log.operationName", "Create service principal")) && (equalsIgnoreCase("log.resultType", "0") || equalsIgnoreCase("actionResult", "success"))', '2026-01-29 15:51:26.234102', true, false, 'target', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5042, 'Azure Firewall Policy Deletion', 1, 3, 3, 'Defense Evasion', 'T1562.004 - Impair Defenses: Disable or Modify System Firewall', 'Detects the deletion of an Azure Firewall Policy, which defines network and application rules, threat intelligence settings, and security configurations for Azure Firewall. Adversaries delete firewall policies to disable network security controls, eliminate barriers to lateral movement, enable unrestricted outbound communication, or facilitate data exfiltration without detection.
 
 Threat Context:
-- Event Hubs are often used to stream logs to SIEM solutions
-- Deletion interrupts security monitoring and incident detection capabilities
-- Can be part of anti-forensics activities to cover tracks
-- May indicate an attempt to blind security operations before further attacks
+- Firewall policies control network traffic filtering and security rules
+- Deletion removes critical network security controls and visibility
+- Often precedes lateral movement, data exfiltration, or command-and-control establishment
+- Can be part of ransomware attacks to disable network segmentation
+- May indicate preparation for destructive attacks by removing protective barriers
+
+Azure Firewall Policies Control:
+- Network filtering rules (allow/deny traffic between networks)
+- Application rules (L7 filtering based on FQDNs, URLs, HTTP/HTTPS)
+- NAT rules (destination NAT for inbound connections)
+- Threat intelligence-based filtering
+- IDPS (Intrusion Detection and Prevention) settings
+- TLS inspection configurations
 
 Legitimate Use Cases:
-- Decommissioning unused Event Hubs during cost optimization
-- Infrastructure cleanup during application retirement
-- Migration to new Event Hub namespaces or different logging solutions
-- Testing and development environment cleanup
+- Migration to new firewall policies or consolidated policy structures
+- Decommissioning of test/development environments
+- Replacement during security architecture redesign
+- Cleanup of unused or deprecated policies
 
 Suspicious Indicators:
-- Event Hub actively receiving logs suddenly deleted
-- Deletion performed by non-administrative accounts
-- Multiple Event Hubs deleted in quick succession
-- Deletion outside change management windows
-- Deletion from unusual locations or IP addresses
-- Event Hub connected to production SIEM or security monitoring
+- Active production firewall policy deleted
+- Deletion by non-network/security administrators
+- Multiple firewall policies deleted in sequence
+- Deletion during off-hours or outside change windows
+- Policy protecting critical workloads suddenly removed
+- Deletion followed by suspicious network activity
 
 Next Steps:
-1. Verify if the deletion was authorized via change management process
-2. Identify who performed the deletion (caller) and their role
-3. Check if the Event Hub was actively receiving security logs
-4. Determine the impact on security monitoring and log collection
-5. Review recent authentication activity for the caller account
-6. Check for other suspicious activities in the timeline (diagnostic settings changes, etc.)
-7. Verify if backups of the Event Hub configuration exist
-8. If unauthorized, restore the Event Hub and investigate for account compromise
-9. Review authorization rules and access policies for remaining Event Hubs
-', '["https://attack.mitre.org/techniques/T1562/008/","https://attack.mitre.org/tactics/TA0005/","https://learn.microsoft.com/en-us/azure/event-hubs/monitor-event-hubs","https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log"]', '(equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) && (equalsIgnoreCase("log.operationName", "MICROSOFT.EVENTHUB/NAMESPACES/EVENTHUBS/DELETE") || contains("log.operationName", "Delete EventHub")) && (equalsIgnoreCase("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))', '2026-01-28 22:15:31.682214', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1517, 'Azure Network Watcher Deletion', 1, 3, 3, 'Defense Evasion', 'T1562.008 - Impair Defenses: Disable Cloud Logs', 'Detects the deletion of an Azure Network Watcher instance, which provides critical network monitoring, diagnostic, and visibility tools for Azure virtual networks. Network Watcher enables flow logs, packet capture, connection monitoring, network topology visualization, and NSG diagnostics. Adversaries delete Network Watcher instances to blind network monitoring capabilities, hide lateral movement, evade detection of data exfiltration, and eliminate network forensic capabilities.
+1. Immediately verify if the deletion was authorized via change management
+2. Identify who performed the deletion and verify their administrative role
+3. Determine which Azure Firewalls were using the deleted policy
+4. Check if affected firewalls now have no policy (completely unprotected)
+5. Review the deleted policy''s rules to understand security impact
+6. Verify if a replacement policy was immediately applied
+7. Check for suspicious network traffic patterns after deletion
+8. Look for other security control modifications in the timeline
+9. If unauthorized, restore the policy from backup immediately
+10. Investigate the caller''s account for potential compromise
+', '["https://attack.mitre.org/techniques/T1562/004/","https://attack.mitre.org/tactics/TA0005/","https://learn.microsoft.com/en-us/azure/firewall/policy-rule-sets","https://learn.microsoft.com/en-us/azure/firewall-manager/policy-overview"]', '(equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) && (equalsIgnoreCase("log.operationName", "MICROSOFT.NETWORK/FIREWALLPOLICIES/DELETE") || contains("log.operationName", "Delete Firewall Policy")) && (equalsIgnoreCase("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))', '2026-01-29 15:51:26.323264', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5043, 'Azure Network Watcher Deletion', 1, 3, 3, 'Defense Evasion', 'T1562.008 - Impair Defenses: Disable Cloud Logs', 'Detects the deletion of an Azure Network Watcher instance, which provides critical network monitoring, diagnostic, and visibility tools for Azure virtual networks. Network Watcher enables flow logs, packet capture, connection monitoring, network topology visualization, and NSG diagnostics. Adversaries delete Network Watcher instances to blind network monitoring capabilities, hide lateral movement, evade detection of data exfiltration, and eliminate network forensic capabilities.
 
 Threat Context:
 - Network Watcher provides visibility into network traffic patterns and connections
@@ -209,51 +223,41 @@ Next Steps:
 9. If unauthorized, immediately recreate Network Watcher instances
 10. Restore NSG flow logging and verify log retention
 11. Review stored flow logs for evidence of malicious activity before deletion
-', '["https://attack.mitre.org/techniques/T1562/008/","https://attack.mitre.org/tactics/TA0005/","https://learn.microsoft.com/en-us/azure/network-watcher/network-watcher-overview","https://learn.microsoft.com/en-us/azure/network-watcher/network-watcher-monitoring-overview"]', '(equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) && (equalsIgnoreCase("log.operationName", "MICROSOFT.NETWORK/NETWORKWATCHERS/DELETE") || contains("log.operationName", "Delete Network Watcher")) && (equalsIgnoreCase("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))', '2026-01-28 22:15:32.861362', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1518, 'Azure Firewall Policy Deletion', 1, 3, 3, 'Defense Evasion', 'T1562.004 - Impair Defenses: Disable or Modify System Firewall', 'Detects the deletion of an Azure Firewall Policy, which defines network and application rules, threat intelligence settings, and security configurations for Azure Firewall. Adversaries delete firewall policies to disable network security controls, eliminate barriers to lateral movement, enable unrestricted outbound communication, or facilitate data exfiltration without detection.
+', '["https://attack.mitre.org/techniques/T1562/008/","https://attack.mitre.org/tactics/TA0005/","https://learn.microsoft.com/en-us/azure/network-watcher/network-watcher-overview","https://learn.microsoft.com/en-us/azure/network-watcher/network-watcher-monitoring-overview"]', '(equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) && (equalsIgnoreCase("log.operationName", "MICROSOFT.NETWORK/NETWORKWATCHERS/DELETE") || contains("log.operationName", "Delete Network Watcher")) && (equalsIgnoreCase("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))', '2026-01-29 15:51:26.410663', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5044, 'Azure Event Hub Deletion', 1, 3, 3, 'Defense Evasion', 'T1562.008 - Impair Defenses: Disable Cloud Logs', 'Detects the deletion of an Azure Event Hub, which is a critical event processing service that ingests and processes large volumes of events, logs, and telemetry data. Event Hubs are commonly used for security monitoring, log aggregation, and SIEM integration. Adversaries may delete Event Hubs to evade detection by disrupting log collection pipelines and preventing security events from reaching monitoring systems.
 
 Threat Context:
-- Firewall policies control network traffic filtering and security rules
-- Deletion removes critical network security controls and visibility
-- Often precedes lateral movement, data exfiltration, or command-and-control establishment
-- Can be part of ransomware attacks to disable network segmentation
-- May indicate preparation for destructive attacks by removing protective barriers
-
-Azure Firewall Policies Control:
-- Network filtering rules (allow/deny traffic between networks)
-- Application rules (L7 filtering based on FQDNs, URLs, HTTP/HTTPS)
-- NAT rules (destination NAT for inbound connections)
-- Threat intelligence-based filtering
-- IDPS (Intrusion Detection and Prevention) settings
-- TLS inspection configurations
+- Event Hubs are often used to stream logs to SIEM solutions
+- Deletion interrupts security monitoring and incident detection capabilities
+- Can be part of anti-forensics activities to cover tracks
+- May indicate an attempt to blind security operations before further attacks
 
 Legitimate Use Cases:
-- Migration to new firewall policies or consolidated policy structures
-- Decommissioning of test/development environments
-- Replacement during security architecture redesign
-- Cleanup of unused or deprecated policies
+- Decommissioning unused Event Hubs during cost optimization
+- Infrastructure cleanup during application retirement
+- Migration to new Event Hub namespaces or different logging solutions
+- Testing and development environment cleanup
 
 Suspicious Indicators:
-- Active production firewall policy deleted
-- Deletion by non-network/security administrators
-- Multiple firewall policies deleted in sequence
-- Deletion during off-hours or outside change windows
-- Policy protecting critical workloads suddenly removed
-- Deletion followed by suspicious network activity
+- Event Hub actively receiving logs suddenly deleted
+- Deletion performed by non-administrative accounts
+- Multiple Event Hubs deleted in quick succession
+- Deletion outside change management windows
+- Deletion from unusual locations or IP addresses
+- Event Hub connected to production SIEM or security monitoring
 
 Next Steps:
-1. Immediately verify if the deletion was authorized via change management
-2. Identify who performed the deletion and verify their administrative role
-3. Determine which Azure Firewalls were using the deleted policy
-4. Check if affected firewalls now have no policy (completely unprotected)
-5. Review the deleted policy''s rules to understand security impact
-6. Verify if a replacement policy was immediately applied
-7. Check for suspicious network traffic patterns after deletion
-8. Look for other security control modifications in the timeline
-9. If unauthorized, restore the policy from backup immediately
-10. Investigate the caller''s account for potential compromise
-', '["https://attack.mitre.org/techniques/T1562/004/","https://attack.mitre.org/tactics/TA0005/","https://learn.microsoft.com/en-us/azure/firewall/policy-rule-sets","https://learn.microsoft.com/en-us/azure/firewall-manager/policy-overview"]', '(equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) && (equalsIgnoreCase("log.operationName", "MICROSOFT.NETWORK/FIREWALLPOLICIES/DELETE") || contains("log.operationName", "Delete Firewall Policy")) && (equalsIgnoreCase("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))', '2026-01-28 22:15:33.990479', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1519, 'Azure Blob Container Access Level Modification', 3, 2, 1, 'Exfiltration', 'T1537 - Transfer Data to Cloud Account', 'Detects modifications to Azure Blob Storage container access levels, particularly changes that enable anonymous public read access. While anonymous public access is a legitimate feature for sharing data broadly (e.g., CDN content, public downloads), it presents a critical security risk when applied to containers with sensitive data. Adversaries may modify container access levels to exfiltrate data, establish command-and-control infrastructure, or expose confidential information without authentication.
+1. Verify if the deletion was authorized via change management process
+2. Identify who performed the deletion (caller) and their role
+3. Check if the Event Hub was actively receiving security logs
+4. Determine the impact on security monitoring and log collection
+5. Review recent authentication activity for the caller account
+6. Check for other suspicious activities in the timeline (diagnostic settings changes, etc.)
+7. Verify if backups of the Event Hub configuration exist
+8. If unauthorized, restore the Event Hub and investigate for account compromise
+9. Review authorization rules and access policies for remaining Event Hubs
+', '["https://attack.mitre.org/techniques/T1562/008/","https://attack.mitre.org/tactics/TA0005/","https://learn.microsoft.com/en-us/azure/event-hubs/monitor-event-hubs","https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log"]', '(equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) && (equalsIgnoreCase("log.operationName", "MICROSOFT.EVENTHUB/NAMESPACES/EVENTHUBS/DELETE") || contains("log.operationName", "Delete EventHub")) && (equalsIgnoreCase("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))', '2026-01-29 15:51:26.496044', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5045, 'Azure Blob Container Access Level Modification', 3, 2, 1, 'Exfiltration', 'T1537 - Transfer Data to Cloud Account', 'Detects modifications to Azure Blob Storage container access levels, particularly changes that enable anonymous public read access. While anonymous public access is a legitimate feature for sharing data broadly (e.g., CDN content, public downloads), it presents a critical security risk when applied to containers with sensitive data. Adversaries may modify container access levels to exfiltrate data, establish command-and-control infrastructure, or expose confidential information without authentication.
 
 Threat Context:
 - Container access level changes can expose sensitive data publicly
@@ -296,8 +300,8 @@ Next Steps:
 10. Verify if allowBlobPublicAccess is disabled at storage account level
 11. Consider implementing Azure Policy to prevent public access
 12. Document incident if sensitive data was exposed
-', '["https://attack.mitre.org/techniques/T1537/","https://attack.mitre.org/tactics/TA0010/","https://learn.microsoft.com/en-us/azure/storage/blobs/anonymous-read-access-configure","https://learn.microsoft.com/en-us/azure/storage/blobs/anonymous-read-access-prevent"]', '(equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) && (equalsIgnoreCase("log.operationName", "MICROSOFT.STORAGE/STORAGEACCOUNTS/BLOBSERVICES/CONTAINERS/WRITE") || contains("log.operationName", "Update container")) && (equalsIgnoreCase("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))', '2026-01-28 22:15:35.087404', true, true, 'target', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1520, 'ExpressRoute Configuration Changes', 2, 3, 3, 'Discovery', 'T1046 - Network Service Discovery', 'Detects configuration changes to Azure ExpressRoute circuits which could indicate unauthorized network modifications or attempts to bypass security controls. ExpressRoute circuits provide private connectivity between Azure and on-premises infrastructure, making unauthorized changes particularly concerning for network security.
+', '["https://attack.mitre.org/techniques/T1537/","https://attack.mitre.org/tactics/TA0010/","https://learn.microsoft.com/en-us/azure/storage/blobs/anonymous-read-access-configure","https://learn.microsoft.com/en-us/azure/storage/blobs/anonymous-read-access-prevent"]', '(equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) && (equalsIgnoreCase("log.operationName", "MICROSOFT.STORAGE/STORAGEACCOUNTS/BLOBSERVICES/CONTAINERS/WRITE") || contains("log.operationName", "Update container")) && (equalsIgnoreCase("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))', '2026-01-29 15:51:26.558524', true, false, 'target', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5046, 'ExpressRoute Configuration Changes', 2, 3, 3, 'Discovery', 'T1046 - Network Service Discovery', 'Detects configuration changes to Azure ExpressRoute circuits which could indicate unauthorized network modifications or attempts to bypass security controls. ExpressRoute circuits provide private connectivity between Azure and on-premises infrastructure, making unauthorized changes particularly concerning for network security.
 
 Next Steps:
 1. Verify the change was authorized and performed by legitimate administrators
@@ -306,8 +310,8 @@ Next Steps:
 4. Investigate the source IP and user account that performed the change
 5. Validate that no unauthorized access to critical network segments occurred
 6. Review related network logs for any suspicious activity following the change
-', '["https://learn.microsoft.com/en-us/azure/expressroute/monitor-expressroute","https://attack.mitre.org/techniques/T1046/"]', 'oneOf("log.operationName", ["Microsoft.Network/expressRouteCircuits/write", "Microsoft.Network/expressRouteCircuits/delete"]) || (contains("log.resourceId", "/expressRouteCircuits/") && contains("log.operationName", "write"))', '2026-01-28 22:15:36.212292', true, true, 'origin', '["log.resourceId"]', '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1521, 'Azure Function App Security Alert', 3, 3, 2, 'Credential Access', 'T1078 - Valid Accounts', 'Detects security-related errors and exceptions in Azure Function Apps from the FunctionAppLogs table, including authentication failures, authorization denials, execution exceptions, and suspicious patterns. This rule identifies potential security incidents such as credential access attempts, unauthorized function invocations, code injection attempts, or misconfigured security settings.
+', '["https://learn.microsoft.com/en-us/azure/expressroute/monitor-expressroute","https://attack.mitre.org/techniques/T1046/"]', 'oneOf("log.operationName", ["Microsoft.Network/expressRouteCircuits/write", "Microsoft.Network/expressRouteCircuits/delete"]) || (contains("log.resourceId", "/expressRouteCircuits/") && contains("log.operationName", "write"))', '2026-01-29 15:51:26.626628', true, false, 'origin', '["log.resourceId"]', '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5047, 'Azure Function App Security Alert', 3, 3, 2, 'Credential Access', 'T1078 - Valid Accounts', 'Detects security-related errors and exceptions in Azure Function Apps from the FunctionAppLogs table, including authentication failures, authorization denials, execution exceptions, and suspicious patterns. This rule identifies potential security incidents such as credential access attempts, unauthorized function invocations, code injection attempts, or misconfigured security settings.
 
 Threat Context:
 - Function Apps often have access to sensitive data and backend systems
@@ -358,8 +362,40 @@ Investigation and Response Steps:
 11. Check for unauthorized code deployments via ARM templates or DevOps pipelines
 12. Review network security group rules and private endpoint configurations
 13. Enable detailed logging temporarily for deeper investigation if needed
-', '["https://learn.microsoft.com/en-us/azure/azure-functions/monitor-functions","https://learn.microsoft.com/en-us/azure/azure-functions/configure-monitoring","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/functionapplogs","https://attack.mitre.org/techniques/T1078/"]', '(contains("log.Category", "Host.Results") || contains("log.Category", "Function")) && (greaterOrEqual("log.Level", 3) || exists("log.ExceptionDetails"))', '2026-01-28 22:15:37.220381', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1522, 'Azure Resource Group Deletion', 2, 3, 3, 'Data Destruction', 'Data Destruction', 'Detects the successful deletion of Azure resource groups through Azure Activity Logs.
+', '["https://learn.microsoft.com/en-us/azure/azure-functions/monitor-functions","https://learn.microsoft.com/en-us/azure/azure-functions/configure-monitoring","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/functionapplogs","https://attack.mitre.org/techniques/T1078/"]', '(contains("log.Category", "Host.Results") || contains("log.Category", "Function")) && (greaterOrEqual("log.Level", 3) || exists("log.ExceptionDetails"))', '2026-01-29 15:51:26.713572', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5048, 'Azure Service Principal Credentials Added', 3, 3, 2, 'Persistence', 'Account Manipulation: Additional Cloud Credentials', 'Detects when new credentials (certificates or secrets) are added to Azure service principals through Azure AD/Entra ID Audit Logs.
+
+**Security Context:**
+Adversaries may add credentials to service principals to maintain persistent access to victim Azure accounts. By hijacking an application with granted permissions through adding rogue secrets or certificates, attackers can access protected data and bypass MFA requirements. This technique is commonly used after initial compromise to establish long-term persistence.
+
+**Detection Logic:**
+This rule monitors AuditLogs for successful "Add service principal" operations, which indicate new credentials being added to service principals. The operation captures both certificate and secret additions.
+
+**Investigation Steps:**
+1. Identify the actor who added the credentials: Check log.propertiesInitiatedBy for the user or service principal
+2. Review the target service principal: Examine log.propertiesTargetResources for the affected service principal name and ID
+3. Verify if the action was authorized: Correlate with change management tickets
+4. Check service principal permissions: Review what resources this service principal can access
+5. Examine recent sign-in activity: Look for unusual authentication patterns using the service principal
+6. Review credential type: Determine if a certificate or secret was added via log.propertiesModifiedProperties
+
+**Recommended Actions:**
+- If unauthorized, immediately revoke the newly added credentials
+- Review and rotate all credentials for the affected service principal
+- Audit all resources accessible by the service principal for signs of compromise
+- Enable alerts for future credential additions to critical service principals
+- Implement conditional access policies and privileged identity management
+
+**MITRE ATT&CK Reference:** T1098.001 - Account Manipulation: Additional Cloud Credentials
+
+**Azure Documentation:**
+- AuditLogs table: https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs
+- Service Principal credentials: https://learn.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal
+', '["https://attack.mitre.org/techniques/T1098/001/","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs","https://learn.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal"]', 'equalsIgnoreCase("log.category", "AuditLogs") &&
+contains("log.operationName", "Add service principal") &&
+(equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))
+', '2026-01-29 15:51:26.795566', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5049, 'Azure Resource Group Deletion', 2, 3, 3, 'Data Destruction', 'Data Destruction', 'Detects the successful deletion of Azure resource groups through Azure Activity Logs.
 
 **Security Context:**
 Resource group deletion is a high-impact administrative action that permanently removes all contained resources. Adversaries may delete resource groups to destroy evidence, disrupt operations, or cause financial impact. This is an irreversible action that can result in significant data loss and service disruption.
@@ -395,44 +431,12 @@ This rule monitors Activity Logs for successful resource group deletion operatio
 ', '["https://attack.mitre.org/techniques/T1485/","https://attack.mitre.org/tactics/TA0040/","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/azureactivity","https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/delete-resource-group"]', 'equalsIgnoreCase("log.category", "Administrative") &&
 equalsIgnoreCase("log.operationName", "MICROSOFT.RESOURCES/SUBSCRIPTIONS/RESOURCEGROUPS/DELETE") &&
 (equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))
-', '2026-01-28 22:15:38.349782', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1523, 'Azure Service Principal Credentials Added', 3, 3, 2, 'Persistence', 'Account Manipulation: Additional Cloud Credentials', 'Detects when new credentials (certificates or secrets) are added to Azure service principals through Azure AD/Entra ID Audit Logs.
-
-**Security Context:**
-Adversaries may add credentials to service principals to maintain persistent access to victim Azure accounts. By hijacking an application with granted permissions through adding rogue secrets or certificates, attackers can access protected data and bypass MFA requirements. This technique is commonly used after initial compromise to establish long-term persistence.
-
-**Detection Logic:**
-This rule monitors AuditLogs for successful "Add service principal" operations, which indicate new credentials being added to service principals. The operation captures both certificate and secret additions.
-
-**Investigation Steps:**
-1. Identify the actor who added the credentials: Check log.propertiesInitiatedBy for the user or service principal
-2. Review the target service principal: Examine log.propertiesTargetResources for the affected service principal name and ID
-3. Verify if the action was authorized: Correlate with change management tickets
-4. Check service principal permissions: Review what resources this service principal can access
-5. Examine recent sign-in activity: Look for unusual authentication patterns using the service principal
-6. Review credential type: Determine if a certificate or secret was added via log.propertiesModifiedProperties
-
-**Recommended Actions:**
-- If unauthorized, immediately revoke the newly added credentials
-- Review and rotate all credentials for the affected service principal
-- Audit all resources accessible by the service principal for signs of compromise
-- Enable alerts for future credential additions to critical service principals
-- Implement conditional access policies and privileged identity management
-
-**MITRE ATT&CK Reference:** T1098.001 - Account Manipulation: Additional Cloud Credentials
-
-**Azure Documentation:**
-- AuditLogs table: https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs
-- Service Principal credentials: https://learn.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal
-', '["https://attack.mitre.org/techniques/T1098/001/","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs","https://learn.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal"]', 'equalsIgnoreCase("log.category", "AuditLogs") &&
-contains("log.operationName", "Add service principal") &&
-(equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))
-', '2026-01-28 22:15:39.400076', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1524, 'Azure Active Directory High Risk Sign-in', 3, 3, 2, 'Valid Accounts', 'Initial Access', 'Identifies high risk Azure Active Directory (AD) sign-ins by leveraging Microsoft''s Identity Protection machine learning and heuristics. Identity Protection categorizes risk into three tiers: low, medium, and high. While Microsoft does not provide specific details about how risk is calculated, each level brings higher confidence that the user or sign-in is compromised. This rule triggers on ''high'' risk level sign-ins, which indicate strong indicators of compromise such as impossible travel, anonymous IP usage, or leaked credentials.', '["https://attack.mitre.org/techniques/T1078/","https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/signinlogs"]', 'equalsIgnoreCase("log.category", "SignInLogs") && equalsIgnoreCase("log.properties.RiskLevelDuringSignIn", "high") && equalsIgnoreCase("log.propertiesTokenIssuerType", "AzureAD") && equals("log.resultType", "0")', '2026-01-28 22:15:40.451206', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1525, 'Azure Active Directory PowerShell Sign-in', 1, 2, 3, 'Valid Accounts', 'Initial Access', 'Identifies a sign-in using the Azure Active Directory PowerShell module. PowerShell for Azure Active Directory allows for managing settings from the command line, which is intended for users who are members of an admin role. This activity could indicate legitimate administrative access or potential unauthorized access if the account has been compromised.', '["https://attack.mitre.org/techniques/T1078/","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/signinlogs","https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-azure-monitor-sign-ins-log-schema"]', 'equalsIgnoreCase("log.category", "SignInLogs") && equalsIgnoreCase("log.propertiesAppDisplayName", "Azure Active Directory PowerShell") && equalsIgnoreCase("log.propertiesTokenIssuerType", "AzureAD") && equals("log.resultType", "0") && equalsIgnoreCase("log.resultSignature", "SUCCESS")', '2026-01-28 22:15:41.456137', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1526, 'Possible Consent Grant Attack via Azure-Registered Application', 3, 3, 2, 'Phishing', 'Initial Access', 'Detects when a user grants permissions to an Azure-registered application or when an administrator grants tenant-wide permissions to an application. An adversary may create an Azure-registered application that requests access to data such as contact information, email, or documents. Consent grant attacks are commonly used in phishing campaigns where malicious OAuth applications trick users into granting excessive permissions, enabling data exfiltration or unauthorized access to organizational resources.', '["https://attack.mitre.org/techniques/T1566/","https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/manage-consent-requests","https://learn.microsoft.com/en-us/defender-cloud-apps/investigate-risky-oauth"]', '(equalsIgnoreCase("log.category", "AuditLogs") || contains("log.category", "Audit")) && equalsIgnoreCase("log.operationName", "Consent to application") && equals("log.resultType", "0")', '2026-01-28 22:15:42.503352', true, true, 'target', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1527, 'Azure External Guest User Invitation', 2, 2, 1, 'Valid Accounts', 'Initial Access', 'Identifies an invitation to an external user in Azure Active Directory (Azure AD / Microsoft Entra ID). Azure AD B2B collaboration allows you to invite people from outside your organization to be guest users in your cloud account and grant them access to resources. Unless there is a business need to provision guest access, it is best practice to avoid creating guest users. Guest users could potentially be overlooked indefinitely, leading to a potential security vulnerability. Adversaries may leverage guest accounts to establish initial access, maintain persistence, or move laterally within the organization.', '["https://attack.mitre.org/techniques/T1078/","https://learn.microsoft.com/en-us/entra/external-id/what-is-b2b","https://learn.microsoft.com/en-us/entra/identity/users/users-restrict-guest-permissions"]', '(equalsIgnoreCase("log.category", "AuditLogs") || contains("log.category", "Audit")) && oneOf("log.operationName", ["Invite external user", "Invite user"]) && equals("log.resultType", "0")', '2026-01-28 22:15:43.523360', true, true, 'target', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1528, 'Azure Key Vault Excessive Access Detected', 3, 2, 1, 'Collection', 'T1530 - Data from Cloud Storage Object', 'Detects unusual spikes in Azure Key Vault access patterns. Monitors for multiple secret retrieval operations from the same source, which could indicate credential harvesting or data exfiltration attempts.
+', '2026-01-29 15:51:26.881928', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5050, 'Azure Active Directory High Risk Sign-in', 3, 3, 2, 'Valid Accounts', 'Initial Access', 'Identifies high risk Azure Active Directory (AD) sign-ins by leveraging Microsoft''s Identity Protection machine learning and heuristics. Identity Protection categorizes risk into three tiers: low, medium, and high. While Microsoft does not provide specific details about how risk is calculated, each level brings higher confidence that the user or sign-in is compromised. This rule triggers on ''high'' risk level sign-ins, which indicate strong indicators of compromise such as impossible travel, anonymous IP usage, or leaked credentials.', '["https://attack.mitre.org/techniques/T1078/","https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/signinlogs"]', 'equalsIgnoreCase("log.category", "SignInLogs") && equalsIgnoreCase("log.properties.RiskLevelDuringSignIn", "high") && equalsIgnoreCase("log.propertiesTokenIssuerType", "AzureAD") && equals("log.resultType", "0")', '2026-01-29 15:51:26.968704', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5051, 'Azure Active Directory PowerShell Sign-in', 1, 2, 3, 'Valid Accounts', 'Initial Access', 'Identifies a sign-in using the Azure Active Directory PowerShell module. PowerShell for Azure Active Directory allows for managing settings from the command line, which is intended for users who are members of an admin role. This activity could indicate legitimate administrative access or potential unauthorized access if the account has been compromised.', '["https://attack.mitre.org/techniques/T1078/","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/signinlogs","https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-azure-monitor-sign-ins-log-schema"]', 'equalsIgnoreCase("log.category", "SignInLogs") && equalsIgnoreCase("log.propertiesAppDisplayName", "Azure Active Directory PowerShell") && equalsIgnoreCase("log.propertiesTokenIssuerType", "AzureAD") && equals("log.resultType", "0") && equalsIgnoreCase("log.resultSignature", "SUCCESS")', '2026-01-29 15:51:27.055061', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5052, 'Possible Consent Grant Attack via Azure-Registered Application', 3, 3, 2, 'Phishing', 'Initial Access', 'Detects when a user grants permissions to an Azure-registered application or when an administrator grants tenant-wide permissions to an application. An adversary may create an Azure-registered application that requests access to data such as contact information, email, or documents. Consent grant attacks are commonly used in phishing campaigns where malicious OAuth applications trick users into granting excessive permissions, enabling data exfiltration or unauthorized access to organizational resources.', '["https://attack.mitre.org/techniques/T1566/","https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/manage-consent-requests","https://learn.microsoft.com/en-us/defender-cloud-apps/investigate-risky-oauth"]', '(equalsIgnoreCase("log.category", "AuditLogs") || contains("log.category", "Audit")) && equalsIgnoreCase("log.operationName", "Consent to application") && equals("log.resultType", "0")', '2026-01-29 15:51:27.135967', true, false, 'target', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5053, 'Azure External Guest User Invitation', 2, 2, 1, 'Valid Accounts', 'Initial Access', 'Identifies an invitation to an external user in Azure Active Directory (Azure AD / Microsoft Entra ID). Azure AD B2B collaboration allows you to invite people from outside your organization to be guest users in your cloud account and grant them access to resources. Unless there is a business need to provision guest access, it is best practice to avoid creating guest users. Guest users could potentially be overlooked indefinitely, leading to a potential security vulnerability. Adversaries may leverage guest accounts to establish initial access, maintain persistence, or move laterally within the organization.', '["https://attack.mitre.org/techniques/T1078/","https://learn.microsoft.com/en-us/entra/external-id/what-is-b2b","https://learn.microsoft.com/en-us/entra/identity/users/users-restrict-guest-permissions"]', '(equalsIgnoreCase("log.category", "AuditLogs") || contains("log.category", "Audit")) && oneOf("log.operationName", ["Invite external user", "Invite user"]) && equals("log.resultType", "0")', '2026-01-29 15:51:27.223662', true, false, 'target', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5054, 'Azure Key Vault Excessive Access Detected', 3, 2, 1, 'Collection', 'T1530 - Data from Cloud Storage Object', 'Detects unusual spikes in Azure Key Vault access patterns. Monitors for multiple secret retrieval operations from the same source, which could indicate credential harvesting or data exfiltration attempts.
 
 Next Steps:
 1. Investigate the source IP address and verify if it''s a legitimate system or user
@@ -441,8 +445,8 @@ Next Steps:
 4. Correlate with user authentication logs to identify the account responsible
 5. Verify if the access pattern aligns with normal business operations
 6. Consider implementing additional access controls or monitoring if suspicious activity is confirmed
-', '["https://learn.microsoft.com/en-us/azure/key-vault/general/logging","https://attack.mitre.org/techniques/T1530/"]', 'equalsIgnoreCase("log.category", "AuditEvent") && oneOf("log.operationName", ["SecretGet", "SecretList", "KeyGet"]) && exists("origin.ip")', '2026-01-28 22:15:44.640946', true, true, 'origin', '["origin.ip","log.resourceId"]', '[{"indexPattern":"v11-log-azure-*","with":[{"field":"origin.ip.keyword","operator":"filter_term","value":"{{.origin.ip}}"},{"field":"log.category.keyword","operator":"filter_term","value":"AuditEvent"}],"or":null,"within":"now-10m","count":20}]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1529, 'MFA Disabled for Privileged Azure AD User', 3, 3, 1, 'Credential Access, Defense Evasion, Persistence', 'T1556 - Modify Authentication Process', 'Detects when Multi-Factor Authentication (MFA) is disabled for privileged users in Azure AD. This could indicate an attempt to weaken security controls for unauthorized access.
+', '["https://learn.microsoft.com/en-us/azure/key-vault/general/logging","https://attack.mitre.org/techniques/T1530/"]', 'equalsIgnoreCase("log.category", "AuditEvent") && oneOf("log.operationName", ["SecretGet", "SecretList", "KeyGet"]) && exists("origin.ip")', '2026-01-29 15:51:27.310261', true, false, 'origin', '["origin.ip","log.resourceId"]', '[{"indexPattern":"v11-log-azure-*","with":[{"field":"origin.ip.keyword","operator":"filter_term","value":"{{.origin.ip}}"},{"field":"log.category.keyword","operator":"filter_term","value":"AuditEvent"}],"or":null,"within":"now-10m","count":20}]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5055, 'MFA Disabled for Privileged Azure AD User', 3, 3, 1, 'Credential Access, Defense Evasion, Persistence', 'T1556 - Modify Authentication Process', 'Detects when Multi-Factor Authentication (MFA) is disabled for privileged users in Azure AD. This could indicate an attempt to weaken security controls for unauthorized access.
 
 Next Steps:
 1. Verify if the MFA disable action was authorized and legitimate
@@ -451,8 +455,8 @@ Next Steps:
 4. Ensure the user account has not been compromised
 5. Re-enable MFA if the change was unauthorized
 6. Consider implementing conditional access policies to prevent unauthorized MFA changes
-', '["https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-reporting","https://attack.mitre.org/techniques/T1556/"]', 'oneOf("log.operationName", ["Disable Strong Authentication", "Update user"]) && equalsIgnoreCase("log.service", "Authentication Methods") && contains("target.user", ["admin", "globaladmin"])', '2026-01-28 22:15:45.658381', true, true, 'origin', '["target.user"]', '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1530, 'Network Security Group Modifications', 3, 3, 2, 'Defense Evasion', 'T1562.007 - Impair Defenses: Disable or Modify Cloud Firewall', 'Detects modifications to Azure Network Security Groups which could indicate attempts to bypass network security controls or create backdoor access. Network Security Groups control traffic flow to Azure resources and unauthorized changes could expose critical infrastructure.
+', '["https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-reporting","https://attack.mitre.org/techniques/T1556/"]', 'oneOf("log.operationName", ["Disable Strong Authentication", "Update user"]) && equalsIgnoreCase("log.service", "Authentication Methods") && contains("target.user", ["admin", "globaladmin"])', '2026-01-29 15:51:27.393213', true, false, 'origin', '["target.user"]', '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5056, 'Network Security Group Modifications', 3, 3, 2, 'Defense Evasion', 'T1562.007 - Impair Defenses: Disable or Modify Cloud Firewall', 'Detects modifications to Azure Network Security Groups which could indicate attempts to bypass network security controls or create backdoor access. Network Security Groups control traffic flow to Azure resources and unauthorized changes could expose critical infrastructure.
 
 Next Steps:
 1. Verify the legitimacy of the NSG modification with the responsible administrator
@@ -462,8 +466,8 @@ Next Steps:
 5. Review other recent Azure activity from the same user or IP address
 6. Validate that the NSG changes don''t expose critical resources to unauthorized access
 7. Check if the changes affect production workloads or sensitive environments
-', '["https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log","https://attack.mitre.org/techniques/T1562/007/"]', 'contains("log.operationName", "Microsoft.Network/networkSecurityGroups") && contains("log.operationName", ["/write", "/delete", "/securityRules/write"]) && equalsIgnoreCase("log.category", "Administrative") && equalsIgnoreCase("log.resultType", "Success")', '2026-01-28 22:15:46.703849', true, true, 'origin', '["origin.ip","log.resourceId"]', '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1531, 'Azure Automation Account Created', 2, 3, 2, 'Persistence', 'Valid Accounts: Cloud Accounts', 'Detects the creation of Azure Automation accounts through Azure Activity Logs.
+', '["https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log","https://attack.mitre.org/techniques/T1562/007/"]', 'contains("log.operationName", "Microsoft.Network/networkSecurityGroups") && contains("log.operationName", ["/write", "/delete", "/securityRules/write"]) && equalsIgnoreCase("log.category", "Administrative") && equalsIgnoreCase("log.resultType", "Success")', '2026-01-29 15:51:27.479507', true, false, 'origin', '["origin.ip","log.resourceId"]', '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5057, 'Azure Automation Account Created', 2, 3, 2, 'Persistence', 'Valid Accounts: Cloud Accounts', 'Detects the creation of Azure Automation accounts through Azure Activity Logs.
 
 **Security Context:**
 Azure Automation accounts provide a platform to automate management tasks and orchestrate actions across Azure and hybrid environments. Adversaries may create Automation accounts to establish persistence by deploying malicious runbooks, webhooks, or scheduled tasks that execute with privileged credentials. This allows them to maintain long-term access and execute commands without direct interactive login.
@@ -502,63 +506,8 @@ This rule monitors Activity Logs for successful creation or update operations on
 ', '["https://attack.mitre.org/techniques/T1078/004/","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/azureactivity","https://learn.microsoft.com/en-us/azure/automation/automation-security-overview"]', 'equalsIgnoreCase("log.category", "Administrative") &&
 equalsIgnoreCase("log.operationName", "MICROSOFT.AUTOMATION/AUTOMATIONACCOUNTS/WRITE") &&
 (equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))
-', '2026-01-28 22:15:47.997351', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1532, 'Azure Automation Runbook Created or Modified', 2, 3, 2, 'Persistence', 'Command and Scripting Interpreter', 'Detects creation, modification, or publishing of Azure Automation runbooks through Azure Activity Logs.
-
-**Security Context:**
-Azure Automation runbooks are scripts (PowerShell, Python, etc.) that execute automated tasks with assigned credentials and permissions. Adversaries may create malicious runbooks or modify existing ones to execute arbitrary code, establish persistence, perform lateral movement, or exfiltrate data. Since runbooks can run on schedules or be triggered via webhooks, they provide a powerful mechanism for maintaining long-term access without interactive login.
-
-**Detection Logic:**
-This rule monitors Activity Logs for three critical runbook operations:
-- DRAFT/WRITE: Creating or updating a draft runbook
-- WRITE: Creating or updating a published runbook
-- PUBLISH/ACTION: Publishing a draft runbook to make it executable
-
-All three operations indicate potential malicious activity when performed by unauthorized actors.
-
-**Investigation Steps:**
-1. Identify the actor: Check log.propertiesCaller for who created/modified the runbook
-2. Review runbook details: Examine log.resourceId for runbook name and Automation account
-3. Verify authorization: Confirm if the action was part of legitimate automation deployment
-4. Inspect runbook content: Review the actual script code for malicious commands
-5. Check runbook type: Identify if it''s PowerShell, Python, or other scripting language
-6. Review execution history: Look for any jobs that have already executed this runbook
-7. Examine triggers: Check for webhooks or schedules that will execute the runbook
-8. Analyze credentials used: Verify what Run As accounts or credential assets the runbook accesses
-9. Check network activity: Look for suspicious connections if the runbook has executed
-10. Correlate timing: Check if creation/modification follows suspicious authentication events
-
-**Recommended Actions:**
-- If unauthorized, immediately unpublish or delete the malicious runbook
-- Review runbook code for indicators of compromise (C2 connections, data exfiltration, etc.)
-- Disable any associated webhooks or schedules
-- Revoke credentials that the runbook may have accessed
-- Enable version control for runbooks to track all changes
-- Implement code review requirements for runbook modifications
-- Use Azure Policy to enforce runbook creation restrictions
-- Enable diagnostic logging for all Automation accounts
-- Monitor runbook job execution logs for suspicious activity
-
-**Common Malicious Patterns:**
-- Runbooks that create new users or modify permissions
-- Scripts that exfiltrate data to external storage
-- Code that establishes reverse shells or C2 connections
-- Runbooks that disable security controls or delete logs
-
-**MITRE ATT&CK Reference:** T1059 - Command and Scripting Interpreter
-
-**Azure Documentation:**
-- AzureActivity table: https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/azureactivity
-- Runbook management: https://learn.microsoft.com/en-us/azure/automation/manage-runbooks
-', '["https://attack.mitre.org/techniques/T1059/","https://azure.microsoft.com/en-in/blog/azure-automation-runbook-management/","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/azureactivity","https://learn.microsoft.com/en-us/azure/automation/manage-runbooks"]', 'equalsIgnoreCase("log.category", "Administrative") &&
-(equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS")) &&
-oneOf("log.operationName", [
-  "MICROSOFT.AUTOMATION/AUTOMATIONACCOUNTS/RUNBOOKS/DRAFT/WRITE",
-  "MICROSOFT.AUTOMATION/AUTOMATIONACCOUNTS/RUNBOOKS/WRITE",
-  "MICROSOFT.AUTOMATION/AUTOMATIONACCOUNTS/RUNBOOKS/PUBLISH/ACTION"
-])
-', '2026-01-28 22:15:49.365457', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1533, 'Azure Automation Webhook Created', 2, 3, 2, 'Persistence', 'Command and Scripting Interpreter', 'Detects the creation of Azure Automation webhooks through Azure Activity Logs.
+', '2026-01-29 15:51:27.570440', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5058, 'Azure Automation Webhook Created', 2, 3, 2, 'Persistence', 'Command and Scripting Interpreter', 'Detects the creation of Azure Automation webhooks through Azure Activity Logs.
 
 **Security Context:**
 Azure Automation webhooks provide an HTTP endpoint that enables external systems to trigger runbook execution. Each webhook has a unique URL that can execute runbooks with passed parameters, making it a powerful automation mechanism. Adversaries can abuse webhooks to establish persistence by creating backdoor triggers that execute malicious runbooks from external locations, bypassing interactive authentication and logging requirements. This technique is well-documented in offensive Azure toolkits like PowerZure.
@@ -616,8 +565,8 @@ oneOf("log.operationName", [
   "MICROSOFT.AUTOMATION/AUTOMATIONACCOUNTS/WEBHOOKS/ACTION",
   "MICROSOFT.AUTOMATION/AUTOMATIONACCOUNTS/WEBHOOKS/WRITE"
 ])
-', '2026-01-28 22:15:50.540455', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1534, 'Azure Conditional Access Policy Modified', 3, 3, 2, 'Persistence', 'Account Manipulation: Additional Cloud Credentials', 'Detects modifications to Azure Conditional Access policies through Azure AD/Entra ID Audit Logs.
+', '2026-01-29 15:51:27.649237', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5059, 'Azure Conditional Access Policy Modified', 3, 3, 2, 'Persistence', 'Account Manipulation: Additional Cloud Credentials', 'Detects modifications to Azure Conditional Access policies through Azure AD/Entra ID Audit Logs.
 
 **Security Context:**
 Azure Conditional Access policies are critical security controls that enforce access requirements such as multi-factor authentication (MFA), device compliance, location restrictions, and application-specific rules. Adversaries who gain sufficient privileges may modify these policies to weaken security controls, create exceptions for their compromised accounts, exclude malicious users from MFA requirements, or establish persistent access by bypassing security mechanisms.
@@ -671,8 +620,63 @@ This rule monitors AuditLogs for successful "Update policy" operations in Azure 
 ', '["https://attack.mitre.org/techniques/T1098/001/","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs","https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview","https://learn.microsoft.com/en-us/entra/identity/conditional-access/howto-conditional-access-policy-all-users-mfa"]', 'equalsIgnoreCase("log.category", "AuditLogs") &&
 equalsIgnoreCase("log.operationName", "Update policy") &&
 (equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))
-', '2026-01-28 22:15:51.669752', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1535, 'Azure Global Administrator Role Addition to PIM User', 3, 3, 3, 'Persistence', 'Account Manipulation: Additional Cloud Credentials', 'Detects when users are granted Global Administrator (Company Administrator) role assignments through Azure AD/Entra ID Privileged Identity Management (PIM).
+', '2026-01-29 15:51:27.737334', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5060, 'Azure Automation Runbook Created or Modified', 2, 3, 2, 'Persistence', 'Command and Scripting Interpreter', 'Detects creation, modification, or publishing of Azure Automation runbooks through Azure Activity Logs.
+
+**Security Context:**
+Azure Automation runbooks are scripts (PowerShell, Python, etc.) that execute automated tasks with assigned credentials and permissions. Adversaries may create malicious runbooks or modify existing ones to execute arbitrary code, establish persistence, perform lateral movement, or exfiltrate data. Since runbooks can run on schedules or be triggered via webhooks, they provide a powerful mechanism for maintaining long-term access without interactive login.
+
+**Detection Logic:**
+This rule monitors Activity Logs for three critical runbook operations:
+- DRAFT/WRITE: Creating or updating a draft runbook
+- WRITE: Creating or updating a published runbook
+- PUBLISH/ACTION: Publishing a draft runbook to make it executable
+
+All three operations indicate potential malicious activity when performed by unauthorized actors.
+
+**Investigation Steps:**
+1. Identify the actor: Check log.propertiesCaller for who created/modified the runbook
+2. Review runbook details: Examine log.resourceId for runbook name and Automation account
+3. Verify authorization: Confirm if the action was part of legitimate automation deployment
+4. Inspect runbook content: Review the actual script code for malicious commands
+5. Check runbook type: Identify if it''s PowerShell, Python, or other scripting language
+6. Review execution history: Look for any jobs that have already executed this runbook
+7. Examine triggers: Check for webhooks or schedules that will execute the runbook
+8. Analyze credentials used: Verify what Run As accounts or credential assets the runbook accesses
+9. Check network activity: Look for suspicious connections if the runbook has executed
+10. Correlate timing: Check if creation/modification follows suspicious authentication events
+
+**Recommended Actions:**
+- If unauthorized, immediately unpublish or delete the malicious runbook
+- Review runbook code for indicators of compromise (C2 connections, data exfiltration, etc.)
+- Disable any associated webhooks or schedules
+- Revoke credentials that the runbook may have accessed
+- Enable version control for runbooks to track all changes
+- Implement code review requirements for runbook modifications
+- Use Azure Policy to enforce runbook creation restrictions
+- Enable diagnostic logging for all Automation accounts
+- Monitor runbook job execution logs for suspicious activity
+
+**Common Malicious Patterns:**
+- Runbooks that create new users or modify permissions
+- Scripts that exfiltrate data to external storage
+- Code that establishes reverse shells or C2 connections
+- Runbooks that disable security controls or delete logs
+
+**MITRE ATT&CK Reference:** T1059 - Command and Scripting Interpreter
+
+**Azure Documentation:**
+- AzureActivity table: https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/azureactivity
+- Runbook management: https://learn.microsoft.com/en-us/azure/automation/manage-runbooks
+', '["https://attack.mitre.org/techniques/T1059/","https://azure.microsoft.com/en-in/blog/azure-automation-runbook-management/","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/azureactivity","https://learn.microsoft.com/en-us/azure/automation/manage-runbooks"]', 'equalsIgnoreCase("log.category", "Administrative") &&
+(equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS")) &&
+oneOf("log.operationName", [
+  "MICROSOFT.AUTOMATION/AUTOMATIONACCOUNTS/RUNBOOKS/DRAFT/WRITE",
+  "MICROSOFT.AUTOMATION/AUTOMATIONACCOUNTS/RUNBOOKS/WRITE",
+  "MICROSOFT.AUTOMATION/AUTOMATIONACCOUNTS/RUNBOOKS/PUBLISH/ACTION"
+])
+', '2026-01-29 15:51:27.823689', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5061, 'Azure Global Administrator Role Addition to PIM User', 3, 3, 3, 'Persistence', 'Account Manipulation: Additional Cloud Credentials', 'Detects when users are granted Global Administrator (Company Administrator) role assignments through Azure AD/Entra ID Privileged Identity Management (PIM).
 
 **Security Context:**
 The Global Administrator role is the most powerful administrative role in Azure AD/Entra ID, granting complete control over all aspects of the directory and services that use Azure AD identities. PIM enables just-in-time privileged access through eligible (requires activation) or time-bound assignments. Adversaries who gain sufficient privileges may add themselves or other compromised accounts to this role to establish persistence and maintain full administrative control over the tenant.
@@ -729,69 +733,8 @@ The rule identifies these assignments through the operation names and filters fo
 (equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS")) &&
 (contains("log.operationName", "Add eligible member to role") || contains("log.operationName", "Add member to role")) &&
 (contains("log.properties.targetResources.displayName", "Global Administrator") || contains("log.properties.targetResources.displayName", "Company Administrator"))
-', '2026-01-28 22:15:52.801470', true, true, 'target', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1536, 'Multi-Factor Authentication Disabled for an Azure User', 3, 3, 2, 'Persistence', 'Modify Authentication Process', 'Detects when multi-factor authentication (MFA) is disabled for an Azure AD/Entra ID user account through Audit Logs.
-
-**Security Context:**
-Multi-factor authentication is a critical security control that requires users to provide additional verification beyond just a password. Disabling MFA for user accounts significantly weakens authentication security and is a common technique used by adversaries to maintain persistent access. Once MFA is disabled, attackers can authenticate using only compromised credentials without triggering additional verification steps, making detection more difficult.
-
-**Detection Logic:**
-This rule monitors AuditLogs for successful "Disable Strong Authentication" operations, which represent the per-user MFA setting being turned off in Azure AD/Entra ID. This operation is distinct from Conditional Access MFA policies and represents the legacy per-user MFA enforcement method.
-
-**Investigation Steps:**
-1. Identify the disabler: Check log.propertiesInitiatedBy for who disabled MFA
-2. Identify affected user: Examine log.propertiesTargetResources for the user whose MFA was disabled
-3. Verify authorization: Confirm if the MFA disabling was part of legitimate administrative action
-4. Review user privilege: Determine if the affected user has elevated permissions (admins, privileged roles)
-5. Check timing: Analyze if MFA was disabled after suspicious authentication events
-6. Review authentication history: Look for failed authentication attempts before MFA disabling
-7. Check for compromise indicators: Search for unusual sign-in patterns, impossible travel, or risky sign-ins
-8. Examine subsequent logins: Monitor for authentication activity immediately after MFA disabling
-9. Review MFA methods: Check what MFA methods the user had registered before disabling
-10. Correlate with other events: Look for privilege escalation or data access after MFA disabling
-
-**Recommended Actions:**
-- If unauthorized, immediately re-enable MFA for the affected user
-- Force password reset for the affected account
-- Review all authentication activity for the affected user
-- Check for compromised credentials using Azure AD Identity Protection
-- Revoke all active sessions for the affected user
-- Enable Conditional Access policies instead of per-user MFA for better control
-- Implement PIM approval workflows for modifying MFA settings
-- Enable alerts for MFA changes on privileged accounts
-- Audit accounts with permissions to modify user authentication settings
-- Review and restrict who can disable MFA (typically requires User Administrator or higher)
-
-**Modern MFA Management:**
-- **Per-user MFA (legacy)**: This detection targets the legacy per-user MFA setting
-- **Conditional Access**: Modern approach using policies instead of per-user settings
-- **Authentication Methods Policy**: Newer method for managing FIDO2, passwordless, etc.
-
-Organizations should migrate from per-user MFA to Conditional Access policies for more granular control.
-
-**Common Attack Patterns:**
-- Disabling MFA after compromising an administrator account
-- Removing MFA from privileged accounts for easier persistent access
-- Disabling MFA before credential harvesting or lateral movement
-- Insider threats removing MFA from their own accounts
-- Disabling MFA on service accounts to enable automated authentication attacks
-
-**Related Detections:**
-- MFA method removal/changes
-- Conditional Access policy modifications
-- Authentication methods policy changes
-- Privileged role assignments without MFA
-
-**MITRE ATT&CK Reference:** T1556 - Modify Authentication Process
-
-**Azure Documentation:**
-- AuditLogs table: https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs
-- Per-user MFA: https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-userstates
-', '["https://attack.mitre.org/techniques/T1556/","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs","https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-userstates","https://learn.microsoft.com/en-us/entra/identity/authentication/concept-mfa-licensing"]', 'equalsIgnoreCase("log.category", "AuditLogs") &&
-equalsIgnoreCase("log.operationName", "Disable Strong Authentication") &&
-(equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))
-', '2026-01-28 22:15:53.938597', true, true, 'target', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1537, 'Azure Privileged Identity Management Role Settings Modified', 3, 3, 2, 'Persistence', 'Account Manipulation: Additional Cloud Credentials', 'Detects modifications to Azure AD/Entra ID Privileged Identity Management (PIM) role settings through Audit Logs.
+', '2026-01-29 15:51:27.912510', true, false, 'target', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5062, 'Azure Privileged Identity Management Role Settings Modified', 3, 3, 2, 'Persistence', 'Account Manipulation: Additional Cloud Credentials', 'Detects modifications to Azure AD/Entra ID Privileged Identity Management (PIM) role settings through Audit Logs.
 
 **Security Context:**
 PIM role settings define critical security controls for privileged role assignments, including:
@@ -859,8 +802,69 @@ This rule monitors AuditLogs for successful "Update role setting in PIM" operati
 ', '["https://attack.mitre.org/techniques/T1098/001/","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs","https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-how-to-change-default-settings","https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure"]', 'equalsIgnoreCase("log.category", "AuditLogs") &&
 contains("log.operationName", "Update role setting") &&
 (equals("log.resultType", "0") || equalsIgnoreCase("lactionResult", "SUCCESS"))
-', '2026-01-28 22:15:55.066780', true, true, 'target', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1538, 'User Added as Owner for Azure Application', 3, 3, 2, 'Persistence', 'Account Manipulation: Additional Cloud Credentials', 'Detects when a user or service principal is added as an owner for an Azure AD/Entra ID application registration through Audit Logs.
+', '2026-01-29 15:51:27.999210', true, false, 'target', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5063, 'Multi-Factor Authentication Disabled for an Azure User', 3, 3, 2, 'Persistence', 'Modify Authentication Process', 'Detects when multi-factor authentication (MFA) is disabled for an Azure AD/Entra ID user account through Audit Logs.
+
+**Security Context:**
+Multi-factor authentication is a critical security control that requires users to provide additional verification beyond just a password. Disabling MFA for user accounts significantly weakens authentication security and is a common technique used by adversaries to maintain persistent access. Once MFA is disabled, attackers can authenticate using only compromised credentials without triggering additional verification steps, making detection more difficult.
+
+**Detection Logic:**
+This rule monitors AuditLogs for successful "Disable Strong Authentication" operations, which represent the per-user MFA setting being turned off in Azure AD/Entra ID. This operation is distinct from Conditional Access MFA policies and represents the legacy per-user MFA enforcement method.
+
+**Investigation Steps:**
+1. Identify the disabler: Check log.propertiesInitiatedBy for who disabled MFA
+2. Identify affected user: Examine log.propertiesTargetResources for the user whose MFA was disabled
+3. Verify authorization: Confirm if the MFA disabling was part of legitimate administrative action
+4. Review user privilege: Determine if the affected user has elevated permissions (admins, privileged roles)
+5. Check timing: Analyze if MFA was disabled after suspicious authentication events
+6. Review authentication history: Look for failed authentication attempts before MFA disabling
+7. Check for compromise indicators: Search for unusual sign-in patterns, impossible travel, or risky sign-ins
+8. Examine subsequent logins: Monitor for authentication activity immediately after MFA disabling
+9. Review MFA methods: Check what MFA methods the user had registered before disabling
+10. Correlate with other events: Look for privilege escalation or data access after MFA disabling
+
+**Recommended Actions:**
+- If unauthorized, immediately re-enable MFA for the affected user
+- Force password reset for the affected account
+- Review all authentication activity for the affected user
+- Check for compromised credentials using Azure AD Identity Protection
+- Revoke all active sessions for the affected user
+- Enable Conditional Access policies instead of per-user MFA for better control
+- Implement PIM approval workflows for modifying MFA settings
+- Enable alerts for MFA changes on privileged accounts
+- Audit accounts with permissions to modify user authentication settings
+- Review and restrict who can disable MFA (typically requires User Administrator or higher)
+
+**Modern MFA Management:**
+- **Per-user MFA (legacy)**: This detection targets the legacy per-user MFA setting
+- **Conditional Access**: Modern approach using policies instead of per-user settings
+- **Authentication Methods Policy**: Newer method for managing FIDO2, passwordless, etc.
+
+Organizations should migrate from per-user MFA to Conditional Access policies for more granular control.
+
+**Common Attack Patterns:**
+- Disabling MFA after compromising an administrator account
+- Removing MFA from privileged accounts for easier persistent access
+- Disabling MFA before credential harvesting or lateral movement
+- Insider threats removing MFA from their own accounts
+- Disabling MFA on service accounts to enable automated authentication attacks
+
+**Related Detections:**
+- MFA method removal/changes
+- Conditional Access policy modifications
+- Authentication methods policy changes
+- Privileged role assignments without MFA
+
+**MITRE ATT&CK Reference:** T1556 - Modify Authentication Process
+
+**Azure Documentation:**
+- AuditLogs table: https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs
+- Per-user MFA: https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-userstates
+', '["https://attack.mitre.org/techniques/T1556/","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs","https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-userstates","https://learn.microsoft.com/en-us/entra/identity/authentication/concept-mfa-licensing"]', 'equalsIgnoreCase("log.category", "AuditLogs") &&
+equalsIgnoreCase("log.operationName", "Disable Strong Authentication") &&
+(equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))
+', '2026-01-29 15:51:28.086689', true, false, 'target', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5064, 'User Added as Owner for Azure Application', 3, 3, 2, 'Persistence', 'Account Manipulation: Additional Cloud Credentials', 'Detects when a user or service principal is added as an owner for an Azure AD/Entra ID application registration through Audit Logs.
 
 **Security Context:**
 Azure AD application registrations represent identities used for authentication to Azure and other Microsoft services. Application owners have full administrative control over the application, including the ability to:
@@ -929,8 +933,8 @@ Application owners can perform all configuration actions on the application, inc
 ', '["https://attack.mitre.org/techniques/T1098/001/","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs","https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference#application-administrator","https://learn.microsoft.com/en-us/entra/identity-platform/howto-create-service-principal-portal"]', 'equalsIgnoreCase("log.category", "AuditLogs") &&
 equalsIgnoreCase("log.operationName", "Add owner to application") &&
 (equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))
-', '2026-01-28 22:15:56.250311', true, true, 'target', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1539, 'User Added as Owner for Azure Service Principal', 3, 3, 2, 'Persistence', 'Account Manipulation: Additional Cloud Credentials', 'Detects when a user or service principal is added as an owner for an Azure AD/Entra ID service principal (Enterprise Application) through Audit Logs.
+', '2026-01-29 15:51:28.168355', true, false, 'target', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5065, 'User Added as Owner for Azure Service Principal', 3, 3, 2, 'Persistence', 'Account Manipulation: Additional Cloud Credentials', 'Detects when a user or service principal is added as an owner for an Azure AD/Entra ID service principal (Enterprise Application) through Audit Logs.
 
 **Security Context:**
 Service principals are the local representation of application objects in a specific Azure AD tenant, also known as Enterprise Applications. They define what an application can actually do in that specific tenant, including:
@@ -1013,8 +1017,8 @@ Service principal owners can perform critical configuration actions:
 ', '["https://attack.mitre.org/techniques/T1098/001/","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs","https://learn.microsoft.com/en-us/entra/identity-platform/app-objects-and-service-principals","https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/overview-assign-app-owners"]', 'equalsIgnoreCase("log.category", "AuditLogs") &&
 equalsIgnoreCase("log.operationName", "Add owner to service principal") &&
 (equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))
-', '2026-01-28 22:15:57.381069', true, true, 'target', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1540, 'Azure AD Privilege Escalation Attempt Detected', 3, 3, 1, 'Defense Evasion, Persistence, Privilege Escalation, Initial Access', 'T1078 - Valid Accounts', 'Detects attempts to escalate privileges in Azure AD through role assignments. Monitors for the Microsoft.Authorization/roleAssignments/write operation which indicates a user or service principal is being granted additional permissions.
+', '2026-01-29 15:51:28.255157', true, false, 'target', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5066, 'Azure AD Privilege Escalation Attempt Detected', 3, 3, 1, 'Defense Evasion, Persistence, Privilege Escalation, Initial Access', 'T1078 - Valid Accounts', 'Detects attempts to escalate privileges in Azure AD through role assignments. Monitors for the Microsoft.Authorization/roleAssignments/write operation which indicates a user or service principal is being granted additional permissions.
 
 Next Steps:
 1. Verify the legitimacy of the role assignment by checking with the requesting user or administrator
@@ -1023,19 +1027,8 @@ Next Steps:
 4. Investigate the source IP address and user context for any suspicious patterns
 5. Review Azure AD audit logs for any other suspicious activities from the same user or IP
 6. If unauthorized, immediately revoke the role assignment and investigate potential account compromise
-', '["https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-alert","https://attack.mitre.org/techniques/T1078/"]', 'equalsIgnoreCase("log.operationName", "Microsoft.Authorization/roleAssignments/write") && equalsIgnoreCase("log.category", "Administrative")', '2026-01-28 22:15:58.513620', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1541, 'Resource Group Mass Modifications', 2, 3, 3, 'Impact', 'T1496 - Resource Hijacking', 'Detects mass modifications to Azure resource groups which could indicate unauthorized infrastructure changes or resource hijacking attempts. This rule triggers when multiple resource group write or delete operations are performed by the same user from the same IP address within a 15-minute window.
-
-Next Steps:
-1. Investigate the user account (log.aadObjectId) performing the modifications
-2. Review the specific resource groups being modified
-3. Check if the operations align with scheduled maintenance or legitimate business activities
-4. Verify the source IP address and geolocation for suspicious activity
-5. Review Azure Activity Logs for the full scope of changes made
-6. Check for any privilege escalation or unauthorized access to the account
-7. If malicious, immediately revoke access and assess impact on affected resources
-', '["https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log-schema","https://attack.mitre.org/techniques/T1496/"]', 'contains("log.operationName", "Microsoft.Resources/subscriptions/resourceGroups") && contains("log.operationName", ["/write", "/delete"]) && equalsIgnoreCase("log.category", "Administrative") && equalsIgnoreCase("log.resultSignature", "Succeeded")', '2026-01-28 22:15:59.645628', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1542, 'Azure Service Principal Multiple Failed Authentications', 3, 3, 2, 'Initial Access', 'T1078.004 - Valid Accounts: Cloud Accounts', 'Detects potential brute force or credential guessing attacks against Azure service principals by identifying multiple failed authentication attempts from the same source IP within a 2-hour window.
+', '["https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-alert","https://attack.mitre.org/techniques/T1078/"]', 'equalsIgnoreCase("log.operationName", "Microsoft.Authorization/roleAssignments/write") && equalsIgnoreCase("log.category", "Administrative")', '2026-01-29 15:51:28.343268', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5067, 'Azure Service Principal Multiple Failed Authentications', 3, 3, 2, 'Initial Access', 'T1078.004 - Valid Accounts: Cloud Accounts', 'Detects potential brute force or credential guessing attacks against Azure service principals by identifying multiple failed authentication attempts from the same source IP within a 2-hour window.
 
 **Security Context:**
 Service principals are non-interactive identities used by applications and services to authenticate to Azure AD. Multiple failed authentication attempts may indicate:
@@ -1083,8 +1076,19 @@ This correlation approach reduces false positives by only alerting when there''s
 ', '["https://attack.mitre.org/techniques/T1078/004/","https://www.cloud-architekt.net/auditing-of-msi-and-service-principals/","https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/signinlogs"]', 'equalsIgnoreCase("log.category", "SignInLogs") &&
 exists("log.propertiesServicePrincipalId") &&
 !equals("log.resultType", "0")
-', '2026-01-28 22:16:00.820429', true, true, 'origin', null, '[{"indexPattern":"v11-log-azure-*","with":[{"field":"log.propertiesServicePrincipalId.keyword","operator":"filter_term","value":"{{.log.propertiesServicePrincipalId}}"},{"field":"origin.ip.keyword","operator":"filter_term","value":"{{.origin.ip}}"},{"field":"log.category.keyword","operator":"filter_term","value":"SignInLogs"}],"or":null,"within":"now-2h","count":5}]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1543, 'SQL Database Firewall Rule Modifications', 3, 2, 1, 'Lateral Movement', 'Remote Services', 'Detects modifications to Azure SQL Database firewall rules which could allow unauthorized access to sensitive data. This includes both creation and deletion of firewall rules that control network access to SQL databases.
+', '2026-01-29 15:51:28.433672', true, false, 'origin', null, '[{"indexPattern":"v11-log-azure-*","with":[{"field":"log.propertiesServicePrincipalId.keyword","operator":"filter_term","value":"{{.log.propertiesServicePrincipalId}}"},{"field":"origin.ip.keyword","operator":"filter_term","value":"{{.origin.ip}}"},{"field":"log.category.keyword","operator":"filter_term","value":"SignInLogs"}],"or":null,"within":"now-2h","count":5}]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5068, 'Resource Group Mass Modifications', 2, 3, 3, 'Impact', 'T1496 - Resource Hijacking', 'Detects mass modifications to Azure resource groups which could indicate unauthorized infrastructure changes or resource hijacking attempts. This rule triggers when multiple resource group write or delete operations are performed by the same user from the same IP address within a 15-minute window.
+
+Next Steps:
+1. Investigate the user account (log.aadObjectId) performing the modifications
+2. Review the specific resource groups being modified
+3. Check if the operations align with scheduled maintenance or legitimate business activities
+4. Verify the source IP address and geolocation for suspicious activity
+5. Review Azure Activity Logs for the full scope of changes made
+6. Check for any privilege escalation or unauthorized access to the account
+7. If malicious, immediately revoke access and assess impact on affected resources
+', '["https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log-schema","https://attack.mitre.org/techniques/T1496/"]', 'contains("log.operationName", "Microsoft.Resources/subscriptions/resourceGroups") && contains("log.operationName", ["/write", "/delete"]) && equalsIgnoreCase("log.category", "Administrative") && equalsIgnoreCase("log.resultSignature", "Succeeded")', '2026-01-29 15:51:28.519994', true, false, 'origin', null, '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5069, 'SQL Database Firewall Rule Modifications', 3, 2, 1, 'Lateral Movement', 'Remote Services', 'Detects modifications to Azure SQL Database firewall rules which could allow unauthorized access to sensitive data. This includes both creation and deletion of firewall rules that control network access to SQL databases.
 
 Next Steps:
 1. Verify the legitimacy of the firewall rule modification
@@ -1093,8 +1097,19 @@ Next Steps:
 4. Assess if the new firewall rule creates security risks
 5. Monitor for subsequent database access attempts from newly allowed IPs
 6. Review Azure Activity Logs for related database activities
-', '["https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log-schema","https://attack.mitre.org/techniques/T1021/"]', 'contains("log.operationName", "Microsoft.Sql/servers") && contains("log.operationName", ["/firewallRules/write", "/firewallRules/delete"]) && equalsIgnoreCase("log.category", "Administrative") && equalsIgnoreCase("actionResult", "accepted")', '2026-01-28 22:16:01.910163', true, true, 'origin', '["origin.ip","log.resourceId"]', '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1544, 'Azure Storage Account Public Access Enabled', 3, 2, 1, 'Collection', 'T1530 - Data from Cloud Storage Object', 'Detects when public (anonymous) access is enabled on Azure Storage Accounts or Blob containers, creating a critical security risk by allowing unauthenticated access to potentially sensitive data.
+', '["https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log-schema","https://attack.mitre.org/techniques/T1021/"]', 'contains("log.operationName", "Microsoft.Sql/servers") && (contains("log.operationName", "/firewallRules/write") || contains("log.operationName", "/firewallRules/delete")) && equalsIgnoreCase("log.category", "Administrative") && equalsIgnoreCase("actionResult", "accepted")', '2026-01-29 15:51:28.610614', true, false, 'origin', '["origin.ip","log.resourceId"]', '[]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5070, 'Virtual Machine Suspicious Activities', 2, 2, 3, 'Defense Evasion', 'T1578 - Modify Cloud Compute Infrastructure', 'Detects suspicious activities on Azure Virtual Machines including rapid creation, deletion, or configuration changes that could indicate compromise or abuse. This rule triggers when multiple VM operations are performed from the same IP address within a short timeframe.
+
+Next Steps:
+1. Review the specific VM operations performed and verify if they are legitimate business activities
+2. Check the user account and IP address associated with the activities for any signs of compromise
+3. Examine the timing and frequency of operations to determine if they follow normal usage patterns
+4. Verify if the operations were performed during expected business hours
+5. Check for any associated alerts or anomalies in authentication logs
+6. Review VM configurations and access logs for any unauthorized changes
+7. Contact the resource owner to confirm if the activities were authorized
+', '["https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log-schema","https://attack.mitre.org/techniques/T1578/"]', 'contains("log.operationName", "Microsoft.Compute/virtualMachines") && (contains("log.operationName", "/write") || contains("log.operationName", "/delete") || contains("log.operationName", "/restart/action") || contains("log.operationName", "/powerOff/action")) && equalsIgnoreCase("log.category", "Administrative") && equalsIgnoreCase("log.resultSignature", "Succeeded") && exists("origin.ip")', '2026-01-29 15:51:28.698693', true, false, 'origin', '["origin.ip"]', '[{"indexPattern":"v11-log-azure-*","with":[{"field":"origin.ip.keyword","operator":"filter_term","value":"{{.origin.ip}}"}],"or":null,"within":"now-10m","count":8}]', null);
+insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (5071, 'Azure Storage Account Public Access Enabled', 3, 2, 1, 'Collection', 'T1530 - Data from Cloud Storage Object', 'Detects when public (anonymous) access is enabled on Azure Storage Accounts or Blob containers, creating a critical security risk by allowing unauthenticated access to potentially sensitive data.
 
 **Security Context:**
 Azure Storage Accounts can be configured to allow public access at two levels:
@@ -1102,7 +1117,7 @@ Azure Storage Accounts can be configured to allow public access at two levels:
 2. **Container Level**: Individual blob containers can be set to "Blob" or "Container" public access levels
 
 Public access levels:
-- **None (Private)**: No anonymous access - requires authentication ✅
+- **None (Private)**: No anonymous access - requires authentication
 - **Blob**: Anonymous read access for blobs only
 - **Container**: Anonymous read access for blobs and container metadata
 
@@ -1163,58 +1178,46 @@ Even for legitimate cases, consider alternatives like Azure CDN with authenticat
 contains("log.operationName", "Microsoft.Storage/storageAccounts") &&
 (contains("log.operationName", "write") || contains("log.operationName", "blobServices")) &&
 (equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))
-', '2026-01-28 22:16:03.083807', true, true, 'origin', null, '[]', null);
-insert into public.utm_correlation_rules (id, rule_name, rule_confidentiality, rule_integrity, rule_availability, rule_category, rule_technique, rule_description, rule_references_def, rule_definition_def, rule_last_update, rule_active, system_owner, rule_adversary, rule_deduplicate_by_def, rule_after_events_def, rule_group_by_def) values (1545, 'Virtual Machine Suspicious Activities', 2, 2, 3, 'Defense Evasion', 'T1578 - Modify Cloud Compute Infrastructure', 'Detects suspicious activities on Azure Virtual Machines including rapid creation, deletion, or configuration changes that could indicate compromise or abuse. This rule triggers when multiple VM operations are performed from the same IP address within a short timeframe.
+', '2026-01-29 15:51:28.786143', true, false, 'origin', null, '[]', null);
 
-Next Steps:
-1. Review the specific VM operations performed and verify if they are legitimate business activities
-2. Check the user account and IP address associated with the activities for any signs of compromise
-3. Examine the timing and frequency of operations to determine if they follow normal usage patterns
-4. Verify if the operations were performed during expected business hours
-5. Check for any associated alerts or anomalies in authentication logs
-6. Review VM configurations and access logs for any unauthorized changes
-7. Contact the resource owner to confirm if the activities were authorized
-', '["https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log-schema","https://attack.mitre.org/techniques/T1578/"]', 'contains("log.operationName", "Microsoft.Compute/virtualMachines") && contains("log.operationName", ["/write", "/delete", "/restart/action", "/powerOff/action"]) && equalsIgnoreCase("log.category", "Administrative") && equalsIgnoreCase("log.resultSignature", "Succeeded") && exists("origin.ip")', '2026-01-28 22:16:04.258216', true, true, 'origin', '["origin.ip"]', '[{"indexPattern":"v11-log-azure-*","with":[{"field":"origin.ip.keyword","operator":"filter_term","value":"{{.origin.ip}}"}],"or":null,"within":"now-10m","count":8}]', null);
-
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1505, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1506, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1507, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1508, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1509, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1510, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1511, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1512, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1513, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1514, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1515, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1516, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1517, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1518, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1519, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1520, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1521, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1522, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1523, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1524, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1525, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1526, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1527, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1528, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1529, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1530, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1531, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1532, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1533, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1534, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1535, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1536, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1537, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1538, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1539, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1540, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1541, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1542, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1543, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1544, 3, null);
-INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1545, 3, null);
-
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5031, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5032, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5033, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5034, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5035, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5036, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5037, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5038, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5039, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5040, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5041, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5042, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5043, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5044, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5045, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5046, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5047, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5048, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5049, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5050, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5051, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5052, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5053, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5054, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5055, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5056, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5057, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5058, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5059, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5060, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5061, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5062, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5063, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5064, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5065, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5066, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5067, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5068, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5069, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5070, 3, null);
+insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (5071, 3, null);
