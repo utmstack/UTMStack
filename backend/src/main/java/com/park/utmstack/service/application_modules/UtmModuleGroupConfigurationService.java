@@ -10,6 +10,7 @@ import com.park.utmstack.event_processor.EventProcessorManagerService;
 import com.park.utmstack.util.CipherUtil;
 import com.park.utmstack.util.exceptions.ApiException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class UtmModuleGroupConfigurationService {
 
     private static final String CLASSNAME = "UtmModuleGroupConfigurationService";
@@ -54,7 +56,7 @@ public class UtmModuleGroupConfigurationService {
      * @param keys List of configuration keys to save
      * @throws Exception In case of any error
      */
-    public UtmModule updateConfigurationKeys(Long moduleId, List<UtmModuleGroupConfiguration> keys) throws Exception {
+    public UtmModule updateConfigurationKeys(Long moduleId, List<UtmModuleGroupConfiguration> keys) {
         final String ctx = CLASSNAME + ".updateConfigurationKeys";
         try {
             if (CollectionUtils.isEmpty(keys))
@@ -77,7 +79,8 @@ public class UtmModuleGroupConfigurationService {
                     })
                     .orElseThrow(() -> new ApiException(String.format("Module with ID %1$s not found", moduleId), HttpStatus.NOT_FOUND));
         } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
+            log.error("{}: Error updating configuration keys: {}", ctx, e.getMessage());
+            throw new ApiException(String.format("%s: Error updating configuration keys: %s", ctx, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
