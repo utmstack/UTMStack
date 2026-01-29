@@ -9,10 +9,11 @@ import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.application_modules.UtmModuleGroupConfigurationService;
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
 import com.park.utmstack.service.collectors.CollectorOpsService;
+import com.park.utmstack.service.collectors.CollectorService;
 import com.park.utmstack.service.collectors.UtmCollectorService;
 import com.park.utmstack.service.dto.collectors.CollectorActionEnum;
 import com.park.utmstack.service.dto.collectors.CollectorHostnames;
-import com.park.utmstack.service.dto.collectors.dto.CollectorConfigKeysDTO;
+import com.park.utmstack.service.dto.collectors.dto.CollectorConfigDTO;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.dto.ErrorResponse;
@@ -27,6 +28,7 @@ import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import com.utmstack.grpc.exception.CollectorConfigurationGrpcException;
 import com.utmstack.grpc.exception.CollectorServiceGrpcException;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.api.annotations.ParameterObject;
@@ -48,35 +50,20 @@ import java.util.Map;
  * REST controller for managing {@link UtmCollectorResource}.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api")
 public class UtmCollectorResource {
 
     private static final String CLASSNAME = "UtmCollectorResource";
-    private final CollectorOpsService collectorService;
+    private final CollectorOpsService collectorOpsService;
     private final Logger log = LoggerFactory.getLogger(UtmCollectorResource.class);
     private final ApplicationEventService applicationEventService;
     private final UtmModuleGroupConfigurationService moduleGroupConfigurationService;
-
     private final UtmModuleGroupService moduleGroupService;
-
     private final ApplicationEventService eventService;
-
     private final UtmCollectorService utmCollectorService;
+    private final CollectorService collectorService;
 
-    public UtmCollectorResource(CollectorOpsService collectorService,
-                                ApplicationEventService applicationEventService,
-                                UtmModuleGroupConfigurationService moduleGroupConfigurationService,
-                                UtmModuleGroupService moduleGroupService,
-                                ApplicationEventService eventService,
-                                UtmCollectorService utmCollectorService) {
-
-        this.collectorService = collectorService;
-        this.applicationEventService = applicationEventService;
-        this.moduleGroupConfigurationService = moduleGroupConfigurationService;
-        this.moduleGroupService = moduleGroupService;
-        this.eventService = eventService;
-        this.utmCollectorService = utmCollectorService;
-    }
 
     /**
      * {@code POST  /collector-config} : Create or update the collector configs.
@@ -87,27 +74,11 @@ public class UtmCollectorResource {
      * persist the configurations.
      */
     @PostMapping("/collector-config")
-    public ResponseEntity<Void> upsertCollectorConfig(
-            @Valid @RequestBody CollectorConfigKeysDTO collectorConfig,
-            @RequestParam(name = "action", defaultValue = "CREATE") CollectorActionEnum action) {
+    public ResponseEntity<Void> upsertCollectorConfig(@Valid @RequestBody CollectorConfigDTO collectorConfig,
+                                                      @RequestParam(name = "action", defaultValue = "CREATE") CollectorActionEnum action) {
 
-        final String ctx = CLASSNAME + ".upsertCollectorConfig";
-        CollectorConfig cacheConfig = null;
-
-        // Validate collector configuration
-        String validationErrorMessage = this.collectorService.validateCollectorConfig(collectorConfig);
-        if (validationErrorMessage != null) {
-            return logAndResponse(new ErrorResponse(validationErrorMessage, HttpStatus.PRECONDITION_FAILED));
-        }
-
-        try {
-            cacheConfig = this.collectorService.cacheCurrentCollectorConfig(collectorConfig.getCollector());
-            this.upsert(collectorConfig);
-            return ResponseEntity.noContent().build();
-
-        } catch (Exception e) {
-            return handleUpdateError(e, cacheConfig, collectorConfig.getCollector());
-        }
+        collectorService.upsertCollectorConfig(collectorConfig);
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -134,7 +105,7 @@ public class UtmCollectorResource {
                     .setSortBy(sortBy != null ? sortBy : "")
                     .build();
 
-            ListCollectorsResponseDTO response = collectorService.listCollector(request);
+            ListCollectorsResponseDTO response = collectorOpsService.listCollector(request);
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-Total-Count", Long.toString(response.getTotal()));
             return ResponseEntity.ok().headers(headers).body(response);
@@ -169,7 +140,7 @@ public class UtmCollectorResource {
                     .setSearchQuery(module != null ? "module.Is=" + module : "")
                     .setSortBy(sortBy != null ? sortBy : "")
                     .build();
-            return ResponseEntity.ok().body(collectorService.listCollectorHostnames(request));
+            return ResponseEntity.ok().body(collectorOpsService.listCollectorHostnames(request));
         } catch (BadRequestAlertException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
@@ -196,8 +167,8 @@ public class UtmCollectorResource {
                                                                                       @RequestParam CollectorModuleEnum module) {
         final String ctx = CLASSNAME + ".listCollectorByHostNameAndModule";
         try {
-            return ResponseEntity.ok().body(collectorService.listCollector(
-                    collectorService.getListRequestByHostnameAndModule(hostname, module)));
+            return ResponseEntity.ok().body(collectorOpsService.listCollector(
+                    collectorOpsService.getListRequestByHostnameAndModule(hostname, module)));
         } catch (BadRequestAlertException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
@@ -224,7 +195,7 @@ public class UtmCollectorResource {
     public ResponseEntity<Void> updateGroup(@Valid @RequestBody UtmNetworkScanResource.UpdateGroupRequestBody body) {
         final String ctx = CLASSNAME + ".updateGroup";
         try {
-            collectorService.updateGroup(body.getAssetsIds(), body.getAssetGroupId());
+            collectorOpsService.updateGroup(body.getAssetsIds(), body.getAssetGroupId());
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
@@ -240,7 +211,7 @@ public class UtmCollectorResource {
         final String ctx = CLASSNAME + ".searchGroupsByFilter";
         try {
 
-            Page<AssetGroupDTO> page = collectorService.searchGroupsByFilter(filter, pageable);
+            Page<AssetGroupDTO> page = collectorOpsService.searchGroupsByFilter(filter, pageable);
             HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/utm-asset-groups/searchGroupsByFilter");
             return ResponseEntity.ok().headers(headers).body(page.getContent());
         } catch (Exception e) {
@@ -257,7 +228,7 @@ public class UtmCollectorResource {
                                                               @ParameterObject Pageable pageable) {
         final String ctx = CLASSNAME + ".searchByFilters";
         try {
-            collectorService.listCollector(ListRequest.newBuilder()
+            collectorOpsService.listCollector(ListRequest.newBuilder()
                     .setPageNumber(0)
                     .setPageSize(1000000)
                     .setSortBy("")
@@ -279,7 +250,7 @@ public class UtmCollectorResource {
 
         try {
             log.debug("REST request to delete UtmCollector : {}", id);
-            collectorService.deleteCollector(id);
+            collectorOpsService.deleteCollector(id);
             return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("UtmCollector", id.toString())).build();
         } catch (Exception e) {
             applicationEventService.createEvent(e.getMessage(), ApplicationEventType.ERROR);
@@ -289,17 +260,17 @@ public class UtmCollectorResource {
     }
 
     @PostMapping("/collectors-config")
-    public ResponseEntity<Map<String, Object>> upsertCollectorsConfig(@RequestBody List<CollectorConfigKeysDTO> collectors) {
+    public ResponseEntity<Map<String, Object>> upsertCollectorsConfig(@RequestBody List<CollectorConfigDTO> collectors) {
         Map<String, Object> results = new HashMap<>();
         final String ctx = CLASSNAME + ".upsertCollectorsConfig";
         CollectorConfig cacheConfig = null;
 
         List<Map<String, Object>> collectorsResults = new ArrayList<>();
-        for (CollectorConfigKeysDTO collectorConfig : collectors) {
+        for (CollectorConfigDTO collectorConfig : collectors) {
             Map<String, Object> collectorResult = new HashMap<>();
             collectorResult.put("collectorId", collectorConfig.getCollector().getId());
             try {
-                cacheConfig = this.collectorService.cacheCurrentCollectorConfig(collectorConfig.getCollector());
+                cacheConfig = this.collectorOpsService.cacheCurrentCollectorConfig(collectorConfig.getCollector());
                 this.upsert(collectorConfig);
                 collectorResult.put("status", "success");
             } catch (Exception e) {
@@ -355,12 +326,12 @@ public class UtmCollectorResource {
         return ResponseUtil.buildErrorResponse(error.getStatus(), error.getMessage());
     }
 
-    private void upsert(CollectorConfigKeysDTO collectorConfig) throws Exception {
+    private void upsert(CollectorConfigDTO collectorConfig) throws Exception {
 
         // Update local database with new configuration
-        this.collectorService.updateCollectorConfigurationKeys(collectorConfig);
+        this.collectorOpsService.updateCollectorConfigurationKeys(collectorConfig);
 
         // Attempt to update collector configuration via gRPC
-        this.collectorService.updateCollectorConfigViaGrpc(collectorConfig, collectorConfig.getCollector());
+        this.collectorOpsService.updateCollectorConfigViaGrpc(collectorConfig, collectorConfig.getCollector());
     }
 }
