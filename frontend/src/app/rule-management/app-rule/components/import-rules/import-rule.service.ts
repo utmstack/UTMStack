@@ -157,6 +157,7 @@ export class ImportRuleService {
       'impact',
       'where',
       'afterEvents',
+      'correlation',
       'name',
       'adversary',
       'confidentiality',
