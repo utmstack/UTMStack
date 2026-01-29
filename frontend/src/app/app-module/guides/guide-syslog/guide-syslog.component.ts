@@ -1,8 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
+import {PLATFORMS} from "../shared/constant";
 import {Step} from '../shared/step';
 import {SYSLOGSTEPS} from './syslog.steps';
-import {PLATFORMS} from "../shared/constant";
 
 @Component({
   selector: 'app-guide-syslog',
@@ -45,7 +45,6 @@ export class GuideSyslogComponent implements OnInit {
     {module: UtmModulesEnum.DECEPTIVE_BYTES, port: '7010 TCP'},
     {module: UtmModulesEnum.DECEPTIVE_BYTES, port: '7010 UDP'},
 
-    {module: UtmModulesEnum.SOPHOS_XG, port: '7008 TCP'},
     {module: UtmModulesEnum.SOPHOS_XG, port: '7008 UDP'},
 
     {module: UtmModulesEnum.SYSLOG, port: '7014 TCP'},
