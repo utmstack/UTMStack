@@ -24,7 +24,7 @@ func CheckAgentManagerHealth() {
 	tlsCredentials := credentials.NewTLS(tlsConfig)
 
 	for {
-		pConfig := plugins.PluginCfg("com.utmstack", false)
+		pConfig := plugins.PluginCfg("com.utmstack")
 		agentManager := pConfig.Get("agentManager").String()
 		internalKey := pConfig.Get("internalKey").String()
 

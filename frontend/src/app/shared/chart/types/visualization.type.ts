@@ -1,3 +1,4 @@
+import {ChartBuilderQueryLanguageEnum} from "../../enums/chart-builder-query-language.enum";
 import {ChartTypeEnum} from '../../enums/chart-type.enum';
 import {DataNatureTypeEnum} from '../../enums/nature-data.enum';
 import {ElasticFilterType} from '../../types/filter/elastic-filter.type';
@@ -23,6 +24,7 @@ export class VisualizationType {
   showTime?: boolean;
   systemOwner?: boolean;
   page?: any;
-
+  sqlQuery?: string;
+  queryLanguage?: ChartBuilderQueryLanguageEnum;
 }
 

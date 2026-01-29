@@ -9,6 +9,7 @@ import com.park.utmstack.domain.chart_builder.types.aggregation.enums.BucketAggr
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.ResponseParser;
 import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
 import com.utmstack.opensearch_connector.types.BucketAggregation;
+import com.utmstack.opensearch_connector.types.SearchSqlResponse;
 import org.opensearch.client.opensearch._types.aggregations.*;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.springframework.util.Assert;
@@ -110,5 +111,52 @@ public class ResponseParserForGaugeGoalChart implements ResponseParser<GaugeGoal
             }
         }
         return rturn;
+    }
+
+    @Override
+    public List<GaugeGoalChartResult> parse(UtmVisualization visualization, SearchSqlResponse<Map> result) {
+        final String ctx = CLASSNAME + ".parse(SearchSqlResponse)";
+        try {
+            Assert.notNull(visualization, "Param visualization must not be null");
+
+            List<GaugeGoalChartResult> results = new ArrayList<>();
+
+            for (Object rowObj : result.getData()) {
+                if (!(rowObj instanceof Map)) continue;
+                Map<String, Object> row = (Map<String, Object>) rowObj;
+
+                String bucketKey = null;
+                String bucketId = null;
+
+                Double metricValue = null;
+                String metricId = null;
+
+                for (Map.Entry<String, Object> entry : row.entrySet()) {
+                    String key = entry.getKey();
+                    Object val = entry.getValue();
+
+                    if (val == null) continue;
+
+                    if (val instanceof Number) {
+                        metricValue = ((Number) val).doubleValue();
+                        metricId = key;
+                    } else {
+                        bucketKey = val.toString();
+                        bucketId = key;
+                    }
+                }
+
+                if (metricValue == null) metricValue = 0.0;
+                if (metricId == null) metricId = "metric";
+                if (bucketKey == null) bucketKey = "UNKNOWN";
+                if (bucketId == null) bucketId = "bucket";
+
+                results.add(new GaugeGoalChartResult(metricId, metricValue, bucketKey, bucketId));
+            }
+
+            return results;
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage(), e);
+        }
     }
 }

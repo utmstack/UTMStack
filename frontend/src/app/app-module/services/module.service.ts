@@ -40,7 +40,6 @@ export class ModuleService {
     }),
     shareReplay(1),
     catchError(error => {
-      console.error(error);
       this.utmToastService.showError(
         'Failed to fetch servers',
         'An error occurred while fetching server list.'

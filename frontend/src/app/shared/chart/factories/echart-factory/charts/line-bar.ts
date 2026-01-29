@@ -8,6 +8,7 @@ import {BarLineResponseType} from '../../../types/response/bar-line-response.typ
 import {VisualizationType} from '../../../types/visualization.type';
 import {ChartBuildInterface} from '../chart-build.interface';
 import {ChartOption} from '../chart-option';
+import {ChartBuilderQueryLanguageEnum} from "../../../../enums/chart-builder-query-language.enum";
 
 export class LineBar implements ChartBuildInterface {
   chartEnumType = ChartTypeEnum;
@@ -37,8 +38,8 @@ export class LineBar implements ChartBuildInterface {
        * -data[0].series.length mean that have only one metric
        * - visualization type for single must have bar type
        */
-      if (!visualization.aggregationType.bucket ||
-        visualization.aggregationType.bucket.subBucket ||
+      if ((visualization.aggregationType && !visualization.aggregationType.bucket) ||
+        (visualization.aggregationType && visualization.aggregationType &&  visualization.aggregationType.bucket.subBucket) ||
         data[0].series.length > 1 ||
         (visualization.chartType === this.chartEnumType.LINE_CHART ||
           visualization.chartType === this.chartEnumType.AREA_LINE_CHART)) {
@@ -105,7 +106,8 @@ export class LineBar implements ChartBuildInterface {
       for (let j = 0; j < data[0].series.length; j++) {
         const metricId = Number(data[0].series[j].metricId);
         const index = serie.findIndex(value => Number(value.metricId) === metricId);
-        const metricLabel = extractMetricLabel(data[0].series[j].metricId, visualization);
+        const metricLabel = visualization.queryLanguage === ChartBuilderQueryLanguageEnum.DSL ?
+          extractMetricLabel(data[0].series[j].metricId, visualization) : '';
         const stackBy = data[0].series[j].name === '' ? metricLabel : data[0].series[j].name;
         if (index !== -1) {
           const ser = {

@@ -18,7 +18,7 @@ var (
 func loadCerts() (tls.Certificate, error) {
 	certsFolderConfig := ""
 	for {
-		pluginConfig := plugins.PluginCfg("com.utmstack", false)
+		pluginConfig := plugins.PluginCfg("com.utmstack")
 		if !pluginConfig.Exists() {
 			_ = catcher.Error("plugin configuration not found", nil, nil)
 			time.Sleep(reconnectDelay)

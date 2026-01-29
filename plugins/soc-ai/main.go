@@ -26,6 +26,7 @@ func main() {
 		_ = catcher.Error("failed to start correlation plugin", err, map[string]any{
 			"process": "plugin_com.utmstack.soc-ai",
 		})
+		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
 }

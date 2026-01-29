@@ -8,6 +8,7 @@ require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/google/uuid v1.6.0
 	github.com/kardianos/service v1.2.4
+	github.com/netsampler/goflow2 v1.3.7
 	github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068
 	github.com/threatwinds/go-sdk v1.1.7
 	github.com/threatwinds/logger v1.2.3

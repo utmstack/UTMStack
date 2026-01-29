@@ -3,11 +3,15 @@ import {Observable, of, Subject} from 'rxjs';
 import {catchError, filter, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {DashboardBehavior} from '../../../../../shared/behaviors/dashboard.behavior';
+import {TimeFilterBehavior} from '../../../../../shared/behaviors/time-filter.behavior';
 import {EchartClickAction} from '../../../../../shared/chart/types/action/echart-click-action';
 import {UtmGoalOption} from '../../../../../shared/chart/types/charts/goal/utm-goal-option';
 import {MetricResponse} from '../../../../../shared/chart/types/metric/metric-response';
 import {VisualizationType} from '../../../../../shared/chart/types/visualization.type';
-import {ElasticFilterDefaultTime} from '../../../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
+import {
+  ElasticFilterDefaultTime
+} from '../../../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
+import {ChartBuilderQueryLanguageEnum} from '../../../../../shared/enums/chart-builder-query-language.enum';
 import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
 import {RefreshService, RefreshType} from '../../../../../shared/services/util/refresh.service';
 import {TimeFilterType} from '../../../../../shared/types/time-filter.type';
@@ -18,7 +22,6 @@ import {RunVisualizationService} from '../../../services/run-visualization.servi
 import {UtmChartClickActionService} from '../../../services/utm-chart-click-action.service';
 import {rebuildVisualizationFilterTime} from '../../../util/chart-filter/chart-filter.util';
 import {resolveDefaultVisualizationTime} from '../../../util/visualization/visualization-render.util';
-import {TimeFilterBehavior} from "../../../../../shared/behaviors/time-filter.behavior";
 
 @Component({
   selector: 'app-goal-view',
@@ -66,7 +69,9 @@ export class GoalViewComponent implements OnInit, OnDestroy {
       .subscribe((id) => {
       if (id && this.chartId === id) {
         this.refreshService.sendRefresh(this.refreshType);
-        this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
+        this.defaultTime = this.visualization.queryLanguage === ChartBuilderQueryLanguageEnum.DSL ?
+          resolveDefaultVisualizationTime(this.visualization)
+          : new ElasticFilterDefaultTime('now-30d', 'now');
       }
     });
     this.dashboardBehavior.$filterDashboard
@@ -94,31 +99,17 @@ export class GoalViewComponent implements OnInit, OnDestroy {
       });
 
     if (!this.defaultTime) {
-      this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
+      this.defaultTime = this.visualization.filterType ? resolveDefaultVisualizationTime(this.visualization)
+        : new ElasticFilterDefaultTime('now-30d', 'now');
+    }
 
-      if (!this.defaultTime) {
-        this.refreshService.sendRefresh(this.refreshType);
-      }
-
+    if (this.building) {
+      this.refreshService.sendRefresh(this.refreshType);
     }
   }
 
   runVisualization() {
     this.runningChart = true;
-    /*this.runVisualizationService.run(this.visualization).subscribe(data => {
-      this.runningChart = false;
-      this.runned.emit('runned');
-      this.data = data;
-      this.extractGoals();
-      this.error = false;
-    }, error => {
-      this.runningChart = false;
-      this.error = true;
-      this.runned.emit('runned');
-      this.toastService.showError('Error',
-        'Error occurred while running visualization');
-    });*/
-
     return this.runVisualizationService.run(this.visualization)
       .pipe(
         tap((data) => {
@@ -154,9 +145,9 @@ export class GoalViewComponent implements OnInit, OnDestroy {
     this.goals = [];
     const config: UtmGoalOption[] = this.visualization.chartConfig;
     if (data) {
-      for (const d of data) {
-        const metricIndex = this.visualization.aggregationType.metrics.findIndex(value => Number(value.id) === Number(d.metricId));
-        const optionIndex = config.findIndex(value => Number(value.metricId) === Number(d.metricId));
+      data.forEach((d, index) => {
+        const metricId = isNaN(Number(d.metricId)) ? index + 1 : Number(d.metricId);
+        const optionIndex = config.findIndex(value => Number(value.metricId) === metricId);
         const max = (config[optionIndex].max ? config[optionIndex].max : this.calcTotal(data));
         const goal = new UtmGoalOption(Number(d.metricId),
           this.calcPercent(max, d.value, config[optionIndex].decimal),
@@ -168,11 +159,13 @@ export class GoalViewComponent implements OnInit, OnDestroy {
           config[optionIndex].cap,
           config[optionIndex].type,
           config[optionIndex].thresholds,
-          d.bucketKey ? d.bucketKey : extractMetricLabel(d.metricId, this.visualization),
+          this.visualization.queryLanguage === ChartBuilderQueryLanguageEnum.DSL ?
+            d.bucketKey ? d.bucketKey : extractMetricLabel(d.metricId, this.visualization)
+            : d.metricId,
           config[optionIndex].foregroundColor
         );
         this.goals.push(goal);
-      }
+      });
     }
     return this.goals;
   }

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260122002" author="Manuel Abascal">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            ------------------------------------------------------------------
+            -- Filters field replacements (safe one-by-one updates)
+            ------------------------------------------------------------------
+
+            UPDATE utm_visualization SET filters = REPLACE(filters,'emailVerdict.keyword','log.Verdict.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.P2Sender.keyword','log.P2Sender.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.DetectionMethod.keyword','log.DetectionMethod.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.logonError.keyword','log.LogonError.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.OrganizationName.keyword','log.OrganizationName.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.ClientIPAddress.keyword','log.clientIp.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.MailboxOwnerUPN.keyword','log.MailboxOwnerUPN.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.MailboxOwnerSid.keyword','log.MailboxOwnerSid.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.ClientInfoString.keyword','log.ClientInfoString.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.Operation','action.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.Platform.keyword','log.Platform.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.TargetUserOrGroupType.keyword','log.TargetUserOrGroupType.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.Severity.keyword','log.Severity.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.OriginatingServer.keyword','log.OriginatingServer.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.SourceFileExtension.keyword','log.SourceFileExtension.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.UserType','log.UserType.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.GeoLocation.keyword','log.GeoLocation.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.ObjectId.keyword','log.ObjectId.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.SourceFileName.keyword','log.SourceFileName.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.SiteUrl.keyword','log.SiteUrl.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.AppAccessContext.ClientAppName.keyword','log.appAccessContextClientAppId.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.CorrelationId.keyword','log.CorrelationId.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.ApplicationDisplayName.keyword','log.ApplicationDisplayName.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.UserAgent.keyword','log.UserAgent.keyword') WHERE filters IS NOT NULL;
+
+            ------------------------------------------------------------------
+            -- ExternalAccess and LogonType
+            ------------------------------------------------------------------
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.ExternalAccess','log.ExternalAccess.keyword') WHERE filters IS NOT NULL;
+            UPDATE utm_visualization SET filters = REPLACE(filters,'log.o365.LogonType','log.LogonType.keyword') WHERE filters IS NOT NULL;
+
+            ]]>
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>

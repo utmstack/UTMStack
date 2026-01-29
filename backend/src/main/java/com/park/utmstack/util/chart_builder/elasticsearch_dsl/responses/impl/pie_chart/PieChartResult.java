@@ -1,5 +1,10 @@
 package com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.impl.pie_chart;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class PieChartResult {
     private String metricId;
     private String bucketKey;
@@ -13,35 +18,5 @@ public class PieChartResult {
         this.bucketId = bucketId;
     }
 
-    public String getBucketKey() {
-        return bucketKey;
-    }
 
-    public void setBucketKey(String bucketKey) {
-        this.bucketKey = bucketKey;
-    }
-
-    public Double getValue() {
-        return value;
-    }
-
-    public void setValue(Double value) {
-        this.value = value;
-    }
-
-    public String getMetricId() {
-        return metricId;
-    }
-
-    public void setMetricId(String metricId) {
-        this.metricId = metricId;
-    }
-
-    public String getBucketId() {
-        return bucketId;
-    }
-
-    public void setBucketId(String bucketId) {
-        this.bucketId = bucketId;
-    }
 }

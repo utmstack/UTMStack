@@ -2,6 +2,7 @@ import {
   extractMetricLabel,
   getBucketLabel
 } from '../../../../../graphic-builder/chart-builder/chart-property-builder/shared/functions/visualization-util';
+import {ChartBuilderQueryLanguageEnum} from '../../../../enums/chart-builder-query-language.enum';
 import {Legend} from '../../../types/charts/chart-properties/legend/legend';
 import {SeriesPie} from '../../../types/charts/chart-properties/series/pie/series-pie';
 import {ItemStyle} from '../../../types/charts/chart-properties/style/item-style';
@@ -63,7 +64,10 @@ export class Pie implements ChartBuildInterface {
   extractSeries(data: any[], visualization: VisualizationType): string[] {
     const series: string[] = [];
     for (const dat of data) {
-      series.push(dat.bucketKey ? dat.bucketKey : extractMetricLabel(dat.metricId, visualization));
+        series.push(dat.bucketKey ? dat.bucketKey :
+          visualization.queryLanguage === ChartBuilderQueryLanguageEnum.DSL ?
+            extractMetricLabel(dat.metricId, visualization)
+        : '');
     }
     return series;
   }
@@ -73,7 +77,10 @@ export class Pie implements ChartBuildInterface {
     for (const dat of data) {
       values.push(
         {
-          name: dat.bucketKey ? dat.bucketKey : extractMetricLabel(dat.metricId, visualization),
+          name: dat.bucketKey ? dat.bucketKey :
+            visualization.queryLanguage === ChartBuilderQueryLanguageEnum.DSL ?
+              extractMetricLabel(dat.metricId, visualization)
+              : '',
           value: Number(dat.value.toFixed(2))
         }
       );
@@ -82,7 +89,10 @@ export class Pie implements ChartBuildInterface {
   }
 
   private extractSerieName(data: PieBuilderResponseType[], visualization: VisualizationType): string {
-    return getBucketLabel(0, visualization);
+    if (visualization.queryLanguage === ChartBuilderQueryLanguageEnum.SQL) {
+      return data.length > 0 ? data[0].bucketId : 'SQL Series';
+    } else {
+      return getBucketLabel(0, visualization);
+    }
   }
-
 }

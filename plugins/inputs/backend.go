@@ -10,7 +10,7 @@ import (
 )
 
 func createPanelRequest(method string, endpoint string) (*http.Request, error) {
-	pConfig := plugins.PluginCfg("com.utmstack", false)
+	pConfig := plugins.PluginCfg("com.utmstack")
 	backend := pConfig.Get("backend").String()
 	internalKey := pConfig.Get("internalKey").String()
 

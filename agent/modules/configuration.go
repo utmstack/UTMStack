@@ -77,7 +77,7 @@ func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool, tlsOpt
 				mod := GetModule(logTyp)
 				if mod != nil && mod.IsPortListen(proto) {
 					mod.DisablePort(proto)
-					time.Sleep(100 * time.Millisecond)
+					time.Sleep(200 * time.Millisecond)
 					err := mod.EnablePort(proto, true)
 					if err != nil {
 						return "", fmt.Errorf("error enabling TLS on running module: %v", err)
@@ -89,7 +89,7 @@ func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool, tlsOpt
 				mod := GetModule(logTyp)
 				if mod != nil && mod.IsPortListen(proto) {
 					mod.DisablePort(proto)
-					time.Sleep(100 * time.Millisecond)
+					time.Sleep(200 * time.Millisecond)
 					err := mod.EnablePort(proto, false)
 					if err != nil {
 						return "", fmt.Errorf("error disabling TLS on running module: %v", err)
@@ -248,7 +248,7 @@ func EnableTLSForIntegration(logTyp string, proto string) (string, error) {
 		mod := GetModule(logTyp)
 		if mod != nil && mod.IsPortListen(proto) {
 			mod.DisablePort(proto)
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(200 * time.Millisecond)
 			err := mod.EnablePort(proto, true)
 			if err != nil {
 				return port, fmt.Errorf("error enabling TLS on running module: %v", err)
@@ -278,7 +278,7 @@ func DisableTLSForIntegration(logTyp string, proto string) error {
 		mod := GetModule(logTyp)
 		if mod != nil && mod.IsPortListen(proto) {
 			mod.DisablePort(proto)
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(200 * time.Millisecond)
 			err := mod.EnablePort(proto, false)
 			if err != nil {
 				return fmt.Errorf("error disabling TLS on running module: %v", err)

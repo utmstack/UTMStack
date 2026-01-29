@@ -1,4 +1,5 @@
 import {extractMetricLabel} from '../../../../../graphic-builder/chart-builder/chart-property-builder/shared/functions/visualization-util';
+import {ChartBuilderQueryLanguageEnum} from '../../../../enums/chart-builder-query-language.enum';
 import {SeriesGauge} from '../../../types/charts/chart-properties/series/gauge/series-gauge';
 import {UtmGaugeOptionType} from '../../../types/charts/gauge/utm-gauge-option.type';
 import {GaugeBuilderResponseType} from '../../../types/response/gauge-builder-response.type';
@@ -70,7 +71,9 @@ export class Gauge implements ChartBuildInterface {
       options.serie[0].splitLine.length = options.serie[0].axisLine.lineStyle.width + 5;
       options.serie[0].data = [
         {
-          name: extractMetricLabel(data[0].metricId, visualization),
+          name: visualization.queryLanguage === ChartBuilderQueryLanguageEnum.DSL ?
+            extractMetricLabel(data[0].metricId, visualization)
+          : data[0].metricId,
           value: data[0].value
         }
       ];

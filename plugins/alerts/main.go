@@ -56,10 +56,11 @@ type AlertFields struct {
 }
 
 func main() {
-	openSearchUrl := plugins.PluginCfg("org.opensearch", false).Get("opensearch").String()
+	openSearchUrl := plugins.PluginCfg("org.opensearch").Get("opensearch").String()
 	err := sdkos.Connect([]string{openSearchUrl}, "", "")
 	if err != nil {
 		_ = catcher.Error("cannot connect to OpenSearch", err, map[string]any{"process": "plugin_com.utmstack.alerts"})
+		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
 
@@ -68,6 +69,7 @@ func main() {
 		_ = catcher.Error("com.utmstack.alerts", err, map[string]any{
 			"process": "plugin_com.utmstack.alerts",
 		})
+		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
 }

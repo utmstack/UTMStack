@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {VisualizationType} from '../../../shared/chart/types/visualization.type';
+import {ChartBuilderQueryLanguageEnum} from '../../../shared/enums/chart-builder-query-language.enum';
+import {createRequestOption} from '../../../shared/util/request-util';
 import {VisualizationService} from '../../visualization/shared/services/visualization.service';
-import {createRequestOption} from "../../../shared/util/request-util";
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,7 @@ export class RunVisualizationService {
    * @param request optional pagination
    */
   run(visualization: VisualizationType, request: any = {}): Observable<any> {
+    visualization.queryLanguage = !visualization.sqlQuery ? ChartBuilderQueryLanguageEnum.DSL : ChartBuilderQueryLanguageEnum.SQL;
     const req = createRequestOption(request);
     return new Observable<any>(subscriber => {
       if (typeof visualization.chartConfig !== 'string') {

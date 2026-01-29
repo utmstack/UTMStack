@@ -9,15 +9,24 @@ import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.chart_builder.UtmVisualizationQueryService;
 import com.park.utmstack.service.chart_builder.UtmVisualizationService;
 import com.park.utmstack.service.dto.chart_builder.UtmVisualizationCriteria;
+import com.park.utmstack.service.dto.visualization.UtmVisualizationDto;
+import com.park.utmstack.service.dto.visualization.enums.QueryLanguageEnum;
+import com.park.utmstack.service.dto.visualization.mapper.UtmVisualizationMapper;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
+import com.park.utmstack.service.elasticsearch.sql.SqlQueryFilterService;
 import com.park.utmstack.util.ResponseUtil;
+import com.park.utmstack.util.UtilPagination;
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.requests.RequestDsl;
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.ResponseParser;
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.ResponseParserFactory;
+import com.park.utmstack.util.elastic.SqlPaginationUtil;
 import com.park.utmstack.util.exceptions.UtmChartBuilderException;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
+import com.utmstack.opensearch_connector.types.SearchSqlResponse;
+import com.utmstack.opensearch_connector.types.SqlQueryRequest;
+import lombok.RequiredArgsConstructor;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,15 +46,13 @@ import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * REST controller for managing UtmVisualization.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api")
 public class UtmVisualizationResource {
 
@@ -60,20 +67,9 @@ public class UtmVisualizationResource {
     private final ApplicationEventService applicationEventService;
     private final UtmStackService utmStackService;
     private final ElasticsearchService elasticsearchService;
+    private final UtmVisualizationMapper utmVisualizationMapper;
+    private final SqlQueryFilterService sqlQueryFilterService;
 
-    public UtmVisualizationResource(UtmVisualizationService visualizationService,
-                                    UtmVisualizationQueryService visualizationQueryService,
-                                    ResponseParserFactory responseParserFactory,
-                                    ApplicationEventService applicationEventService,
-                                    UtmStackService utmStackService,
-                                    ElasticsearchService elasticsearchService) {
-        this.visualizationService = visualizationService;
-        this.visualizationQueryService = visualizationQueryService;
-        this.responseParserFactory = responseParserFactory;
-        this.applicationEventService = applicationEventService;
-        this.elasticsearchService = elasticsearchService;
-        this.utmStackService = utmStackService;
-    }
 
     /**
      * POST  /utm-visualizations : Create a new utmVisualization.
@@ -83,7 +79,7 @@ public class UtmVisualizationResource {
      * Request) if the utmVisualization has already an ID
      */
     @PostMapping("/utm-visualizations")
-    public ResponseEntity<UtmVisualization> createUtmVisualization(@Valid @RequestBody UtmVisualization utmVisualization) {
+    public ResponseEntity<UtmVisualization> createUtmVisualization(@Valid @RequestBody UtmVisualizationDto utmVisualization) {
         final String ctx = CLASSNAME + ".createUtmVisualization";
 
         UtmVisualization result = null;
@@ -91,8 +87,20 @@ public class UtmVisualizationResource {
             if (utmVisualization.getId() != null)
                 throw new BadRequestAlertException("A new utmVisualization cannot already have an ID", ENTITY_NAME, "idexists");
 
-            RequestDsl requestQuery = new RequestDsl(utmVisualization);
-            utmVisualization.setQuery(requestQuery.getSearchSourceBuilder().toString());
+            if (utmVisualization.getQueryLanguage() == QueryLanguageEnum.DSL) {
+                if (utmVisualization.getPattern() == null) {
+                    throw new BadRequestAlertException("DSL visualization requires a pattern", ENTITY_NAME, "patternmissing");
+                }
+                if (utmVisualization.getAggregationType() == null) {
+                    throw new BadRequestAlertException("DSL visualization requires an aggregationType", ENTITY_NAME, "aggregationmissing");
+                }
+                RequestDsl requestQuery = new RequestDsl(utmVisualizationMapper.toEntity(utmVisualization));
+                utmVisualization.setQuery(requestQuery.getSearchSourceBuilder().toString());
+            } else {
+                if (utmVisualization.getSqlQuery() == null || utmVisualization.getSqlQuery().isBlank()) {
+                    throw new BadRequestAlertException("SQL visualization requires a sqlQuery", ENTITY_NAME, "sqlmissing");
+                }
+            }
 
             SecurityUtils.getCurrentUserLogin().ifPresent(utmVisualization::setUserCreated);
             utmVisualization.setCreatedDate(LocalDateTime.now().toInstant(ZoneOffset.UTC));
@@ -104,7 +112,8 @@ public class UtmVisualizationResource {
                 utmVisualization.setSystemOwner(true);
             }
 
-            result = visualizationService.save(utmVisualization);
+            result = visualizationService.save(utmVisualizationMapper.toEntity(utmVisualization));
+
             return ResponseEntity.created(new URI("/api/utm-visualizations/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString())).body(result);
         } catch (DataIntegrityViolationException e) {
@@ -176,21 +185,27 @@ public class UtmVisualizationResource {
      * couldn't be updated
      */
     @PutMapping("/utm-visualizations")
-    public ResponseEntity<UtmVisualization> updateUtmVisualization(@Valid @RequestBody UtmVisualization utmVisualization) {
+    public ResponseEntity<UtmVisualization> updateUtmVisualization(@Valid @RequestBody UtmVisualizationDto utmVisualization) {
         final String ctx = CLASSNAME + ".updateUtmVisualization";
         if (utmVisualization.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         UtmVisualization result = null;
         try {
-            RequestDsl requestQuery = new RequestDsl(utmVisualization);
-            utmVisualization.setQuery(requestQuery.getSearchSourceBuilder().toString());
+            if (utmVisualization.getQueryLanguage() == QueryLanguageEnum.DSL) {
+                RequestDsl requestQuery = new RequestDsl(utmVisualizationMapper.toEntity(utmVisualization));
+                utmVisualization.setQuery(requestQuery.getSearchSourceBuilder().toString());
+            } else {
+                if (utmVisualization.getSqlQuery() == null || utmVisualization.getSqlQuery().isBlank()) {
+                    throw new BadRequestAlertException("SQL visualization requires a sqlQuery", ENTITY_NAME, "sqlmissing");
+                }
+            }
 
             SecurityUtils.getCurrentUserLogin().ifPresent(utmVisualization::setUserModified);
             utmVisualization.setModifiedDate(Instant.now());
             utmVisualization.setSystemOwner(utmVisualization.getSystemOwner() == null ? utmVisualization.getId() < 1000000 : utmVisualization.getSystemOwner());
 
-            result = visualizationService.save(utmVisualization);
+            result = visualizationService.save(utmVisualizationMapper.toEntity(utmVisualization));
             return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, utmVisualization.getId().toString())).body(result);
         } catch (DataIntegrityViolationException e) {
             String msg = ctx + ": " + e.getMostSpecificCause().getMessage().replaceAll("\n", "");
@@ -281,26 +296,34 @@ public class UtmVisualizationResource {
     }
 
     @PostMapping("/utm-visualizations/run")
-    public ResponseEntity<List<?>> run(@RequestBody UtmVisualization visualization,
+    public ResponseEntity<List<?>> run(@RequestBody @Valid UtmVisualizationDto visualization,
                                        @RequestParam(value = "page", required = false) Integer page,
                                        @RequestParam(value = "size", required = false) Integer size,
                                        @RequestParam(defaultValue = "200") int top) throws UtmChartBuilderException {
         final String ctx = CLASSNAME + ".run";
         try {
             Assert.notNull(visualization, "Param utmVisualization must not be null");
+            ResponseParser<?> responseParser = responseParserFactory.instance(visualization.getChartType());
+            UtmVisualization utmVisualization = utmVisualizationMapper.toEntity(visualization);
+
+            if (visualization.getQueryLanguage() == QueryLanguageEnum.SQL && Objects.nonNull(visualization.getSqlQuery()) && !visualization.getSqlQuery().trim().isEmpty()) {
+                String query = sqlQueryFilterService.applyFilters(visualization.getSqlQuery(), visualization.getFilterType());
+                SearchSqlResponse<Map> response = elasticsearchService.searchBySql(new SqlQueryRequest(query, null), Map.class);
+                return ResponseEntity.ok().body(responseParser.parse(utmVisualization, response));
+            }
 
             if (!elasticsearchService.indexExist(visualization.getPattern().getPattern()))
                 return ResponseEntity.ok(Collections.emptyList());
 
-            RequestDsl requestQuery = new RequestDsl(visualization);
+            RequestDsl requestQuery = new RequestDsl(utmVisualization);
             SearchResponse<ObjectNode> result;
             if(Objects.nonNull(page) && Objects.nonNull(size)){
                  result = elasticsearchService.search(requestQuery.getSearchSourceBuilder( PageRequest.of(page, size), top).build(), ObjectNode.class);
             } else {
                  result = elasticsearchService.search(requestQuery.getSearchSourceBuilder().build(), ObjectNode.class);
             }
-            ResponseParser<?> responseParser = responseParserFactory.instance(visualization.getChartType());
-            return ResponseEntity.ok().body(responseParser.parse(visualization, result));
+
+            return ResponseEntity.ok().body(responseParser.parse(utmVisualization, result));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);

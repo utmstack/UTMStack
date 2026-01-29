@@ -8,6 +8,7 @@ import com.park.utmstack.domain.chart_builder.types.aggregation.Bucket;
 import com.park.utmstack.util.MapUtil;
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.ResponseParser;
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.impl.table_chart.TableChartResult;
+import com.utmstack.opensearch_connector.types.SearchSqlResponse;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -81,6 +82,46 @@ public class ResponseParserForListChart implements ResponseParser<TableChartResu
             }
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
+        }
+    }
+
+    @Override
+    public List<TableChartResult> parse(UtmVisualization visualization, SearchSqlResponse<Map> result) {
+        final String ctx = CLASSNAME + ".parse(SQL)";
+        try {
+            if (result == null || result.getData() == null || result.getData().isEmpty()) {
+                return Collections.singletonList(retValue);
+            }
+
+            List<Map<String, Object>> rows =
+                    (List<Map<String, Object>>) (List<?>) result.getData();
+
+            Map<String, Object> firstRow = rows.get(0);
+            List<String> columns = new ArrayList<>(firstRow.keySet());
+
+            for (String col : columns) {
+                retValue.addColumn(col);
+            }
+
+            for (Map<String, Object> row : rows) {
+                List<TableChartResult.Cell<?>> cells = new ArrayList<>();
+
+                for (String column : columns) {
+                    Object rawValue = row.get(column);
+
+                    TableChartResult.Cell<String> cell = new TableChartResult.Cell<>();
+                    cell.setValue(rawValue != null ? rawValue.toString() : null);
+
+                    cells.add(cell);
+                }
+
+                retValue.addRow(cells);
+            }
+
+            return Collections.singletonList(retValue);
+
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage(), e);
         }
     }
 }

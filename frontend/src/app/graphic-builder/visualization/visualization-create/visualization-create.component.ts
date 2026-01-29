@@ -20,7 +20,6 @@ export class VisualizationCreateComponent implements OnInit {
   chartSelected: ChartType;
   chartSearch: string;
   creating = false;
-  pattern: UtmIndexPattern;
 
   constructor(public activeModal: NgbActiveModal,
               private router: Router) {
@@ -48,8 +47,6 @@ export class VisualizationCreateComponent implements OnInit {
   createVisualization() {
     this.creating = true;
     const queryParams = {};
-    queryParams[VisualizationQueryParamsEnum.PATTERN_NAME] = this.pattern.pattern;
-    queryParams[VisualizationQueryParamsEnum.PATTERN_ID] = this.pattern.id;
     queryParams[VisualizationQueryParamsEnum.CHART] = this.chartSelected.type;
     queryParams[VisualizationQueryParamsEnum.CALLBACK] = this.callback;
     const route = this.chartSelected.type === ChartTypeEnum.TEXT_CHART ?
