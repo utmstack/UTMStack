@@ -10,7 +10,7 @@ require (
 	github.com/kardianos/service v1.2.4
 	github.com/netsampler/goflow2 v1.3.7
 	github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068
-	github.com/threatwinds/go-sdk v1.1.7
+	github.com/threatwinds/go-sdk v1.1.9
 	github.com/threatwinds/logger v1.2.3
 	golang.org/x/sys v0.40.0
 	google.golang.org/grpc v1.78.0
