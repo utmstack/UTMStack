@@ -218,7 +218,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"INTERNAL_KEY=" + conf.InternalKey,
 			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"GRPC_AGENT_MANAGER_HOST=agentmanager",
-			"GRPC_AGENT_MANAGER_PORT=50051",
+			"GRPC_AGENT_MANAGER_PORT=9000",
 			"EVENT_PROCESSOR_HOST=event-processor-manager",
 			"EVENT_PROCESSOR_PORT=9002",
 		},
