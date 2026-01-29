@@ -16,7 +16,6 @@ import com.park.utmstack.domain.network_scan.AssetGroupFilter;
 import com.park.utmstack.domain.network_scan.UtmAssetGroup;
 import com.park.utmstack.grpc.client.CollectorServiceClient;
 import com.park.utmstack.grpc.client.PanelCollectorServiceClient;
-import com.park.utmstack.grpc.connection.GrpcConnection;
 import com.park.utmstack.repository.UtmModuleGroupConfigurationRepository;
 import com.park.utmstack.repository.UtmModuleGroupRepository;
 import com.park.utmstack.repository.application_modules.UtmModuleRepository;
@@ -26,7 +25,7 @@ import com.park.utmstack.service.application_modules.UtmModuleService;
 import com.park.utmstack.service.dto.application_modules.ModuleActivationDTO;
 import com.park.utmstack.service.dto.collectors.CollectorHostnames;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
-import com.park.utmstack.service.dto.collectors.dto.CollectorConfigKeysDTO;
+import com.park.utmstack.service.dto.collectors.dto.CollectorConfigDTO;
 import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
 import com.park.utmstack.service.dto.network_scan.AssetGroupDTO;
@@ -458,7 +457,7 @@ public class CollectorOpsService {
     }
 
 
-    public String validateCollectorConfig(CollectorConfigKeysDTO collectorConfig) {
+    public String validateCollectorConfig(CollectorConfigDTO collectorConfig) {
         Errors errors = new BeanPropertyBindingResult(collectorConfig, "updateConfigurationKeysBody");
         collectorValidatorService.validate(collectorConfig, errors);
 
@@ -473,7 +472,7 @@ public class CollectorOpsService {
     }
 
     public void updateCollectorConfigViaGrpc(
-            CollectorConfigKeysDTO collectorConfig,
+            CollectorConfigDTO collectorConfig,
             CollectorDTO collectorDTO) throws CollectorConfigurationGrpcException {
 
         this.upsertCollectorConfig(
@@ -481,7 +480,7 @@ public class CollectorOpsService {
                         this.mapPasswordConfiguration(collectorConfig.getKeys()), collectorDTO));
     }
 
-    public void updateCollectorConfigurationKeys(CollectorConfigKeysDTO collectorConfig) throws Exception {
+    public void updateCollectorConfigurationKeys(CollectorConfigDTO collectorConfig) throws Exception {
         final String ctx = CLASSNAME + ".updateCollectorConfigurationKeys";
         try {
             List<UtmModuleGroup> configs = utmModuleGroupRepository
