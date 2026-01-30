@@ -2,7 +2,7 @@ import {HttpResponse} from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as moment from 'moment';
-import {LOG_ANALYZER_TOTAL_ITEMS} from '../../../shared/constants/log-analyzer.constant';
+import {MAX_SEARCH_RESULTS} from "../../../shared/constants/global.constant";
 import {SortEvent} from '../../../shared/directives/sortable/type/sort-event';
 import {DataNatureTypeEnum} from '../../../shared/enums/nature-data.enum';
 import {ElasticDataExportService} from '../../../shared/services/elasticsearch/elastic-data-export.service';
@@ -78,7 +78,7 @@ export class AlertReportViewComponent implements OnInit {
       columns: this.report.columns,
       dataOrigin: DataNatureTypeEnum.ALERT,
       filters: this.report.filters,
-      top: LOG_ANALYZER_TOTAL_ITEMS
+      top: MAX_SEARCH_RESULTS
     };
     this.elasticDataExportService.exportCsv(params, 'UTM ALERTS').then(() => {
       this.generateReport = false;

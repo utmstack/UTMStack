@@ -1,1 +1,0 @@
-export const LOG_ANALYZER_TOTAL_ITEMS = 10000;
