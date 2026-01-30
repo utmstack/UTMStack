@@ -96,25 +96,18 @@ public class UtmCollectorResource {
                                                                             @RequestParam(required = false) Integer pageSize,
                                                                             @RequestParam(required = false) CollectorModuleEnum module,
                                                                             @RequestParam(required = false) String sortBy) {
-        final String ctx = CLASSNAME + ".listCollectorsByModule";
-        try {
-            ListRequest request = ListRequest.newBuilder()
-                    .setPageNumber(pageNumber != null ? pageNumber : 0)
-                    .setPageSize(pageSize != null ? pageSize : 1000000)
-                    .setSearchQuery(module != null ? "module.Is=" + module.name() : "")
-                    .setSortBy(sortBy != null ? sortBy : "")
-                    .build();
 
-            ListCollectorsResponseDTO response = collectorOpsService.listCollector(request);
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("X-Total-Count", Long.toString(response.getTotal()));
-            return ResponseEntity.ok().headers(headers).body(response);
-        } catch (BadRequestAlertException e) {
-            String msg = ctx + ": " + e.getLocalizedMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
-        }
+        ListRequest request = ListRequest.newBuilder()
+                .setPageNumber(pageNumber != null ? pageNumber : 0)
+                .setPageSize(pageSize != null ? pageSize : 1000000)
+                .setSearchQuery(module != null ? "module.Is=" + module.name() : "")
+                .setSortBy(sortBy != null ? sortBy : "")
+                .build();
+
+        ListCollectorsResponseDTO response = collectorService.listCollector(request);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Total-Count", Long.toString(response.getTotal()));
+        return ResponseEntity.ok().headers(headers).body(response);
     }
 
     /**
@@ -132,26 +125,16 @@ public class UtmCollectorResource {
                                                                      @RequestParam(required = false) Integer pageSize,
                                                                      @RequestParam(required = false) CollectorModuleEnum module,
                                                                      @RequestParam(required = false) String sortBy) {
-        final String ctx = CLASSNAME + ".listCollectorHostNames";
-        try {
-            ListRequest request = ListRequest.newBuilder()
-                    .setPageNumber(pageNumber != null ? pageNumber : 0)
-                    .setPageSize(pageSize != null ? pageSize : 1000000)
-                    .setSearchQuery(module != null ? "module.Is=" + module : "")
-                    .setSortBy(sortBy != null ? sortBy : "")
-                    .build();
-            return ResponseEntity.ok().body(collectorOpsService.listCollectorHostnames(request));
-        } catch (BadRequestAlertException e) {
-            String msg = ctx + ": " + e.getLocalizedMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
-        } catch (CollectorServiceGrpcException e) {
-            String msg = ctx + ": UtmCollector manager is not available or the parameters are wrong, please check." + e.getLocalizedMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_GATEWAY, msg);
-        }
+
+        ListRequest request = ListRequest.newBuilder()
+                .setPageNumber(pageNumber != null ? pageNumber : 0)
+                .setPageSize(pageSize != null ? pageSize : 1000000)
+                .setSearchQuery(module != null ? "module.Is=" + module : "")
+                .setSortBy(sortBy != null ? sortBy : "")
+                .build();
+
+        return ResponseEntity.ok().body(collectorService.listCollectorHostnames(request));
+
     }
 
     /**
@@ -165,16 +148,8 @@ public class UtmCollectorResource {
     @GetMapping("/collector-by-hostname-and-module")
     public ResponseEntity<ListCollectorsResponseDTO> listCollectorByHostNameAndModule(@RequestParam String hostname,
                                                                                       @RequestParam CollectorModuleEnum module) {
-        final String ctx = CLASSNAME + ".listCollectorByHostNameAndModule";
-        try {
-            return ResponseEntity.ok().body(collectorOpsService.listCollector(
-                    collectorOpsService.getListRequestByHostnameAndModule(hostname, module)));
-        } catch (BadRequestAlertException e) {
-            String msg = ctx + ": " + e.getLocalizedMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
-        }
+
+        return ResponseEntity.ok().body(collectorService.listCollector(hostname, module));
     }
 
     @GetMapping("/groups-by-collectors/{collectorId}")
@@ -191,7 +166,7 @@ public class UtmCollectorResource {
         }
     }
 
-    @PutMapping("/updateGroup")
+    /*@PutMapping("/updateGroup")
     public ResponseEntity<Void> updateGroup(@Valid @RequestBody UtmNetworkScanResource.UpdateGroupRequestBody body) {
         final String ctx = CLASSNAME + ".updateGroup";
         try {
@@ -204,7 +179,7 @@ public class UtmCollectorResource {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
                     HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
-    }
+    }*/
 
     @GetMapping("/searchGroupsByFilter")
     public ResponseEntity<List<AssetGroupDTO>> searchGroupsByFilter(AssetGroupFilter filter, Pageable pageable) {
