@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/pubsub v1.50.1
 	github.com/google/uuid v1.6.0
 	github.com/threatwinds/go-sdk v1.1.9
-	google.golang.org/api v0.263.0
+	google.golang.org/api v0.264.0
 	google.golang.org/grpc v1.78.0
 	google.golang.org/protobuf v1.36.11
 )
