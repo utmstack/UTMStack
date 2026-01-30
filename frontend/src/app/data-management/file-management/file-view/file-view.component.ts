@@ -31,6 +31,7 @@ import {
 import {AccessMaskEnum} from '../shared/enum/access-mask.enum';
 import {FileFieldEnum} from '../shared/enum/file-field.enum';
 import {FileQueryParamEnum} from '../shared/enum/file-query-param.enum';
+import {MAX_SEARCH_RESULTS} from "../../../shared/constants/global.constant";
 
 @Component({
   selector: 'app-file-view',
@@ -150,7 +151,7 @@ export class FileViewComponent implements OnInit {
 
   getFiles(calledFrom?: string) {
     this.elasticDataService.search(this.page, this.itemsPerPage,
-      100000000, LOG_INDEX_WINLOGBEAT,
+      MAX_SEARCH_RESULTS, LOG_INDEX_WINLOGBEAT,
       sanitizeFilters(this.filters), this.sortBy).subscribe(
       (res: HttpResponse<any>) => {
         this.totalItems = Number(res.headers.get('X-Total-Count'));
