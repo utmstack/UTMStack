@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/kardianos/service v1.2.4
-	github.com/threatwinds/go-sdk v1.1.7
+	github.com/threatwinds/go-sdk v1.1.9
 	github.com/threatwinds/logger v1.2.3
 	gopkg.in/yaml.v3 v3.0.1
 )
