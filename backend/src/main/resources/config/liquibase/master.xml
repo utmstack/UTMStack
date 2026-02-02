@@ -327,7 +327,9 @@
 
     <include file="/config/liquibase/changelog/20260129001_update_filter_sophos_xg.xml" relativeToChangelogFile="false"/>
 
-    <include file="/config/liquibase/changelog/20260129002_update_filter_pfsense.xml" relativeToChangelogFile="false"/>
+    <include file="/config/liquibase/changelog/20260202001_update_linux_auditing_module.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260202002_update_filter_crowdstrike.xml" relativeToChangelogFile="false"/>
 
 
 
