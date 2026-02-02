@@ -329,6 +329,8 @@
 
     <include file="/config/liquibase/changelog/20260202001_update_linux_auditing_module.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260202002_update_filter_crowdstrike.xml" relativeToChangelogFile="false"/>
+
 
 
 </databaseChangeLog>

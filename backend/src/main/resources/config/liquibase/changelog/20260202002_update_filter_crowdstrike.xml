@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260202002" author="Manuel">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='1.1.1',
+                logstash_filter = $$ # Crowdstrike module filter, version 1.1.0
+# Based in docs and samples provided
+#
+# Documentations
+# 1- https://docs.cyderes.cloud/parser-knowledge-base/cs_stream
+
+pipeline:
+  - dataTypes:
+      - crowdstrike
+    steps:
+      - json:
+          source: raw
+
+      # .......................................................................#
+      # Rename to utmstack format to normalize fields
+      # .......................................................................#
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.APIClientID
+          to: log.eventAttributesAPIClientID
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.actor_cid
+          to: log.eventAttributesActorCid
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.actor_user
+          to: log.eventAttributesActorUser
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.actor_user_uuid
+          to: log.eventAttributesActorUserUUID
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.name
+          to: log.eventAttributesName
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.trace_id
+          to: log.eventAttributesTraceID
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.cid
+          to: log.eventAttributesCid
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.consumes
+          to: log.eventAttributesConsumes
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.elapsed_microseconds
+          to: log.eventAttributesElapsedMicroseconds
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.elapsed_time
+          to: log.eventAttributesElapsedTime
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.produces
+          to: log.eventAttributesProduces
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.received_time
+          to: log.eventAttributesReceivedTime
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.request_content_type
+          to: log.eventAttributesRequestContentType
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.request_method
+          to: log.eventAttributesRequestMethod
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.request_uri_length
+          to: log.eventAttributesRequestURILength
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.status_code
+          to: log.statusCode
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.sub_component_1
+          to: log.eventAttributesSubComponent1
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.sub_component_2
+          to: log.eventAttributesSubComponent2
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.sub_component_3
+          to: log.eventAttributesSubComponent3
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.trace_id
+          to: log.eventAttributesTraceID
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.user_agent
+          to: log.eventAttributesUserAgent
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.eventType
+          to: log.eventAttributesEventType
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.offset
+          to: log.eventAttributesOffset
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.partition
+          to: log.eventAttributesPartition
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.request_accept
+          to: log.eventAttributesRequestAccept
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.request_path
+          to: log.eventAttributesRequestPath
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.request_query
+          to: log.eventAttributesRequestQuery
+
+      - rename:
+          from:
+            - log.RawMessage.event.Attributes.scopes
+          to: log.eventAttributesScopes
+
+      - rename:
+          from:
+            - log.RawMessage.event.AuditKeyValues
+          to: log.eventAuditKeyValues
+
+      - rename:
+          from:
+            - log.RawMessage.event.Message
+          to: log.eventMessage
+
+      - rename:
+          from:
+            - log.RawMessage.event.OperationName
+          to: log.eventOperationName
+
+      - rename:
+          from:
+            - log.RawMessage.event.ServiceName
+          to: log.eventServiceName
+
+      - rename:
+          from:
+            - log.RawMessage.event.Source
+          to: log.eventSource
+
+      - rename:
+          from:
+            - log.RawMessage.event.ServiceName
+          to: log.eventServiceName
+
+      - rename:
+          from:
+            - log.RawMessage.event.SourceIp
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.RawMessage.event.Success
+          to: log.eventSuccess
+
+      - rename:
+          from:
+            - log.RawMessage.event.UTCTimestamp
+          to: log.eventUTCTimestamp
+
+      - rename:
+          from:
+            - log.RawMessage.event.UserId
+          to: log.eventUserId
+
+      - rename:
+          from:
+            - log.RawMessage.metadata.customerIDString
+          to: log.metadataCustomerIDString
+
+      - rename:
+          from:
+            - log.RawMessage.metadata.eventCreationTime
+          to: log.metadataEventCreationTime
+
+      - rename:
+          from:
+            - log.RawMessage.metadata.eventType
+          to: log.metadataEventType
+
+      - rename:
+          from:
+            - log.RawMessage.metadata.offset
+          to: log.metadataOffset
+
+      - rename:
+          from:
+            - log.RawMessage.metadata.version
+          to: log.metadataVersion
+
+      # .......................................................................#
+      # Reformat and field conversions
+      # .......................................................................#
+      - cast:
+          fields:
+            - log.statusCode
+          to: float
+
+      # .......................................................................#
+      # Renaming "log.statusCode" to "statusCode" to add it to the event structure
+      # .......................................................................#
+      - rename:
+          from:
+            - log.statusCode
+          to: statusCode
+
+      # .......................................................................#
+      # Adding geolocation to origin ip
+      # .......................................................................#
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+
+      # .......................................................................#
+      # Normalizing request method and renaming to action
+      # .......................................................................#
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'get'
+          where: safe("log.eventAttributesRequestMethod", "") == "GET"
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'post'
+          where: safe("log.eventAttributesRequestMethod", "") == "POST"
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'put'
+          where: safe("log.eventAttributesRequestMethod", "") == "PUT"
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'delete'
+          where: safe("log.eventAttributesRequestMethod", "") == "DELETE"
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'request'
+          where: safe("log.eventAttributesRequestMethod", "") == "REQUEST"
+
+      # .......................................................................#
+      # Removing unused fields
+      # .......................................................................#
+      - delete:
+          fields:
+            - log.statusCode
+            - log.RawMessage.event.Attributes
+            - log.RawMessage.event.UserIp
+            - log.metadata
+            - log.event.AuditKeyValues
+            - log.event.OperationName
+            - log.event.ServiceName
+            - log.event.Success
+            - log.event.UTCTimestamp
+            - log.event.UserId
+            - log.event.UserIp
+$$
+	WHERE id=1532;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>
