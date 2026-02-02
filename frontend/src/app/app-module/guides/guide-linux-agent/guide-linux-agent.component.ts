@@ -78,23 +78,23 @@ export class GuideLinuxAgentComponent implements OnInit {
   private loadArchitectures() {
     this.architectures = [
       {
-        id: 1, name: 'Ubuntu 16/18/20+',
+        id: 1, name: 'Ubuntu / Debian',
         install: this.getCommandUbuntu('utmstack_agent_service'),
         uninstall: this.getUninstallCommand('utmstack_agent_service'),
         shell: ''
       },
       {
-        id: 2, name: 'Centos 7/Red Hat Enterprise Linux',
+        id: 2, name: 'Fedora / RedHat',
         install: this.getCommandCentos7RedHat('utmstack_agent_service'),
         uninstall: this.getUninstallCommand('utmstack_agent_service'),
         shell: ''
-      },
+      }/*,
       {
         id: 3, name: 'Centos 8/AlmaLinux',
         install: this.getCommandCentos8Almalinux('utmstack_agent_service'),
         uninstall: this.getUninstallCommand('utmstack_agent_service'),
         shell: ''
-      }
+      }*/
     ];
   }
 }
