@@ -4,21 +4,19 @@
 </h1>
 
 <p align="center">
-<a href="https://github.com/utmstack/UTMStack/graphs/contributors"><img src="https://img.shields.io/github/contributors-anon/utmstack/utmstack">
-<a href="https://github.com/utmstack/UTMStack/releases/"><img src="https://img.shields.io/github/release/utmstack/utmstack">
-<a href="https://github.com/utmstack/UTMStack/issues"><img src="https://img.shields.io/github/issues-raw/utmstack/utmstack">
-<a href="https://github.com/utmstack/UTMStack/commits/main"><img src="https://img.shields.io/github/commit-activity/m/utmstack/utmstack">
-<a href="https://github.com/utmstack/UTMStack/blob/master/LICENSE"><img src="https://img.shields.io/github/license/ad-aures/castopod?color=blue">
-<a href="https://discord.gg/ZznvZ8xcHh"><img src="https://img.shields.io/discord/1154016563775672400.svg?logo=discord">
+<a href="https://github.com/utmstack/UTMStack/graphs/contributors"><img src="https://img.shields.io/github/contributors-anon/utmstack/utmstack" alt=""></a>
+<a href="https://github.com/utmstack/UTMStack/releases/"><img src="https://img.shields.io/github/release/utmstack/utmstack" alt=""></a>
+<a href="https://github.com/utmstack/UTMStack/issues"><img src="https://img.shields.io/github/issues-raw/utmstack/utmstack" alt=""></a>
+<a href="https://github.com/utmstack/UTMStack/commits/main"><img src="https://img.shields.io/github/commit-activity/m/utmstack/utmstack" alt=""></a>
+<a href="https://github.com/utmstack/UTMStack/blob/master/LICENSE"><img src="https://img.shields.io/github/license/ad-aures/castopod?color=blue" alt=""></a>
+<a href="https://discord.gg/ZznvZ8xcHh"><img src="https://img.shields.io/discord/1154016563775672400.svg?logo=discord" alt=""></a>
 </p>
 
 <h4 align="center">Enterprise-ready SIEM and XDR powered by Real-Time correlation and Threat Intelligence</h4>
 
 ## Introduction
 
-Welcome to the UTMStack open-source project! UTMStack is a unified threat management platform that merges SIEM (Security Information and Event Management) and XDR (Extended Detection and Response) technologies. Our unique approach allows real-time correlation of log data, threat intelligence, and malware activity patterns from multiple sources, enabling the identification and halting of complex threats that use stealthy techniques. Visit an [online demo here.](https://utmstack.com/demo)  
-
-We have a [dedicated repository](https://github.com/utmstack/rules)  for correlation rules, contributors are welcome to submit a pull request. 
+Welcome to the UTMStack open-source project! UTMStack is a unified threat management platform that merges SIEM (Security Information and Event Management) and XDR (Extended Detection and Response) technologies. Our unique approach allows real-time correlation of log data, threat intelligence, and malware activity patterns from multiple sources, enabling the identification and halting of complex threats that use stealthy techniques. Visit an [online demo here.](https://utmstack.com/demo)
 
 <h1 align="center">
 <a href="https://utmstack.com"><img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-two.gif" width="400px" alt="UTMStack"></a>   <a href="https://utmstack.com"><img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-one.gif" width="372px" alt="UTMStack"></a> </h1>
@@ -80,7 +78,7 @@ Definitions:
 - Cold log storage: archived data that should be restored before accessing it.
 - Data source: any individual source of logs, for example, devices, agents, SaaS integrations.
 
-Resources needed for one month of hot log storage.
+Required resources for one month of hot log storage.
 - For 50 data sources (120 GB) of hot log storage you will need 4 Cores, 16 GB RAM, 150 GB Disk Space
 - For 120 data sources (250 GB) of hot log storage you will need 8 Cores, 16 GB RAM, 250 GB Disk Space
 - For 240 data sources (500 GB) of hot log storage you will need 16 Cores, 32 GB RAM, 500 GB Disk Space
@@ -109,16 +107,16 @@ Once UTMStack is installed, use admin as the user and the password generated dur
 Note: Use HTTPS in front of your server name or IP to access the login page.
 
 ### Required ports
-- 22/TCP Secure Shell (We recommend to create a firewall rule to allow it only from admin workstation)
-- 80/TCP UTMStack Web-based Graphical User Interface Redirector (We recommend to create a firewall rule to allow it only from admin and security analyst workstations)
-- 443/TCP UTMStack Web-based Graphical User Interface (We recommend to create a firewall rule to allow it only from admin and security analyst workstations)
-- 9090/TCP Cockpit Web-based Graphical Interface for Servers (We recommend to create a firewall rule to allow it only from admin workstation)
-- Others ports will be required during the configuration of UTMStack's integrations in order to receive logs. (Please follow the security recommendations given on the integration guide if exists)
+- 22/TCP Secure Shell (We recommend creating a firewall rule to allow it only from admins workstations)
+- 80/TCP UTMStack Web-based Graphical User Interface Redirector (We recommend creating a firewall rule to allow it only from admin and security analyst workstations)
+- 443/TCP UTMStack Web-based Graphical User Interface (We recommend creating a firewall rule to allow it only from admin and security analyst workstations)
+- 9090/TCP Cockpit Web-based Graphical Interface for Servers (We recommend creating a firewall rule to allow it only from admin workstation)
+- Others ports will be required during the configuration of UTMStack's integrations to receive logs. (Please follow the security recommendations given on the integration guide if exists)
 
 # FAQ
 - Is this based on Grafana, Kibana, or a similar reporting tool?
   Answer: It is not. UTMStack has been built from the ground up to be a simple and intuitive SIEM/XDR.
 - Does UTMStack use ELK for log correlation?
   Answer: It does not. UTMStack correlation engine was built from scratch to analyze data before ingestion and maximize real-time correlation.
-- What is the difference between the Open Source and Enterprise version?
+- What is the difference between the Open Source and Enterprise versions?
   The enterprise version includes features that would typically benefit enterprises and MSPs. For example, support, faster correlation, frequent threat intelligence updates, and Artificial Intelligence.
