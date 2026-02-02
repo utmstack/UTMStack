@@ -8,7 +8,6 @@ import {NgxSpinnerService} from 'ngx-spinner';
 import {LocalStorageService} from 'ngx-webstorage';
 import {Observable, Subject} from 'rxjs';
 import {filter, takeUntil, tap} from 'rxjs/operators';
-import {TimelineItem} from 'src/app/shared/types/utm-timeline-item';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {
   ElasticFilterDefaultTime
@@ -30,7 +29,7 @@ import {
   ALERT_ECHOES_FIELD
 } from '../../../shared/constants/alert/alert-field.constant';
 import {AUTOMATIC_REVIEW, IGNORED} from '../../../shared/constants/alert/alert-status.constant';
-import {ADMIN_ROLE} from '../../../shared/constants/global.constant';
+import {ADMIN_ROLE, MAX_SEARCH_RESULTS} from '../../../shared/constants/global.constant';
 import {MAIN_INDEX_PATTERN} from '../../../shared/constants/main-index-pattern.constant';
 import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
 import {SortDirection} from '../../../shared/directives/sortable/type/sort-direction.type';
@@ -340,7 +339,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
 
   getAlert(calledFrom?: string, filtersParam?: ElasticFilterType[]) {
     this.elasticDataService.search(this.page, this.itemsPerPage,
-      100000000, this.dataNature,
+      MAX_SEARCH_RESULTS, this.dataNature,
       sanitizeFilters(this.filters), this.sortBy, true).subscribe(
       (res: HttpResponse<any>) => {
         this.totalItems = Number(res.headers.get('X-Total-Count'));

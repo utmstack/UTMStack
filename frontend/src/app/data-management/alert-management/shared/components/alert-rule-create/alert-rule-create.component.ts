@@ -54,6 +54,7 @@ import {AlertRulesService} from '../../services/alert-rules.service';
 import {AlertTagService} from '../../services/alert-tag.service';
 import {setAlertPropertyValue} from '../../util/alert-util-function';
 import {AlertActionRefreshService} from "../../services/alert-action-refresh.service";
+import {MAX_SEARCH_RESULTS} from "../../../../../shared/constants/global.constant";
 
 @Component({
   selector: 'app-alert-rule-create',
@@ -415,7 +416,7 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
     this.elasticDataService.search(
       this.alertRequest.page,
       this.alertRequest.size,
-      100000000,
+      MAX_SEARCH_RESULTS,
       this.alertRequest.dataNature,
       sanitizeFilters(this.alertRequest.filters),
       this.alertRequest.sort).subscribe(

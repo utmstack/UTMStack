@@ -5,3 +5,5 @@ export const DEMO_URL = 'https://demo.utmstack.com/';
 export const LOG_SOURCE_DASHBOARD_NAME = 'Log source system';
 export const SAAS_DEFAULT_PASSWORD = 'DefaultPa$$word!';
 export const ONLINE_DOCUMENTATION_BASE = 'https://docs.utmstack.com/UTMStackDocumentationSite/';
+export const MAX_SEARCH_RESULTS = 10000;
+

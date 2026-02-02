@@ -6,7 +6,6 @@ import {AccountService} from '../../../core/auth/account.service';
 import {User} from '../../../core/user/user.model';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {ModalConfirmationComponent} from '../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
-import {LOG_ANALYZER_TOTAL_ITEMS} from '../../../shared/constants/log-analyzer.constant';
 import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
 import {SortEvent} from '../../../shared/directives/sortable/type/sort-event';
 import {DataNatureTypeEnum} from '../../../shared/enums/nature-data.enum';
@@ -17,6 +16,7 @@ import {SortByType} from '../../../shared/types/sort-by.type';
 import {AlertTagService} from '../shared/services/alert-tag.service';
 import {AlertReportFilterComponent} from './shared/components/alert-report-filter/alert-report-filter.component';
 import {AlertReportService} from './shared/services/report.service';
+import {MAX_SEARCH_RESULTS} from "../../../shared/constants/global.constant";
 
 @Component({
   selector: 'app-alert-saved-reports',
@@ -128,7 +128,7 @@ export class AlertReportsComponent implements OnInit {
       columns: report.columns,
       dataOrigin: DataNatureTypeEnum.ALERT,
       filters: report.filters,
-      top: LOG_ANALYZER_TOTAL_ITEMS
+      top: MAX_SEARCH_RESULTS
     };
     this.elasticDataExportService.exportCsv(params, 'UTM ALERTS').then(() => {
       this.generateReport = false;

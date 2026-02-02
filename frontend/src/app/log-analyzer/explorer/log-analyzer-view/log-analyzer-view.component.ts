@@ -7,10 +7,9 @@ import * as moment from 'moment';
 import {Observable, Subject} from 'rxjs';
 import {filter, takeUntil} from 'rxjs/operators';
 
-import {ADMIN_ROLE} from '../../../shared/constants/global.constant';
+import {ADMIN_ROLE, MAX_SEARCH_RESULTS} from '../../../shared/constants/global.constant';
 import {ALERT_INDEX_PATTERN, LOG_INDEX_PATTERN} from '../../../shared/constants/main-index-pattern.constant';
 import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
-import {LOG_ANALYZER_TOTAL_ITEMS} from '../../../shared/constants/log-analyzer.constant';
 
 import {ElasticDataTypesEnum} from '../../../shared/enums/elastic-data-types.enum';
 import {ElasticOperatorsEnum} from '../../../shared/enums/elastic-operators.enum';
@@ -38,7 +37,6 @@ import {IndexFieldController} from '../../shared/behaviors/index-field-controlle
 import {IndexPatternBehavior} from '../../shared/behaviors/index-pattern.behavior';
 import {LogFilterBehavior} from '../../shared/behaviors/log-filter.behavior';
 import {QueryRunBehavior} from '../../shared/behaviors/query-run.behavior';
-import {TabService} from '../../shared/services/tab.service';
 import {LogAnalyzerQueryType} from '../../shared/type/log-analyzer-query.type';
 
 @Component({
@@ -54,7 +52,7 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   rows: any[] = [];
   page = 1;
   itemsPerPage = ITEMS_PER_PAGE;
-  totalItems = LOG_ANALYZER_TOTAL_ITEMS;
+  totalItems = MAX_SEARCH_RESULTS;
   view: 'table' | 'chart' = 'table';
   filters: ElasticFilterType[] = [{
     field: '@timestamp',
@@ -254,7 +252,7 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
       this.logAnalyzerService.search(
         this.page,
         this.itemsPerPage,
-        LOG_ANALYZER_TOTAL_ITEMS,
+        MAX_SEARCH_RESULTS,
         this.pattern.pattern,
         this.filters,
         this.sortBy).subscribe(
@@ -380,7 +378,7 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
       columns: this.fields,
       indexPattern: this.pattern.pattern,
       filters: this.filters,
-      top: LOG_ANALYZER_TOTAL_ITEMS
+      top: MAX_SEARCH_RESULTS
     };
     this.elasticDataExportService.exportCsv(params, 'UTM LOG EXPLORER').then(() => {
       this.csvExport = false;
