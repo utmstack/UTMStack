@@ -24,35 +24,22 @@ type IncidentDetail struct {
 }
 
 type AlertFields struct {
-	Timestamp         string           `json:"@timestamp"`
-	ID                string           `json:"id"`
-	ParentID          *string          `json:"parentId,omitempty"`
-	Status            int              `json:"status"`
-	StatusLabel       string           `json:"statusLabel"`
-	StatusObservation string           `json:"statusObservation"`
-	IsIncident        bool             `json:"isIncident"`
-	IncidentDetail    IncidentDetail   `json:"incidentDetail"`
-	Name              string           `json:"name"`
-	Category          string           `json:"category"`
-	Severity          int              `json:"severity"`
-	SeverityLabel     string           `json:"severityLabel"`
-	Description       string           `json:"description"`
-	Solution          string           `json:"solution"`
-	Technique         string           `json:"technique"`
-	Reference         []string         `json:"reference"`
-	DataType          string           `json:"dataType"`
-	Impact            *plugins.Impact  `json:"impact"`
-	ImpactScore       uint32           `json:"impactScore"`
-	DataSource        string           `json:"dataSource"`
-	Adversary         *plugins.Side    `json:"adversary"`
-	Target            *plugins.Side    `json:"target"`
-	Events            []*plugins.Event `json:"events"`
-	LastEvent         *plugins.Event   `json:"lastEvent"`
-	Tags              []string         `json:"tags"`
-	Notes             string           `json:"notes"`
-	TagRulesApplied   []int            `json:"tagRulesApplied"`
-	DeduplicatedBy    []string         `json:"deduplicatedBy"`
-	GroupedBy         []string         `json:"groupedBy"`
+	Status            int            `json:"status"`
+	StatusLabel       string         `json:"statusLabel"`
+	StatusObservation string         `json:"statusObservation"`
+	IsIncident        bool           `json:"isIncident"`
+	IncidentDetail    IncidentDetail `json:"incidentDetail"`
+	Severity          int            `json:"severity"`
+	SeverityLabel     string         `json:"severityLabel"`
+	Solution          string         `json:"solution"`
+	Reference         []string       `json:"reference"`
+	LastEvent         *plugins.Event `json:"lastEvent"`
+	Tags              []string       `json:"tags"`
+	Notes             string         `json:"notes"`
+	TagRulesApplied   []int          `json:"tagRulesApplied"`
+	DeduplicatedBy    []string       `json:"deduplicatedBy"`
+	GroupedBy         []string       `json:"groupedBy"`
+	plugins.Alert
 }
 
 func main() {
@@ -329,22 +316,11 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 	}
 
 	a := AlertFields{
-		Timestamp:     alert.Timestamp,
-		ID:            alert.Id,
-		ParentID:      parentId,
 		Status:        1,
 		StatusLabel:   "Automatic review",
-		Name:          alert.Name,
-		Category:      alert.Category,
 		Severity:      severityN,
 		SeverityLabel: severityLabel,
-		Description:   alert.Description,
-		Technique:     alert.Technique,
 		Reference:     alert.References,
-		DataType:      alert.DataType,
-		DataSource:    alert.DataSource,
-		Adversary:     alert.Adversary,
-		Target:        alert.Target,
 		LastEvent: func() *plugins.Event {
 			l := len(alert.Events)
 			if l == 0 {
@@ -352,12 +328,25 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 			}
 			return alert.Events[l-1]
 		}(),
-		Events:         alert.Events,
-		Impact:         alert.Impact,
-		ImpactScore:    alert.ImpactScore,
 		DeduplicatedBy: alert.DeduplicateBy,
 		GroupedBy:      alert.GroupBy,
 	}
+
+	a.Timestamp = alert.Timestamp
+	a.Id = alert.Id
+	a.ParentId = alert.ParentId
+	a.Name = alert.Name
+	a.Category = alert.Category
+	a.Description = alert.Description
+	a.Technique = alert.Technique
+	a.DataSource = alert.DataSource
+	a.DataType = alert.DataType
+	a.Adversary = alert.Adversary
+	a.Target = alert.Target
+	a.Events = alert.Events
+	a.Impact = alert.Impact
+	a.ImpactScore = alert.ImpactScore
+	a.Errors = alert.Errors
 
 	// Retry logic for indexing operation
 	maxRetries := 3
