@@ -60,7 +60,6 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
     const chartElement = document.querySelector('.chart-container');
     const chartContainerWidth = chartElement ? chartElement.clientWidth : 1000;
 
-    // Si no hay hijos → solo 2 columnas
     const columnCount = hasAnyChildren ? 3 : 2;
     const columnWidth = chartContainerWidth / columnCount;
 
@@ -133,6 +132,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
     ];
     let colorIndex = 0;
 
+    const hasAnyChildren = adversaryAlerts.some( g => g.alerts.some( a => a.children.length > 0 ) );
     const nodeKey = (id: string, name: string) => `${id}::${name}`;
     const truncate = (text: string, max = 30) => text.length > max ? text.slice(0, max) + '…' : text;
     const getNodeSize = (count: number, base = 10, max = 30) => Math.min(base + count * 2, max);
@@ -257,9 +257,6 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
     const totalNodes = nodes.length;
     this.chartHeight = this.baseHeight + totalNodes * this.nodeGap;
 
-    console.log('totalNodes', nodes);
-    console.log('Links', links);
-
     return {
       tooltip: {
         trigger: 'item',
@@ -276,7 +273,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
         `;
         }
       },
-      graphic: this.getGraphicElements(),
+      graphic: this.getGraphicElements(hasAnyChildren),
       series: [{
         type: 'sankey',
         orient: 'horizontal',
