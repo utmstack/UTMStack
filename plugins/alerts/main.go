@@ -24,6 +24,7 @@ type IncidentDetail struct {
 }
 
 type AlertFields struct {
+	Timestamp         string         `json:"@timestamp"`
 	Status            int            `json:"status"`
 	StatusLabel       string         `json:"statusLabel"`
 	StatusObservation string         `json:"statusObservation"`
@@ -316,6 +317,7 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 	}
 
 	a := AlertFields{
+		Timestamp:     alert.Timestamp,
 		Status:        1,
 		StatusLabel:   "Automatic review",
 		Severity:      severityN,
@@ -332,7 +334,6 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 		GroupedBy:      alert.GroupBy,
 	}
 
-	a.Timestamp = alert.Timestamp
 	a.Id = alert.Id
 	a.ParentId = alert.ParentId
 	a.Name = alert.Name
