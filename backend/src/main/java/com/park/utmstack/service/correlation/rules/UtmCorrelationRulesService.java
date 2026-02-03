@@ -125,6 +125,7 @@ public class UtmCorrelationRulesService {
                 .orElseThrow(() -> new RuntimeException(ctx + ": The rule you're trying to activate or deactivate is not present in database."));
         try {
             rule.setRuleActive(setActive);
+            rule.setRuleLastUpdate(Instant.now(Clock.systemUTC()));
             this.utmCorrelationRulesRepository.save(rule);
         } catch (Exception ex) {
             throw new RuntimeException(ctx + ": An error occurred while adding a rule.", ex);
