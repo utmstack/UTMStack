@@ -55,6 +55,7 @@ import {AlertActionRefreshService} from '../shared/services/alert-action-refresh
 import {AlertTagService} from '../shared/services/alert-tag.service';
 import {OPEN_ALERTS_KEY, OpenAlertsService} from '../shared/services/open-alerts.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
+import {ElasticDataTypesEnum} from "../../../shared/enums/elastic-data-types.enum";
 
 @Component({
   selector: 'app-alert-view',
@@ -139,6 +140,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   pageSizeChildren = ITEMS_PER_PAGE * 4;
   readonly ALERT_STATUS_FIELD = ALERT_STATUS_FIELD;
   readonly Math = Math;
+  readonly ElasticDataTypesEnum = ElasticDataTypesEnum;
 
   ngOnInit() {
     this.openAlerts = this.localStorage.retrieve(OPEN_ALERTS_KEY);

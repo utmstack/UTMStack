@@ -73,6 +73,13 @@ type ExpressionBackend struct {
 	Value    interface{} `yaml:"value"`
 }
 
+type ConfigState struct {
+	AssetsLastUpdate   time.Time
+	RulesLastUpdate    time.Time
+	FiltersLastUpdate  time.Time
+	PatternsLastUpdate time.Time
+}
+
 func (b *ExpressionBackend) ToExpression() Expression {
 	return Expression{
 		Field:    b.Field,
@@ -267,6 +274,8 @@ func main() {
 		return
 	}
 
+	state := &ConfigState{}
+
 	for {
 		func() {
 			db, err := connect()
@@ -283,6 +292,17 @@ func main() {
 					_ = catcher.Error("failed to close database connection", err, map[string]any{"process": "plugin_com.utmstack.config"})
 				}
 			}()
+
+			changed, newState, err := hasChanges(db, state)
+			if err != nil {
+				_ = catcher.Error("failed to check for changes", err, map[string]any{"process": "plugin_com.utmstack.config"})
+				time.Sleep(30 * time.Second)
+				return
+			}
+
+			if !changed {
+				return
+			}
 
 			filters, err := getFilters(db)
 			if err != nil {
@@ -398,10 +418,44 @@ func main() {
 				time.Sleep(30 * time.Second)
 				return
 			}
+
+			*state = newState
 		}()
 
-		time.Sleep(5 * time.Minute)
+		time.Sleep(30 * time.Second)
 	}
+}
+
+func hasChanges(db *sql.DB, state *ConfigState) (bool, ConfigState, error) {
+	newState := ConfigState{}
+	changed := false
+
+	queries := []struct {
+		query  string
+		target *time.Time
+		old    time.Time
+	}{
+		{"SELECT MAX(last_update) FROM utm_tenant_config", &newState.AssetsLastUpdate, state.AssetsLastUpdate},
+		{"SELECT MAX(rule_last_update) FROM utm_correlation_rules", &newState.RulesLastUpdate, state.RulesLastUpdate},
+		{"SELECT MAX(updated_at) FROM utm_logstash_filter", &newState.FiltersLastUpdate, state.FiltersLastUpdate},
+		{"SELECT MAX(last_update) FROM utm_regex_pattern", &newState.PatternsLastUpdate, state.PatternsLastUpdate},
+	}
+
+	for _, q := range queries {
+		var lastUpdate sql.NullTime
+		err := db.QueryRow(q.query).Scan(&lastUpdate)
+		if err != nil {
+			return false, newState, err
+		}
+		if lastUpdate.Valid {
+			*q.target = lastUpdate.Time
+		}
+		if (*q.target).After(q.old) {
+			changed = true
+		}
+	}
+
+	return changed, newState, nil
 }
 
 // connect to postgres database

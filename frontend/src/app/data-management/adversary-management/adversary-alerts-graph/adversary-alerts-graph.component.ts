@@ -1,5 +1,4 @@
 import {Component, Input, OnChanges} from '@angular/core';
-import {ECharts} from 'echarts';
 import {UtmAlertType} from '../../../shared/types/alert/utm-alert.type';
 import {Side} from '../../../shared/types/event/event';
 import {EventDataTypeEnum} from '../../alert-management/shared/enums/event-data-type.enum';
@@ -50,7 +49,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
     });
   }
 
-  private getGraphicElements() {
+  private getGraphicElements(hasAnyChildren: boolean) {
     const sankey = {
       left: 10,
       right: 180,
@@ -60,21 +59,26 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
 
     const chartElement = document.querySelector('.chart-container');
     const chartContainerWidth = chartElement ? chartElement.clientWidth : 1000;
-    const columnWidth = chartContainerWidth / 3;
 
-    const depthPositions = [
-      { left: sankey.left, width: columnWidth },
-      { left: sankey.left + columnWidth, width: columnWidth },
-      { left: sankey.left + (columnWidth * 2), width: columnWidth }
-    ];
+    const columnCount = hasAnyChildren ? 3 : 2;
+    const columnWidth = chartContainerWidth / columnCount;
 
-    const graphicElements: any[] = [];
-    const labels = ['Adversary', 'Alerts', 'Echoes'];
+    const depthPositions = Array.from({ length: columnCount }).map((_, i) => ({
+      left: sankey.left + columnWidth * i,
+      width: columnWidth
+    }));
+
+    const labels = hasAnyChildren
+      ? ['Adversary', 'Alerts', 'Echoes']
+      : ['Adversary', 'Alerts'];
+
     const colors = [
       { fill: 'rgba(31, 119, 180, 0.06)', text: '#1F77B4' },
       { fill: 'rgba(255, 127, 14, 0.06)', text: '#FF7F0E' },
       { fill: 'rgba(44, 160, 44, 0.06)', text: '#2CA02C' }
     ];
+
+    const graphicElements: any[] = [];
 
     depthPositions.forEach((pos, index) => {
       const color = colors[index];
@@ -83,7 +87,10 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
         type: 'rect',
         left: pos.left,
         top: sankey.top,
-        shape: { width: pos.width - 10, height: this.chartHeight - sankey.top - sankey.bottom },
+        shape: {
+          width: pos.width - 10,
+          height: this.chartHeight - sankey.top - sankey.bottom
+        },
         style: {
           fill: color.fill,
           stroke: 'none'
@@ -92,7 +99,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
 
       graphicElements.push({
         type: 'text',
-        left: pos.left + (pos.width / 2),
+        left: pos.left + pos.width / 2,
         top: 0,
         style: {
           text: labels[index],
@@ -125,6 +132,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
     ];
     let colorIndex = 0;
 
+    const hasAnyChildren = adversaryAlerts.some( g => g.alerts.some( a => a.children.length > 0 ) );
     const nodeKey = (id: string, name: string) => `${id}::${name}`;
     const truncate = (text: string, max = 30) => text.length > max ? text.slice(0, max) + '…' : text;
     const getNodeSize = (count: number, base = 10, max = 30) => Math.min(base + count * 2, max);
@@ -181,7 +189,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
             meta: {
               alert: {
                 ...alert,
-                hasChildren: true
+                hasChildren: childCount > 0
               },
               severity: alert.severityLabel,
               timestamp: alert.timestamp,
@@ -265,7 +273,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
         `;
         }
       },
-      graphic: this.getGraphicElements(),
+      graphic: this.getGraphicElements(hasAnyChildren),
       series: [{
         type: 'sankey',
         orient: 'horizontal',
