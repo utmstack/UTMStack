@@ -522,7 +522,7 @@ jobs:
               -H "Content-Type: application/json" \
               -H "id: $auth_id" \
               -H "key: $auth_key" \
-              -d "{\"instance_id\": \"$instance_id\", \"version\": \"$TAG\"}")
+              -d "{\"instances_ids\": [\"$instance_id\"], \"version\": \"$TAG\"}")
 
             http_code=$(echo "$response" | tail -n1)
             body=$(echo "$response" | sed '$d')

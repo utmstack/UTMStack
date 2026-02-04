@@ -72,7 +72,7 @@ public class UtmFilterResource {
             // If you provide a pipelineId we create relation, otherwise only create the filter
             if (pipelineId!=null) {
                 Optional<UtmLogstashPipeline> pipeline = pipelineService.findOne(pipelineId);
-                if (!pipeline.isPresent()) {
+                if (pipeline.isEmpty()) {
                     throw new Exception("The pipeline with ID (" + pipelineId + ") not exists");
                 }
                 UtmLogstashFilter filter = logstashFilterService.save(logstashFilter);

@@ -335,7 +335,12 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 	}
 
 	a.Id = alert.Id
-	a.ParentId = alert.ParentId
+	a.ParentId = func() string {
+		if parentId != nil {
+			return *parentId
+		}
+		return ""
+	}()
 	a.Name = alert.Name
 	a.Category = alert.Category
 	a.Description = alert.Description
