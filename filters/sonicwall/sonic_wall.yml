@@ -1,4 +1,4 @@
-# SonicWall Firewall, version 3.0.1
+# SonicWall Firewall, version 3.2.0
 # Based on docs
 # Support Syslog CEF format
 #
@@ -48,6 +48,30 @@ pipeline:
               pattern: '{{.greedy}}'
           source: raw
 
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}\='
+            - fieldName: log.device
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant1
+              pattern: '{{.data}}\='
+            - fieldName: log.sn
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant2
+              pattern: '{{.data}}\"'
+            - fieldName: log.dvcTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.irrelevant3
+              pattern: '{{.data}}\='
+            - fieldName: log.srcIp
+              pattern: '{{.ipv4}}'
+            - fieldName: log.msgAll
+              pattern: '{{.greedy}}'
+          source: raw
+
       # ......................................................................#
       # Checking if the log is in CEF format
       #......................................................................#
@@ -70,7 +94,7 @@ pipeline:
             - fieldName: log.cefMsgAll
               pattern: '{{.greedy}}'
           source: log.msgAll
-          where: log.msgAll.contains("CEF:")
+          where: contains("log.msgAll", "CEF:")
 
       - grok:
           patterns:
@@ -85,7 +109,7 @@ pipeline:
             - fieldName: log.cefMsgAll
               pattern: '{{.greedy}}'
           source: log.msgAll
-          where: log.msgAll.contains("CEF:")
+          where: contains("log.msgAll", "CEF:")
 
       #......................................................................#
       # Removing unnecessary characters of the syslogHeader
@@ -317,119 +341,119 @@ pipeline:
           params:
             key: log.groupCategory
             value: 'System'
-          where: safe("log.gcat", "") == "1"
+          where: equals("log.gcat", "1")
 
       - add:
           function: 'string'
           params:
             key: log.groupCategory
             value: 'Log'
-          where: safe("log.gcat", "") == "2"
+          where: equals("log.gcat", "2")
 
       - add:
           function: 'string'
           params:
             key: log.groupCategory
             value: 'Security Services'
-          where: safe("log.gcat", "") == "3"
+          where: equals("log.gcat", "3")
 
       - add:
           function: 'string'
           params:
             key: log.groupCategory
             value: 'Users'
-          where: safe("log.gcat", "") == "4"
+          where: equals("log.gcat", "4")
 
       - add:
           function: 'string'
           params:
             key: log.groupCategory
             value: 'Firewall Settings'
-          where: safe("log.gcat", "") == "5"
+          where: equals("log.gcat", "5")
 
       - add:
           function: 'string'
           params:
             key: log.groupCategory
             value: 'Network'
-          where: safe("log.gcat", "") == "6"
+          where: equals("log.gcat", "6")
 
       - add:
           function: 'string'
           params:
             key: log.groupCategory
             value: 'VPN'
-          where: safe("log.gcat", "") == "7"
+          where: equals("log.gcat", "7")
 
       - add:
           function: 'string'
           params:
             key: log.groupCategory
             value: 'High Availability'
-          where: safe("log.gcat", "") == "8"
+          where: equals("log.gcat", "8")
 
       - add:
           function: 'string'
           params:
             key: log.groupCategory
             value: '3G/4G, Modem, and Module'
-          where: safe("log.gcat", "") == "9"
+          where: equals("log.gcat", "9")
 
       - add:
           function: 'string'
           params:
             key: log.groupCategory
             value: 'Firewall'
-          where: safe("log.gcat", "") == "10"
+          where: equals("log.gcat", "10")
 
       - add:
           function: 'string'
           params:
             key: log.groupCategory
             value: 'Wireless'
-          where: safe("log.gcat", "") == "11"
+          where: equals("log.gcat", "11")
 
       - add:
           function: 'string'
           params:
             key: log.groupCategory
             value: 'VoIP'
-          where: safe("log.gcat", "") == "12"
+          where: equals("log.gcat", "12")
 
       - add:
           function: 'string'
           params:
             key: log.groupCategory
             value: 'SSL VPN'
-          where: safe("log.gcat", "") == "13"
+          where: equals("log.gcat", "13")
 
       - add:
           function: 'string'
           params:
             key: log.groupCategory
             value: 'Anti-Spam'
-          where: safe("log.gcat", "") == "14"
+          where: equals("log.gcat", "14")
 
       - add:
           function: 'string'
           params:
             key: log.groupCategory
             value: 'WAN Acceleration'
-          where: safe("log.gcat", "") == "15"
+          where: equals("log.gcat", "15")
 
       - add:
           function: 'string'
           params:
             key: log.groupCategory
             value: 'SD-WAN'
-          where: safe("log.gcat", "") == "16"
+          where: equals("log.gcat", "16")
 
       - add:
           function: 'string'
           params:
             key: log.groupCategory
             value: 'Multi-Tenancy'
-          where: safe("log.gcat", "") == "17"
+          where: equals("log.gcat", "17")
 
       # Adding geolocation to origin.ip
       - dynamic:
@@ -455,19 +479,19 @@ pipeline:
           params:
             key: severity
             value: 'high'
-          where: safe("log.pri", "") in ["0", "1", "2", "3"]
+          where: oneOf("log.pri", ["0", "1", "2", "3"])
       - add:
           function: 'string'
           params:
             key: severity
             value: 'medium'
-          where: safe("log.pri", "") == "4"
+          where: equals("log.pri", "4")
       - add:
           function: 'string'
           params:
             key: severity
             value: 'low'
-          where: safe("log.pri", "") in ["5", "6", "7"]
+          where: oneOf("log.pri", ["5", "6", "7"])
 
       # ..........................................................................#
       # Removing unnuse fields
@@ -475,6 +499,9 @@ pipeline:
       - delete:
           fields:
             - log.irrelevant
+            - log.irrelevant1
+            - log.irrelevant2
+            - log.irrelevant3
             - log.msgAll
             - log.cefMsgAll
             - log.pri
