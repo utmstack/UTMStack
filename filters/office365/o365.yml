@@ -1,4 +1,4 @@
-# Microsoft 365 filter, version 1.0.2
+# Microsoft 365 filter, version 1.0.3
 
 # Based on Official documentation
 # See https://learn.microsoft.com/en-us/compliance/assurance/assurance-microsoft-365-audit-log-collection
@@ -71,6 +71,26 @@ pipeline:
           from:
             - log.UserId
           to: origin.user
+
+      - rename:  
+          from:
+            - log.Folder.Path
+          to: log.folderPath
+
+      - rename:  
+          from:
+            - log.Folder.Id
+          to: log.folderId
+
+      - rename:  
+          from:
+            - log.DestFolder.Id
+          to: log.destFolderId
+
+      - rename:  
+          from:
+            - log.DestFolder.Path
+          to: log.destFolderPath
 
       # Drop unnecessary events
       - drop:
