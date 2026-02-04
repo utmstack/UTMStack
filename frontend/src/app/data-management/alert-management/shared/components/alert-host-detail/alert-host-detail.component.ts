@@ -31,8 +31,17 @@ export class AlertHostDetailComponent implements OnInit {
   }
 
   isEmpty(): boolean {
-    return !this.alert || !this.alert[this.type] || Object.keys(this.alert[this.type]).length === 0;
+    const value = this.alert[this.type];
+
+    if (value == null) { return true; }
+
+    if (typeof value !== 'object') { return true; }
+
+    if (Array.isArray(value)) { return value.length === 0; }
+
+    return Object.keys(value).length === 0 && value.constructor === Object;
   }
+
 
   getFields(obj: any, prefix = ''): { id: string; fieldType: UtmFieldType }[] {
     let fields: { id: string, fieldType: UtmFieldType}[] = [];
