@@ -34,3 +34,79 @@ app-utm-modal-header {
     transform: scale(1.05);
   }
 }
+
+.yaml-container {
+  width: 100%;
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.yaml-preview {
+  white-space: pre-wrap;
+  font-family: "Fira Code", monospace;
+  font-size: 14px;
+}
+
+::ng-deep .yaml-key {
+  color: #0277bd;
+  font-weight: 600;
+}
+
+::ng-deep .yaml-value {
+  color: #FF6B6B;
+}
+
+.sub-header {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 12px 0;
+  margin-bottom: 16px;
+  box-shadow: none;
+}
+
+.sub-header-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666666;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  max-width: 70%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sub-btn {
+  background: #232f3e;
+  color: #ffffff;
+  padding: .375rem .75rem;
+  font-size: .75rem !important;
+  border: none;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  border-radius: .25rem;
+
+  &:hover {
+    background: #364556;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  i {
+    font-size: .75rem !important;
+  }
+}
+

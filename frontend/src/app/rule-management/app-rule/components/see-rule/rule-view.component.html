@@ -1,17 +1,21 @@
+<app-utm-modal-header [name]="'Rule Details'"></app-utm-modal-header>
 
-<app-utm-modal-header [name]="'Rule Details'">
+<div class="sub-header px-4 d-flex align-items-center justify-content-between">
+  <div class="sub-header-title">
+    {{ 'YAML - ' + rowDocument.name }}
+  </div>
 
-</app-utm-modal-header>
+  <div class="d-flex gap-3">
+    <button class="btn sub-btn mr-2" (click)="copyToClipboard()">
+      <i class="icon-clipboard"></i>Copy
+    </button>
 
-
-<!-- utm-json-detail-view.component.html -->
-<div class="d-flex h-100 m-h-0 overflow-auto p-2 rule-view-container">
-  <app-utm-json-detail-view [rowDocument]="rowDocument"></app-utm-json-detail-view>
+    <button class="btn sub-btn" (click)="exportYaml()">
+      <i class="icon-download"></i>Export
+    </button>
+  </div>
 </div>
 
-<div class="header d-flex flex-row w-100 align-items-center justify-content-end">
-  <button class="btn utm-button utm-button-primary floating-btn" (click)="copyToClipboard()" title="Copy YAML">
-    <i class="icon-clipboard mr-2"></i>Copy
-  </button>
-
+<div class="d-flex h-100 m-h-0 overflow-auto p-2 rule-view-container">
+  <pre class="yaml-preview w-100" [innerHTML]="yamlHighlighted"></pre>
 </div>
