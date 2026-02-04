@@ -311,7 +311,7 @@ export class AdversaryAlertsGraphComponent implements OnChanges {
   }
 
   private getLabel(alert: UtmAlertType) {
-    if (alert.target) {
+    if (alert.target && Object.keys(alert.target).length > 0) {
       const target: any = alert.target as Side;
       if (target.ip) {
         return target.ip;
