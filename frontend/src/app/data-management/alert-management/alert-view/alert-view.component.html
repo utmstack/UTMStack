@@ -219,8 +219,7 @@
     <ng-container *ngFor="let td of fields">
       <td *ngIf="td.visible"
           [ngClass]="{'min-width': td.field === ALERT_ADVERSARY_FIELD || td.field === ALERT_TARGET_FIELD}"
-          (click)="viewDetailAlert(alert, td)"
-      >
+          (click)="viewDetailAlert(alert, td)">
 
         <app-data-field-render [data]="alert"
                                [tags]="tags"
