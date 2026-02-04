@@ -2,11 +2,14 @@ package workers
 
 import (
 	"context"
+	"fmt"
 	"runtime"
+	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/plugins/compliance-orchestrator/client"
 	"github.com/utmstack/UTMStack/plugins/compliance-orchestrator/evaluator"
+	"github.com/utmstack/UTMStack/plugins/compliance-orchestrator/models"
 	"github.com/utmstack/UTMStack/plugins/compliance-orchestrator/scheduler"
 )
 
@@ -20,25 +23,46 @@ func StartWorkers(ctx context.Context, backend *client.BackendClient) {
 
 			for cfg := range scheduler.Jobs {
 
-				// Log opcional
 				catcher.Info("Worker evaluating control", map[string]any{
 					"worker":  id,
 					"control": cfg.ID,
 				})
 
-				// Ejecutar evaluación real
-				_, err := eval.Evaluate(ctx, cfg)
+				// Ejecutar evaluación del control (incluye todas las queries)
+				result, err := eval.Evaluate(ctx, cfg)
 				if err != nil {
-					// catcher.New("evaluation failed").
-					//     Set("worker", id).
-					//     Set("control", cfg.ID).
-					//     SetError(err).
-					//     Log()
+					catcher.Error("evaluation failed", err, map[string]any{
+						"worker":  id,
+						"control": cfg.ID,
+					})
 					continue
 				}
 
-				// Aquí luego enviarás el resultado al sender
-				// sender.Send(result)
+				// Construir documento para guardar en OpenSearch
+				doc := models.EvaluationDocument{
+					ControlID:        cfg.ID,
+					ControlName:      cfg.ControlName,
+					Status:           result.Status,
+					Timestamp:        time.Now().UTC(),
+					QueryEvaluations: result.QueryEvaluations,
+				}
+
+				// Guardar en OpenSearch
+				fmt.Println("Evaluation Document:", doc)
+				err = backend.IndexEvaluationResult(ctx, "v11-log-compliance-evaluation", doc)
+				if err != nil {
+					catcher.Error("failed to index evaluation result", err, map[string]any{
+						"worker":  id,
+						"control": cfg.ID,
+					})
+					continue
+				}
+
+				catcher.Info("Control Evaluation stored successfully", map[string]any{
+					"worker":  id,
+					"control": cfg.ID,
+					"status":  result.Status,
+				})
 			}
 		}(i)
 	}

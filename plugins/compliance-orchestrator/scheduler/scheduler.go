@@ -9,10 +9,10 @@ import (
 	"github.com/utmstack/UTMStack/plugins/compliance-orchestrator/models"
 )
 
-var Jobs chan models.ReportConfig
+var Jobs chan models.ControlConfig
 
 func StartScheduler(ctx context.Context, backend *client.BackendClient) {
-	Jobs = make(chan models.ReportConfig, 1000)
+	Jobs = make(chan models.ControlConfig, 1000)
 
 	ticker := time.NewTicker(30 * time.Second)
 
@@ -23,7 +23,7 @@ func StartScheduler(ctx context.Context, backend *client.BackendClient) {
 			return
 
 		case <-ticker.C:
-			configs, err := backend.GetReportConfigs(ctx)
+			configs, err := backend.GetControlConfigs(ctx)
 			if err != nil {
 				continue
 			}

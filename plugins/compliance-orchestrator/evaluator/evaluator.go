@@ -17,70 +17,152 @@ func NewEvaluator(backend *client.BackendClient) *Evaluator {
 	return &Evaluator{backend: backend}
 }
 
-func (e *Evaluator) Evaluate(ctx context.Context, cfg models.ReportConfig) (models.Evaluation, error) {
+func (e *Evaluator) Evaluate(ctx context.Context, cfg models.ControlConfig) (models.ControlEvaluation, error) {
 	// 1. Obtener index patterns activos
-	_, err := e.backend.GetActiveIndexPatterns(ctx)
+	patterns, err := e.backend.GetActiveIndexPatterns(ctx)
 	if err != nil {
-		return models.Evaluation{}, fmt.Errorf("failed to get index patterns: %w", err)
+		return models.ControlEvaluation{}, fmt.Errorf("failed to get index patterns: %w", err)
 	}
 
-	// 2. Evaluar cada QuerySpec
-	/*var results []models.QueryResult*/
-	for _, q := range cfg.Queries {
-		/*qr := e.evaluateQuery(ctx, q, patterns)
-		results = append(results, qr)*/
+	results := make([]models.QueryEvaluation, 0)
+	applicable := make([]models.QueryEvaluation, 0) // solo queries con indexPattern activo
+
+	// 2. Evaluar cada QueryConfig
+	for _, q := range cfg.QueriesConfigs {
 		catcher.Info("Evaluating query", map[string]any{
 			"query_id": q.ID,
 		})
+
+		// 2.1 Si el index pattern NO está activo → NOT_APPLICABLE
+		if !patternExists(int(q.IndexPatternID), patterns) {
+			reason := "Index pattern not active"
+			qr := models.QueryEvaluation{
+				QueryConfigID: q.ID,
+				QueryName:     q.QueryName,
+				Hits:          0,
+				Status:        models.QueryStatusNotApplicable,
+				ErrorMessage:  &reason,
+			}
+			results = append(results, qr)
+			continue
+		}
+
+		// 2.2 Evaluar query normalmente
+		qr := e.evaluateQuery(ctx, q)
+		results = append(results, qr)
+
+		// 2.3 Solo las queries aplicables participan en la estrategia ALL/ANY
+		if qr.Status != models.QueryStatusNotApplicable {
+			applicable = append(applicable, qr)
+		}
 	}
 
-	/*final := combineResults(cfg, results)
+	// 3. Combinar resultados según la estrategia del control
+	finalStatus := computeControlStatus(cfg.ControlStrategy, applicable)
 
-	return final, nil*/
-
-	return models.Evaluation{}, nil
+	// 4. Construir evaluación final
+	return models.ControlEvaluation{
+		ControlConfigID:  cfg.ID,
+		ControlName:      cfg.ControlName,
+		Status:           finalStatus,
+		QueryEvaluations: results,
+	}, nil
 }
 
-func (e *Evaluator) evaluateQuery(ctx context.Context, q models.QuerySpec, patterns []models.IndexPattern) models.QueryResult {
-
-	/*if !patternExists(q.IndexPatternID, patterns) {
-		return models.QueryResult{
-			QueryID: int(q.ID),
-			Status:  models.StatusNotApplicable,
-			Reason:  "Index pattern not active",
+func (e *Evaluator) evaluateQuery(ctx context.Context, q models.QueryConfig) models.QueryEvaluation {
+	// Ejecutar la query SQL real contra OpenSearch
+	hits, err := e.backend.ExecuteSQLQuery(ctx, q.SQLQuery)
+	if err != nil {
+		msg := fmt.Sprintf("query execution failed: %v", err)
+		return models.QueryEvaluation{
+			QueryConfigID: q.ID,
+			QueryName:     q.QueryName,
+			Hits:          0,
+			Status:        models.QueryStatusError,
+			ErrorMessage:  &msg,
 		}
-	}*/
+	}
 
-	return models.QueryResult{
-		QueryID: int(q.ID),
-		Status:  models.StatusCompliant,
-		Reason:  "Query executed successfully (placeholder)",
+	// Evaluar la regla con los hits obtenidos
+	status, errMsg := evaluateQueryRule(q, hits)
+
+	return models.QueryEvaluation{
+		QueryConfigID: q.ID,
+		QueryName:     q.QueryName,
+		Hits:          int64(hits),
+		Status:        status,
+		ErrorMessage:  errMsg,
+	}
+}
+
+func evaluateQueryRule(q models.QueryConfig, hits int) (models.QueryEvaluationStatus, *string) {
+	switch q.EvaluationRule {
+
+	case models.NoHitsAllowed:
+		if hits == 0 {
+			return models.QueryStatusCompliant, nil
+		}
+		return models.QueryStatusNonCompliant, nil
+
+	case models.MinHitsRequired:
+		if q.RuleValue == nil {
+			msg := "ruleValue is required for MIN_HITS_REQUIRED"
+			return models.QueryStatusError, &msg
+		}
+		if hits >= *q.RuleValue {
+			return models.QueryStatusCompliant, nil
+		}
+		return models.QueryStatusNonCompliant, nil
+
+	case models.ThresholdMax:
+		if q.RuleValue == nil {
+			msg := "ruleValue is required for THRESHOLD_MAX"
+			return models.QueryStatusError, &msg
+		}
+		if hits <= *q.RuleValue {
+			return models.QueryStatusCompliant, nil
+		}
+		return models.QueryStatusNonCompliant, nil
+
+	default:
+		msg := "unknown evaluation rule"
+		return models.QueryStatusError, &msg
+	}
+}
+
+func computeControlStatus(strategy models.ComplianceStrategy, results []models.QueryEvaluation) models.ControlEvaluationStatus {
+
+	switch strategy {
+
+	case models.StrategyAll:
+		// ALL → todas deben ser COMPLIANT
+		for _, r := range results {
+			if r.Status != models.QueryStatusCompliant {
+				return models.ControlStatusNonCompliant
+			}
+		}
+		return models.ControlStatusCompliant
+
+	case models.StrategyAny:
+		// ANY → basta con que una sea COMPLIANT
+		for _, r := range results {
+			if r.Status == models.QueryStatusCompliant {
+				return models.ControlStatusCompliant
+			}
+		}
+		return models.ControlStatusNonCompliant
+
+	default:
+		// fallback seguro
+		return models.ControlStatusNonCompliant
 	}
 }
 
 func patternExists(pattern int, active []models.IndexPattern) bool {
 	for _, p := range active {
-		if p.ID == pattern && p.Active {
+		if int(p.ID) == pattern && p.Active {
 			return true
 		}
 	}
 	return false
-}
-
-func combineResults(cfg models.ReportConfig, results []models.QueryResult) models.Evaluation {
-	final := models.Evaluation{
-		ReportID: int(cfg.ID),
-		Results:  results,
-	}
-
-	// Estrategia simple: si alguna query es NON_COMPLIANT → NON_COMPLIANT
-	for _, r := range results {
-		if r.Status == models.StatusNonCompliant {
-			final.Status = models.StatusNonCompliant
-			return final
-		}
-	}
-
-	final.Status = models.StatusCompliant
-	return final
 }

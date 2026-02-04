@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -65,19 +66,19 @@ func (c *BackendClient) HealthCheck(ctx context.Context) error {
 	return nil
 }
 
-func (c *BackendClient) GetReportConfigs(ctx context.Context) ([]models.ReportConfig, error) {
-	url := fmt.Sprintf("%s/api/compliance/report-config?page=0&size=1000&sort=id,asc", c.baseURL)
-	var reports []models.ReportConfig
+func (c *BackendClient) GetControlConfigs(ctx context.Context) ([]models.ControlConfig, error) {
+	url := fmt.Sprintf("%s/api/compliance/control-config?page=0&size=1000&sort=id,asc", c.baseURL)
+	var controls []models.ControlConfig
 
 	var body, err = c.GetRequest(ctx, url)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := json.Unmarshal(body, &reports); err != nil {
+	if err := json.Unmarshal(body, &controls); err != nil {
 		return nil, err
 	}
-	return reports, nil
+	return controls, nil
 }
 
 func (c *BackendClient) GetActiveIndexPatterns(ctx context.Context) ([]models.IndexPattern, error) {
@@ -119,4 +120,33 @@ func (c *BackendClient) GetRequest(ctx context.Context, url string) ([]byte, err
 	}
 
 	return body, nil
+}
+
+func (b *BackendClient) IndexEvaluationResult(ctx context.Context, index string, doc any) error {
+	baseURL := plugins.PluginCfg("org.opensearch", false).Get("opensearch").String()
+	endpoint := fmt.Sprintf("%s/%s/_doc", baseURL, index)
+
+	jsonBody, err := json.Marshal(doc)
+	if err != nil {
+		return fmt.Errorf("failed to marshal evaluation result: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "POST", endpoint, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return fmt.Errorf("failed to create index request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := b.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("index request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 300 {
+		return fmt.Errorf("indexing failed with status %d", resp.StatusCode)
+	}
+
+	return nil
 }
