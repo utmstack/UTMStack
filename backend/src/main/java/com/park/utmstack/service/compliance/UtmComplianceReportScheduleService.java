@@ -11,12 +11,14 @@ import com.park.utmstack.repository.compliance.UtmComplianceReportScheduleReposi
 import com.park.utmstack.service.UserService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.compliance.UtmComplianceReportScheduleCriteria;
+import com.park.utmstack.util.exceptions.ApiException;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Service;
@@ -128,7 +130,7 @@ public class UtmComplianceReportScheduleService extends QueryService<UtmComplian
         log.debug("Request to get UtmComplianceReportSchedule : {}", reportSchedule);
         User user = userService.getCurrentUserLogin();
         return utmComplianceReportScheduleRepository.findFirstByUserIdAndComplianceIdAndScheduleString(user.getId(),
-            reportSchedule.getComplianceId(),reportSchedule.getScheduleString());
+                reportSchedule.getComplianceId(), reportSchedule.getScheduleString());
     }
 
     /**
@@ -144,31 +146,43 @@ public class UtmComplianceReportScheduleService extends QueryService<UtmComplian
 
     /**
      * Scheduled method to execute the compliance report pdf generation and email delivery
-     * */
+     *
+     */
     @Scheduled(fixedDelay = 5000, initialDelay = 30000)
     public void scheduleComplianceReport() {
-        final String ctx = CLASSNAME + ".scheduleComplianceReport";
 
         List<UtmComplianceReportSchedule> schedulesList = findAll();
+        schedulesList.forEach(this::processSchedule);
 
-        schedulesList.forEach(current -> {
-            Optional<User> user = userService.getUserWithAuthorities(current.getUserId());
-            try {
-                Instant currentDate = Instant.now(Clock.systemUTC());
-                Instant next = getNext(current.getScheduleString(), current.getLastExecutionTime(), currentDate);
-                if (isTimeToExecute(next, currentDate)) {
-                    // Set the next execution time (Base time seed)
-                    current.setLastExecutionTime(next);
-                    utmComplianceReportScheduleRepository.save(current);
-                    complianceMailService.sendComplianceByMail(current.getUrlWithParams(), user.get().getEmail());
-                }
+    }
 
-            } catch (Exception e) {
-                String msg = ctx + ": " + e.getLocalizedMessage();
-                log.error(msg);
-                applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            }
-        });
+    private void processSchedule(UtmComplianceReportSchedule schedule) {
+
+        Optional<User> userOpt = userService.getUserWithAuthorities(schedule.getUserId());
+
+        if (userOpt.isEmpty()) {
+            log.error("Schedule {} skipped: user {} not found", schedule.getId(), schedule.getUserId());
+            return;
+        }
+
+        User user = userOpt.get();
+
+        Instant now = Instant.now(Clock.systemUTC());
+        Instant next = getNext(schedule.getScheduleString(), schedule.getLastExecutionTime(), now);
+
+        if (!isTimeToExecute(next, now)) {
+            return;
+        }
+
+        complianceMailService.sendComplianceByMail(schedule.getUrlWithParams(), user.getEmail());
+        markExecuted(schedule, next);
+
+    }
+
+    @Transactional
+    public void markExecuted(UtmComplianceReportSchedule schedule, Instant next) {
+        schedule.setLastExecutionTime(next);
+        utmComplianceReportScheduleRepository.save(schedule);
     }
 
     /***
@@ -180,7 +194,8 @@ public class UtmComplianceReportScheduleService extends QueryService<UtmComplian
 
     /**
      * Method to know the next valid Instant to execute the task, even if the system was shut down for a while
-     * */
+     *
+     */
     private Instant getNext(String cronExpresion, Instant lastExecution, Instant currentDate) {
         CronExpression parse = CronExpression.parse(cronExpresion);
         Instant possibleNext = Objects.requireNonNull(parse.next(lastExecution.atZone(ZoneOffset.UTC))).toInstant();
@@ -194,7 +209,7 @@ public class UtmComplianceReportScheduleService extends QueryService<UtmComplian
             // near next execution to avoid extra executions, because the general scheduler that calls these methods,
             // is every 5 seconds
             Long diffBetweenCurrentAndPossibleNext = currentSecs - possibleNext.getEpochSecond();
-            Integer rate = Long.valueOf(diffBetweenCurrentAndPossibleNext/diffBetweenLastAndNext).intValue();
+            Integer rate = Long.valueOf(diffBetweenCurrentAndPossibleNext / diffBetweenLastAndNext).intValue();
             Instant resultNext = lastExecution.atZone(ZoneOffset.UTC).toInstant().plusSeconds(diffBetweenLastAndNext * rate);
             return resultNext.atZone(ZoneOffset.UTC).toInstant();
         }
@@ -205,7 +220,7 @@ public class UtmComplianceReportScheduleService extends QueryService<UtmComplian
 
         User user = userService.getCurrentUserLogin();
         Specification<UtmComplianceReportSchedule> specification = Specification.where((root, query, criteriaBuilder) ->
-                                                                                        criteriaBuilder.equal(root.get("userId"), user.getId()));
+                criteriaBuilder.equal(root.get("userId"), user.getId()));
         if (criteria != null) {
             if (criteria.getName() != null) {
                 specification = specification.and(buildSpecification(criteria.getName(),
