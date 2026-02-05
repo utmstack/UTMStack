@@ -32,8 +32,7 @@ public class ModuleConfigurationValidator implements ConstraintValidator<ValidMo
             return module.validateConfiguration(utmModule, dto.getKeys());
         } catch (Exception e) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("Invalid configuration for selected module.")
-                    .addPropertyNode("keys")
+            context.buildConstraintViolationWithTemplate(e.getMessage())
                     .addConstraintViolation();
             return false;
         }

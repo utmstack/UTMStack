@@ -54,6 +54,10 @@ public class RestTemplateService {
         return rawRestTemplate.exchange(url, HttpMethod.GET, requestEntity, type);
     }
 
+    public <T, U> ResponseEntity<U> postRaw(String url, T body, Class<U> type, HttpHeaders headers) {
+        HttpEntity<T> requestEntity = new HttpEntity<>(body, headers);
+        return rawRestTemplate.exchange(url, HttpMethod.POST, requestEntity, type);
+    }
 
     public <T> ResponseEntity<T> get(String url, Class<T> type, HttpHeaders headers) throws Exception {
         final String ctx = CLASSNAME + ".get";
