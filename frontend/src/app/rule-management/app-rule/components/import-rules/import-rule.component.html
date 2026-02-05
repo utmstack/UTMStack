@@ -106,6 +106,7 @@
               </span>
 
               <span class="ml-2">
+                <i *ngIf="rule.status === 'error'" class="icon-warning2 font-size-sm mr-1"></i>
                 <strong>{{ rule.rule.name }}</strong>
                 <small>({{ rule.status }})</small>
               </span>
@@ -113,8 +114,7 @@
 
             <div *ngIf="!rule.isLoading" class="d-flex">
               <div (click)="deleteRule(i)" class="cursor-pointer opacity-75 ml-2">
-                <i *ngIf="rule.status === 'valid'" class="icon-cross2 font-size-sm"></i>
-                <i *ngIf="rule.status === 'error'" class="icon-warning2 font-size-sm"></i>
+                <i *ngIf="rule.status === 'valid' || rule.status === 'error'" class="icon-cross2 font-size-sm"></i>
                 <i *ngIf="rule.status === 'saved'" class="icon-check2 font-size-sm"></i>
               </div>
             </div>
@@ -176,6 +176,7 @@
               </span>
 
             <span class="ml-2">
+               <i *ngIf="rule.status === 'error'" class="icon-warning2 font-size-sm"></i>
                 <strong>{{ rule.rule.name }}</strong>
                 <small>({{ rule.status }})</small>
               </span>
@@ -183,8 +184,7 @@
 
           <div *ngIf="!rule.isLoading" class="d-flex">
             <div (click)="deleteRule(i)" class="cursor-pointer opacity-75 ml-2">
-              <i *ngIf="rule.status === 'valid'" class="icon-cross2 font-size-sm"></i>
-              <i *ngIf="rule.status === 'error'" class="icon-warning2 font-size-sm"></i>
+              <i *ngIf="rule.status === 'valid' || rule.status === 'error'" class="icon-cross2 font-size-sm"></i>
               <i *ngIf="rule.status === 'saved'" class="icon-check2 font-size-sm"></i>
             </div>
           </div>
@@ -218,7 +218,7 @@
     <!-- NEXT -->
     <button *ngIf="currentStep !== RULE_FORM.STEP2"
             (click)="next()"
-            [disabled]="loading"
+            [disabled]="loading || (currentStep === RULE_FORM.STEP1 && validRulesCount() !== rules.length)"
             class="btn utm-button utm-button-primary">
       Next <i class="icon-arrow-right32"></i>
     </button>
