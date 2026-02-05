@@ -33,6 +33,7 @@ public class ModuleConfigurationValidator implements ConstraintValidator<ValidMo
         } catch (Exception e) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(e.getMessage())
+                    .addPropertyNode("keys")
                     .addConstraintViolation();
             return false;
         }
