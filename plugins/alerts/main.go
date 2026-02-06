@@ -361,7 +361,7 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 	for retry := 0; retry < maxRetries; retry++ {
 		cancelableContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
-		err := sdkos.IndexDoc(cancelableContext, a, sdkos.BuildCurrentIndex("v11", "alert"), alert.Id)
+		err := sdkos.IndexDoc(cancelableContext, a, sdkos.BuildCurrentDayIndex("v11", "alert"), alert.Id)
 		if err == nil {
 			cancel()
 			return nil
