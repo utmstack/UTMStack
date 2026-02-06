@@ -27,7 +27,7 @@ export class AgentSidebarComponent implements OnInit {
     this.agentSidebarService.loadData({
       ...this.request,
       page: 0,
-      assetIpMacName: $event.toString()
+      searchQuery: $event.toString()
     });
   }
 

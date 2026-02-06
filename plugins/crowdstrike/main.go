@@ -129,10 +129,18 @@ func (p *CrowdStrikeProcessor) createClient() (*client.CrowdStrikeAPISpecificati
 			errors.New("client ID or client secret is empty"), map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
 	}
 
+	cloudType, err := extractCloudFromURL(p.Cloud)
+	if err != nil {
+		return nil, catcher.Error("invalid cloud region configuration", err, map[string]any{
+			"process":     "plugin_com.utmstack.crowdstrike",
+			"cloud_value": p.Cloud,
+		})
+	}
+
 	client, err := falcon.NewClient(&falcon.ApiConfig{
 		ClientId:     p.ClientID,
 		ClientSecret: p.ClientSecret,
-		Cloud:        falcon.Cloud(p.Cloud),
+		Cloud:        cloudType,
 		Context:      context.Background(),
 	})
 	if err != nil {
@@ -140,6 +148,29 @@ func (p *CrowdStrikeProcessor) createClient() (*client.CrowdStrikeAPISpecificati
 	}
 
 	return client, nil
+}
+
+func extractCloudFromURL(cloudValue string) (falcon.CloudType, error) {
+	trimmed := strings.TrimSpace(cloudValue)
+
+	urlToRegion := map[string]string{
+		"api.crowdstrike.com":            "us-1",
+		"api.us-2.crowdstrike.com":       "us-2",
+		"api.eu-1.crowdstrike.com":       "eu-1",
+		"api.laggar.gcw.crowdstrike.com": "us-gov-1",
+		"api.us-gov-2.crowdstrike.mil":   "us-gov-2",
+	}
+
+	if strings.Contains(trimmed, "://") || strings.Contains(trimmed, ".crowdstrike.") {
+		for host, region := range urlToRegion {
+			if strings.Contains(trimmed, host) {
+				return falcon.CloudValidate(region)
+			}
+		}
+		return 0, fmt.Errorf("unrecognized CrowdStrike URL: %s", trimmed)
+	}
+
+	return falcon.CloudValidate(trimmed)
 }
 
 func (p *CrowdStrikeProcessor) getEvents() ([]string, error) {

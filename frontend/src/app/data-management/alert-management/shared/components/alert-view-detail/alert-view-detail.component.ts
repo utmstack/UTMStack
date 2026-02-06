@@ -161,7 +161,16 @@ export class AlertViewDetailComponent implements OnInit {
     return Object.entries(this.log).length === 0;
   }
 
-  protected readonly ALERT_ADVERSARY_FIELD = ALERT_ADVERSARY_FIELD;
+  isEmpty(obj: any): boolean {
+    if (obj == null) { return true; }
+
+    if (typeof obj !== 'object') { return true; }
+
+    if (Array.isArray(obj)) { return obj.length === 0; }
+
+    return Object.keys(obj).length === 0 && obj.constructor === Object;
+  }
+
 }
 
 export enum AlertDetailTabEnum {

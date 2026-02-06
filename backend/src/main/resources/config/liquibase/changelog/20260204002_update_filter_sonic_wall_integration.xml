@@ -1,4 +1,17 @@
-# SonicWall Firewall, version 3.2.0
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260204001" author="Manuel">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version = '3.0.3',
+                updated_at = now(),
+                logstash_filter= $$ # SonicWall Firewall, version 3.0.3
 # Based on docs
 # Support Syslog CEF format
 #
@@ -10,7 +23,7 @@
 #
 # Implementation
 # 1. Parsing the RAW field containing the PfSense
-# 2. Parsing headers of syslog the message 
+# 2. Parsing headers of syslog the message
 
 pipeline:
   - dataTypes:
@@ -156,7 +169,7 @@ pipeline:
           substring: "|"
           fields:
             - log.dvcVendor
-  
+
       - trim:
           function: suffix
           substring: "|"
@@ -462,7 +475,7 @@ pipeline:
             source: origin.ip
             destination: origin.geolocation
           where: exists("origin.ip")
-      
+
       # Adding geolocation to target.ip
       - dynamic:
           plugin: com.utmstack.geolocation
@@ -524,3 +537,13 @@ pipeline:
             - log.trash9
             - log.trash10
             - log.trash11
+
+$$
+
+            WHERE id=1511
+
+            ]]>
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

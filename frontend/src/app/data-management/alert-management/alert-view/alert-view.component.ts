@@ -479,10 +479,10 @@ export class AlertViewComponent implements OnInit, OnDestroy {
 
   viewDetailAlert(alert: UtmAlertType, td: UtmFieldType) {
     if (td.field !== ALERT_STATUS_FIELD && td.field !== ALERT_ECHOES_FIELD) {
-      if (alert.echoes > 0) {
+      /*if (alert.echoes > 0) {
         alert.expanded = true;
         this.loadChildrenAlerts(alert);
-      }
+      }*/
       this.alertDetail = alert;
       this.viewAlertDetail = true;
     }

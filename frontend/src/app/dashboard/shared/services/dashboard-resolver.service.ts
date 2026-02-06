@@ -2,18 +2,20 @@ import {Injectable, Type} from '@angular/core';
 import {ActivatedRouteSnapshot, Resolve, RouterStateSnapshot} from '@angular/router';
 import {GridsterItem} from 'angular-gridster2';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {Observable} from 'rxjs';
-import {map, tap} from 'rxjs/operators';
+import {EMPTY, Observable, of, throwError} from 'rxjs';
+import {catchError, map, tap} from 'rxjs/operators';
 import {VisualizationType} from '../../../shared/chart/types/visualization.type';
 import {RenderLayoutService} from './render-layout.service';
 import {UtmRenderVisualization} from './utm-render-visualization.service';
+import {UtmToastService} from "../../../shared/alert/utm-toast.service";
 
 @Injectable()
 export class DashboardResolverService implements Resolve<{ grid: GridsterItem, visualization: VisualizationType } []> {
 
   constructor(private spinner: NgxSpinnerService,
               private utmRenderVisualization: UtmRenderVisualization,
-              private layoutService: RenderLayoutService) {
+              private layoutService: RenderLayoutService,
+              private toastService: UtmToastService) {
   }
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
@@ -42,6 +44,13 @@ export class DashboardResolverService implements Resolve<{ grid: GridsterItem, v
         ),
         tap(() => {
           this.spinner.hide('loadingSpinner');
-        }));
+        }),
+        catchError(error => {
+          this.spinner.hide('loadingSpinner');
+          this.toastService.showError('Error', 'An error occurred while loading the dashboard visualizations.');
+
+          return throwError(() => error);
+        })
+      );
   }
 }
