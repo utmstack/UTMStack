@@ -335,6 +335,10 @@
 
     <include file="/config/liquibase/changelog/20260204002_update_filter_sonic_wall_integration.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260206002_update_filter_netflow_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260206002_update_filter_netflow_integration.xml" relativeToChangelogFile="false"/>
+
 
 
 </databaseChangeLog>
