@@ -115,6 +115,9 @@ func isDuplicate(alert *plugins.Alert) bool {
 	// 1. Filter by Name (always)
 	bb.FilterTerm("name", alert.Name)
 
+	bb.FilterRange("@timestamp", "gte", time.Now().UTC().Add(-24*7*time.Hour).Format(time.RFC3339Nano))
+	bb.FilterRange("@timestamp", "lte", time.Now().UTC().Format(time.RFC3339Nano))
+
 	// Compile regex for array index stripping
 	reArrayIndex := regexp.MustCompile(`\.[0-9]+(\.|$)`)
 
