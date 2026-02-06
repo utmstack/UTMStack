@@ -65,7 +65,7 @@ fieldset {
 
 .form-body {
   min-height: 590px;
-  max-height: 700px;
+  max-height: 615px;
   overflow-y: auto!important;
   overflow-x: hidden!important;
   flex-grow: 1;
@@ -142,7 +142,14 @@ fieldset {
 .step-success {
   background-color: $success-color !important;
 }
-.loader{
-  top:0%;
-  left:0%;
+.loader {
+  top: 0;
+  left: 0;
+}
+
+@media screen and (max-height: 867px) {
+  .form-body {
+    min-height: 500px;
+    max-height: 500px;
+  }
 }
