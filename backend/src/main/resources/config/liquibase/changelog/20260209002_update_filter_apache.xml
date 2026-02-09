@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260209002" author="JocLRojas">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='3.0.3',
+                updated_at = now(),
+	        logstash_filter=$$ # Apache filter, version 3.0.3
+# Compatible with Common Apache Log and Combined Apache Log. See: https://httpd.apache.org/docs/2.2/logs.html
+#Filter Input requirements -> fileset: datatype
+#                             access: plain text
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the apache log
+pipeline:
+  - dataTypes:
+      - apache
+    steps:
+      - json:
+          source: raw
+      - rename:
+          from:
+            - log.url
+          to: origin.url
+      - rename:
+          from:
+            - log.log.file.path
+          to: origin.file
+      - rename:
+          from:
+            - log.host.ip
+          to: log.local.ips
+      - rename:
+          from:
+            - log.host.mac
+          to: log.local.macs
+      - rename:
+          from:
+            - log.host.hostname
+          to: origin.host
+      - rename:
+          from:
+            - log.event.dataset
+          to: action
+      - rename:
+          from:
+            - log.agent.version
+          to: log.agentVersion
+      - rename:
+          from:
+            - log.host.os.kernel
+          to: log.osVersion
+      - rename:
+          from:
+            - log.host.os.type
+          to: log.osType
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+      - cast:
+          to: '[]string'
+          fields:
+            - log.local.ips
+      - cast:
+          to: '[]string'
+          fields:
+            - log.local.macs
+      # Common apache log parsing
+      - grok:
+          patterns:
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}'
+            - fieldName: log.userIdent
+              pattern: '{{.word}}|(-)'
+            - fieldName: origin.user
+              pattern: '{{.word}}|(-)'
+            - fieldName: deviceTime
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.request
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.statusCode
+              pattern: '{{.integer}}'
+            - fieldName: log.rest
+              pattern: '{{.greedy}}'
+          source: log.message
+      # Parsing Common and Combined end of apache log
+      # Common
+      - grok:
+          patterns:
+            - fieldName: origin.bytesReceived
+              pattern: '{{.integer}}|(-)'
+          source: log.rest
+      # Combined
+      - grok:
+          patterns:
+            - fieldName: origin.bytesReceived
+              pattern: '{{.integer}}|(-)'
+            - fieldName: log.referer
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.userAgent
+              pattern: '\"(.*)\"'
+          source: log.rest
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - deviceTime
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - deviceTime
+      - trim:
+          function: prefix
+          substring: '"'
+          fields:
+            - log.request
+            - log.referer
+            - log.userAgent
+      - trim:
+          function: suffix
+          substring: '"'
+          fields:
+            - log.request
+            - log.referer
+            - log.userAgent
+      # Extracting request parts
+      - grok:
+          patterns:
+            - fieldName: log.method
+              pattern: '{{.word}}'
+            - fieldName: "origin.path"
+              pattern: '(.*)\s+'
+            - fieldName: protocol
+              pattern: '{{.greedy}}'
+          source: log.request
+      # Extracting protocol version
+      - grok:
+          patterns:
+            - fieldName: protocol
+              pattern: '{{.data}}/'
+            - fieldName: log.protoVersion
+              pattern: '{{.greedy}}'
+          source: protocol
+          where: exists("protocol")
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - protocol
+          where: exists("protocol")
+      # Adding geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+      # Normalizing request method and renaming to action
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'get'
+          where: equals("log.method", "GET")
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'post'
+          where: equals("log.method", "POST")
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'put'
+          where: equals("log.method", "PUT")
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'delete'
+          where: equals("log.method", "DELETE")
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'patch'
+          where: equals("log.method", "PATCH")
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'request'
+          where: equals("log.method", "REQUEST")
+      # Removing log.method if action was set
+      - delete:
+          fields:
+            - log.method
+          where: exists("action")
+      # Reformat and field conversions
+      - cast:
+          fields:
+            - log.statusCode
+            - origin.bytesReceived
+          to: float
+      - reformat:
+          fields:
+            - deviceTime
+          function: time
+          fromFormat: '14/Feb/2022:15:40:53 -0500'
+          toFormat: '2024-09-23T15:57:40.338364445Z'
+      # Adding actionResult
+      # denied by default
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where: (greaterOrEqual("log.statusCode", 200) && lessOrEqual("log.statusCode", 299)) || (greaterOrEqual("log.statusCode", 300) && lessOrEqual("log.statusCode", 399) && greaterThan("origin.bytesReceived", 0))
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.service
+            - log.metadata
+            - log.agent
+            - log.host
+            - log.event
+            - log.ecs
+            - log.log
+            - log.rest
+            - log.fileset$$
+	WHERE id=1412;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

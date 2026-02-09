@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260209017" author="JocLRojas">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='3.0.3',
+                updated_at=now(),
+            logstash_filter=$$ # Redis module filter, version 3.0.3
+# Filter Input requirements -> fileset: datatype
+#                              log: plain text
+# 
+# Documentations
+# 1- https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-redis.html
+# 2- https://www.elastic.co/guide/en/beats/filebeat/7.13/exported-fields-redis.html
+# 3- https://redis.io/docs/latest/operate/rs/clusters/logging/redis-slow-log/
+# 4- https://build47.com/redis-log-format-levels/
+# 
+# Implementation
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the redis log
+pipeline:
+  - dataTypes:
+      - redis
+    steps:
+      - json:
+          source: raw
+      
+      # Parse message field in plain text format
+      - grok:
+          patterns:
+            - fieldName: log.pid
+              pattern: '{{.data}}\:'
+            - fieldName: log.roleEnc
+              pattern: '{{.word}}'
+            - fieldName: log.deviceTime
+              pattern: '{{.monthDay}}{{.space}}{{.monthName}}{{.space}}{{.year}}{{.space}}{{.time}}'
+            - fieldName: log.levelEnc
+              pattern: '(\.)|(-)|(\*)|(#)'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: log.message
+
+      # Removing unwanted prefixes
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.pid
+
+      # Fields variants from module
+      # Example: [4018] 14 Nov 07:01:22.119
+      - grok:
+          patterns:
+            - fieldName: log.pid
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.deviceTime
+              pattern: '{{.monthDay}}{{.space}}{{.monthName}}{{.space}}{{.time}}'
+            - fieldName: log.levelEnc
+              pattern: '(\.)|(-)|(\*)|(#)'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: log.message
+
+      # Removing unwanted prefixes
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.pid
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.pid
+
+      # ................................................................................#
+      # Implementing the Record-RoleEnc Field Based on Redis Documentation
+      # https://build47.com/redis-log-format-levels/
+      # 
+      # The possible values for roleEnc are as follows:
+      # (X) sentinel
+      # (M) master
+      # (S) slave
+      # (C) RDB/AOF writing child
+      # ................................................................................#
+      - add:
+          function: 'string'
+          params:
+            key: log.role
+            value: 'sentinel'
+          where: log.roleEnc=="X" || log.roleEnc=="x"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.role
+            value: 'master'
+          where: log.roleEnc=="M" || log.roleEnc=="m"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.role
+            value: 'slave'
+          where: log.roleEnc=="S" || log.roleEnc=="s"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.role
+            value: 'rdb/aof'
+          where: log.roleEnc=="C" || log.roleEnc=="c"
+
+      # ................................................................................#
+      # Implementing the Record-severity Field Based on Redis Documentation
+      # https://build47.com/redis-log-format-levels/
+      # 
+      # The log severity is a single character, which is one of the following:
+      # debug (.)
+      # verbose (-)
+      # notice (*)
+      # warning (#)
+      # ................................................................................#
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'debug'
+          where: log.levelEnc=="."
+
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'verbose'
+          where: log.levelEnc=="-"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'notice'
+          where: log.levelEnc=="*"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'warning'
+          where: log.levelEnc=="#"
+
+      # Adding severity field based on log.severity
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'low'
+          where: oneOf("log.severity", ["debug", "verbose"])
+
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'medium'
+          where: oneOf("log.severity", ["notice", "warning"])
+
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'high'
+          where: oneOf("log.severity", ["error"])
+
+      # Parse beats field
+      - rename:
+          from:
+            - log.url
+          to: origin.url
+
+      - rename:
+          from:
+            - log.log.file.path
+          to: origin.file
+
+      - rename:
+          from:
+            - log.host.ip
+          to: log.origin.ips
+
+      - rename:
+          from:
+            - log.host.mac
+          to: log.origin.macs
+
+      - rename:
+          from:
+            - log.host.hostname
+          to: origin.host
+
+      - rename:
+          from:
+            - log.event.dataset
+          to: action
+
+      - rename:
+          from:
+            - log.agent.version
+          to: log.agentVersion
+
+      - rename:
+          from:
+            - log.host.os.kernel
+          to: log.osVersion
+
+      - rename:
+          from:
+            - log.host.os.type
+          to: log.osType
+
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+
+      # Fields conversions
+      - cast:
+          to: '[]string'
+          fields:
+            - log.origin.ips
+      - cast:
+          to: '[]string'
+          fields:
+            - log.origin.macs
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.service
+            - log.metadata
+            - log.log.offset
+            - log.agent
+            - log.host
+            - log.event
+            - log.ecs
+            - log.log.file
+            - log.roleEnc
+            - log.levelEnc
+            - log.log$$
+	WHERE id=1401;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

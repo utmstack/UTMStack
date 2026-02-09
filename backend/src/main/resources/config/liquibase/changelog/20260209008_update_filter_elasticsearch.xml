@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260209008" author="JocLRojas">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='3.0.3',
+                updated_at = now(),
+	        logstash_filter=$$ # Elasticsearch filter, version 3.0.3
+# Fields based on https://www.elastic.co/guide/en/elasticsearch/reference/8.17/audit-event-types.html, 
+# https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-elasticsearch.html
+# and filebeat fields.yml version 7.13.4 oss
+# Support only server and audit logs from elasticsearch 7++
+# Filter Input requirements -> fileset: datatype
+#                              server: plain text, json
+#                              audit: plain text, json
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the elasticsearch log
+pipeline:
+  - dataTypes:
+      - elasticsearch
+    steps:
+      - json:
+          source: raw
+      - rename:
+          from:
+            - log.url
+          to: origin.url
+      - rename:
+          from:
+            - log.log.file.path
+          to: origin.file
+      - rename:
+          from:
+            - log.host.ip
+          to: log.local.ips
+      - rename:
+          from:
+            - log.host.mac
+          to: log.local.macs
+      - rename:
+          from:
+            - log.host.hostname
+          to: origin.host
+      - rename:
+          from:
+            - log.event.dataset
+          to: log.eventDataset
+      - rename:
+          from:
+            - log.agent.version
+          to: log.agentVersion
+      - rename:
+          from:
+            - log.host.os.kernel
+          to: log.osVersion
+      - rename:
+          from:
+            - log.host.os.type
+          to: log.osType
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+      - cast:
+          to: '[]string'
+          fields:
+            - log.local.ips
+      - cast:
+          to: '[]string'
+          fields:
+            - log.local.macs
+      - grok:
+          patterns:
+            - fieldName: deviceTime
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.level
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.component
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.nodeName
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: log.message
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - deviceTime
+            - log.level
+            - log.component
+            - log.nodeName
+          where: exists("log.msg")
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - deviceTime
+            - log.level
+            - log.component
+            - log.nodeName
+          where: exists("log.msg")
+      - reformat:
+          fields:
+            - deviceTime
+          function: time
+          fromFormat: '2022-01-20T22:52:07,431'
+          toFormat: '2024-09-23T15:57:40.338364445Z'
+          where: exists("deviceTime")
+      # Begin parsing when message comes in json format
+      - json:
+          source: log.message
+          where: exists("log.msg")
+      # Performing json step over the remaining message field (Cases when log.message has a message field inside)
+      - json:
+          source: log.message
+          where: exists("log.message")
+      # Rename audit fields from json
+      - rename:
+          from:
+            - log.audit_format_version
+          to: log.auditFormatVersion
+          where: exists("log.audit_format_version")
+      - rename:
+          from:
+            - log.audit_category
+          to: action
+          where: exists("log.audit_category")
+      - rename:
+          from:
+            - log.audit_node_host_address
+          to: log.auditNodeHostAddress
+          where: exists("log.audit_node_host_address")
+      - rename:
+          from:
+            - log.audit_node_host_name
+          to: log.auditNodeHostName
+          where: exists("log.audit_node_host_name")
+      - rename:
+          from:
+            - log.audit_request_layer
+          to: log.auditRequestLayer
+          where: exists("log.audit_request_layer")
+      - rename:
+          from:
+            - log.audit_request_origin
+          to: log.auditRequestOrigin
+          where: exists("log.audit_request_origin")
+      - rename:
+          from:
+            - log.audit_request_effective_user_is_admin
+          to: log.auditRequestEffectiveUserIsAdmin
+          where: exists("log.audit_request_effective_user_is_admin")
+      - rename:
+          from:
+            - log.audit_request_effective_user
+          to: log.auditRequestEffectiveUser
+          where: exists("log.audit_request_effective_user")
+      - rename:
+          from:
+            - log.audit_rest_request_path
+          to: log.auditRestRequestPath
+          where: exists("log.audit_rest_request_path")
+      - rename:
+          from:
+            - log.audit_rest_request_params
+          to: log.auditRestRequestParams
+          where: exists("log.audit_rest_request_params")
+      - rename:
+          from:
+            - log.audit_rest_request_headers
+          to: log.auditRestRequestHeaders
+          where: exists("log.audit_rest_request_headers")
+      - rename:
+          from:
+            - log.audit_request_initiating_user
+          to: log.auditRequestInitiatingUser
+          where: exists("log.audit_request_initiating_user")
+      - rename:
+          from:
+            - log.audit_request_body
+          to: log.auditRequestBody
+          where: exists("log.audit_request_body")
+      - rename:
+          from:
+            - log.audit_rest_request_method
+          to: log.auditRestRequestMethod
+          where: exists("log.audit_rest_request_method")
+      - rename:
+          from:
+            - log.audit_request_exception_stacktrace
+          to: log.auditRequestExceptionStacktrace
+          where: exists("log.audit_request_exception_stacktrace")
+      - rename:
+          from:
+            - log.audit_trace_task_id
+          to: log.auditTraceTaskId
+          where: exists("log.audit_trace_task_id")
+      - rename:
+          from:
+            - log.audit_transport_headers
+          to: log.auditTransportHeaders
+          where: exists("log.audit_transport_headers")
+      - rename:
+          from:
+            - log.audit_transport_request_type
+          to: log.auditTransportRequestType
+          where: exists("log.audit_transport_request_type")
+      - rename:
+          from:
+            - log.audit_trace_indices
+          to: log.auditTraceIndices
+          where: exists("log.audit_trace_indices")
+      - rename:
+          from:
+            - log.audit_trace_resolved_indices
+          to: log.auditTraceResolvedIndices
+          where: exists("log.audit_trace_resolved_indices")
+      - rename:
+          from:
+            - log.audit_trace_doc_types
+          to: log.auditTraceDocTypes
+          where: exists("log.audit_trace_doc_types")
+      - rename:
+          from:
+            - log.audit_trace_task_parent_id
+          to: log.auditTraceTaskParentId
+          where: exists("log.audit_trace_task_parent_id")
+      - rename:
+          from:
+            - log.audit_request_privilege
+          to: log.auditRequestPrivilege
+          where: exists("log.audit_request_privilege")
+      - rename:
+          from:
+            - log.audit_compliance_operation
+          to: log.auditComplianceOperation
+          where: exists("log.audit_compliance_operation")
+      - rename:
+          from:
+            - log.node.id
+            - log.audit_node_id
+          to: log.nodeId
+          where: exists("log.node.id") || exists("log.audit_node_id")
+      - rename:
+          from:
+            - log.node.name
+            - log.audit_node_name
+          to: log.nodeName
+          where: exists("log.node.name") || exists("log.node.name")
+      - rename:
+          from:
+            - log.cluster.name
+            - log.audit_cluster_name
+          to: log.clusterName
+          where: exists("log.cluster.name") || exists("log.audit_cluster_name")
+      - rename:
+          from:
+            - log.cluster.uuid
+          to: log.clusterUuid
+          where: exists("log.cluster.uuid")
+      # Adding fields from elastic audit json file
+      - rename:
+          from:
+            - log.event.type
+          to: log.eventType
+          where: exists("log.event.type")
+      - rename:
+          from:
+            - log.event.action
+          to: action
+          where: exists("log.event.action")
+      - rename:
+          from:
+            - log.request.id
+          to: log.requestId
+          where: exists("log.request.id")
+      # Extracting ip and port from address
+      - grok:
+          patterns:
+            - fieldName: log.origin.address
+              pattern: '(.*)\:'
+            - fieldName: origin.port
+              pattern: '{{.greedy}}'
+          source: log.origin.address
+          where: exists("log.origin.address")
+      # Cleaning ip address if has port
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.origin.address
+          where: exists("log.origin.address")
+      - rename:
+          from:
+            - log.origin.address
+          to: origin.ip
+          where: exists("log.origin.address")
+      # Adding geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+      # Port field conversion
+      - cast:
+          fields:
+            - origin.port
+          to: int
+          where: exists("origin.port")
+      - rename:
+          from:
+            - log.origin.type
+          to: log.originType
+          where: exists("log.origin.type")
+      - rename:
+          from:
+            - log.url.path
+          to: origin.url
+          where: exists("log.url.path")
+      - rename:
+          from:
+            - log.url.query
+          to: log.urlQuery
+          where: exists("log.url.query")
+      - rename:
+          from:
+            - log.request.method
+          to: log.method
+          where: exists("log.request.method")
+      - rename:
+          from:
+            - log.transport_profile
+          to: log.transportProfile
+          where: exists("log.transport_profile")
+      - rename:
+          from:
+            - log.user.name
+          to: origin.user
+          where: exists("log.user.name")
+      - rename:
+          from:
+            - log.user.realm
+          to: log.userRealm
+          where: exists("log.user.realm")
+      - rename:
+          from:
+            - log.user.run_by.name
+          to: log.userRunByName
+          where: exists("log.user.run_by.name")
+      - rename:
+          from:
+            - log.authentication.type
+          to: log.authenticationType
+          where: exists("log.authentication.type")
+      - rename:
+          from:
+            - log.apikey.name
+          to: log.apikeyName
+          where: exists("log.apikey.name")
+      - rename:
+          from:
+            - log.user.roles
+          to: log.userRoles
+          where: exists("log.user.roles")
+      - rename:
+          from:
+            - log.user.run_as.name
+          to: log.userRunAsName
+          where: exists("log.user.run_as.name")
+      - rename:
+          from:
+            - log.user.run_as.name
+          to: log.userRunAsName
+          where: exists("log.user.run_as.name")
+      # Casting new fields after json parsing
+      - cast:
+          to: '[]string'
+          fields:
+            - log.auditTraceIndices
+            - log.auditTraceResolvedIndices
+            - log.indices
+            - log.userRoles
+      # Adding severity based on log.level
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'high'
+          where: oneOf("log.level", ["ERROR", "Error", "FATAL", "CRITICAL", "Critical"])
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'medium'
+          where: oneOf("log.level", ["WARN", "Warning"])
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'low'
+          where: oneOf("log.level", ["Information", "Informational", "INFO", "DEBUG", "TRACE"])
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.service
+            - log.metadata
+            - log.agent
+            - log.host
+            - log.event
+            - log.ecs
+            - log.log
+            - log.fileset
+            - log.cluster
+            - log.node
+            - log.opaque_id
+            - log.trace_id
+            - log.x_forwarded_for
+            - log.request
+            - log.url
+            - log.user
+            - log.apikey
+            - log.authentication
+            - log.origin
+
+      # Droping unwanted logs
+      - drop:
+          where: exists("log.eventDataset") && exists("log.component") && ( (!equals("log.eventDataset", "elasticsearch.server") && !equals("log.eventDataset", "elasticsearch.audit")) || (equals("log.eventDataset", "elasticsearch.server") && (!equalsIgnoreCase("log.component", "audit") && !equalsIgnoreCase("log.component", "ssl") && !equalsIgnoreCase("log.component", "security") ) ) )$$
+	WHERE id=1410;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>
