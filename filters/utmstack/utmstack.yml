@@ -1,8 +1,18 @@
-# UTMStack filter, version 1.0.0
+# UTMStack filter, version 1.0.1
 
 pipeline:
   - dataTypes:
       - utmstack
     steps:
+      # Only parse as JSON if it contains the standard schema with "msg": and "args":
       - json:
           source: raw
+          where: 'contains("raw", "\"msg\":") && contains("raw", "\"args\":")'
+      
+      # If it doesn't have the standard schema, just store the content in log.message using grok
+      - grok:
+          source: raw
+          patterns:
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+          where: '!contains("raw", "\"msg\":") || !contains("raw", "\"args\":")'
