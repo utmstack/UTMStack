@@ -1,4 +1,4 @@
-# Kibana filter, version 3.0.2
+# Kibana filter, version 3.0.3
 # Supports Kibana Log and Kibana Audit version 7.17 or later.
 # See: https://www.elastic.co/guide/en/kibana/7.17/xpack-security-audit-logging.html
 # and https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-module-kibana.html#_fields_27 

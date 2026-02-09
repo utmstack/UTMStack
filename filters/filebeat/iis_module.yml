@@ -1,4 +1,4 @@
-# Internet Information Services Filter, version 3.0.2
+# Internet Information Services Filter, version 3.0.3
 # Supports IIS 7 and later versions. See: https://learn.microsoft.com/es-es/iis/configuration/system.applicationhost/log/
 # and https://learn.microsoft.com/es-es/iis/configuration/system.applicationhost/sites/site/logfile/
 # 1. Parsing the json from beats

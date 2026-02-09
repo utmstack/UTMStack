@@ -1,4 +1,4 @@
-# Logstash filter, version 4.0.2
+# Logstash filter, version 4.0.3
 # Fields based on https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-logstash.html
 # and filebeat fields.yml version 7.13.4 oss
 # Support logs from logstash 7.14.1 ++

@@ -1,4 +1,4 @@
-# Windows_Agent filter, version 3.0.3
+# Windows_Agent filter, version 3.0.4
 # Based on winlogbeat fields, reference [8.15]
 # See https://www.elastic.co/guide/en/beats/winlogbeat/current/exported-fields-winlog.html
 

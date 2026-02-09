@@ -1,4 +1,4 @@
-# Suricata filter version 1.0.0
+# Suricata filter version 1.0.1
 # Based on https://suricata.readthedocs.io/en/latest/output/eve/eve-json-format.html (latest 8.0.0) (august 2025)
 # and real events log provided
 # Support json format

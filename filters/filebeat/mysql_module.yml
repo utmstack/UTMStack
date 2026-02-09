@@ -1,4 +1,4 @@
-# MySQL filter, version 3.0.2
+# MySQL filter, version 3.0.3
 # Fields based on https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-mysql.html
 # https://dev.mysql.com/doc/refman/8.0/en/error-log-format.html
 # https://docs.oracle.com/en-us/iaas/Content/Logging/Reference/top_level_logging_format.htm

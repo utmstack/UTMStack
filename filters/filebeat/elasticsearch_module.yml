@@ -1,4 +1,4 @@
-# Elasticsearch filter, version 3.0.2
+# Elasticsearch filter, version 3.0.3
 # Fields based on https://www.elastic.co/guide/en/elasticsearch/reference/8.17/audit-event-types.html, 
 # https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-elasticsearch.html
 # and filebeat fields.yml version 7.13.4 oss
