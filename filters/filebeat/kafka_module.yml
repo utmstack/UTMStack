@@ -142,21 +142,21 @@ pipeline:
           params:
             key: severity
             value: 'low'
-          where: safe("log.severity", "") in ["INFO", "TRACE", "DEBUG"]
+          where: oneOf("log.severity", ["INFO", "TRACE", "DEBUG"])
 
       - add:
           function: 'string'
           params:
             key: severity
             value: 'medium'
-          where: safe("log.severity", "") in ["WARNING", "WARN"]
+          where: oneOf("log.severity", ["WARNING", "WARN"])
 
       - add:
           function: 'string'
           params:
             key: severity
             value: 'high'
-          where: safe("log.severity", "") == "ERROR"
+          where: equals("log.severity", "ERROR")
       
       # Removing unused fields
       - delete:

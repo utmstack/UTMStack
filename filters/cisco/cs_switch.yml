@@ -139,7 +139,7 @@ pipeline:
           params:
             key: severity
             value: 'high'
-          where: safe("log.severity", "") in ["0", "1", "2", "3"]
+          where: oneOf("log.severity", ["0", "1", "2", "3"])
       - add:
           function: 'string'
           params:
@@ -151,7 +151,7 @@ pipeline:
           params:
             key: severity
             value: 'low'
-          where: safe("log.severity", "") in ["5", "6", "7"]
+          where: oneOf("log.severity", ["5", "6", "7"])
       #......................................................................#
       # Removing unused fields
       - delete:

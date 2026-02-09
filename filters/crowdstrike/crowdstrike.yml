@@ -263,35 +263,35 @@ pipeline:
           params:
             key: action
             value: 'get'
-          where: safe("log.eventAttributesRequestMethod", "") == "GET"
+          where: equals("log.eventAttributesRequestMethod", "GET")
 
       - add:
           function: 'string'
           params:
             key: action
             value: 'post'
-          where: safe("log.eventAttributesRequestMethod", "") == "POST"
+          where: equals("log.eventAttributesRequestMethod", "POST")
 
       - add:
           function: 'string'
           params:
             key: action
             value: 'put'
-          where: safe("log.eventAttributesRequestMethod", "") == "PUT"
+          where: equals("log.eventAttributesRequestMethod", "PUT")
 
       - add:
           function: 'string'
           params:
             key: action
             value: 'delete'
-          where: safe("log.eventAttributesRequestMethod", "") == "DELETE"
+          where: equals("log.eventAttributesRequestMethod", "DELETE")
 
       - add:
           function: 'string'
           params:
             key: action
             value: 'request'
-          where: safe("log.eventAttributesRequestMethod", "") == "REQUEST"
+          where: equals("log.eventAttributesRequestMethod", "REQUEST")
 
       # .......................................................................#
       # Removing unused fields

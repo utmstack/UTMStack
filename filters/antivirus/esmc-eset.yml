@@ -90,21 +90,21 @@ pipeline:
           params:
             key: severity
             value: 'low'
-          where: safe("log.severity", "") in ["INFO", "Info"]
+          where: oneOf("log.severity", ["INFO", "Info"])
 
       - add:
           function: 'string'
           params:
             key: severity
             value: 'medium'
-          where: safe("log.severity", "") in ["WARNING", "Warning"]
+          where: oneOf("log.severity", ["WARNING", "Warning"])
 
       - add:
           function: 'string'
           params:
             key: severity
             value: 'high'
-          where: safe("log.severity", "") in ["ERROR", "Error"]
+          where: oneOf("log.severity", ["ERROR", "Error"])
 
       # Adding geolocation to origin.ip
       - dynamic:

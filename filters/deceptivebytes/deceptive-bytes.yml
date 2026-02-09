@@ -467,21 +467,21 @@ pipeline:
           params:
             key: severity
             value: 'high'
-          where: safe("log.severityLabelCharacter", "") in ["C", "A", "E"]
+          where: oneOf("log.severityLabelCharacter", ["C", "A", "E"])
 
       - add:
           function: 'string'
           params:
             key: severity
             value: 'medium'
-          where: safe("log.severityLabelCharacter", "") == "W"
+          where: equals("log.severityLabelCharacter", "W")
 
       - add:
           function: 'string'
           params:
             key: severity
             value: 'low'
-          where: safe("log.severityLabelCharacter", "") in ["D", "V", "N", "I", "T"]
+          where: oneOf("log.severityLabelCharacter", ["D", "V", "N", "I", "T"])
 
       # Removing unused fields
       - delete:

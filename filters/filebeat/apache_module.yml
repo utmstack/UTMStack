@@ -155,37 +155,37 @@ pipeline:
           params:
             key: action
             value: 'get'
-          where: safe("log.method", "") == "GET"
+          where: equals("log.method", "GET")
       - add:
           function: 'string'
           params:
             key: action
             value: 'post'
-          where: safe("log.method", "") == "POST"
+          where: equals("log.method", "POST")
       - add:
           function: 'string'
           params:
             key: action
             value: 'put'
-          where: safe("log.method", "") == "PUT"
+          where: equals("log.method", "PUT")
       - add:
           function: 'string'
           params:
             key: action
             value: 'delete'
-          where: safe("log.method", "") == "DELETE"
+          where: equals("log.method", "DELETE")
       - add:
           function: 'string'
           params:
             key: action
             value: 'patch'
-          where: safe("log.method", "") == "PATCH"
+          where: equals("log.method", "PATCH")
       - add:
           function: 'string'
           params:
             key: action
             value: 'request'
-          where: safe("log.method", "") == "REQUEST"
+          where: equals("log.method", "REQUEST")
       # Removing log.method if action was set
       - delete:
           fields:
@@ -215,7 +215,7 @@ pipeline:
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.statusCode", 0.0) >= double(200) && safe("log.statusCode", 0.0) <= double(299) || (safe("log.statusCode", 0.0) >= double(300) && safe("log.statusCode", 0.0) <= double(399) && safe("origin.bytesReceived", 0.0) > double(0))
+          where: (greaterOrEqual("log.statusCode", 200) && lessOrEqual("log.statusCode", 299)) || (greaterOrEqual("log.statusCode", 300) && lessOrEqual("log.statusCode", 399) && greaterThan("origin.bytesReceived", 0))
       # Removing unused fields
       - delete:
           fields:

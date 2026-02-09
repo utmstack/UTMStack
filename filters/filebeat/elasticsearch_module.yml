@@ -381,19 +381,19 @@ pipeline:
           params:
             key: severity
             value: 'high'
-          where: safe("log.level", "") in ["ERROR", "Error", "FATAL", "CRITICAL", "Critical"]
+          where: oneOf("log.level", ["ERROR", "Error", "FATAL", "CRITICAL", "Critical"])
       - add:
           function: 'string'
           params:
             key: severity
             value: 'medium'
-          where: safe("log.level", "") in ["WARN", "Warning"]
+          where: oneOf("log.level", ["WARN", "Warning"])
       - add:
           function: 'string'
           params:
             key: severity
             value: 'low'
-          where: safe("log.level", "") in ["Information", "Informational", "INFO", "DEBUG", "TRACE"]
+          where: oneOf("log.level", ["Information", "Informational", "INFO", "DEBUG", "TRACE"])
 
       # Removing unused fields
       - delete:
@@ -420,4 +420,4 @@ pipeline:
 
       # Droping unwanted logs
       - drop:
-          where: safe("log.eventDataset", "") && safe("log.component", "") && ( (safe("log.eventDataset", "") != "elasticsearch.server" && safe("log.eventDataset", "") != "elasticsearch.audit") || (safe("log.eventDataset", "") == "elasticsearch.server" && (safe("log.component", "").matches("(A|a)udit")==false && safe("log.component", "").matches("(S|s)(S|s)(L|l)")==false && safe("log.component", "").matches("(S|s)ecurity")==false ) ) )
+          where: exists("log.eventDataset") && exists("log.component") && ( (!equals("log.eventDataset", "elasticsearch.server") && !equals("log.eventDataset", "elasticsearch.audit")) || (equals("log.eventDataset", "elasticsearch.server") && (!equalsIgnoreCase("log.component", "audit") && !equalsIgnoreCase("log.component", "ssl") && !equalsIgnoreCase("log.component", "security") ) ) )

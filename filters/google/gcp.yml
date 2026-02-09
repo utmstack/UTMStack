@@ -309,21 +309,21 @@ pipeline:
           params:
             key: severity
             value: "low"
-          where: safe("log.severity", "") in ["INFO", "NOTICE"]
+          where: oneOf("log.severity", ["INFO", "NOTICE"])
 
       - add:
           function: "string"
           params:
             key: severity
             value: "medium"
-          where: safe("log.severity", "") == "WARNING"
+          where: equals("log.severity", "WARNING")
 
       - add:
           function: "string"
           params:
             key: severity
             value: "high"
-          where: safe("log.severity", "") == "ERROR"
+          where: equals("log.severity", "ERROR")
 
       # Adding action field based on log.httpRequestMethod
       - add:
@@ -331,42 +331,42 @@ pipeline:
           params:
             key: action
             value: "get"
-          where: safe("log.httpRequestMethod", "") == "GET"
+          where: equals("log.httpRequestMethod", "GET")
 
       - add:
           function: "string"
           params:
             key: action
             value: "post"
-          where: safe("log.httpRequestMethod", "") == "POST"
+          where: equals("log.httpRequestMethod", "POST")
 
       - add:
           function: "string"
           params:
             key: action
             value: "put"
-          where: safe("log.httpRequestMethod", "") == "PUT"
+          where: equals("log.httpRequestMethod", "PUT")
 
       - add:
           function: "string"
           params:
             key: action
             value: "patch"
-          where: safe("log.httpRequestMethod", "") == "PATCH"
+          where: equals("log.httpRequestMethod", "PATCH")
 
       - add:
           function: "string"
           params:
             key: action
             value: "request"
-          where: safe("log.httpRequestMethod", "") == "REQUEST"
+          where: equals("log.httpRequestMethod", "REQUEST")
 
       - add:
           function: "string"
           params:
             key: action
             value: "delete"
-          where: safe("log.httpRequestMethod", "") == "DELETE"
+          where: equals("log.httpRequestMethod", "DELETE")
 
       # Adding actionResult field based on log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
       - add:
@@ -374,14 +374,14 @@ pipeline:
           params:
             key: actionResult
             value: "accepted"
-          where: safe("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome", "") == "ACCEPT"
+          where: equals("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome", "ACCEPT")
 
       - add:
           function: "string"
           params:
             key: actionResult
             value: "denied"
-          where: safe("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome", "") == "DENY"
+          where: equals("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome", "DENY")
 
       # Adding geolocation to origin.ip
       - dynamic:

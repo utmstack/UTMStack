@@ -314,14 +314,14 @@ pipeline:
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("actionResult", "") && (safe("log.messageId", 0.0) == double(106102) || safe("log.messageId", 0.0) == double(106103)) && (safe("actionResult", "") == "Permitted" || safe("actionResult", "") == "permitted")
+          where: exists("actionResult") && (equals("log.messageId", 106102) || equals("log.messageId", 106103)) && equalsIgnoreCase("actionResult", "Permitted")
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("actionResult", "") && (safe("log.messageId", 0.0) == double(106102) || safe("log.messageId", 0.0) == double(106103)) && (safe("actionResult", "") != "Permitted" && safe("actionResult", "") != "permitted")
+          where: exists("actionResult") && (equals("log.messageId", 106102) || equals("log.messageId", 106103)) && !equalsIgnoreCase("actionResult", "Permitted")
       #......................................................................#
       # ASA-4-109017
       - grok:
@@ -5754,13 +5754,13 @@ pipeline:
           params:
             key: action
             value: 'Threat-detection add host to shun list'
-          where: (safe("log.messageId", 0.0)==double(733102) || safe("log.messageId", 0.0)==double(733103)) && safe("log.msg", "").contains("add")
+          where: (equals("log.messageId", 733102) || equals("log.messageId", 733103)) && contains("log.msg", "add")
       - add:
           function: 'string'
           params:
             key: action
             value: 'Threat-detection removes host to shun list'
-          where: (safe("log.messageId", 0.0)==double(733102) || safe("log.messageId", 0.0)==double(733103)) && safe("log.msg", "").contains("removes")
+          where: (equals("log.messageId", 733102) || equals("log.messageId", 733103)) && contains("log.msg", "removes")
       #......................................................................#
       # Decoding severity
       - add:
@@ -5768,7 +5768,7 @@ pipeline:
           params:
             key: severity
             value: 'high'
-          where: safe("log.severity", "") in ["1", "2", "3"]
+          where: oneOf("log.severity", ["1", "2", "3"])
       - add:
           function: 'string'
           params:
@@ -5780,7 +5780,7 @@ pipeline:
           params:
             key: severity
             value: 'low'
-          where: safe("log.severity", "") in ["5", "6", "7"]
+          where: oneOf("log.severity", ["5", "6", "7"])
       #......................................................................#
       # Adding common geolocation
       - dynamic:

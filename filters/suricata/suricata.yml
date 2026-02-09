@@ -9,7 +9,7 @@ pipeline:
     steps:
       # Drop log incomplete jSon structure
       - drop:
-          where: safe("raw", "").matches(".*\\\"event_type\\\"\\s*:\\s*\\\"stats\\\".*")
+          where: regexMatch("raw", ".*\\\"event_type\\\"\\s*:\\s*\\\"stats\\\".*")
 
       # Parsing RAW field log
       - grok:
@@ -30,7 +30,7 @@ pipeline:
       # Parse Suricata JSON logs
       - json:
           source: log.suricataJson
-          where: safe("log.suricataJson", "").matches("^\\{.*\\}$")
+          where: regexMatch("log.suricataJson", "^\\{.*\\}$")
 
       # Rename fields to conversion v11 schema
       - rename:
@@ -95,21 +95,21 @@ pipeline:
           params:
             key: severity
             value: "low"
-          where: safe("log.alert.severity", 0.0) == double(1)
+          where: equals("log.alert.severity", 1)
 
       - add:
           function: "string"
           params:
             key: severity
             value: "medium"
-          where: safe("log.alert.severity", 0.0) == double(2)
+          where: equals("log.alert.severity", 2)
 
       - add:
           function: "string"
           params:
             key: severity
             value: "high"
-          where: safe("log.alert.severity", 0.0) == double(3)
+          where: equals("log.alert.severity", 3)
 
       #.......................................................................
       # Add new eventtypes to logx structure, detected in real logs, present in suricata 7.0.0
@@ -129,26 +129,26 @@ pipeline:
           params:
             key: action
             value: "success"
-          where: (safe("log.eventType", "") == "tls" && exists("log.tls.sessionresumed")) ||
-            (safe("log.eventType", "") == "dns" && safe("log.dns.type", "") == "answer") ||
-            (safe("log.eventType", "") == "flow" && exists("origin.ip") && exists("target.ip") && safe("log.flow.bytestoserver", 0.0) > double(0) && safe("log.flow.bytestoclient", 0.0) > double(0)) ||
-            (safe("log.eventType", "") == "ssh" && exists("log.ssh.server") && exists("log.ssh.client")) ||
-            (safe("log.eventType", "") == "alert" && exists("origin.ip") && exists("target.ip") && safe("log.alert.action", "") == "allowed" && safe("log.flow.bytestoserver", 0.0) > double(0) && safe("log.flow.bytestoclient", 0.0) > double(0)) ||
-            (safe("log.eventType", "") == "http" && exists("origin.ip") && exists("target.ip") && exists("log.http.status")) ||
-            (safe("log.eventType", "") == "ftp" && exists("origin.ip") && exists("target.ip") && exists("log.ftp.completioncode")) ||
-            (safe("log.eventType", "") == "tftp" && exists("origin.ip") && exists("target.ip") && safe("log.tftp.packet", "") != "error") ||
-            (safe("log.eventType", "") == "smb" && exists("origin.ip") && exists("target.ip") && safe("log.smb.command", "") in ["NEGOTIATE"] && safe("log.smb.status", "") in ["SUCCESS", "GRANTED", "CONNECTED"]) ||
-            (safe("log.eventType", "") == "rdp" && exists("origin.ip") && exists("target.ip") && (safe("log.rdp.eventType", "") == "connectresponse" || safe("log.rdp.eventType", "") == "tlshandshake")) ||
-            (safe("log.eventType", "") == "rfb" && exists("origin.ip") && exists("target.ip") && safe("log.rfb.authentication.security-result", "") == "OK") ||
-            (safe("log.eventType", "") == "mqtt" && exists("origin.ip") && exists("target.ip") && (safe("log.mqtt.connack.returncode", "") == "0" ||  safe("log.mqtt.connack.returncode", "") == "0x00")) ||
-            (safe("log.eventType", "") == "pgsql" && exists("origin.ip") && exists("target.ip") && (exists("log.pgsql.request.simplequery") ||  exists("log.pgsql.response.commandcompleted") || safe("log.pgsql.response.sslaccepted", "") == "true" || safe("log.pgsql.response.accepted", "") == "true" || exists("log.pgsql.response.authenticationmd5password"))) ||
-            ((safe("log.eventType", "") == "ike" || safe("log.eventType", "") == "ikev1" || safe("log.eventType", "") == "ikev2") && exists("origin.ip") && exists("target.ip")) ||
-            (safe("log.eventType", "") == "modbus" && exists("origin.ip") && exists("target.ip")) ||
-            (safe("log.eventType", "") == "sip" && exists("origin.ip") && exists("target.ip")) ||
-            (safe("log.eventType", "") == "quic" && exists("origin.ip") && exists("target.ip")) ||
-            (safe("log.eventType", "") == "fileinfo" && exists("origin.ip") && exists("target.ip")) ||
-            (safe("log.eventType", "") == "snmp" && exists("origin.ip") && exists("target.ip")) ||
-            (safe("log.eventType", "") == "dhcp" && exists("origin.ip") && exists("target.ip") && safe("log.dhcp.assignedip", "") != "0")
+          where: (equals("log.eventType", "tls") && exists("log.tls.sessionresumed")) ||
+            (equals("log.eventType", "dns") && equals("log.dns.type", "answer")) ||
+            (equals("log.eventType", "flow") && exists("origin.ip") && exists("target.ip") && greaterThan("log.flow.bytestoserver", 0) && greaterThan("log.flow.bytestoclient", 0)) ||
+            (equals("log.eventType", "ssh") && exists("log.ssh.server") && exists("log.ssh.client")) ||
+            (equals("log.eventType", "alert") && exists("origin.ip") && exists("target.ip") && equals("log.alert.action", "allowed") && greaterThan("log.flow.bytestoserver", 0) && greaterThan("log.flow.bytestoclient", 0)) ||
+            (equals("log.eventType", "http") && exists("origin.ip") && exists("target.ip") && exists("log.http.status")) ||
+            (equals("log.eventType", "ftp") && exists("origin.ip") && exists("target.ip") && exists("log.ftp.completioncode")) ||
+            (equals("log.eventType", "tftp") && exists("origin.ip") && exists("target.ip") && !equals("log.tftp.packet", "error")) ||
+            (equals("log.eventType", "smb") && exists("origin.ip") && exists("target.ip") && oneOf("log.smb.command", ["NEGOTIATE"]) && oneOf("log.smb.status", ["SUCCESS", "GRANTED", "CONNECTED"])) ||
+            (equals("log.eventType", "rdp") && exists("origin.ip") && exists("target.ip") && (equals("log.rdp.eventType", "connectresponse") || equals("log.rdp.eventType", "tlshandshake"))) ||
+            (equals("log.eventType", "rfb") && exists("origin.ip") && exists("target.ip") && equals("log.rfb.authentication.security-result", "OK")) ||
+            (equals("log.eventType", "mqtt") && exists("origin.ip") && exists("target.ip") && (equals("log.mqtt.connack.returncode", "0") ||  equals("log.mqtt.connack.returncode", "0x00"))) ||
+            (equals("log.eventType", "pgsql") && exists("origin.ip") && exists("target.ip") && (exists("log.pgsql.request.simplequery") ||  exists("log.pgsql.response.commandcompleted") || equals("log.pgsql.response.sslaccepted", "true") || equals("log.pgsql.response.accepted", "true") || exists("log.pgsql.response.authenticationmd5password"))) ||
+            ((equals("log.eventType", "ike") || equals("log.eventType", "ikev1") || equals("log.eventType", "ikev2")) && exists("origin.ip") && exists("target.ip")) ||
+            (equals("log.eventType", "modbus") && exists("origin.ip") && exists("target.ip")) ||
+            (equals("log.eventType", "sip") && exists("origin.ip") && exists("target.ip")) ||
+            (equals("log.eventType", "quic") && exists("origin.ip") && exists("target.ip")) ||
+            (equals("log.eventType", "fileinfo") && exists("origin.ip") && exists("target.ip")) ||
+            (equals("log.eventType", "snmp") && exists("origin.ip") && exists("target.ip")) ||
+            (equals("log.eventType", "dhcp") && exists("origin.ip") && exists("target.ip") && !equals("log.dhcp.assignedip", "0"))
           
 
       # Adding geolocation to origin.ip

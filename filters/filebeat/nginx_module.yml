@@ -306,35 +306,35 @@ pipeline:
           params:
             key: action
             value: 'get'
-          where: safe("log.method", "") == "GET"
+          where: equals("log.method", "GET")
 
       - add:
           function: 'string'
           params:
             key: action
             value: 'post'
-          where: safe("log.method", "") == "POST"
+          where: equals("log.method", "POST")
 
       - add:
           function: 'string'
           params:
             key: action
             value: 'put'
-          where: safe("log.method", "") == "PUT"
+          where: equals("log.method", "PUT")
 
       - add:
           function: 'string'
           params:
             key: action
             value: 'delete'
-          where: safe("log.method", "") == "DELETE"
+          where: equals("log.method", "DELETE")
 
       - add:
           function: 'string'
           params:
             key: action
             value: 'request'
-          where: safe("log.method", "") == "REQUEST"
+          where: equals("log.method", "REQUEST")
 
       # Adding actionResult
       # denied by default
@@ -349,7 +349,7 @@ pipeline:
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("statusCode", 0.0) >= double(200) && safe("statusCode", 0.0) <= double(299) || (safe("statusCode", 0.0) >= double(300) && safe("statusCode", 0.0) <= double(399) && safe("origin.bytesReceived", 0.0) > double(0))
+          where: (greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 299)) || (greaterOrEqual("statusCode", 300) && lessOrEqual("statusCode", 399) && greaterThan("origin.bytesReceived", 0))
 
       # Adding severity based on log.severityLabel
       - add:
@@ -357,21 +357,21 @@ pipeline:
           params:
             key: log.severity
             value: 'high'
-          where: safe("log.severityLabel", "") in ["critical", "alert", "error"]
+          where: oneOf("log.severityLabel", ["critical", "alert", "error"])
 
       - add:
           function: 'string'
           params:
             key: log.severity
             value: 'medium'
-          where: safe("log.severityLabel", "") == "warning"
+          where: equals("log.severityLabel", "warning")
 
       - add:
           function: 'string'
           params:
             key: log.severity
             value: 'low'
-          where: safe("log.severityLabel", "") in ["debug", "verbose", "notice", "information", "trace"]
+          where: oneOf("log.severityLabel", ["debug", "verbose", "notice", "information", "trace"])
 
       # Removing log.method if action was set
       - delete:

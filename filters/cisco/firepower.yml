@@ -97,7 +97,7 @@ pipeline:
             - fieldName: log.srcInterface
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(106001)
+          where: equals("log.messageId", 106001)
 
       - trim:
           function: prefix
@@ -105,7 +105,7 @@ pipeline:
           fields:
             - origin.port
             - target.port
-          where: safe("log.messageId", 0.0) == double(106001)
+          where: equals("log.messageId", 106001)
       #......................................................................#
       # FTD-2-106017
       - grok:
@@ -123,13 +123,13 @@ pipeline:
             - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}})'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(106017)
+          where: equals("log.messageId", 106017)
       - trim:
           function: suffix
           substring: 'from'
           fields:
             - action
-          where: safe("log.messageId", 0.0) == double(106017)
+          where: equals("log.messageId", 106017)
       #......................................................................#
       # FTD-1-106021
       - grok:
@@ -149,19 +149,19 @@ pipeline:
             - fieldName: log.srcInterface
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(106021)
+          where: equals("log.messageId", 106021)
       - trim:
           function: suffix
           substring: 'from'
           fields:
             - action
-          where: safe("log.messageId", 0.0) == double(106021)
+          where: equals("log.messageId", 106021)
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(106021)
+          where: equals("log.messageId", 106021)
       #......................................................................#
       # FTD-2-106101
       - grok:
@@ -171,7 +171,7 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(106101)
+          where: equals("log.messageId", 106101)
       - grok:
           patterns:
             - fieldName: log.irrelevant
@@ -181,7 +181,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(106101)
+          where: equals("log.messageId", 106101)
       # Parsing the limit number
       - grok:
           patterns:
@@ -192,13 +192,13 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.rest
-          where: safe("log.messageId", 0.0) == double(106101)
+          where: equals("log.messageId", 106101)
       # Field conversions
       - cast:
           fields:
             - log.numFlows
           to: int
-          where: safe("log.messageId", 0.0) == double(106101)
+          where: equals("log.messageId", 106101)
       #......................................................................#
       # FTD-6-106102,FTD-4-106103
       # First variant
@@ -235,7 +235,7 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(106102) || safe("log.messageId", 0.0)==double(106103)
+          where: equals("log.messageId", 106102) || equals("log.messageId", 106103)
       # Second variant
       - grok:
           patterns:
@@ -272,54 +272,54 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(106102) || safe("log.messageId", 0.0)==106103
+          where: equals("log.messageId", 106102) || equals("log.messageId", 106103)
       - trim:
           function: suffix
           substring: '/'
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(106102) || safe("log.messageId", 0.0)==106103
+          where: equals("log.messageId", 106102) || equals("log.messageId", 106103)
       - trim:
           function: prefix
           substring: ''''
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(106102) || safe("log.messageId", 0.0)==106103
+          where: equals("log.messageId", 106102) || equals("log.messageId", 106103)
       - trim:
           function: suffix
           substring: ''''
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(106102) || safe("log.messageId", 0.0)==106103
+          where: equals("log.messageId", 106102) || equals("log.messageId", 106103)
       - trim:
           function: prefix
           substring: '('
           fields:
             - origin.port
             - target.port
-          where: safe("log.messageId", 0.0) == double(106102) || safe("log.messageId", 0.0)==106103
+          where: equals("log.messageId", 106102) || equals("log.messageId", 106103)
       - trim:
           function: suffix
           substring: ')'
           fields:
             - origin.port
             - target.port
-          where: safe("log.messageId", 0.0) == double(106102) || safe("log.messageId", 0.0)==106103
+          where: equals("log.messageId", 106102) || equals("log.messageId", 106103)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("actionResult", "") && (safe("log.messageId", 0.0)==106102 || safe("log.messageId", 0.0)==106103) && (safe("actionResult", "") == "Permitted" || safe("actionResult", "") == "permitted")
+          where: exists("actionResult") && (equals("log.messageId", 106102) || equals("log.messageId", 106103)) && equalsIgnoreCase("actionResult", "Permitted")
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("actionResult", "") && (safe("log.messageId", 0.0)==106102 || safe("log.messageId", 0.0)==106103) && (safe("actionResult", "") != "Permitted" && safe("actionResult", "") != "permitted")
+          where: exists("actionResult") && (equals("log.messageId", 106102) || equals("log.messageId", 106103)) && !equalsIgnoreCase("actionResult", "Permitted")
       #......................................................................#
       # FTD-6-109101
       - grok:
@@ -339,7 +339,7 @@ pipeline:
             - fieldName: log.auditSessionId
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(109101)
+          where: equals("log.messageId", 109101)
       # Action result
       - grok:
           patterns:
@@ -350,19 +350,19 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(109101)
+          where: equals("log.messageId", 109101)
       - trim:
           function: suffix
           substring: ','
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(109101)
+          where: equals("log.messageId", 109101)
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(109101)
+          where: equals("log.messageId", 109101)
       #......................................................................#
       # FTD-4-109102
       - grok:
@@ -378,7 +378,7 @@ pipeline:
             - fieldName: log.auditSessionId
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(109102)
+          where: equals("log.messageId", 109102)
       # Action result
       - grok:
           patterns:
@@ -387,13 +387,13 @@ pipeline:
             - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(109102)
+          where: equals("log.messageId", 109102)
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(109102)
+          where: equals("log.messageId", 109102)
       #......................................................................#
       # FTD-3-109103
       - grok:
@@ -413,7 +413,7 @@ pipeline:
             - fieldName: log.auditSessionId
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(109103)
+          where: equals("log.messageId", 109103)
       # Action result
       - grok:
           patterns:
@@ -422,19 +422,19 @@ pipeline:
             - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(109103)
+          where: equals("log.messageId", 109103)
       - trim:
           function: suffix
           substring: ','
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(109103)
+          where: equals("log.messageId", 109103)
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(109103)
+          where: equals("log.messageId", 109103)
       #......................................................................#
       # FTD-109201 to 109213
       - grok:
@@ -456,21 +456,21 @@ pipeline:
             - fieldName: action
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0)>=109201 && log.messageId<=109213
+          where: greaterOrEqual("log.messageId", 109201) && log.messageId<=109213
       - trim:
           function: suffix
           substring: ','
           fields:
             - log.session
             - origin.user
-          where: lsafe("log.messageId", 0.0)>=109201 && log.messageId<=109213
+          where: lgreaterOrEqual("log.messageId", 109201) && log.messageId<=109213
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0)>=109201 && log.messageId<=109213
+          where: greaterOrEqual("log.messageId", 109201) && log.messageId<=109213
       #......................................................................#
       # FTD-6-113004
       - grok:
@@ -488,7 +488,7 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113004)
+          where: equals("log.messageId", 113004)
       # Action result
       - grok:
           patterns:
@@ -497,25 +497,25 @@ pipeline:
             - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(113004)
+          where: equals("log.messageId", 113004)
       - trim:
           function: suffix
           substring: ':'
           fields:
             - target.ip
-          where: safe("log.messageId", 0.0) == double(113004)
+          where: equals("log.messageId", 113004)
       - trim:
           function: suffix
           substring: ','
           fields:
             - target.ip
-          where: safe("log.messageId", 0.0) == double(113004)
+          where: equals("log.messageId", 113004)
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(113004)
+          where: equals("log.messageId", 113004)
       #......................................................................#
       # FTD-6-113005
       - grok:
@@ -539,7 +539,7 @@ pipeline:
             - fieldName: origin.ip
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113005)
+          where: equals("log.messageId", 113005)
       # Action result
       - grok:
           patterns:
@@ -548,7 +548,7 @@ pipeline:
             - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(113005)
+          where: equals("log.messageId", 113005)
       - trim:
           function: suffix
           substring: ':'
@@ -556,13 +556,13 @@ pipeline:
             - log.reason
             - target.ip
             - origin.user
-          where: safe("log.messageId", 0.0) == double(113005)
+          where: equals("log.messageId", 113005)
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(113005)
+          where: equals("log.messageId", 113005)
       #......................................................................#
       # FTD-6-113008
       - grok:
@@ -574,14 +574,14 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113008)
+          where: equals("log.messageId", 113008)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(113008)
+          where: equals("log.messageId", 113008)
       #......................................................................#
       # FTD-6-113009
       # First variant
@@ -596,19 +596,19 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113009)
+          where: equals("log.messageId", 113009)
       - trim:
           function: prefix
           substring: '('
           fields:
             - log.policy
-          where: safe("log.messageId", 0.0) == double(113009)
+          where: equals("log.messageId", 113009)
       - trim:
           function: suffix
           substring: ')'
           fields:
             - log.policy
-          where: safe("log.messageId", 0.0) == double(113009)
+          where: equals("log.messageId", 113009)
       # Second variant
       - grok:
           patterns:
@@ -621,20 +621,20 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113009)
+          where: equals("log.messageId", 113009)
       - trim:
           function: suffix
           substring: 'for'
           fields:
             - log.policy
-          where: safe("log.messageId", 0.0) == double(113009)
+          where: equals("log.messageId", 113009)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(113009)
+          where: equals("log.messageId", 113009)
       #......................................................................#
       # FTD-6-113010
       - grok:
@@ -646,13 +646,13 @@ pipeline:
             - fieldName: origin.ip
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113010)
+          where: equals("log.messageId", 113010)
       - trim:
           function: suffix
           substring: 'from server'
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(113010)
+          where: equals("log.messageId", 113010)
       #......................................................................#
       # FTD-6-113011
       # First variant
@@ -667,19 +667,19 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113011)
+          where: equals("log.messageId", 113011)
       - trim:
           function: prefix
           substring: '('
           fields:
             - log.policy
-          where: safe("log.messageId", 0.0) == double(113011)
+          where: equals("log.messageId", 113011)
       - trim:
           function: suffix
           substring: ')'
           fields:
             - log.policy
-          where: safe("log.messageId", 0.0) == double(113011)
+          where: equals("log.messageId", 113011)
       # Second variant
       - grok:
           patterns:
@@ -692,13 +692,13 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113011)
+          where: equals("log.messageId", 113011)
       - trim:
           function: suffix
           substring: 'for'
           fields:
             - log.policy
-          where: safe("log.messageId", 0.0) == double(113011)
+          where: equals("log.messageId", 113011)
       #......................................................................#
       # FTD-6-113012
       - grok:
@@ -710,7 +710,7 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113012)
+          where: equals("log.messageId", 113012)
       # Action result
       - grok:
           patterns:
@@ -719,13 +719,13 @@ pipeline:
             - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(113012)
+          where: equals("log.messageId", 113012)
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(113012)
+          where: equals("log.messageId", 113012)
       #......................................................................#
       # FTD-6-113013
       - grok:
@@ -741,13 +741,13 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113013)
+          where: equals("log.messageId", 113013)
       - trim:
           function: suffix
           substring: ':'
           fields:
             - log.reason
-          where: safe("log.messageId", 0.0) == double(113013)
+          where: equals("log.messageId", 113013)
       #......................................................................#
       # FTD-6-113014
       - grok:
@@ -763,7 +763,7 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113014)
+          where: equals("log.messageId", 113014)
       #......................................................................#
       # FTD-6-113015, 113017
       - grok:
@@ -783,14 +783,14 @@ pipeline:
             - fieldName: target.ip
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113015) || log.messageId==113017
+          where: equals("log.messageId", 113015) || equals("log.messageId", 113017)
       - trim:
           function: suffix
           substring: ':'
           fields:
             - log.reason
             - origin.user
-          where: safe("log.messageId", 0.0) == double(113015) || log.messageId==113017
+          where: equals("log.messageId", 113015) || equals("log.messageId", 113017)
       # Action result
       - grok:
           patterns:
@@ -799,13 +799,13 @@ pipeline:
             - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(113015) || log.messageId==113017
+          where: equals("log.messageId", 113015) || equals("log.messageId", 113017)
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(113015) || log.messageId==113017
+          where: equals("log.messageId", 113015) || equals("log.messageId", 113017)
       #......................................................................#
       # FTD-6-113016
       - grok:
@@ -829,7 +829,7 @@ pipeline:
             - fieldName: origin.ip
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113016)
+          where: equals("log.messageId", 113016)
       - trim:
           function: suffix
           substring: ':'
@@ -837,7 +837,7 @@ pipeline:
             - log.reason
             - target.ip
             - origin.user
-          where: safe("log.messageId", 0.0) == double(113016)
+          where: equals("log.messageId", 113016)
       # Action result
       - grok:
           patterns:
@@ -846,13 +846,13 @@ pipeline:
             - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(113016)
+          where: equals("log.messageId", 113016)
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(113016)
+          where: equals("log.messageId", 113016)
       #......................................................................#
       # FTD-4-113019
       - grok:
@@ -892,7 +892,7 @@ pipeline:
             - fieldName: log.reason
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113019)
+          where: equals("log.messageId", 113019)
       - trim:
           function: suffix
           substring: ','
@@ -904,20 +904,20 @@ pipeline:
             - log.duration
             - origin.bytesSent
             - origin.bytesReceived
-          where: safe("log.messageId", 0.0) == double(113019)
+          where: equals("log.messageId", 113019)
       - cast:
           fields:
             - origin.bytesSent
             - origin.bytesReceived
           to: int
-          where: safe("log.messageId", 0.0) == double(113019)
+          where: equals("log.messageId", 113019)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(113019)
+          where: equals("log.messageId", 113019)
       #......................................................................#
       # FTD-113031,113032,113033
       # Common fields
@@ -934,19 +934,19 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113031) || log.messageId==113032 || log.messageId==113033
+          where: equals("log.messageId", 113031) || log.messageId==113032 || log.messageId==113033
       - trim:
           function: suffix
           substring: 'User'
           fields:
             - origin.group
-          where: safe("log.messageId", 0.0) == double(113031) || log.messageId==113032 || log.messageId==113033
+          where: equals("log.messageId", 113031) || log.messageId==113032 || log.messageId==113033
       - trim:
           function: suffix
           substring: 'IP'
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(113031) || log.messageId==113032 || log.messageId==113033
+          where: equals("log.messageId", 113031) || log.messageId==113032 || log.messageId==113033
       # Specific fields
       - grok:
           patterns:
@@ -957,7 +957,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.rest
-          where: safe("log.messageId", 0.0) == double(113031) || log.messageId==113032 || log.messageId==113033
+          where: equals("log.messageId", 113031) || log.messageId==113032 || log.messageId==113033
       - grok:
           patterns:
             - fieldName: action
@@ -965,20 +965,20 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.rest
-          where: safe("log.messageId", 0.0) == double(113031) || log.messageId==113032 || log.messageId==113033
+          where: equals("log.messageId", 113031) || log.messageId==113032 || log.messageId==113033
       - trim:
           function: suffix
           substring: 'is'
           fields:
             - log.filter
-          where: safe("log.messageId", 0.0) == double(113031) || log.messageId==113032 || log.messageId==113033
+          where: equals("log.messageId", 113031) || log.messageId==113032 || log.messageId==113033
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(113031) || log.messageId==113032 || log.messageId==113033
+          where: equals("log.messageId", 113031) || log.messageId==113032 || log.messageId==113033
       #......................................................................#
       # FTD-113034,113035,113036,113038,113039
       - grok:
@@ -994,20 +994,20 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113034) || log.messageId==113035 || log.messageId==113036 || log.messageId==113038 || log.messageId==113039
+          where: equals("log.messageId", 113034) || log.messageId==113035 || log.messageId==113036 || log.messageId==113038 || log.messageId==113039
       # Cleaning fields
       - trim:
           function: suffix
           substring: 'User'
           fields:
             - origin.group
-          where: safe("log.messageId", 0.0) == double(113034) || log.messageId==113035 || log.messageId==113036 || log.messageId==113038 || log.messageId==113039
+          where: equals("log.messageId", 113034) || log.messageId==113035 || log.messageId==113036 || log.messageId==113038 || log.messageId==113039
       - trim:
           function: suffix
           substring: 'IP'
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(113034) || log.messageId==113035 || log.messageId==113036 || log.messageId==113038 || log.messageId==113039
+          where: equals("log.messageId", 113034) || log.messageId==113035 || log.messageId==113036 || log.messageId==113038 || log.messageId==113039
       - trim:
           function: prefix
           substring: '<'
@@ -1015,7 +1015,7 @@ pipeline:
             - origin.group
             - origin.user
             - origin.ip
-          where: safe("log.messageId", 0.0) == double(113034) || log.messageId==113035 || log.messageId==113036 || log.messageId==113038 || log.messageId==113039
+          where: equals("log.messageId", 113034) || log.messageId==113035 || log.messageId==113036 || log.messageId==113038 || log.messageId==113039
       - trim:
           function: suffix
           substring: '>'
@@ -1023,21 +1023,21 @@ pipeline:
             - origin.group
             - origin.user
             - origin.ip
-          where: safe("log.messageId", 0.0) == double(113034) || log.messageId==113035 || log.messageId==113036 || log.messageId==113038 || log.messageId==113039
+          where: equals("log.messageId", 113034) || log.messageId==113035 || log.messageId==113036 || log.messageId==113038 || log.messageId==113039
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(113039)
+          where: equals("log.messageId", 113039)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(113035) || log.messageId==113038
+          where: equals("log.messageId", 113035) || log.messageId==113038
       #......................................................................#
       # FTD-4-113042
       - grok:
@@ -1069,33 +1069,33 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(113042)
+          where: equals("log.messageId", 113042)
       - trim:
           function: suffix
           substring: 'from'
           fields:
             - action
-          where: safe("log.messageId", 0.0) == double(113042)
+          where: equals("log.messageId", 113042)
       - trim:
           function: suffix
           substring: ':'
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(113042)
+          where: equals("log.messageId", 113042)
       - trim:
           function: suffix
           substring: '/'
           fields:
             - origin.ip
             - target.ip
-          where: safe("log.messageId", 0.0) == double(113042)
+          where: equals("log.messageId", 113042)
       - trim:
           function: suffix
           substring: 'at'
           fields:
             - log.remoteUser
-          where: safe("log.messageId", 0.0) == double(113042)
+          where: equals("log.messageId", 113042)
       #......................................................................#
       # FTD-2-201003
       - grok:
@@ -1129,26 +1129,26 @@ pipeline:
             - fieldName: log.dstInterface
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(201003)
+          where: equals("log.messageId", 201003)
       - trim:
           function: prefix
           substring: '('
           fields:
             - log.globalIp
-          where: safe("log.messageId", 0.0) == double(201003)
+          where: equals("log.messageId", 201003)
       - trim:
           function: suffix
           substring: ')'
           fields:
             - log.globalIp
-          where: safe("log.messageId", 0.0) == double(201003)
+          where: equals("log.messageId", 201003)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(201003)
+          where: equals("log.messageId", 201003)
       #......................................................................#
       # FTD-4-209003
       - grok:
@@ -1174,7 +1174,7 @@ pipeline:
             - fieldName: log.id
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(209003)
+          where: equals("log.messageId", 209003)
       - trim:
           function: suffix
           substring: ','
@@ -1182,19 +1182,19 @@ pipeline:
             - origin.ip
             - target.ip
             - protocol
-          where: safe("log.messageId", 0.0) == double(209003)
+          where: equals("log.messageId", 209003)
       - cast:
           fields:
             - log.limit
           to: int
-          where: safe("log.messageId", 0.0) == double(209003)
+          where: equals("log.messageId", 209003)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(209003)
+          where: equals("log.messageId", 209003)
       #......................................................................#
       # FTD-3-316001
       - grok:
@@ -1208,7 +1208,7 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(316001)
+          where: equals("log.messageId", 316001)
       # Action result
       - grok:
           patterns:
@@ -1217,14 +1217,14 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(316001)
+          where: equals("log.messageId", 316001)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(316001)
+          where: equals("log.messageId", 316001)
       #......................................................................#
       # FTD-3-316002
       - grok:
@@ -1252,26 +1252,26 @@ pipeline:
             - fieldName: target.ip
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(316002)
+          where: equals("log.messageId", 316002)
       - trim:
           function: suffix
           substring: ','
           fields:
             - protocol
-          where: safe("log.messageId", 0.0) == double(316002)
+          where: equals("log.messageId", 316002)
       - cast:
           fields:
             - log.inIfNum
             - log.outIfNum
           to: int
-          where: safe("log.messageId", 0.0) == double(316002)
+          where: equals("log.messageId", 316002)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(316002)
+          where: equals("log.messageId", 316002)
       #......................................................................#
       # FTD-6-302003,302004
       # First variant
@@ -1292,7 +1292,7 @@ pipeline:
             - fieldName: log.tmpFromip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})((\s)?/(\s)?{{.integer}}|(\s)?/)?'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || log.messageId==302004
       # Second variant
       - grok:
           patterns:
@@ -1309,7 +1309,7 @@ pipeline:
             - fieldName: log.tmpFromip
               pattern: '({{.ipv4}}|{{.ipv6}})((\s)?/(\s)?{{.integer}}|(\s)?/)?'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || log.messageId==302004
       # Parsing from/to ip and port
       - grok:
           patterns:
@@ -1318,13 +1318,13 @@ pipeline:
             - fieldName: target.port
               pattern: '{{.greedy}}'      
           source: log.tmpToip
-          where: safe("log.messageId", 0.0) == double(302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || log.messageId==302004
       - grok:
           patterns:
             - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'        
           source: log.tmpToip
-          where: safe("log.messageId", 0.0) == double(302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || log.messageId==302004
       - grok:
           patterns:
             - fieldName: origin.ip
@@ -1332,33 +1332,33 @@ pipeline:
             - fieldName: origin.port
               pattern: '{{.greedy}}'         
           source: log.tmpFromip
-          where: safe("log.messageId", 0.0) == double(302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || log.messageId==302004
       - grok:
           patterns:
             - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'        
           source: log.tmpFromip
-          where: safe("log.messageId", 0.0) == double(302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || log.messageId==302004
       - trim:
           function: prefix
           substring: '/'
           fields:
             - origin.port
             - target.port
-          where: safe("log.messageId", 0.0) == double(302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || log.messageId==302004
       # Removing temp fields
       - delete:
           fields:
             - log.tmpFromip
             - log.tmpToip
-          where: safe("log.messageId", 0.0) == double(302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || log.messageId==302004
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || log.messageId==302004
       #......................................................................#
       # FTD-6-302012
       - grok:
@@ -1376,20 +1376,20 @@ pipeline:
             - fieldName: target.ip
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(302012)
+          where: equals("log.messageId", 302012)
       - trim:
           function: prefix
           substring: '/'
           fields:
             - origin.port
-          where: safe("log.messageId", 0.0) == double(302012)
+          where: equals("log.messageId", 302012)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(302012)
+          where: equals("log.messageId", 302012)
       #......................................................................#
       # FTD-6-302013
       - grok:
@@ -1431,7 +1431,7 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(302013)
+          where: equals("log.messageId", 302013)
       # Parsing direction field
       - grok:
           patterns:
@@ -1442,7 +1442,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpDirection
-          where: safe("log.messageId", 0.0) == double(302013)
+          where: equals("log.messageId", 302013)
       # Parsing firewall user from
       - grok:
           patterns:
@@ -1453,7 +1453,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserFrom
-          where: safe("log.messageId", 0.0) == double(302013)
+          where: equals("log.messageId", 302013)
       # Parsing firewall user to, and AAA name of the user if exists
       - grok:
           patterns:
@@ -1468,7 +1468,7 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.data}}\)'  
           source: log.rest
-          where: safe("log.messageId", 0.0) == double(302013)
+          where: equals("log.messageId", 302013)
 
       - grok:
           patterns:
@@ -1479,7 +1479,7 @@ pipeline:
             - fieldName: log.firewallUserTo
               pattern: '{{.data}}\)'
           source: log.rest
-          where: safe("log.messageId", 0.0) == double(302013)
+          where: equals("log.messageId", 302013)
 
       - trim:
           function: suffix
@@ -1488,13 +1488,13 @@ pipeline:
             - log.firewallUserFrom
             - log.firewallUserTo
             - origin.user
-          where: safe("log.messageId", 0.0) == double(302013)
+          where: equals("log.messageId", 302013)
       # Removing tmp fields
       - delete:
           fields:
             - log.tmpDirection
             - log.tmpFwUserFrom
-          where: safe("log.messageId", 0.0) == double(302013)
+          where: equals("log.messageId", 302013)
 
       # Cleaning fields
       - trim:
@@ -1503,7 +1503,7 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(302013)
+          where: equals("log.messageId", 302013)
       - trim:
           function: suffix
           substring: '/'
@@ -1512,20 +1512,20 @@ pipeline:
             - target.ip
             - log.mappedIpFrom
             - log.mappedIpTo
-          where: safe("log.messageId", 0.0) == double(302013)
+          where: equals("log.messageId", 302013)
       - trim:
           function: suffix
           substring: 'for'
           fields:
             - log.connectionId
-          where: safe("log.messageId", 0.0) == double(302013)
+          where: equals("log.messageId", 302013)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(302013)
+          where: equals("log.messageId", 302013)
       #......................................................................#
       # FTD-6-302014
       - grok:
@@ -1563,7 +1563,7 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(302014)
+          where: equals("log.messageId", 302014)
       # Parsing firewall user from
       - grok:
           patterns:
@@ -1574,7 +1574,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserFrom
-          where: safe("log.messageId", 0.0) == double(302014)
+          where: equals("log.messageId", 302014)
       # Parsing firewall user to
       - grok:
           patterns:
@@ -1585,7 +1585,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserTo
-          where: safe("log.messageId", 0.0) == double(302014)
+          where: equals("log.messageId", 302014)
       # Parsing AAA user if exists
       - grok:
           patterns:
@@ -1594,7 +1594,7 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.data}}\)'
           source: log.rest
-          where: safe("log.messageId", 0.0) == double(302014)
+          where: equals("log.messageId", 302014)
 
       - trim:
           function: suffix
@@ -1603,13 +1603,13 @@ pipeline:
             - log.firewallUserFrom
             - log.firewallUserTo
             - origin.user
-          where: safe("log.messageId", 0.0) == double(302014)
+          where: equals("log.messageId", 302014)
       # Removing tmp fields
       - delete:
           fields:
             - log.tmpFwUserFrom
             - log.tmpFwUserTo
-          where: safe("log.messageId", 0.0) == double(302014)
+          where: equals("log.messageId", 302014)
 
       # Cleaning fields
       - trim:
@@ -1618,27 +1618,27 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(302014)
+          where: equals("log.messageId", 302014)
       - trim:
           function: suffix
           substring: '/'
           fields:
             - origin.ip
             - target.ip
-          where: safe("log.messageId", 0.0) == double(302014)
+          where: equals("log.messageId", 302014)
       - trim:
           function: suffix
           substring: 'for'
           fields:
             - log.connectionId
-          where: safe("log.messageId", 0.0) == double(302014)
+          where: equals("log.messageId", 302014)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(302014)
+          where: equals("log.messageId", 302014)
       #......................................................................#
       # FTD-6-302015
       - grok:
@@ -1682,7 +1682,7 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(302015)
+          where: equals("log.messageId", 302015)
       # Parsing direction field
       - grok:
           patterns:
@@ -1691,7 +1691,7 @@ pipeline:
             - fieldName: log.direction
               pattern: '{{.greedy}}'
           source: log.tmpDirection
-          where: safe("log.messageId", 0.0) == double(302015)
+          where: equals("log.messageId", 302015)
       # Parsing firewall user from
       - grok:
           patterns:
@@ -1702,7 +1702,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserFrom
-          where: safe("log.messageId", 0.0) == double(302015)
+          where: equals("log.messageId", 302015)
       # Parsing firewall user to, and AAA name of the user if exists
       - grok:
           patterns:
@@ -1717,7 +1717,7 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.data}}\)'  
           source: log.rest
-          where: safe("log.messageId", 0.0) == double(302015)
+          where: equals("log.messageId", 302015)
 
       - grok:
           patterns:
@@ -1728,7 +1728,7 @@ pipeline:
             - fieldName: log.firewallUserTo
               pattern: '{{.data}}\)'
           source: log.rest
-          where: safe("log.messageId", 0.0) == double(302015)
+          where: equals("log.messageId", 302015)
 
       - trim:
           function: suffix
@@ -1737,13 +1737,13 @@ pipeline:
             - log.firewallUserFrom
             - log.firewallUserTo
             - origin.user
-          where: safe("log.messageId", 0.0) == double(302015)
+          where: equals("log.messageId", 302015)
       # Removing tmp fields
       - delete:
           fields:
             - log.tmpDirection
             - log.tmpFwUserFrom
-          where: safe("log.messageId", 0.0) == double(302015)
+          where: equals("log.messageId", 302015)
 
       # Cleaning fields
       - trim:
@@ -1752,7 +1752,7 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(302015)
+          where: equals("log.messageId", 302015)
       - trim:
           function: suffix
           substring: '/'
@@ -1761,20 +1761,20 @@ pipeline:
             - target.ip
             - log.mappedIpFrom
             - log.mappedIpTo
-          where: safe("log.messageId", 0.0) == double(302015)
+          where: equals("log.messageId", 302015)
       - trim:
           function: suffix
           substring: 'for'
           fields:
             - log.connectionId
-          where: safe("log.messageId", 0.0) == double(302015)
+          where: equals("log.messageId", 302015)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(302015)
+          where: equals("log.messageId", 302015)
       #......................................................................#
       # FTD-6-302016
       - grok:
@@ -1808,7 +1808,7 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(302016)
+          where: equals("log.messageId", 302016)
       # Parsing firewall user from
       - grok:
           patterns:
@@ -1819,7 +1819,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserFrom
-          where: safe("log.messageId", 0.0) == double(302016)
+          where: equals("log.messageId", 302016)
       # Parsing firewall user to
       - grok:
           patterns:
@@ -1830,7 +1830,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserTo
-          where: safe("log.messageId", 0.0) == double(302016)
+          where: equals("log.messageId", 302016)
       # Parsing firewall user to, and AAA name of the user if exists
       - grok:
           patterns:
@@ -1839,7 +1839,7 @@ pipeline:
             - fieldName: origin.bytesSent
               pattern: '{{.integer}}'  
           source: log.rest
-          where: safe("log.messageId", 0.0) == double(302016)
+          where: equals("log.messageId", 302016)
 
       - grok:
           patterns:
@@ -1852,7 +1852,7 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.data}}\)'
           source: log.rest
-          where: safe("log.messageId", 0.0) == double(302016)
+          where: equals("log.messageId", 302016)
 
       - trim:
           function: suffix
@@ -1861,13 +1861,13 @@ pipeline:
             - log.firewallUserFrom
             - log.firewallUserTo
             - origin.user
-          where: safe("log.messageId", 0.0) == double(302016)
+          where: equals("log.messageId", 302016)
       # Removing tmp fields
       - delete:
           fields:
             - log.tmpFwUserFrom
             - log.tmpFwUserTo
-          where: safe("log.messageId", 0.0) == double(302016)
+          where: equals("log.messageId", 302016)
 
       # Cleaning fields
       - trim:
@@ -1876,27 +1876,27 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(302016)
+          where: equals("log.messageId", 302016)
       - trim:
           function: suffix
           substring: '/'
           fields:
             - origin.ip
             - target.ip
-          where: safe("log.messageId", 0.0) == double(302016)
+          where: equals("log.messageId", 302016)
       - trim:
           function: suffix
           substring: 'for'
           fields:
             - log.connectionId
-          where: safe("log.messageId", 0.0) == double(302016)
+          where: equals("log.messageId", 302016)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(302016)
+          where: equals("log.messageId", 302016)
       #......................................................................#
       # FTD-6-302017
       - grok:
@@ -1932,7 +1932,7 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(302017)
+          where: equals("log.messageId", 302017)
       # Parsing firewall user from
       - grok:
           patterns:
@@ -1943,7 +1943,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserFrom
-          where: safe("log.messageId", 0.0) == double(302017)
+          where: equals("log.messageId", 302017)
       # Parsing translatedCid and, firewall user to and AAA user if present
       - grok:
           patterns:
@@ -1952,13 +1952,13 @@ pipeline:
             - fieldName: log.tmpUserInfo
               pattern: '{{.greedy}}'
           source: log.rest
-          where: safe("log.messageId", 0.0) == double(302017)
+          where: equals("log.messageId", 302017)
       - grok:
           patterns:
             - fieldName: log.translatedCid
               pattern: '{{.data}}\)'
           source: log.rest
-          where: safe("log.messageId", 0.0) == double(302017)
+          where: equals("log.messageId", 302017)
       # FW user and AAA user
       - grok:
           patterns:
@@ -1967,13 +1967,13 @@ pipeline:
             - fieldName: target.user
               pattern: '\({{.data}}\)'
           source: log.tmpUserInfo
-          where: safe("log.messageId", 0.0) == double(302017)
+          where: equals("log.messageId", 302017)
       - grok:
           patterns:
             - fieldName: log.tmpFwUserTo
               pattern: '\({{.data}}\)'
           source: log.tmpUserInfo
-          where: safe("log.messageId", 0.0) == double(302017)
+          where: equals("log.messageId", 302017)
       # Parsing firewall user to
       - grok:
           patterns:
@@ -1984,7 +1984,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserTo
-          where: safe("log.messageId", 0.0) == double(302017)
+          where: equals("log.messageId", 302017)
       - trim:
           function: suffix
           substring: ')'
@@ -1993,14 +1993,14 @@ pipeline:
             - log.firewallUserTo
             - target.user
             - log.translatedCid
-          where: safe("log.messageId", 0.0) == double(302017)
+          where: equals("log.messageId", 302017)
       - trim:
           function: suffix
           substring: '('
           fields:
             - log.realCid
             - target.user
-          where: safe("log.messageId", 0.0) == double(302017)
+          where: equals("log.messageId", 302017)
       # Removing tmp fields
       - delete:
           fields:
@@ -2008,7 +2008,7 @@ pipeline:
             - log.tmpFwUserFrom
             - log.tmpFwUserTo
             - log.tmpUserInfo
-          where: safe("log.messageId", 0.0) == double(302017)
+          where: equals("log.messageId", 302017)
       # Cleaning fields
       - trim:
           function: suffix
@@ -2016,27 +2016,27 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(302017)
+          where: equals("log.messageId", 302017)
       - trim:
           function: suffix
           substring: '/'
           fields:
             - target.ip
             - log.translatedIpTo
-          where: safe("log.messageId", 0.0) == double(302017)
+          where: equals("log.messageId", 302017)
       - trim:
           function: suffix
           substring: 'from'
           fields:
             - log.connectionId
-          where: safe("log.messageId", 0.0) == double(302017)
+          where: equals("log.messageId", 302017)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(302017)
+          where: equals("log.messageId", 302017)
       #......................................................................#
       # FTD-6-302018
       - grok:
@@ -2074,7 +2074,7 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(302018)
+          where: equals("log.messageId", 302018)
       # Parsing firewall user from
       - grok:
           patterns:
@@ -2085,7 +2085,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserFrom
-          where: safe("log.messageId", 0.0) == double(302018)
+          where: equals("log.messageId", 302018)
       # Parsing firewall user to
       - grok:
           patterns:
@@ -2096,7 +2096,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserTo
-          where: safe("log.messageId", 0.0) == double(302018)
+          where: equals("log.messageId", 302018)
       # Parsing firewall user to, and AAA name of the user if exists
       - grok:
           patterns:
@@ -2105,7 +2105,7 @@ pipeline:
             - fieldName: origin.bytesSent
               pattern: '{{.integer}}'  
           source: log.rest
-          where: safe("log.messageId", 0.0) == double(302018)
+          where: equals("log.messageId", 302018)
 
       - grok:
           patterns:
@@ -2118,7 +2118,7 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.data}}\)'
           source: log.rest
-          where: safe("log.messageId", 0.0) == double(302018)
+          where: equals("log.messageId", 302018)
 
       - trim:
           function: suffix
@@ -2128,47 +2128,47 @@ pipeline:
             - log.firewallUserTo
             - origin.user
             - log.translatedCid
-          where: safe("log.messageId", 0.0) == double(302018)
+          where: equals("log.messageId", 302018)
       # Removing tmp fields
       - delete:
           fields:
             - log.tmpFwUserFrom
             - log.tmpFwUserTo
-          where: safe("log.messageId", 0.0) == double(302018)
+          where: equals("log.messageId", 302018)
       # Cleaning fields
       - trim:
           function: suffix
           substring: '('
           fields:
             - log.realCid
-          where: safe("log.messageId", 0.0) == double(302018)
+          where: equals("log.messageId", 302018)
       - trim:
           function: suffix
           substring: ':'
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(302018)
+          where: equals("log.messageId", 302018)
       - trim:
           function: suffix
           substring: '/'
           fields:
             - target.ip
             - log.translatedIpTo
-          where: safe("log.messageId", 0.0) == double(302018)
+          where: equals("log.messageId", 302018)
       - trim:
           function: suffix
           substring: 'from'
           fields:
             - log.connectionId
-          where: safe("log.messageId", 0.0) == double(302018)
+          where: equals("log.messageId", 302018)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(302018)
+          where: equals("log.messageId", 302018)
       #......................................................................#
       # FTD-6-302020, 302021
       # 302020
@@ -2193,7 +2193,7 @@ pipeline:
             - fieldName: log.icmpCode
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(302020)
+          where: equals("log.messageId", 302020)
       # 302021
       - grok:
           patterns:
@@ -2214,7 +2214,7 @@ pipeline:
             - fieldName: log.icmpCode
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(302021)
+          where: equals("log.messageId", 302021)
       # Common parsing for 302020 and 302021
       # For parsing faddr and fwuser from (Begin with ip/port), or icmpSeqNum
       - grok:
@@ -2226,7 +2226,7 @@ pipeline:
             - fieldName: log.tmpFwUserFrom
               pattern: '{{.greedy}}'
           source: log.tmpFaddrAndFwUser
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       - grok:
           patterns:
             - fieldName: origin.ip
@@ -2234,7 +2234,7 @@ pipeline:
             - fieldName: log.tmpFwUserFrom
               pattern: '{{.greedy}}'
           source: log.tmpFaddrAndFwUser
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       # icmpSeqNum variants
       - grok:
           patterns:
@@ -2245,7 +2245,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'gaddr'
           source: log.tmpFaddrAndFwUser
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       - grok:
           patterns:
             - fieldName: log.icmpSeqNum
@@ -2253,14 +2253,14 @@ pipeline:
             - fieldName: log.tmpFwUserFrom
               pattern: 'gaddr'
           source: log.tmpFaddrAndFwUser
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       # Cleaning icmpSeqNum
       - trim:
           function: suffix
           substring: 'gaddr'
           fields:
             - log.icmpSeqNum
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       # Continue with firewall user from
       - grok:
           patterns:
@@ -2271,7 +2271,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserFrom
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       # For parsing gaddr and global fwuser (Begin with ip/port), or icmpType
       - grok:
           patterns:
@@ -2282,7 +2282,7 @@ pipeline:
             - fieldName: log.tmpFwUserGlobal
               pattern: '{{.greedy}}'
           source: log.tmpGaddrAndFwUser
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       - grok:
           patterns:
             - fieldName: log.globalIp
@@ -2290,7 +2290,7 @@ pipeline:
             - fieldName: log.tmpFwUserGlobal
               pattern: '{{.greedy}}'
           source: log.tmpGaddrAndFwUser
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       # icmpType variants
       - grok:
           patterns:
@@ -2301,7 +2301,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'laddr'
           source: log.tmpGaddrAndFwUser
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       - grok:
           patterns:
             - fieldName: log.icmpType
@@ -2309,20 +2309,20 @@ pipeline:
             - fieldName: log.tmpFwUserGlobal
               pattern: 'laddr'
           source: log.tmpGaddrAndFwUser
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       # Cleaning icmpType
       - trim:
           function: suffix
           substring: 'laddr'
           fields:
             - log.icmpType
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       - trim:
           function: suffix
           substring: 'code'
           fields:
             - log.icmpType
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       # Continue with global firewall
       - grok:
           patterns:
@@ -2333,7 +2333,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserGlobal
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       # For parsing laddr and fwuser to (Begin with ip/port)
       - grok:
           patterns:
@@ -2344,7 +2344,7 @@ pipeline:
             - fieldName: log.tmpFwUserTo
               pattern: '{{.greedy}}'
           source: log.tmpLaddrAndFwUser
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       - grok:
           patterns:
             - fieldName: target.ip
@@ -2352,7 +2352,7 @@ pipeline:
             - fieldName: log.tmpFwUserTo
               pattern: '{{.greedy}}'
           source: log.tmpLaddrAndFwUser
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       # Continue with firewall user to
       - grok:
           patterns:
@@ -2363,7 +2363,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserTo
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       # Cleaning fields
       - trim:
           function: suffix
@@ -2371,7 +2371,7 @@ pipeline:
           fields:
             - target.ip
             - origin.ip
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       - trim:
           function: suffix
           substring: ')'
@@ -2379,7 +2379,7 @@ pipeline:
             - log.firewallUserFrom
             - log.firewallUserTo
             - log.globalFirewallUser
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       # Removing tmp fields
       - delete:
           fields:
@@ -2389,14 +2389,14 @@ pipeline:
             - log.tmpFaddrAndFwUser
             - log.tmpGaddrAndFwUser
             - log.tmpLaddrAndFwUser
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || log.messageId==302021
       #......................................................................#
       # FTD-6-302022, 302024, 302026
       - grok:
@@ -2428,7 +2428,7 @@ pipeline:
             - fieldName: log.tmpMappedIpPortTo
               pattern: '\({{.data}}\)'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
       # Parsing mapped ip,port from tmp fields
       # With port
       - grok:
@@ -2442,7 +2442,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '\)'
           source: log.tmpMappedIpPortFrom
-          where: safe("log.messageId", 0.0) == double(302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
       # Without port
       - grok:
           patterns:
@@ -2453,7 +2453,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '\)'
           source: log.tmpMappedIpPortFrom
-          where: safe("log.messageId", 0.0) == double(302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
       # Parsing mapped ip,port to, from tmp fields
       # With port
       - grok:
@@ -2467,7 +2467,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '\)'
           source: log.tmpMappedIpPortTo
-          where: safe("log.messageId", 0.0) == double(302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
       # Without port
       - grok:
           patterns:
@@ -2478,21 +2478,21 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '\)'
           source: log.tmpMappedIpPortTo
-          where: safe("log.messageId", 0.0) == double(302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
       # Cleaning fields
       - trim:
           function: suffix
           substring: 'stub'
           fields:
             - log.role
-          where: safe("log.messageId", 0.0) == double(302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
       - trim:
           function: suffix
           substring: ':'
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
       - trim:
           function: suffix
           substring: '/'
@@ -2501,20 +2501,20 @@ pipeline:
             - target.ip
             - log.mappedIpFrom
             - log.mappedIpTo
-          where: safe("log.messageId", 0.0) == double(302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
       # Removing tmp fields
       - delete:
           fields:
             - log.tmpMappedIpPortFrom
             - log.tmpMappedIpPortTo
-          where: safe("log.messageId", 0.0) == double(302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
       #......................................................................#
       # FTD-6-302023, 302025, 302027
       - grok:
@@ -2550,7 +2550,7 @@ pipeline:
             - fieldName: log.reason
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(302023) || log.messageId==302025 || log.messageId==302027
+          where: equals("log.messageId", 302023) || log.messageId==302025 || log.messageId==302027
       # Cleaning fields
       - trim:
           function: suffix
@@ -2558,21 +2558,21 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(302023) || log.messageId==302025 || log.messageId==302027
+          where: equals("log.messageId", 302023) || log.messageId==302025 || log.messageId==302027
       - trim:
           function: suffix
           substring: '/'
           fields:
             - origin.ip
             - target.ip
-          where: safe("log.messageId", 0.0) == double(302023) || log.messageId==302025 || log.messageId==302027
+          where: equals("log.messageId", 302023) || log.messageId==302025 || log.messageId==302027
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(302023) || log.messageId==302025 || log.messageId==302027
+          where: equals("log.messageId", 302023) || log.messageId==302025 || log.messageId==302027
       #......................................................................#
       # FTD-302033,302034
       - grok:
@@ -2592,7 +2592,7 @@ pipeline:
             - fieldName: log.tmpIpPortTo
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(302033) || log.messageId==302034
+          where: equals("log.messageId", 302033) || log.messageId==302034
       # Parsing optional ports from y to
       - grok:
           patterns:
@@ -2601,7 +2601,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpPortFrom
-          where: safe("log.messageId", 0.0) == double(302033) || log.messageId==302034
+          where: equals("log.messageId", 302033) || log.messageId==302034
       - grok:
           patterns:
             - fieldName: target.ip
@@ -2609,13 +2609,13 @@ pipeline:
             - fieldName: target.port
               pattern: '{{.greedy}}'
           source: log.tmpIpPortTo
-          where: safe("log.messageId", 0.0) == double(302033) || log.messageId==302034
+          where: equals("log.messageId", 302033) || log.messageId==302034
       - grok:
           patterns:
             - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?'
           source: log.tmpIpPortTo
-          where: safe("log.messageId", 0.0) == double(302033) || log.messageId==302034
+          where: equals("log.messageId", 302033) || log.messageId==302034
       # Cleaning fields
       - trim:
           function: suffix
@@ -2623,33 +2623,33 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(302033) || log.messageId==302034
+          where: equals("log.messageId", 302033) || log.messageId==302034
       - trim:
           function: suffix
           substring: '/'
           fields:
             - origin.ip
             - target.ip
-          where: safe("log.messageId", 0.0) == double(302033) || log.messageId==302034
+          where: equals("log.messageId", 302033) || log.messageId==302034
       # Remove tmp fields
       - delete:
           fields:
             - log.tmpPortFrom
             - log.tmpIpPortTo
-          where: safe("log.messageId", 0.0) == double(302033) || log.messageId==302034
+          where: equals("log.messageId", 302033) || log.messageId==302034
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(302033)
+          where: equals("log.messageId", 302033)
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(302034)
+          where: equals("log.messageId", 302034)
       #......................................................................#
       # FTD-6-302303
       - grok:
@@ -2689,7 +2689,7 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(302303)
+          where: equals("log.messageId", 302303)
       # Protocol
       - grok:
           patterns:
@@ -2700,7 +2700,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(302303)
+          where: equals("log.messageId", 302303)
       # Cleaning fields
       - trim:
           function: suffix
@@ -2708,7 +2708,7 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(302303)
+          where: equals("log.messageId", 302303)
       - trim:
           function: suffix
           substring: '/'
@@ -2717,20 +2717,20 @@ pipeline:
             - target.ip
             - log.mappedIpFrom
             - log.mappedIpTo
-          where: safe("log.messageId", 0.0) == double(302303)
+          where: equals("log.messageId", 302303)
       - trim:
           function: suffix
           substring: 'from'
           fields:
             - log.connectionId
-          where: safe("log.messageId", 0.0) == double(302303)
+          where: equals("log.messageId", 302303)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(302303)
+          where: equals("log.messageId", 302303)
       #......................................................................#
       # FTD-6-302304
       - grok:
@@ -2764,7 +2764,7 @@ pipeline:
             - fieldName: log.reason
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(302304)
+          where: equals("log.messageId", 302304)
       # Protocol
       - grok:
           patterns:
@@ -2775,7 +2775,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(302304)
+          where: equals("log.messageId", 302304)
       # Cleaning fields
       - trim:
           function: suffix
@@ -2783,27 +2783,27 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(302304)
+          where: equals("log.messageId", 302304)
       - trim:
           function: suffix
           substring: '/'
           fields:
             - origin.ip
             - target.ip
-          where: safe("log.messageId", 0.0) == double(302304)
+          where: equals("log.messageId", 302304)
       - trim:
           function: suffix
           substring: 'from'
           fields:
             - log.connectionId
-          where: safe("log.messageId", 0.0) == double(302304)
+          where: equals("log.messageId", 302304)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(302304)
+          where: equals("log.messageId", 302304)
       #......................................................................#
       # FTD-6-305009
       - grok:
@@ -2823,7 +2823,7 @@ pipeline:
             - fieldName: log.mappedIpTo
               pattern: '{{.greedy}}' 
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(305009)
+          where: equals("log.messageId", 305009)
       # Parsing srcInterface
       # With ACL
       - grok:
@@ -2835,14 +2835,14 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpAclSrcInterface
-          where: safe("log.messageId", 0.0) == double(305009)
+          where: equals("log.messageId", 305009)
       # Without ACL
       - grok:
           patterns:
             - fieldName: log.srcInterface
               pattern: '{{.data}}:'
           source: log.tmpAclSrcInterface
-          where: safe("log.messageId", 0.0) == double(305009)
+          where: equals("log.messageId", 305009)
       # Parsing firewall user from
       - grok:
           patterns:
@@ -2853,7 +2853,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserFrom
-          where: safe("log.messageId", 0.0) == double(305009)
+          where: equals("log.messageId", 305009)
       # Removing tmp fields
       - delete:
           fields:
@@ -2866,20 +2866,20 @@ pipeline:
           fields:
             - log.firewallUserFrom
             - log.accessList
-          where: safe("log.messageId", 0.0) == double(305009)
+          where: equals("log.messageId", 305009)
       - trim:
           function: suffix
           substring: '('
           fields:
             - log.srcInterface
-          where: safe("log.messageId", 0.0) == double(305009)
+          where: equals("log.messageId", 305009)
       - trim:
           function: suffix
           substring: ':'
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(305009)
+          where: equals("log.messageId", 305009)
       #......................................................................#
       # FTD-6-305010
       - grok:
@@ -2903,7 +2903,7 @@ pipeline:
             - fieldName: log.duration
               pattern: '{{.time}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(305010)
+          where: equals("log.messageId", 305010)
       # Parsing firewall user from
       - grok:
           patterns:
@@ -2914,7 +2914,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserFrom
-          where: safe("log.messageId", 0.0) == double(305010)
+          where: equals("log.messageId", 305010)
       # Removing tmp fields
       - delete:
           fields:
@@ -2925,14 +2925,14 @@ pipeline:
           substring: ')'
           fields:
             - log.firewallUserFrom
-          where: safe("log.messageId", 0.0) == double(305010)
+          where: equals("log.messageId", 305010)
       - trim:
           function: suffix
           substring: ':'
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(305010)
+          where: equals("log.messageId", 305010)
       #......................................................................#
       # FTD-6-305011
       - grok:
@@ -2956,7 +2956,7 @@ pipeline:
             - fieldName: target.port
               pattern: '{{.integer}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(305011)
+          where: equals("log.messageId", 305011)
       # Parsing firewall user from
       - grok:
           patterns:
@@ -2967,7 +2967,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserFrom
-          where: safe("log.messageId", 0.0) == double(305011)
+          where: equals("log.messageId", 305011)
       # Parsing protocol
       - grok:
           patterns:
@@ -2978,19 +2978,19 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(305011)
+          where: equals("log.messageId", 305011)
       
       - trim:
           function: suffix
           substring: ')'
           fields:
             - log.firewallUserFrom
-          where: safe("log.messageId", 0.0) == double(305011)
+          where: equals("log.messageId", 305011)
       # Removing tmp fields
       - delete:
           fields:
             - log.tmpFwUserFrom
-          where: safe("log.messageId", 0.0) == double(305011)
+          where: equals("log.messageId", 305011)
 
       # Cleaning fields
       - trim:
@@ -2999,14 +2999,14 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(305011)
+          where: equals("log.messageId", 305011)
       - trim:
           function: suffix
           substring: '/'
           fields:
             - origin.ip
             - target.ip
-          where: safe("log.messageId", 0.0) == double(305011)
+          where: equals("log.messageId", 305011)
       #......................................................................#
       # FTD-6-305012
       - grok:
@@ -3034,7 +3034,7 @@ pipeline:
             - fieldName: log.duration
               pattern: '{{.time}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(305012)
+          where: equals("log.messageId", 305012)
       # Parsing firewall user from
       - grok:
           patterns:
@@ -3045,7 +3045,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserFrom
-          where: safe("log.messageId", 0.0) == double(305012)
+          where: equals("log.messageId", 305012)
       # Parsing protocol
       - grok:
           patterns:
@@ -3056,7 +3056,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(305012)
+          where: equals("log.messageId", 305012)
       # Parsing srcInterface
       # With ACL
       - grok:
@@ -3068,14 +3068,14 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpAclSrcInterface
-          where: safe("log.messageId", 0.0) == double(305012)
+          where: equals("log.messageId", 305012)
       # Without ACL
       - grok:
           patterns:
             - fieldName: log.srcInterface
               pattern: '{{.data}}:'
           source: log.tmpAclSrcInterface
-          where: safe("log.messageId", 0.0) == double(305012)
+          where: equals("log.messageId", 305012)
       # Parsing srcInterface from himself to avoid parsing issues
       - grok:
           patterns:
@@ -3084,7 +3084,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.srcInterface
-          where: safe("log.messageId", 0.0) == double(305012)
+          where: equals("log.messageId", 305012)
       
       - trim:
           function: suffix
@@ -3092,13 +3092,13 @@ pipeline:
           fields:
             - log.firewallUserFrom
             - log.accessList
-          where: safe("log.messageId", 0.0) == double(305012)
+          where: equals("log.messageId", 305012)
       # Removing tmp fields
       - delete:
           fields:
             - log.tmpFwUserFrom
             - log.tmpAclSrcInterface
-          where: safe("log.messageId", 0.0) == double(305012)
+          where: equals("log.messageId", 305012)
 
       # Cleaning fields
       - trim:
@@ -3107,20 +3107,20 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(305012)
+          where: equals("log.messageId", 305012)
       - trim:
           function: suffix
           substring: '('
           fields:
             - log.srcInterface
-          where: safe("log.messageId", 0.0) == double(305012)
+          where: equals("log.messageId", 305012)
       - trim:
           function: suffix
           substring: '/'
           fields:
             - origin.ip
             - target.ip
-          where: safe("log.messageId", 0.0) == double(305012)
+          where: equals("log.messageId", 305012)
       #......................................................................#
       # FTD-3-322001
       - grok:
@@ -3136,7 +3136,7 @@ pipeline:
             - fieldName: log.srcInterface
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(322001)
+          where: equals("log.messageId", 322001)
       # Action result
       - grok:
           patterns:
@@ -3145,20 +3145,20 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(322001)
+          where: equals("log.messageId", 322001)
       # Cleaning fields
       - trim:
           function: suffix
           substring: ','
           fields:
             - log.localMac
-          where: safe("log.messageId", 0.0) == double(322001)
+          where: equals("log.messageId", 322001)
       - trim:
           function: suffix
           substring: 'on'
           fields:
             - log.reason
-          where: safe("log.messageId", 0.0) == double(322001)
+          where: equals("log.messageId", 322001)
       #......................................................................#
       # FTD-3-322002
       - grok:
@@ -3192,7 +3192,7 @@ pipeline:
             - fieldName: log.boudSrcMac
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(322002)
+          where: equals("log.messageId", 322002)
       # Protocol
       - grok:
           patterns:
@@ -3201,26 +3201,26 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'inspection check'
           source: action
-          where: safe("log.messageId", 0.0) == double(322002)
+          where: equals("log.messageId", 322002)
       # Cleaning fields
       - trim:
           function: suffix
           substring: 'on'
           fields:
             - origin.mac
-          where: safe("log.messageId", 0.0) == double(322002)
+          where: equals("log.messageId", 322002)
       - trim:
           function: suffix
           substring: 'for'
           fields:
             - log.fakeSrcMac
-          where: safe("log.messageId", 0.0) == double(322002)
+          where: equals("log.messageId", 322002)
       - trim:
           function: suffix
           substring: '.'
           fields:
             - log.srcInterface
-          where: safe("log.messageId", 0.0) == double(322002)
+          where: equals("log.messageId", 322002)
       #......................................................................#
       # FTD-3-322003
       - grok:
@@ -3252,7 +3252,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(322003)
+          where: equals("log.messageId", 322003)
       # Protocol
       - grok:
           patterns:
@@ -3261,26 +3261,26 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'inspection check'
           source: action
-          where: safe("log.messageId", 0.0) == double(322003)
+          where: equals("log.messageId", 322003)
       # Cleaning fields
       - trim:
           function: suffix
           substring: 'on'
           fields:
             - origin.mac
-          where: safe("log.messageId", 0.0) == double(322003)
+          where: equals("log.messageId", 322003)
       - trim:
           function: suffix
           substring: 'for'
           fields:
             - log.fakeSrcMac
-          where: safe("log.messageId", 0.0) == double(322003)
+          where: equals("log.messageId", 322003)
       - trim:
           function: suffix
           substring: '.'
           fields:
             - log.srcInterface
-          where: safe("log.messageId", 0.0) == double(322003)
+          where: equals("log.messageId", 322003)
       #......................................................................#
       # FTD-4-402114
       - grok:
@@ -3308,7 +3308,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(402114)
+          where: equals("log.messageId", 402114)
       # Protocol
       - grok:
           patterns:
@@ -3319,27 +3319,27 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(402114)
+          where: equals("log.messageId", 402114)
       # Cleaning fields
       - trim:
           function: suffix
           substring: ','
           fields:
             - log.spi
-          where: safe("log.messageId", 0.0) == double(402114)
+          where: equals("log.messageId", 402114)
       - trim:
           function: suffix
           substring: ')'
           fields:
             - log.seqNum
-          where: safe("log.messageId", 0.0) == double(402114)
+          where: equals("log.messageId", 402114)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(402114)
+          where: equals("log.messageId", 402114)
       #......................................................................#
       # FTD-4-402115
       - grok:
@@ -3367,14 +3367,14 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(402115)
+          where: equals("log.messageId", 402115)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(402115)
+          where: equals("log.messageId", 402115)
       #......................................................................#
       # FTD-4-402116
       - grok:
@@ -3436,7 +3436,7 @@ pipeline:
             - fieldName: log.remoteProxyPort
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(402116)
+          where: equals("log.messageId", 402116)
       # Protocol
       - grok:
           patterns:
@@ -3447,21 +3447,21 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(402116)
+          where: equals("log.messageId", 402116)
       # Cleaning fields
       - trim:
           function: suffix
           substring: ','
           fields:
             - log.spi
-          where: safe("log.messageId", 0.0) == double(402116)
+          where: equals("log.messageId", 402116)
       - trim:
           function: suffix
           substring: ')'
           fields:
             - log.seqNum
             - origin.user
-          where: safe("log.messageId", 0.0) == double(402116)
+          where: equals("log.messageId", 402116)
       - trim:
           function: suffix
           substring: '/'
@@ -3473,27 +3473,27 @@ pipeline:
             - log.remoteProxyIpMask
             - log.remoteProxyPort
             - log.remoteProxyProto
-          where: safe("log.messageId", 0.0) == double(402116)
+          where: equals("log.messageId", 402116)
       - trim:
           function: suffix
           substring: ')'
           fields:
             - log.seqNum
             - origin.user
-          where: safe("log.messageId", 0.0) == double(402116)
+          where: equals("log.messageId", 402116)
       - trim:
           function: suffix
           substring: 'and'
           fields:
             - log.localProxyPort
-          where: safe("log.messageId", 0.0) == double(402116)
+          where: equals("log.messageId", 402116)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(402116)
+          where: equals("log.messageId", 402116)
       #......................................................................#
       # FTD-4-402117
       - grok:
@@ -3511,7 +3511,7 @@ pipeline:
             - fieldName: target.ip
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(402117)
+          where: equals("log.messageId", 402117)
       # Protocol
       - grok:
           patterns:
@@ -3522,14 +3522,14 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(402117)
+          where: equals("log.messageId", 402117)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(402117)
+          where: equals("log.messageId", 402117)
       #......................................................................#
       # FTD-4-402118
       - grok:
@@ -3567,7 +3567,7 @@ pipeline:
             - fieldName: log.fragmentOffset
               pattern: '{{.integer}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(402118)
+          where: equals("log.messageId", 402118)
       # Protocol
       - grok:
           patterns:
@@ -3578,7 +3578,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(402118)
+          where: equals("log.messageId", 402118)
       # Cleaning fields
       - trim:
           function: suffix
@@ -3586,20 +3586,20 @@ pipeline:
           fields:
             - log.seqNum
             - origin.user
-          where: safe("log.messageId", 0.0) == double(402118)
+          where: equals("log.messageId", 402118)
       - trim:
           function: suffix
           substring: ','
           fields:
             - log.spi
-          where: safe("log.messageId", 0.0) == double(402118)
+          where: equals("log.messageId", 402118)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(402118)
+          where: equals("log.messageId", 402118)
       #......................................................................#
       # FTD-4-402119, 402120
       - grok:
@@ -3631,7 +3631,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(402119) || log.messageId==402120
+          where: equals("log.messageId", 402119) || log.messageId==402120
       # Protocol
       - grok:
           patterns:
@@ -3642,7 +3642,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(402119) || log.messageId==402120
+          where: equals("log.messageId", 402119) || log.messageId==402120
       # Cleaning fields
       - trim:
           function: suffix
@@ -3650,20 +3650,20 @@ pipeline:
           fields:
             - log.seqNum
             - origin.user
-          where: safe("log.messageId", 0.0) == double(402119) || log.messageId==402120
+          where: equals("log.messageId", 402119) || log.messageId==402120
       - trim:
           function: suffix
           substring: ','
           fields:
             - log.spi
-          where: safe("log.messageId", 0.0) == double(402119) || log.messageId==402120
+          where: equals("log.messageId", 402119) || log.messageId==402120
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(402119) || log.messageId==402120
+          where: equals("log.messageId", 402119) || log.messageId==402120
       #......................................................................#
       # FTD-5-402128
       - grok:
@@ -3683,7 +3683,7 @@ pipeline:
             - fieldName: log.memoryLimit
               pattern: '{{.integer}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(402128)
+          where: equals("log.messageId", 402128)
       #......................................................................#
       # FTD-4-405001
       - grok:
@@ -3707,14 +3707,14 @@ pipeline:
             - fieldName: target.mac
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(405001)
+          where: equals("log.messageId", 405001)
       # Adding protocol
       - add:
           function: 'string'
           params:
             key: protocol
             value: 'ARP'
-          where: safe("log.messageId", 0.0) == double(405001)
+          where: equals("log.messageId", 405001)
       # Cleaning fields
       - trim:
           function: suffix
@@ -3722,19 +3722,19 @@ pipeline:
           fields:
             - origin.ip
             - target.ip
-          where: safe("log.messageId", 0.0) == double(405001)
+          where: equals("log.messageId", 405001)
       - trim:
           function: suffix
           substring: 'on'
           fields:
             - origin.mac
-          where: safe("log.messageId", 0.0) == double(405001)
+          where: equals("log.messageId", 405001)
       - trim:
           function: suffix
           substring: 'with'
           fields:
             - log.srcInterface
-          where: safe("log.messageId", 0.0) == double(405001)
+          where: equals("log.messageId", 405001)
       #......................................................................#
       # FTD-4-405002
       - grok:
@@ -3750,20 +3750,20 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(405002)
+          where: equals("log.messageId", 405002)
       # Cleaning fields
       - trim:
           function: suffix
           substring: 'for'
           fields:
             - origin.mac
-          where: safe("log.messageId", 0.0) == double(405002)
+          where: equals("log.messageId", 405002)
       - trim:
           function: suffix
           substring: '/'
           fields:
             - origin.ip
-          where: safe("log.messageId", 0.0) == double(405002)
+          where: equals("log.messageId", 405002)
       #......................................................................#
       # FTD-4-406001
       - grok:
@@ -3783,27 +3783,27 @@ pipeline:
             - fieldName: log.srcInterface
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(406001)
+          where: equals("log.messageId", 406001)
       # Adding protocol
       - add:
           function: 'string'
           params:
             key: protocol
             value: 'FTP'
-          where: safe("log.messageId", 0.0) == double(406001)
+          where: equals("log.messageId", 406001)
       # Cleaning fields
       - trim:
           function: suffix
           substring: ':'
           fields:
             - action
-          where: safe("log.messageId", 0.0) == double(406001)
+          where: equals("log.messageId", 406001)
       - trim:
           function: suffix
           substring: '/'
           fields:
             - origin.ip
-          where: safe("log.messageId", 0.0) == double(406001)
+          where: equals("log.messageId", 406001)
       #......................................................................#
       # FTD-4-406002
       - grok:
@@ -3827,21 +3827,21 @@ pipeline:
             - fieldName: log.srcInterface
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(406002)
+          where: equals("log.messageId", 406002)
       # Adding protocol
       - add:
           function: 'string'
           params:
             key: protocol
             value: 'FTP'
-          where: safe("log.messageId", 0.0) == double(406002)
+          where: equals("log.messageId", 406002)
       # Cleaning fields
       - trim:
           function: suffix
           substring: ':'
           fields:
             - action
-          where: safe("log.messageId", 0.0) == double(406002)
+          where: equals("log.messageId", 406002)
       #......................................................................#
       # FTD-4-407002
       - grok:
@@ -3871,7 +3871,7 @@ pipeline:
             - fieldName: log.srcInterface
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(407002)
+          where: equals("log.messageId", 407002)
       # Connection number and connection limit
       - grok:
           patterns:
@@ -3886,7 +3886,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(407002)
+          where: equals("log.messageId", 407002)
       # Cleaning fields
       - trim:
           function: suffix
@@ -3894,7 +3894,7 @@ pipeline:
           fields:
             - origin.ip
             - target.ip
-          where: safe("log.messageId", 0.0) == double(407002)
+          where: equals("log.messageId", 407002)
       #......................................................................#
       # FTD-6-605004
       - grok:
@@ -3920,7 +3920,7 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(605004)
+          where: equals("log.messageId", 605004)
       # Action result
       - grok:
           patterns:
@@ -3929,13 +3929,13 @@ pipeline:
             - fieldName: log.ciscoResult
               pattern: '{{.word}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(605004)
+          where: equals("log.messageId", 605004)
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(605004)
+          where: equals("log.messageId", 605004)
       # Cleaning fields
       - trim:
           function: suffix
@@ -3943,31 +3943,31 @@ pipeline:
           fields:
             - origin.ip
             - target.ip
-          where: safe("log.messageId", 0.0) == double(605004)
+          where: equals("log.messageId", 605004)
       - trim:
           function: suffix
           substring: 'for'
           fields:
             - log.service
-          where: safe("log.messageId", 0.0) == double(605004)
+          where: equals("log.messageId", 605004)
       - trim:
           function: suffix
           substring: ':'
           fields:
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(605004)
+          where: equals("log.messageId", 605004)
       - trim:
           function: prefix
           substring: '"'
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(605004)
+          where: equals("log.messageId", 605004)
       - trim:
           function: suffix
           substring: '"'
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(605004)
+          where: equals("log.messageId", 605004)
       #......................................................................#
       # FTD-2-106018
       - grok:
@@ -3995,28 +3995,28 @@ pipeline:
             - fieldName: target.ip
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(106018)
+          where: equals("log.messageId", 106018)
       # Adding protocol
       - add:
           function: 'string'
           params:
             key: protocol
             value: 'ICMP'
-          where: safe("log.messageId", 0.0) == double(106018)
+          where: equals("log.messageId", 106018)
       # Cleaning fields
       - trim:
           function: suffix
           substring: 'src'
           fields:
             - log.accessList
-          where: safe("log.messageId", 0.0) == double(106018)
+          where: equals("log.messageId", 106018)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(106018)
+          where: equals("log.messageId", 106018)
       #......................................................................#
       # FTD-2-106020
       - grok:
@@ -4040,21 +4040,21 @@ pipeline:
             - fieldName: target.ip
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(106020)
+          where: equals("log.messageId", 106020)
       # Adding log.ciscoResult
       - add:
           function: 'string'
           params:
             key: log.ciscoResult
             value: 'Denied'
-          where: safe("log.messageId", 0.0) == double(106020)
+          where: equals("log.messageId", 106020)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(106020)
+          where: equals("log.messageId", 106020)
       #......................................................................#
       # FTD-6-611301
       - grok:
@@ -4068,14 +4068,14 @@ pipeline:
             - fieldName: log.mappedIp
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(611301)
+          where: equals("log.messageId", 611301)
       # Adding protocol
       - add:
           function: 'string'
           params:
             key: protocol
             value: 'NAT'
-          where: safe("log.messageId", 0.0) == double(611301)
+          where: equals("log.messageId", 611301)
       #......................................................................#
       # FTD-6-611303
       - grok:
@@ -4099,14 +4099,14 @@ pipeline:
             - fieldName: log.netmaskTo
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(611303)
+          where: equals("log.messageId", 611303)
       # Adding protocol
       - add:
           function: 'string'
           params:
             key: protocol
             value: 'NAT'
-          where: safe("log.messageId", 0.0) == double(611303)
+          where: equals("log.messageId", 611303)
       # Cleaning fields
       - trim:
           function: suffix
@@ -4114,7 +4114,7 @@ pipeline:
           fields:
             - origin.ip
             - target.ip
-          where: safe("log.messageId", 0.0) == double(611303)
+          where: equals("log.messageId", 611303)
       #......................................................................#
       # FTD-6-611304
       - grok:
@@ -4134,14 +4134,14 @@ pipeline:
             - fieldName: log.netmaskTo
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(611304)
+          where: equals("log.messageId", 611304)
       # Adding protocol
       - add:
           function: 'string'
           params:
             key: protocol
             value: 'NAT'
-          where: safe("log.messageId", 0.0) == double(611304)
+          where: equals("log.messageId", 611304)
       # Cleaning fields
       - trim:
           function: suffix
@@ -4149,7 +4149,7 @@ pipeline:
           fields:
             - origin.ip
             - target.ip
-          where: safe("log.messageId", 0.0) == double(611304)
+          where: equals("log.messageId", 611304)
       #......................................................................#
       # FTD-6-611307
       - grok:
@@ -4159,21 +4159,21 @@ pipeline:
             - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(611307)
+          where: equals("log.messageId", 611307)
       # Adding action and log.ciscoResult
       - add:
           function: 'string'
           params:
             key: action
             value: 'The VPN client is connected to the specified headend'
-          where: safe("log.messageId", 0.0) == double(611307)
+          where: equals("log.messageId", 611307)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(611307)
+          where: equals("log.messageId", 611307)
       #......................................................................#
       # FTD-6-611309
       - grok:
@@ -4187,14 +4187,14 @@ pipeline:
             - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(611309)
+          where: equals("log.messageId", 611309)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(611309)
+          where: equals("log.messageId", 611309)
       #......................................................................#
       # FTD-6-611310,611311
       - grok:
@@ -4210,20 +4210,20 @@ pipeline:
             - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(611310) || log.messageId==611311
+          where: equals("log.messageId", 611310) || log.messageId==611311
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(611310)
+          where: equals("log.messageId", 611310)
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(611311)
+          where: equals("log.messageId", 611311)
       #......................................................................#
       # FTD-6-611314
       - grok:
@@ -4237,21 +4237,21 @@ pipeline:
             - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(611314)
+          where: equals("log.messageId", 611314)
       # Adding action
       - add:
           function: 'string'
           params:
             key: action
             value: 'Load Balancing Cluster redirected the Secure Firewall'
-          where: safe("log.messageId", 0.0) == double(611314)
+          where: equals("log.messageId", 611314)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(611314)
+          where: equals("log.messageId", 611314)
       #......................................................................#
       # FTD-6-611315
       - grok:
@@ -4261,21 +4261,21 @@ pipeline:
             - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(611315)
+          where: equals("log.messageId", 611315)
       # Adding action
       - add:
           function: 'string'
           params:
             key: action
             value: 'Disconnecting from Load Balancing Cluster'
-          where: safe("log.messageId", 0.0) == double(611315)
+          where: equals("log.messageId", 611315)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(611315)
+          where: equals("log.messageId", 611315)
       #......................................................................#
       # FTD-6-611318
       - grok:
@@ -4297,7 +4297,7 @@ pipeline:
             - fieldName: log.timeOut
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(611318)
+          where: equals("log.messageId", 611318)
       #......................................................................#
       # FTD-3-710003
       - grok:
@@ -4319,7 +4319,7 @@ pipeline:
             - fieldName: target.port
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(710003)
+          where: equals("log.messageId", 710003)
       # Protocol and log.ciscoResult
       - grok:
           patterns:
@@ -4332,7 +4332,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(710003)
+          where: equals("log.messageId", 710003)
       # Cleaning fields
       - trim:
           function: suffix
@@ -4340,20 +4340,20 @@ pipeline:
           fields:
             - origin.ip
             - target.ip
-          where: safe("log.messageId", 0.0) == double(710003)
+          where: equals("log.messageId", 710003)
       - trim:
           function: suffix
           substring: ':'
           fields:
             - log.dstInterface
-          where: safe("log.messageId", 0.0) == double(710003)
+          where: equals("log.messageId", 710003)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(710003)
+          where: equals("log.messageId", 710003)
       #......................................................................#
       # FTD-5-713252,713253
       - grok:
@@ -4375,7 +4375,7 @@ pipeline:
             - fieldName: action
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(713252) || safe("log.messageId", 0.0)==double(713253)
+          where: equals("log.messageId", 713252) || equals("log.messageId", 713253)
       # Cleaning fields
       - trim:
           function: suffix
@@ -4384,32 +4384,32 @@ pipeline:
             - origin.group
             - origin.user
             - origin.ip
-          where: safe("log.messageId", 0.0) == double(713252) || safe("log.messageId", 0.0)==double(713253)
+          where: equals("log.messageId", 713252) || equals("log.messageId", 713253)
       - trim:
           function: prefix
           substring: ''''
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(713252) || safe("log.messageId", 0.0)==double(713253)
+          where: equals("log.messageId", 713252) || equals("log.messageId", 713253)
       - trim:
           function: suffix
           substring: ''''
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(713252) || safe("log.messageId", 0.0)==double(713253)
+          where: equals("log.messageId", 713252) || equals("log.messageId", 713253)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(713252)
+          where: equals("log.messageId", 713252)
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(713253)
+          where: equals("log.messageId", 713253)
       #......................................................................#
       # FTD-6-716001,716002,716003
       - grok:
@@ -4425,20 +4425,20 @@ pipeline:
             - fieldName: action
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(716001) || log.messageId==716002 || log.messageId==716003
+          where: equals("log.messageId", 716001) || log.messageId==716002 || log.messageId==716003
       # Cleaning fields
       - trim:
           function: suffix
           substring: 'User'
           fields:
             - origin.group
-          where: safe("log.messageId", 0.0) == double(716001) || log.messageId==716002 || log.messageId==716003
+          where: equals("log.messageId", 716001) || log.messageId==716002 || log.messageId==716003
       - trim:
           function: suffix
           substring: 'IP'
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(716001) || log.messageId==716002 || log.messageId==716003
+          where: equals("log.messageId", 716001) || log.messageId==716002 || log.messageId==716003
       - trim:
           function: prefix
           substring: '<'
@@ -4446,7 +4446,7 @@ pipeline:
             - origin.group
             - origin.user
             - origin.ip
-          where: safe("log.messageId", 0.0) == double(716001) || log.messageId==716002 || log.messageId==716003
+          where: equals("log.messageId", 716001) || log.messageId==716002 || log.messageId==716003
       - trim:
           function: suffix
           substring: '>'
@@ -4454,26 +4454,26 @@ pipeline:
             - origin.group
             - origin.user
             - origin.ip
-          where: safe("log.messageId", 0.0) == double(716001) || log.messageId==716002 || log.messageId==716003
+          where: equals("log.messageId", 716001) || log.messageId==716002 || log.messageId==716003
       - trim:
           function: prefix
           substring: ''''
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(716001) || log.messageId==716002 || log.messageId==716003
+          where: equals("log.messageId", 716001) || log.messageId==716002 || log.messageId==716003
       - trim:
           function: suffix
           substring: ''''
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(716001) || log.messageId==716002 || log.messageId==716003
+          where: equals("log.messageId", 716001) || log.messageId==716002 || log.messageId==716003
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(716001) || log.messageId==716002
+          where: equals("log.messageId", 716001) || log.messageId==716002
       #......................................................................#
       # FTD-6-716004,716005,716006,716007,716009
       - grok:
@@ -4487,53 +4487,53 @@ pipeline:
             - fieldName: action
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
+          where: equals("log.messageId", 716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
       # Cleaning fields
       - trim:
           function: suffix
           substring: 'User'
           fields:
             - origin.group
-          where: safe("log.messageId", 0.0) == double(716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
+          where: equals("log.messageId", 716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
       - trim:
           function: prefix
           substring: '<'
           fields:
             - origin.group
             - origin.user
-          where: safe("log.messageId", 0.0) == double(716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
+          where: equals("log.messageId", 716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
       - trim:
           function: suffix
           substring: '>'
           fields:
             - origin.group
             - origin.user
-          where: safe("log.messageId", 0.0) == double(716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
+          where: equals("log.messageId", 716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
       - trim:
           function: prefix
           substring: ''''
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
+          where: equals("log.messageId", 716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
       - trim:
           function: suffix
           substring: ''''
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
+          where: equals("log.messageId", 716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(716004) || log.messageId==716007 || log.messageId==716009
+          where: equals("log.messageId", 716004) || log.messageId==716007 || log.messageId==716009
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(716006)
+          where: equals("log.messageId", 716006)
       #......................................................................#
       # FTD-6-716038
       - grok:
@@ -4551,27 +4551,27 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(716038)
+          where: equals("log.messageId", 716038)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(716038)
+          where: equals("log.messageId", 716038)
       # Cleaning fields
       - trim:
           function: suffix
           substring: 'User'
           fields:
             - origin.group
-          where: safe("log.messageId", 0.0) == double(716038)
+          where: equals("log.messageId", 716038)
       - trim:
           function: suffix
           substring: 'IP'
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(716038)
+          where: equals("log.messageId", 716038)
       - trim:
           function: prefix
           substring: '<'
@@ -4579,7 +4579,7 @@ pipeline:
             - origin.group
             - origin.user
             - origin.ip
-          where: safe("log.messageId", 0.0) == double(716038)
+          where: equals("log.messageId", 716038)
       - trim:
           function: suffix
           substring: '>'
@@ -4587,25 +4587,25 @@ pipeline:
             - origin.group
             - origin.user
             - origin.ip
-          where: safe("log.messageId", 0.0) == double(716038)
+          where: equals("log.messageId", 716038)
       - trim:
           function: prefix
           substring: ''''
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(716038)
+          where: equals("log.messageId", 716038)
       - trim:
           function: suffix
           substring: ''''
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(716038)
+          where: equals("log.messageId", 716038)
       - trim:
           function: suffix
           substring: ','
           fields:
             - action
-          where: safe("log.messageId", 0.0) == double(716038)
+          where: equals("log.messageId", 716038)
       #......................................................................#
       # FTD-6-716039
       - grok:
@@ -4623,14 +4623,14 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(716039)
+          where: equals("log.messageId", 716039)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(716039)
+          where: equals("log.messageId", 716039)
       # Cleaning fields
       - trim:
           function: suffix
@@ -4638,13 +4638,13 @@ pipeline:
           fields:
             - action
             - origin.user
-          where: safe("log.messageId", 0.0) == double(716039)
+          where: equals("log.messageId", 716039)
       - trim:
           function: suffix
           substring: 'user'
           fields:
             - origin.group
-          where: safe("log.messageId", 0.0) == double(716039)
+          where: equals("log.messageId", 716039)
       #......................................................................#
       # FTD-6-719017,719019,719020,719021,719022,719023
       - grok:
@@ -4656,7 +4656,7 @@ pipeline:
             - fieldName: action
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(719017) || (log.messageId>=719019 && log.messageId<=719023)
+          where: equals("log.messageId", 719017) || (log.messageId>=719019 && log.messageId<=719023)
       # Adding log.ciscoResult and modifying some actions
       # Adding action result
       - add:
@@ -4664,44 +4664,44 @@ pipeline:
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(719019) || log.messageId==719023
+          where: equals("log.messageId", 719019) || log.messageId==719023
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(719020) || log.messageId==719022
+          where: equals("log.messageId", 719020) || log.messageId==719022
       - add:
           function: 'string'
           params:
             key: action
             value: 'WebVPN user is not checked against ACL'
-          where: safe("log.messageId", 0.0) == double(719021)
+          where: equals("log.messageId", 719021)
       - add:
           function: 'string'
           params:
             key: action
             value: 'WebVPN user has been authenticated'
-          where: safe("log.messageId", 0.0) == double(719022)
+          where: equals("log.messageId", 719022)
       - add:
           function: 'string'
           params:
             key: action
             value: 'WebVPN user has not been authenticated'
-          where: safe("log.messageId", 0.0) == double(719023)
+          where: equals("log.messageId", 719023)
       # Cleaning fields
       - trim:
           function: prefix
           substring: ''''
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(719017) || (log.messageId>=719019 && log.messageId<=719023)
+          where: equals("log.messageId", 719017) || (log.messageId>=719019 && log.messageId<=719023)
       - trim:
           function: suffix
           substring: ''''
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(719017) || (log.messageId>=719019 && log.messageId<=719023)
+          where: equals("log.messageId", 719017) || (log.messageId>=719019 && log.messageId<=719023)
       #......................................................................#
       # FTD-6-719018
       - grok:
@@ -4717,20 +4717,20 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(719018)
+          where: equals("log.messageId", 719018)
       # Cleaning fields
       - trim:
           function: suffix
           substring: ''''
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(719018)
+          where: equals("log.messageId", 719018)
       - trim:
           function: suffix
           substring: 'not'
           fields:
             - log.accessList
-          where: safe("log.messageId", 0.0) == double(719018)
+          where: equals("log.messageId", 719018)
       #......................................................................#
       # FTD-6-719024
       - grok:
@@ -4750,27 +4750,27 @@ pipeline:
             - fieldName: origin.ip
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(719024)
+          where: equals("log.messageId", 719024)
       # Cleaning fields
       - trim:
           function: suffix
           substring: 'user'
           fields:
             - log.sessionPointer
-          where: safe("log.messageId", 0.0) == double(719024)
+          where: equals("log.messageId", 719024)
       - trim:
           function: suffix
           substring: 'addr'
           fields:
             - origin.user
-          where: safe("log.messageId", 0.0) == double(719024)
+          where: equals("log.messageId", 719024)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: safe("log.messageId", 0.0) == double(719024)
+          where: equals("log.messageId", 719024)
       #......................................................................#
       # FTD-7-609002
       - grok:
@@ -4788,21 +4788,21 @@ pipeline:
             - fieldName: log.duration
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(609002)
+          where: equals("log.messageId", 609002)
       # Cleaning fields
       - trim:
           function: suffix
           substring: '/'
           fields:
             - log.zoneName
-          where: safe("log.messageId", 0.0) == double(609002)
+          where: equals("log.messageId", 609002)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(609002)
+          where: equals("log.messageId", 609002)
       #......................................................................#
       # FTD-6-611305
       - grok:
@@ -4828,7 +4828,7 @@ pipeline:
             - fieldName: log.secondaryWins
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(611305)
+          where: equals("log.messageId", 611305)
       #......................................................................#
       # FTD-4-733100
       - grok:
@@ -4856,7 +4856,7 @@ pipeline:
             - fieldName: log.cumulativeTotalCount
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(733100)
+          where: equals("log.messageId", 733100)
       # Cleaning cumulative total count
       - grok:
           patterns:
@@ -4865,7 +4865,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.cumulativeTotalCount
-          where: safe("log.messageId", 0.0) == double(733100)
+          where: equals("log.messageId", 733100)
       # Parsing drop source object
       - grok:
           patterns:
@@ -4874,26 +4874,26 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(733100)
+          where: equals("log.messageId", 733100)
       # Cleaning fields
       - trim:
           function: suffix
           substring: 'drop'
           fields:
             - log.dropSourceObject
-          where: safe("log.messageId", 0.0) == double(733100)
+          where: equals("log.messageId", 733100)
       - trim:
           function: suffix
           substring: ']'
           fields:
             - log.dropSourceObject
-          where: safe("log.messageId", 0.0) == double(733100)
+          where: equals("log.messageId", 733100)
       - trim:
           function: prefix
           substring: '['
           fields:
             - log.dropSourceObject
-          where: safe("log.messageId", 0.0) == double(733100)
+          where: equals("log.messageId", 733100)
       #......................................................................#
       # FTD-4-733101
       - grok:
@@ -4921,7 +4921,7 @@ pipeline:
             - fieldName: log.cumulativeTotalCount
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(733101)
+          where: equals("log.messageId", 733101)
       # Cleaning cumulative total count
       - grok:
           patterns:
@@ -4930,7 +4930,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.cumulativeTotalCount
-          where: safe("log.messageId", 0.0) == double(733101)
+          where: equals("log.messageId", 733101)
       # Parsing drop source object
       - grok:
           patterns:
@@ -4941,25 +4941,25 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
-          where: safe("log.messageId", 0.0) == double(733101)
+          where: equals("log.messageId", 733101)
       # Renaming from or to ip, according to -> if (targeted|attacking)
       - rename:
           from:
             - log.tmpIp
           to: origin.ip
-          where: safe("log.messageId", 0.0) == double(733101) && action.contains("attacking")
+          where: equals("log.messageId", 733101) && action.contains("attacking")
       - rename:
           from:
             - log.tmpIp
           to: target.ip
-          where: safe("log.messageId", 0.0) == double(733101) && action.contains("targeted")
+          where: equals("log.messageId", 733101) && action.contains("targeted")
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("log.messageId", 0.0) == double(733101)
+          where: equals("log.messageId", 733101)
       #......................................................................#
       # FTD-4-733102, 733103
       - grok:
@@ -4971,20 +4971,20 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.msg
-          where: safe("log.messageId", 0.0) == double(733102) || log.messageId==733103
+          where: equals("log.messageId", 733102) || log.messageId==733103
       # Adding action
       - add:
           function: 'string'
           params:
             key: action
             value: 'Threat-detection add host to shun list'
-          where: (safe("log.messageId", 0.0)==733102 || log.messageId==733103) && log.msg.contains("add")
+          where: (equals("log.messageId", 733102) || log.messageId==733103) && log.msg.contains("add")
       - add:
           function: 'string'
           params:
             key: action
             value: 'Threat-detection removes host to shun list'
-          where: (safe("log.messageId", 0.0)==733102 || log.messageId==733103) && log.msg.contains("removes")
+          where: (equals("log.messageId", 733102) || log.messageId==733103) && log.msg.contains("removes")
       #......................................................................#
       # Decoding severity
       - add:
