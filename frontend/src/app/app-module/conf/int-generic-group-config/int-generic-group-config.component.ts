@@ -293,7 +293,7 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
     return groups.some(group => this.pendingChangesForGroup(group));
   }
 
-  onFileUpload($event: any[], group: UtmModuleGroupType, integrationConfig: UtmModuleGroupConfType) {
+  /*onFileUpload($event: any[], group: UtmModuleGroupType, integrationConfig: UtmModuleGroupConfType) {
     if (integrationConfig.confKey === 'jsonKey') {
       this.encryptService.encrypt(JSON.stringify($event[0])).subscribe(response => {
         const indexGroup = this.groups.findIndex(value => value.id === group.id);
@@ -302,7 +302,21 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
         this.addChange(integrationConfig);
       });
     }
+  }*/
+
+  onFileUpload($event: any[], group: UtmModuleGroupType, integrationConfig: UtmModuleGroupConfType) {
+    if (integrationConfig.confKey === 'jsonKey') {
+      const json = JSON.stringify($event[0]);
+
+      const indexGroup = this.groups.findIndex(value => value.id === group.id);
+      const indexConf = this.groups[indexGroup].moduleGroupConfigurations.findIndex(value => value.id === integrationConfig.id);
+
+      this.groups[indexGroup].moduleGroupConfigurations[indexConf].confValue = json;
+
+      this.addChange(integrationConfig);
+    }
   }
+
 
   collectorValid(groups: UtmModuleGroupType[]) {
     return groups.every(group => this.tenantIsConfigValid(group));
