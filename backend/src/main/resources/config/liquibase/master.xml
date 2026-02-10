@@ -397,7 +397,9 @@
 
     <include file="/config/liquibase/changelog/20260210005_update_filter_cisco_deceptive_bytes.xml" relativeToChangelogFile="false"/>
 
-    <include file="/config/liquibase/changelog/20260210006_update_filter_cisco_aix_ibm.xml" relativeToChangelogFile="false"/>
+    <include file="/config/liquibase/changelog/20260210006_update_filter_aix_ibm.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260210007_update_filter_o365.xml" relativeToChangelogFile="false"/>
 
 
 
