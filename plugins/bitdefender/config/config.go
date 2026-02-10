@@ -145,7 +145,7 @@ func StartConfigurationSystem() {
 
 			switch message := in.Payload.(type) {
 			case *BiDirectionalMessage_Config:
-				catcher.Info("Received configuration update", map[string]any{"config": message.Config, "process": "plugin_com.utmstack.bitdefender"})
+				catcher.Info("Received configuration update", map[string]any{"process": "plugin_com.utmstack.bitdefender"})
 				cnf = message.Config
 				go processConfigurations(cnf)
 			}
