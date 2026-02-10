@@ -62,7 +62,7 @@ public class UtmModuleGroupConfigurationService {
             for (UtmModuleGroupConfiguration key : keys) {
                 if (key.getConfRequired() && !StringUtils.hasText(key.getConfValue()))
                     throw new Exception(String.format("No value was found for required configuration: %1$s (%2$s)", key.getConfName(), key.getConfKey()));
-                if (key.getConfDataType().equals("password"))
+                if (key.getConfDataType().equals("password") || key.getConfDataType().equals("file"))
                     key.setConfValue(CipherUtil.encrypt(key.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
             }
             moduleConfigurationRepository.saveAll(keys);
