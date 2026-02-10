@@ -403,6 +403,8 @@
 
     <include file="/config/liquibase/changelog/20260210008_update_filter_windows_events.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260210009_update_data_input_status_checkpoint.xml" relativeToChangelogFile="false"/>
+
 
 
 </databaseChangeLog>
