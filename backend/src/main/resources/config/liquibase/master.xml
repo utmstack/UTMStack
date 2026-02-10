@@ -401,6 +401,8 @@
 
     <include file="/config/liquibase/changelog/20260210007_update_filter_o365.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260210008_update_filter_windows_events.xml" relativeToChangelogFile="false"/>
+
 
 
 </databaseChangeLog>
