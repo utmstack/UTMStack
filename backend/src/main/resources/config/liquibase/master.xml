@@ -387,6 +387,14 @@
 
     <include file="/config/liquibase/changelog/20260209024_update_filter_utmstack.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260210001_update_filter_cisco_asa.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260210002_update_filter_cisco_switch.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260210003_update_filter_cisco_firepower.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260210004_update_filter_cisco_meraki.xml" relativeToChangelogFile="false"/>
+
 
 
 </databaseChangeLog>

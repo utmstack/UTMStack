@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20260209024" author="JocLRojas">
+    <changeSet id="20260209024" author="Manuel">
 
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
@@ -12,9 +12,7 @@
             UPDATE public.utm_logstash_filter
             SET filter_version='3.0.5',
                 updated_at=now(),
-            logstash_filter= $$
-
-                # UTMStack filter, version 1.0.1
+            logstash_filter= $$ # UTMStack filter, version 1.0.1
 
 pipeline:
   - dataTypes:
@@ -32,6 +30,7 @@ pipeline:
             - fieldName: log.message
               pattern: '{{.greedy}}'
           where: '!contains("raw", "\"msg\":") || !contains("raw", "\"args\":")'
+
             $$
 	WHERE id=1531;
             ]]>
