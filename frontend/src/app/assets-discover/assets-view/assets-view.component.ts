@@ -389,7 +389,6 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   }
 
   getLastInput(asset: NetScanType) {
-    console.log('getLastInput', asset.lastInput);
     if (asset.dataInputList.length > 0) {
       const lastInput = asset.dataInputList[asset.dataInputList.length - 1].timestamp;
       asset.lastInputTimestamp = lastInput;
