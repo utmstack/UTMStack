@@ -346,13 +346,13 @@ pipeline:
           params:
             key: actionResult
             value: 'accepted'
-          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "src") && log.merakiGroup=="flows" && (log.pattern.startsWith("0") || log.pattern.startsWith("allow") || log.pattern.startsWith("Allow"))'
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "src") && log.merakiGroup=="flows" && (startsWith("log.pattern", "0") || startsWith("log.pattern", "allow") || startsWith("log.pattern", "Allow"))'
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "src") && log.merakiGroup=="flows" && (log.pattern.startsWith("deny") || log.pattern.startsWith("Deny"))'
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "src") && log.merakiGroup=="flows" && (startsWith("log.pattern", "deny") || startsWith("log.pattern", "Deny"))'
       # ........................................
       # Event: ids-alerts, ids signature matched in Meraki MX Security Appliance
       - grok:

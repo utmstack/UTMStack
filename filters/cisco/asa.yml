@@ -5723,12 +5723,12 @@ pipeline:
           from:
             - log.tmpIp
           to: origin.ip
-          where: log.messageId==733101 && action.contains("attacking")
+          where: log.messageId==733101 && contains("action", "attacking")
       - rename:
           from:
             - log.tmpIp
           to: target.ip
-          where: log.messageId==733101 && action.contains("targeted")
+          where: log.messageId==733101 && contains("action", "targeted")
       # Adding action result
       - add:
           function: 'string'

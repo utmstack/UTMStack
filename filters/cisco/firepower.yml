@@ -4947,12 +4947,12 @@ pipeline:
           from:
             - log.tmpIp
           to: origin.ip
-          where: equals("log.messageId", 733101) && action.contains("attacking")
+          where: equals("log.messageId", 733101) && contains("action", "attacking")
       - rename:
           from:
             - log.tmpIp
           to: target.ip
-          where: equals("log.messageId", 733101) && action.contains("targeted")
+          where: equals("log.messageId", 733101) && contains("action", "targeted")
       # Adding action result
       - add:
           function: 'string'
@@ -4978,13 +4978,13 @@ pipeline:
           params:
             key: action
             value: 'Threat-detection add host to shun list'
-          where: (equals("log.messageId", 733102) || log.messageId==733103) && log.msg.contains("add")
+          where: (equals("log.messageId", 733102) || log.messageId==733103) && contains("log.msg", "add")
       - add:
           function: 'string'
           params:
             key: action
             value: 'Threat-detection removes host to shun list'
-          where: (equals("log.messageId", 733102) || log.messageId==733103) && log.msg.contains("removes")
+          where: (equals("log.messageId", 733102) || log.messageId==733103) && contains("log.msg", "removes")
       #......................................................................#
       # Decoding severity
       - add:

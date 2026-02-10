@@ -240,17 +240,6 @@ pipeline:
               pattern: '{{.integer}}\s'
             - fieldName: log.component
               pattern: '{{.word}}\,'
-            - fieldName: log.errorCode
-              pattern: '{{.integer}}\]'
-            - fieldName: log.message
-              pattern: '{{.greedy}}'
-          source: log.restMessage
-          where: log.restMessage.contains("file")
-
-      - grok:
-          patterns:
-            - fieldName: log.severityLabelCharacter
-              pattern: '{{.word}}\s'
             - fieldName: log.trheadId
               pattern: '{{.integer}}\,'
             - fieldName: log.eventSource
@@ -262,7 +251,7 @@ pipeline:
             - fieldName: origin.path
               pattern: '(?:[A-Z]:\\(?:[^\\\n]+\\)*[^\\\n]*|\/(?:[^\/\n]+\/)*[^\/\n]*)'
           source: log.restMessage
-          where: log.severityLabelCharacter.contains("V")
+          where: contains("log.severityLabelCharacter", "V")
 
       - grok:
           patterns:
@@ -350,7 +339,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: raw
-          where: log.severityLabelCharacter.contains("W")
+          where: contains("log.severityLabelCharacter", "W")
 
       # Removing unnecessary characters
       - trim:
