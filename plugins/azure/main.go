@@ -28,11 +28,12 @@ const (
 	defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 	wait                 = 1 * time.Second
 
-	processingTimeout  = 2 * time.Hour
-	maxEmptyBatches    = 5
-	emptyBatchWaitTime = 10 * time.Second
-	receiveTimeout     = 30 * time.Second
-	maxEventsPerBatch  = 100
+	processingTimeout    = 2 * time.Hour
+	processorInitTimeout = 30 * time.Second
+	maxEmptyBatches      = 5
+	emptyBatchWaitTime   = 10 * time.Second
+	receiveTimeout       = 30 * time.Second
+	maxEventsPerBatch    = 100
 
 	AzurePublic     AzureCloud = "AzurePublic"
 	AzureGovernment AzureCloud = "AzureGovernment"
@@ -257,6 +258,9 @@ func pull(group *config.ModuleGroup) {
 	defer cancel()
 
 	var partitionsWg sync.WaitGroup
+	processorReady := make(chan struct{})
+	var firstPartitionAssigned bool
+	var readyMutex sync.Mutex
 
 	go func() {
 		for {
@@ -264,6 +268,14 @@ func pull(group *config.ModuleGroup) {
 			if pc == nil {
 				return
 			}
+
+			readyMutex.Lock()
+			if !firstPartitionAssigned {
+				firstPartitionAssigned = true
+				close(processorReady)
+			}
+			readyMutex.Unlock()
+
 			partitionsWg.Add(1)
 			go processPartition(ctx, pc, agent.GroupName, &partitionsWg)
 		}
@@ -276,7 +288,22 @@ func pull(group *config.ModuleGroup) {
 				"process": "plugin_com.utmstack.azure",
 			})
 		}
+
+		readyMutex.Lock()
+		if !firstPartitionAssigned {
+			firstPartitionAssigned = true
+			close(processorReady)
+		}
+		readyMutex.Unlock()
 	}()
+
+	select {
+	case <-processorReady:
+	case <-time.After(processorInitTimeout):
+		catcher.Info("processor initialization timeout reached", map[string]any{
+			"process": "plugin_com.utmstack.azure",
+		})
+	}
 
 	partitionsWg.Wait()
 
