@@ -133,9 +133,7 @@ func StartConfigurationSystem() {
 			switch message := in.Payload.(type) {
 			case *BiDirectionalMessage_Config:
 				catcher.Info("Received configuration update", map[string]any{
-					"moduleActive": message.Config.ModuleActive,
-					"groupCount":   len(message.Config.ModuleGroups),
-					"process":      "plugin_com.utmstack.aws",
+					"process": "plugin_com.utmstack.aws",
 				})
 				cnf = message.Config
 			}
