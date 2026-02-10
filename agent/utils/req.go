@@ -21,10 +21,11 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 		req.Header.Add(k, v)
 	}
 
-	client := &http.Client{}
-	client.Transport = &http.Transport{
+	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: skipTlsVerification},
 	}
+	client := &http.Client{Transport: tr}
+	defer tr.CloseIdleConnections()
 
 	resp, err := client.Do(req)
 	if err != nil {
