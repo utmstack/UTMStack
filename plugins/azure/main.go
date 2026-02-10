@@ -27,6 +27,12 @@ const (
 	defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 	wait                 = 1 * time.Second
 
+	processingTimeout  = 2 * time.Hour
+	maxEmptyBatches    = 5
+	emptyBatchWaitTime = 10 * time.Second
+	receiveTimeout     = 30 * time.Second
+	maxEventsPerBatch  = 100
+
 	AzurePublic     AzureCloud = "AzurePublic"
 	AzureGovernment AzureCloud = "AzureGovernment"
 	AzureChina      AzureCloud = "AzureChina"
@@ -240,8 +246,10 @@ func pull(group *config.ModuleGroup) {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), processingTimeout)
 	defer cancel()
+
+	var partitionsWg sync.WaitGroup
 
 	go func() {
 		for {
@@ -249,24 +257,47 @@ func pull(group *config.ModuleGroup) {
 			if pc == nil {
 				return
 			}
-			go processPartition(pc, agent.GroupName)
+			partitionsWg.Add(1)
+			go processPartition(ctx, pc, agent.GroupName, &partitionsWg)
 		}
 	}()
 
-	if err := processor.Run(ctx); err != nil && !errors.Is(err, context.Canceled) {
-		_ = catcher.Error("error running Event Hub processor", err, map[string]any{
-			"group":   agent.GroupName,
-			"process": "plugin_com.utmstack.azure",
-		})
-	}
+	go func() {
+		if err := processor.Run(ctx); err != nil && !errors.Is(err, context.Canceled) {
+			_ = catcher.Error("error running Event Hub processor", err, map[string]any{
+				"group":   agent.GroupName,
+				"process": "plugin_com.utmstack.azure",
+			})
+		}
+	}()
+
+	partitionsWg.Wait()
+
+	cancel()
+
+	time.Sleep(1 * time.Second)
 }
 
-func processPartition(pc *azeventhubs.ProcessorPartitionClient, groupName string) {
+func processPartition(ctx context.Context, pc *azeventhubs.ProcessorPartitionClient, groupName string, wg *sync.WaitGroup) {
+	defer wg.Done()
 	defer pc.Close(context.Background())
 
+	emptyBatchCount := 0
+
 	for {
-		recvCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-		events, err := pc.ReceiveEvents(recvCtx, 100, nil)
+		select {
+		case <-ctx.Done():
+			catcher.Info("partition processing cancelled", map[string]any{
+				"group":   groupName,
+				"reason":  ctx.Err().Error(),
+				"process": "plugin_com.utmstack.azure",
+			})
+			return
+		default:
+		}
+
+		recvCtx, cancel := context.WithTimeout(ctx, receiveTimeout)
+		events, err := pc.ReceiveEvents(recvCtx, maxEventsPerBatch, nil)
 		cancel()
 
 		if err != nil && !errors.Is(err, context.DeadlineExceeded) {
@@ -279,8 +310,22 @@ func processPartition(pc *azeventhubs.ProcessorPartitionClient, groupName string
 		}
 
 		if len(events) == 0 {
+			emptyBatchCount++
+
+			if emptyBatchCount >= maxEmptyBatches {
+				catcher.Info("partition completed - no more events available", map[string]any{
+					"group":           groupName,
+					"emptyBatchCount": emptyBatchCount,
+					"process":         "plugin_com.utmstack.azure",
+				})
+				return
+			}
+
+			time.Sleep(emptyBatchWaitTime)
 			continue
 		}
+
+		emptyBatchCount = 0
 
 		for _, event := range events {
 			var logData map[string]any
