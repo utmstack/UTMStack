@@ -674,7 +674,6 @@ insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update
 insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (662, 1, null);
 insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (663, 1, null);
 insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (664, 1, null);
-insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (665, 1, null);
 insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (666, 1, null);
 insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (667, 1, null);
 insert into public.utm_group_rules_data_type (rule_id, data_type_id, last_update) values (668, 1, null);
