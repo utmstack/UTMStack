@@ -121,13 +121,17 @@ func isDuplicate(alert *plugins.Alert) bool {
 	// Compile regex for array index stripping
 	reArrayIndex := regexp.MustCompile(`\.[0-9]+(\.|$)`)
 
+	var execute bool = false
+
 	for _, d := range alert.DeduplicateBy {
 		d = strings.TrimSuffix(d, ".keyword")
 
 		value := gjson.Get(*alertString, d)
 		if value.Type == gjson.Null {
-			return false
+			continue
 		}
+
+		execute = true
 
 		// Calculate OpenSearch field name by removing array indices
 		searchField := reArrayIndex.ReplaceAllStringFunc(d, func(s string) string {
@@ -144,6 +148,10 @@ func isDuplicate(alert *plugins.Alert) bool {
 		} else if value.IsBool() {
 			bb.FilterTerm(searchField, value.Bool())
 		}
+	}
+
+	if !execute {
+		return false
 	}
 
 	// Create QueryBuilder and inject the Bool query
@@ -209,13 +217,17 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 	// Compile regex for array index stripping
 	reArrayIndex := regexp.MustCompile(`\.[0-9]+(\.|$)`)
 
+	var execute bool = false
+
 	for _, d := range alert.GroupBy {
 		d = strings.TrimSuffix(d, ".keyword")
 
 		value := gjson.Get(*alertString, d)
 		if value.Type == gjson.Null {
-			return nil
+			continue
 		}
+
+		execute = true
 
 		// Calculate OpenSearch field name by removing array indices
 		searchField := reArrayIndex.ReplaceAllStringFunc(d, func(s string) string {
@@ -232,6 +244,10 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		} else if value.IsBool() {
 			bb.FilterTerm(searchField, value.Bool())
 		}
+	}
+
+	if !execute {
+		return nil
 	}
 
 	// Create QueryBuilder and inject the Bool query
