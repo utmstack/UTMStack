@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 	"github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/v2"
 	"github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/v2/checkpoints"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
@@ -237,7 +238,13 @@ func pull(group *config.ModuleGroup) {
 	}
 	defer client.Close(context.Background())
 
-	processor, err := azeventhubs.NewProcessor(client, checkpointStore, nil)
+	processor, err := azeventhubs.NewProcessor(client, checkpointStore, &azeventhubs.ProcessorOptions{
+		StartPositions: azeventhubs.StartPositions{
+			Default: azeventhubs.StartPosition{
+				Earliest: to.Ptr(true),
+			},
+		},
+	})
 	if err != nil {
 		_ = catcher.Error("cannot create Event Hub processor", err, map[string]any{
 			"group":   agent.GroupName,
