@@ -9,7 +9,7 @@
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
 
-                ALTER SEQUENCE utm_correlation_rules_id_seq RESTART WITH 878;
+                ALTER SEQUENCE utm_correlation_rules_id_seq RESTART WITH 879;
             ]]>
         </sql>
     </changeSet>

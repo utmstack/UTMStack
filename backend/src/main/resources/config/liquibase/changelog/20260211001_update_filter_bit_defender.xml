@@ -223,7 +223,7 @@ pipeline:
             - log.productVersion
             - log.signatureID
             - log.eventType
-            - log.severityLabel
+            - log.severity
 
       - trim:
           function: prefix
@@ -268,6 +268,7 @@ pipeline:
           fields:
             - log.0trash
             - log.1trash
+            - log.2trash
             - log.restData
             - log.irrelevant
             - log.spt
@@ -277,6 +278,7 @@ pipeline:
             - log.dvc
             - log.request
             - log.dvcToParse
+            - log.cefVersion
                 $$
 	WHERE id = 1514;
             ]]>
