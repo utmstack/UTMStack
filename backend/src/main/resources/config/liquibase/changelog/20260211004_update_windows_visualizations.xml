@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260211004" author="Manuel Abascal">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            ------------------------------------------------------------------
+            -- Fix duplicated .keyword in eventName:
+            -- log.eventName.keyword.keyword → log.eventName.keyword
+            ------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  'log.eventName.keyword.keyword',
+                                  'log.eventName.keyword')
+            WHERE filters IS NOT NULL;
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      'log.eventName.keyword.keyword',
+                                      'log.eventName.keyword')
+            WHERE aggregation IS NOT NULL;
+
+            ------------------------------------------------------------------
+            -- Windows EventLog: wineventlogEventDataServiceName → winlogEventDataServiceName
+            ------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  'log.wineventlogEventDataServiceName.keyword',
+                                  'log.winlogEventDataServiceName.keyword')
+            WHERE filters IS NOT NULL;
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      'log.wineventlogEventDataServiceName.keyword',
+                                      'log.winlogEventDataServiceName.keyword')
+            WHERE aggregation IS NOT NULL;
+
+
+            ]]>
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>
