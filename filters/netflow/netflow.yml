@@ -48,97 +48,97 @@ pipeline:
       - grok:
           patterns:
             - fieldName: log.irrelevant
-              pattern: '{{.data}}bytes="['
+              pattern: '{{.data}}bytes="\['
             - fieldName: log.totalBytes
-              pattern: '{{.data}}]"'
+              pattern: '{{.data}}\]"'
           source: raw
 
       - grok:
           patterns:
             - fieldName: log.irrelevant1
-              pattern: '{{.data}}packets="['
+              pattern: '{{.data}}packets="\['
             - fieldName: log.totalPackets
-              pattern: '{{.data}}]"'
+              pattern: '{{.data}}\]"'
           source: raw
 
       - grok:
           patterns:
             - fieldName: log.irrelevant2
-              pattern: '{{.data}}inEth="['
+              pattern: '{{.data}}inEth="\['
             - fieldName: log.inEthernet
-              pattern: '{{.data}}]"'
+              pattern: '{{.data}}\]"'
           source: raw
 
       - grok:
           patterns:
             - fieldName: log.irrelevant3
-              pattern: '{{.data}}outEth="['
+              pattern: '{{.data}}outEth="\['
             - fieldName: log.outEthernet
-              pattern: '{{.data}}]"'
+              pattern: '{{.data}}\]"'
           source: raw
 
       - grok:
           patterns:
             - fieldName: log.irrelevant4
-              pattern: '{{.data}}proto="/['
+              pattern: '{{.data}}proto="\['
             - fieldName: protocol
-              pattern: '{{.data}}]"'
+              pattern: '{{.data}}\]"'
           source: raw
 
       - grok:
           patterns:
             - fieldName: log.irrelevant5
-              pattern: '{{.data}}srcPort="['
+              pattern: '{{.data}}srcPort="\['
             - fieldName: log.srcPortg
-              pattern: '{{.data}}]"'
+              pattern: '{{.data}}\]"'
           source: raw
 
       - grok:
           patterns:
             - fieldName: log.irrelevant6
-              pattern: '{{.data}}dstPort="['
+              pattern: '{{.data}}dstPort="\['
             - fieldName: log.dstPortg
-              pattern: '{{.data}}]"'
+              pattern: '{{.data}}\]"'
           source: raw
 
       - grok:
           patterns:
             - fieldName: log.irrelevant7
-              pattern: '{{.data}}dstMask="['
+              pattern: '{{.data}}dstMask="\['
             - fieldName: log.destMask
-              pattern: '{{.data}}]"'
+              pattern: '{{.data}}\]"'
           source: raw
 
       - grok:
           patterns:
             - fieldName: log.irrelevant8
-              pattern: '{{.data}}srcMask="['
+              pattern: '{{.data}}srcMask="\['
             - fieldName: log.sourceMask
-              pattern: '{{.data}}]"'
+              pattern: '{{.data}}\]"'
           source: raw
 
       - grok:
           patterns:
             - fieldName: log.irrelevant9
-              pattern: '{{.data}}tcpFlags="['
+              pattern: '{{.data}}tcpFlags="\['
             - fieldName: log.tcpFlgs
-              pattern: '{{.data}}]"'
+              pattern: '{{.data}}\]"'
           source: raw
 
       - grok:
           patterns:
             - fieldName: log.irrelevant10
-              pattern: '{{.data}}dstAs="['
+              pattern: '{{.data}}dstAs="\['
             - fieldName: log.destAs
-              pattern: '{{.data}}]"'
+              pattern: '{{.data}}\]"'
           source: raw
 
       - grok:
           patterns:
             - fieldName: log.irrelevant11
-              pattern: '{{.data}}srcAs="['
+              pattern: '{{.data}}srcAs="\['
             - fieldName: log.sourceAs
-              pattern: '{{.data}}]"'
+              pattern: '{{.data}}\]"'
           source: raw
 
       # Rename filds
@@ -260,6 +260,7 @@ pipeline:
             - log.tcpFlags
             - log.dstAs
             - log.srcAs
+            - log.dstPort
             - log.irrelevant
             - log.irrelevant1
             - log.irrelevant2
