@@ -405,6 +405,8 @@
 
     <include file="/config/liquibase/changelog/20260210009_update_data_input_status_checkpoint.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260211001_update_filter_bit_defender.xml" relativeToChangelogFile="false"/>
+
 
 
 </databaseChangeLog>
