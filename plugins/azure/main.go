@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -418,14 +419,67 @@ func processPartition(ctx context.Context, pc *azeventhubs.ProcessorPartitionCli
 		}
 
 		for _, event := range events {
-			_ = plugins.EnqueueLog(&plugins.Log{
-				Id:         uuid.New().String(),
-				TenantId:   defaultTenant,
-				DataType:   "azure",
-				DataSource: groupName,
-				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
-				Raw:        string(event.Body),
-			}, "com.utmstack.azure")
+			var logData map[string]any
+			if err := json.Unmarshal(event.Body, &logData); err != nil {
+				_ = catcher.Error("cannot parse event body", err, map[string]any{
+					"group":       groupName,
+					"partitionID": pc.PartitionID(),
+					"process":     "plugin_com.utmstack.azure",
+				})
+				continue
+			}
+
+			if records, ok := logData["records"].([]any); ok && len(records) > 0 {
+				for _, record := range records {
+					recordMap, ok := record.(map[string]any)
+					if !ok {
+						_ = catcher.Error("invalid record format in records array", nil, map[string]any{
+							"group":       groupName,
+							"partitionID": pc.PartitionID(),
+							"process":     "plugin_com.utmstack.azure",
+						})
+						continue
+					}
+
+					jsonLog, err := json.Marshal(recordMap)
+					if err != nil {
+						_ = catcher.Error("cannot encode record to JSON", err, map[string]any{
+							"group":       groupName,
+							"partitionID": pc.PartitionID(),
+							"process":     "plugin_com.utmstack.azure",
+						})
+						continue
+					}
+
+					_ = plugins.EnqueueLog(&plugins.Log{
+						Id:         uuid.New().String(),
+						TenantId:   defaultTenant,
+						DataType:   "azure",
+						DataSource: groupName,
+						Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
+						Raw:        string(jsonLog),
+					}, "com.utmstack.azure")
+				}
+			} else {
+				jsonLog, err := json.Marshal(logData)
+				if err != nil {
+					_ = catcher.Error("cannot encode log to JSON", err, map[string]any{
+						"group":       groupName,
+						"partitionID": pc.PartitionID(),
+						"process":     "plugin_com.utmstack.azure",
+					})
+					continue
+				}
+
+				_ = plugins.EnqueueLog(&plugins.Log{
+					Id:         uuid.New().String(),
+					TenantId:   defaultTenant,
+					DataType:   "azure",
+					DataSource: groupName,
+					Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
+					Raw:        string(jsonLog),
+				}, "com.utmstack.azure")
+			}
 		}
 
 		if err := pc.UpdateCheckpoint(context.Background(), events[len(events)-1], nil); err != nil {
