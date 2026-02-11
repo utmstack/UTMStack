@@ -1,0 +1,1568 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260209014" author="JocLRojas">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='3.0.3',
+                updated_at=now(),
+            logstash_filter=$$ # CISCO Meraki filter, version 3.0.3
+# Based on https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples
+# https://documentation.cysiv.com/articles/#!data-source-onboarding-device-configuration-reference/cisco-meraki-reference-information-and-cim-mapping
+#
+# Filter Input requirements -> Syslog
+#
+# 1. Parsing the message field
+pipeline:
+  - dataTypes:
+      - firewall-meraki
+    steps:
+      # Header fields
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '(\<{{.integer}}\>)'
+            - fieldName: log.ciscoTime
+              pattern: '{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
+            - fieldName: log.serverIp
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}(\s)?\:'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: raw
+      - grok:
+          patterns:
+            - fieldName: log.ciscoTime
+              pattern: '{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
+            - fieldName: log.serverIp
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}(\s)?\:'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: raw
+      # Adding control log.controlFlag field (Used to know if the message don't contains the header INT.INT mx_type mx_group)
+      - add:
+          function: 'string'
+          params:
+            key: log.controlFlag
+            value: 'Init'
+      # Begin message parsing
+      # First extract the generic message, then parse it
+      - grok:
+          patterns:
+            - fieldName: log.controlFlag
+              pattern: '{{.data}}(\s)(events|flows|urls|ids-alerts|security_event)'
+            - fieldName: log.genericEvent
+              pattern: '{{.greedy}}'
+          source: log.msg
+      # Parsing variant INT.INT mx_type mx_group
+      # Parsing from controlFlag (Format: Date? IP PORT INT.INT mx_type mx_group)
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}{{.time}}'
+            - fieldName: log.localIp
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.local.port
+              pattern: '{{.integer}}'
+            - fieldName: log.msgEventTime
+              pattern: '{{.integer}}\.{{.integer}}'
+            - fieldName: log.merakiType
+              pattern: '{{.data}}\s'
+            - fieldName: log.merakiGroup
+              pattern: '{{.greedy}}'
+          source: log.controlFlag
+          where: '!equals("log.controlFlag", "Init")'
+      - grok:
+          patterns:
+            - fieldName: log.msgEventTime
+              pattern: '{{.integer}}\.{{.integer}}'
+            - fieldName: log.merakiType
+              pattern: '{{.data}}\s'
+            - fieldName: log.merakiGroup
+              pattern: '{{.greedy}}'
+          source: log.controlFlag
+          where: '!equals("log.controlFlag", "Init")'
+      # ........................................
+      # event vpn connectivity change
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'type(\s)?='
+            - fieldName: action
+              pattern: '{{.data}}\s'
+            - fieldName: log.irrelevant
+              pattern: 'vpn_type(\s)?='
+            - fieldName: log.vpnType
+              pattern: '''{{.data}}'''
+            - fieldName: log.irrelevant
+              pattern: 'peer_contact(\s)?='
+            - fieldName: origin.ip
+              pattern: '''{{.data}}\:'
+            - fieldName: origin.port
+              pattern: '{{.integer}}'''
+            - fieldName: log.irrelevant
+              pattern: 'peer_ident(\s)?='
+            - fieldName: log.peerIdent
+              pattern: '''{{.data}}'''
+            - fieldName: log.irrelevant
+              pattern: 'connectivity(\s)?='
+            - fieldName: log.connectivity
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init")'
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where: equals("log.connectivity", "true")
+      # ........................................
+      # event uplink connectivity change
+      - rename:
+          from:
+            - log.genericEvent
+          to: action
+          where: '!equals("log.controlFlag", "Init") && contains("log.genericEvent", "failover to")'
+      # ........................................
+      # event uplink connectivity change
+      # Event: urls, HTTP GET requests in MR Access Points
+      - rename:
+          from:
+            - log.genericEvent
+          to: action
+          where: '!equals("log.controlFlag", "Init") && contains("log.genericEvent", "Cellular connection")'
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Cellular connection'
+            - fieldName: log.connectionState
+              pattern: '(up|Up|down|Down)'
+            - fieldName: log.msgEventTime
+              pattern: '{{.integer}}\.{{.integer}}'
+            - fieldName: log.merakiTypeIn
+              pattern: '{{.data}}\s'
+            - fieldName: log.merakiGroupIn
+              pattern: '(events|flows|urls|ids-alerts|security_event)'
+            - fieldName: log.irrelevant
+              pattern: 'src(\s)?='
+            - fieldName: origin.ip
+              pattern: '{{.data}}\:'
+            - fieldName: origin.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'dst(\s)?='
+            - fieldName: target.ip
+              pattern: '{{.data}}\:'
+            - fieldName: target.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'mac(\s)?='
+            - fieldName: origin.mac
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'request(\s)?\:'
+            - fieldName: log.method
+              pattern: '{{.word}}'
+            - fieldName: target.url
+              pattern: '{{.greedy}}'
+          source: action
+          where: '!equals("log.controlFlag", "Init") && contains("action", "Cellular connection")'
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Cellular connection'
+            - fieldName: log.connectionState
+              pattern: '(up|Up|down|Down)'
+          source: action
+          where: '!equals("log.controlFlag", "Init") && contains("action", "Cellular connection")'
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where: equalsIgnoreCase("log.connectionState", "up")
+      # ........................................
+      # Event: event, dhcp no offers
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '{{.data}}for\smac'
+            - fieldName: origin.mac
+              pattern: '{{.data}}\s'
+            - fieldName: log.irrelevant
+              pattern: 'host(\s)?='
+            - fieldName: origin.ip
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && contains("log.genericEvent", "dhcp no offers")'
+      - trim:
+          function: suffix
+          substring: 'for mac'
+          fields:
+            - action
+          where: '!equals("log.controlFlag", "Init") && contains("log.genericEvent", "dhcp no offers")'
+      # ........................................
+      # Event: event, dhcp lease
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '{{.data}}of\sip'
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'from server mac'
+            - fieldName: log.serverMac
+              pattern: '{{.data}}\s'
+            - fieldName: log.irrelevant
+              pattern: 'for client mac'
+            - fieldName: origin.mac
+              pattern: '{{.data}}\s'
+            - fieldName: log.irrelevant
+              pattern: 'from router'
+            - fieldName: log.routerIp
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'on subnet'
+            - fieldName: log.subnet
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'with dns'
+            - fieldName: log.dns
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: ','
+            - fieldName: log.dns1
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && contains("log.genericEvent", "dhcp lease")'
+      - trim:
+          function: suffix
+          substring: 'of ip'
+          fields:
+            - action
+          where: '!equals("log.controlFlag", "Init") && contains("log.genericEvent", "dhcp lease")'
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where: contains("log.genericEvent", "dhcp lease")
+      # ........................................
+      # Event: event, HTTP GET requests in Meraki MX Security Appliance
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'src(\s)?='
+            - fieldName: origin.ip
+              pattern: '{{.data}}\:'
+            - fieldName: origin.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'dst(\s)?='
+            - fieldName: target.ip
+              pattern: '{{.data}}\:'
+            - fieldName: target.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'mac(\s)?='
+            - fieldName: origin.mac
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'request(\s)?\:'
+            - fieldName: log.method
+              pattern: '{{.word}}'
+            - fieldName: target.url
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "src") && log.merakiGroup=="urls"'
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "src") && log.merakiGroup=="urls"'
+      # ........................................
+      # Event: flows, IP session initiated in Meraki MX Security Appliance
+      # First variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'src(\s)?='
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'dst(\s)?='
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'mac(\s)?='
+            - fieldName: origin.mac
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'protocol(\s)?='
+            - fieldName: protocol
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'sport(\s)?='
+            - fieldName: origin.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'dport(\s)?='
+            - fieldName: target.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'pattern(\s)?\:'
+            - fieldName: log.pattern
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "src") && log.merakiGroup=="flows"'
+      # Second variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'src(\s)?='
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'dst(\s)?='
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'protocol(\s)?='
+            - fieldName: protocol
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'sport(\s)?='
+            - fieldName: origin.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'dport(\s)?='
+            - fieldName: target.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'pattern(\s)?\:'
+            - fieldName: log.pattern
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "src") && log.merakiGroup=="flows"'
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "src") && log.merakiGroup=="flows" && (log.pattern.startsWith("0") || log.pattern.startsWith("allow") || log.pattern.startsWith("Allow"))'
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "src") && log.merakiGroup=="flows" && (log.pattern.startsWith("deny") || log.pattern.startsWith("Deny"))'
+      # ........................................
+      # Event: ids-alerts, ids signature matched in Meraki MX Security Appliance
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'signature(\s)?='
+            - fieldName: log.signature
+              pattern: '{{.data}}priority'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}='
+            - fieldName: log.priority
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'timestamp(\s)?='
+            - fieldName: log.msgEventTimeIn
+              pattern: '{{.integer}}\.{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'direction(\s)?='
+            - fieldName: log.direction
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'protocol(\s)?='
+            - fieldName: protocol
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'src(\s)?='
+            - fieldName: origin.ip
+              pattern: '{{.data}}\:'
+            - fieldName: origin.port
+              pattern: '{{.integer}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "signature") && log.merakiGroup=="ids-alerts"'
+      - trim:
+          function: suffix
+          substring: 'priority'
+          fields:
+            - log.signature
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "signature") && log.merakiGroup=="ids-alerts"'
+      # ........................................
+      # Event: event IPsec-SA request queued due to no phase 1 found, phase2 negotiation failed, initiate new phase 1 negotiation, 
+      # ISAKMP-SA established, initiate new phase 2 negotiation, IPsec-SA established, ISAKMP-SA established, and ISAKMP-SA deleted 
+      # in Meraki MX Security Appliance
+      # This type of message mx_type=labs_appliance mx_group=events
+      # First variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Site-to-site VPN(\s)?\:(\s)?{{.greedy}}(\s)(deleted|established)'
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: origin.port
+              pattern: '\[(\s)?{{.integer}}(\s)?\]'
+            - fieldName: log.irrelevant
+              pattern: '-'
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: target.port
+              pattern: '\[(\s)?{{.integer}}(\s)?\]'
+            - fieldName: log.irrelevant
+              pattern: 'spi(\s)?\:'
+            - fieldName: log.spi
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Site") && log.merakiGroup=="events"'
+      # Second variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Site-to-site VPN(\s)?\:(\s)?{{.greedy}}(\s)request(\s)for'
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Site") && log.merakiGroup=="events"'
+      # Third variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Site-to-site VPN(\s)?\:(\s)?{{.greedy}}(\s)negotiation(\s)failed'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}ESP'
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: origin.port
+              pattern: '\[(\s)?{{.integer}}(\s)?\]'
+            - fieldName: log.irrelevant
+              pattern: '-\>'
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: target.port
+              pattern: '\[(\s)?{{.integer}}(\s)?\]'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Site") && log.merakiGroup=="events"'
+      # Fourth variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Site-to-site VPN(\s)?\:(\s)?{{.greedy}}(\s)negotiation(\s)?\:'
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: origin.port
+              pattern: '\[(\s)?{{.integer}}(\s)?\]'
+            - fieldName: log.irrelevant
+              pattern: '\<=\>'
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: target.port
+              pattern: '\[(\s)?{{.integer}}(\s)?\]'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Site") && log.merakiGroup=="events"'
+      # Fifth variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Site-to-site VPN(\s)?\:(\s)?{{.greedy}}(\s)established\:(\s)?ESP/Tunnel'
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: origin.port
+              pattern: '\[(\s)?{{.integer}}(\s)?\]'
+            - fieldName: log.irrelevant
+              pattern: '-\>'
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: target.port
+              pattern: '\[(\s)?{{.integer}}(\s)?\]'
+            - fieldName: log.irrelevant
+              pattern: 'spi(\s)?='
+            - fieldName: log.spi
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Site") && log.merakiGroup=="events"'
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - origin.port
+            - target.port
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Site") && log.merakiGroup=="events"'
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - origin.port
+            - target.port
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Site") && log.merakiGroup=="events"'
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Site") && log.merakiGroup=="events" && (contains("log.genericEvent", "queued due to no phase 1") || contains("log.genericEvent", "queued due to no phase1") || || contains("log.genericEvent", "established"))'
+      # ........................................
+      # Event: event spanning-tree guard state change in Meraki MS Switches
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Port'
+            - fieldName: origin.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'received an'
+            - fieldName: protocol
+              pattern: '{{.data}}BPDU'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: origin.mac
+              pattern: '{{.data}}so'
+            - fieldName: log.irrelevant
+              pattern: 'the port was'
+            - fieldName: actionResult
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Port") && log.merakiGroup=="events"'
+      - trim:
+          function: suffix
+          substring: 'BPDU'
+          fields:
+            - protocol
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Port") && log.merakiGroup=="events"'
+      - trim:
+          function: suffix
+          substring: 'so'
+          fields:
+            - origin.mac
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Port") && log.merakiGroup=="events"'
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Port") && log.merakiGroup=="events" && contains("log.genericEvent", "blocked")'
+      # ........................................
+      # Event: event blocked DHCP server response in Meraki MS Switches
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Blocked'
+            - fieldName: protocol
+              pattern: '{{.data}}server'
+            - fieldName: log.irrelevant
+              pattern: 'response from'
+            - fieldName: origin.mac
+              pattern: '{{.data}}on'
+            - fieldName: log.irrelevant
+              pattern: 'VLAN'
+            - fieldName: log.vlan
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Blocked") && log.merakiGroup=="events"'
+      - trim:
+          function: suffix
+          substring: 'server'
+          fields:
+            - protocol
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Blocked") && log.merakiGroup=="events"'
+      - trim:
+          function: suffix
+          substring: 'on'
+          fields:
+            - origin.mac
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Blocked") && log.merakiGroup=="events"'
+      # ........................................
+      # Event: event 802.1X (all events) in Meraki MS Switches
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'type(\s)?='
+            - fieldName: action
+              pattern: '{{.data}}port'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.port
+              pattern: '{{.data}}identity'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.identity
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "identity") && contains("log.genericEvent", "port")'
+      - trim:
+          function: suffix
+          substring: 'port'
+          fields:
+            - action
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "identity") && contains("log.genericEvent", "port")'
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - origin.port
+            - log.identity
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "identity") && contains("log.genericEvent", "port")'
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - origin.port
+            - log.identity
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "identity") && contains("log.genericEvent", "port")'
+      # ........................................
+      # Event: event 802.11 disassociation in Meraki MR Access Points
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'type(\s)?='
+            - fieldName: action
+              pattern: '{{.data}}radio'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.radio
+              pattern: '{{.data}}vap'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.vap
+              pattern: '{{.data}}channel'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.channel
+              pattern: '{{.data}}reason'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.reason
+              pattern: '{{.data}}instigator'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.instigator
+              pattern: '{{.data}}duration'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.duration
+              pattern: '{{.data}}auth_neg_dur'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.authNegDur
+              pattern: '{{.data}}last_auth_ago'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.lastAuthAgo
+              pattern: '{{.data}}is_wpa'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.isWpa
+              pattern: '{{.data}}full_conn'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.fullConn
+              pattern: '{{.data}}ip_resp'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.ipResp
+              pattern: '{{.data}}ip_src'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.ip
+              pattern: '{{.data}}arp_resp'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.arpResp
+              pattern: '{{.data}}arp_src'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.arpSrc
+              pattern: '{{.data}}dns_server'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.dnsServer
+              pattern: '{{.data}}dns_req_rtt'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.dnsReqRtt
+              pattern: '{{.data}}dns_resp'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.dnsResp
+              pattern: '{{.data}}aid'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.aid
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'radio'
+          fields:
+            - action
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'vap'
+          fields:
+            - log.radio
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'channel'
+          fields:
+            - log.vap
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'reason'
+          fields:
+            - log.channel
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'instigator'
+          fields:
+            - log.reason
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'duration'
+          fields:
+            - log.instigator
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'auth_neg_dur'
+          fields:
+            - log.duration
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'last_auth_ago'
+          fields:
+            - log.authNegDur
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'is_wpa'
+          fields:
+            - log.lastAuthAgo
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'full_conn'
+          fields:
+            - log.isWpa
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'ip_resp'
+          fields:
+            - log.fullConn
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'ip_src'
+          fields:
+            - log.ipResp
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'arp_resp'
+          fields:
+            - origin.ip
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'arp_src'
+          fields:
+            - log.arpResp
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'dns_server'
+          fields:
+            - log.arpSrc
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'dns_req_rtt'
+          fields:
+            - log.dnsServer
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'dns_resp'
+          fields:
+            - log.dnsReqRtt
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: 'aid'
+          fields:
+            - log.dnsResp
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - log.radio
+            - log.vap
+            - log.channel
+            - log.reason
+            - log.instigator
+            - log.duration
+            - log.authNegDur
+            - log.lastAuthAgo
+            - log.isWpa
+            - log.fullConn
+            - log.ipResp
+            - origin.ip
+            - log.arpResp
+            - log.arpSrc
+            - log.dnsServer
+            - log.dnsReqRtt
+            - log.dnsResp
+            - log.aid
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - log.radio
+            - log.vap
+            - log.channel
+            - log.reason
+            - log.instigator
+            - log.duration
+            - log.authNegDur
+            - log.lastAuthAgo
+            - log.isWpa
+            - log.fullConn
+            - log.ipResp
+            - origin.ip
+            - log.arpResp
+            - log.arpSrc
+            - log.dnsServer
+            - log.dnsReqRtt
+            - log.dnsResp
+            - log.aid
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
+      # ........................................
+      # Event: event 802.1X (all events) in Meraki MR Access Points
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'type(\s)?='
+            - fieldName: action
+              pattern: '{{.data}}radio'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.radio
+              pattern: '{{.data}}vap'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.vap
+              pattern: '{{.data}}identity'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.identity
+              pattern: '{{.data}}aid'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.aid
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "identity") && contains("log.genericEvent", "aid")'
+      - trim:
+          function: suffix
+          substring: 'radio'
+          fields:
+            - action
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "identity") && contains("log.genericEvent", "aid")'
+      - trim:
+          function: suffix
+          substring: 'vap'
+          fields:
+            - log.radio
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "identity") && contains("log.genericEvent", "aid")'
+      - trim:
+          function: suffix
+          substring: 'identity'
+          fields:
+            - log.vap
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "identity") && contains("log.genericEvent", "aid")'
+      - trim:
+          function: suffix
+          substring: 'aid'
+          fields:
+            - log.identity
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "identity") && contains("log.genericEvent", "aid")'
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - log.radio
+            - log.vap
+            - log.identity
+            - log.aid
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "identity") && contains("log.genericEvent", "aid")'
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - log.radio
+            - log.vap
+            - log.identity
+            - log.aid
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "radio") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "identity") && contains("log.genericEvent", "aid")'
+      # ........................................
+      # Event: event splash authentication in Meraki MR Access Points
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'type(\s)?='
+            - fieldName: action
+              pattern: '{{.data}}ip'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.ip
+              pattern: '{{.data}}duration'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.duration
+              pattern: '{{.data}}vap'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.vap
+              pattern: '{{.data}}download'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.download
+              pattern: '{{.data}}upload'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.upload
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "ip") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "duration") && contains("log.genericEvent", "download") && contains("log.genericEvent", "upload")'
+      - trim:
+          function: suffix
+          substring: 'ip'
+          fields:
+            - action
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "ip") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "duration") && contains("log.genericEvent", "download") && contains("log.genericEvent", "upload")'
+      - trim:
+          function: suffix
+          substring: 'duration'
+          fields:
+            - origin.ip
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "ip") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "duration") && contains("log.genericEvent", "download") && contains("log.genericEvent", "upload")'
+      - trim:
+          function: suffix
+          substring: 'vap'
+          fields:
+            - log.duration
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "ip") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "duration") && contains("log.genericEvent", "download") && contains("log.genericEvent", "upload")'
+      - trim:
+          function: suffix
+          substring: 'download'
+          fields:
+            - log.vap
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "ip") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "duration") && contains("log.genericEvent", "download") && contains("log.genericEvent", "upload")'
+      - trim:
+          function: suffix
+          substring: 'upload'
+          fields:
+            - log.download
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "ip") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "duration") && contains("log.genericEvent", "download") && contains("log.genericEvent", "upload")'
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - origin.ip
+            - log.vap
+            - log.duration
+            - log.download
+            - log.upload
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "ip") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "duration") && contains("log.genericEvent", "download") && contains("log.genericEvent", "upload")'
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - origin.ip
+            - log.vap
+            - log.duration
+            - log.download
+            - log.upload
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "ip") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "duration") && contains("log.genericEvent", "download") && contains("log.genericEvent", "upload")'
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "ip") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "duration") && contains("log.genericEvent", "download") && contains("log.genericEvent", "upload")'
+      # ........................................
+      # Event: event wireless packet flood detected in Meraki MR Access Points
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'type(\s)?='
+            - fieldName: action
+              pattern: '{{.data}}(\s)packet'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.packet
+              pattern: '{{.data}}device'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.mac
+              pattern: '{{.data}}radio'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.radio
+              pattern: '{{.data}}state'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.state
+              pattern: '{{.data}}alarm_id'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.alarmId
+              pattern: '{{.data}}dos_count'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.dosCount
+              pattern: '{{.data}}inter_arrival'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.interArrival
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "packet") && contains("log.genericEvent", "device") && contains("log.genericEvent", "state") && contains("log.genericEvent", "alarm_id") && contains("log.genericEvent", "dos_count")'
+      - trim:
+          function: suffix
+          substring: 'packet'
+          fields:
+            - action
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "packet") && contains("log.genericEvent", "device") && contains("log.genericEvent", "state") && contains("log.genericEvent", "alarm_id") && contains("log.genericEvent", "dos_count")'
+      - trim:
+          function: suffix
+          substring: 'device'
+          fields:
+            - log.packet
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "packet") && contains("log.genericEvent", "device") && contains("log.genericEvent", "state") && contains("log.genericEvent", "alarm_id") && contains("log.genericEvent", "dos_count")'
+      - trim:
+          function: suffix
+          substring: 'radio'
+          fields:
+            - origin.mac
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "packet") && contains("log.genericEvent", "device") && contains("log.genericEvent", "state") && contains("log.genericEvent", "alarm_id") && contains("log.genericEvent", "dos_count")'
+      - trim:
+          function: suffix
+          substring: 'state'
+          fields:
+            - log.radio
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "packet") && contains("log.genericEvent", "device") && contains("log.genericEvent", "state") && contains("log.genericEvent", "alarm_id") && contains("log.genericEvent", "dos_count")'
+      - trim:
+          function: suffix
+          substring: 'alarm_id'
+          fields:
+            - log.state
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "packet") && contains("log.genericEvent", "device") && contains("log.genericEvent", "state") && contains("log.genericEvent", "alarm_id") && contains("log.genericEvent", "dos_count")'
+      - trim:
+          function: suffix
+          substring: 'dos_count'
+          fields:
+            - log.alarmId
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "packet") && contains("log.genericEvent", "device") && contains("log.genericEvent", "state") && contains("log.genericEvent", "alarm_id") && contains("log.genericEvent", "dos_count")'
+      - trim:
+          function: suffix
+          substring: 'inter_arrival'
+          fields:
+            - log.dosCount
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "packet") && contains("log.genericEvent", "device") && contains("log.genericEvent", "state") && contains("log.genericEvent", "alarm_id") && contains("log.genericEvent", "dos_count")'
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - origin.ip
+            - origin.mac
+            - log.radio
+            - log.packet
+            - log.dosCount
+            - log.alarmId
+            - log.state
+            - log.interArrival
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "packet") && contains("log.genericEvent", "device") && contains("log.genericEvent", "state") && contains("log.genericEvent", "alarm_id") && contains("log.genericEvent", "dos_count")'
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - origin.ip
+            - origin.mac
+            - log.radio
+            - log.packet
+            - log.dosCount
+            - log.alarmId
+            - log.state
+            - log.interArrival
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && log.merakiGroup=="events" && contains("log.genericEvent", "packet") && contains("log.genericEvent", "device") && contains("log.genericEvent", "state") && contains("log.genericEvent", "alarm_id") && contains("log.genericEvent", "dos_count")'
+      # ........................................
+      # Event: flows, flow allowed by Layer 3 firewall in Meraki MR Access Points
+      - grok:
+          patterns:
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'src(\s)?='
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}'
+            - fieldName: log.irrelevant
+              pattern: 'dst(\s)?='
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}'
+            - fieldName: log.irrelevant
+              pattern: 'mac(\s)?='
+            - fieldName: origin.mac
+              pattern: '{{.data}}protocol'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: protocol
+              pattern: '{{.data}}sport'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'dport(\s)?='
+            - fieldName: target.port
+              pattern: '{{.integer}}'
+          source: log.genericEvent
+          where: '!equals("log.controlFlag", "Init") && (startsWith("log.genericEvent", "allow") || startsWith("log.genericEvent", "deny")) && log.merakiGroup=="flows" && contains("log.genericEvent", "src") && contains("log.genericEvent", "dst") && contains("log.genericEvent", "sport") && contains("log.genericEvent", "dport") && contains("log.genericEvent", "mac")'
+      - trim:
+          function: suffix
+          substring: 'sport'
+          fields:
+            - protocol
+          where: '!equals("log.controlFlag", "Init") && (startsWith("log.genericEvent", "allow") || startsWith("log.genericEvent", "deny")) && log.merakiGroup=="flows" && contains("log.genericEvent", "src") && contains("log.genericEvent", "dst") && contains("log.genericEvent", "sport") && contains("log.genericEvent", "dport") && contains("log.genericEvent", "mac")'
+      - trim:
+          function: suffix
+          substring: 'protocol'
+          fields:
+            - origin.mac
+          where: '!equals("log.controlFlag", "Init") && (startsWith("log.genericEvent", "allow") || startsWith("log.genericEvent", "deny")) && log.merakiGroup=="flows" && contains("log.genericEvent", "src") && contains("log.genericEvent", "dst") && contains("log.genericEvent", "sport") && contains("log.genericEvent", "dport") && contains("log.genericEvent", "mac")'
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "allow") && log.merakiGroup=="flows" && contains("log.genericEvent", "src") && contains("log.genericEvent", "dst") && contains("log.genericEvent", "sport") && contains("log.genericEvent", "dport") && contains("log.genericEvent", "mac")'
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "deny") && log.merakiGroup=="flows" && contains("log.genericEvent", "src") && contains("log.genericEvent", "dst") && contains("log.genericEvent", "sport") && contains("log.genericEvent", "dport") && contains("log.genericEvent", "mac")'
+      # ........................................
+      # Event: event rogue SSID detected and SSID spoofing detected in Meraki MR Access Points
+      # First variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'airmarshal_events(\s)type(\s)?='
+            - fieldName: action
+              pattern: '{{.data}}ssid(\s)?='
+            - fieldName: log.ssid
+              pattern: '{{.data}}bssid'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.bssid
+              pattern: '{{.data}}src'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.mac
+              pattern: '{{.data}}dst'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: target.mac
+              pattern: '{{.data}}wired_mac'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.wiredMac
+              pattern: '{{.data}}vlan_id'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.vlanId
+              pattern: '{{.data}}channel'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.channel
+              pattern: '{{.data}}rssi'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.rssi
+              pattern: '{{.data}}fc_type'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.fcType
+              pattern: '{{.data}}fc_subtype'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.fcSubType
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      # Second variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'airmarshal_events(\s)type(\s)?='
+            - fieldName: action
+              pattern: '{{.data}}ssid(\s)?='
+            - fieldName: log.ssid
+              pattern: '{{.data}}vap'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.vap
+              pattern: '{{.data}}bssid'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.bssid
+              pattern: '{{.data}}src'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.mac
+              pattern: '{{.data}}dst'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: target.mac
+              pattern: '{{.data}}channel'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.channel
+              pattern: '{{.data}}rssi'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.rssi
+              pattern: '{{.data}}fc_type'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.fcType
+              pattern: '{{.data}}fc_subtype'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.fcSubType
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      - trim:
+          function: suffix
+          substring: '='
+          fields:
+            - action
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      - trim:
+          function: suffix
+          substring: 'ssid'
+          fields:
+            - action
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      - trim:
+          function: suffix
+          substring: 'bssid'
+          fields:
+            - log.ssid
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      - trim:
+          function: suffix
+          substring: 'vap'
+          fields:
+            - log.ssid
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      - trim:
+          function: suffix
+          substring: 'bssid'
+          fields:
+            - log.vap
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      - trim:
+          function: suffix
+          substring: 'src'
+          fields:
+            - log.bssid
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      - trim:
+          function: suffix
+          substring: 'dst'
+          fields:
+            - origin.mac
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      - trim:
+          function: suffix
+          substring: 'wired_mac'
+          fields:
+            - target.mac
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      - trim:
+          function: suffix
+          substring: 'channel'
+          fields:
+            - target.mac
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      - trim:
+          function: suffix
+          substring: 'vlan_id'
+          fields:
+            - log.wiredMac
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      - trim:
+          function: suffix
+          substring: 'channel'
+          fields:
+            - log.vlanId
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      - trim:
+          function: suffix
+          substring: 'rssi'
+          fields:
+            - log.channel
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      - trim:
+          function: suffix
+          substring: 'fc_type'
+          fields:
+            - log.rssi
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      - trim:
+          function: suffix
+          substring: 'fc_subtype'
+          fields:
+            - log.fcType
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - action
+            - log.ssid
+            - log.bssid
+            - origin.mac
+            - target.mac
+            - log.wiredMac
+            - log.vlanId
+            - log.channel
+            - log.rssi
+            - log.fcType
+            - log.fcSubType
+            - log.vap
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - action
+            - log.ssid
+            - log.bssid
+            - origin.mac
+            - target.mac
+            - log.wiredMac
+            - log.vlanId
+            - log.channel
+            - log.rssi
+            - log.fcType
+            - log.fcSubType
+            - log.vap
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
+      # ........................................
+      # Event: security_event ids_alerted, ids signature matched in Meraki MX Security Appliance
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'signature(\s)?='
+            - fieldName: log.signature
+              pattern: '{{.data}}priority'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.priority
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'timestamp(\s)?='
+            - fieldName: log.msgEventTime
+              pattern: '{{.data}}dhost'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.mac
+              pattern: '{{.data}}direction'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.direction
+              pattern: '{{.data}}protocol'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: protocol
+              pattern: '{{.data}}src'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}\:'
+            - fieldName: origin.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'dst(\s)?='
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}\:'
+            - fieldName: target.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where: startsWith("log.genericEvent", "signature") && contains("log.genericEvent", "priority") && contains("log.genericEvent", "timestamp") && contains("log.genericEvent", "direction") && contains("log.genericEvent", "dhost")
+      - trim:
+          function: suffix
+          substring: 'priority'
+          fields:
+            - log.signature
+          where: startsWith("log.genericEvent", "signature") && contains("log.genericEvent", "priority") && contains("log.genericEvent", "timestamp") && contains("log.genericEvent", "direction") && contains("log.genericEvent", "dhost")
+      - trim:
+          function: suffix
+          substring: 'dhost'
+          fields:
+            - log.msgEventTime
+          where: startsWith("log.genericEvent", "signature") && contains("log.genericEvent", "priority") && contains("log.genericEvent", "timestamp") && contains("log.genericEvent", "direction") && contains("log.genericEvent", "dhost")
+      - trim:
+          function: suffix
+          substring: 'direction'
+          fields:
+            - origin.mac
+          where: startsWith("log.genericEvent", "signature") && contains("log.genericEvent", "priority") && contains("log.genericEvent", "timestamp") && contains("log.genericEvent", "direction") && contains("log.genericEvent", "dhost")
+      - trim:
+          function: suffix
+          substring: 'protocol'
+          fields:
+            - log.direction
+          where: startsWith("log.genericEvent", "signature") && contains("log.genericEvent", "priority") && contains("log.genericEvent", "timestamp") && contains("log.genericEvent", "direction") && contains("log.genericEvent", "dhost")
+      - trim:
+          function: suffix
+          substring: 'src'
+          fields:
+            - protocol
+          where: startsWith("log.genericEvent", "signature") && contains("log.genericEvent", "priority") && contains("log.genericEvent", "timestamp") && contains("log.genericEvent", "direction") && contains("log.genericEvent", "dhost")
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where: startsWith("log.genericEvent", "signature") && contains("log.genericEvent", "priority") && contains("log.genericEvent", "timestamp") && contains("log.genericEvent", "direction") && contains("log.genericEvent", "dhost")
+      # ............................................................................
+      # Cleaning common fields
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.localIp
+            - origin.ip
+            - target.ip
+            - log.serverIp
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - origin.ip
+            - log.peerIdent
+            - log.connectivity
+            - log.vpnType
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - origin.port
+            - log.peerIdent
+            - log.connectivity
+            - log.vpnType
+      #......................................................................#
+      # Adding geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where: exists("target.ip")
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.serverIp
+            destination: log.serverIp.geolocation
+          where: exists("log.serverIp")
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.localIp
+            destination: log.localIp.geolocation
+          where: exists("log.localIp")
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.ipResp
+            destination: log.ipResp.geolocation
+          where: exists("log.ipResp")
+      #......................................................................#
+      # Common field conversions
+      - cast:
+          fields:
+            - origin.port
+            - target.port
+          to: int
+      #......................................................................#
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.controlFlag
+            - log.irrelevant
+            - log.genericEvent$$
+	WHERE id=302;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

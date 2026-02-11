@@ -1,4 +1,4 @@
-# Bitdefender GravityZone filter, version 3.0.1
+# Bitdefender GravityZone filter, version 3.0.2
 # Based on https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
 # and the previous version of the same filter
 
@@ -101,6 +101,14 @@ pipeline:
               pattern: '{{.greedy}}'
           source: raw
 
+      - grok:
+          patterns:
+            - fieldName: log.cefVersion
+              pattern: 'CEF\:{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
       # Using grok to parse components of the cef_message
       - grok:
           patterns:
@@ -116,7 +124,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.severity
               pattern: '{{.data}}\|'
-            - fieldName: log.irrelevant
+            - fieldName: log.restData
               pattern: '{{.greedy}}'
           source: log.restData
 
@@ -201,7 +209,7 @@ pipeline:
             - log.productVersion
             - log.signatureID
             - log.eventType
-            - log.severityLabel
+            - log.severity
 
       - trim:
           function: prefix
@@ -246,6 +254,7 @@ pipeline:
           fields:
             - log.0trash
             - log.1trash
+            - log.2trash
             - log.restData
             - log.irrelevant
             - log.spt
@@ -254,3 +263,5 @@ pipeline:
             - log.filePath
             - log.dvc
             - log.request
+            - log.dvcToParse
+            - log.cefVersion

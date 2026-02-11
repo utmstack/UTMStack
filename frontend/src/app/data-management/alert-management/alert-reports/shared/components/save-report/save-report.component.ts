@@ -1,7 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../../../../../shared/alert/utm-toast.service';
-import {LOG_ANALYZER_TOTAL_ITEMS} from '../../../../../../shared/constants/log-analyzer.constant';
 import {ALERT_INDEX_PATTERN} from '../../../../../../shared/constants/main-index-pattern.constant';
 import {ElasticDataExportService} from '../../../../../../shared/services/elasticsearch/elastic-data-export.service';
 import {AlertReportType} from '../../../../../../shared/types/alert/alert-report.type';

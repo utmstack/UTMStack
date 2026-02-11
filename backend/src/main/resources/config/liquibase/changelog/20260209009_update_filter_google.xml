@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260209009" author="JocLRojas">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='2.1.2',
+                updated_at=now(),
+            logstash_filter=$$ # GCP filter, version 2.1.2
+# 
+# Documentations
+# 1- https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry
+
+pipeline:
+  - dataTypes:
+      - google
+    steps:
+      - json:
+          source: raw
+
+      # .......................................................................#
+      # Rename to utmstack format to normalize fields
+      # .......................................................................#
+      # Renaming httpRequest fields
+      # .......................................................................#
+      - rename:
+          from:
+            - log.timestamp
+          to: deviceTime
+          
+      - rename:
+          from:
+            - log.httpRequest.cacheHit
+          to: log.httpRequestCacheHit
+
+      - rename:
+          from:
+            - log.httpRequest.cacheLookup
+          to: log.httpRequestCacheLookup
+
+      - rename:
+          from:
+            - log.httpRequest.latency
+          to: log.httpRequestLatency
+
+      - rename:
+          from:
+            - log.httpRequest.remoteIp
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.httpRequest.requestMethod
+          to: log.httpRequestMethod
+
+      - rename:
+          from:
+            - log.httpRequest.requestSize
+          to: origin.bytesSent
+
+      - rename:
+          from:
+            - log.httpRequest.requestUrl
+          to: target.url
+
+      - rename:
+          from:
+            - log.httpRequest.responseSize
+          to: target.bytesSent
+
+      - rename:
+          from:
+            - log.httpRequest.status
+          to: statusCode
+
+      - rename:
+          from:
+            - log.httpRequest.userAgent
+          to: log.httpUserAgent
+
+      # .......................................................................#
+      # Renaming jsonPayload fields
+      # .......................................................................#
+      - rename:
+          from:
+            - log.jsonPayload.type
+          to: log.jsonPayloadType
+
+      - rename:
+          from:
+            - log.jsonPayload.backendTargetProjectNumber
+          to: log.jsonPayloadBackendTargetProjectNumber
+
+      - rename:
+          from:
+            - log.jsonPayload.cacheDecision
+          to: log.jsonPayloadCacheDecision
+
+      - rename:
+          from:
+            - log.jsonPayload.cacheId
+          to: log.jsonPayloadCacheId
+
+      - rename:
+          from:
+            - log.jsonPayload.enforcedEdgeSecurityPolicy.configuredAction
+          to: log.jsonPayloadEnforcedEdgeSecurityPolicyConfiguredAction
+
+      - rename:
+          from:
+            - log.jsonPayload.enforcedEdgeSecurityPolicy.name
+          to: log.jsonPayloadEnforcedEdgeSecurityPolicyName
+
+      - rename:
+          from:
+            - log.jsonPayload.enforcedEdgeSecurityPolicy.outcome
+          to: log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
+
+      - rename:
+          from:
+            - log.jsonPayload.enforcedEdgeSecurityPolicy.priority
+          to: log.jsonPayloadEnforcedEdgeSecurityPolicyPriority
+
+      - rename:
+          from:
+            - log.jsonPayload.remoteIp
+          to: log.jsonPayloadRemoteIp
+
+      - rename:
+          from:
+            - log.jsonPayload.statusDetails
+          to: log.jsonPayloadStatusDetails
+
+      - rename:
+          from:
+            - log.jsonPayload.authAnswer
+          to: log.JsonPayloadAuthAnswer
+
+      - rename:
+          from:
+            - log.jsonPayload.destinationIP
+          to: target.ip
+
+      - rename:
+          from:
+            - log.jsonPayload.dns64Translated
+          to: log.jsonPayloadDns64Translated
+
+      - rename:
+          from:
+            - log.jsonPayload.protocol
+          to: protocol
+
+      - rename:
+          from:
+            - log.jsonPayload.queryType
+          to: log.jsonPayloadQueryType
+
+      - rename:
+          from:
+            - log.jsonPayload.responseCode
+          to: log.jsonPayloadResponseCode
+
+      - rename:
+          from:
+            - log.jsonPayload.serverLatency
+          to: log.jsonPayloadServerLatency
+
+      - rename:
+          from:
+            - log.jsonPayload.sourceIP
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.class
+          to: log.dnsQuery.class
+
+      - rename:
+          from:
+            - log.domainName
+          to: log.dnsQuery.domain
+
+      - rename:
+          from:
+            - log.rvalue
+          to: log.dnsQuery.rValue
+
+      - rename:
+          from:
+            - log.ttl
+          to: log.dnsQuery.ttl
+
+      - rename:
+          from:
+            - log.type
+          to: log.dnsQuery.type
+
+      # .......................................................................#
+      # Renaming resource fields
+      # .......................................................................#
+      - rename:
+          from:
+            - log.resource.labels.backend_service_name
+          to: log.resourceLabelsBackendServiceName
+
+      - rename:
+          from:
+            - log.resource.labels.forwarding_rule_name
+          to: log.resourceLabelsForwardingRuleName
+
+      - rename:
+          from:
+            - log.resource.labels.project_id
+          to: log.resourceLabelsProjectId
+
+      - rename:
+          from:
+            - log.resource.labels.target_proxy_name
+          to: log.resourceLabelsTargetProxyName
+
+      - rename:
+          from:
+            - log.resource.labels.url_map_name
+          to: log.resourceLabelsUrlMapName
+
+      - rename:
+          from:
+            - log.resource.labels.zone
+          to: log.resourceLabelsZone
+
+      - rename:
+          from:
+            - log.resource.labels.location
+          to: log.resourceLabelsLocation
+
+      - rename:
+          from:
+            - log.resource.labels.projectId
+          to: log.resourceLabelsProjectId
+
+      - rename:
+          from:
+            - log.resource.labels.projectType
+          to: log.resourceLabelsProjectType
+
+      - rename:
+          from:
+            - log.resource.labels.targetName
+          to: log.resourceLabelsTargetName
+
+      - rename:
+          from:
+            - log.resource.labels.targetType
+          to: log.resourceLabelsTargetType
+
+      - rename:
+          from:
+            - log.resource.type
+          to: log.resourceType
+
+      # .......................................................................#
+      # Renaming operation field
+      # .......................................................................#
+      - rename:
+          from:
+            - log.operation.id
+          to: log.operationId
+
+      - rename:
+          from:
+            - log.operation.producer
+          to: log.operationProducer
+
+      - rename:
+          from:
+            - log.operation.first
+          to: log.operationFirst
+
+      - rename:
+          from:
+            - log.operation.last
+          to: log.operationLast
+
+      # .......................................................................#
+      # Renaming sourceLocation field
+      # .......................................................................#
+      - rename:
+          from:
+            - log.sourceLocation.file
+          to: log.sourceLocationFile
+
+      - rename:
+          from:
+            - log.sourceLocation.line
+          to: log.sourceLocationLine
+
+      - rename:
+          from:
+            - log.sourceLocation.function
+          to: log.sourceLocationFunction
+
+      # Fields conversions
+      - cast:
+          fields:
+            - log.jsonPayloadCacheDecision
+          to: '[]string'
+
+      - cast:
+          fields:
+            - statusCode
+          to: int
+
+      # Adding severity field based on log.severity
+      - add:
+          function: "string"
+          params:
+            key: severity
+            value: "low"
+          where: oneOf("log.severity", ["INFO", "NOTICE"])
+
+      - add:
+          function: "string"
+          params:
+            key: severity
+            value: "medium"
+          where: equals("log.severity", "WARNING")
+
+      - add:
+          function: "string"
+          params:
+            key: severity
+            value: "high"
+          where: equals("log.severity", "ERROR")
+
+      # Adding action field based on log.httpRequestMethod
+      - add:
+          function: "string"
+          params:
+            key: action
+            value: "get"
+          where: equals("log.httpRequestMethod", "GET")
+
+      - add:
+          function: "string"
+          params:
+            key: action
+            value: "post"
+          where: equals("log.httpRequestMethod", "POST")
+
+      - add:
+          function: "string"
+          params:
+            key: action
+            value: "put"
+          where: equals("log.httpRequestMethod", "PUT")
+
+      - add:
+          function: "string"
+          params:
+            key: action
+            value: "patch"
+          where: equals("log.httpRequestMethod", "PATCH")
+
+      - add:
+          function: "string"
+          params:
+            key: action
+            value: "request"
+          where: equals("log.httpRequestMethod", "REQUEST")
+
+      - add:
+          function: "string"
+          params:
+            key: action
+            value: "delete"
+          where: equals("log.httpRequestMethod", "DELETE")
+
+      # Adding actionResult field based on log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "accepted"
+          where: equals("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome", "ACCEPT")
+
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "denied"
+          where: equals("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome", "DENY")
+
+      # Adding geolocation to origin.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+
+      # Adding geolocation to target.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where: exists("target.ip")
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.httpRequest
+            - log.jsonPayload
+            - log.resource
+            - log.httpRequestMethod
+            - log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
+            - log.severity
+            - log.jsonPayloadStructuredRdata$$
+	WHERE id=1301;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

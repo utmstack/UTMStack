@@ -17,6 +17,7 @@ interface RuleList {
     status: Status;
     errors: Record<string, string[]>;
     isLoading: boolean;
+    showDetail: boolean;
 }
 
 @Component({
@@ -36,6 +37,8 @@ export class ImportRuleComponent implements OnInit, OnDestroy {
   stepCompleted: number[] = [];
   files = [];
   rules: RuleList[] = [];
+  isImportFinished = false;
+  processedFiles: any[] = [];
 
   constructor(private importRuleService: ImportRuleService,
               private dataTypeService: DataTypeService,
@@ -97,6 +100,8 @@ export class ImportRuleComponent implements OnInit, OnDestroy {
             this.utmToastService.showWarning('Import partially successful', 'Some rules were not saved.');
           }
         }
+
+        this.isImportFinished = true;
       }
     });
   }
@@ -116,69 +121,72 @@ export class ImportRuleComponent implements OnInit, OnDestroy {
   }
 
   validRules() {
-    if (this.files.length > 0) {
-      this.loading = true;
-      const filesWithDataTypes = this.files.map(file => {
-          return {
-            ...file,
-            dataTypes: file.dataTypes && file.dataTypes.length > 0 ? file.dataTypes : []
-          };
-      });
-
-      // Fetch and filter data types for each file
-      forkJoin(
-          filesWithDataTypes.map(file =>
-            forkJoin(
-              file.dataTypes.map((dt: string) =>
-                this.dataTypeService.getAll({ search: dt })
-                  .pipe(
-                      map(res => {
-                        const dataTypes =  res.body;
-
-                        return dataTypes.find(d => d.dataType === dt);
-                      })
-                  )
-              )
-            ).pipe(
-              map(filteredDataTypes => ({
-                ...file,
-                confidentiality: file.impact.confidentiality || 0,
-                integrity: file.impact.integrity || 0,
-                availability: file.impact.availability || 0,
-                definition: file.where || '',
-                afterEvents: file.afterEvents || file.correlation || [],
-                dataTypes: filteredDataTypes.filter(dt => !!dt)
-              }))
-            ),
-          ),
-        ).pipe(finalize(() => (this.loading = false))).subscribe(updatedFiles => {
-          this.rules = updatedFiles.map(file => {
-            let rule: Rule = {
-                ...file,
-                dataTypes: file.dataTypes.length > 0 ? file.dataTypes : [],
-            };
-            const {isValid, errors} = this.importRuleService.isValidRule(rule);
-
-            Object.keys(rule).forEach(key => {
-              if (rule[key] === null) {
-                rule = {[key]: null, ...rule};
-              }
-            });
-
-            return {
-              rule,
-              valid: isValid,
-              status: isValid ? ('valid' as Status) : ('error' as Status),
-              isLoading: false,
-              errors
-            };
-
-          });
-        });
-    } else {
+    if (this.files.length === 0) {
       this.mode = 'ERROR';
+      return;
     }
+
+    this.loading = true;
+
+    const newFiles = this.files.filter(f => !this.processedFiles.includes(f));
+
+    if (newFiles.length === 0) {
+      this.loading = false;
+      return;
+    }
+
+    const filesWithDataTypes = newFiles.map(file => ({
+      ...file,
+      dataTypes: file.dataTypes && file.dataTypes.length ? file.dataTypes : []
+    }));
+
+    forkJoin(
+      filesWithDataTypes.map(file =>
+        forkJoin(
+          file.dataTypes.map((dt: string) =>
+            this.dataTypeService.getAll({ search: dt }).pipe(
+              map(res => res.body.find(d => d.dataType === dt))
+            )
+          )
+        ).pipe(
+          map(filteredDataTypes => ({
+            ...file,
+            confidentiality: file.impact.confidentiality || 0,
+            integrity: file.impact.integrity || 0,
+            availability: file.impact.availability || 0,
+            definition: file.where || '',
+            afterEvents: file.afterEvents || file.correlation || [],
+            dataTypes: filteredDataTypes.filter(dt => !!dt)
+          }))
+        )
+      )
+    )
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe(updatedFiles => {
+
+        const newRules = updatedFiles.map(file => {
+          const rule: Rule = {
+            ...file,
+            dataTypes: file.dataTypes.length > 0 ? file.dataTypes : [],
+          };
+
+          const { isValid, errors } = this.importRuleService.isValidRule(rule);
+
+          return {
+            rule,
+            valid: isValid,
+            status: isValid ? ('valid' as Status) : ('error' as Status),
+            isLoading: false,
+            errors,
+            showDetail: false
+          };
+        });
+
+        this.rules = [...this.rules, ...newRules];
+        this.processedFiles.push(...newFiles);
+      });
   }
+
 
 
 
@@ -205,12 +213,16 @@ export class ImportRuleComponent implements OnInit, OnDestroy {
     this.rules.splice(i, 1);
   }
 
-  showRule(rule: Rule) {
+  showRule(rule: RuleList) {
     rule.showDetail = !rule.showDetail;
   }
 
   close() {
     this.activeModal.close(true);
+  }
+
+  validRulesCount() {
+    return this.rules.filter(r => r.valid).length;
   }
 
   ngOnDestroy() {

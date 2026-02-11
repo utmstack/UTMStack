@@ -1,4 +1,4 @@
-# Netflow firewall module filter, version 3.0.1
+# Netflow firewall module filter, version 3.1.0
 # Based in docs and Netflow Generator (Solarwinds) for send log
 # 
 # Documentations
@@ -44,6 +44,103 @@ pipeline:
               pattern: '{{.word}}(=)'
           source: log.msg
 
+      # Using grok to parse fields that have issues with kv filter
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}bytes="\['
+            - fieldName: log.totalBytes
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant1
+              pattern: '{{.data}}packets="\['
+            - fieldName: log.totalPackets
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant2
+              pattern: '{{.data}}inEth="\['
+            - fieldName: log.inEthernet
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant3
+              pattern: '{{.data}}outEth="\['
+            - fieldName: log.outEthernet
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant4
+              pattern: '{{.data}}proto="\['
+            - fieldName: protocol
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant5
+              pattern: '{{.data}}srcPort="\['
+            - fieldName: log.srcPortg
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant6
+              pattern: '{{.data}}dstPort="\['
+            - fieldName: log.dstPortg
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant7
+              pattern: '{{.data}}dstMask="\['
+            - fieldName: log.destMask
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant8
+              pattern: '{{.data}}srcMask="\['
+            - fieldName: log.sourceMask
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant9
+              pattern: '{{.data}}tcpFlags="\['
+            - fieldName: log.tcpFlgs
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant10
+              pattern: '{{.data}}dstAs="\['
+            - fieldName: log.destAs
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant11
+              pattern: '{{.data}}srcAs="\['
+            - fieldName: log.sourceAs
+              pattern: '{{.data}}\]"'
+          source: raw
+
       # Rename filds
       - rename:
           from:
@@ -63,11 +160,7 @@ pipeline:
           to: target.ip
       - rename:
           from:
-            - log.proto
-          to: protocol
-      - rename:
-          from:
-            - log.srcPort
+            - log.srcPortg
           to: origin.port
       - rename:
           from:
@@ -75,8 +168,8 @@ pipeline:
           to: origin.port
       - rename:
           from:
-            - log.dstPort
-          to: taget.port
+            - log.dstPortg
+          to: target.port
       - rename:
           from:
             - log.dest_port
@@ -88,6 +181,55 @@ pipeline:
           fields:
             - origin.port
             - target.port
+              
+      # Removing unused caracters
+      - trim:
+          function: prefix
+          substring: '"'
+          fields:
+            - log.bytesIn
+            - log.bytesOut
+            - log.exporter
+            - log.first
+            - log.last
+            - log.nextHop
+            - log.packetsIn
+            - log.packetsOut
+            - log.version
+            - target.ip
+            - origin.ip
+      - trim:
+          function: suffix
+          substring: '"'
+          fields:
+            - log.bytesIn
+            - log.bytesOut
+            - log.exporter
+            - log.first
+            - log.last
+            - log.nextHop
+            - log.packetsIn
+            - log.packetsOut
+            - log.version
+            - target.ip
+            - origin.ip
+
+      - trim:
+          function: suffix
+          substring: ']"'
+          fields:
+            - log.totalBytes
+            - log.totalPackets
+            - log.inEthernet
+            - log.outEthernet
+            - protocol
+            - origin.port
+            - target.port
+            - log.destMask
+            - log.sourceMask
+            - log.tcpFlgs
+            - log.destAs
+            - log.sourceAs
 
       # Adding geolocation to origin.ip
       - dynamic:
@@ -104,3 +246,30 @@ pipeline:
             source: target.ip
             destination: target.geolocation
           where: exists("target.ip")
+                    
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.bytes
+            - log.packets
+            - log.inEth
+            - log.outEth
+            - log.srcPort
+            - log.dstMask
+            - log.srcMask
+            - log.tcpFlags
+            - log.dstAs
+            - log.srcAs
+            - log.dstPort
+            - log.irrelevant
+            - log.irrelevant1
+            - log.irrelevant2
+            - log.irrelevant3
+            - log.irrelevant4
+            - log.irrelevant5
+            - log.irrelevant6
+            - log.irrelevant7
+            - log.irrelevant8
+            - log.irrelevant9
+            - log.irrelevant10
+            - log.irrelevant11

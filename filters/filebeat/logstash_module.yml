@@ -1,4 +1,4 @@
-# Logstash filter, version 4.0.2
+# Logstash filter, version 4.0.3
 # Fields based on https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-logstash.html
 # and filebeat fields.yml version 7.13.4 oss
 # Support logs from logstash 7.14.1 ++
@@ -114,19 +114,19 @@ pipeline:
           params:
             key: severity
             value: 'high'
-          where: safe("log.level", "") in ["ERROR", "Error", "FATAL", "CRITICAL", "Critical"]
+          where: oneOf("log.level", ["ERROR", "Error", "FATAL", "CRITICAL", "Critical"])
       - add:
           function: 'string'
           params:
             key: severity
             value: 'medium'
-          where: safe("log.level", "") in ["WARN", "Warning"]
+          where: oneOf("log.level", ["WARN", "Warning"])
       - add:
           function: 'string'
           params:
             key: severity
             value: 'low'
-          where: safe("log.level", "") in ["Information", "Informational", "INFO", "DEBUG", "TRACE"]
+          where: oneOf("log.level", ["Information", "Informational", "INFO", "DEBUG", "TRACE"])
       # Removing unused fields
       - delete:
           fields:

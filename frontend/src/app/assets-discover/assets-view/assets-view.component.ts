@@ -56,7 +56,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   loading = false;
   itemsPerPage = ITEMS_PER_PAGE;
   viewAssetDetail: NetScanType;
-  sortBy = AssetFieldEnum.ASSET_ID + ',asc';
+  sortBy = AssetFieldEnum.ASSET_IS_ALIVE + ',DESC';
   assetsFields: UtmFieldType[] = ASSETS_FIELDS;
   checkbox: any;
   assetFieldEnum = AssetFieldEnum;
@@ -144,6 +144,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
       .subscribe( {
         next: (assets: NetScanType[]) => {
           this.assets = assets;
+          this.sortLastInput('desc');
           this.loading = false;
           this.cdr.markForCheck();
         },
@@ -389,7 +390,6 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   }
 
   getLastInput(asset: NetScanType) {
-    console.log('getLastInput', asset.lastInput);
     if (asset.dataInputList.length > 0) {
       const lastInput = asset.dataInputList[asset.dataInputList.length - 1].timestamp;
       asset.lastInputTimestamp = lastInput;

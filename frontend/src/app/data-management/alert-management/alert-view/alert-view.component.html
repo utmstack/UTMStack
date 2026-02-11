@@ -106,11 +106,11 @@
                                             tooltipClass="utm-tooltip-top"></app-utm-dtable-columns>
                   </th>
                   <th (sort)="onSortBy($event)"
-                      *ngFor="let item of fields; let i=index"
+                      *ngFor="let item of fields;"
                       [hidden]="!item.visible"
-                      [isSortable]="true"
+                      [isSortable]="item.type !== ElasticDataTypesEnum.OBJECT"
                       [sortEvent]="sortEvent"
-                      [sortable]="item.type!=='string'?item.field:item.field+'.keyword'"
+                      [sortable]="item.type !== ElasticDataTypesEnum.STRING ? item.field : item.field +'.keyword'"
                       appColumnSortable
                       class="font-weight-semibold cursor-pointer">
                     {{item.label}}
@@ -219,8 +219,7 @@
     <ng-container *ngFor="let td of fields">
       <td *ngIf="td.visible"
           [ngClass]="{'min-width': td.field === ALERT_ADVERSARY_FIELD || td.field === ALERT_TARGET_FIELD}"
-          (click)="viewDetailAlert(alert, td)"
-      >
+          (click)="viewDetailAlert(alert, td)">
 
         <app-data-field-render [data]="alert"
                                [tags]="tags"

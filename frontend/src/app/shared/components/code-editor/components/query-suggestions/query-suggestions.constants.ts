@@ -6,7 +6,7 @@ export interface QuerySuggestion {
 export const QUERY_SUGGESTIONS: QuerySuggestion[] = [
   {
     label: 'Selecting Fields',
-    query: `SELECT lastEvent.log.action, severity
+    query: `SELECT lastEvent.action, severity
             FROM v11-alert-*
             LIMIT 20;`
   },
@@ -32,13 +32,13 @@ export const QUERY_SUGGESTIONS: QuerySuggestion[] = [
   },
   {
     label: 'Selecting Nested Field',
-    query: `SELECT lastEvent.log.action AS action
+    query: `SELECT lastEvent.action AS action
             FROM v11-alert-*
             LIMIT 5;`
   },
   {
     label: 'Using Aggregations (COUNT)',
-    query: `SELECT lastEvent.log.action AS action, COUNT(*) AS total
+    query: `SELECT lastEvent.action AS action, COUNT(*) AS total
             FROM v11-alert-*
             WHERE @timestamp BETWEEN DATE_SUB(NOW(), INTERVAL 30 DAY) AND NOW()
             GROUP BY action
@@ -47,7 +47,7 @@ export const QUERY_SUGGESTIONS: QuerySuggestion[] = [
   },
   {
     label: 'Using Aggregations (MAX)',
-    query: `SELECT lastEvent.log.action AS action, MAX(@timestamp) AS lastSeen
+    query: `SELECT lastEvent.action AS action, MAX(@timestamp) AS lastSeen
             FROM v11-alert-*
             GROUP BY action;`
   },
@@ -68,7 +68,7 @@ export const QUERY_SUGGESTIONS: QuerySuggestion[] = [
     label: 'Using Subqueries',
     query: `SELECT action, total
             FROM (
-              SELECT lastEvent.log.action AS action, COUNT(*) AS total
+              SELECT lastEvent.action AS action, COUNT(*) AS total
               FROM v11-alert-*
               WHERE @timestamp BETWEEN DATE_SUB(NOW(), INTERVAL 30 DAY) AND NOW()
               GROUP BY action

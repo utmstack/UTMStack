@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260211003" author="Manuel">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='3.1.0',
+                updated_at = now(),
+                logstash_filter = $$ # Netflow firewall module filter, version 3.1.0
+# Based in docs and Netflow Generator (Solarwinds) for send log
+#
+# Documentations
+# 1- https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
+# 2- http://www.iana.org/assignments/ipfix/ipfix.xhtml
+# 3- https://helpdesk.kaseya.com/hc/en-gb/articles/115003522631-How-to-view-NetFlow-in-WireShark
+# 4- https://www.solarwinds.com/free-tools/
+#
+# Implementation
+# 1. Parsing the RAW field containing the Netflow
+pipeline:
+  - dataTypes:
+      - netflow
+    steps:
+
+      # Using the kv filter with default config, usefull in key-value logs
+      - kv:
+          fieldSplit: " "
+          valueSplit: "="
+
+      # Remove fields that have issues with kv filter
+      - delete:
+          fields:
+            - log.msg
+
+      # Using grok to parse kv issued fields
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(msg=)'
+            - fieldName: log.msg
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.kvMessage
+
+      # Using grok to remove irrelevant data
+      - grok:
+          patterns:
+            - fieldName: log.msg
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.msg
+
+      # Using grok to parse fields that have issues with kv filter
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}bytes="\['
+            - fieldName: log.totalBytes
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant1
+              pattern: '{{.data}}packets="\['
+            - fieldName: log.totalPackets
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant2
+              pattern: '{{.data}}inEth="\['
+            - fieldName: log.inEthernet
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant3
+              pattern: '{{.data}}outEth="\['
+            - fieldName: log.outEthernet
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant4
+              pattern: '{{.data}}proto="\['
+            - fieldName: protocol
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant5
+              pattern: '{{.data}}srcPort="\['
+            - fieldName: log.srcPortg
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant6
+              pattern: '{{.data}}dstPort="\['
+            - fieldName: log.dstPortg
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant7
+              pattern: '{{.data}}dstMask="\['
+            - fieldName: log.destMask
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant8
+              pattern: '{{.data}}srcMask="\['
+            - fieldName: log.sourceMask
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant9
+              pattern: '{{.data}}tcpFlags="\['
+            - fieldName: log.tcpFlgs
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant10
+              pattern: '{{.data}}dstAs="\['
+            - fieldName: log.destAs
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant11
+              pattern: '{{.data}}srcAs="\['
+            - fieldName: log.sourceAs
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      # Rename filds
+      - rename:
+          from:
+            - log.srcIp
+          to: origin.ip
+      - rename:
+          from:
+            - log.dstIp
+          to: target.ip
+      - rename:
+          from:
+            - log.src_ip
+          to: origin.ip
+      - rename:
+          from:
+            - log.dest_ip
+          to: target.ip
+      - rename:
+          from:
+            - log.srcPortg
+          to: origin.port
+      - rename:
+          from:
+            - log.src_port
+          to: origin.port
+      - rename:
+          from:
+            - log.dstPortg
+          to: target.port
+      - rename:
+          from:
+            - log.dest_port
+          to: target.port
+
+      # Fields conversions
+      - cast:
+          to: 'int'
+          fields:
+            - origin.port
+            - target.port
+
+      # Removing unused caracters
+      - trim:
+          function: prefix
+          substring: '"'
+          fields:
+            - log.bytesIn
+            - log.bytesOut
+            - log.exporter
+            - log.first
+            - log.last
+            - log.nextHop
+            - log.packetsIn
+            - log.packetsOut
+            - log.version
+            - target.ip
+            - origin.ip
+      - trim:
+          function: suffix
+          substring: '"'
+          fields:
+            - log.bytesIn
+            - log.bytesOut
+            - log.exporter
+            - log.first
+            - log.last
+            - log.nextHop
+            - log.packetsIn
+            - log.packetsOut
+            - log.version
+            - target.ip
+            - origin.ip
+
+      - trim:
+          function: suffix
+          substring: ']"'
+          fields:
+            - log.totalBytes
+            - log.totalPackets
+            - log.inEthernet
+            - log.outEthernet
+            - protocol
+            - origin.port
+            - target.port
+            - log.destMask
+            - log.sourceMask
+            - log.tcpFlgs
+            - log.destAs
+            - log.sourceAs
+
+      # Adding geolocation to origin.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+
+      # Adding geolocation to target.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where: exists("target.ip")
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.bytes
+            - log.packets
+            - log.inEth
+            - log.outEth
+            - log.srcPort
+            - log.dstMask
+            - log.srcMask
+            - log.tcpFlags
+            - log.dstAs
+            - log.srcAs
+            - log.dstPort
+            - log.irrelevant
+            - log.irrelevant1
+            - log.irrelevant2
+            - log.irrelevant3
+            - log.irrelevant4
+            - log.irrelevant5
+            - log.irrelevant6
+            - log.irrelevant7
+            - log.irrelevant8
+            - log.irrelevant9
+            - log.irrelevant10
+            - log.irrelevant11
+                $$
+	WHERE id = 1523;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

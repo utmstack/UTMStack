@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260129001" author="Manuel">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='3.0.2',
+            logstash_filter = $$ # PfSense Firewall filter, version 3.0.2
+# Based on docs and samples log provided
+# Support CSV format  format
+#
+# Documentations
+# 1- https://docs.netgate.com/pfsense/en/latest/monitoring/logs/raw-filter-format.html
+#
+# Implementation
+# 1. Parsing the RAW field containing the PfSense
+# 2. Parsing headers of syslog the message
+# 3. Parsing the CSV field containing the PfSense
+
+pipeline:
+  - dataTypes:
+      - firewall-pfsense
+    steps:
+      #......................................................................#
+      #......................................................................#
+      # Using grok to parse syslogHeader of the message
+      #......................................................................#
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.integer}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}{{.iso8601Timezone}}'
+            - fieldName: log.syslogHost
+              pattern: '{{.hostname}}'
+            - fieldName: log.msgAll
+              pattern: '{{.greedy}}'
+          source: raw
+          where: regexMatch("raw", "\\d{4}-\\d{2}-\\d{2}")
+
+      # Parsing syslog format date (OPNsense/pfSense)
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.integer}}\>'
+            - fieldName: log.deviceTime
+              pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}}{{.space}}'
+            - fieldName: log.syslogHost
+              pattern: '{{.hostname}}{{.space}}'
+            - fieldName: log.msgAll
+              pattern: '{{.greedy}}'
+          source: raw
+          where: regexMatch("raw", "<\\d+>[A-Z][a-z]{2}\\s+\\d{1,2}\\s+\\d{2}")
+
+      #......................................................................#
+      # Removing unnecessary characters of the syslogHeader
+      #......................................................................#
+      - trim:
+          function: prefix
+          substring: "<"
+          fields:
+            - log.priority
+      - trim:
+          function: suffix
+          substring: ">"
+          fields:
+            - log.priority
+
+      #......................................................................#
+      # Checking that the msgAll field exists
+      #......................................................................#
+      - grok:
+          patterns:
+            - fieldName: log.eventType
+              pattern: '{{.word}}'
+            - fieldName: log.pid
+              pattern: '(\[)?({{.integer}}?)(\])?(- -|:)'
+            - fieldName: log.csvMsg
+              pattern: '{{.greedy}}'
+          source: log.msgAll
+
+      #......................................................................#
+      # Removing unnecessary characters
+      #......................................................................#
+      - trim:
+          function: prefix
+          substring: "["
+          fields:
+            - log.pid
+      - trim:
+          function: suffix
+          substring: "]:"
+          fields:
+            - log.pid
+
+      # ..........................................................................#
+      # Remove issues fileds
+      # ..........................................................................#
+      - delete:
+          fields:
+            - log.msgAll
+
+      #......................................................................#
+      # Using csv to parse the message
+      #......................................................................#
+      - csv:
+          source: log.csvMsg
+          separator: ","
+          headers:
+            - log.ruleNumber
+            - log.subRuleNumber
+            - log.anchor
+            - log.tracker
+            - log.realInterface
+            - log.reason
+            - log.action
+            - log.direction
+            - log.ipVersion
+            - log.ipv4Tos
+            - log.ipv4Ecn
+            - log.ipv4Ttl
+            - log.ipv4Id
+            - log.ipv4Offset
+            - log.ipv4Flags
+            - log.ipv4ProtocolId
+            - log.proto
+            - log.ipLength
+            - log.srcIp
+            - log.dstIp
+            - log.srcPort
+            - log.dstPort
+            - log.dataLength
+            - log.tcpFlags
+            - log.sequenceNumber
+            - log.ackNumber
+            - log.tcpWindow
+            - log.urg
+            - log.tcpOptions
+          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),(4|6),(.+)(tcp|TCP|Tcp)")
+
+      # .......................................................................#
+      - csv:
+          source: log.csvMsg
+          separator: ","
+          headers:
+            - log.ruleNumber
+            - log.subRuleNumber
+            - log.anchor
+            - log.tracker
+            - log.realInterface
+            - log.reason
+            - log.action
+            - log.direction
+            - log.ipVersion
+            - log.ipv4Tos
+            - log.ipv4Ecn
+            - log.ipv4Ttl
+            - log.ipv4Id
+            - log.ipv4Offset
+            - log.ipv4Flags
+            - log.ipv4ProtocolId
+            - log.proto
+            - log.ipLength
+            - log.srcIp
+            - log.dstIp
+            - log.srcPort
+            - log.dstPort
+            - log.dataLength
+          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),(4|6),(.+)(udp|UDP|Udp)")
+
+      #......................................................................#
+      - csv:
+          source: log.csvMsg
+          separator: ","
+          headers:
+            - log.ruleNumber
+            - log.subRuleNumber
+            - log.anchor
+            - log.tracker
+            - log.realInterface
+            - log.reason
+            - log.action
+            - log.direction
+            - log.ipVersion
+            - log.ipv4Tos
+            - log.ipv4Ecn
+            - log.ipv4Ttl
+            - log.ipv4Id
+            - log.ipv4Offset
+            - log.ipv4Flags
+            - log.ipv4ProtocolId
+            - log.proto
+            - log.ipLength
+            - log.srcIp
+            - log.dstIp
+            - log.icmpType
+            - log.icmpData1
+            - log.icmpData2
+            - log.icmpData3
+            - log.icmpData4
+            - log.icmpData5
+          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),(4|6),(.+)(icmp|ICMP|Icmp)")
+
+      #......................................................................#
+      - csv:
+          source: log.csvMsg
+          separator: ","
+          headers:
+            - log.ruleNumber
+            - log.subRuleNumber
+            - log.anchor
+            - log.tracker
+            - log.realInterface
+            - log.reason
+            - log.action
+            - log.direction
+            - log.ipVersion
+            - log.ipv6Class
+            - log.ipv6FlowLabel
+            - log.ipv6HopLimit
+            - log.proto
+            - log.ipv6ProtocolId
+            - log.ipLength
+            - log.srcIp
+            - log.dstIp
+            - log.srcPort
+            - log.dstPort
+            - log.dataLength
+            - log.tcpFlags
+            - log.sequenceNumber
+            - log.ackNumber
+            - log.tcpWindow
+            - log.urg
+            - log.tcpOptions
+          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),(6|17),(.+)(tcp|TCP|Tcp)")
+
+      #......................................................................#
+      - csv:
+          source: log.csvMsg
+          separator: ","
+          headers:
+            - log.ruleNumber
+            - log.subRuleNumber
+            - log.anchor
+            - log.tracker
+            - log.realInterface
+            - log.reason
+            - log.action
+            - log.direction
+            - log.ipVersion
+            - log.ipv6Class
+            - log.ipv6FlowLabel
+            - log.ipv6HopLimit
+            - log.proto
+            - log.ipv6ProtocolId
+            - log.ipLength
+            - log.srcIp
+            - log.dstIp
+            - log.srcPort
+            - log.dstPort
+            - log.dataLength
+          where: regexMatch("log.csvMsg", "(.+),(match|\\w+),(block|pass),(in|out),6,(.+)(udp|UDP|Udp)")
+
+      #......................................................................#
+      - csv:
+          source: log.csvMsg
+          separator: ","
+          headers:
+            - log.ruleNumber
+            - log.subRuleNumber
+            - log.anchor
+            - log.tracker
+            - log.realInterface
+            - log.reason
+            - log.action
+            - log.direction
+            - log.ipVersion
+            - log.ipv6Class
+            - log.ipv6FlowLabel
+            - log.ipv6HopLimit
+            - log.proto
+            - log.ipv6ProtocolId
+            - log.ipLength
+            - log.srcIp
+            - log.dstIp
+            - log.icmpType
+            - log.icmpData1
+            - log.icmpData2
+            - log.icmpData3
+            - log.icmpData4
+            - log.icmpData5
+          where: regexMatch("log.csvMsg", "(.+),(match|\\w+),(block|pass),(in|out),(6|17),(.+)(icmp|ICMP|Icmp)")
+
+      # ................................................#
+      # Rename fields
+      # ................................................#
+      - rename:
+          from:
+            - log.action
+          to: action
+
+      - rename:
+          from:
+            - log.proto
+          to: protocol
+
+      - rename:
+          from:
+            - log.srcIp
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.dstIp
+          to: target.ip
+
+      - rename:
+          from:
+            - log.srcPort
+          to: origin.port
+
+      - rename:
+          from:
+            - log.dstPort
+          to: target.port
+
+      # ................................................#
+      # Fileds conversions
+      # ................................................#
+      - cast:
+          fields:
+            - origin.port
+            - target.port
+          to: int
+
+      # Adding geolocation to origin.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+
+      # Adding geolocation to target.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where: exists("target.ip")
+
+      # ..........................................................................#
+      # Remove issues fileds
+      # ..........................................................................#
+      - delete:
+          fields:
+            - log.csvMsg
+
+$$
+	WHERE id=1522;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

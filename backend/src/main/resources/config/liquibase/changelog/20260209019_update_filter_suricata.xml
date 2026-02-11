@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260209019" author="JocLRojas">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='1.0.1',
+                updated_at=now(),
+	        logstash_filter=$$ # Suricata filter version 1.0.1
+# Based on https://suricata.readthedocs.io/en/latest/output/eve/eve-json-format.html (latest 8.0.0) (august 2025)
+# and real events log provided
+# Support json format
+
+pipeline:
+  - dataTypes:
+      - suricata
+    steps:
+      # Drop log incomplete jSon structure
+      - drop:
+          where: regexMatch("raw", ".*\\\"event_type\\\"\\s*:\\s*\\\"stats\\\".*")
+
+      # Parsing RAW field log
+      - grok:
+          patterns:
+            - fieldName: log.syslogPri
+              pattern: '\<{{.integer}}\>'
+            - fieldName: log.syslogTimestamp
+              pattern: '{{.monthName}}(\s+){{.monthDay}}(\s+){{.time}}'
+            - fieldName: log.syslogHost
+              pattern: '{{.hostname}}'
+            - fieldName: log.syslogProgram
+              pattern: '{{.word}}'
+            - fieldName: log.syslogPid
+              pattern: '\[{{.integer}}\]: '
+            - fieldName: log.suricataJson
+              pattern: '{{.greedy}}'
+
+      # Parse Suricata JSON logs
+      - json:
+          source: log.suricataJson
+          where: regexMatch("log.suricataJson", "^\\{.*\\}$")
+
+      # Rename fields to conversion v11 schema
+      - rename:
+          from:
+            - log.destip
+          to: target.ip
+
+      - rename:
+          from:
+            - log.destport
+          to: target.port
+
+      - rename:
+          from:
+            - log.flowid
+          to: log.flowId
+
+      - rename:
+          from:
+            - log.host
+          to: target.host
+
+      - rename:
+          from:
+            - log.iniface
+          to: log.inFace
+
+      - rename:
+          from:
+            - log.srcip
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.srcport
+          to: origin.port
+
+      - rename:
+          from:
+            - log.txid
+          to: log.txId
+
+      - rename:
+          from:
+            - log.eventtype
+          to: log.eventType
+
+      - rename:
+          from:
+            - log.appproto
+          to: log.appProto
+
+      - rename:
+          from:
+            - log.proto
+          to: protocol
+
+    
+      # Adding severity field based on log.alert.severity
+      - add:
+          function: "string"
+          params:
+            key: severity
+            value: "low"
+          where: equals("log.alert.severity", 1)
+
+      - add:
+          function: "string"
+          params:
+            key: severity
+            value: "medium"
+          where: equals("log.alert.severity", 2)
+
+      - add:
+          function: "string"
+          params:
+            key: severity
+            value: "high"
+          where: equals("log.alert.severity", 3)
+
+      #.......................................................................
+      # Add new eventtypes to logx structure, detected in real logs, present in suricata 7.0.0
+      - rename:
+          from:
+            - log.ftpdata
+          to: log.ftpData
+      
+      - rename:
+          from:
+            - log.fileinfo
+          to: log.fileInfo
+
+      # Implementing action field used for established connections
+      - add:
+          function: "string"
+          params:
+            key: action
+            value: "success"
+          where: (equals("log.eventType", "tls") && exists("log.tls.sessionresumed")) ||
+            (equals("log.eventType", "dns") && equals("log.dns.type", "answer")) ||
+            (equals("log.eventType", "flow") && exists("origin.ip") && exists("target.ip") && greaterThan("log.flow.bytestoserver", 0) && greaterThan("log.flow.bytestoclient", 0)) ||
+            (equals("log.eventType", "ssh") && exists("log.ssh.server") && exists("log.ssh.client")) ||
+            (equals("log.eventType", "alert") && exists("origin.ip") && exists("target.ip") && equals("log.alert.action", "allowed") && greaterThan("log.flow.bytestoserver", 0) && greaterThan("log.flow.bytestoclient", 0)) ||
+            (equals("log.eventType", "http") && exists("origin.ip") && exists("target.ip") && exists("log.http.status")) ||
+            (equals("log.eventType", "ftp") && exists("origin.ip") && exists("target.ip") && exists("log.ftp.completioncode")) ||
+            (equals("log.eventType", "tftp") && exists("origin.ip") && exists("target.ip") && !equals("log.tftp.packet", "error")) ||
+            (equals("log.eventType", "smb") && exists("origin.ip") && exists("target.ip") && oneOf("log.smb.command", ["NEGOTIATE"]) && oneOf("log.smb.status", ["SUCCESS", "GRANTED", "CONNECTED"])) ||
+            (equals("log.eventType", "rdp") && exists("origin.ip") && exists("target.ip") && (equals("log.rdp.eventType", "connectresponse") || equals("log.rdp.eventType", "tlshandshake"))) ||
+            (equals("log.eventType", "rfb") && exists("origin.ip") && exists("target.ip") && equals("log.rfb.authentication.security-result", "OK")) ||
+            (equals("log.eventType", "mqtt") && exists("origin.ip") && exists("target.ip") && (equals("log.mqtt.connack.returncode", "0") ||  equals("log.mqtt.connack.returncode", "0x00"))) ||
+            (equals("log.eventType", "pgsql") && exists("origin.ip") && exists("target.ip") && (exists("log.pgsql.request.simplequery") ||  exists("log.pgsql.response.commandcompleted") || equals("log.pgsql.response.sslaccepted", "true") || equals("log.pgsql.response.accepted", "true") || exists("log.pgsql.response.authenticationmd5password"))) ||
+            ((equals("log.eventType", "ike") || equals("log.eventType", "ikev1") || equals("log.eventType", "ikev2")) && exists("origin.ip") && exists("target.ip")) ||
+            (equals("log.eventType", "modbus") && exists("origin.ip") && exists("target.ip")) ||
+            (equals("log.eventType", "sip") && exists("origin.ip") && exists("target.ip")) ||
+            (equals("log.eventType", "quic") && exists("origin.ip") && exists("target.ip")) ||
+            (equals("log.eventType", "fileinfo") && exists("origin.ip") && exists("target.ip")) ||
+            (equals("log.eventType", "snmp") && exists("origin.ip") && exists("target.ip")) ||
+            (equals("log.eventType", "dhcp") && exists("origin.ip") && exists("target.ip") && !equals("log.dhcp.assignedip", "0"))
+          
+
+      # Adding geolocation to origin.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+
+      # Adding geolocation to target.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where: exists("target.ip")
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.suricataJson
+            - log.syslogPri
+            - log.syslogTimestamp
+            - log.syslogProgram
+            - log.syslogPid$$
+	WHERE id=1530;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

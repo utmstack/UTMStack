@@ -6,6 +6,7 @@ import com.park.utmstack.service.logstash_pipeline.UtmGroupLogstashPipelineFilte
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,6 +37,7 @@ public class UtmLogstashFilterService {
     public UtmLogstashFilter save(UtmLogstashFilter logstashFilter) {
         final String ctx = CLASSNAME + ".save";
         try {
+            logstashFilter.setUpdatedAt(Instant.now());
             logstashFilter.setSystemOwner(false);
             return logstashFilterRepository.save(logstashFilter);
         } catch (Exception e) {

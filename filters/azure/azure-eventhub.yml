@@ -1,4 +1,4 @@
-# Azure Envent-Hub filter, version 2.0.3
+# Azure Envent-Hub filter, version 2.0.4
 # 
 # Documentations
 # 1- https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log
@@ -611,19 +611,19 @@ pipeline:
           params:
             key: severity
             value: 'high'
-          where: safe("log.level", "") in ["ERROR", "Error", "FATAL", "CRITICAL", "Critical"]
+          where: oneOf("log.level", ["ERROR", "Error", "FATAL", "CRITICAL", "Critical"])
       - add:
           function: 'string'
           params:
             key: severity
             value: 'medium'
-          where: safe("log.level", "") in ["WARN", "Warning"]
+          where: oneOf("log.level", ["WARN", "Warning"])
       - add:
           function: 'string'
           params:
             key: severity
             value: 'low'
-          where: safe("log.level", "") in ["Information", "Informational", "INFO", "DEBUG", "TRACE"]
+          where: oneOf("log.level", ["Information", "Informational", "INFO", "DEBUG", "TRACE"])
 
       # .......................................................................#
       # Add geolocation to remote.ip
@@ -643,37 +643,37 @@ pipeline:
           params:
             key: action
             value: 'get'
-          where: safe("log.propertiesRequestMethod", "") == "GET"
+          where: equals("log.propertiesRequestMethod", "GET")
       - add:
           function: 'string'
           params:
             key: action
             value: 'post'
-          where: safe("log.propertiesRequestMethod", "") == "POST"
+          where: equals("log.propertiesRequestMethod", "POST")
       - add:
           function: 'string'
           params:
             key: action
             value: 'put'
-          where: safe("log.propertiesRequestMethod", "") == "PUT"
+          where: equals("log.propertiesRequestMethod", "PUT")
       - add:
           function: 'string'
           params:
             key: action
             value: 'delete'
-          where: safe("log.propertiesRequestMethod", "") == "DELETE"
+          where: equals("log.propertiesRequestMethod", "DELETE")
       - add:
           function: 'string'
           params:
             key: action
             value: 'patch'
-          where: safe("log.propertiesRequestMethod", "") == "PATCH"
+          where: equals("log.propertiesRequestMethod", "PATCH")
       - add:
           function: 'string'
           params:
             key: action
             value: 'request'
-          where: safe("log.propertiesRequestMethod", "") == "REQUEST"
+          where: equals("log.propertiesRequestMethod", "REQUEST")
 
       # .......................................................................#
       # Removing log.propertiesRequestMethod if action was set
@@ -716,4 +716,4 @@ pipeline:
           params:
             key: actionResult
             value: 'accepted'
-          where: safe("statusCode", 0.0) >= double(200) && safe("statusCode", 0.0) <= double(299) || (safe("statusCode", 0.0) >= double(300) && safe("statusCode", 0.0) <= double(399) && safe("origin.bytesReceived", 0.0) > double(0))
+          where: (greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 299)) || (greaterOrEqual("statusCode", 300) && lessOrEqual("statusCode", 399) && greaterThan("origin.bytesReceived", 0))

@@ -485,14 +485,14 @@ public class UtmDataInputStatusService {
             }
         });
 
-        Instant lastTimestamp = result.values().stream()
+        Optional<Instant> maybeLastTimestamp = result.values().stream()
                 .map(doc -> Instant.parse(doc.getTimestamp()))
-                .max(Instant::compareTo)
-                .orElse(Instant.now());
+                .max(Instant::compareTo);
 
-        checkpoint.setLastProcessedTimestamp(lastTimestamp);
-
-        this.checkpointRepository.save(checkpoint);
+        if (maybeLastTimestamp.isPresent()) {
+            checkpoint.setLastProcessedTimestamp(maybeLastTimestamp.get());
+            this.checkpointRepository.save(checkpoint);
+        }
 
         return result;
     }

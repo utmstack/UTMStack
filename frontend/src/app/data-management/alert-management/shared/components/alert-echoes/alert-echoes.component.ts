@@ -17,6 +17,7 @@ import {UtmAlertType} from '../../../../../shared/types/alert/utm-alert.type';
 import {ElasticFilterType} from '../../../../../shared/types/filter/elastic-filter.type';
 import {sanitizeFilters} from '../../../../../shared/util/elastic-filter.util';
 import {EventDataTypeEnum} from '../../enums/event-data-type.enum';
+import {MAX_SEARCH_RESULTS} from "../../../../../shared/constants/global.constant";
 
 @Component({
   selector: 'app-alert-echoes',
@@ -61,7 +62,7 @@ export class AlertEchoesComponent implements OnInit {
   loadChildrenAlerts() {
       this.loading = true;
       this.elasticDataService.search(this.page, this.itemsPerPage,
-        100000000, this.dataNature,
+        MAX_SEARCH_RESULTS, this.dataNature,
         sanitizeFilters(this.filters), this.sortBy, true).subscribe(
         (res: HttpResponse<any>) => {
           this.totalItems = Number(res.headers.get('X-Total-Count'));

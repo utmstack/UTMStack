@@ -43,7 +43,7 @@
   </div>
 </div>
 <!--header-->
-<div class="px-3 w-100 h-50 m-0" *ngIf="isSqlMode">
+<div class="px-3 w-100 sql-editor-container m-0" *ngIf="isSqlMode">
   <app-code-editor
     (execute)="executeSqlQuery($event)"
     (clearData)="onClearData()"

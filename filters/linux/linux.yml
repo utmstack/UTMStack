@@ -1,0 +1,55 @@
+pipeline:
+  - dataTypes:
+      - rsyslog-linux
+    steps:
+      # 1. Handle Agent Wrapper (Optional)
+      - grok:
+          source: raw
+          patterns:
+            - fieldName: log.wrapper_open
+              pattern: '\[utm_stack_agent_ds='
+            - fieldName: log.datasource_override
+              pattern: '{{.data}}'
+            - fieldName: log.wrapper_close
+              pattern: '\]-'
+            - fieldName: log.inner_msg
+              pattern: '{{.greedy}}'
+            - fieldName: log.inner_msg
+              pattern: '{{.greedy}}'
+
+      # 2. Parse Syslog
+      - grok:
+          source: log.inner_msg
+          patterns:
+            - fieldName: log.timestamp
+              pattern: '{{.monthName}}(\s+){{.monthDay}}(\s+){{.time}}'
+            - fieldName: log.separator
+              pattern: '{{.space}}'
+            - fieldName: log.syslog_host
+              pattern: '{{.hostname}}'
+            - fieldName: log.separator
+              pattern: '{{.space}}'
+            - fieldName: log.process_info
+              pattern: '{{.data}}:'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+
+      # 3. Rename Fields
+      # Extract PID if present in process info (e.g. sshd[123])
+      - grok:
+          source: log.process_info
+          patterns:
+            - fieldName: log.process_name
+              pattern: '{{.word}}'
+            - fieldName: log.pid_wrapper
+              pattern: '\[{{.integer}}\]'
+          where: 'contains(log.process_info, "[")'
+      
+      - rename:
+          from: [log.process_info]
+          to: log.process_name
+          where: '!contains(log.process_info, "[")'
+      
+      # 4. Cleanup
+      - delete:
+          fields: [log.wrapper_open, log.wrapper_close, log.inner_msg, log.separator, log.pid_wrapper]

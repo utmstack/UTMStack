@@ -1,7 +1,7 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {UtmFilterBehavior} from '../../../../../shared/components/utm/filters/utm-elastic-filter/shared/behavior/utm-filter.behavior';
-import {LOG_ANALYZER_TOTAL_ITEMS} from '../../../../../shared/constants/log-analyzer.constant';
+import {MAX_SEARCH_RESULTS} from "../../../../../shared/constants/global.constant";
 import {ElasticDataTypesEnum} from '../../../../../shared/enums/elastic-data-types.enum';
 import {ElasticOperatorsEnum} from '../../../../../shared/enums/elastic-operators.enum';
 import {ElasticSearchFieldInfoType} from '../../../../../shared/types/elasticsearch/elastic-search-field-info.type';
@@ -22,7 +22,7 @@ export class LogAnalyzerFieldDetailComponent implements OnInit, OnDestroy {
   filters: ElasticFilterType[] = [];
   fieldTopValues: LogAnalyzerFieldDetailType;
   loading = true;
-  total = LOG_ANALYZER_TOTAL_ITEMS;
+  total = MAX_SEARCH_RESULTS;
   public logObservable: Observable<{ filter: ElasticFilterType[], sort: string }>;
   subscription: any;
   private sort = '@timestamp,desc';

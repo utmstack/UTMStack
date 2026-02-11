@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260209010" author="JocLRojas">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='3.0.3',
+                updated_at=now(),
+            logstash_filter=$$ # Internet Information Services Filter, version 3.0.3
+# Supports IIS 7 and later versions. See: https://learn.microsoft.com/es-es/iis/configuration/system.applicationhost/log/
+# and https://learn.microsoft.com/es-es/iis/configuration/system.applicationhost/sites/site/logfile/
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the iis log
+pipeline:
+  - dataTypes:
+      - iis
+    steps:
+      - json:
+          source: raw
+
+      - rename:
+          from:
+            - log.log.file.path
+          to: origin.file
+
+      - rename:
+          from:
+            - log.host.ip
+          to: log.origin.ips
+
+      - rename:
+          from:
+            - log.host.mac
+          to: log.origin.macs
+
+      - rename:
+          from:
+            - log.host.hostname
+          to: origin.host
+
+      - rename:
+          from:
+            - log.event.dataset
+          to: action
+
+      - rename:
+          from:
+            - log.agent.version
+          to: log.agentVersion
+
+      - rename:
+          from:
+            - log.host.os.kernel
+          to: log.osVersion
+
+      - rename:
+          from:
+            - log.host.os.type
+          to: log.osType
+
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+
+      - cast:
+          to: "[]string"
+          fields:
+            - log.origin.ips
+
+      - cast:
+          to: "[]string"
+          fields:
+            - log.origin.macs
+
+      # Parsing the message field
+      - grok:
+          patterns:
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}\-{{.monthNumber}}\-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.localIpv6
+              pattern: '{{.ipv6}}'
+            - fieldName: log.method
+              pattern: '{{.word}}'
+            - fieldName: target.path
+              pattern: '\/[^ ]*|(-)'
+            - fieldName: log.userIdent
+              pattern: '{{.integer}}|(-)'
+            - fieldName: target.port
+              pattern: '\b([0-9]{1,5})\b'
+            - fieldName: target.user
+              pattern: '{{.word}}|(-)'
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}'
+            - fieldName: log.userAgent
+              pattern: 'Mozilla(.*?)\s'
+            - fieldName: log.referrer
+              pattern: 'https?:\/\/[^\s]+|(-)'
+            - fieldName: log.statusCode
+              pattern: '{{.integer}}'
+            - fieldName: log.subStatusCode
+              pattern: '{{.integer}}'
+            - fieldName: log.win32Status
+              pattern: '{{.integer}}'
+            - fieldName: log.responseTime
+              pattern: '{{.greedy}}'
+          source: log.message
+
+      # Adding geolocation to target ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where: exists("target.ip")
+
+      - cast:
+          fields:
+            - target.port
+            - log.subStatusCode
+            - log.win32Status
+            - log.timeTaken
+            - log.responseTime
+          to: int
+
+      - cast:
+          fields:
+            - log.statusCode
+          to: float
+
+      # Renaming "log.statusCode" to "statusCode" to add it to the event structure
+      - rename:
+          from:
+            - log.statusCode
+          to: statusCode
+
+      # Normalizing request method and renaming to action
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'get'
+          where: equals("log.method", "GET")
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'post'
+          where: equals("log.method", "POST")
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'put'
+          where: equals("log.method", "PUT")
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'delete'
+          where: equals("log.method", "DELETE")
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'request'
+          where: equals("log.method", "REQUEST")
+
+      # Removing log.method if action was set
+      - delete:
+          fields:
+            - log.method
+          where: exists("action")
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.service
+            - log.metadata
+            - log.log.offset
+            - log.log
+            - log.input.type
+            - log.input
+            - log.fileset.name
+            - log.fileset
+            - log.agent
+            - log.host
+            - log.event
+            - log.ecs
+            - log.log.file$$
+	WHERE id=702;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

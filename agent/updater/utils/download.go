@@ -18,11 +18,12 @@ func DownloadFile(url string, headers map[string]string, fileName string, path s
 		req.Header.Add(key, value)
 	}
 
-	client := &http.Client{}
-	client.Transport = &http.Transport{
+	tr := &http.Transport{
 		TLSClientConfig:    &tls.Config{InsecureSkipVerify: skipTlsVerification},
 		DisableCompression: true,
 	}
+	client := &http.Client{Transport: tr}
+	defer tr.CloseIdleConnections()
 
 	resp, err := client.Do(req)
 	if err != nil {

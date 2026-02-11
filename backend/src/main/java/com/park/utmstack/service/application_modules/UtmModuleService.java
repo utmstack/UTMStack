@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -128,7 +129,10 @@ public class UtmModuleService {
                 if ((!activationStatus && moduleInstancesActives > 0) || (activationStatus && moduleInstancesActives > 1))
                     return;
 
-                filters.forEach(filter -> filter.setActive(activationStatus));
+                filters.forEach(filter -> {
+                    filter.setActive(activationStatus);
+                    filter.setUpdatedAt(Instant.now());
+                });
                 logstashFilterService.saveAll(filters);
             } else {
                 return;

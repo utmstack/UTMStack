@@ -3,6 +3,7 @@ package validations
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/crowdstrike/gofalcon/falcon"
@@ -43,10 +44,15 @@ func ValidateCrowdstrikeConfig(config *config.ModuleGroup) error {
 		return fmt.Errorf("App Name is required in CROWDSTRIKE configuration")
 	}
 
+	cloudType, err := extractCloudFromURL(cloud)
+	if err != nil {
+		return fmt.Errorf("invalid cloud region configuration: %w", err)
+	}
+
 	client, err := falcon.NewClient(&falcon.ApiConfig{
 		ClientId:     clientID,
 		ClientSecret: clientSecret,
-		Cloud:        falcon.Cloud(cloud),
+		Cloud:        cloudType,
 		Context:      context.Background(),
 	})
 	if err != nil {
@@ -73,4 +79,27 @@ func ValidateCrowdstrikeConfig(config *config.ModuleGroup) error {
 	}
 
 	return nil
+}
+
+func extractCloudFromURL(cloudValue string) (falcon.CloudType, error) {
+	trimmed := strings.TrimSpace(cloudValue)
+
+	urlToRegion := map[string]string{
+		"api.crowdstrike.com":            "us-1",
+		"api.us-2.crowdstrike.com":       "us-2",
+		"api.eu-1.crowdstrike.com":       "eu-1",
+		"api.laggar.gcw.crowdstrike.com": "us-gov-1",
+		"api.us-gov-2.crowdstrike.mil":   "us-gov-2",
+	}
+
+	if strings.Contains(trimmed, "://") || strings.Contains(trimmed, ".crowdstrike.") {
+		for host, region := range urlToRegion {
+			if strings.Contains(trimmed, host) {
+				return falcon.CloudValidate(region)
+			}
+		}
+		return 0, fmt.Errorf("unrecognized CrowdStrike URL: %s", trimmed)
+	}
+
+	return falcon.CloudValidate(trimmed)
 }

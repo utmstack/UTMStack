@@ -327,6 +327,90 @@
 
     <include file="/config/liquibase/changelog/20260129001_update_filter_sophos_xg.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260202001_update_linux_auditing_module.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260202002_update_filter_crowdstrike.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260204001_update_filter_o35_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260204002_update_filter_sonic_wall_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260206001_update_filter_vmware_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260206002_update_filter_netflow_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209001_update_filter_antivirus_esmc_eset.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209002_update_filter_apache.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209003_update_filter_azure.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209004_update_filter_cisco_asa.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209005_update_filter_cisco_firepower.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209006_update_filter_cisco_switch.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209007_update_filter_deceptive_bytes.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209008_update_filter_elasticsearch.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209009_update_filter_google.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209010_update_filter_iis.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209011_update_filter_kafka.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209012_update_filter_kibana.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209013_update_filter_logstash.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209014_update_filter_meraki.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209015_update_filter_mysql.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209016_update_filter_nginx.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209017_update_filter_redis.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209018_update_filter_sophos_xg.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209019_update_filter_suricata.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209020_update_filter_wineventlog.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209021_update_filter_crowdstrike.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209022_update_correlation_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209023_update_system_owner_correlation_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260209024_update_filter_utmstack.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260210001_update_filter_cisco_asa.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260210002_update_filter_cisco_switch.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260210003_update_filter_cisco_firepower.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260210004_update_filter_cisco_meraki.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260210005_update_filter_cisco_deceptive_bytes.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260210006_update_filter_aix_ibm.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260210007_update_filter_o365.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260210008_update_filter_windows_events.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260210009_update_data_input_status_checkpoint.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260211001_update_filter_bit_defender.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260211002_update_utm_correlation_seq.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260211003_update_filter_netflow.xml" relativeToChangelogFile="false"/>
+
 
 
 </databaseChangeLog>

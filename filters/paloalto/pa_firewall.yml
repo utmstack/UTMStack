@@ -37,7 +37,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsgAll
               pattern: '{{.greedy}}'
           source: raw
-          where: raw.contains("CEF:") || raw.contains("LEEF:")
+          where: contains("raw", "CEF:") || contains("raw", "LEEF:")
 
       #......................................................................#
       # Removing unnecessary characters of the syslogHeader
@@ -83,7 +83,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("TRAFFIC") || log.cefOrLeefMsgAll.contains("traffic")
+          where: contains("log.cefOrLeefMsgAll", "TRAFFIC") || contains("log.cefOrLeefMsgAll", "traffic")
 
     #......................................................................#
       # Detect if its an url threat log
@@ -105,7 +105,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("THREAT") || log.cefOrLeefMsgAll.contains("threat") && log.cefOrLeefMsgAll.contains("url") || log.cefOrLeefMsgAll.contains("URL")
+          where: contains("log.cefOrLeefMsgAll", "THREAT") || contains("log.cefOrLeefMsgAll", "threat") && (contains("log.cefOrLeefMsgAll", "url") || contains("log.cefOrLeefMsgAll", "URL"))
 
       #......................................................................#
       # Detect if its a data threat log
@@ -127,7 +127,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("THREAT") || log.cefOrLeefMsgAll.contains("threat") && (log.cefOrLeefMsgAll.contains("data") || log.cefOrLeefMsgAll.contains("DATA")) || log.cefOrLeefMsgAll.containscontains("DLP") || log.cefOrLeefMsgAll.contains("DLP-NON-FILE") || log.cefOrLeefMsgAll.containscontains("FILE")
+          where: contains("log.cefOrLeefMsgAll", "data") || contains("log.cefOrLeefMsgAll", "DLP") || contains("log.cefOrLeefMsgAll", "DLP-NON-FILE") || contains("log.cefOrLeefMsgAll", "FILE") || contains("log.cefOrLeefMsgAll", "file") || contains("log.cefOrLeefMsgAll", "flood") || contains("log.cefOrLeefMsgAll", "packet") || contains("log.cefOrLeefMsgAll", "scan") || contains("log.cefOrLeefMsgAll", "spyware") || contains("log.cefOrLeefMsgAll", "URL") || contains("log.cefOrLeefMsgAll", "ml-virus") || contains("log.cefOrLeefMsgAll", "virus") || contains("log.cefOrLeefMsgAll", "vulnerability")
 
       #......................................................................#
       # Detect if its a WildFire threat log
@@ -149,7 +149,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("THREAT") || log.cefOrLeefMsgAll.contains("threat") && log.cefOrLeefMsgAll.containscontains("wildfire") || log.cefOrLeefMsgAll.contains("WILDFIRE")
+          where: (contains("log.cefOrLeefMsgAll", "THREAT") || contains("log.cefOrLeefMsgAll", "threat")) && (contains("log.cefOrLeefMsgAll", "wildfire") || contains("log.cefOrLeefMsgAll", "WILDFIRE"))
 
       # ......................................................................#
       # Detect if its general threat log
@@ -171,7 +171,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("THREAT") || log.cefOrLeefMsgAll.contains("threat")
+          where: contains("log.cefOrLeefMsgAll", "THREAT") || contains("log.cefOrLeefMsgAll", "threat")
       
       #......................................................................#
       # Detect if its a CONFIG threat log
@@ -193,7 +193,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("CONFIG") || log.cefOrLeefMsgAll.contains("config")
+          where: contains("log.cefOrLeefMsgAll", "CONFIG") || contains("log.cefOrLeefMsgAll", "config")
 
       #......................................................................#
       # Detect if its a System log
@@ -215,7 +215,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("SYSTEM") || log.cefOrLeefMsgAll.contains("system")
+          where: contains("log.cefOrLeefMsgAll", "SYSTEM") || contains("log.cefOrLeefMsgAll", "system")
 
       #......................................................................#
       # Detect if its a HIP-MATCH log
@@ -237,7 +237,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("HIP-MATCH") || log.cefOrLeefMsgAll.contains("hip-match")
+          where: contains("log.cefOrLeefMsgAll", "HIP-MATCH") || contains("log.cefOrLeefMsgAll", "hip-match")
 
       #......................................................................#
       # Detect if its an AUTHENTICATION log
@@ -259,7 +259,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("AUTHENTICATION") || log.cefOrLeefMsgAll.contains("authentication")
+          where: contains("log.cefOrLeefMsgAll", "AUTHENTICATION") || contains("log.cefOrLeefMsgAll", "authentication")
 
       #......................................................................#
       # Detect if its an USERID log
@@ -281,7 +281,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("USERID") || log.cefOrLeefMsgAll.contains("userid")
+          where: contains("log.cefOrLeefMsgAll", "USERID") || contains("log.cefOrLeefMsgAll", "userid")
 
       #......................................................................#
       # Detect if its an IPTAG log
@@ -303,7 +303,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("IPTAG") || log.cefOrLeefMsgAll.contains("iptag")
+          where: contains("log.cefOrLeefMsgAll", "IPTAG") || contains("log.cefOrLeefMsgAll", "iptag")
 
       #......................................................................#
       # Detect if its an Tunnel log
@@ -325,7 +325,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("START") || log.cefOrLeefMsgAll.contains("start") || log.cefOrLeefMsgAll.containscontains("END") || log.cefOrLeefMsgAll.contains("end")
+          where: (contains("log.cefOrLeefMsgAll", "START") || contains("log.cefOrLeefMsgAll", "start")) || (contains("log.cefOrLeefMsgAll", "END") || contains("log.cefOrLeefMsgAll", "end"))
 
       #......................................................................#
       # Detect if its an CORRELATION log
@@ -347,7 +347,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("CORRELATION") || log.cefOrLeefMsgAll.contains("correlation")
+          where: contains("log.cefOrLeefMsgAll", "CORRELATION") || contains("log.cefOrLeefMsgAll", "correlation")
 
       #......................................................................#
       # Detect if its an GTP log
@@ -369,7 +369,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("GTP") || log.cefOrLeefMsgAll.contains("gtp")
+          where: contains("log.cefOrLeefMsgAll", "GTP") || contains("log.cefOrLeefMsgAll", "gtp")
 
       #......................................................................#
       # Detect if its an SCTP log
@@ -387,7 +387,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("SCTP") || log.cefOrLeefMsgAll.contains("sctp")
+          where: contains("log.cefOrLeefMsgAll", "SCTP") || contains("log.cefOrLeefMsgAll", "sctp")
 
       #......................................................................#
       # Detect if its an GLOBALPROTECT log
@@ -407,7 +407,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("GLOBALPROTECT") || log.cefOrLeefMsgAll.contains("globalprotect")
+          where: contains("log.cefOrLeefMsgAll", "GLOBALPROTECT") || contains("log.cefOrLeefMsgAll", "globalprotect")
 
       #......................................................................#
       # Detect if its an DECRYPTION log
@@ -427,7 +427,7 @@ pipeline:
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
           source: log.cefOrLeefMsgAll
-          where: log.cefOrLeefMsgAll.contains("DECRYPTION") || log.cefOrLeefMsgAll.contains("decryption")
+          where: contains("log.cefOrLeefMsgAll", "DECRYPTION") || contains("log.cefOrLeefMsgAll", "decryption")
 
       #......................................................................#
       # Remove unnecessary caracters
@@ -5959,7 +5959,7 @@ pipeline:
             - log.is_saas_of_app 
             - log.sanctioned_state_of_app 
             - log.offloaded
-          where: log.csvMsgAll.matches("(.+),(\\s)?(TRAFFIC)(\\s)?,(\\s)?(start|end|drop|deny)(\\s)?,(.+)")
+          where: regexMatch("log.csvMsgAll", "(.+),(\\s)?(TRAFFIC)(\\s)?,(\\s)?(start|end|drop|deny)(\\s)?,(.+)")
       
       #......................................................................#
       # Detect if its a THREAT log in csvMsgAll
@@ -6088,7 +6088,7 @@ pipeline:
             - log.is_saas_of_app
             - log.sanctioned_state_of_app
             - log.cloud_reportid
-          where: log.csvMsgAll.matches("(.+),(\\s)?(THREAT)(\\s)?,(\\s)?(data|DLP|DLP-NON-FILE|FILE|file|flood|packet|scan|spyware|URL|ml-virus|virus|vulnerability|wildfire|wildfire-virus)(\\s)?,(.+)")
+          where: regexMatch("log.csvMsgAll", "(.+),(\\s)?(THREAT)(\\s)?,(\\s)?(data|DLP|DLP-NON-FILE|FILE|file|flood|packet|scan|spyware|URL|ml-virus|virus|vulnerability|wildfire|wildfire-virus)(\\s)?,(.+)")
 
       #......................................................................#
       # Detect if its a HIP-MATCH log in csvMsgAll
@@ -6127,7 +6127,7 @@ pipeline:
             - log.serialnumber
             - log.mac
             - log.high_res_timestamp
-          where: log.csvMsgAll.matches("(.+),(\\s)?(HIP-MATCH)(\\s)?,(.+)")
+          where: regexMatch("log.csvMsgAll", "(.+),(\\s)?(HIP-MATCH)(\\s)?,(.+)")
       
       # ..........................................................................#
       # Detect if its a GLOBALPROTECT log
@@ -6184,7 +6184,7 @@ pipeline:
             - log.vsys_name
             - log.device_name
             - log.vsys_id
-          where: log.csvMsgAll.matches("(.+),(\\s)?(GLOBALPROTECT)(\\s)?,(\\s)?(data|file|flood|packet|scan|spyware|URL|virus|vulnerability|wildfire|wildfire-virus)(\\s)?,(.+)")
+          where: regexMatch("log.csvMsgAll", "(.+),(\\s)?(GLOBALPROTECT)(\\s)?,(\\s)?(data|file|flood|packet|scan|spyware|URL|virus|vulnerability|wildfire|wildfire-virus)(\\s)?,(.+)")
 
       # ..........................................................................#
       # Detect if its a IPTAG log
@@ -6218,7 +6218,7 @@ pipeline:
             - log.device_name
             - log.vsys_id
             - log.high_res_timestamp
-          where: log.csvMsgAll.matches("(.+),(\\s)?(IPTAG)(\\s)?,(.+)")
+          where: regexMatch("log.csvMsgAll", "(.+),(\\s)?(IPTAG)(\\s)?,(.+)")
 
       # ..........................................................................#
       # Detect if its a USERID log
@@ -6261,7 +6261,7 @@ pipeline:
             - log.ugflags
             - log.userbysource
             - log.high_res_timestamp
-          where: log.csvMsgAll.matches("(.+),(\\s)?(USERID)(\\s)?,(\\s)?(login|logout|register-tag|unregister-tag)(\\s)?,(.+)")
+          where: regexMatch("log.csvMsgAll", "(.+),(\\s)?(USERID)(\\s)?,(\\s)?(login|logout|register-tag|unregister-tag)(\\s)?,(.+)")
 
       # ..........................................................................#
       # Detect if its a DECRYPTION log
@@ -6375,7 +6375,7 @@ pipeline:
             - log.container_of_app
             - log.is_saas_of_app
             - log.sanctioned_state_of_app
-          where: log.csvMsgAll.matches("(.+),(\\s)?(DECRYPTION)(\\s)?,(.+),(\\s)?(allow|deny|drop|drop ICMP|reset both|reset client|reset server)(\\s)?,(.+)")
+          where: regexMatch("log.csvMsgAll", "(.+),(\\s)?(DECRYPTION)(\\s)?,(.+),(\\s)?(allow|deny|drop|drop ICMP|reset both|reset client|reset server)(\\s)?,(.+)")
 
       # ..........................................................................#
       # Detect if its a TUNNEL INSPECTION log
@@ -6466,7 +6466,7 @@ pipeline:
             - log.container_of_app
             - log.is_saas_of_app
             - log.sanctioned_state_of_app
-          where: log.csvMsgAll.matches("(.+),(\\s)?(START|END)(\\s)?,(\\s)?(start|end|drop|deny)(\\s)?,(.+)")
+          where: regexMatch("log.csvMsgAll", "(.+),(\\s)?(START|END)(\\s)?,(\\s)?(start|end|drop|deny)(\\s)?,(.+)")
 
       # ..........................................................................#
       # Detect if its a SCTP log
@@ -6539,7 +6539,7 @@ pipeline:
             - log.pkts_received
             - log.rule_uuid
             - log.high_res_timestamp
-          where: log.csvMsgAll.matches("(.+),(\\s)?(SCTP)(\\s)?,(.+),(\\s)?(allow|deny)(\\s)?,(.+)")
+          where: regexMatch("log.csvMsgAll", "(.+),(\\s)?(SCTP)(\\s)?,(.+),(\\s)?(allow|deny)(\\s)?,(.+)")
 
       #......................................................................#
       # Detect if its a CONFIG log
@@ -6574,7 +6574,7 @@ pipeline:
             - log.dg_id
             - log.comment
             - log.high_res_timestamp
-          where: log.csvMsgAll.matches("(.+),(\\s)?(CONFIG)(\\s)?,(.+),(\\s)?(add|clone|commit|delete|edit|move|rename|set)(\\s)?,(.+)")
+          where: regexMatch("log.csvMsgAll", "(.+),(\\s)?(CONFIG)(\\s)?,(.+),(\\s)?(add|clone|commit|delete|edit|move|rename|set)(\\s)?,(.+)")
 
       #......................................................................#      
       # Detect if its a AUTHENTICATION log
@@ -6627,7 +6627,7 @@ pipeline:
             - log.region
             - log.user_agent
             - log.sessionid
-          where: log.csvMsgAll.matches("(.+),(\\s)?(AUTHENTICATION)(\\s)?,(\\s)?(crypto|dhcp|dnsproxy|dos|general|global-protect|ha|hw|nat|ntpd|pbf|port|pppoe|ras|routing|satd|sslmgr|sslvpn|userid|url-filtering|vpn)(\\s)?,(.+)")
+          where: regexMatch("log.csvMsgAll", "(.+),(\\s)?(AUTHENTICATION)(\\s)?,(\\s)?(crypto|dhcp|dnsproxy|dos|general|global-protect|ha|hw|nat|ntpd|pbf|port|pppoe|ras|routing|satd|sslmgr|sslvpn|userid|url-filtering|vpn)(\\s)?,(.+)")
 
       #......................................................................#      
       # Detect if its a SYSTEM log
@@ -6661,7 +6661,7 @@ pipeline:
             - log.future_use
             - log.future_use
             - log.high_res_timestamp
-          where: log.csvMsgAll.matches("(.+),(\\s)?(SYSTEM)(\\s)?,(\\s)?(crypto|dhcp|dnsproxy|dos|general|global-protect|ha|hw|nat|ntpd|pbf|port|pppoe|ras|routing|satd|sslmgr|sslvpn|userid|url-filtering|vpn)(\\s)?,(.+)")
+          where: regexMatch("log.csvMsgAll", "(.+),(\\s)?(SYSTEM)(\\s)?,(\\s)?(crypto|dhcp|dnsproxy|dos|general|global-protect|ha|hw|nat|ntpd|pbf|port|pppoe|ras|routing|satd|sslmgr|sslvpn|userid|url-filtering|vpn)(\\s)?,(.+)")
 
       #......................................................................#      
       # Detect if its a CORRELATED EVENTS log
@@ -6691,7 +6691,7 @@ pipeline:
             - log.objectname
             - log.object_id
             - log.evidence
-          where: log.csvMsgAll.matches("(.+),(\\s)?(CORRELATION)(\\s)?,(\\s)?(crypto|dhcp|dnsproxy|dos|general|global-protect|ha|hw|nat|ntpd|pbf|port|pppoe|ras|routing|satd|sslmgr|sslvpn|userid|url-filtering|vpn)(\\s)?,(.+)")
+          where: regexMatch("log.csvMsgAll", "(.+),(\\s)?(CORRELATION)(\\s)?,(\\s)?(crypto|dhcp|dnsproxy|dos|general|global-protect|ha|hw|nat|ntpd|pbf|port|pppoe|ras|routing|satd|sslmgr|sslvpn|userid|url-filtering|vpn)(\\s)?,(.+)")
 
       #......................................................................#
       # Detect if its a GTP log
@@ -6762,7 +6762,7 @@ pipeline:
             - log.future_use
             - log.future_use
             - log.high_res_timestamp
-          where: log.csvMsgAll.matches("(.+),(\\s)?(GTP)(\\s)?,(\\s)?(start|end|drop|deny)(\\s)?,(.+)")
+          where: regexMatch("log.csvMsgAll", "(.+),(\\s)?(GTP)(\\s)?,(\\s)?(start|end|drop|deny)(\\s)?,(.+)")
 
       # ................................................#
       # Rename fields

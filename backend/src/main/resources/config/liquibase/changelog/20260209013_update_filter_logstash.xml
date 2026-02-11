@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260209013" author="JocLRojas">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='4.0.3',
+                updated_at=now(),
+            logstash_filter=$$ # Logstash filter, version 4.0.3
+# Fields based on https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-logstash.html
+# and filebeat fields.yml version 7.13.4 oss
+# Support logs from logstash 7.14.1 ++
+# Filter Input requirements -> fileset: datatype
+#                              log: plain text
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the logstash log
+pipeline:
+  - dataTypes:
+      - logstash
+    steps:
+      - json:
+          source: raw
+      - rename:
+          from:
+            - log.url
+          to: origin.url
+      - rename:
+          from:
+            - log.log.file.path
+          to: origin.file
+      - rename:
+          from:
+            - log.host.ip
+          to: log.local.ips
+      - rename:
+          from:
+            - log.host.mac
+          to: log.local.macs
+      - rename:
+          from:
+            - log.host.hostname
+          to: origin.host
+      - rename:
+          from:
+            - log.event.dataset
+          to: action
+      - rename:
+          from:
+            - log.agent.version
+          to: log.agentVersion
+      - rename:
+          from:
+            - log.host.os.kernel
+          to: log.osVersion
+      - rename:
+          from:
+            - log.host.os.type
+          to: log.osType
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+      - cast:
+          to: '[]string'
+          fields:
+            - log.local.ips
+      - cast:
+          to: '[]string'
+          fields:
+            - log.local.macs
+      # Parsing common log parts
+      - grok:
+          patterns:
+            - fieldName: deviceTime
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.level
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.component
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.pipelineName
+              pattern: '^(\[{{.data}}\])'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: log.message
+      # Parsing when pipeline is not present
+      - grok:
+          patterns:
+            - fieldName: deviceTime
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.level
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.component
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: log.message
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - deviceTime
+            - log.level
+            - log.component
+            - log.pipelineName
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - deviceTime
+            - log.level
+            - log.component
+            - log.pipelineName
+      - reformat:
+          fields:
+            - deviceTime
+          function: time
+          fromFormat: '2024-07-31T17:02:07,154'
+          toFormat: '2024-09-23T15:57:40.338364445Z'
+      # Adding severity based on log.level
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'high'
+          where: oneOf("log.level", ["ERROR", "Error", "FATAL", "CRITICAL", "Critical"])
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'medium'
+          where: oneOf("log.level", ["WARN", "Warning"])
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'low'
+          where: oneOf("log.level", ["Information", "Informational", "INFO", "DEBUG", "TRACE"])
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.service
+            - log.metadata
+            - log.agent
+            - log.host
+            - log.event
+            - log.ecs
+            - log.log
+            - log.fileset$$
+	WHERE id=1407;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

@@ -149,7 +149,7 @@ func StartConfigurationSystem() {
 
 			switch message := in.Payload.(type) {
 			case *BiDirectionalMessage_Config:
-				catcher.Info("Received configuration update", map[string]any{"process": "plugin_com.utmstack.soc-ai", "config": message.Config})
+				catcher.Info("Received configuration update", map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 				updateConfigFromGRPC(message.Config)
 			}
 		}

@@ -72,7 +72,7 @@ func startQueue() {
 
 				dataType := gjson.Get(l, "dataType").String()
 				id := gjson.Get(l, "id").String()
-				index := sdkos.BuildCurrentIndex("v11", "log", dataType)
+				index := sdkos.BuildCurrentDayIndex("v11", "log", dataType)
 
 				queue.AddItem(sdkos.BulkItem{
 					Index:      index,

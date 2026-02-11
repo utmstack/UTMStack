@@ -6,6 +6,7 @@ import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {ElasticDataService} from '../../../shared/services/elasticsearch/elastic-data.service';
 import {RefreshDataService} from '../../../shared/services/util/refresh-data.service';
 import {sanitizeFilters} from '../../../shared/util/elastic-filter.util';
+import {MAX_SEARCH_RESULTS} from "../../../shared/constants/global.constant";
 
 @Injectable(
   {
@@ -23,7 +24,7 @@ export class AlertService extends RefreshDataService<boolean, any[]> {
     return this.elasticDataService.search(
       request.page,
       request.size,
-      100000000,
+      MAX_SEARCH_RESULTS,
       request.dataNature,
       sanitizeFilters(request.filters),
       request.sort)

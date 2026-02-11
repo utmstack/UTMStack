@@ -198,7 +198,7 @@
                     </div>
                   </td>
                   <td>
-                    {{ asset.lastInput | date }}
+                    {{ asset.lastInput !== 'Unknown' ? (asset.lastInput | date) : '-' }}
                   </td>
 
                   <td class="td-action">

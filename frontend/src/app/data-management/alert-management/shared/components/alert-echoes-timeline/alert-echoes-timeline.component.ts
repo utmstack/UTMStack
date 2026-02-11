@@ -15,6 +15,7 @@ import {ElasticFilterType} from '../../../../../shared/types/filter/elastic-filt
 import {TimelineItem} from '../../../../../shared/types/utm-timeline-item';
 import {sanitizeFilters} from '../../../../../shared/util/elastic-filter.util';
 import {AlertEchoesTimelineService, TimelineGroup} from './alert-echoes-timeline.service';
+import {MAX_SEARCH_RESULTS} from "../../../../../shared/constants/global.constant";
 
 
 @Component({
@@ -178,7 +179,7 @@ export class AlertEchoesTimelineComponent implements OnInit {
   loadData() {
     this.loading = true;
     this.elasticDataService.search(this.page, this.pageSize,
-      100000000, DataNatureTypeEnum.ALERT,
+      MAX_SEARCH_RESULTS, DataNatureTypeEnum.ALERT,
       sanitizeFilters(this.filters), this.sortBy, true)
       .subscribe(
         (res: HttpResponse<any>) => {
