@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -28,12 +27,8 @@ const (
 	defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 	wait                 = 1 * time.Second
 
-	processingTimeout    = 2 * time.Hour
-	processorInitTimeout = 30 * time.Second
-	maxEmptyBatches      = 5
-	emptyBatchWaitTime   = 10 * time.Second
-	receiveTimeout       = 30 * time.Second
-	maxEventsPerBatch    = 100
+	receiveTimeout    = 30 * time.Second
+	maxEventsPerBatch = 100
 
 	AzurePublic     AzureCloud = "AzurePublic"
 	AzureGovernment AzureCloud = "AzureGovernment"
@@ -72,6 +67,18 @@ var SupportedClouds = []CloudEndpoints{
 	},
 }
 
+type ProcessorManager struct {
+	processors sync.Map
+}
+
+type ActiveProcessor struct {
+	cancel context.CancelFunc
+	config AzureConfig
+	done   chan struct{}
+}
+
+var processorManager = &ProcessorManager{}
+
 func main() {
 	mode := plugins.GetCfg("plugin_com.utmstack.azure").Env.Mode
 	if mode != "worker" {
@@ -86,46 +93,125 @@ func main() {
 		}()
 	}
 
+	catcher.Info("Azure plugin started", map[string]any{
+		"process": "plugin_com.utmstack.azure",
+	})
+
+	processorManager.syncProcessors()
+
 	delay := 5 * time.Minute
 	ticker := time.NewTicker(delay)
 	defer ticker.Stop()
 
 	for range ticker.C {
-		moduleConfig := config.GetConfig()
-		if moduleConfig != nil && moduleConfig.ModuleActive {
-			cloudsInUse := detectCloudsInUse(moduleConfig)
-			for cloudName, loginAuthority := range cloudsInUse {
-				if err := connectionChecker(loginAuthority); err != nil {
-					catcher.Info("Airgap or limited connectivity detected", map[string]any{
-						"cloud":          cloudName,
-						"loginAuthority": loginAuthority,
-						"process":        "plugin_com.utmstack.azure",
-					})
+		processorManager.syncProcessors()
+	}
+}
+
+func (pm *ProcessorManager) syncProcessors() {
+	moduleConfig := config.GetConfig()
+	if moduleConfig == nil || !moduleConfig.ModuleActive {
+		pm.stopAll()
+		return
+	}
+
+	cloudsInUse := detectCloudsInUse(moduleConfig)
+	for cloudName, loginAuthority := range cloudsInUse {
+		if err := connectionChecker(loginAuthority); err != nil {
+			catcher.Info("airgap or limited connectivity detected", map[string]any{
+				"cloud":          cloudName,
+				"loginAuthority": loginAuthority,
+				"process":        "plugin_com.utmstack.azure",
+			})
+		}
+	}
+
+	currentGroups := make(map[string]*config.ModuleGroup)
+	for _, grp := range moduleConfig.ModuleGroups {
+		valid := true
+		for _, cnf := range grp.ModuleGroupConfigurations {
+			if strings.TrimSpace(cnf.ConfValue) == "" {
+				valid = false
+				break
+			}
+		}
+		if valid {
+			currentGroups[grp.GroupName] = grp
+		}
+	}
+
+	pm.processors.Range(func(key, value any) bool {
+		groupName := key.(string)
+		if _, exists := currentGroups[groupName]; !exists {
+			pm.stop(groupName)
+		}
+		return true
+	})
+
+	for groupName, grp := range currentGroups {
+		newConfig := getAzureProcessor(grp)
+
+		if existing, ok := pm.processors.Load(groupName); ok {
+			activeProc := existing.(*ActiveProcessor)
+
+			if configChanged(activeProc.config, newConfig) {
+				pm.stop(groupName)
+				pm.start(groupName, newConfig)
+			} else {
+				select {
+				case <-activeProc.done:
+					pm.start(groupName, newConfig)
+				default:
 				}
 			}
-
-			var wg sync.WaitGroup
-			wg.Add(len(moduleConfig.ModuleGroups))
-			for _, grp := range moduleConfig.ModuleGroups {
-				go func(group *config.ModuleGroup) {
-					defer wg.Done()
-					var invalid bool
-					for _, cnf := range group.ModuleGroupConfigurations {
-						if strings.TrimSpace(cnf.ConfValue) == "" {
-							invalid = true
-							break
-						}
-					}
-					if !invalid {
-						pull(group)
-					}
-				}(grp)
-			}
-
-			wg.Wait()
+		} else {
+			pm.start(groupName, newConfig)
 		}
-
 	}
+}
+
+func (pm *ProcessorManager) start(groupName string, config AzureConfig) {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	activeProc := &ActiveProcessor{
+		cancel: cancel,
+		config: config,
+		done:   make(chan struct{}),
+	}
+
+	pm.processors.Store(groupName, activeProc)
+
+	go func() {
+		defer close(activeProc.done)
+		runProcessor(ctx, config)
+	}()
+}
+
+func (pm *ProcessorManager) stop(groupName string) {
+	if value, ok := pm.processors.LoadAndDelete(groupName); ok {
+		activeProc := value.(*ActiveProcessor)
+		activeProc.cancel()
+
+		select {
+		case <-activeProc.done:
+		case <-time.After(30 * time.Second):
+		}
+	}
+}
+
+func (pm *ProcessorManager) stopAll() {
+	pm.processors.Range(func(key, value any) bool {
+		groupName := key.(string)
+		pm.stop(groupName)
+		return true
+	})
+}
+
+func configChanged(old, new AzureConfig) bool {
+	return old.EventHubConnection != new.EventHubConnection ||
+		old.ConsumerGroup != new.ConsumerGroup ||
+		old.StorageContainer != new.StorageContainer ||
+		old.StorageConnection != new.StorageConnection
 }
 
 func detectCloudsInUse(moduleConfig *config.ConfigurationSection) map[string]string {
@@ -162,9 +248,7 @@ func detectCloudFromConnectionString(connectionString string) (CloudEndpoints, e
 	return CloudEndpoints{}, fmt.Errorf("unable to detect Azure cloud from connection string")
 }
 
-func pull(group *config.ModuleGroup) {
-	agent := getAzureProcessor(group)
-
+func runProcessor(ctx context.Context, agent AzureConfig) {
 	if agent.EventHubConnection == "" || agent.ConsumerGroup == "" ||
 		agent.StorageContainer == "" || agent.StorageConnection == "" {
 		_ = catcher.Error("missing required configuration for Event Hub", nil, map[string]any{
@@ -224,9 +308,12 @@ func pull(group *config.ModuleGroup) {
 		})
 
 		if retry < maxRetries-1 {
-			time.Sleep(retryDelay)
-			// Increase delay for next retry
-			retryDelay *= 2
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(retryDelay):
+				retryDelay *= 2
+			}
 		}
 	}
 
@@ -237,7 +324,14 @@ func pull(group *config.ModuleGroup) {
 		})
 		return
 	}
-	defer client.Close(context.Background())
+	defer func() {
+		if err := client.Close(context.Background()); err != nil {
+			_ = catcher.Error("error closing consumer client", err, map[string]any{
+				"group":   agent.GroupName,
+				"process": "plugin_com.utmstack.azure",
+			})
+		}
+	}()
 
 	processor, err := azeventhubs.NewProcessor(client, checkpointStore, &azeventhubs.ProcessorOptions{
 		StartPositions: azeventhubs.StartPositions{
@@ -254,13 +348,7 @@ func pull(group *config.ModuleGroup) {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), processingTimeout)
-	defer cancel()
-
 	var partitionsWg sync.WaitGroup
-	processorReady := make(chan struct{})
-	var firstPartitionAssigned bool
-	var readyMutex sync.Mutex
 
 	go func() {
 		for {
@@ -269,63 +357,45 @@ func pull(group *config.ModuleGroup) {
 				return
 			}
 
-			readyMutex.Lock()
-			if !firstPartitionAssigned {
-				firstPartitionAssigned = true
-				close(processorReady)
-			}
-			readyMutex.Unlock()
-
 			partitionsWg.Add(1)
 			go processPartition(ctx, pc, agent.GroupName, &partitionsWg)
 		}
 	}()
 
+	processorDone := make(chan error, 1)
 	go func() {
-		if err := processor.Run(ctx); err != nil && !errors.Is(err, context.Canceled) {
-			_ = catcher.Error("error running Event Hub processor", err, map[string]any{
+		processorDone <- processor.Run(ctx)
+	}()
+
+	select {
+	case <-ctx.Done():
+	case err := <-processorDone:
+		if err != nil && !errors.Is(err, context.Canceled) {
+			_ = catcher.Error("processor stopped with error", err, map[string]any{
 				"group":   agent.GroupName,
 				"process": "plugin_com.utmstack.azure",
 			})
 		}
-
-		readyMutex.Lock()
-		if !firstPartitionAssigned {
-			firstPartitionAssigned = true
-			close(processorReady)
-		}
-		readyMutex.Unlock()
-	}()
-
-	select {
-	case <-processorReady:
-	case <-time.After(processorInitTimeout):
-		catcher.Info("processor initialization timeout reached", map[string]any{
-			"process": "plugin_com.utmstack.azure",
-		})
 	}
 
 	partitionsWg.Wait()
-
-	cancel()
-
-	time.Sleep(1 * time.Second)
 }
 
 func processPartition(ctx context.Context, pc *azeventhubs.ProcessorPartitionClient, groupName string, wg *sync.WaitGroup) {
 	defer wg.Done()
-	defer pc.Close(context.Background())
-
-	emptyBatchCount := 0
+	defer func() {
+		if err := pc.Close(context.Background()); err != nil {
+			_ = catcher.Error("error closing partition client", err, map[string]any{
+				"group":       groupName,
+				"partitionID": pc.PartitionID(),
+				"process":     "plugin_com.utmstack.azure",
+			})
+		}
+	}()
 
 	for {
 		select {
 		case <-ctx.Done():
-			catcher.Info("partition processing cancelled", map[string]any{
-				"group":   groupName,
-				"reason":  ctx.Err().Error(),
-				"process": "plugin_com.utmstack.azure",
-			})
 			return
 		default:
 		}
@@ -344,85 +414,18 @@ func processPartition(ctx context.Context, pc *azeventhubs.ProcessorPartitionCli
 		}
 
 		if len(events) == 0 {
-			emptyBatchCount++
-
-			if emptyBatchCount >= maxEmptyBatches {
-				catcher.Info("partition completed - no more events available", map[string]any{
-					"group":           groupName,
-					"emptyBatchCount": emptyBatchCount,
-					"process":         "plugin_com.utmstack.azure",
-				})
-				return
-			}
-
-			time.Sleep(emptyBatchWaitTime)
 			continue
 		}
 
-		emptyBatchCount = 0
-
 		for _, event := range events {
-			var logData map[string]any
-			if err := json.Unmarshal(event.Body, &logData); err != nil {
-				_ = catcher.Error("cannot parse event body", err, map[string]any{
-					"group":       groupName,
-					"partitionID": pc.PartitionID(),
-					"process":     "plugin_com.utmstack.azure",
-				})
-				continue
-			}
-
-			if records, ok := logData["records"].([]any); ok && len(records) > 0 {
-				for _, record := range records {
-					recordMap, ok := record.(map[string]any)
-					if !ok {
-						_ = catcher.Error("invalid record format in records array", nil, map[string]any{
-							"group":       groupName,
-							"partitionID": pc.PartitionID(),
-							"process":     "plugin_com.utmstack.azure",
-						})
-						continue
-					}
-
-					jsonLog, err := json.Marshal(recordMap)
-					if err != nil {
-						_ = catcher.Error("cannot encode record to JSON", err, map[string]any{
-							"group":       groupName,
-							"partitionID": pc.PartitionID(),
-							"process":     "plugin_com.utmstack.azure",
-						})
-						continue
-					}
-
-					plugins.EnqueueLog(&plugins.Log{
-						Id:         uuid.New().String(),
-						TenantId:   defaultTenant,
-						DataType:   "azure",
-						DataSource: groupName,
-						Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
-						Raw:        string(jsonLog),
-					}, "com.utmstack.azure")
-				}
-			} else {
-				jsonLog, err := json.Marshal(logData)
-				if err != nil {
-					_ = catcher.Error("cannot encode log to JSON", err, map[string]any{
-						"group":       groupName,
-						"partitionID": pc.PartitionID(),
-						"process":     "plugin_com.utmstack.azure",
-					})
-					continue
-				}
-
-				plugins.EnqueueLog(&plugins.Log{
-					Id:         uuid.New().String(),
-					TenantId:   defaultTenant,
-					DataType:   "azure",
-					DataSource: groupName,
-					Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
-					Raw:        string(jsonLog),
-				}, "com.utmstack.azure")
-			}
+			_ = plugins.EnqueueLog(&plugins.Log{
+				Id:         uuid.New().String(),
+				TenantId:   defaultTenant,
+				DataType:   "azure",
+				DataSource: groupName,
+				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
+				Raw:        string(event.Body),
+			}, "com.utmstack.azure")
 		}
 
 		if err := pc.UpdateCheckpoint(context.Background(), events[len(events)-1], nil); err != nil {
