@@ -55,7 +55,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   page = 0;
   loading = false;
   itemsPerPage = ITEMS_PER_PAGE;
-  viewAssetDetail: NetScanType;
+  assetSelected: NetScanType;
   sortBy = AssetFieldEnum.ASSET_IS_ALIVE + ',DESC';
   assetsFields: UtmFieldType[] = ASSETS_FIELDS;
   checkbox: any;
@@ -83,7 +83,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   deleting: string[] = [];
   agentConsole: NetScanType;
   reasonRun: IncidentCommandType;
-  agent: string;
+  assetName: string;
   noData = false;
   destroy$ = new Subject<void>();
 
@@ -280,7 +280,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
       case AssetFieldEnum.ASSET_METRICS:
         break;
       default:
-        this.viewAssetDetail = asset;
+        this.assetSelected = asset;
     }
   }
 
@@ -391,8 +391,12 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
 
   getLastInput(asset: NetScanType) {
     if (asset.dataInputList.length > 0) {
-      const lastInput = asset.dataInputList[asset.dataInputList.length - 1].timestamp;
+
+      const lastInputStatus = asset.dataInputList[asset.dataInputList.length - 1];
+      const lastInput = lastInputStatus.timestamp;
+
       asset.lastInputTimestamp = lastInput;
+      asset.status = lastInputStatus.down;
       return this.formatTimestampToDate(lastInput);
     }
 
@@ -406,17 +410,17 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   }
 
   toggleAsset(asset: NetScanType) {
-    if (this.viewAssetDetail && this.viewAssetDetail.id === asset.id) {
-      this.viewAssetDetail = undefined;
+    if (this.assetSelected && this.assetSelected.id === asset.id) {
+      this.assetSelected = undefined;
     } else {
-      this.viewAssetDetail = asset;
+      this.assetSelected = asset;
     }
   }
 
   viwAgentDetail(event: Event, asset: NetScanType) {
     event.stopPropagation();
-    this.viewAssetDetail = asset;
-    this.agent = asset.assetName;
+    this.assetSelected = asset;
+    this.assetName = asset.assetName && asset.assetName !== '' ? asset.assetName : asset.assetIp;
   }
 
   isSourceConnected(asset: NetScanType, source: UtmDataInputStatus): boolean {
@@ -439,7 +443,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   }
 
   closeDetail() {
-    this.agent = undefined;
+    this.assetName = undefined;
     this.reasonRun.reason = '';
   }
 

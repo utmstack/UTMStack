@@ -28,6 +28,8 @@ export class UtmAgentDetailComponent implements OnInit {
     this.agentIp = this.agent.ip;
     this.ips = this.agent.addresses !== '' ? this.agent.addresses.split(',') : [];
     this.macs = this.agent.mac !== '' ? this.agent.mac.split(',') : [];
+
+    console.log(this.agent);
   }
 
   public getAgentIcon(): string {

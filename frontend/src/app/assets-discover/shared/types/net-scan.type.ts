@@ -39,4 +39,6 @@ export class NetScanType {
   sortKey?: string;
   lastInput: string;
   lastInputTimestamp: number;
+  status?: boolean;
+  isAgent?: boolean;
 }

@@ -264,13 +264,14 @@
 
 
 <!--ASSET DETAIL-->
-<div *ngIf="agent" class="utm-right-container">
+<div *ngIf="assetName" class="utm-right-container">
   <div (click)="closeDetail()" class="overlay overlay-lg col-md-6"></div>
   <div class="card utm-right-action utm-right-action-lg">
     <div class="title d-flex justify-content-between  align-items-center border-bottom-1
      border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
       <h6 class="card-title text-blue-800 font-weight-light">
-        Agent {{ agent }} detail
+        {{ assetSelected.isAgent }}
+        {{ assetSelected.isAgent ? 'Agent' : 'Source' }} {{ assetName }} details
       </h6>
       <button (click)="closeDetail()" aria-label="Close"
               class="close button-close" type="button">
@@ -281,8 +282,8 @@
       <div class="w-100" *ngIf="reasonRun">
         <app-utm-agent-connect
           [websocketCommand]="reasonRun"
-          [asset]="viewAssetDetail"
-          [hostname]="agent"></app-utm-agent-connect>
+          [asset]="assetSelected"
+          [hostname]="assetName"></app-utm-agent-connect>
       </div>
 
     </div>
