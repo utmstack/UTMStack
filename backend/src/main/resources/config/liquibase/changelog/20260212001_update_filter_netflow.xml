@@ -1,0 +1,1182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260212001" author="Manuel">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='3.1.1',
+                updated_at = now(),
+                logstash_filter = $$# Netflow firewall module filter, version 3.1.1
+# Based in docs and Netflow Generator (Solarwinds) for send log
+#
+# Documentations
+# 1- https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
+# 2- http://www.iana.org/assignments/ipfix/ipfix.xhtml
+# 3- https://helpdesk.kaseya.com/hc/en-gb/articles/115003522631-How-to-view-NetFlow-in-WireShark
+# 4- https://www.solarwinds.com/free-tools/
+#
+# Implementation
+# 1. Parsing the RAW field containing the Netflow
+pipeline:
+  - dataTypes:
+      - netflow
+    steps:
+
+      # Using the kv filter with default config, usefull in key-value logs
+      - kv:
+          fieldSplit: " "
+          valueSplit: "="
+
+      # Remove fields that have issues with kv filter
+      - delete:
+          fields:
+            - log.msg
+
+      # Using grok to parse kv issued fields
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(msg=)'
+            - fieldName: log.msg
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.kvMessage
+
+      # Using grok to remove irrelevant data
+      - grok:
+          patterns:
+            - fieldName: log.msg
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.msg
+
+      # Using grok to parse fields that have issues with kv filter
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}bytes="\['
+            - fieldName: log.totalBytes
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant1
+              pattern: '{{.data}}packets="\['
+            - fieldName: log.totalPackets
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant2
+              pattern: '{{.data}}inEth="\['
+            - fieldName: log.inEthernet
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant3
+              pattern: '{{.data}}outEth="\['
+            - fieldName: log.outEthernet
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant4
+              pattern: '{{.data}}proto="/\['
+            - fieldName: log.protocol
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant5
+              pattern: '{{.data}}srcPort="\['
+            - fieldName: log.srcPortg
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant6
+              pattern: '{{.data}}dstPort="\['
+            - fieldName: log.dstPortg
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant7
+              pattern: '{{.data}}dstMask="\['
+            - fieldName: log.destMask
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant8
+              pattern: '{{.data}}srcMask="\['
+            - fieldName: log.sourceMask
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant9
+              pattern: '{{.data}}tcpFlags="\['
+            - fieldName: log.tcpFlgs
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant10
+              pattern: '{{.data}}dstAs="\['
+            - fieldName: log.destAs
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant11
+              pattern: '{{.data}}srcAs="\['
+            - fieldName: log.sourceAs
+              pattern: '{{.data}}\]"'
+          source: raw
+
+      # Rename filds
+      - rename:
+          from:
+            - log.srcIp
+          to: origin.ip
+      - rename:
+          from:
+            - log.dstIp
+          to: target.ip
+      - rename:
+          from:
+            - log.src_ip
+          to: origin.ip
+      - rename:
+          from:
+            - log.dest_ip
+          to: target.ip
+
+      # Remove unused caracters and estandarize fields
+      - trim:
+          function: prefix
+          substring: '"'
+          fields:
+            - log.bytesIn
+            - log.bytesOut
+            - log.exporter
+            - log.first
+            - log.last
+            - log.nextHop
+            - log.packetsIn
+            - log.packetsOut
+            - log.version
+            - target.ip
+            - origin.ip
+
+      - trim:
+          function: suffix
+          substring: '"'
+          fields:
+            - log.bytesIn
+            - log.bytesOut
+            - log.exporter
+            - log.first
+            - log.last
+            - log.nextHop
+            - log.packetsIn
+            - log.packetsOut
+            - log.version
+            - target.ip
+            - origin.ip
+
+      - trim:
+          function: suffix
+          substring: ']"'
+          fields:
+            - log.totalBytes
+            - log.totalPackets
+            - log.inEthernet
+            - log.outEthernet
+            - log.protocol
+            - log.srcPortg
+            - log.src_port
+            - log.dstPortg
+            - log.dest_port
+            - log.destMask
+            - log.sourceMask
+            - log.tcpFlgs
+            - log.destAs
+            - log.sourceAs
+
+      - trim:
+          function: prefix
+          substring: '0'
+          fields:
+            - log.srcPortg
+            - log.src_port
+            - log.dstPortg
+            - log.dest_port
+
+      - trim:
+          function: substring
+          substring: " "
+          fields:
+            - log.srcPortg
+            - log.src_port
+            - log.dstPortg
+            - log.dest_port
+
+      # Fields conversions
+      - cast:
+          to: 'int'
+          fields:
+            - log.srcPortg
+            - log.src_port
+            - log.dstPortg
+            - log.dest_port
+
+      # Rename fields to fields base
+      - rename:
+          from:
+            - log.srcPortg
+          to: origin.port
+      - rename:
+          from:
+            - log.src_port
+          to: origin.port
+      - rename:
+          from:
+            - log.dstPortg
+          to: target.port
+      - rename:
+          from:
+            - log.dest_port
+          to: target.port
+
+      # Adding geolocation to origin.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+
+      # Adding geolocation to target.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where: exists("target.ip")
+
+      # Adding protocol field based on IANA protocol numbers
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "HOPOPT"
+          where: equals("log.protocol", "0")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "ICMP"
+          where: equals("log.protocol", "1")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IGMP"
+          where: equals("log.protocol", "2")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "GGP"
+          where: equals("log.protocol", "3")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IP-in-IP"
+          where: equals("log.protocol", "4")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "ST"
+          where: equals("log.protocol", "5")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "TCP"
+          where: equals("log.protocol", "6")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "CBT"
+          where: equals("log.protocol", "7")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "EGP"
+          where: equals("log.protocol", "8")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IGP"
+          where: equals("log.protocol", "9")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "BBN-RCC-MON"
+          where: equals("log.protocol", "10")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "NVP-II"
+          where: equals("log.protocol", "11")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "PUP"
+          where: equals("log.protocol", "12")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "ARGUS"
+          where: equals("log.protocol", "13")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "EMCON"
+          where: equals("log.protocol", "14")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "XNET"
+          where: equals("log.protocol", "15")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "CHAOS"
+          where: equals("log.protocol", "16")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "UDP"
+          where: equals("log.protocol", "17")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "MUX"
+          where: equals("log.protocol", "18")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "DCN-MEAS"
+          where: equals("log.protocol", "19")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "HMP"
+          where: equals("log.protocol", "20")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "PRM"
+          where: equals("log.protocol", "21")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "XNS-IDP"
+          where: equals("log.protocol", "22")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "TRUNK-1"
+          where: equals("log.protocol", "23")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "TRUNK-2"
+          where: equals("log.protocol", "24")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "LEAF-1"
+          where: equals("log.protocol", "25")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "LEAF-2"
+          where: equals("log.protocol", "26")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "RDP"
+          where: equals("log.protocol", "27")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IRTP"
+          where: equals("log.protocol", "28")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "ISO-TP4"
+          where: equals("log.protocol", "29")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "NETBLT"
+          where: equals("log.protocol", "30")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "MFE-NSP"
+          where: equals("log.protocol", "31")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "MERIT-INP"
+          where: equals("log.protocol", "32")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "DCCP"
+          where: equals("log.protocol", "33")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "3PC"
+          where: equals("log.protocol", "34")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IDPR"
+          where: equals("log.protocol", "35")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "XTP"
+          where: equals("log.protocol", "36")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "DDP"
+          where: equals("log.protocol", "37")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IDPR-CMTP"
+          where: equals("log.protocol", "38")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "TP++"
+          where: equals("log.protocol", "39")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IL"
+          where: equals("log.protocol", "40")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IPv6"
+          where: equals("log.protocol", "41")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "SDRP"
+          where: equals("log.protocol", "42")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IPv6-Route"
+          where: equals("log.protocol", "43")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IPv6-Frag"
+          where: equals("log.protocol", "44")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IDRP"
+          where: equals("log.protocol", "45")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "RSVP"
+          where: equals("log.protocol", "46")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "GRE"
+          where: equals("log.protocol", "47")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "DSR"
+          where: equals("log.protocol", "48")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "BNA"
+          where: equals("log.protocol", "49")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "ESP"
+          where: equals("log.protocol", "50")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "AH"
+          where: equals("log.protocol", "51")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "I-NLSP"
+          where: equals("log.protocol", "52")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "SwIPe"
+          where: equals("log.protocol", "53")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "NARP"
+          where: equals("log.protocol", "54")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "MOBILE"
+          where: equals("log.protocol", "55")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "TLSP"
+          where: equals("log.protocol", "56")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "SKIP"
+          where: equals("log.protocol", "57")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IPv6-ICMP"
+          where: equals("log.protocol", "58")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IPv6-NoNxt"
+          where: equals("log.protocol", "59")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IPv6-Opts"
+          where: equals("log.protocol", "60")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "CFTP"
+          where: equals("log.protocol", "62")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "SAT-EXPAK"
+          where: equals("log.protocol", "64")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "KRYPTOLAN"
+          where: equals("log.protocol", "65")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "RVD"
+          where: equals("log.protocol", "66")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IPPC"
+          where: equals("log.protocol", "67")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "SAT-MON"
+          where: equals("log.protocol", "69")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "VISA"
+          where: equals("log.protocol", "70")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IPCU"
+          where: equals("log.protocol", "71")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "CPNX"
+          where: equals("log.protocol", "72")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "CPHB"
+          where: equals("log.protocol", "73")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "WSN"
+          where: equals("log.protocol", "74")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "PVP"
+          where: equals("log.protocol", "75")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "BR-SAT-MON"
+          where: equals("log.protocol", "76")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "SUN-ND"
+          where: equals("log.protocol", "77")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "WB-MON"
+          where: equals("log.protocol", "78")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "WB-EXPAK"
+          where: equals("log.protocol", "79")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "ISO-IP"
+          where: equals("log.protocol", "80")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "VMTP"
+          where: equals("log.protocol", "81")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "SECURE-VMTP"
+          where: equals("log.protocol", "82")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "VINES"
+          where: equals("log.protocol", "83")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IPTM"
+          where: equals("log.protocol", "84")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "NSFNET-IGP"
+          where: equals("log.protocol", "85")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "DGP"
+          where: equals("log.protocol", "86")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "TCF"
+          where: equals("log.protocol", "87")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "EIGRP"
+          where: equals("log.protocol", "88")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "OSPF"
+          where: equals("log.protocol", "89")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "Sprite-RPC"
+          where: equals("log.protocol", "90")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "LARP"
+          where: equals("log.protocol", "91")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "MTP"
+          where: equals("log.protocol", "92")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "AX.25"
+          where: equals("log.protocol", "93")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "OS"
+          where: equals("log.protocol", "94")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "MICP"
+          where: equals("log.protocol", "95")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "SCC-SP"
+          where: equals("log.protocol", "96")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "ETHERIP"
+          where: equals("log.protocol", "97")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "ENCAP"
+          where: equals("log.protocol", "98")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "GMTP"
+          where: equals("log.protocol", "100")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IFMP"
+          where: equals("log.protocol", "101")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "PNNI"
+          where: equals("log.protocol", "102")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "PIM"
+          where: equals("log.protocol", "103")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "ARIS"
+          where: equals("log.protocol", "104")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "SCPS"
+          where: equals("log.protocol", "105")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "QNX"
+          where: equals("log.protocol", "106")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "A/N"
+          where: equals("log.protocol", "107")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IPComp"
+          where: equals("log.protocol", "108")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "SNP"
+          where: equals("log.protocol", "109")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "Compaq-Peer"
+          where: equals("log.protocol", "110")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IPX-in-IP"
+          where: equals("log.protocol", "111")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "VRRP"
+          where: equals("log.protocol", "112")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "PGM"
+          where: equals("log.protocol", "113")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "L2TP"
+          where: equals("log.protocol", "115")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "DDX"
+          where: equals("log.protocol", "116")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IATP"
+          where: equals("log.protocol", "117")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "STP"
+          where: equals("log.protocol", "118")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "SRP"
+          where: equals("log.protocol", "119")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "UTI"
+          where: equals("log.protocol", "120")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "SMP"
+          where: equals("log.protocol", "121")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "SM"
+          where: equals("log.protocol", "122")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "PTP"
+          where: equals("log.protocol", "123")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IS-IS"
+          where: equals("log.protocol", "124")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "FIRE"
+          where: equals("log.protocol", "125")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "CRTP"
+          where: equals("log.protocol", "126")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "CRUDP"
+          where: equals("log.protocol", "127")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "SSCOPMCE"
+          where: equals("log.protocol", "128")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "IPLT"
+          where: equals("log.protocol", "129")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "SPS"
+          where: equals("log.protocol", "130")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "PIPE"
+          where: equals("log.protocol", "131")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "SCTP"
+          where: equals("log.protocol", "132")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "FC"
+          where: equals("log.protocol", "133")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "RSVP-E2E-IGNORE"
+          where: equals("log.protocol", "134")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "Mobility-Header"
+          where: equals("log.protocol", "135")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "UDPLite"
+          where: equals("log.protocol", "136")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "MPLS-in-IP"
+          where: equals("log.protocol", "137")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "manet"
+          where: equals("log.protocol", "138")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "HIP"
+          where: equals("log.protocol", "139")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "Shim6"
+          where: equals("log.protocol", "140")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "WESP"
+          where: equals("log.protocol", "141")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "ROHC"
+          where: equals("log.protocol", "142")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "Ethernet"
+          where: equals("log.protocol", "143")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "AGGFRAG"
+          where: equals("log.protocol", "144")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "NSH"
+          where: equals("log.protocol", "145")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "Homa"
+          where: equals("log.protocol", "146")
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "BIT-EMU"
+          where: equals("log.protocol", "147")
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.bytes
+            - log.packets
+            - log.inEth
+            - log.outEth
+            - log.srcPort
+            - log.dstMask
+            - log.srcMask
+            - log.tcpFlags
+            - log.dstAs
+            - log.srcAs
+            - log.dstPort
+            - log.proto
+            - log.protocol
+            - log.irrelevant
+            - log.irrelevant1
+            - log.irrelevant2
+            - log.irrelevant3
+            - log.irrelevant4
+            - log.irrelevant5
+            - log.irrelevant6
+            - log.irrelevant7
+            - log.irrelevant8
+            - log.irrelevant9
+            - log.irrelevant10
+            - log.irrelevant11
+$$
+	WHERE id = 1523;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>
