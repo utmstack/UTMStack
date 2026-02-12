@@ -417,6 +417,8 @@
 
     <include file="/config/liquibase/changelog/20260212001_update_filter_netflow.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260212002_update_windows_visualizations.xml" relativeToChangelogFile="false"/>
+
 
 
 </databaseChangeLog>
