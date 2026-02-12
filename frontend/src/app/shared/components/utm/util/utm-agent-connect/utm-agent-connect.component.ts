@@ -23,7 +23,6 @@ export class UtmAgentConnectComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    console.log('init');
     this.hasNoReason = this.websocketCommand.reason === '' || !this.websocketCommand.reason;
   }
 

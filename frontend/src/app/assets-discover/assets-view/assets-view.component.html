@@ -270,8 +270,7 @@
     <div class="title d-flex justify-content-between  align-items-center border-bottom-1
      border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
       <h6 class="card-title text-blue-800 font-weight-light">
-        {{ assetSelected.isAgent }}
-        {{ assetSelected.isAgent ? 'Agent' : 'Source' }} {{ assetName }} details
+        {{ assetSelected.isAgent ? 'Agent' : 'Data Source' }} — {{ assetName }} Details
       </h6>
       <button (click)="closeDetail()" aria-label="Close"
               class="close button-close" type="button">
@@ -279,7 +278,7 @@
       </button>
     </div>
     <div class="p-3">
-      <div class="w-100" *ngIf="reasonRun">
+      <div class="w-100" *ngIf="reasonRun && assetSelected.isAgent; else assetDetail">
         <app-utm-agent-connect
           [websocketCommand]="reasonRun"
           [asset]="assetSelected"
@@ -289,3 +288,47 @@
     </div>
   </div>
 </div>
+
+<ng-template #assetDetail>
+  <div class="w-100 d-flex justify-content-start mb-2" *ngIf="assetSelected.displayName">
+    <span class="text-blue-800 font-weight-light min-w-70px">Name:</span>&nbsp;
+    {{assetSelected.displayName}}
+  </div>
+  <div class="w-100 mb-2" *ngIf="assetSelected.assetMac && assetSelected.assetMac !== ''">
+    <span class="text-blue-800 font-weight-light min-w-70px">MAC:</span>&nbsp;
+    <div class="d-flex justify-content-start align-items-center flex-wrap">
+     <span *ngFor="let card of assetSelected.assetMac.split(',')" class="badge border-blue-800 border-1 mr-1 mb-1 p-1 text-blue-800">
+       {{card}}
+     </span>
+    </div>
+  </div>
+  <div class="w-100 d-flex justify-content-start mb-2">
+    <span class="text-blue-800 font-weight-light min-w-70px">Status:</span>&nbsp;
+    <span [ngClass]="!assetSelected.status  ? 'text-success-800':'text-warning-800'"
+          class="span-small-icon d-flex justify-content-start align-items-center">
+      <i [ngClass]="'icon-circle2'" class="mr-2"></i>
+      {{ !assetSelected.status ? 'ONLINE' : 'OFFLINE' }}
+    </span>
+  </div>
+  <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Type:</span>&nbsp;
+    <app-assets-apply-type *ngIf="assetSelected" [assets]="[assetSelected.id]" [typeFormat]="'icon'"
+                           [type]="assetSelected.assetType" class="ml-2">
+    </app-assets-apply-type>
+  </div>
+  <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Group Source:</span>&nbsp;
+    <app-asset-group-add *ngIf="assetSelected" [assets]="[assetSelected.id]"
+                         [group]="assetSelected.group"
+                         [typeFormat]="'icon'" class="ml-2">
+    </app-asset-group-add>
+  </div>
+  <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Comment:</span>&nbsp;
+    <app-assets-apply-note *ngIf="assetSelected" [asset]="assetSelected" class="ml-2"></app-assets-apply-note>
+  </div>
+  <div class="agent-details w-100 d-flex justify-content-start mb-2" *ngIf="assetSelected.lastInput">
+    <span class="text-blue-800 font-weight-light min-w-70px">Last seen:</span>&nbsp;
+    {{ assetSelected.lastInput | date }}
+  </div>
+</ng-template>

@@ -19,7 +19,6 @@ import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
 import {ChartValueSeparator} from '../../shared/enums/chart-value-separator';
 import {ElasticOperatorsEnum} from '../../shared/enums/elastic-operators.enum';
 import {IncidentOriginTypeEnum} from '../../shared/enums/incident-response/incident-origin-type.enum';
-import {UtmDatePipe} from '../../shared/pipes/date.pipe';
 import {IncidentCommandType} from '../../shared/types/incident/incident-command.type';
 import {UtmFieldType} from '../../shared/types/table/utm-field.type';
 import {TimeFilterType} from '../../shared/types/time-filter.type';
@@ -44,7 +43,7 @@ import {SourceDataTypeConfigComponent} from '../source-data-type-config/source-d
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AssetsViewComponent implements OnInit, OnDestroy {
-  assets$: Observable<NetScanType[]>;
+
   assets: NetScanType[];
   // defaultTime: ElasticFilterDefaultTime = new ElasticFilterDefaultTime('now-30d', 'now');
   pageWidth = window.innerWidth;
