@@ -419,67 +419,7 @@ func processPartition(ctx context.Context, pc *azeventhubs.ProcessorPartitionCli
 		}
 
 		for _, event := range events {
-			var logData map[string]any
-			if err := json.Unmarshal(event.Body, &logData); err != nil {
-				_ = catcher.Error("cannot parse event body", err, map[string]any{
-					"group":       groupName,
-					"partitionID": pc.PartitionID(),
-					"process":     "plugin_com.utmstack.azure",
-				})
-				continue
-			}
-
-			if records, ok := logData["records"].([]any); ok && len(records) > 0 {
-				for _, record := range records {
-					recordMap, ok := record.(map[string]any)
-					if !ok {
-						_ = catcher.Error("invalid record format in records array", nil, map[string]any{
-							"group":       groupName,
-							"partitionID": pc.PartitionID(),
-							"process":     "plugin_com.utmstack.azure",
-						})
-						continue
-					}
-
-					jsonLog, err := json.Marshal(recordMap)
-					if err != nil {
-						_ = catcher.Error("cannot encode record to JSON", err, map[string]any{
-							"group":       groupName,
-							"partitionID": pc.PartitionID(),
-							"process":     "plugin_com.utmstack.azure",
-						})
-						continue
-					}
-
-					_ = plugins.EnqueueLog(&plugins.Log{
-						Id:         uuid.New().String(),
-						TenantId:   defaultTenant,
-						DataType:   "azure",
-						DataSource: groupName,
-						Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
-						Raw:        string(jsonLog),
-					}, "com.utmstack.azure")
-				}
-			} else {
-				jsonLog, err := json.Marshal(logData)
-				if err != nil {
-					_ = catcher.Error("cannot encode log to JSON", err, map[string]any{
-						"group":       groupName,
-						"partitionID": pc.PartitionID(),
-						"process":     "plugin_com.utmstack.azure",
-					})
-					continue
-				}
-
-				_ = plugins.EnqueueLog(&plugins.Log{
-					Id:         uuid.New().String(),
-					TenantId:   defaultTenant,
-					DataType:   "azure",
-					DataSource: groupName,
-					Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
-					Raw:        string(jsonLog),
-				}, "com.utmstack.azure")
-			}
+			processEvent(event.Body, groupName)
 		}
 
 		if err := pc.UpdateCheckpoint(context.Background(), events[len(events)-1], nil); err != nil {
@@ -516,6 +456,90 @@ func getAzureProcessor(group *config.ModuleGroup) AzureConfig {
 		}
 	}
 	return azurePro
+}
+
+func processEvent(eventBody []byte, groupName string) {
+	var firstByte byte
+	for _, b := range eventBody {
+		if b != ' ' && b != '\t' && b != '\n' && b != '\r' {
+			firstByte = b
+			break
+		}
+	}
+
+	switch firstByte {
+	case '[':
+		processArrayEvent(eventBody, groupName)
+	case '{':
+		processObjectEvent(eventBody, groupName)
+	default:
+		_ = catcher.Error("invalid JSON format: expected array or object", nil, map[string]any{
+			"group":   groupName,
+			"process": "plugin_com.utmstack.azure",
+		})
+	}
+}
+
+func processArrayEvent(eventBody []byte, groupName string) {
+	var records []map[string]any
+	if err := json.Unmarshal(eventBody, &records); err != nil {
+		_ = catcher.Error("cannot parse event body as array", err, map[string]any{
+			"group":   groupName,
+			"process": "plugin_com.utmstack.azure",
+		})
+		return
+	}
+
+	for _, record := range records {
+		enqueueRecord(record, groupName)
+	}
+}
+
+func processObjectEvent(eventBody []byte, groupName string) {
+	var logData map[string]any
+	if err := json.Unmarshal(eventBody, &logData); err != nil {
+		_ = catcher.Error("cannot parse event body as object", err, map[string]any{
+			"group":   groupName,
+			"process": "plugin_com.utmstack.azure",
+		})
+		return
+	}
+
+	if records, ok := logData["records"].([]any); ok && len(records) > 0 {
+		for _, record := range records {
+			recordMap, ok := record.(map[string]any)
+			if !ok {
+				_ = catcher.Error("invalid record format in records array", nil, map[string]any{
+					"group":   groupName,
+					"process": "plugin_com.utmstack.azure",
+				})
+				continue
+			}
+			enqueueRecord(recordMap, groupName)
+		}
+	} else {
+		enqueueRecord(logData, groupName)
+	}
+}
+
+func enqueueRecord(record map[string]any, groupName string) {
+	jsonLog, err := json.Marshal(record)
+	if err != nil {
+		_ = catcher.Error("cannot encode record to JSON", err, map[string]any{
+			"group":   groupName,
+			"process": "plugin_com.utmstack.azure",
+		})
+		return
+	}
+
+	_ = plugins.EnqueueLog(&plugins.Log{
+		Id:         uuid.New().String(),
+		TenantId:   defaultTenant,
+		DataType:   "azure",
+		DataSource: groupName,
+		Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
+		Raw:        string(jsonLog),
+	}, "com.utmstack.azure")
 }
 
 func connectionChecker(url string) error {
