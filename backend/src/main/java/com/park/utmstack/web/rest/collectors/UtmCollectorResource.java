@@ -1,6 +1,5 @@
 package com.park.utmstack.web.rest.collectors;
 
-import agent.CollectorOuterClass.CollectorConfig;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.network_scan.AssetGroupFilter;
@@ -17,18 +16,12 @@ import com.park.utmstack.service.dto.collectors.CollectorHostnames;
 import com.park.utmstack.service.dto.collectors.dto.CollectorConfigDTO;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
-import com.park.utmstack.service.dto.collectors.dto.ErrorResponse;
 import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
 import com.park.utmstack.service.dto.network_scan.AssetGroupDTO;
 import com.park.utmstack.service.dto.network_scan.UpdateGroupDTO;
 import com.park.utmstack.service.grpc.ListRequest;
-import com.park.utmstack.util.ResponseUtil;
-import com.park.utmstack.web.rest.errors.BadRequestAlertException;
-import com.park.utmstack.web.rest.errors.InternalServerErrorException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
-import com.utmstack.grpc.exception.CollectorConfigurationGrpcException;
-import com.utmstack.grpc.exception.CollectorServiceGrpcException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +34,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -196,70 +186,23 @@ public class UtmCollectorResource {
     @GetMapping("/search-by-filters")
     public ResponseEntity<List<CollectorDTO>> searchByFilters(@ParameterObject NetworkScanFilter filters,
                                                               @ParameterObject Pageable pageable) {
-        final String ctx = CLASSNAME + ".searchByFilters";
-        try {
+
             collectorOpsService.listCollector(ListRequest.newBuilder()
                     .setPageNumber(0)
-                    .setPageSize(1000000)
+                    .setPageSize(10000)
                     .setSortBy("")
                     .build());
+
             Page<CollectorDTO> page = this.utmCollectorService.searchByFilters(filters, pageable);
             HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/search-by-filters");
             return ResponseEntity.ok().headers(headers).body(page.getContent());
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
-        }
+
     }
 
     @DeleteMapping("/collectors/{id}")
     public ResponseEntity<Void> deleteCollector(@PathVariable Long id) {
         collectorService.deleteCollector(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("UtmCollector", id.toString())).build();
-    }
-
-    private ResponseEntity<Void> handleUpdateError(Exception e, CollectorConfig cacheConfig, CollectorDTO collectorDTO) {
-        return logAndResponse(this.getError(e, cacheConfig));
-    }
-
-    private ErrorResponse getError(Exception e, CollectorConfig cacheConfig) {
-        String msg;
-        HttpStatus status;
-
-        try {
-            if (e instanceof InternalServerErrorException) {
-                /*collectorService.upsertCollectorConfig(cacheConfig);*/
-                msg = "The collector configuration couldn't be persisted on database: " + e.getLocalizedMessage();
-                status = HttpStatus.INTERNAL_SERVER_ERROR;
-
-            } else if (e instanceof CollectorConfigurationGrpcException || e instanceof CollectorServiceGrpcException) {
-                msg = "UtmCollector manager is not available or the configuration is wrong: " + e.getLocalizedMessage();
-                status = HttpStatus.BAD_GATEWAY;
-
-            } else if (e instanceof BadRequestAlertException) {
-                msg = e.getLocalizedMessage();
-                status = HttpStatus.BAD_REQUEST;
-
-            } else {
-                msg = "Unexpected error: " + e.getLocalizedMessage();
-                status = HttpStatus.INTERNAL_SERVER_ERROR;
-            }
-
-        } catch (Exception rollbackException) {
-            msg = "Failed to rollback the configuration: " + rollbackException.getLocalizedMessage();
-            status = HttpStatus.INTERNAL_SERVER_ERROR;
-        }
-
-        return new ErrorResponse(msg, status);
-    }
-
-    private ResponseEntity<Void> logAndResponse(ErrorResponse error) {
-        log.error(error.getMessage());
-        applicationEventService.createEvent(error.getMessage(), ApplicationEventType.ERROR);
-        return ResponseUtil.buildErrorResponse(error.getStatus(), error.getMessage());
     }
 
 }
