@@ -2,8 +2,13 @@ package com.park.utmstack.service.collectors;
 
 import agent.CollectorOuterClass;
 import com.park.utmstack.config.Constants;
+import com.park.utmstack.domain.application_modules.UtmModule;
+import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.collector.UtmCollector;
+import com.park.utmstack.repository.UtmModuleGroupRepository;
 import com.park.utmstack.service.application_modules.UtmModuleGroupConfigurationService;
+import com.park.utmstack.service.application_modules.UtmModuleGroupService;
+import com.park.utmstack.service.dto.application_modules.ModuleActivationDTO;
 import com.park.utmstack.service.dto.collectors.CollectorHostnames;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.dto.CollectorConfigDTO;
@@ -17,9 +22,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.park.utmstack.config.RestTemplateConfiguration.CLASSNAME;
@@ -30,6 +38,7 @@ import static com.park.utmstack.config.RestTemplateConfiguration.CLASSNAME;
 public class CollectorService {
 
     private final CollectorGrpcService collectorGrpcService;
+    private final UtmModuleGroupService moduleGroupService;
     private final UtmModuleGroupConfigurationService moduleGroupConfigurationService;
     private final CollectorConfigBuilder CollectorConfigBuilder;
     private final UtmCollectorService utmCollectorService;
@@ -59,13 +68,24 @@ public class CollectorService {
 
         var request = ListRequest.newBuilder()
                 .setPageNumber(1)
-                .setPageSize(1000000)
+                .setPageSize(10000)
                 .setSearchQuery(query)
                 .setSortBy("id,desc")
                 .build();
 
         CollectorOuterClass.ListCollectorResponse collectorResponse = collectorGrpcService.listCollectors(request);
         return mapToListCollectorsResponseDTO(collectorResponse);
+    }
+
+    public Optional<CollectorDTO> findCollectorByHostname(String hostname, CollectorModuleEnum module) {
+
+        ListCollectorsResponseDTO response = this.listCollector(hostname, module);
+
+        if (response.getCollectors() != null && !response.getCollectors().isEmpty()) {
+            return Optional.of(response.getCollectors().get(0));
+        } else {
+            return Optional.empty();
+        }
     }
 
     public CollectorHostnames listCollectorHostnames(ListRequest request) {
@@ -80,6 +100,42 @@ public class CollectorService {
 
         return collectorHostnames;
 
+    }
+
+    public void deleteCollector(Long id) {
+
+        String ctx = CLASSNAME + ".deleteCollector";
+
+        Optional<UtmCollector> collector = utmCollectorService.findById(id);
+
+        if (collector.isEmpty()) {
+
+            log.error("{}: Collector with id {} not found", ctx, id);
+            throw new ApiException(String.format("%s: Collector with id %d not found", ctx, id), HttpStatus.NOT_FOUND);
+
+        } else if (collector.get().isActive()) {
+
+            var collectorToDelete = collector.get();
+
+            Optional<CollectorDTO> collectorDTO = this.findCollectorByHostname(
+                    collector.get().getHostname(),
+                    CollectorModuleEnum.valueOf(collectorToDelete.getModule()));
+
+            if (collectorDTO.isEmpty()) {
+
+                log.error("{}: Collector with id {} not found in Agent Manager", ctx, id);
+                throw new ApiException(String.format("%s: Collector with id %d not found in Agent Manager", ctx, id), HttpStatus.NOT_FOUND);
+
+            } else {
+                var c = collectorDTO.get();
+                 collectorGrpcService.deleteCollector(c.getId(), c.getCollectorKey());
+            }
+
+            this.moduleGroupService.deleteCollectorById(collectorToDelete.getId());
+
+        }
+
+        this.utmCollectorService.deleteCollector(id);
     }
 
     private ListCollectorsResponseDTO getListCollector(ListRequest request) {

@@ -19,11 +19,11 @@ import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.dto.ErrorResponse;
 import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
 import com.park.utmstack.service.dto.network_scan.AssetGroupDTO;
+import com.park.utmstack.service.dto.network_scan.UpdateGroupDTO;
 import com.park.utmstack.service.grpc.ListRequest;
 import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.errors.InternalServerErrorException;
-import com.park.utmstack.web.rest.network_scan.UtmNetworkScanResource;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import com.utmstack.grpc.exception.CollectorConfigurationGrpcException;
@@ -154,32 +154,19 @@ public class UtmCollectorResource {
 
     @GetMapping("/groups-by-collectors/{collectorId}")
     public ResponseEntity<List<UtmModuleGroup>> getModuleGroups(@PathVariable String collectorId) {
-        final String ctx = CLASSNAME + ".getModuleGroups";
-        try {
-            return ResponseEntity.ok(moduleGroupService.findAllByCollectorId(collectorId));
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
-        }
+
+        return ResponseEntity.ok(moduleGroupService.findAllByCollectorId(collectorId));
+
     }
 
-    /*@PutMapping("/updateGroup")
-    public ResponseEntity<Void> updateGroup(@Valid @RequestBody UtmNetworkScanResource.UpdateGroupRequestBody body) {
-        final String ctx = CLASSNAME + ".updateGroup";
-        try {
-            collectorOpsService.updateGroup(body.getAssetsIds(), body.getAssetGroupId());
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
-        }
-    }*/
+    @PutMapping("/updateGroup")
+    public ResponseEntity<Void> updateGroup(@Valid @RequestBody UpdateGroupDTO body) {
+
+        utmCollectorService.updateGroup(body.getAssetsIds(), body.getAssetGroupId());
+
+        return ResponseEntity.ok().build();
+    }
+
 
     @GetMapping("/searchGroupsByFilter")
     public ResponseEntity<List<AssetGroupDTO>> searchGroupsByFilter(AssetGroupFilter filter, Pageable pageable) {
@@ -225,7 +212,7 @@ public class UtmCollectorResource {
 
         try {
             log.debug("REST request to delete UtmCollector : {}", id);
-            collectorOpsService.deleteCollector(id);
+            collectorService.deleteCollector(id);
             return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("UtmCollector", id.toString())).build();
         } catch (Exception e) {
             applicationEventService.createEvent(e.getMessage(), ApplicationEventType.ERROR);

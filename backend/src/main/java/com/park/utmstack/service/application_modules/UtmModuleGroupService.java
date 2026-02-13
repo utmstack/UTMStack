@@ -5,7 +5,9 @@ import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.repository.UtmModuleGroupRepository;
+import com.park.utmstack.repository.application_modules.UtmModuleRepository;
 import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.service.dto.application_modules.ModuleActivationDTO;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,7 @@ public class UtmModuleGroupService {
     private final UtmModuleGroupRepository moduleGroupRepository;
     private final UtmModuleService moduleService;
     private final ApplicationEventService applicationEventService;
+    private final UtmModuleRepository moduleRepository;
 
 
     /**
@@ -126,13 +129,8 @@ public class UtmModuleGroupService {
         }
     }
 
-    public List<UtmModuleGroup> findAllByCollectorId(String collectorId) throws Exception {
-        final String ctx = CLASSNAME + ".findAllByModuleName";
-        try {
-            return moduleGroupRepository.findAllByCollector(collectorId);
-        } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
-        }
+    public List<UtmModuleGroup> findAllByCollectorId(String collectorId) {
+        return moduleGroupRepository.findAllByCollector(collectorId);
     }
 
     public List<UtmModuleGroup> findAllWithCollector() throws Exception {
@@ -143,4 +141,49 @@ public class UtmModuleGroupService {
             throw new Exception(ctx + ": " + e.getMessage());
         }
     }
+
+    @Transactional
+    public void deleteCollectorById(Long collectorId) {
+
+        List<UtmModuleGroup> groups = moduleGroupRepository.findAllByCollector(collectorId.toString());
+
+        if (groups.isEmpty()) {
+            return;
+        }
+
+        UtmModuleGroup group = groups.get(0);
+
+        if (group != null) {
+            handleModuleDeactivationIfNeeded(group, collectorId);
+        }
+
+        moduleGroupRepository.deleteAllByCollector(collectorId.toString());
+    }
+
+
+    private void handleModuleDeactivationIfNeeded(UtmModuleGroup group, Long collectorId) {
+
+        UtmModule module = moduleRepository.findById(group.getModuleId())
+                .orElseThrow(() -> new IllegalStateException("Module not found"));
+
+        if (!module.getModuleActive()) {
+            return;
+        }
+
+        boolean otherCollectorsExist =
+                moduleGroupRepository.findAllByModuleId(module.getId())
+                        .stream()
+                        .anyMatch(m -> !m.getCollector().equals(collectorId.toString()));
+
+        if (!otherCollectorsExist) {
+            moduleService.activateDeactivate(
+                    ModuleActivationDTO.builder()
+                            .serverId(module.getServerId())
+                            .moduleName(module.getModuleName())
+                            .activationStatus(false)
+                            .build()
+            );
+        }
+    }
+
 }

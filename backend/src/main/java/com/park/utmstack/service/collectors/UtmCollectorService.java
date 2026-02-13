@@ -1,9 +1,12 @@
 package com.park.utmstack.service.collectors;
 
 import agent.CollectorOuterClass;
+import com.park.utmstack.domain.application_modules.UtmModule;
+import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.collector.UtmCollector;
 import com.park.utmstack.domain.network_scan.NetworkScanFilter;
 import com.park.utmstack.repository.collector.UtmCollectorRepository;
+import com.park.utmstack.service.dto.application_modules.ModuleActivationDTO;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,11 +14,16 @@ import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+
+import static com.park.utmstack.config.RestTemplateConfiguration.CLASSNAME;
 
 @Service
 public class UtmCollectorService {
@@ -95,5 +103,19 @@ public class UtmCollectorService {
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
         }
+    }
+
+    @Transactional
+    public void updateGroup(List<Long> collectorsIds, Long assetGroupId) {
+        utmCollectorRepository.updateGroup(collectorsIds, assetGroupId);
+    }
+
+    Optional<UtmCollector> findById(Long id) {
+        return utmCollectorRepository.findById(id);
+    }
+
+    @Transactional
+    public void deleteCollector(Long id) {
+        utmCollectorRepository.deleteById(id);
     }
 }
