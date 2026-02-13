@@ -427,6 +427,8 @@
 
     <include file="/config/liquibase/changelog/20260213001_update_bit_defender_visualizations.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260213002_update_vmware_visualizations.xml" relativeToChangelogFile="false"/>
+
 
 
 </databaseChangeLog>

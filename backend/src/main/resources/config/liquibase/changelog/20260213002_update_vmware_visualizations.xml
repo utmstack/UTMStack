@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260213002" author="Manuel Abascal">
+
+    <sql dbms="postgresql" splitStatements="true" stripComments="true">
+        <![CDATA[
+
+        ------------------------------------------------------------------
+        -- Normalize process.keyword → log.process.keyword (SAFE)
+        -------------------------------------------------------------------
+        UPDATE utm_visualization
+        SET filters = REPLACE(filters,
+            '"field":"process.keyword"',
+            '"field":"log.process.keyword"')
+        WHERE filters LIKE '%"field":"process.keyword"%';
+
+        UPDATE utm_visualization
+        SET aggregation = REPLACE(aggregation,
+            '"field":"process.keyword"',
+            '"field":"log.process.keyword"')
+        WHERE aggregation LIKE '%"field":"process.keyword"%';
+
+
+        ------------------------------------------------------------------
+        -- Normalize level.keyword → log.level.keyword (SAFE)
+        -------------------------------------------------------------------
+        UPDATE utm_visualization
+        SET filters = REPLACE(filters,
+            '"field":"level.keyword"',
+            '"field":"log.level.keyword"')
+        WHERE filters LIKE '%"field":"level.keyword"%';
+
+        UPDATE utm_visualization
+        SET aggregation = REPLACE(aggregation,
+            '"field":"level.keyword"',
+            '"field":"log.level.keyword"')
+        WHERE aggregation LIKE '%"field":"level.keyword"%';
+
+        ]]>
+    </sql>
+
+</changeSet>
+
+
+
+</databaseChangeLog>
