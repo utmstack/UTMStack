@@ -13,6 +13,7 @@ import com.park.utmstack.service.dto.collectors.CollectorHostnames;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.dto.CollectorConfigDTO;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
+import com.park.utmstack.service.dto.collectors.dto.ErrorResponse;
 import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
 import com.park.utmstack.service.grpc.ListRequest;
 import com.park.utmstack.util.exceptions.ApiException;
@@ -26,8 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.park.utmstack.config.RestTemplateConfiguration.CLASSNAME;
@@ -50,6 +50,18 @@ public class CollectorService {
         CollectorOuterClass.CollectorConfig collector = CollectorConfigBuilder.build(collectorConfig);
         collectorGrpcService.upsertCollectorConfig(collector);
     }
+
+    public BulkCollectorConfigResponseDTO upsertCollectorsConfig(List<CollectorConfigDTO> collectors) {
+
+        List<CollectorConfigResultDTO> results = collectors.stream()
+                .map(this::processSingleCollectorConfig)
+                .toList();
+
+        return BulkCollectorConfigResponseDTO.builder()
+                .results(results)
+                .build();
+    }
+
 
     public ListCollectorsResponseDTO listCollector(ListRequest request) {
         return this.getListCollector(request);
@@ -128,7 +140,7 @@ public class CollectorService {
 
             } else {
                 var c = collectorDTO.get();
-                 collectorGrpcService.deleteCollector(c.getId(), c.getCollectorKey());
+                collectorGrpcService.deleteCollector(c.getId(), c.getCollectorKey());
             }
 
             this.moduleGroupService.deleteCollectorById(collectorToDelete.getId());
@@ -170,6 +182,27 @@ public class CollectorService {
         UtmCollector utmCollector = this.utmCollectorService.saveCollector(collector);
         return new CollectorDTO(utmCollector);
     }
+
+    private CollectorConfigResultDTO processSingleCollectorConfig(CollectorConfigDTO dto) {
+
+        try {
+            this.upsertCollectorConfig(dto);
+
+            return CollectorConfigResultDTO.builder()
+                    .collectorId(dto.getCollector().getId())
+                    .success(true)
+                    .build();
+
+        } catch (Exception e) {
+
+            return CollectorConfigResultDTO.builder()
+                    .collectorId(dto.getCollector().getId())
+                    .success(false)
+                    .errorMessage(e.getMessage())
+                    .build();
+        }
+    }
+
 
 }
 

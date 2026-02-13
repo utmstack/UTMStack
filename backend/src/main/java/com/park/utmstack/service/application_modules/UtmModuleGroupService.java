@@ -1,23 +1,31 @@
 package com.park.utmstack.service.application_modules;
 
 import com.park.utmstack.aop.logging.Loggable;
+import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
+import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
+import com.park.utmstack.repository.UtmModuleGroupConfigurationRepository;
 import com.park.utmstack.repository.UtmModuleGroupRepository;
 import com.park.utmstack.repository.application_modules.UtmModuleRepository;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.application_modules.ModuleActivationDTO;
+import com.park.utmstack.service.dto.collectors.dto.CollectorConfigDTO;
+import com.park.utmstack.util.CipherUtil;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing UtmConfigurationGroup.
@@ -34,6 +42,7 @@ public class UtmModuleGroupService {
     private final UtmModuleService moduleService;
     private final ApplicationEventService applicationEventService;
     private final UtmModuleRepository moduleRepository;
+    private final UtmModuleGroupConfigurationRepository moduleGroupConfigurationRepository;
 
 
     /**
@@ -159,7 +168,6 @@ public class UtmModuleGroupService {
 
         moduleGroupRepository.deleteAllByCollector(collectorId.toString());
     }
-
 
     private void handleModuleDeactivationIfNeeded(UtmModuleGroup group, Long collectorId) {
 

@@ -8,6 +8,7 @@ import com.park.utmstack.domain.network_scan.NetworkScanFilter;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.application_modules.UtmModuleGroupConfigurationService;
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
+import com.park.utmstack.service.collectors.BulkCollectorConfigResponseDTO;
 import com.park.utmstack.service.collectors.CollectorOpsService;
 import com.park.utmstack.service.collectors.CollectorService;
 import com.park.utmstack.service.collectors.UtmCollectorService;
@@ -79,6 +80,13 @@ public class UtmCollectorResource {
 
         collectorService.upsertCollectorConfig(collectorConfig);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/collectors-config")
+    public ResponseEntity<BulkCollectorConfigResponseDTO> upsertCollectorsConfig(@RequestBody List<CollectorConfigDTO> collectors) {
+
+        return ResponseEntity.status(HttpStatus.MULTI_STATUS)
+                .body(collectorService.upsertCollectorsConfig(collectors));
     }
 
     /**
@@ -209,42 +217,8 @@ public class UtmCollectorResource {
 
     @DeleteMapping("/collectors/{id}")
     public ResponseEntity<Void> deleteCollector(@PathVariable Long id) {
-
-        try {
-            log.debug("REST request to delete UtmCollector : {}", id);
-            collectorService.deleteCollector(id);
-            return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("UtmCollector", id.toString())).build();
-        } catch (Exception e) {
-            applicationEventService.createEvent(e.getMessage(), ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                    HeaderUtil.createFailureAlert("UtmCollector", null, e.getMessage())).body(null);
-        }
-    }
-
-    @PostMapping("/collectors-config")
-    public ResponseEntity<Map<String, Object>> upsertCollectorsConfig(@RequestBody List<CollectorConfigDTO> collectors) {
-        Map<String, Object> results = new HashMap<>();
-        final String ctx = CLASSNAME + ".upsertCollectorsConfig";
-        CollectorConfig cacheConfig = null;
-
-        List<Map<String, Object>> collectorsResults = new ArrayList<>();
-        for (CollectorConfigDTO collectorConfig : collectors) {
-            Map<String, Object> collectorResult = new HashMap<>();
-            collectorResult.put("collectorId", collectorConfig.getCollector().getId());
-            try {
-                cacheConfig = this.collectorOpsService.cacheCurrentCollectorConfig(collectorConfig.getCollector());
-                this.upsert(collectorConfig);
-                collectorResult.put("status", "success");
-            } catch (Exception e) {
-                ErrorResponse error = this.getError(e, cacheConfig);
-                collectorResult.put("status", "failure");
-                collectorResult.put("errorMessage", error.getMessage());
-            }
-            collectorsResults.add(collectorResult);
-        }
-
-        results.put("results", collectorsResults);
-        return ResponseEntity.status(HttpStatus.MULTI_STATUS).body(results);
+        collectorService.deleteCollector(id);
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("UtmCollector", id.toString())).build();
     }
 
     private ResponseEntity<Void> handleUpdateError(Exception e, CollectorConfig cacheConfig, CollectorDTO collectorDTO) {
@@ -288,12 +262,4 @@ public class UtmCollectorResource {
         return ResponseUtil.buildErrorResponse(error.getStatus(), error.getMessage());
     }
 
-    private void upsert(CollectorConfigDTO collectorConfig) throws Exception {
-
-        // Update local database with new configuration
-        this.collectorOpsService.updateCollectorConfigurationKeys(collectorConfig);
-
-        // Attempt to update collector configuration via gRPC
-        this.collectorOpsService.updateCollectorConfigViaGrpc(collectorConfig, collectorConfig.getCollector());
-    }
 }
