@@ -11,49 +11,51 @@
             <![CDATA[
 
             ------------------------------------------------------------------
-            -- Replace outdated Wineventlog AccessList field
+            -- Replace outdated Wineventlog AccessList field (SAFE)
             -------------------------------------------------------------------
             UPDATE utm_visualization
             SET filters = REPLACE(filters,
-                                  'log.wineventlog.event_data.AccessList.keyword',
-                                  'log.wineventlogEventDataAccessList.keyword')
-            WHERE filters IS NOT NULL;
+              '"field":"log.wineventlog.event_data.AccessList.keyword"',
+              '"field":"log.wineventlogEventDataAccessList.keyword"')
+            WHERE filters LIKE '%"field":"log.wineventlog.event_data.AccessList.keyword"%';
 
             UPDATE utm_visualization
             SET aggregation = REPLACE(aggregation,
-                                      'log.wineventlog.event_data.AccessList.keyword',
-                                      'log.wineventlogEventDataAccessList.keyword')
-            WHERE aggregation IS NOT NULL;
+              '"field":"log.wineventlog.event_data.AccessList.keyword"',
+              '"field":"log.wineventlogEventDataAccessList.keyword"')
+            WHERE aggregation LIKE '%"field":"log.wineventlog.event_data.AccessList.keyword"%';
+
 
             ------------------------------------------------------------------
-            -- Replace outdated Windows ShareName field
+            -- Replace outdated Windows ShareName field (SAFE)
             -------------------------------------------------------------------
             UPDATE utm_visualization
             SET filters = REPLACE(filters,
-                                  'log.winlog.event_data.ShareName.keyword',
-                                  'log.winlogEventDataShareName.keyword')
-            WHERE filters IS NOT NULL;
+              '"field":"log.winlog.event_data.ShareName.keyword"',
+              '"field":"log.winlogEventDataShareName.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.ShareName.keyword"%';
 
             UPDATE utm_visualization
             SET aggregation = REPLACE(aggregation,
-                                      'log.winlog.event_data.ShareName.keyword',
-                                      'log.winlogEventDataShareName.keyword')
-            WHERE aggregation IS NOT NULL;
+              '"field":"log.winlog.event_data.ShareName.keyword"',
+              '"field":"log.winlogEventDataShareName.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.ShareName.keyword"%';
+
 
             ------------------------------------------------------------------
-            -- Replace outdated Windows Application field
+            -- Replace outdated Windows Application field (SAFE)
             -------------------------------------------------------------------
             UPDATE utm_visualization
             SET filters = REPLACE(filters,
-                                  'log.winlog.event_data.Application.keyword',
-                                  'log.winlogEventDataApplication.keyword')
-            WHERE filters IS NOT NULL;
+              '"field":"log.winlog.event_data.Application.keyword"',
+              '"field":"log.winlogEventDataApplication.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.Application.keyword"%';
 
             UPDATE utm_visualization
             SET aggregation = REPLACE(aggregation,
-                                      'log.winlog.event_data.Application.keyword',
-                                      'log.winlogEventDataApplication.keyword')
-            WHERE aggregation IS NOT NULL;
+              '"field":"log.winlog.event_data.Application.keyword"',
+              '"field":"log.winlogEventDataApplication.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.Application.keyword"%';
 
             ------------------------------------------------------------------
             -- SAFE Normalize SubjectUserSid field to keyword version
