@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260213001" author="Manuel Abascal">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            ------------------------------------------------------------------
+            -- Normalize Bitdefender GZ detection_name field (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                '"field":"log.bitdefender_gz.detection_name.keyword"',
+                '"field":"log.BitdefenderGZDetectionName.keyword"')
+            WHERE filters LIKE '%"field":"log.bitdefender_gz.detection_name.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                '"field":"log.bitdefender_gz.detection_name.keyword"',
+                '"field":"log.BitdefenderGZDetectionName.keyword"')
+            WHERE aggregation LIKE '%"field":"log.bitdefender_gz.detection_name.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Normalize Bitdefender GZ src_ip field → log.deviceIps.keyword (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                '"field":"log.bitdefender_gz.src_ip.keyword"',
+                '"field":"log.deviceIps.keyword"')
+            WHERE filters LIKE '%"field":"log.bitdefender_gz.src_ip.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                '"field":"log.bitdefender_gz.src_ip.keyword"',
+                '"field":"log.deviceIps.keyword"')
+            WHERE aggregation LIKE '%"field":"log.bitdefender_gz.src_ip.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Normalize Bitdefender GZ event_source field → log.eventType.keyword (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                '"field":"log.bitdefender_gz.event_source.keyword"',
+                '"field":"log.eventType.keyword"')
+            WHERE filters LIKE '%"field":"log.bitdefender_gz.event_source.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                '"field":"log.bitdefender_gz.event_source.keyword"',
+                '"field":"log.eventType.keyword"')
+            WHERE aggregation LIKE '%"field":"log.bitdefender_gz.event_source.keyword"%';
+
+            ]]>
+        </sql>
+
+    </changeSet>
+
+
+</databaseChangeLog>
