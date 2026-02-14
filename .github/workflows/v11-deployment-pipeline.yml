@@ -187,7 +187,7 @@ jobs:
           retention-days: 1
   
   build_utmstack_collector:
-    name: Build UTMStack Collector
+    name: Build UTMStack Collectors
     needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
@@ -202,11 +202,24 @@ jobs:
 
           GOOS=linux GOARCH=amd64 go build -o utmstack_collector -v -ldflags "-X 'github.com/utmstack/UTMStack/utmstack-collector/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
+      - name: Build UTMStack AS400 Collector
+        run: |
+          echo "Building UTMStack AS400 Collector..."
+          cd ${{ github.workspace }}/as400
+
+          GOOS=linux GOARCH=amd64 go build -o utmstack_as400_collector_service -v -ldflags "-X 'github.com/utmstack/UTMStack/as400/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+
+          cd ${{ github.workspace }}/as400/updater
+          go build -o utmstack_as400_updater_service .
+
       - name: Upload collector binary as artifact
         uses: actions/upload-artifact@v4
         with:
           name: utmstack-collector
-          path: ${{ github.workspace }}/utmstack-collector/utmstack_collector
+          path: |
+            ${{ github.workspace }}/utmstack-collector/utmstack_collector
+            ${{ github.workspace }}/as400/utmstack_as400_collector_service
+            ${{ github.workspace }}/as400/updater/utmstack_as400_updater_service
           retention-days: 1
 
   build_agent_manager:
@@ -236,11 +249,15 @@ jobs:
           GOOS=linux GOARCH=amd64  go build -o agent-manager -v .
 
           mkdir -p ./dependencies/collector
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/collector/linux-as400-collector.zip" -o ./dependencies/collector/linux-as400-collector.zip
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/collector/windows-as400-collector.zip" -o ./dependencies/collector/windows-as400-collector.zip
-
           cp "${{ github.workspace }}/utmstack-collector/utmstack_collector" ./dependencies/collector/
           cp "${{ github.workspace }}/utmstack-collector/version.json" ./dependencies/collector/
+
+          mkdir -p ./dependencies/collector/as400
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/collector/as400-collector.jar" -o ./dependencies/collector/as400/as400-collector.jar
+
+          cp "${{ github.workspace }}/utmstack-collector/as400/utmstack_as400_collector_service" ./dependencies/collector/as400/
+          cp "${{ github.workspace }}/utmstack-collector/as400/updater/utmstack_as400_updater_service" ./dependencies/collector/as400/
+          cp "${{ github.workspace }}/as400/version.json" ./dependencies/collector/as400/
 
           mkdir -p ./dependencies/agent/
           curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/agent/utmstack_agent_dependencies_linux.zip" -o ./dependencies/agent/utmstack_agent_dependencies_linux.zip
