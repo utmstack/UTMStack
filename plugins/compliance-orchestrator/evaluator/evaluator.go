@@ -71,7 +71,7 @@ func (e *Evaluator) Evaluate(ctx context.Context, cfg models.ControlConfig) (mod
 
 func (e *Evaluator) evaluateQuery(ctx context.Context, q models.QueryConfig) models.QueryEvaluation {
 	// Ejecutar la query SQL real contra OpenSearch
-	hits, err := e.backend.ExecuteSQLQuery(ctx, q.SQLQuery)
+	res, err := e.backend.ExecuteSQLQuery(ctx, q.SQLQuery)
 	if err != nil {
 		msg := fmt.Sprintf("query execution failed: %v", err)
 		return models.QueryEvaluation{
@@ -80,18 +80,37 @@ func (e *Evaluator) evaluateQuery(ctx context.Context, q models.QueryConfig) mod
 			Hits:          0,
 			Status:        models.QueryStatusError,
 			ErrorMessage:  &msg,
+			Evidence:      nil,
 		}
 	}
 
+	// Limitar evidencia (por ejemplo, a 50 filas)
+	const evidenceLimit = 50
+	rawRows := res.Rows
+	if len(rawRows) > evidenceLimit {
+		rawRows = rawRows[:evidenceLimit]
+	}
+
+	// Convertir [][]any → []map[string]any para OpenSearch
+	evidence := make([]map[string]any, 0, len(rawRows))
+	for _, row := range rawRows {
+		rowMap := map[string]any{}
+		for i, col := range row {
+			rowMap[fmt.Sprintf("col_%d", i)] = col
+		}
+		evidence = append(evidence, rowMap)
+	}
+
 	// Evaluar la regla con los hits obtenidos
-	status, errMsg := evaluateQueryRule(q, hits)
+	status, errMsg := evaluateQueryRule(q, res.Count)
 
 	return models.QueryEvaluation{
 		QueryConfigID: q.ID,
 		QueryName:     q.QueryName,
-		Hits:          int64(hits),
+		Hits:          int64(res.Count),
 		Status:        status,
 		ErrorMessage:  errMsg,
+		Evidence:      evidence,
 	}
 }
 

@@ -10,6 +10,8 @@ import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.service.MailService;
 import com.park.utmstack.service.UtmSpaceNotificationControlService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationDto;
+import com.park.utmstack.service.mapper.compliance.UtmComplianceControlEvaluationMapper;
 import com.park.utmstack.util.chart_builder.IndexPropertyType;
 import com.park.utmstack.util.exceptions.OpenSearchIndexNotFoundException;
 import com.park.utmstack.util.exceptions.UtmElasticsearchException;
@@ -20,6 +22,7 @@ import com.utmstack.opensearch_connector.types.ElasticCluster;
 import com.utmstack.opensearch_connector.types.IndexSort;
 import com.utmstack.opensearch_connector.types.SearchSqlResponse;
 import com.utmstack.opensearch_connector.types.SqlQueryRequest;
+import org.opensearch.client.opensearch._types.FieldValue;
 import org.opensearch.client.opensearch._types.SortOrder;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch.cat.indices.IndicesRecord;
@@ -401,6 +404,22 @@ public class ElasticsearchService {
             return client.getClient().searchBySqlQuery(request, responseType);
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
+        }
+    }
+
+    public List<UtmComplianceControlEvaluationDto> getControlEvaluations(Long controlId) {
+        final String ctx = CLASSNAME + ".getControlEvaluations";
+        try {
+            Query query = Query.of(q -> q.term(t -> t.field("control_id").value(FieldValue.of(controlId.toString())))
+            );
+
+            SearchRequest request = new SearchRequest.Builder().index("v11-log-compliance-evaluation").query(query).size(1000).build();
+            SearchResponse<Map> response = search(request, Map.class);
+
+            return response.hits().hits().stream().map(hit -> UtmComplianceControlEvaluationMapper.mapToEvaluationDto(hit.source())).toList();
+
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage(), e);
         }
     }
 }
