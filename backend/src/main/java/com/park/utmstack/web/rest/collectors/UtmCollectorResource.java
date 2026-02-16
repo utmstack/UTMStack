@@ -55,15 +55,6 @@ public class UtmCollectorResource {
     private final UtmCollectorService utmCollectorService;
     private final CollectorService collectorService;
 
-
-    /**
-     * {@code POST  /collector-config} : Create or update the collector configs.
-     *
-     * @param collectorConfig the collector configs to be created/updated in the agent manager and updated in database.
-     * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, status {@code 400 (Bad request)} if the internal key is not set,
-     * status {@code 502 (Bad Gateway)} if the agent manager returns an error, or with status {@code 500 (Internal Server Error)} if the database couldn't
-     * persist the configurations.
-     */
     @PostMapping("/collector-config")
     public ResponseEntity<Void> upsertCollectorConfig(@Valid @RequestBody CollectorConfigDTO collectorConfig,
                                                       @RequestParam(name = "action", defaultValue = "CREATE") CollectorActionEnum action) {
@@ -72,52 +63,21 @@ public class UtmCollectorResource {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/collectors-config")
-    public ResponseEntity<BulkCollectorConfigResponseDTO> upsertCollectorsConfig(@RequestBody List<CollectorConfigDTO> collectors) {
 
-        return ResponseEntity.status(HttpStatus.MULTI_STATUS)
-                .body(collectorService.upsertCollectorsConfig(collectors));
-    }
-
-    /**
-     * {@code GET  /collectors-list} : Get all collectors list by module.
-     *
-     * @param pageNumber the page number to show results from.
-     * @param pageSize   the number of items to show in the page.
-     * @param module     the module used to filter the collectors list. If no value is set, returns collectors by all modules
-     * @param sortBy     the criteria to sort the results.
-     * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, status {@code 400 (Bad request)} if the internal key is not set,
-     * or with status {@code 502 (Bad Gateway)} if the agent manager returns an error.
-     */
     @GetMapping("/collectors-list")
     public ResponseEntity<ListCollectorsResponseDTO> listCollectorsByModule(@RequestParam(required = false) Integer pageNumber,
                                                                             @RequestParam(required = false) Integer pageSize,
                                                                             @RequestParam(required = false) CollectorModuleEnum module,
                                                                             @RequestParam(required = false) String sortBy) {
 
-        ListRequest request = ListRequest.newBuilder()
-                .setPageNumber(pageNumber != null ? pageNumber : 0)
-                .setPageSize(pageSize != null ? pageSize : 1000000)
-                .setSearchQuery(module != null ? "module.Is=" + module.name() : "")
-                .setSortBy(sortBy != null ? sortBy : "")
-                .build();
 
-        ListCollectorsResponseDTO response = collectorService.listCollector(request);
+        ListCollectorsResponseDTO response = collectorService.listCollector(null, module);
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Total-Count", Long.toString(response.getTotal()));
         return ResponseEntity.ok().headers(headers).body(response);
     }
 
-    /**
-     * {@code GET  /collector-hostnames} : Get all collector hostnames by module.
-     *
-     * @param pageNumber the page number to show results from.
-     * @param pageSize   the number of items to show in the page.
-     * @param module     the module used to filter the collectors list. If no value is set, returns collectors by all modules
-     * @param sortBy     the criteria to sort the results.
-     * @return the {@link ResponseEntity} with status {@code 200 (Ok)}, status {@code 400 (Bad request)} if the internal key is not set,
-     * or with status {@code 502 (Bad Gateway)} if the agent manager returns an error.
-     */
+
     @GetMapping("/collector-hostnames")
     public ResponseEntity<CollectorHostnames> listCollectorHostNames(@RequestParam(required = false) Integer pageNumber,
                                                                      @RequestParam(required = false) Integer pageSize,
