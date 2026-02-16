@@ -60,7 +60,6 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service
 public class CollectorOpsService {
     private final String CLASSNAME = "CollectorOpsService";
     private final Logger log = LoggerFactory.getLogger(CollectorOpsService.class);
@@ -317,7 +316,7 @@ public class CollectorOpsService {
         }
     }
 
-    @Transactional
+    /*@Transactional
     public Page<AssetGroupDTO> searchGroupsByFilter(AssetGroupFilter filter, Pageable pageable) throws Exception {
         final String ctx = CLASSNAME + ".searchGroupsByFilter";
         try {
@@ -339,7 +338,7 @@ public class CollectorOpsService {
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
         }
-    }
+    }*/
 
     private String searchQueryBuilder(AssetGroupFilter filters) {
         StringBuilder sb = new StringBuilder();
@@ -403,7 +402,7 @@ public class CollectorOpsService {
                 sb.append("ORDER BY ");
                 boolean firstProperty = true;
 
-                List<Sort.Order> orders = sort.stream().collect(Collectors.toList());
+                List<Sort.Order> orders = sort.stream().toList();
 
                 for (Sort.Order order : orders) {
                     sb.append(String.format(firstProperty ? "%1$s %2$s" : ", %1$s %2$s", order.getProperty(), order.getDirection().name()));

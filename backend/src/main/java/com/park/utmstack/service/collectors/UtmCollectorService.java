@@ -8,11 +8,13 @@ import com.park.utmstack.domain.network_scan.NetworkScanFilter;
 import com.park.utmstack.repository.collector.UtmCollectorRepository;
 import com.park.utmstack.service.dto.application_modules.ModuleActivationDTO;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
+import com.park.utmstack.util.exceptions.ApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -39,7 +41,7 @@ public class UtmCollectorService {
         this.utmCollectorRepository = utmCollectorRepository;
     }
 
-    public UtmCollector saveCollector(CollectorOuterClass.Collector collector){
+    public UtmCollector saveCollector(CollectorOuterClass.Collector collector) {
         UtmCollector utmCollector = utmCollectorRepository.findById(Long.valueOf(collector.getId()))
                 .orElse(new UtmCollector());
 
@@ -84,25 +86,19 @@ public class UtmCollectorService {
             Page<UtmCollector> page = filter(f, p);
             return page.map(CollectorDTO::new);
         } catch (Exception e) {
-            throw new RuntimeException(ctx + ": " + e.getMessage());
+            log.error("{}: Error searching collectors with filters {}", ctx, e.getMessage(), e);
+            throw new ApiException(String.format("%s: Error searching collectors with filters", ctx), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    private Page<UtmCollector> filter(NetworkScanFilter f, Pageable p) throws Exception {
-        final String ctx = CLASSNAME + ".filter";
-        try {
-            return utmCollectorRepository.searchByFilters(
-                    f.getAssetIpMacName() == null ? null : "%" + f.getAssetIpMacName() + "%",
-                    f.getDiscoveredInitDate(),
-                    f.getDiscoveredEndDate(),
-                    f.getGroups(),p);
+    private Page<UtmCollector> filter(NetworkScanFilter f, Pageable p) {
 
-        } catch (InvalidDataAccessResourceUsageException e) {
-            String msg = ctx + ": " + e.getMostSpecificCause().getMessage().replaceAll("\n", "");
-            throw new Exception(msg);
-        } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
-        }
+        return utmCollectorRepository.searchByFilters(
+                f.getAssetIpMacName() == null ? null : "%" + f.getAssetIpMacName() + "%",
+                f.getDiscoveredInitDate(),
+                f.getDiscoveredEndDate(),
+                f.getGroups(), p);
+
     }
 
     @Transactional

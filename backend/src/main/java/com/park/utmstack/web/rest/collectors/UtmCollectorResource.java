@@ -1,14 +1,11 @@
 package com.park.utmstack.web.rest.collectors;
 
-import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.network_scan.AssetGroupFilter;
 import com.park.utmstack.domain.network_scan.NetworkScanFilter;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.application_modules.UtmModuleGroupConfigurationService;
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
-import com.park.utmstack.service.collectors.BulkCollectorConfigResponseDTO;
-import com.park.utmstack.service.collectors.CollectorOpsService;
 import com.park.utmstack.service.collectors.CollectorService;
 import com.park.utmstack.service.collectors.UtmCollectorService;
 import com.park.utmstack.service.dto.collectors.CollectorActionEnum;
@@ -29,7 +26,6 @@ import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,13 +41,7 @@ import java.util.List;
 @RequestMapping("/api")
 public class UtmCollectorResource {
 
-    private static final String CLASSNAME = "UtmCollectorResource";
-    private final CollectorOpsService collectorOpsService;
-    private final Logger log = LoggerFactory.getLogger(UtmCollectorResource.class);
-    private final ApplicationEventService applicationEventService;
-    private final UtmModuleGroupConfigurationService moduleGroupConfigurationService;
     private final UtmModuleGroupService moduleGroupService;
-    private final ApplicationEventService eventService;
     private final UtmCollectorService utmCollectorService;
     private final CollectorService collectorService;
 
@@ -128,30 +118,17 @@ public class UtmCollectorResource {
 
     @GetMapping("/searchGroupsByFilter")
     public ResponseEntity<List<AssetGroupDTO>> searchGroupsByFilter(AssetGroupFilter filter, Pageable pageable) {
-        final String ctx = CLASSNAME + ".searchGroupsByFilter";
-        try {
 
-            Page<AssetGroupDTO> page = collectorOpsService.searchGroupsByFilter(filter, pageable);
+
+            Page<AssetGroupDTO> page = collectorService.searchGroupsByFilter(filter, pageable);
             HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/utm-asset-groups/searchGroupsByFilter");
             return ResponseEntity.ok().headers(headers).body(page.getContent());
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
-        }
+
     }
 
     @GetMapping("/search-by-filters")
     public ResponseEntity<List<CollectorDTO>> searchByFilters(@ParameterObject NetworkScanFilter filters,
                                                               @ParameterObject Pageable pageable) {
-
-            collectorOpsService.listCollector(ListRequest.newBuilder()
-                    .setPageNumber(0)
-                    .setPageSize(10000)
-                    .setSortBy("")
-                    .build());
 
             Page<CollectorDTO> page = this.utmCollectorService.searchByFilters(filters, pageable);
             HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/search-by-filters");
