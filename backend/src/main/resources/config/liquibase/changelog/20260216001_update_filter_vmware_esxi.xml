@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260216001" author="Manuel">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='3.0.2',
+                updated_at = now(),
+                logstash_filter = $$# VMWare-ESXi, version 3.0.2
+#
+# Based on docs and real logs provided
+# Support VMWare-ESXi log
+#
+# Documentations
+# 1- https://core.vmware.com/esxi-log-message-formats
+#
+# Implementation
+# 1. Parsing headers of syslog the message
+# 2. Parsing the RAW field containing the VMWare-ESXi
+pipeline:
+  - dataTypes:
+      - vmware-esxi
+    steps:
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}(-){{.monthNumber}}(-){{.monthDay}}(T){{.time}}(Z)'
+            - fieldName: origin.hostname
+              pattern: '{{.hostname}}'
+            - fieldName: log.process
+              pattern: '{{.hostname}}(\:)'
+            - fieldName: severity
+              pattern: '{{.word}}'
+            - fieldName: log.processName
+              pattern: '{{.hostname}}'
+            - fieldName: log.pid
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.eventInfo
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}(-){{.monthNumber}}(-){{.monthDay}}(T){{.time}}(Z)'
+            - fieldName: origin.hostname
+              pattern: '{{.hostname}}'
+            - fieldName: log.process
+              pattern: '{{.hostname}}'
+            - fieldName: log.pid
+              pattern: '\[{{.data}}\]:'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}T{{.time}}Z'
+            - fieldName: origin.hostname
+              pattern: '{{.hostname}}'
+            - fieldName: log.process
+              pattern: '{{.hostname}}'
+            - fieldName: log.pid
+              pattern: '\[{{.data}}\]:'
+            - fieldName: log.originIdComponent
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+
+      - grok:
+          patterns:
+            - fieldName: log.moduleIdentifier
+              pattern: '\[{{.data}}\@'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}\='
+            - fieldName: log.subModuleIdentifier
+              pattern: '{{.word}}\]'
+          source: log.originIdComponent
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant2
+              pattern: '{{.data}}level{{.space}}='
+            - fieldName: log.level
+              pattern: '{{.integer}}'
+          source: log.message
+
+      # Removing unused caracters
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - log.priority
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.pid
+            - log.eventInfo
+            - log.moduleIdentifier
+      - trim:
+          function: prefix
+          substring: '-'
+          fields:
+            - log.message
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - log.priority
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.pid
+            - log.process
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.pid
+            - log.eventInfo
+            - log.subModuleIdentifier
+      - trim:
+          function: suffix
+          substring: '-'
+          fields:
+            - log.message
+      - trim:
+          function: suffix
+          substring: '@'
+          fields:
+            - log.moduleIdentifier
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.processName
+            - log.irrelevant$$
+	WHERE id = 1001;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>
