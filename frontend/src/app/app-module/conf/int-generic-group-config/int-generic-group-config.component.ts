@@ -378,11 +378,21 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
     deleteModal.componentInstance.confirmBtnType = 'delete';
     deleteModal.result.then(() => {
       if (collector && collector.collector !== '') {
-        const collectorToSave = {
-          ...collector,
-          groups: []
-        };
-        this.deleteAction(collectorToSave);
+        (this.config as CollectorConfiguration).deleteAllConfigs(collector.id)
+          .subscribe({
+            next: () => {
+              if (this.groups.length === 1) {
+                this.moduleChangeStatusBehavior.setStatus(false, false);
+              } else {
+                this.toast.showSuccessBottom('Collector configuration deleted successfully');
+              }
+              this.getGroups().subscribe();
+            },
+            error: () => {
+              this.toast.showError('Error deleting collector configuration',
+                'An error occurred while trying to delete the collector configuration. Please try again.');
+            }
+          });
       }
     });
   }

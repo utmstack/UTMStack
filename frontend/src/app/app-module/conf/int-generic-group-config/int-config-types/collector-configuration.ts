@@ -64,8 +64,8 @@ export class CollectorConfiguration extends IntegrationConfig {
         );
     }
 
-    deleteIntegrationConfigs(group: UtmModuleGroupType): Observable<any> {
-        const collector = this.collectors.find(c => c.id === parseInt(group.collector, 10));
+    deleteIntegrationConfigs(group: UtmModuleGroupType, collectorId: number = null): Observable<any> {
+        const collector = this.collectors.find(c => c.id === collectorId);
         if (collector && collector.collector !== '') {
             group = {
                 ...collector,
@@ -80,6 +80,17 @@ export class CollectorConfiguration extends IntegrationConfig {
             return this.utmModuleGroupService.delete(group.id);
         }
     }
+
+  deleteAllConfigs(collectorId: number = null): Observable<any> {
+    const collector = this.collectors.find(c => c.id === collectorId);
+    if (collector && collector.collector !== '') {
+      const group = {
+        ...collector,
+        groups: []
+      };
+      return this.saveCollector(group);
+    }
+  }
 
     validateUniqueHostNameByCollector(group: UtmModuleGroupType) {
         const configs = [];
