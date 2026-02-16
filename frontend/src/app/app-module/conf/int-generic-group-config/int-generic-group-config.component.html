@@ -42,8 +42,8 @@
         [disabled]="(!collectorValid(collector.groups) || savingConfig) ||
                     (collectorValid(collector.groups) && changes && changes.keys.length === 0) ||
                     (!pendingChangesForCollector(collector.groups))">
-          <i class="icon-cog5 mr-1"></i>
-          Save collector
+          <i [ngClass]="savingConfig ? 'icon-spinner2 spinner mr-1': 'icon-cog5 mr-1'"></i>
+          Save configuration
         </button>
       </div>
     </div>

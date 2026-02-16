@@ -331,6 +331,7 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
   }
 
   saveCollectorConfig(collector: any, action = 'CREATE') {
+    this.savingConfig = true;
     (this.config as CollectorConfiguration).saveCollector(collector)
       .subscribe(response => {
       this.savingConfig = false;
