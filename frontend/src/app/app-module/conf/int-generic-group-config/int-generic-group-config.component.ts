@@ -383,9 +383,9 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
             next: () => {
               if (this.groups.length === 1) {
                 this.moduleChangeStatusBehavior.setStatus(false, false);
-              } else {
-                this.toast.showSuccessBottom('Collector configuration deleted successfully');
               }
+
+              this.toast.showSuccessBottom('Collector configuration deleted successfully');
               this.getGroups().subscribe();
             },
             error: () => {
