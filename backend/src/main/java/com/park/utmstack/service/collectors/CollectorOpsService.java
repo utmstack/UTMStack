@@ -1,66 +1,11 @@
 package com.park.utmstack.service.collectors;
 
-import agent.CollectorOuterClass.CollectorGroupConfigurations;
-import agent.CollectorOuterClass.ListCollectorResponse;
-import agent.CollectorOuterClass.ConfigKnowledge;
-import agent.CollectorOuterClass.CollectorConfig;
-import agent.CollectorOuterClass.Collector;
-import agent.CollectorOuterClass.CollectorModule;
-import agent.CollectorOuterClass.CollectorConfigGroup;
-import com.park.utmstack.config.Constants;
-import com.park.utmstack.domain.application_modules.UtmModule;
-import com.park.utmstack.domain.application_modules.UtmModuleGroup;
-import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
-import com.park.utmstack.domain.collector.UtmCollector;
-import com.park.utmstack.domain.network_scan.AssetGroupFilter;
-import com.park.utmstack.domain.network_scan.UtmAssetGroup;
-import com.park.utmstack.grpc.client.CollectorServiceClient;
-import com.park.utmstack.grpc.client.PanelCollectorServiceClient;
-import com.park.utmstack.repository.UtmModuleGroupConfigurationRepository;
-import com.park.utmstack.repository.UtmModuleGroupRepository;
-import com.park.utmstack.repository.application_modules.UtmModuleRepository;
-import com.park.utmstack.repository.collector.UtmCollectorRepository;
-import com.park.utmstack.service.application_modules.UtmModuleGroupService;
-import com.park.utmstack.service.application_modules.UtmModuleService;
-import com.park.utmstack.service.dto.application_modules.ModuleActivationDTO;
-import com.park.utmstack.service.dto.collectors.CollectorHostnames;
-import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
-import com.park.utmstack.service.dto.collectors.dto.CollectorConfigDTO;
-import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
-import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
-import com.park.utmstack.service.dto.network_scan.AssetGroupDTO;
-import com.park.utmstack.service.grpc.ListRequest;
-import com.park.utmstack.service.validators.collector.CollectorValidatorService;
-import com.park.utmstack.util.CipherUtil;
-import com.park.utmstack.util.exceptions.ApiException;
-import com.park.utmstack.web.rest.errors.BadRequestAlertException;
-import com.utmstack.grpc.exception.CollectorConfigurationGrpcException;
-import com.utmstack.grpc.exception.CollectorServiceGrpcException;
-import com.utmstack.grpc.exception.GrpcConnectionException;
 import io.grpc.*;
-import org.springframework.dao.InvalidDataAccessResourceUsageException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
-
-import javax.persistence.EntityManager;
-import java.math.BigInteger;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class CollectorOpsService {
+    /*
     private final String CLASSNAME = "CollectorOpsService";
     private final Logger log = LoggerFactory.getLogger(CollectorOpsService.class);
     private final ManagedChannel channel;
@@ -110,12 +55,12 @@ public class CollectorOpsService {
         this.collectorValidatorService = collectorValidatorService;
     }
 
-    /**
+    *//**
      * Method to update a collector's configuration.
      *
      * @param config is the configuration of the collectors to update.
      * @throws CollectorConfigurationGrpcException if the action can't be performed.
-     */
+     *//*
     public ConfigKnowledge upsertCollectorConfig(CollectorConfig config) throws CollectorConfigurationGrpcException {
         final String ctx = CLASSNAME + ".upsertCollectorConfig";
 
@@ -137,13 +82,13 @@ public class CollectorOpsService {
         return mapToListCollectorsResponseDTO(collectorService.listCollectors(request));
     }
 
-    /**
+    *//**
      * Method to List all UtmCollector's hostnames.
      *
      * @param request is the request with all the pagination and search params used to list collectors.
      *                according to those params.
      * @throws CollectorServiceGrpcException if the action can't be performed or the request is malformed.
-     */
+     *//*
     public CollectorHostnames listCollectorHostnames(ListRequest request) throws CollectorServiceGrpcException {
         final String ctx = CLASSNAME + ".ListCollectorHostnames";
 
@@ -168,11 +113,11 @@ public class CollectorOpsService {
         }
     }
 
-    /**
+    *//**
      * Method to get collectors by hostname and module.
      *
      * @param request contains the filter information used to search.
-     */
+     *//*
     public ListCollectorsResponseDTO getCollectorsByHostnameAndModule(ListRequest request) {
         return mapToListCollectorsResponseDTO(collectorService.listCollectors(request));
     }
@@ -182,9 +127,9 @@ public class CollectorOpsService {
                     CollectorModule.valueOf(collectorDTO.getModule().toString()));
     }
 
-    /**
+    *//**
      * Method to transform a ListCollectorResponse to ListCollectorsResponseDTO
-     */
+     *//*
     private ListCollectorsResponseDTO mapToListCollectorsResponseDTO(ListCollectorResponse response) {
         final String ctx = CLASSNAME + ".mapToListCollectorsResponseDTO";
         try {
@@ -205,9 +150,9 @@ public class CollectorOpsService {
         }
     }
 
-    /**
+    *//**
      * Method to map from List<UtmModuleGroupConfiguration> to CollectorConfig
-     */
+     *//*
 
     public CollectorConfig mapToCollectorConfig(List<UtmModuleGroupConfiguration> keys, CollectorDTO collectorDTO) {
         final String ctx = CLASSNAME + ".mapToCollectorConfig";
@@ -241,16 +186,16 @@ public class CollectorOpsService {
         return collectorConfig;
     }
 
-    /**
+    *//**
      * Method to transform a UtmCollector to CollectorDTO
-     */
+     *//*
     private CollectorDTO protoToCollectorDto(Collector collector) {
         return new CollectorDTO(this.utmCollectorService.saveCollector(collector));
     }
 
-    /**
+    *//**
      * Method to map from UtmModuleGroupConfiguration to CollectorGroupConfigurations
-     */
+     *//*
     private CollectorGroupConfigurations mapToCollectorGroupConfigurations(UtmModuleGroupConfiguration moduleConfig) {
         return CollectorGroupConfigurations.newBuilder()
                 .setConfKey(moduleConfig.getConfKey())
@@ -261,12 +206,12 @@ public class CollectorOpsService {
                 .setConfRequired(moduleConfig.getConfRequired()).build();
     }
 
-    /**
+    *//**
      * Method to remove a collector, will be used to remove in the UtmNetworkScanService
      *
      * @param hostname the hostname of the collector to remove
      * @param module   the module of the collector to remove
-     */
+     *//*
     public void deleteCollector(String hostname, CollectorModuleEnum module) {
         final String ctx = CLASSNAME + ".deleteCollector";
 
@@ -316,7 +261,7 @@ public class CollectorOpsService {
         }
     }
 
-    /*@Transactional
+    *//*@Transactional
     public Page<AssetGroupDTO> searchGroupsByFilter(AssetGroupFilter filter, Pageable pageable) throws Exception {
         final String ctx = CLASSNAME + ".searchGroupsByFilter";
         try {
@@ -338,7 +283,7 @@ public class CollectorOpsService {
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
         }
-    }*/
+    }*//*
 
     private String searchQueryBuilder(AssetGroupFilter filters) {
         StringBuilder sb = new StringBuilder();
@@ -528,5 +473,5 @@ public class CollectorOpsService {
                 .setSearchQuery(query)
                 .setSortBy("id,desc")
                 .build();
-    }
+    }*/
 }

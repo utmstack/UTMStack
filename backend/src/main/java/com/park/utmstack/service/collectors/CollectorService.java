@@ -30,8 +30,6 @@ import javax.persistence.Query;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.park.utmstack.config.RestTemplateConfiguration.CLASSNAME;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -43,6 +41,7 @@ public class CollectorService {
     private final UtmCollectorService utmCollectorService;
     private final UtmCollectorRepository collectorRepository;
     private final EntityManager em;
+    private final String CLASSNAME = "CollectorService";
 
     private static final Set<String> ALLOWED_SORT_COLUMNS = Set.of(
             "id",
@@ -160,21 +159,29 @@ public class CollectorService {
     }
 
     public Page<AssetGroupDTO> searchGroupsByFilter(AssetGroupFilter filter, Pageable pageable) {
+
         final String ctx = CLASSNAME + ".searchGroupsByFilter";
+        try {
 
-        Query countQuery = buildSearchQuery(filter, true, pageable);
-        long total = ((Number) countQuery.getSingleResult()).longValue();
+            Query countQuery = buildSearchQuery(filter, true, pageable);
+            long total = ((Number) countQuery.getSingleResult()).longValue();
 
-        Query dataQuery = buildSearchQuery(filter, false, pageable);
-        List<UtmAssetGroup> groups = dataQuery.getResultList();
+            Query dataQuery = buildSearchQuery(filter, false, pageable);
+            List<UtmAssetGroup> groups = dataQuery.getResultList();
 
-        enrichGroups(groups);
+            enrichGroups(groups);
 
-        List<AssetGroupDTO> dtos = groups.stream()
-                .map(AssetGroupDTO::new)
-                .toList();
+            List<AssetGroupDTO> dtos = groups.stream()
+                    .map(AssetGroupDTO::new)
+                    .toList();
 
-        return new PageImpl<>(dtos, pageable, total);
+            return new PageImpl<>(dtos, pageable, total);
+
+        } catch (Exception ex) {
+            log.error("{}: Error searching collector groups with filters {}: {}", ctx, filter, ex.getMessage(), ex);
+            throw new ApiException(String.format("%s: Error searching asset groups with filters.", ctx), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
 
     }
 
@@ -286,44 +293,37 @@ public class CollectorService {
                     WHERE 1=1
                 """);
 
-        // type
         if (filter.getAssetType() != null) {
             sql.append(" AND ag.type = :type ");
             params.put("type", filter.getAssetType());
         }
 
-        // id
         if (filter.getId() != null) {
             sql.append(" AND ag.id = :id ");
             params.put("id", filter.getId());
         }
 
-        // groupName
         if (StringUtils.hasText(filter.getGroupName())) {
             sql.append(" AND LOWER(ag.group_name) LIKE :groupName ");
             params.put("groupName", "%" + filter.getGroupName().toLowerCase() + "%");
         }
 
-        // date range
         if (filter.getInitDate() != null && filter.getEndDate() != null) {
             sql.append(" AND ag.created_date BETWEEN :initDate AND :endDate ");
             params.put("initDate", filter.getInitDate());
             params.put("endDate", filter.getEndDate());
         }
 
-        // IPs
         if (!CollectionUtils.isEmpty(filter.getAssetIp())) {
             sql.append(" AND c.ip IN :ips ");
             params.put("ips", filter.getAssetIp());
         }
 
-        // hostnames
         if (!CollectionUtils.isEmpty(filter.getAssetName())) {
             sql.append(" AND c.hostname IN :names ");
             params.put("names", filter.getAssetName());
         }
 
-        // COUNT query
         if (countQuery) {
             sql.insert(0, "SELECT COUNT(*) FROM (");
             sql.append(") AS total");
@@ -331,12 +331,19 @@ public class CollectorService {
             sql.append(buildOrderAndPagination(pageable));
         }
 
-        Query q = em.createNativeQuery(sql.toString(), countQuery ? null : UtmAssetGroup.class);
+        Query q;
+
+        if (countQuery) {
+            q = em.createNativeQuery(sql.toString());
+        } else {
+            q = em.createNativeQuery(sql.toString(), UtmAssetGroup.class);
+        }
 
         params.forEach(q::setParameter);
 
         return q;
     }
+
 
     private String buildOrderAndPagination(Pageable pageable) {
         StringBuilder sb = new StringBuilder(" ");
