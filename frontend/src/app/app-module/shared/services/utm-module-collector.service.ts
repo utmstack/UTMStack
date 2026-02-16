@@ -28,14 +28,6 @@ export class UtmModuleCollectorService {
     return this.http.post<any>(`${this.resourceUrl}/collectors-config/`, body, {observe: 'response'});
   }
 
-  reset(body: any): Observable<HttpResponse<UtmModuleGroupType>> {
-    return this.http.post<any>(`${this.resourceUrl}/collectors-config/`, body.collectorConfig, {observe: 'response'});
-  }
-
-  update(conf: UtmModuleGroupType): Observable<HttpResponse<UtmModuleGroupType>> {
-    return this.http.put<UtmModuleGroupType>(this.resourceUrl, conf, {observe: 'response'});
-  }
-
   query(req?: any): Observable<HttpResponse<UtmListCollectorType>> {
     const options = createRequestOption(req);
     return this.http.get<UtmListCollectorType>(`${this.resourceUrl}/collectors-list`, {params: options, observe: 'response'});
