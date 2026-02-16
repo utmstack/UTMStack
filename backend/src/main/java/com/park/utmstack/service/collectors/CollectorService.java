@@ -45,7 +45,7 @@ public class CollectorService {
 
     public void upsertCollectorConfig(CollectorConfigDTO collectorConfig) {
 
-        this.moduleGroupConfigurationService.updateConfigurationKeys(collectorConfig.getModuleId(), collectorConfig.getKeys());
+        this.moduleGroupService.updateCollectorConfigurationKeys(collectorConfig);
 
         CollectorOuterClass.CollectorConfig collector = CollectorConfigBuilder.build(collectorConfig);
         collectorGrpcService.upsertCollectorConfig(collector);

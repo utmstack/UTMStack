@@ -20,7 +20,6 @@ public class CollectorConfigDTO {
     private Long moduleId;
 
     @NotNull
-    @NotEmpty
     @UniqueServerName
     private List<UtmModuleGroupConfiguration> keys;
 

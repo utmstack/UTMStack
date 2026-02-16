@@ -12,7 +12,7 @@ public class UniqueServerNameValidator implements ConstraintValidator<UniqueServ
     @Override
     public boolean isValid(List<UtmModuleGroupConfiguration> keys, ConstraintValidatorContext context) {
 
-        if (keys == null || keys.isEmpty()) return false;
+        if (keys == null ) return false;
 
         long duplicates = keys.stream()
                 .filter(k -> "Hostname".equals(k.getConfName()))

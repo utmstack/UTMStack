@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Spring Data  repository for the UtmModuleGroupConfiguration entity.
  */
-@SuppressWarnings("unused")
+
 @Repository
 public interface UtmModuleGroupConfigurationRepository extends JpaRepository<UtmModuleGroupConfiguration, Long> {
 

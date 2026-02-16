@@ -5,6 +5,7 @@ import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
 import com.park.utmstack.domain.application_modules.enums.ModuleName;
 import com.park.utmstack.repository.UtmModuleGroupConfigurationRepository;
+import com.park.utmstack.repository.UtmModuleGroupRepository;
 import com.park.utmstack.repository.application_modules.UtmModuleRepository;
 import com.park.utmstack.event_processor.EventProcessorManagerService;
 import com.park.utmstack.util.CipherUtil;
@@ -36,8 +37,6 @@ public class UtmModuleGroupConfigurationService {
 
     private final UtmModuleGroupConfigurationRepository moduleConfigurationRepository;
     private final UtmModuleRepository moduleRepository;
-    private final EventProcessorManagerService eventProcessorManagerService;
-
 
     public void createConfigurationKeys(List<UtmModuleGroupConfiguration> keys) throws Exception {
         final String ctx = CLASSNAME + ".createConfigurationKeys";
@@ -54,7 +53,6 @@ public class UtmModuleGroupConfigurationService {
      * Update configuration of the application modules
      *
      * @param keys List of configuration keys to save
-     * @throws Exception In case of any error
      */
     public UtmModule updateConfigurationKeys(Long moduleId, List<UtmModuleGroupConfiguration> keys) {
         final String ctx = CLASSNAME + ".updateConfigurationKeys";

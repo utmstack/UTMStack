@@ -13,9 +13,11 @@ import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.application_modules.ModuleActivationDTO;
 import com.park.utmstack.service.dto.collectors.dto.CollectorConfigDTO;
 import com.park.utmstack.util.CipherUtil;
+import com.park.utmstack.util.exceptions.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -191,6 +193,42 @@ public class UtmModuleGroupService {
                             .activationStatus(false)
                             .build()
             );
+        }
+    }
+
+    public void updateCollectorConfigurationKeys(CollectorConfigDTO collectorConfig) {
+        final String ctx = CLASSNAME + ".updateCollectorConfigurationKeys";
+        try {
+
+            List<UtmModuleGroup> dbConfigs = moduleGroupRepository
+                    .findAllByModuleIdAndCollector(collectorConfig.getModuleId(),
+                            String.valueOf(collectorConfig.getCollector().getId()));
+
+            List<UtmModuleGroupConfiguration> keys = collectorConfig.getKeys();
+
+            if (collectorConfig.getKeys().isEmpty()) {
+                moduleGroupRepository.deleteAll(dbConfigs);
+            } else {
+                for (UtmModuleGroupConfiguration key : keys) {
+                    if (key.getConfDataType().equals("password")){
+                        key.setConfValue(CipherUtil.encrypt(key.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
+                    }
+                }
+                List<Long> keyGroupIds = keys.stream()
+                        .map(UtmModuleGroupConfiguration::getGroupId)
+                        .toList();
+
+                List<UtmModuleGroup> groupsToDelete = dbConfigs.stream()
+                        .filter(utmModuleGroup -> !keyGroupIds.contains(utmModuleGroup.getId()))
+                        .collect(Collectors.toList());
+
+                moduleGroupRepository.deleteAll(groupsToDelete);
+                moduleGroupConfigurationRepository.saveAll(keys);
+            }
+
+        } catch (Exception e) {
+            log.error("{}: Error updating collector configuration keys for collector id {}: {}", ctx, collectorConfig.getCollector().getId(), e.getMessage());
+            throw new ApiException(String.format("%s: Error updating collector configuration keys for collector id %d", ctx, collectorConfig.getCollector().getId()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
