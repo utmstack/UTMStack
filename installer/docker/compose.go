@@ -199,6 +199,28 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 
 	backendMem := stack.ServiceResources["backend"].AssignedMemory
 	backendMin := stack.ServiceResources["backend"].MinMemory
+	backendEnv := []string{
+		"SERVER_NAME=" + conf.ServerName,
+		"DB_USER=postgres",
+		"DB_PASS=" + conf.Password,
+		"DB_HOST=postgres",
+		"DB_PORT=5432",
+		"DB_NAME=utmstack",
+		"ELASTICSEARCH_HOST=node1",
+		"ELASTICSEARCH_PORT=9200",
+		"INTERNAL_KEY=" + conf.InternalKey,
+		"ENCRYPTION_KEY=" + conf.InternalKey,
+		"GRPC_AGENT_MANAGER_HOST=agentmanager",
+		"GRPC_AGENT_MANAGER_PORT=9000",
+		"EVENT_PROCESSOR_HOST=event-processor-manager",
+		"EVENT_PROCESSOR_PORT=9002",
+	}
+
+	// Disable TFA in dev and rc environments
+	if conf.Branch == "dev" || conf.Branch == "rc" {
+		backendEnv = append(backendEnv, "APP_TFA_ENABLED=false")
+	}
+
 	c.Services["backend"] = Service{
 		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/backend:${UTMSTACK_TAG}"),
 		DependsOn: []string{
@@ -206,22 +228,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"node1",
 			"agentmanager",
 		},
-		Environment: []string{
-			"SERVER_NAME=" + conf.ServerName,
-			"DB_USER=postgres",
-			"DB_PASS=" + conf.Password,
-			"DB_HOST=postgres",
-			"DB_PORT=5432",
-			"DB_NAME=utmstack",
-			"ELASTICSEARCH_HOST=node1",
-			"ELASTICSEARCH_PORT=9200",
-			"INTERNAL_KEY=" + conf.InternalKey,
-			"ENCRYPTION_KEY=" + conf.InternalKey,
-			"GRPC_AGENT_MANAGER_HOST=agentmanager",
-			"GRPC_AGENT_MANAGER_PORT=9000",
-			"EVENT_PROCESSOR_HOST=event-processor-manager",
-			"EVENT_PROCESSOR_PORT=9002",
-		},
+		Environment: backendEnv,
 		Volumes: []string{
 			stack.DataSources + ":/etc/utmstack",
 			conf.UpdatesFolder + ":/updates",
