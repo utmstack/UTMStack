@@ -6,7 +6,6 @@ import com.park.utmstack.domain.network_scan.AssetGroupFilter;
 import com.park.utmstack.domain.network_scan.UtmAssetGroup;
 import com.park.utmstack.repository.collector.UtmCollectorRepository;
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
-import com.park.utmstack.service.dto.collectors.CollectorHostnames;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.dto.CollectorConfigDTO;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
@@ -70,56 +69,33 @@ public class CollectorService {
                 .build();
     }
 
+    public ListCollectorsResponseDTO listCollector(String hostname, Integer pageNumber, Integer pageSize, String sortBy, CollectorModuleEnum module) {
 
-    public ListCollectorsResponseDTO listCollector(ListRequest request) {
-        return this.getListCollector(request);
-    }
+        String cts = CLASSNAME + ".listCollector";
 
-    public ListCollectorsResponseDTO listCollector(String hostname, CollectorModuleEnum module) {
+        try {
 
-        String query = "";
-        if (module != null && StringUtils.hasText(hostname)) {
-            query = "module.Is=" + module.name() + "&hostname.Is=" + hostname;
-        } else if (StringUtils.hasText(hostname)) {
-            query = "hostname.Is=" + hostname;
-        } else if (module != null) {
-            query = "module.Is=" + module.name();
+            var request = buildListRequest(pageNumber, pageSize, module, hostname, sortBy);
+
+            CollectorOuterClass.ListCollectorResponse collectorResponse = collectorGrpcService.listCollectors(request);
+            return mapToListCollectorsResponseDTO(collectorResponse);
+
+        } catch (Exception e) {
+            log.error("{}: Error listing collectors with hostname={} and module={}: {}", cts, hostname, module, e.getMessage(), e);
+            throw new ApiException(String.format("%s: Error listing collectors.", cts), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        var request = ListRequest.newBuilder()
-                .setPageNumber(1)
-                .setPageSize(10000)
-                .setSearchQuery(query)
-                .setSortBy("id,desc")
-                .build();
-
-        CollectorOuterClass.ListCollectorResponse collectorResponse = collectorGrpcService.listCollectors(request);
-        return mapToListCollectorsResponseDTO(collectorResponse);
     }
 
-    public Optional<CollectorDTO> findCollectorByHostname(String hostname, CollectorModuleEnum module) {
+    private Optional<CollectorDTO> findCollectorByHostname(String hostname, CollectorModuleEnum module) {
 
-        ListCollectorsResponseDTO response = this.listCollector(hostname, module);
+        ListCollectorsResponseDTO response = this.listCollector(hostname, 0, 1, null, module);
 
         if (response.getCollectors() != null && !response.getCollectors().isEmpty()) {
             return Optional.of(response.getCollectors().get(0));
         } else {
             return Optional.empty();
         }
-    }
-
-    public CollectorHostnames listCollectorHostnames(ListRequest request) {
-
-
-        CollectorOuterClass.ListCollectorResponse response = collectorGrpcService.listCollectors(request);
-        CollectorHostnames collectorHostnames = new CollectorHostnames();
-
-        response.getRowsList().forEach(c -> {
-            collectorHostnames.getHostname().add(c.getHostname());
-        });
-
-        return collectorHostnames;
-
     }
 
     public void deleteCollector(Long id) {
@@ -133,7 +109,7 @@ public class CollectorService {
             log.error("{}: Collector with id {} not found", ctx, id);
             throw new ApiException(String.format("%s: Collector with id %d not found", ctx, id), HttpStatus.NOT_FOUND);
 
-        } else if (collector.get().isActive()) {
+        } /*else if (collector.get().isActive()) {
 
             var collectorToDelete = collector.get();
 
@@ -153,7 +129,7 @@ public class CollectorService {
 
             this.moduleGroupService.deleteCollectorById(collectorToDelete.getId());
 
-        }
+        }*/
 
         this.utmCollectorService.deleteCollector(id);
     }
@@ -390,6 +366,30 @@ public class CollectorService {
         groups.forEach(g ->
                 g.setCollectors(collectors.getOrDefault(g.getId(), List.of()))
         );
+    }
+
+    private ListRequest buildListRequest(Integer pageNumber, Integer pageSize,
+                                         CollectorModuleEnum module, String hostName, String sortBy) {
+        return ListRequest.newBuilder()
+                .setPageNumber(pageNumber != null ? pageNumber : 0)
+                .setPageSize(pageSize != null ? pageSize : 10)
+                .setSearchQuery(buildSearchQuery(module, hostName))
+                .setSortBy(sortBy != null ? sortBy : "")
+                .build();
+    }
+
+    private String buildSearchQuery(CollectorModuleEnum module, String hostName) {
+        List<String> conditions = new ArrayList<>();
+
+        if (module != null) {
+            conditions.add("module.Is=" + module.name());
+        }
+
+        if (StringUtils.hasText(hostName)) {
+            conditions.add("hostname.Is=" + hostName);
+        }
+
+        return String.join("&", conditions);
     }
 
 

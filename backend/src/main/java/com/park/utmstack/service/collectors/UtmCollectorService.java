@@ -103,7 +103,15 @@ public class UtmCollectorService {
 
     @Transactional
     public void updateGroup(List<Long> collectorsIds, Long assetGroupId) {
-        utmCollectorRepository.updateGroup(collectorsIds, assetGroupId);
+        String ctx = CLASSNAME + ".updateGroup";
+
+        try {
+             utmCollectorRepository.updateGroup(collectorsIds, assetGroupId);
+        } catch (Exception ex) {
+            log.error("{}: Error updating group for collectors {}: {}", ctx, collectorsIds, ex.getMessage(), ex);
+            throw new ApiException(String.format("%s: Error updating group for collectors %s", ctx, collectorsIds), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     Optional<UtmCollector> findById(Long id) {

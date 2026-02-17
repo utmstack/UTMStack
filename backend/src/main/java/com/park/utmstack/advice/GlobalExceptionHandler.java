@@ -70,4 +70,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleApiException(ApiException ex) {
         return ResponseUtil.buildErrorResponse(ex.getStatus(), ex.getMessage());
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleGenericException(Exception e, HttpServletRequest request) {
+        return ResponseUtil.buildInternalServerErrorResponse(e.getMessage());
+    }
 }

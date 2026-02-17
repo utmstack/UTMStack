@@ -141,7 +141,14 @@ public class UtmModuleGroupService {
     }
 
     public List<UtmModuleGroup> findAllByCollectorId(String collectorId) {
-        return moduleGroupRepository.findAllByCollector(collectorId);
+        String ctx = CLASSNAME + ".findAllByCollectorId";
+        try {
+             return moduleGroupRepository.findAllByCollector(collectorId);
+        } catch (Exception e) {
+            log.error("{}: Error finding module groups by collector id {}: {}", ctx, collectorId, e.getMessage());
+            throw new ApiException(String.format("%s: Error finding module groups by collector id %s", ctx, collectorId), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     public List<UtmModuleGroup> findAllWithCollector() throws Exception {
