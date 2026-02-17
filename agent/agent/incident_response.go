@@ -2,30 +2,25 @@ package agent
 
 import (
 	"context"
+	"fmt"
 	"runtime"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/utmstack/UTMStack/agent/config"
-	"github.com/utmstack/UTMStack/agent/conn"
 	"github.com/utmstack/UTMStack/agent/utils"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"github.com/utmstack/UTMStack/shared/fs"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
-	path := utils.GetMyPath()
-	var connErrMsgWritten, errorLogged bool
+	path := fs.GetExecutablePath()
+	var connErrLogged, streamErrLogged bool
 
 	for {
-		connection, err := conn.GetAgentManagerConnection(cnf)
+		connection, err := GetAgentManagerConnection(cnf)
 		if err != nil {
-			if !connErrMsgWritten {
-				utils.Logger.ErrorF("error connecting to Agent Manager: %v", err)
-				connErrMsgWritten = true
-			}
+			LogConnectionError(err, "Agent Manager", &connErrLogged)
 			time.Sleep(timeToSleep)
 			continue
 		}
@@ -33,80 +28,36 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 		client := NewAgentServiceClient(connection)
 		stream, err := client.AgentStream(ctx)
 		if err != nil {
-			if !connErrMsgWritten {
-				utils.Logger.ErrorF("failed to start AgentStream: %v", err)
-				connErrMsgWritten = true
-			} else {
-				utils.Logger.LogF(100, "failed to start AgentStream: %v", err)
-			}
+			LogStreamError(err, "AgentStream", &connErrLogged)
 			time.Sleep(timeToSleep)
 			continue
 		}
 
-		connErrMsgWritten = false
+		connErrLogged = false
 
+	recvLoop:
 		for {
 			in, err := stream.Recv()
 			if err != nil {
-				if strings.Contains(err.Error(), "EOF") {
-					utils.Logger.LogF(100, "error receiving command from server: %v", err)
-					time.Sleep(timeToSleep)
-					break
+				action := HandleGRPCStreamError(err, "error receiving command from server", &streamErrLogged)
+				if action == ActionReconnect {
+					break recvLoop
 				}
-				st, ok := status.FromError(err)
-				if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
-					if !errorLogged {
-						utils.Logger.ErrorF("error receiving command from server: %v", err)
-						errorLogged = true
-					} else {
-						utils.Logger.LogF(100, "error receiving command from server: %v", err)
-					}
-					time.Sleep(timeToSleep)
-					break
-				} else {
-					if !errorLogged {
-						utils.Logger.ErrorF("error receiving command from server: %v", err)
-						errorLogged = true
-					} else {
-						utils.Logger.LogF(100, "error receiving command from server: %v", err)
-					}
-					time.Sleep(timeToSleep)
-					continue
-				}
+				continue
 			}
 
 			switch msg := in.StreamMessage.(type) {
 			case *BidirectionalStream_Command:
 				err = commandProcessor(path, stream, cnf, []string{msg.Command.Command, in.GetCommand().CmdId})
 				if err != nil {
-					if strings.Contains(err.Error(), "EOF") {
-						utils.Logger.LogF(100, "error sending result to server: %v", err)
-						time.Sleep(timeToSleep)
-						break
+					action := HandleGRPCStreamError(err, "error sending result to server", &streamErrLogged)
+					if action == ActionReconnect {
+						break recvLoop
 					}
-					st, ok := status.FromError(err)
-					if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
-						if !errorLogged {
-							utils.Logger.ErrorF("error sending result to server: %v", err)
-							errorLogged = true
-						} else {
-							utils.Logger.LogF(100, "error sending result to server: %v", err)
-						}
-						time.Sleep(timeToSleep)
-						break
-					} else {
-						if !errorLogged {
-							utils.Logger.ErrorF("error sending result to server: %v", err)
-							errorLogged = true
-						} else {
-							utils.Logger.LogF(100, "error sending result to server: %v", err)
-						}
-						time.Sleep(timeToSleep)
-						continue
-					}
+					continue
 				}
 			}
-			errorLogged = false
+			streamErrLogged = false
 		}
 	}
 }
@@ -123,7 +74,8 @@ func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *c
 	case "linux", "darwin":
 		result, errB = utils.ExecuteWithResult("sh", path, "-c", commandPair[0])
 	default:
-		utils.Logger.Fatal("unsupported operating system: %s", runtime.GOOS)
+		utils.Logger.ErrorF("unsupported operating system: %s", runtime.GOOS)
+		return fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
 	}
 
 	if errB {
@@ -138,8 +90,8 @@ func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *c
 		},
 	}); err != nil {
 		return err
-	} else {
-		utils.Logger.LogF(100, "Result sent to server successfully!!!")
 	}
+
+	utils.Logger.LogF(100, "Result sent to server successfully")
 	return nil
 }

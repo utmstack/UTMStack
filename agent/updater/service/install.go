@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/kardianos/service"
-	"github.com/utmstack/UTMStack/agent/updater/utils"
+	"github.com/utmstack/UTMStack/shared/logger"
 )
 
 func InstallService() {
@@ -27,7 +27,7 @@ func InstallService() {
 		fmt.Println("\nError starting new service: ", err)
 		os.Exit(1)
 	}
-	utils.UpdaterLogger.Info("updater service installed successfully")
+	logger.Info("updater service installed successfully")
 }
 
 func UninstallService() {

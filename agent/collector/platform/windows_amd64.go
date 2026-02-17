@@ -1,15 +1,15 @@
-//go:build windows && arm64
-// +build windows,arm64
+//go:build windows && amd64
+// +build windows,amd64
 
-package collectors
+package platform
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"log"
 	"os"
-	"os/signal"
 	"strconv"
 	"strings"
 	"sync"
@@ -20,7 +20,6 @@ import (
 	"github.com/threatwinds/go-sdk/entities"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/agent/config"
-	"github.com/utmstack/UTMStack/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/utils"
 	"golang.org/x/sys/windows"
 )
@@ -188,7 +187,7 @@ func (evtSub *EventSubscription) winAPICallback(action, userContext, event uintp
 		select {
 		case incomingEvents <- xmlStr:
 		default:
-			utils.Logger.ErrorF("incomingEvents lleno: evento descartado")
+			utils.Logger.ErrorF("incomingEvents full: event discarded")
 		}
 	default:
 		evtSub.Errors <- fmt.Errorf("windows_events: unsupported action in callback: %x", uint16(action))
@@ -235,17 +234,36 @@ func cleanXML(xmlStr string) string {
 	return xmlStr
 }
 
-type Windows struct{}
-
-func getCollectorsInstances() []Collector {
-	var collectors []Collector
-	collectors = append(collectors, Windows{})
-	return collectors
+type Windows struct {
+	stopChan      chan struct{}
+	subscriptions []*EventSubscription
+	mu            sync.Mutex
 }
 
-func (w Windows) SendLogs() {
+var windowsCollector = &Windows{
+	stopChan: make(chan struct{}),
+}
+
+func GetCollectors() []Collector {
+	return []Collector{
+		windowsCollector,
+		// Filebeat{}, // TODO: remove after testing native collector
+	}
+}
+
+func (w *Windows) Name() string {
+	return "windows-amd64"
+}
+
+func (w *Windows) Start(ctx context.Context, queue chan *plugins.Log) {
+	defer func() {
+		if r := recover(); r != nil {
+			utils.Logger.ErrorF("panic in Windows AMD64 collector: %v", r)
+		}
+	}()
+
 	errorsChan := make(chan error, 10)
-	go eventWorker()
+	go eventWorker(queue)
 
 	channels := []string{
 		"Security", "Application", "System", "Windows Powershell", "Microsoft-Windows-Powershell/Operational", "ForwardedEvents",
@@ -253,8 +271,8 @@ func (w Windows) SendLogs() {
 		"Microsoft-Windows-Windows Defender/Operational",
 	}
 
-	var subscriptions []*EventSubscription
-
+	w.mu.Lock()
+	w.subscriptions = nil
 	for _, channel := range channels {
 		sub := &EventSubscription{
 			Channel: channel,
@@ -265,29 +283,41 @@ func (w Windows) SendLogs() {
 			utils.Logger.ErrorF("Error subscribing to channel %s: %s", channel, err)
 			continue
 		}
-		subscriptions = append(subscriptions, sub)
+		w.subscriptions = append(w.subscriptions, sub)
 		utils.Logger.LogF(100, "Subscribed to channel: %s", channel)
 	}
+	w.mu.Unlock()
 
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				utils.Logger.ErrorF("panic in error handler: %v", r)
+			}
+		}()
 		for err := range errorsChan {
 			utils.Logger.ErrorF("Subscription error: %s", err)
 		}
 	}()
 
-	exitChan := make(chan os.Signal, 1)
-	signal.Notify(exitChan, os.Interrupt)
-	<-exitChan
-	utils.Logger.LogF(100, "Interrupt received, closing subscriptions...")
-	for _, sub := range subscriptions {
+	// Block until context is cancelled or Stop() is called
+	select {
+	case <-ctx.Done():
+	case <-w.stopChan:
+	}
+
+	utils.Logger.Info("Windows AMD64 collector stopping...")
+	w.mu.Lock()
+	for _, sub := range w.subscriptions {
 		if err := sub.Close(); err != nil {
 			utils.Logger.ErrorF("Error closing subscription for %s: %v", sub.Channel, err)
 		}
 	}
-	utils.Logger.LogF(100, "Agent finished successfully.")
+	w.subscriptions = nil
+	w.mu.Unlock()
+	utils.Logger.Info("Windows AMD64 collector stopped.")
 }
 
-func eventWorker() {
+func eventWorker(queue chan *plugins.Log) {
 	host, err := os.Hostname()
 	if err != nil {
 		utils.Logger.ErrorF("error getting hostname: %v", err)
@@ -314,7 +344,7 @@ func eventWorker() {
 		}
 
 		select {
-		case logservice.LogQueue <- &plugins.Log{
+		case queue <- &plugins.Log{
 			DataSource: host,
 			DataType:   string(config.DataTypeWindowsAgent),
 			Raw:        validatedLog,
@@ -368,10 +398,18 @@ func convertEventToJSON(event *Event) (string, error) {
 	return string(jsonBytes), nil
 }
 
-func (w Windows) Install() error {
+func (w *Windows) Install() error {
 	return nil
 }
 
-func (w Windows) Uninstall() error {
+func (w *Windows) Uninstall() error {
 	return nil
+}
+
+func (w *Windows) Stop() {
+	select {
+	case w.stopChan <- struct{}{}:
+	default:
+		// Already stopped or not started
+	}
 }

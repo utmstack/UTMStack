@@ -8,147 +8,154 @@ import (
 	"time"
 
 	"github.com/utmstack/UTMStack/agent/updater/config"
-	"github.com/utmstack/UTMStack/agent/updater/models"
-	"github.com/utmstack/UTMStack/agent/updater/utils"
+	"github.com/utmstack/UTMStack/shared/exec"
+	"github.com/utmstack/UTMStack/shared/fs"
+	"github.com/utmstack/UTMStack/shared/http"
+	"github.com/utmstack/UTMStack/shared/logger"
+	"github.com/utmstack/UTMStack/shared/svc"
 )
 
 const (
 	checkEvery = 5 * time.Minute
 )
 
-var currentVersion = models.Version{}
+// Version represents the version info from version.json
+type Version struct {
+	Version string `json:"version"`
+}
+
+var currentVersion = Version{}
 
 func UpdateDependencies(cnf *config.Config) {
-	if utils.CheckIfPathExist(config.VersionPath) {
-		err := utils.ReadJson(config.VersionPath, &currentVersion)
-		if err != nil {
-			utils.UpdaterLogger.ErrorF("error reading version file: %v", err)
+	basePath := fs.GetExecutablePath()
+
+	if fs.Exists(config.VersionPath) {
+		if err := fs.ReadJSON(config.VersionPath, &currentVersion); err != nil {
+			logger.Error("error reading version file: %v", err)
 		}
 	}
 
 	for {
 		time.Sleep(checkEvery)
 
-		if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, "version.json"), map[string]string{}, "version_new.json", utils.GetMyPath(), cnf.SkipCertValidation); err != nil {
-			utils.UpdaterLogger.ErrorF("error downloading version.json: %v", err)
+		if err := http.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, "version.json"), nil, "version_new.json", basePath, cnf.SkipCertValidation); err != nil {
+			logger.Error("error downloading version.json: %v", err)
 			continue
 		}
-		newVersion := models.Version{}
-		err := utils.ReadJson(filepath.Join(utils.GetMyPath(), "version_new.json"), &newVersion)
-		if err != nil {
-			utils.UpdaterLogger.ErrorF("error reading version file: %v", err)
+
+		newVersion := Version{}
+		if err := fs.ReadJSON(filepath.Join(basePath, "version_new.json"), &newVersion); err != nil {
+			logger.Error("error reading version file: %v", err)
 			continue
 		}
 
 		if newVersion.Version != currentVersion.Version {
-			utils.UpdaterLogger.Info("New version of agent found: %s", newVersion.Version)
-			if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, fmt.Sprintf(config.ServiceFile, "")), map[string]string{}, fmt.Sprintf(config.ServiceFile, "_new"), utils.GetMyPath(), cnf.SkipCertValidation); err != nil {
-				utils.UpdaterLogger.ErrorF("error downloading agent: %v", err)
+			logger.Info("New version of agent found: %s", newVersion.Version)
+
+			agentBinary := config.ServiceFile("")
+			if err := http.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, agentBinary), nil, config.ServiceFile("_new"), basePath, cnf.SkipCertValidation); err != nil {
+				logger.Error("error downloading agent: %v", err)
 				continue
 			}
 
 			if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-				if err = utils.Execute("chmod", utils.GetMyPath(), "-R", "755", filepath.Join(utils.GetMyPath(), fmt.Sprintf(config.ServiceFile, "_new"))); err != nil {
-					utils.UpdaterLogger.ErrorF("error executing chmod: %v", err)
+				if err := exec.Run("chmod", basePath, "-R", "755", filepath.Join(basePath, config.ServiceFile("_new"))); err != nil {
+					logger.Error("error executing chmod: %v", err)
 				}
 			}
 
-			utils.UpdaterLogger.Info("Starting update process...")
-			err = runUpdateProcess()
-			if err != nil {
-				utils.UpdaterLogger.ErrorF("error updating service: %v", err)
-				os.Remove(filepath.Join(utils.GetMyPath(), "version_new.json"))
-				os.Remove(filepath.Join(utils.GetMyPath(), fmt.Sprintf(config.ServiceFile, "_new")))
+			logger.Info("Starting update process...")
+			if err := runUpdateProcess(basePath); err != nil {
+				logger.Error("error updating service: %v", err)
+				os.Remove(filepath.Join(basePath, "version_new.json"))
+				os.Remove(filepath.Join(basePath, config.ServiceFile("_new")))
 			} else {
-				utils.UpdaterLogger.Info("Update completed successfully")
-				if utils.CheckIfPathExist(config.VersionPath) {
-					err := utils.ReadJson(config.VersionPath, &currentVersion)
-					if err != nil {
-						utils.UpdaterLogger.ErrorF("error reading updated version file: %v", err)
+				logger.Info("Update completed successfully")
+				if fs.Exists(config.VersionPath) {
+					if err := fs.ReadJSON(config.VersionPath, &currentVersion); err != nil {
+						logger.Error("error reading updated version file: %v", err)
 					}
 				}
 			}
 		} else {
-			os.Remove(filepath.Join(utils.GetMyPath(), "version_new.json"))
+			os.Remove(filepath.Join(basePath, "version_new.json"))
 		}
 	}
 }
 
-func runUpdateProcess() error {
-	path := utils.GetMyPath()
+func runUpdateProcess(basePath string) error {
+	newBin := config.ServiceFile("_new")
+	oldBin := config.ServiceFile("")
+	backupBin := config.ServiceFile(".old")
 
-	newBin := fmt.Sprintf(config.ServiceFile, "_new")
-	oldBin := fmt.Sprintf(config.ServiceFile, "")
-	backupBin := fmt.Sprintf(config.ServiceFile, ".old")
-
-	agentNew := filepath.Join(path, newBin)
+	agentNew := filepath.Join(basePath, newBin)
 	if _, err := os.Stat(agentNew); err != nil {
 		return fmt.Errorf("no _new binary found to update")
 	}
 
-	if err := utils.StopService(config.SERV_AGENT_NAME); err != nil {
+	if err := svc.Stop(config.SERV_AGENT_NAME); err != nil {
 		return fmt.Errorf("error stopping agent: %v", err)
 	}
 
 	time.Sleep(10 * time.Second)
 
-	backupPath := filepath.Join(path, backupBin)
-	if utils.CheckIfPathExist(backupPath) {
-		utils.UpdaterLogger.Info("Removing previous backup: %s", backupPath)
+	backupPath := filepath.Join(basePath, backupBin)
+	if fs.Exists(backupPath) {
+		logger.Info("Removing previous backup: %s", backupPath)
 		if err := os.Remove(backupPath); err != nil {
-			utils.UpdaterLogger.ErrorF("could not remove old backup: %v", err)
+			logger.Error("could not remove old backup: %v", err)
 		}
 	}
 
-	if err := os.Rename(filepath.Join(path, oldBin), backupPath); err != nil {
+	if err := os.Rename(filepath.Join(basePath, oldBin), backupPath); err != nil {
 		return fmt.Errorf("error backing up old binary: %v", err)
 	}
 
-	if err := os.Rename(filepath.Join(path, newBin), filepath.Join(path, oldBin)); err != nil {
-		os.Rename(backupPath, filepath.Join(path, oldBin))
+	if err := os.Rename(filepath.Join(basePath, newBin), filepath.Join(basePath, oldBin)); err != nil {
+		os.Rename(backupPath, filepath.Join(basePath, oldBin))
 		return fmt.Errorf("error renaming new binary: %v", err)
 	}
 
-	if err := utils.StartService(config.SERV_AGENT_NAME); err != nil {
-		rollbackAgent(oldBin, backupBin, path)
+	if err := svc.Start(config.SERV_AGENT_NAME); err != nil {
+		rollbackAgent(oldBin, backupBin, basePath)
 		return fmt.Errorf("error starting agent: %v", err)
 	}
 
 	time.Sleep(30 * time.Second)
 
-	isHealthy, err := utils.CheckIfServiceIsActive(config.SERV_AGENT_NAME)
+	isHealthy, err := svc.IsActive(config.SERV_AGENT_NAME)
 	if err != nil || !isHealthy {
-		utils.UpdaterLogger.Info("New version failed health check, rolling back...")
-		rollbackAgent(oldBin, backupBin, path)
+		logger.Info("New version failed health check, rolling back...")
+		rollbackAgent(oldBin, backupBin, basePath)
 		return fmt.Errorf("rollback completed: new version failed health check")
 	}
 
-	utils.UpdaterLogger.Info("Health check passed for agent")
+	logger.Info("Health check passed for agent")
 
-	versionNewPath := filepath.Join(path, "version_new.json")
-	versionPath := filepath.Join(path, "version.json")
-	if utils.CheckIfPathExist(versionNewPath) {
+	versionNewPath := filepath.Join(basePath, "version_new.json")
+	versionPath := filepath.Join(basePath, "version.json")
+	if fs.Exists(versionNewPath) {
 		if err := os.Rename(versionNewPath, versionPath); err != nil {
-			utils.UpdaterLogger.ErrorF("error updating version file: %v", err)
+			logger.Error("error updating version file: %v", err)
 		} else {
-			utils.UpdaterLogger.Info("Version file updated successfully")
+			logger.Info("Version file updated successfully")
 		}
 	}
 
 	return nil
 }
 
-func rollbackAgent(currentBin, backupBin, path string) {
-	utils.UpdaterLogger.Info("Rolling back agent to previous version...")
+func rollbackAgent(currentBin, backupBin, basePath string) {
+	logger.Info("Rolling back agent to previous version...")
 
-	utils.StopService(config.SERV_AGENT_NAME)
+	svc.Stop(config.SERV_AGENT_NAME)
 	time.Sleep(5 * time.Second)
 
-	os.Remove(filepath.Join(path, currentBin))
-	os.Rename(filepath.Join(path, backupBin), filepath.Join(path, currentBin))
+	os.Remove(filepath.Join(basePath, currentBin))
+	os.Rename(filepath.Join(basePath, backupBin), filepath.Join(basePath, currentBin))
 
-	utils.StartService(config.SERV_AGENT_NAME)
-	os.Remove(filepath.Join(path, "version_new.json"))
+	svc.Start(config.SERV_AGENT_NAME)
+	os.Remove(filepath.Join(basePath, "version_new.json"))
 
-	utils.UpdaterLogger.Info("Rollback completed for agent")
+	logger.Info("Rollback completed for agent")
 }
