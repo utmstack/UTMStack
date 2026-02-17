@@ -1,12 +1,11 @@
 import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges} from '@angular/core';
 import {Subject} from 'rxjs';
-import {debounceTime, distinctUntilChanged, finalize, map, takeUntil, tap} from 'rxjs/operators';
+import {debounceTime, finalize, takeUntil, tap} from 'rxjs/operators';
 import {ModalService} from '../../../core/modal/modal.service';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {
   ModalConfirmationComponent
 } from '../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
-import {EncryptService} from '../../../shared/services/util/encrypt.service';
 import {ModuleChangeStatusBehavior} from '../../shared/behavior/module-change-status.behavior';
 import {IntCreateGroupComponent} from '../../shared/components/int-create-group/int-create-group.component';
 import {GroupTypeEnum} from '../../shared/enum/group-type.enum';
@@ -24,7 +23,7 @@ import {IntegrationConfigFactory} from './int-config-types/IntegrationConfigFact
   templateUrl: './int-generic-group-config.component.html',
   styleUrls: ['./int-generic-group-config.component.css']
 })
-export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDestroy {
+export class IntGenericGroupConfigComponent implements OnInit, OnDestroy {
   @Input() serverId: number;
   @Input() moduleId: number;
   @Input() groupType = GroupTypeEnum.TENANT;
@@ -49,7 +48,6 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
 
   constructor(private utmModuleGroupService: UtmModuleGroupService,
               private toast: UtmToastService,
-              private encryptService: EncryptService,
               private utmModuleGroupConfService: UtmModuleGroupConfService,
               private modalService: ModalService,
               private moduleChangeStatusBehavior: ModuleChangeStatusBehavior,
@@ -92,34 +90,6 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
 
   get collectorList() {
     return (this.config as CollectorConfiguration).collectorList;
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes.disablePreAction && changes.disablePreAction.currentValue) {
-      const collectors = [];
-      this.collectorList.forEach( c => {
-        collectors.push({
-          moduleId: this.moduleId,
-          keys: this.configs,
-          collector: {
-            ...c,
-            group: null,
-          }
-        });
-      });
-      this.collectorService.bulkCreate(collectors)
-          .pipe(map(response => response.body.results))
-          .subscribe( results => {
-            if (results.every( r => r.status === 'success')) {
-              this.moduleChangeStatusBehavior.setStatus(false, false);
-              this.getGroups().subscribe();
-            } else {
-              this.toast.showError('Error Removing Collector Configuration',
-                  'An error occurred while trying to remove the collector configuration. Please try again.');
-            }
-          },
-          error => console.log(error));
-    }
   }
 
   getGroups() {
