@@ -1,58 +1,83 @@
-# IBM AS 400 filter version 3.0.1
-# Support Java Collector Syslog messsages
+# IBM AS 400 filter version 4.0.0
+# Support for JT400 Java Collector with full field mapping
 
 pipeline:
   - dataTypes:
       - ibm-as400
     steps:
+      # ========================================
+      # PHASE 1: EXTRACTION
+      # ========================================
+      
+      # Parse JSON logs from Java collector
       - json:
           source: raw
-          where: contains("raw", "\"msg\":") && contains("raw", "\"args\":")
+          where: 'startsWith("raw", "{") && endsWith("raw", "}")'
 
+      # Fallback: Parse non-JSON logs (raw syslog format)
       - grok:
           source: raw
           patterns:
             - fieldName: log.message
               pattern: '{{.greedy}}'
-          where: '!contains("raw", "\"msg\":") || !contains("raw", "\"args\":")'
+          where: '!startsWith("raw", "{") && !endsWith("raw", "}")'
 
+      # ========================================
+      # PHASE 2: NORMALIZATION (Standard Schema)
+      # ========================================
+      
+      # Map device timestamp (critical for correlation)
       - rename:
-          from:
-            - log.hostname
-          to: origin.host
+          from: log.timestampIso
+          to: deviceTime
+          where: exists("log.timestampIso")
 
+      # Map action/event classification
       - rename:
-          from:
-            - log.sourceIp
-          to: origin.ip
+          from: log.eventType
+          to: action
+          where: exists("log.eventType")
 
+      # Map severity level
       - rename:
-          from:
-            - log.destinationIp
-          to: target.ip
-
-      - rename:
-          from:
-            - log.file
-          to: origin.file
-
-      - rename:
-          from:
-            - log.severityText
+          from: log.severityLabel
           to: severity
+          where: exists("log.severityLabel")
 
-      # Adding geolocation to origin.ip
+      # Map origin side attributes
+      - rename:
+          from: log.hostname
+          to: origin.host
+          where: exists("log.hostname")
+
+      - rename:
+          from: log.jobUser
+          to: origin.user
+          where: exists("log.jobUser")
+
+      - rename:
+          from: log.jobName
+          to: origin.process
+          where: exists("log.jobName")
+
+      - rename:
+          from: log.sourceIp
+          to: origin.ip
+          where: exists("log.sourceIp")
+
+      - rename:
+          from: log.file
+          to: origin.file
+          where: exists("log.file")
+
+      # ========================================
+      # PHASE 3: ENRICHMENT
+      # ========================================
+      
+      # Add geolocation for source IP
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
             source: origin.ip
             destination: origin.geolocation
           where: exists("origin.ip")
-
-      # Adding geolocation to target.ip
-      - dynamic:
-          plugin: com.utmstack.geolocation
-          params:
-            source: target.ip
-            destination: target.geolocation
-          where: exists("target.ip")
