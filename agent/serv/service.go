@@ -63,7 +63,7 @@ func (p *program) Stop(_ service.Service) error {
 	}
 
 	// Close database
-	if db := database.GetDB(); db != nil {
+	if db, err := database.GetDB(); err == nil && db != nil {
 		if err := db.Close(); err != nil {
 			utils.Logger.ErrorF("error closing database: %v", err)
 		}
@@ -94,9 +94,10 @@ func (p *program) run() {
 		utils.Logger.Fatal("error getting config: %v", err)
 	}
 
-	db := database.GetDB()
-	err = db.Migrate(models.Log{})
+	db, err := database.GetDB()
 	if err != nil {
+		utils.Logger.ErrorF("error initializing database: %v", err)
+	} else if err = db.Migrate(models.Log{}); err != nil {
 		utils.Logger.ErrorF("error migrating logs table: %v", err)
 	}
 
@@ -125,7 +126,11 @@ func (p *program) run() {
 	})
 
 	p.goSafe("ProcessLogs", func() {
-		logProcessor := pb.GetLogProcessor()
+		logProcessor, err := pb.GetLogProcessor()
+		if err != nil {
+			utils.Logger.ErrorF("error initializing log processor: %v", err)
+			return
+		}
 		logProcessor.ProcessLogs(cnf, ctx)
 	})
 

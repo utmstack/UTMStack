@@ -3,7 +3,6 @@ package agent
 import (
 	"context"
 	"errors"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -27,29 +26,47 @@ type LogProcessor struct {
 }
 
 var (
-	processor     LogProcessor
-	processorOnce sync.Once
-	LogQueue      = make(chan *plugins.Log, 10000)
-	timeCLeanLogs = 10 * time.Minute
+	processor        LogProcessor
+	processorOnce    sync.Once
+	processorInitErr error
+	LogQueue         = make(chan *plugins.Log, 10000)
+	timeCLeanLogs    = 10 * time.Minute
+
+	// ErrAgentUninstalled is returned when the agent uninstalls itself due to invalid key
+	ErrAgentUninstalled = errors.New("agent uninstalled due to invalid key")
 )
 
-func GetLogProcessor() LogProcessor {
+func GetLogProcessor() (*LogProcessor, error) {
 	processorOnce.Do(func() {
+		db, err := database.GetDB()
+		if err != nil {
+			processorInitErr = err
+			return
+		}
 		processor = LogProcessor{
-			db:             database.GetDB(),
+			db:             db,
 			connErrWritten: false,
 			ackErrWritten:  false,
 			sendErrWritten: false,
 		}
 	})
-	return processor
+	if processorInitErr != nil {
+		return nil, processorInitErr
+	}
+	return &processor, nil
 }
 
 func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 	go l.CleanCountedLogs()
 
 	for {
-		ctxEof, cancelEof := context.WithCancel(context.Background())
+		select {
+		case <-ctx.Done():
+			utils.Logger.Info("ProcessLogs stopping due to context cancellation")
+			return
+		default:
+		}
+
 		connection, err := GetCorrelationConnection(cnf)
 		if err != nil {
 			if !l.connErrWritten {
@@ -61,9 +78,23 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 		}
 
 		client := plugins.NewIntegrationClient(connection)
-		plClient := createClient(client, ctx)
+		plClient, err := createClient(client, ctx)
+		if err != nil {
+			if errors.Is(err, ErrAgentUninstalled) {
+				utils.Logger.Info("Agent uninstalled, stopping log processor")
+				return
+			}
+			if errors.Is(err, context.Canceled) {
+				utils.Logger.Info("ProcessLogs stopping due to context cancellation")
+				return
+			}
+			utils.Logger.ErrorF("error creating client: %v", err)
+			continue
+		}
 		l.connErrWritten = false
 
+		// Create context only after successful client creation to avoid leaks
+		ctxEof, cancelEof := context.WithCancel(context.Background())
 		go l.handleAcknowledgements(plClient, ctxEof, cancelEof)
 		l.processLogs(plClient, ctxEof, cancelEof)
 	}
@@ -173,13 +204,19 @@ func (l *LogProcessor) CleanCountedLogs() {
 	}
 }
 
-func createClient(client plugins.IntegrationClient, ctx context.Context) plugins.Integration_ProcessLogClient {
+func createClient(client plugins.IntegrationClient, ctx context.Context) (plugins.Integration_ProcessLogClient, error) {
 	var connErrMsgWritten bool
 	invalidKeyCounter := 0
 	invalidKeyDelay := timeToSleep
 	maxInvalidKeyDelay := 5 * time.Minute
 	maxInvalidKeyAttempts := 100 // ~8+ hours with backoff before uninstall
 	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		plClient, err := client.ProcessLog(ctx)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid agent key") {
@@ -188,7 +225,7 @@ func createClient(client plugins.IntegrationClient, ctx context.Context) plugins
 				if invalidKeyCounter >= maxInvalidKeyAttempts {
 					utils.Logger.ErrorF("uninstalling agent after %d consecutive invalid key errors", maxInvalidKeyAttempts)
 					_ = UninstallAll()
-					os.Exit(1)
+					return nil, ErrAgentUninstalled
 				}
 				time.Sleep(invalidKeyDelay)
 				invalidKeyDelay = utils.IncrementReconnectDelay(invalidKeyDelay, maxInvalidKeyDelay)
@@ -204,7 +241,7 @@ func createClient(client plugins.IntegrationClient, ctx context.Context) plugins
 			time.Sleep(timeToSleep)
 			continue
 		}
-		return plClient
+		return plClient, nil
 	}
 }
 

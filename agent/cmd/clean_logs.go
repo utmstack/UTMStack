@@ -18,7 +18,11 @@ var cleanLogsCmd = &cobra.Command{
 	PreRunE: requireInstalled,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("Cleaning old logs ...")
-		db := database.GetDB()
+		db, err := database.GetDB()
+		if err != nil {
+			fmt.Println("Error initializing database: ", err)
+			os.Exit(1)
+		}
 		datR, err := agent.GetDataRetention()
 		if err != nil {
 			fmt.Println("Error getting retention: ", err)

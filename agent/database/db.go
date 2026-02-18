@@ -3,7 +3,6 @@ package database
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"sync"
@@ -18,6 +17,7 @@ import (
 var (
 	dbInstance *Database
 	dbOnce     sync.Once
+	dbInitErr  error
 )
 
 type Database struct {
@@ -112,18 +112,20 @@ func (d *Database) DeleteOld(data interface{}, retentionMegabytes int) (int, err
 	return rowsAffected, nil
 }
 
-func GetDB() *Database {
+func GetDB() (*Database, error) {
 	dbOnce.Do(func() {
 		path := filepath.Join(fs.GetExecutablePath(), "logs_process")
-		err := fs.CreateDirIfNotExist(path)
-		if err != nil {
-			log.Fatalf("error creating database path: %v", err)
+		if err := fs.CreateDirIfNotExist(path); err != nil {
+			dbInitErr = fmt.Errorf("creating database path: %w", err)
+			return
 		}
+
 		path = config.LogsDBFile
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			file, err := os.Create(path)
 			if err != nil {
-				log.Fatalf("error creating database file: %v", err)
+				dbInitErr = fmt.Errorf("creating database file: %w", err)
+				return
 			}
 			file.Close()
 		}
@@ -132,14 +134,17 @@ func GetDB() *Database {
 			Logger: logger.Default.LogMode(logger.Silent),
 		})
 		if err != nil {
-			log.Fatalf("error connecting with database: %v", err)
+			dbInitErr = fmt.Errorf("connecting with database: %w", err)
+			return
 		}
 
 		dbInstance = &Database{db: conn}
-
 	})
 
-	return dbInstance
+	if dbInitErr != nil {
+		return nil, dbInitErr
+	}
+	return dbInstance, nil
 }
 
 func GetDatabaseSizeInMB() (int, error) {
