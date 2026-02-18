@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"path/filepath"
 	"runtime"
 
@@ -23,18 +24,16 @@ var (
 	VersionPath = filepath.Join(fs.GetExecutablePath(), "version.json")
 )
 
-// ServiceFile returns the agent binary name with the appropriate suffix and extension.
+// ServiceFile returns the agent binary name with OS and architecture suffix.
+// Format: utmstack_agent_service_<os>_<arch>[.exe]
+// Examples:
+//   - utmstack_agent_service_linux_amd64
+//   - utmstack_agent_service_windows_amd64.exe
+//   - utmstack_agent_service_darwin_arm64
 func ServiceFile(suffix string) string {
-	// Check if this is arm64
-	isArm64 := runtime.GOARCH == "arm64"
-
-	base := agentBaseName
-	if isArm64 {
-		base = agentBaseName + "_arm64"
-	}
-
+	name := fmt.Sprintf("%s_%s_%s%s", agentBaseName, runtime.GOOS, runtime.GOARCH, suffix)
 	if runtime.GOOS == "windows" {
-		return base + suffix + ".exe"
+		return name + ".exe"
 	}
-	return base + suffix
+	return name
 }
