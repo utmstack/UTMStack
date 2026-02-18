@@ -13,14 +13,13 @@ export class GuideLinuxAgentComponent implements OnInit {
   @Input() serverId: number;
   @Input() version: string;
   token: string;
-  architectures = [];
+  platforms = [];
 
   constructor(private federationConnectionService: FederationConnectionService) { }
 
   ngOnInit() {
     this.getToken();
   }
-
 
   getToken() {
     this.federationConnectionService.getToken().subscribe(response => {
@@ -29,7 +28,7 @@ export class GuideLinuxAgentComponent implements OnInit {
       } else {
         this.token = '';
       }
-      this.loadArchitectures();
+      this.loadPlatforms();
     });
   }
 
@@ -75,26 +74,35 @@ export class GuideLinuxAgentComponent implements OnInit {
     echo 'UTMStack Agent dependencies removed successfully.'"`;
   }
 
-  private loadArchitectures() {
-    this.architectures = [
+  private loadPlatforms() {
+    const amd64 = 'utmstack_agent_service_linux_amd64';
+    const arm64 = 'utmstack_agent_service_linux_arm64';
+
+    this.platforms = [
       {
-        id: 1, name: 'Ubuntu / Debian',
-        install: this.getCommandUbuntu('utmstack_agent_service'),
-        uninstall: this.getUninstallCommand('utmstack_agent_service'),
+        id: 1, name: 'Ubuntu / Debian (AMD64)',
+        install: this.getCommandUbuntu(amd64),
+        uninstall: this.getUninstallCommand(amd64),
         shell: ''
       },
       {
-        id: 2, name: 'Fedora / RedHat',
-        install: this.getCommandCentos7RedHat('utmstack_agent_service'),
-        uninstall: this.getUninstallCommand('utmstack_agent_service'),
+        id: 2, name: 'Ubuntu / Debian (ARM64)',
+        install: this.getCommandUbuntu(arm64),
+        uninstall: this.getUninstallCommand(arm64),
         shell: ''
-      }/*,
+      },
       {
-        id: 3, name: 'Centos 8/AlmaLinux',
-        install: this.getCommandCentos8Almalinux('utmstack_agent_service'),
-        uninstall: this.getUninstallCommand('utmstack_agent_service'),
+        id: 3, name: 'Fedora / RedHat (AMD64)',
+        install: this.getCommandCentos7RedHat(amd64),
+        uninstall: this.getUninstallCommand(amd64),
         shell: ''
-      }*/
+      },
+      {
+        id: 4, name: 'Fedora / RedHat (ARM64)',
+        install: this.getCommandCentos7RedHat(arm64),
+        uninstall: this.getUninstallCommand(arm64),
+        shell: ''
+      }
     ];
   }
 }
