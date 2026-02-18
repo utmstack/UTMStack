@@ -433,6 +433,38 @@
 
     <include file="/config/liquibase/changelog/20260216001_update_filter_vmware_esxi.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260218001_remove_redis_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218002_remove_nginx_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218003_remove_postgresql_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218004_remove_apache_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218005_remove_mysql_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218006_remove_mongodb_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218007_remove_elastic_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218008_remove_logstash_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218009_remove_kibana_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218010_remove_kafka_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218011_remove_nats_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218012_remove_traefik_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218013_remove_audit_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218014_remove_hap_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218015_remove_iis_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218016_remove_os_query_integration.xml" relativeToChangelogFile="false"/>
+
 
 
 </databaseChangeLog>
