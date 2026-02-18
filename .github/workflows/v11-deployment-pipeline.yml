@@ -364,9 +364,6 @@ jobs:
           cp "${{ github.workspace }}/utmstack-collector/version.json" ./dependencies/collector/
 
           mkdir -p ./dependencies/agent/
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/agent/utmstack_agent_dependencies_linux.zip" -o ./dependencies/agent/utmstack_agent_dependencies_linux.zip
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/agent/utmstack_agent_dependencies_windows.zip" -o ./dependencies/agent/utmstack_agent_dependencies_windows.zip
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/agent/utmstack_agent_dependencies_windows_arm64.zip" -o ./dependencies/agent/utmstack_agent_dependencies_windows_arm64.zip
 
           # Linux agents
           cp "${{ github.workspace }}/agent/utmstack_agent_service_linux_amd64" ./dependencies/agent/
@@ -382,7 +379,7 @@ jobs:
 
           # macOS agents (signed and notarized)
           cp "${{ github.workspace }}/agent-darwin/utmstack_agent_service_darwin_arm64" ./dependencies/agent/
-          cp "${{ github.workspace }}/agent-darwin/utmstack_updater_service_darwin_arm64" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent-darwin/updater/utmstack_updater_service_darwin_arm64" ./dependencies/agent/
           curl -sSL "https://storage.googleapis.com/utmstack-updates/agent_updates/release/macos-agent/latest/utmstack-collector-mac" -o ./dependencies/agent/utmstack-collector-mac
 
           # TODO: Remove legacy binary names after all agents have migrated to new naming convention
