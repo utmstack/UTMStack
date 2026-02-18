@@ -21,12 +21,18 @@ const (
 	MacosCollectorVersion = "11.2.3"
 )
 
-// UpdaterFile returns the updater binary name with the appropriate extension for the current OS.
+// UpdaterFile returns the updater binary name with OS and architecture suffix.
+// Format: utmstack_updater_service_<os>_<arch>[.exe]
+// Examples:
+//   - utmstack_updater_service_linux_amd64
+//   - utmstack_updater_service_windows_amd64.exe
+//   - utmstack_updater_service_darwin_arm64
 func UpdaterFile(suffix string) string {
+	name := fmt.Sprintf("%s_%s_%s%s", updaterBaseName, runtime.GOOS, runtime.GOARCH, suffix)
 	if runtime.GOOS == "windows" {
-		return updaterBaseName + suffix + ".exe"
+		return name + ".exe"
 	}
-	return updaterBaseName + suffix
+	return name
 }
 
 // Dependency represents a dependency that the agent needs.
