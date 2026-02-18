@@ -9,10 +9,14 @@ pipeline:
       # PHASE 1: EXTRACTION
       # ========================================
       
+      # Drop non-AS400 logs (internal system logs, noise)
+      - drop:
+          where: 'startsWith("raw", "[") || contains("raw", "RunExecutor") || contains("raw", "ETL pool")'
+
       # Parse JSON logs from Java collector
       - json:
           source: raw
-          where: 'startsWith("raw", "{") && endsWith("raw", "}")'
+          where: 'startsWith("raw", "{")'
 
       # Fallback: Parse non-JSON logs (raw syslog format)
       - grok:
@@ -20,53 +24,54 @@ pipeline:
           patterns:
             - fieldName: log.message
               pattern: '{{.greedy}}'
-          where: '!startsWith("raw", "{") && !endsWith("raw", "}")'
+          where: '!startsWith("raw", "{")'
 
       # ========================================
       # PHASE 2: NORMALIZATION (Standard Schema)
       # ========================================
-      
-      # Map device timestamp (critical for correlation)
-      - rename:
-          from: log.timestampIso
-          to: deviceTime
-          where: exists("log.timestampIso")
 
       # Map action/event classification
       - rename:
-          from: log.eventType
+          from:
+            - log.eventType
           to: action
           where: exists("log.eventType")
 
       # Map severity level
       - rename:
-          from: log.severityLabel
+          from:
+            - log.severityLabel
           to: severity
           where: exists("log.severityLabel")
 
       # Map origin side attributes
       - rename:
-          from: log.hostname
+          from:
+            - log.hostname
           to: origin.host
           where: exists("log.hostname")
 
       - rename:
-          from: log.jobUser
+          from:
+            - log.jobUser
           to: origin.user
           where: exists("log.jobUser")
 
       - rename:
-          from: log.jobName
+          from:
+            - log.jobName
           to: origin.process
           where: exists("log.jobName")
 
       - rename:
-          from: log.sourceIp
+          from:
+            - log.sourceIp
           to: origin.ip
           where: exists("log.sourceIp")
 
       - rename:
-          from: log.file
+          from:
+            - log.file
           to: origin.file
           where: exists("log.file")
 
