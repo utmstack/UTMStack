@@ -11,15 +11,13 @@ import (
 
 	"github.com/threatwinds/go-sdk/entities"
 	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/UTMStack/agent/collector/configwatcher"
 	"github.com/utmstack/UTMStack/agent/collector/schema"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/utils"
 )
 
-const (
-	reconcileInterval = 10 * time.Second
-	pollInterval      = 1 * time.Second
-)
+const pollInterval = 1 * time.Second
 
 // fileWatcher represents an active file being tailed.
 type fileWatcher struct {
@@ -62,21 +60,14 @@ func (fc *FileCollector) Stop() {
 	}
 }
 
-// Start begins the reconciliation loop. It reads the collector config every
-// 10 seconds and adjusts file watchers as needed.
+// Start begins watching for configuration changes using fsnotify.
+// It performs an initial reconciliation and then reacts to config file changes.
 func (fc *FileCollector) Start(ctx context.Context, queue chan *plugins.Log) {
 	fc.queue = queue
-	for {
-		select {
-		case <-ctx.Done():
-			utils.Logger.Info("file collector stopping due to context cancellation")
-			fc.Stop()
-			return
-		default:
-			fc.reconcile(ctx)
-			time.Sleep(reconcileInterval)
-		}
-	}
+	configwatcher.Watch(ctx, "file collector", func() {
+		fc.reconcile(ctx)
+	})
+	fc.Stop()
 }
 
 func (fc *FileCollector) reconcile(ctx context.Context) {

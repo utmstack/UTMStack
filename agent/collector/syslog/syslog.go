@@ -6,12 +6,11 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/UTMStack/agent/collector/configwatcher"
 	"github.com/utmstack/UTMStack/agent/collector/schema"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/utils"
 )
-
-const reconcileInterval = 10 * time.Second
 
 // SyslogCollector manages all syslog instances. It reads the config file
 // periodically and reconciles port state internally.
@@ -41,21 +40,11 @@ func (sc *SyslogCollector) Stop() {
 	}
 }
 
-// Start begins the reconciliation loop. It reads the collector config every
-// 10 seconds and adjusts listening ports as needed. This is the only entry
-// point for syslog port management — no external code touches ports.
+// Start begins watching for configuration changes using fsnotify.
+// It performs an initial reconciliation and then reacts to config file changes.
 func (sc *SyslogCollector) Start(ctx context.Context, queue chan *plugins.Log) {
 	sc.queue = queue
-	for {
-		select {
-		case <-ctx.Done():
-			utils.Logger.Info("syslog collector stopping due to context cancellation")
-			return
-		default:
-			sc.reconcile()
-			time.Sleep(reconcileInterval)
-		}
-	}
+	configwatcher.Watch(ctx, "syslog collector", sc.reconcile)
 }
 
 func (sc *SyslogCollector) reconcile() {

@@ -17,15 +17,15 @@ import (
 	tehmaze "github.com/tehmaze/netflow"
 	"github.com/tehmaze/netflow/session"
 	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/UTMStack/agent/collector/configwatcher"
 	"github.com/utmstack/UTMStack/agent/collector/schema"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/utils"
 )
 
 const (
-	reconcileInterval = 10 * time.Second
 	cacheCleanupInterval = 5 * time.Minute
-	cacheTTL = 30 * time.Minute
+	cacheTTL             = 30 * time.Minute
 )
 
 // templateSystem implements netflow.NetFlowTemplateSystem for goflow2
@@ -122,7 +122,8 @@ func (nc *NetflowCollector) Stop() {
 	nc.disablePort()
 }
 
-// Start begins the reconciliation loop.
+// Start begins watching for configuration changes using fsnotify.
+// It performs an initial reconciliation and then reacts to config file changes.
 func (nc *NetflowCollector) Start(ctx context.Context, queue chan *plugins.Log) {
 	nc.queue = queue
 
@@ -147,16 +148,7 @@ func (nc *NetflowCollector) Start(ctx context.Context, queue chan *plugins.Log) 
 		}
 	}()
 
-	for {
-		select {
-		case <-ctx.Done():
-			utils.Logger.Info("netflow collector stopping due to context cancellation")
-			return
-		default:
-			nc.reconcile()
-			time.Sleep(reconcileInterval)
-		}
-	}
+	configwatcher.Watch(ctx, "netflow collector", nc.reconcile)
 }
 
 func (nc *NetflowCollector) reconcile() {
