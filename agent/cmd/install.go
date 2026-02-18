@@ -10,6 +10,8 @@ import (
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/serv"
 	"github.com/utmstack/UTMStack/agent/utils"
+	"github.com/utmstack/UTMStack/shared/fs"
+	"github.com/utmstack/UTMStack/shared/http"
 )
 
 var installCmd = &cobra.Command{
@@ -30,6 +32,14 @@ var installCmd = &cobra.Command{
 		fmt.Print("Checking server connection ... ")
 		if err := utils.ArePortsReachable(cnf.Server, config.AgentManagerPort, config.LogAuthProxyPort, config.DependenciesPort); err != nil {
 			fmt.Println("\nError trying to connect to server: ", err)
+			os.Exit(1)
+		}
+		fmt.Println("[OK]")
+
+		fmt.Print("Downloading version info ... ")
+		versionURL := fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, "version.json")
+		if err := http.DownloadFile(versionURL, nil, "version.json", fs.GetExecutablePath(), cnf.SkipCertValidation); err != nil {
+			fmt.Println("\nError downloading version.json: ", err)
 			os.Exit(1)
 		}
 		fmt.Println("[OK]")
