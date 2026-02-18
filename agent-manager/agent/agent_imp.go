@@ -75,17 +75,13 @@ func (s *AgentService) RegisterAgent(ctx context.Context, req *AgentRequest) (*A
 	}
 
 	oldAgent := &models.Agent{}
-	err := s.DBConnection.GetFirst(oldAgent, "hostname = ?", agent.Hostname)
+	err := s.DBConnection.GetFirst(oldAgent, "hostname = ? AND mac = ?", agent.Hostname, agent.Mac)
 	if err == nil {
-		if oldAgent.Ip == agent.Ip {
-			return &AuthResponse{
-				Id:  uint32(oldAgent.ID),
-				Key: oldAgent.AgentKey,
-			}, nil
-		} else {
-			catcher.Error("agent already exists", err, map[string]any{"hostname": agent.Hostname, "process": "agent-manager"})
-			return nil, status.Errorf(codes.AlreadyExists, "hostname has already been registered")
-		}
+		// Same machine re-registering, return existing agent
+		return &AuthResponse{
+			Id:  uint32(oldAgent.ID),
+			Key: oldAgent.AgentKey,
+		}, nil
 	}
 
 	key := uuid.New().String()
@@ -334,6 +330,7 @@ func (s *AgentService) ProcessCommand(stream PanelService_ProcessCommandServer) 
 					AgentId: cmd.AgentId,
 					Command: replaceSecretValues(cmd.Command),
 					CmdId:   cmdID,
+					Shell:   cmd.Shell,
 				},
 			},
 		})

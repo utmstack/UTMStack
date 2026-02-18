@@ -48,7 +48,7 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 
 			switch msg := in.StreamMessage.(type) {
 			case *BidirectionalStream_Command:
-				err = commandProcessor(path, stream, cnf, []string{msg.Command.Command, in.GetCommand().CmdId})
+				err = commandProcessor(path, stream, cnf, msg.Command.Command, msg.Command.CmdId, msg.Command.Shell)
 				if err != nil {
 					action := HandleGRPCStreamError(err, "error sending result to server", &streamErrLogged)
 					if action == ActionReconnect {
@@ -62,31 +62,41 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 	}
 }
 
-func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *config.Config, commandPair []string) error {
+func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *config.Config, command, cmdId, shell string) error {
 	var result string
 	var errB bool
 
-	utils.Logger.LogF(100, "Received command: %s", commandPair[0])
+	utils.Logger.LogF(100, "Received command: %s (shell: %s)", command, shell)
 
 	switch runtime.GOOS {
 	case "windows":
-		result, errB = utils.ExecuteWithResult("cmd.exe", path, "/C", commandPair[0])
+		if shell == "powershell" {
+			result, errB = utils.ExecuteWithResult("powershell.exe", path, "-Command", command)
+		} else {
+			// Default to cmd.exe (also handles shell == "" or shell == "cmd")
+			result, errB = utils.ExecuteWithResult("cmd.exe", path, "/C", command)
+		}
 	case "linux", "darwin":
-		result, errB = utils.ExecuteWithResult("sh", path, "-c", commandPair[0])
+		if shell == "bash" {
+			result, errB = utils.ExecuteWithResult("bash", path, "-c", command)
+		} else {
+			// Default to sh (also handles shell == "" or shell == "sh")
+			result, errB = utils.ExecuteWithResult("sh", path, "-c", command)
+		}
 	default:
 		utils.Logger.ErrorF("unsupported operating system: %s", runtime.GOOS)
 		return fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
 	}
 
 	if errB {
-		utils.Logger.ErrorF("error executing command %s: %s", commandPair[0], result)
+		utils.Logger.ErrorF("error executing command %s: %s", command, result)
 	} else {
-		utils.Logger.LogF(100, "Result when executing the command %s: %s", commandPair[0], result)
+		utils.Logger.LogF(100, "Result when executing the command %s: %s", command, result)
 	}
 
 	if err := stream.Send(&BidirectionalStream{
 		StreamMessage: &BidirectionalStream_Result{
-			Result: &CommandResult{Result: result, AgentId: strconv.Itoa(int(cnf.AgentID)), ExecutedAt: timestamppb.Now(), CmdId: commandPair[1]},
+			Result: &CommandResult{Result: result, AgentId: strconv.Itoa(int(cnf.AgentID)), ExecutedAt: timestamppb.Now(), CmdId: cmdId},
 		},
 	}); err != nil {
 		return err
