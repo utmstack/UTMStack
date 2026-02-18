@@ -24,6 +24,15 @@ type Version struct {
 	Version string `json:"version"`
 }
 
+// legacyServiceFile returns the old naming convention for the agent binary.
+// This is used for migration from old agents that don't have OS/arch suffix.
+func legacyServiceFile() string {
+	if runtime.GOOS == "windows" {
+		return "utmstack_agent_service.exe"
+	}
+	return "utmstack_agent_service"
+}
+
 var currentVersion = Version{}
 
 func UpdateDependencies(cnf *config.Config) {
@@ -98,6 +107,19 @@ func runUpdateProcess(basePath string) error {
 	}
 
 	time.Sleep(10 * time.Second)
+
+	// Migration: check if old naming convention exists and migrate to new naming
+	oldBinPath := filepath.Join(basePath, oldBin)
+	if !fs.Exists(oldBinPath) {
+		legacyBin := legacyServiceFile()
+		legacyBinPath := filepath.Join(basePath, legacyBin)
+		if fs.Exists(legacyBinPath) {
+			logger.Info("Migrating legacy binary from %s to %s", legacyBin, oldBin)
+			if err := os.Rename(legacyBinPath, oldBinPath); err != nil {
+				return fmt.Errorf("error migrating legacy binary: %v", err)
+			}
+		}
+	}
 
 	backupPath := filepath.Join(basePath, backupBin)
 	if fs.Exists(backupPath) {
