@@ -34,6 +34,7 @@ private static final long serialVersionUID = 0L;
     originType_ = "";
     originId_ = "";
     reason_ = "";
+    shell_ = "";
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor
@@ -322,6 +323,45 @@ private static final long serialVersionUID = 0L;
     }
   }
 
+  public static final int SHELL_FIELD_NUMBER = 8;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object shell_ = "";
+  /**
+   * <code>string shell = 8;</code>
+   * @return The shell.
+   */
+  @java.lang.Override
+  public java.lang.String getShell() {
+    java.lang.Object ref = shell_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      shell_ = s;
+      return s;
+    }
+  }
+  /**
+   * <code>string shell = 8;</code>
+   * @return The bytes for shell.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getShellBytes() {
+    java.lang.Object ref = shell_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      shell_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -357,6 +397,9 @@ private static final long serialVersionUID = 0L;
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(reason_)) {
       com.google.protobuf.GeneratedMessage.writeString(output, 7, reason_);
     }
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(shell_)) {
+      com.google.protobuf.GeneratedMessage.writeString(output, 8, shell_);
+    }
     getUnknownFields().writeTo(output);
   }
 
@@ -387,6 +430,9 @@ private static final long serialVersionUID = 0L;
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(reason_)) {
       size += com.google.protobuf.GeneratedMessage.computeStringSize(7, reason_);
     }
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(shell_)) {
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(8, shell_);
+    }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
@@ -416,6 +462,8 @@ private static final long serialVersionUID = 0L;
         .equals(other.getOriginId())) return false;
     if (!getReason()
         .equals(other.getReason())) return false;
+    if (!getShell()
+        .equals(other.getShell())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -441,6 +489,8 @@ private static final long serialVersionUID = 0L;
     hash = (53 * hash) + getOriginId().hashCode();
     hash = (37 * hash) + REASON_FIELD_NUMBER;
     hash = (53 * hash) + getReason().hashCode();
+    hash = (37 * hash) + SHELL_FIELD_NUMBER;
+    hash = (53 * hash) + getShell().hashCode();
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -579,6 +629,7 @@ private static final long serialVersionUID = 0L;
       originType_ = "";
       originId_ = "";
       reason_ = "";
+      shell_ = "";
       return this;
     }
 
@@ -633,6 +684,9 @@ private static final long serialVersionUID = 0L;
       if (((from_bitField0_ & 0x00000040) != 0)) {
         result.reason_ = reason_;
       }
+      if (((from_bitField0_ & 0x00000080) != 0)) {
+        result.shell_ = shell_;
+      }
     }
 
     @java.lang.Override
@@ -680,6 +734,11 @@ private static final long serialVersionUID = 0L;
       if (!other.getReason().isEmpty()) {
         reason_ = other.reason_;
         bitField0_ |= 0x00000040;
+        onChanged();
+      }
+      if (!other.getShell().isEmpty()) {
+        shell_ = other.shell_;
+        bitField0_ |= 0x00000080;
         onChanged();
       }
       this.mergeUnknownFields(other.getUnknownFields());
@@ -743,6 +802,11 @@ private static final long serialVersionUID = 0L;
               bitField0_ |= 0x00000040;
               break;
             } // case 58
+            case 66: {
+              shell_ = input.readStringRequireUtf8();
+              bitField0_ |= 0x00000080;
+              break;
+            } // case 66
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -1260,6 +1324,78 @@ private static final long serialVersionUID = 0L;
       checkByteStringIsUtf8(value);
       reason_ = value;
       bitField0_ |= 0x00000040;
+      onChanged();
+      return this;
+    }
+
+    private java.lang.Object shell_ = "";
+    /**
+     * <code>string shell = 8;</code>
+     * @return The shell.
+     */
+    public java.lang.String getShell() {
+      java.lang.Object ref = shell_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        shell_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>string shell = 8;</code>
+     * @return The bytes for shell.
+     */
+    public com.google.protobuf.ByteString
+        getShellBytes() {
+      java.lang.Object ref = shell_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        shell_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>string shell = 8;</code>
+     * @param value The shell to set.
+     * @return This builder for chaining.
+     */
+    public Builder setShell(
+        java.lang.String value) {
+      if (value == null) { throw new NullPointerException(); }
+      shell_ = value;
+      bitField0_ |= 0x00000080;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string shell = 8;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearShell() {
+      shell_ = getDefaultInstance().getShell();
+      bitField0_ = (bitField0_ & ~0x00000080);
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string shell = 8;</code>
+     * @param value The bytes for shell to set.
+     * @return This builder for chaining.
+     */
+    public Builder setShellBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
+      shell_ = value;
+      bitField0_ |= 0x00000080;
       onChanged();
       return this;
     }

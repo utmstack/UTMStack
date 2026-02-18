@@ -92,39 +92,40 @@ public final class AgentManagerGrpc {
       "\n\taddresses\030\016 \001(\t\"u\n\023BidirectionalStream" +
       "\022$\n\007command\030\001 \001(\0132\021.agent.UtmCommandH\000\022&" +
       "\n\006result\030\002 \001(\0132\024.agent.CommandResultH\000B\020" +
-      "\n\016stream_message\"\214\001\n\nUtmCommand\022\020\n\010agent" +
+      "\n\016stream_message\"\233\001\n\nUtmCommand\022\020\n\010agent" +
       "_id\030\001 \001(\t\022\017\n\007command\030\002 \001(\t\022\023\n\013executed_b" +
       "y\030\003 \001(\t\022\016\n\006cmd_id\030\004 \001(\t\022\023\n\013origin_type\030\005" +
-      " \001(\t\022\021\n\torigin_id\030\006 \001(\t\022\016\n\006reason\030\007 \001(\t\"" +
-      "r\n\rCommandResult\022\020\n\010agent_id\030\001 \001(\t\022\016\n\006re" +
-      "sult\030\002 \001(\t\022/\n\013executed_at\030\003 \001(\0132\032.google" +
-      ".protobuf.Timestamp\022\016\n\006cmd_id\030\004 \001(\t\"N\n\032L" +
-      "istAgentsCommandsResponse\022!\n\004rows\030\001 \003(\0132" +
-      "\023.agent.AgentCommand\022\r\n\005total\030\002 \001(\005\"\261\002\n\014" +
-      "AgentCommand\022.\n\ncreated_at\030\001 \001(\0132\032.googl" +
-      "e.protobuf.Timestamp\022.\n\nupdated_at\030\002 \001(\013" +
-      "2\032.google.protobuf.Timestamp\022\020\n\010agent_id" +
-      "\030\003 \001(\r\022\017\n\007command\030\004 \001(\t\0221\n\016command_statu" +
-      "s\030\005 \001(\0162\031.agent.AgentCommandStatus\022\016\n\006re" +
-      "sult\030\006 \001(\t\022\023\n\013executed_by\030\007 \001(\t\022\016\n\006cmd_i" +
-      "d\030\010 \001(\t\022\016\n\006reason\030\t \001(\t\022\023\n\013origin_type\030\n" +
-      " \001(\t\022\021\n\torigin_id\030\013 \001(\t*W\n\022AgentCommandS" +
-      "tatus\022\020\n\014NOT_EXECUTED\020\000\022\t\n\005QUEUE\020\001\022\013\n\007PE" +
-      "NDING\020\002\022\014\n\010EXECUTED\020\003\022\t\n\005ERROR\020\0042\234\003\n\014Age" +
-      "ntService\0229\n\013UpdateAgent\022\023.agent.AgentRe" +
-      "quest\032\023.agent.AuthResponse\"\000\022;\n\rRegister" +
-      "Agent\022\023.agent.AgentRequest\032\023.agent.AuthR" +
-      "esponse\"\000\022:\n\013DeleteAgent\022\024.agent.DeleteR" +
-      "equest\032\023.agent.AuthResponse\"\000\022=\n\nListAge" +
-      "nts\022\022.agent.ListRequest\032\031.agent.ListAgen" +
-      "tsResponse\"\000\022K\n\013AgentStream\022\032.agent.Bidi" +
-      "rectionalStream\032\032.agent.BidirectionalStr" +
-      "eam\"\000(\0010\001\022L\n\021ListAgentCommands\022\022.agent.L" +
-      "istRequest\032!.agent.ListAgentsCommandsRes" +
-      "ponse\"\0002O\n\014PanelService\022?\n\016ProcessComman" +
-      "d\022\021.agent.UtmCommand\032\024.agent.CommandResu" +
-      "lt\"\000(\0010\001B7\n\036com.park.utmstack.service.gr" +
-      "pcB\020AgentManagerGrpcP\001\210\001\001b\006proto3"
+      " \001(\t\022\021\n\torigin_id\030\006 \001(\t\022\016\n\006reason\030\007 \001(\t\022" +
+      "\r\n\005shell\030\010 \001(\t\"r\n\rCommandResult\022\020\n\010agent" +
+      "_id\030\001 \001(\t\022\016\n\006result\030\002 \001(\t\022/\n\013executed_at" +
+      "\030\003 \001(\0132\032.google.protobuf.Timestamp\022\016\n\006cm" +
+      "d_id\030\004 \001(\t\"N\n\032ListAgentsCommandsResponse" +
+      "\022!\n\004rows\030\001 \003(\0132\023.agent.AgentCommand\022\r\n\005t" +
+      "otal\030\002 \001(\005\"\261\002\n\014AgentCommand\022.\n\ncreated_a" +
+      "t\030\001 \001(\0132\032.google.protobuf.Timestamp\022.\n\nu" +
+      "pdated_at\030\002 \001(\0132\032.google.protobuf.Timest" +
+      "amp\022\020\n\010agent_id\030\003 \001(\r\022\017\n\007command\030\004 \001(\t\0221" +
+      "\n\016command_status\030\005 \001(\0162\031.agent.AgentComm" +
+      "andStatus\022\016\n\006result\030\006 \001(\t\022\023\n\013executed_by" +
+      "\030\007 \001(\t\022\016\n\006cmd_id\030\010 \001(\t\022\016\n\006reason\030\t \001(\t\022\023" +
+      "\n\013origin_type\030\n \001(\t\022\021\n\torigin_id\030\013 \001(\t*W" +
+      "\n\022AgentCommandStatus\022\020\n\014NOT_EXECUTED\020\000\022\t" +
+      "\n\005QUEUE\020\001\022\013\n\007PENDING\020\002\022\014\n\010EXECUTED\020\003\022\t\n\005" +
+      "ERROR\020\0042\234\003\n\014AgentService\0229\n\013UpdateAgent\022" +
+      "\023.agent.AgentRequest\032\023.agent.AuthRespons" +
+      "e\"\000\022;\n\rRegisterAgent\022\023.agent.AgentReques" +
+      "t\032\023.agent.AuthResponse\"\000\022:\n\013DeleteAgent\022" +
+      "\024.agent.DeleteRequest\032\023.agent.AuthRespon" +
+      "se\"\000\022=\n\nListAgents\022\022.agent.ListRequest\032\031" +
+      ".agent.ListAgentsResponse\"\000\022K\n\013AgentStre" +
+      "am\022\032.agent.BidirectionalStream\032\032.agent.B" +
+      "idirectionalStream\"\000(\0010\001\022L\n\021ListAgentCom" +
+      "mands\022\022.agent.ListRequest\032!.agent.ListAg" +
+      "entsCommandsResponse\"\0002O\n\014PanelService\022?" +
+      "\n\016ProcessCommand\022\021.agent.UtmCommand\032\024.ag" +
+      "ent.CommandResult\"\000(\0010\001B7\n\036com.park.utms" +
+      "tack.service.grpcB\020AgentManagerGrpcP\001\210\001\001" +
+      "b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -161,7 +162,7 @@ public final class AgentManagerGrpc {
     internal_static_agent_UtmCommand_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_agent_UtmCommand_descriptor,
-        new java.lang.String[] { "AgentId", "Command", "ExecutedBy", "CmdId", "OriginType", "OriginId", "Reason", });
+        new java.lang.String[] { "AgentId", "Command", "ExecutedBy", "CmdId", "OriginType", "OriginId", "Reason", "Shell", });
     internal_static_agent_CommandResult_descriptor =
       getDescriptor().getMessageTypes().get(5);
     internal_static_agent_CommandResult_fieldAccessorTable = new
