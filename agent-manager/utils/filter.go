@@ -75,17 +75,17 @@ func FilterScope(filters []Filter) func(db *gorm.DB) *gorm.DB {
 		for _, filter := range filters {
 			switch filter.Op {
 			case Is:
-				db.Where(filter.Field+" = ?", filter.Value)
+				db = db.Where(filter.Field+" = ?", filter.Value)
 			case IsNot:
-				db.Where(filter.Field+" <> ?", filter.Value)
+				db = db.Where(filter.Field+" <> ?", filter.Value)
 			case Contain:
-				db.Where(filter.Field+" like %?%", filter.Value)
+				db = db.Where(filter.Field+" LIKE ?", "%"+fmt.Sprintf("%v", filter.Value)+"%")
 			case NotContain:
-				db.Where(filter.Field+" not like %?%", filter.Value)
+				db = db.Where(filter.Field+" NOT LIKE ?", "%"+fmt.Sprintf("%v", filter.Value)+"%")
 			case In:
-				db.Where(filter.Field+" in (?)", filter.Value)
+				db = db.Where(filter.Field+" IN (?)", filter.Value)
 			case NotIn:
-				db.Where(filter.Field+" not in (?)", filter.Value)
+				db = db.Where(filter.Field+" NOT IN (?)", filter.Value)
 			}
 		}
 		return db
