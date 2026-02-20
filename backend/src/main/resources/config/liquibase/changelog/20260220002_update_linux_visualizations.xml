@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260220002" author="Manuel Abascal">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            ------------------------------------------------------------------
+            -- Replace log.linux.fileset.name.keyword with action.keyword (SAFE)
+            -- This field identifies the type of Linux log/dataset
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  '"field":"log.linux.fileset.name.keyword"',
+                                  '"field":"action.keyword"')
+            WHERE filters LIKE '%"field":"log.linux.fileset.name.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      '"field":"log.linux.fileset.name.keyword"',
+                                      '"field":"action.keyword"')
+            WHERE aggregation LIKE '%"field":"log.linux.fileset.name.keyword"%';
+
+            ------------------------------------------------------------------
+            -- Update filter value from "auth" to "system.auth" (SAFE)
+            -- Reflects new dataset naming convention in systemd/journald
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  '"field":"action.keyword","value":"auth"',
+                                  '"field":"action.keyword","value":"system.auth"')
+            WHERE filters LIKE '%"field":"action.keyword","value":"auth"%';
+
+            ------------------------------------------------------------------
+            -- Replace log.linux.host.name.keyword with origin.host.keyword (SAFE)
+            -- Normalizes to standard event schema
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  '"field":"log.linux.host.name.keyword"',
+                                  '"field":"origin.host.keyword"')
+            WHERE filters LIKE '%"field":"log.linux.host.name.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      '"field":"log.linux.host.name.keyword"',
+                                      '"field":"origin.host.keyword"')
+            WHERE aggregation LIKE '%"field":"log.linux.host.name.keyword"%';
+
+            ------------------------------------------------------------------
+            -- Replace log.linux.host.ip.keyword with origin.ip.keyword (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  '"field":"log.linux.host.ip.keyword"',
+                                  '"field":"origin.ip.keyword"')
+            WHERE filters LIKE '%"field":"log.linux.host.ip.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      '"field":"log.linux.host.ip.keyword"',
+                                      '"field":"origin.ip.keyword"')
+            WHERE aggregation LIKE '%"field":"log.linux.host.ip.keyword"%';
+
+            ------------------------------------------------------------------
+            -- Replace log.linux.host.os.name.keyword with log.osType.keyword (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  '"field":"log.linux.host.os.name.keyword"',
+                                  '"field":"log.osType.keyword"')
+            WHERE filters LIKE '%"field":"log.linux.host.os.name.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      '"field":"log.linux.host.os.name.keyword"',
+                                      '"field":"log.osType.keyword"')
+            WHERE aggregation LIKE '%"field":"log.linux.host.os.name.keyword"%';
+
+            ------------------------------------------------------------------
+            -- Replace log.linux.message.keyword with log.message.keyword (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  '"field":"log.linux.message.keyword"',
+                                  '"field":"log.message.keyword"')
+            WHERE filters LIKE '%"field":"log.linux.message.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      '"field":"log.linux.message.keyword"',
+                                      '"field":"log.message.keyword"')
+            WHERE aggregation LIKE '%"field":"log.linux.message.keyword"%';
+
+            ------------------------------------------------------------------
+            -- Replace log.linux.agent.name.keyword with dataSource.keyword (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  '"field":"log.linux.agent.name.keyword"',
+                                  '"field":"dataSource.keyword"')
+            WHERE filters LIKE '%"field":"log.linux.agent.name.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      '"field":"log.linux.agent.name.keyword"',
+                                      '"field":"dataSource.keyword"')
+            WHERE aggregation LIKE '%"field":"log.linux.agent.name.keyword"%';
+
+            ------------------------------------------------------------------
+            -- Replace log.linux.agent.version.keyword with log.agentVersion.keyword (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  '"field":"log.linux.agent.version.keyword"',
+                                  '"field":"log.agentVersion.keyword"')
+            WHERE filters LIKE '%"field":"log.linux.agent.version.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      '"field":"log.linux.agent.version.keyword"',
+                                      '"field":"log.agentVersion.keyword"')
+            WHERE aggregation LIKE '%"field":"log.linux.agent.version.keyword"%';
+
+            ------------------------------------------------------------------
+            -- Replace log.linux.event.module.keyword with action.keyword (SAFE)
+            -- In old structure: event.module = "system"
+            -- In new structure: action = "system.syslog" (module + dataset)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  '"field":"log.linux.event.module.keyword"',
+                                  '"field":"action.keyword"')
+            WHERE filters LIKE '%"field":"log.linux.event.module.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      '"field":"log.linux.event.module.keyword"',
+                                      '"field":"action.keyword"')
+            WHERE aggregation LIKE '%"field":"log.linux.event.module.keyword"%';
+
+
+            ]]>
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>
+
