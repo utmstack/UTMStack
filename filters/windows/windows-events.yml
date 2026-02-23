@@ -1,4 +1,4 @@
-# Windows_Agent filter, version 3.0.4
+# Windows_Agent filter, version 3.1.0
 # Based on winlogbeat fields, reference [8.15]
 # See https://www.elastic.co/guide/en/beats/winlogbeat/current/exported-fields-winlog.html
 
@@ -12,333 +12,277 @@ pipeline:
       # Renaming useful fields
       - rename:
           from:
-            - log.host.ip
-          to: log.origin.ips
-
-      - rename:
-          from:
-            - log.host.mac
-          to: log.origin.macs
-
-      - rename:
-          from:
-            - log.event.action
-          to: log.action
-
-      - rename:
-          from:
-            - log.event.outcome
-          to: actionResult
-
-      - rename:
-          from:
-            - log.host.hostname
-          to: origin.host
-
-      - rename:
-          from:
-            - log.event.created
-          to: log.deviceTime
-
-      - rename:
-          from:
-            - log.host.os.name
-          to: log.os
-
-      - rename:
-          from:
-            - log.host.os.kernel
-          to: log.osVersion
-
-      - rename:
-          from:
-            - log.host.architecture
-          to: log.cpuArchitecture
-
-      - rename:
-          from:
-            - log.winlog.provider_guid
+            - log.providerguid
           to: log.providerGuid
 
       - rename:
           from:
-            - log.winlog.event_data.PrivilegeList
-          to: log.winlogEventDataPrivilegeList
+            - log.data.PrivilegeList
+          to: log.eventDataPrivilegeList
 
       - rename:
           from:
-            - log.winlog.event_data.ServiceName
-          to: log.winlogEventDataServiceName
+            - log.data.ServiceName
+          to: log.eventDataServiceName
 
       - rename:
           from:
-            - log.winlog.event_data.SubjectDomainName
-          to: log.winlogEventDataSubjectDomainName
+            - log.data.SubjectDomainName
+          to: log.eventDataSubjectDomainName
 
       - rename:
           from:
-            - log.winlog.event_data.SubjectLogonId
-          to: log.winlogEventDataSubjectLogonId
+            - log.data.SubjectLogonId
+          to: log.eventDataSubjectLogonId
 
       - rename:
           from:
-            - log.winlog.event_data.SubjectUserName
-          to: log.winlogEventDataSubjectUserName
+            - log.data.SubjectUserName
+          to: log.eventDataSubjectUserName
 
       - rename:
           from:
-            - log.winlog.event_data.SubjectUserSid
-          to: log.winlogEventDataSubjectUserSid
+            - log.data.SubjectUserSid
+          to: log.eventDataSubjectUserSid
 
       - rename:
           from:
-            - log.winlog.event_data.SubjectUserSid
-          to: log.winlogEventDataSubjectUserSid
+            - log.data.SubjectUserSid
+          to: log.eventDataSubjectUserSid
 
       - rename:
           from:
-            - log.winlog.event_data.PrivilegeList
-          to: log.winlogEventDataPrivilegeList
+            - log.data.PrivilegeList
+          to: log.eventDataPrivilegeList
 
       - rename:
           from:
-            - log.winlog.event_data.ClientProcessId
-          to: log.winlogEventDataClientProcessId
+            - log.data.ClientProcessId
+          to: log.eventDataClientProcessId
 
       - rename:
           from:
-            - log.winlog.event_data.Flags
-          to: log.winlogEventDataFlags
+            - log.data.Flags
+          to: log.eventDataFlags
 
       - rename:
           from:
-            - log.winlog.event_data.Identity
-          to: log.winlogEventDataIdentity
+            - log.data.Identity
+          to: log.eventDataIdentity
 
       - rename:
           from:
-            - log.winlog.event_data.ProcessCreationTime
-          to: log.winlogEventDataProcessCreationTime
+            - log.data.ProcessCreationTime
+          to: log.eventDataProcessCreationTime
 
       - rename:
           from:
-            - log.winlog.event_id
-          to: log.winlogEventId
+            - log.id
+          to: log.eventId
 
       - rename:
           from:
-            - log.winlog.event_data.Resource
-          to: log.winlogEventDataResource
+            - log.data.Resource
+          to: log.eventDataResource
 
       - rename:
           from:
-            - log.winlog.event_data.ReturnCode
-          to: log.winlogEventDataReturnCode
+            - log.data.ReturnCode
+          to: log.eventDataReturnCode
 
       - rename:
           from:
-            - log.winlog.event_data.Resource
-          to: log.winlogEventDataResource
+            - log.data.Resource
+          to: log.eventDataResource
 
       - rename:
           from:
-            - log.winlog.event_data.Schema
-          to: log.winlogEventDataSchema
+            - log.data.Schema
+          to: log.eventDataSchema
 
       - rename:
           from:
-            - log.winlog.event_data.SchemaFriendlyName
-          to: log.winlogEventDataSchemaFriendlyName
+            - log.data.SchemaFriendlyName
+          to: log.eventDataSchemaFriendlyName
 
       - rename:
           from:
-            - log.winlog.event_data.Resource
-          to: log.winlogEventDataResource
+            - log.data.Resource
+          to: log.eventDataResource
 
       - rename:
           from:
-            - log.winlog.event_data.AuthenticationPackageName
-          to: log.winlogEventDataAuthenticationPackageName
+            - log.data.AuthenticationPackageName
+          to: log.eventDataAuthenticationPackageName
 
       - rename:
           from:
-            - log.winlog.event_data.ElevatedToken
-          to: log.winlogEventDataElevatedToken
+            - log.data.ElevatedToken
+          to: log.eventDataElevatedToken
 
       - rename:
           from:
-            - log.winlog.event_data.ImpersonationLevel
-          to: log.winlogEventDataImpersonationLevel
+            - log.data.ImpersonationLevel
+          to: log.eventDataImpersonationLevel
 
       - rename:
           from:
-            - log.wineventlog.event_data.FailureReason
-          to: log.winlogEventDataFailureReason
+            - log.wineventlog.data.FailureReason
+          to: log.eventDataFailureReason
 
       - rename:
           from:
-            - log.winlog.event_data.IpAddress
-          to: log.winlogEventDataIpAddress
+            - log.data.IpAddress
+          to: log.eventDataIpAddress
 
       - rename:
           from:
-            - log.winlog.event_data.IpPort
-          to: log.winlogEventDataIpPort
+            - log.data.IpPort
+          to: log.eventDataIpPort
 
       - rename:
           from:
-            - log.winlog.event_data.Resource
-          to: log.winlogEventDataResource
+            - log.data.Resource
+          to: log.eventDataResource
 
       - rename:
           from:
-            - log.winlog.event_data.KeyLength
-          to: log.winlogEventDataKeyLength
+            - log.data.KeyLength
+          to: log.eventDataKeyLength
 
       - rename:
           from:
-            - log.winlog.event_data.LmPackageName
-          to: log.winlogEventDataLmPackageName
+            - log.data.LmPackageName
+          to: log.eventDataLmPackageName
 
       - rename:
           from:
-            - log.winlog.event_data.LogonProcessName
-          to: log.winlogEventDataLogonProcessName
+            - log.data.LogonProcessName
+          to: log.eventDataLogonProcessName
 
       - rename:
           from:
-            - log.winlog.event_data.LogonType
-          to: log.winlogEventDataLogonType
+            - log.data.LogonType
+          to: log.eventDataLogonType
+      - rename:
+          from:
+            - log.data.Resource
+          to: log.eventDataResource
 
       - rename:
           from:
-            - log.winlog.event_data.Resource
-          to: log.winlogEventDataResource
+            - log.data.ProcessId
+          to: log.eventDataProcessId
 
       - rename:
           from:
-            - log.winlog.event_data.ProcessId
-          to: log.winlogEventDataProcessId
+            - log.data.ProcessName
+          to: log.eventDataProcessName
 
       - rename:
           from:
-            - log.winlog.event_data.ProcessName
-          to: log.winlogEventDataProcessName
+            - log.data.RestrictedAdminMode
+          to: log.eventDataRestrictedAdminMode
 
       - rename:
           from:
-            - log.winlog.event_data.RestrictedAdminMode
-          to: log.winlogEventDataRestrictedAdminMode
-
-      - rename:
-          from:
-            - log.winlog.event_data.TargetDomainName
+            - log.data.TargetDomainName
           to: target.domain
 
       - rename:
           from:
-            - log.winlog.event_data.TargetLinkedLogonId
-          to: log.winlogEventDataTargetLinkedLogonId
+            - log.data.TargetLinkedLogonId
+          to: log.eventDataTargetLinkedLogonId
 
       - rename:
           from:
-            - log.winlog.event_data.Resource
-          to: log.winlogEventDataResource
+            - log.data.Resource
+          to: log.eventDataResource
 
       - rename:
           from:
-            - log.winlog.event_data.TargetLogonId
-          to: log.winlogEventDataTargetLogonId
+            - log.data.TargetLogonId
+          to: log.eventDataTargetLogonId
 
       - rename:
           from:
-            - log.winlog.event_data.TargetOutboundDomainName
-          to: log.winlogEventDataTargetOutboundDomainName
+            - log.data.TargetOutboundDomainName
+          to: log.eventDataTargetOutboundDomainName
 
       - rename:
           from:
-            - log.winlog.event_data.TargetOutboundUserName
-          to: log.winlogEventDataTargetOutboundUserName
+            - log.data.TargetOutboundUserName
+          to: log.eventDataTargetOutboundUserName
 
       - rename:
           from:
-            - log.winlog.event_data.TargetUserName
+            - log.data.TargetUserName
           to: target.user
 
       - rename:
           from:
-            - log.winlog.event_data.TargetUserSid
-          to: log.winlogEventDataTargetUserSid
+            - log.data.TargetUserSid
+          to: log.eventDataTargetUserSid
 
       - rename:
           from:
-            - log.winlog.event_data.TransmittedServices
-          to: log.winlogEventDataTransmittedServices
+            - log.data.TransmittedServices
+          to: log.eventDataTransmittedServices
 
       - rename:
           from:
-            - log.winlog.event_data.VirtualAccount
-          to: log.winlogEventDataVirtualAccount
+            - log.data.VirtualAccount
+          to: log.eventDataVirtualAccount
 
       - rename:
           from:
-            - log.winlog.event_data.WorkstationName
-          to: log.winlogEventDataWorkstationName
+            - log.data.WorkstationName
+          to: log.eventDataWorkstationName
 
       - rename:
           from:
-            - log.winlog.event_data.FailureReason
-          to: log.winlogEventDataFailureReason
+            - log.data.FailureReason
+          to: log.eventDataFailureReason
 
       - rename:
           from:
-            - log.winlog.event_data.AccessMask
-          to: log.winlogEeventDataAccessMask
+            - log.data.AccessMask
+          to: log.eventDataAccessMask
 
       - rename:
           from:
-            - log.winlog.event_data.Status
-          to: log.winlogEventDataStatus
+            - log.data.Status
+          to: log.eventDataStatus
 
       - rename:
           from:
-            - log.winlog.opcode
-          to: log.winlogOpcode
+            - log.process.thread
+          to: log.processThread
 
       - rename:
           from:
-            - log.winlog.process.thread
-          to: log.winlogProcessThread
+            - log.execution.ThreadID
+          to: log.processThreadId
 
       - rename:
           from:
-            - log.winlog.task
-          to: log.winlogOpcode
+            - log.process.pid
+          to: log.processPid
 
       - rename:
           from:
-            - log.winlog.process.thread.id
-          to: log.winlogProcessThreadId
+            - log.providername
+          to: log.providerName
 
       - rename:
           from:
-            - log.winlog.process.pid
-          to: log.winlogProcessPid
+            - log.record_id
+          to: log.recordId
 
       - rename:
           from:
-            - log.winlog.provider_name
-          to: log.winlogProviderName
-
-      - rename:
-          from:
-            - log.winlog.record_id
-          to: log.winlogRecordId
-
-      - rename:
-          from:
-            - log.winlog.task
-          to: log.winlogTask
+            - log.task
+          to: log.task
 
       - rename:
           from:
@@ -362,13 +306,13 @@ pipeline:
 
       - rename:
           from:
-            - log.winlog.api
-          to: log.winlogApi
+            - log.api
+          to: log.api
 
       - rename:
           from:
-            - log.winlog.channel
-          to: log.winlogChannel
+            - log.channel
+          to: log.channel
 
       - rename:
           from:
@@ -377,23 +321,18 @@ pipeline:
 
       - rename:
           from:
-            - log.winlog.activity_id
+            - log.correlation.ActivityID
           to: log.activityId
 
       - rename:
           from:
-            - log.winlog.event_data.LogonGuid
+            - log.data.LogonGuid
           to: log.logonGuid
 
-      - cast:
-          to: "[]string"
-          fields:
-            - log.origin.ips
-    
-      - cast:
-          to: "[]string"
-          fields:
-            - log.origin.macs
+      - rename:
+          from:
+            - log.execution.ProcessID
+          to: log.executionProcessID
 
       - cast:
           to: "int"
@@ -407,8 +346,8 @@ pipeline:
             - log.providerGuid
             - log.activityId
             - log.logonGuid
-            - log.winlogEventDataSchema
-            - log.winlogProcessThread
+            - log.eventDataSchema
+            - log.processThread
 
       - trim:
           function: suffix
@@ -417,8 +356,8 @@ pipeline:
             - log.providerGuid
             - log.activityId
             - log.logonGuid
-            - log.winlogEventDataSchema
-            - log.winlogProcessThread
+            - log.eventDataSchema
+            - log.processThread
 
       # Drop unnecessary events
       - drop:
@@ -2293,49 +2232,49 @@ pipeline:
           params:
             key: log.failureReasonDescription
             value: 'The specified user account has expired.'
-          where: equals("log.winlogEventDataFailureReason", "%%2305") && equals("log.eventCode", 4625)
+          where: equals("log.eventDataFailureReason", "%%2305") && equals("log.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
             key: log.failureReasonDescription
             value: 'The password for the specified account has expired'
-          where: equals("log.winlogEventDataFailureReason", "%%2309") && equals("log.eventCode", 4625)
+          where: equals("log.eventDataFailureReason", "%%2309") && equals("log.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
             key: log.failureReasonDescription
             value: 'Account currently disabled'
-          where: equals("log.winlogEventDataFailureReason", "%%2310") && equals("log.eventCode", 4625)
+          where: equals("log.eventDataFailureReason", "%%2310") && equals("log.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
             key: log.failureReasonDescription
             value: 'Account logon time restriction violation'
-          where: equals("log.winlogEventDataFailureReason", "%%2311") && equals("log.eventCode", 4625)
+          where: equals("log.eventDataFailureReason", "%%2311") && equals("log.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
             key: log.failureReasonDescription
             value: 'User not allowed to logon at this computer'
-          where: equals("log.winlogEventDataFailureReason", "%%2312") && equals("log.eventCode", 4625)
+          where: equals("log.eventDataFailureReason", "%%2312") && equals("log.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
             key: log.failureReasonDescription
             value: 'Unknown user name or bad password'
-          where: equals("log.winlogEventDataFailureReason", "%%2313") && equals("log.eventCode", 4625)
+          where: equals("log.eventDataFailureReason", "%%2313") && equals("log.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
             key: log.failureReasonDescription
             value: 'An Error occurred during Logon'
-          where: equals("log.winlogEventDataFailureReason", "%%2304") && equals("log.eventCode", 4625)
+          where: equals("log.eventDataFailureReason", "%%2304") && equals("log.eventCode", 4625)
 
       # Decoding the "AccessMask" field when the event code is 4663 and adding the "accessType" and "accessDescription" field
       - add:
@@ -2343,210 +2282,210 @@ pipeline:
           params:
             key: log.accessType
             value: 'read'
-          where: equals("log.winlogEeventDataAccessMask", "0x1") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x1") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'For a file object, the right to read the corresponding file data. For a directory object, the right to read the corresponding directory data.\n For a directory, the right to list the contents of the directory.\n For registry objects, this is, Query key value.'
-          where: equals("log.winlogEeventDataAccessMask", "0x1") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x1") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'write'
-          where: equals("log.winlogEeventDataAccessMask", "0x2") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x2") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'For a file object, the right to write data to the file.\n For a directory object, the right to create a file in the directory.\n For registry objects, this is, Set key value.'
-          where: equals("log.winlogEeventDataAccessMask", "0x2") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x2") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'append'
-          where: equals("log.winlogEeventDataAccessMask", "0x4") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x4") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'For a file object, the right to append data to the file. (For local files, write operations will not overwrite existing data if this flag is specified without FILE_WRITE_DATA.)\n For a directory object, the right to create a subdirectory.\n For a named pipe, the right to create a pipe.'
-          where: equals("log.winlogEeventDataAccessMask", "0x4") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x4") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'read_extended_attributes'
-          where: equals("log.winlogEeventDataAccessMask", "0x8") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x8") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to read extended file attributes.\n For registry objects, this is, Enumerate sub-keys.'
-          where: equals("log.winlogEeventDataAccessMask", "0x8") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x8") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'write_extended_attributes'
-          where: equals("log.winlogEeventDataAccessMask", "0x10") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x10") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to write extended file attributes.'
-          where: equals("log.winlogEeventDataAccessMask", "0x10") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x10") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'execute'
-          where: equals("log.winlogEeventDataAccessMask", "0x20") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x20") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'For a native code file, the right to execute the file. This access right given to scripts may cause the script to be executable, depending on the script interpreter.\n For a directory, the right to traverse the directory. By default, users are assigned the BYPASS_TRAVERSE_CHECKING privilege, which ignores the FILE_TRAVERSE access right.'
-          where: equals("log.winlogEeventDataAccessMask", "0x20") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x20") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'delete_child'
-          where: equals("log.winlogEeventDataAccessMask", "0x40") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x40") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'For a directory, the right to delete a directory and all the files it contains, including read-only files.'
-          where: equals("log.winlogEeventDataAccessMask", "0x40") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x40") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'read_attributes'
-          where: equals("log.winlogEeventDataAccessMask", "0x80") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x80") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to read file attributes.'
-          where: equals("log.winlogEeventDataAccessMask", "0x80") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x80") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'write_attributes'
-          where: equals("log.winlogEeventDataAccessMask", "0x100") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x100") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to write file attributes.'
-          where: equals("log.winlogEeventDataAccessMask", "0x100") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x100") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'delete'
-          where: equals("log.winlogEeventDataAccessMask", "0x10000") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x10000") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to delete the object.'
-          where: equals("log.winlogEeventDataAccessMask", "0x10000") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x10000") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'read_control'
-          where: equals("log.winlogEeventDataAccessMask", "0x20000") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x20000") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to read information in the security descriptor object, without including the information in the system access control list (SACL).'
-          where: equals("log.winlogEeventDataAccessMask", "0x20000") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x20000") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'write_dac'
-          where: equals("log.winlogEeventDataAccessMask", "0x40000") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x40000") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to modify the discretionary access control list (DACL) in the security descriptor object.'
-          where: equals("log.winlogEeventDataAccessMask", "0x40000") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x40000") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'write_owner'
-          where: equals("log.winlogEeventDataAccessMask", "0x80000") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x80000") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to change the owner in the security descriptor object'
-          where: equals("log.winlogEeventDataAccessMask", "0x80000") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x80000") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'synchronize'
-          where: equals("log.winlogEeventDataAccessMask", "0x100000") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x100000") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to use the object for synchronization. This enables a thread to wait until the object is in the signaled state. Some object types do not support this access right.'
-          where: equals("log.winlogEeventDataAccessMask", "0x100000") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x100000") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'access_sys_sec'
-          where: equals("log.winlogEeventDataAccessMask", "0x1000000") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x1000000") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The ACCESS_SYS_SEC access right controls the ability to get or set the SACL in an security descriptor object.'
-          where: equals("log.winlogEeventDataAccessMask", "0x1000000") && equals("log.eventCode", 4663)
+          where: equals("log.eeventDataAccessMask", "0x1000000") && equals("log.eventCode", 4663)
 
       # Decoding the "eventStatus" field
       - add:
@@ -2554,91 +2493,91 @@ pipeline:
           params:
             key: log.statusDescription
             value: 'Account locked out'
-          where: equals("log.winlogEventDataStatus", "0xC0000234")
+          where: equals("log.eventDataStatus", "0xC0000234")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Account expired'
-          where: equals("log.winlogEventDataStatus", "0xC0000193")
+          where: equals("log.eventDataStatus", "0xC0000193")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Clocks out of sync'
-          where: equals("log.winlogEventDataStatus", "0xC0000133")
+          where: equals("log.eventDataStatus", "0xC0000133")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Password change required'
-          where: equals("log.winlogEventDataStatus", "0xC0000224")
+          where: equals("log.eventDataStatus", "0xC0000224")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'User does not have logon right'
-          where: equals("log.winlogEventDataStatus", "0xc000015b")
+          where: equals("log.eventDataStatus", "0xc000015b")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Logon failure'
-          where: equals("log.winlogEventDataStatus", "0xc000006d")
+          where: equals("log.eventDataStatus", "0xc000006d")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Account restriction'
-          where: equals("log.winlogEventDataStatus", "0xc000006e")
+          where: equals("log.eventDataStatus", "0xc000006e")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'An error occurred during logon'
-          where: equals("log.winlogEventDataStatus", "0xc00002ee")
+          where: equals("log.eventDataStatus", "0xc00002ee")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Password expired'
-          where: equals("log.winlogEventDataStatus", "0xC0000071")
+          where: equals("log.eventDataStatus", "0xC0000071")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Account disabled'
-          where: equals("log.winlogEventDataStatus", "0xC0000072")
+          where: equals("log.eventDataStatus", "0xC0000072")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Authentication firewall prohibits logon'
-          where: equals("log.winlogEventDataStatus", "0xC0000413")
+          where: equals("log.eventDataStatus", "0xC0000413")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Incorrect password'
-          where: equals("log.winlogEventDataStatus", "0xc000006a")
+          where: equals("log.eventDataStatus", "0xc000006a")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Account does not exist'
-          where: equals("log.winlogEventDataStatus", "0xc0000064")
+          where: equals("log.eventDataStatus", "0xc0000064")
 
       # Decoding the "eventStatus" field when the event code is 4771 and adding the "statusDescription"
       - add:
@@ -2646,330 +2585,330 @@ pipeline:
           params:
             key: log.statusDescription
             value: 'Customer database entry has expired'
-          where: equals("log.winlogEventDataStatus", "0x1") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x1") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'The server database entry has expired'
-          where: equals("log.winlogEventDataStatus", "0x2") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x2") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Requested protocol version not supported'
-          where: equals("log.winlogEventDataStatus", "0x3") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x3") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Customer key encrypted in old master key'
-          where: equals("log.winlogEventDataStatus", "0x4") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x4") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Server key encrypted with old master key'
-          where: equals("log.winlogEventDataStatus", "0x5") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x5") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Client not found in Kerberos database'
-          where: equals("log.winlogEventDataStatus", "0x6") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x6") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Server not found in Kerberos database'
-          where: equals("log.winlogEventDataStatus", "0x7") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x7") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Multiple principal entries in database'
-          where: equals("log.winlogEventDataStatus", "0x8") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x8") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'The client or server has a null key'
-          where: equals("log.winlogEventDataStatus", "0x9") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x9") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Ticket not eligible for postdating'
-          where: equals("log.winlogEventDataStatus", "0xA") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0xA") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Requested start time is later than end time'
-          where: equals("log.winlogEventDataStatus", "0xB") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0xB") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'KDC policy rejects request'
-          where: equals("log.winlogEventDataStatus", "0xC") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0xC") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'KDC cannot accommodate requested option'
-          where: equals("log.winlogEventDataStatus", "0xD") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0xD") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'KDC has no support for encryption type'
-          where: equals("log.winlogEventDataStatus", "0xE") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0xE") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'KDC has no support for checksum type'
-          where: equals("log.winlogEventDataStatus", "0xF") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0xF") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'KDC has no support for padata type'
-          where: equals("log.winlogEventDataStatus", "0x10") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x10") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'KDC has no support for transited type'
-          where: equals("log.winlogEventDataStatus", "0x11") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x11") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Clients credentials have been revoked'
-          where: equals("log.winlogEventDataStatus", "0x12") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x12") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Credentials for server have been revoked'
-          where: equals("log.winlogEventDataStatus", "0x13") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x13") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'TGT has been revoked'
-          where: equals("log.winlogEventDataStatus", "0x14") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x14") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Client not yet valid - try again later'
-          where: equals("log.winlogEventDataStatus", "0x15") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x15") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Server not yet valid - try again later'
-          where: equals("log.winlogEventDataStatus", "0x16") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x16") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Password has expired'
-          where: equals("log.winlogEventDataStatus", "0x17") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x17") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Pre-authentication information was invalid'
-          where: equals("log.winlogEventDataStatus", "0x18") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x18") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Additional pre-authentication required'
-          where: equals("log.winlogEventDataStatus", "0x19") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x19") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Integrity check on decrypted field failed'
-          where: equals("log.winlogEventDataStatus", "0x1F") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x1F") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Ticket expired'
-          where: equals("log.winlogEventDataStatus", "0x20") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x20") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Ticket not yet valid'
-          where: equals("log.winlogEventDataStatus", "0x21") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x21") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Request is a replay'
-          where: equals("log.winlogEventDataStatus", "0x22") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x22") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'The ticket is not for us'
-          where: equals("log.winlogEventDataStatus", "0x23") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x23") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Ticket and authenticator is not match'
-          where: equals("log.winlogEventDataStatus", "0x24") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x24") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Clock skew too great'
-          where: equals("log.winlogEventDataStatus", "0x25") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x25") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Incorrect net address'
-          where: equals("log.winlogEventDataStatus", "0x26") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x26") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Protocol version mismatch'
-          where: equals("log.winlogEventDataStatus", "0x27") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x27") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Invalid msg type'
-          where: equals("log.winlogEventDataStatus", "0x28") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x28") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Message stream modified'
-          where: equals("log.winlogEventDataStatus", "0x29") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x29") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Message out of order'
-          where: equals("log.winlogEventDataStatus", "0x2A") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x2A") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Specified version of key is not available'
-          where: equals("log.winlogEventDataStatus", "0x2C") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x2C") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Service key not available'
-          where: equals("log.winlogEventDataStatus", "0x2D") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x2D") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Mutual authentication failed'
-          where: equals("log.winlogEventDataStatus", "0x2E") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x2E") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Incorrect message direction'
-          where: equals("log.winlogEventDataStatus", "0x2F") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x2F") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Alternative authentication method required'
-          where: equals("log.winlogEventDataStatus", "0x30") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x30") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Incorrect sequence number in message'
-          where: equals("log.winlogEventDataStatus", "0x31") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x31") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Inappropriate type of checksum in message'
-          where: equals("log.winlogEventDataStatus", "0x32") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x32") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Generic error (description in e-text)'
-          where: equals("log.winlogEventDataStatus", "0x3C") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x3C") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Field is too long for this implementation'
-          where: equals("log.winlogEventDataStatus", "0x3D") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "0x3D") && equals("log.eventCode", 4771)
 
       - delete:
           fields:
             - log.agent
             - log.host
-            - log.winlog.computer_name
-            - log.winlog.event_data
-            - log.winlog.process
+            - log.computer_name
+            - log.data
+            - log.process
             - log.metadata
             - log.event
             - log.ecs
