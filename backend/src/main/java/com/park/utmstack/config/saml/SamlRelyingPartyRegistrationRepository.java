@@ -39,53 +39,53 @@ public class SamlRelyingPartyRegistrationRepository implements RelyingPartyRegis
     }
 
     private void loadProviders(IdentityProviderConfigRepository jpaProviderRepository) {
-    try {
-        List<IdentityProviderConfig> activeProviders = jpaProviderRepository.findAllByActiveTrue();
+        try {
+            List<IdentityProviderConfig> activeProviders = jpaProviderRepository.findAllByActiveTrue();
 
-        if (activeProviders.isEmpty()) {
-            return;
-        }
-
-        activeProviders.forEach(entity -> {
-            try {
-                RelyingPartyRegistration registration = buildRelyingPartyRegistration(entity);
-                registrations.put(entity.getProviderType().name().toLowerCase(), registration);
-                log.info("Loaded SAML provider: {} (type: {})", entity.getName(), entity.getProviderType());
-            } catch (Exception e) {
-                log.error("Failed to load SAML provider: {}", entity.getName(), e);
+            if (activeProviders.isEmpty()) {
+                return;
             }
-        });
 
-        log.info("Successfully loaded {} SAML provider(s)", registrations.size());
-    } catch (Exception e) {
-        log.error("Failed to load SAML providers: {}", e.getMessage(), e);
-        throw new ApiException(String.format("Failed to load SAML providers: %s", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+            activeProviders.forEach(entity -> {
+                try {
+                    RelyingPartyRegistration registration = buildRelyingPartyRegistration(entity);
+                    registrations.put(entity.getProviderType().name().toLowerCase(), registration);
+                    log.info("Loaded SAML provider: {} (type: {})", entity.getName(), entity.getProviderType());
+                } catch (Exception e) {
+                    log.error("Failed to load SAML provider: {}", entity.getName(), e);
+                }
+            });
+
+            log.info("Successfully loaded {} SAML provider(s)", registrations.size());
+        } catch (Exception e) {
+            log.error("Failed to load SAML providers: {}", e.getMessage(), e);
+            throw new ApiException(String.format("Failed to load SAML providers: %s", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-}
 
     private RelyingPartyRegistration buildRelyingPartyRegistration(IdentityProviderConfig entity) {
-    try {
-        String encryptionKey = System.getenv(Constants.ENV_ENCRYPTION_KEY);
-        if (encryptionKey == null || encryptionKey.isBlank()) {
-            throw new IllegalStateException(
-                "Environment variable " + Constants.ENV_ENCRYPTION_KEY + " not configured");
+        try {
+            String encryptionKey = System.getenv(Constants.ENV_ENCRYPTION_KEY);
+            if (encryptionKey == null || encryptionKey.isBlank()) {
+                throw new IllegalStateException(
+                        "Environment variable " + Constants.ENV_ENCRYPTION_KEY + " not configured");
+            }
+
+            String decryptedKey = CipherUtil.decrypt(entity.getSpPrivateKeyPem(), encryptionKey);
+            PrivateKey spKey = PemUtils.parsePrivateKey(decryptedKey);
+            X509Certificate spCert = PemUtils.parseCertificate(entity.getSpCertificatePem());
+
+            return RelyingPartyRegistrations
+                    .fromMetadataLocation(entity.getMetadataUrl())
+                    .registrationId(entity.getName())
+                    .entityId(entity.getSpEntityId())
+                    .assertionConsumerServiceLocation(entity.getSpAcsUrl())
+                    .signingX509Credentials(c -> c.add(Saml2X509Credential.signing(spKey, spCert)))
+                    .build();
+        } catch (Exception e) {
+            log.error("Failed to build SAML registration for provider: {}", entity.getName(), e);
+            throw new ApiException(String.format("Failed to build SAML registration for provider: %s", entity.getName()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        String decryptedKey = CipherUtil.decrypt(entity.getSpPrivateKeyPem(), encryptionKey);
-        PrivateKey spKey = PemUtils.parsePrivateKey(decryptedKey);
-        X509Certificate spCert = PemUtils.parseCertificate(entity.getSpCertificatePem());
-
-        return RelyingPartyRegistrations
-                .fromMetadataLocation(entity.getMetadataUrl())
-                .registrationId(entity.getName())
-                .entityId(entity.getSpEntityId())
-                .assertionConsumerServiceLocation(entity.getSpAcsUrl())
-                .signingX509Credentials(c -> c.add(Saml2X509Credential.signing(spKey, spCert)))
-                .build();
-    } catch (Exception e) {
-        log.error("Failed to build SAML registration for provider: {}", entity.getName(), e);
-        throw new ApiException(String.format("Failed to build SAML registration for provider: %s", entity.getName()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-}
 
 }
