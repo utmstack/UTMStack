@@ -63,13 +63,24 @@ public class SamlRelyingPartyRegistrationRepository implements RelyingPartyRegis
         }
     }
 
+    /**
+     * Validates and retrieves the encryption key from environment variables.
+     *
+     * @return The validated encryption key
+     * @throws IllegalStateException if ENCRYPTION_KEY is not configured
+     */
+    private String getValidatedEncryptionKey() {
+        String encryptionKey = System.getenv(Constants.ENV_ENCRYPTION_KEY);
+        if (encryptionKey == null || encryptionKey.isBlank()) {
+            throw new IllegalStateException(
+                    "Environment variable " + Constants.ENV_ENCRYPTION_KEY + " not configured");
+        }
+        return encryptionKey;
+    }
+
     private RelyingPartyRegistration buildRelyingPartyRegistration(IdentityProviderConfig entity) {
         try {
-            String encryptionKey = System.getenv(Constants.ENV_ENCRYPTION_KEY);
-            if (encryptionKey == null || encryptionKey.isBlank()) {
-                throw new IllegalStateException(
-                        "Environment variable " + Constants.ENV_ENCRYPTION_KEY + " not configured");
-            }
+            String encryptionKey = getValidatedEncryptionKey();
 
             String decryptedKey = CipherUtil.decrypt(entity.getSpPrivateKeyPem(), encryptionKey);
             PrivateKey spKey = PemUtils.parsePrivateKey(decryptedKey);

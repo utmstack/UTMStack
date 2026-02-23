@@ -22,7 +22,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -33,19 +32,12 @@ public class IdentityProviderService {
     private final IdentityProviderConfigRepository repository;
     private final ApplicationEventPublisher publisher;
 
-    public List<IdentityProviderConfig> getAllActiveProviders() {
-        return repository.findAllByActiveTrue();
-    }
-
     public IdentityProviderConfigResponseDto create(IdentityProviderCreateConfigDto dto) {
 
         validateMetadataUrl(dto.getMetadataUrl());
 
-        String encryptionKey = System.getenv(Constants.ENV_ENCRYPTION_KEY);
-        if (encryptionKey == null || encryptionKey.isBlank()) {
-            throw new IllegalStateException(
-                    "Environment variable " + Constants.ENV_ENCRYPTION_KEY + " not configured");
-        }
+        // Validate encryption key before mapper encrypts the private key
+        getValidatedEncryptionKey();
 
         IdentityProviderConfig entity = mapper.toEntity(dto);
         entity.setCreatedAt(LocalDateTime.now());
@@ -73,11 +65,7 @@ public class IdentityProviderService {
 
         if(dto instanceof IdentityProviderCreateConfigDto createDto){
             if (createDto.getSpPrivateKeyPem() != null) {
-                String encryptionKey = System.getenv(Constants.ENV_ENCRYPTION_KEY);
-                if (encryptionKey == null || encryptionKey.isBlank()) {
-                    throw new IllegalStateException(
-                            "Environment variable " + Constants.ENV_ENCRYPTION_KEY + " not configured");
-                }
+                String encryptionKey = getValidatedEncryptionKey();
                 String encryptedKey = CipherUtil.encrypt(createDto.getSpPrivateKeyPem(), encryptionKey);
                 existing.setSpPrivateKeyPem(encryptedKey);
             }
@@ -116,14 +104,30 @@ public class IdentityProviderService {
         repository.deleteById(id);
     }
 
+    /**
+     * Validates and retrieves the encryption key from environment variables.
+     *
+     * @return The validated encryption key
+     * @throws IllegalStateException if ENCRYPTION_KEY is not configured
+     */
+    private String getValidatedEncryptionKey() {
+        String encryptionKey = System.getenv(Constants.ENV_ENCRYPTION_KEY);
+        if (encryptionKey == null || encryptionKey.isBlank()) {
+            throw new IllegalStateException(
+                    "Environment variable " + Constants.ENV_ENCRYPTION_KEY + " not configured");
+        }
+        return encryptionKey;
+    }
+
     private void validateMetadataUrl(String metadataUrl) {
         if (metadataUrl == null || metadataUrl.trim().isEmpty()) {
             throw new SamlMetadataUrlInvalidException("Metadata URL is required");
         }
 
+        HttpURLConnection connection = null;
         try {
             URL url = new URL(metadataUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(5000);
             connection.setReadTimeout(5000);
@@ -133,8 +137,6 @@ public class IdentityProviderService {
                 throw new SamlMetadataUrlInvalidException(
                         String.format("Metadata URL is not accessible. HTTP Status: %d", responseCode));
             }
-
-            connection.disconnect();
         } catch (MalformedURLException e) {
             throw new SamlMetadataUrlInvalidException(
                     "Invalid metadata URL format: " + e.getMessage());
@@ -144,6 +146,10 @@ public class IdentityProviderService {
         } catch (Exception e) {
             throw new SamlMetadataUrlInvalidException(
                     "Unexpected error validating metadata URL: " + e.getMessage());
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
     }
 
