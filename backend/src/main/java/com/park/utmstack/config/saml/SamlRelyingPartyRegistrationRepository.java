@@ -15,6 +15,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -38,11 +39,29 @@ public class SamlRelyingPartyRegistrationRepository implements RelyingPartyRegis
     }
 
     private void loadProviders(IdentityProviderConfigRepository jpaProviderRepository) {
-        jpaProviderRepository.findAllByActiveTrue().forEach(entity -> {
-            RelyingPartyRegistration registration = buildRelyingPartyRegistration(entity);
-            registrations.put(entity.getProviderType().name().toLowerCase(), registration);
+    try {
+        List<IdentityProviderConfig> activeProviders = jpaProviderRepository.findAllByActiveTrue();
+
+        if (activeProviders.isEmpty()) {
+            return;
+        }
+
+        activeProviders.forEach(entity -> {
+            try {
+                RelyingPartyRegistration registration = buildRelyingPartyRegistration(entity);
+                registrations.put(entity.getProviderType().name().toLowerCase(), registration);
+                log.info("Loaded SAML provider: {} (type: {})", entity.getName(), entity.getProviderType());
+            } catch (Exception e) {
+                log.error("Failed to load SAML provider: {}", entity.getName(), e);
+            }
         });
+
+        log.info("Successfully loaded {} SAML provider(s)", registrations.size());
+    } catch (Exception e) {
+        log.error("Failed to load SAML providers: {}", e.getMessage(), e);
+        throw new ApiException(String.format("Failed to load SAML providers: %s", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+}
 
     private RelyingPartyRegistration buildRelyingPartyRegistration(IdentityProviderConfig entity) {
     try {
