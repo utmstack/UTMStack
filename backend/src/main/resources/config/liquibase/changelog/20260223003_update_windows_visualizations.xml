@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260223003" author="Manuel Abascal">
+        <comment>Update Windows visualizations to match logstash filter v3.1.0 field transformations</comment>
+
+        <!-- Step 1: Replace log.wineventlogEventData* with log.eventData* in aggregation -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.wineventlogEventData', 'log.eventData')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.wineventlogEventData%';
+            ]]>
+        </sql>
+
+        <!-- Step 2: Replace log.wineventlogEventData* with log.eventData* in filters -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.wineventlogEventData', 'log.eventData')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.wineventlogEventData%';
+            ]]>
+        </sql>
+
+        <!-- Step 3: Replace log.wineventlog.event_data. with log.eventData in aggregation -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.wineventlog.event_data.', 'log.eventData')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.wineventlog.event_data.%';
+            ]]>
+        </sql>
+
+        <!-- Step 4: Replace log.wineventlog.event_data. with log.eventData in filters -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.wineventlog.event_data.', 'log.eventData')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.wineventlog.event_data.%';
+            ]]>
+        </sql>
+
+        <!-- Step 5: Replace log.winlog.event_data. with log.eventData in aggregation -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.winlog.event_data.', 'log.eventData')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.winlog.event_data.%';
+            ]]>
+        </sql>
+
+        <!-- Step 6: Replace log.winlog.event_data. with log.eventData in filters -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.winlog.event_data.', 'log.eventData')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.winlog.event_data.%';
+            ]]>
+        </sql>
+
+        <!-- Step 7: Replace log.winlogEventData* with log.eventData* in aggregation (additional pattern without wineventlog prefix) -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.winlogEventData', 'log.eventData')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.winlogEventData%'
+              AND aggregation NOT LIKE '%log.wineventlogEventData%';
+            ]]>
+        </sql>
+
+        <!-- Step 8: Replace log.winlogEventData* with log.eventData* in filters (additional pattern without wineventlog prefix) -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.winlogEventData', 'log.eventData')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.winlogEventData%'
+              AND filters NOT LIKE '%log.wineventlogEventData%';
+            ]]>
+        </sql>
+
+        <!-- Step 9: Replace log.record_number with log.recordNumber (snake_case to camelCase) in aggregation -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.record_number', 'log.recordNumber')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.record_number%';
+            ]]>
+        </sql>
+
+        <!-- Step 10: Replace log.record_number with log.recordNumber (snake_case to camelCase) in filters -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.record_number', 'log.recordNumber')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.record_number%';
+            ]]>
+        </sql>
+
+        <!-- Step 11: Replace log.winlogEventCreated with log.eventCreated in aggregation -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.winlogEventCreated', 'log.eventCreated')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.winlogEventCreated%';
+            ]]>
+        </sql>
+
+        <!-- Step 12: Replace log.winlogEventCreated with log.eventCreated in filters -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.winlogEventCreated', 'log.eventCreated')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.winlogEventCreated%';
+            ]]>
+        </sql>
+
+        <!-- Step 13: Replace log.winlogEventId with log.eventCode in aggregation -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.winlogEventId', 'log.eventCode')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.winlogEventId%';
+            ]]>
+        </sql>
+
+        <!-- Step 14: Replace log.winlogEventId with log.eventCode in filters -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.winlogEventId', 'log.eventCode')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.winlogEventId%';
+            ]]>
+        </sql>
+
+        <!-- Step 15: Replace log.winlogLevel with log.level in aggregation -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.winlogLevel', 'log.level')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.winlogLevel%';
+            ]]>
+        </sql>
+
+        <!-- Step 16: Replace log.winlogLevel with log.level in filters -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.winlogLevel', 'log.level')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.winlogLevel%';
+            ]]>
+        </sql>
+
+        <!-- Step 17: Replace log.winlogOpcode with log.opcode in aggregation -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.winlogOpcode', 'log.opcode')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.winlogOpcode%';
+            ]]>
+        </sql>
+
+        <!-- Step 18: Replace log.winlogOpcode with log.opcode in filters -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.winlogOpcode', 'log.opcode')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.winlogOpcode%';
+            ]]>
+        </sql>
+
+        <!-- Step 19: Replace log.winlogRecordId with log.recordId in aggregation -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.winlogRecordId', 'log.recordId')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.winlogRecordId%';
+            ]]>
+        </sql>
+
+        <!-- Step 20: Replace log.winlogRecordId with log.recordId in filters -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.winlogRecordId', 'log.recordId')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.winlogRecordId%';
+            ]]>
+        </sql>
+
+        <!-- Step 21: Replace log.winlogSourceName with log.sourceName in aggregation -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.winlogSourceName', 'log.sourceName')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.winlogSourceName%';
+            ]]>
+        </sql>
+
+        <!-- Step 22: Replace log.winlogSourceName with log.sourceName in filters -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.winlogSourceName', 'log.sourceName')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.winlogSourceName%';
+            ]]>
+        </sql>
+
+        <!-- Step 23: Replace log.winlog.user_data. with log.userData in aggregation -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.winlog.user_data.', 'log.userData')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.winlog.user_data.%';
+            ]]>
+        </sql>
+
+        <!-- Step 24: Replace log.winlog.user_data. with log.userData in filters -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.winlog.user_data.', 'log.userData')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.winlog.user_data.%';
+            ]]>
+        </sql>
+
+        <!-- Step 25: Replace log.winlog.user.name with log.userName in aggregation -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.winlog.user.name', 'log.userName')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.winlog.user.name%';
+            ]]>
+        </sql>
+
+        <!-- Step 26: Replace log.winlog.user.name with log.userName in filters -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.winlog.user.name', 'log.userName')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.winlog.user.name%';
+            ]]>
+        </sql>
+
+        <!-- Step 27: Replace log.winlog.user.domain with log.userDomain in aggregation -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.winlog.user.domain', 'log.userDomain')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.winlog.user.domain%';
+            ]]>
+        </sql>
+
+        <!-- Step 28: Replace log.winlog.user.domain with log.userDomain in filters -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.winlog.user.domain', 'log.userDomain')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.winlog.user.domain%';
+            ]]>
+        </sql>
+
+        <!-- Step 29: Replace remaining log.winlog.* patterns (catchall for other nested fields) in aggregation -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+                aggregation,
+                'log.winlog.access_type', 'log.accessType'),
+                'log.winlog.activity_id', 'log.activityId'),
+                'log.winlog.beat.version', 'log.beatVersion'),
+                'log.winlog.event.provider', 'log.eventProvider'),
+                'log.winlog.host.os.version', 'log.hostOsVersion'),
+                'log.winlog.keywords', 'log.keywords'),
+                'log.winlog.provider_guid', 'log.providerGuid'),
+                'log.winlog.tags', 'log.tags')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND (aggregation LIKE '%log.winlog.access_type%'
+                OR aggregation LIKE '%log.winlog.activity_id%'
+                OR aggregation LIKE '%log.winlog.beat.version%'
+                OR aggregation LIKE '%log.winlog.event.provider%'
+                OR aggregation LIKE '%log.winlog.host.os.version%'
+                OR aggregation LIKE '%log.winlog.keywords%'
+                OR aggregation LIKE '%log.winlog.provider_guid%'
+                OR aggregation LIKE '%log.winlog.tags%');
+            ]]>
+        </sql>
+
+        <!-- Step 30: Replace remaining log.winlog.* patterns (catchall for other nested fields) in filters -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+                filters,
+                'log.winlog.access_type', 'log.accessType'),
+                'log.winlog.activity_id', 'log.activityId'),
+                'log.winlog.beat.version', 'log.beatVersion'),
+                'log.winlog.event.provider', 'log.eventProvider'),
+                'log.winlog.host.os.version', 'log.hostOsVersion'),
+                'log.winlog.keywords', 'log.keywords'),
+                'log.winlog.provider_guid', 'log.providerGuid'),
+                'log.winlog.tags', 'log.tags')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND (filters LIKE '%log.winlog.access_type%'
+                OR filters LIKE '%log.winlog.activity_id%'
+                OR filters LIKE '%log.winlog.beat.version%'
+                OR filters LIKE '%log.winlog.event.provider%'
+                OR filters LIKE '%log.winlog.host.os.version%'
+                OR filters LIKE '%log.winlog.keywords%'
+                OR filters LIKE '%log.winlog.provider_guid%'
+                OR filters LIKE '%log.winlog.tags%');
+            ]]>
+        </sql>
+
+        <!-- Step 31: Replace log.winlog.task with log.task in aggregation -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.winlog.task', 'log.task')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.winlog.task%';
+            ]]>
+        </sql>
+
+        <!-- Step 32: Replace log.winlog.task with log.task in filters -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.winlog.task', 'log.task')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.winlog.task%';
+            ]]>
+        </sql>
+
+        <!-- Step 33: Replace log.winlog.thread_id with log.threadId in aggregation -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.winlog.thread_id', 'log.threadId')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.winlog.thread_id%';
+            ]]>
+        </sql>
+
+        <!-- Step 14: Replace log.winlogEventId with log.eventCode in filters -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.winlogEventId', 'log.eventCode')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.winlogEventId%';
+            ]]>
+        </sql>
+
+        <!-- Step 15: Replace log.wineventlogEventId with log.eventCode in aggregation (fallback for records missed in previous changeset) -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation, 'log.wineventlogEventId', 'log.eventCode')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND aggregation LIKE '%log.wineventlogEventId%';
+            ]]>
+        </sql>
+
+        <!-- Step 16: Replace log.wineventlogEventId with log.eventCode in filters (fallback for records missed in previous changeset) -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters, 'log.wineventlogEventId', 'log.eventCode')
+            WHERE id_pattern IN (SELECT id FROM utm_index_pattern WHERE pattern LIKE '%wineventlog%' OR pattern_module = 'WINDOWS_AGENT')
+              AND filters LIKE '%log.wineventlogEventId%';
+            ]]>
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>
+

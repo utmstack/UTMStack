@@ -473,4 +473,9 @@
 
     <include file="/config/liquibase/changelog/20260223002_update_winevent_correlation_rules.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260223003_update_windows_visualizations.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260223004_update_windows_visualizations.xml" relativeToChangelogFile="false"/>
+
+
 </databaseChangeLog>
