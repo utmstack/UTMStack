@@ -12,7 +12,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
-import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -22,9 +21,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Optional;
-
-import static com.park.utmstack.config.Constants.FRONT_BASE_URL;
 
 /**
  * Success handler for SAML2 login.
@@ -38,7 +34,6 @@ public class Saml2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final TokenProvider tokenProvider;
     private final UserRepository userRepository;
-    private final Saml2LoginFailureHandler failureHandler;
 
 
     @Override
@@ -48,14 +43,16 @@ public class Saml2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         String scheme = Objects.requireNonNullElse(request.getHeader("X-Forwarded-Proto"), request.getScheme());
         String host = Objects.requireNonNullElse(request.getHeader("Host"), request.getServerName());
-
         String frontBaseUrl = scheme + "://" + host;
 
         Saml2AuthenticatedPrincipal samlUser = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
         String username = samlUser.getName();
 
         User user = userRepository.findOneByLogin(username)
-                .orElseThrow(() -> new BadCredentialsException("The provided credentials do not match any active user account."));
+                .orElseThrow(() -> {
+                    log.warn("SAML2 authentication successful for '{}' but user not found in local database", username);
+                    return new BadCredentialsException("User not provisioned in local system");
+                });
 
         Collection<? extends GrantedAuthority> authorities = Objects.requireNonNull(user.getAuthorities())
                 .stream()
@@ -75,6 +72,7 @@ public class Saml2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 .build()
                 .toUri();
 
+        log.info("SAML2 login successful for user: {}", username);
         response.sendRedirect(redirectUri.toString());
     }
 }

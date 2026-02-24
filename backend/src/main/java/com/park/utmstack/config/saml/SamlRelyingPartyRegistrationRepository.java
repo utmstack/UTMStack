@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class SamlRelyingPartyRegistrationRepository implements RelyingPartyRegistrationRepository {
 
-    private final Map<String, RelyingPartyRegistration> registrations = new ConcurrentHashMap<>();
+    private volatile Map<String, RelyingPartyRegistration> registrations = new ConcurrentHashMap<>();
     private final SamlProvidersLoader providersLoader;
 
     public SamlRelyingPartyRegistrationRepository(IdentityProviderConfigRepository jpaProviderRepository) {
@@ -24,7 +24,6 @@ public class SamlRelyingPartyRegistrationRepository implements RelyingPartyRegis
         SamlRegistrationBuilder registrationBuilder = new SamlRegistrationBuilder(encryptionKey, metadataFetcher);
         this.providersLoader = new SamlProvidersLoader(registrationBuilder);
 
-        // Load providers on initialization
         loadProviders(jpaProviderRepository);
     }
 
@@ -34,22 +33,30 @@ public class SamlRelyingPartyRegistrationRepository implements RelyingPartyRegis
     }
 
     public void reloadProviders(IdentityProviderConfigRepository jpaProviderRepository) {
-        registrations.clear();
-        loadProviders(jpaProviderRepository);
+        try {
+            registrations = loadActiveProviders(jpaProviderRepository);
+            log.info("SAML providers reloaded successfully: {} providers loaded", registrations.size());
+        } catch (Exception e) {
+            log.error("Failed to reload SAML providers - keeping previous configuration", e);
+        }
     }
 
     /**
      * Loads SAML providers using the specialized loader.
      * Delegates all async loading logic to SamlProvidersLoader.
+     * App will start without providers if loading fails.
      */
     private void loadProviders(IdentityProviderConfigRepository jpaProviderRepository) {
         try {
-            List<IdentityProviderConfig> activeProviders = jpaProviderRepository.findAllByActiveTrue();
-            Map<String, RelyingPartyRegistration> loadedRegistrations =
-                    providersLoader.loadProvidersAsync(activeProviders);
-            registrations.putAll(loadedRegistrations);
+            registrations = loadActiveProviders(jpaProviderRepository);
+            if (registrations.isEmpty()) {
+                log.warn("No active SAML2 providers found. SAML2 authentication will not be available.");
+            } else {
+                log.info("Successfully loaded {} SAML2 provider(s) on startup", registrations.size());
+            }
         } catch (Exception e) {
-            log.error("Error during SAML provider loading: {}", e.getMessage(), e);
+            log.error("Error during SAML provider loading - app will start without SAML2 authentication: {}",
+                    e.getMessage(), e);
         }
     }
 
@@ -67,5 +74,12 @@ public class SamlRelyingPartyRegistrationRepository implements RelyingPartyRegis
         }
         return encryptionKey;
     }
+
+    private Map<String, RelyingPartyRegistration> loadActiveProviders(IdentityProviderConfigRepository repo) {
+        List<IdentityProviderConfig> activeProviders = repo.findAllByActiveTrue();
+        Map<String, RelyingPartyRegistration> loaded = providersLoader.loadProvidersAsync(activeProviders);
+        return new ConcurrentHashMap<>(loaded);
+    }
+
 
 }
