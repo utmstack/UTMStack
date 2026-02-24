@@ -42,7 +42,7 @@ public class Saml2LoginSuccessHandler implements AuthenticationSuccessHandler {
                                         Authentication authentication) throws IOException {
 
         String scheme = Objects.requireNonNullElse(request.getHeader("X-Forwarded-Proto"), request.getScheme());
-        String host = Objects.requireNonNullElse(request.getHeader("Host"), request.getServerName());
+        String host = Objects.requireNonNullElse(request.getHeader("X-Forwarded-Host"), request.getServerName());
         String frontBaseUrl = scheme + "://" + host;
 
         Saml2AuthenticatedPrincipal samlUser = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
