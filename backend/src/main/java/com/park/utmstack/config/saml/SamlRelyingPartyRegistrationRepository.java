@@ -3,10 +3,14 @@ package com.park.utmstack.config.saml;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.idp_provider.IdentityProviderConfig;
 import com.park.utmstack.repository.idp_provider.IdentityProviderConfigRepository;
+import com.park.utmstack.util.CipherUtil;
+import com.park.utmstack.util.saml.PemUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,14 +19,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SamlRelyingPartyRegistrationRepository implements RelyingPartyRegistrationRepository {
 
     private volatile Map<String, RelyingPartyRegistration> registrations = new ConcurrentHashMap<>();
-    private final SamlProvidersLoader providersLoader;
+    private final SamlMetadataFetcher fetcher;
+    private final String encryptionKey;
 
     public SamlRelyingPartyRegistrationRepository(IdentityProviderConfigRepository jpaProviderRepository) {
 
-        String encryptionKey = getValidatedEncryptionKey();
-        SamlMetadataFetcher metadataFetcher = new SamlMetadataFetcher();
-        SamlRegistrationBuilder registrationBuilder = new SamlRegistrationBuilder(encryptionKey, metadataFetcher);
-        this.providersLoader = new SamlProvidersLoader(registrationBuilder);
+        encryptionKey = getValidatedEncryptionKey();
+        fetcher = new SamlMetadataFetcher();
 
         loadProviders(jpaProviderRepository);
     }
@@ -76,9 +79,27 @@ public class SamlRelyingPartyRegistrationRepository implements RelyingPartyRegis
     }
 
     private Map<String, RelyingPartyRegistration> loadActiveProviders(IdentityProviderConfigRepository repo) {
+
+        Map<String, RelyingPartyRegistration> map = new ConcurrentHashMap<>();
+
         List<IdentityProviderConfig> activeProviders = repo.findAllByActiveTrue();
-        Map<String, RelyingPartyRegistration> loaded = providersLoader.loadProvidersAsync(activeProviders);
-        return new ConcurrentHashMap<>(loaded);
+
+        activeProviders.forEach(entity -> {
+
+            PrivateKey spKey = PemUtils.parsePrivateKey(CipherUtil.decrypt(
+                    entity.getSpPrivateKeyPem(),
+                    encryptionKey));
+
+            X509Certificate spCert = PemUtils.parseCertificate(entity.getSpCertificatePem());
+
+            RelyingPartyRegistration reg = fetcher.fetch(entity, spKey, spCert);
+
+            if (reg != null) {
+                map.put(entity.getProviderType().name().toLowerCase(), reg);
+            }
+        });
+
+        return map;
     }
 
 
