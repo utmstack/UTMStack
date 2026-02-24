@@ -22,54 +22,69 @@ function createPlatform(
   path?: string,
   restart?: string,
   extraCommands?: string[]): Platform {
-  return { id, name, command, shell, path, restart, extraCommands };
+  return {id, name, command, shell, path, restart, extraCommands};
 }
 
 export const createPlatforms = (
-  windowsCommandAMD64: string,
-  windowsCommandARM64: string,
-  linuxCommand: string,
-  windowsPath?: string,
-  windowsRestart?: string,
-  linuxPath?: string,
-  linuxRestart?: string): Platform[] => [
-  createPlatform(
-    1,
-    'WINDOWS (AMD64)',
-    windowsCommandAMD64,
-    WINDOWS_SHELL,
-    windowsPath,
-    windowsRestart,[
-      'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service.exe" ' +
-      '-ArgumentList \'load-tls-certs\', \'[YOUR_CERT_PATH]\', \'[YOUR_KEY_PATH]\' ' +
-      '-NoNewWindow -Wait'
-    ]
-  ),
-  createPlatform(
-    2,
-    'WINDOWS (ARM64)',
-    windowsCommandARM64,
-    WINDOWS_SHELL,
-    windowsPath,
-    windowsRestart,
-    [
-      'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service_arm64.exe" ' +
-      '-ArgumentList \'load-tls-certs\', \'[YOUR_CERT_PATH]\', \'[YOUR_KEY_PATH]\' ' +
-      '-NoNewWindow -Wait'
-    ]
-  ),
-  createPlatform(
-    3,
-    'LINUX',
-    linuxCommand,
-    LINUX_SHELL,
-    linuxPath,
-    linuxRestart,
-    [
-      `sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_service load-tls-certs [YOUR_CERT_PATH] [YOUR_KEY_PATH]"`
-    ]
-  )
-];
+    windowsCommandAMD64: string,
+    windowsCommandARM64: string,
+    linuxCommandAMD64: string,
+    linuxCommandARM64: string,
+    windowsPath?: string,
+    windowsRestart?: string,
+    linuxPath?: string,
+    linuxRestart?: string): Platform[] => [
+
+    createPlatform(
+      1,
+      'WINDOWS (AMD64)',
+      windowsCommandAMD64,
+      WINDOWS_SHELL,
+      windowsPath,
+      windowsRestart, [
+        'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service_amd64.exe" ' +
+        '-ArgumentList \'load-tls-certs\', \'[YOUR_CERT_PATH]\', \'[YOUR_KEY_PATH]\' ' +
+        '-NoNewWindow -Wait'
+      ]
+    ),
+
+    createPlatform(
+      2,
+      'WINDOWS (ARM64)',
+      windowsCommandARM64,
+      WINDOWS_SHELL,
+      windowsPath,
+      windowsRestart,
+      [
+        'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service_arm64.exe" ' +
+        '-ArgumentList \'load-tls-certs\', \'[YOUR_CERT_PATH]\', \'[YOUR_KEY_PATH]\' ' +
+        '-NoNewWindow -Wait'
+      ]
+    ),
+    createPlatform(
+      3,
+      'LINUX (AMD64)',
+      linuxCommandAMD64,
+      LINUX_SHELL,
+      linuxPath,
+      linuxRestart,
+      [
+        `sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_service load-tls-certs [YOUR_CERT_PATH] [YOUR_KEY_PATH]"`
+      ]
+    ),
+    createPlatform(
+      3,
+      'LINUX (ARM64)',
+      linuxCommandARM64,
+      LINUX_SHELL,
+      linuxPath,
+      linuxRestart,
+      [
+        `sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_service load-tls-certs [YOUR_CERT_PATH] [YOUR_KEY_PATH]"`
+      ]
+    )
+  ]
+;
 
 export const createFileBeatsPlatforms = (
   windowsCommand: string,
@@ -97,9 +112,10 @@ export const createFileBeatsPlatforms = (
 ];
 
 export const PLATFORMS = createPlatforms(
-  'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service.exe" -ArgumentList \'ACTION\', \'AGENT_NAME\', \'PROTOCOL\', \'TLS\' -NoNewWindow -Wait\n',
+  'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service_amd64.exe " -ArgumentList \'ACTION\', \'AGENT_NAME\', \'PROTOCOL\', \'TLS\' -NoNewWindow -Wait\n',
   'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service_arm64.exe" -ArgumentList \'ACTION\', \'AGENT_NAME\', \'PROTOCOL\, \'TLS\' -NoNewWindow -Wait\n',
-  'sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_service ACTION AGENT_NAME PROTOCOL TLS"'
+  'sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_service_amd64 ACTION AGENT_NAME PROTOCOL TLS"',
+  'sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_service_arm64 ACTION AGENT_NAME PROTOCOL TLS"'
 );
 
 export const FILEBEAT_PLATFORMS = createFileBeatsPlatforms(
