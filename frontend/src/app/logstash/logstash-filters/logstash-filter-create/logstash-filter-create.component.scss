@@ -1,21 +1,112 @@
-:host ::ng-deep json-editor,
-:host ::ng-deep json-editor .jsoneditor,
-:host ::ng-deep json-editor > div,
-:host ::ng-deep json-editor jsoneditor-outer {
-  height: 90% !important;
-  border: none !important;
+:host {
+  display: block;
+  height: auto;
 }
 
+.template-editor {
+  height: 800px!important;
+}
 
-::ng-deep {
-  .jsoneditor {
-    .jsoneditor-menu {
-      background-color: #232f3e !important;
-      border-bottom: 0 solid transparent !important;
+.logstash-filter-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+  padding: 0.5rem;
+  gap: 1rem;
+}
+
+.logstash-filter-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1rem;
+}
+
+.yaml-editor-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 600px;
+  margin: 0 !important;
+
+  label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+}
+
+.yaml-editor-container {
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  overflow: hidden;
+  height: 600px;
+  width: 100%;
+  flex: 1;
+
+  ::ng-deep {
+    .monaco-editor {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .monaco-editor-background {
+      background-color: #f5f5f5 !important;
+    }
+
+    .overflow-guard {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .monaco-scrollable-element {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .monaco-editor.readonly {
+      background-color: #f0f0f0 !important;
+      opacity: 0.8 !important;
+    }
+
+    .monaco-editor.readonly .monaco-editor-background {
+      background-color: #f0f0f0 !important;
+    }
+
+    // Syntax highlighting colors for YAML
+    .mtk5 {
+      color: #0277bd !important; // Keys - Blue
+      font-weight: 600 !important;
+    }
+
+    .mtk1 {
+      color: #ff6b6b !important; // Values - Red
     }
   }
+}
 
-  .pico-modal-header {
-    background-color: #232f3e !important;
+.form-actions {
+  flex-shrink: 0;
+  margin-top: 1rem !important;
+}
+
+@media screen and (max-height: 1000px) {
+  .yaml-editor-group {
+    min-height: 500px;
+  }
+
+  .yaml-editor-container {
+    height: 500px;
   }
 }
+
+@media screen and (min-height: 1200px) {
+  .yaml-editor-group {
+    min-height: 700px;
+  }
+
+  .yaml-editor-container {
+    height: 700px;
+  }
+}
+
