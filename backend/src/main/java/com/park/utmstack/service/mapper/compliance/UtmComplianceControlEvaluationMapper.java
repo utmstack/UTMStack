@@ -1,43 +1,64 @@
 package com.park.utmstack.service.mapper.compliance;
 
+import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigDto;
 import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationDto;
-import com.park.utmstack.service.dto.compliance.UtmComplianceQueryEvaluationDto;
+import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationsDto;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 
 public class UtmComplianceControlEvaluationMapper {
 
-    private UtmComplianceControlEvaluationMapper() {
-
-    }
-
-    public static UtmComplianceControlEvaluationDto mapToEvaluationDto(Map<String, Object> src) {
+    public static UtmComplianceControlEvaluationDto toDto(
+            UtmComplianceControlConfigDto control,
+            UtmComplianceControlEvaluationsDto controlEvaluations
+    ) {
         UtmComplianceControlEvaluationDto dto = new UtmComplianceControlEvaluationDto();
 
-        dto.setControlId(((Number) src.get("control_id")).longValue());
-        dto.setControlName((String) src.get("control_name"));
-        dto.setStatus((String) src.get("status"));
-        dto.setTimestamp(Instant.parse((String) src.get("timestamp")));
+        dto.setId(control.getId());
+        dto.setStandardSectionId(control.getStandardSectionId());
+        dto.setSection(control.getSection());
+        dto.setControlName(control.getControlName());
+        dto.setControlSolution(control.getControlSolution());
+        dto.setControlRemediation(control.getControlRemediation());
+        dto.setControlStrategy(control.getControlStrategy());
+        dto.setQueriesConfigs(control.getQueriesConfigs());
 
-        List<Map<String, Object>> q = (List<Map<String, Object>>) src.get("query_evaluations");
-        if (q != null) {
-            dto.setQueryEvaluations(q.stream().map(UtmComplianceControlEvaluationMapper::mapQueryEval).toList());
+        //TODO: ELENA - this is a temporary solution, we need to decide how to handle multiple evaluations for the same control
+        if (controlEvaluations != null) {
+            dto.setLastEvaluationStatus(controlEvaluations.getStatus());
+            dto.setLastEvaluationTimestamp(
+                    controlEvaluations.getTimestamp() != null ? controlEvaluations.getTimestamp().toString() : null
+            );
         }
 
         return dto;
     }
 
-    private static UtmComplianceQueryEvaluationDto mapQueryEval(Map<String, Object> src) {
-        UtmComplianceQueryEvaluationDto dto = new UtmComplianceQueryEvaluationDto();
+    public static UtmComplianceControlEvaluationsDto mapToEvaluationDto(Map<String, Object> source) {
+        if (source == null) return null;
 
-        dto.setQueryConfigId(((Number) src.get("queryConfigId")).longValue());
-        dto.setQueryName((String) src.get("queryName"));
-        dto.setHits(((Number) src.get("hits")).intValue());
-        dto.setStatus((String) src.get("status"));
-        dto.setEvidence((List<Map<String, Object>>) src.get("evidence"));
+        UtmComplianceControlEvaluationsDto dto = new UtmComplianceControlEvaluationsDto();
+
+        dto.setControlId(getLong(source.get("control_id")));
+        dto.setControlName(getString(source.get("control_name")));
+        dto.setStatus(getString(source.get("status")));
+
+        Object ts = source.get("timestamp");
+        if (ts != null) {
+            dto.setTimestamp(Instant.parse(ts.toString()));
+        }
 
         return dto;
+    }
+
+    private static String getString(Object o) {
+        return o != null ? o.toString() : null;
+    }
+
+    private static Long getLong(Object o) {
+        if (o == null) return null;
+        if (o instanceof Number n) return n.longValue();
+        return Long.parseLong(o.toString());
     }
 }

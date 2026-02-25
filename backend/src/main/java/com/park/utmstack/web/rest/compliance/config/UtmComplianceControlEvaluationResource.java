@@ -17,10 +17,12 @@ public class UtmComplianceControlEvaluationResource {
         this.evaluationService = evaluationService;
     }
 
-    @GetMapping("/{id}/evaluations")
-    public ResponseEntity<List<UtmComplianceControlEvaluationDto>> getControlEvaluations(@PathVariable Long id) {
-        var evaluations = evaluationService.findByControlId(id);
-        return ResponseEntity.ok(evaluations);
+    @GetMapping("/get-by-section")
+    public ResponseEntity<List<UtmComplianceControlEvaluationDto>> getControlsBySection(
+            @RequestParam Long sectionId) {
+
+        var controls = evaluationService.getControlsWithLastEvaluation(sectionId);
+        return ResponseEntity.ok(controls);
     }
 }
 
