@@ -118,6 +118,15 @@ public class UtmTenantConfigService {
         }
     }
 
+    public Optional<UtmTenantConfig> findByAssetName(String assetName) {
+        final String ctx = CLASSNAME + ".findByAssetName";
+        try {
+            return utmTenantConfigRepository.findByAssetName(assetName);
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage());
+        }
+    }
+
     /**
      * Get all UtmTenantConfig.
      *

@@ -9,10 +9,15 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 
 public interface UtmTenantConfigRepository extends JpaRepository<UtmTenantConfig, Long>, JpaSpecificationExecutor<UtmTenantConfig> {
+
     @Query(value = "SELECT t FROM UtmTenantConfig t WHERE" +
             "(:search IS NULL OR ((t.assetName LIKE :search OR lower(t.assetName) LIKE lower(:search))))")
     Page<UtmTenantConfig> searchByFilters(@Param("search") String search,
                                           Pageable pageable);
+
+    Optional<UtmTenantConfig> findByAssetName(String assetName);
 }
