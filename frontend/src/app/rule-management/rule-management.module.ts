@@ -46,6 +46,7 @@ import {RuleService} from './services/rule.service';
 import {RulesResolverService} from './services/rules.resolver.service';
 import {GenericFilterComponent} from './share/generic-filter/generic-filter.component';
 import {RuleDetailComponent} from "./app-rule/components/rule-list/components/rule-detail/rule-detail.component";
+import {MonacoEditorModule} from "ngx-monaco-editor";
 
 
 @NgModule({
@@ -87,7 +88,8 @@ import {RuleDetailComponent} from "./app-rule/components/rule-list/components/ru
         NgSelectModule,
         InfiniteScrollModule,
         FileBrowserModule,
-        FormsModule
+        FormsModule,
+        MonacoEditorModule
     ],
   providers: [
       RuleService,

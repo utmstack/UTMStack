@@ -73,14 +73,23 @@
       background-color: #f0f0f0 !important;
     }
 
-    // Syntax highlighting colors for YAML
-    .mtk5 {
-      color: #0277bd !important; // Keys - Blue
+    .mtk7 {
+      color: #2d7a1a !important;
       font-weight: 600 !important;
     }
 
-    .mtk1 {
-      color: #ff6b6b !important; // Values - Red
+    .mtk22 {
+      color: #0055cc !important;
+      font-weight: 600 !important;
+    }
+
+    .mtk1,
+    .mtk5 {
+      color: #666666 !important;
+    }
+
+    .mtk3 {
+      color: #c26e00 !important;
     }
   }
 }

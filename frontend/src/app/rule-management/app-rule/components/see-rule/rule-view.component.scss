@@ -35,29 +35,6 @@ app-utm-modal-header {
   }
 }
 
-.yaml-container {
-  width: 100%;
-  background: #ffffff;
-  padding: 16px;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-}
-
-.yaml-preview {
-  white-space: pre-wrap;
-  font-family: "Fira Code", monospace;
-  font-size: 14px;
-}
-
-::ng-deep .yaml-key {
-  color: #0277bd;
-  font-weight: 600;
-}
-
-::ng-deep .yaml-value {
-  color: #FF6B6B;
-}
-
 .sub-header {
   background: transparent;
   border: none;
@@ -107,6 +84,64 @@ app-utm-modal-header {
 
   i {
     font-size: .75rem !important;
+  }
+}
+
+.rule-view-container {
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  overflow: hidden;
+  height: 600px;
+  width: 100%;
+  flex: 1;
+
+  ::ng-deep {
+    .monaco-editor {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .monaco-editor-background {
+      background-color: #f5f5f5 !important;
+    }
+
+    .overflow-guard {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .monaco-scrollable-element {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .monaco-editor.readonly {
+      background-color: #f0f0f0 !important;
+      opacity: 0.8 !important;
+    }
+
+    .monaco-editor.readonly .monaco-editor-background {
+      background-color: #f0f0f0 !important;
+    }
+
+    .mtk7 {
+      color: #2d7a1a !important;
+      font-weight: 600 !important;
+    }
+
+    .mtk22 {
+      color: #0055cc !important;
+      font-weight: 600 !important;
+    }
+
+    .mtk1,
+    .mtk5 {
+      color: #666666 !important;
+    }
+
+    .mtk3 {
+      color: #c26e00 !important;
+    }
   }
 }
 

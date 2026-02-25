@@ -8,14 +8,27 @@ import {Rule} from '../../../models/rule.model';
   templateUrl: './rule-view.component.html',
   styleUrls: ['./rule-view.component.scss'],
 })
-export class RuleViewComponent implements OnInit {
+export class RuleViewComponent {
   @Input() rowDocument: Rule;
 
   copied = false;
-
-  ngOnInit() {
-    console.log('Rule received:', this.rowDocument);
-  }
+  editorOptions: any = {
+    theme: 'vs-light',
+    language: 'yaml',
+    automaticLayout: true,
+    fontSize: 13,
+    lineHeight: 24,
+    fontFamily: 'Courier New, Monaco, Menlo, monospace',
+    lineNumbers: 'on',
+    wordWrap: 'on',
+    minimap: { enabled: false },
+    scrollBeyondLastLine: false,
+    formatOnPaste: true,
+    formatOnType: true,
+    tabSize: 2,
+    insertSpaces: true,
+    readOnly: true
+  };
 
   get yamlString(): string {
     try {
@@ -31,14 +44,6 @@ export class RuleViewComponent implements OnInit {
     } catch (e) {
       return 'Error generating YAML';
     }
-  }
-
-  get yamlHighlighted(): string {
-    return this.yamlString
-      .replace(/^(\s*)([a-zA-Z0-9_]+):/gm, '$1<span class="yaml-key">$2</span>:')
-      .replace(/: (.*)/g, ': <span class="yaml-value">$1</span>')
-      .replace(/-\s+(.*)/g, '- <span class="yaml-value">$1</span>')
-      .replace(/^\s{2,}(.+)/gm, '  <span class="yaml-value">$1</span>');
   }
 
   exportYaml() {

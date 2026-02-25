@@ -16,6 +16,16 @@
   </div>
 </div>
 
-<div class="d-flex h-100 m-h-0 overflow-auto p-2 rule-view-container">
-  <pre class="yaml-preview w-100" [innerHTML]="yamlHighlighted"></pre>
+<div class="rule-view-container">
+  <ngx-monaco-editor
+    style="height: 650px"
+    class="template-editor"
+    name="logstashFilter"
+    [options]="editorOptions"
+    [ngModel]="yamlString">
+  </ngx-monaco-editor>
 </div>
+
+<!--<div class="d-flex h-100 m-h-0 overflow-auto p-2 rule-view-container">
+  <pre class="yaml-preview w-100" [innerHTML]="yamlHighlighted"></pre>
+</div>-->
