@@ -179,7 +179,7 @@ public class UtmDataInputStatusService {
         }
     }
 
-    @Scheduled(fixedDelay = 1000, initialDelay = 2000)
+    @Scheduled(fixedDelay = 15000, initialDelay = 30000)
     public void syncDataInputStatus() {
         final String ctx = CLASSNAME + ".syncDataInputStatus";
 
