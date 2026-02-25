@@ -179,7 +179,7 @@ public class UtmDataInputStatusService {
         }
     }
 
-    @Scheduled(fixedDelay = 15000, initialDelay = 30000)
+    @Scheduled(fixedDelay = 1000, initialDelay = 2000)
     public void syncDataInputStatus() {
         final String ctx = CLASSNAME + ".syncDataInputStatus";
 
@@ -198,10 +198,11 @@ public class UtmDataInputStatusService {
             latestStats.forEach((key, stat) -> {
                 try {
                     String dataType = stat.getDataType();
-                    String dataSource = getDataSource(stat.getDataSource());
+                    String assetName = this.getDataSource(stat.getDataSource());
+
                     long timestamp = Instant.parse(stat.getTimestamp()).getEpochSecond();
 
-                    String compositeKey = dataType + "-" + dataSource;
+                    String compositeKey = dataType + "-" + assetName;
 
                     UtmDataInputStatus status = existing.get(compositeKey);
                     boolean changed = false;
@@ -210,14 +211,18 @@ public class UtmDataInputStatusService {
                         status = UtmDataInputStatus.builder()
                                 .id(compositeKey)
                                 .dataType(dataType)
-                                .source(dataSource)
+                                .source(assetName)
                                 .timestamp(timestamp)
                                 .median(86400L)
                                 .build();
                         changed = true;
 
                     } else if (status.getTimestamp() != timestamp) {
-                        status.setSource(dataSource);
+
+                        if (!assetName.equals(stat.getDataSource())) {
+                             status.setSource(stat.getDataSource());
+                        }
+
                         status.setTimestamp(timestamp);
                         changed = true;
                     }
