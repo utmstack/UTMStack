@@ -10,8 +10,9 @@ import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.service.MailService;
 import com.park.utmstack.service.UtmSpaceNotificationControlService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
-import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationDto;
+import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationsDto;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlEvaluationMapper;
+import com.park.utmstack.service.mapper.compliance.UtmComplianceControlEvaluationsMapper;
 import com.park.utmstack.util.chart_builder.IndexPropertyType;
 import com.park.utmstack.util.exceptions.OpenSearchIndexNotFoundException;
 import com.park.utmstack.util.exceptions.UtmElasticsearchException;
@@ -407,19 +408,54 @@ public class ElasticsearchService {
         }
     }
 
-    public List<UtmComplianceControlEvaluationDto> getControlEvaluations(Long controlId) {
+    public List<UtmComplianceControlEvaluationsDto> getControlEvaluations(Long controlId) {
         final String ctx = CLASSNAME + ".getControlEvaluations";
         try {
-            Query query = Query.of(q -> q.term(t -> t.field("control_id").value(FieldValue.of(controlId.toString())))
+            Query query = Query.of(q -> q.term(t -> t
+                    .field("control_id")
+                    .value(FieldValue.of(controlId.toString())))
             );
 
-            SearchRequest request = new SearchRequest.Builder().index("v11-log-compliance-evaluation").query(query).size(1000).build();
+            SearchRequest request = new SearchRequest.Builder()
+                    .index("v11-log-compliance-evaluation")
+                    .query(query)
+                    .size(1000)
+                    .build();
+
             SearchResponse<Map> response = search(request, Map.class);
 
-            return response.hits().hits().stream().map(hit -> UtmComplianceControlEvaluationMapper.mapToEvaluationDto(hit.source())).toList();
+            return response.hits().hits().stream().map(hit -> UtmComplianceControlEvaluationsMapper.mapToEvaluationDto(hit.source())).toList();
 
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage(), e);
         }
     }
+
+    public UtmComplianceControlEvaluationsDto getLastEvaluation(Long controlId) {
+        try {
+            SearchRequest request = new SearchRequest.Builder()
+                    .index("v11-log-compliance-evaluation")
+                    .query(q -> q.term(t -> t
+                            .field("control_id")
+                            .value(v -> v.longValue(controlId))
+                    ))
+                    .sort(s -> s.field(f -> f.field("timestamp").order(SortOrder.Desc)))
+                    .size(1)
+                    .build();
+
+            SearchResponse<Map> response = client.getClient().search(request, Map.class);
+
+            if (response.hits().hits().isEmpty()) {
+                return null;
+            }
+
+            Map<String, Object> source = response.hits().hits().get(0).source();
+
+            return UtmComplianceControlEvaluationMapper.mapToEvaluationDto(source);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching last evaluation for control " + controlId, e);
+        }
+    }
+
 }

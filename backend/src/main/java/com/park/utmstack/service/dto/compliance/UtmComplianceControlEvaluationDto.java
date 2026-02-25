@@ -1,19 +1,23 @@
 package com.park.utmstack.service.dto.compliance;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.park.utmstack.domain.compliance.enums.ComplianceStrategy;
 import lombok.Data;
 
-import java.time.Instant;
 import java.util.List;
 
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class UtmComplianceControlEvaluationDto {
+    private Long id;
+    private Long standardSectionId;
+    private UtmComplianceStandardSectionDto section;
 
-    private Long controlId;
     private String controlName;
-    private String status;
-    private Instant timestamp;
-    private List<UtmComplianceQueryEvaluationDto> queryEvaluations;
-}
+    private String controlSolution;
+    private String controlRemediation;
+    private ComplianceStrategy controlStrategy;
 
+    private List<UtmComplianceQueryConfigDto> queriesConfigs;
+
+    private String lastEvaluationStatus;
+    private String lastEvaluationTimestamp;
+}
