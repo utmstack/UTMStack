@@ -477,5 +477,7 @@
 
     <include file="/config/liquibase/changelog/20260223004_update_windows_visualizations.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260225001_add_unique_constraint_asset_name.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
