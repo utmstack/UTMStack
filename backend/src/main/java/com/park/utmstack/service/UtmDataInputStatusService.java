@@ -1,6 +1,7 @@
 package com.park.utmstack.service;
 
 import com.park.utmstack.config.Constants;
+import com.park.utmstack.domain.correlation.config.UtmTenantConfig;
 import com.park.utmstack.domain.datainput_ingestion.UtmDataInputStatus;
 import com.park.utmstack.domain.UtmServerModule;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
@@ -17,6 +18,7 @@ import com.park.utmstack.repository.datainput_ingestion.UtmDataInputStatusReposi
 import com.park.utmstack.repository.correlation.config.UtmDataTypesRepository;
 import com.park.utmstack.repository.network_scan.UtmNetworkScanRepository;
 import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.service.correlation.config.UtmTenantConfigService;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
 import com.park.utmstack.service.elasticsearch.SearchUtil;
 import com.park.utmstack.service.logstash_pipeline.response.statistic.StatisticDocument;
@@ -24,6 +26,7 @@ import com.park.utmstack.service.network_scan.DataSourceConstants;
 import com.park.utmstack.service.network_scan.UtmNetworkScanService;
 import com.park.utmstack.util.enums.AlertSeverityEnum;
 import com.park.utmstack.util.enums.AlertStatus;
+import com.park.utmstack.util.exceptions.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.conn.util.InetAddressUtils;
 import org.opensearch.client.json.JsonData;
@@ -34,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,6 +72,7 @@ public class UtmDataInputStatusService {
     private final UtmDataTypesRepository dataTypesRepository;
     private final UtmNetworkScanRepository networkScanRepository;
     private final UtmDataInputStatusCheckpointRepository checkpointRepository;
+    private final UtmTenantConfigService utmTenantConfigService;
 
 
     /**
@@ -174,7 +179,7 @@ public class UtmDataInputStatusService {
         }
     }
 
-    @Scheduled(fixedDelay = 15000, initialDelay = 30000)
+    @Scheduled(fixedDelay = 1000, initialDelay = 2000)
     public void syncDataInputStatus() {
         final String ctx = CLASSNAME + ".syncDataInputStatus";
 
@@ -193,7 +198,7 @@ public class UtmDataInputStatusService {
             latestStats.forEach((key, stat) -> {
                 try {
                     String dataType = stat.getDataType();
-                    String dataSource = stat.getDataSource();
+                    String dataSource = getDataSource(stat.getDataSource());
                     long timestamp = Instant.parse(stat.getTimestamp()).getEpochSecond();
 
                     String compositeKey = dataType + "-" + dataSource;
@@ -210,7 +215,9 @@ public class UtmDataInputStatusService {
                                 .median(86400L)
                                 .build();
                         changed = true;
+
                     } else if (status.getTimestamp() != timestamp) {
+                        status.setSource(dataSource);
                         status.setTimestamp(timestamp);
                         changed = true;
                     }
@@ -496,5 +503,72 @@ public class UtmDataInputStatusService {
 
         return result;
     }
+
+    private String getDataSource(String assetName) {
+        final String ctx = CLASSNAME + ".getDataSource";
+
+        Optional<UtmTenantConfig> tenantConfig = this.utmTenantConfigService.findByAssetName(assetName);
+
+        if (tenantConfig.isEmpty()) {
+            return assetName;
+        }
+
+        List<String> sources = buildSourcesList(tenantConfig.get());
+
+        if (CollectionUtils.isEmpty(sources)) {
+            return assetName;
+        }
+
+        Optional<UtmDataInputStatus> dataInputStatus = this.findDataInputBySource(sources);
+
+        return dataInputStatus
+                .map(UtmDataInputStatus::getSource)
+                .orElse(assetName);
+    }
+
+    /**
+     * Builds a combined list of hostnames and IPs from tenant configuration
+     *
+     * @param tenantConfig the tenant configuration
+     * @return combined list of sources, or empty list if none available
+     */
+    private List<String> buildSourcesList(UtmTenantConfig tenantConfig) {
+        List<String> sources = new ArrayList<>();
+
+        if (!CollectionUtils.isEmpty(tenantConfig.getAssetHostnameList())) {
+            sources.addAll(tenantConfig.getAssetHostnameList());
+        }
+
+        if (!CollectionUtils.isEmpty(tenantConfig.getAssetIpList())) {
+            sources.addAll(tenantConfig.getAssetIpList());
+        }
+
+        return sources;
+    }
+
+    /**
+     * Finds a data input status by searching in the provided list of sources.
+     * Returns the first available source from the database.
+     *
+     * @param sources list of source hostnames/IPs to search for
+     * @return Optional containing the data input status if found
+     */
+    public Optional<UtmDataInputStatus> findDataInputBySource(List<String> sources) {
+        final String ctx = CLASSNAME + ".findDataInputBySource";
+
+        if (CollectionUtils.isEmpty(sources)) {
+            return Optional.empty();
+        }
+
+        try {
+            return this.dataInputStatusRepository.findBySourceIsIn(sources);
+
+        } catch (Exception ex) {
+            log.error("{}: Error finding data input status by source {} - {}",
+                    ctx, sources, ex.getMessage(), ex);
+            return Optional.empty();
+        }
+    }
+
 
 }
