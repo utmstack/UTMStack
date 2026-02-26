@@ -55,49 +55,7 @@ export class ComplianceEvaluationsViewComponent implements OnInit, OnDestroy {
   destroy$: Subject<void> = new Subject<void>();
   showBack = false;
 
-  option = {
-    tooltip: {
-      trigger: 'item',
-      formatter: params => {
-        const e = params.data;
-        return `
-        <b>${e.dateFormatted}</b><br/>
-        Status: <b>${e.status}</b>
-      `;
-      }
-    },
-    xAxis: {
-      type: 'time',
-      name: 'Evaluations over time'
-    },
-    yAxis: {
-      show: false
-    },
-    dataZoom: [
-      {
-        type: 'slider',
-        show: true,
-        xAxisIndex: 0,
-        filterMode: 'none',
-        start: 0,
-        end: 10
-      },
-      {
-        type: 'inside',
-        xAxisIndex: 0,
-        filterMode: 'none',
-        start: 0,
-        end: 10
-      }
-    ],
-    series: [
-      {
-        type: 'scatter',
-        symbolSize: 20, // ← importante para que se vea como punto
-        data: [] // ← se llena después
-      }
-    ]
-  };
+  chartOption: any = {};
 
   constructor(private activeRoute: ActivatedRoute,
               // private cpReportsService: CpReportsService,
@@ -157,10 +115,95 @@ export class ComplianceEvaluationsViewComponent implements OnInit, OnDestroy {
     if (this.controlId) {
       this.cpControlConfigService.evaluationsByControl(this.controlId)
         .subscribe(response => {
-          this.evaluations = response.body;
-          console.log('Evaluations: ', this.evaluations);
-          this.option.series[0].data = this.buildChartData();
-          this.option = { ...this.option };
+          this.evaluations = response.body.evaluations;
+          this.chartOption = {
+            tooltip: {
+              trigger: 'item',
+              formatter: params => {
+                const e = params.data;
+                return `
+                        <b>${e.dateFormatted}</b><br/>
+                        Status: <b>${e.status}</b>
+                      `;
+              }
+            },
+            xAxis: {
+              type: 'time',
+              min: new Date(response.body.startDate).getTime(),
+              max: new Date(response.body.endDate).getTime(),
+              axisLabel: {
+                formatter: value => {
+                  const d = new Date(value);
+                  return d.toLocaleString('en-US', {
+                    month: 'short',
+                    day: '2-digit',
+                    year: 'numeric',
+                  });
+                }
+              },
+              axisTick: {
+                alignWithLabel: true
+              },
+              splitLine: {
+                show: true
+              },
+              interval: 1000 * 60 * 60 * 24
+            },
+            yAxis: { show: false },
+            dataZoom: [
+              { type: 'slider', start: 0, end: 10 },
+              { type: 'inside', start: 0, end: 10 }
+            ],
+            series: [
+              {
+                type: 'custom',
+                renderItem: (params, api) => {
+                  const xValue = api.value(0);
+                  const x = api.coord([xValue, 0])[0];
+
+                  const totalWidth = 40;
+                  const margin = 2;
+                  const width = totalWidth - margin * 2;
+
+                  const yBottom = api.coord([xValue, 0])[1];
+                  const yTop = api.coord([xValue, 1])[1];
+                  const height = yBottom - yTop;
+
+                  return {
+                    type: 'group',
+                    children: [
+                      {
+                        type: 'rect',
+                        shape: {
+                          x: x - totalWidth / 2 + margin,
+                          y: yTop,
+                          width,
+                          height
+                        },
+                        style: api.style(),
+                        // ⭐ Aquí viene la magia
+                        clipPath: {
+                          type: 'rect',
+                          shape: {
+                            x: x - totalWidth / 2 + margin,
+                            y: yTop,
+                            width,
+                            height,
+                            r: 5   // ⭐ radio de borde redondeado
+                          }
+                        }
+                      }
+                    ]
+                  };
+                },
+                data: []
+              }
+            ]
+
+          };
+
+          this.chartOption.series[0].data = this.buildChartData();
+          this.chartOption = { ...this.chartOption };
         });
     }
   }
@@ -171,7 +214,11 @@ export class ComplianceEvaluationsViewComponent implements OnInit, OnDestroy {
       controlId: e.controlId,
       status: e.status,
       timestamp: e.timestamp,
-      dateFormatted: new Date(e.timestamp).toLocaleString(),
+      dateFormatted: new Date(e.timestamp).toLocaleString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric'
+      }),
       itemStyle: {
         color: e.status === 'COMPLIANT' ? '#4CAF50' : '#F44336'
       }

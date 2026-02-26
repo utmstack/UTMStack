@@ -1,7 +1,7 @@
 <ng-container *ngIf="evaluations">
   <div class="container-fluid p-3">
     <div echarts
-         [options]="option"
+         [options]="chartOption"
          class="timeline-chart"
          (chartInit)="onChartInit($event)">
     </div>
