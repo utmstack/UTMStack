@@ -39,7 +39,6 @@ export class FieldsSelectorComponent implements OnInit {
   }
 
   addTag(name: string) {
-    alert(name)
     return { name };
   }
 }
