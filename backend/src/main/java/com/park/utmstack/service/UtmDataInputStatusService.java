@@ -26,7 +26,6 @@ import com.park.utmstack.service.network_scan.DataSourceConstants;
 import com.park.utmstack.service.network_scan.UtmNetworkScanService;
 import com.park.utmstack.util.enums.AlertSeverityEnum;
 import com.park.utmstack.util.enums.AlertStatus;
-import com.park.utmstack.util.exceptions.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.conn.util.InetAddressUtils;
 import org.opensearch.client.json.JsonData;
@@ -37,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -198,11 +196,14 @@ public class UtmDataInputStatusService {
             latestStats.forEach((key, stat) -> {
                 try {
                     String dataType = stat.getDataType();
-                    String assetName = this.getDataSource(stat.getDataSource());
+                    String statName = stat.getDataSource();
+                    String sourceWithAlias = this.getSourceName(statName);
+                    String resolvedAlias = sourceWithAlias != null ? statName : null;
+                    String source = sourceWithAlias == null ? statName : sourceWithAlias;
 
                     long timestamp = Instant.parse(stat.getTimestamp()).getEpochSecond();
 
-                    String compositeKey = dataType + "-" + assetName;
+                    String compositeKey = dataType + "-" + source;
 
                     UtmDataInputStatus status = existing.get(compositeKey);
                     boolean changed = false;
@@ -211,19 +212,16 @@ public class UtmDataInputStatusService {
                         status = UtmDataInputStatus.builder()
                                 .id(compositeKey)
                                 .dataType(dataType)
-                                .source(assetName)
+                                .source(source)
+                                .alias(resolvedAlias)
                                 .timestamp(timestamp)
                                 .median(86400L)
                                 .build();
                         changed = true;
 
-                    } else if (status.getTimestamp() != timestamp) {
-
-                        if (!assetName.equals(stat.getDataSource())) {
-                             status.setSource(stat.getDataSource());
-                        }
-
+                    } else if (status.getTimestamp() != timestamp || !Objects.equals(status.getAlias(), resolvedAlias)) {
                         status.setTimestamp(timestamp);
+                        status.setAlias(resolvedAlias);
                         changed = true;
                     }
 
@@ -280,6 +278,7 @@ public class UtmDataInputStatusService {
             }
 
             Map<String, Boolean> sourcesWithStatus = extractSourcesWithUpDownStatus(sources);
+            Map<String, String> sourcesWithAlias = extractSourcesWithAlias(sources);
 
             List<String> keys = new ArrayList<>(sourcesWithStatus.keySet());
             List<UtmNetworkScan> assets = networkScanRepository.findByAssetIpInOrAssetNameIn(keys, keys);
@@ -293,12 +292,23 @@ public class UtmDataInputStatusService {
 
             for (Map.Entry<String, Boolean> entry : sourcesWithStatus.entrySet()) {
                 String key = entry.getKey();
+                String alias = sourcesWithAlias.get(key);
                 Boolean alive = entry.getValue();
+
 
                 UtmNetworkScan asset = assetsByKey.get(key);
 
+                if (asset == null && StringUtils.hasText(alias)) {
+                    asset = assetsByKey.get(alias);
+                }
+
                 if (asset != null) {
                     if (asset.getUpdateLevel() == null || asset.getUpdateLevel().equals(UpdateLevel.DATASOURCE) || asset.getUpdateLevel().equals(UpdateLevel.AGENT)) {
+
+                        if (StringUtils.hasText(alias) && !alias.equals(asset.getAssetAlias())) {
+                            asset.assetAliases(alias);
+                        }
+
                         asset.assetAlive(alive)
                              .updateLevel(UpdateLevel.DATASOURCE)
                              .assetStatus(AssetStatus.CHECK)
@@ -330,6 +340,17 @@ public class UtmDataInputStatusService {
             log.error("{}: Error synchronizing sources to assets - {}", ctx, e.getMessage(), e);
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
+    }
+
+     private Map<String, String> extractSourcesWithAlias(List<UtmDataInputStatus> sources) {
+        Map<String, String> alias = new HashMap<>();
+
+        sources.forEach(src -> {
+            if (StringUtils.hasText(src.getAlias())) {
+                alias.put(src.getSource(), src.getAlias());
+            }
+        });
+        return alias;
     }
 
     private Map<String, Boolean> extractSourcesWithUpDownStatus(List<UtmDataInputStatus> sources) {
@@ -509,26 +530,26 @@ public class UtmDataInputStatusService {
         return result;
     }
 
-    private String getDataSource(String assetName) {
+    private String getSourceName(String assetName) {
         final String ctx = CLASSNAME + ".getDataSource";
 
         Optional<UtmTenantConfig> tenantConfig = this.utmTenantConfigService.findByAssetName(assetName);
 
         if (tenantConfig.isEmpty()) {
-            return assetName;
+            return null;
         }
 
         List<String> sources = buildSourcesList(tenantConfig.get());
 
         if (CollectionUtils.isEmpty(sources)) {
-            return assetName;
+            return null;
         }
 
         Optional<UtmDataInputStatus> dataInputStatus = this.findDataInputBySource(sources);
 
         return dataInputStatus
                 .map(UtmDataInputStatus::getSource)
-                .orElse(assetName);
+                .orElse(null);
     }
 
     /**

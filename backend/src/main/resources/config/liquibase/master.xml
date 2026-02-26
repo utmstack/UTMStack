@@ -479,5 +479,7 @@
 
     <include file="/config/liquibase/changelog/20260225001_add_unique_constraint_asset_name.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260226001_add_alias_to_data_input_status.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
