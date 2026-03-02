@@ -483,5 +483,7 @@
 
     <include file="/config/liquibase/changelog/20260302002_update_bit-defender_correlation_rules.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260302003_update_deceptive_bytes_correlation_rules.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
