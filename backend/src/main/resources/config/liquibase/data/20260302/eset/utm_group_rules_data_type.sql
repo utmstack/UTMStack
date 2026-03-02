@@ -1,0 +1,13 @@
+INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1136, 27, null);
+INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1137, 27, null);
+INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1138, 27, null);
+INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1139, 27, null);
+INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1140, 27, null);
+INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1141, 27, null);
+INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1142, 27, null);
+INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1143, 27, null);
+INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1144, 27, null);
+INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1145, 27, null);
+INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1146, 27, null);
+INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1147, 27, null);
+INSERT INTO public.utm_group_rules_data_type (rule_id, data_type_id, last_update) VALUES (1148, 27, null);
