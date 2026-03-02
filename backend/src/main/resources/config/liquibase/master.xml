@@ -493,5 +493,7 @@
 
     <include file="/config/liquibase/changelog/20260302007_update_cisco_switch_rules.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260302008_update_cisco_firepower_rules.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
