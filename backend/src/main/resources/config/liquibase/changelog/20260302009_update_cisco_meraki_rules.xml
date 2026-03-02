@@ -12,19 +12,19 @@
             where id in (
                 select u.rule_id
                     from utm_group_rules_data_type u
-                    where u.data_type_id = 13
+                    where u.data_type_id = 5
                 )
             ]]>
         </sql>
 
         <sqlFile
-                path="config/liquibase/data/20260302/cisco-firepower/utm_correlation_rules.sql"
+                path="config/liquibase/data/20260302/cisco-meraki/utm_correlation_rules.sql"
                 relativeToChangelogFile="false"
                 splitStatements="false"
                 stripComments="false"
                 encoding="UTF-8"/>
         <sqlFile
-                path="config/liquibase/data/20260302/cisco-firepower/utm_group_rules_data_type.sql"
+                path="config/liquibase/data/20260302/cisco-meraki/utm_group_rules_data_type.sql"
                 relativeToChangelogFile="false"
                 splitStatements="false"
                 stripComments="false"
