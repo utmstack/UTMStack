@@ -487,5 +487,9 @@
 
     <include file="/config/liquibase/changelog/20260302004_update_eset_correlation_rules.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260302005_update_kaspersky_correlation_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260302006_update_cisco_asa_rules.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
