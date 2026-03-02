@@ -499,5 +499,11 @@
 
     <include file="/config/liquibase/changelog/20260302010_update_aws_rules.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260302011_update_azure_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260302012_update_google_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260302013_add_crowdstrike_rules.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
