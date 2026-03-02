@@ -37,7 +37,7 @@ import {AddReferenceComponent} from './app-rule/components/reference/add-referen
 import {RuleGenericFilterComponent} from './app-rule/components/rule-generic-filter/rule-generic-filter.component';
 import {RuleFieldComponent} from './app-rule/components/rule-list/components/rule-field/rule-field.component';
 import {RuleListComponent} from './app-rule/components/rule-list/rule-list.component';
-import {RuleViewComponent} from './app-rule/components/see-rule/rule-view.component'
+import {RuleViewComponent} from './app-rule/components/rule-view/rule-view.component'
 import {RuleManagementRoutingModule} from './rule-management.routing.module';
 import { DataTypeService } from './services/data-type.service';
 import {FilterService} from './services/filter.service';

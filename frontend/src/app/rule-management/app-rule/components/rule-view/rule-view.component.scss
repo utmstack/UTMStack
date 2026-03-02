@@ -3,9 +3,6 @@ app-utm-modal-header {
   top: 0;
   z-index: 10;
 }
-.rule-view-container {
-  max-height: 650px;
-}
 .copy-btn {
   border: none;
   background: transparent;
@@ -91,7 +88,7 @@ app-utm-modal-header {
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   overflow: hidden;
-  height: 600px;
+  height: 650px;
   width: 100%;
   flex: 1;
 
@@ -108,11 +105,32 @@ app-utm-modal-header {
     .overflow-guard {
       width: 100% !important;
       height: 100% !important;
+      overflow: hidden !important;
     }
 
     .monaco-scrollable-element {
       width: 100% !important;
       height: 100% !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+    }
+
+    .monaco-scrollable-element.vertical {
+      overflow-y: auto !important;
+    }
+
+
+    .scrollbar {
+      &.vertical {
+        .slider {
+          background: rgba(0, 0, 0, 0.2) !important;
+          border-radius: 4px !important;
+
+          &:hover {
+            background: rgba(0, 0, 0, 0.4) !important;
+          }
+        }
+      }
     }
 
     .monaco-editor.readonly {

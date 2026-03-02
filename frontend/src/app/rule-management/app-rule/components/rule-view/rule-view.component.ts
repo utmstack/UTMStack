@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import * as yaml from 'js-yaml';
 import {mapRuleToYaml} from '../../../../shared/components/utm/util/utm-file-upload/shared/rule-yaml.mapper';
 import {Rule} from '../../../models/rule.model';
@@ -27,7 +27,14 @@ export class RuleViewComponent {
     formatOnType: true,
     tabSize: 2,
     insertSpaces: true,
-    readOnly: true
+    readOnly: true,
+    scrollbar: {
+      vertical: 'auto',
+      horizontal: 'hidden',
+      useShadows: true,
+      verticalSliderSize: 12,
+      horizontalSliderSize: 0
+    }
   };
 
   get yamlString(): string {
