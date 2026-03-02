@@ -497,5 +497,7 @@
 
     <include file="/config/liquibase/changelog/20260302009_update_cisco_meraki_rules.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260302010_update_aws_rules.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
