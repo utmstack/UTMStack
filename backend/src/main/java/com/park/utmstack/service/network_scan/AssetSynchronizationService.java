@@ -37,17 +37,17 @@ public class AssetSynchronizationService {
 
     @Transactional
     @Scheduled(fixedDelay = 30000, initialDelay = 60000)
-    public void syncEverything() {
+    public void syncDataInputsAndAssets() {
 
         String correlationId = UUID.randomUUID().toString().substring(0, 8);
-        log.info("[{}] Starting unified asset synchronization cycle...", correlationId);
+        log.info("[{}] Starting unified asset synchronization cycle", correlationId);
 
         try {
             Map<String, AgentDTO> agentsMap = loadAgents();
             Map<String, StatisticDocument> statsMap = sourceActivityProvider.fetchLatestSourceActivity();
 
             if (statsMap.isEmpty()) {
-                log.info("[{}] No new activity detected in data sources.", correlationId);
+                log.debug("[{}] No new activity detected in data sources", correlationId);
                 return;
             }
 
@@ -83,11 +83,11 @@ public class AssetSynchronizationService {
             if (!statusToSave.isEmpty()) dataInputStatusRepository.saveAll(statusToSave);
             if (!assetsToSave.isEmpty()) networkScanRepository.saveAll(assetsToSave);
 
-            log.info("[{}] Cycle completed successfully. Status updated: {}, Assets synced: {}",
+            log.info("[{}] Asset synchronization cycle completed successfully - {} data input status updated, {} assets synced",
                     correlationId, statusToSave.size(), assetsToSave.size());
 
         } catch (Exception e) {
-            log.error("[{}] Critical error during synchronization: {}", correlationId, e.getMessage(), e);
+            log.error("[{}] Critical error during asset synchronization: {}", correlationId, e.getMessage(), e);
         }
     }
 

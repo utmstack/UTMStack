@@ -602,7 +602,7 @@ public class UtmDataInputStatusService {
                 .map(UtmDataTypes::getDataType)
                 .collect(Collectors.toList());
 
-        excludeDataTypes.addAll(Arrays.asList("utmstack", "UTMStack", DataSourceConstants.IBM_AS400_TYPE));
+        excludeDataTypes.add(DataSourceConstants.IBM_AS400_TYPE);
 
         return dataInputStatusRepository.extractSourcesToExport(excludeDataTypes);
     }
