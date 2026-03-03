@@ -505,5 +505,7 @@
 
     <include file="/config/liquibase/changelog/20260302013_add_crowdstrike_rules.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260303001_update_filter_macos.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260303001" author="Manuel">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='3.0.1',
+                updated_at=now(),
+            logstash_filter = $$# Macos filter, version 3.0.1
+pipeline:
+  - dataTypes:
+      - macos
+    steps:
+      - json:
+          source: raw
+
+      # Renaming useful fields
+      - rename:
+          from:
+            - log.activityidentifier
+          to: log.activityIdentifier
+
+      - rename:
+          from:
+            - log.processidentifier
+          to: log.processIdentifier
+
+      - rename:
+          from:
+            - log.storecategory
+          to: log.storeCategory
+
+      - rename:
+          from:
+            - log.threadidentifier
+          to: log.threadIdentifier
+
+          $$
+	WHERE id=1507;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>
