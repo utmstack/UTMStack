@@ -1,4 +1,4 @@
-# Windows_Agent filter, version 3.1.0
+# Windows_Agent filter, version 3.1.1
 # Based on winlogbeat fields, reference [8.15]
 # See https://www.elastic.co/guide/en/beats/winlogbeat/current/exported-fields-winlog.html
 
@@ -133,7 +133,7 @@ pipeline:
       - rename:
           from:
             - log.data.IpAddress
-          to: log.eventDataIpAddress
+          to: origin.ip
 
       - rename:
           from:
@@ -237,7 +237,7 @@ pipeline:
       - rename:
           from:
             - log.data.WorkstationName
-          to: log.eventDataWorkstationName
+          to: origin.host
 
       - rename:
           from:
