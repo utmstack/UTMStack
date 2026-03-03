@@ -507,7 +507,9 @@
 
     <include file="/config/liquibase/changelog/20260303001_update_filter_macos.xml" relativeToChangelogFile="false"/>
 
-    <!--<include file="/config/liquibase/changelog/20260303002_update_filter_fortigate.xml" relativeToChangelogFile="false"/>-->
+    <include file="/config/liquibase/changelog/20260303002_update_filter_fortigate.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260303003_update_filter_windows.xml" relativeToChangelogFile="false"/>
 
 
 </databaseChangeLog>
