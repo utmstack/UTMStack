@@ -1,4 +1,4 @@
-# Fortinet firewall module filter, version 3.0.2
+# Fortinet firewall module filter, version 3.0.3
 # Based in docs and samples provided
 # 
 # Documentations
@@ -72,7 +72,26 @@ pipeline:
           from:
             - log.srcport
           to: origin.port
-
+      - rename:
+          from:
+            - log.mastersrcmac
+          to: log.masterSourceMac
+      - rename:
+          from:
+            - log.osname
+          to: log.osName
+      - rename:
+          from:
+            - log.unauthusersource
+          to: log.unauthUserSource
+      - rename:
+          from:
+            - log.srchwvendor
+          to: log.sourceVendor
+      - rename:
+          from:
+            - log.srcmac
+          to: origin.mac
       - rename:
           from:
             - log.dest_ip
@@ -131,6 +150,19 @@ pipeline:
             - log.apprisk
             - log.scertcname
             - log.scertissuer
+            - log.appact
+            - log.applist
+            - log.masterSourceMac
+            - log.osName
+            - log.service
+            - log.trandisp
+            - log.tz
+            - log.srcswversion
+            - log.unauthUserSource
+            - origin.mac
+            - log.unauthuser
+            - log.srcname
+            - log.sourceVendor
       - trim:
           function: suffix
           substring: '"'
@@ -161,6 +193,19 @@ pipeline:
             - log.apprisk
             - log.scertcname
             - log.scertissuer
+            - log.appact
+            - log.applist
+            - log.masterSourceMac
+            - log.osName
+            - log.service
+            - log.trandisp
+            - log.tz
+            - log.srcswversion
+            - log.unauthUserSource
+            - origin.mac
+            - log.unauthuser
+            - log.srcname
+            - log.sourceVendor
 
       # Adding geolocation to origin.ip
       - dynamic:
