@@ -127,12 +127,6 @@ public class UtmTenantConfigService {
         }
     }
 
-    /**
-     * Get all UtmTenantConfig.
-     *
-     * @param p the pagination parameters
-     * @return the list of tenant configurations
-     */
     public Page<UtmTenantConfig> findAll(String search, Pageable p) {
         final String ctx = CLASSNAME + ".findAll";
         try {
@@ -141,4 +135,5 @@ public class UtmTenantConfigService {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
+
 }
