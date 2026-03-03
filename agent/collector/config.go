@@ -252,12 +252,25 @@ func CheckPortConfigured(port string, proto string, cnf *schema.CollectorConfig,
 
 // IsPortBindable checks if the system can bind to a port.
 func IsPortBindable(port string, proto string) bool {
-	listener, err := net.Listen(proto, ":"+port)
-	if err != nil {
+	addr := ":" + port
+	switch proto {
+	case "tcp":
+		listener, err := net.Listen("tcp", addr)
+		if err != nil {
+			return false
+		}
+		listener.Close()
+		return true
+	case "udp":
+		conn, err := net.ListenPacket("udp", addr)
+		if err != nil {
+			return false
+		}
+		conn.Close()
+		return true
+	default:
 		return false
 	}
-	listener.Close()
-	return true
 }
 
 // EnableTLSForIntegration enables TLS for an integration.
