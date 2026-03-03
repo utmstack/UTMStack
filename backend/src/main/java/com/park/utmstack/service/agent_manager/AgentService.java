@@ -45,7 +45,7 @@ public class AgentService {
      *
      * @return A list of ${@link Agent}
      */
-    private List<AgentDTO> getInstalledAgents() {
+    public List<AgentDTO> getInstalledAgents() {
         final String ctx = CLASSNAME + ".getInstalledAgents";
         try {
 
@@ -98,7 +98,7 @@ public class AgentService {
     }
 
     @Transactional
-    @Scheduled(fixedDelay = 15000, initialDelay = 30000)
+   /* @Scheduled(fixedDelay = 15000, initialDelay = 30000)*/
     public void synchronizeAgents() {
         final String ctx = CLASSNAME + ".synchronizeAgents";
 

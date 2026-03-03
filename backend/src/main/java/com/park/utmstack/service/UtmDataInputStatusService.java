@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -123,7 +122,7 @@ public class UtmDataInputStatusService {
         dataInputStatusRepository.deleteById(id);
     }
 
-    @Scheduled(fixedDelay = 900000)
+    /*@Scheduled(fixedDelay = 900000)*/
     public void checkDatasource() {
         final String ctx = CLASSNAME + ".checkDatasource";
         final List<String> types = Arrays.asList("aws", "o365", "hids");
@@ -177,7 +176,7 @@ public class UtmDataInputStatusService {
         }
     }
 
-    @Scheduled(fixedDelay = 15000, initialDelay = 30000)
+    /*@Scheduled(fixedDelay = 1000, initialDelay = 2000)*/
     public void syncDataInputStatus() {
         final String ctx = CLASSNAME + ".syncDataInputStatus";
 
@@ -247,7 +246,7 @@ public class UtmDataInputStatusService {
      * Gets the sources from utm_data_input_status that are not registered in utm_network_scan table
      * and create new assets with it. This method is a schedule with a delay of 1 hour
      */
-    @Scheduled(fixedDelay = 30000, initialDelay = 60000)
+    /*@Scheduled(fixedDelay = 30000, initialDelay = 60000)*/
     public void syncSourcesToAssets() {
         final String ctx = CLASSNAME + ".syncSourcesToAssets";
         try {
@@ -310,9 +309,9 @@ public class UtmDataInputStatusService {
                         }
 
                         asset.assetAlive(alive)
-                             .updateLevel(UpdateLevel.DATASOURCE)
-                             .assetStatus(AssetStatus.CHECK)
-                             .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+                                .updateLevel(UpdateLevel.DATASOURCE)
+                                .assetStatus(AssetStatus.CHECK)
+                                .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
 
                         networkScanService.save(asset);
                     }
@@ -327,14 +326,14 @@ public class UtmDataInputStatusService {
 
                 if (missing && UpdateLevel.DATASOURCE.equals(asset.getUpdateLevel())) {
                     asset.assetStatus(AssetStatus.MISSING)
-                          .updateLevel(null)
-                          .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+                            .updateLevel(null)
+                            .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
 
                     networkScanService.save(asset);
                 }
             });
 
-           networkScanRepository.deleteAllAssetsByDataType(excludeDataTypes);
+            networkScanRepository.deleteAllAssetsByDataType(excludeDataTypes);
 
         } catch (Exception e) {
             log.error("{}: Error synchronizing sources to assets - {}", ctx, e.getMessage(), e);
@@ -342,7 +341,7 @@ public class UtmDataInputStatusService {
         }
     }
 
-     private Map<String, String> extractSourcesWithAlias(List<UtmDataInputStatus> sources) {
+    private Map<String, String> extractSourcesWithAlias(List<UtmDataInputStatus> sources) {
         Map<String, String> alias = new HashMap<>();
 
         sources.forEach(src -> {
@@ -594,6 +593,18 @@ public class UtmDataInputStatusService {
                     ctx, sources, ex.getMessage(), ex);
             return Optional.empty();
         }
+    }
+
+    public List<UtmDataInputStatus> findDataInputStatus() {
+
+        List<String> excludeDataTypes = dataTypesRepository.findAllByIncludedFalse()
+                .stream()
+                .map(UtmDataTypes::getDataType)
+                .collect(Collectors.toList());
+
+        excludeDataTypes.addAll(Arrays.asList("utmstack", "UTMStack", DataSourceConstants.IBM_AS400_TYPE));
+
+        return dataInputStatusRepository.extractSourcesToExport(excludeDataTypes);
     }
 
 
