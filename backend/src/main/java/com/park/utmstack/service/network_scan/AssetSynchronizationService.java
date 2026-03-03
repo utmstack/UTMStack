@@ -36,7 +36,7 @@ public class AssetSynchronizationService {
     private final UtmDataInputStatusService dataInputStatusService;
 
     @Transactional
-    @Scheduled(fixedDelayString = "${app.sync.rate:30000}", initialDelay = 5000)
+    @Scheduled(fixedDelay = 30000, initialDelay = 60000)
     public void syncEverything() {
 
         String correlationId = UUID.randomUUID().toString().substring(0, 8);

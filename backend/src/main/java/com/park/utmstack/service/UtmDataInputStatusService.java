@@ -1,9 +1,9 @@
 package com.park.utmstack.service;
 
 import com.park.utmstack.config.Constants;
+import com.park.utmstack.domain.UtmServerModule;
 import com.park.utmstack.domain.correlation.config.UtmTenantConfig;
 import com.park.utmstack.domain.datainput_ingestion.UtmDataInputStatus;
-import com.park.utmstack.domain.UtmServerModule;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
@@ -62,7 +62,6 @@ public class UtmDataInputStatusService {
     private final Logger log = LoggerFactory.getLogger(UtmDataInputStatusService.class);
 
     private final UtmDataInputStatusRepository dataInputStatusRepository;
-    private final UtmServerModuleService serverModuleService;
     private final ApplicationEventService applicationEventService;
     private final UtmNetworkScanService networkScanService;
     private final ElasticsearchService elasticsearchService;
@@ -70,6 +69,7 @@ public class UtmDataInputStatusService {
     private final UtmNetworkScanRepository networkScanRepository;
     private final UtmDataInputStatusCheckpointRepository checkpointRepository;
     private final UtmTenantConfigService utmTenantConfigService;
+    private final UtmServerModuleService serverModuleService;
 
 
     /**
@@ -122,7 +122,7 @@ public class UtmDataInputStatusService {
         dataInputStatusRepository.deleteById(id);
     }
 
-    /*@Scheduled(fixedDelay = 900000)*/
+   /* @Scheduled(fixedDelay = 900000)*/
     public void checkDatasource() {
         final String ctx = CLASSNAME + ".checkDatasource";
         final List<String> types = Arrays.asList("aws", "o365", "hids");
@@ -176,7 +176,7 @@ public class UtmDataInputStatusService {
         }
     }
 
-    /*@Scheduled(fixedDelay = 1000, initialDelay = 2000)*/
+   /* @Scheduled(fixedDelay = 15000, initialDelay = 30000)*/
     public void syncDataInputStatus() {
         final String ctx = CLASSNAME + ".syncDataInputStatus";
 
