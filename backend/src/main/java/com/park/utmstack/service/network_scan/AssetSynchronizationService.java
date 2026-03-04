@@ -39,7 +39,7 @@ public class AssetSynchronizationService {
     private final UtmTenantConfigService tenantConfigService;
 
     @Transactional
-    @Scheduled(fixedDelay = 30000, initialDelay = 60000)
+    @Scheduled(fixedDelay = 60000, initialDelay = 120000)
     public void syncDataInputsAndAssets() {
 
         String correlationId = UUID.randomUUID().toString().substring(0, 8);
