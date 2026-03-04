@@ -18,7 +18,7 @@ import {FilterService} from '../../../services/filter.service';
 import {RuleService} from '../../../services/rule.service';
 import {AddRuleComponent} from '../add-rule/add-rule.component';
 import {ImportRuleComponent} from '../import-rules/import-rule.component';
-import {RuleViewComponent} from '../see-rule/rule-view.component';
+import {RuleViewComponent} from '../rule-view/rule-view.component';
 
 
 @Component({

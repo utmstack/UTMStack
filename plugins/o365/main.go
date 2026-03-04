@@ -261,7 +261,7 @@ func (o *OfficeProcessor) GetAuth() error {
 	var err error
 
 	for retry := 0; retry < maxRetries; retry++ {
-		result, _, err = utils.DoReq[MicrosoftLoginResponse](requestUrl, dataBytes, http.MethodPost, headers)
+		result, _, err = utils.DoReq[MicrosoftLoginResponse](requestUrl, dataBytes, http.MethodPost, headers, false)
 		if err == nil {
 			o.Credentials = result
 			return nil
@@ -303,7 +303,7 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 		var err error
 
 		for retry := 0; retry < maxRetries; retry++ {
-			_, _, err = utils.DoReq[StartSubscriptionResponse](link, []byte("{}"), http.MethodPost, headers)
+			_, _, err = utils.DoReq[StartSubscriptionResponse](link, []byte("{}"), http.MethodPost, headers, false)
 			if err == nil {
 				break
 			}
@@ -362,7 +362,7 @@ func (o *OfficeProcessor) GetContentList(subscription string, startTime time.Tim
 	var err error
 
 	for retry := 0; retry < maxRetries; retry++ {
-		respBody, status, err = utils.DoReq[[]ContentList](link, nil, http.MethodGet, headers)
+		respBody, status, err = utils.DoReq[[]ContentList](link, nil, http.MethodGet, headers, false)
 		if err == nil && status == http.StatusOK {
 			return respBody, nil
 		}
@@ -404,7 +404,7 @@ func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse,
 	var err error
 
 	for retry := 0; retry < maxRetries; retry++ {
-		respBody, status, err = utils.DoReq[ContentDetailsResponse](url, nil, http.MethodGet, headers)
+		respBody, status, err = utils.DoReq[ContentDetailsResponse](url, nil, http.MethodGet, headers, false)
 		if err == nil {
 			return respBody, nil
 		}

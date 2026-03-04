@@ -5,12 +5,13 @@ import (
 	"sync"
 
 	"github.com/threatwinds/logger"
+	"github.com/utmstack/UTMStack/shared/fs"
 )
 
 var (
 	Logger             *logger.Logger
 	loggerOnceInstance sync.Once
-	logLevelConfigFile = filepath.Join(GetMyPath(), "log_level.yml")
+	logLevelConfigFile = filepath.Join(fs.GetExecutablePath(), "log_level.yml")
 	LogLevelMap        = map[string]int{
 		"debug":    100,
 		"info":     200,
@@ -28,7 +29,7 @@ type LogLevels struct {
 
 func InitLogger(filename string) {
 	logLevel := LogLevels{}
-	err := ReadYAML(logLevelConfigFile, &logLevel)
+	err := fs.ReadYAML(logLevelConfigFile, &logLevel)
 	if err != nil {
 		logLevel.Level = "info"
 	}

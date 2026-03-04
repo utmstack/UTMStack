@@ -1,7 +1,28 @@
-# Macos filter, version 3.0.0
+# Macos filter, version 3.0.1
 pipeline:
   - dataTypes:
       - macos
     steps:
       - json:
           source: raw
+
+      # Renaming useful fields
+      - rename:
+          from:
+            - log.activityidentifier
+          to: log.activityIdentifier
+
+      - rename:
+          from:
+            - log.processidentifier
+          to: log.processIdentifier
+
+      - rename:
+          from:
+            - log.storecategory
+          to: log.storeCategory
+
+      - rename:
+          from:
+            - log.threadidentifier
+          to: log.threadIdentifier

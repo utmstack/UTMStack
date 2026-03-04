@@ -43,6 +43,10 @@ public class UtmDataInputStatus implements Serializable {
     @Column(name = "median")
     private Long median;
 
+    @Size(max = 500)
+    @Column(name = "alias", length = 500, nullable = true)
+    private String alias;
+
     /**
      * Define if a source is down or up.
      * Null is returned when the calculation could not be done.

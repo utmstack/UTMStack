@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260213003" author="Manuel">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='3.0.2',
+                updated_at = now(),
+                logstash_filter = $$# Bitdefender GravityZone filter, version 3.0.2
+# Based on https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+# and the previous version of the same filter
+
+pipeline:
+  - dataTypes:
+      - antivirus-bitdefender-gz
+    steps:
+      # Using grok to parse header of the message
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.syslogHostIP
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.word}}'
+            - fieldName: log.notDefined
+              pattern: '{{.integer}}'
+            - fieldName: log.0trash
+              pattern: '{{.word}}\:{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.hostId
+              pattern: '{{.word}}'
+            - fieldName: log.0trash
+              pattern: '{{.word}}'
+            - fieldName: log.processPid
+              pattern: '\[{{.integer}}\]'
+            - fieldName: log.1trash
+              pattern: '{{.word}}\:{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.hostId
+              pattern: '{{.word}}'
+            - fieldName: log.0trash
+              pattern: '{{.word}}'
+            - fieldName: log.processPid
+              pattern: '\[{{.integer}}\]'
+            - fieldName: log.1trash
+              pattern: '{{.word}}\:{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.syslogHostIP
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.word}}'
+            - fieldName: log.0trash
+              pattern: '{{.word}}\:{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.0trash
+              pattern: '{{.word}}\:{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.cefVersion
+              pattern: 'CEF\:{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      # Using grok to parse components of the cef_message
+      - grok:
+          patterns:
+            - fieldName: log.productVendor
+              pattern: '\|{{.data}}\|'
+            - fieldName: log.product
+              pattern: '{{.data}}\|'
+            - fieldName: log.productVersion
+              pattern: '{{.data}}\|'
+            - fieldName: log.signatureID
+              pattern: '{{.data}}\|'
+            - fieldName: log.eventType
+              pattern: '{{.data}}\|'
+            - fieldName: log.severity
+              pattern: '{{.data}}\|'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      # Using grok to parse kv issued fields with space
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}dvc='
+            - fieldName: log.dvcToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}request='
+            - fieldName: log.requestToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      # Applying grok to remove unnecessary data
+      - grok:
+          patterns:
+            - fieldName: log.deviceIps
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.dvcToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.requested
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.requestToParse
+
+      # Using the kv filter with default config, usefull in key-value logs
+      - kv:
+          fieldSplit: " "
+          valueSplit: "="
+          source: log.restData
+
+      # Renaming useful fields
+      - rename:
+          from:
+            - log.spt
+          to: origin.port
+
+      - rename:
+          from:
+            - log.src
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.deviceIps
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.dvchost
+          to: target.host
+
+      - rename:
+          from:
+            - log.sproc
+          to: target.path
+
+      - rename:
+          from:
+            - log.filePath
+          to: origin.path
+
+      - rename:
+          from:
+            - log.act
+          to: action
+
+      # Removing unnecessary characters
+      - trim:
+          function: prefix
+          substring: '|'
+          fields:
+            - log.productVendor
+
+      - trim:
+          function: suffix
+          substring: '|'
+          fields:
+            - log.productVendor
+            - log.product
+            - log.productVersion
+            - log.signatureID
+            - log.eventType
+            - log.severity
+
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - log.syslogPriority
+
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - log.syslogPriority
+
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.processPid
+
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.processPid
+
+      # Adding geolocation to origin ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+
+      # Reformat and field conversions
+      - cast:
+          fields:
+            - origin.port
+          to: int
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.0trash
+            - log.1trash
+            - log.2trash
+            - log.restData
+            - log.irrelevant
+            - log.spt
+            - log.src
+            - log.sproc
+            - log.filePath
+            - log.dvc
+            - log.request
+            - log.dvcToParse
+            - log.cefVersion$$
+	WHERE id = 1514;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

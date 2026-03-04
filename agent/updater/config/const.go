@@ -1,14 +1,18 @@
 package config
 
 import (
+	"fmt"
 	"path/filepath"
+	"runtime"
 
-	"github.com/utmstack/UTMStack/agent/updater/utils"
+	"github.com/utmstack/UTMStack/shared/fs"
 )
 
 const (
 	SERV_LOG        = "utmstack_updater.log"
 	SERV_AGENT_NAME = "UTMStackAgent"
+
+	agentBaseName = "utmstack_agent_service"
 )
 
 var (
@@ -17,5 +21,19 @@ var (
 	LogAuthProxyPort = "50051"
 	DependenciesPort = "9001"
 
-	VersionPath = filepath.Join(utils.GetMyPath(), "version.json")
+	VersionPath = filepath.Join(fs.GetExecutablePath(), "version.json")
 )
+
+// ServiceFile returns the agent binary name with OS and architecture suffix.
+// Format: utmstack_agent_service_<os>_<arch>[.exe]
+// Examples:
+//   - utmstack_agent_service_linux_amd64
+//   - utmstack_agent_service_windows_amd64.exe
+//   - utmstack_agent_service_darwin_arm64
+func ServiceFile(suffix string) string {
+	name := fmt.Sprintf("%s_%s_%s%s", agentBaseName, runtime.GOOS, runtime.GOARCH, suffix)
+	if runtime.GOOS == "windows" {
+		return name + ".exe"
+	}
+	return name
+}

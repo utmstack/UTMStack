@@ -39,7 +39,7 @@ func ValidateSOCAIConfig(config *config.ModuleGroup) error {
 		"Content-Type":  "application/json",
 	}
 
-	response, status, err := utils.DoReq[map[string]any](url, nil, "GET", headers)
+	response, status, err := utils.DoReq[map[string]any](url, nil, "GET", headers, false)
 	if err != nil || status != http.StatusOK {
 		if status == http.StatusRequestTimeout {
 			return fmt.Errorf("SOC_AI connection timed out")

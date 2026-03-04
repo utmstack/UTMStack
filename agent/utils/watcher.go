@@ -1,53 +1,79 @@
 package utils
 
 import (
+	"bufio"
 	"fmt"
+	"io"
+	"os"
 	"regexp"
 	"time"
 )
 
-func TailLogFile(filePath string, logLinesChan chan string, stopChan chan bool) {
-	latestLine := "null"
+func TailLogFile(filePath string, logLinesChan chan string, stopChan chan struct{}) {
+	var offset int64
 
-loop:
+	// Start from end of file to avoid re-sending old lines
+	if info, err := os.Stat(filePath); err == nil {
+		offset = info.Size()
+	}
+
 	for {
 		select {
 		case <-stopChan:
-			break loop
-
+			return
 		default:
-			lines, err := ReadFileLines(filePath)
+			newOffset, err := readNewLines(filePath, offset, logLinesChan)
 			if err != nil {
-				Logger.Info("error reading file %s: %v\n", filePath, err)
-				continue
-			}
-			if len(lines) == 1 && latestLine != lines[0] {
-				logLinesChan <- lines[0]
-				latestLine = lines[0]
-			} else if len(lines) > 1 && latestLine != lines[len(lines)-1] {
-				var startIndex = 0
-				if latestLine != "null" {
-					for i, v := range lines {
-						if v == latestLine {
-							startIndex = i + 1
-							break
-						}
-					}
-				}
-				for _, line := range lines[startIndex:] {
-					logLinesChan <- line
-				}
-				if len(lines) > 0 {
-					latestLine = lines[len(lines)-1]
-				}
+				Logger.Info("error reading file %s: %v", filePath, err)
+			} else {
+				offset = newOffset
 			}
 			time.Sleep(time.Second)
 		}
 	}
 }
 
+func readNewLines(filePath string, offset int64, logLinesChan chan string) (int64, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return offset, err
+	}
+	defer file.Close()
+
+	// Check if file was truncated or rotated
+	info, err := file.Stat()
+	if err != nil {
+		return offset, err
+	}
+	if info.Size() < offset {
+		offset = 0
+	}
+
+	if info.Size() == offset {
+		return offset, nil
+	}
+
+	if _, err := file.Seek(offset, io.SeekStart); err != nil {
+		return offset, err
+	}
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line != "" {
+			logLinesChan <- line
+		}
+	}
+
+	newOffset, err := file.Seek(0, io.SeekCurrent)
+	if err != nil {
+		return offset, err
+	}
+	return newOffset, scanner.Err()
+}
+
 func WatchFolder(logType string, logsPath string, logLinesChan chan string) {
-	stopChan := make(chan bool)
+	var currentStopChan chan struct{}
 	latestLog := ""
 	pattern := regexp.MustCompile(fmt.Sprintf(`%s-(\d+)(?:-(\d+))?\.ndjson`, logType))
 
@@ -56,7 +82,7 @@ func WatchFolder(logType string, logsPath string, logLinesChan chan string) {
 	for range ticker.C {
 		isEmpty, err := IsDirEmpty(logsPath)
 		if err != nil {
-			Logger.Info("error checking if %s is empty: %v\n", logsPath, err)
+			Logger.Info("error checking if %s is empty: %v", logsPath, err)
 			continue
 		}
 		if !isEmpty {
@@ -66,11 +92,12 @@ func WatchFolder(logType string, logsPath string, logLinesChan chan string) {
 				continue
 			}
 			if newLatestLog != latestLog && newLatestLog != "" {
-				if latestLog != "" {
-					stopChan <- true
+				if currentStopChan != nil {
+					close(currentStopChan)
 				}
 				latestLog = newLatestLog
-				go TailLogFile(latestLog, logLinesChan, stopChan)
+				currentStopChan = make(chan struct{})
+				go TailLogFile(latestLog, logLinesChan, currentStopChan)
 			}
 		}
 	}

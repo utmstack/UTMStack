@@ -34,7 +34,7 @@ func Install() error {
 		return err
 	}
 
-	pass, err := setup.Apply(version.Version)
+	pass, err := setup.Apply(version.Version, false)
 	if err != nil {
 		return fmt.Errorf("error applying setup: %v", err)
 	}

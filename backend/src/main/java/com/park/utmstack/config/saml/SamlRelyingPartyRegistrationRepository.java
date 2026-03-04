@@ -5,22 +5,28 @@ import com.park.utmstack.domain.idp_provider.IdentityProviderConfig;
 import com.park.utmstack.repository.idp_provider.IdentityProviderConfigRepository;
 import com.park.utmstack.util.CipherUtil;
 import com.park.utmstack.util.saml.PemUtils;
-import org.springframework.security.saml2.core.Saml2X509Credential;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 public class SamlRelyingPartyRegistrationRepository implements RelyingPartyRegistrationRepository {
 
-    private final Map<String, RelyingPartyRegistration> registrations = new ConcurrentHashMap<>();
+    private volatile Map<String, RelyingPartyRegistration> registrations = new ConcurrentHashMap<>();
+    private final SamlMetadataFetcher fetcher;
+    private final String encryptionKey;
 
     public SamlRelyingPartyRegistrationRepository(IdentityProviderConfigRepository jpaProviderRepository) {
+
+        encryptionKey = getValidatedEncryptionKey();
+        fetcher = new SamlMetadataFetcher();
+
         loadProviders(jpaProviderRepository);
     }
 
@@ -30,32 +36,71 @@ public class SamlRelyingPartyRegistrationRepository implements RelyingPartyRegis
     }
 
     public void reloadProviders(IdentityProviderConfigRepository jpaProviderRepository) {
-        registrations.clear();
-        loadProviders(jpaProviderRepository);
+        try {
+            registrations = loadActiveProviders(jpaProviderRepository);
+            log.info("SAML providers reloaded successfully: {} providers loaded", registrations.size());
+        } catch (Exception e) {
+            log.error("Failed to reload SAML providers - keeping previous configuration", e);
+        }
     }
 
+    /**
+     * Loads SAML providers using the specialized loader.
+     * Delegates all async loading logic to SamlProvidersLoader.
+     * App will start without providers if loading fails.
+     */
     private void loadProviders(IdentityProviderConfigRepository jpaProviderRepository) {
-        jpaProviderRepository.findAllByActiveTrue().forEach(entity -> {
-            RelyingPartyRegistration registration = buildRelyingPartyRegistration(entity);
-            registrations.put(entity.getProviderType().name().toLowerCase(), registration);
+        try {
+            registrations = loadActiveProviders(jpaProviderRepository);
+            if (registrations.isEmpty()) {
+                log.warn("No active SAML2 providers found. SAML2 authentication will not be available.");
+            } else {
+                log.info("Successfully loaded {} SAML2 provider(s) on startup", registrations.size());
+            }
+        } catch (Exception e) {
+            log.error("Error during SAML provider loading - app will start without SAML2 authentication: {}",
+                    e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Validates and retrieves the encryption key from environment variables.
+     *
+     * @return The validated encryption key
+     * @throws IllegalStateException if ENCRYPTION_KEY is not configured
+     */
+    private String getValidatedEncryptionKey() {
+        String encryptionKey = System.getenv(Constants.ENV_ENCRYPTION_KEY);
+        if (encryptionKey == null || encryptionKey.isBlank()) {
+            throw new IllegalStateException(
+                    "Environment variable " + Constants.ENV_ENCRYPTION_KEY + " not configured");
+        }
+        return encryptionKey;
+    }
+
+    private Map<String, RelyingPartyRegistration> loadActiveProviders(IdentityProviderConfigRepository repo) {
+
+        Map<String, RelyingPartyRegistration> map = new ConcurrentHashMap<>();
+
+        List<IdentityProviderConfig> activeProviders = repo.findAllByActiveTrue();
+
+        activeProviders.forEach(entity -> {
+
+            PrivateKey spKey = PemUtils.parsePrivateKey(CipherUtil.decrypt(
+                    entity.getSpPrivateKeyPem(),
+                    encryptionKey));
+
+            X509Certificate spCert = PemUtils.parseCertificate(entity.getSpCertificatePem());
+
+            RelyingPartyRegistration reg = fetcher.fetch(entity, spKey, spCert);
+
+            if (reg != null) {
+                map.put(entity.getProviderType().name().toLowerCase(), reg);
+            }
         });
+
+        return map;
     }
 
-    private RelyingPartyRegistration buildRelyingPartyRegistration(IdentityProviderConfig entity) {
-
-        PrivateKey spKey = PemUtils.parsePrivateKey(CipherUtil.decrypt(
-                entity.getSpPrivateKeyPem(),
-                System.getenv(Constants.ENV_ENCRYPTION_KEY)
-        ));
-        X509Certificate spCert = PemUtils.parseCertificate(entity.getSpCertificatePem());
-
-        return RelyingPartyRegistrations
-                .fromMetadataLocation(entity.getMetadataUrl())
-                .registrationId(entity.getName())
-                .entityId(entity.getSpEntityId())
-                .assertionConsumerServiceLocation(entity.getSpAcsUrl())
-                .signingX509Credentials(c -> c.add(Saml2X509Credential.signing(spKey, spCert)))
-                .build();
-    }
 
 }

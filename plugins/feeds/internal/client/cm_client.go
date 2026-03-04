@@ -66,6 +66,7 @@ func (c *CustomersManagerClient) RegisterUserReporter() (*RegistrationResponse, 
 		nil,
 		http.MethodPost,
 		headers,
+		false,
 	)
 
 	if err != nil {

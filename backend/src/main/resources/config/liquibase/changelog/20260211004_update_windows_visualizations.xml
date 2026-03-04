@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260211004" author="Manuel Abascal">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+                ------------------------------------------------------------------
+                -- Replace outdated ServiceName field (SAFE)
+                -------------------------------------------------------------------
+                UPDATE utm_visualization
+                SET filters = REPLACE(filters,
+                  '"field":"log.wineventlogEventDataServiceName.keyword"',
+                  '"field":"log.winlogEventDataServiceName.keyword"')
+                WHERE filters LIKE '%"field":"log.wineventlogEventDataServiceName.keyword"%';
+
+                UPDATE utm_visualization
+                SET aggregation = REPLACE(aggregation,
+                  '"field":"log.wineventlogEventDataServiceName.keyword"',
+                  '"field":"log.winlogEventDataServiceName.keyword"')
+                WHERE aggregation LIKE '%"field":"log.wineventlogEventDataServiceName.keyword"%';
+
+
+                ------------------------------------------------------------------
+                -- Replace outdated Windows EventId (SAFE)
+                -------------------------------------------------------------------
+                UPDATE utm_visualization
+                SET filters = REPLACE(filters,
+                  '"field":"log.wineventlogEventId.keyword"',
+                  '"field":"log.winlogEventId.keyword"')
+                WHERE filters LIKE '%"field":"log.wineventlogEventId.keyword"%';
+
+                UPDATE utm_visualization
+                SET aggregation = REPLACE(aggregation,
+                  '"field":"log.wineventlogEventId.keyword"',
+                  '"field":"log.winlogEventId.keyword"')
+                WHERE aggregation LIKE '%"field":"log.wineventlogEventId.keyword"%';
+
+
+                ------------------------------------------------------------------
+                -- Replace outdated Windows EventCreated field (SAFE)
+                -------------------------------------------------------------------
+                UPDATE utm_visualization
+                SET filters = REPLACE(filters,
+                  '"field":"log.winlog.event.created"',
+                  '"field":"log.winlogEventCreated"')
+                WHERE filters LIKE '%"field":"log.winlog.event.created"%';
+
+                UPDATE utm_visualization
+                SET aggregation = REPLACE(aggregation,
+                  '"field":"log.winlog.event.created"',
+                  '"field":"log.winlogEventCreated"')
+                WHERE aggregation LIKE '%"field":"log.winlog.event.created"%';
+
+
+                ------------------------------------------------------------------
+                -- Replace outdated Windows ProcessName.keyword field (SAFE)
+                -------------------------------------------------------------------
+                UPDATE utm_visualization
+                SET filters = REPLACE(filters,
+                  '"field":"log.winlog.event_data.ProcessName.keyword"',
+                  '"field":"log.winlogEventDataProcessName.keyword"')
+                WHERE filters LIKE '%"field":"log.winlog.event_data.ProcessName.keyword"%';
+
+                UPDATE utm_visualization
+                SET aggregation = REPLACE(aggregation,
+                  '"field":"log.winlog.event_data.ProcessName.keyword"',
+                  '"field":"log.winlogEventDataProcessName.keyword"')
+                WHERE aggregation LIKE '%"field":"log.winlog.event_data.ProcessName.keyword"%';
+
+
+                ------------------------------------------------------------------
+                -- Replace outdated Windows OS Name field (SAFE)
+                -------------------------------------------------------------------
+                UPDATE utm_visualization
+                SET filters = REPLACE(filters,
+                  '"field":"log.winlog.host.os.name.keyword"',
+                  '"field":"log.os.keyword"')
+                WHERE filters LIKE '%"field":"log.winlog.host.os.name.keyword"%';
+
+                UPDATE utm_visualization
+                SET aggregation = REPLACE(aggregation,
+                  '"field":"log.winlog.host.os.name.keyword"',
+                  '"field":"log.os.keyword"')
+                WHERE aggregation LIKE '%"field":"log.winlog.host.os.name.keyword"%';
+
+
+                ------------------------------------------------------------------
+                -- Replace outdated Windows Event Outcome field (SAFE)
+                -------------------------------------------------------------------
+                UPDATE utm_visualization
+                SET filters = REPLACE(filters,
+                  '"field":"log.winlog.event.outcome.keyword"',
+                  '"field":"actionResult.keyword"')
+                WHERE filters LIKE '%"field":"log.winlog.event.outcome.keyword"%';
+
+                UPDATE utm_visualization
+                SET aggregation = REPLACE(aggregation,
+                  '"field":"log.winlog.event.outcome.keyword"',
+                  '"field":"actionResult.keyword"')
+                WHERE aggregation LIKE '%"field":"log.winlog.event.outcome.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Generic safety fix: remove any accidental ".keyword.keyword"
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  '.keyword.keyword',
+                                  '.keyword')
+            WHERE filters LIKE '%.keyword.keyword%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      '.keyword.keyword',
+                                      '.keyword')
+            WHERE aggregation LIKE '%.keyword.keyword%';
+
+            ------------------------------------------------------------------
+            -- Replace outdated Windows SourceName field (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.source_name.keyword"',
+              '"field":"log.winlogSourceName.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.source_name.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.source_name.keyword"',
+              '"field":"log.winlogSourceName.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.source_name.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Replace outdated Windows DCName field (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.DCName.keyword"',
+              '"field":"log.winlogEventDataDCName.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.DCName.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.DCName.keyword"',
+              '"field":"log.winlogEventDataDCName.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.DCName.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Replace outdated Windows KeyName field (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.KeyName.keyword"',
+              '"field":"log.winlogEventDataKeyName.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.KeyName.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.KeyName.keyword"',
+              '"field":"log.winlogEventDataKeyName.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.KeyName.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Replace outdated Windows Host IP field (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.host.ip.keyword"',
+              '"field":"log.origin.ips.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.host.ip.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.host.ip.keyword"',
+              '"field":"log.origin.ips.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.host.ip.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Replace outdated Windows SubjectDomainName field (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.SubjectDomainName.keyword"',
+              '"field":"log.winlogEventDataSubjectDomainName.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.SubjectDomainName.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.SubjectDomainName.keyword"',
+              '"field":"log.winlogEventDataSubjectDomainName.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.SubjectDomainName.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Normalize origin.host field to keyword version (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.host.name.keyword"',
+              '"field":"origin.host.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.host.name.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.host.name.keyword"',
+              '"field":"origin.host.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.host.name.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Replace outdated Windows StatusDescription field (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.StatusDescription.keyword"',
+              '"field":"log.winlogEventDataStatusDescription.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.StatusDescription.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.StatusDescription.keyword"',
+              '"field":"log.winlogEventDataStatusDescription.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.StatusDescription.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Replace outdated Windows NewState field (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.NewState.keyword"',
+              '"field":"log.winlogEventDataNewState.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.NewState.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.NewState.keyword"',
+              '"field":"log.winlogEventDataNewState.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.NewState.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Replace outdated Windows ParentProcessName field (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.ParentProcessName.keyword"',
+              '"field":"log.winlogEventDataParentProcessName.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.ParentProcessName.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.ParentProcessName.keyword"',
+              '"field":"log.winlogEventDataParentProcessName.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.ParentProcessName.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Replace outdated Windows ObjectName field (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.ObjectName.keyword"',
+              '"field":"log.winlogEventDataObjectName.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.ObjectName.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.ObjectName.keyword"',
+              '"field":"log.winlogEventDataObjectName.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.ObjectName.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Replace Windows Shutdown Type field (param5) (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.param5.keyword"',
+              '"field":"log.winlogEventDataShutdownType.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.param5.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.param5.keyword"',
+              '"field":"log.winlogEventDataShutdownType.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.param5.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Replace outdated Windows Protocol field (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.Protocol.keyword"',
+              '"field":"log.winlogEventDataProtocol.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.Protocol.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.Protocol.keyword"',
+              '"field":"log.winlogEventDataProtocol.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.Protocol.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Replace outdated Windows level field (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.level.keyword"',
+              '"field":"log.winlogLevel.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.level.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.level.keyword"',
+              '"field":"log.winlogLevel.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.level.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Replace outdated Windows CA field (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  '"field":"log.winlog.event_data.CA.keyword"',
+                                  '"field":"log.winlogEventDataCA.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.CA.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      '"field":"log.winlog.event_data.CA.keyword"',
+                                      '"field":"log.winlogEventDataCA.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.CA.keyword"%';
+
+            ------------------------------------------------------------------
+            -- Replace param7 with proper ExceptionCode field (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  '"field":"log.winlog.event_data.param7.keyword"',
+                                  '"field":"log.winlogEventDataExceptionCode.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.param7.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      '"field":"log.winlog.event_data.param7.keyword"',
+                                      '"field":"log.winlogEventDataExceptionCode.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.param7.keyword"%';
+
+            ------------------------------------------------------------------
+            -- Replace outdated Windows TicketEncryptionType field (SAFE)
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+                                  '"field":"log.winlog.event_data.TicketEncryptionType.keyword"',
+                                  '"field":"log.winlogEventDataTicketEncryptionType.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.TicketEncryptionType.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+                                      '"field":"log.winlog.event_data.TicketEncryptionType.keyword"',
+                                      '"field":"log.winlogEventDataTicketEncryptionType.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.TicketEncryptionType.keyword"%';
+
+
+
+
+            ]]>
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, OnChanges, SimpleChanges, ViewChild, AfterViewInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {DataType} from '../../../rule-management/models/rule.model';
 import {DataTypeService} from '../../../rule-management/services/data-type.service';
@@ -12,13 +12,15 @@ import {UtmPipeline} from '../../shared/types/logstash-stats.type';
   templateUrl: './logstash-filter-create.component.html',
   styleUrls: ['./logstash-filter-create.component.scss']
 })
-export class LogstashFilterCreateComponent implements OnInit {
+export class LogstashFilterCreateComponent implements OnInit, OnChanges {
   @Output() filterEditClose = new EventEmitter<LogstashFilterType>();
   @Output() close = new EventEmitter<string>();
   @Input() filter: LogstashFilterType;
   @Input() pipeline: UtmPipeline;
   @Input() dataType: DataType;
   @Input() disable = false;
+  @ViewChild('editorContainer') editorContainer: any;
+
   types$: Observable<DataType[]>;
   daTypeRequest: {page: number, size: number} = {
     page: -1,
@@ -29,6 +31,24 @@ export class LogstashFilterCreateComponent implements OnInit {
   show = true;
   error = false;
   loadingDataTypes = false;
+  private editorInstance: any;
+
+  editorOptions: any = {
+    theme: 'vs-light',
+    language: 'yaml',
+    automaticLayout: true,
+    fontSize: 13,
+    fontFamily: 'Courier New, Monaco, Menlo, monospace',
+    lineNumbers: 'on',
+    wordWrap: 'on',
+    minimap: { enabled: false },
+    scrollBeyondLastLine: false,
+    formatOnPaste: true,
+    formatOnType: true,
+    tabSize: 2,
+    insertSpaces: true,
+    readOnly: false
+  };
 
   constructor(private logstashFilterService: LogstashService,
               private utmToastService: UtmToastService,
@@ -42,7 +62,33 @@ export class LogstashFilterCreateComponent implements OnInit {
 
     this.types$ = this.dataTypeService.type$;
     this.loadDataTypes();
+    this.updateEditorOptions();
+  }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes && changes['disable']) {
+      this.updateEditorOptions();
+    }
+  }
+
+  private forceEditorLayout(): void {
+    try {
+      if (this.editorContainer) {
+        const editorInstance = (this.editorContainer as any).editor;
+        if (editorInstance && editorInstance.layout) {
+          editorInstance.layout();
+        }
+      }
+    } catch (e) {
+      console.warn('Error al forzar layout del editor Monaco:', e);
+    }
+  }
+
+  private updateEditorOptions(): void {
+    this.editorOptions = {
+      ...this.editorOptions,
+      readOnly: this.disable
+    };
   }
 
 
@@ -93,5 +139,9 @@ export class LogstashFilterCreateComponent implements OnInit {
   }
   trackByFn(type: DataType) {
     return type.id;
+  }
+
+  onEditorChange(value: string): void {
+    this.filter.logstashFilter = value;
   }
 }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260218016" author="Manuel Abascal">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            -- Step 1: Remove menu permissions
+            DELETE FROM utm_menu_authority WHERE menu_id = 223;
+
+            -- Step 2: Remove UI menu
+            DELETE FROM utm_menu WHERE id = 223;
+
+            -- Step 3: Remove Elasticsearch index patterns
+            DELETE FROM utm_index_pattern WHERE id = 29;
+
+            -- Step 4: Remove pipeline-filter relationships
+            DELETE FROM utm_group_logstash_pipeline_filters WHERE pipeline_id = 12;
+
+            -- Step 5: Remove parsing rules
+            DELETE FROM utm_logstash_filter WHERE id = 1403;
+
+            -- Step 6: Remove logstash pipeline
+            DELETE FROM utm_logstash_pipeline WHERE id = 12;
+
+            -- Step 7: Remove module registration
+            DELETE FROM utm_module WHERE id = 18;
+
+            -- Step 8: Remove data type registry
+            DELETE FROM utm_data_types WHERE id = 16;
+            ]]>
+
+            DROP FUNCTION IF EXISTS register_integration_osquery(integer);
+        </sql>
+
+    </changeSet>
+</databaseChangeLog>

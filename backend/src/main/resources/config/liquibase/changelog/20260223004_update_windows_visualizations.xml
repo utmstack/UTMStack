@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260223004" author="Manuel Abascal">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="utm_visualization"/>
+        </preConditions>
+
+
+        <sql>
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation::text, '"log.winlog.recordNumber.keyword"', '"log.recordNumber.keyword"')::jsonb
+            WHERE aggregation::text LIKE '%log.winlog.recordNumber.keyword%'
+              AND system_owner = true;
+        </sql>
+
+
+        <sql>
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation::text, '"log.eventDataparam11.keyword"', '"log.eventDataParam11.keyword"')::jsonb
+            WHERE aggregation::text LIKE '%log.eventDataparam11.keyword%'
+              AND system_owner = true;
+        </sql>
+
+
+        <sql>
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation::text, '"log.eventDataparam12.keyword"', '"log.eventDataParam12.keyword"')::jsonb
+            WHERE aggregation::text LIKE '%log.eventDataparam12.keyword%'
+              AND system_owner = true;
+        </sql>
+
+
+        <sql>
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation::text, '"log.eventDataparam13.keyword"', '"log.eventDataParam13.keyword"')::jsonb
+            WHERE aggregation::text LIKE '%log.eventDataparam13.keyword%'
+              AND system_owner = true;
+        </sql>
+
+
+        <sql>
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation::text, '"log.eventDataparam17.keyword"', '"log.eventDataParam17.keyword"')::jsonb
+            WHERE aggregation::text LIKE '%log.eventDataparam17.keyword%'
+              AND system_owner = true;
+        </sql>
+
+
+        <sql>
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation::text, '"log.eventDataparam20.keyword"', '"log.eventDataParam20.keyword"')::jsonb
+            WHERE aggregation::text LIKE '%log.eventDataparam20.keyword%'
+              AND system_owner = true;
+        </sql>
+
+
+        <sql>
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation::text, '"log.eventDataparam3.keyword"', '"log.eventDataParam3.keyword"')::jsonb
+            WHERE aggregation::text LIKE '%log.eventDataparam3.keyword%'
+              AND system_owner = true;
+        </sql>
+
+
+        <sql>
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation::text, '"log.eventDataparam4.keyword"', '"log.eventDataParam4.keyword"')::jsonb
+            WHERE aggregation::text LIKE '%log.eventDataparam4.keyword%'
+              AND system_owner = true;
+        </sql>
+
+
+        <sql>
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation::text, '"log.eventDataparam8.keyword"', '"log.eventDataParam8.keyword"')::jsonb
+            WHERE aggregation::text LIKE '%log.eventDataparam8.keyword%'
+              AND system_owner = true;
+        </sql>
+
+    </changeSet>
+</databaseChangeLog>
+

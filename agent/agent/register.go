@@ -5,14 +5,14 @@ import (
 	"fmt"
 
 	"github.com/utmstack/UTMStack/agent/config"
-	"github.com/utmstack/UTMStack/agent/conn"
 	"github.com/utmstack/UTMStack/agent/models"
 	"github.com/utmstack/UTMStack/agent/utils"
+	"github.com/utmstack/UTMStack/shared/fs"
 	"google.golang.org/grpc/metadata"
 )
 
 func RegisterAgent(cnf *config.Config, UTMKey string) error {
-	connection, err := conn.GetAgentManagerConnection(cnf)
+	connection, err := GetAgentManagerConnection(cnf)
 	if err != nil {
 		return fmt.Errorf("error connecting to Agent Manager: %v", err)
 	}
@@ -33,7 +33,7 @@ func RegisterAgent(cnf *config.Config, UTMKey string) error {
 	}
 
 	version := models.Version{}
-	err = utils.ReadJson(config.VersionPath, &version)
+	err = fs.ReadJSON(config.VersionPath, &version)
 	if err != nil {
 		return fmt.Errorf("error reading version file: %v", err)
 	}

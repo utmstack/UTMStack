@@ -79,6 +79,7 @@ message UtmCommand {
   string origin_type = 5;
   string origin_id = 6;
   string reason = 7;
+  string shell = 8; // Shell to execute command: "cmd", "powershell" (Windows), "sh", "bash" (Linux/macOS). Empty = default
 }
 
 message CommandResult {

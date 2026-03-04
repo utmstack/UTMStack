@@ -11,19 +11,17 @@ import {
 })
 export class GuideMacosAgentComponent implements OnInit {
   @Input() integrationId: number;
-  @Input() filebeatModule: UtmModulesEnum;
-  @Input() filebeatModuleName: string;
   module = UtmModulesEnum;
   @Input() serverId: number;
 
-  architectures = [];
+  platforms = [];
   token: string;
-  constructor(private federationConnectionService: FederationConnectionService,) { }
+
+  constructor(private federationConnectionService: FederationConnectionService) { }
 
   ngOnInit() {
     this.getToken();
   }
-
 
   getToken() {
     this.federationConnectionService.getToken().subscribe(response => {
@@ -32,35 +30,41 @@ export class GuideMacosAgentComponent implements OnInit {
       } else {
         this.token = '';
       }
-      this.loadArchitectures();
+      this.loadPlatforms();
     });
   }
 
-  getCommandARM(installerName: string): string {
+  getInstallCommand(installerName: string): string {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
 
-    return `sudo bash -c "/opt/utmstack/${installerName} ${ip} <secret>${this.token}</secret> yes"`;
+    return `sudo bash -c "mkdir -p /opt/utmstack-macos-agent && \\
+curl -k -o /opt/utmstack-macos-agent/${installerName} \\
+https://${ip}:9001/private/dependencies/agent/${installerName} && \\
+chmod +x /opt/utmstack-macos-agent/${installerName} && \\
+/opt/utmstack-macos-agent/${installerName} install ${ip} <secret>${this.token}</secret> yes"`;
   }
-
 
   getUninstallCommand(installerName: string): string {
-    // tslint:disable-next-line:max-line-length
-    return `sudo bash -c "/opt/utmstack/${installerName}; launchctl bootout system /Library/LaunchDaemons/UTMStackAgent.plist 2>/dev/null; rm /Library/LaunchDaemons/UTMStackAgent.plist; rm -rf /opt/utmstack"`;
+    return `sudo bash -c "/opt/utmstack-macos-agent/${installerName} uninstall || true; \\
+launchctl bootout system /Library/LaunchDaemons/UTMStackAgent.plist 2>/dev/null || true; \\
+launchctl bootout system /Library/LaunchDaemons/UTMStackUpdater.plist 2>/dev/null || true; \\
+rm -f /Library/LaunchDaemons/UTMStackAgent.plist 2>/dev/null || true; \\
+rm -f /Library/LaunchDaemons/UTMStackUpdater.plist 2>/dev/null || true; \\
+echo 'Removing UTMStack Agent dependencies...' && sleep 10 && \\
+rm -rf /opt/utmstack-macos-agent 2>/dev/null || true; \\
+echo 'UTMStack Agent removed successfully.'"`;
   }
 
-  getDownloadUrl(): string {
-    const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
-    return `https://${ip}:9001/private/dependencies/agent/utmstack-macos-agent.pkg`;
-  }
+  private loadPlatforms() {
+    const arm64 = 'utmstack_agent_service_darwin_arm64';
 
-  private loadArchitectures() {
-    this.architectures = [
+    this.platforms = [
       {
-        id: 1, name: 'ARM64',
-        install: this.getCommandARM('utmstack_agent_service install'),
-        uninstall: this.getUninstallCommand('utmstack_agent_service uninstall'),
+        id: 1, name: 'ARM64 (Apple Silicon)',
+        install: this.getInstallCommand(arm64),
+        uninstall: this.getUninstallCommand(arm64),
         shell: ''
-      },
+      }
     ];
   }
 }

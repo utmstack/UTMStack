@@ -1,0 +1,31 @@
+<app-utm-modal-header [name]="'Rule Details'"></app-utm-modal-header>
+
+<div class="sub-header px-4 d-flex align-items-center justify-content-between">
+  <div class="sub-header-title">
+    {{ 'YAML - ' + rowDocument.name }}
+  </div>
+
+  <div class="d-flex gap-3">
+    <button class="btn sub-btn mr-2" (click)="copyToClipboard()">
+      <i class="icon-clipboard"></i>Copy
+    </button>
+
+    <button class="btn sub-btn" (click)="exportYaml()">
+      <i class="icon-download"></i>Export
+    </button>
+  </div>
+</div>
+
+<div class="rule-view-container">
+  <ngx-monaco-editor
+    style="height: 650px"
+    class="template-editor"
+    name="logstashFilter"
+    [options]="editorOptions"
+    [ngModel]="yamlString">
+  </ngx-monaco-editor>
+</div>
+
+<!--<div class="d-flex h-100 m-h-0 overflow-auto p-2 rule-view-container">
+  <pre class="yaml-preview w-100" [innerHTML]="yamlHighlighted"></pre>
+</div>-->

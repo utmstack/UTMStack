@@ -47,7 +47,7 @@ export class UtmAgentConnectComponent implements OnInit, OnChanges {
       ip: this.asset.assetIp,
       hostname: this.asset.assetName,
       os: this.asset.assetOs,
-      status: AgentStatusEnum.OFFLINE,
+      status: !this.asset.status ? AgentStatusEnum.ONLINE : AgentStatusEnum.OFFLINE,
       platform: this.asset.assetOsPlatform,
       version: this.asset.assetOsMinorVersion,
       agentKey: '',

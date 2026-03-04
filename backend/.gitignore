@@ -144,3 +144,9 @@ Desktop.ini
 ######################
 .eslintcache
 init-utmstack-backend.bat
+
+######################
+# ENV
+######################
+
+.env/

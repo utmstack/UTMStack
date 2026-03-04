@@ -1,4 +1,4 @@
-# VMWare-ESXi, version 3.0.1
+# VMWare-ESXi, version 3.0.2
 # 
 # Based on docs and real logs provided
 # Support VMWare-ESXi log
@@ -75,6 +75,14 @@ pipeline:
             - fieldName: log.subModuleIdentifier
               pattern: '{{.word}}\]'
           source: log.originIdComponent
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant2
+              pattern: '{{.data}}level{{.space}}='
+            - fieldName: log.level
+              pattern: '{{.integer}}'
+          source: log.message
               
       # Removing unused caracters
       - trim:

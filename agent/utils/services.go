@@ -5,12 +5,15 @@ import (
 	"os"
 	"runtime"
 	"strings"
+
+	"github.com/utmstack/UTMStack/shared/exec"
+	"github.com/utmstack/UTMStack/shared/fs"
 )
 
 func CheckIfServiceIsActive(serv string) (bool, error) {
 	var errB bool
 	var output string
-	path := GetMyPath()
+	path := fs.GetExecutablePath()
 
 	switch runtime.GOOS {
 	case "windows":
@@ -42,21 +45,21 @@ func CheckIfServiceIsActive(serv string) (bool, error) {
 }
 
 func StartService(name string) error {
-	path := GetMyPath()
+	path := fs.GetExecutablePath()
 	switch runtime.GOOS {
 	case "windows":
-		err := Execute("sc", path, "start", name)
+		err := exec.Run("sc", path, "start", name)
 		if err != nil {
 			return fmt.Errorf("error starting service: %v", err)
 		}
 	case "linux":
-		err := Execute("systemctl", path, "start", name)
+		err := exec.Run("systemctl", path, "start", name)
 		if err != nil {
 			return fmt.Errorf("error starting service: %v", err)
 		}
 	case "darwin":
 		plistPath := fmt.Sprintf("/Library/LaunchDaemons/%s.plist", name)
-		err := Execute("launchctl", path, "load", plistPath)
+		err := exec.Run("launchctl", path, "load", plistPath)
 		if err != nil {
 			return fmt.Errorf("error starting macOS service: %v", err)
 		}
@@ -65,20 +68,20 @@ func StartService(name string) error {
 }
 
 func StopService(name string) error {
-	path := GetMyPath()
+	path := fs.GetExecutablePath()
 	switch runtime.GOOS {
 	case "windows":
-		err := Execute("sc", path, "stop", name)
+		err := exec.Run("sc", path, "stop", name)
 		if err != nil {
 			return fmt.Errorf("error stoping service: %v", err)
 		}
 	case "linux":
-		err := Execute("systemctl", path, "stop", name)
+		err := exec.Run("systemctl", path, "stop", name)
 		if err != nil {
 			return fmt.Errorf("error stoping service: %v", err)
 		}
 	case "darwin":
-		err := Execute("launchctl", path, "remove", name)
+		err := exec.Run("launchctl", path, "remove", name)
 		if err != nil {
 			return fmt.Errorf("error stopping macOS service: %v", err)
 		}
@@ -87,41 +90,41 @@ func StopService(name string) error {
 }
 
 func UninstallService(name string) error {
-	path := GetMyPath()
+	path := fs.GetExecutablePath()
 	switch runtime.GOOS {
 	case "windows":
-		err := Execute("sc", path, "delete", name)
+		err := exec.Run("sc", path, "delete", name)
 		if err != nil {
 			return fmt.Errorf("error uninstalling service: %v", err)
 		}
 	case "linux":
-		err := Execute("systemctl", path, "disable", name)
+		err := exec.Run("systemctl", path, "disable", name)
 		if err != nil {
 			return fmt.Errorf("error uninstalling service: %v", err)
 		}
-		err = Execute("rm", "/etc/systemd/system/", "/etc/systemd/system/"+name+".service")
+		err = exec.Run("rm", "/etc/systemd/system/", "/etc/systemd/system/"+name+".service")
 		if err != nil {
 			return fmt.Errorf("error uninstalling service: %v", err)
 		}
 	case "darwin":
-		Execute("launchctl", path, "remove", name)
-		Execute("rm", "/Library/LaunchDaemons/"+name+".plist")
-		Execute("rm", "/Users/"+os.Getenv("USER")+"/Library/LaunchAgents/"+name+".plist")
+		exec.Run("launchctl", path, "remove", name)
+		exec.Run("rm", "/Library/LaunchDaemons/"+name+".plist")
+		exec.Run("rm", "/Users/"+os.Getenv("USER")+"/Library/LaunchAgents/"+name+".plist")
 
 	}
 	return nil
 }
 
 func CheckIfServiceIsInstalled(serv string) (bool, error) {
-	path := GetMyPath()
+	path := fs.GetExecutablePath()
 	var err error
 	switch runtime.GOOS {
 	case "windows":
-		err = Execute("sc", path, "query", serv)
+		err = exec.Run("sc", path, "query", serv)
 	case "linux":
-		err = Execute("systemctl", path, "status", serv)
+		err = exec.Run("systemctl", path, "status", serv)
 	case "darwin":
-		err = Execute("launchctl", path, "list", serv)
+		err = exec.Run("launchctl", path, "list", serv)
 	default:
 		return false, fmt.Errorf("operative system unknown")
 	}
@@ -131,7 +134,7 @@ func CheckIfServiceIsInstalled(serv string) (bool, error) {
 
 func CreateLinuxService(serviceName string, execStart string) error {
 	servicePath := "/etc/systemd/system/" + serviceName + ".service"
-	if !CheckIfPathExist(servicePath) {
+	if !fs.Exists(servicePath) {
 		file, err := os.Create(servicePath)
 		if err != nil {
 			return fmt.Errorf("error creating %s file: %v", servicePath, err)

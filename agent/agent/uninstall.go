@@ -2,15 +2,15 @@ package agent
 
 import (
 	"fmt"
-	"path/filepath"
+	"os"
 
-	"github.com/utmstack/UTMStack/agent/config"
-	"github.com/utmstack/UTMStack/agent/utils"
+	"github.com/utmstack/UTMStack/shared/exec"
+	"github.com/utmstack/UTMStack/shared/fs"
 )
 
 func UninstallAll() error {
-	err := utils.Execute(filepath.Join(utils.GetMyPath(), fmt.Sprintf(config.ServiceFile, "")), utils.GetMyPath(), "uninstall")
-	if err != nil {
+	// Use the current executable path - the agent uninstalls itself
+	if err := exec.Run(os.Args[0], fs.GetExecutablePath(), "uninstall"); err != nil {
 		return fmt.Errorf("%v", err)
 	}
 	return nil

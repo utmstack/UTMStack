@@ -185,13 +185,28 @@ pipeline:
 
       - rename:
           from:
+            - log.deviceIps
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.dvchost
+          to: target.host
+
+      - rename:
+          from:
             - log.sproc
-          to: origin.path
+          to: target.path
 
       - rename:
           from:
             - log.filePath
           to: origin.path
+
+      - rename:
+          from:
+            - log.act
+          to: action
 
       # Removing unnecessary characters
       - trim:

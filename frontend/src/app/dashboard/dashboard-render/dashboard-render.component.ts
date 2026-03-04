@@ -73,17 +73,30 @@ export class DashboardRenderComponent implements OnInit, OnDestroy, AfterViewIni
   }
 
   ngOnInit() {
+
     document.body.classList.add('overflow-hidden');
     this.loadingVisualizations = true;
-    this.layout$ = this.activatedRoute.data
-      .pipe(
-        tap((visualizations) => {
-          this.dashboard = this.layoutService.dashboard;
-          this.filters = this.dashboard && this.dashboard.filters ? JSON.parse(this.dashboard.filters) : [];
-          this.loadingVisualizations = false;
-        }),
-        map(data => data.response)
+
+    this.layout$ = this.activatedRoute.data.pipe(
+      map(data => {
+        const response = data && data.response ? data.response : [];
+
+        this.dashboard = this.layoutService.dashboard ? this.layoutService.dashboard : null;
+
+        try {
+          this.filters = this.dashboard && this.dashboard.filters
+            ? JSON.parse(this.dashboard.filters)
+            : [];
+        } catch {
+          this.filters = [];
+        }
+
+        this.loadingVisualizations = false;
+
+        return response;
+      })
     );
+
 
     this.dashboardBehavior.$filterDashboard.subscribe(dashboardFilter => {
       if (dashboardFilter) {

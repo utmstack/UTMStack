@@ -219,7 +219,7 @@ public class UtmVisualization implements Serializable {
         this.chartConfig = chartConfig;
     }
 
-    public AggregationType getAggregationType() throws UtmSerializationException {
+    public AggregationType getAggregationType() {
         if (StringUtils.hasText(aggregation))
             aggregationType = UtilSerializer.jsonDeserialize(AggregationType.class, aggregation);
         return aggregationType;

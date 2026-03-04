@@ -1,6 +1,6 @@
 package com.park.utmstack.util.exceptions;
 
-public class UtmSerializationException extends Exception {
+public class UtmSerializationException extends RuntimeException {
     public UtmSerializationException(String message) {
         super(message);
     }

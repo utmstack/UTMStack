@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.park.utmstack.util.UtilSerializer;
 import com.park.utmstack.util.exceptions.UtmSerializationException;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -25,16 +27,22 @@ public class UtmTenantConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Setter
+    @Getter
     @Id
     @GenericGenerator(name = "CustomIdentityGenerator", strategy = "com.park.utmstack.util.CustomIdentityGenerator")
     @GeneratedValue(generator = "CustomIdentityGenerator")
     @Column(name = "id", updatable = false)
     private Long id;
 
+    @Setter
+    @Getter
     @Size(max = 250)
     @Column(name = "asset_name", length = 250, nullable = false)
     private String assetName;
 
+    @Setter
+    @Getter
     @JsonIgnore
     @Column(name = "asset_hostname_list_def")
     private String assetHostnameListDef;
@@ -44,6 +52,8 @@ public class UtmTenantConfig implements Serializable {
     @JsonDeserialize
     private List<String> assetHostnameList;
 
+    @Setter
+    @Getter
     @JsonIgnore
     @Column(name = "asset_ip_list_def")
     private String assetIpListDef;
@@ -53,25 +63,24 @@ public class UtmTenantConfig implements Serializable {
     @JsonDeserialize
     private List<String> assetIpList;
 
+    @Setter
+    @Getter
     @Column(name = "asset_confidentiality", nullable = false)
     private Integer assetConfidentiality;
 
+    @Setter
+    @Getter
     @Column(name = "asset_integrity", nullable = false)
     private Integer assetIntegrity;
 
+    @Setter
+    @Getter
     @Column(name = "asset_availability", nullable = false)
     private Integer assetAvailability;
 
+    @Getter
     @Column(name = "last_update")
     private Instant lastUpdate;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public List<String> getAssetHostnameList() throws UtmSerializationException {
         if (StringUtils.hasText(assetHostnameListDef))
@@ -87,10 +96,6 @@ public class UtmTenantConfig implements Serializable {
         this.assetHostnameList = assetHostnameList;
     }
 
-    public String getAssetHostnameListDef() {
-        return assetHostnameListDef;
-    }
-
     public List<String> getAssetIpList() throws UtmSerializationException {
         if (StringUtils.hasText(assetIpListDef))
             assetIpList = UtilSerializer.jsonDeserializeList(String.class, assetIpListDef);
@@ -103,54 +108,6 @@ public class UtmTenantConfig implements Serializable {
         else
             this.assetIpListDef = UtilSerializer.jsonSerialize(assetIpList);
         this.assetIpList = assetIpList;
-    }
-
-    public void setAssetHostnameListDef(String assetHostnameListDef) {
-        this.assetHostnameListDef = assetHostnameListDef;
-    }
-
-    public String getAssetIpListDef() {
-        return assetIpListDef;
-    }
-
-    public void setAssetIpListDef(String assetIpListDef) {
-        this.assetIpListDef = assetIpListDef;
-    }
-
-    public Integer getAssetAvailability() {
-        return assetAvailability;
-    }
-
-    public void setAssetAvailability(Integer assetAvailability) {
-        this.assetAvailability = assetAvailability;
-    }
-
-    public Integer getAssetIntegrity() {
-        return assetIntegrity;
-    }
-
-    public void setAssetIntegrity(Integer assetIntegrity) {
-        this.assetIntegrity = assetIntegrity;
-    }
-
-    public Integer getAssetConfidentiality() {
-        return assetConfidentiality;
-    }
-
-    public void setAssetConfidentiality(Integer assetConfidentiality) {
-        this.assetConfidentiality = assetConfidentiality;
-    }
-
-    public String getAssetName() {
-        return assetName;
-    }
-
-    public void setAssetName(String assetName) {
-        this.assetName = assetName;
-    }
-
-    public Instant getLastUpdate() {
-        return lastUpdate;
     }
 
     public void setLastUpdate() {

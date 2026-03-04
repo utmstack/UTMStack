@@ -54,7 +54,7 @@ func (p *program) run() {
 		config.Logger().Info("Applying pending update: %s-%s", pendingUpdate.Version, pendingUpdate.Edition)
 
 		// Apply setup with the pending version
-		if _, err := setup.Apply(pendingUpdate.Version); err != nil {
+		if _, err := setup.Apply(pendingUpdate.Version, true); err != nil {
 			config.Logger().ErrorF("error applying setup for version %s: %v", pendingUpdate.Version, err)
 		} else {
 			config.Logger().Info("Successfully applied update %s", pendingUpdate.Version)

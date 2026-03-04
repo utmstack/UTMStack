@@ -2,30 +2,25 @@ package agent
 
 import (
 	"context"
+	"fmt"
 	"runtime"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/utmstack/UTMStack/agent/config"
-	"github.com/utmstack/UTMStack/agent/conn"
 	"github.com/utmstack/UTMStack/agent/utils"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"github.com/utmstack/UTMStack/shared/fs"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
-	path := utils.GetMyPath()
-	var connErrMsgWritten, errorLogged bool
+	path := fs.GetExecutablePath()
+	var connErrLogged, streamErrLogged bool
 
 	for {
-		connection, err := conn.GetAgentManagerConnection(cnf)
+		connection, err := GetAgentManagerConnection(cnf)
 		if err != nil {
-			if !connErrMsgWritten {
-				utils.Logger.ErrorF("error connecting to Agent Manager: %v", err)
-				connErrMsgWritten = true
-			}
+			LogConnectionError(err, "Agent Manager", &connErrLogged)
 			time.Sleep(timeToSleep)
 			continue
 		}
@@ -33,113 +28,80 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 		client := NewAgentServiceClient(connection)
 		stream, err := client.AgentStream(ctx)
 		if err != nil {
-			if !connErrMsgWritten {
-				utils.Logger.ErrorF("failed to start AgentStream: %v", err)
-				connErrMsgWritten = true
-			} else {
-				utils.Logger.LogF(100, "failed to start AgentStream: %v", err)
-			}
+			LogStreamError(err, "AgentStream", &connErrLogged)
 			time.Sleep(timeToSleep)
 			continue
 		}
 
-		connErrMsgWritten = false
+		connErrLogged = false
 
+	recvLoop:
 		for {
 			in, err := stream.Recv()
 			if err != nil {
-				if strings.Contains(err.Error(), "EOF") {
-					utils.Logger.LogF(100, "error receiving command from server: %v", err)
-					time.Sleep(timeToSleep)
-					break
+				action := HandleGRPCStreamError(err, "error receiving command from server", &streamErrLogged)
+				if action == ActionReconnect {
+					break recvLoop
 				}
-				st, ok := status.FromError(err)
-				if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
-					if !errorLogged {
-						utils.Logger.ErrorF("error receiving command from server: %v", err)
-						errorLogged = true
-					} else {
-						utils.Logger.LogF(100, "error receiving command from server: %v", err)
-					}
-					time.Sleep(timeToSleep)
-					break
-				} else {
-					if !errorLogged {
-						utils.Logger.ErrorF("error receiving command from server: %v", err)
-						errorLogged = true
-					} else {
-						utils.Logger.LogF(100, "error receiving command from server: %v", err)
-					}
-					time.Sleep(timeToSleep)
-					continue
-				}
+				continue
 			}
 
 			switch msg := in.StreamMessage.(type) {
 			case *BidirectionalStream_Command:
-				err = commandProcessor(path, stream, cnf, []string{msg.Command.Command, in.GetCommand().CmdId})
+				err = commandProcessor(path, stream, cnf, msg.Command.Command, msg.Command.CmdId, msg.Command.Shell)
 				if err != nil {
-					if strings.Contains(err.Error(), "EOF") {
-						utils.Logger.LogF(100, "error sending result to server: %v", err)
-						time.Sleep(timeToSleep)
-						break
+					action := HandleGRPCStreamError(err, "error sending result to server", &streamErrLogged)
+					if action == ActionReconnect {
+						break recvLoop
 					}
-					st, ok := status.FromError(err)
-					if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
-						if !errorLogged {
-							utils.Logger.ErrorF("error sending result to server: %v", err)
-							errorLogged = true
-						} else {
-							utils.Logger.LogF(100, "error sending result to server: %v", err)
-						}
-						time.Sleep(timeToSleep)
-						break
-					} else {
-						if !errorLogged {
-							utils.Logger.ErrorF("error sending result to server: %v", err)
-							errorLogged = true
-						} else {
-							utils.Logger.LogF(100, "error sending result to server: %v", err)
-						}
-						time.Sleep(timeToSleep)
-						continue
-					}
+					continue
 				}
 			}
-			errorLogged = false
+			streamErrLogged = false
 		}
 	}
 }
 
-func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *config.Config, commandPair []string) error {
+func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *config.Config, command, cmdId, shell string) error {
 	var result string
 	var errB bool
 
-	utils.Logger.LogF(100, "Received command: %s", commandPair[0])
+	utils.Logger.LogF(100, "Received command: %s (shell: %s)", command, shell)
 
 	switch runtime.GOOS {
 	case "windows":
-		result, errB = utils.ExecuteWithResult("cmd.exe", path, "/C", commandPair[0])
+		if shell == "powershell" {
+			result, errB = utils.ExecuteWithResult("powershell.exe", path, "-Command", command)
+		} else {
+			// Default to cmd.exe (also handles shell == "" or shell == "cmd")
+			result, errB = utils.ExecuteWithResult("cmd.exe", path, "/C", command)
+		}
 	case "linux", "darwin":
-		result, errB = utils.ExecuteWithResult("sh", path, "-c", commandPair[0])
+		if shell == "bash" {
+			result, errB = utils.ExecuteWithResult("bash", path, "-c", command)
+		} else {
+			// Default to sh (also handles shell == "" or shell == "sh")
+			result, errB = utils.ExecuteWithResult("sh", path, "-c", command)
+		}
 	default:
-		utils.Logger.Fatal("unsupported operating system: %s", runtime.GOOS)
+		utils.Logger.ErrorF("unsupported operating system: %s", runtime.GOOS)
+		return fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
 	}
 
 	if errB {
-		utils.Logger.ErrorF("error executing command %s: %s", commandPair[0], result)
+		utils.Logger.ErrorF("error executing command %s: %s", command, result)
 	} else {
-		utils.Logger.LogF(100, "Result when executing the command %s: %s", commandPair[0], result)
+		utils.Logger.LogF(100, "Result when executing the command %s: %s", command, result)
 	}
 
 	if err := stream.Send(&BidirectionalStream{
 		StreamMessage: &BidirectionalStream_Result{
-			Result: &CommandResult{Result: result, AgentId: strconv.Itoa(int(cnf.AgentID)), ExecutedAt: timestamppb.Now(), CmdId: commandPair[1]},
+			Result: &CommandResult{Result: result, AgentId: strconv.Itoa(int(cnf.AgentID)), ExecutedAt: timestamppb.Now(), CmdId: cmdId},
 		},
 	}); err != nil {
 		return err
-	} else {
-		utils.Logger.LogF(100, "Result sent to server successfully!!!")
 	}
+
+	utils.Logger.LogF(100, "Result sent to server successfully")
 	return nil
 }

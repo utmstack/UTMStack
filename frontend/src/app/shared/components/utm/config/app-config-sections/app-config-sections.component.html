@@ -28,7 +28,7 @@
                                 class="mr-2"
                                 *ngIf="section.shortName === sectionType[sectionType.EMAIL]"></app-utm-email-conf-check>
 
-      <app-utm-tfa-conf-check   [validConfig]="(!checkConfigValid() || saving || !isEnabledTfa())"
+      <app-utm-tfa-conf-check   [validConfig]="(!checkConfigValid() || saving)"
                                 [configToSave]="configToSave"
                                 [config]="configs"
                                 (isChecked) = "checkedTFAConfig($event)"

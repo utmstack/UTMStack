@@ -32,10 +32,12 @@ export class OpenAlertsService implements OnDestroy {
         takeUntil(this.destroy$),
         switchMap(() => this.alertOpenStatusService.getOpenAlert()),
         tap((response) => {
-          this.openAlerts = response.body;
-          this.localStorage.store(OPEN_ALERTS_KEY, this.openAlerts);
-          if (this.openAlerts >= 0 && this.openAlerts !== this.openAlerts) {
-            this.openAlertsBehaviorSubject.next(this.openAlerts);
+          const newValue = response.body;
+
+          if (newValue !== this.openAlerts) {
+            this.openAlerts = newValue;
+            this.openAlertsBehaviorSubject.next(newValue);
+            this.localStorage.store(OPEN_ALERTS_KEY, newValue);
           }
         }),
         catchError((err) => {
