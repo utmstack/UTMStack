@@ -1,12 +1,11 @@
 import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges} from '@angular/core';
 import {Subject} from 'rxjs';
-import {debounceTime, distinctUntilChanged, finalize, map, takeUntil, tap} from 'rxjs/operators';
+import {debounceTime, finalize, map, takeUntil, tap} from 'rxjs/operators';
 import {ModalService} from '../../../core/modal/modal.service';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {
   ModalConfirmationComponent
 } from '../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
-import {EncryptService} from '../../../shared/services/util/encrypt.service';
 import {ModuleChangeStatusBehavior} from '../../shared/behavior/module-change-status.behavior';
 import {IntCreateGroupComponent} from '../../shared/components/int-create-group/int-create-group.component';
 import {GroupTypeEnum} from '../../shared/enum/group-type.enum';
@@ -46,10 +45,10 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
   destroy$ = new Subject<void>();
   uniqueConfigNameConstrain = false;
   invalidDomainOrIp = false;
+  savingConfigs = new Map<number, boolean>();
 
   constructor(private utmModuleGroupService: UtmModuleGroupService,
               private toast: UtmToastService,
-              private encryptService: EncryptService,
               private utmModuleGroupConfService: UtmModuleGroupConfService,
               private modalService: ModalService,
               private moduleChangeStatusBehavior: ModuleChangeStatusBehavior,
@@ -189,7 +188,7 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
   }
 
   saveConfig(group: UtmModuleGroupType) {
-    this.savingConfig = true;
+    this.savingConfigs.set(group.id, true);
     const configs = this.changes.keys.filter(change => change.groupId === group.id);
 
     this.utmModuleGroupConfService.update({
@@ -197,7 +196,7 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
       keys: configs
     }).pipe(
       finalize(() => {
-        this.savingConfig = false;
+        this.savingConfigs.set(group.id, false);
         this.cdr.detectChanges();
       })
     ).subscribe({
@@ -439,6 +438,7 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
 
     this.addChange(integrationConfig);
   }
+
 
   ngOnDestroy() {
     this.destroy$.next();
