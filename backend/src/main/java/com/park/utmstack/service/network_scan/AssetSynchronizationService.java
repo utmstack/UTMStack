@@ -53,7 +53,14 @@ public class AssetSynchronizationService {
 
             Map<String, AgentDTO> agentsMap = loadAgents();
             Map<String, UtmDataInputStatus> statusMap = buildDataInputStatusMap();
-            Map<String, UtmNetworkScan> assetsMap = buildNetworkAssetsMap(
+
+            Map<String, UtmNetworkScan> assetsNameMap = buildNetworkAssetsNameMap(
+                    new ArrayList<>(statsMap.values()
+                            .stream()
+                            .map(StatisticDocument::getDataSource)
+                            .collect(Collectors.toSet())));
+
+            Map<String, UtmNetworkScan> assetsNameIpMap = buildNetworkAssetsIpMap(
                     new ArrayList<>(statsMap.values()
                             .stream()
                             .map(StatisticDocument::getDataSource)
@@ -68,8 +75,7 @@ public class AssetSynchronizationService {
                 UtmDataInputStatus status = processDataInputStatus(stat, statusMap);
                 statusToSave.add(status);
 
-                // Update network asset
-                UtmNetworkScan asset = processNetworkAsset(stat.getDataSource(), agentsMap, assetsMap, statusMap);
+                UtmNetworkScan asset = processNetworkAsset(stat.getDataSource(), agentsMap, assetsNameMap, assetsNameIpMap, statusMap);
                 assetsToSave.add(asset);
             }
 
@@ -95,10 +101,16 @@ public class AssetSynchronizationService {
                 .collect(Collectors.toMap(UtmDataInputStatus::getId, Function.identity()));
     }
 
-    private Map<String, UtmNetworkScan> buildNetworkAssetsMap(List<String> sourcesKeys) {
+    private Map<String, UtmNetworkScan> buildNetworkAssetsNameMap(List<String> sourcesKeys) {
         return networkScanRepository.findByAssetIpInOrAssetNameIn(sourcesKeys, sourcesKeys)
                 .stream()
                 .collect(Collectors.toMap(UtmNetworkScan::getAssetName, Function.identity(), (a1, a2) -> a1));
+    }
+
+    private Map<String, UtmNetworkScan> buildNetworkAssetsIpMap(List<String> sourcesKeys) {
+        return networkScanRepository.findByAssetIpInOrAssetNameIn(sourcesKeys, sourcesKeys)
+                .stream()
+                .collect(Collectors.toMap(UtmNetworkScan::getAssetIp, Function.identity(), (a1, a2) -> a1));
     }
 
     private UtmDataInputStatus processDataInputStatus(StatisticDocument stat,
@@ -127,10 +139,11 @@ public class AssetSynchronizationService {
 
     private UtmNetworkScan processNetworkAsset(String sourceName,
                                                Map<String, AgentDTO> agentsMap,
-                                               Map<String, UtmNetworkScan> assetsMap,
+                                               Map<String, UtmNetworkScan> assetsNameMap,
+                                               Map<String, UtmNetworkScan> assetsIpMap,
                                                Map<String, UtmDataInputStatus> statusMap) {
         boolean isAlive = isDataSourceAlive(sourceName, statusMap);
-        UtmNetworkScan asset = resolveAsset(sourceName, assetsMap);
+        UtmNetworkScan asset = resolveAsset(sourceName, assetsNameMap, assetsIpMap);
         boolean isExisting = asset != null && asset.getId() != null;
 
         if (asset == null) {
@@ -147,8 +160,12 @@ public class AssetSynchronizationService {
                 .anyMatch(s -> !s.isDown());
     }
 
-    private UtmNetworkScan resolveAsset(String sourceName, Map<String, UtmNetworkScan> assetsMap) {
-        UtmNetworkScan asset = assetsMap.get(sourceName);
+    private UtmNetworkScan resolveAsset(String sourceName, Map<String, UtmNetworkScan> assetsNameMap, Map<String, UtmNetworkScan> assetsIpMap) {
+        UtmNetworkScan asset = assetsNameMap.get(sourceName);
+
+        if (asset == null) {
+            asset = assetsIpMap.get(sourceName);
+        }
 
         if (asset == null) {
             asset = resolveAssetNameFromTenantConfig(sourceName);
