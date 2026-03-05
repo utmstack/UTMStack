@@ -132,8 +132,8 @@ github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
 github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068 h1:1B+EAUqxEyPByCfk55tB21DtR7WF7Q2w71g7+uVkvIg=
 github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068/go.mod h1:QRP5wJOf7gGMGL2fCAfmh/5CMZQspRxT5DqghaPRrjM=
-github.com/threatwinds/go-sdk v1.1.14 h1:9XqqGPZvDHHuJ/XkfMsDl3fe7Adfi1fMh/PpQFkUkJU=
-github.com/threatwinds/go-sdk v1.1.14/go.mod h1:Kfu26gkSZDpNNkPvuQbTAW3dWIQ66pVIrNYW1YBG3Kg=
+github.com/threatwinds/go-sdk v1.1.15 h1:LvyaNT78y0whlq9ioR0aRKcRCxt0gX0s90X9z1fF5c4=
+github.com/threatwinds/go-sdk v1.1.15/go.mod h1:Kfu26gkSZDpNNkPvuQbTAW3dWIQ66pVIrNYW1YBG3Kg=
 github.com/threatwinds/logger v1.2.3 h1:V2SVAXzbq+/huCvIWOfqzMTH+WBHJxankyBgVG2hy1Y=
 github.com/threatwinds/logger v1.2.3/go.mod h1:N+bJKvF4FQNJZLfQpVYWpr6D8iEAFnAQfHYqH5iR1TI=
 github.com/tidwall/gjson v1.18.0 h1:FIDeeyB800efLX89e5a8Y0BNH+LOngJyGrIWxG2FKQY=

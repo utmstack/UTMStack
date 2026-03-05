@@ -5,13 +5,14 @@ go 1.25.5
 require (
 	github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0
 	github.com/elastic/go-sysinfo v1.15.4
+	github.com/fsnotify/fsnotify v1.9.0
 	github.com/glebarez/sqlite v1.11.0
 	github.com/google/uuid v1.6.0
 	github.com/kardianos/service v1.2.4
 	github.com/netsampler/goflow2 v1.3.7
 	github.com/spf13/cobra v1.10.2
 	github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068
-	github.com/threatwinds/go-sdk v1.1.14
+	github.com/threatwinds/go-sdk v1.1.15
 	github.com/threatwinds/logger v1.2.3
 	github.com/utmstack/UTMStack/shared v0.0.0
 	golang.org/x/sys v0.41.0
@@ -31,7 +32,6 @@ require (
 	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/elastic/go-windows v1.0.2 // indirect
-	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.13 // indirect
 	github.com/gin-contrib/sse v1.1.0 // indirect
 	github.com/gin-gonic/gin v1.11.0 // indirect
