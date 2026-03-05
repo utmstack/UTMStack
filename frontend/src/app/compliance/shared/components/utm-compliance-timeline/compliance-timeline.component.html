@@ -1,0 +1,75 @@
+<div class="container-fluid p-3">
+  <div class="card-header p-2">
+    <h6 class="d-flex align-items-center text-blue-800 font-weight-light">
+      Control Status Timeline
+    </h6>
+  </div>
+  <div class="card-body p-2 h-10">
+    <div *ngIf="evaluations.length > 0 && !loading"
+         class="m-0 h-100" id="eventsTimeline">
+      <div class="timeline-scroll-wrapper">
+        <ul class="timeline">
+          <li *ngFor="let evaluation of evaluations" class="cursor-pointer">
+            <div class="timeline-item" (click)="selectEvaluation(evaluation)">
+              <!--<div class="utm_tmlabel timeline-label cursor-pointer"
+                   [ngClass]="selected === evaluation ?
+                      evaluation.status === 'COMPLIANT' ? 'selected compliant': 'selected non-compliant'
+                      : ''"
+                   (click)="selectEvaluation(evaluation)">
+                <p class="vertical-text">{{ evaluation.status }}</p>
+              </div>
+
+              <div class="timeline-line" [ngClass]="evaluation.status === 'COMPLIANT' ? 'compliant' : 'non-compliant'"></div>-->
+
+              <div class="timeline-icons" [ngClass]="evaluation.status === 'COMPLIANT' ? 'compliant' : 'non-compliant'"></div>
+
+              <time class="timeline-time">
+                {{ evaluation.timestamp | date:formatDateEnum.UTM_SHORT:'UTC' }}
+              </time>
+            </div>
+
+          </li>
+        </ul>
+      <!--<div *ngIf="loadingMore && !noMoreResult"
+           class="d-flex justify-content-center align-items-center p-3 loading">
+        <app-utm-spinner [height]="'35px'" [loading]="true"
+                         [width]="'35px'" label="Loading more events"></app-utm-spinner>
+      </div>
+      <div *ngIf="noMoreResult"
+           class="d-flex justify-content-center align-items-center p-3 loading">
+        <i class="icon-three-bars font-size-lg text-blue-800"></i>
+        <span class="text-blue-800 mt-2">No more data</span>
+      </div>-->
+      </div>
+      <!--<div *ngIf="evaluations && evaluations.length>0" class="my-3 mt-1">
+        <div class="row justify-content-center">
+          <ngb-pagination (pageChange)="loadPage($event)"
+                          [(page)]="page"
+                          [boundaryLinks]="true"
+                          [collectionSize]="totalItems"
+                          [maxSize]="3"
+                          [pageSize]="itemsPerPage"eastc
+                          [rotate]="true"
+                          [size]="'sm'"></ngb-pagination>
+          <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
+                                  class="ml-3">
+          </app-utm-items-per-page>
+        </div>-->
+
+      </div>
+    </div>
+    <div *ngIf="loading"
+         class=" h-100 d-flex justify-content-center align-items-center p-3 loading">
+      <app-utm-spinner [height]="'35px'" [loading]="true"
+                       [width]="'35px'" label="Loading"></app-utm-spinner>
+    </div>
+    <div *ngIf="evaluations.length===0 && !loading"
+         class="card-body message-container p-2 timeline-container h-100">
+      <div class="h-100 w-100 d-flex justify-content-center align-items-center flex-column">
+        <div class="event-icon utm-icon-lg utm-icon-light"></div>
+        <h6 class="text-blue-800 mt-2 text-justify font-weight-light">
+          No data found
+        </h6>
+      </div>
+    </div>
+  </div>

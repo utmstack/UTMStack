@@ -1,0 +1,113 @@
+
+.timeline-scroll-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 8px;
+  }
+
+.timeline {
+    display: flex;
+    flex-direction: row;
+    gap: 25px;
+    list-style: none;
+    padding: 10px 0;
+    align-items: center;
+    position: relative;
+    min-width: max-content;
+}
+
+.timeline::before {
+  position: absolute;
+  top: 25px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  z-index: 0;
+  width: 100%;
+  border-radius: unset;
+}
+
+.timeline-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100px;
+  }
+
+  .timeline-label {
+    font-size: 14px;
+    border-bottom: 3px solid #4caf50 !important;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    width: 50px;
+    justify-content: center;
+    box-shadow: 2px 0 1px 0 rgba(0, 0, 0, 0.12), 0 1px 1px 0 rgba(0, 0, 0, 0.24);
+  }
+
+  .timeline-line {
+    width: 2px;
+    height: 30px;
+    margin: 4px 0;
+  }
+
+  .timeline-icons {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    z-index: 2;
+    border-color: whitesmoke !important;
+    box-shadow: 0 0 0 4px rgba(104, 159, 56, .25);
+  }
+
+  .timeline-icons::before {
+    content: '\ea16';
+    font-family: icomoon, sans-serif;
+    color: white;
+    font-size: 12px;
+  }
+
+  .timeline-icons::after {
+    display: none;
+  }
+
+  .timeline-line.compliant,
+  .timeline-icons.compliant,
+  .timeline-label.compliant,
+  .timeline-label.compliant:hover {
+    background: #4CAF50;
+  }
+
+  .timeline-line.non-compliant,
+  .timeline-icons.non-compliant,
+  .timeline-label.non-compliant,
+  .timeline-label.non-compliant:hover {
+    background: #DC3545;
+  }
+
+  .timeline-time {
+    font-size: 12px;
+    color: #666;
+    margin-top: 6px;
+    margin-bottom: 0 !important;
+  }
+
+  .vertical-text {
+    transform: rotate(270deg);
+  }
+
+  .selected p{
+    color: white;
+  }
+
+  .timeline-label:hover {
+    background-color: #f0f0f0;
+    box-shadow: 2px 0 8px 0 rgba(0, 0, 0, 0.12);
+  }
