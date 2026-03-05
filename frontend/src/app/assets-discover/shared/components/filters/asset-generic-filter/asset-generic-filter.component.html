@@ -5,16 +5,12 @@
         </span>
     <app-generic-filer-sort (sortChange)="onSortValuesChange($event)"></app-generic-filer-sort>
   </div>
-  <div *ngIf="loading" class="category-list w-100 p-5">
-    <app-utm-spinner [height]="'5px'" [loading]="loading"
-                     [width]="'5px'"></app-utm-spinner>
-  </div>
   <div *ngIf="fieldValues$ | async as fieldValues" class="w-100">
     <ng-container *ngIf="fieldValues.length > 0; else empty">
       <div (scrolled)="onScroll()"
          [fromRoot]="true"
          [infiniteScrollDistance]="1"
-         [infiniteScrollThrottle]="40"
+         [infiniteScrollThrottle]="50"
          [scrollWindow]="false"
          class="filter-value-field-container"
          infiniteScroll>
