@@ -1,7 +1,6 @@
 import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges} from '@angular/core';
 import {Subject} from 'rxjs';
 import {debounceTime, finalize, takeUntil, tap} from 'rxjs/operators';
-import {debounceTime, finalize, map, takeUntil, tap} from 'rxjs/operators';
 import {ModalService} from '../../../core/modal/modal.service';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {
