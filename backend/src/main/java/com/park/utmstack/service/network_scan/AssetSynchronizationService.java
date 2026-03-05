@@ -160,7 +160,9 @@ public class AssetSynchronizationService {
                 .anyMatch(s -> !s.isDown());
     }
 
-    private UtmNetworkScan resolveAsset(String sourceName, Map<String, UtmNetworkScan> assetsNameMap, Map<String, UtmNetworkScan> assetsIpMap) {
+    private UtmNetworkScan resolveAsset(String sourceName,
+                                        Map<String, UtmNetworkScan> assetsNameMap,
+                                        Map<String, UtmNetworkScan> assetsIpMap) {
         UtmNetworkScan asset = assetsNameMap.get(sourceName);
 
         if (asset == null) {
