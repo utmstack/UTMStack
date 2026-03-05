@@ -154,7 +154,8 @@ public class AssetSynchronizationService {
         return asset;
     }
 
-    private boolean isDataSourceAlive(String sourceName, Map<String, UtmDataInputStatus> statusMap) {
+    private boolean isDataSourceAlive(String sourceName,
+                                      Map<String, UtmDataInputStatus> statusMap) {
         return statusMap.values().stream()
                 .filter(status -> status.getSource().equalsIgnoreCase(sourceName))
                 .anyMatch(s -> !s.isDown());
