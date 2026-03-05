@@ -76,14 +76,21 @@ public class SourceActivityProvider {
                     .field("dataSource.keyword")
                     .size(10000)
                 )
-                .aggregations("latest_doc", latestAgg -> latestAgg
-                    .topHits(th -> th
-                        .size(1)
-                        .sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc)))
+                .aggregations("by_type", typeAgg -> typeAgg
+                    .terms(t -> t
+                        .field("dataType.keyword")
+                        .size(10000)
+                    )
+                    // Get the latest document for each dataSource + dataType combination
+                    .aggregations("latest_doc", latestAgg -> latestAgg
+                        .topHits(th -> th
+                            .size(1)
+                            .sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc)))
+                        )
                     )
                 )
             )
-            .size(0)  // We don't need the main hits, only aggregations
+            .size(0)
         );
     }
 
@@ -103,23 +110,33 @@ public class SourceActivityProvider {
                 return results;
             }
 
-            bySourceAgg.buckets().array().forEach(bucket -> {
-                String dataSource = bucket.key();
+            bySourceAgg.buckets().array().forEach(sourceBucket -> {
+                String dataSource = sourceBucket.key();
 
-                var latestDocsAgg = bucket.aggregations().get("latest_doc");
-                if (latestDocsAgg != null) {
-                    var topHits = latestDocsAgg.topHits();
-                    if (topHits != null && !topHits.hits().hits().isEmpty()) {
-                        var hit = topHits.hits().hits().get(0);
-                        if (hit.source() != null) {
-                            StatisticDocument doc = hit.source().to(StatisticDocument.class);
-                            if (doc != null) {
-                                results.put(dataSource, doc);
-                                log.debug("Extracted latest activity for source: {} at {}", dataSource, doc.getTimestamp());
+                var byTypeAgg = sourceBucket.aggregations().get("by_type").sterms();
+                if (byTypeAgg == null || byTypeAgg.buckets().array().isEmpty()) {
+                    log.debug("No data type buckets found for source: {}", dataSource);
+                    return;
+                }
+
+                byTypeAgg.buckets().array().forEach(typeBucket -> {
+                    String dataType = typeBucket.key();
+
+                    var latestDocsAgg = typeBucket.aggregations().get("latest_doc");
+                    if (latestDocsAgg != null) {
+                        var topHits = latestDocsAgg.topHits();
+                        if (topHits != null && !topHits.hits().hits().isEmpty()) {
+                            var hit = topHits.hits().hits().get(0);
+                            if (hit.source() != null) {
+                                StatisticDocument doc = hit.source().to(StatisticDocument.class);
+                                if (doc != null) {
+                                    String compositeKey = dataSource + "|" + dataType;
+                                    results.put(compositeKey, doc);
+                                }
                             }
                         }
                     }
-                }
+                });
             });
 
             return results;
@@ -135,7 +152,7 @@ public class SourceActivityProvider {
                     try {
                         return Instant.parse(doc.getTimestamp());
                     } catch (Exception e) {
-                        log.warn("Failed to parse timestamp '{}' for document: {}", doc.getTimestamp(), e.getMessage());
+                        log.error("Failed to parse timestamp '{}': {}", doc.getTimestamp(), e.getMessage());
                         return null;
                     }
                 })
@@ -145,7 +162,7 @@ public class SourceActivityProvider {
                     latest -> {
                         checkpoint.setLastProcessedTimestamp(latest);
                         checkpointRepository.save(checkpoint);
-                        log.info("Checkpoint updated to: {}", latest);
+                        log.info("Checkpoint updated to: {} ({} active sources)", latest, activityMap.size());
                     },
                     () -> log.debug("No valid timestamps found to update checkpoint")
                 );
