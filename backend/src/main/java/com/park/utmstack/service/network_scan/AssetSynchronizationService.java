@@ -53,7 +53,11 @@ public class AssetSynchronizationService {
 
             Map<String, AgentDTO> agentsMap = loadAgents();
             Map<String, UtmDataInputStatus> statusMap = buildDataInputStatusMap();
-            Map<String, UtmNetworkScan> assetsMap = buildNetworkAssetsMap(new ArrayList<>(statsMap.keySet()));
+            Map<String, UtmNetworkScan> assetsMap = buildNetworkAssetsMap(
+                    new ArrayList<>(statsMap.values()
+                            .stream()
+                            .map(StatisticDocument::getDataSource)
+                            .collect(Collectors.toSet())));
 
             List<UtmDataInputStatus> statusToSave = new ArrayList<>();
             List<UtmNetworkScan> assetsToSave = new ArrayList<>();
@@ -65,7 +69,7 @@ public class AssetSynchronizationService {
                 statusToSave.add(status);
 
                 // Update network asset
-                UtmNetworkScan asset = processNetworkAsset(sourceName, agentsMap, assetsMap, statusMap);
+                UtmNetworkScan asset = processNetworkAsset(stat.getDataSource(), agentsMap, assetsMap, statusMap);
                 assetsToSave.add(asset);
             }
 
