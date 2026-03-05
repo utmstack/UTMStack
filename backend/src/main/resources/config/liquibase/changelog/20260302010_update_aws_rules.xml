@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260302010" author="Manuel">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            delete from utm_correlation_rules
+            where id in (
+                select u.rule_id
+                    from utm_group_rules_data_type u
+                    where u.data_type_id = 2
+                )
+            ]]>
+        </sql>
+
+        <sqlFile
+                path="config/liquibase/data/20260302/aws/utm_correlation_rules.sql"
+                relativeToChangelogFile="false"
+                splitStatements="false"
+                stripComments="false"
+                encoding="UTF-8"/>
+        <sqlFile
+                path="config/liquibase/data/20260302/aws/utm_group_rules_data_type.sql"
+                relativeToChangelogFile="false"
+                splitStatements="false"
+                stripComments="false"
+                encoding="UTF-8"/>
+
+    </changeSet>
+
+</databaseChangeLog>

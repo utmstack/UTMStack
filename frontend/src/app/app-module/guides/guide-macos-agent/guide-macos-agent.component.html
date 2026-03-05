@@ -1,33 +1,30 @@
 <div class="w-100 h-100">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h4 class="card-title mb-0 text-primary">
-      Installing MacOS agent
+      Installing macOS agent
     </h4>
   </div>
   <div class="card-body">
-    <p class="font-size-base text-justify mb-3">
-      The MacOS agent captures system and application logs and sends them to a UTMStack master server or probe/proxy, monitors system activity, and executes incident response commands.
-      The UTMStack agents communicate over ports 9000, 9001 and 50051. Please make sure these ports are open.
-    </p>
     <ol class="setup_list">
       <li>
         <p class="step-guide">
           <span class="step_number">1</span>
-          Download the <a [href]="getDownloadUrl()" download="utmstack-macos-agent.pkg" class="text-primary fw-semibold text-decoration-none">utmstack-macos-agent.pkg</a> file.
+          Check pre-installation requirements
         </p>
+        <ul class="mt-3 pl-3" style="list-style-type: circle !important;">
+          <li>Compatible with macOS 11 (Big Sur) or higher on Apple Silicon (M1/M2/M3)</li>
+          <li>The UTMStack agents communicate over ports 9000, 9001 and 50051. Please make sure these ports are open.</li>
+        </ul>
       </li>
       <li>
         <p class="step-guide">
           <span class="step_number">2</span>
-          Run the <strong>utmstack-macos-agent.pkg</strong> file. This will download and install the required components for the UTMStack agent.
+          To install or uninstall the UTMStack agent, open a Terminal and run the following command:
         </p>
-      </li>
-      <li>
-        <p class="step-guide">
-          <span class="step_number">3</span>
-          Use the following command according to the action you wish to perform (install or uninstall):
-        </p>
-        <app-agent-install-selector [platforms]="architectures" [_selectedPlatform]="architectures[0]"></app-agent-install-selector>
+        <div class="alert alert-warning alert-styled-right">
+          The following command contains sensitive information, don't share it.
+        </div>
+        <app-agent-install-selector [platforms]="platforms"></app-agent-install-selector>
       </li>
     </ol>
   </div>

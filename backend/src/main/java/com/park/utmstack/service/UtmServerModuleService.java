@@ -2,10 +2,12 @@ package com.park.utmstack.service;
 
 import com.park.utmstack.domain.UtmServerModule;
 import com.park.utmstack.repository.UtmServerModuleRepository;
+import com.park.utmstack.util.exceptions.ApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -93,11 +95,42 @@ public class UtmServerModuleService {
      */
     public List<UtmServerModule> getModulesWithIntegrations(Long serverId, String prettyName) {
         List<UtmServerModule> modules = utmServerModuleRepository.getModulesWithIntegrations(serverId,
-            StringUtils.hasText(prettyName) ? "'%" + prettyName + "%'" : null);
+                StringUtils.hasText(prettyName) ? "'%" + prettyName + "%'" : null);
         return !CollectionUtils.isEmpty(modules) ? modules : Collections.emptyList();
     }
 
     public List<UtmServerModule> findAllByModuleName(String moduleName) {
         return utmServerModuleRepository.findAllByModuleName(moduleName);
+    }
+
+    @Transactional
+    public void markForRestart(String moduleName) {
+        log.info("Marking module '{}' for restart due to inactivity.", moduleName);
+
+        try {
+            List<UtmServerModule> modules = utmServerModuleRepository.findAllByModuleName(moduleName);
+
+            if (modules.isEmpty()) {
+                log.warn("No modules found with name '{}'. Skipping restart trigger.", moduleName);
+                return;
+            }
+
+            List<UtmServerModule> modulesToUpdate = modules.stream()
+                    .filter(m -> !m.isNeedsRestart())
+                    .peek(m -> m.setNeedsRestart(true))
+                    .toList();
+
+            if (!modulesToUpdate.isEmpty()) {
+                utmServerModuleRepository.saveAll(modulesToUpdate);
+                log.info("Successfully marked {} instances of '{}' for restart.",
+                        modulesToUpdate.size(), moduleName);
+            } else {
+                log.debug("Module '{}' was already marked for restart.", moduleName);
+            }
+
+        } catch (Exception e) {
+            log.error("Failed to mark module '{}' for restart: {}", moduleName, e.getMessage());
+            throw new ApiException("Error triggering module restart for: " + moduleName, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

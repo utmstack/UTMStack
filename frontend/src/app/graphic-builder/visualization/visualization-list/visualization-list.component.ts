@@ -18,6 +18,7 @@ import {VisualizationService} from '../shared/services/visualization.service';
 import {VisualizationCreateComponent} from '../visualization-create/visualization-create.component';
 import {VisualizationDeleteComponent} from '../visualization-delete/visualization-delete.component';
 import {VisualizationImportComponent} from '../visualization-import/visualization-import.component';
+import {UtmToastService} from "../../../shared/alert/utm-toast.service";
 
 @Component({
   selector: 'app-visualization-list',
@@ -54,7 +55,8 @@ export class VisualizationListComponent implements OnInit {
               private visualizationService: VisualizationService,
               private spinner: NgxSpinnerService,
               private router: Router,
-              private activatedRoute: ActivatedRoute) {
+              private activatedRoute: ActivatedRoute,
+              private toastService: UtmToastService) {
   }
 
   ngOnInit() {
@@ -118,7 +120,7 @@ export class VisualizationListComponent implements OnInit {
   getVisualizationList() {
     this.visualizationService.query(this.requestParams).subscribe(
       (res: HttpResponse<any>) => this.onSuccess(res.body, res.headers),
-      (res: HttpResponse<any>) => this.onError(res.body)
+      (res: HttpResponse<any>) => this.onError(res)
     );
   }
 
@@ -200,7 +202,8 @@ export class VisualizationListComponent implements OnInit {
   }
 
   private onError(error) {
-    // this.alertService.error(error.error, error.message, null);
+    this.toastService.showError('Error', 'An error occurred while fetching visualizations');
+    this.loading = false;
   }
 
 }

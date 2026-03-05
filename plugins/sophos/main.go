@@ -155,7 +155,7 @@ func (p *SophosCentralProcessor) getAccessToken() (string, error) {
 	var err error
 
 	for retry := 0; retry < maxRetries; retry++ {
-		response, _, err = utils.DoReq[map[string]any](authURL, []byte(data.Encode()), http.MethodPost, headers)
+		response, _, err = utils.DoReq[map[string]any](authURL, []byte(data.Encode()), http.MethodPost, headers, false)
 		if err == nil {
 			accessToken, ok := response["access_token"].(string)
 			if ok && accessToken != "" {
@@ -230,7 +230,7 @@ func (p *SophosCentralProcessor) getTenantInfo(accessToken string) error {
 	var err error
 
 	for retry := 0; retry < maxRetries; retry++ {
-		response, _, err = utils.DoReq[WhoamiResponse](whoamiURL, nil, http.MethodGet, headers)
+		response, _, err = utils.DoReq[WhoamiResponse](whoamiURL, nil, http.MethodGet, headers, false)
 		if err == nil {
 			if response.ID != "" && response.ApiHosts.DataRegion != "" {
 				p.TenantID = response.ID
@@ -368,7 +368,7 @@ func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string) ([]stri
 		// Retry logic for getting logs
 		var response EventAggregate
 		for retry := 0; retry < maxRetries; retry++ {
-			response, _, err = utils.DoReq[EventAggregate](u.String(), nil, http.MethodGet, headers)
+			response, _, err = utils.DoReq[EventAggregate](u.String(), nil, http.MethodGet, headers, false)
 			if err == nil {
 				break
 			}

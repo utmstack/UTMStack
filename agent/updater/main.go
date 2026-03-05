@@ -7,19 +7,20 @@ import (
 
 	"github.com/utmstack/UTMStack/agent/updater/config"
 	"github.com/utmstack/UTMStack/agent/updater/service"
-	"github.com/utmstack/UTMStack/agent/updater/utils"
+	"github.com/utmstack/UTMStack/shared/fs"
+	"github.com/utmstack/UTMStack/shared/logger"
 )
 
 func main() {
-	path := utils.GetMyPath()
-	utils.InitLogger(filepath.Join(path, "logs", config.SERV_LOG))
+	basePath := fs.GetExecutablePath()
+	logger.Init(filepath.Join(basePath, "logs", config.SERV_LOG), logger.LevelInfo)
 
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
 		case "install":
 			fmt.Println("Installing UTMStack Updater service...")
 
-			fmt.Print(("Creating service ... "))
+			fmt.Print("Creating service ... ")
 			service.InstallService()
 			fmt.Println("[OK]")
 
@@ -35,7 +36,6 @@ func main() {
 			return
 		case "stop":
 			fmt.Println("Stopping UTMStack Updater service...")
-			// Will be handled by systemd
 			return
 		}
 	}

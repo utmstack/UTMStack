@@ -11,7 +11,7 @@ import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
     <div class="flex-container mt-2 mb-3">
       <ng-select [items]="platforms"
                  bindLabel="name"
-                 placeholder="Select architecture"
+                 placeholder="Select platform"
                  [(ngModel)]="selectedPlatform"
                  class="flex-item">
       </ng-select>

@@ -7,13 +7,12 @@ import (
 	"strconv"
 
 	"github.com/utmstack/UTMStack/agent/config"
-	"github.com/utmstack/UTMStack/agent/conn"
 	"github.com/utmstack/UTMStack/agent/utils"
 	"google.golang.org/grpc/metadata"
 )
 
 func DeleteAgent(cnf *config.Config) error {
-	connection, err := conn.GetAgentManagerConnection(cnf)
+	connection, err := GetAgentManagerConnection(cnf)
 	if err != nil {
 		return fmt.Errorf("error connecting to Agent Manager: %v", err)
 	}

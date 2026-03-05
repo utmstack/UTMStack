@@ -16,15 +16,6 @@ export class GuideSyslogComponent implements OnInit {
   @Input() moduleEnum: UtmModulesEnum;
   @Input() dataType: string;
   module = UtmModulesEnum;
-  moduleImages: SyslogModuleImages[] = [
-    {module: UtmModulesEnum.FORTIGATE, img: 'fortigate.png'},
-    {module: UtmModulesEnum.UFW, img: 'ufw.png'},
-    {module: UtmModulesEnum.MIKROTIK, img: 'mikrotik.png'},
-    {module: UtmModulesEnum.PALO_ALTO, img: 'paloalto.png'},
-    {module: UtmModulesEnum.SONIC_WALL, img: 'sonicwall.png'},
-    {module: UtmModulesEnum.DECEPTIVE_BYTES, img: 'deceptivebytes.png'},
-    {module: UtmModulesEnum.SOPHOS_XG, img: 'sophosxg.png'}
-  ];
 
   syslogPorts: SyslogModulePorts[] = [
     {module: UtmModulesEnum.FORTIGATE, port: '7005 TCP'},

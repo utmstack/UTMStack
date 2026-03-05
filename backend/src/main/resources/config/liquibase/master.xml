@@ -411,6 +411,105 @@
 
     <include file="/config/liquibase/changelog/20260211003_update_filter_netflow.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260211004_update_windows_visualizations.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260211005_update_default_time_visualizations.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260212001_update_filter_netflow.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260212002_update_windows_visualizations.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260212003_update_windows_visualizations.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260212004_update_windows_visualizations.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260212005_update_windows_visualizations.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260213001_update_bit_defender_visualizations.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260213002_update_vmware_visualizations.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260213003_update_filter_bit_defender.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260216001_update_filter_vmware_esxi.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218001_remove_redis_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218002_remove_nginx_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218003_remove_postgresql_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218004_remove_apache_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218005_remove_mysql_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218006_remove_mongodb_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218007_remove_elastic_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218008_remove_logstash_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218009_remove_kibana_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218010_remove_kafka_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218011_remove_nats_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218012_remove_traefik_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218013_remove_audit_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218014_remove_hap_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218015_remove_iis_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260218016_remove_os_query_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260220001_update_filter_linux.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260220002_update_linux_visualizations.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260223001_update_filter_winevent.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260223003_update_windows_visualizations.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260223004_update_windows_visualizations.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260225001_add_unique_constraint_asset_name.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260226001_add_alias_to_data_input_status.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260302001_update_winevent_correlation_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260302002_update_bit-defender_correlation_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260302003_update_deceptive_bytes_correlation_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260302004_update_eset_correlation_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260302005_update_kaspersky_correlation_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260302006_update_cisco_asa_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260302007_update_cisco_switch_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260302008_update_cisco_firepower_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260302009_update_cisco_meraki_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260302010_update_aws_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260302011_update_azure_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260302012_update_google_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260302013_add_crowdstrike_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260303001_update_filter_macos.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260303002_update_filter_fortigate.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260303003_update_filter_windows.xml" relativeToChangelogFile="false"/>
 
 
 </databaseChangeLog>

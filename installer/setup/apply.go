@@ -12,7 +12,7 @@ import (
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
-func Apply(version string) (string, error) {
+func Apply(version string, updating bool) (string, error) {
 	cnf := config.GetConfig()
 
 	fmt.Println("Generating Stack configuration...")
@@ -256,10 +256,12 @@ func Apply(version string) (string, error) {
 		fmt.Println(" [OK]")
 	}
 
-	fmt.Print("Waiting for Backend to be ready. This may take a while.")
+	if !updating {
+		fmt.Print("Waiting for Backend to be ready. This may take a while.")
 
-	if err := services.Backend(); err != nil {
-		return "", err
+		if err := services.Backend(); err != nil {
+			return "", err
+		}
 	}
 
 	fmt.Println(" [OK]")

@@ -30,10 +30,3 @@ func ExecuteWithResult(c string, dir string, arg ...string) (string, bool) {
 
 	return validUtf8Out, false
 }
-
-func Execute(c string, dir string, arg ...string) error {
-	cmd := exec.Command(c, arg...)
-	cmd.Dir = dir
-
-	return cmd.Run()
-}

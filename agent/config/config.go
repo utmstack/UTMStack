@@ -2,18 +2,12 @@ package config
 
 import (
 	"fmt"
-	"os"
 	"sync"
 
-	aesCrypt "github.com/AtlasInsideCorp/AtlasInsideAES"
 	"github.com/google/uuid"
 	"github.com/utmstack/UTMStack/agent/utils"
+	"github.com/utmstack/UTMStack/shared/fs"
 )
-
-type MSGDS struct {
-	DataSource string
-	Message    string
-}
 
 type InstallationUUID struct {
 	UUID string `yaml:"uuid"`
@@ -26,19 +20,6 @@ type Config struct {
 	SkipCertValidation bool   `yaml:"insecure"`
 }
 
-func GetInitialConfig() (*Config, string) {
-	cnf := Config{
-		Server: os.Args[2],
-	}
-	skip := os.Args[4]
-	if skip == "yes" {
-		cnf.SkipCertValidation = true
-	} else {
-		cnf.SkipCertValidation = false
-	}
-	return &cnf, os.Args[3]
-}
-
 var (
 	cnf                = Config{}
 	confOnce           sync.Once
@@ -49,39 +30,21 @@ var (
 func GetCurrentConfig() (*Config, error) {
 	var errR error
 	confOnce.Do(func() {
-		uuidExists := utils.CheckIfPathExist(UUIDFileName)
-
 		var encryptConfig Config
-		if err := utils.ReadYAML(ConfigurationFile, &encryptConfig); err != nil {
+		if err := fs.ReadYAML(ConfigurationFile, &encryptConfig); err != nil {
 			errR = fmt.Errorf("error reading config file: %v", err)
 			return
 		}
 
-		var key []byte
-		var err error
-		if uuidExists {
-			id, err := GetUUID()
-			if err != nil {
-				errR = fmt.Errorf("failed to get uuid: %v", err)
-				return
-			}
-
-			key, err = utils.GenerateKeyByUUID(REPLACE_KEY, id)
-			if err != nil {
-				errR = fmt.Errorf("error geneating key: %v", err)
-				return
-			}
-		} else {
-			key, err = utils.GenerateKey(REPLACE_KEY)
-			if err != nil {
-				errR = fmt.Errorf("error geneating key: %v", err)
-				return
-			}
+		id, err := GetUUID()
+		if err != nil {
+			errR = fmt.Errorf("failed to get uuid: %v", err)
+			return
 		}
 
-		agentKey, err := aesCrypt.AESDecrypt(encryptConfig.AgentKey, key)
+		agentKey, err := utils.DecryptAES(encryptConfig.AgentKey, REPLACE_KEY, id)
 		if err != nil {
-			errR = fmt.Errorf("error encoding agent key: %v", err)
+			errR = fmt.Errorf("error decrypting agent key: %v", err)
 			return
 		}
 
@@ -89,13 +52,6 @@ func GetCurrentConfig() (*Config, error) {
 		cnf.AgentID = encryptConfig.AgentID
 		cnf.AgentKey = agentKey
 		cnf.SkipCertValidation = encryptConfig.SkipCertValidation
-
-		if !uuidExists {
-			if err := SaveConfig(&cnf); err != nil {
-				errR = fmt.Errorf("error writing config file: %v", err)
-				return
-			}
-		}
 	})
 	if errR != nil {
 		return nil, errR
@@ -109,14 +65,9 @@ func SaveConfig(cnf *Config) error {
 		return fmt.Errorf("failed to generate uuid: %v", err)
 	}
 
-	key, err := utils.GenerateKeyByUUID(REPLACE_KEY, id)
+	agentKey, err := utils.EncryptAES(cnf.AgentKey, REPLACE_KEY, id)
 	if err != nil {
-		return fmt.Errorf("error geneating key: %v", err)
-	}
-
-	agentKey, err := aesCrypt.AESEncrypt(cnf.AgentKey, key)
-	if err != nil {
-		return fmt.Errorf("error encoding agent key: %v", err)
+		return fmt.Errorf("error encrypting agent key: %v", err)
 	}
 
 	encryptConf := &Config{
@@ -126,7 +77,7 @@ func SaveConfig(cnf *Config) error {
 		SkipCertValidation: cnf.SkipCertValidation,
 	}
 
-	if err := utils.WriteYAML(ConfigurationFile, encryptConf); err != nil {
+	if err := fs.WriteYAML(ConfigurationFile, encryptConf); err != nil {
 		return err
 	}
 	return nil
@@ -142,7 +93,7 @@ func GenerateNewUUID() (string, error) {
 		UUID: id.String(),
 	}
 
-	if err = utils.WriteYAML(UUIDFileName, InstallationUUID); err != nil {
+	if err = fs.WriteYAML(UUIDFileName, InstallationUUID); err != nil {
 		return "", fmt.Errorf("error writing uuid file: %v", err)
 	}
 
@@ -153,7 +104,7 @@ func GetUUID() (string, error) {
 	var errR error
 	installationIdOnce.Do(func() {
 		var id = InstallationUUID{}
-		if err := utils.ReadYAML(UUIDFileName, &id); err != nil {
+		if err := fs.ReadYAML(UUIDFileName, &id); err != nil {
 			errR = fmt.Errorf("error reading uuid file: %v", err)
 			return
 		}

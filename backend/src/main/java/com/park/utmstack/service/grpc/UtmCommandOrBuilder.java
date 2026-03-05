@@ -92,4 +92,16 @@ public interface UtmCommandOrBuilder extends
    */
   com.google.protobuf.ByteString
       getReasonBytes();
+
+  /**
+   * <code>string shell = 8;</code>
+   * @return The shell.
+   */
+  java.lang.String getShell();
+  /**
+   * <code>string shell = 8;</code>
+   * @return The bytes for shell.
+   */
+  com.google.protobuf.ByteString
+      getShellBytes();
 }

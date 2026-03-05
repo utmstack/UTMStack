@@ -39,15 +39,15 @@ export class GuideWinlogbeatComponent implements OnInit {
     this.architectures = [
       {
         id: 1, name: 'AMD64',
-        install: this.getCommand('utmstack_agent_service.exe'),
-        uninstall: this.getUninstallCommand('utmstack_agent_service.exe'),
-        shell: 'Windows Powershell terminal as “ADMINISTRATOR”'
+        install: this.getCommand('utmstack_agent_service_windows_amd64.exe'),
+        uninstall: this.getUninstallCommand('utmstack_agent_service_windows_amd64.exe'),
+        shell: 'Windows Powershell terminal as "ADMINISTRATOR"'
       },
       {
         id: 2, name: 'ARM64',
-        install: this.getCommand('utmstack_agent_service_arm64.exe'),
-        uninstall: this.getUninstallCommand('utmstack_agent_service_arm64.exe'),
-        shell: 'Windows Powershell terminal as “ADMINISTRATOR”'
+        install: this.getCommand('utmstack_agent_service_windows_arm64.exe'),
+        uninstall: this.getUninstallCommand('utmstack_agent_service_windows_arm64.exe'),
+        shell: 'Windows Powershell terminal as "ADMINISTRATOR"'
       }
     ];
   }

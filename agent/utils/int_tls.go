@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/utmstack/UTMStack/shared/fs"
 )
 
 const (
@@ -63,11 +65,11 @@ func LoadIntegrationTLSConfig(certPath, keyPath string) (*tls.Config, error) {
 }
 
 func ValidateIntegrationCertificates(certPath, keyPath string) error {
-	if !CheckIfPathExist(certPath) {
+	if !fs.Exists(certPath) {
 		return fmt.Errorf("certificate file not found: %s", certPath)
 	}
 
-	if !CheckIfPathExist(keyPath) {
+	if !fs.Exists(keyPath) {
 		return fmt.Errorf("private key file not found: %s", keyPath)
 	}
 
@@ -121,10 +123,10 @@ func ValidateIntegrationCertificates(certPath, keyPath string) error {
 
 func LoadUserCertificatesWithStruct(src, dest CertificateFiles) error {
 	// Validate source certificates
-	if !CheckIfPathExist(src.CertPath) {
+	if !fs.Exists(src.CertPath) {
 		return fmt.Errorf("user certificate file not found: %s", src.CertPath)
 	}
-	if !CheckIfPathExist(src.KeyPath) {
+	if !fs.Exists(src.KeyPath) {
 		return fmt.Errorf("user private key file not found: %s", src.KeyPath)
 	}
 	if err := ValidateIntegrationCertificates(src.CertPath, src.KeyPath); err != nil {
@@ -133,7 +135,7 @@ func LoadUserCertificatesWithStruct(src, dest CertificateFiles) error {
 
 	// Prepare destination directory
 	certsDir := filepath.Dir(dest.CertPath)
-	if err := CreatePathIfNotExist(certsDir); err != nil {
+	if err := fs.CreateDirIfNotExist(certsDir); err != nil {
 		return fmt.Errorf("error creating certificates directory: %w", err)
 	}
 
@@ -147,7 +149,7 @@ func LoadUserCertificatesWithStruct(src, dest CertificateFiles) error {
 
 	// Copy CA certificate (use source CA if exists, otherwise use cert as CA)
 	caSource := src.CAPath
-	if caSource == "" || !CheckIfPathExist(caSource) {
+	if caSource == "" || !fs.Exists(caSource) {
 		caSource = src.CertPath
 	}
 	if err := copyFile(caSource, dest.CAPath); err != nil {
