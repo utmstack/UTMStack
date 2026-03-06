@@ -23,7 +23,6 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
 
   constructor(
     private passwordResetFinishService: PasswordResetFinishService,
-    private loginModalService: ModalService,
     private route: ActivatedRoute,
     private router: Router,
     private elementRef: ElementRef,
@@ -33,10 +32,14 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
-      this.key = params.key;
+      if (params && params.key) {
+        this.key = params.key;
+        this.keyMissing = false
+      } else {
+        this.keyMissing = true;
+      }
     });
     this.resetAccount = {};
-    this.keyMissing = !this.key;
   }
 
   ngAfterViewInit() {
