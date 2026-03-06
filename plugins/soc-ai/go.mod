@@ -2,7 +2,7 @@ module github.com/utmstack/UTMStack/plugins/soc-ai
 
 go 1.25.5
 
-require google.golang.org/grpc v1.78.0
+require google.golang.org/grpc v1.79.2
 
 require (
 	github.com/bytedance/gopkg v0.1.3 // indirect
