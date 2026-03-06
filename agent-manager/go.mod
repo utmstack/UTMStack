@@ -7,7 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/google/uuid v1.6.0
 	github.com/utmstack/config-client-go v1.2.7
-	google.golang.org/grpc v1.79.1
+	google.golang.org/grpc v1.79.2
 	google.golang.org/protobuf v1.36.11
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
