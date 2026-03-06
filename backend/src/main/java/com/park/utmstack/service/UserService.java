@@ -80,7 +80,7 @@ public class UserService {
         }
     }
 
-    public User completePasswordReset(String newPassword, String key) {
+    public void completePasswordReset(String newPassword, String key) {
         final String ctx = CLASS_NAME + ".completePasswordReset";
         log.debug("{}: Processing password reset with key: {}", ctx, key);
 
@@ -105,7 +105,6 @@ public class UserService {
         user.setActivated(true);
 
         log.info("{}: Password reset completed successfully for user: {}", ctx, user.getLogin());
-        return user;
     }
 
     public Optional<User> requestPasswordReset(String mail) {
