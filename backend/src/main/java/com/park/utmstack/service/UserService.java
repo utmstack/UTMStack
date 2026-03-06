@@ -88,7 +88,9 @@ public class UserService {
 
         if (userOptional.isEmpty()) {
             log.info("{}: No user found with reset key", ctx);
-            throw new CurrentUserLoginNotFoundException("No user found with reset key");
+            throw new CurrentUserLoginNotFoundException(
+                "The password reset link is invalid or no longer exists. Please request a new password reset."
+            );
         }
 
         User user = userOptional.get();
@@ -96,7 +98,9 @@ public class UserService {
 
         if (!user.getResetDate().isAfter(resetDeadline)) {
             log.error("{}: Reset key expired for user: {}", ctx, user.getLogin());
-            throw new ResetKeyExpiredException(String.format("Reset key expired for user: %s", user.getLogin()));
+            throw new ResetKeyExpiredException(
+                "The password reset link has expired. Password reset links are valid for 24 hours. Please request a new one."
+            );
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
