@@ -1,6 +1,8 @@
 package com.park.utmstack.web.rest;
 
 
+import com.park.utmstack.aop.logging.AuditEvent;
+import com.park.utmstack.aop.logging.Loggable;
 import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.repository.UserRepository;
@@ -70,7 +72,7 @@ public class AccountResource {
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
 
@@ -85,8 +87,8 @@ public class AccountResource {
         final String ctx = CLASSNAME + ".getAccount";
         try {
             return userService.getUserWithAuthorities()
-                .map(UserDTO::new)
-                .orElseThrow(() -> new InternalServerErrorException("User could not be found"));
+                    .map(UserDTO::new)
+                    .orElseThrow(() -> new InternalServerErrorException("User could not be found"));
         } catch (InternalServerErrorException e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
@@ -116,7 +118,7 @@ public class AccountResource {
                 throw new InternalServerErrorException("User could not be found");
 
             userService.updateUser(userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(),
-                userDTO.getLangKey(), userDTO.getImageUrl());
+                    userDTO.getLangKey(), userDTO.getImageUrl());
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
@@ -156,8 +158,8 @@ public class AccountResource {
         final String ctx = CLASSNAME + ".requestPasswordReset";
         try {
             mailService.sendPasswordResetMail(
-                userService.requestPasswordReset(mail)
-                    .orElseThrow(EmailNotFoundException::new));
+                    userService.requestPasswordReset(mail)
+                            .orElseThrow(EmailNotFoundException::new));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
@@ -166,34 +168,23 @@ public class AccountResource {
         }
     }
 
-    /**
-     * POST   /account/reset-password/finish : Finish to reset the password of the user
-     *
-     * @param keyAndPassword the generated key and the new password
-     * @throws InvalidPasswordException 400 (Bad Request) if the password is incorrect
-     * @throws RuntimeException         500 (Internal Server Error) if the password could not be reset
-     */
+    @AuditEvent(
+            attemptType = ApplicationEventType.RESET_USER_PASSWORD_ATTEMPT,
+            attemptMessage = "Attempt to reset user password initiated",
+            successType = ApplicationEventType.RESET_USER_PASSWORD_SUCCESS,
+            successMessage = "User password reset successfully"
+    )
     @PostMapping(path = "/account/reset-password/finish")
     public void finishPasswordReset(@RequestBody KeyAndPasswordVM keyAndPassword) {
-        final String ctx = CLASSNAME + ".finishPasswordReset";
-        try {
-            validatePasswordLength(keyAndPassword.getNewPassword());
-            Optional<User> user =
-                userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
 
-            if (user.isEmpty())
-                throw new InternalServerErrorException("No user was found for this reset key");
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            throw new RuntimeException(msg);
-        }
+        validatePasswordLength(keyAndPassword.getNewPassword());
+        userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
+
     }
 
     private void validatePasswordLength(String password) {
         if (!StringUtils.hasText(password) || password.length() < ManagedUserVM.PASSWORD_MIN_LENGTH ||
-            password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH)
+                password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH)
             throw new InvalidPasswordException();
     }
 }
