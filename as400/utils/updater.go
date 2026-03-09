@@ -3,7 +3,7 @@ package utils
 import "fmt"
 
 func InstallUpdater() error {
-	updaterPath := GetMyPath() + "/utmstack_updater_service"
+	updaterPath := GetMyPath() + "/utmstack_as400_updater_service"
 
 	if err := Execute("chmod", GetMyPath(), "+x", updaterPath); err != nil {
 		return fmt.Errorf("error setting execute permissions: %v", err)
@@ -17,7 +17,7 @@ func InstallUpdater() error {
 }
 
 func UninstallUpdater() error {
-	updaterPath := GetMyPath() + "/utmstack_updater_service"
+	updaterPath := GetMyPath() + "/utmstack_as400_updater_service"
 
 	if !CheckIfPathExist(updaterPath) {
 		return nil
