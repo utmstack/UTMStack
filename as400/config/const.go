@@ -6,9 +6,10 @@ import (
 	"github.com/utmstack/UTMStack/as400/utils"
 )
 
+var REPLACE_KEY string = ""
+
 const (
-	REPLACE_KEY string = ""
-	DataType    string = "ibm-as400"
+	DataType string = "ibm-as400"
 )
 
 var (
