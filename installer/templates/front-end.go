@@ -15,9 +15,24 @@ const FrontEnd string = `server {
     set $utmstack_agent_manager http://agentmanager:9001;
     set $utmstack_backend_auth http://backend:8080/api/authenticate;
     set $utmstack_ws http://backend:8080/ws;
-    set $utmstack_saml2 http://backend:8080/login/saml2/;
     set $shared_key {{.SharedKey}};
     set $shared_key_header $http_x_shared_key;
+
+	location /saml2/ {
+    	proxy_pass http://backend:8080/saml2/;
+    	proxy_set_header Host $host;
+    	proxy_set_header X-Real-IP $remote_addr;
+    	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    	proxy_set_header X-Forwarded-Proto $scheme;
+	}
+
+	location /login/saml2/ {
+    	proxy_pass http://backend:8080/login/saml2/;
+    	proxy_set_header Host $host;
+    	proxy_set_header X-Real-IP $remote_addr;
+    	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    	proxy_set_header X-Forwarded-Proto $scheme;
+	}
 
     location /api {
         proxy_pass  $utmstack_backend;
