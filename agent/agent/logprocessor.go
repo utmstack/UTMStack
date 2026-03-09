@@ -11,11 +11,23 @@ import (
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/plugins"
 
+<<<<<<<< HEAD:as400/logservice/processor.go
+	"github.com/utmstack/UTMStack/as400/agent"
+	"github.com/utmstack/UTMStack/as400/config"
+	"github.com/utmstack/UTMStack/as400/conn"
+	"github.com/utmstack/UTMStack/as400/database"
+	"github.com/utmstack/UTMStack/as400/models"
+	"github.com/utmstack/UTMStack/as400/utils"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
+========
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/database"
 	"github.com/utmstack/UTMStack/agent/models"
 	"github.com/utmstack/UTMStack/agent/utils"
 	"github.com/utmstack/UTMStack/shared/fs"
+>>>>>>>> origin/v11:agent/agent/logprocessor.go
 )
 
 type LogProcessor struct {
@@ -78,6 +90,9 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 		}
 
 		client := plugins.NewIntegrationClient(connection)
+<<<<<<<< HEAD:as400/logservice/processor.go
+		plClient := createClient(client, ctx, cnf)
+========
 		plClient, err := createClient(client, ctx)
 		if err != nil {
 			if errors.Is(err, ErrAgentUninstalled) {
@@ -91,6 +106,7 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 			utils.Logger.ErrorF("error creating client: %v", err)
 			continue
 		}
+>>>>>>>> origin/v11:agent/agent/logprocessor.go
 		l.connErrWritten = false
 
 		// Create context only after successful client creation to avoid leaks
@@ -167,16 +183,8 @@ func (l *LogProcessor) CleanCountedLogs() {
 	for range ticker.C {
 		dataRetention, err := GetDataRetention()
 		if err != nil {
-			utils.Logger.ErrorF("error getting data retention: %s, creating default retention file", err)
-			if err := SetDataRetention(""); err != nil {
-				utils.Logger.ErrorF("error creating default data retention: %s", err)
-				continue
-			}
-			dataRetention, err = GetDataRetention()
-			if err != nil {
-				utils.Logger.ErrorF("error reading newly created data retention: %s", err)
-				continue
-			}
+			utils.Logger.ErrorF("error getting data retention: %s", err)
+			continue
 		}
 		_, err = l.db.DeleteOld(&models.Log{}, dataRetention)
 		if err != nil {
@@ -204,13 +212,32 @@ func (l *LogProcessor) CleanCountedLogs() {
 	}
 }
 
+<<<<<<<< HEAD:as400/logservice/processor.go
+func createClient(client plugins.IntegrationClient, ctx context.Context, cnf *config.Config) plugins.Integration_ProcessLogClient {
+========
 func createClient(client plugins.IntegrationClient, ctx context.Context) (plugins.Integration_ProcessLogClient, error) {
+>>>>>>>> origin/v11:agent/agent/logprocessor.go
 	var connErrMsgWritten bool
 	invalidKeyCounter := 0
 	invalidKeyDelay := timeToSleep
 	maxInvalidKeyDelay := 5 * time.Minute
 	maxInvalidKeyAttempts := 100 // ~8+ hours with backoff before uninstall
 	for {
+<<<<<<<< HEAD:as400/logservice/processor.go
+		authCtx := metadata.AppendToOutgoingContext(ctx,
+			"key", cnf.CollectorKey,
+			"id", strconv.Itoa(int(cnf.CollectorID)),
+			"type", "collector")
+
+		plClient, err := client.ProcessLog(authCtx)
+		if err != nil {
+			if strings.Contains(err.Error(), "invalid agent key") {
+				invalidKeyCounter++
+				if invalidKeyCounter >= 20 {
+					utils.Logger.Info("Uninstalling collector: reason: collector has been removed from the panel...")
+					_ = agent.UninstallAll()
+					os.Exit(1)
+========
 		select {
 		case <-ctx.Done():
 			return nil, ctx.Err()
@@ -226,6 +253,7 @@ func createClient(client plugins.IntegrationClient, ctx context.Context) (plugin
 					utils.Logger.ErrorF("uninstalling agent after %d consecutive invalid key errors", maxInvalidKeyAttempts)
 					_ = UninstallAll()
 					return nil, ErrAgentUninstalled
+>>>>>>>> origin/v11:agent/agent/logprocessor.go
 				}
 				time.Sleep(invalidKeyDelay)
 				invalidKeyDelay = utils.IncrementReconnectDelay(invalidKeyDelay, maxInvalidKeyDelay)

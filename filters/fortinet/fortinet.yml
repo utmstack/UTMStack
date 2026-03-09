@@ -108,6 +108,22 @@ pipeline:
           from:
             - log.src_port
           to: origin.port
+      - rename:
+          from:
+            - log.rcvdbyte
+          to: origin.bytesReceived
+      - rename:
+          from:
+            - log.rcvdpkt
+          to: origin.packagesReceived
+      - rename:
+          from:
+            - log.sentbyte
+          to: origin.bytesSent
+      - rename:
+          from:
+            - log.sentpkt
+          to: origin.packagesSent
 
       # Removing unused caracters
       - trim:
@@ -1087,3 +1103,4 @@ pipeline:
       - delete:
           fields:
             - log.kvMessage
+            - log.proto
