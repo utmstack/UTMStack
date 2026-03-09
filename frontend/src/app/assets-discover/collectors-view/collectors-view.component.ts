@@ -90,7 +90,7 @@ export class CollectorsViewComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.setInitialWidth();
     this.getCollectors();
-    this.starInterval();
+    // this.starInterval();
     this.accountService.identity().then(account => {
       this.reasonRun = {
         command: '',

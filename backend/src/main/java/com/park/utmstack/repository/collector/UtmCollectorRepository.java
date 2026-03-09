@@ -31,5 +31,5 @@ public interface UtmCollectorRepository extends JpaRepository<UtmCollector, Long
     void updateGroup(@Param("collectorsIds") List<Long> collectorsIds,
                      @Param("assetGroupId") Long assetGroupId);
 
-    Optional<List<UtmCollector>> findAllByGroupId(Long groupId);
+    List<UtmCollector> findAllByGroupIdIn(List<Long> groupIds);
 }

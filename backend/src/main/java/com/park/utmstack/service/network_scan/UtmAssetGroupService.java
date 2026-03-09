@@ -75,33 +75,26 @@ public class UtmAssetGroupService {
         return utmAssetGroupRepository.findAll(pageable);
     }
 
-    public Page<AssetGroupDTO> searchGroupsByFilter(AssetGroupFilter filter, Pageable pageable) throws Exception {
-        final String ctx = CLASSNAME + ".searchGroupsByFilter";
-        try {
-            String query = searchQueryBuilder(filter);
-            String queryWithPaginationAndSort = paginateAndSort(query, pageable);
-            BigInteger count = (BigInteger) em.createNativeQuery(String.format("SELECT count(*) FROM (%1$s) AS total", query)).getSingleResult();
-            List<UtmAssetGroup> results = new ArrayList<>(em.createNativeQuery(queryWithPaginationAndSort, UtmAssetGroup.class).getResultList());
+    public Page<AssetGroupDTO> searchGroupsByFilter(AssetGroupFilter filter, Pageable pageable) {
 
-            if (!CollectionUtils.isEmpty(results)) {
-                results.forEach(g -> {
-                    Optional<List<UtmNetworkScan>> assetsOpt = networkScanRepository.findAllByGroupId(g.getId());
+        String query = searchQueryBuilder(filter);
+        String queryWithPaginationAndSort = paginateAndSort(query, pageable);
+        BigInteger count = (BigInteger) em.createNativeQuery(String.format("SELECT count(*) FROM (%1$s) AS total", query)).getSingleResult();
+        List<UtmAssetGroup> results = new ArrayList<>(em.createNativeQuery(queryWithPaginationAndSort, UtmAssetGroup.class).getResultList());
 
-                    if (assetsOpt.isPresent()) {
-                        g.setAssets(assetsOpt.get());
-                        List<String> collect = assetsOpt.get().stream().map(UtmNetworkScan::getAssetName).collect(Collectors.toList());
-                        List<UtmAssetMetrics> metrics = assetMetricsRepository.findAllByAssetNameIn(collect);
-                        g.setMetrics(metrics);
-                    }
-                });
-            }
-            return new PageImpl<>(results.stream().map(AssetGroupDTO::new).collect(Collectors.toList()), pageable, count.longValue());
-        } catch (InvalidDataAccessResourceUsageException e) {
-            String msg = ctx + ": " + e.getMostSpecificCause().getMessage().replaceAll("\n", "");
-            throw new Exception(msg);
-        } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
+        if (!CollectionUtils.isEmpty(results)) {
+            results.forEach(g -> {
+                Optional<List<UtmNetworkScan>> assetsOpt = networkScanRepository.findAllByGroupId(g.getId());
+
+                if (assetsOpt.isPresent()) {
+                    g.setAssets(assetsOpt.get());
+                    List<String> collect = assetsOpt.get().stream().map(UtmNetworkScan::getAssetName).collect(Collectors.toList());
+                    List<UtmAssetMetrics> metrics = assetMetricsRepository.findAllByAssetNameIn(collect);
+                    g.setMetrics(metrics);
+                }
+            });
         }
+        return new PageImpl<>(results.stream().map(AssetGroupDTO::new).collect(Collectors.toList()), pageable, count.longValue());
     }
 
 
@@ -145,61 +138,61 @@ public class UtmAssetGroupService {
         // groupName
         if (StringUtils.hasText(filters.getGroupName())) {
             sb.append(where ? "WHERE " : "AND ")
-                .append(String.format("lower(utm_asset_group.group_name) LIKE '%%%1$s%%'\n",
-                    filters.getGroupName().toLowerCase()));
+                    .append(String.format("lower(utm_asset_group.group_name) LIKE '%%%1$s%%'\n",
+                            filters.getGroupName().toLowerCase()));
             where = false;
         }
 
         // createdDate
         if (Objects.nonNull(filters.getInitDate()) && Objects.nonNull(filters.getEndDate())) {
             sb.append(where ? "WHERE " : "AND ")
-                .append(String.format("(utm_asset_group.created_date BETWEEN '%1$s' AND '%2$s')\n",
-                    filters.getInitDate(), filters.getEndDate()));
+                    .append(String.format("(utm_asset_group.created_date BETWEEN '%1$s' AND '%2$s')\n",
+                            filters.getInitDate(), filters.getEndDate()));
             where = false;
         }
 
         // assetType
         if (!CollectionUtils.isEmpty(filters.getType())) {
             String types = filters.getType().stream()
-                .map(type -> String.format("'%1$s'", type)).collect(Collectors.joining(","));
+                    .map(type -> String.format("'%1$s'", type)).collect(Collectors.joining(","));
             sb.append(where ? "WHERE " : "AND ")
-                .append(String.format("utm_network_scan.asset_type_id IN (SELECT utm_asset_types.id FROM utm_asset_types WHERE utm_asset_types.type_name IN (%1$s))\n", types));
+                    .append(String.format("utm_network_scan.asset_type_id IN (SELECT utm_asset_types.id FROM utm_asset_types WHERE utm_asset_types.type_name IN (%1$s))\n", types));
             where = false;
         }
 
         // serverName
         if (!CollectionUtils.isEmpty(filters.getProbe())) {
             String probes = filters.getProbe().stream()
-                .map(probe -> String.format("'%1$s'", probe)).collect(Collectors.joining(","));
+                    .map(probe -> String.format("'%1$s'", probe)).collect(Collectors.joining(","));
             sb.append(where ? "WHERE " : "AND ")
-                .append(String.format("utm_network_scan.server_name IN (%1$s)\n", probes));
+                    .append(String.format("utm_network_scan.server_name IN (%1$s)\n", probes));
             where = false;
         }
 
         // assetOs
         if (!CollectionUtils.isEmpty(filters.getOs())) {
             String oss = filters.getOs().stream()
-                .map(os -> String.format("'%1$s'", os)).collect(Collectors.joining(","));
+                    .map(os -> String.format("'%1$s'", os)).collect(Collectors.joining(","));
             sb.append(where ? "WHERE " : "AND ")
-                .append(String.format("utm_network_scan.asset_os IN (%1$s)\n", oss));
+                    .append(String.format("utm_network_scan.asset_os IN (%1$s)\n", oss));
             where = false;
         }
 
         // assetIp
         if (!CollectionUtils.isEmpty(filters.getAssetIp())) {
             String ips = filters.getAssetIp().stream()
-                .map(ip -> String.format("'%1$s'", ip)).collect(Collectors.joining(","));
+                    .map(ip -> String.format("'%1$s'", ip)).collect(Collectors.joining(","));
             sb.append(where ? "WHERE " : "AND ")
-                .append(String.format("utm_network_scan.asset_ip IN (%1$s)\n", ips));
+                    .append(String.format("utm_network_scan.asset_ip IN (%1$s)\n", ips));
             where = false;
         }
 
         // assetName
         if (!CollectionUtils.isEmpty(filters.getAssetName())) {
             String names = filters.getAssetName().stream()
-                .map(name -> String.format("'%1$s'", name)).collect(Collectors.joining(","));
+                    .map(name -> String.format("'%1$s'", name)).collect(Collectors.joining(","));
             sb.append(where ? "WHERE " : "AND ")
-                .append(String.format("utm_network_scan.asset_name IN (%1$s)\n", names));
+                    .append(String.format("utm_network_scan.asset_name IN (%1$s)\n", names));
         }
 
         return sb.toString();

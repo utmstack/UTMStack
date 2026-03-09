@@ -64,8 +64,8 @@ public class UtmAssetGroupResource {
             utmAssetGroup.setCreatedDate(Instant.now());
             UtmAssetGroup result = utmAssetGroupService.save(utmAssetGroup);
             return ResponseEntity.created(new URI("/api/utm-asset-groups/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
-                .body(result);
+                    .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+                    .body(result);
         } catch (DataIntegrityViolationException e) {
             String msg = ctx + ": " + e.getMostSpecificCause().getMessage().replaceAll("\n", "");
             log.error(msg);
@@ -76,7 +76,7 @@ public class UtmAssetGroupResource {
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
 
@@ -98,8 +98,8 @@ public class UtmAssetGroupResource {
 
             UtmAssetGroup result = utmAssetGroupService.save(utmAssetGroup);
             return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, utmAssetGroup.getId().toString()))
-                .body(result);
+                    .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, utmAssetGroup.getId().toString()))
+                    .body(result);
         } catch (DataIntegrityViolationException e) {
             String msg = ctx + ": " + e.getMostSpecificCause().getMessage().replaceAll("\n", "");
             log.error(msg);
@@ -110,7 +110,7 @@ public class UtmAssetGroupResource {
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
 
@@ -121,20 +121,17 @@ public class UtmAssetGroupResource {
      * @return the ResponseEntity with status 200 (OK) and the list of utmAssetGroups in body
      */
     @GetMapping("/utm-asset-groups/searchGroupsByFilter")
-    public ResponseEntity<List<AssetGroupDTO>> searchGroupsByFilter(AssetGroupFilter filter, Pageable pageable) {
-        final String ctx = CLASSNAME + ".searchGroupsByFilter";
-        try {
-            Page<AssetGroupDTO> page = utmAssetGroupService.searchGroupsByFilter(filter, pageable);
-            HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/utm-asset-groups/searchGroupsByFilter");
-            return ResponseEntity.ok().headers(headers).body(utmAssetGroupService.searchGroupsByFilter(filter, pageable).getContent());
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
-        }
+    public ResponseEntity<List<AssetGroupDTO>> searchGroupsByFilter(
+            AssetGroupFilter filter, Pageable pageable) {
+
+        Page<AssetGroupDTO> page = utmAssetGroupService.searchGroupsByFilter(filter, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/utm-asset-groups/searchGroupsByFilter");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(page.getContent());
     }
+
 
     /**
      * GET  /utm-asset-groups/:id : get the "id" utmAssetGroup.
