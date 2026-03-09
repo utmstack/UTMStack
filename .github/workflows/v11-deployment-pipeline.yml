@@ -372,7 +372,7 @@ jobs:
           cp "${{ github.workspace }}/utmstack-collector/version.json" ./dependencies/collector/
 
           mkdir -p ./dependencies/collector/as400
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/collector/as400-collector.jar" -o ./dependencies/collector/as400-collector.jar
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/collector/as400-collector.jar" -o ./dependencies/collector/as400/as400-collector.jar
 
           cp "${{ github.workspace }}/as400/version.json" ./dependencies/collector/as400/
           cp "${{ github.workspace }}/utmstack-collector/as400/utmstack_as400_collector_service" ./dependencies/collector/as400/
