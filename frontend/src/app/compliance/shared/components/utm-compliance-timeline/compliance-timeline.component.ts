@@ -1,11 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {WinlogbeatService} from '../../../../active-directory/shared/services/winlogbeat.service';
-import {ActiveDirectoryTreeType} from '../../../../active-directory/shared/types/active-directory-tree.type';
-import {ITEMS_PER_PAGE} from '../../../../shared/constants/pagination.constants';
-import {UtmDateFormatEnum} from '../../../../shared/enums/utm-date-format.enum';
-import {TimeFilterType} from '../../../../shared/types/time-filter.type';
+import {ComplianceStatusEnum} from '../../enums/compliance-status.enum';
 import {ComplianceControlEvaluationsType} from '../../type/compliance-control-evaluations.type';
-
 
 @Component({
   selector: 'app-compliance-timeline',
@@ -14,66 +9,1818 @@ import {ComplianceControlEvaluationsType} from '../../type/compliance-control-ev
 })
 export class ComplianceTimelineComponent implements OnInit {
   @Input() evaluations: ComplianceControlEvaluationsType[];
-  @Input() time: TimeFilterType;
   @Output() evaluationSelected = new EventEmitter<ComplianceControlEvaluationsType>();
-  objectId: ActiveDirectoryTreeType;
-  loadingMore = false;
-  totalItems: any;
-  page = 1;
-  itemsPerPage = ITEMS_PER_PAGE;
-  filterTime: TimeFilterType;
-  loading = true;
-  selected: ComplianceControlEvaluationsType;
-  formatDateEnum = UtmDateFormatEnum;
-  noMoreResult = false;
+  private originalData: ComplianceControlEvaluationsType[] = [];
 
-  constructor(private winlogbeatService: WinlogbeatService) {
+  options: any;
+  complianceValue = [
+    'COMPLIANT',
+    'NON_COMPLIANT',
+  ];
+  bgColors = {
+    COMPLIANT: '#28A745',
+    NON_COMPLIANT: '#DC3545',
+  };
+  textColors = {
+    COMPLIANT: '#ffffff',
+    NON_COMPLIANT: '#ffffff',
+  };
+  lightBgColors = {
+    COMPLIANT: '#E8F5E9',
+    NON_COMPLIANT: '#FAEBED',
+  };
+  cellBorderRadius = 4;
+  private rawData: any[];
+  private monthDays: string[] = [];
+
+  constructor() {
   }
 
   ngOnInit(): void {
-    this.selected = null;
-    this.page = 1;
-    this.totalItems = this.evaluations.length;
-    this.loading = false;
+    this.fetchAndRender();
   }
 
-  getEvents() {
-    if (this.filterTime && this.objectId.objectSid) {
-      const req = {
-        page: this.page,
-        size: this.itemsPerPage,
-        sort: '@timestamp,desc',
-        sid: this.objectId.objectSid,
-        indexPattern: this.objectId.indexPattern,
-        from: this.filterTime.timeFrom,
-        to: this.filterTime.timeTo,
-        'eventId.in': this.evaluations ? this.evaluations.toString() : undefined
-      };
-      this.winlogbeatService.query(req).subscribe(response => {
-        this.loadingMore = false;
-        this.loading = false;
-        if (response.body === null || response.body.length === 0) {
-          this.evaluationSelected.emit(null);
-        } else {
-          this.evaluations = response.body;
-          this.totalItems = Number(response.headers.get('X-Total-Count'));
-        }
-      });
-    } else {
-      this.loading = false;
+  private fetchAndRender(): void {
+    this.options = null;
+
+    this.evaluations = [
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'NON_COMPLIANT',
+        timestamp: '2026-03-06T02:02:12.237900Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 110
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1408
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 927
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-06T02:32:12.149376Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 110
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1408
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 927
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-06T03:02:12.345416Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 110
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1408
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 927
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-06T03:32:12.365162Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 110
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1408
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 927
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-06T04:02:12.408607Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 110
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1408
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 927
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-06T19:32:15.636113Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 111
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1460
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-06T20:02:15.734160Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 111
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1460
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-06T20:32:15.602356Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 111
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1460
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-06T21:02:15.526139Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 111
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1462
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-06T21:32:15.630359Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 111
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1463
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-06T22:02:15.713148Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 111
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1463
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+     {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-06T22:32:15.613718Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1465
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-06T23:02:15.733429Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1467
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-06T23:32:15.629790Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1468
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T00:02:15.789470Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1470
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T00:32:15.772747Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1470
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T01:02:15.642143Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1471
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T01:32:15.709608Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1471
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:02:15.692529Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1474
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },{
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        controlId: 1,
+        controlName: 'Control Test Elena 1',
+        status: 'COMPLIANT',
+        timestamp: '2026-03-07T02:32:15.564329Z',
+        queryEvaluations: [
+          {
+            indexPatternId: 2,
+            indexPatternName: 'v11-alert-*',
+            queries: [
+              {
+                queryConfigId: 1,
+                queryName: 'Test Elena 1',
+                queryDescription: 'Description',
+                evaluationRule: 'MIN_HITS_REQUIRED',
+                indexPatternId: 2,
+                indexPatternName: 'v11-alert-*',
+                hits: 3,
+                status: 'COMPLIANT',
+                errorMessage: null,
+                evidence: [
+                  {
+                    col_0: 'Medium',
+                    col_1: 112
+                  },
+                  {
+                    col_0: 'Low',
+                    col_1: 1475
+                  },
+                  {
+                    col_0: 'High',
+                    col_1: 931
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ];
+    this.transformResponse(this.evaluations);
+    if (this.rawData.length > 0) {
+      this.initChartOptions();
     }
   }
 
-  onScroll() {
-    this.loadingMore = true;
-    this.page += 1;
-    this.getEvents();
+  private transformResponse(data: ComplianceControlEvaluationsType[]): void {
+    this.rawData = [];
+    this.monthDays = [];
+    this.originalData = this.evaluations;
+
+    data.forEach((entry, index) => {
+      const date = new Date(entry.timestamp);
+      const dayLabel = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric',
+      });
+      this.monthDays.push(dayLabel);
+
+      this.rawData.push([index, 0, entry.status === ComplianceStatusEnum.COMPLIANT ? 1 : 0]);
+      this.rawData.push([index, 1, entry.status === ComplianceStatusEnum.NON_COMPLIANT ? 1 : 0]);
+    });
   }
 
-  selectEvaluation(evaluation: ComplianceControlEvaluationsType) {
-    this.selected = evaluation;
-    this.evaluationSelected.emit(evaluation);
+  private initChartOptions(): void {
+    this.options = {
+      tooltip: {
+        position: 'top',
+        formatter: (params: any) => {
+          const point = Array.isArray(params) ? params[0] : params;
+          if (
+            !point ||
+            typeof point.value !== 'object' ||
+            point.value === null ||
+            !Array.isArray(point.value)
+          ) {
+            return '';
+          }
+
+          const [dayIdx, sevIdx, count] = point.value as [
+            number,
+            number,
+            number
+          ];
+
+          if (
+            dayIdx >= this.monthDays.length ||
+            sevIdx >= this.complianceValue.length
+          ) {
+            return 'Invalid data';
+          }
+
+          const day = this.monthDays[dayIdx];
+          const value = this.complianceValue[sevIdx];
+          const markerColor = count === 0 ? this.lightBgColors[value] : this.bgColors[value];
+          // tslint:disable-next-line:max-line-length
+          const marker = `<span style="display:inline-block;margin-right:5px;border-radius:3px;width:10px;height:10px;background-color:${markerColor};"></span>`;
+          return count !== 0 ?
+            `${marker} ${day} (${value === ComplianceStatusEnum.COMPLIANT ?
+                ComplianceStatusEnum.COMPLIANT
+              : ComplianceStatusEnum.NON_COMPLIANT})`
+            : '';
+        },
+      },
+      grid: {
+        height: '50%',
+        top: '15%',
+        left: '10%',
+        right: '3%',
+        bottom: '5%',
+        width: this.monthDays.length * 30,
+        containLabel: false
+      },
+      xAxis: {
+        type: 'category',
+        data: this.monthDays,
+        axisLabel: { rotate: 45, fontSize: 10, interval: 0 },
+        axisLine: { show: false },
+        axisTick: { alignWithLabel: true },
+      },
+      yAxis: {
+        type: 'category',
+        data: this.complianceValue.map((value) =>
+          value
+        ),
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: { fontSize: 10 }
+      },
+      series: [
+        {
+          name: 'Compliance Timeline',
+          type: 'custom',
+          renderItem: this.renderItem.bind(this),
+          data: this.rawData,
+          emphasis: {
+            disabled: true
+          },
+          encode: {
+            x: 0,
+            y: 1,
+            tooltip: [0, 1, 2],
+          },
+          silent: false,
+        },
+      ],
+    };
+  }
+
+  private renderItem(
+    params: any,
+    api: any): any {
+    const dayIndex = api.value(0) as number;
+    const valueIndex = api.value(1) as number;
+    const count = api.value(2) as number;
+    const cellCenterCoord = api.coord([dayIndex, valueIndex]);
+    const cellSize = api.size ? api.size([1, 1]) : 0;
+    const cellWidth = 25;
+    const cellHeight = 45;
+    const x = cellCenterCoord[0] - cellWidth / 2;
+    const y = cellCenterCoord[1] - cellHeight / 2;
+    const value = this.complianceValue[valueIndex];
+    const baseColor = this.bgColors[value];
+    const fillColor = count === 0 ? this.lightBgColors[value] : baseColor;
+    const textColor = count > 0 ? this.textColors[value] : undefined;
+
+    const rectShape = {
+      x,
+      y,
+      width: cellWidth,
+      height: cellHeight,
+      r: this.cellBorderRadius,
+    };
+    const rectStyle = {
+      fill: fillColor,
+      lineWidth: 1,
+    };
+    const rectElement = {
+      type: 'rect',
+      shape: rectShape,
+      style: {
+        ...rectStyle,
+        cursor: 'pointer',
+      },
+    };
+
+    const childrenElements: any[] = [rectElement];
+
+    if (count > 0 && textColor) {
+      childrenElements.push({
+        type: 'text',
+        style: {
+          fill: textColor,
+          x: cellCenterCoord[0],
+          y: cellCenterCoord[1],
+          textAlign: 'center',
+          textVerticalAlign: 'middle',
+          fontSize: 11,
+          fontWeight: 'bold',
+        },
+      });
+    }
+    return {
+      type: 'group',
+      children: childrenElements,
+      silent: count === 0,
+      info: {
+        value: [dayIndex, valueIndex, count],
+      },
+    };
+  }
+
+  onChartClick(event: any): void {
+    const value = event ? event.data : null;
+    if (Array.isArray(value)) {
+      const [dayIndex] = value;
+      this.evaluationSelected.emit(this.originalData[dayIndex]);
+    }
   }
 }
-
-
