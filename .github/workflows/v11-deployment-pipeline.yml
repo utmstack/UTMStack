@@ -310,18 +310,29 @@ jobs:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
 
-      - name: Build UTMStack Collector
+      - name: Build UTMStack Collectors
         run: |
           echo "Building UTMStack Collector..."
           cd ${{ github.workspace }}/utmstack-collector
 
           GOOS=linux GOARCH=amd64 go build -o utmstack_collector -v -ldflags "-X 'github.com/utmstack/UTMStack/utmstack-collector/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
+          echo "Building UTMStack AS400 Collector..."
+
+          cd ${{ github.workspace }}/as400
+          GOOS=linux GOARCH=amd64 go build -o utmstack_as400_collector_service -v -ldflags "-X 'github.com/utmstack/UTMStack/as400/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+
+          cd ${{ github.workspace }}/as400/updater
+          GOOS=linux GOARCH=amd64 go build -o utmstack_as400_updater_service -v .
+
       - name: Upload collector binary as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: utmstack-collector
-          path: ${{ github.workspace }}/utmstack-collector/utmstack_collector
+          name: utmstack-collectors
+          path: |
+            ${{ github.workspace }}/utmstack-collector/utmstack_collector
+            ${{ github.workspace }}/as400/utmstack_as400_collector_service
+            ${{ github.workspace }}/as400/updater/utmstack_as400_updater_service
           retention-days: 1
 
   build_agent_manager:
@@ -339,10 +350,10 @@ jobs:
           name: signed-agents
           path: ${{ github.workspace }}/agent
 
-      - name: Download UTMStack Collector from artifacts
+      - name: Download UTMStack Collectors from artifacts
         uses: actions/download-artifact@v4
         with:
-          name: utmstack-collector
+          name: utmstack-collectors
           path: ${{ github.workspace }}/utmstack-collector
 
       - name: Download signed macOS agents from artifacts
@@ -357,11 +368,15 @@ jobs:
           GOOS=linux GOARCH=amd64  go build -o agent-manager -v .
 
           mkdir -p ./dependencies/collector
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/collector/linux-as400-collector.zip" -o ./dependencies/collector/linux-as400-collector.zip
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/collector/windows-as400-collector.zip" -o ./dependencies/collector/windows-as400-collector.zip
-
-          cp "${{ github.workspace }}/utmstack-collector/utmstack_collector" ./dependencies/collector/
+          cp "${{ github.workspace }}/utmstack-collector/utmstack-collector/utmstack_collector" ./dependencies/collector/
           cp "${{ github.workspace }}/utmstack-collector/version.json" ./dependencies/collector/
+
+          mkdir -p ./dependencies/collector/as400
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/collector/as400-collector.jar" -o ./dependencies/collector/as400-collector.jar
+
+          cp "${{ github.workspace }}/as400/version.json" ./dependencies/collector/as400/
+          cp "${{ github.workspace }}/utmstack-collector/as400/utmstack_as400_collector_service" ./dependencies/collector/as400/
+          cp "${{ github.workspace }}/utmstack-collector/as400/updater/utmstack_as400_updater_service" ./dependencies/collector/as400/
 
           mkdir -p ./dependencies/agent/
 
@@ -405,6 +420,7 @@ jobs:
         with:
           context: ./agent-manager
           push: true
+          provenance: false
           tags: ghcr.io/utmstack/utmstack/agent-manager:${{ needs.setup_deployment.outputs.tag }}
   
   build_event_processor:
@@ -460,6 +476,7 @@ jobs:
           context: .
           file: ./event_processor.Dockerfile
           push: true
+          provenance: false
           tags: ghcr.io/utmstack/utmstack/eventprocessor:${{ needs.setup_deployment.outputs.tag }}
           build-args: |
             BASE_IMAGE=ghcr.io/threatwinds/eventprocessor/base:${{ needs.setup_deployment.outputs.event_processor_tag }}
