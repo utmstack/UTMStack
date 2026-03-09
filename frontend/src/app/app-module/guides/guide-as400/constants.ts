@@ -28,11 +28,25 @@ export const PLATFORM = [
   {
     id: 2,
     name: 'LINUX UBUNTU',
-    // tslint:disable-next-line:max-line-length
-    install: `sudo bash -c "apt update -y && apt install wget -y &&  mkdir -p /opt/utmstack-as400-collector && wget --no-check-certificate -P /opt/utmstack-as400-collector  https://V_IP:9001/private/dependencies/collector/as400/utmstack_as400_collector_service && chmod -R 755 /opt/utmstack-as400-collector/utmstack_as400_collector_service &&  /opt/utmstack-as400-collector/utmstack_as400_collector_service install V_IP <secret>V_TOKEN</secret> yes"`,
 
-    // tslint:disable-next-line:max-line-length
-    uninstall: `sudo bash -c " cd /opt/utmstack-linux-collectors/as400 && ./utmstack_collectors_installer uninstall as400 && echo 'Removing UTMStack AS400 Collector dependencies...' && sleep 5 && rm -rf /opt/utmstack-linux-collectors/as400 && echo 'UTMStack AS400 Collector removed successfully.'"`,
+    install: `sudo bash -c "
+    apt update -y && \
+    apt install wget -y && \
+    mkdir -p /opt/utmstack-as400-collector && \
+    wget --no-check-certificate -P /opt/utmstack-as400-collector https://V_IP:9001/private/dependencies/collector/as400/utmstack_as400_collector_service && \
+    chmod -R 755 /opt/utmstack-as400-collector/utmstack_as400_collector_service && \
+    /opt/utmstack-as400-collector/utmstack_as400_collector_service install V_IP <secret>V_TOKEN</secret> yes
+  "`,
+
+    uninstall: `sudo bash -c "
+    /opt/utmstack-as400-collector/utmstack_as400_collector_service uninstall || true; \
+    systemctl stop UTMStackAS400Collector 2>/dev/null || true; \
+    systemctl disable UTMStackAS400Collector 2>/dev/null || true; \
+    rm -f /etc/systemd/system/UTMStackAS400Collector.service 2>/dev/null || true; \
+    echo 'Removing UTMStack AS400 dependencies...' && sleep 10; \
+    rm -rf /opt/utmstack-as400-collector 2>/dev/null || true; \
+    echo 'UTMStack AS400 dependencies removed successfully.'
+  "`,
 
     shell: 'Linux bash terminal'
   }
