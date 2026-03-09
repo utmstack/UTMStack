@@ -17,8 +17,8 @@ func DownloadVersion(address string, insecure bool) error {
 }
 
 func DownloadUpdater(address string, insecure bool) error {
-	if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, address, config.DependenciesPort, "utmstack_updater_service"), map[string]string{}, "utmstack_updater_service", utils.GetMyPath(), insecure); err != nil {
-		return fmt.Errorf("error downloading utmstack_updater_service : %v", err)
+	if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, address, config.DependenciesPort, "utmstack_as400_updater_service"), map[string]string{}, "utmstack_as400_updater_service", utils.GetMyPath(), insecure); err != nil {
+		return fmt.Errorf("error downloading utmstack_as400_updater_service : %v", err)
 	}
 
 	return nil
