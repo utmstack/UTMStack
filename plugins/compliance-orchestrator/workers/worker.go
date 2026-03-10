@@ -28,7 +28,6 @@ func StartWorkers(ctx context.Context, backend *client.BackendClient) {
 					"control": cfg.ID,
 				})
 
-				// Ejecutar evaluación del control (incluye todas las queries)
 				result, err := eval.Evaluate(ctx, cfg)
 				if err != nil {
 					catcher.Error("evaluation failed", err, map[string]any{
@@ -38,7 +37,6 @@ func StartWorkers(ctx context.Context, backend *client.BackendClient) {
 					continue
 				}
 
-				// Construir documento para guardar en OpenSearch
 				doc := models.EvaluationDocument{
 					ControlID:        cfg.ID,
 					ControlName:      cfg.ControlName,
@@ -47,7 +45,6 @@ func StartWorkers(ctx context.Context, backend *client.BackendClient) {
 					QueryEvaluations: result.QueryEvaluations,
 				}
 
-				// Guardar en OpenSearch
 				fmt.Println("Evaluation Document:", doc)
 				err = backend.IndexEvaluationResult(ctx, "v11-log-compliance-evaluation", doc)
 				if err != nil {

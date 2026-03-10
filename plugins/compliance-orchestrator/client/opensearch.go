@@ -66,7 +66,6 @@ func (b *BackendClient) ExecuteSQLQuery(ctx context.Context, sql string) (SQLRes
 		return SQLResult{}, fmt.Errorf("failed to decode SQL response: %w", err)
 	}
 
-	// Convertir a tu tipo interno
 	return SQLResult{
 		Rows:  result.DataRows,
 		Count: result.Total,
