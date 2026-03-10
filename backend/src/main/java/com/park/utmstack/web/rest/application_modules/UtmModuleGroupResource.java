@@ -160,9 +160,7 @@ public class UtmModuleGroupResource {
     public ResponseEntity<Void> deleteSingleModuleGroup(@RequestParam Long groupId) {
         final String ctx = CLASSNAME + ".deleteSingleModuleGroup";
 
-        UtmModule module = moduleGroupService.delete(groupId);
-        ModuleDTO moduleDTO = moduleMapper.toDto(module, false);
-        eventProcessorManagerService.updateModule(moduleDTO);
+        moduleGroupService.deleteAndFetch(groupId);
         return ResponseEntity.ok().build();
 
     }

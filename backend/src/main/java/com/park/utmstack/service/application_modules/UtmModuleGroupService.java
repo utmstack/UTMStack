@@ -88,36 +88,61 @@ public class UtmModuleGroupService {
         return moduleGroupRepository.findById(id);
     }
 
-    /**
-     * Delete the utmConfigurationGroup by id.
-     *
-     * @param id the id of the entity
-     */
-
-    public UtmModule delete(Long id) {
-        final String ctx = CLASSNAME + ".delete";
-        long start = System.currentTimeMillis();
+    @Transactional
+    public void deleteGroup(Long id) {
 
         UtmModuleGroup moduleGroup = this.moduleGroupRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Configuration group not found with ID: " + id));
 
+        Long moduleId = moduleGroup.getModule().getId();
         String moduleName = String.valueOf(moduleGroup.getModule().getModuleName());
+
         Map<String, Object> extra = Map.of(
-                "ModuleId", moduleGroup.getModule().getId(),
+                "ModuleId", moduleId,
                 "ModuleName", moduleName,
                 "GroupId", id
         );
 
-        String attemptMsg = String.format("Initiating deletion of configuration group (ID: %d) for module '%s'", id, moduleName);
+        String attemptMsg = String.format(
+                "Initiating deletion of configuration group (ID: %d) for module '%s'",
+                id, moduleName
+        );
         applicationEventService.createEvent(attemptMsg, ApplicationEventType.CONFIG_GROUP_DELETE_ATTEMPT, extra);
 
         moduleGroupRepository.deleteById(id);
 
-        long duration = System.currentTimeMillis() - start;
-        String successMsg = String.format("Configuration group (ID: %d) for module '%s' deleted successfully in %dms", id, moduleName, duration);
+        String successMsg = String.format(
+                "Configuration group (ID: %d) for module '%s' deleted successfully",
+                id, moduleName
+        );
         applicationEventService.createEvent(successMsg, ApplicationEventType.CONFIG_GROUP_DELETE_SUCCESS, extra);
+    }
 
-        return moduleGroup.getModule();
+    public void deleteAndFetch(Long id) {
+
+        try {
+            Long moduleId = moduleGroupRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Configuration group not found with ID: " + id))
+                    .getModule()
+                    .getId();
+
+            deleteGroup(id);
+
+            UtmModule module = moduleService.findOne(moduleId)
+                    .orElseThrow(() -> new EntityNotFoundException("Module not found with id " + moduleId));
+
+            ModuleDTO moduleDTO = moduleMapper.toDto(module, false);
+
+            moduleDTO.setModuleGroups(
+                    moduleDTO.getModuleGroups().stream().filter(g -> !g.getId().equals(id)).collect(Collectors.toSet())
+            );
+            eventProcessorManagerService.updateModule(moduleDTO);
+
+        } catch (Exception e) {
+            log.error("{}: Error deleting configuration group with ID {}: {}", CLASSNAME, id, e.getMessage());
+            throw new ApiException(String.format("%s: Error deleting configuration group with ID %d", CLASSNAME, id), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
 
@@ -150,7 +175,7 @@ public class UtmModuleGroupService {
     public List<UtmModuleGroup> findAllByCollectorId(String collectorId) {
         String ctx = CLASSNAME + ".findAllByCollectorId";
         try {
-             return moduleGroupRepository.findAllByCollector(collectorId);
+            return moduleGroupRepository.findAllByCollector(collectorId);
         } catch (Exception e) {
             log.error("{}: Error finding module groups by collector id {}: {}", ctx, collectorId, e.getMessage());
             throw new ApiException(String.format("%s: Error finding module groups by collector id %s", ctx, collectorId), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -224,7 +249,7 @@ public class UtmModuleGroupService {
                 moduleGroupRepository.deleteAll(dbConfigs);
             } else {
                 for (UtmModuleGroupConfiguration key : keys) {
-                    if (key.getConfDataType().equals("password")){
+                    if (key.getConfDataType().equals("password")) {
                         key.setConfValue(CipherUtil.encrypt(key.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
                     }
                 }
