@@ -6,11 +6,14 @@ import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
+import com.park.utmstack.event_processor.EventProcessorManagerService;
 import com.park.utmstack.repository.UtmModuleGroupConfigurationRepository;
 import com.park.utmstack.repository.UtmModuleGroupRepository;
 import com.park.utmstack.repository.application_modules.UtmModuleRepository;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.application_modules.ModuleActivationDTO;
+import com.park.utmstack.service.dto.application_modules.ModuleDTO;
+import com.park.utmstack.service.dto.application_modules.UtmModuleMapper;
 import com.park.utmstack.service.dto.collectors.dto.CollectorConfigDTO;
 import com.park.utmstack.util.CipherUtil;
 import com.park.utmstack.util.exceptions.ApiException;
@@ -45,6 +48,8 @@ public class UtmModuleGroupService {
     private final ApplicationEventService applicationEventService;
     private final UtmModuleRepository moduleRepository;
     private final UtmModuleGroupConfigurationRepository moduleGroupConfigurationRepository;
+    private final EventProcessorManagerService eventProcessorManagerService;
+    private final UtmModuleMapper moduleMapper;
 
 
     /**
@@ -89,7 +94,7 @@ public class UtmModuleGroupService {
      * @param id the id of the entity
      */
 
-    public void delete(Long id) {
+    public UtmModule delete(Long id) {
         final String ctx = CLASSNAME + ".delete";
         long start = System.currentTimeMillis();
 
@@ -111,6 +116,8 @@ public class UtmModuleGroupService {
         long duration = System.currentTimeMillis() - start;
         String successMsg = String.format("Configuration group (ID: %d) for module '%s' deleted successfully in %dms", id, moduleName, duration);
         applicationEventService.createEvent(successMsg, ApplicationEventType.CONFIG_GROUP_DELETE_SUCCESS, extra);
+
+        return moduleGroup.getModule();
     }
 
 
