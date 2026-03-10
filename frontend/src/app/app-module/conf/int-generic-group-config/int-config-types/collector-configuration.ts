@@ -66,6 +66,8 @@ export class CollectorConfiguration extends IntegrationConfig {
                 groups: collector.groups.filter(g => g.id !== group.id)
             };
             return this.saveCollector(group);
+        } else {
+          return of(null);
         }
     }
 
