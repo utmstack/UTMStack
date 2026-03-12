@@ -36,10 +36,11 @@ public class UtmComplianceControlEvaluationMapper {
     }
 
     public static UtmComplianceControlEvaluationsDto mapToEvaluationDto(Map<String, Object> source) {
-        if (source == null) return null;
+        if (source == null) {
+            return null;
+        }
 
         UtmComplianceControlEvaluationsDto dto = new UtmComplianceControlEvaluationsDto();
-
         dto.setControlId(getLong(source.get("control_id")));
         dto.setControlName(getString(source.get("control_name")));
         dto.setStatus(getString(source.get("status")));
