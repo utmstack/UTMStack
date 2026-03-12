@@ -419,19 +419,27 @@ public class ElasticsearchService {
             SearchRequest request = new SearchRequest.Builder()
                     .index("v11-log-compliance-evaluation")
                     .query(query)
-                    .size(1000)
+                    .size(30)
+                    .sort(s -> s.field(f -> f
+                            .field("timestamp")
+                            .order(SortOrder.Desc)
+                    ))
                     .build();
 
             SearchResponse<Map> response = search(request, Map.class);
 
-            return response.hits().hits().stream().map(hit -> UtmComplianceControlEvaluationsMapper.mapToEvaluationDto(hit.source())).toList();
+            var evaluations = response.hits().hits().stream()
+                    .map(hit -> UtmComplianceControlEvaluationsMapper.mapToEvaluationDto(hit.source()))
+                    .toList();
+
+          return evaluations;
 
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage(), e);
         }
     }
 
-    public UtmComplianceControlEvaluationsDto getLastEvaluation(Long controlId) {
+    public UtmComplianceControlEvaluationsDto getLatestControlEvaluation(Long controlId) {
         try {
             SearchRequest request = new SearchRequest.Builder()
                     .index("v11-log-compliance-evaluation")
