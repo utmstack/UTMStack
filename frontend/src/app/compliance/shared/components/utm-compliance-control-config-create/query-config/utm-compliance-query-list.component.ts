@@ -2,7 +2,7 @@ import {HttpResponse} from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {IndexPatternService} from '../../../../../shared/services/elasticsearch/index-pattern.service';
 import {UtmIndexPattern} from '../../../../../shared/types/index-pattern/utm-index-pattern';
-import {UtmComplianceQueryConfigType} from '../../../type/compliance-query-config.type';
+import {ComplianceQueryConfigType} from '../../../type/compliance-query-config.type';
 
 
 @Component({
@@ -12,8 +12,8 @@ import {UtmComplianceQueryConfigType} from '../../../type/compliance-query-confi
 })
 export class UtmComplianceQueryListComponent implements OnInit {
   // tslint:disable-next-line:variable-name
-  private _queries: UtmComplianceQueryConfigType[] = [];
-  @Input() set queries(value: UtmComplianceQueryConfigType[]) {
+  private _queries: ComplianceQueryConfigType[] = [];
+  @Input() set queries(value: ComplianceQueryConfigType[]) {
     this._queries = value || [];
   }
 
@@ -22,7 +22,7 @@ export class UtmComplianceQueryListComponent implements OnInit {
   }
 
   @Output() add = new EventEmitter<{
-    query: UtmComplianceQueryConfigType;
+    query: ComplianceQueryConfigType;
     index: number | null;
   }>();
   @Output() remove = new EventEmitter<number>();
@@ -45,7 +45,7 @@ export class UtmComplianceQueryListComponent implements OnInit {
     this.editingIndex = null;
   }
 
-  onQueryAdd(query: UtmComplianceQueryConfigType): void {
+  onQueryAdd(query: ComplianceQueryConfigType): void {
     this.add.emit({
       query,
       index: this.editingIndex

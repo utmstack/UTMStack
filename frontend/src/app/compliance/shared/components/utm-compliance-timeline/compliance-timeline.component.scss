@@ -1,17 +1,16 @@
 .chart-container {
   width: 100%;
   height: 200px;
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: hidden;
-  display: block;          /* ← IMPORTANTE */
-  white-space: nowrap;     /* ← permite crecimiento horizontal */
+  display: block;
+  white-space: nowrap;
 }
-
 
 .chart {
   height: 200px;
-  width: max-content;     /* ← permite que ECharts crezca horizontalmente */
-  min-width: 100%;        /* ← pero nunca menos que el contenedor */
+  width: max-content;
+  min-width: 100%;
 }
 
 .echarts canvas {

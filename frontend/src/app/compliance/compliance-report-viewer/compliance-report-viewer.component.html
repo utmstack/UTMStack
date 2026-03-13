@@ -48,13 +48,22 @@
           <div *ngFor="let section of sections$ | async as sections; let index = index; trackBy: trackFn"
                [ngClass]="{'mt-3': index === 0}"
                class="d-flex flex-column mb-1 mx-2">
-            <app-utm-cp-section [section]="section"
+            <!-- TODO: ELENA to be checked -->
+            <!--<app-utm-cp-section [section]="section"
                                 [action]="action"
                                 [loadFirst]="index === activeIndexSection"
                                 [index]="index"
                                 (isActive)="onChangeSectionActive($event, section, sections)"
                                 [expandable]="action==='reports'">
-            </app-utm-cp-section>
+            </app-utm-cp-section>-->
+
+            <app-utm-cp-section-config [section]="section"
+                                [action]="action"
+                                [loadFirst]="index === activeIndexSection"
+                                [index]="index"
+                                (isActive)="onChangeSectionActive($event, section, sections)"
+                                [expandable]="action==='reports'">
+            </app-utm-cp-section-config>
           </div>
         </div>
       </div>
@@ -62,10 +71,13 @@
 
     <!-- Right column -->
     <div class="col overflow-auto h-100">
-      <div class="h-100 card m-0">
+      <div class="card m-0">
         <!-- Conditional rendering based on selected action -->
-        <app-compliance-reports-view [section]="activeSection" (pageChange)="onPageChange($event)" *ngIf="action === 'compliance' && activeSection"></app-compliance-reports-view>
-        <app-compliance-result-view *ngIf="action === 'reports'" [showExport]="false" [template]="'compliance'"></app-compliance-result-view>
+        <!-- TODO: ELENA to be checked -->
+        <app-compliance-evaluation-view [section]="activeSection" (pageChange)="onPageChange($event)" *ngIf="action === 'compliance' && activeSection"></app-compliance-evaluation-view>
+        <app-compliance-evaluations-view *ngIf="action === 'reports'" [showExport]="false" [template]="'compliance'"></app-compliance-evaluations-view>
+        <!--<app-compliance-reports-view [section]="activeSection" (pageChange)="onPageChange($event)" *ngIf="action === 'compliance' && activeSection"></app-compliance-reports-view>
+        <app-compliance-result-view *ngIf="action === 'reports'" [showExport]="false" [template]="'compliance'"></app-compliance-result-view>-->
       </div>
     </div>
   </div>

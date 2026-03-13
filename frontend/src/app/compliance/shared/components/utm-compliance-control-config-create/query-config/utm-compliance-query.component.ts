@@ -5,8 +5,11 @@ import {ALERT_INDEX_PATTERN, LOG_INDEX_PATTERN} from '../../../../../shared/cons
 import {SqlValidationService} from '../../../../../shared/services/code-editor/sql-validation.service';
 import {LocalFieldService} from '../../../../../shared/services/elasticsearch/local-field.service';
 import {UtmIndexPattern} from '../../../../../shared/types/index-pattern/utm-index-pattern';
-import {ComplianceEvaluationRuleEnum} from '../../../enums/compliance-evaluation-rule.enum';
-import {UtmComplianceQueryConfigType} from '../../../type/compliance-query-config.type';
+import {
+  ComplianceEvaluationRuleEnum,
+  ComplianceEvaluationRuleLabels
+} from '../../../enums/compliance-evaluation-rule.enum';
+import {ComplianceQueryConfigType} from '../../../type/compliance-query-config.type';
 
 @Component({
   selector: 'app-utm-compliance-query',
@@ -15,14 +18,17 @@ import {UtmComplianceQueryConfigType} from '../../../type/compliance-query-confi
 })
 export class UtmComplianceQueryComponent implements OnInit {
 
-  @Input() query: UtmComplianceQueryConfigType = null;
+  @Input() query: ComplianceQueryConfigType = null;
   @Input() indexPatterns: UtmIndexPattern[] = [];
   @Input() indexPatternNames: string[] = [];
-  @Output() add = new EventEmitter<UtmComplianceQueryConfigType>();
+  @Output() add = new EventEmitter<ComplianceQueryConfigType>();
   @Output() cancel = new EventEmitter<void>();
 
   form: FormGroup;
-  evaluationRules = Object.values(ComplianceEvaluationRuleEnum);
+  evaluationRules = Object.values(ComplianceEvaluationRuleEnum).map(rule => ({
+    id: rule,
+    evaluationRule: ComplianceEvaluationRuleLabels[rule]
+  }));
 
   codeEditorOptions: ConsoleOptions = {lineNumbers: 'off'};
   errorMessage = '';

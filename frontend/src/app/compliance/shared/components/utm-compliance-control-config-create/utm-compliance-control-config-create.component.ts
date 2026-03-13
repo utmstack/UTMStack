@@ -6,7 +6,7 @@ import {CpReportBehavior} from '../../behavior/cp-report.behavior';
 import {ComplianceStrategyEnum} from '../../enums/compliance-strategy.enum';
 import {CpControlConfigService} from '../../services/cp-control-config.service';
 import {ComplianceControlConfigType} from '../../type/compliance-control-config.type';
-import {UtmComplianceQueryConfigType} from '../../type/compliance-query-config.type';
+import {ComplianceQueryConfigType} from '../../type/compliance-query-config.type';
 
 @Component({
   selector: 'app-utm-compliance-control-config-create',
@@ -123,7 +123,7 @@ export class UtmComplianceControlConfigCreateComponent implements OnInit {
     return this.queriesConfigs.controls.map(c => c.value);
   }
 
-  onQueryAdd(event: { query: UtmComplianceQueryConfigType ; index: number | null }) {
+  onQueryAdd(event: { query: ComplianceQueryConfigType ; index: number | null }) {
     const { query, index } = event;
     if (index === null) {
       this.queriesConfigs.push(this.fb.control(query));

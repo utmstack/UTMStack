@@ -1,0 +1,65 @@
+<div class="w-100 d-flex flex-column flex-grow-1 h-100">
+  <div [ngClass]="{
+      'border-left-success': control.lastEvaluationStatus === ComplianceStatusExtendedEnum.COMPLIANT,
+      'border-left-danger': control.lastEvaluationStatus === ComplianceStatusExtendedEnum.NON_COMPLIANT,
+      'border-left-neutral': control.lastEvaluationStatus !== ComplianceStatusExtendedEnum.COMPLIANT
+                             && control.lastEvaluationStatus !== ComplianceStatusExtendedEnum.NON_COMPLIANT
+     }"
+  >
+    <div class="d-flex justify-content-around align-content-center py-1" style="border-bottom: 1px solid #ccc;">
+      <div style="padding-left: 10px" class="w-100">
+        <span class="text-blue-800 font-weight-light mr-2">Status:</span>
+        <span [ngClass]="{
+                    'text-success': control.lastEvaluationStatus === ComplianceStatusExtendedEnum.COMPLIANT,
+                    'text-danger': control.lastEvaluationStatus === ComplianceStatusExtendedEnum.NON_COMPLIANT
+                  }"
+              class="span-small-icon d-flex justify-content-start align-items-center">
+            {{ control.lastEvaluationStatus | complianceStatusLabel }}
+        </span>
+      </div>
+
+      <div class="w-100" style="border-left: 1px solid #ccc; padding-left: 10px;">
+        <span class="text-blue-800 font-weight-light mr-2">Last Evaluation:</span>
+        <span *ngIf="dateFormat$ | async as dateFormat" class="span-small-icon d-flex justify-content-start align-items-center">
+          <ng-container *ngIf="control.lastEvaluationTimestamp; else notEvaluated">
+            {{ control.lastEvaluationTimestamp | date:dateFormat.dateFormat:dateFormat.timezone }}
+          </ng-container>
+
+          <ng-template #notEvaluated>
+            {{ control.lastEvaluationStatus | complianceStatusLabel }}
+          </ng-template>
+        </span>
+
+      </div>
+    </div>
+  </div>
+  <div class="p-3">
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mt-3">
+      <span class="text-blue-800 font-weight-light mr-2">Compliance section:</span>
+    </div>
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+      <p class="font-size-base">{{ control.section.standardSectionName }}</p>
+    </div>
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+       <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="control.section.standardSectionDescription"></app-utm-collapsible-text>
+    </div>
+
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mt-3">
+      <span class="text-blue-800 font-weight-light mr-2">Compliance report:</span>
+    </div>
+
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+      <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="control.controlSolution"></app-utm-collapsible-text>
+    </div>
+
+    <ng-container *ngIf="control.lastEvaluationStatus === ComplianceStatusExtendedEnum.NON_COMPLIANT && control.controlRemediation">
+      <div class="alert-details w-100 d-flex justify-content-start align-items-center mt-3">
+        <span class="text-blue-800 font-weight-light mr-2">Compliance remediation:</span>
+      </div>
+
+      <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+        <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="control.controlRemediation"></app-utm-collapsible-text>
+      </div>
+    </ng-container>
+  </div>
+</div>

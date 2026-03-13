@@ -1,4 +1,4 @@
-<ng-container *ngIf="evaluations">
+<!--<ng-container *ngIf="evaluations">
   <div class="container-fluid p-3">
     <div echarts
          [options]="chartOption"
@@ -6,6 +6,83 @@
          (chartInit)="onChartInit($event)">
     </div>
   </div>
-</ng-container>
+</ng-container>-->
 
+<div class="control-summary-card m-3 bg-light" *ngIf="currentEvaluation && !loading">
+  <div class="control-summary-header" >
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <img alt="shield" src="assets/icons/compliance/shield.png" style="flex-shrink: 0;">
+      <h6 class="d-flex align-items-center text-blue-800 font-weight-light">
+        {{ currentEvaluation.controlName }}
+      </h6>
+    </div>
 
+    <label class="control-status" [ngClass]="currentEvaluation.lastEvaluationStatus || 'NOT_EVALUATED'">
+      {{ currentEvaluation.lastEvaluationStatus | complianceStatusLabel }}
+    </label>
+  </div>
+
+  <div class="d-flex justify-content-between">
+    <label>
+      <label class="text-blue-800 font-weight-light">Section:</label>
+      {{ currentEvaluation.section.standardSectionName }}
+    </label>
+
+    <label>
+        {{ currentEvaluation.lastEvaluationTimestamp | date:'yyyy-MM-dd HH:mm' }}
+    </label>
+  </div>
+
+  <div class="d-flex flex-column">
+    <div (click)="showSolution = !showSolution">
+      <label class="text-blue-800 font-weight-light">Solution:</label>
+      <i class="font-size-sm text-dark" [ngClass]="!showSolution ? 'icon-arrow-right32' : 'icon-arrow-down32'"></i>
+    </div>
+
+    <p *ngIf="showSolution">
+      {{ currentEvaluation.controlSolution }}
+    </p>
+  </div>
+
+  <div class="d-flex flex-column">
+    <div (click)="showRemediation = !showRemediation">
+      <label class="text-blue-800 font-weight-light">Remediation:</label>
+      <i class="font-size-sm text-dark" [ngClass]="!showRemediation ? 'icon-arrow-right32' : 'icon-arrow-down32'"></i>
+    </div>
+
+    <p *ngIf="showRemediation">
+      {{ currentEvaluation.controlRemediation }}
+    </p>
+  </div>
+
+  <span>
+    <label class="text-blue-800 font-weight-light">Strategy:</label>
+    {{ currentEvaluation.controlStrategy }}
+    <span class="ml-2 text-blue-800 cursor-pointer medium-icon">
+      <i class="icon-question3" placement="auto"
+           [ngbTooltip]="currentEvaluation.controlStrategy === ComplianceStrategyEnum.ALL ?
+           'All associated queries must be compliant for the control to be considered COMPLIANT.'
+           : 'At least one associated query must be compliant for the control to be considered COMPLIANT.'">
+      </i>
+    </span>
+  </span>
+</div>
+
+<div class="container-fluid px-3" *ngIf="evaluationsHistory && evaluationsHistory.length > 0 && !loading">
+  <app-compliance-timeline [evaluations]="evaluationsHistory"
+                           (evaluationSelected)="showEvaluationDetails($event)"
+                           class="m-3">
+  </app-compliance-timeline>
+</div>
+
+<app-compliance-query-evaluations-view *ngIf="showDetails && selectedEvaluation"
+                                       [evaluation]="selectedEvaluation">
+</app-compliance-query-evaluations-view>
+
+<div *ngIf="!currentEvaluation" class="card-body p-2">
+  <div class="h-100 w-100 d-flex justify-content-center align-items-center flex-column data-not-found">
+    <div class="event-icon utm-icon-lg utm-icon-light"></div>
+    <h6 class="mt-2 text-justify font-weight-light">
+        No data found    </h6>
+  </div>
+</div>
