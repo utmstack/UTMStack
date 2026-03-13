@@ -1,6 +1,6 @@
 package com.park.utmstack.service.mapper.compliance;
 
-import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationsDto;
+import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationHistoryDto;
 import com.park.utmstack.service.dto.compliance.UtmComplianceQueryEvaluationDto;
 
 import java.time.Instant;
@@ -13,8 +13,8 @@ public class UtmComplianceControlEvaluationsMapper {
 
     }
 
-    public static UtmComplianceControlEvaluationsDto mapToEvaluationDto(Map<String, Object> src) {
-        UtmComplianceControlEvaluationsDto dto = new UtmComplianceControlEvaluationsDto();
+    public static UtmComplianceControlEvaluationHistoryDto mapToEvaluationDto(Map<String, Object> src) {
+        UtmComplianceControlEvaluationHistoryDto dto = new UtmComplianceControlEvaluationHistoryDto();
 
         dto.setControlId(((Number) src.get("control_id")).longValue());
         dto.setControlName((String) src.get("control_name"));
