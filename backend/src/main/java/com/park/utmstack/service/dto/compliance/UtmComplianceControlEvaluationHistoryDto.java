@@ -1,19 +1,18 @@
 package com.park.utmstack.service.dto.compliance;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class UtmComplianceControlEvaluationsGroupedDto {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class UtmComplianceControlEvaluationHistoryDto {
     private Long controlId;
     private String controlName;
     private String status;
     private Instant timestamp;
-    private List<IndexPatternQueriesGroupDto> queryEvaluations;
+    private List<UtmComplianceQueryEvaluationDto> queryEvaluations;
 }
+

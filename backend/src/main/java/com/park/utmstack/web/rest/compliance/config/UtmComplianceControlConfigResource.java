@@ -3,7 +3,7 @@ package com.park.utmstack.web.rest.compliance.config;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.compliance.config.UtmComplianceControlConfigService;
-import com.park.utmstack.service.compliance.config.UtmComplianceControlConfigQueryService;
+import com.park.utmstack.service.compliance.config.UtmComplianceControlConfigCriteriaService;
 import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigCriteria;
 import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigDto;
 import com.park.utmstack.web.rest.util.HeaderUtil;
@@ -26,17 +26,17 @@ public class UtmComplianceControlConfigResource {
     private static final String CLASS_NAME = "UtmComplianceControlConfigResource";
 
     private final UtmComplianceControlConfigService controlService;
-    private final UtmComplianceControlConfigQueryService queryService;
+    private final UtmComplianceControlConfigCriteriaService criteriaService;
     private final ApplicationEventService applicationEventService;
 
 
     public UtmComplianceControlConfigResource(
             UtmComplianceControlConfigService controlService,
-            UtmComplianceControlConfigQueryService queryService,
+            UtmComplianceControlConfigCriteriaService criteriaService,
             ApplicationEventService applicationEventService
     ) {
         this.controlService = controlService;
-        this.queryService = queryService;
+        this.criteriaService = criteriaService;
         this.applicationEventService = applicationEventService;
     }
 
@@ -80,7 +80,7 @@ public class UtmComplianceControlConfigResource {
         final String ctx = CLASS_NAME + ".getAllComplianceControlConfig";
 
         try {
-            Page<UtmComplianceControlConfigDto> page = queryService.findByCriteria(criteria, pageable);
+            Page<UtmComplianceControlConfigDto> page = criteriaService.findByCriteria(criteria, pageable);
             HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/compliance/control-config");
 
             return ResponseEntity.ok().headers(headers).body(page.getContent());

@@ -13,5 +13,5 @@ public class UtmComplianceControlConfigCriteria {
     private StringFilter controlName;
     private StringFilter controlSolution;
     private StringFilter controlRemediation;
-    private ComplianceStrategyFilter controlStrategy;
+    private UtmComplianceStrategyFilter controlStrategy;
 }

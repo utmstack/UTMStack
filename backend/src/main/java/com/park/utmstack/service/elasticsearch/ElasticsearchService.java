@@ -10,8 +10,8 @@ import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.service.MailService;
 import com.park.utmstack.service.UtmSpaceNotificationControlService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
-import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationsDto;
-import com.park.utmstack.service.mapper.compliance.UtmComplianceControlEvaluationMapper;
+import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationHistoryDto;
+import com.park.utmstack.service.mapper.compliance.UtmComplianceControlLatestEvaluationMapper;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlEvaluationsMapper;
 import com.park.utmstack.util.chart_builder.IndexPropertyType;
 import com.park.utmstack.util.exceptions.OpenSearchIndexNotFoundException;
@@ -408,7 +408,7 @@ public class ElasticsearchService {
         }
     }
 
-    public List<UtmComplianceControlEvaluationsDto> getControlEvaluations(Long controlId) {
+    public List<UtmComplianceControlEvaluationHistoryDto> getControlEvaluations(Long controlId) {
         final String ctx = CLASSNAME + ".getControlEvaluations";
         try {
             Query query = Query.of(q -> q.term(t -> t
@@ -439,7 +439,7 @@ public class ElasticsearchService {
         }
     }
 
-    public UtmComplianceControlEvaluationsDto getLatestControlEvaluation(Long controlId) {
+    public UtmComplianceControlEvaluationHistoryDto getLatestControlEvaluation(Long controlId) {
         try {
             SearchRequest request = new SearchRequest.Builder()
                     .index("v11-log-compliance-evaluation")
@@ -459,7 +459,7 @@ public class ElasticsearchService {
 
             Map<String, Object> source = response.hits().hits().get(0).source();
 
-            return UtmComplianceControlEvaluationMapper.mapToEvaluationDto(source);
+            return UtmComplianceControlLatestEvaluationMapper.mapToEvaluationDto(source);
 
         } catch (Exception e) {
             throw new RuntimeException("Error fetching last evaluation for control " + controlId, e);

@@ -10,8 +10,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ControlEvaluationsResponseDto {
+public class UtmComplianceControlEvaluationHistoryResponseDto {
     LocalDate startDate;
     LocalDate endDate;
-    List<UtmComplianceControlEvaluationsGroupedDto> evaluations;
+    List<UtmComplianceControlEvaluationGroupedDto> evaluations;
 }

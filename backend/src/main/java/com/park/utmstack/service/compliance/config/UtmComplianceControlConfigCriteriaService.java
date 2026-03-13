@@ -14,13 +14,13 @@ import tech.jhipster.service.QueryService;
 
 @Service
 @Transactional(readOnly = true)
-public class UtmComplianceControlConfigQueryService extends QueryService<UtmComplianceControlConfig> {
+public class UtmComplianceControlConfigCriteriaService extends QueryService<UtmComplianceControlConfig> {
 
     private final UtmComplianceControlConfigRepository complianceControlConfigRepository;
     private final UtmComplianceControlConfigMapper mapper;
 
-    public UtmComplianceControlConfigQueryService(UtmComplianceControlConfigRepository complianceControlConfigRepository,
-                                                  UtmComplianceControlConfigMapper mapper) {
+    public UtmComplianceControlConfigCriteriaService(UtmComplianceControlConfigRepository complianceControlConfigRepository,
+                                                     UtmComplianceControlConfigMapper mapper) {
         this.complianceControlConfigRepository = complianceControlConfigRepository;
         this.mapper = mapper;
     }

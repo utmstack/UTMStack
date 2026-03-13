@@ -1,19 +1,19 @@
 package com.park.utmstack.service.mapper.compliance;
 
 import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigDto;
-import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationDto;
-import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationsDto;
+import com.park.utmstack.service.dto.compliance.UtmComplianceControlLatestEvaluationDto;
+import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationHistoryDto;
 
 import java.time.Instant;
 import java.util.Map;
 
-public class UtmComplianceControlEvaluationMapper {
+public class UtmComplianceControlLatestEvaluationMapper {
 
-    public static UtmComplianceControlEvaluationDto toDto(
+    public static UtmComplianceControlLatestEvaluationDto toDto(
             UtmComplianceControlConfigDto control,
-            UtmComplianceControlEvaluationsDto controlEvaluations
+            UtmComplianceControlEvaluationHistoryDto controlEvaluationHistory
     ) {
-        UtmComplianceControlEvaluationDto dto = new UtmComplianceControlEvaluationDto();
+        UtmComplianceControlLatestEvaluationDto dto = new UtmComplianceControlLatestEvaluationDto();
 
         dto.setId(control.getId());
         dto.setStandardSectionId(control.getStandardSectionId());
@@ -24,23 +24,22 @@ public class UtmComplianceControlEvaluationMapper {
         dto.setControlStrategy(control.getControlStrategy());
         dto.setQueriesConfigs(control.getQueriesConfigs());
 
-        //TODO: ELENA - this is a temporary solution, we need to decide how to handle multiple evaluations for the same control
-        if (controlEvaluations != null) {
-            dto.setLastEvaluationStatus(controlEvaluations.getStatus());
+        if (controlEvaluationHistory != null) {
+            dto.setLastEvaluationStatus(controlEvaluationHistory.getStatus());
             dto.setLastEvaluationTimestamp(
-                    controlEvaluations.getTimestamp() != null ? controlEvaluations.getTimestamp().toString() : null
+                    controlEvaluationHistory.getTimestamp() != null ? controlEvaluationHistory.getTimestamp().toString() : null
             );
         }
 
         return dto;
     }
 
-    public static UtmComplianceControlEvaluationsDto mapToEvaluationDto(Map<String, Object> source) {
+    public static UtmComplianceControlEvaluationHistoryDto mapToEvaluationDto(Map<String, Object> source) {
         if (source == null) {
             return null;
         }
 
-        UtmComplianceControlEvaluationsDto dto = new UtmComplianceControlEvaluationsDto();
+        UtmComplianceControlEvaluationHistoryDto dto = new UtmComplianceControlEvaluationHistoryDto();
         dto.setControlId(getLong(source.get("control_id")));
         dto.setControlName(getString(source.get("control_name")));
         dto.setStatus(getString(source.get("status")));
