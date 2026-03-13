@@ -1,0 +1,48 @@
+<div class="w-100 d-flex flex-column flex-grow-1 h-100">
+  <div [ngClass]="{
+      'border-left-success': query.status === ComplianceStatusExtendedEnum.COMPLIANT,
+      'border-left-danger': query.status === ComplianceStatusExtendedEnum.NON_COMPLIANT,
+      'border-left-neutral': query.status !== ComplianceStatusExtendedEnum.COMPLIANT
+                             && query.status !== ComplianceStatusExtendedEnum.NON_COMPLIANT
+     }">
+    <div class="d-flex justify-content-around align-content-center py-1" style="border-bottom: 1px solid #ccc;">
+      <div style="padding-left: 10px" class="w-100">
+        <span class="text-blue-800 font-weight-light mr-2">Status:</span>
+        <span [ngClass]="{
+                    'text-success': query.status === ComplianceStatusExtendedEnum.COMPLIANT,
+                    'text-danger': query.status === ComplianceStatusExtendedEnum.NON_COMPLIANT
+                  }"
+              class="span-small-icon d-flex justify-content-start align-items-center">
+            {{ query.status | complianceStatusLabel }}
+        </span>
+      </div>
+
+      <div class="w-100" style="border-left: 1px solid #ccc; padding-left: 10px;">
+        <span class="text-blue-800 font-weight-light mr-2">Evaluation rule:</span>
+        <span class="span-small-icon d-flex justify-content-start align-items-center">
+            {{ ComplianceEvaluationRuleLabels[query.evaluationRule] }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-3">
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mt-3">
+      <span class="text-blue-800 font-weight-light mr-2">Query description:</span>
+    </div>
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+      <p class="font-size-base">{{ query.queryDescription }}</p>
+    </div>
+  </div>
+
+  <div class="utm-box m-3 p-3 border-1 border-blue-800 position-relative flex-grow-1">
+     <span class="p-1 utm-box-label text-blue-800 font-weight-light">
+          Evidence:
+     </span>
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+      <app-utm-json-detail-view [rowDocument]="query.evidence" *ngIf="query.evidence"></app-utm-json-detail-view>
+      <span class="font-size-base" *ngIf="!query.evidence">The query returned no results.</span>
+    </div>
+
+  </div>
+</div>

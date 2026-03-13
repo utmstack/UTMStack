@@ -1,6 +1,6 @@
 import {ComplianceEvaluationRuleEnum} from '../enums/compliance-evaluation-rule.enum';
 
-export class UtmComplianceQueryConfigType {
+export class ComplianceQueryConfigType {
   id?: number;
   queryName?: string;
   queryDescription?: string;

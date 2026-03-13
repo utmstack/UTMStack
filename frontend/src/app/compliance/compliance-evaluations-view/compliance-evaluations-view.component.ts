@@ -5,13 +5,14 @@ import {UUID} from 'angular2-uuid';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Subject} from 'rxjs';
 import {filter, takeUntil, tap} from 'rxjs/operators';
-import {rebuildVisualizationFilterTime} from '../../graphic-builder/shared/util/chart-filter/chart-filter.util';
 import {TimeFilterBehavior} from '../../shared/behaviors/time-filter.behavior';
 import {UtmDashboardType} from '../../shared/chart/types/dashboard/utm-dashboard.type';
 import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
-import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
 import {ComplianceParamsEnum} from '../shared/enums/compliance-params.enum';
+import {ComplianceStatusExtendedEnum} from '../shared/enums/compliance-status.enum';
+import {ComplianceStrategyEnum} from '../shared/enums/compliance-strategy.enum';
 import {CpControlConfigService} from '../shared/services/cp-control-config.service';
+import {ComplianceControlEvaluationType} from '../shared/type/compliance-control-evaluation.type';
 import {ComplianceControlEvaluationsType} from '../shared/type/compliance-control-evaluations.type';
 
 @Component({
@@ -20,10 +21,24 @@ import {ComplianceControlEvaluationsType} from '../shared/type/compliance-contro
   styleUrls: ['./compliance-evaluations-view.component.scss']
 })
 export class ComplianceEvaluationsViewComponent implements OnInit, OnDestroy {
+
+  constructor(private activeRoute: ActivatedRoute,
+              // private cpReportsService: CpReportsService,
+              private cpControlConfigService: CpControlConfigService,
+              private timeFilterBehavior: TimeFilterBehavior,
+              private spinner: NgxSpinnerService,
+              private exportPdfService: ExportPdfService) {
+  }
   @Input() showExport = true;
   @Input() template: 'default' | 'compliance' = 'default';
   controlId: number;
-  evaluations: ComplianceControlEvaluationsType[];
+  currentEvaluation: ComplianceControlEvaluationType;
+  evaluationsHistory: ComplianceControlEvaluationsType[];
+  loading = false;
+  showDetails = false;
+  showRemediation = false;
+  showSolution = false;
+  selectedEvaluation: ComplianceControlEvaluationsType;
   UUID = UUID.UUID();
   interval: any;
   dashboard: UtmDashboardType;
@@ -51,22 +66,17 @@ export class ComplianceEvaluationsViewComponent implements OnInit, OnDestroy {
   standardId: number;
   sectionId: number;
   configSolution: string;
-  filtersValues: ElasticFilterType[] = [];
   destroy$: Subject<void> = new Subject<void>();
   showBack = false;
 
   chartOption: any = {};
 
-  constructor(private activeRoute: ActivatedRoute,
-              // private cpReportsService: CpReportsService,
-              private cpControlConfigService: CpControlConfigService,
-              private timeFilterBehavior: TimeFilterBehavior,
-              private spinner: NgxSpinnerService,
-              private exportPdfService: ExportPdfService) {
-  }
+  ComplianceStatusExtendedEnum = ComplianceStatusExtendedEnum;
+  ComplianceStrategyEnum = ComplianceStrategyEnum;
 
   ngOnInit() {
-    this.activeRoute.queryParams
+    this.loading = true;
+    /*this.activeRoute.queryParams
       .pipe(
           takeUntil(this.destroy$),
           filter((params) => Object.keys(params).length > 0),
@@ -74,17 +84,22 @@ export class ComplianceEvaluationsViewComponent implements OnInit, OnDestroy {
             this.showBack = true;
           }))
       .subscribe((params) => {
-        this.initializeReportParams(params);
-    });
+       //this.initializeReportParams(params);
+    });*/
 
     this.cpControlConfigService.onLoadControl$
       .pipe(takeUntil(this.destroy$),
             filter(params => !!params),
       ).subscribe(params => {
-        this.loadReport(params);
+        this.currentEvaluation = params.template;
+        console.log('Current eval: ', this.currentEvaluation);
+        if (this.currentEvaluation) {
+          this.loadReport(params);
+        }
+
       });
 
-    this.timeFilterBehavior.$time
+    /*this.timeFilterBehavior.$time
       .pipe(takeUntil(this.destroy$))
       .subscribe(time => {
         if (time) {
@@ -92,14 +107,14 @@ export class ComplianceEvaluationsViewComponent implements OnInit, OnDestroy {
             this.filtersValues = filters;
           });
         }
-      });
+      });*/
   }
 
   loadReport(params: any) {
+    this.showDetails = false;
     this.controlId = params.template && params.template.id ? params.template.id : null;
     this.standardId = params[ComplianceParamsEnum.STANDARD_ID];
     this.sectionId = params[ComplianceParamsEnum.SECTION_ID];
-    this.evaluations = params.template;
     this.getEvaluations();
   }
 
@@ -113,10 +128,11 @@ export class ComplianceEvaluationsViewComponent implements OnInit, OnDestroy {
 
   getEvaluations() {
     if (this.controlId) {
+      this.loading = true;
       this.cpControlConfigService.evaluationsByControl(this.controlId)
         .subscribe(response => {
-          this.evaluations = response.body.evaluations;
-          this.chartOption = {
+          this.evaluationsHistory = response.body.evaluations;
+          /*this.chartOption = {
             tooltip: {
               trigger: 'item',
               formatter: params => {
@@ -200,16 +216,17 @@ export class ComplianceEvaluationsViewComponent implements OnInit, OnDestroy {
               }
             ]
 
-          };
+          };*/
 
-          this.chartOption.series[0].data = this.buildChartData();
-          this.chartOption = { ...this.chartOption };
+          //this.chartOption.series[0].data = this.buildChartData();
+          //this.chartOption = { ...this.chartOption };
+          this.loading = false;
         });
     }
   }
 
-  private buildChartData() {
-    return this.evaluations.map(e => ({
+  /*private buildChartData() {
+    return this.evaluationsHistory.map(e => ({
       value: [e.timestamp, 0],
       controlId: e.controlId,
       status: e.status,
@@ -223,7 +240,7 @@ export class ComplianceEvaluationsViewComponent implements OnInit, OnDestroy {
         color: e.status === 'COMPLIANT' ? '#4CAF50' : '#F44336'
       }
     }));
-  }
+  }*/
 
   loadVisualizations(dashboardId) {
     /*this.dashboardId = dashboardId;
@@ -262,6 +279,12 @@ export class ComplianceEvaluationsViewComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  showEvaluationDetails(evaluation: ComplianceControlEvaluationsType) {
+    this.showDetails = true;
+    console.log(this.selectedEvaluation);
+    this.selectedEvaluation = evaluation;
   }
 
   onChartInit(chart: any) {
