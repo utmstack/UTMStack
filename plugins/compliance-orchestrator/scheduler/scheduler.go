@@ -16,19 +16,6 @@ func StartScheduler(ctx context.Context, backend *client.BackendClient) {
 
 	ticker := time.NewTicker(24 * time.Hour)
 
-	// TODO: ELENA QUITAR - Ejecutar inmediatamente
-	configs, err := backend.GetControlConfigs(ctx)
-	if err == nil {
-		catcher.Info("Scheduler: sending configs", map[string]any{
-			"cantidad":  len(configs),
-			"timestamp": time.Now().String(),
-		})
-
-		for _, cfg := range configs {
-			Jobs <- cfg
-		}
-	} // HASTA AQUI
-
 	for {
 		select {
 		case <-ctx.Done():
