@@ -12,7 +12,7 @@ import com.park.utmstack.service.UtmSpaceNotificationControlService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationHistoryDto;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlLatestEvaluationMapper;
-import com.park.utmstack.service.mapper.compliance.UtmComplianceControlEvaluationsMapper;
+import com.park.utmstack.service.mapper.compliance.UtmComplianceControlEvaluationHistoryMapper;
 import com.park.utmstack.util.chart_builder.IndexPropertyType;
 import com.park.utmstack.util.exceptions.OpenSearchIndexNotFoundException;
 import com.park.utmstack.util.exceptions.UtmElasticsearchException;
@@ -429,7 +429,7 @@ public class ElasticsearchService {
             SearchResponse<Map> response = search(request, Map.class);
 
             var evaluations = response.hits().hits().stream()
-                    .map(hit -> UtmComplianceControlEvaluationsMapper.mapToEvaluationDto(hit.source()))
+                    .map(hit -> UtmComplianceControlEvaluationHistoryMapper.mapToEvaluationDto(hit.source()))
                     .toList();
 
           return evaluations;

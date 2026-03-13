@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,7 +55,7 @@ public class UtmComplianceControlConfigService {
         validateControlConfig(dto);
 
         UtmComplianceControlConfig entity = repository.findByIdWithQueries(id)
-                .orElseThrow(() -> new RuntimeException("Control not found"));
+                .orElseThrow(() -> new NoSuchElementException("Control not found"));
 
         mapper.updateEntity(entity, dto);
 
@@ -80,12 +81,16 @@ public class UtmComplianceControlConfigService {
     }
 
     public void delete(Long id) {
+        if (!repository.existsById(id)) {
+            throw new NoSuchElementException("Control not found");
+        }
         repository.deleteById(id);
     }
 
+
     public UtmComplianceControlConfigDto findById(Long id) {
         var entity = repository.findByIdWithQueries(id)
-                .orElseThrow(() -> new RuntimeException("Control not found"));
+                .orElseThrow(() -> new NoSuchElementException("Control not found"));
 
         return mapper.toDto(entity);
     }

@@ -7,9 +7,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-public class UtmComplianceControlEvaluationsMapper {
+public class UtmComplianceControlEvaluationHistoryMapper {
 
-    private UtmComplianceControlEvaluationsMapper() {
+    private UtmComplianceControlEvaluationHistoryMapper() {
 
     }
 
@@ -23,7 +23,7 @@ public class UtmComplianceControlEvaluationsMapper {
 
         List<Map<String, Object>> q = (List<Map<String, Object>>) src.get("query_evaluations");
         if (q != null) {
-            dto.setQueryEvaluations(q.stream().map(UtmComplianceControlEvaluationsMapper::mapQueryEval).toList());
+            dto.setQueryEvaluations(q.stream().map(UtmComplianceControlEvaluationHistoryMapper::mapQueryEval).toList());
         }
 
         return dto;
