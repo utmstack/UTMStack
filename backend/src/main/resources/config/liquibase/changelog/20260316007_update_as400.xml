@@ -4,14 +4,13 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20250910019" author="JocLRojas">
+    <changeSet id="20260316007" author="Alex">
 
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
-
             UPDATE public.utm_logstash_filter
-            SET filter_version='3.0.0',
-            logstash_filter='# IBM AS 400 filter version 4.0.0
+            SET filter_version='4.0.0',
+            logstash_filter=$$# IBM AS 400 filter version 4.0.0
 # Support for JT400 Java Collector with full field mapping
 
 pipeline:
@@ -98,8 +97,7 @@ pipeline:
           params:
             source: origin.ip
             destination: origin.geolocation
-          where: exists("origin.ip")
-'
+          where: exists("origin.ip")$$
 	WHERE id=1526;
             ]]>
         </sql>

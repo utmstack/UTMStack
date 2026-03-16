@@ -10,7 +10,7 @@
             UPDATE public.utm_logstash_filter
             SET filter_version = '2.0.5',
                 updated_at = now(),
-                logstash_filter = '# Azure Envent-Hub filter, version 2.0.5
+                logstash_filter = $$# Azure Envent-Hub filter, version 2.0.5
 #
 # Documentations
 # 1- https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log
@@ -918,7 +918,7 @@ pipeline:
           params:
             key: actionResult
             value: 'accepted'
-          where: (greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 299)) || (greaterOrEqual("statusCode", 300) && lessOrEqual("statusCode", 399) && greaterThan("origin.bytesReceived", 0))'
+          where: (greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 299)) || (greaterOrEqual("statusCode", 300) && lessOrEqual("statusCode", 399) && greaterThan("origin.bytesReceived", 0))$$
             WHERE module_name = 'AZURE';
             ]]>
         </sql>
