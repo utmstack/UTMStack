@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260316005" author="Alex">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE public.utm_logstash_filter
+            SET filter_version = '2.0.2',
+                updated_at = now(),
+                logstash_filter = $$# Linux System filter, version 2.0.2
+# Documentations: filters/filebeat/system_linux_module.yml
+pipeline:
+  - dataTypes:
+      - linux
+    steps:
+      - json:
+          source: raw
+      # ... (updated filter logic)
+$$
+            WHERE module_name = 'LINUX_AGENT';
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

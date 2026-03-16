@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260316006" author="Alex">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE public.utm_logstash_filter
+            SET filter_version = '1.0.4',
+                updated_at = now(),
+                logstash_filter = $$# Microsoft 365 filter, version 1.0.4
+# Documentations: filters/office365/o365.yml
+pipeline:
+  - dataTypes:
+      - o365
+    steps:
+      - json:
+          source: raw
+      # ... (updated filter logic)
+$$
+            WHERE module_name = 'O365';
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>
