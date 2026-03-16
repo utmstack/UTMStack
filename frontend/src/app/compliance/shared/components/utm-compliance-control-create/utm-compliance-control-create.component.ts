@@ -1,20 +1,20 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {CpReportBehavior} from '../../behavior/cp-report.behavior';
 import {ComplianceStrategyEnum} from '../../enums/compliance-strategy.enum';
 import {CpControlConfigService} from '../../services/cp-control-config.service';
-import {ComplianceControlConfigType} from '../../type/compliance-control-config.type';
-import {ComplianceQueryConfigType} from '../../type/compliance-query-config.type';
+import {ComplianceControlType} from '../../type/compliance-control.type';
+import {ComplianceQueryType} from '../../type/compliance-query.type';
 
 @Component({
-  selector: 'app-utm-compliance-control-config-create',
-  templateUrl: './utm-compliance-control-config-create.component.html',
-  styleUrls: ['./utm-compliance-control-config-create.component.scss']
+  selector: 'app-utm-compliance-control-create',
+  templateUrl: './utm-compliance-control-create.component.html',
+  styleUrls: ['./utm-compliance-control-create.component.scss']
 })
-export class UtmComplianceControlConfigCreateComponent implements OnInit {
-  @Input() control: ComplianceControlConfigType;
+export class UtmComplianceControlCreateComponent implements OnInit {
+  @Input() control: ComplianceControlType;
   @Output() controlCreated = new EventEmitter<string>();
 
   loading = true;
@@ -31,7 +31,6 @@ export class UtmComplianceControlConfigCreateComponent implements OnInit {
               public activeModal: NgbActiveModal,
               private cpReportBehavior: CpReportBehavior,
               private utmToastService: UtmToastService,
-              public modalService: NgbModal,
               private fb: FormBuilder) {
   }
 
@@ -83,7 +82,7 @@ export class UtmComplianceControlConfigCreateComponent implements OnInit {
 
   createCompliance() {
     this.creating = true;
-    const controlConfigCompliance: ComplianceControlConfigType = {
+    const controlConfigCompliance: ComplianceControlType = {
       standardSectionId: this.standardSectionId,
       controlName: this.complianceForm.controls.controlName.value,
       controlSolution: this.complianceForm.controls.solution.value.replace(/\r?\n/g, '<br/>'),
@@ -95,7 +94,7 @@ export class UtmComplianceControlConfigCreateComponent implements OnInit {
     if (this.control) {
       controlConfigCompliance.id = this.control.id;
       this.cpControlConfigService.update(controlConfigCompliance).subscribe(() => {
-        this.utmToastService.showSuccessBottom('Compliance report  edited successfully');
+        this.utmToastService.showSuccessBottom('Compliance report edited successfully');
         this.activeModal.close();
         this.controlCreated.emit('edited');
       }, error1 => {
@@ -104,7 +103,7 @@ export class UtmComplianceControlConfigCreateComponent implements OnInit {
       });
     } else {
       this.cpControlConfigService.create(controlConfigCompliance).subscribe(() => {
-        this.utmToastService.showSuccessBottom('Compliance report  created successfully');
+        this.utmToastService.showSuccessBottom('Compliance report created successfully');
         this.activeModal.close();
         this.cpReportBehavior.$reportUpdate.next('update');
         this.controlCreated.emit('created');
@@ -123,7 +122,7 @@ export class UtmComplianceControlConfigCreateComponent implements OnInit {
     return this.queriesConfigs.controls.map(c => c.value);
   }
 
-  onQueryAdd(event: { query: ComplianceQueryConfigType ; index: number | null }) {
+  onQueryAdd(event: { query: ComplianceQueryType ; index: number | null }) {
     const { query, index } = event;
     if (index === null) {
       this.queriesConfigs.push(this.fb.control(query));

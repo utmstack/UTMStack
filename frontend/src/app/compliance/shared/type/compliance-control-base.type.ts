@@ -1,10 +1,8 @@
-import {UtmFieldType} from '../../../shared/types/table/utm-field.type';
 import {ComplianceStrategyEnum} from '../enums/compliance-strategy.enum';
-import {ComplianceQueryConfigType} from './compliance-query-config.type';
+import {ComplianceQueryType} from './compliance-query.type';
 import {ComplianceStandardSectionType} from './compliance-standard-section.type';
 
-
-export class ComplianceControlConfigType {
+export class ComplianceControlBaseType {
   id?: number;
   section?: ComplianceStandardSectionType;
   standardSectionId?: number;
@@ -12,9 +10,5 @@ export class ComplianceControlConfigType {
   controlSolution?: string;
   controlRemediation?: string;
   controlStrategy?: ComplianceStrategyEnum;
-  queriesConfigs?: ComplianceQueryConfigType[];
-
-  columns?: UtmFieldType[];
-  selected?: boolean;
-  status?: string;
+  queriesConfigs?: ComplianceQueryType[];
 }

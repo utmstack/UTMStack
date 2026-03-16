@@ -9,19 +9,19 @@ import {
   ComplianceEvaluationRuleEnum,
   ComplianceEvaluationRuleLabels
 } from '../../../enums/compliance-evaluation-rule.enum';
-import {ComplianceQueryConfigType} from '../../../type/compliance-query-config.type';
+import {ComplianceQueryType} from '../../../type/compliance-query.type';
 
 @Component({
-  selector: 'app-utm-compliance-query',
-  templateUrl: './utm-compliance-query.component.html',
-  styleUrls: ['./utm-compliance-query.component.css']
+  selector: 'app-utm-compliance-create-query',
+  templateUrl: './utm-compliance-create-query.component.html',
+  styleUrls: ['./utm-compliance-create-query.component.css']
 })
-export class UtmComplianceQueryComponent implements OnInit {
+export class UtmComplianceCreateQueryComponent implements OnInit {
 
-  @Input() query: ComplianceQueryConfigType = null;
+  @Input() query: ComplianceQueryType = null;
   @Input() indexPatterns: UtmIndexPattern[] = [];
   @Input() indexPatternNames: string[] = [];
-  @Output() add = new EventEmitter<ComplianceQueryConfigType>();
+  @Output() add = new EventEmitter<ComplianceQueryType>();
   @Output() cancel = new EventEmitter<void>();
 
   form: FormGroup;

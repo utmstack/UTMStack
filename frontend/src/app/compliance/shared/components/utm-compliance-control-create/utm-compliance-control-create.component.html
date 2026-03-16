@@ -1,4 +1,4 @@
-<app-utm-modal-header [name]="(control?'Edit':'Create') + ' compliance report'"></app-utm-modal-header>
+<app-utm-modal-header [name]="(control ? 'Edit' : 'Create') + ' compliance report'"></app-utm-modal-header>
 <div class="container-fluid p-3">
   <div class="d-flex flex-column justify-content-start align-items-start">
     <div class="step-container">
@@ -6,9 +6,9 @@
          <span class="text-blue-800 font-weight-bold">
           Report Configuration
         </span>
-        <div [ngClass]="isCompleted(1)?'step-success':step===1?'step-active':'step-inactive'"
+        <div [ngClass]="isCompleted(1) ? 'step-success': step === 1 ? 'step-active' : 'step-inactive'"
              class="round-indicator">
-          <i [ngClass]="isCompleted(1)?'icon-checkmark3':'icon-shield-check'"></i>
+          <i [ngClass]="isCompleted(1) ? 'icon-checkmark3' : 'icon-shield-check'"></i>
         </div>
       </div>
       <div class="step-link"></div>
@@ -16,14 +16,14 @@
           <span class="text-blue-800 font-weight-bold">
           Queries Configuration
         </span>
-        <div [ngClass]="isCompleted(2)?'step-success':step===2?'step-active':'step-inactive'"
+        <div [ngClass]="isCompleted(2) ? 'step-success' : step === 2 ? 'step-active' : 'step-inactive'"
              class="round-indicator">
-          <i [ngClass]="isCompleted(2)?'icon-checkmark3':'icon-pie-chart8'"></i>
+          <i [ngClass]="isCompleted(2) ? 'icon-checkmark3' : 'icon-pie-chart8'"></i>
         </div>
       </div>
     </div>
   </div>
-  <div *ngIf="step===1 && !loading" class="configure-step mt-3">
+  <div *ngIf="step === 1 && !loading" class="configure-step mt-3">
     <form [formGroup]="complianceForm">
       <div class="d-flex gap-3 row">
         <div class="d-flex flex-column w-100 mb-3 col-6">
@@ -92,7 +92,7 @@
       </div>
     </form>
   </div>
-  <div *ngIf="step===2" class="configure-step mt-3 mb-3">
+  <div *ngIf="step === 2" class="configure-step mt-3 mb-3">
     <app-utm-compliance-query-list
       [queries]="queriesList"
       (add)="onQueryAdd($event)"
@@ -105,7 +105,7 @@
       <i class="icon-arrow-left22"></i>&nbsp;
       Back
     </button>
-    <button (click)="nextStep()" *ngIf="step ===1"
+    <button (click)="nextStep()" *ngIf="step === 1"
             [disabled]="!standardSectionId || complianceForm.invalid"
             class="btn utm-button utm-button-primary ml-2">
       Next&nbsp;
@@ -113,10 +113,10 @@
     </button>
 
     <button (click)="createCompliance()"
-            *ngIf="step===2"
+            *ngIf="step === 2"
             [disabled]="complianceForm.invalid"
             class="btn utm-button utm-button-primary ml-2">
-      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-shield-check'"></i>
+      <i [ngClass]="creating ? 'icon-spinner2 spinner' : 'icon-shield-check'"></i>
       {{ control ? 'Edit' : 'Create' }} compliance&nbsp;
     </button>
   </div>

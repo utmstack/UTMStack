@@ -62,7 +62,7 @@
                                 [loadFirst]="index === activeIndexSection"
                                 [index]="index"
                                 (isActive)="onChangeSectionActive($event, section, sections)"
-                                [expandable]="action==='reports'">
+                                [expandable]="action ==='reports'">
             </app-utm-cp-section-config>
           </div>
         </div>
@@ -74,8 +74,8 @@
       <div class="card m-0">
         <!-- Conditional rendering based on selected action -->
         <!-- TODO: ELENA to be checked -->
-        <app-compliance-evaluation-view [section]="activeSection" (pageChange)="onPageChange($event)" *ngIf="action === 'compliance' && activeSection"></app-compliance-evaluation-view>
-        <app-compliance-evaluations-view *ngIf="action === 'reports'" [showExport]="false" [template]="'compliance'"></app-compliance-evaluations-view>
+        <app-compliance-latest-evaluations-view [section]="activeSection" (pageChange)="onPageChange($event)" *ngIf="action === 'compliance' && activeSection"></app-compliance-latest-evaluations-view>
+        <app-compliance-evaluation-history-view *ngIf="action === 'reports'"></app-compliance-evaluation-history-view>
         <!--<app-compliance-reports-view [section]="activeSection" (pageChange)="onPageChange($event)" *ngIf="action === 'compliance' && activeSection"></app-compliance-reports-view>
         <app-compliance-result-view *ngIf="action === 'reports'" [showExport]="false" [template]="'compliance'"></app-compliance-result-view>-->
       </div>

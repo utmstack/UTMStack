@@ -1,13 +1,3 @@
-<!--<ng-container *ngIf="evaluations">
-  <div class="container-fluid p-3">
-    <div echarts
-         [options]="chartOption"
-         class="timeline-chart"
-         (chartInit)="onChartInit($event)">
-    </div>
-  </div>
-</ng-container>-->
-
 <div class="control-summary-card m-3 bg-light" *ngIf="currentEvaluation && !loading">
   <div class="control-summary-header" >
     <div style="display: flex; align-items: center; gap: 8px;">
@@ -38,7 +28,6 @@
       <label class="text-blue-800 font-weight-light">Solution:</label>
       <i class="font-size-sm text-dark" [ngClass]="!showSolution ? 'icon-arrow-right32' : 'icon-arrow-down32'"></i>
     </div>
-
     <p *ngIf="showSolution">
       {{ currentEvaluation.controlSolution }}
     </p>
@@ -49,7 +38,6 @@
       <label class="text-blue-800 font-weight-light">Remediation:</label>
       <i class="font-size-sm text-dark" [ngClass]="!showRemediation ? 'icon-arrow-right32' : 'icon-arrow-down32'"></i>
     </div>
-
     <p *ngIf="showRemediation">
       {{ currentEvaluation.controlRemediation }}
     </p>
@@ -83,6 +71,7 @@
   <div class="h-100 w-100 d-flex justify-content-center align-items-center flex-column data-not-found">
     <div class="event-icon utm-icon-lg utm-icon-light"></div>
     <h6 class="mt-2 text-justify font-weight-light">
-        No data found    </h6>
+        No data found
+    </h6>
   </div>
 </div>

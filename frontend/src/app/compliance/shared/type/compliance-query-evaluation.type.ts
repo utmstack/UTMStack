@@ -1,10 +1,7 @@
-import {ComplianceEvaluationRuleEnum} from '../enums/compliance-evaluation-rule.enum';
 import {ComplianceStatusExtendedEnum} from '../enums/compliance-status.enum';
-// TODO: ELENA ver si puedo usar ComplianceQueryConfigType
-export class ComplianceQueryEvaluationType {
-  queryName?: string;
-  queryDescription?: string;
-  evaluationRule?: ComplianceEvaluationRuleEnum;
+import {ComplianceQueryBaseType} from './compliance-query-base.type';
+
+export class ComplianceQueryEvaluationType extends ComplianceQueryBaseType {
   indexPatternName?: string;
   hits?: number;
   status?: ComplianceStatusExtendedEnum;

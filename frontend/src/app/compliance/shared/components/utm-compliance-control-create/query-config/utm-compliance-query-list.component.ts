@@ -2,7 +2,7 @@ import {HttpResponse} from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {IndexPatternService} from '../../../../../shared/services/elasticsearch/index-pattern.service';
 import {UtmIndexPattern} from '../../../../../shared/types/index-pattern/utm-index-pattern';
-import {ComplianceQueryConfigType} from '../../../type/compliance-query-config.type';
+import {ComplianceQueryType} from '../../../type/compliance-query.type';
 
 
 @Component({
@@ -12,8 +12,9 @@ import {ComplianceQueryConfigType} from '../../../type/compliance-query-config.t
 })
 export class UtmComplianceQueryListComponent implements OnInit {
   // tslint:disable-next-line:variable-name
-  private _queries: ComplianceQueryConfigType[] = [];
-  @Input() set queries(value: ComplianceQueryConfigType[]) {
+  private _queries: ComplianceQueryType[] = [];
+
+  @Input() set queries(value: ComplianceQueryType[]) {
     this._queries = value || [];
   }
 
@@ -22,16 +23,19 @@ export class UtmComplianceQueryListComponent implements OnInit {
   }
 
   @Output() add = new EventEmitter<{
-    query: ComplianceQueryConfigType;
+    query: ComplianceQueryType;
     index: number | null;
   }>();
+
   @Output() remove = new EventEmitter<number>();
 
   patterns: UtmIndexPattern[];
   indexPatternNames = [];
   editingIndex: number = null;
 
-  constructor(private indexPatternService: IndexPatternService) {}
+  constructor(private indexPatternService: IndexPatternService) {
+
+  }
 
   ngOnInit() {
     this.getIndexPatterns();
@@ -45,7 +49,7 @@ export class UtmComplianceQueryListComponent implements OnInit {
     this.editingIndex = null;
   }
 
-  onQueryAdd(query: ComplianceQueryConfigType): void {
+  onQueryAdd(query: ComplianceQueryType): void {
     this.add.emit({
       query,
       index: this.editingIndex
@@ -86,7 +90,7 @@ export class UtmComplianceQueryListComponent implements OnInit {
   }
 
   private onError(error) {
-    //this.alertService.error(error.error, error.message, null);
+    // this.alertService.error(error.error, error.message, null);
   }
 
   getIndexPatternName(id: number) {

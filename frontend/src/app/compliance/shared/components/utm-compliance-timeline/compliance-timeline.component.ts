@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ComplianceStatusExtendedEnum, getComplianceStatusLabel} from '../../enums/compliance-status.enum';
-import {ComplianceControlEvaluationsType} from '../../type/compliance-control-evaluations.type';
+import {ComplianceControlEvaluationHistoryType} from '../../type/compliance-control-evaluation-history.type';
 
 @Component({
   selector: 'app-compliance-timeline',
@@ -8,9 +8,9 @@ import {ComplianceControlEvaluationsType} from '../../type/compliance-control-ev
   styleUrls: ['./compliance-timeline.component.scss']
 })
 export class ComplianceTimelineComponent implements OnInit {
-  @Input() evaluations: ComplianceControlEvaluationsType[];
-  @Output() evaluationSelected = new EventEmitter<ComplianceControlEvaluationsType>();
-  private originalData: ComplianceControlEvaluationsType[] = [];
+  @Input() evaluations: ComplianceControlEvaluationHistoryType[];
+  @Output() evaluationSelected = new EventEmitter<ComplianceControlEvaluationHistoryType>();
+  private originalData: ComplianceControlEvaluationHistoryType[] = [];
 
   options: any;
   complianceValue = [
@@ -47,7 +47,7 @@ export class ComplianceTimelineComponent implements OnInit {
     }
   }
 
-  private transformResponse(data: ComplianceControlEvaluationsType[]): void {
+  private transformResponse(data: ComplianceControlEvaluationHistoryType[]): void {
     this.rawData = [];
     this.monthDays = [];
     this.originalData = this.evaluations;

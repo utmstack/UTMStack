@@ -3,10 +3,10 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CpReportBehavior} from '../../shared/behavior/cp-report.behavior';
 import {CpStandardSectionBehavior} from '../../shared/behavior/cp-standard-section.behavior';
 import {
-  UtmComplianceControlConfigCreateComponent
-} from '../../shared/components/utm-compliance-control-config-create/utm-compliance-control-config-create.component';
+  UtmComplianceControlCreateComponent
+} from '../../shared/components/utm-compliance-control-create/utm-compliance-control-create.component';
 import {CpControlConfigService} from '../../shared/services/cp-control-config.service';
-import {ComplianceControlConfigType} from '../../shared/type/compliance-control-config.type';
+import {ComplianceControlType} from '../../shared/type/compliance-control.type';
 import {ComplianceStandardSectionType} from '../../shared/type/compliance-standard-section.type';
 import {UtmCpControlConfigDeleteComponent} from './utm-cp-control-config-delete/utm-cp-control-config-delete.component';
 
@@ -17,7 +17,7 @@ import {UtmCpControlConfigDeleteComponent} from './utm-cp-control-config-delete/
 })
 export class UtmCpControlConfigComponent implements OnInit {
   section: ComplianceStandardSectionType;
-  complianceControls: ComplianceControlConfigType[] = [];
+  complianceControls: ComplianceControlType[] = [];
   loadingTemplates = true;
   page = 1;
   solution: string;
@@ -70,7 +70,7 @@ export class UtmCpControlConfigComponent implements OnInit {
     this.getControls();
   }
 
-  deleteControl(control: ComplianceControlConfigType) {
+  deleteControl(control: ComplianceControlType) {
     const modal = this.modalService.open(UtmCpControlConfigDeleteComponent, {centered: true});
     modal.componentInstance.control = control;
     modal.componentInstance.controlDelete.subscribe(() => {
@@ -78,8 +78,8 @@ export class UtmCpControlConfigComponent implements OnInit {
     });
   }
 
-  editControl(control: ComplianceControlConfigType) {
-    const controlModal = this.modalService.open(UtmComplianceControlConfigCreateComponent, {centered: true, size: 'lg'});
+  editControl(control: ComplianceControlType) {
+    const controlModal = this.modalService.open(UtmComplianceControlCreateComponent, {centered: true, size: 'lg'});
     controlModal.componentInstance.control = control;
     controlModal.componentInstance.controlCreated.subscribe(() => {
       this.getControls();

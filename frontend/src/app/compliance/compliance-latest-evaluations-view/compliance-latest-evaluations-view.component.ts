@@ -10,31 +10,29 @@ import {
   Output
 } from '@angular/core';
 import {EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {catchError, distinctUntilChanged, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
 import {TimezoneFormatService} from '../../shared/services/utm-timezone.service';
 import {DatePipeDefaultOptions} from '../../shared/types/date-pipe-default-options';
-import {SortByType} from '../../shared/types/sort-by.type';
 import {ComplianceStatusExtendedEnum} from '../shared/enums/compliance-status.enum';
 import {CpControlConfigService} from '../shared/services/cp-control-config.service';
-import {ComplianceControlEvaluationType} from '../shared/type/compliance-control-evaluation.type';
+import {ComplianceControlLatestEvaluationType} from '../shared/type/compliance-control-latest-evaluation.type';
 import {ComplianceStandardSectionType} from '../shared/type/compliance-standard-section.type';
 
 @Component({
-  selector: 'app-compliance-evaluation-view',
-  templateUrl: './compliance-evaluation-view.component.html',
-  styleUrls: ['./compliance-evaluation-view.component.css'],
+  selector: 'app-compliance-latest-evaluations-view',
+  templateUrl: './compliance-latest-evaluations-view.component.html',
+  styleUrls: ['./compliance-latest-evaluations-view.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ComplianceEvaluationViewComponent implements OnInit, OnChanges, OnDestroy {
+export class ComplianceLatestEvaluationsViewComponent implements OnInit, OnChanges, OnDestroy {
   @Input() section: ComplianceStandardSectionType;
   @Output() pageChange = new EventEmitter<{}>();
 
-  controls$: Observable<ComplianceControlEvaluationType[]>;
+  controls$: Observable<ComplianceControlLatestEvaluationType[]>;
   selected: number;
-  fields: SortByType[];
-  controlDetail: ComplianceControlEvaluationType;
+  controlDetail: ComplianceControlLatestEvaluationType;
   loading = true;
   noData = false;
   itemsPerPage = 15;
@@ -66,20 +64,32 @@ export class ComplianceEvaluationViewComponent implements OnInit, OnChanges, OnD
     this.viewportHeight = window.innerHeight;
     this.dateFormat$ = this.timezoneFormatService.getDateFormatSubject();
     this.controls$ = this.controlsService.onRefresh$
-      .pipe(takeUntil(this.destroy$),
+      .pipe(
+        takeUntil(this.destroy$),
+        distinctUntilChanged((prev, curr) =>
+          prev &&
+          curr &&
+          prev.loading === curr.loading &&
+          prev.page === curr.page &&
+          prev.reportSelected === curr.reportSelected &&
+          prev.sectionId === curr.sectionId
+        ),
         filter(reportRefresh =>
-          !!reportRefresh && reportRefresh.loading),
+          !!reportRefresh && reportRefresh.loading
+        ),
         tap((reportRefresh) => {
           this.loading = true;
           this.selected = reportRefresh.reportSelected;
         }),
-        switchMap((reportRefresh) => this.controlsService.fetchData({
-          page: reportRefresh.page, // TODO: ELENA - check
-          size: this.itemsPerPage, // ??
-          sectionId: this.section.id,
-          sort: this.sort, // ??
-          search: this.search ? this.search : null, // ??
-        })),
+        switchMap((reportRefresh) => {
+          return this.controlsService.fetchData({
+            page: reportRefresh.page,
+            size: this.itemsPerPage,
+            sectionId: this.section.id,
+            sort: this.sort,
+            search: this.search ? this.search : null,
+          });
+        }),
         tap(res => this.totalItems = Number(res.headers.get('X-Total-Count'))),
         map((res) => {
           return res.body.map((r, index) => {
@@ -151,5 +161,4 @@ export class ComplianceEvaluationViewComponent implements OnInit, OnChanges, OnD
     this.destroy$.next();
     this.destroy$.complete();
   }
-
 }

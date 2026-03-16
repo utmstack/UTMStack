@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {CpControlConfigService} from '../../../shared/services/cp-control-config.service';
-import {ComplianceControlConfigType} from '../../../shared/type/compliance-control-config.type';
+import {ComplianceControlType} from '../../../shared/type/compliance-control.type';
 
 @Component({
   selector: 'app-utm-cp-control-config-delete',
@@ -10,7 +10,7 @@ import {ComplianceControlConfigType} from '../../../shared/type/compliance-contr
   styleUrls: ['./utm-cp-control-config-delete.component.scss']
 })
 export class UtmCpControlConfigDeleteComponent implements OnInit {
-  @Input() control: ComplianceControlConfigType;
+  @Input() control: ComplianceControlType;
   @Output() controlDelete = new EventEmitter<string>();
 
   constructor(public activeModal: NgbActiveModal,

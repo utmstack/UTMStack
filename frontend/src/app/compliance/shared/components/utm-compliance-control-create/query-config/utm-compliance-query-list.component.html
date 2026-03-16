@@ -1,27 +1,27 @@
-<app-utm-compliance-query *ngIf="editingIndex === null"
+<app-utm-compliance-create-query *ngIf="editingIndex === null"
   (add)="onQueryAdd($event)"
   [indexPatterns]="patterns"
   [indexPatternNames]="indexPatternNames">
-</app-utm-compliance-query>
+</app-utm-compliance-create-query>
 
-<app-utm-compliance-query *ngIf="editingIndex !== null"
+<app-utm-compliance-create-query *ngIf="editingIndex !== null"
    [query]="queries[editingIndex]"
    (add)="onQueryAdd($event)"
    [indexPatterns]="patterns"
    [indexPatternNames]="indexPatternNames"
    (cancel)="cancelEdit()">
-</app-utm-compliance-query>
+</app-utm-compliance-create-query>
 
 <div class="table-responsive w-100">
   <table class="table text-nowrap">
     <thead>
-    <tr>
-      <th class="text-center font-weight-semibold">Query Name</th>
-      <th class="text-center font-weight-semibold">SQL Query</th>
-      <th class="text-center font-weight-semibold">Evaluation Rule</th>
-      <th class="text-center font-weight-semibold">Index Pattern</th>
-      <th class="text-center font-weight-semibold text-right">Actions</th>
-    </tr>
+      <tr>
+        <th class="text-center font-weight-semibold">Query Name</th>
+        <th class="text-center font-weight-semibold">SQL Query</th>
+        <th class="text-center font-weight-semibold">Evaluation Rule</th>
+        <th class="text-center font-weight-semibold">Index Pattern</th>
+        <th class="text-center font-weight-semibold text-right">Actions</th>
+      </tr>
     </thead>
 
     <tbody>
@@ -33,8 +33,12 @@
           <td class="text-center pr-0 pl-0">
             {{ q.sqlQuery | slice:0:30 }}{{ q.sqlQuery.length > 30 ? '…' : '' }}
           </td>
-          <td class="text-center pr-0 pl-0">{{ q.evaluationRule }}</td>
-          <td class="text-center pr-0 pl-0">{{ getIndexPatternName(q.indexPatternId) }}</td>
+          <td class="text-center pr-0 pl-0">
+            {{ q.evaluationRule }}
+          </td>
+          <td class="text-center pr-0 pl-0">
+            {{ getIndexPatternName(q.indexPatternId) }}
+          </td>
 
           <td class="td-action">
             <div class="d-flex justify-content-end align-items-center medium-icon">

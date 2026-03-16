@@ -11,17 +11,18 @@ import {
 } from '../../data-management/alert-management/shared/alert-management-shared.module';
 import {GraphicBuilderSharedModule} from '../../graphic-builder/shared/graphic-builder-shared.module';
 import {UtmSharedModule} from '../../shared/utm-shared.module';
-import {
-  ComplianceEvaluationViewDetailComponent
-} from '../compliance-evaluation-view/compliance-evaluation-view-detail/compliance-evaluation-view-detail.component';
-import {ComplianceEvaluationViewComponent} from '../compliance-evaluation-view/compliance-evaluation-view.component';
-import {ComplianceEvaluationsViewComponent} from '../compliance-evaluations-view/compliance-evaluations-view.component';
-import {
-  ComplianceQueryEvaluationsViewComponent
-} from '../compliance-query-evaluations-view/compliance-query-evaluations-view.component';
+import {ComplianceEvaluationHistoryViewComponent} from '../compliance-evaluation-history-view/compliance-evaluation-history-view.component';
 import {
   ComplianceQueryEvaluationDetailComponent
-} from '../compliance-query-evaluations-view/components/compliance-query-evaluation-detail/compliance-query-evaluation-detail.component';
+// tslint:disable-next-line:max-line-length
+} from '../compliance-evaluation-history-view/compliance-query-evaluations-view/compliance-query-evaluation-detail/compliance-query-evaluation-detail.component';
+import {
+  ComplianceQueryEvaluationsViewComponent
+} from '../compliance-evaluation-history-view/compliance-query-evaluations-view/compliance-query-evaluations-view.component';
+import {
+  ComplianceLatestEvaluationViewDetailComponent
+} from '../compliance-latest-evaluations-view/compliance-latest-evaluation-view-detail/compliance-latest-evaluation-view-detail.component';
+import {ComplianceLatestEvaluationsViewComponent} from '../compliance-latest-evaluations-view/compliance-latest-evaluations-view.component';
 import {ComplianceReportsViewComponent} from '../compliance-reports-view/compliance-reports-view.component';
 import {
   CompliancePrintViewComponent
@@ -37,14 +38,14 @@ import {
 } from '../compliance-reports-view/components/compliance-time-window/compliance-time-windows.component';
 import {ReportApplyNoteComponent} from './components/report-apply-note/report-apply-note.component';
 import {
+  UtmComplianceCreateQueryComponent
+} from './components/utm-compliance-control-create/query-config/utm-compliance-create-query.component';
+import {
   UtmComplianceQueryListComponent
-} from './components/utm-compliance-control-config-create/query-config/utm-compliance-query-list.component';
+} from './components/utm-compliance-control-create/query-config/utm-compliance-query-list.component';
 import {
-  UtmComplianceQueryComponent
-} from './components/utm-compliance-control-config-create/query-config/utm-compliance-query.component';
-import {
-  UtmComplianceControlConfigCreateComponent
-} from './components/utm-compliance-control-config-create/utm-compliance-control-config-create.component';
+  UtmComplianceControlCreateComponent
+} from './components/utm-compliance-control-create/utm-compliance-control-create.component';
 import {UtmComplianceCreateComponent} from './components/utm-compliance-create/utm-compliance-create.component';
 import {
   UtmComplianceScheduleCreateComponent
@@ -84,15 +85,15 @@ import {ComplianceStatusLabelPipe} from './pipes/compliance-status-label.pipe';
     ComplianceQueryEvaluationDetailComponent,
     ComplianceTimeWindowsComponent,
     CompliancePrintViewComponent,
-    UtmComplianceControlConfigCreateComponent,
-    UtmComplianceQueryComponent,
+    UtmComplianceControlCreateComponent,
+    UtmComplianceCreateQueryComponent,
     UtmComplianceQueryListComponent,
-    ComplianceEvaluationViewComponent,
-    ComplianceEvaluationsViewComponent,
+    ComplianceLatestEvaluationsViewComponent,
+    ComplianceEvaluationHistoryViewComponent,
     UtmCpSectionConfigComponent,
     ComplianceTimelineComponent,
     ComplianceQueryEvaluationsViewComponent,
-    ComplianceEvaluationViewDetailComponent,
+    ComplianceLatestEvaluationViewDetailComponent,
     ComplianceStatusLabelPipe
   ],
   imports: [
@@ -118,7 +119,7 @@ import {ComplianceStatusLabelPipe} from './pipes/compliance-status-label.pipe';
     UtmComplianceCreateComponent,
     UtmComplianceScheduleCreateComponent,
     UtmComplianceScheduleDeleteComponent,
-    UtmComplianceControlConfigCreateComponent
+    UtmComplianceControlCreateComponent
   ],
     exports: [
         UtmSaveAsComplianceComponent,
@@ -137,8 +138,8 @@ import {ComplianceStatusLabelPipe} from './pipes/compliance-status-label.pipe';
         ComplianceQueryEvaluationDetailComponent,
         ComplianceTimeWindowsComponent,
         CompliancePrintViewComponent,
-        ComplianceEvaluationViewComponent,
-        ComplianceEvaluationsViewComponent,
+        ComplianceLatestEvaluationsViewComponent,
+        ComplianceEvaluationHistoryViewComponent,
         UtmCpSectionConfigComponent,
         ComplianceStatusLabelPipe
     ]

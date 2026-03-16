@@ -15,7 +15,6 @@
           </div>
         </div>
 
-        <!-- Spinner -->
         <div *ngIf="loading"
              class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
              style="background-color: rgba(255, 255, 255, 0.8); z-index: 10;">
@@ -83,7 +82,7 @@
             </tr>
             <tr *ngIf="noData && !loading">
               <td colspan="5">
-                <app-no-data-found></app-no-data-found>
+                <app-no-data-found> </app-no-data-found>
               </td>
             </tr>
             </tbody>
@@ -130,6 +129,6 @@
         <div class="close-icon"></div>
       </button>
     </div>
-    <app-compliance-evaluation-view-detail [control]="controlDetail"></app-compliance-evaluation-view-detail>
+    <app-compliance-latest-evaluation-view-detail [control]="controlDetail"></app-compliance-latest-evaluation-view-detail>
   </div>
 </div>

@@ -13,8 +13,7 @@ import {EMPTY, Observable} from 'rxjs';
 import {catchError, concatMap, filter, map, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {CpControlConfigService} from '../../services/cp-control-config.service';
-import {ComplianceControlConfigType} from '../../type/compliance-control-config.type';
-import {ComplianceReportType} from '../../type/compliance-report.type';
+import {ComplianceControlType} from '../../type/compliance-control.type';
 import {ComplianceStandardSectionType} from '../../type/compliance-standard-section.type';
 
 @Component({
@@ -32,7 +31,7 @@ export class UtmCpSectionConfigComponent implements OnInit, OnChanges {
   @Input() expandable = true;
   @Input() action: 'reports' | 'compliance' = 'compliance';
 
-  controls$: Observable<ComplianceControlConfigType[]>;
+  controls$: Observable<ComplianceControlType[]>;
   selected: number;
 
   constructor(private cpControlConfigService: CpControlConfigService,
@@ -91,7 +90,7 @@ export class UtmCpSectionConfigComponent implements OnInit, OnChanges {
     }
   }
 
-  generateReport(control: ComplianceControlConfigType, controls: ComplianceControlConfigType[]) {
+  generateReport(control: ComplianceControlType, controls: ComplianceControlType[]) {
     if (this.section.isActive && control) {
       controls.forEach(r => r.selected = false);
       control.selected = true;
@@ -99,7 +98,7 @@ export class UtmCpSectionConfigComponent implements OnInit, OnChanges {
     }
   }
 
-  loadReport(report: ComplianceControlConfigType) {
+  loadReport(report: ComplianceControlType) {
     this.cpControlConfigService.loadReport({
       template: report,
       sectionId: this.section.id,

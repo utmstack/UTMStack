@@ -4,15 +4,13 @@ import {BehaviorSubject, Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
 import {RefreshDataService} from '../../../shared/services/util/refresh-data.service';
 import {createRequestOption} from '../../../shared/util/request-util';
-import {ComplianceControlConfigType} from '../type/compliance-control-config.type';
-import {ComplianceControlEvaluationType} from '../type/compliance-control-evaluation.type';
-import {ComplianceControlEvaluationsType} from '../type/compliance-control-evaluations.type';
+import {ComplianceControlEvaluationHistoryResponse} from '../type/compliance-control-evaluation-history-response.type';
+import {ComplianceControlLatestEvaluationType} from '../type/compliance-control-latest-evaluation.type';
+import {ComplianceControlType} from '../type/compliance-control.type';
 import {ComplianceReportType} from '../type/compliance-report.type';
-import {ReportParams} from "./cp-reports.service";
-import {ComplianceControlEvaluationsResponse} from "../type/compliance-control-evaluations-response.type";
 
 export interface ControlParams  { // TODO: ELENA para que
-  template: ComplianceControlConfigType;
+  template: ComplianceControlType;
   sectionId: number;
   standardId: number;
 }
@@ -31,24 +29,24 @@ export class CpControlConfigService extends RefreshDataService<{ sectionId: numb
     super();
   }
 
-  create(control: ComplianceControlConfigType): Observable<HttpResponse<any>> {
-    return this.http.post<ComplianceControlConfigType>(
+  create(control: ComplianceControlType): Observable<HttpResponse<any>> {
+    return this.http.post<ComplianceControlType>(
       this.resourceUrl,
       control,
       {observe: 'response'});
   }
 
-  query(req?: any): Observable<HttpResponse<ComplianceControlConfigType[]>> {
+  query(req?: any): Observable<HttpResponse<ComplianceControlType[]>> {
     const options = createRequestOption(req);
-    return this.http.get<ComplianceControlConfigType[]>(this.resourceUrl, {
+    return this.http.get<ComplianceControlType[]>(this.resourceUrl, {
       params: options,
       observe: 'response'
     });
   }
 
 
-  update(control: ComplianceControlConfigType): Observable<HttpResponse<any>> {
-    return this.http.put<ComplianceControlConfigType>(
+  update(control: ComplianceControlType): Observable<HttpResponse<any>> {
+    return this.http.put<ComplianceControlType>(
       `${this.resourceUrl}/${control.id}`,
       control,
       { observe: 'response' }
@@ -62,21 +60,21 @@ export class CpControlConfigService extends RefreshDataService<{ sectionId: numb
     );
   }
 
-  controlsBySection(req?: any): Observable<HttpResponse<ComplianceControlEvaluationType[]>> {
+  controlsBySection(req?: any): Observable<HttpResponse<ComplianceControlLatestEvaluationType[]>> {
     const options = createRequestOption(req);
-    return this.http.get<ComplianceControlConfigType[]>(this.resourceUrl + '/get-by-section', {
+    return this.http.get<ComplianceControlType[]>(this.resourceUrl + '/get-by-section', {
       params: options,
       observe: 'response'
     });
   }
 
-  fetchData(request: any): Observable<HttpResponse<ComplianceControlEvaluationType[]>> {
+  fetchData(request: any): Observable<HttpResponse<ComplianceControlLatestEvaluationType[]>> {
     return this.controlsBySection(request);
   }
 
-  evaluationsByControl(controlId: number, req?: any): Observable<HttpResponse<ComplianceControlEvaluationsResponse>> {
+  evaluationsByControl(controlId: number, req?: any): Observable<HttpResponse<ComplianceControlEvaluationHistoryResponse>> {
     const options = createRequestOption(req); // TODO: ELENA valorar si dejo el req
-    return this.http.get<ComplianceControlEvaluationsResponse>(
+    return this.http.get<ComplianceControlEvaluationHistoryResponse>(
       `${this.resourceUrl}/${controlId}/evaluations`,
       { params: options, observe: 'response' }
     );

@@ -1,12 +1,8 @@
 import {ComplianceEvaluationRuleEnum} from '../enums/compliance-evaluation-rule.enum';
 
-export class ComplianceQueryConfigType {
+export class ComplianceQueryBaseType {
   id?: number;
   queryName?: string;
   queryDescription?: string;
-  sqlQuery?: string;
   evaluationRule?: ComplianceEvaluationRuleEnum;
-  ruleValue?: number;
-  indexPatternId?: number;
-  controlConfigId?: number;
 }
