@@ -513,5 +513,7 @@
 
     <include file="/config/liquibase/changelog/20260316001_remove_windows_token_manipulation_rule.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260316002_modify_crowdstrike_rules.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
