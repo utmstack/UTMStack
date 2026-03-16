@@ -287,6 +287,24 @@ pipeline:
           to: log.messageId
           where: exists("log.MESSAGEID")
 
+      - rename:
+          from:
+            - log.CPUUSAGENSEC
+          to: log.cpuUsageNsec
+          where: exists("log.CPUUSAGENSEC")
+
+      - rename:
+          from:
+            - log.MEMORYPEAK
+          to: log.memoryPeak
+          where: exists("log.MEMORYPEAK")
+
+      - rename:
+          from:
+            - log.MEMORYSWAPPEAK
+          to: log.memorySwapPeak
+          where: exists("log.MEMORYSWAPPEAK")
+
       # ========================================
       # PHASE 3: STANDARD SCHEMA MAPPING
       # ========================================
