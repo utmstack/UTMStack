@@ -1,4 +1,4 @@
-# Azure Envent-Hub filter, version 2.0.4
+# Azure Envent-Hub filter, version 2.0.5
 # 
 # Documentations
 # 1- https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log
@@ -602,6 +602,196 @@ pipeline:
           from:
             - log.properties.userType
           to: log.propertiesUserType
+
+      - rename:
+          from:
+            - log.properties.WAFEvaluationTime
+          to: log.propertiesWAFEvaluationTime
+
+      - rename:
+          from:
+            - log.properties.WAFMode
+          to: log.propertiesWAFMode
+
+      - rename:
+          from:
+            - log.properties.WAFPolicyID
+          to: log.propertiesWAFPolicyID
+
+      - rename:
+          from:
+            - log.properties.backendSslCipher
+          to: log.propertiesBackendSslCipher
+
+      - rename:
+          from:
+            - log.properties.backendSslProtocol
+          to: log.propertiesBackendSslProtocol
+
+      - rename:
+          from:
+            - log.properties.clientIP
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.properties.clientPort
+          to: origin.port
+
+      - rename:
+          from:
+            - log.properties.clientResponseTime
+          to: log.propertiesClientResponseTime
+
+      - rename:
+          from:
+            - log.properties.connectionSerialNumber
+          to: log.propertiesConnectionSerialNumber
+
+      - rename:
+          from:
+            - log.properties.contentType
+          to: log.propertiesContentType
+
+      - rename:
+          from:
+            - log.properties.error_info
+          to: log.propertiesErrorInfo
+
+      - rename:
+          from:
+            - log.properties.host
+          to: origin.host
+
+      - rename:
+          from:
+            - log.properties.httpMethod
+          to: log.propertiesHttpMethod
+
+      - rename:
+          from:
+            - log.properties.httpStatus
+          to: statusCode
+
+      - rename:
+          from:
+            - log.properties.httpVersion
+          to: log.propertiesHttpVersion
+
+      - rename:
+          from:
+            - log.properties.instanceId
+          to: log.propertiesInstanceId
+
+      - rename:
+          from:
+            - log.properties.noOfConnectionRequests
+          to: log.propertiesNoOfConnectionRequests
+
+      - rename:
+          from:
+            - log.properties.originalHost
+          to: log.propertiesOriginalHost
+
+      - rename:
+          from:
+            - log.properties.originalRequestUriWithArgs
+          to: log.propertiesOriginalRequestUriWithArgs
+
+      - rename:
+          from:
+            - log.properties.receivedBytes
+          to: log.propertiesReceivedBytes
+
+      - rename:
+          from:
+            - log.properties.requestQuery
+          to: log.propertiesRequestQuery
+
+      - rename:
+          from:
+            - log.properties.requestUri
+          to: log.propertiesRequestUri
+
+      - rename:
+          from:
+            - log.properties.sentBytes
+          to: log.propertiesSentBytes
+
+      - rename:
+          from:
+            - log.properties.serverConnectTime
+          to: log.propertiesServerConnectTime
+
+      - rename:
+          from:
+            - log.properties.serverHeaderTime
+          to: log.propertiesServerHeaderTime
+
+      - rename:
+          from:
+            - log.properties.serverResponseLatency
+          to: log.propertiesServerResponseLatency
+
+      - rename:
+          from:
+            - log.properties.serverRouted
+          to: log.propertiesServerRouted
+
+      - rename:
+          from:
+            - log.properties.serverStatus
+          to: log.propertiesServerStatus
+
+      - rename:
+          from:
+            - log.properties.sslCipher
+          to: log.propertiesSslCipher
+
+      - rename:
+          from:
+            - log.properties.sslClientCertificateFingerprint
+          to: log.propertiesSslClientCertificateFingerprint
+
+      - rename:
+          from:
+            - log.properties.sslClientCertificateIssuerName
+          to: log.propertiesSslClientCertificateIssuerName
+
+      - rename:
+          from:
+            - log.properties.sslClientVerify
+          to: log.propertiesSslClientVerify
+
+      - rename:
+          from:
+            - log.properties.sslEnabled
+          to: log.propertiesSslEnabled
+
+      - rename:
+          from:
+            - log.properties.sslProtocol
+          to: log.propertiesSslProtocol
+
+      - rename:
+          from:
+            - log.properties.timeTaken
+          to: log.propertiesTimeTaken
+
+      - rename:
+          from:
+            - log.properties.transactionId
+          to: log.propertiesTransactionId
+
+      - rename:
+          from:
+            - log.properties.upstreamSourcePort
+          to: log.propertiesUpstreamSourcePort
+
+      - rename:
+          from:
+            - log.properties.userAgent
+          to: log.propertiesUserAgent
 
       # .......................................................................#
       # Adding severity based on log.level
