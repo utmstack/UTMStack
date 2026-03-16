@@ -515,5 +515,13 @@
 
     <include file="/config/liquibase/changelog/20260316002_modify_crowdstrike_rules.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260316003_update_filter_azure.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260316004_update_filter_crowdstrike.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260316005_update_filter_linux.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260316006_update_filter_o365.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
