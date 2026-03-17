@@ -1,6 +1,8 @@
 package com.park.utmstack.repository.compliance;
 
 import com.park.utmstack.domain.compliance.UtmComplianceControlConfig;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -22,11 +24,21 @@ public interface UtmComplianceControlConfigRepository extends JpaRepository<UtmC
     Optional<UtmComplianceControlConfig> findByIdWithQueries(@Param("id") Long id);
 
     @Query("""
-    SELECT DISTINCT c FROM UtmComplianceControlConfig c
+    SELECT DISTINCT c
+    FROM UtmComplianceControlConfig c
     LEFT JOIN FETCH c.section s
     LEFT JOIN FETCH c.queriesConfigs q
+    WHERE c.id IN :ids
+    """)
+    List<UtmComplianceControlConfig> findWithQueriesByIdIn(
+            @Param("ids") List<Long> ids);
+
+    @Query("""
+    SELECT c.id
+    FROM UtmComplianceControlConfig c
     WHERE c.standardSectionId = :sectionId
     """)
-    List<UtmComplianceControlConfig> findBySectionIdWithQueries(@Param("sectionId") Long sectionId);
-
+    Page<Long> findIdsBySectionId(
+            @Param("sectionId") Long sectionId,
+            Pageable pageable);
 }

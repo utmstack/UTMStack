@@ -2,6 +2,9 @@ package com.park.utmstack.web.rest.compliance.config;
 
 import com.park.utmstack.service.compliance.config.UtmComplianceControlEvaluationLatestService;
 import com.park.utmstack.service.dto.compliance.UtmComplianceControlLatestEvaluationDto;
+import com.park.utmstack.web.rest.util.PaginationUtil;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,10 +22,12 @@ public class UtmComplianceControlLatestEvaluationResource {
 
     @GetMapping("/get-by-section")
     public ResponseEntity<List<UtmComplianceControlLatestEvaluationDto>> getControlsLatestEvaluationBySection(
-            @RequestParam Long sectionId) {
+            @RequestParam Long sectionId,
+            Pageable pageable) {
 
-        var controls = latestEvaluationService.getControlsWithLastEvaluation(sectionId);
-        return ResponseEntity.ok(controls);
+        var controls = latestEvaluationService.getControlsWithLastEvaluation(sectionId, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(controls, "/control-config/get-by-section");
+        return ResponseEntity.ok().headers(headers).body(controls.getContent());
     }
 }
 

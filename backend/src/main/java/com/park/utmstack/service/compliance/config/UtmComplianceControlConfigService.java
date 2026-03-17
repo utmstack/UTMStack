@@ -8,6 +8,9 @@ import com.park.utmstack.service.dto.compliance.UtmComplianceControlConfigDto;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlConfigMapper;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceQueryConfigMapper;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -115,11 +118,22 @@ public class UtmComplianceControlConfigService {
         }
     }
 
-    public List<UtmComplianceControlConfigDto> getControlsBySection(Long sectionId) {
-        var entities = repository.findBySectionIdWithQueries(sectionId);
-        return entities.stream()
-                .map(mapper::toDto)
-                .collect(Collectors.toList());
+    public Page<UtmComplianceControlConfig> findBySection(Long sectionId, Pageable pageable) {
+
+        Page<Long> pageIds = repository.findIdsBySectionId(sectionId, pageable);
+
+        if (pageIds.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        List<UtmComplianceControlConfig> content =
+                repository.findWithQueriesByIdIn(pageIds.getContent());
+
+        return new PageImpl<>(
+                content,
+                pageable,
+                pageIds.getTotalElements()
+        );
     }
 
 }
