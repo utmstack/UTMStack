@@ -39,7 +39,6 @@ export class ComplianceEvaluationHistoryViewComponent implements OnInit, OnDestr
         if (this.currentEvaluation) {
           this.loadReport(params);
         }
-
       });
   }
 

@@ -80,6 +80,15 @@ export class UtmComplianceCreateQueryComponent implements OnInit {
       return;
     }
 
+    const control = this.form.get('sqlQuery');
+
+    if (control) {
+      const cleaned = control.value
+        .replace(/(\r\n|\n|\r)/g, ' ')
+        .replace(/\s+/g, ' ');
+      control.setValue(cleaned);
+    }
+
     this.add.emit(this.form.value);
     this.form.reset();
   }

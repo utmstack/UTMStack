@@ -41,7 +41,9 @@
      </span>
     <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
       <app-utm-json-detail-view [rowDocument]="query.evidence" *ngIf="query.evidence"></app-utm-json-detail-view>
-      <span class="font-size-base" *ngIf="!query.evidence">The query returned no results.</span>
+      <span class="font-size-base" *ngIf="!query.evidence"> {{query.status !== ComplianceStatusExtendedEnum.COMPLIANT && query.status !== ComplianceStatusExtendedEnum.NON_COMPLIANT ?
+                  'The query was not evaluated.'
+                  : 'The query returned no results.'}}</span>
     </div>
   </div>
 </div>
