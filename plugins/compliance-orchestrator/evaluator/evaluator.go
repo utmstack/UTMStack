@@ -35,11 +35,13 @@ func (e *Evaluator) Evaluate(ctx context.Context, cfg models.ControlConfig) (mod
 		if !patternExists(int(q.IndexPatternID), patterns) {
 			reason := "Index pattern not active"
 			qr := models.QueryEvaluation{
-				QueryConfigID: q.ID,
-				QueryName:     q.QueryName,
-				Hits:          0,
-				Status:        models.QueryStatusNotApplicable,
-				ErrorMessage:  &reason,
+				QueryConfigID:  q.ID,
+				QueryName:      q.QueryName,
+				EvaluationRule: q.EvaluationRule,
+				RuleValue:      q.RuleValue,
+				Hits:           0,
+				Status:         models.QueryStatusNotApplicable,
+				ErrorMessage:   &reason,
 			}
 			results = append(results, qr)
 			continue
@@ -68,12 +70,14 @@ func (e *Evaluator) evaluateQuery(ctx context.Context, q models.QueryConfig) mod
 	if err != nil {
 		msg := fmt.Sprintf("query execution failed: %v", err)
 		return models.QueryEvaluation{
-			QueryConfigID: q.ID,
-			QueryName:     q.QueryName,
-			Hits:          0,
-			Status:        models.QueryStatusError,
-			ErrorMessage:  &msg,
-			Evidence:      nil,
+			QueryConfigID:  q.ID,
+			QueryName:      q.QueryName,
+			EvaluationRule: q.EvaluationRule,
+			RuleValue:      q.RuleValue,
+			Hits:           0,
+			Status:         models.QueryStatusError,
+			ErrorMessage:   &msg,
+			Evidence:       nil,
 		}
 	}
 
@@ -95,12 +99,14 @@ func (e *Evaluator) evaluateQuery(ctx context.Context, q models.QueryConfig) mod
 	status, errMsg := evaluateQueryRule(q, res.Count)
 
 	return models.QueryEvaluation{
-		QueryConfigID: q.ID,
-		QueryName:     q.QueryName,
-		Hits:          int64(res.Count),
-		Status:        status,
-		ErrorMessage:  errMsg,
-		Evidence:      evidence,
+		QueryConfigID:  q.ID,
+		QueryName:      q.QueryName,
+		EvaluationRule: q.EvaluationRule,
+		RuleValue:      q.RuleValue,
+		Hits:           int64(res.Count),
+		Status:         status,
+		ErrorMessage:   errMsg,
+		Evidence:       evidence,
 	}
 }
 
