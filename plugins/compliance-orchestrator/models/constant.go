@@ -12,8 +12,10 @@ const (
 type ControlEvaluationStatus string
 
 const (
-	ControlStatusCompliant    ControlEvaluationStatus = "COMPLIANT"
-	ControlStatusNonCompliant ControlEvaluationStatus = "NON_COMPLIANT"
+	ControlStatusCompliant     ControlEvaluationStatus = "COMPLIANT"
+	ControlStatusNonCompliant  ControlEvaluationStatus = "NON_COMPLIANT"
+	ControlStatusNotApplicable ControlEvaluationStatus = "NOT_APPLICABLE"
+	ControlStatusNotEvaluated  ControlEvaluationStatus = "NOT_EVALUATED"
 )
 
 type EvaluationRule string

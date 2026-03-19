@@ -77,7 +77,7 @@ func (e *Evaluator) evaluateQuery(ctx context.Context, q models.QueryConfig) mod
 		}
 	}
 
-	const evidenceLimit = 50
+	const evidenceLimit = 10
 	rawRows := res.Rows
 	if len(rawRows) > evidenceLimit {
 		rawRows = rawRows[:evidenceLimit]
@@ -140,26 +140,72 @@ func evaluateQueryRule(q models.QueryConfig, hits int) (models.QueryEvaluationSt
 
 func computeControlStatus(strategy models.ComplianceStrategy, results []models.QueryEvaluation) models.ControlEvaluationStatus {
 
-	switch strategy {
-	case models.StrategyAll:
-		for _, r := range results {
-			if r.Status != models.QueryStatusCompliant {
-				return models.ControlStatusNonCompliant
-			}
-		}
-		return models.ControlStatusCompliant
+	hasCompliant := false
+	hasNonCompliant := false
+	hasError := false
+	allNotApplicable := true
 
-	case models.StrategyAny:
-		for _, r := range results {
-			if r.Status == models.QueryStatusCompliant {
-				return models.ControlStatusCompliant
-			}
-		}
-		return models.ControlStatusNonCompliant
+	applicableCount := 0
+	errorCount := 0
 
-	default:
-		return models.ControlStatusNonCompliant
+	for _, r := range results {
+		switch r.Status {
+		case models.QueryStatusCompliant:
+			hasCompliant = true
+			allNotApplicable = false
+			applicableCount++
+
+		case models.QueryStatusNonCompliant:
+			hasNonCompliant = true
+			allNotApplicable = false
+			applicableCount++
+
+		case models.QueryStatusError:
+			hasError = true
+			allNotApplicable = false
+			applicableCount++
+			errorCount++
+
+		case models.QueryStatusNotApplicable:
+		}
 	}
+
+	if allNotApplicable {
+		return models.ControlStatusNotApplicable
+	}
+
+	if applicableCount > 0 && errorCount == applicableCount {
+		return models.ControlStatusNotEvaluated
+	}
+
+	switch strategy {
+	case models.StrategyAny:
+		if hasCompliant {
+			return models.ControlStatusCompliant
+		}
+
+		if hasError {
+			return models.ControlStatusNonCompliant
+		}
+
+		return models.ControlStatusNonCompliant
+
+	case models.StrategyAll:
+
+		if hasNonCompliant {
+			return models.ControlStatusNonCompliant
+		}
+
+		if hasError {
+			return models.ControlStatusNonCompliant
+		}
+
+		if hasCompliant {
+			return models.ControlStatusCompliant
+		}
+	}
+
+	return models.ControlStatusNonCompliant
 }
 
 func patternExists(pattern int, active []models.IndexPattern) bool {
