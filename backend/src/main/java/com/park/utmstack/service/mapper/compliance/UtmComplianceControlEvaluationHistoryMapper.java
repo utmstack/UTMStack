@@ -34,6 +34,11 @@ public class UtmComplianceControlEvaluationHistoryMapper {
 
         dto.setQueryConfigId(((Number) src.get("queryConfigId")).longValue());
         dto.setQueryName((String) src.get("queryName"));
+        dto.setEvaluationRule((String) src.get("evaluationRule"));
+
+        Object raw = src.get("ruleValue");
+        dto.setRuleValue(raw instanceof Number ? ((Number) raw).intValue() : null);
+
         dto.setHits(((Number) src.get("hits")).intValue());
         dto.setStatus((String) src.get("status"));
         dto.setEvidence((List<Map<String, Object>>) src.get("evidence"));

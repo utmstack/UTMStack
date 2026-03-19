@@ -73,7 +73,6 @@ public class UtmComplianceControlEvaluationHistoryService {
                     var cfg = configMap.get(queryEval.getQueryConfigId());
                     if (cfg != null) {
                         queryEval.setQueryDescription(cfg.getQueryDescription());
-                        queryEval.setEvaluationRule(cfg.getEvaluationRule().name());
                         queryEval.setIndexPatternId(cfg.getIndexPattern().getId());
                         queryEval.setIndexPatternName(cfg.getIndexPattern().getPattern());
                     }

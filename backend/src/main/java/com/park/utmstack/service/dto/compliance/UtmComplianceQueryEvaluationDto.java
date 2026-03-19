@@ -14,6 +14,7 @@ public class UtmComplianceQueryEvaluationDto {
     private String queryName;
     private String queryDescription;
     private String evaluationRule;
+    private Integer ruleValue;
     private Long indexPatternId;
     private String indexPatternName;
     private Integer hits;
