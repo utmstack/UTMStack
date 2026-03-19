@@ -5,4 +5,5 @@ export class ComplianceQueryBaseType {
   queryName?: string;
   queryDescription?: string;
   evaluationRule?: ComplianceEvaluationRuleEnum;
+  ruleValue?: number;
 }

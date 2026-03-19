@@ -17,10 +17,32 @@
         </span>
       </div>
 
-      <div class="w-100" style="border-left: 1px solid #ccc; padding-left: 10px;">
+      <div class="w-100 border-left" style="padding-left: 10px;">
         <span class="text-blue-800 font-weight-light mr-2">Evaluation rule:</span>
         <span class="span-small-icon d-flex justify-content-start align-items-center">
             {{ ComplianceEvaluationRuleLabels[query.evaluationRule] }}
+        </span>
+      </div>
+    </div>
+  </div>
+  <div [ngClass]="{
+      'border-left-success': query.status === ComplianceStatusExtendedEnum.COMPLIANT,
+      'border-left-danger': query.status === ComplianceStatusExtendedEnum.NON_COMPLIANT,
+      'border-left-neutral': query.status !== ComplianceStatusExtendedEnum.COMPLIANT
+                             && query.status !== ComplianceStatusExtendedEnum.NON_COMPLIANT
+     }">
+    <div class="d-flex justify-content-around align-content-center py-1" style="border-bottom: 1px solid #ccc;">
+      <div style="padding-left: 10px" class="w-100" *ngIf="query.ruleValue">
+        <span class="text-blue-800 font-weight-light mr-2">Rule value:</span>
+        <span class="span-small-icon d-flex justify-content-start align-items-center">
+           {{ query.ruleValue }}
+        </span>
+      </div>
+
+      <div class="w-100" style="padding-left: 10px;" [ngClass]="{'border-left': query.ruleValue}">
+        <span class="text-blue-800 font-weight-light mr-2">Result count:</span>
+        <span class="span-small-icon d-flex justify-content-start align-items-center">
+            {{ query.hits }}
         </span>
       </div>
     </div>

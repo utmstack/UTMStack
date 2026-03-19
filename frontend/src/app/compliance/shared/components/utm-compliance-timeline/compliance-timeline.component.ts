@@ -14,20 +14,24 @@ export class ComplianceTimelineComponent implements OnInit {
 
   options: any;
   complianceValue = [
-    'COMPLIANT',
+    'NOT_EVALUATED',
     'NON_COMPLIANT',
+    'COMPLIANT',
   ];
   bgColors = {
     COMPLIANT: '#28A745',
     NON_COMPLIANT: '#DC3545',
+    NOT_EVALUATED: '#6C757D',
   };
   textColors = {
     COMPLIANT: '#ffffff',
     NON_COMPLIANT: '#ffffff',
+    NOT_EVALUATED: '#ffffff',
   };
   lightBgColors = {
     COMPLIANT: '#E8F5E9',
     NON_COMPLIANT: '#FAEBED',
+    NOT_EVALUATED: '#E9E9E9',
   };
 
   private rawData: any[];
@@ -60,9 +64,9 @@ export class ComplianceTimelineComponent implements OnInit {
         year: 'numeric',
       });
       this.monthDays.push(dayLabel);
-
-      this.rawData.push([index, 0, entry.status === ComplianceStatusExtendedEnum.COMPLIANT ? 1 : 0]);
+      this.rawData.push([index, 0, entry.status === ComplianceStatusExtendedEnum.NOT_EVALUATED ? 1 : 0]);
       this.rawData.push([index, 1, entry.status === ComplianceStatusExtendedEnum.NON_COMPLIANT ? 1 : 0]);
+      this.rawData.push([index, 2, entry.status === ComplianceStatusExtendedEnum.COMPLIANT ? 1 : 0]);
     });
   }
 
@@ -106,10 +110,10 @@ export class ComplianceTimelineComponent implements OnInit {
       },
       grid: {
         height: '50%',
-        top: '15%',
+        top: '10%',
         left: '10%',
         right: '3%',
-        bottom: '5%',
+        bottom: '0',
         width: this.evaluations.length * 30,
         containLabel: false
       },
@@ -127,7 +131,8 @@ export class ComplianceTimelineComponent implements OnInit {
         ),
         axisLine: { show: false },
         axisTick: { show: false },
-        axisLabel: { fontSize: 10 }
+        axisLabel: { fontSize: 10,
+          formatter: (value: string) => getComplianceStatusLabel(value)}
       },
       series: [
         {
