@@ -1,5 +1,5 @@
 export class FileAccessMaskCodeType {
   access: string;
-  hex?: number;
+  hex?: string;
   description?: string;
 }

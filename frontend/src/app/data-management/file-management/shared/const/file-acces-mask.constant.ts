@@ -4,7 +4,7 @@ import {FileAccessMaskCodeType} from '../types/file-access-mask-code.type';
 export const ACCESS_MASK_CODES: FileAccessMaskCodeType[] = [
   {
     access: 'ReadData (or ListDirectory)',
-    hex: parseInt(AccessMaskEnum.READ_DATA,16),
+    hex: `${AccessMaskEnum.READ_DATA}`,
     description: 'ReadData - For a file object, the right to read ' +
       'the corresponding file data. For a directory object, the right to read the' +
       ' corresponding directory data.\n' +
@@ -12,14 +12,14 @@ export const ACCESS_MASK_CODES: FileAccessMaskCodeType[] = [
   },
   {
     access: 'WriteData (or AddFile)',
-    hex:parseInt( AccessMaskEnum.WRITE_DATA,16),
+    hex:`${ AccessMaskEnum.WRITE_DATA}`,
     description: 'WriteData - For a file object, the right to write data to the file. ' +
       'For a directory object, the right to create a file in the directory (FILE_ADD_FILE).\n' +
       'AddFile - For a directory, the right to create a file in the directory..'
   },
   {
     access: 'AppendData (or AddSubdirectory or CreatePipeInstance)',
-    hex:parseInt( AccessMaskEnum.APPEND_DATA,16),
+    hex:`${ AccessMaskEnum.APPEND_DATA}`,
     description: 'AppendData - For a file object, the right to append data to the file.' +
       ' (For local files, write operations will not overwrite existing data if this flag ' +
       'is specified without FILE_WRITE_DATA.) For a directory object, the right to create a ' +
@@ -29,17 +29,17 @@ export const ACCESS_MASK_CODES: FileAccessMaskCodeType[] = [
   },
   {
     access: 'ReadEA(For registry objects, this is Enumerate sub-keys.)',
-    hex:parseInt( AccessMaskEnum.READ_EA,16),
+    hex:`${ AccessMaskEnum.READ_EA}`,
     description: 'The right to read extended file attributes.'
   },
   {
     access: 'WriteEA',
-    hex:parseInt( AccessMaskEnum.WRITE_EA,16),
+    hex:`${ AccessMaskEnum.WRITE_EA}`,
     description: 'The right to write extended file attributes.'
   },
   {
     access: 'Execute/Traverse',
-    hex:parseInt( AccessMaskEnum.EXECUTE_TRAVERSE,16),
+    hex:`${ AccessMaskEnum.EXECUTE_TRAVERSE}`,
     description: 'Execute - For a native code file, the right to execute' +
       ' the file. This access right given to scripts may cause the ' +
       'script to be executable, depending on the script interpreter.\n' +
@@ -50,52 +50,52 @@ export const ACCESS_MASK_CODES: FileAccessMaskCodeType[] = [
   },
   {
     access: 'Delete child',
-    hex:parseInt( AccessMaskEnum.DELETE_CHILD,16),
+    hex:`${ AccessMaskEnum.DELETE_CHILD}`,
     description: 'For a directory, the right to delete a directory and all the ' +
       'files it contains, including read-only files.'
   },
   {
     access: 'Read attributes',
-    hex:parseInt( AccessMaskEnum.READ_ATTRIBUTES,16),
+    hex:`${ AccessMaskEnum.READ_ATTRIBUTES}`,
     description: 'The right to read file attributes.'
   },
   {
     access: 'Write attributes',
-    hex:parseInt( AccessMaskEnum.WRITE_ATTRIBUTES,16),
+    hex:`${ AccessMaskEnum.WRITE_ATTRIBUTES}`,
     description: 'The right to write file attributes.'
   },
   {
     access: 'Delete',
-    hex:parseInt( AccessMaskEnum.DELETE,16),
+    hex:`${ AccessMaskEnum.DELETE}`,
     description: 'The right to delete the object.'
   },
   {
     access: 'Read control',
-    hex:parseInt( AccessMaskEnum.READ_CONTROL,16),
+    hex:`${ AccessMaskEnum.READ_CONTROL}`,
     description: 'The right to read the information in the object\'s security' +
       ' descriptor, not including the information' +
       ' in the system access control list (SACL).'
   },
   {
     access: 'Write DAC',
-    hex:parseInt( AccessMaskEnum.WRITE_AC,16),
+    hex:`${ AccessMaskEnum.WRITE_AC}`,
     description: 'The right to modify the discretionary access control list' +
       ' (DACL) in the object\'s security descriptor.'
   },
   {
     access: 'Write OWNER',
-    hex:parseInt( AccessMaskEnum.WRITE_OWNER,16),
+    hex:`${ AccessMaskEnum.WRITE_OWNER}`,
     description: 'The right to change the owner in the object\'s security descriptor'
   },
   {
     access: 'Synchronize',
-    hex:parseInt( AccessMaskEnum.SYNCHRONIZE,16),
+    hex:`${ AccessMaskEnum.SYNCHRONIZE}`,
     description: 'The right to use the object for synchronization. This enables a thread to ' +
       'wait until the object is in the signaled state. Some object type do not support this access right.'
   },
   {
     access: 'Access SYS_SEC',
-    hex:parseInt( AccessMaskEnum.ACCESS_SYS_SEC,16),
+    hex:`${ AccessMaskEnum.ACCESS_SYS_SEC}`,
     description: 'The ACCESS_SYS_SEC access right controls the ability to get or set the SACL' +
       ' in an object\'s security descriptor.'
   }
