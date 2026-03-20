@@ -47,11 +47,6 @@ pipeline:
 
       - rename:
           from:
-            - log.data.SubjectUserSid
-          to: log.eventDataSubjectUserSid
-
-      - rename:
-          from:
             - log.data.PrivilegeList
           to: log.eventDataPrivilegeList
 
@@ -334,6 +329,51 @@ pipeline:
             - log.execution.ProcessID
           to: log.executionProcessID
 
+      - rename:
+          from:
+            - log.data.ObjectType
+          to: log.eventDataObjectType
+
+      - rename:
+          from:
+            - log.data.AccessList
+          to: log.eventDataAccessList
+
+      - rename:
+          from:
+            - log.data.HandleId
+          to: log.eventDataHandleId
+
+      - rename:
+          from:
+            - log.data.ObjectName
+          to: log.eventDataObjectName
+
+      - rename:
+          from:
+            - log.data.ResourceAttributes
+          to: log.eventDataResourceAttributes
+
+      - rename:
+          from:
+            - log.data.OldSd
+          to: log.eventDataOldSd
+
+      - rename:
+          from:
+            - log.data.NewSd
+          to: log.eventDataNewSd
+
+      - rename:
+          from:
+            - log.data.ObjectServer
+          to: log.eventDataObjectServer
+
+      - rename:
+          from:
+            - log.data.TransactionId
+          to: log.eventDataTransactionId
+
       - cast:
           to: "int"
           fields:
@@ -348,6 +388,7 @@ pipeline:
             - log.logonGuid
             - log.eventDataSchema
             - log.processThread
+            - log.eventDataTransactionId
 
       - trim:
           function: suffix
@@ -358,6 +399,7 @@ pipeline:
             - log.logonGuid
             - log.eventDataSchema
             - log.processThread
+            - log.eventDataTransactionId
 
       # Drop unnecessary events
       - drop:
