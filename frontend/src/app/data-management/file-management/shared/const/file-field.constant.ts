@@ -95,12 +95,6 @@ export const FILE_FIELDS: UtmFieldType[] = [
     visible: false,
   },
   {
-    label: 'Subject domain name',
-    field: FileFieldEnum.FILE_SUBJECT_DOMAIN_NAME_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: false,
-  },
-  {
     label: 'Subject logon ID',
     field: FileFieldEnum.FILE_SUBJECT_LOGON_ID_FIELD,
     type: ElasticDataTypesEnum.STRING,
@@ -109,12 +103,6 @@ export const FILE_FIELDS: UtmFieldType[] = [
   {
     label: 'Subject user ID',
     field: FileFieldEnum.FILE_SUBJECT_USER_ID_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: false,
-  },
-  {
-    label: 'Host architecture',
-    field: FileFieldEnum.FILE_HOST_ARCHITECTURE_FIELD,
     type: ElasticDataTypesEnum.STRING,
     visible: false,
   },
@@ -133,30 +121,6 @@ export const FILE_FIELDS: UtmFieldType[] = [
   {
     label: 'Host OS',
     field: FileFieldEnum.FILE_HOST_OS_NAME_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: false,
-  },
-  {
-    label: 'OS Build',
-    field: FileFieldEnum.FILE_HOTS_OS_BUILD_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: false,
-  },
-  {
-    label: 'OS Family',
-    field: FileFieldEnum.FILE_HOST_OS_FAMILY_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: false,
-  },
-  {
-    label: 'OS Platform',
-    field: FileFieldEnum.FILE_HOST_OS_PLATFORM_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: false,
-  },
-  {
-    label: 'OS Version',
-    field: FileFieldEnum.FILE_HOST_OS_VERSION_FIELD,
     type: ElasticDataTypesEnum.STRING,
     visible: false,
   },
@@ -833,4 +797,4 @@ export const DELETED_FILE_EVENT_ID_NUMBER = [4663];
 export const CREATED_FILE_EVENT_ID_NUMBER = 4663;
 export const FILE_OBJECT_TYPE_VALUE = ['File', 'Folder'];
 
-// NETWORK SHARE FIELDS
+

@@ -16,7 +16,7 @@ export enum FileFieldEnum {
   FILE_EVENT_ID_FIELD = 'log.eventCode',
   FILE_EVENT_NAME_FIELD = 'log.eventName',
   FILE_HOST_ARCHITECTURE_FIELD = 'log.cpuArchitecture',
-  FILE_HOST_ID_FIELD = 'log.id',
+  FILE_HOST_ID_FIELD = 'id',
   FILE_HOST_NAME_FIELD = 'origin.host',
   FILE_HOST_OS_NAME_FIELD = 'log.computer',
   FILE_MESSAGE_FIELD = 'log.eventName',
