@@ -80,12 +80,12 @@ export class UtmModuleCollectorService {
   }
 
   updateGroup(asset: { assetGroupId: number, assetsIds: number[] }): Observable<HttpResponse<any>> {
-    return this.http.put<any>(this.resourceUrl + '/assets-group', asset, {observe: 'response'});
+    return this.http.put<any>(this.resourceUrl + '/asset-group', asset, {observe: 'response'});
   }
 
   queryGroups(req?: any): Observable<HttpResponse<AssetGroupType[]>> {
     const options = createRequestOption(req);
-    return this.http.get<AssetGroupType[]>(this.resourceUrl + '/assets-group', {params: options, observe: 'response'});
+    return this.http.get<AssetGroupType[]>(this.resourceUrl + '/asset-groups', {params: options, observe: 'response'});
   }
 
   generateUniqueName(collectorName: string, groups: UtmModuleGroupType[]): string {
