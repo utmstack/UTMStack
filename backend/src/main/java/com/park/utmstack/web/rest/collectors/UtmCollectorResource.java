@@ -76,7 +76,7 @@ public class UtmCollectorResource {
 
     }
 
-    @PutMapping("/asset-groups")
+    @PutMapping("/asset-group")
     public ResponseEntity<Void> updateGroup(@Valid @RequestBody UpdateGroupDTO body) {
 
         utmCollectorService.updateGroup(body.getAssetsIds(), body.getAssetGroupId());
