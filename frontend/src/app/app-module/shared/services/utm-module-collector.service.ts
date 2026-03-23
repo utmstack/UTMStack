@@ -39,7 +39,7 @@ export class UtmModuleCollectorService {
   }
 
   groups(collectorId: string): Observable<HttpResponse<UtmModuleGroupType[]>> {
-    return this.http.get<UtmModuleGroupType[]>(`${this.resourceUrl}/${collectorId}/groups`, {observe: 'response'});
+    return this.http.get<UtmModuleGroupType[]>(`${this.resourceUrl}/${collectorId}/module-groups`, {observe: 'response'});
   }
 
   getCollectorGroupConfig(groups: UtmModuleGroupType[], collectors: UtmModuleCollectorType[]) {
