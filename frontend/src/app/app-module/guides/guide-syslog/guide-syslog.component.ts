@@ -98,9 +98,10 @@ export class GuideSyslogComponent implements OnInit {
     switch (this.moduleEnum) {
       case UtmModulesEnum.FIRE_POWER:
       case UtmModulesEnum.CISCO:
-      case UtmModulesEnum.CISCO_SWITCH:
       case UtmModulesEnum.MERAKI:
         return 'cisco';
+      case UtmModulesEnum.CISCO_SWITCH:
+        return 'cisco-switch';
 
       default: return this.dataType;
     }
