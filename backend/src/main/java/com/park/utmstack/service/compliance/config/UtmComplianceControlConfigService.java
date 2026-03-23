@@ -11,6 +11,7 @@ import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -118,22 +119,25 @@ public class UtmComplianceControlConfigService {
         }
     }
 
-    public Page<UtmComplianceControlConfig> findBySection(Long sectionId, Pageable pageable) {
+    public Page<UtmComplianceControlConfig> findBySection(Long sectionId, String search, Pageable pageable) {
 
-        Page<Long> pageIds = repository.findIdsBySectionId(sectionId, pageable);
+        Specification<UtmComplianceControlConfig> spec = Specification.where(UtmComplianceControlConfigRepository.bySection(sectionId));
 
-        if (pageIds.isEmpty()) {
+        if (search != null && !search.isBlank()) {
+            spec = spec.and(UtmComplianceControlConfigRepository.nameContains(search));
+        }
+
+        Page<UtmComplianceControlConfig> page = repository.findAll(spec, pageable);
+
+        List<Long> ids = page.map(UtmComplianceControlConfig::getId).getContent();
+
+        if (ids.isEmpty()) {
             return Page.empty(pageable);
         }
 
-        List<UtmComplianceControlConfig> content =
-                repository.findWithQueriesByIdIn(pageIds.getContent());
+        List<UtmComplianceControlConfig> content = repository.findWithQueriesByIdIn(ids);
 
-        return new PageImpl<>(
-                content,
-                pageable,
-                pageIds.getTotalElements()
-        );
+        return new PageImpl<>(content, pageable, page.getTotalElements());
     }
 
 }

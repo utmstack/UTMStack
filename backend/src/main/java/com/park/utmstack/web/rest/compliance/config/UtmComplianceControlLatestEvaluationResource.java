@@ -23,9 +23,10 @@ public class UtmComplianceControlLatestEvaluationResource {
     @GetMapping("/get-by-section")
     public ResponseEntity<List<UtmComplianceControlLatestEvaluationDto>> getControlsLatestEvaluationBySection(
             @RequestParam Long sectionId,
+            @RequestParam(required = false) String search,
             Pageable pageable) {
 
-        var controls = latestEvaluationService.getControlsWithLastEvaluation(sectionId, pageable);
+        var controls = latestEvaluationService.getControlsWithLastEvaluation(sectionId, search, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(controls, "/control-config/get-by-section");
         return ResponseEntity.ok().headers(headers).body(controls.getContent());
     }

@@ -26,9 +26,9 @@ public class UtmComplianceControlEvaluationLatestService {
     }
 
     public Page<UtmComplianceControlLatestEvaluationDto> getControlsWithLastEvaluation(
-            Long sectionId, Pageable pageable) {
+            Long sectionId, String search, Pageable pageable) {
 
-        Page<UtmComplianceControlConfig> controls = configService.findBySection(sectionId, pageable);
+        Page<UtmComplianceControlConfig> controls = configService.findBySection(sectionId, search, pageable);
 
         return controls.map(control -> {
             UtmComplianceControlConfigDto controlDto = controlMapper.toDto(control);
