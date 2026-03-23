@@ -7,7 +7,6 @@ import {createRequestOption} from '../../../shared/util/request-util';
 import {ComplianceControlEvaluationHistoryResponse} from '../type/compliance-control-evaluation-history-response.type';
 import {ComplianceControlLatestEvaluationType} from '../type/compliance-control-latest-evaluation.type';
 import {ComplianceControlType} from '../type/compliance-control.type';
-import {ComplianceReportType} from '../type/compliance-report.type';
 
 export interface ControlParams  { // TODO: ELENA para que
   template: ComplianceControlType;
@@ -19,7 +18,7 @@ export interface ControlParams  { // TODO: ELENA para que
   providedIn: 'root'
 })
 export class CpControlConfigService extends RefreshDataService<{ sectionId: number,
-                  loading: boolean, reportSelected: number, page?: number }, HttpResponse<ComplianceReportType[]>> {
+                  loading: boolean, reportSelected: number, page?: number }, HttpResponse<ComplianceControlType[]>> {
 
   private resourceUrl = SERVER_API_URL + 'api/compliance/control-config';
   private loadControlSubject = new BehaviorSubject<ControlParams>(null);

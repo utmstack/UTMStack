@@ -66,14 +66,6 @@ export class ComplianceLatestEvaluationsViewComponent implements OnInit, OnChang
     this.controls$ = this.controlsService.onRefresh$
       .pipe(
         takeUntil(this.destroy$),
-        distinctUntilChanged((prev, curr) =>
-          prev &&
-          curr &&
-          prev.loading === curr.loading &&
-          prev.page === curr.page &&
-          prev.reportSelected === curr.reportSelected &&
-          prev.sectionId === curr.sectionId
-        ),
         filter(reportRefresh =>
           !!reportRefresh && reportRefresh.loading
         ),
