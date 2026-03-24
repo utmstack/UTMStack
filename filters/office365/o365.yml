@@ -60,7 +60,7 @@ pipeline:
       - rename:  
           from:
             - log.ClientIP
-          to: log.clientIP
+          to: origin.ip
 
       - rename:  
           from:
