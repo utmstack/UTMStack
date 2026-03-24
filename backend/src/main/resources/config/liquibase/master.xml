@@ -529,6 +529,10 @@
 
   <include file="/config/liquibase/changelog/20260319002_update_windosw_filter.xml" relativeToChangelogFile="false"/>
 
+  <include file="/config/liquibase/changelog/20260324001_remove_rundll32_no_arguments.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260324002_remove_rundll32_abuse.xml" relativeToChangelogFile="false"/>
+
 
 
 </databaseChangeLog>
