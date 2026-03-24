@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -86,6 +87,20 @@ func (c *AS400Collector) Stop() error {
 }
 
 func (c *AS400Collector) handleConfigurationChange(newConfig *AS400CollectorConfig) {
+	// No servers configured - stop JAR if running and remove config file
+	if len(newConfig.Servers) == 0 {
+		utils.Logger.Info("No servers configured, stopping collector...")
+		if err := c.stopCollectorProcess(); err != nil {
+			utils.Logger.ErrorF("Error stopping JAR: %v", err)
+		}
+		if utils.CheckIfPathExist(c.configFilePath) {
+			if err := os.Remove(c.configFilePath); err != nil {
+				utils.Logger.ErrorF("Error removing config file: %v", err)
+			}
+		}
+		return
+	}
+
 	if err := c.saveConfig(newConfig); err != nil {
 		utils.Logger.ErrorF("Error saving configuration: %v", err)
 		return
@@ -177,7 +192,15 @@ func (c *AS400Collector) processCollectorLogs(stdout io.ReadCloser) {
 func (c *AS400Collector) processCollectorErrors(stderr io.ReadCloser) {
 	scanner := bufio.NewScanner(stderr)
 	for scanner.Scan() {
-		utils.Logger.ErrorF("JAR error: %s", scanner.Text())
+		line := scanner.Text()
+		// Log4j2 writes INFO/DEBUG/WARN to stderr too, filter them
+		if strings.Contains(line, " INFO ") || strings.Contains(line, " DEBUG ") {
+			utils.Logger.Info("JAR: %s", line)
+		} else if strings.Contains(line, " WARN ") {
+			utils.Logger.Info("JAR warning: %s", line)
+		} else {
+			utils.Logger.ErrorF("JAR error: %s", line)
+		}
 	}
 
 	if err := scanner.Err(); err != nil {

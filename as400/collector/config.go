@@ -152,10 +152,7 @@ func (csm *ConfigStreamManager) protoToConfig(protoConfig *pb.CollectorConfig) (
 }
 
 func (csm *ConfigStreamManager) validateConfig(config *AS400CollectorConfig) error {
-	if len(config.Servers) == 0 {
-		return utils.Logger.ErrorF("no servers configured")
-	}
-
+	// Empty config is valid - means no servers to collect from
 	for i, s := range config.Servers {
 		if s.Tenant == "" || s.Hostname == "" || s.UserId == "" || s.Password == "" {
 			return utils.Logger.ErrorF("server %d (%s): missing required fields", i, s.Tenant)
