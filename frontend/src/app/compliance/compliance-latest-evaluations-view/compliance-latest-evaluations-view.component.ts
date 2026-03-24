@@ -10,7 +10,7 @@ import {
   Output
 } from '@angular/core';
 import {EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, distinctUntilChanged, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
 import {TimezoneFormatService} from '../../shared/services/utm-timezone.service';
@@ -40,10 +40,10 @@ export class ComplianceLatestEvaluationsViewComponent implements OnInit, OnChang
   totalItems = 0;
   sortEvent: SortEvent = {
     column: 'controlName',
-    direction: 'desc'
+    direction: 'asc'
   };
   destroy$: Subject<void> = new Subject();
-  sort = 'controlName,desc';
+  sort = 'controlName,asc';
   search: string;
   viewportHeight: number;
   dateFormat$: Observable<DatePipeDefaultOptions>;
