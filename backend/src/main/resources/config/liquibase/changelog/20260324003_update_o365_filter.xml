@@ -119,8 +119,7 @@ pipeline:
       - delete:
           fields:
             - log.AppAccessContext
-$$
-	WHERE id = 1528;
+$$ WHERE id = 1528;
             ]]>
         </sql>
     </changeSet>
