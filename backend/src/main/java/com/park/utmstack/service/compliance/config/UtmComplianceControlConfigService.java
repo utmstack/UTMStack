@@ -137,7 +137,14 @@ public class UtmComplianceControlConfigService {
 
         List<UtmComplianceControlConfig> content = repository.findWithQueriesByIdIn(ids);
 
-        return new PageImpl<>(content, pageable, page.getTotalElements());
+        if (content.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        Map<Long, UtmComplianceControlConfig> map = content.stream().collect(Collectors.toMap(UtmComplianceControlConfig::getId, c -> c));
+        List<UtmComplianceControlConfig> ordered = ids.stream().map(map::get).collect(Collectors.toList());
+
+        return new PageImpl<>(ordered, pageable, page.getTotalElements());
     }
 
 }
