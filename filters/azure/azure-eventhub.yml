@@ -1,4 +1,4 @@
-# Azure Envent-Hub filter, version 2.0.5
+# Azure Envent-Hub filter, version 2.0.6
 # 
 # Documentations
 # 1- https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log
@@ -675,6 +675,11 @@ pipeline:
 
       - rename:
           from:
+            - log.properties.httpStatusCode
+          to: statusCode
+
+      - rename:
+          from:
             - log.properties.httpVersion
           to: log.propertiesHttpVersion
 
@@ -790,6 +795,21 @@ pipeline:
 
       - rename:
           from:
+            - log.properties.result
+          to: actionResult
+
+      - rename:
+          from:
+            - log.Properties.Result
+          to: actionResult
+
+      - rename:
+          from:
+            - log.properties.resultType
+          to: actionResult
+
+      - rename:
+          from:
             - log.properties.userAgent
           to: log.propertiesUserAgent
 
@@ -891,19 +911,3 @@ pipeline:
             - origin.bytesSent
             - origin.bytesReceived
           to: float
-
-      # .......................................................................#
-      # Adding actionResult
-      # denied by default
-      # .......................................................................#
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'denied'
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: (greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 299)) || (greaterOrEqual("statusCode", 300) && lessOrEqual("statusCode", 399) && greaterThan("origin.bytesReceived", 0))
