@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260316007" author="Alex">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE public.utm_logstash_filter
+            SET filter_version='4.0.0',
+            logstash_filter=$$# IBM AS 400 filter version 4.0.0
+# Support for JT400 Java Collector with full field mapping
+
+pipeline:
+  - dataTypes:
+      - ibm-as400
+    steps:
+      # ========================================
+      # PHASE 1: EXTRACTION
+      # ========================================
+
+      # Drop non-AS400 logs (internal system logs, noise)
+      - drop:
+          where: 'startsWith("raw", "[") || contains("raw", "RunExecutor") || contains("raw", "ETL pool")'
+
+      # Parse JSON logs from Java collector
+      - json:
+          source: raw
+          where: 'startsWith("raw", "{")'
+
+      # Fallback: Parse non-JSON logs (raw syslog format)
+      - grok:
+          source: raw
+          patterns:
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+          where: '!startsWith("raw", "{")'
+
+      # ========================================
+      # PHASE 2: NORMALIZATION (Standard Schema)
+      # ========================================
+
+      # Map action/event classification
+      - rename:
+          from:
+            - log.eventType
+          to: action
+          where: exists("log.eventType")
+
+      # Map severity level
+      - rename:
+          from:
+            - log.severityLabel
+          to: severity
+          where: exists("log.severityLabel")
+
+      # Map origin side attributes
+      - rename:
+          from:
+            - log.hostname
+          to: origin.host
+          where: exists("log.hostname")
+
+      - rename:
+          from:
+            - log.jobUser
+          to: origin.user
+          where: exists("log.jobUser")
+
+      - rename:
+          from:
+            - log.jobName
+          to: origin.process
+          where: exists("log.jobName")
+
+      - rename:
+          from:
+            - log.sourceIp
+          to: origin.ip
+          where: exists("log.sourceIp")
+
+      - rename:
+          from:
+            - log.file
+          to: origin.file
+          where: exists("log.file")
+
+      # ========================================
+      # PHASE 3: ENRICHMENT
+      # ========================================
+
+      # Add geolocation for source IP
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")$$
+	WHERE id=1526;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

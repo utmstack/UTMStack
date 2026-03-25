@@ -58,7 +58,7 @@ func infiniteRetryIfXError(f func() error, exception string) error {
 				_ = catcher.Error("An error occurred (%s), will keep retrying indefinitely...", err, map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
 				xErrorWasLogged = true
 			}
-			time.Sleep(wait)
+			time.Sleep(reconnectDelay)
 			continue
 		}
 

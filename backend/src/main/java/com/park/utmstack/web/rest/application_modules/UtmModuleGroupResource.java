@@ -7,12 +7,16 @@ import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
 import com.park.utmstack.domain.application_modules.factory.ModuleFactory;
 import com.park.utmstack.domain.application_modules.types.ModuleConfigurationKey;
+import com.park.utmstack.event_processor.EventProcessorManagerService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.application_modules.UtmModuleGroupConfigurationService;
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
 import com.park.utmstack.service.application_modules.UtmModuleService;
+import com.park.utmstack.service.dto.application_modules.ModuleDTO;
+import com.park.utmstack.service.dto.application_modules.UtmModuleMapper;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.vm.ModuleGroupVM;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -32,6 +36,7 @@ import java.util.Optional;
  * REST controller for managing UtmConfigurationGroup.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api")
 public class UtmModuleGroupResource {
 
@@ -45,18 +50,8 @@ public class UtmModuleGroupResource {
     private final ModuleFactory moduleFactory;
     private final UtmModuleService moduleService;
     private final UtmModuleGroupConfigurationService moduleGroupConfigurationService;
-
-    public UtmModuleGroupResource(UtmModuleGroupService moduleGroupService,
-                                  ApplicationEventService eventService,
-                                  ModuleFactory moduleFactory,
-                                  UtmModuleService moduleService,
-                                  UtmModuleGroupConfigurationService moduleGroupConfigurationService) {
-        this.moduleGroupService = moduleGroupService;
-        this.eventService = eventService;
-        this.moduleFactory = moduleFactory;
-        this.moduleService = moduleService;
-        this.moduleGroupConfigurationService = moduleGroupConfigurationService;
-    }
+    private final UtmModuleMapper moduleMapper;
+    private final EventProcessorManagerService eventProcessorManagerService;
 
     @PostMapping("/utm-configuration-groups")
     @AuditEvent(
@@ -165,7 +160,7 @@ public class UtmModuleGroupResource {
     public ResponseEntity<Void> deleteSingleModuleGroup(@RequestParam Long groupId) {
         final String ctx = CLASSNAME + ".deleteSingleModuleGroup";
 
-        moduleGroupService.delete(groupId);
+        moduleGroupService.deleteAndFetch(groupId);
         return ResponseEntity.ok().build();
 
     }

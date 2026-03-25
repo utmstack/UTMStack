@@ -1,76 +1,16 @@
 package com.park.utmstack.service.collectors;
 
-import agent.CollectorOuterClass.CollectorGroupConfigurations;
-import agent.CollectorOuterClass.ListCollectorResponse;
-import agent.CollectorOuterClass.ConfigKnowledge;
-import agent.CollectorOuterClass.CollectorConfig;
-import agent.CollectorOuterClass.Collector;
-import agent.CollectorOuterClass.CollectorModule;
-import agent.CollectorOuterClass.CollectorConfigGroup;
-import agent.CollectorOuterClass.ConfigRequest;
-import agent.Common;
-import agent.Common.ListRequest;
-import agent.Common.AuthResponse;
-import agent.Common.DeleteRequest;
-import com.park.utmstack.config.Constants;
-import com.park.utmstack.domain.application_modules.UtmModule;
-import com.park.utmstack.domain.application_modules.UtmModuleGroup;
-import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
-import com.park.utmstack.domain.collector.UtmCollector;
-import com.park.utmstack.domain.network_scan.AssetGroupFilter;
-import com.park.utmstack.domain.network_scan.UtmAssetGroup;
-import com.park.utmstack.repository.UtmModuleGroupConfigurationRepository;
-import com.park.utmstack.repository.UtmModuleGroupRepository;
-import com.park.utmstack.repository.application_modules.UtmModuleRepository;
-import com.park.utmstack.repository.collector.UtmCollectorRepository;
-import com.park.utmstack.security.SecurityUtils;
-import com.park.utmstack.service.application_modules.UtmModuleGroupService;
-import com.park.utmstack.service.application_modules.UtmModuleService;
-import com.park.utmstack.service.dto.application_modules.ModuleActivationDTO;
-import com.park.utmstack.service.dto.collectors.CollectorHostnames;
-import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
-import com.park.utmstack.service.dto.collectors.dto.CollectorConfigKeysDTO;
-import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
-import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
-import com.park.utmstack.service.dto.network_scan.AssetGroupDTO;
-import com.park.utmstack.service.validators.collector.CollectorValidatorService;
-import com.park.utmstack.util.CipherUtil;
-import com.park.utmstack.web.rest.errors.BadRequestAlertException;
-import com.utmstack.grpc.connection.GrpcConnection;
-import com.utmstack.grpc.exception.CollectorConfigurationGrpcException;
-import com.utmstack.grpc.exception.CollectorServiceGrpcException;
-import com.utmstack.grpc.exception.GrpcConnectionException;
-import com.utmstack.grpc.service.CollectorService;
-import com.utmstack.grpc.service.PanelCollectorService;
 import io.grpc.*;
-import org.springframework.dao.InvalidDataAccessResourceUsageException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
-
-import javax.persistence.EntityManager;
-import java.math.BigInteger;
 import java.util.*;
-import java.util.stream.Collectors;
 
-@Service
 public class CollectorOpsService {
+    /*
     private final String CLASSNAME = "CollectorOpsService";
     private final Logger log = LoggerFactory.getLogger(CollectorOpsService.class);
-    private final GrpcConnection grpcConnection;
-    private final PanelCollectorService panelCollectorService;
-    private final CollectorService collectorService;
+    private final ManagedChannel channel;
+    private final PanelCollectorServiceClient panelCollectorService;
+    private final CollectorServiceClient collectorService;
     private final UtmModuleGroupService moduleGroupService;
     private final UtmModuleGroupConfigurationRepository utmModuleGroupConfigurationRepository;
 
@@ -90,7 +30,7 @@ public class CollectorOpsService {
 
     private final CollectorValidatorService collectorValidatorService;
 
-    public CollectorOpsService(GrpcConnection grpcConnection,
+    public CollectorOpsService(ManagedChannel channel,
                                UtmModuleGroupService moduleGroupService,
                                UtmModuleGroupConfigurationRepository utmModuleGroupConfigurationRepository,
                                UtmCollectorRepository utmCollectorRepository,
@@ -100,9 +40,10 @@ public class CollectorOpsService {
                                UtmModuleService utmModuleService,
                                UtmModuleRepository utmModuleRepository,
                                CollectorValidatorService collectorValidatorService) throws GrpcConnectionException {
-        this.grpcConnection = grpcConnection;
-        this.panelCollectorService = new PanelCollectorService(grpcConnection);
-        this.collectorService = new CollectorService(grpcConnection);
+
+        this.channel = channel;
+        this.panelCollectorService = new PanelCollectorServiceClient(channel);
+        this.collectorService = new CollectorServiceClient(channel);
         this.moduleGroupService = moduleGroupService;
         this.utmModuleGroupConfigurationRepository = utmModuleGroupConfigurationRepository;
         this.utmCollectorRepository = utmCollectorRepository;
@@ -114,12 +55,12 @@ public class CollectorOpsService {
         this.collectorValidatorService = collectorValidatorService;
     }
 
-    /**
+    *//**
      * Method to update a collector's configuration.
      *
      * @param config is the configuration of the collectors to update.
      * @throws CollectorConfigurationGrpcException if the action can't be performed.
-     */
+     *//*
     public ConfigKnowledge upsertCollectorConfig(CollectorConfig config) throws CollectorConfigurationGrpcException {
         final String ctx = CLASSNAME + ".upsertCollectorConfig";
 
@@ -130,44 +71,24 @@ public class CollectorOpsService {
         }
 
         try {
-            return panelCollectorService.insertCollectorConfig(config, internalKey);
+            return panelCollectorService.insertCollectorConfig(config);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             throw new CollectorConfigurationGrpcException(msg);
         }
     }
 
-    /**
-     * Method to get collectors list.
-     *
-     * @param request is the request with all the pagination and search params used to list collectors
-     *                according to those params.
-     * @throws CollectorServiceGrpcException if the action can't be performed or the request is malformed.
-     */
-    public ListCollectorsResponseDTO listCollector(ListRequest request) throws CollectorServiceGrpcException {
-        final String ctx = CLASSNAME + ".listCollector";
-
-        String internalKey = System.getenv(Constants.ENV_INTERNAL_KEY);
-
-        if (!StringUtils.hasText(internalKey)) {
-            throw new BadRequestAlertException(ctx + ": Internal key not configured.", ctx, CLASSNAME);
-        }
-
-        try {
-            return mapToListCollectorsResponseDTO(collectorService.listCollector(request, internalKey));
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            throw new CollectorServiceGrpcException(msg);
-        }
+    public ListCollectorsResponseDTO listCollector(ListRequest request) {
+        return mapToListCollectorsResponseDTO(collectorService.listCollectors(request));
     }
 
-    /**
+    *//**
      * Method to List all UtmCollector's hostnames.
      *
      * @param request is the request with all the pagination and search params used to list collectors.
      *                according to those params.
      * @throws CollectorServiceGrpcException if the action can't be performed or the request is malformed.
-     */
+     *//*
     public CollectorHostnames listCollectorHostnames(ListRequest request) throws CollectorServiceGrpcException {
         final String ctx = CLASSNAME + ".ListCollectorHostnames";
 
@@ -178,10 +99,10 @@ public class CollectorOpsService {
         }
 
         try {
-            ListCollectorResponse response = collectorService.listCollector(request, internalKey);
+            ListCollectorResponse response = collectorService.listCollectors(request);
             CollectorHostnames collectorHostnames = new CollectorHostnames();
 
-            response.getRowsList().forEach(c->{
+            response.getRowsList().forEach(c -> {
                 collectorHostnames.getHostname().add(c.getHostname());
             });
 
@@ -192,52 +113,24 @@ public class CollectorOpsService {
         }
     }
 
-    /**
+    *//**
      * Method to get collectors by hostname and module.
      *
      * @param request contains the filter information used to search.
-     * @throws CollectorServiceGrpcException if the action can't be performed or the request is malformed.
-     */
-    public ListCollectorsResponseDTO getCollectorsByHostnameAndModule(ListRequest request) throws CollectorServiceGrpcException {
-        final String ctx = CLASSNAME + ".GetCollectorsByHostnameAndModule";
-
-        String internalKey = System.getenv(Constants.ENV_INTERNAL_KEY);
-
-        if (!StringUtils.hasText(internalKey)) {
-            throw new BadRequestAlertException(ctx + ": Internal key not configured.", ctx, CLASSNAME);
-        }
-
-        try {
-            return mapToListCollectorsResponseDTO(collectorService.listCollector(request, internalKey));
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            throw new CollectorServiceGrpcException(msg);
-        }
+     *//*
+    public ListCollectorsResponseDTO getCollectorsByHostnameAndModule(ListRequest request) {
+        return mapToListCollectorsResponseDTO(collectorService.listCollectors(request));
     }
 
-    /**
-     * Method to get a collector config from agent manager via gRPC.
-     *
-     * @param request represents the CollectorModule to get the configurations from.
-     * @param auth is the authentication parameters used to filter in order to get the collector configuration.
-     * @throws CollectorServiceGrpcException if the action can't be performed or the request is malformed.
-     */
-    public CollectorConfig getCollectorConfig(ConfigRequest request, AuthResponse auth) throws CollectorServiceGrpcException {
-        final String ctx = CLASSNAME + ".getCollectorConfig";
-
-
-        try {
-            return collectorService.requestCollectorConfig(request, auth);
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            throw new CollectorServiceGrpcException(msg);
-        }
+    public CollectorConfig getCollectorConfig(CollectorDTO collectorDTO) {
+            return collectorService.getCollectorConfig(collectorDTO.getId(), collectorDTO.getCollectorKey(),
+                    CollectorModule.valueOf(collectorDTO.getModule().toString()));
     }
 
-    /**
+    *//**
      * Method to transform a ListCollectorResponse to ListCollectorsResponseDTO
-     */
-    private ListCollectorsResponseDTO mapToListCollectorsResponseDTO(ListCollectorResponse response) throws Exception {
+     *//*
+    private ListCollectorsResponseDTO mapToListCollectorsResponseDTO(ListCollectorResponse response) {
         final String ctx = CLASSNAME + ".mapToListCollectorsResponseDTO";
         try {
             ListCollectorsResponseDTO dto = new ListCollectorsResponseDTO();
@@ -253,13 +146,13 @@ public class CollectorOpsService {
 
             return dto;
         } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
+            throw new ApiException(String.format("%s: Error mapping ListCollectorResponse to ListCollectorsResponseDTO: %s", ctx, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    /**
+    *//**
      * Method to map from List<UtmModuleGroupConfiguration> to CollectorConfig
-     */
+     *//*
 
     public CollectorConfig mapToCollectorConfig(List<UtmModuleGroupConfiguration> keys, CollectorDTO collectorDTO) {
         final String ctx = CLASSNAME + ".mapToCollectorConfig";
@@ -293,16 +186,16 @@ public class CollectorOpsService {
         return collectorConfig;
     }
 
-    /**
+    *//**
      * Method to transform a UtmCollector to CollectorDTO
-     */
+     *//*
     private CollectorDTO protoToCollectorDto(Collector collector) {
         return new CollectorDTO(this.utmCollectorService.saveCollector(collector));
     }
 
-    /**
+    *//**
      * Method to map from UtmModuleGroupConfiguration to CollectorGroupConfigurations
-     */
+     *//*
     private CollectorGroupConfigurations mapToCollectorGroupConfigurations(UtmModuleGroupConfiguration moduleConfig) {
         return CollectorGroupConfigurations.newBuilder()
                 .setConfKey(moduleConfig.getConfKey())
@@ -313,58 +206,48 @@ public class CollectorOpsService {
                 .setConfRequired(moduleConfig.getConfRequired()).build();
     }
 
-    /**
+    *//**
      * Method to remove a collector, will be used to remove in the UtmNetworkScanService
      *
      * @param hostname the hostname of the collector to remove
      * @param module   the module of the collector to remove
-     */
+     *//*
     public void deleteCollector(String hostname, CollectorModuleEnum module) {
         final String ctx = CLASSNAME + ".deleteCollector";
-        try {
-            String currentUser = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new RuntimeException("No current user login"));
 
-            Optional<CollectorDTO> collectorToSearch = getCollectorsByHostnameAndModule(
-                    getListRequestByHostnameAndModule(hostname, module)).getCollectors()
-                    .stream().findFirst();
-            try {
-                if (collectorToSearch.isEmpty()) {
-                    log.error(String.format("%1$s: UtmCollector %2$s could not be deleted because no information was obtained from collector manager", ctx, hostname));
-                    return;
-                }
-            } catch (StatusRuntimeException e) {
-                if (e.getStatus().getCode() == Status.Code.NOT_FOUND) {
-                    log.error(String.format("%1$s: UtmCollector %2$s could not be deleted because was not found", ctx, hostname));
-                    return;
-                }
-            }
+        var request = getListRequestByHostnameAndModule(hostname, module);
+        List<CollectorDTO> collectors = getCollectorsByHostnameAndModule(request).getCollectors();
 
-            DeleteRequest collectorDelete = DeleteRequest.newBuilder().setDeletedBy(currentUser).build();
-            AuthResponse auth = Common.AuthResponse.newBuilder()
-                    .setId(collectorToSearch.get().getId())
-                    .setKey(collectorToSearch.get().getCollectorKey())
-                    .build();
-            collectorService.deleteCollector(collectorDelete, auth);
-
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getLocalizedMessage();
-            log.error(msg);
-            throw new RuntimeException(msg);
+        Optional<CollectorDTO> found = collectors.stream().findFirst();
+        if (found.isEmpty()) {
+            log.error("{}: Collector {} not found in Agent Manager", ctx, hostname);
+            return;
         }
+
+        CollectorDTO collector = found.get();
+
+        collectorService.deleteCollector(
+                collector.getId(),
+                collector.getCollectorKey()
+        );
+
+        log.info("{}: Collector {} deleted successfully", ctx, hostname);
+
     }
 
-    public List<UtmModuleGroupConfiguration> mapPasswordConfiguration( List<UtmModuleGroupConfiguration> configs) {
 
-       return configs.stream().peek(config -> {
+    public List<UtmModuleGroupConfiguration> mapPasswordConfiguration(List<UtmModuleGroupConfiguration> configs) {
+
+        return configs.stream().peek(config -> {
             if (config.getConfDataType().equals("password")) {
                 final UtmModuleGroupConfiguration utmModuleGroupConfiguration = utmModuleGroupConfigurationRepository.findById(config.getId())
                         .orElseThrow(() -> new RuntimeException(String.format("Configuration id %s not found", config.getId())));
 
-                if (config.getConfValue().equals(utmModuleGroupConfiguration.getConfValue())){
+                if (config.getConfValue().equals(utmModuleGroupConfiguration.getConfValue())) {
                     config.setConfValue(CipherUtil.decrypt(utmModuleGroupConfiguration.getConfValue(), ENCRYPTION_KEY));
                 }
             }
-       }).collect(Collectors.toList());
+        }).collect(Collectors.toList());
     }
 
     @Transactional
@@ -377,7 +260,8 @@ public class CollectorOpsService {
             throw new Exception(ctx + ": " + e.getMessage());
         }
     }
-    @Transactional
+
+    *//*@Transactional
     public Page<AssetGroupDTO> searchGroupsByFilter(AssetGroupFilter filter, Pageable pageable) throws Exception {
         final String ctx = CLASSNAME + ".searchGroupsByFilter";
         try {
@@ -399,7 +283,7 @@ public class CollectorOpsService {
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
         }
-    }
+    }*//*
 
     private String searchQueryBuilder(AssetGroupFilter filters) {
         StringBuilder sb = new StringBuilder();
@@ -463,7 +347,7 @@ public class CollectorOpsService {
                 sb.append("ORDER BY ");
                 boolean firstProperty = true;
 
-                List<Sort.Order> orders = sort.stream().collect(Collectors.toList());
+                List<Sort.Order> orders = sort.stream().toList();
 
                 for (Sort.Order order : orders) {
                     sb.append(String.format(firstProperty ? "%1$s %2$s" : ", %1$s %2$s", order.getProperty(), order.getDirection().name()));
@@ -492,20 +376,20 @@ public class CollectorOpsService {
             this.deleteCollector(collector.get().getHostname(), CollectorModuleEnum.valueOf(collector.get().getModule()));
 
             List<UtmModuleGroup> modules = this.utmModuleGroupRepository.findAllByCollector(id.toString());
-            if(!modules.isEmpty()){
+            if (!modules.isEmpty()) {
                 UtmModule module = utmModuleRepository.findById(modules.get(0).getModuleId()).get();
 
-                if(module.getModuleActive()){
+                if (module.getModuleActive()) {
                     modules = this.utmModuleGroupRepository.findAllByModuleId(module.getId())
-                            .stream().filter( m -> !m.getCollector().equals(id.toString()))
+                            .stream().filter(m -> !m.getCollector().equals(id.toString()))
                             .toList();
 
 
-                    if(modules.isEmpty()){
+                    if (modules.isEmpty()) {
                         this.utmModuleService.activateDeactivate(ModuleActivationDTO.builder()
-                                        .serverId(module.getServerId())
-                                        .moduleName(module.getModuleName())
-                                        .activationStatus(false)
+                                .serverId(module.getServerId())
+                                .moduleName(module.getModuleName())
+                                .activationStatus(false)
                                 .build());
                     }
                 }
@@ -517,7 +401,7 @@ public class CollectorOpsService {
     }
 
 
-    public String validateCollectorConfig(CollectorConfigKeysDTO collectorConfig) {
+    public String validateCollectorConfig(CollectorConfigDTO collectorConfig) {
         Errors errors = new BeanPropertyBindingResult(collectorConfig, "updateConfigurationKeysBody");
         collectorValidatorService.validate(collectorConfig, errors);
 
@@ -528,18 +412,11 @@ public class CollectorOpsService {
     }
 
     public CollectorConfig cacheCurrentCollectorConfig(CollectorDTO collectorDTO) throws CollectorServiceGrpcException {
-        return this.getCollectorConfig(
-                ConfigRequest.newBuilder()
-                        .setModule(CollectorModule.valueOf(collectorDTO.getModule().toString()))
-                        .build(),
-                AuthResponse.newBuilder()
-                        .setId(collectorDTO.getId())
-                        .setKey(collectorDTO.getCollectorKey())
-                        .build());
+        return this.getCollectorConfig(collectorDTO);
     }
 
     public void updateCollectorConfigViaGrpc(
-            CollectorConfigKeysDTO collectorConfig,
+            CollectorConfigDTO collectorConfig,
             CollectorDTO collectorDTO) throws CollectorConfigurationGrpcException {
 
         this.upsertCollectorConfig(
@@ -547,15 +424,15 @@ public class CollectorOpsService {
                         this.mapPasswordConfiguration(collectorConfig.getKeys()), collectorDTO));
     }
 
-    public void updateCollectorConfigurationKeys(CollectorConfigKeysDTO collectorConfig) throws Exception {
+    public void updateCollectorConfigurationKeys(CollectorConfigDTO collectorConfig) throws Exception {
         final String ctx = CLASSNAME + ".updateCollectorConfigurationKeys";
         try {
             List<UtmModuleGroup> configs = utmModuleGroupRepository
                     .findAllByModuleIdAndCollector(collectorConfig.getModuleId(),
-                        String.valueOf(collectorConfig.getCollector().getId()));
+                            String.valueOf(collectorConfig.getCollector().getId()));
             List<UtmModuleGroupConfiguration> keys = collectorConfig.getKeys();
 
-            if (CollectionUtils.isEmpty(collectorConfig.getKeys())){
+            if (CollectionUtils.isEmpty(collectorConfig.getKeys())) {
                 utmModuleGroupRepository.deleteAll(configs);
             } else {
                 for (UtmModuleGroupConfiguration key : keys) {
@@ -590,12 +467,11 @@ public class CollectorOpsService {
         } else if (module != null) {
             query = "module.Is=" + module.name();
         }
-        ListRequest request = ListRequest.newBuilder()
+        return ListRequest.newBuilder()
                 .setPageNumber(1)
                 .setPageSize(1000000)
                 .setSearchQuery(query)
                 .setSortBy("id,desc")
                 .build();
-        return request;
-    }
+    }*/
 }

@@ -38,7 +38,7 @@
     <include file="config/liquibase/changelog/20240117002_add_getting_started_step.xml" relativeToChangelogFile="false"/>
 
     <include file="config/liquibase/changelog/20240131001_add_default_agent_utm_alert_response_rule.xml" relativeToChangelogFile="false"/>
-  
+
     <include file="config/liquibase/changelog/20240205001_add_entity_IncidentResponseVariables.xml" relativeToChangelogFile="false"/>
 
     <include file="config/liquibase/changelog/20240305001_fixing_smtp_server_encryption_type.xml" relativeToChangelogFile="false"/>
@@ -140,15 +140,15 @@
     <include file="/config/liquibase/changelog/20250616001_insert_utm_regex_pattern.xml" relativeToChangelogFile="false"/>
 
     <include file="/config/liquibase/changelog/20250617001_update_filter_antivirus_esmc_eset.xml" relativeToChangelogFile="false"/>
-    
+
     <include file="/config/liquibase/changelog/20250617002_update_filter_apache.xml" relativeToChangelogFile="false"/>
-    
+
     <include file="/config/liquibase/changelog/20250617003_update_filter_auditd.xml" relativeToChangelogFile="false"/>
-    
+
     <include file="/config/liquibase/changelog/20250617004_update_filter_aws.xml" relativeToChangelogFile="false"/>
-    
+
     <include file="/config/liquibase/changelog/20250617005_update_filter_azure.xml" relativeToChangelogFile="false"/>
-    
+
     <include file="/config/liquibase/changelog/20250617006_update_filter_bitdefender.xml" relativeToChangelogFile="false"/>
 
     <include file="/config/liquibase/changelog/20250617007_update_filter_cisco_asa.xml" relativeToChangelogFile="false"/>
@@ -510,6 +510,33 @@
     <include file="/config/liquibase/changelog/20260303002_update_filter_fortigate.xml" relativeToChangelogFile="false"/>
 
     <include file="/config/liquibase/changelog/20260303003_update_filter_windows.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260316001_remove_windows_token_manipulation_rule.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260316002_modify_crowdstrike_rules.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260316003_update_filter_azure.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260316004_update_filter_crowdstrike.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260316005_update_filter_linux.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260316006_update_filter_o365.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260316007_update_as400.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260319001_remove_run_key_susp_process.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260319002_update_windosw_filter.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260324001_remove_rundll32_no_arguments.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260324002_remove_rundll32_abuse.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260324003_update_o365_filter.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260325001_update_azure.xml" relativeToChangelogFile="false"/>
+
 
 
 </databaseChangeLog>

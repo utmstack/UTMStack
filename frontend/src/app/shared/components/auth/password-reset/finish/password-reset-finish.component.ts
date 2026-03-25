@@ -3,6 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {ModalService} from '../../../../../core/modal/modal.service';
 import {PasswordResetFinishService} from './password-reset-finish.service';
+import {HttpResponse} from "@angular/common/http";
 
 
 @Component({
@@ -23,7 +24,6 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
 
   constructor(
     private passwordResetFinishService: PasswordResetFinishService,
-    private loginModalService: ModalService,
     private route: ActivatedRoute,
     private router: Router,
     private elementRef: ElementRef,
@@ -33,10 +33,14 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
-      this.key = params.key;
+      if (params && params.key) {
+        this.key = params.key;
+        this.keyMissing = false
+      } else {
+        this.keyMissing = true;
+      }
     });
     this.resetAccount = {};
-    this.keyMissing = !this.key;
   }
 
   ngAfterViewInit() {
@@ -58,9 +62,10 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
           this.success = 'OK';
           this.sending = false;
         },
-        () => {
+        (error: HttpResponse<any>) => {
+          this.error = error.headers.get('x-utmstack-error') ||
+            'An internal error has occurred, please try again.';
           this.success = null;
-          this.error = 'ERROR';
           this.sending = false;
         }
       );

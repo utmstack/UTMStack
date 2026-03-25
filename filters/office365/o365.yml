@@ -1,4 +1,4 @@
-# Microsoft 365 filter, version 1.0.3
+# Microsoft 365 filter, version 1.0.4
 
 # Based on Official documentation
 # See https://learn.microsoft.com/en-us/compliance/assurance/assurance-microsoft-365-audit-log-collection
@@ -60,7 +60,7 @@ pipeline:
       - rename:  
           from:
             - log.ClientIP
-          to: log.clientIP
+          to: origin.ip
 
       - rename:  
           from:
@@ -91,6 +91,14 @@ pipeline:
           from:
             - log.DestFolder.Path
           to: log.destFolderPath
+
+      # Adding geolocation to origin ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
 
       # Drop unnecessary events
       - drop:

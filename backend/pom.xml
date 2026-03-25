@@ -8,6 +8,7 @@
     <groupId>com.atlasinside</groupId>
     <artifactId>utmstack</artifactId>
     <version>${revision}</version>
+   <!-- <version>4.0.0</version> -->
     <packaging>war</packaging>
     <name>UTMStack-API</name>
 
@@ -300,7 +301,7 @@
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-okhttp</artifactId>
-            <version>${io.grpc.version}</version> <!-- Replace with the version you are using -->
+            <version>${io.grpc.version}</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
@@ -334,13 +335,6 @@
             <artifactId>protobuf-java</artifactId>
             <version>${protoc.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.utmstack.grpc.jclient</groupId>
-            <artifactId>collector-client-4j</artifactId>
-            <version>1.2.13</version>
-        </dependency>
-
         <!-- WebSocket dependency -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

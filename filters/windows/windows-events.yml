@@ -47,11 +47,6 @@ pipeline:
 
       - rename:
           from:
-            - log.data.SubjectUserSid
-          to: log.eventDataSubjectUserSid
-
-      - rename:
-          from:
             - log.data.PrivilegeList
           to: log.eventDataPrivilegeList
 
@@ -334,6 +329,51 @@ pipeline:
             - log.execution.ProcessID
           to: log.executionProcessID
 
+      - rename:
+          from:
+            - log.data.ObjectType
+          to: log.eventDataObjectType
+
+      - rename:
+          from:
+            - log.data.AccessList
+          to: log.eventDataAccessList
+
+      - rename:
+          from:
+            - log.data.HandleId
+          to: log.eventDataHandleId
+
+      - rename:
+          from:
+            - log.data.ObjectName
+          to: log.eventDataObjectName
+
+      - rename:
+          from:
+            - log.data.ResourceAttributes
+          to: log.eventDataResourceAttributes
+
+      - rename:
+          from:
+            - log.data.OldSd
+          to: log.eventDataOldSd
+
+      - rename:
+          from:
+            - log.data.NewSd
+          to: log.eventDataNewSd
+
+      - rename:
+          from:
+            - log.data.ObjectServer
+          to: log.eventDataObjectServer
+
+      - rename:
+          from:
+            - log.data.TransactionId
+          to: log.eventDataTransactionId
+
       - cast:
           to: "int"
           fields:
@@ -348,6 +388,7 @@ pipeline:
             - log.logonGuid
             - log.eventDataSchema
             - log.processThread
+            - log.eventDataTransactionId
 
       - trim:
           function: suffix
@@ -358,6 +399,7 @@ pipeline:
             - log.logonGuid
             - log.eventDataSchema
             - log.processThread
+            - log.eventDataTransactionId
 
       # Drop unnecessary events
       - drop:
@@ -2282,210 +2324,210 @@ pipeline:
           params:
             key: log.accessType
             value: 'read'
-          where: equals("log.eeventDataAccessMask", "0x1") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "1") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'For a file object, the right to read the corresponding file data. For a directory object, the right to read the corresponding directory data.\n For a directory, the right to list the contents of the directory.\n For registry objects, this is, Query key value.'
-          where: equals("log.eeventDataAccessMask", "0x1") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "1") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'write'
-          where: equals("log.eeventDataAccessMask", "0x2") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "2") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'For a file object, the right to write data to the file.\n For a directory object, the right to create a file in the directory.\n For registry objects, this is, Set key value.'
-          where: equals("log.eeventDataAccessMask", "0x2") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "2") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'append'
-          where: equals("log.eeventDataAccessMask", "0x4") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "4") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'For a file object, the right to append data to the file. (For local files, write operations will not overwrite existing data if this flag is specified without FILE_WRITE_DATA.)\n For a directory object, the right to create a subdirectory.\n For a named pipe, the right to create a pipe.'
-          where: equals("log.eeventDataAccessMask", "0x4") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "4") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'read_extended_attributes'
-          where: equals("log.eeventDataAccessMask", "0x8") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "8") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to read extended file attributes.\n For registry objects, this is, Enumerate sub-keys.'
-          where: equals("log.eeventDataAccessMask", "0x8") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "8") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'write_extended_attributes'
-          where: equals("log.eeventDataAccessMask", "0x10") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "16") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to write extended file attributes.'
-          where: equals("log.eeventDataAccessMask", "0x10") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "16") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'execute'
-          where: equals("log.eeventDataAccessMask", "0x20") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "32") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'For a native code file, the right to execute the file. This access right given to scripts may cause the script to be executable, depending on the script interpreter.\n For a directory, the right to traverse the directory. By default, users are assigned the BYPASS_TRAVERSE_CHECKING privilege, which ignores the FILE_TRAVERSE access right.'
-          where: equals("log.eeventDataAccessMask", "0x20") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "32") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'delete_child'
-          where: equals("log.eeventDataAccessMask", "0x40") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "64") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'For a directory, the right to delete a directory and all the files it contains, including read-only files.'
-          where: equals("log.eeventDataAccessMask", "0x40") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "64") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'read_attributes'
-          where: equals("log.eeventDataAccessMask", "0x80") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "128") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to read file attributes.'
-          where: equals("log.eeventDataAccessMask", "0x80") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "128") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'write_attributes'
-          where: equals("log.eeventDataAccessMask", "0x100") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "256") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to write file attributes.'
-          where: equals("log.eeventDataAccessMask", "0x100") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "256") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'delete'
-          where: equals("log.eeventDataAccessMask", "0x10000") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "65536") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to delete the object.'
-          where: equals("log.eeventDataAccessMask", "0x10000") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "65536") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'read_control'
-          where: equals("log.eeventDataAccessMask", "0x20000") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "131072") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to read information in the security descriptor object, without including the information in the system access control list (SACL).'
-          where: equals("log.eeventDataAccessMask", "0x20000") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "131072") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'write_dac'
-          where: equals("log.eeventDataAccessMask", "0x40000") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "262144") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to modify the discretionary access control list (DACL) in the security descriptor object.'
-          where: equals("log.eeventDataAccessMask", "0x40000") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "262144") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'write_owner'
-          where: equals("log.eeventDataAccessMask", "0x80000") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "524288") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to change the owner in the security descriptor object'
-          where: equals("log.eeventDataAccessMask", "0x80000") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "524288") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'synchronize'
-          where: equals("log.eeventDataAccessMask", "0x100000") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "1048576") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The right to use the object for synchronization. This enables a thread to wait until the object is in the signaled state. Some object types do not support this access right.'
-          where: equals("log.eeventDataAccessMask", "0x100000") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "1048576") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessType
             value: 'access_sys_sec'
-          where: equals("log.eeventDataAccessMask", "0x1000000") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "16777216") && equals("log.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
             key: log.accessDescription
             value: 'The ACCESS_SYS_SEC access right controls the ability to get or set the SACL in an security descriptor object.'
-          where: equals("log.eeventDataAccessMask", "0x1000000") && equals("log.eventCode", 4663)
+          where: equals("log.eventDataAccessMask", "16777216") && equals("log.eventCode", 4663)
 
       # Decoding the "eventStatus" field
       - add:

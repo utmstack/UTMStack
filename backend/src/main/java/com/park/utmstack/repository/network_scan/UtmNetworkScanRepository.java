@@ -43,18 +43,18 @@ public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, 
         "AND ((:ports) IS NULL OR ns.id IN (SELECT DISTINCT ins.id FROM UtmNetworkScan ins INNER JOIN UtmPorts p ON ins.id = p.scanId WHERE p.port IN :ports))")*/
 @Query("SELECT DISTINCT ns FROM UtmNetworkScan ns " +
         "WHERE (:assetIpMacName IS NULL OR (ns.assetIp LIKE :assetIpMacName OR lower(ns.assetMac) LIKE lower(:assetIpMacName) OR lower(ns.assetName) LIKE lower(:assetIpMacName))) " +
-        "AND (:assetOs IS NULL OR ns.assetOs IN :assetOs) " +
-        "AND (:assetType IS NULL OR ns.assetTypeId IN (SELECT types.id FROM UtmAssetTypes types WHERE types.typeName IN :assetType)) " +
-        "AND (:groups IS NULL OR ns.groupId IN (SELECT group.id FROM UtmAssetGroup group WHERE group.groupName IN :groups)) " +
-        "AND (:assetAlive IS NULL OR ns.assetAlive IN :assetAlive) " +
-        "AND (:assetStatus IS NULL OR ns.assetStatus IN :assetStatus) " +
+        "AND (:hasAssetOs = false OR ns.assetOs IN :assetOs) " +
+        "AND (:hasAssetType = false OR ns.assetTypeId IN (SELECT types.id FROM UtmAssetTypes types WHERE types.typeName IN :assetType)) " +
+        "AND (:hasGroups = false OR ns.groupId IN (SELECT group.id FROM UtmAssetGroup group WHERE group.groupName IN :groups)) " +
+        "AND (:hasAssetAlive = false OR ns.assetAlive IN :assetAlive) " +
+        "AND (:hasAssetStatus = false OR ns.assetStatus IN :assetStatus) " +
         "AND (:registeredMode IS NULL OR ns.registeredMode = :registeredMode) " +
-        "AND (:assetAlias IS NULL OR ns.assetAlias IN :assetAlias) " +
-        "AND (:serverName IS NULL OR ns.serverName IN :serverName) " +
-        "AND (:isAgent IS NULL OR ns.isAgent IN :isAgent) " +
-        "AND (:assetOsPlatform IS NULL OR ns.assetOsPlatform IN :assetOsPlatform) " +
+        "AND (:hasAssetAlias = false OR ns.assetAlias IN :assetAlias) " +
+        "AND (:hasServerName = false OR ns.serverName IN :serverName) " +
+        "AND (:hasIsAgent = false OR ns.isAgent IN :isAgent) " +
+        "AND (:hasAssetOsPlatform = false OR ns.assetOsPlatform IN :assetOsPlatform) " +
         "AND ((cast(:initDate as timestamp) is null) or (cast(:endDate as timestamp) is null) or (ns.discoveredAt BETWEEN :initDate AND :endDate)) " +
-        "AND (:dataTypes IS NULL OR EXISTS (\n" +
+        "AND (:hasDataTypes = false OR EXISTS (\n" +
         "       SELECT 1 FROM UtmDataInputStatus ip\n" +
         "       WHERE ip.source = ns.assetIp AND ip.dataType IN :dataTypes\n" +
         "     ) \n" +
@@ -62,24 +62,35 @@ public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, 
         "       SELECT 1 FROM UtmDataInputStatus src\n" +
         "       WHERE src.source = ns.assetName AND src.dataType IN :dataTypes\n" +
         "     ))" +
-        "AND (:ports IS NULL OR ns.id IN (" +
+        "AND (:hasPorts = false OR ns.id IN (" +
         "   SELECT p.scanId FROM UtmPorts p WHERE p.port IN :ports))")
     @QueryHints(@QueryHint(name = org.hibernate.jpa.QueryHints.HINT_PASS_DISTINCT_THROUGH, value = "false"))
     Page<UtmNetworkScan> searchByFilters(@Param("assetIpMacName") String assetIpMacName,
                                          @Param("assetOs") List<String> assetOs,
+                                         @Param("hasAssetOs") boolean hasAssetOs,
                                          @Param("assetAlias") List<String> assetAlias,
+                                         @Param("hasAssetAlias") boolean hasAssetAlias,
                                          @Param("assetType") List<String> assetType,
+                                         @Param("hasAssetType") boolean hasAssetType,
                                          @Param("assetAlive") List<Boolean> assetAlive,
+                                         @Param("hasAssetAlive") boolean hasAssetAlive,
                                          @Param("assetStatus") List<AssetStatus> assetStatus,
+                                         @Param("hasAssetStatus") boolean hasAssetStatus,
                                          @Param("serverName") List<String> serverName,
+                                         @Param("hasServerName") boolean hasServerName,
                                          @Param("ports") List<Integer> ports,
+                                         @Param("hasPorts") boolean hasPorts,
                                          @Param("initDate") Instant initDate,
                                          @Param("endDate") Instant endDate,
                                          @Param("groups") List<String> groups,
+                                         @Param("hasGroups") boolean hasGroups,
                                          @Param("registeredMode") AssetRegisteredMode registeredMode,
                                          @Param("isAgent") List<Boolean> isAgent,
+                                         @Param("hasIsAgent") boolean hasIsAgent,
                                          @Param("assetOsPlatform") List<String> assetOsPlatform,
+                                         @Param("hasAssetOsPlatform") boolean hasAssetOsPlatform,
                                          @Param("dataTypes") List<String> dataTypes,
+                                         @Param("hasDataTypes") boolean hasDataTypes,
                                          Pageable pageable);
 
     @Modifying

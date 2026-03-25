@@ -14,6 +14,7 @@ import com.park.utmstack.service.util.RandomUtil;
 import com.park.utmstack.util.exceptions.CurrentUserLoginNotFoundException;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.errors.InvalidPasswordException;
+import com.park.utmstack.web.rest.errors.ResetKeyExpiredException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -79,15 +80,35 @@ public class UserService {
         }
     }
 
-    public Optional<User> completePasswordReset(String newPassword, String key) {
-        log.debug("Reset user password for reset key {}", key);
-        return userRepository.findOneByResetKey(key).filter(
-            user -> user.getResetDate().isAfter(Instant.now().minusSeconds(86400))).map(user -> {
-            user.setPassword(passwordEncoder.encode(newPassword));
-            user.setResetKey(null);
-            user.setResetDate(null);
-            return user;
-        });
+    public void completePasswordReset(String newPassword, String key) {
+        final String ctx = CLASS_NAME + ".completePasswordReset";
+        log.debug("{}: Processing password reset with key: {}", ctx, key);
+
+        Optional<User> userOptional = userRepository.findOneByResetKey(key);
+
+        if (userOptional.isEmpty()) {
+            log.info("{}: No user found with reset key", ctx);
+            throw new CurrentUserLoginNotFoundException(
+                "The password reset link is invalid or no longer exists. Please request a new password reset."
+            );
+        }
+
+        User user = userOptional.get();
+        Instant resetDeadline = Instant.now().minusSeconds(86400);
+
+        if (!user.getResetDate().isAfter(resetDeadline)) {
+            log.error("{}: Reset key expired for user: {}", ctx, user.getLogin());
+            throw new ResetKeyExpiredException(
+                "The password reset link has expired. Password reset links are valid for 24 hours. Please request a new one."
+            );
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetKey(null);
+        user.setResetDate(null);
+        user.setActivated(true);
+
+        log.info("{}: Password reset completed successfully for user: {}", ctx, user.getLogin());
     }
 
     public Optional<User> requestPasswordReset(String mail) {
