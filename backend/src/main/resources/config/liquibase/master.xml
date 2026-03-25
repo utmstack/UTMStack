@@ -535,6 +535,8 @@
 
   <include file="/config/liquibase/changelog/20260324003_update_o365_filter.xml" relativeToChangelogFile="false"/>
 
+  <include file="/config/liquibase/changelog/20260325001_update_azure.xml" relativeToChangelogFile="false"/>
+
 
 
 </databaseChangeLog>
