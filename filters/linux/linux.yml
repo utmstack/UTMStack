@@ -468,12 +468,3 @@ pipeline:
           fields: [statusCode]
           to: int
           where: 'equals("log.type", "auditd") && exists("statusCode")'
-
-      # Set default severity for auditd events (info level)
-      # Auditd logs don't have syslog priority, so default to info
-      - add:
-          function: string
-          params:
-            key: severity
-            value: "info"
-          where: 'equals("log.type", "auditd") && !exists("severity")'
