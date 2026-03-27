@@ -47,6 +47,15 @@ var uninstallCmd = &cobra.Command{
 		if err = pb.DeleteAgent(cnf); err != nil {
 			utils.Logger.ErrorF("error deleting agent: %v", err)
 		}
+
+		// Uninstall dependencies (cleanup auditd rules, etc.)
+		fmt.Print("Cleaning up dependencies... ")
+		if err = dependency.UninstallAll(); err != nil {
+			fmt.Printf("Warning: %v\n", err)
+		} else {
+			fmt.Println("[OK]")
+		}
+
 		if err = collector.UninstallAll(); err != nil {
 			fmt.Printf("error uninstalling collectors: %v\n", err)
 			os.Exit(1)

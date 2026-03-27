@@ -247,7 +247,6 @@ var windowsCollector = &Windows{
 func GetCollectors() []Collector {
 	return []Collector{
 		windowsCollector,
-		// Filebeat{}, // TODO: remove after testing native collector
 	}
 }
 

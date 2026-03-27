@@ -37,16 +37,16 @@ func UpdaterFile(suffix string) string {
 
 // Dependency represents a dependency that the agent needs.
 type Dependency struct {
-	Name         string                       // Unique identifier
-	Version      string                       // Current version in this agent build
-	BinaryPath   string                       // Path to check if already exists
-	DownloadURL  func(server string) string   // URL template to download from
-	DownloadName string                       // Filename to save as (if different from BinaryPath basename)
-	Critical     bool                         // If true, failure blocks agent startup
-	PostDownload func() error                 // Run after download (e.g., unzip). Can be nil.
-	Configure    func() error                 // Run on first install (can be nil)
-	Update       func() error                 // Run on version change (can be nil, uses Configure)
-	Uninstall    func() error                 // Run when dependency is removed (can be nil)
+	Name         string                     // Unique identifier
+	Version      string                     // Current version in this agent build
+	BinaryPath   string                     // Path to check if already exists
+	DownloadURL  func(server string) string // URL template to download from
+	DownloadName string                     // Filename to save as (if different from BinaryPath basename)
+	Critical     bool                       // If true, failure blocks agent startup
+	PostDownload func() error               // Run after download (e.g., unzip). Can be nil.
+	Configure    func() error               // Run on first install (can be nil)
+	Update       func() error               // Run on version change (can be nil, uses Configure)
+	Uninstall    func() error               // Run when dependency is removed (can be nil)
 }
 
 // Exists checks if the dependency binary exists on disk.
@@ -145,19 +145,31 @@ func Reconcile(server string, skipCertValidation bool) error {
 		if inst == nil {
 			// Not tracked yet
 			if dep.Exists() {
-				// MIGRATION: Already installed by previous version, just track it
+				// MIGRATION: Already installed by previous version, configure and track it
 				utils.Logger.Info("Migrating existing dependency: %s (version %s)", dep.Name, dep.Version)
+				if dep.Configure != nil {
+					if err := dep.Configure(); err != nil {
+						errMsg := fmt.Errorf("failed to configure migrated dependency %s: %v", dep.Name, err)
+						utils.Logger.ErrorF("%v", errMsg)
+						if dep.Critical {
+							criticalErrors = append(criticalErrors, errMsg)
+						}
+						continue
+					}
+				}
 				installed.Add(dep.Name, dep.Version)
 			} else {
-				// FRESH INSTALL: Download and configure
+				// FRESH INSTALL: Download (if needed) and configure
 				utils.Logger.Info("Installing new dependency: %s (version %s)", dep.Name, dep.Version)
-				if err := downloadDependency(dep, server, skipCertValidation); err != nil {
-					errMsg := fmt.Errorf("failed to download dependency %s: %v", dep.Name, err)
-					utils.Logger.ErrorF("%v", errMsg)
-					if dep.Critical {
-						criticalErrors = append(criticalErrors, errMsg)
+				if dep.DownloadURL != nil {
+					if err := downloadDependency(dep, server, skipCertValidation); err != nil {
+						errMsg := fmt.Errorf("failed to download dependency %s: %v", dep.Name, err)
+						utils.Logger.ErrorF("%v", errMsg)
+						if dep.Critical {
+							criticalErrors = append(criticalErrors, errMsg)
+						}
+						continue
 					}
-					continue
 				}
 
 				if dep.Configure != nil {
@@ -174,15 +186,17 @@ func Reconcile(server string, skipCertValidation bool) error {
 				utils.Logger.Info("Dependency %s installed successfully", dep.Name)
 			}
 		} else if inst.Version != dep.Version {
-			// VERSION CHANGED: Download and update
+			// VERSION CHANGED: Download (if needed) and update
 			utils.Logger.Info("Updating dependency: %s (%s -> %s)", dep.Name, inst.Version, dep.Version)
-			if err := downloadDependency(dep, server, skipCertValidation); err != nil {
-				errMsg := fmt.Errorf("failed to download dependency update %s: %v", dep.Name, err)
-				utils.Logger.ErrorF("%v", errMsg)
-				if dep.Critical {
-					criticalErrors = append(criticalErrors, errMsg)
+			if dep.DownloadURL != nil {
+				if err := downloadDependency(dep, server, skipCertValidation); err != nil {
+					errMsg := fmt.Errorf("failed to download dependency update %s: %v", dep.Name, err)
+					utils.Logger.ErrorF("%v", errMsg)
+					if dep.Critical {
+						criticalErrors = append(criticalErrors, errMsg)
+					}
+					continue
 				}
-				continue
 			}
 
 			updateFn := dep.Update
@@ -234,6 +248,25 @@ func Reconcile(server string, skipCertValidation bool) error {
 	}
 
 	utils.Logger.Info("Dependency reconciliation completed")
+	return nil
+}
+
+// UninstallAll calls the Uninstall hook for all dependencies that have one.
+// This should be called during agent uninstall to clean up dependency artifacts.
+func UninstallAll() error {
+	utils.Logger.Info("Starting dependency uninstall...")
+
+	for _, dep := range GetDependencies() {
+		if dep.Uninstall != nil {
+			utils.Logger.Info("Uninstalling dependency: %s", dep.Name)
+			if err := dep.Uninstall(); err != nil {
+				utils.Logger.ErrorF("failed to uninstall %s: %v", dep.Name, err)
+				// Continue with other dependencies even if one fails
+			}
+		}
+	}
+
+	utils.Logger.Info("Dependency uninstall completed")
 	return nil
 }
 
