@@ -85,6 +85,23 @@ func (a *AuditdCollector) runAuditClient(ctx context.Context, host string, queue
 	clientCtx, cancel := context.WithCancel(ctx)
 	a.cancel = cancel
 
+	// Attempt to set kernel backlog limit to prevent event loss under high load.
+	// This requires CAP_AUDIT_CONTROL; log warning if it fails but continue.
+	if err := setKernelBacklogLimit(kernelBacklogLimit); err != nil {
+		utils.Logger.ErrorF("auditd: failed to set kernel backlog limit to %d: %v (continuing with default)", kernelBacklogLimit, err)
+	} else {
+		utils.Logger.Info("auditd: kernel backlog limit set to %d", kernelBacklogLimit)
+	}
+
+	// Set backlog wait time to 0 to prevent audited processes from blocking
+	// when the audit backlog queue is full. The kernel will drop events instead.
+	// This is the "kernel" backpressure mitigation strategy from Elastic Auditbeat.
+	if err := setBacklogWaitTime(0); err != nil {
+		utils.Logger.ErrorF("auditd: failed to set backlog wait time to 0: %v (continuing)", err)
+	} else {
+		utils.Logger.Info("auditd: backlog wait time set to 0 (non-blocking mode)")
+	}
+
 	// Create multicast audit client
 	client, err := newAuditClient()
 	if err != nil {

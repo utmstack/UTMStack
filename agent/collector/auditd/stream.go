@@ -24,7 +24,9 @@ func newEventStream(queue chan *plugins.Log, hostname string) *eventStream {
 	}
 }
 
-// ReassemblyComplete is called when a complete group of events has been received
+// ReassemblyComplete is called when a complete group of events has been received.
+// Uses non-blocking send to prevent backpressure from propagating to the kernel.
+// If the queue is full, events are dropped rather than blocking.
 func (s *eventStream) ReassemblyComplete(msgs []*auparse.AuditMessage) {
 	if len(msgs) == 0 {
 		return
@@ -36,10 +38,20 @@ func (s *eventStream) ReassemblyComplete(msgs []*auparse.AuditMessage) {
 		return
 	}
 
-	s.queue <- &plugins.Log{
+	log := &plugins.Log{
 		DataType:   string(config.DataTypeLinuxAgent),
 		DataSource: s.hostname,
 		Raw:        jsonOutput,
+	}
+
+	// Non-blocking send: drop events if queue is full to prevent backpressure
+	// This is the "user-space" backpressure mitigation strategy from Elastic Auditbeat
+	select {
+	case s.queue <- log:
+		// Event sent successfully
+	default:
+		// Queue is full - drop event to prevent backpressure to kernel
+		utils.Logger.ErrorF("auditd: queue full, dropping event (sequence=%d)", msgs[0].Sequence)
 	}
 }
 

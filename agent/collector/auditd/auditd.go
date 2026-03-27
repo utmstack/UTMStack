@@ -13,7 +13,8 @@ const (
 	auditdMaxRestartDelay = 5 * time.Minute
 
 	// reassemblerMaxInFlight is the maximum number of events held for reassembly
-	reassemblerMaxInFlight = 50
+	// Increased from 50 to 2048 to prevent buffer overflow under high event load
+	reassemblerMaxInFlight = 2048
 
 	// reassemblerTimeout is how long to wait for related messages before flushing
 	reassemblerTimeout = 2 * time.Second
