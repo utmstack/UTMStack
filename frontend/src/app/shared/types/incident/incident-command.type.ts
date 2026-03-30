@@ -3,4 +3,5 @@ export class IncidentCommandType {
   originType: string;
   originId: string;
   reason: string;
+  shell?:string
 }
