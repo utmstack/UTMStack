@@ -28,21 +28,30 @@ const auditRulesContent = `## UTMStack SIEM Audit Rules
 ## Additive rules - does not delete existing configuration
 
 # Monitor executed commands (critical for SIEM)
-# Filter: auid>=1000 (real users only), auid!=-1 (valid audit UID, excludes system processes)
--a always,exit -F arch=b64 -S execve -F auid>=1000 -F auid!=-1 -k utmstack_exec
--a always,exit -F arch=b32 -S execve -F auid>=1000 -F auid!=-1 -k utmstack_exec
+# Filter: auid>=1000 (real users only), auid!=4294967295 (valid audit UID, excludes system processes)
+-a always,exit -F arch=b64 -S execve -F auid>=1000 -F auid!=4294967295 -k utmstack_exec
+-a always,exit -F arch=b32 -S execve -F auid>=1000 -F auid!=4294967295 -k utmstack_exec
 
 # Privilege escalation
 -a always,exit -F arch=b64 -S setuid,setgid,setreuid,setregid,setresuid,setresgid -F auid>=1000 -k utmstack_priv
 -a always,exit -F arch=b32 -S setuid,setgid,setreuid,setregid,setresuid,setresgid -F auid>=1000 -k utmstack_priv
 
-# Sensitive file access
+# Sensitive file access (Identity)
 -w /etc/shadow -p wa -k utmstack_sensitive
 -w /etc/passwd -p wa -k utmstack_sensitive
+-w /etc/group -p wa -k utmstack_sensitive    
+-w /etc/gshadow -p wa -k utmstack_sensitive  
+
+# Sensitive file access (SSH & Sudo)
 -w /etc/sudoers -p wa -k utmstack_sensitive
 -w /etc/sudoers.d -p wa -k utmstack_sensitive
 -w /etc/ssh/sshd_config -p wa -k utmstack_sensitive
--w /root/.ssh -p wa -k utmstack_sensitive
+-w /root/.ssh -p rwa -k utmstack_sensitive   
+
+# Log Tampering 
+-w /var/log/wtmp -p wa -k utmstack_log_tampering
+-w /var/log/btmp -p wa -k utmstack_log_tampering
+-w /var/log/lastlog -p wa -k utmstack_log_tampering
 
 # Module loading
 -a always,exit -F arch=b64 -S init_module,finit_module,delete_module -k utmstack_modules
@@ -54,6 +63,7 @@ const auditRulesContent = `## UTMStack SIEM Audit Rules
 # Time changes
 -a always,exit -F arch=b64 -S adjtimex,settimeofday,clock_settime -k utmstack_time
 -a always,exit -F arch=b32 -S adjtimex,settimeofday,clock_settime -k utmstack_time
+-w /etc/localtime -p wa -k utmstack_time     
 
 # Audit configuration changes
 -w /etc/audit -p wa -k utmstack_audit_config
