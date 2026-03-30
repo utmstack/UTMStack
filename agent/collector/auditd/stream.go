@@ -10,6 +10,11 @@ import (
 	"github.com/utmstack/UTMStack/agent/utils"
 )
 
+const (
+	// eventsLostThreshold - only log when this many events are lost at once.
+	eventsLostThreshold = 50
+)
+
 // eventStream implements libaudit.Stream interface for reassembled events
 type eventStream struct {
 	queue    chan *plugins.Log
@@ -45,7 +50,6 @@ func (s *eventStream) ReassemblyComplete(msgs []*auparse.AuditMessage) {
 	}
 
 	// Non-blocking send: drop events if queue is full to prevent backpressure
-	// This is the "user-space" backpressure mitigation strategy from Elastic Auditbeat
 	select {
 	case s.queue <- log:
 		// Event sent successfully
@@ -55,12 +59,10 @@ func (s *eventStream) ReassemblyComplete(msgs []*auparse.AuditMessage) {
 	}
 }
 
-// EventsLost is called when events were lost due to buffer overflow or rate limiting
+// EventsLost is called when events were lost due to buffer overflow
 func (s *eventStream) EventsLost(count int) {
-	// Ignore invalid counts - large values indicate sequence number rollover/overflow
-	// not actual lost events. A reasonable max is 100K events lost in one batch.
-	if count <= 0 || count > 100000 {
+	if count < eventsLostThreshold {
 		return
 	}
-	utils.Logger.ErrorF("auditd: %d events lost due to buffer overflow or rate limiting", count)
+	utils.Logger.ErrorF("auditd: %d events lost due to buffer overflow", count)
 }

@@ -28,8 +28,9 @@ const auditRulesContent = `## UTMStack SIEM Audit Rules
 ## Additive rules - does not delete existing configuration
 
 # Monitor executed commands (critical for SIEM)
--a always,exit -F arch=b64 -S execve -k utmstack_exec
--a always,exit -F arch=b32 -S execve -k utmstack_exec
+# Filter: auid>=1000 (real users only), auid!=-1 (valid audit UID, excludes system processes)
+-a always,exit -F arch=b64 -S execve -F auid>=1000 -F auid!=-1 -k utmstack_exec
+-a always,exit -F arch=b32 -S execve -F auid>=1000 -F auid!=-1 -k utmstack_exec
 
 # Privilege escalation
 -a always,exit -F arch=b64 -S setuid,setgid,setreuid,setregid,setresuid,setresgid -F auid>=1000 -k utmstack_priv
