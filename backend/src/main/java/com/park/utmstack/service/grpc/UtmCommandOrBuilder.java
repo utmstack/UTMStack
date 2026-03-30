@@ -94,11 +94,19 @@ public interface UtmCommandOrBuilder extends
       getReasonBytes();
 
   /**
+   * <pre>
+   * Shell to execute command: "cmd", "powershell" (Windows), "sh", "bash" (Linux/macOS). Empty = default
+   * </pre>
+   *
    * <code>string shell = 8;</code>
    * @return The shell.
    */
   java.lang.String getShell();
   /**
+   * <pre>
+   * Shell to execute command: "cmd", "powershell" (Windows), "sh", "bash" (Linux/macOS). Empty = default
+   * </pre>
+   *
    * <code>string shell = 8;</code>
    * @return The bytes for shell.
    */

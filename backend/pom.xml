@@ -8,7 +8,7 @@
     <groupId>com.atlasinside</groupId>
     <artifactId>utmstack</artifactId>
     <version>${revision}</version>
-   <!-- <version>4.0.0</version> -->
+   <!-- <version>4</version> -->
     <packaging>war</packaging>
     <name>UTMStack-API</name>
 

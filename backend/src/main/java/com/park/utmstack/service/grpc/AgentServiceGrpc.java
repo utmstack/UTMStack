@@ -16,37 +16,6 @@ public final class AgentServiceGrpc {
 
   // Static method descriptors that strictly reflect the proto.
   private static volatile io.grpc.MethodDescriptor<com.park.utmstack.service.grpc.AgentRequest,
-      com.park.utmstack.service.grpc.AuthResponse> getUpdateAgentMethod;
-
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "UpdateAgent",
-      requestType = com.park.utmstack.service.grpc.AgentRequest.class,
-      responseType = com.park.utmstack.service.grpc.AuthResponse.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<com.park.utmstack.service.grpc.AgentRequest,
-      com.park.utmstack.service.grpc.AuthResponse> getUpdateAgentMethod() {
-    io.grpc.MethodDescriptor<com.park.utmstack.service.grpc.AgentRequest, com.park.utmstack.service.grpc.AuthResponse> getUpdateAgentMethod;
-    if ((getUpdateAgentMethod = AgentServiceGrpc.getUpdateAgentMethod) == null) {
-      synchronized (AgentServiceGrpc.class) {
-        if ((getUpdateAgentMethod = AgentServiceGrpc.getUpdateAgentMethod) == null) {
-          AgentServiceGrpc.getUpdateAgentMethod = getUpdateAgentMethod =
-              io.grpc.MethodDescriptor.<com.park.utmstack.service.grpc.AgentRequest, com.park.utmstack.service.grpc.AuthResponse>newBuilder()
-              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "UpdateAgent"))
-              .setSampledToLocalTracing(true)
-              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.park.utmstack.service.grpc.AgentRequest.getDefaultInstance()))
-              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.park.utmstack.service.grpc.AuthResponse.getDefaultInstance()))
-              .setSchemaDescriptor(new AgentServiceMethodDescriptorSupplier("UpdateAgent"))
-              .build();
-        }
-      }
-    }
-    return getUpdateAgentMethod;
-  }
-
-  private static volatile io.grpc.MethodDescriptor<com.park.utmstack.service.grpc.AgentRequest,
       com.park.utmstack.service.grpc.AuthResponse> getRegisterAgentMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
@@ -75,6 +44,37 @@ public final class AgentServiceGrpc {
       }
     }
     return getRegisterAgentMethod;
+  }
+
+  private static volatile io.grpc.MethodDescriptor<com.park.utmstack.service.grpc.AgentRequest,
+      com.park.utmstack.service.grpc.AuthResponse> getUpdateAgentMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "UpdateAgent",
+      requestType = com.park.utmstack.service.grpc.AgentRequest.class,
+      responseType = com.park.utmstack.service.grpc.AuthResponse.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  public static io.grpc.MethodDescriptor<com.park.utmstack.service.grpc.AgentRequest,
+      com.park.utmstack.service.grpc.AuthResponse> getUpdateAgentMethod() {
+    io.grpc.MethodDescriptor<com.park.utmstack.service.grpc.AgentRequest, com.park.utmstack.service.grpc.AuthResponse> getUpdateAgentMethod;
+    if ((getUpdateAgentMethod = AgentServiceGrpc.getUpdateAgentMethod) == null) {
+      synchronized (AgentServiceGrpc.class) {
+        if ((getUpdateAgentMethod = AgentServiceGrpc.getUpdateAgentMethod) == null) {
+          AgentServiceGrpc.getUpdateAgentMethod = getUpdateAgentMethod =
+              io.grpc.MethodDescriptor.<com.park.utmstack.service.grpc.AgentRequest, com.park.utmstack.service.grpc.AuthResponse>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "UpdateAgent"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  com.park.utmstack.service.grpc.AgentRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  com.park.utmstack.service.grpc.AuthResponse.getDefaultInstance()))
+              .setSchemaDescriptor(new AgentServiceMethodDescriptorSupplier("UpdateAgent"))
+              .build();
+        }
+      }
+    }
+    return getUpdateAgentMethod;
   }
 
   private static volatile io.grpc.MethodDescriptor<com.park.utmstack.service.grpc.DeleteRequest,
@@ -251,16 +251,16 @@ public final class AgentServiceGrpc {
 
     /**
      */
-    default void updateAgent(com.park.utmstack.service.grpc.AgentRequest request,
+    default void registerAgent(com.park.utmstack.service.grpc.AgentRequest request,
         io.grpc.stub.StreamObserver<com.park.utmstack.service.grpc.AuthResponse> responseObserver) {
-      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getUpdateAgentMethod(), responseObserver);
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getRegisterAgentMethod(), responseObserver);
     }
 
     /**
      */
-    default void registerAgent(com.park.utmstack.service.grpc.AgentRequest request,
+    default void updateAgent(com.park.utmstack.service.grpc.AgentRequest request,
         io.grpc.stub.StreamObserver<com.park.utmstack.service.grpc.AuthResponse> responseObserver) {
-      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getRegisterAgentMethod(), responseObserver);
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getUpdateAgentMethod(), responseObserver);
     }
 
     /**
@@ -321,18 +321,18 @@ public final class AgentServiceGrpc {
 
     /**
      */
-    public void updateAgent(com.park.utmstack.service.grpc.AgentRequest request,
-        io.grpc.stub.StreamObserver<com.park.utmstack.service.grpc.AuthResponse> responseObserver) {
-      io.grpc.stub.ClientCalls.asyncUnaryCall(
-          getChannel().newCall(getUpdateAgentMethod(), getCallOptions()), request, responseObserver);
-    }
-
-    /**
-     */
     public void registerAgent(com.park.utmstack.service.grpc.AgentRequest request,
         io.grpc.stub.StreamObserver<com.park.utmstack.service.grpc.AuthResponse> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
           getChannel().newCall(getRegisterAgentMethod(), getCallOptions()), request, responseObserver);
+    }
+
+    /**
+     */
+    public void updateAgent(com.park.utmstack.service.grpc.AgentRequest request,
+        io.grpc.stub.StreamObserver<com.park.utmstack.service.grpc.AuthResponse> responseObserver) {
+      io.grpc.stub.ClientCalls.asyncUnaryCall(
+          getChannel().newCall(getUpdateAgentMethod(), getCallOptions()), request, responseObserver);
     }
 
     /**
@@ -386,16 +386,16 @@ public final class AgentServiceGrpc {
 
     /**
      */
-    public com.park.utmstack.service.grpc.AuthResponse updateAgent(com.park.utmstack.service.grpc.AgentRequest request) {
+    public com.park.utmstack.service.grpc.AuthResponse registerAgent(com.park.utmstack.service.grpc.AgentRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
-          getChannel(), getUpdateAgentMethod(), getCallOptions(), request);
+          getChannel(), getRegisterAgentMethod(), getCallOptions(), request);
     }
 
     /**
      */
-    public com.park.utmstack.service.grpc.AuthResponse registerAgent(com.park.utmstack.service.grpc.AgentRequest request) {
+    public com.park.utmstack.service.grpc.AuthResponse updateAgent(com.park.utmstack.service.grpc.AgentRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
-          getChannel(), getRegisterAgentMethod(), getCallOptions(), request);
+          getChannel(), getUpdateAgentMethod(), getCallOptions(), request);
     }
 
     /**
@@ -438,18 +438,18 @@ public final class AgentServiceGrpc {
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<com.park.utmstack.service.grpc.AuthResponse> updateAgent(
-        com.park.utmstack.service.grpc.AgentRequest request) {
-      return io.grpc.stub.ClientCalls.futureUnaryCall(
-          getChannel().newCall(getUpdateAgentMethod(), getCallOptions()), request);
-    }
-
-    /**
-     */
     public com.google.common.util.concurrent.ListenableFuture<com.park.utmstack.service.grpc.AuthResponse> registerAgent(
         com.park.utmstack.service.grpc.AgentRequest request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
           getChannel().newCall(getRegisterAgentMethod(), getCallOptions()), request);
+    }
+
+    /**
+     */
+    public com.google.common.util.concurrent.ListenableFuture<com.park.utmstack.service.grpc.AuthResponse> updateAgent(
+        com.park.utmstack.service.grpc.AgentRequest request) {
+      return io.grpc.stub.ClientCalls.futureUnaryCall(
+          getChannel().newCall(getUpdateAgentMethod(), getCallOptions()), request);
     }
 
     /**
@@ -477,8 +477,8 @@ public final class AgentServiceGrpc {
     }
   }
 
-  private static final int METHODID_UPDATE_AGENT = 0;
-  private static final int METHODID_REGISTER_AGENT = 1;
+  private static final int METHODID_REGISTER_AGENT = 0;
+  private static final int METHODID_UPDATE_AGENT = 1;
   private static final int METHODID_DELETE_AGENT = 2;
   private static final int METHODID_LIST_AGENTS = 3;
   private static final int METHODID_LIST_AGENT_COMMANDS = 4;
@@ -501,12 +501,12 @@ public final class AgentServiceGrpc {
     @java.lang.SuppressWarnings("unchecked")
     public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
       switch (methodId) {
-        case METHODID_UPDATE_AGENT:
-          serviceImpl.updateAgent((com.park.utmstack.service.grpc.AgentRequest) request,
-              (io.grpc.stub.StreamObserver<com.park.utmstack.service.grpc.AuthResponse>) responseObserver);
-          break;
         case METHODID_REGISTER_AGENT:
           serviceImpl.registerAgent((com.park.utmstack.service.grpc.AgentRequest) request,
+              (io.grpc.stub.StreamObserver<com.park.utmstack.service.grpc.AuthResponse>) responseObserver);
+          break;
+        case METHODID_UPDATE_AGENT:
+          serviceImpl.updateAgent((com.park.utmstack.service.grpc.AgentRequest) request,
               (io.grpc.stub.StreamObserver<com.park.utmstack.service.grpc.AuthResponse>) responseObserver);
           break;
         case METHODID_DELETE_AGENT:
@@ -543,19 +543,19 @@ public final class AgentServiceGrpc {
   public static final io.grpc.ServerServiceDefinition bindService(AsyncService service) {
     return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
         .addMethod(
-          getUpdateAgentMethod(),
-          io.grpc.stub.ServerCalls.asyncUnaryCall(
-            new MethodHandlers<
-              com.park.utmstack.service.grpc.AgentRequest,
-              com.park.utmstack.service.grpc.AuthResponse>(
-                service, METHODID_UPDATE_AGENT)))
-        .addMethod(
           getRegisterAgentMethod(),
           io.grpc.stub.ServerCalls.asyncUnaryCall(
             new MethodHandlers<
               com.park.utmstack.service.grpc.AgentRequest,
               com.park.utmstack.service.grpc.AuthResponse>(
                 service, METHODID_REGISTER_AGENT)))
+        .addMethod(
+          getUpdateAgentMethod(),
+          io.grpc.stub.ServerCalls.asyncUnaryCall(
+            new MethodHandlers<
+              com.park.utmstack.service.grpc.AgentRequest,
+              com.park.utmstack.service.grpc.AuthResponse>(
+                service, METHODID_UPDATE_AGENT)))
         .addMethod(
           getDeleteAgentMethod(),
           io.grpc.stub.ServerCalls.asyncUnaryCall(
@@ -632,8 +632,8 @@ public final class AgentServiceGrpc {
         if (result == null) {
           serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
               .setSchemaDescriptor(new AgentServiceFileDescriptorSupplier())
-              .addMethod(getUpdateAgentMethod())
               .addMethod(getRegisterAgentMethod())
+              .addMethod(getUpdateAgentMethod())
               .addMethod(getDeleteAgentMethod())
               .addMethod(getListAgentsMethod())
               .addMethod(getAgentStreamMethod())

@@ -14,17 +14,17 @@ public  abstract class AgentService
 
   public interface Interface {
     /**
-     * <code>rpc UpdateAgent(.agent.AgentRequest) returns (.agent.AuthResponse);</code>
+     * <code>rpc RegisterAgent(.agent.AgentRequest) returns (.agent.AuthResponse);</code>
      */
-    public abstract void updateAgent(
+    public abstract void registerAgent(
         com.google.protobuf.RpcController controller,
         com.park.utmstack.service.grpc.AgentRequest request,
         com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.AuthResponse> done);
 
     /**
-     * <code>rpc RegisterAgent(.agent.AgentRequest) returns (.agent.AuthResponse);</code>
+     * <code>rpc UpdateAgent(.agent.AgentRequest) returns (.agent.AuthResponse);</code>
      */
-    public abstract void registerAgent(
+    public abstract void updateAgent(
         com.google.protobuf.RpcController controller,
         com.park.utmstack.service.grpc.AgentRequest request,
         com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.AuthResponse> done);
@@ -67,19 +67,19 @@ public  abstract class AgentService
       final Interface impl) {
     return new AgentService() {
       @java.lang.Override
-      public  void updateAgent(
-          com.google.protobuf.RpcController controller,
-          com.park.utmstack.service.grpc.AgentRequest request,
-          com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.AuthResponse> done) {
-        impl.updateAgent(controller, request, done);
-      }
-
-      @java.lang.Override
       public  void registerAgent(
           com.google.protobuf.RpcController controller,
           com.park.utmstack.service.grpc.AgentRequest request,
           com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.AuthResponse> done) {
         impl.registerAgent(controller, request, done);
+      }
+
+      @java.lang.Override
+      public  void updateAgent(
+          com.google.protobuf.RpcController controller,
+          com.park.utmstack.service.grpc.AgentRequest request,
+          com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.AuthResponse> done) {
+        impl.updateAgent(controller, request, done);
       }
 
       @java.lang.Override
@@ -137,9 +137,9 @@ public  abstract class AgentService
         }
         switch(method.getIndex()) {
           case 0:
-            return impl.updateAgent(controller, (com.park.utmstack.service.grpc.AgentRequest)request);
-          case 1:
             return impl.registerAgent(controller, (com.park.utmstack.service.grpc.AgentRequest)request);
+          case 1:
+            return impl.updateAgent(controller, (com.park.utmstack.service.grpc.AgentRequest)request);
           case 2:
             return impl.deleteAgent(controller, (com.park.utmstack.service.grpc.DeleteRequest)request);
           case 3:
@@ -209,17 +209,17 @@ public  abstract class AgentService
   }
 
   /**
-   * <code>rpc UpdateAgent(.agent.AgentRequest) returns (.agent.AuthResponse);</code>
+   * <code>rpc RegisterAgent(.agent.AgentRequest) returns (.agent.AuthResponse);</code>
    */
-  public abstract void updateAgent(
+  public abstract void registerAgent(
       com.google.protobuf.RpcController controller,
       com.park.utmstack.service.grpc.AgentRequest request,
       com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.AuthResponse> done);
 
   /**
-   * <code>rpc RegisterAgent(.agent.AgentRequest) returns (.agent.AuthResponse);</code>
+   * <code>rpc UpdateAgent(.agent.AgentRequest) returns (.agent.AuthResponse);</code>
    */
-  public abstract void registerAgent(
+  public abstract void updateAgent(
       com.google.protobuf.RpcController controller,
       com.park.utmstack.service.grpc.AgentRequest request,
       com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.AuthResponse> done);
@@ -279,12 +279,12 @@ public  abstract class AgentService
     }
     switch(method.getIndex()) {
       case 0:
-        this.updateAgent(controller, (com.park.utmstack.service.grpc.AgentRequest)request,
+        this.registerAgent(controller, (com.park.utmstack.service.grpc.AgentRequest)request,
           com.google.protobuf.RpcUtil.<com.park.utmstack.service.grpc.AuthResponse>specializeCallback(
             done));
         return;
       case 1:
-        this.registerAgent(controller, (com.park.utmstack.service.grpc.AgentRequest)request,
+        this.updateAgent(controller, (com.park.utmstack.service.grpc.AgentRequest)request,
           com.google.protobuf.RpcUtil.<com.park.utmstack.service.grpc.AuthResponse>specializeCallback(
             done));
         return;
@@ -381,7 +381,7 @@ public  abstract class AgentService
       return channel;
     }
 
-    public  void updateAgent(
+    public  void registerAgent(
         com.google.protobuf.RpcController controller,
         com.park.utmstack.service.grpc.AgentRequest request,
         com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.AuthResponse> done) {
@@ -396,7 +396,7 @@ public  abstract class AgentService
           com.park.utmstack.service.grpc.AuthResponse.getDefaultInstance()));
     }
 
-    public  void registerAgent(
+    public  void updateAgent(
         com.google.protobuf.RpcController controller,
         com.park.utmstack.service.grpc.AgentRequest request,
         com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.AuthResponse> done) {
@@ -478,12 +478,12 @@ public  abstract class AgentService
   }
 
   public interface BlockingInterface {
-    public com.park.utmstack.service.grpc.AuthResponse updateAgent(
+    public com.park.utmstack.service.grpc.AuthResponse registerAgent(
         com.google.protobuf.RpcController controller,
         com.park.utmstack.service.grpc.AgentRequest request)
         throws com.google.protobuf.ServiceException;
 
-    public com.park.utmstack.service.grpc.AuthResponse registerAgent(
+    public com.park.utmstack.service.grpc.AuthResponse updateAgent(
         com.google.protobuf.RpcController controller,
         com.park.utmstack.service.grpc.AgentRequest request)
         throws com.google.protobuf.ServiceException;
@@ -516,7 +516,7 @@ public  abstract class AgentService
 
     private final com.google.protobuf.BlockingRpcChannel channel;
 
-    public com.park.utmstack.service.grpc.AuthResponse updateAgent(
+    public com.park.utmstack.service.grpc.AuthResponse registerAgent(
         com.google.protobuf.RpcController controller,
         com.park.utmstack.service.grpc.AgentRequest request)
         throws com.google.protobuf.ServiceException {
@@ -528,7 +528,7 @@ public  abstract class AgentService
     }
 
 
-    public com.park.utmstack.service.grpc.AuthResponse registerAgent(
+    public com.park.utmstack.service.grpc.AuthResponse updateAgent(
         com.google.protobuf.RpcController controller,
         com.park.utmstack.service.grpc.AgentRequest request)
         throws com.google.protobuf.ServiceException {
