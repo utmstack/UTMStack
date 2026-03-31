@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
@@ -56,7 +57,7 @@ public class IndexPolicyService {
                 JsonObject json = new Gson().fromJson(body, JsonObject.class);
                 if (json != null && json.has(index)) {
                     JsonObject indexInfo = json.getAsJsonObject(index);
-                    String state = this.getCurrentState(indexInfo)
+                    String state = this.getCurrentState(indexInfo);
                     if (state != null) {
                         return Constants.STATE_DELETE.equals(state) || Constants.STATE_SAFE_DELETE.equals(state);
                     }
