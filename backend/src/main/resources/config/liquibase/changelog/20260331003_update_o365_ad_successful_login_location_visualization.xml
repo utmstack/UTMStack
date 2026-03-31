@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet id="20260331003" author="Alex">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE public.utm_visualization
+            SET aggregation= $$
+{
+  "metrics": [
+    {
+      "id": "1",
+      "aggregation": "COUNT",
+      "field": "",
+      "customLabel": ""
+    }
+  ],
+  "bucket": {
+    "id": "1000",
+    "aggregation": "TERMS",
+    "type": "BUCKET",
+    "field": "origin.ip.keyword",
+    "customLabel": "Location",
+    "terms": {
+      "sortBy": "_count",
+      "asc": false,
+      "size": 1000
+    }
+  }
+}            $$
+ WHERE id = 55;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>
