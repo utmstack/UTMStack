@@ -43,6 +43,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Leonardo M. López
@@ -278,6 +279,11 @@ public class ElasticsearchService {
 
             // Indices are returned from oldest to newest ordered by creation.date asc
             for (IndicesRecord index : indices) {
+                Optional<ElasticCluster> opt = getClusterStatus();
+
+                if (opt.isEmpty() || opt.get().getResume().getDiskUsedPercent() < 70)
+                    break;
+
                 try {
                     // Delete oldest indices
                     deleteIndex(Collections.singletonList(index.index()));
@@ -286,15 +292,12 @@ public class ElasticsearchService {
                                     "Docs Count: %3$s\n" +
                                     "Size: %4$s",
                             index.index(), index.creationDateString(), index.docsCount(), index.storeSize()), ApplicationEventType.INFO);
+                    TimeUnit.SECONDS.sleep(10);
                 } catch (Exception e) {
                     String msg = String.format("%1$s: Fail to delete index: %2$s with message: %3$s", ctx, index.index(), e.getMessage());
                     eventService.createEvent(msg, ApplicationEventType.WARNING);
                 }
 
-                Optional<ElasticCluster> opt = getClusterStatus();
-
-                if (opt.isEmpty() || opt.get().getResume().getDiskUsedPercent() < 70)
-                    break;
             }
         } catch (Exception e) {
             String msg = String.format("%1$s: %2$s", ctx, e.getMessage());
