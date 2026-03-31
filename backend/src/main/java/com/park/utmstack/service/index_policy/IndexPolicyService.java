@@ -56,15 +56,7 @@ public class IndexPolicyService {
                 JsonObject json = new Gson().fromJson(body, JsonObject.class);
                 if (json != null && json.has(index)) {
                     JsonObject indexInfo = json.getAsJsonObject(index);
-                    String state = null;
-                    if (indexInfo.has("index.plugins.index_state_management.current_state")) {
-                        state = indexInfo.get("index.plugins.index_state_management.current_state").getAsString();
-                    } else if (indexInfo.has("index.opendistro.index_state_management.current_state")) {
-                        state = indexInfo.get("index.opendistro.index_state_management.current_state").getAsString();
-                    } else if (indexInfo.has("opendistro.index_state_management.current_state")) {
-                        state = indexInfo.get("opendistro.index_state_management.current_state").getAsString();
-                    }
-
+                    String state = this.getCurrentState(indexInfo)
                     if (state != null) {
                         return Constants.STATE_DELETE.equals(state) || Constants.STATE_SAFE_DELETE.equals(state);
                     }
@@ -75,6 +67,28 @@ public class IndexPolicyService {
             log.error("{}: {}", ctx, e.getMessage());
             return false;
         }
+    }
+
+
+    private String getCurrentState(JsonObject indexInfo) {
+        if (indexInfo.has("state") && indexInfo.get("state").isJsonObject()) {
+            JsonObject stateObj = indexInfo.getAsJsonObject("state");
+            if (stateObj.has("name")) {
+                return stateObj.get("name").getAsString();
+            }
+        }
+
+        String[] legacyPaths = {
+            "index.plugins.index_state_management.current_state",
+            "index.opendistro.index_state_management.current_state",
+            "opendistro.index_state_management.current_state"
+        };
+
+        return Arrays.stream(legacyPaths)
+            .filter(indexInfo::has)
+            .map(path -> indexInfo.get(path).getAsString())
+            .findFirst()
+            .orElse(null);
     }
 
     @EventListener(IndexPatternsReadyEvent.class)
