@@ -10,6 +10,7 @@ import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.service.MailService;
 import com.park.utmstack.service.UtmSpaceNotificationControlService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.service.index_policy.IndexPolicyService;
 import com.park.utmstack.util.chart_builder.IndexPropertyType;
 import com.park.utmstack.util.exceptions.OpenSearchIndexNotFoundException;
 import com.park.utmstack.util.exceptions.UtmElasticsearchException;
@@ -57,16 +58,19 @@ public class ElasticsearchService {
     private final UserRepository userRepository;
     private final MailService mailService;
     private final UtmSpaceNotificationControlService spaceNotificationControlService;
+    private final IndexPolicyService indexPolicyService;
     private final OpensearchClientBuilder client;
 
     public ElasticsearchService(ApplicationEventService eventService, UserRepository userRepository,
                                 MailService mailService,
                                 UtmSpaceNotificationControlService spaceNotificationControlService,
+                                IndexPolicyService indexPolicyService,
                                 OpensearchClientBuilder client) {
         this.eventService = eventService;
         this.userRepository = userRepository;
         this.mailService = mailService;
         this.spaceNotificationControlService = spaceNotificationControlService;
+        this.indexPolicyService = indexPolicyService;
         this.client = client;
     }
 
@@ -283,6 +287,11 @@ public class ElasticsearchService {
 
                 if (opt.isEmpty() || opt.get().getResume().getDiskUsedPercent() < 70)
                     break;
+
+                if (!indexPolicyService.isIndexRemovable(index.index())) {
+                    log.info("{} Skipping index {} because it is not in a removable state", ctx, index.index());
+                    continue;
+                }
 
                 try {
                     // Delete oldest indices
