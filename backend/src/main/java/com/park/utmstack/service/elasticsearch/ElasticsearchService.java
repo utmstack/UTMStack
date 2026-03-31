@@ -10,6 +10,7 @@ import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.service.MailService;
 import com.park.utmstack.service.UtmSpaceNotificationControlService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.service.index_policy.IndexPolicyService;
 import com.park.utmstack.util.chart_builder.IndexPropertyType;
 import com.park.utmstack.util.exceptions.OpenSearchIndexNotFoundException;
 import com.park.utmstack.util.exceptions.UtmElasticsearchException;
@@ -43,6 +44,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Leonardo M. López
@@ -56,16 +58,19 @@ public class ElasticsearchService {
     private final UserRepository userRepository;
     private final MailService mailService;
     private final UtmSpaceNotificationControlService spaceNotificationControlService;
+    private final IndexPolicyService indexPolicyService;
     private final OpensearchClientBuilder client;
 
     public ElasticsearchService(ApplicationEventService eventService, UserRepository userRepository,
                                 MailService mailService,
                                 UtmSpaceNotificationControlService spaceNotificationControlService,
+                                IndexPolicyService indexPolicyService,
                                 OpensearchClientBuilder client) {
         this.eventService = eventService;
         this.userRepository = userRepository;
         this.mailService = mailService;
         this.spaceNotificationControlService = spaceNotificationControlService;
+        this.indexPolicyService = indexPolicyService;
         this.client = client;
     }
 
@@ -278,6 +283,16 @@ public class ElasticsearchService {
 
             // Indices are returned from oldest to newest ordered by creation.date asc
             for (IndicesRecord index : indices) {
+                Optional<ElasticCluster> opt = getClusterStatus();
+
+                if (opt.isEmpty() || opt.get().getResume().getDiskUsedPercent() < 70)
+                    break;
+
+                if (!indexPolicyService.isIndexRemovable(index.index())) {
+                    log.info("{} Skipping index {} because it is not in a removable state", ctx, index.index());
+                    continue;
+                }
+
                 try {
                     // Delete oldest indices
                     deleteIndex(Collections.singletonList(index.index()));
@@ -286,15 +301,12 @@ public class ElasticsearchService {
                                     "Docs Count: %3$s\n" +
                                     "Size: %4$s",
                             index.index(), index.creationDateString(), index.docsCount(), index.storeSize()), ApplicationEventType.INFO);
+                    TimeUnit.SECONDS.sleep(10);
                 } catch (Exception e) {
                     String msg = String.format("%1$s: Fail to delete index: %2$s with message: %3$s", ctx, index.index(), e.getMessage());
                     eventService.createEvent(msg, ApplicationEventType.WARNING);
                 }
 
-                Optional<ElasticCluster> opt = getClusterStatus();
-
-                if (opt.isEmpty() || opt.get().getResume().getDiskUsedPercent() < 70)
-                    break;
             }
         } catch (Exception e) {
             String msg = String.format("%1$s: %2$s", ctx, e.getMessage());

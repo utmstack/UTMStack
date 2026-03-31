@@ -1,6 +1,7 @@
 package com.park.utmstack.service.index_policy;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.index_pattern.enums.SystemIndexPattern;
 import com.park.utmstack.domain.index_policy.*;
@@ -35,6 +36,59 @@ public class IndexPolicyService {
                               OpensearchClientBuilder client) {
         this.applicationContext = applicationContext;
         this.client = client;
+    }
+
+    /**
+     * Check if an index is in a removable state (STATE_DELETE or STATE_SAFE_DELETE)
+     *
+     * @param index: Index name
+     * @return True if removable, false otherwise
+     */
+    public boolean isIndexRemovable(String index) {
+        final String ctx = CLASSNAME + ".isIndexRemovable";
+        try {
+            final String url = String.format("_plugins/_ism/explain/%1$s", index);
+            try (Response rs = client.getClient().executeHttpRequest(url, null, null, HttpMethod.GET)) {
+                if (!rs.isSuccessful() || rs.body() == null)
+                    return false;
+
+                String body = rs.body().string();
+                JsonObject json = new Gson().fromJson(body, JsonObject.class);
+                if (json != null && json.has(index)) {
+                    JsonObject indexInfo = json.getAsJsonObject(index);
+                    String state = this.getCurrentState(indexInfo)
+                    if (state != null) {
+                        return Constants.STATE_DELETE.equals(state) || Constants.STATE_SAFE_DELETE.equals(state);
+                    }
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("{}: {}", ctx, e.getMessage());
+            return false;
+        }
+    }
+
+
+    private String getCurrentState(JsonObject indexInfo) {
+        if (indexInfo.has("state") && indexInfo.get("state").isJsonObject()) {
+            JsonObject stateObj = indexInfo.getAsJsonObject("state");
+            if (stateObj.has("name")) {
+                return stateObj.get("name").getAsString();
+            }
+        }
+
+        String[] legacyPaths = {
+            "index.plugins.index_state_management.current_state",
+            "index.opendistro.index_state_management.current_state",
+            "opendistro.index_state_management.current_state"
+        };
+
+        return Arrays.stream(legacyPaths)
+            .filter(indexInfo::has)
+            .map(path -> indexInfo.get(path).getAsString())
+            .findFirst()
+            .orElse(null);
     }
 
     @EventListener(IndexPatternsReadyEvent.class)
