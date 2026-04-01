@@ -581,4 +581,6 @@
 
   <include file="/config/liquibase/changelog/20260401002_update_window_rules.xml" relativeToChangelogFile="false"/>
 
+  <include file="/config/liquibase/changelog/20260401003_update_windows_rule_data_types.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
