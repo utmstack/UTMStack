@@ -8,6 +8,7 @@ import (
 
 	"github.com/kardianos/service"
 	"github.com/utmstack/UTMStack/installer/config"
+	"github.com/utmstack/UTMStack/installer/docker"
 	"github.com/utmstack/UTMStack/installer/setup"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
@@ -58,6 +59,21 @@ func (p *program) run() {
 			config.Logger().ErrorF("error applying setup for version %s: %v", pendingUpdate.Version, err)
 		} else {
 			config.Logger().Info("Successfully applied update %s", pendingUpdate.Version)
+
+			// Close ports after update (same as initial installation)
+			config.Logger().Info("Running post-installation scripts to secure ports...")
+			if err := docker.PostInstallation(); err != nil {
+				config.Logger().ErrorF("error running post-installation: %v", err)
+				config.Logger().ErrorF("CRITICAL: Post-installation failed. Stopping Docker to prevent security risk.")
+				// Stop Docker to prevent leaving ports open
+				if stopErr := utils.StopService("docker"); stopErr != nil {
+					config.Logger().ErrorF("Failed to stop Docker service: %v", stopErr)
+				} else {
+					config.Logger().ErrorF("Docker service has been stopped. Manual intervention required.")
+				}
+				// Stop the updater service to prevent further processing
+				return
+			}
 
 			// Mark as sent in CM after successful apply
 			if pendingUpdate.ID != "offline" {
