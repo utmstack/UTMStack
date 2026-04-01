@@ -579,4 +579,6 @@
 
   <include file="/config/liquibase/changelog/20260401001_update_windows_filter.xml" relativeToChangelogFile="false"/>
 
+  <include file="/config/liquibase/changelog/20260401002_update_window_rules.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
