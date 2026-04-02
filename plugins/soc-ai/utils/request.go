@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -42,6 +43,43 @@ func DoReq(url string, data []byte, method string, headers map[string]string, ti
 
 	client := &http.Client{
 		Timeout: time.Duration(timeoutInSec) * time.Second,
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+			return nil, http.StatusInternalServerError, fmt.Errorf("request timed out: %v: %s", err, data)
+		}
+		return nil, http.StatusInternalServerError, fmt.Errorf("error performing request: %v: %s", err, data)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, http.StatusInternalServerError, fmt.Errorf("error reading response body: %v", err)
+	}
+
+	return body, resp.StatusCode, nil
+}
+
+func DoOpenSearchReq(url string, data []byte, method string, headers map[string]string, user, password string, timeoutInSec int) ([]byte, int, error) {
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, http.StatusInternalServerError, fmt.Errorf("error creating request: %v", err)
+	}
+
+	for k, v := range headers {
+		req.Header.Add(k, v)
+	}
+
+	req.SetBasicAuth(user, password)
+
+	client := &http.Client{
+		Timeout: time.Duration(timeoutInSec) * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
 	}
 
 	resp, err := client.Do(req)

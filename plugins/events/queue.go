@@ -32,10 +32,15 @@ func startQueue() {
 	maxRetries := 3
 	retryDelay := 2 * time.Second
 
-	for retry := 0; retry < maxRetries; retry++ {
-		osUrl := plugins.PluginCfg("org.opensearch").Get("opensearch").String()
+	cfg := plugins.PluginCfg("org.opensearch").Get("opensearch")
+	host := cfg.Get("host").String()
+	port := cfg.Get("port").String()
+	user := cfg.Get("user").String()
+	password := cfg.Get("password").String()
+	osUrl := "https://" + host + ":" + port
 
-		err := sdkos.Connect([]string{osUrl}, "", "")
+	for retry := 0; retry < maxRetries; retry++ {
+		err := sdkos.Connect([]string{osUrl}, user, password)
 		if err == nil {
 			break
 		}

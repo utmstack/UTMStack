@@ -31,7 +31,9 @@ var (
 type Config struct {
 	Backend                   string
 	InternalKey               string
-	Opensearch                string
+	OpensearchURL             string
+	OpensearchUser            string
+	OpensearchPassword        string
 	ModulesConfigHost         string
 	APIKey                    string
 	ChangeAlertStatus         bool
@@ -60,14 +62,18 @@ func StartConfigurationSystem() {
 			continue
 		}
 
+		osCfg := plugins.PluginCfg("org.opensearch").Get("opensearch")
+
 		configMutex.Lock()
 		config.Backend = pluginConfig.Get("backend").String()
 		config.InternalKey = pluginConfig.Get("internalKey").String()
-		config.Opensearch = pluginConfig.Get("opensearch").String()
+		config.OpensearchURL = "https://" + osCfg.Get("host").String() + ":" + osCfg.Get("port").String()
+		config.OpensearchUser = osCfg.Get("user").String()
+		config.OpensearchPassword = osCfg.Get("password").String()
 		config.ModulesConfigHost = pluginConfig.Get("modulesConfig").String()
 		configMutex.Unlock()
 
-		if config.Backend == "" || config.InternalKey == "" || config.Opensearch == "" || config.ModulesConfigHost == "" {
+		if config.Backend == "" || config.InternalKey == "" || config.OpensearchURL == "" || config.ModulesConfigHost == "" {
 			fmt.Println("Backend, Internal key, Opensearch or Modules Config Host is not set, skipping UTMStack plugin execution")
 			time.Sleep(reconnectDelay)
 			continue

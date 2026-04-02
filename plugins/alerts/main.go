@@ -44,8 +44,14 @@ type AlertFields struct {
 }
 
 func main() {
-	openSearchUrl := plugins.PluginCfg("org.opensearch").Get("opensearch").String()
-	err := sdkos.Connect([]string{openSearchUrl}, "", "")
+	cfg := plugins.PluginCfg("org.opensearch").Get("opensearch")
+	host := cfg.Get("host").String()
+	port := cfg.Get("port").String()
+	user := cfg.Get("user").String()
+	password := cfg.Get("password").String()
+	openSearchUrl := "https://" + host + ":" + port
+
+	err := sdkos.Connect([]string{openSearchUrl}, user, password)
 	if err != nil {
 		_ = catcher.Error("cannot connect to OpenSearch", err, map[string]any{"process": "plugin_com.utmstack.alerts"})
 		time.Sleep(5 * time.Second)

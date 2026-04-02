@@ -3,9 +3,11 @@ package client
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 
 	opensearch "github.com/opensearch-project/opensearch-go/v2"
 	"github.com/threatwinds/go-sdk/catcher"
@@ -20,7 +22,12 @@ type OpenSearchClient struct {
 func NewOpenSearchClient(cfg *config.TWConfig) (*OpenSearchClient, error) {
 	osConfig := opensearch.Config{
 		Addresses: []string{
-			fmt.Sprintf("http://%s:%s", cfg.OpenSearchHost, cfg.OpenSearchPort),
+			fmt.Sprintf("https://%s:%s", cfg.OpenSearchHost, cfg.OpenSearchPort),
+		},
+		Username: cfg.OpenSearchUser,
+		Password: cfg.OpenSearchPassword,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
 	}
 

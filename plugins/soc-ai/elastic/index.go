@@ -15,22 +15,23 @@ import (
 func ElasticQuery(index string, query interface{}, op string) error {
 	var url string
 	var method string
+	cnf := config.GetConfig()
 
 	switch op {
 	case "create":
 		if gptResp, ok := query.(schema.GPTAlertResponse); ok && gptResp.ActivityID != "" {
-			url = fmt.Sprintf("%s/%s/_doc/%s", config.GetConfig().Opensearch, index, gptResp.ActivityID)
+			url = fmt.Sprintf("%s/%s/_doc/%s", cnf.OpensearchURL, index, gptResp.ActivityID)
 			method = "PUT"
 		} else {
-			url = fmt.Sprintf("%s/%s/_doc", config.GetConfig().Opensearch, index)
+			url = fmt.Sprintf("%s/%s/_doc", cnf.OpensearchURL, index)
 			method = "POST"
 		}
 	case "update":
 		if gptResp, ok := query.(schema.GPTAlertResponse); ok && gptResp.ActivityID != "" {
-			url = fmt.Sprintf("%s/%s/_doc/%s", config.GetConfig().Opensearch, index, gptResp.ActivityID)
+			url = fmt.Sprintf("%s/%s/_doc/%s", cnf.OpensearchURL, index, gptResp.ActivityID)
 			method = "PUT"
 		} else {
-			url = fmt.Sprintf("%s/%s%s", config.GetConfig().Opensearch, index, config.ELASTIC_UPDATE_BY_QUERY_ENDPOINT)
+			url = fmt.Sprintf("%s/%s%s", cnf.OpensearchURL, index, config.ELASTIC_UPDATE_BY_QUERY_ENDPOINT)
 			method = "POST"
 		}
 	default:
@@ -45,7 +46,7 @@ func ElasticQuery(index string, query interface{}, op string) error {
 		return fmt.Errorf("error marshalling query: %v", err)
 	}
 
-	resp, statusCode, err := utils.DoReq(url, queryBytes, method, headers, config.HTTP_TIMEOUT)
+	resp, statusCode, err := utils.DoOpenSearchReq(url, queryBytes, method, headers, cnf.OpensearchUser, cnf.OpensearchPassword, config.HTTP_TIMEOUT)
 	if err != nil || (statusCode != http.StatusOK && statusCode != http.StatusCreated) {
 		return fmt.Errorf("error while doing request: %v, status: %d, response: %v", err, statusCode, string(resp))
 	}
@@ -109,18 +110,19 @@ func IndexStatus(id, status, op string) error {
 }
 
 func CreateIndexIfNotExist(index string) error {
-	url := fmt.Sprintf("%s/%s", config.GetConfig().Opensearch, index)
+	cnf := config.GetConfig()
+	url := fmt.Sprintf("%s/%s", cnf.OpensearchURL, index)
 	headers := map[string]string{
 		"Content-Type": "application/json",
 	}
 
-	resp, statusCode, err := utils.DoReq(url, nil, "HEAD", headers, config.HTTP_TIMEOUT)
+	resp, statusCode, err := utils.DoOpenSearchReq(url, nil, "HEAD", headers, cnf.OpensearchUser, cnf.OpensearchPassword, config.HTTP_TIMEOUT)
 	if err != nil {
 		return fmt.Errorf("error while doing request: %v, status: %d, response: %v", err, statusCode, string(resp))
 	}
 
 	if statusCode == 404 {
-		resp, statusCode, err = utils.DoReq(url, nil, "PUT", headers, config.HTTP_TIMEOUT)
+		resp, statusCode, err = utils.DoOpenSearchReq(url, nil, "PUT", headers, cnf.OpensearchUser, cnf.OpensearchPassword, config.HTTP_TIMEOUT)
 		if err != nil || (statusCode != http.StatusOK && statusCode != http.StatusCreated) {
 			return fmt.Errorf("error while doing request: %v, status: %d, response: %v", err, statusCode, string(resp))
 		}
