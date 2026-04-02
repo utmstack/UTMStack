@@ -164,7 +164,10 @@ public final class Constants {
     public static final List<String> API_ENDPOINT_IGNORE = Collections.emptyList();
 
     // Application version file
-    public static final String APP_VERSION_FILE = "/updates/version.json";
+    public static final String APP_VERSION_FILE       = "/updates/version.json";
+
+    public static final String APP_FILTER_DEFINITIONS = "/utmstack/filters";
+    public static final String APP_RULE_DEFINITIONS = "/utmstack/rules";
 
     public static final String ADMIN_EMAIL = "admin@localhost";
 

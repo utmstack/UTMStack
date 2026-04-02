@@ -54,5 +54,7 @@ public interface UtmCorrelationRulesRepository extends JpaRepository<UtmCorrelat
                                               @Param("ruleSearch")  String ruleSearch,
                                               Pageable pageable);
 
+    Optional<UtmCorrelationRules> findOneByRuleName(String ruleName);
+
     Optional<UtmCorrelationRules> findFirstBySystemOwnerIsTrueOrderByIdDesc();
 }
