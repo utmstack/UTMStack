@@ -1,90 +1,83 @@
 package services
 
 import (
-	"database/sql"
 	"fmt"
+	"strings"
 
-	_ "github.com/lib/pq"
 	"github.com/utmstack/UTMStack/installer/config"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
-func InitPgUtmstack(c *config.Config) error {
-	// Connecting to PostgreSQL
-	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable",
-		c.Password)
-	srv, err := sql.Open("postgres", psqlconn)
+func getPostgresContainerID() (string, error) {
+	containerIDs, err := utils.RunCmdWithOutput("docker", "ps", "-q", "-f", "name=utmstack_postgres")
+	if err != nil {
+		return "", fmt.Errorf("error getting postgres container: %v", err)
+	}
+	if len(containerIDs) == 0 {
+		return "", fmt.Errorf("postgres container not found")
+	}
+	return containerIDs[0], nil
+}
+
+func execPsql(containerID, database, query string) error {
+	args := []string{"exec", containerID, "psql", "-U", "postgres"}
+	if database != "" {
+		args = append(args, "-d", database)
+	}
+	args = append(args, "-c", query)
+
+	_, err := utils.RunCmdWithOutput("docker", args...)
+	return err
+}
+
+func InitPgUtmstack(_ *config.Config) error {
+	containerID, err := getPostgresContainerID()
 	if err != nil {
 		return err
 	}
 
-	// Close connection when finish
-	defer srv.Close()
-
-	// Check connection status
-	err = srv.Ping()
-	if err != nil {
+	// Creating utmstack database
+	err = execPsql(containerID, "", "CREATE DATABASE utmstack")
+	if err != nil && !strings.Contains(err.Error(), "already exists") {
 		return err
 	}
 
-	// Creating utmstack
-	_, err = srv.Exec("CREATE DATABASE utmstack")
-	if err != nil && err.Error() != "pq: database \"utmstack\" already exists" {
+	// Creating agentmanager database
+	err = execPsql(containerID, "", "CREATE DATABASE agentmanager")
+	if err != nil && !strings.Contains(err.Error(), "already exists") {
 		return err
 	}
 
-	// Creating agentmanager
-	_, err = srv.Exec("CREATE DATABASE agentmanager")
-	if err != nil && err.Error() != "pq: database \"agentmanager\" already exists" {
-		return err
-	}
-
-	// Connecting to utmstack
-	psqlconn = fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable database=utmstack",
-		c.Password)
-	db, err := sql.Open("postgres", psqlconn)
-	if err != nil {
-		return err
-	}
-
-	// Close connection when finish
-	defer db.Close()
-
-	// Check connection status
-	err = db.Ping()
-	if err != nil {
-		return err
-	}
-
-	// Creating utm_client
-	_, err = db.Exec(`CREATE TABLE public.utm_client (		
-id serial NOT NULL,
-client_name varchar(100) NULL,
-client_domain varchar(100) NULL,
-client_prefix varchar(10) NULL,
-client_mail varchar(100) NULL,
-client_user varchar(50) NULL,
-client_pass varchar(50) NULL,
-client_licence_creation timestamp(0) NULL,
-client_licence_expire timestamp(0) NULL,
-client_licence_id varchar(100) NULL,
-client_licence_verified bool NOT NULL,
-CONSTRAINT utm_client_pkey PRIMARY KEY (id)
-);`)
-	if err != nil && err.Error() != "pq: relation \"utm_client\" already exists" {
+	// Creating utm_client table
+	createTable := `CREATE TABLE public.utm_client (
+		id serial NOT NULL,
+		client_name varchar(100) NULL,
+		client_domain varchar(100) NULL,
+		client_prefix varchar(10) NULL,
+		client_mail varchar(100) NULL,
+		client_user varchar(50) NULL,
+		client_pass varchar(50) NULL,
+		client_licence_creation timestamp(0) NULL,
+		client_licence_expire timestamp(0) NULL,
+		client_licence_id varchar(100) NULL,
+		client_licence_verified bool NOT NULL,
+		CONSTRAINT utm_client_pkey PRIMARY KEY (id)
+	);`
+	err = execPsql(containerID, "utmstack", createTable)
+	if err != nil && !strings.Contains(err.Error(), "already exists") {
 		return err
 	}
 
 	// Insert client data
-	_, err = db.Exec(`INSERT INTO public.utm_client (client_licence_verified) VALUES (false);`)
-	if err != nil && err.Error() != "pq: duplicate key value violates unique constraint \"utm_client_pkey\"" {
+	err = execPsql(containerID, "utmstack", "INSERT INTO public.utm_client (client_licence_verified) VALUES (false);")
+	if err != nil && !strings.Contains(err.Error(), "duplicate key") {
 		return err
 	}
 
 	return nil
 }
 
-func GetAdminEmail(_ *config.Config) (string, error) {
+func GetAdminEmail() (string, error) {
 	// Get postgres container ID
 	containerIDs, err := utils.RunCmdWithOutput("docker", "ps", "-q", "-f", "name=utmstack_postgres")
 	if err != nil {
@@ -111,27 +104,15 @@ func GetAdminEmail(_ *config.Config) (string, error) {
 	return output[0], nil
 }
 
-func InitPgUserAuditor(c *config.Config) error {
-	// Connecting to PostgreSQL
-	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable",
-		c.Password)
-	srv, err := sql.Open("postgres", psqlconn)
+func InitPgUserAuditor(_ *config.Config) error {
+	containerID, err := getPostgresContainerID()
 	if err != nil {
 		return err
 	}
 
-	// Close connection when finish
-	defer srv.Close()
-
-	// Check connection status
-	err = srv.Ping()
-	if err != nil {
-		return err
-	}
-
-	// Creating user-auditor
-	_, err = srv.Exec("CREATE DATABASE userauditor")
-	if err != nil && err.Error() != "pq: database \"userauditor\" already exists" {
+	// Creating userauditor database
+	err = execPsql(containerID, "", "CREATE DATABASE userauditor")
+	if err != nil && !strings.Contains(err.Error(), "already exists") {
 		return err
 	}
 

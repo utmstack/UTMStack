@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/utmstack/UTMStack/installer/config"
@@ -44,20 +43,12 @@ func Install() error {
 	updater.InstallService()
 	fmt.Println(" [OK]")
 
-	fmt.Println("Running post installation scripts. This may take a while.")
+	fmt.Println("Running post installation cleanup...")
 	if err := docker.PostInstallation(); err != nil {
-		fmt.Printf("\nCRITICAL ERROR: Post-installation failed: %v\n", err)
-		fmt.Println("Stopping Docker service to prevent security risk (ports may be left open).")
-		if stopErr := utils.StopService("docker"); stopErr != nil {
-			fmt.Printf("WARNING: Failed to stop Docker service: %v\n", stopErr)
-		} else {
-			fmt.Println("Docker service has been stopped. Manual intervention required.")
-			fmt.Println("Please check /var/log/utmstack-installer.log for details.")
-		}
-		os.Exit(1)
+		fmt.Printf("Warning: post-installation cleanup failed: %v\n", err)
 	}
 
-	fmt.Println("Installation fisnished successfully. We have generated a configuration file for you, please do not modify or remove it. You can find it at /root/utmstack.yml.")
+	fmt.Println("Installation finished successfully. We have generated a configuration file for you, please do not modify or remove it. You can find it at /root/utmstack.yml.")
 	fmt.Println("You can also use it to re-install your stack in case of a disaster or changes in your hardware. Just run the installer again.")
 	fmt.Println("You can access to your Web-GUI at https://<your-server-ip> using admin as your username")
 	fmt.Printf("Web-GUI default password for admin: %s \n", pass)

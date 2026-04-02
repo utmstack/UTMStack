@@ -183,7 +183,7 @@ func Apply(version string, updating bool) (string, error) {
 		}
 	}
 
-	if err := network.ConfigureNginx(cnf, stack, distro); err != nil {
+	if err := network.ConfigureNginx(stack, distro); err != nil {
 		return "", err
 	}
 
@@ -280,7 +280,7 @@ func Apply(version string, updating bool) (string, error) {
 
 	if utils.GetLock(9, stack.LocksDir) {
 		fmt.Print("Generating Base URL")
-		if err := services.SetBaseURL(cnf.Password, cnf.ServerName); err != nil {
+		if err := services.SetBaseURL(cnf.ServerName); err != nil {
 			return "", err
 		}
 

@@ -31,9 +31,9 @@ func InstallNginx(distro string) error {
 	return nil
 }
 
-func ConfigureNginx(conf *config.Config, stack *docker.StackConfig, distro string) error {
+func ConfigureNginx(stack *docker.StackConfig, distro string) error {
 	c := NginxConfig{
-		SharedKey: conf.InternalKey,
+		SharedKey: utils.GenerateSecret(32),
 	}
 
 	err := utils.GenerateConfig(c, templates.FrontEnd, path.Join(stack.FrontEndNginx, "00_nginx_panel.conf"))

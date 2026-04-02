@@ -6,8 +6,6 @@ require (
 	github.com/cloudfoundry/gosigar v1.3.116
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/kardianos/service v1.2.4
-	github.com/levigross/grequests v0.0.0-20250606031859-3f3c12e4e704
-	github.com/lib/pq v1.11.2
 	github.com/shirou/gopsutil/v3 v3.24.5
 	github.com/threatwinds/logger v1.2.3
 	github.com/utmstack/license-manager-sdk v0.1.0
@@ -40,7 +38,6 @@ require (
 	github.com/go-playground/validator/v10 v10.30.1 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/goccy/go-yaml v1.19.2 // indirect
-	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect

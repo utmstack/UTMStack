@@ -60,19 +60,10 @@ func (p *program) run() {
 		} else {
 			config.Logger().Info("Successfully applied update %s", pendingUpdate.Version)
 
-			// Close ports after update (same as initial installation)
-			config.Logger().Info("Running post-installation scripts to secure ports...")
+			// Run post-installation cleanup
+			config.Logger().Info("Running post-installation cleanup...")
 			if err := docker.PostInstallation(); err != nil {
-				config.Logger().ErrorF("error running post-installation: %v", err)
-				config.Logger().ErrorF("CRITICAL: Post-installation failed. Stopping Docker to prevent security risk.")
-				// Stop Docker to prevent leaving ports open
-				if stopErr := utils.StopService("docker"); stopErr != nil {
-					config.Logger().ErrorF("Failed to stop Docker service: %v", stopErr)
-				} else {
-					config.Logger().ErrorF("Docker service has been stopped. Manual intervention required.")
-				}
-				// Stop the updater service to prevent further processing
-				return
+				config.Logger().ErrorF("error running post-installation cleanup: %v", err)
 			}
 
 			// Mark as sent in CM after successful apply

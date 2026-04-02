@@ -154,9 +154,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		Volumes: []string{
 			"postgres_data:/var/lib/postgresql/data",
 		},
-		Ports: []string{
-			"5432:5432",
-		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
@@ -353,13 +350,8 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 	}
 
 	opensearchMem := system.GetOddValue(stack.ServiceResources["opensearch"].AssignedMemory)
-	// temporarily create node1 always
-	if true {
-		c.Services["node1"] = Service{
+	c.Services["node1"] = Service{
 			Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/opensearch:latest"),
-			Ports: []string{
-				"9200:9200",
-			},
 			Volumes: []string{
 				stack.ESData + ":/usr/share/opensearch/data",
 				stack.ESBackups + ":/usr/share/opensearch/backups",
@@ -394,7 +386,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 				},
 			},
 		}
-	}
 
 	userAuditorMem := stack.ServiceResources["user-auditor"].AssignedMemory
 	c.Services["user-auditor"] = Service{
