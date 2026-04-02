@@ -205,15 +205,12 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		"DB_NAME=utmstack",
 		"ELASTICSEARCH_HOST=node1",
 		"ELASTICSEARCH_PORT=9200",
-		"ELASTICSEARCH_USER=admin",
-		"ELASTICSEARCH_PASSWORD=" + conf.OpenSearchPassword,
 		"INTERNAL_KEY=" + conf.InternalKey,
 		"ENCRYPTION_KEY=" + conf.InternalKey,
 		"GRPC_AGENT_MANAGER_HOST=agentmanager",
 		"GRPC_AGENT_MANAGER_PORT=9000",
 		"EVENT_PROCESSOR_HOST=event-processor-manager",
 		"EVENT_PROCESSOR_PORT=9002",
-		"SOC_AI_BASE_URL=http://event-processor-manager:8090",
 	}
 
 	// Disable TFA in dev and rc environments
@@ -324,6 +321,17 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"GIN_MODE=release",
 			"MODE=manager",
 			"NODE_NAME=manager",
+			"INTERNAL_KEY=" + conf.InternalKey,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
+			"BACKEND_URL=http://backend:8080",
+			"ENV=" + conf.Branch,
+			"OPENSEARCH_HOST=node1",
+			"OPENSEARCH_PORT=9200",
+			"DB_HOST=postgres",
+			"DB_PORT=5432",
+			"DB_USER=postgres",
+			"DB_PASS=" + conf.Password,
+			"DB_NAME=utmstack",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -343,39 +351,41 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 
 	opensearchMem := system.GetOddValue(stack.ServiceResources["opensearch"].AssignedMemory)
 	c.Services["node1"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/opensearch:latest"),
-		Volumes: []string{
-			stack.ESData + ":/usr/share/opensearch/data",
-			stack.ESBackups + ":/usr/share/opensearch/backups",
-			stack.Cert + ":/usr/share/opensearch/config/certificates:ro",
-		},
-		Environment: []string{
-			"cluster.name=utmstack",
-			"node.name=node1",
-			"discovery.seed_hosts=node1",
-			"cluster.initial_master_nodes=node1",
-			"bootstrap.memory_lock=false",
-			"OPENSEARCH_INITIAL_ADMIN_PASSWORD=" + conf.OpenSearchPassword,
-			"JAVA_HOME=/usr/share/opensearch/jdk",
-			"action.auto_create_index=true",
-			"compatibility.override_main_response_version=true",
-			"path.repo=/usr/share/opensearch",
-			fmt.Sprintf("OPENSEARCH_JAVA_OPTS=-Xms%dm -Xmx%dm", opensearchMem/2, opensearchMem/2),
-			"network.host=0.0.0.0",
-		},
-		Logging: &dLogging,
-		Deploy: &Deploy{
-			Placement: &pManager,
-			Resources: &Resources{
-				Limits: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", opensearchMem)),
-				},
-				Reservations: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", opensearchMem/2)),
+			Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/opensearch:latest"),
+			Volumes: []string{
+				stack.ESData + ":/usr/share/opensearch/data",
+				stack.ESBackups + ":/usr/share/opensearch/backups",
+				stack.Cert + ":/usr/share/opensearch/config/certificates:ro",
+			},
+			Environment: []string{
+				"cluster.name=utmstack",
+				"node.name=node1",
+				"discovery.seed_hosts=node1",
+				"cluster.initial_master_nodes=node1",
+				"bootstrap.memory_lock=false",
+				"DISABLE_SECURITY_PLUGIN=true",
+				"DISABLE_INSTALL_DEMO_CONFIG:true",
+				"JAVA_HOME:/usr/share/opensearch/jdk",
+				"action.auto_create_index:true",
+				"compatibility.override_main_response_version:true",
+				"opensearch_security.disabled: true",
+				"path.repo=/usr/share/opensearch",
+				fmt.Sprintf("OPENSEARCH_JAVA_OPTS=-Xms%dm -Xmx%dm", opensearchMem/2, opensearchMem/2),
+				"network.host:0.0.0.0",
+			},
+			Logging: &dLogging,
+			Deploy: &Deploy{
+				Placement: &pManager,
+				Resources: &Resources{
+					Limits: &Res{
+						Memory: utils.PointerOf[string](fmt.Sprintf("%vM", opensearchMem)),
+					},
+					Reservations: &Res{
+						Memory: utils.PointerOf[string](fmt.Sprintf("%vM", opensearchMem/2)),
+					},
 				},
 			},
-		},
-	}
+		}
 
 	userAuditorMem := stack.ServiceResources["user-auditor"].AssignedMemory
 	c.Services["user-auditor"] = Service{
@@ -394,8 +404,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"DB_PASS=" + conf.Password,
 			"ELASTICSEARCH_HOST=node1",
 			"ELASTICSEARCH_PORT=9200",
-			"ELASTICSEARCH_USER=admin",
-			"ELASTICSEARCH_PASSWORD=" + conf.OpenSearchPassword,
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
