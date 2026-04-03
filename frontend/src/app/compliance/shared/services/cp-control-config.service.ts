@@ -8,7 +8,7 @@ import {ComplianceControlEvaluationHistoryResponse} from '../type/compliance-con
 import {ComplianceControlLatestEvaluationType} from '../type/compliance-control-latest-evaluation.type';
 import {ComplianceControlType} from '../type/compliance-control.type';
 
-export interface ControlParams  { // TODO: ELENA para que
+export interface ControlParams  {
   template: ComplianceControlType;
   sectionId: number;
   standardId: number;
