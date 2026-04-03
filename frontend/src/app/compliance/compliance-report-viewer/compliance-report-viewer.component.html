@@ -72,7 +72,6 @@
     <div class="col overflow-auto h-100">
       <div class="card m-0">
         <!-- Conditional rendering based on selected action -->
-        <!-- TODO: ELENA to be checked -->
         <app-compliance-latest-evaluations-view [section]="activeSection" (pageChange)="onPageChange($event)" *ngIf="action === 'compliance' && activeSection"></app-compliance-latest-evaluations-view>
         <app-compliance-evaluation-history-view *ngIf="action === 'reports'"></app-compliance-evaluation-history-view>
         <!--<app-compliance-reports-view [section]="activeSection" (pageChange)="onPageChange($event)" *ngIf="action === 'compliance' && activeSection"></app-compliance-reports-view>
