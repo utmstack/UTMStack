@@ -158,12 +158,17 @@ public class UtmCorrelationRulesService {
      * */
     @Transactional
     public void deleteRule (Long id) throws Exception {
+        deleteRule(id, false);
+    }
+
+    @Transactional
+    public void deleteRule (Long id, boolean forcedSystemMode) throws Exception {
         final String ctx = CLASSNAME + ".deleteRule";
         Optional<UtmCorrelationRules> find = utmCorrelationRulesRepository.findById(id);
         if (find.isEmpty()) {
             throw new BadRequestException(ctx + ": The rule you're trying to delete is not present in database.");
         }
-        if(find.get().getSystemOwner()) {
+        if(find.get().getSystemOwner() && !forcedSystemMode) {
             throw new BadRequestException(ctx + ": System's rules can't be removed.");
         }
         utmCorrelationRulesRepository.deleteById(id);

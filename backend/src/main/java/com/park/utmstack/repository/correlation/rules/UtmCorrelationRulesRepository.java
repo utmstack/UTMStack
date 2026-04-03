@@ -56,5 +56,7 @@ public interface UtmCorrelationRulesRepository extends JpaRepository<UtmCorrelat
 
     Optional<UtmCorrelationRules> findOneByRuleName(String ruleName);
 
+    List<UtmCorrelationRules> findAllBySystemOwnerIsTrue();
+
     Optional<UtmCorrelationRules> findFirstBySystemOwnerIsTrueOrderByIdDesc();
 }

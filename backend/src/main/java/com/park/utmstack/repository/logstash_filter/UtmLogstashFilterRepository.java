@@ -20,6 +20,8 @@ public interface UtmLogstashFilterRepository extends JpaRepository<UtmLogstashFi
 
     void deleteAllBySystemOwnerIsTrueAndIdNotIn(List<Long> ids);
 
+    List<UtmLogstashFilter> findAllBySystemOwnerIsTrue();
+
     @Query(nativeQuery = true, value = "select utm_logstash_filter.* from utm_logstash_filter where :nameShort = any(string_to_array(utm_logstash_filter.module_name, ','))")
     List<UtmLogstashFilter> findAllByModuleName(@Param("nameShort") String nameShort);
 
