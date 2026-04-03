@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260403001" author="Alex">
+        <comment>Refactor SOCAI configuration to support multi-provider presets and visibility rules</comment>
+        <sql dbms="postgresql" splitStatements="false">
+            <![CDATA[
+do $$
+declare
+    grp_id integer;
+begin
+    -- 1. Get the Group ID for SOC_AI
+    select id into grp_id from public.utm_module_group
+    where module_id = (select id from public.utm_module where module_name = 'SOC_AI')
+    limit 1;
+
+    IF grp_id IS NOT NULL THEN
+        -- 2. Cleanup old keys that might conflict or are being renamed/refactored
+        DELETE FROM public.utm_module_group_configuration
+        WHERE group_id = grp_id
+        AND conf_key IN ('utmstack.socai.custom.url', 'utmstack.socai.custom.model', 'utmstack.socai.provider');
+
+        -- 3. Update Existing Behavioral Keys (Behavior Section)
+        UPDATE public.utm_module_group_configuration
+        SET conf_name = 'Auto-create incidents for "possible incident"',
+            conf_description = 'If set to "true", the system will create incidents based on analysis of alerts.'
+        WHERE group_id = grp_id AND conf_key = 'utmstack.socai.incidentCreation';
+
+        UPDATE public.utm_module_group_configuration
+        SET conf_name = 'Change alert status after analysis',
+            conf_description = 'If set to "true", SOC Ai will automatically change the status of alerts.'
+        WHERE group_id = grp_id AND conf_key = 'utmstack.socai.changeAlertStatus';
+
+        -- 4. Insert/Re-insert Provider Preset (Connection Section)
+        INSERT INTO public.utm_module_group_configuration (group_id, conf_key, conf_name, conf_description, conf_value, conf_required, conf_data_type, conf_options)
+        VALUES (grp_id, 'utmstack.socai.provider', 'Provider Preset', 'Select your AI provider', 'openai', true, 'select',
+                '[{"value": "openai", "label": "OpenAI"}, {"value": "anthropic", "label": "Anthropic"}, {"value": "azure", "label": "Azure OpenAI"}, {"value": "ollama", "label": "Ollama (Local)"}, {"value": "custom", "label": "Custom"}]')
+        ON CONFLICT (group_id, conf_key) DO UPDATE SET conf_options = EXCLUDED.conf_options, conf_name = EXCLUDED.conf_name;
+
+        -- 5. Insert Connection Details
+        INSERT INTO public.utm_module_group_configuration (group_id, conf_key, conf_name, conf_description, conf_value, conf_required, conf_data_type)
+        VALUES (grp_id, 'utmstack.socai.url', 'API URL', 'Auto-filled by preset (editable)', 'https://api.openai.com/v1/chat/completions', true, 'text')
+        ON CONFLICT (group_id, conf_key) DO NOTHING;
+
+        -- Update existing model key
+        UPDATE public.utm_module_group_configuration
+        SET conf_name = 'Model', conf_description = 'Choose the AI model'
+        WHERE group_id = grp_id AND conf_key = 'utmstack.socai.model';
+
+        INSERT INTO public.utm_module_group_configuration (group_id, conf_key, conf_name, conf_description, conf_value, conf_required, conf_data_type)
+        VALUES (grp_id, 'utmstack.socai.maxTokens', 'Max Tokens', 'Required for Anthropic', '4096', false, 'number')
+        ON CONFLICT (group_id, conf_key) DO NOTHING;
+
+        -- 6. Update Authentication (API Key mapping)
+        UPDATE public.utm_module_group_configuration
+        SET conf_name = 'API Key',
+            conf_description = 'Authentication key for the provider',
+            conf_visibility = '{"dependsOn": "utmstack.socai.provider", "values": ["openai", "anthropic", "azure"]}'
+        WHERE group_id = grp_id AND conf_key = 'utmstack.socai.key';
+
+        -- 7. Insert Custom Auth Fields (Visible only for Custom preset)
+        INSERT INTO public.utm_module_group_configuration (group_id, conf_key, conf_name, conf_description, conf_value, conf_required, conf_data_type, conf_options, conf_visibility)
+        VALUES (grp_id, 'utmstack.socai.authType', 'Auth Type', 'Select authentication method', 'custom-headers', false, 'select',
+                '[{"value": "custom-headers", "label": "Custom Headers"}, {"value": "none", "label": "None"}]',
+                '{"dependsOn": "utmstack.socai.provider", "values": ["custom"]}')
+        ON CONFLICT (group_id, conf_key) DO NOTHING;
+
+        INSERT INTO public.utm_module_group_configuration (group_id, conf_key, conf_name, conf_description, conf_value, conf_required, conf_data_type, conf_visibility)
+        VALUES (grp_id, 'utmstack.socai.customHeaders', 'Custom Headers', 'JSON format for custom headers (e.g. {"Authorization": "Bearer sk-xxx"})', '{}', false, 'text',
+                '{"dependsOn": "utmstack.socai.provider", "values": ["custom"]}')
+        ON CONFLICT (group_id, conf_key) DO NOTHING;
+
+        -- 8. Insert new behavior key
+        INSERT INTO public.utm_module_group_configuration (group_id, conf_key, conf_name, conf_description, conf_value, conf_required, conf_data_type)
+        VALUES (grp_id, 'utmstack.socai.autoAnalyze', 'Auto-analyze alerts', 'If enabled, the system will automatically send alerts for analysis.', 'true', false, 'bool')
+        ON CONFLICT (group_id, conf_key) DO NOTHING;
+
+    END IF;
+end;
+$$ language plpgsql;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

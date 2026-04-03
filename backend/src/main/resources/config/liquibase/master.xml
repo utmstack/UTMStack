@@ -583,4 +583,6 @@
 
   <include file="/config/liquibase/changelog/20260401003_update_windows_rule_data_types.xml" relativeToChangelogFile="false"/>
 
+  <include file="/config/liquibase/changelog/20260403001_update_socai_group_config.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
