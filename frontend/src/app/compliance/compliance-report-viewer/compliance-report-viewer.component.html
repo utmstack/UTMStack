@@ -48,7 +48,6 @@
           <div *ngFor="let section of sections$ | async as sections; let index = index; trackBy: trackFn"
                [ngClass]="{'mt-3': index === 0}"
                class="d-flex flex-column mb-1 mx-2">
-            <!-- TODO: ELENA to be checked -->
             <!--<app-utm-cp-section [section]="section"
                                 [action]="action"
                                 [loadFirst]="index === activeIndexSection"
