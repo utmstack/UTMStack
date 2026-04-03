@@ -34,6 +34,23 @@
     </div>
   </div>
   <div class="p-3">
+    <div class="d-flex justify-content-around align-content-center">
+      <div class="alert-details w-100 d-flex justify-content-start align-items-center">
+        <span class="text-blue-800 font-weight-light mr-2">Compliance report scope:</span>
+      </div>
+      <button (click)="exportToPdf()"
+              class="btn utm-button utm-button-primary mb-2">
+        <i class="mr-1 icon-file-pdf"></i>
+        Save to PDF
+      </button>
+    </div>
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+      <p class="font-size-base">{{ control.section.standard.standardName }}</p>
+    </div>
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+       <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="control.section.standard.standardDescription"></app-utm-collapsible-text>
+    </div>
+
     <div class="alert-details w-100 d-flex justify-content-start align-items-center mt-3">
       <span class="text-blue-800 font-weight-light mr-2">Compliance section:</span>
     </div>
@@ -47,7 +64,6 @@
     <div class="alert-details w-100 d-flex justify-content-start align-items-center mt-3">
       <span class="text-blue-800 font-weight-light mr-2">Compliance report:</span>
     </div>
-
     <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
       <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="control.controlSolution"></app-utm-collapsible-text>
     </div>
@@ -56,7 +72,6 @@
       <div class="alert-details w-100 d-flex justify-content-start align-items-center mt-3">
         <span class="text-blue-800 font-weight-light mr-2">Compliance remediation:</span>
       </div>
-
       <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
         <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="control.controlRemediation"></app-utm-collapsible-text>
       </div>

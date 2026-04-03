@@ -72,10 +72,9 @@ export class CpControlConfigService extends RefreshDataService<{ sectionId: numb
   }
 
   evaluationsByControl(controlId: number, req?: any): Observable<HttpResponse<ComplianceControlEvaluationHistoryResponse>> {
-    const options = createRequestOption(req); // TODO: ELENA valorar si dejo el req
     return this.http.get<ComplianceControlEvaluationHistoryResponse>(
       `${this.resourceUrl}/${controlId}/evaluations`,
-      { params: options, observe: 'response' }
+      { observe: 'response' }
     );
   }
 
@@ -83,4 +82,10 @@ export class CpControlConfigService extends RefreshDataService<{ sectionId: numb
     this.loadControlSubject.next(params);
   }
 
+  find(controlId: number): Observable<HttpResponse<ComplianceControlType>> {
+    return this.http.get<ComplianceControlType>(
+      `${this.resourceUrl}/get-by-id/${controlId}`,
+      { observe: 'response' }
+    );
+  }
 }
