@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -21,6 +22,8 @@ public interface UtmLogstashFilterRepository extends JpaRepository<UtmLogstashFi
 
     @Query(nativeQuery = true, value = "select utm_logstash_filter.* from utm_logstash_filter where :nameShort = any(string_to_array(utm_logstash_filter.module_name, ','))")
     List<UtmLogstashFilter> findAllByModuleName(@Param("nameShort") String nameShort);
+
+    Optional<UtmLogstashFilter> findOneByModuleName(String moduleName);
 
     @Query("select ulf from UtmLogstashFilter ulf where ulf.id in (:filterList) and ulf.systemOwner=false")
     List<UtmLogstashFilter> findAllByListOfId(@Param("filterList") List<Long> filterList);
