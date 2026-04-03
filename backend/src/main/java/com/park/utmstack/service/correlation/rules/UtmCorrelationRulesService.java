@@ -62,6 +62,10 @@ public class UtmCorrelationRulesService {
      * @return the persisted entity.
      */
     public UtmCorrelationRules save(UtmCorrelationRules rule) {
+        return save(rule, false);
+    }
+
+    public UtmCorrelationRules save(UtmCorrelationRules rule, boolean forcedSystemMode) {
         final String ctx = CLASSNAME + ".saveRule";
         log.debug("Request to save UtmCorrelationRules : {}", rule);
 
@@ -70,6 +74,10 @@ public class UtmCorrelationRulesService {
             if (existingRule.isPresent()) {
                 throw new RuntimeException(ctx + ": " + String.format("Rule with %1$s already exist", rule.getId()));
             }
+        }
+
+        if (forcedSystemMode) {
+            rule.setSystemOwner(true);
         }
 
         rule.setDataTypes(this.saveDataTypes(rule));
@@ -86,6 +94,11 @@ public class UtmCorrelationRulesService {
      * */
     @Transactional
     public void updateRule(UtmCorrelationRules correlationRule) throws Exception {
+        updateRule(correlationRule, false);
+    }
+
+    @Transactional
+    public void updateRule(UtmCorrelationRules correlationRule, boolean forcedSystemMode) throws Exception {
         final String ctx = CLASSNAME + ".updateRule";
         Long id = correlationRule.getId();
         if (id == null) {
@@ -99,7 +112,12 @@ public class UtmCorrelationRulesService {
         if (correlationRule.getDataTypes().isEmpty()) {
             throw new BadRequestException(ctx + ": The rule must have at least one data type.");
         }
-        if(optionalCorrelationRule.get().getSystemOwner() && !utmStackService.isInDevelop()) {
+
+        if (forcedSystemMode) {
+            correlationRule.setSystemOwner(true);
+        }
+
+        if(optionalCorrelationRule.get().getSystemOwner() && !utmStackService.isInDevelop() && !forcedSystemMode) {
             throw new BadRequestException(ctx + ": System's rules can't be updated.");
         }
         correlationRule.setDataTypes(this.saveDataTypes(correlationRule));

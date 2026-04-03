@@ -11,6 +11,7 @@ import com.park.utmstack.service.correlation.rules.UtmCorrelationRulesService;
 import com.park.utmstack.service.dto.correlation.AdversaryType;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesDTO;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesMapper;
+import com.park.utmstack.service.logstash_filter.UtmLogstashFilterService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ public class DefinitionSyncService implements CommandLineRunner {
     private final UtmDataTypesRepository dataTypesRepository;
     private final UtmCorrelationRulesService rulesService;
     private final UtmCorrelationRulesMapper rulesMapper;
+    private final UtmLogstashFilterService filterService;
 
     @Override
     @Transactional
@@ -70,7 +72,7 @@ public class DefinitionSyncService implements CommandLineRunner {
                             log.info("Updating existing filter for module: {}", moduleName);
                             filter.setLogstashFilter(content);
                             filter.setUpdatedAt(Instant.now());
-                            filterRepository.save(filter);
+                            filterService.save(filter, true);
                         }
                     } else {
                         log.info("Inserting new filter for module: {}", moduleName);
@@ -88,7 +90,7 @@ public class DefinitionSyncService implements CommandLineRunner {
                             filter.setDatatype(dataType.get());
                         }
 
-                        filterRepository.save(filter);
+                        filterService.save(filter, true);
                     }
                 } catch (IOException e) {
                     log.error("Error reading filter file {}: {}", path, e.getMessage());
@@ -158,10 +160,10 @@ public class DefinitionSyncService implements CommandLineRunner {
 
                     UtmCorrelationRules entity = rulesMapper.toEntity(ruleDto);
                     if (ruleOpt.isPresent()) {
-                        rulesService.updateRule(entity);
+                        rulesService.updateRule(entity, true);
 
                     } else {
-                        rulesService.save(entity);
+                        rulesService.save(entity, true);
                     }
 
                 } catch (Exception e) {
