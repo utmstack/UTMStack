@@ -1,0 +1,42 @@
+- id: 1020
+  dataTypes:
+    - nids
+  name: Known Bad Actor Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Threat Intelligence
+  technique: "T1071 - Application Layer Protocol"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1071/
+    - https://www.cisa.gov/known-exploited-vulnerabilities-catalog
+  description: |
+    Detects network traffic from known malicious IP addresses, domains, or URLs based on threat intelligence feeds, including command and control servers, malware distribution sites, or known attacker infrastructure.
+    
+    **Next Steps:**
+    1. Immediately block the malicious IP address or domain at network perimeter
+    2. Investigate all recent communications with the identified threat actor
+    3. Check for indicators of compromise on affected systems
+    4. Review logs for any data exfiltration or lateral movement
+    5. Update threat intelligence feeds and security controls
+    6. Consider isolating affected systems for forensic analysis
+    7. Notify incident response team and relevant stakeholders
+  where: |
+    (
+      safe(log.threat_intel_match, false) == true ||
+      safe(log.reputation_score, 100) < 20 ||
+      safe(log.blacklisted, false) == true ||
+      safe(log.malicious_indicator, false) == true ||
+      safe(log.ioc_match, false) == true ||
+      safe(log.threat_category, "") in ["malware", "botnet", "c2", "phishing", "exploit_kit", "ransomware"]
+    ) && (
+      safe(origin.ip, "") != "" ||
+      safe(target.ip, "") != "" ||
+      safe(log.domain, "") != "" ||
+      safe(log.url, "") != ""
+    )
+  deduplicateBy:
+    - origin.ip
+    - target.ip

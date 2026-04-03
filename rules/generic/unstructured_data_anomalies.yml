@@ -1,0 +1,39 @@
+- id: 1002
+  dataTypes:
+    - generic
+  name: Unstructured Data Anomalies
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Data Anomaly
+  technique: Log Injection
+  adversary: origin
+  references:
+    - https://betterstack.com/community/guides/logging/json-logging/
+    - https://attack.mitre.org/techniques/T1055/
+    - https://owasp.org/www-community/attacks/Log_Injection
+  description: |
+    Detects anomalies in unstructured log data including:
+    - Unusually large log messages (>10KB) that may indicate log flooding or DoS attempts
+    - Non-printable/control characters that could be log injection attempts
+    - HTTP header injection patterns in log messages
+    - Binary data in text logs
+    
+    Next Steps:
+    1. Review the suspicious log entry to understand its source and content
+    2. Check if the source IP/system is authorized to generate such logs
+    3. Look for patterns of similar anomalous entries from the same source
+    4. Investigate if this could be an attempt to:
+       - Inject false log entries to cover tracks
+       - Overflow log storage systems
+       - Inject commands through log processing systems
+    5. Review log processing pipeline for potential vulnerabilities
+    6. Consider implementing log size limits and input validation at the source
+  where: |
+    (safe(log.message, "") != "" && size(safe(log.message, "")) > 10000) ||
+    (safe(log.message, "").contains("\x00")) ||
+    (safe(log.message, "").contains("\r\n") && safe(log.message, "").contains("HTTP/")) ||
+    (safe(log.message, "").matches(".*[\x01-\x08\x0B\x0C\x0E-\x1F].*"))
+  deduplicateBy:
+    - lastEvent.log.message

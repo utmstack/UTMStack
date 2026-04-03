@@ -1,0 +1,36 @@
+- id: 1015
+  dataTypes:
+    - debian_family
+  name: Debian Security Advisory Match Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Vulnerability Management
+  technique: "T1190 - Exploit Public-Facing Application"
+  adversary: origin
+  references:
+    - https://www.debian.org/security/
+    - https://security-tracker.debian.org/tracker/
+    - https://attack.mitre.org/techniques/T1190/
+  description: |
+    Detects activities matching known Debian Security Advisories (DSA) including vulnerable package usage, CVE exploitation attempts, and unpatched system indicators. This rule identifies systems that may be running vulnerable packages or have security issues that match published Debian security advisories.
+    
+    **Next Steps:**
+    1. Immediately verify the affected system's package versions and security status
+    2. Check if security updates are available and apply them promptly
+    3. Review the specific CVE details and assess potential impact on your environment
+    4. Examine system logs for signs of exploitation attempts targeting the vulnerability
+    5. Consider isolating the affected system if critical vulnerabilities are confirmed
+    6. Update vulnerability management procedures to prevent similar exposures
+    7. Verify that automatic security updates are properly configured if applicable
+  where: |
+    (safe(log.packageName, "") != "" && safe(log.cveId, "") matches "CVE-\\d{4}-\\d{4,}" && safe(log.severity, "") in ["critical", "high"]) ||
+    (safe(log.message, "") contains "DSA-" || safe(log.message, "") contains "DLA-" || safe(log.message, "") contains "DTSA-") && safe(log.eventType, "") in ["vulnerability_detected", "exploit_attempt", "package_vulnerable"] ||
+    (safe(log.aptOutput, "") contains "Security updates available" || safe(log.aptOutput, "") contains "vulnerable version installed" || safe(log.aptOutput, "") contains "security patch required") ||
+    (safe(log.service, "") == "unattended-upgrades" && (safe(log.message, "") contains "security update failed" || safe(log.message, "") contains "held back due to phased updates" || safe(log.message, "") contains "dependency resolution failed")) ||
+    (safe(log.auditType, "") == "SYSCALL" && safe(log.exe, "") != "" && safe(log.vulnerabilityStatus, "") in ["unpatched", "vulnerable", "exploitable"]) ||
+    (safe(log.dpkgStatus, "") contains "security" && safe(log.action, "") in ["hold", "downgrade"] && (safe(log.reason, "") contains "vulnerability" || safe(log.reason, "") contains "CVE" || safe(log.reason, "") contains "security"))
+  deduplicateBy:
+    - target.host
+    - lastEvent.log.cveId

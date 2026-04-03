@@ -1,0 +1,61 @@
+- id: 1003
+  dataTypes:
+    - firepower
+  name: URL Filtering Policy Violations
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Policy Violation
+  technique: "T1102 - Web Service"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/td/docs/security/firepower/623/configuration/guide/fpmc-config-guide-v623/url_filtering.html
+    - https://attack.mitre.org/techniques/T1102/
+  description: |
+    Detects attempts to access blocked or restricted URLs, including malicious sites, phishing domains, or policy-violating content categories. This may indicate users attempting to access prohibited content, malware callbacks, or data exfiltration attempts.
+    
+    Next Steps:
+    1. Review the blocked URL and category to determine if this is a legitimate business need or potential threat
+    2. Check the source IP and user to identify if this is a repeat offender or targeted activity
+    3. Examine network logs for any successful connections to similar domains before the block was implemented
+    4. If malware/phishing category, investigate the endpoint for potential compromise indicators
+    5. Review user's recent web activity for patterns of policy violations or suspicious behavior
+    6. Consider updating web filtering policies if legitimate business sites are being blocked
+    7. Document the incident and notify the user's manager if policy violations are confirmed
+  where: |
+    safe(log.eventType, "") == "URL_EVENT" && 
+    (safe(log.action, "") == "BLOCKED" || 
+     safe(log.action, "") == "RESET_BOTH" ||
+     safe(log.urlCategory, "").contains("malware") ||
+     safe(log.urlCategory, "").contains("phishing") ||
+     safe(log.urlCategory, "").contains("spam") ||
+     safe(log.urlCategory, "").contains("botnets") ||
+     safe(log.urlCategory, "").contains("spyware") ||
+     safe(log.urlCategory, "").contains("adult") ||
+     safe(log.urlCategory, "").contains("gambling") ||
+     safe(log.urlCategory, "").contains("illegal") ||
+     safe(log.urlCategory, "").contains("proxy-avoidance"))
+  afterEvents:
+    - indexPattern: v11-log-cisco-firepower-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.eventType.keyword
+          operator: filter_term
+          value: 'URL_EVENT'
+      within: now-2h
+      count: 10
+      or:
+        - with:
+            - field: log.action.keyword
+              operator: filter_term
+              value: 'BLOCKED'
+        - with:
+            - field: log.action.keyword
+              operator: filter_term
+              value: 'RESET_BOTH'
+  deduplicateBy:
+    - origin.ip
+    - lastEvent.log.url

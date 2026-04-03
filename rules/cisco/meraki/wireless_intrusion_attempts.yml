@@ -1,0 +1,37 @@
+- id: 1002
+  dataTypes:
+    - meraki
+  name: Wireless Intrusion Attempts
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Wireless Security
+  technique: "T1595.002 - Active Scanning: Vulnerability Scanning"
+  adversary: origin
+  references:
+    - https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples
+    - https://attack.mitre.org/techniques/T1595/002/
+  description: |
+    Detects wireless intrusion attempts including deauthentication attacks, association floods, and other wireless-specific attack patterns that could compromise the wireless network integrity.
+    
+    Next Steps:
+    1. Review the wireless access point logs for the affected device
+    2. Identify the source MAC address and physical location if possible
+    3. Check for unauthorized devices or rogue access points in the vicinity
+    4. Verify wireless security configurations and update if necessary
+    5. Consider implementing additional wireless monitoring and detection capabilities
+    6. Document the incident and update security policies if needed
+  where: |
+    safe(log.eventType, "") == "ids_alerted" ||
+    safe(log.eventType, "") == "wids_alerted" ||
+    (safe(log.type, "") == "airmarshal_events" && 
+     (safe(log.subtype, "") contains "attack" || 
+      safe(log.subtype, "") contains "flood" ||
+      safe(log.subtype, "") contains "deauth")) ||
+    (safe(log.message, "") contains "deauthentication attack" ||
+     safe(log.message, "") contains "association flood" ||
+     safe(log.message, "") contains "wireless intrusion")
+  deduplicateBy:
+    - origin.ip
+    - target.mac

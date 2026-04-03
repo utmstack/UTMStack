@@ -1,0 +1,34 @@
+- id: 1011
+  dataTypes:
+    - firewall-fortigate-traffic
+  name: FortiGuard Threat Feed Match Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Threat Intelligence
+  technique: "T1071 - Application Layer Protocol"
+  adversary: origin
+  references:
+    - https://docs.fortinet.com/document/fortigate/7.6.2/administration-guide/995517/fortiguard-category-threat-feed
+    - https://attack.mitre.org/techniques/T1071/
+  description: |
+    Detects when network traffic matches a FortiGuard threat feed entry, indicating communication with known malicious IPs, domains, or URLs. This rule identifies potential malware command and control communications, data exfiltration attempts, or other malicious activities based on FortiGuard's threat intelligence database. The detection covers webfilter blocks, custom remote FortiGuard categorizations, and explicit FortiGuard WebFilter identifications.
+    
+    Next Steps:
+    1. Immediately investigate the source IP address for signs of compromise
+    2. Check if multiple hosts are communicating with the same threat feed-matched destination
+    3. Review the specific threat category and description from FortiGuard
+    4. Isolate affected systems if malware C2 communication is suspected
+    5. Block the malicious destination at the firewall level if not already blocked
+    6. Conduct forensic analysis on the source system to identify potential malware or unauthorized applications
+    7. Review network logs for additional suspicious activity from the same source
+    8. Check endpoint security tools for any related alerts or indicators
+    9. Consider threat hunting for similar IOCs across the environment
+  where: >
+    (safe(log.subtype, "") == "webfilter" && safe(log.eventtype, "") == "ftgd_blk") ||
+    (safe(log.cat, "") == "192" && safe(log.catdesc, "") contains "Custom-Remote-FGD") ||
+    (safe(log.msg, "") contains "FortiGuard-WebFilter identified URL")
+  deduplicateBy:
+    - origin.ip
+    - target.ip

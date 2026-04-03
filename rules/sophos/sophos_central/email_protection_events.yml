@@ -1,0 +1,29 @@
+- id: 1005
+  dataTypes:
+    - sophos-central
+  name: Email Protection Events
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Email Security
+  technique: "T1566 - Phishing"
+  adversary: origin
+  references:
+    - https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/EmailSecurity/index.html
+    - https://attack.mitre.org/techniques/T1566/
+  description: |
+    Detects email-based threats identified by Sophos Central, including phishing attempts, malicious attachments, spam campaigns, and impersonation attacks. This rule triggers when Sophos Central identifies suspicious email activities that could indicate phishing campaigns, malware distribution, or other email-based attacks.
+    
+    Next Steps:
+    1. Review the email details including sender, recipient, subject, and message content
+    2. Analyze any attachments or links for malicious indicators
+    3. Check if the sender address is legitimate or spoofed
+    4. Verify if similar emails were sent to other users in the organization
+    5. Consider quarantining the email and blocking the sender domain if confirmed malicious
+    6. Update email security policies if new attack patterns are identified
+    7. Notify affected users about the potential threat and provide security awareness guidance
+  where: safe(log.type, "") in ["Event::Email::Threat::Detected", "Event::Email::Phishing::Detected", "Event::Email::Malware::Detected", "Event::Email::Impersonation::Detected", "Event::Email::Spam::Detected"] || (safe(log.category, "") == "email" && safe(log.severity, "") in ["medium", "high", "critical"])
+  deduplicateBy:
+    - lastEvent.log.messageId
+    - lastEvent.log.senderAddress

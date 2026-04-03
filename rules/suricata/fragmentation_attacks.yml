@@ -1,0 +1,47 @@
+- id: 1005
+  dataTypes:
+    - nids
+  name: NIDS Fragmentation Attack Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 3
+  category: Network Attack
+  technique: "T1499 - Endpoint Denial of Service"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/about/security-center/guide-network-attacks.html
+    - https://attack.mitre.org/techniques/T1499/
+  description: |
+    Detects IP fragmentation attacks including teardrop, overlapping fragments, tiny fragments, and other fragmentation-based attacks designed to crash systems or evade detection. These attacks exploit vulnerabilities in IP fragment reassembly processes to cause denial of service conditions or bypass security controls.
+
+    Next Steps:
+    1. Immediately block the source IP address at network perimeter devices
+    2. Analyze network traffic patterns from the attacking IP for additional malicious activity
+    3. Check system logs for any signs of service degradation or crashes on targeted systems
+    4. Review firewall and IPS logs for related fragmentation events
+    5. Monitor network performance metrics to assess impact on availability
+    6. Consider implementing fragment filtering policies if not already in place
+    7. Document the incident and update threat intelligence feeds with the attacking IP
+  where: |
+    safe(log.eventType, "") in ["fragmentation_attack", "fragment_anomaly", "ip_fragment"] &&
+    safe(origin.ip, "") != "" &&
+    (safe(log.fragmentationType, "") in ["overlapping", "tiny", "teardrop", "excessive", "malformed"] ||
+     safe(log.fragmentCount, 0) > 100 ||
+     safe(log.fragmentSize, 0) < 8 ||
+     safe(log.fragmentOffset, 0) < 0) &&
+    safe(log.protocol, "") in ["IP", "IPv4", "IPv6", "ICMP"]
+  afterEvents:
+    - indexPattern: v11-log-nids-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.ip.keyword
+          operator: filter_term
+          value: '{{target.ip}}'
+      within: now-10m
+      count: 20
+  deduplicateBy:
+    - origin.ip
+    - target.ip

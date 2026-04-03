@@ -1,0 +1,57 @@
+- id: 1007
+  dataTypes:
+    - windows
+    - wineventlog
+  name: Mimikatz Tool Usage Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Credential Access
+  technique: "T1003.001 - OS Credential Dumping: LSASS Memory"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1003/001/
+    - https://github.com/gentilkiwi/mimikatz
+    - https://docs.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4688
+  description: |
+    Detects potential Mimikatz credential dumping tool usage through various indicators including characteristic command patterns, LSASS access, and known Mimikatz modules. Mimikatz is a well-known post-exploitation tool used to extract plaintext passwords, hash, PIN code and kerberos tickets from memory.
+
+    Next Steps:
+    1. Immediately isolate the affected host to prevent lateral movement
+    2. Review the full command line and process execution details
+    3. Check for any credential theft or privilege escalation activities
+    4. Examine recent logon events and account usage patterns
+    5. Scan for additional persistence mechanisms or backdoors
+    6. Reset passwords for all potentially compromised accounts
+    7. Review security logs for signs of lateral movement to other systems
+    8. Conduct forensic analysis of memory dumps and system artifacts
+  where: |
+    (
+      (safe(log.eventCode, "") == "4688" || safe(log.winlogEventId, 0) == 4688) &&
+      (
+        safe(log.winlog.event_data.NewProcessName, "").matches("(?i)mimikatz") ||
+        safe(log.winlog.event_data.CommandLine, "").matches("(?i)(sekurlsa|kerberos|crypto|vault|lsadump|dpapi)::") ||
+        safe(log.winlog.event_data.CommandLine, "").matches("(?i)(logonpasswords|pth|golden|silver|ticket)") ||
+        safe(log.winlog.event_data.CommandLine, "").matches("(?i)privilege::debug") ||
+        safe(log.winlog.event_data.CommandLine, "").contains("coffee") ||
+        safe(log.winlog.event_data.CommandLine, "").contains("kirbi")
+      )
+    ) ||
+    (
+      (safe(log.eventCode, "") == "4104" || safe(log.winlogEventId, 0) == 4104) &&
+      safe(log.winlogProviderName, "") == "Microsoft-Windows-PowerShell" &&
+      (
+        safe(log.winlog.event_data.ScriptBlockText, "").matches("(?i)invoke-mimikatz") ||
+        safe(log.winlog.event_data.ScriptBlockText, "").matches("(?i)mimikatz\\.ps1") ||
+        safe(log.winlog.event_data.ScriptBlockText, "").matches("(?i)DumpCreds|DumpCerts") ||
+        safe(log.winlog.event_data.ScriptBlockText, "").contains("Win32_ShadowCopy")
+      )
+    ) ||
+    (
+      safe(log.eventCode, "") == "10" &&
+      safe(log.winlog.event_data.TargetImage, "").matches("(?i)lsass\\.exe") &&
+      safe(log.winlog.event_data.GrantedAccess, "").matches("(0x1010|0x1038|0x1418|0x1438)")
+    )
+  deduplicateBy:
+    - origin.host

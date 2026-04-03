@@ -1,0 +1,41 @@
+- id: 1006
+  dataTypes:
+    - antivirus-bitdefender-gz
+  name: Bitdefender GravityZone Quarantine Failure Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Malware Detection
+  technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+  adversary: origin
+  references:
+    - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+    - https://attack.mitre.org/techniques/T1562/001/
+  description: |
+    Detects when Bitdefender GravityZone fails to quarantine detected malware. This could indicate that the malware is actively resisting remediation attempts or that there are permission issues preventing proper quarantine.
+    
+    Next Steps:
+    - Immediately isolate the affected system from the network
+    - Check if the malware process is still running and attempt manual termination
+    - Verify antivirus permissions and ensure it has necessary privileges
+    - Review system logs for signs of privilege escalation or rootkit activity
+    - Consider reimaging the system if quarantine continues to fail
+    - Check for similar failures on other systems in the environment
+    - Investigate the specific malware detected and research its capabilities
+    - Review quarantine configuration and storage capacity
+  where: |
+    safe(log.eventType, "") == "quarantine_failed" || 
+    safe(log.eventType, "") == "quarantine_failure" ||
+    (safe(log.eventType, "") == "AntiMalware" && (
+      safe(log.requestToParse, "").contains("quarantine") && safe(log.requestToParse, "").contains("fail")
+    )) ||
+    (safe(log.eventType, "") == "AntiMalware" && (
+      safe(log.restData, "").contains("quarantine failed") ||
+      safe(log.restData, "").contains("unable to quarantine") ||
+      safe(log.restData, "").contains("failed to quarantine")
+    )) ||
+    (safe(log.eventType, "") == "AntiMalware" && safe(log.severity, "") == "failure" && safe(log.requestToParse, "").contains("quarantine"))
+  deduplicateBy:
+    - lastEvent.target.host
+    - lastEvent.target.file

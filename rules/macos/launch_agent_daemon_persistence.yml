@@ -1,0 +1,38 @@
+- id: 1006
+  dataTypes:
+    - macos
+  name: Launch Agent/Daemon Persistence Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Persistence
+  technique: "T1543.001 - Create or Modify System Process: Launch Agent"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1543/001/
+    - https://developer.apple.com/documentation/os/logging
+    - https://www.crowdstrike.com/en-us/blog/how-to-leverage-apple-unified-log-for-incident-response/
+  description: |
+    Detects suspicious creation or modification of Launch Agents and Launch Daemons which are commonly used for persistence on macOS systems. Monitors for new plist files being created in LaunchAgents or LaunchDaemons directories.
+    
+    Next Steps:
+    1. Review the specific Launch Agent/Daemon plist file that was created or modified
+    2. Examine the contents of the plist file for suspicious commands or executables
+    3. Check if the plist file was created by a legitimate administrative process
+    4. Verify the digital signature and origin of any executables referenced in the plist
+    5. Review system logs around the time of creation for related suspicious activity
+    6. Check for other persistence mechanisms on the affected system
+    7. Consider isolating the system if malicious persistence is confirmed
+  where: |
+    (safe(log.subsystem, "") == "com.apple.launchd" || safe(log.process, "") == "launchd") &&
+    (safe(log.eventMessage, "") contains "LaunchAgent" || safe(log.eventMessage, "") contains "LaunchDaemon") &&
+    (safe(log.eventMessage, "") contains "loaded" || safe(log.eventMessage, "") contains "started" || safe(log.eventMessage, "") contains "created") &&
+    (safe(log.eventMessage, "") contains "/Library/LaunchAgents" || 
+     safe(log.eventMessage, "") contains "/Library/LaunchDaemons" ||
+     safe(log.eventMessage, "") contains "/System/Library/LaunchAgents" ||
+     safe(log.eventMessage, "") contains "/System/Library/LaunchDaemons" ||
+     safe(log.eventMessage, "") contains "~/Library/LaunchAgents")
+  deduplicateBy:
+    - origin.host
+    - log.eventMessage

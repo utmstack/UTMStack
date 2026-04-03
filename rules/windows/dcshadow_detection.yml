@@ -1,0 +1,59 @@
+- id: 1024
+  dataTypes:
+    - wineventlog
+  name: DCShadow Attack Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Defense Evasion
+  technique: "T1207 - Rogue Domain Controller"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1207/
+    - https://www.dcshadow.com/
+    - https://blog.alsid.eu/dcshadow-explained-4510f52fc19d
+  description: |
+    Detects DCShadow attacks where attackers register a rogue domain controller to push malicious Active Directory changes. This technique allows adversaries to modify Active Directory objects by registering a rogue domain controller and triggering replication, effectively bypassing security controls and detection mechanisms.
+    
+    The rule monitors for:
+    - Computer account modifications with domain controller service principal names
+    - Access to sensitive Active Directory objects and properties
+    - Creation of server objects in the domain controller configuration
+    
+    Next Steps:
+    1. Immediately investigate the source host and user account involved in the activity
+    2. Check if the host is an authorized domain controller in your environment
+    3. Review recent Active Directory changes and replication logs
+    4. Examine authentication logs for the affected user account
+    5. Verify the legitimacy of any recent domain controller promotions
+    6. Check for signs of compromise on the source system
+    7. Consider isolating the affected host if unauthorized activity is confirmed
+    8. Review domain controller security policies and access controls
+  where: |
+    (
+      (safe(log.eventCode, "") == "4742" && 
+       safe(log.winlogChannel, "") == "Security" &&
+       safe(log.winlog.event_data.ServicePrincipalNames, "") =~ ".*GC/.*" &&
+       safe(log.winlog.event_data.UserAccountControl, "") =~ ".*SERVER_TRUST_ACCOUNT.*") ||
+      (safe(log.eventCode, "") == "4662" && 
+       safe(log.winlogChannel, "") == "Security" &&
+       safe(log.winlog.event_data.ObjectType, "") == "{bf967a92-0de6-11d0-a285-00aa003049e2}" &&
+       safe(log.winlog.event_data.Properties, "") =~ ".*1131f6ac-9c07-11d1-f79f-00c04fc2dcd2.*") ||
+      (safe(log.eventCode, "") == "5137" && 
+       safe(log.winlogChannel, "") == "Security" &&
+       safe(log.winlog.event_data.ObjectClass, "") == "server" &&
+       safe(log.winlog.event_data.ObjectDN, "") =~ ".*CN=Servers,CN=.*")
+    ) &&
+    safe(origin.host, "") !~ ".*DC.*"
+  afterEvents:
+    - indexPattern: v11-log-wineventlog-*
+      with:
+        - field: origin.host.keyword
+          operator: filter_term
+          value: '{{origin.host}}'
+      within: now-2h
+      count: 2
+  deduplicateBy:
+    - origin.host
+    - lastEvent.log.winlog.event_data.SubjectUserName

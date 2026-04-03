@@ -1,0 +1,34 @@
+- id: 1003
+  dataTypes:
+    - asa
+  name: Privilege Escalation via Enable Mode
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Privilege Escalation
+  technique: "T1078.003 - Valid Accounts: Local Accounts"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1078/003/
+    - https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog.html
+  description: |
+    Detects when users attempt to escalate privileges using the enable command on ASA devices. This could indicate unauthorized attempts to gain administrative access or legitimate administrators accessing privileged mode.
+    
+    Next Steps:
+    1. Verify if the user attempting enable mode access is authorized for administrative privileges
+    2. Check the source IP address to confirm it belongs to an authorized administrator workstation
+    3. Review recent configuration changes made after the privilege escalation
+    4. Look for any suspicious commands executed in enable mode following this event
+    5. Verify with the user if this was a legitimate administrative action
+    6. If unauthorized, immediately disable the user account and review all actions taken during the session
+    7. Check for any persistence mechanisms or backdoors that may have been created
+  where: |
+    safe(log.message_id, "") == "111008" && 
+    (safe(log.command, "") =~ "^enable" || 
+     safe(origin.user, "") == "enable_15" ||
+     safe(log.message, "") =~ "(?i)enable.*command") &&
+    safe(origin.ip, "") != ""
+  deduplicateBy:
+    - origin.user
+    - origin.ip

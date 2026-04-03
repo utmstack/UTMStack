@@ -1,0 +1,28 @@
+- id: 1015
+  dataTypes:
+    - firewall-sonicwall
+  name: SonicWall NAT Policy Violations
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Network Security
+  technique: "T1572 - Protocol Tunneling"
+  adversary: origin
+  references:
+    - https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
+    - https://attack.mitre.org/techniques/T1572/
+  description: |
+    Detects NAT policy violations or unusual NAT translations that could indicate attempts to bypass network segmentation or perform unauthorized network access. This rule identifies failed NAT operations, translation errors, or policy violations that may suggest malicious activity such as network reconnaissance, lateral movement attempts, or efforts to circumvent network security controls.
+
+    Next Steps:
+    1. Review the specific NAT policy that was violated and the source/destination addresses involved
+    2. Investigate the origin IP address for other suspicious network activities
+    3. Check if the violation represents a legitimate configuration issue or potential security threat
+    4. Examine network logs for patterns of similar violations from the same source
+    5. Validate NAT configuration and policies to ensure they align with security requirements
+    6. Consider implementing additional monitoring for the affected network segments
+  where: (safe(log.natSrc, "") != "" || safe(log.natDst, "") != "" || safe(log.natSrcV6, "") != "" || safe(log.natDstV6, "") != "") && (safe(log.message, "").contains("NAT") || safe(log.message, "").contains("translation") || safe(log.category, "").contains("NAT")) && (safe(action, "") == "deny" || safe(log.message, "").contains("fail") || safe(log.message, "").contains("error") || safe(log.message, "").contains("violation"))
+  deduplicateBy:
+    - origin.ip
+    - target.ip

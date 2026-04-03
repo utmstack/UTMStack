@@ -1,0 +1,35 @@
+- id: 1002
+  dataTypes:
+    - firewall-sonicwall
+  name: SonicWall Intrusion Prevention System Alert
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 3
+  category: Network Attack
+  technique: "T1190 - Exploit Public-Facing Application"
+  adversary: origin
+  references:
+    - https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
+    - https://attack.mitre.org/techniques/T1190/
+  description: |
+    Detects when SonicWall IPS identifies and blocks intrusion attempts, including buffer overflows, SQL injection, cross-site scripting, and other network-based attacks targeting vulnerabilities. This rule triggers when the SonicWall firewall's Intrusion Prevention System detects malicious traffic patterns or known attack signatures.
+    
+    Next Steps:
+    1. Verify the blocked attack by reviewing the SonicWall logs for attack details and signatures matched
+    2. Check if the attack was successfully blocked or if any traffic bypassed the IPS
+    3. Investigate the source IP for additional malicious activity or patterns
+    4. Review target systems for any signs of compromise if the attack was not fully blocked
+    5. Update IPS signatures if new attack patterns are discovered
+    6. Consider implementing additional network segmentation if attacks are targeting critical systems
+    7. Review and update security policies if necessary to prevent similar attacks
+  where: |
+    (safe(log.ipscat, "") != "" || 
+     safe(log.message, "").contains("IPS") ||
+     safe(log.eventName, "").contains("Intrusion") ||
+     safe(log.category, "").contains("Intrusion Prevention") ||
+     (safe(log.ipspri, "") != "" && safe(log.ipspri, "0") != "0")) &&
+    (safe(action, "") == "blocked" || safe(log.fw_action, "") == "drop")
+  deduplicateBy:
+    - origin.ip
+    - target.ip

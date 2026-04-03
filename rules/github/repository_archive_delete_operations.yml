@@ -1,0 +1,30 @@
+- id: 1026
+  dataTypes:
+    - github
+  name: Repository Archive or Delete Operations
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 3
+  category: Data Destruction
+  technique: "T1485 - Data Destruction"
+  adversary: origin
+  references:
+    - https://docs.github.com/en/webhooks/webhook-events-and-payloads#repository
+    - https://attack.mitre.org/techniques/T1485/
+  description: |
+    Detects when a repository is archived or deleted, which could indicate malicious attempts to destroy code or make repositories unavailable. This could be part of a supply chain attack or insider threat.
+    
+    Next Steps:
+    - Verify if the action was authorized and performed by a legitimate user
+    - Check if the user account shows signs of compromise
+    - Review recent activities by the same user for other suspicious actions
+    - Contact the repository owner to confirm if the action was intentional
+    - If unauthorized, restore the repository from backups if available
+    - Review access controls and permissions for critical repositories
+  where: >-
+    safe(log.action, "") in ["archived", "deleted", "privatized"] &&
+    safe(log.repositoryName, "") != ""
+  deduplicateBy:
+    - lastEvent.log.repositoryName
+    - lastEvent.log.senderLogin

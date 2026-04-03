@@ -1,0 +1,47 @@
+- id: 1019
+  dataTypes:
+    - syslog
+  name: TCP Window Scaling Attack
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: Network Security
+  technique: "T1499 - Endpoint Denial of Service"
+  adversary: origin
+  references:
+    - https://www.linkedin.com/advice/0/how-can-tcp-traffic-analysis-help-identify-mitigate-iscyf
+    - https://attack.mitre.org/techniques/T1499/
+  description: |
+    Detects TCP window scaling attacks where attackers manipulate window size values to throttle or block data flow, causing denial of service. Monitors for discrepancies in window scale values and abnormal window sizes.
+    
+    Next Steps:
+    1. Verify the source IP reputation using threat intelligence databases
+    2. Check if the affected service is experiencing performance degradation or timeouts
+    3. Review network traffic patterns from the source IP for other suspicious activities
+    4. Analyze packet captures to confirm window manipulation patterns
+    5. Consider implementing rate limiting or blocking the source IP if malicious activity is confirmed
+    6. Monitor for similar patterns from other sources that might indicate a coordinated attack
+  where: |
+    safe(origin.ip, "") != "" &&
+    (
+      (safe(log.tcp_window_scale, 0) > 14) ||
+      (safe(log.tcp_window_size, 0) == 0 && safe(log.tcp_flags, "") contains "ACK") ||
+      (safe(log.tcp_window_size, 0) > 1073741824) ||
+      (safe(log.tcp_flags, "") contains "SYN" && safe(log.tcp_window_scale, 0) != safe(log.tcp_window_scale_reply, 0) && safe(log.tcp_window_scale, 0) > 0 && safe(log.tcp_window_scale_reply, 0) > 0)
+    )
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.port.keyword
+          operator: filter_term
+          value: '{{target.port}}'
+      within: now-5m
+      count: 10
+  deduplicateBy:
+    - origin.ip
+    - target.ip
+    - target.port

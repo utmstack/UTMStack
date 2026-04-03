@@ -1,0 +1,48 @@
+- id: 1009
+  dataTypes:
+    - rfc-5425
+  name: RFC-5425 TLS Version Downgrade Attacks
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Cryptographic Attacks
+  technique: "T1557 - Adversary-in-the-Middle"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5425#section-5
+    - https://attack.mitre.org/techniques/T1557/
+    - https://attack.mitre.org/techniques/T1040/
+  description: |
+    Detects attempts to downgrade TLS version in RFC-5425 syslog connections, which could allow attackers to exploit vulnerabilities in older TLS versions or perform man-in-the-middle attacks on syslog traffic.
+    
+    Next Steps:
+    1. Verify if the source IP is authorized to establish syslog connections
+    2. Check if the downgrade was initiated by a legitimate network device or security appliance
+    3. Review network traffic patterns from the source IP for other suspicious activities
+    4. Examine firewall and IDS logs for related TLS manipulation attempts
+    5. Ensure all syslog clients and servers are configured to use TLS 1.2 or higher
+    6. Consider blocking the source IP if the activity is confirmed as malicious
+  where: |
+    safe(log.protocol, "") == "rfc-5425" && (
+      (safe(log.tls_version, "") == "TLSv1.0" || safe(log.tls_version, "") == "TLSv1.1") ||
+      (safe(log.tls_version_offered, "") != safe(log.tls_version_negotiated, "") && 
+       safe(log.tls_version_negotiated, "") < safe(log.tls_version_offered, "")) ||
+      safe(log.tls_downgrade_detected, false) == true ||
+      safe(log.ssl_fallback, false) == true ||
+      (safe(log.cipher_strength, "") == "weak" && safe(target.port, 0) == 6514)
+    )
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.port
+          operator: filter_term
+          value: '6514'
+      within: now-1h
+      count: 2
+  deduplicateBy:
+    - adversary.ip
+    - target.ip

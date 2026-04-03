@@ -1,0 +1,41 @@
+- id: 1011
+  dataTypes:
+    - firewall-fortiweb
+  name: FortiWeb CSRF Protection Triggered
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Web Application Attack
+  technique: "T1071.001 - Application Layer Protocol: Web Protocols"
+  adversary: origin
+  references:
+    - https://help.fortinet.com/fweb/583/Content/FortiWeb/fortiweb-admin/csrf_attacks.htm
+    - https://attack.mitre.org/techniques/T1071/001/
+  description: |
+    Detects when FortiWeb CSRF protection is triggered, indicating potential cross-site request forgery attempts. CSRF attacks exploit the trust that a site has in a user's browser to transmit unauthorized commands.
+    
+    Next Steps:
+    1. Review the source IP address to determine if it's a known attacker or compromised system
+    2. Check if the target application has proper CSRF tokens implemented
+    3. Analyze the specific request that triggered the protection to understand the attack vector
+    4. Review other security events from the same source IP for pattern analysis
+    5. Consider blocking the source IP if multiple CSRF attempts are detected
+    6. Verify that legitimate users aren't being incorrectly flagged
+    7. Check the FortiWeb policy configuration to ensure CSRF protection is properly tuned
+  where: |
+    (contains(safe(log.message, ""), "CSRF") || 
+     contains(safe(log.message, ""), "cross-site request forgery") ||
+     contains(safe(log.message, ""), "Cross Site Request Forgery")) &&
+    safe(origin.ip, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-firewall-fortiweb-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-15m
+      count: 5
+  deduplicateBy:
+    - origin.ip
+    - target.ip

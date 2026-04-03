@@ -1,0 +1,28 @@
+- id: 1010
+  dataTypes:
+    - sophos-central
+  name: Peripheral Control Security Event
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Peripheral Control
+  technique: "T1025 - Removable Media"
+  adversary: origin
+  references:
+    - https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/EndpointProtection/ConfigureDeviceControl/index.html
+    - https://attack.mitre.org/techniques/T1025/
+  description: |
+    Detects peripheral control events including blocked or monitored access to USB devices, optical drives, network devices, and other peripherals. This may indicate unauthorized device usage or potential data theft attempts.
+    
+    Next Steps:
+    1. Review the specific peripheral device that triggered the alert
+    2. Verify if the device access was authorized by the user or organization policy
+    3. Check for any sensitive data that may have been accessed or transferred
+    4. Investigate the user's recent activity for any other suspicious behavior
+    5. Consider updating device control policies if legitimate business use is identified
+    6. If malicious activity is suspected, isolate the endpoint and conduct forensic analysis
+  where: safe(log.type, "") == "Event::Endpoint::Peripheral::Blocked" || safe(log.category, "") == "Peripherals Controlled" || (safe(log.peripheralType, "") != "" && safe(log.action, "") == "blocked")
+  deduplicateBy:
+    - lastEvent.log.endpointId
+    - lastEvent.log.peripheralType

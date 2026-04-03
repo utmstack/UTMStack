@@ -1,0 +1,35 @@
+- id: 1019
+  dataTypes:
+    - sophos-central
+  name: Active Threat Investigation Case
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Incident Response
+  technique: "T1055 - Process Injection"
+  adversary: origin
+  references:
+    - https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/ThreatAnalysisCenter/Detections/index.html
+    - https://attack.mitre.org/tactics/TA0008/
+    - https://attack.mitre.org/techniques/T1055/
+  description: |
+    Detects when threat cases are opened for investigation indicating potential security incidents requiring analysis, particularly focusing on cases with multiple related detections or high-risk indicators. This rule identifies active threat investigation cases that suggest advanced persistent threats or coordinated attacks.
+
+    Next Steps:
+    1. Review the threat case details and associated detections in Sophos Central console
+    2. Examine the timeline of events leading to the case creation
+    3. Check for lateral movement indicators across the network
+    4. Validate if the threat has been contained or requires additional response
+    5. Correlate with other security tools and threat intelligence feeds
+    6. Document findings and update incident response procedures if needed
+  where: |
+    safe(log.type, "") == "threat_case" &&
+    safe(log.case_status, "") in ["open", "investigating"] &&
+    (safe(log.related_detections, 0) >= 3 || 
+     safe(log.mitre_tactics, "") contains "persistence" ||
+     safe(log.mitre_tactics, "") contains "lateral_movement" ||
+     safe(log.threat_score, 0) >= 70)
+  deduplicateBy:
+    - adversary.host
+    - target.host

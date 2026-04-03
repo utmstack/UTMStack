@@ -1,0 +1,61 @@
+- id: 1006
+  dataTypes:
+    - firepower
+  name: Network Discovery Anomalies Detection
+  impact:
+    confidentiality: 2
+    integrity: 1
+    availability: 1
+  category: Discovery
+  technique: "T1046 - Network Service Discovery"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/td/docs/security/firepower/70/configuration/guide/fpmc-config-guide-v70/correlation_and_compliance_events.html
+    - https://attack.mitre.org/techniques/T1046/
+  description: |
+    Detects unusual network discovery activities including rapid host scanning, service enumeration, or abnormal discovery patterns that may indicate reconnaissance activities on Cisco Firepower devices.
+    
+    Next Steps:
+    1. Review the source IP address to determine if it belongs to authorized security scanners or IT systems
+    2. Check if the scanning activity correlates with scheduled network discovery or vulnerability assessments
+    3. Examine the targeted networks and services to identify what information the scanner may have gathered
+    4. Look for subsequent exploitation attempts from the same source IP within the next 24-48 hours
+    5. Review firewall logs for any blocked connection attempts or policy violations from the scanning IP
+    6. If unauthorized, consider implementing temporary IP blocking and investigate potential compromise of the scanning system
+    7. Document the discovery pattern for threat hunting across other network segments and similar timeframes
+    8. Correlate with endpoint detection systems to identify any internal systems that may be compromised
+    9. Review network topology changes that might have triggered legitimate discovery events
+  where: |
+    (safe(log.eventType, "") == "DISCOVERY_EVENT" || 
+     safe(log.eventType, "") == "HOST_DISCOVERY" ||
+     safe(log.eventType, "") == "NEW_HOST" ||
+     safe(log.eventType, "") == "NEW_SUBNET") &&
+    (safe(log.discoveryType, "") == "SCAN" ||
+     safe(log.discoveryType, "") == "PORT_SCAN" ||
+     safe(log.discoveryType, "") == "SERVICE_SCAN" ||
+     safe(log.scanRate, 0) > 100)
+  afterEvents:
+    - indexPattern: v11-log-cisco-firepower-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.eventType.keyword
+          operator: filter_term
+          value: 'DISCOVERY_EVENT'
+      within: now-15m
+      count: 10
+      or:
+        - indexPattern: v11-log-cisco-firepower-*
+          with:
+            - field: origin.ip.keyword
+              operator: filter_term
+              value: '{{origin.ip}}'
+            - field: log.eventType.keyword
+              operator: filter_term
+              value: 'HOST_DISCOVERY'
+          within: now-15m
+          count: 5
+  deduplicateBy:
+    - origin.ip
+    - lastEvent.log.discoveryType

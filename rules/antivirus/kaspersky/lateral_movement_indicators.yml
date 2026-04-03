@@ -1,0 +1,60 @@
+- id: 1015
+  dataTypes:
+    - antivirus-kaspersky
+  name: Lateral Movement Indicators Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Lateral Movement
+  technique: "T1021 - Remote Services"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/tactics/TA0008/
+    - https://support.kaspersky.com/KESWin/11/en-us/151065.htm
+  description: |
+    Detects indicators of lateral movement attempts within the network through Kaspersky antivirus logs. 
+    Attackers use various techniques including PSExec, WMI, RDP, SMB shares, and exploitation tools to move 
+    from one compromised system to others, expanding their access and control across the network. This rule 
+    identifies blocked or detected activities that may indicate lateral movement attempts.
+    
+    Next Steps:
+    1. Investigate the source IP and hostname for signs of compromise
+    2. Review authentication logs for the same time period to identify potential credential theft
+    3. Check if the detected tools (PSExec, WMI, RDP) are authorized for use in your environment
+    4. Examine network traffic between the source and destination systems
+    5. Look for other suspicious activities from the same source host
+    6. Consider isolating affected systems if lateral movement is confirmed
+    7. Review similar patterns from the same source within the detection window
+  where: |
+    (safe(log.cn1, "") == "3" || safe(log.cs1, "") == "DETECT" || safe(log.act, "") == "blocked") &&
+    (safe(log.cefMsg, "").contains("psexec") || 
+     safe(log.cefMsg, "").contains("wmi") ||
+     safe(log.cefMsg, "").contains("rdp") ||
+     safe(log.cefMsg, "").contains("smb") ||
+     safe(log.cefMsg, "").contains("admin$") ||
+     safe(log.cefMsg, "").contains("ipc$") ||
+     safe(log.cefMsg, "").contains("c$") ||
+     safe(log.cefMsg, "").contains("remote") ||
+     safe(log.cefMsg, "").contains("lateral") ||
+     safe(log.cefMsg, "").contains("pivot") ||
+     safe(log.cs4, "").contains("exploit") ||
+     safe(log.cs4, "").contains("mimikatz") ||
+     safe(log.cs4, "").contains("bloodhound") ||
+     safe(log.cs4, "").contains("sharphound") ||
+     safe(log.cs4, "").contains("propagat")) &&
+    safe(log.dst, "") != "" &&
+    safe(log.src, "") != "" &&
+    safe(log.src, "") != safe(log.dst, "")
+  afterEvents:
+    - indexPattern: v11-log-antivirus-kaspersky-*
+      with:
+        - field: log.src.keyword
+          operator: filter_term
+          value: '{{log.src}}'
+      within: now-2h
+      count: 3
+  deduplicateBy:
+    - log.src
+    - log.dst
+    - log.dhost

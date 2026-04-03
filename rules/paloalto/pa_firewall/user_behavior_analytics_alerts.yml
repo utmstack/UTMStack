@@ -1,0 +1,43 @@
+- id: 1007
+  dataTypes:
+    - pa_firewall
+  name: User Behavior Analytics Anomaly Detected
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Anomaly Detection
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  references:
+    - https://docs.paloaltonetworks.com/cortex/cortex-xdr/cortex-xdr-analytics-guide/analytics-concepts/user-behavior-analytics
+    - https://attack.mitre.org/techniques/T1078/
+  description: |
+    Detects anomalous user behavior patterns identified by Palo Alto's User Behavior Analytics engine. This includes unusual access patterns, abnormal data transfers, or suspicious authentication activities that deviate from established baselines.
+    
+    Next Steps:
+    1. Review the specific anomaly details in the Palo Alto firewall logs
+    2. Investigate the user's recent activity patterns and compare with historical behavior
+    3. Check for any concurrent authentication failures or privilege escalation attempts
+    4. Verify if the user's account credentials have been compromised
+    5. Review network traffic patterns from the user's source IP address
+    6. Consider implementing additional monitoring for this user account
+    7. Contact the user to verify if the flagged activities are legitimate
+  where: |
+    (safe(log.panOSThreatCategory, "").contains("anomaly") ||
+     safe(log.panOSThreatCategory, "").contains("behavior") ||
+     safe(log.msg, "").contains("user-behavior") ||
+     safe(log.msg, "").contains("anomalous-activity")) &&
+    safe(origin.user, "") != "" &&
+    safe(log.panOSSeverity, "").in(["high", "critical", "medium"])
+  afterEvents:
+    - indexPattern: v11-log-firewall-paloalto-*
+      with:
+        - field: origin.user.keyword
+          operator: filter_term
+          value: '{{origin.user}}'
+      within: now-1h
+      count: 3
+  deduplicateBy:
+    - adversary.user
+    - lastEvent.log.panOSThreatCategory

@@ -1,0 +1,41 @@
+- id: 1008
+  dataTypes:
+    - cef
+  name: CEF Signature ID Pattern Anomalies
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Anomaly Detection
+  technique: "T1027 - Obfuscated Files or Information"
+  adversary: origin
+  references:
+    - https://www.microfocus.com/documentation/arcsight/arcsight-cef-23/
+    - https://attack.mitre.org/techniques/T1027/
+  description: |
+    Detects anomalous signature ID patterns in CEF logs that may indicate evasion attempts or log injection. This rule identifies suspicious signature IDs that contain obfuscation patterns, injection attempts, or unusual formatting that could be used to bypass security controls or manipulate log analysis.
+    
+    Next Steps:
+    1. Examine the CEF log entry and verify the signature ID legitimacy
+    2. Check if the signature ID corresponds to a known security product or rule
+    3. Investigate the source device generating these anomalous signature IDs
+    4. Review other logs from the same source for additional suspicious patterns
+    5. Validate if this represents a legitimate security tool misconfiguration or potential evasion attempt
+    6. Consider updating CEF parsing rules if this represents a new legitimate signature format
+  where: |
+    safe(log.signatureId, "") != "" &&
+    (
+      safe(log.signatureId, "").matches(".*[a-zA-Z].*[0-9].*[a-zA-Z].*") ||
+      safe(log.signatureId, "").contains("${") ||
+      safe(log.signatureId, "").contains("$(") ||
+      safe(log.signatureId, "").contains("../") ||
+      safe(log.signatureId, "").contains("\\x") ||
+      safe(log.signatureId, "").length() > 100 ||
+      safe(log.signatureId, "").matches(".*\\s{2,}.*") ||
+      safe(log.signatureId, "").startsWith("-") ||
+      safe(log.signatureId, "").contains("UNION") ||
+      safe(log.signatureId, "").contains("SELECT")
+    )
+  deduplicateBy:
+    - adversary.ip
+    - lastEvent.log.signatureId

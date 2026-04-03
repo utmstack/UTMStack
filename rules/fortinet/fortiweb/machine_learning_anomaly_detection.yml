@@ -1,0 +1,47 @@
+- id: 1015
+  dataTypes:
+    - firewall-fortiweb
+  name: FortiWeb ML Anomaly Detection Alert
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Anomalous Activity
+  technique: "T1071 - Application Layer Protocol"
+  adversary: origin
+  references:
+    - https://docs.fortinet.com/document/fortiweb/7.6.0/administration-guide/94907/ml-based-anomaly-detection
+    - https://docs.fortinet.com/document/fortiweb/6.3.7/administration-guide/865612/viewing-anomaly-detection-log
+    - https://attack.mitre.org/techniques/T1071/
+  description: |
+    Detects when FortiWeb's machine learning anomaly detection system identifies abnormal behavior patterns. The system uses HMM models to monitor URLs, parameters, and HTTP methods to detect deviations from normal traffic patterns that may indicate zero-day attacks or advanced threats.
+    
+    Next Steps:
+    1. Review the source IP reputation and check if it's associated with known malicious activity
+    2. Analyze the specific anomaly patterns detected - examine URLs, parameters, and HTTP methods flagged
+    3. Check for other security events from the same source IP across different systems
+    4. Review the target application logs for any signs of exploitation or unusual behavior
+    5. Consider temporarily blocking the source IP if multiple anomalies are detected
+    6. Investigate whether this represents a legitimate user with unusual behavior or a potential attack
+  where: |
+    safe(log.type, "") == "attack" && 
+    (contains(safe(log.msg, ""), "anomaly") || 
+     contains(safe(log.msg, ""), "ML detect") ||
+     contains(safe(log.msg, ""), "machine learning") ||
+     safe(log.subtype, "") == "anomaly_detection" ||
+     safe(log.subtype, "") == "ml_detection") &&
+    safe(origin.ip, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-firewall-fortiweb-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.type.keyword
+          operator: filter_term
+          value: 'attack'
+      within: now-30m
+      count: 3
+  deduplicateBy:
+    - origin.ip
+    - target.ip

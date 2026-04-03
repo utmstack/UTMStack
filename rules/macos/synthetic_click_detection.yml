@@ -1,0 +1,35 @@
+- id: 1018
+  dataTypes:
+    - macos
+  name: Synthetic Click Event Detected
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Defense Evasion
+  technique: "T1056 - Input Capture"
+  adversary: origin
+  references:
+    - https://www.jamf.com/blog/synthetic-reality/
+    - https://attack.mitre.org/techniques/T1056/
+  description: |
+    Detects synthetic (programmatic) mouse click events that may be used to bypass security prompts or automate malicious actions. These events can indicate attempts to circumvent user interaction requirements for malicious software execution or privilege escalation.
+    
+    Next Steps:
+    1. Identify the source process generating synthetic click events
+    2. Examine the user context and permissions of the process
+    3. Check for recent software installations or script executions
+    4. Review system logs for accessibility permission changes
+    5. Investigate if legitimate automation tools are being used inappropriately
+    6. Monitor for subsequent privilege escalation or unauthorized access attempts
+  where: |
+    (safe(log.eventMessage, "") contains "osascript is not allowed assistive access") ||
+    (safe(log.process, "") == "tccd" && safe(log.eventMessage, "") contains "kTCCServiceAccessibility" && safe(log.eventMessage, "") contains "preflight_unknown") ||
+    (safe(log.eventMessage, "") contains "CGEventCreateMouseEvent") ||
+    (safe(log.eventMessage, "") contains "CGEventPost" && safe(log.eventMessage, "") contains "mouse") ||
+    (safe(log.eventMessage, "") contains "synthetic" && safe(log.eventMessage, "") contains "event") ||
+    (safe(log.subsystem, "") == "com.apple.TCC" && safe(log.eventMessage, "") contains "PostEvent") ||
+    (safe(log.eventMessage, "") contains "eventSourceUserData" && safe(log.process, "") != "screencaptureui")
+  deduplicateBy:
+    - lastEvent.log.process
+    - origin.user

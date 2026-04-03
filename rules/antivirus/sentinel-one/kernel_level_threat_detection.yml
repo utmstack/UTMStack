@@ -1,0 +1,30 @@
+- id: 1006
+  dataTypes:
+    - antivirus-sentinel-one
+  name: Kernel-Level Threat Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 3
+  category: Endpoint Security
+  technique: "T1068 - Exploitation for Privilege Escalation"
+  adversary: origin
+  references:
+    - https://www.sentinelone.com/blog/decrypting-sentinelone-detection-the-behavioral-ai-engine-in-real-time-cwpp/
+    - https://attack.mitre.org/techniques/T1068/
+  description: |
+    Detects kernel-level threats including rootkits, kernel exploits, and malicious kernel drivers that attempt to gain elevated privileges or hide malicious activity at the kernel level.
+    
+    Next Steps:
+    1. Immediately isolate the affected endpoint to prevent lateral movement
+    2. Capture memory dump and disk image for forensic analysis
+    3. Review process creation logs for suspicious parent-child relationships
+    4. Check for persistence mechanisms (scheduled tasks, services, registry keys)
+    5. Verify kernel driver signatures and compare against known good baselines
+    6. Investigate any network connections from kernel-level processes
+    7. Run deep endpoint scan with updated signatures
+    8. Contact security team for incident response procedures
+  where: safe(log.eventDescription, "") contains "kernel" && (safe(log.confidencelevel, 0) >= 80 || safe(log.dveventtype, "") contains "kernel" || safe(log.indicatorname, "") contains "kernel")
+  deduplicateBy:
+    - log.endpointDeviceName
+    - log.destinationUser

@@ -1,0 +1,45 @@
+- id: 1010
+  dataTypes:
+    - cef
+  name: CEF Extension Key Violations
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Protocol Violation
+  technique: "T1036.004 - Masquerade Task or Service"
+  adversary: origin
+  references:
+    - https://www.microfocus.com/documentation/arcsight/arcsight-cef-23/
+    - https://attack.mitre.org/techniques/T1036/004/
+  description: |
+    Detects violations in CEF extension key naming conventions that may indicate malformed logs or evasion attempts. 
+    CEF (Common Event Format) has strict formatting requirements for extension keys, and violations could indicate 
+    malicious manipulation of log data to evade detection or analysis systems.
+    
+    Next Steps:
+    1. Examine the raw CEF message to identify the specific formatting violation
+    2. Investigate the source device/application generating the malformed CEF logs
+    3. Check if the violation is due to configuration issues or potential tampering
+    4. Review other logs from the same source for additional anomalies
+    5. Verify the integrity of the logging infrastructure and data pipeline
+    6. Consider implementing stricter CEF validation at the collection point
+    7. Monitor for patterns of similar violations that might indicate systematic evasion attempts
+  where: |
+    safe(log.extensions, "") != "" &&
+    (
+      safe(log.extensions, "").matches(".*[^a-zA-Z0-9=\\s]+=.*") ||
+      safe(log.extensions, "").matches(".*=[^=]*=.*") ||
+      safe(log.extensions, "").matches(".*\\s{2,}=.*") ||
+      safe(log.extensions, "").contains("cs1Label=cs1Label") ||
+      safe(log.extensions, "").contains("cn1Label=cn1Label") ||
+      safe(log.extensions, "").matches(".*(cs[1-6]|cn[1-3]|cfp[1-4])=[^\\s]*\\s+(?!\\1Label=).*") ||
+      safe(log.extensions, "").matches(".*Label=[^=]*Label=.*") ||
+      safe(log.extensions, "").contains("deviceCustom") && !safe(log.extensions, "").contains("Label=") ||
+      safe(log.extensions, "").matches(".*[A-Z]{10,}=.*") ||
+      safe(log.extensions, "").contains("=\\x") ||
+      safe(log.extensions, "").contains("=\\u")
+    )
+  deduplicateBy:
+    - origin.ip
+    - lastEvent.log.deviceProduct

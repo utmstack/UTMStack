@@ -1,0 +1,48 @@
+- id: 1024
+  dataTypes:
+    - nids
+  name: Decoder Alert - Protocol Violation
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Protocol Anomaly
+  technique: "T1572 - Protocol Tunneling"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1572/
+    - https://suricata.readthedocs.io/en/latest/rules/app-layer.html
+  description: |
+    Detects protocol violations and decoding errors that may indicate obfuscation attempts, protocol tunneling, or malformed packets. These alerts can indicate attempts to bypass network security controls or exploit protocol parsers.
+
+    Next Steps:
+    1. Review the specific decoder event type and alert message for technical details
+    2. Analyze packet captures around the time of the alert to understand the nature of the violation
+    3. Check if multiple decoder alerts from the same source indicate a coordinated attack
+    4. Investigate the source IP reputation and recent activity patterns
+    5. Verify if legitimate applications might be causing protocol violations
+    6. Consider updating IDS signatures if this represents a new attack technique
+    7. Review network segmentation to limit impact of potential protocol-based attacks
+  where: |
+    safe(log.event_type, "") == "decoder" &&
+    safe(origin.ip, "") != "" &&
+    (safe(log.decoder_event, "") in ["invalid_header", "malformed_packet", "protocol_violation", "truncated_packet"]) &&
+    (safe(log.alert_msg, "") contains "decode" || 
+     safe(log.alert_msg, "") contains "invalid" ||
+     safe(log.alert_msg, "") contains "malformed" ||
+     safe(log.alert_msg, "") contains "violation")
+  afterEvents:
+    - indexPattern: v11-log-suricata-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.ip.keyword
+          operator: filter_term
+          value: '{{target.ip}}'
+      within: now-30m
+      count: 10
+  deduplicateBy:
+    - origin.ip
+    - target.ip
+    - lastEvent.log.decoder_event

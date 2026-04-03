@@ -1,0 +1,42 @@
+- id: 1015
+  dataTypes:
+    - github
+  name: Critical Code Scanning Security Alert
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Execution
+  technique: "T1059 - Command and Scripting Interpreter"
+  adversary: origin
+  references:
+    - https://docs.github.com/en/code-security/code-scanning/managing-code-scanning-alerts/about-code-scanning-alerts
+    - https://attack.mitre.org/techniques/T1059/
+  description: |
+    Detects critical security vulnerabilities identified by GitHub code scanning. These alerts indicate potential security flaws such as SQL injection, XSS, command injection, or other vulnerabilities that could be exploited by attackers.
+    
+    Next Steps:
+    1. Review the specific vulnerability details in the GitHub code scanning alert
+    2. Examine the affected code path and assess the potential impact
+    3. Check if the vulnerable code is in production or exposed to external users
+    4. Prioritize fixing critical and high severity vulnerabilities immediately
+    5. Review the commit history to identify when the vulnerability was introduced
+    6. Implement security patches following secure coding practices
+    7. Re-run code scanning after fixes to ensure vulnerabilities are resolved
+    8. Consider implementing additional security controls and testing for similar vulnerabilities
+    9. Document the vulnerability and remediation steps for security awareness
+  where: >
+    (safe(log.action, "") == "code_scanning_alert.created" ||
+     safe(log.action, "") == "code_scanning_alert.appeared_in_branch" ||
+     safe(log.action, "") == "code_scanning_alert.reopened") &&
+    (safe(log.alert.rule.severity, "") == "error" ||
+     safe(log.alert.rule.severity, "") == "critical" ||
+     safe(log.alert.rule.security_severity_level, "") == "critical" ||
+     safe(log.alert.rule.security_severity_level, "") == "high" ||
+     safe(log.alert.rule.description, "").contains("injection") ||
+     safe(log.alert.rule.description, "").contains("command execution") ||
+     safe(log.alert.rule.description, "").contains("XSS")) &&
+    safe(log.repositoryName, "") != ""
+  deduplicateBy:
+    - lastEvent.log.repositoryName
+    - lastEvent.log.alert.number

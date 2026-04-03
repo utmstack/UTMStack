@@ -1,0 +1,28 @@
+- id: 1003
+  dataTypes:
+    - firewall-sophos-xg
+  name: Sophos XG Web Protection Policy Violation
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Web Security
+  technique: "T1071.001 - Application Layer Protocol: Web Protocols"
+  adversary: origin
+  references:
+    - https://docs.sophos.com/nsg/sophos-firewall/20.0/Help/en-us/webhelp/onlinehelp/AdministratorHelp/WebProtection/index.html
+    - https://attack.mitre.org/techniques/T1071/001/
+  description: |
+    Detects web protection policy violations including blocked websites, malicious downloads, inappropriate content access attempts, and web application attacks on Sophos XG firewalls. This rule monitors for content filtering denials, HTTP blocks, malware/phishing category matches, web policy exceptions, and suspicious file downloads.
+
+    Next Steps:
+    1. Review the blocked URL and categorization to understand the nature of the violation
+    2. Investigate the source IP for additional suspicious activities or patterns
+    3. Check if this is a legitimate business request that requires policy adjustment
+    4. Examine user context and determine if additional security awareness training is needed
+    5. Consider implementing additional controls if pattern indicates persistent policy violations
+    6. Document the incident for compliance and policy review purposes
+  where: (safe(log.logMessage, "") == "Content Filtering" && (safe(log.category, "") == "Denied" || safe(log.category, "") == "Blocked")) || (safe(log.component, "") == "HTTP" && safe(actionResult, "") == "denied") || (safe(log.applicationCategory, "") != "" && (contains(safe(log.applicationCategory, ""), "Malware") || contains(safe(log.applicationCategory, ""), "Phishing") || contains(safe(log.applicationCategory, ""), "Spyware"))) || (safe(log.downloadfilename, "") != "" && (contains(safe(log.downloadfilename, ""), "exe") || contains(safe(log.downloadfilename, ""), "dll") || contains(safe(log.downloadfilename, ""), "scr")))
+  deduplicateBy:
+    - origin.ip
+    - target.url

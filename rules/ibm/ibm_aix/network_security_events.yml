@@ -1,0 +1,37 @@
+- id: 1007
+  dataTypes:
+    - ibm-aix
+  name: IBM AIX Network Security Violation Detected
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 3
+  category: Network Activity
+  technique: "T1210 - Exploitation of Remote Services"
+  adversary: origin
+  references:
+    - https://www.ibm.com/support/pages/aix-audit-audit-subsystem-aix
+    - https://attack.mitre.org/techniques/T1210/
+  description: |
+    Identifies suspicious network activities and security violations in IBM AIX systems, including unauthorized remote access attempts, abnormal port usage, and potential network-based attacks from external sources. This rule detects SSH brute force attempts, connection refusals, invalid user attempts, and network-related failures.
+    
+    Next Steps:
+    1. Investigate the source IP address for reputation and geographic location
+    2. Check authentication logs for additional failed attempts from the same source
+    3. Review network traffic patterns and connection attempts
+    4. Verify if the target service should be accessible from the source location
+    5. Check for any successful logins from the same IP after failed attempts
+    6. Review firewall rules and access control lists
+    7. Consider implementing rate limiting or IP blocking if malicious activity is confirmed
+  where: (safe(log.eventType, "") == "sshd" && safe(log.msg, "").contains("Failed") && safe(origin.ip, "") != "") || (safe(origin.port, 0) > 1024 && safe(origin.port, 0) < 65535 && safe(log.msg, "").contains("refused")) || (safe(protocol, "") == "ssh" && safe(log.msg, "").contains("Invalid user")) || (safe(log.eventType, "").contains("network") && safe(log.returnCode, "") != "0")
+  afterEvents:
+    - indexPattern: v11-log-ibm-aix-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-5m
+      count: 20
+  deduplicateBy:
+    - origin.ip
+    - origin.port

@@ -1,0 +1,38 @@
+- id: 1007
+  dataTypes:
+    - firewall-pfsense
+  name: Captive Portal Authentication Bypass Attempts
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Initial Access
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  references:
+    - https://www.zenarmor.com/docs/network-security-tutorials/how-to-configure-captive-portal-on-pfsense
+    - https://attack.mitre.org/techniques/T1078/
+  description: |
+    Detects multiple failed authentication attempts or bypass attempts on the captive portal, which could indicate unauthorized access attempts to the network. This rule triggers when 5 or more failed captive portal authentication events occur from the same IP address within a 10-minute window.
+    
+    Next Steps:
+    1. Investigate the source IP address for legitimacy and potential compromise
+    2. Review captive portal logs for patterns of authentication bypass attempts
+    3. Check if the IP address corresponds to a known legitimate user or device
+    4. Consider implementing rate limiting or blocking the source IP if malicious activity is confirmed
+    5. Review network access controls and captive portal configuration for potential vulnerabilities
+    6. Monitor for successful authentications from the same IP after failed attempts
+  where: safe(log.eventType, "") == "logportalauth" && safe(log.csvMsg, "").contains("FAILURE") && safe(origin.ip, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-firewall-pfsense-*
+      with:
+        - field: log.eventType.keyword
+          operator: filter_term
+          value: 'logportalauth'
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-10m
+      count: 5
+  deduplicateBy:
+    - origin.ip

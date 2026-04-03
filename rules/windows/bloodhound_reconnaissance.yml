@@ -1,0 +1,70 @@
+- id: 1008
+  dataTypes:
+    - windows
+    - wineventlog
+  name: BloodHound Reconnaissance Activity
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Discovery
+  technique: "T1087 - Account Discovery"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1087/
+    - https://bloodhound.readthedocs.io/
+    - https://docs.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4662
+  description: |
+    Detects potential BloodHound Active Directory reconnaissance tool usage through LDAP queries, characteristic patterns, and AD enumeration activities. BloodHound is commonly used by attackers to map Active Directory relationships and identify privilege escalation paths.
+    
+    Next Steps:
+    1. Investigate the source host and user account involved in the activity
+    2. Review network logs for LDAP queries to domain controllers around the same timeframe
+    3. Check for other reconnaissance tools or suspicious PowerShell activity on the same host
+    4. Examine Active Directory audit logs for unusual object access patterns
+    5. Verify if the user account has legitimate reasons for AD enumeration activities
+    6. Look for signs of lateral movement or privilege escalation following this reconnaissance
+    7. Consider isolating the affected host if malicious activity is confirmed
+  where: |
+    (
+      (safe(log.eventCode, "") == "4688" || safe(log.winlogEventId, 0) == 4688) &&
+      (
+        safe(log.winlog.event_data.NewProcessName, "").matches("(?i)bloodhound") ||
+        safe(log.winlog.event_data.NewProcessName, "").matches("(?i)sharphound") ||
+        safe(log.winlog.event_data.CommandLine, "").matches("(?i)(bloodhound|sharphound)") ||
+        safe(log.winlog.event_data.CommandLine, "").matches("(?i)--CollectionMethod\\s+(All|Session|LoggedOn)") ||
+        safe(log.winlog.event_data.CommandLine, "").matches("(?i)(DCOnly|ComputerOnly|LocalGroup)")
+      )
+    ) ||
+    (
+      (safe(log.eventCode, "") == "4104" || safe(log.winlogEventId, 0) == 4104) &&
+      safe(log.winlogProviderName, "") == "Microsoft-Windows-PowerShell" &&
+      (
+        safe(log.winlog.event_data.ScriptBlockText, "").matches("(?i)invoke-bloodhound") ||
+        safe(log.winlog.event_data.ScriptBlockText, "").contains("Get-BloodHoundData") ||
+        safe(log.winlog.event_data.ScriptBlockText, "").contains("Get-NetSession") ||
+        safe(log.winlog.event_data.ScriptBlockText, "").contains("Get-NetLoggedOn") ||
+        safe(log.winlog.event_data.ScriptBlockText, "").contains("Get-DomainTrust")
+      )
+    ) ||
+    (
+      safe(log.eventCode, "") == "4662" &&
+      safe(log.winlog.event_data.ObjectType, "").matches("(?i)(bf967aba-0de6-11d0-a285-00aa003049e2|bf967a9c-0de6-11d0-a285-00aa003049e2)") &&
+      safe(log.winlog.event_data.AccessMask, "").matches("(0x100|0x10000)")
+    ) ||
+    (
+      safe(log.eventCode, "") == "5156" &&
+      safe(log.winlog.event_data.DestinationPort, "") == "389" &&
+      safe(log.winlog.event_data.Direction, "") == "%%14592"
+    )
+  afterEvents:
+    - indexPattern: v11-log-*
+      with:
+        - field: origin.host.keyword
+          operator: filter_term
+          value: '{{origin.host}}'
+      within: now-2h
+      count: 10
+  deduplicateBy:
+    - origin.host
+    - lastEvent.log.winlogEventDataSubjectUserName

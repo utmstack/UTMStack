@@ -1,0 +1,28 @@
+- id: 1013
+  dataTypes:
+    - pa_firewall
+  name: Zone Protection Alerts
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 3
+  category: Network Security
+  technique: "T1190 - Exploit Public-Facing Application"
+  adversary: origin
+  references:
+    - https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/zone-protection-and-dos-protection/zone-defense
+    - https://attack.mitre.org/techniques/T1190/
+  description: |
+    Detects zone protection profile violations on Palo Alto firewall, indicating potential network-based attacks or reconnaissance attempts. Zone protection profiles help defend against various packet-based attacks including floods, reconnaissance, and packet anomalies.
+    
+    **Next Steps:**
+    1. Review the specific threat ID and category to understand the attack type
+    2. Investigate the source IP for additional malicious activity
+    3. Check if this is part of a coordinated attack from multiple sources
+    4. Verify zone protection profile settings are appropriate for the network segment
+    5. Consider blocking the source IP if confirmed malicious
+    6. Review firewall logs for any successful connections from the same source
+  where: safe(log.type, "") == "THREAT" && safe(log.threatid, "") != "" && safe(log.category, "") == "packet-based-attack" && safe(origin.ip, "") != ""
+  deduplicateBy:
+    - adversary.ip
+    - lastEvent.log.threatid

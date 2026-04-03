@@ -1,0 +1,30 @@
+- id: 1016
+  dataTypes:
+    - rfc-5424
+  name: RFC-5424 Nil Value Abuse
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: Protocol Violation
+  technique: Input Validation Bypass
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5424#section-6
+  description: |
+    Detects abuse of NILVALUE (-) in RFC-5424 structured data fields where actual values are expected, potentially indicating data obfuscation or protocol manipulation attempts. This rule identifies suspicious use of nil values in RFC-5424 syslog messages where structured data, hostname, application name, or message ID fields contain nil values in contexts where actual values would be expected.
+    
+    Next Steps:
+    1. Review the source system generating these malformed RFC-5424 messages
+    2. Check if the nil values are legitimate for the specific application or if they indicate manipulation
+    3. Validate the syslog configuration on the sending system
+    4. Examine the message content to determine if it contains suspicious or obfuscated data
+    5. Consider implementing stricter syslog parsing rules to reject malformed messages
+    6. Monitor for patterns of nil value abuse from the same source IP or application
+  where: |
+    (safe(log.structured_data, "") == "-" && safe(log.app_name, "") != "-" && safe(log.msg_id, "") != "-") ||
+    (safe(log.hostname, "") == "-" && safe(origin.ip, "") != "") ||
+    (safe(log.app_name, "") == "-" && safe(log.process_id, "") != "-") ||
+    (safe(log.msg_id, "") == "-" && size(safe(log.structured_data, "")) > 10)
+  deduplicateBy:
+    - origin.ip

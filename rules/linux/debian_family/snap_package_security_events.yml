@@ -1,0 +1,44 @@
+- id: 1008
+  dataTypes:
+    - debian_family
+  name: Snap Package Security Violations
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Privilege Escalation
+  technique: "T1068 - Exploitation for Privilege Escalation"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1068/
+    - https://snapcraft.io/docs/security-sandboxing
+  description: |
+    Detects security-related events in Snap package management including confinement violations, interface connection attempts, AppArmor denials for snaps, and suspicious snap installations that could indicate privilege escalation attempts or malicious snap packages.
+    
+    Next Steps:
+    1. Examine the specific snap package involved in the security violation
+    2. Review snap confinement settings and interface connections for the affected package
+    3. Check if the snap was installed from official store or sideloaded
+    4. Investigate user activities around the time of the violation
+    5. Verify snap package signatures and assertions
+    6. Review AppArmor logs for additional context on denied operations
+    7. Consider removing or updating the problematic snap package
+    8. Monitor for additional security events from the same host or user
+  where: |
+    (safe(log.process, "") contains "snap" || safe(log.message, "") contains "snapd" || safe(log.message, "") contains "snap.") &&
+    (safe(log.message, "") contains "AppArmor" && safe(log.message, "") contains "DENIED" ||
+     safe(log.message, "") contains "confinement violation" ||
+     safe(log.message, "") contains "interface connection denied" ||
+     safe(log.message, "") contains "cannot connect interface" ||
+     safe(log.message, "") contains "dangerous snap" ||
+     safe(log.message, "") contains "classic confinement" && safe(log.message, "") contains "warning" ||
+     safe(log.message, "") contains "assertion not valid" ||
+     safe(log.message, "") contains "signature verification failed" ||
+     safe(log.message, "") contains "snap is unusable" ||
+     safe(log.message, "") contains "cannot perform operation" ||
+     safe(log.message, "") contains "permission denied" && safe(log.message, "") contains "snap" ||
+     safe(log.message, "") contains "sandbox escape" ||
+     safe(log.message, "") contains "seccomp violation")
+  deduplicateBy:
+    - origin.host
+    - origin.user

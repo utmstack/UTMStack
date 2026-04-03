@@ -1,0 +1,42 @@
+- id: 1016
+  dataTypes:
+    - firepower
+  name: DNS Security Alert Detection
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Network Security
+  technique: "T1071.004 - Application Layer Protocol: DNS"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/td/docs/security/firepower/Syslogs/b_fptd_syslog_guide/security-event-syslog-messages.html
+    - https://attack.mitre.org/techniques/T1071/004/
+  description: |
+    Detects DNS security alerts including DNS blocks, DNS query anomalies, DNS response mismatches, and suspicious DNS resolution attempts. These alerts may indicate command and control communication, DNS tunneling, or attempts to resolve known malicious domains.
+    
+    Next Steps:
+    1. Review the blocked DNS query to determine if it's attempting to resolve a known malicious domain
+    2. Check if the source IP is making repeated DNS queries to suspicious domains
+    3. Investigate the process or application making the DNS request on the source system
+    4. Review DNS query patterns from the source IP for signs of DNS tunneling (unusually long domain names, high frequency)
+    5. Cross-reference the queried domain with threat intelligence feeds
+    6. If confirmed malicious, isolate the affected system and perform a full security scan
+    7. Check for any established connections to the resolved IP addresses
+    8. Review firewall logs for any blocked or allowed traffic to the suspicious domain
+  where: |
+    (safe(log.eventType, "") == "DNS_BLOCK" || 
+     safe(log.eventType, "") == "DNS_MONITOR" ||
+     safe(log.reason, "") == "DNS Monitor" ||
+     safe(log.reason, "") == "DNS Block") ||
+    (safe(log.message, "") contains "DNS lookup failed" ||
+     safe(log.message, "") contains "DNS responses with mis-matched id" ||
+     safe(log.message, "") contains "Deny inbound UDP" && safe(log.message, "") contains "DNS") ||
+    (safe(log.DNSSICategory, "") != "" && 
+     (safe(log.DNSSICategory, "") contains "Block list" ||
+      safe(log.DNSSICategory, "") contains "Intelligence Feed" ||
+      safe(log.DNSSICategory, "") contains "TID category"))
+  deduplicateBy:
+    - origin.ip
+    - lastEvent.log.DNSSICategory
+    - target.host

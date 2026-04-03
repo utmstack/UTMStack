@@ -1,0 +1,49 @@
+- id: 1006
+  dataTypes:
+    - cef
+  name: CEF Device Product Inconsistencies
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: Data Integrity
+  technique: "T1036 - Masquerading"
+  adversary: origin
+  references:
+    - https://www.microfocus.com/documentation/arcsight/arcsight-cef-23/
+    - https://attack.mitre.org/techniques/T1036/
+  description: |
+    Detects inconsistencies in CEF device product fields that may indicate log tampering, spoofing attempts, or misconfigured logging infrastructure. This rule identifies when device vendor and product combinations don't match expected patterns, or when generic placeholder values are used.
+    
+    Next Steps:
+    1. Verify the authenticity of the source device by checking network connectivity and device configuration
+    2. Review log forwarding infrastructure for potential compromise or misconfiguration
+    3. Cross-reference device inventory to confirm legitimate vendor/product combinations
+    4. Investigate if the source IP has been generating consistent inconsistencies over time
+    5. Check for signs of log injection or manipulation attacks
+    6. Validate CEF format compliance and parsing accuracy
+    7. Review security controls on log collection and forwarding systems
+    8. Consider implementing device fingerprinting for log source validation
+  where: |
+    safe(log.deviceProduct, "") != "" && 
+    safe(log.deviceVendor, "") != "" &&
+    (
+      (safe(log.deviceVendor, "") == "ArcSight" && !safe(log.deviceProduct, "").contains("Logger")) ||
+      (safe(log.deviceVendor, "") == "Check Point" && !safe(log.deviceProduct, "").matches("(SmartDefense|Firewall|VPN)")) ||
+      (safe(log.deviceVendor, "") == "Cisco" && !safe(log.deviceProduct, "").matches("(ASA|IDS|IPS|ISE)")) ||
+      (safe(log.deviceProduct, "").contains("Unknown") || safe(log.deviceProduct, "").contains("N/A"))
+    )
+  afterEvents:
+    - indexPattern: v11-log-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.deviceVendor.keyword
+          operator: filter_term
+          value: '{{log.deviceVendor}}'
+      within: now-15m
+      count: 10
+  deduplicateBy:
+    - origin.ip
+    - log.deviceVendor

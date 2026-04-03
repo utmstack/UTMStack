@@ -1,0 +1,35 @@
+- id: 1022
+  dataTypes:
+    - mikrotik_fw
+  name: MikroTik Bandwidth Limit Bypass Attempt
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: Policy Violation
+  technique: "T1496 - Resource Hijacking"
+  adversary: origin
+  references:
+    - https://help.mikrotik.com/docs/spaces/ROS/pages/120324137/Firewall+and+QoS+Case+Studies
+    - https://attack.mitre.org/techniques/T1496/
+  description: |
+    Detects attempts to bypass bandwidth limitations on MikroTik devices through various techniques including packet fragmentation, protocol manipulation, or excessive packet sizes that may indicate attempts to circumvent QoS policies. This rule identifies suspicious traffic patterns that could indicate bandwidth limit evasion attempts.
+    
+    Next Steps:
+    1. Verify the source IP and investigate if this is legitimate traffic
+    2. Review current QoS and bandwidth policies on the MikroTik device
+    3. Check for any recent configuration changes to firewall or mangle rules
+    4. Monitor the source for sustained high bandwidth usage patterns
+    5. Consider implementing stricter rate limiting or connection limits for the offending source
+    6. Review firewall logs for additional suspicious activity from the same source
+  where: |
+    (safe(log.len, 0) > 1450 && safe(log.proto, "") == "tcp" && safe(origin.port, 0) > 1024) ||
+    (safe(log.topics, "") != "" && 
+     (safe(log.topics, "") contains "firewall" || safe(log.topics, "") contains "mangle") &&
+     safe(log.kvMessage, "") != "" &&
+     (safe(log.kvMessage, "") contains "bandwidth exceeded" || safe(log.kvMessage, "") contains "rate limit" || safe(log.kvMessage, "") contains "max-limit" || safe(log.kvMessage, "") contains "burst-limit")) ||
+    (safe(log.chain, "") in ["forward", "output"] && 
+     safe(log.len, 0) == 1500 && 
+     safe(log.proto, "") == "udp")
+  deduplicateBy:
+    - origin.ip

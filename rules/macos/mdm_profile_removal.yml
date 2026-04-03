@@ -1,0 +1,44 @@
+- id: 1010
+  dataTypes:
+    - macos
+  name: MDM Profile Removal Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Defense Evasion
+  technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1562/001/
+    - https://support.addigy.com/hc/en-us/articles/13833098867219-Troubleshooting-MDM-Connectivity-for-macOS
+    - https://docs.omnissa.com/bundle/macOS-Device-ManagementVSaaS/page/ProfilesOverview.html
+  description: |
+    Detects unauthorized removal or modification of MDM (Mobile Device Management) profiles on macOS systems, which could indicate attempts to bypass corporate security controls or remove device management. This activity may suggest an attacker or malicious insider attempting to evade corporate security policies and monitoring.
+
+    Next Steps:
+    1. Verify if the MDM profile removal was authorized through proper change management processes
+    2. Check if the user has legitimate administrative access to modify MDM profiles
+    3. Review recent user activity and authentication logs for the affected system
+    4. Confirm the current MDM enrollment status of the device
+    5. Investigate any concurrent suspicious activities on the same host
+    6. Contact the device user to verify if they initiated the profile removal
+    7. Re-enroll the device in MDM if the removal was unauthorized
+  where: |
+    (safe(log.process, "") in ["mdmclient", "profiles", "System Preferences", "System Settings"] ||
+     safe(log.subsystem, "") == "com.apple.ManagedClient" ||
+     safe(log.subsystem, "") contains "MDM" ||
+     safe(log.eventMessage, "") contains "mdmclient") &&
+    (safe(log.eventMessage, "") contains "remove" ||
+     safe(log.eventMessage, "") contains "delete" ||
+     safe(log.eventMessage, "") contains "uninstall" ||
+     safe(log.eventMessage, "") contains "profile" ||
+     safe(log.eventMessage, "") contains "unenroll" ||
+     safe(log.eventMessage, "") contains "MDM_Connect: Unable" ||
+     safe(log.eventMessage, "") contains "enrollment" ||
+     safe(log.eventMessage, "") contains "configuration profile") &&
+    (safe(log.messageType, "") in ["error", "fault", "default"] ||
+     safe(log.eventMessage, "") contains "ERROR")
+  deduplicateBy:
+    - origin.host
+    - origin.user

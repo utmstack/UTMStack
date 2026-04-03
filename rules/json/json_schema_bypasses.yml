@@ -1,0 +1,50 @@
+- id: 1019
+  dataTypes:
+    - json-input
+  name: JSON Schema Validation Bypass Attempt
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Input Validation Bypass
+  technique: Schema Validation Evasion
+  adversary: origin
+  references:
+    - https://json-schema.org/understanding-json-schema/
+    - https://www.invicti.com/learn/json-injection/
+    - "https://attack.mitre.org/techniques/T1027/"
+  description: |
+    Detects attempts to bypass JSON Schema validation through duplicate keys, type confusion, or malformed JSON structures designed to exploit parser discrepancies between validation and processing stages.
+    
+    Next Steps:
+    1. Review the specific validation errors and malformed JSON content
+    2. Check if the request originated from legitimate applications or automated tools
+    3. Examine the target endpoint for proper input validation implementation
+    4. Verify if the application properly handles duplicate keys and prototype pollution attempts
+    5. Consider implementing additional input sanitization and validation layers
+    6. Monitor for follow-up exploitation attempts from the same source
+  where: |
+    safe(log.validation_error, "") != "" ||
+    safe(log.schema_validation, "failed") == "failed" ||
+    (safe(log.content_type, "").contains("application/json") &&
+     (safe(log.body, "").matches(".*\"[^\"]+\"\\s*:\\s*[^,}]+\\s*,\\s*\"\\1\"\\s*:.*") ||
+      safe(log.duplicate_keys_detected, false) == true ||
+      safe(log.json_parse_error, "") != "" ||
+      safe(log.body, "").contains("__proto__") ||
+      safe(log.body, "").contains("constructor") ||
+      safe(log.body, "").contains("prototype") ||
+      safe(log.body_size, 0) > 1048576))
+  afterEvents:
+    - indexPattern: v11-log-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.validation_error.keyword
+          operator: filter_term
+          value: 'schema_violation'
+      within: now-15m
+      count: 5
+  deduplicateBy:
+    - origin.ip
+    - log.endpoint

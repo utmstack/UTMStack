@@ -1,0 +1,42 @@
+- id: 1006
+  dataTypes:
+    - firewall-sophos-xg
+  name: Sophos XG Firewall Heartbeat Missing Alerts
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: System Health
+  technique: "T1070 - Indicator Removal on Host"
+  adversary: origin
+  references:
+    - https://docs.sophos.com/nsg/sophos-firewall/20.0/Help/en-us/webhelp/onlinehelp/AdministratorHelp/Logs/TroubleshootingLogs/LogFileDetails/index.html
+    - https://attack.mitre.org/techniques/T1070/
+  description: |
+    Detects when multiple endpoints are missing heartbeat signals from Sophos XG Firewall, which could indicate network connectivity issues, endpoint compromise, or service disruption. Missing heartbeats may suggest that security monitoring is being bypassed or that critical network infrastructure is failing.
+
+    Next Steps:
+    1. Verify network connectivity to the affected devices
+    2. Check if the devices are powered on and functioning properly
+    3. Review firewall logs for any security events preceding the heartbeat loss
+    4. Investigate potential network attacks or infrastructure failures
+    5. Validate that heartbeat monitoring services are running correctly
+    6. Check for any scheduled maintenance or configuration changes
+    7. Consider implementing redundant monitoring mechanisms
+  where: |
+    safe(log.type, "") == "Event" && 
+    safe(log.component, "") == "Heartbeat" && 
+    (safe(log.logMessage, "").contains("missing") || 
+     safe(log.logMessage, "").contains("lost") || 
+     safe(log.hb_health, "") == "No Heartbeat")
+  afterEvents:
+    - indexPattern: v11-log-firewall-sophos-*
+      with:
+        - field: log.deviceName.keyword
+          operator: filter_term
+          value: '{{log.deviceName}}'
+      within: now-15m
+      count: 3
+  deduplicateBy:
+    - origin.host
+    - dataSource

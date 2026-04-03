@@ -1,0 +1,40 @@
+- id: 1014
+  dataTypes:
+    - firewall-sonicwall
+  name: SonicWall Access Rule Violations
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Policy Violation
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  references:
+    - https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
+    - https://attack.mitre.org/techniques/T1078/
+  description: |
+    Detects repeated violations of firewall access rules which may indicate unauthorized access attempts, policy violations, or reconnaissance activities. This rule triggers when multiple deny/drop/block actions occur from the same source IP within a short time frame, suggesting potential malicious activity or policy enforcement issues.
+    
+    Next Steps:
+    1. Investigate the source IP address for legitimacy and business purpose
+    2. Review the specific firewall rules being violated and their configuration
+    3. Check if the source IP is from an expected network segment or external location
+    4. Analyze the destination ports and services being accessed
+    5. Correlate with user authentication logs if applicable
+    6. Consider implementing additional monitoring or blocking for persistent violators
+    7. Review firewall policy configuration for potential misconfigurations
+  where: (safe(action, "") == "deny" || safe(action, "") == "drop" || safe(action, "") == "block" || safe(log.fw_action, "") == "deny" || safe(log.fw_action, "") == "drop") && safe(log.rule, "") != "" && safe(origin.ip, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-firewall-sonicwall-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: action.keyword
+          operator: filter_term
+          value: 'deny'
+      within: now-10m
+      count: 20
+  deduplicateBy:
+    - origin.ip
+    - lastEvent.log.rule

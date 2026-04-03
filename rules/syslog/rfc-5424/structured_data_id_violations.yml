@@ -1,0 +1,41 @@
+- id: 1010
+  dataTypes:
+    - rfc-5424
+  name: RFC-5424 Structured Data ID Violation Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: Security Monitoring
+  technique: "T1565.001 - Data Manipulation: Stored Data Manipulation"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5424#section-6.3
+    - https://attack.mitre.org/techniques/T1565/001/
+  description: |
+    Detects violations in RFC-5424 structured data ID fields including invalid IANA enterprise numbers, malformed SD-IDs, injection attempts, or suspicious patterns that could indicate log manipulation or forged structured data elements. This rule identifies potential attempts to manipulate syslog structured data for evasion, injection attacks, or log forgery.
+    
+    Next Steps:
+    1. Examine the source system generating the malformed structured data
+    2. Review the complete syslog message context and structured data content
+    3. Verify if the violation represents a legitimate configuration issue or malicious activity
+    4. Check for patterns of similar violations from the same source over time
+    5. Validate the IANA enterprise number against official registrations if present
+    6. Investigate any unusual characters or encoding in the structured data fields
+    7. Review system logs for signs of compromise or unauthorized access
+    8. Consider implementing additional syslog parsing validation rules
+  where: |
+    safe(log.structured_data, "") != "" && 
+    safe(log.structured_data, "") != "-" &&
+    (
+      safe(log.structured_data, "").matches(".*\\[(?![a-zA-Z0-9@._-]+\\s).*\\].*") ||
+      safe(log.structured_data, "").matches(".*\\[@[0-9]+(?!\\.[a-zA-Z0-9._-]+).*\\].*") ||
+      safe(log.structured_data, "").matches(".*\\[@0+\\s.*\\].*") ||
+      safe(log.structured_data, "").matches(".*\\[[^\\]]*[;|&`$()<>][^\\]]*\\].*") ||
+      safe(log.structured_data, "").matches(".*\\[[^\\]]{129,}\\].*") ||
+      safe(log.structured_data, "").matches(".*\\[@[0-9]{10,}.*\\].*") ||
+      safe(log.structured_data, "").matches(".*\\[[^\\]]*\\\\x[0-9a-fA-F]{2}[^\\]]*\\].*") ||
+      safe(log.structured_data, "").matches(".*\\[[^\\]]*[\\r\\n\\t][^\\]]*\\].*")
+    )
+  deduplicateBy:
+    - origin.ip

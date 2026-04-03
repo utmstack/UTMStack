@@ -1,0 +1,34 @@
+- id: 1012
+  dataTypes:
+    - cs_switch
+  name: Configuration Rollback Event Detected
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 3
+  category: Configuration Management
+  technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst9400/software/release/17-13/configuration_guide/sys_mgmt/b_1713_sys_mgmt_9400_cg/configuring_system_message_logs.html
+    - https://attack.mitre.org/techniques/T1562/001/
+  description: |
+    Detects configuration rollback events on Cisco switches which may indicate unauthorized changes being reverted or system recovery actions. Configuration rollbacks can be a sign of an attacker trying to cover their tracks or legitimate administrators restoring from a compromised state.
+    
+    Next Steps:
+    1. Verify if the rollback was authorized by checking the change management system
+    2. Review the configuration changes that were rolled back to identify any unauthorized modifications
+    3. Check authentication logs to identify who initiated the rollback
+    4. Review switch logs before and after the rollback to understand the context
+    5. If unauthorized, investigate for signs of compromise and review access controls
+    6. Document the incident and update configuration backup procedures if needed
+  where: |
+    (safe(log.facility, "") == "SYS" || safe(log.facility, "") == "CONFIG") &&
+    (safe(log.mnemonic, "") == "CONFIG_I" || 
+     safe(log.mnemonic, "") == "ROLLBACK" ||
+     contains(safe(log.message, ""), "configuration rollback") ||
+     contains(safe(log.message, ""), "config reverted") ||
+     contains(safe(log.message, ""), "startup-config replaced") ||
+     contains(safe(log.message, ""), "configuration restored"))
+  deduplicateBy:
+    - lastEvent.origin.host

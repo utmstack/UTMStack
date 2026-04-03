@@ -1,0 +1,39 @@
+- id: 1025
+  dataTypes:
+    - rfc-5425
+  name: RFC-5425 TLS Close Notify Anomalies
+  impact:
+    confidentiality: 2
+    integrity: 2
+    availability: 3
+  category: TLS Security
+  technique: "T1499.001 - Network Denial of Service: Direct Network Flood"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5425
+    - https://attack.mitre.org/techniques/T1499/001/
+  description: |
+    Detects anomalous patterns in TLS close_notify alerts that may indicate truncation attacks, premature connection termination, or DoS attempts in RFC-5425 syslog communications. This rule identifies suspicious TLS connection closures including unexpected fatal alerts, excessive close notifications, truncation attack patterns, and improper connection termination procedures.
+    
+    Next Steps:
+    1. Verify the legitimacy of the source IP and connection patterns
+    2. Check for correlation with other network anomalies or security events
+    3. Analyze TLS handshake logs for signs of manipulation or attacks
+    4. Review syslog service configuration and network infrastructure
+    5. Consider implementing rate limiting or blocking the source if malicious activity is confirmed
+    6. Examine certificate validity and TLS configuration settings
+  where: |
+    (safe(log.tls_alert_code, 0) == 0 && safe(log.tls_alert_level, "") == "fatal" ||
+     safe(log.tls_close_notify_count, 0) > 10 ||
+     safe(log.message, "") =~ ".*close.*notify.*without.*data.*" ||
+     safe(log.tls_error, "") =~ ".*unexpected.*close.*" ||
+     safe(log.tls_alert_description, "") == "close_notify" && safe(log.bytes_sent, 0) < 100 ||
+     safe(log.connection_duration, 0) < 1000 && safe(log.tls_alert_description, "") == "close_notify" ||
+     safe(log.tls_error, "") =~ ".*truncat.*attack.*" ||
+     safe(log.message, "") =~ ".*premature.*terminat.*" ||
+     safe(log.tls_bidirectional_close, false) == false ||
+     safe(log.tls_close_without_alert, false) == true) &&
+    safe(log.protocol, "") == "syslog-tls"
+  deduplicateBy:
+    - origin.ip
+    - target.port

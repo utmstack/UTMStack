@@ -1,0 +1,41 @@
+- id: 1006
+  dataTypes:
+    - firewall-mikrotik
+  name: MikroTik FTP Brute Force Attack
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Credential Access
+  technique: "T1110 - Brute Force"
+  adversary: origin
+  references:
+    - https://help.mikrotik.com/docs/spaces/ROS/pages/328094/Log
+    - https://attack.mitre.org/techniques/T1110/
+  description: |
+    Multiple failed FTP login attempts detected on MikroTik device, indicating potential brute force attack against FTP service. This rule triggers when 5 or more failed FTP login attempts are detected from the same source IP within 15 minutes.
+    
+    Next Steps:
+    1. Review FTP access logs for the source IP address
+    2. Check if the IP address is known or suspicious
+    3. Consider blocking the source IP if it's malicious
+    4. Review FTP service configuration and security settings
+    5. Verify if any legitimate users are affected by account lockouts
+    6. Consider implementing stronger authentication mechanisms
+  where: |
+    safe(log.topics, "") =~ ".*system.*error.*" && 
+    safe(log.message, "") =~ ".*login failure.*ftp.*" &&
+    safe(origin.ip, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-firewall-mikrotik-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.message
+          operator: filter_match
+          value: 'login failure ftp'
+      within: now-15m
+      count: 5
+  deduplicateBy:
+    - origin.ip

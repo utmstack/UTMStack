@@ -1,0 +1,42 @@
+- id: 1017
+  dataTypes:
+    - azure
+  name: Suspicious Service Principal Activity Detected
+  impact:
+    confidentiality: 4
+    integrity: 4
+    availability: 3
+  category: Privilege Escalation
+  technique: "T1098 - Account Manipulation"
+  adversary: origin
+  references:
+    - https://www.cloud-architekt.net/auditing-of-msi-and-service-principals/
+    - https://attack.mitre.org/techniques/T1098/
+  description: |
+    Detects potential abuse of service principals by monitoring for unusual sign-in patterns, permission changes, or suspicious API calls. This could indicate compromised service principal credentials or malicious usage.
+    
+    Next Steps:
+    1. Investigate the service principal identity (Application ID) and its legitimate use cases
+    2. Review recent permission changes or role assignments for the service principal
+    3. Check for any unauthorized API calls or unusual access patterns from this service principal
+    4. Verify the legitimacy of the source IP address and geolocation
+    5. Examine authentication logs for any other suspicious activities related to this service principal
+    6. Review the service principal's assigned roles and permissions for privilege escalation
+    7. Consider rotating service principal credentials if compromise is suspected
+    8. Check if the service principal is being used from unexpected locations or applications
+    9. Validate that the service principal's usage aligns with its intended purpose
+  where: safe(log.category, "") == "ServicePrincipal" && (safe(log.operationName, "").contains("ServicePrincipal") || safe(log.loggedByService, "") == "Core Directory") && (safe(log.resultType, "") != "0" || safe(log.result, "") == "failure" || safe(log.operationName, "").contains("role") || safe(log.operationName, "").contains("permission"))
+  afterEvents:
+    - indexPattern: v11-log-azure-*
+      with:
+        - field: log.servicePrincipalId.keyword
+          operator: filter_term
+          value: '{{safe(log.servicePrincipalId, "")}}'
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-2h
+      count: 5
+  deduplicateBy:
+    - log.servicePrincipalId
+    - origin.ip

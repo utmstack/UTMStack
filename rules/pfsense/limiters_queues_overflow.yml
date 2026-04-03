@@ -1,0 +1,37 @@
+- id: 1016
+  dataTypes:
+    - firewall-pfsense
+  name: pfSense Limiters and Queues Overflow
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: Network DoS
+  technique: "T1499 - Endpoint Denial of Service: Resource Exhaustion"
+  adversary: origin
+  references:
+    - https://docs.netgate.com/pfsense/en/latest/trafficshaper/limiters.html
+    - https://attack.mitre.org/techniques/T1499/
+  description: |
+    Detects when pfSense traffic limiters or queues experience overflow conditions, which could indicate network congestion, DoS attacks, or misconfigured traffic shaping rules. This can lead to service degradation or complete network outages.
+    
+    **Next Steps:**
+    1. Check pfSense interface utilization and performance metrics
+    2. Review traffic shaping rules and limiter configurations for proper sizing
+    3. Analyze network traffic patterns to identify potential DoS attacks or abnormal usage
+    4. Verify bandwidth allocations match actual network capacity requirements
+    5. Monitor for repeated overflow events on the same interface
+    6. Check for misconfigurations in queue priorities and weights
+    7. Consider adjusting limiter thresholds based on actual traffic patterns
+    8. Investigate source IPs generating excessive traffic if attack is suspected
+  where: safe(log.eventType, "") == "kernel" && (safe(log.reason, "").contains("queue overflow") || safe(log.reason, "").contains("limiter overflow") || safe(log.reason, "").contains("dummynet") && safe(log.reason, "").contains("overflow") || safe(log.reason, "").contains("unlinked queue") || safe(log.reason, "").contains("update_fs") && safe(log.reason, "").contains("still unlinked"))
+  afterEvents:
+    - indexPattern: v11-log-firewall-pfsense-*
+      with:
+        - field: log.realInterface.keyword
+          operator: filter_term
+          value: '{{log.realInterface}}'
+      within: now-15m
+      count: 10
+  deduplicateBy:
+    - target.host

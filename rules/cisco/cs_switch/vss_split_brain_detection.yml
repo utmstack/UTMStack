@@ -1,0 +1,38 @@
+- id: 1017
+  dataTypes:
+    - cs_switch
+  name: VSS Split-Brain Detection
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 3
+  category: Infrastructure
+  technique: "T1529 - System Shutdown/Reboot"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/support/docs/switches/catalyst-6500-virtual-switching-system-1440/109638-vss-pf-tshoot.html
+    - https://attack.mitre.org/techniques/T1529/
+  description: |
+    Detects Virtual Switching System (VSS) split-brain conditions where both switches in a VSS pair become active simultaneously, causing network instability and potential data corruption. This is a critical condition that can lead to network loops, broadcast storms, and service disruption.
+    
+    Next Steps:
+    1. Immediately check the VSS status on both switches using 'show switch virtual' command
+    2. Verify VSL (Virtual Switch Link) connectivity between the switches
+    3. Check for any physical VSL link failures or disconnections
+    4. Review recent configuration changes that might have affected VSS operation
+    5. If split-brain is confirmed, follow Cisco's recovery procedure to restore proper VSS operation
+    6. Consider implementing dual-active detection mechanisms if not already configured
+    7. Document the incident and review VSS redundancy design for improvements
+    8. Monitor for additional related VSS events in the following minutes
+    9. Check network topology for any loops or broadcast storms that may have resulted
+    10. Validate that backup systems and failover mechanisms are functioning properly
+  where: |
+    (safe(log.facility, "") == "VSL" || safe(log.facility, "") == "VSS") && 
+    (contains(safe(log.message, ""), "split-brain") || 
+     contains(safe(log.message, ""), "dual-active") || 
+     contains(safe(log.message, ""), "both active") || 
+     (contains(safe(log.message, ""), "VSL") && contains(safe(log.message, ""), "down")) ||
+     (contains(safe(log.message, ""), "peer") && contains(safe(log.message, ""), "lost"))) &&
+    safe(log.severity, 10) <= 4
+  deduplicateBy:
+    - origin.host

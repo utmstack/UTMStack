@@ -1,0 +1,39 @@
+- id: 1021
+  dataTypes:
+    - firewall-fortigate
+  name: SD-WAN SLA Violations Detected
+  impact:
+    confidentiality: 1
+    integrity: 1
+    availability: 3
+  category: Network Performance
+  technique: Service Degradation
+  adversary: origin
+  references:
+    - https://docs.fortinet.com/document/fortigate/7.2.0/sd-wan-architecture-for-enterprise/890209/sd-wan-logging
+    - https://docs.fortinet.com/document/fortigate/7.2.0/administration-guide/856781/understanding-sd-wan-related-logs
+  description: |
+    Multiple SD-WAN SLA violations detected indicating network performance degradation. This could impact application availability and user experience. The rule triggers when health check failures or SLA target misses occur repeatedly.
+    
+    Next Steps:
+    1. Review the affected SD-WAN interface and health check details to identify the problematic link
+    2. Check network performance metrics (latency, jitter, packet loss) for the affected interface
+    3. Verify if the issue is affecting critical business applications using this SD-WAN link
+    4. Contact the ISP if the issue persists on a specific WAN link
+    5. Consider temporarily adjusting SD-WAN rules to route critical traffic through alternative links
+    6. Review historical SLA violations to identify patterns or recurring issues
+  where: safe(log.subtype, "") == "sdwan" && safe(log.eventtype, "") == "Health Check" && (safe(log.logdesc, "") == "Member out-of-sla" || safe(log.message, "") contains "SLA fail" || safe(log.newvalue, "") == "0")
+  afterEvents:
+    - indexPattern: v11-log-firewall-fortigate-*
+      with:
+        - field: log.healthcheck.keyword
+          operator: filter_term
+          value: '{{log.healthcheck}}'
+        - field: log.interface.keyword
+          operator: filter_term
+          value: '{{log.interface}}'
+      within: now-15m
+      count: 5
+  deduplicateBy:
+    - lastEvent.log.healthcheck
+    - lastEvent.log.interface

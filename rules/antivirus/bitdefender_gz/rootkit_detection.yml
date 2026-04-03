@@ -1,0 +1,45 @@
+- id: 1015
+  dataTypes:
+    - antivirus-bitdefender-gz
+  name: Rootkit Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Malware/Rootkit
+  technique: "T1014 - Rootkit"
+  adversary: origin
+  references:
+    - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+    - https://attack.mitre.org/techniques/T1014/
+  description: |
+    Detects rootkit infections and kernel-level threats that attempt to hide malicious activity at the system level using Bitdefender GravityZone's advanced detection capabilities.
+    
+    Next Steps:
+    1. Immediately isolate the affected system from the network to prevent lateral movement
+    2. Capture a memory dump and disk image for forensic analysis
+    3. Check for signs of privilege escalation or kernel-level modifications
+    4. Review system logs for any suspicious driver installations or kernel module loading
+    5. Scan other systems in the same network segment for similar infections
+    6. Consider rebuilding the system from a known clean state as rootkits can be difficult to fully remove
+    7. Review how the rootkit was initially delivered (email attachment, exploit kit, etc.)
+    8. Update all security software and operating system patches
+  where: |
+    safe(log.eventType, "") == "malware_detected" &&
+    (safe(log.severity, "") == "high" || safe(log.severity, "") == "critical") &&
+    (
+      contains(toLower(safe(log.restData, "")), "rootkit") ||
+      contains(toLower(safe(log.restData, "")), "kernel") ||
+      contains(toLower(safe(log.restData, "")), "tdss") ||
+      contains(toLower(safe(log.restData, "")), "zeroaccess") ||
+      contains(toLower(safe(log.restData, "")), "necurs") ||
+      contains(toLower(safe(log.restData, "")), "bootkit") ||
+      contains(toLower(safe(log.restData, "")), "alureon") ||
+      contains(toLower(safe(log.restData, "")), "rustock") ||
+      contains(toLower(safe(log.restData, "")), "sinowal") ||
+      contains(toLower(safe(log.requested, "")), "rootkit") ||
+      safe(log.signatureID, "") == "rootkit"
+    )
+  deduplicateBy:
+    - lastEvent.log.hostId
+    - lastEvent.log.signatureID

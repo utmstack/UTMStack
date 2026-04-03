@@ -1,0 +1,40 @@
+- id: 1014
+  dataTypes:
+    - firewall-firepower
+  name: Network Behavior Anomaly Detection
+  impact:
+    confidentiality: 2
+    integrity: 2
+    availability: 1
+  category: Anomaly
+  technique: "T1046 - Network Service Discovery"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/td/docs/security/firepower/640/fdm/fptd-fdm-config-guide-640/fptd-fdm-intrusion.html
+    - https://attack.mitre.org/techniques/T1046/
+  description: |
+    Detects network behavior anomalies including unusual traffic patterns, protocol anomalies, suspicious connection rates, or deviations from baseline network behavior. This rule identifies potential reconnaissance activities and abnormal network usage patterns.
+    
+    Next Steps:
+    1. Review the specific anomaly type and score to understand the nature of the deviation
+    2. Check if the source IP has any legitimate business reason for the unusual behavior
+    3. Investigate the destination systems targeted by the anomalous traffic
+    4. Correlate with threat intelligence feeds to check if the source IP is known malicious
+    5. Review firewall logs for any blocked connection attempts from the same source
+    6. Examine network flow data to understand the scope and pattern of the anomalous behavior
+    7. Check for signs of lateral movement or data exfiltration following the anomaly
+    8. Consider implementing rate limiting or blocking the source IP if malicious activity is confirmed
+    9. Update network baselines if the behavior is determined to be legitimate business activity
+    10. Monitor for similar patterns from other sources that might indicate a coordinated attack
+  where: (safe(log.eventType, "") == "ANOMALY_EVENT" || safe(log.eventType, "") == "NBA_EVENT") && (safe(log.anomalyScore, 0) >= 70 || safe(log.deviationFromBaseline, 0) >= 3.0 || safe(log.connectionRate, 0) > safe(log.baselineConnectionRate, 0) * 5) && (safe(log.anomalyType, "") != "" || safe(log.protocolAnomaly, false) == true)
+  afterEvents:
+    - indexPattern: v11-log-firewall-firepower-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-2h
+      count: 10
+  deduplicateBy:
+    - adversary.ip
+    - lastEvent.log.anomalyType

@@ -1,0 +1,48 @@
+- id: 1017
+  dataTypes:
+    - pa_firewall
+  name: Cortex XDR Integration Alerts
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Endpoint Detection
+  technique: "T1070 - Indicator Removal on Host"
+  adversary: origin
+  references:
+    - https://docs-cortex.paloaltonetworks.com/r/Cortex-XDR/Cortex-XDR-Documentation/Log-formats
+    - https://attack.mitre.org/techniques/T1070/
+  description: |
+    Detects high-priority alerts from Cortex XDR integration including endpoint threats, behavioral anomalies, and advanced persistent threats. This rule identifies critical and high severity security events that require immediate attention from the security team.
+    
+    Next Steps:
+    1. Review the specific threat details and IOCs in the Cortex XDR console
+    2. Investigate the affected endpoint for additional indicators of compromise
+    3. Check for lateral movement patterns from the source IP
+    4. Verify if the threat has been successfully contained or blocked
+    5. Escalate to incident response team if advanced persistent threat indicators are present
+    6. Document findings and update threat intelligence feeds
+  where: |
+    (
+      safe(log.pa_type, "") == "CORRELATION" || 
+      safe(log.pa_type, "") == "THREAT" ||
+      safe(log.category, "").contains("cortex") ||
+      safe(log.app, "").contains("cortex-xdr")
+    ) &&
+    (
+      safe(log.severityLabel, "") == "critical" ||
+      safe(log.severityLabel, "") == "high" ||
+      safe(log.threatid, "") != ""
+    ) &&
+    (
+      safe(log.act, "") == "alert" ||
+      safe(log.act, "") == "block" ||
+      safe(action, "") == "alert" ||
+      safe(action, "") == "block" ||
+      safe(log.category, "").contains("malware") ||
+      safe(log.category, "").contains("exploit") ||
+      safe(log.category, "").contains("command-and-control")
+    )
+  deduplicateBy:
+    - origin.ip
+    - log.threatid

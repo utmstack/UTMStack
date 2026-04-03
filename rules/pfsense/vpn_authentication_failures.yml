@@ -1,0 +1,44 @@
+- id: 1003
+  dataTypes:
+    - firewall-pfsense
+  name: pfSense VPN Authentication Failures
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 2
+  category: Authentication Failure
+  technique: "T1110 - Brute Force"
+  adversary: origin
+  references:
+    - https://docs.netgate.com/pfsense/en/latest/monitoring/logs/openvpn.html
+    - https://docs.netgate.com/pfsense/en/latest/monitoring/logs/ipsec.html
+    - https://attack.mitre.org/techniques/T1110/
+  description: |
+    Detects multiple VPN authentication failures from the same source IP address, indicating potential brute force attacks or credential stuffing attempts against VPN services on pfSense firewalls. This rule looks for authentication failures in OpenVPN and IPsec connections.
+    
+    Next Steps:
+    1. Investigate the source IP address for reputation and geographic location
+    2. Review VPN user accounts for any successful logins from the same IP
+    3. Check for any successful authentications following the failed attempts
+    4. Consider blocking the source IP if confirmed malicious
+    5. Review VPN authentication policies and consider implementing account lockout mechanisms
+    6. Verify VPN service configurations and certificate validity
+  where: |
+    safe(log.eventType, "") =~ "(?i)(openvpn|ipsec|charon)" && 
+    (safe(raw, "") =~ "(?i)(authentication failed|auth fail|incorrect password|bad username|tls.*fail|eap.*fail|no trusted.*key|invalid.*certific)" ||
+     safe(log.csvMsg, "") =~ "(?i)(authentication failed|auth fail|incorrect password|bad username|tls.*fail|eap.*fail|no trusted.*key|invalid.*certific)") &&
+    safe(origin.ip, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-firewall-pfsense-*
+      with:
+        - field: log.eventType.keyword
+          operator: filter_match
+          value: '*vpn*'
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-30m
+      count: 5
+  deduplicateBy:
+    - origin.ip
+    - log.eventType

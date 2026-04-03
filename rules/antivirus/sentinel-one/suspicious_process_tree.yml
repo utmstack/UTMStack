@@ -1,0 +1,42 @@
+- id: 1004
+  dataTypes:
+    - antivirus-sentinel-one
+  name: Suspicious Process Tree Analysis
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Process Analysis
+  technique: "T1055 - Process Injection"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1055/
+    - https://attack.mitre.org/techniques/T1057/
+  description: |
+    Detects suspicious process tree patterns identified by SentinelOne, including unusual parent-child relationships, process hollowing, and malicious process chains commonly used in attacks.
+    
+    Next Steps:
+    1. Review the process tree details in the SentinelOne console to understand the parent-child relationships
+    2. Identify the affected host from log.syslogHost and the user account from log.destinationUser
+    3. Check if the process chain is associated with legitimate software or administrative activity
+    4. Look for indicators of process injection, hollowing, or other malicious techniques
+    5. Investigate other recent process creation events on the same host
+    6. If confirmed malicious, isolate the endpoint and terminate the suspicious processes
+    7. Review the threat storyline in SentinelOne for full attack context
+    8. Collect memory dumps if advanced analysis is required
+  where: |
+    (contains(safe(log.eventDescription, ""), "process tree") ||
+     contains(safe(log.eventDescription, ""), "parent") ||
+     contains(safe(log.eventDescription, ""), "process chain") ||
+     contains(safe(log.eventDescription, ""), "process spawn") ||
+     contains(safe(log.eventDescription, ""), "suspicious process") ||
+     contains(safe(log.eventDescription, ""), "abnormal process") ||
+     contains(safe(log.eventDescription, ""), "process anomaly") ||
+     contains(safe(log.threatName, ""), "process") ||
+     contains(safe(log.threatName, ""), "injection") ||
+     contains(safe(log.threatName, ""), "hollow") ||
+     contains(safe(log.mitigationMode, ""), "process")) &&
+    safe(log.syslogHost, "") != ""
+  deduplicateBy:
+    - lastEvent.log.syslogHost
+    - lastEvent.log.threatId

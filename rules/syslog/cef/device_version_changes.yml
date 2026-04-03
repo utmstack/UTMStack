@@ -1,0 +1,47 @@
+- id: 1007
+  dataTypes:
+    - cef
+  name: CEF Device Version Changes
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 2
+  category: Configuration Change
+  technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+  adversary: origin
+  references:
+    - https://www.microfocus.com/documentation/arcsight/arcsight-cef-23/
+    - https://attack.mitre.org/techniques/T1562/001/
+  description: |
+    Detects unexpected device version changes in CEF logs which may indicate log source tampering or unauthorized modifications. This rule identifies suspicious version strings that contain special characters, are unusually long, or contain test/debug indicators.
+    
+    Next Steps:
+    1. Verify if the device version change was authorized through change management
+    2. Check the source device for signs of compromise or configuration tampering
+    3. Review other logs from the same device for additional suspicious activities
+    4. Validate the integrity of the log source and its configuration
+    5. If unauthorized, investigate potential security tool evasion attempts
+  where: |
+    safe(log.deviceVersion, "") != "" && 
+    safe(log.deviceProduct, "") != "" &&
+    safe(log.deviceVendor, "") != "" &&
+    (
+      safe(log.deviceVersion, "").matches(".*[<>\"';&|].*") ||
+      safe(log.deviceVersion, "").length() > 50 ||
+      safe(log.deviceVersion, "").contains("test") ||
+      safe(log.deviceVersion, "").contains("debug")
+    )
+  afterEvents:
+    - indexPattern: v11-log-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.deviceProduct.keyword
+          operator: filter_term
+          value: '{{log.deviceProduct}}'
+      within: now-1h
+      count: 3
+  deduplicateBy:
+    - lastEvent.origin.ip
+    - lastEvent.log.deviceProduct

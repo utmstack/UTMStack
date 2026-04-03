@@ -1,0 +1,41 @@
+- id: 1016
+  dataTypes:
+    - netflow
+  name: NTP Amplification Attack Detection
+  impact:
+    confidentiality: 1
+    integrity: 1
+    availability: 3
+  category: DDoS Attack
+  technique: "T1498.002 - Network Denial of Service: Reflection Amplification"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/about/security-center/amplification-ddos.html
+    - https://attack.mitre.org/techniques/T1498/002/
+    - https://www.us-cert.gov/ncas/alerts/TA14-013A
+  description: |
+    Detects potential NTP amplification attacks by identifying unusual NTP traffic patterns with large response sizes or high packet counts to/from port 123. NTP amplification attacks exploit misconfigured NTP servers to amplify traffic directed at victims.
+    
+    Next Steps:
+    1. Investigate the source IP addresses to determine if they are legitimate NTP servers
+    2. Check if the target systems are experiencing performance degradation or connectivity issues
+    3. Verify NTP server configurations and disable monlist command if enabled
+    4. Implement rate limiting for NTP traffic at network perimeters
+    5. Consider blocking or rate-limiting traffic from identified amplification sources
+    6. Monitor for additional amplification traffic patterns from the same sources
+    7. Review network capacity and implement DDoS mitigation if needed
+  where: (safe(target.port, 0) == 123 || safe(origin.port, 0) == 123) && safe(protocol, "") == "17" && (safe(target.bytesReceived, 0) > 1000 || safe(origin.bytesSent, 0) > 1000 || safe(target.packagesReceived, 0) > 10 || safe(origin.packagesSent, 0) > 10)
+  afterEvents:
+    - indexPattern: v11-log-netflow-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.port
+          operator: filter_term
+          value: '123'
+      within: now-5m
+      count: 50
+  deduplicateBy:
+    - origin.ip
+    - target.ip

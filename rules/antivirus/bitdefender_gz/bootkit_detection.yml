@@ -1,0 +1,46 @@
+- id: 1016
+  dataTypes:
+    - antivirus-bitdefender-gz
+  name: Bootkit/UEFI Threat Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 3
+  category: Malware
+  technique: "T1542.001 - Boot or Logon Autostart Execution: System Firmware"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1542/001/
+    - https://www.bitdefender.com/business/support/en/77209-135324-event-types.html
+  description: |
+    Detects bootkit or UEFI-level threats that attempt to persist at the firmware level and compromise the boot process. These threats can survive system reinstalls and bypass traditional security measures by infecting the system firmware.
+    
+    Next Steps:
+    - Isolate the affected system immediately to prevent spread
+    - Review system boot logs and firmware settings for modifications
+    - Check for other malware detections on the same host in the past 24-48 hours
+    - Verify system integrity using offline scanning tools
+    - Consider reimaging the system and updating firmware/UEFI
+    - Enable Secure Boot if not already enabled
+    - Review user activity and recently installed software on the affected system
+    - Document the infection for incident response reporting
+    - Check if other systems with similar hardware/firmware versions are affected
+  where: |
+    safe(log.eventType, "") == "av" &&
+    safe(log.severity, 0) >= 8 &&
+    (
+      (safe(log.requested, "").contains("boot") || 
+       safe(log.requested, "").contains("uefi") || 
+       safe(log.requested, "").contains("rootkit") ||
+       safe(log.requested, "").contains("firmware")) ||
+      (safe(log.restData, "").contains("boot") || 
+       safe(log.restData, "").contains("uefi") || 
+       safe(log.restData, "").contains("rootkit") ||
+       safe(log.restData, "").contains("firmware") ||
+       safe(log.restData, "").contains("\\EFI\\") || 
+       safe(log.restData, "").contains("/EFI/") ||
+       safe(log.restData, "").contains("\\boot\\") ||
+       safe(log.restData, "").contains("/boot/"))
+    )
+  deduplicateBy:
+    - log.hostId

@@ -1,0 +1,43 @@
+- id: 1011
+  dataTypes:
+    - generic
+  name: Delimiter Injection Attempts
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Log Injection
+  technique: "T1070.002 - Indicator Removal: Clear Linux or Mac System Logs"
+  adversary: origin
+  references:
+    - https://owasp.org/www-community/attacks/Log_Injection
+    - https://capec.mitre.org/data/definitions/93.html
+    - https://attack.mitre.org/techniques/T1070/002/
+  description: |
+    Detects attempts to inject delimiters, newlines, or special characters into logs that could break log parsing or forge log entries. This includes carriage returns, line feeds, and common log delimiters that could be used to create fake log entries or hide malicious activity.
+    
+    Next Steps:
+    1. Identify the source of the injection attempt by examining the origin IP or user associated with the log entry
+    2. Review surrounding log entries to determine if this is part of a larger attack campaign
+    3. Check if the injection attempt was successful by looking for malformed or suspicious entries after this event
+    4. Examine the application or service generating these logs for potential vulnerabilities
+    5. Consider implementing input validation and sanitization to prevent log injection attacks
+    6. Review logs from the same source for other suspicious activities or exploitation attempts
+  where: |
+    safe(log.message, "") != "" && (
+      safe(log.message, "").contains("\r\n") ||
+      safe(log.message, "").contains("\n\r") ||
+      safe(log.message, "").contains("\\r\\n") ||
+      safe(log.message, "").contains("\\n\\r") ||
+      safe(log.message, "").matches(".*[\r\n].*Successful Login.*") ||
+      safe(log.message, "").matches(".*[\r\n].*authenticated.*") ||
+      safe(log.message, "").matches(".*[\r\n].*INFO.*") ||
+      safe(log.message, "").matches(".*[\r\n].*ERROR.*") ||
+      safe(log.message, "").matches(".*[\r\n].*DEBUG.*") ||
+      safe(log.message, "").matches(".*[\r\n].*WARN.*") ||
+      safe(log.message, "").matches(".*\t\t+.*") ||
+      safe(log.message, "").matches(".*\|\|.*\|\|.*") ||
+      safe(log.message, "").matches(".*;;.*;;.*")
+    )
+  deduplicateBy:
+    - origin.ip

@@ -1,0 +1,56 @@
+- id: 1001
+  dataTypes:
+    - firewall-fortiweb
+  name: FortiWeb Web Application Attack Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Web Application Security
+  technique: "T1190 - Exploit Public-Facing Application"
+  adversary: origin
+  references:
+    - https://docs.fortinet.com/document/fortiweb/7.6.0/administration-guide/981691/syntax-based-sql-xss-injection-detection
+    - https://attack.mitre.org/techniques/T1190/
+  description: |
+    Detects SQL injection, XSS, and other web application attacks blocked by FortiWeb WAF based on signature or syntax-based detection. These attacks attempt to exploit vulnerabilities in web applications to gain unauthorized access, steal data, or compromise application integrity.
+    
+    Next Steps:
+    1. Review the specific attack type and payload in the FortiWeb logs
+    2. Check if the source IP has a history of malicious activity
+    3. Verify if the targeted application has known vulnerabilities
+    4. Review application logs for any successful exploitation attempts
+    5. Consider blocking the source IP if attacks persist
+    6. Ensure WAF rules are up-to-date and properly configured
+    7. Implement additional application-level security controls if needed
+    8. Check for any bypass attempts or evasion techniques being used
+  where: |
+    safe(action, "") == "deny" && 
+    (
+      safe(log.type, "") == "attack" || 
+      safe(log.subtype, "") == "waf" ||
+      safe(log.attack_type, "") in ["SQL Injection", "Cross Site Scripting", "XSS", "SQLi"] ||
+      contains(safe(log.message, ""), "sql injection") ||
+      contains(safe(log.message, ""), "SQL injection") ||
+      contains(safe(log.message, ""), "cross site scripting") ||
+      contains(safe(log.message, ""), "Cross Site Scripting") ||
+      contains(safe(log.message, ""), "xss") ||
+      contains(safe(log.message, ""), "XSS") ||
+      contains(safe(log.message, ""), "sqli") ||
+      contains(safe(log.message, ""), "SQLi") ||
+      safe(log.main_type, "") == "SQL/XSS Syntax Based Detection"
+    )
+  afterEvents:
+    - indexPattern: v11-log-firewall-fortiweb-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: action.keyword
+          operator: filter_term
+          value: 'deny'
+      within: now-15m
+      count: 3
+  deduplicateBy:
+    - origin.ip
+    - target.ip

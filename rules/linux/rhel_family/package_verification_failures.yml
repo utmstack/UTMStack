@@ -1,0 +1,49 @@
+- id: 1019
+  dataTypes:
+    - rhel_family
+  name: Package Verification Failures in RHEL
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 3
+  category: System Integrity
+  technique: "T1565.001 - Data Manipulation: Stored Data Manipulation"
+  adversary: origin
+  references:
+    - https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/security_guide/sec-verifying_signed_packages
+    - https://attack.mitre.org/techniques/T1565/001/
+  description: |
+    Detects package verification failures in RHEL systems indicating potential tampering, corruption, or unauthorized modifications to installed packages. This includes checksum mismatches, missing files, and permission changes.
+    
+    Next Steps:
+    1. Investigate which specific package failed verification and the nature of the failure
+    2. Check the package's source and installation history using 'rpm -qa --last' and 'yum history'
+    3. Verify package integrity using 'rpm -Va' for all packages or 'rpm -V <package_name>' for specific packages
+    4. Review system logs for unauthorized package installations or modifications
+    5. Check for signs of malware or unauthorized access to the system
+    6. Consider reinstalling the affected package from a trusted source
+    7. Examine file system integrity and compare against known good baselines
+  where: |
+    (safe(log.program, "") in ["rpm", "yum", "dnf"] &&
+     (safe(log.message, "") =~ "verify.*failed|verification.*failed|checksum.*mismatch|digest.*mismatch" ||
+      safe(log.message, "") =~ "missing.*file|modified.*file|size.*differs|mode.*differs|md5.*differs" ||
+      safe(log.verify_status, "") == "failed" ||
+      safe(log.rpm_verify, "") =~ "[SM5DLUGTP]")) ||
+    (safe(log.type, "") == "rpm-verify" &&
+     safe(log.result, "") != "pass") ||
+    (safe(log.message, "") =~ "Package.*tampered|Package.*corrupted|RPM.*database.*corrupted")
+  afterEvents:
+    - indexPattern: v11-log-linux-*
+      with:
+        - field: host.name.keyword
+          operator: filter_term
+          value: '{{host.name}}'
+        - field: log.package_name.keyword
+          operator: filter_term
+          value: '{{log.package_name}}'
+      within: now-12h
+      count: 2
+  deduplicateBy:
+    - host.name
+    - log.package_name
+    - log.file_path

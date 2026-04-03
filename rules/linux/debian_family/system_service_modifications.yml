@@ -1,0 +1,39 @@
+- id: 1021
+  dataTypes:
+    - linux
+  name: System Service Modifications
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 3
+  category: System Integrity
+  technique: "T1543.001 - Create or Modify System Process: Systemd Service"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1543/001/
+    - https://www.debian.org/doc/manuals/debian-reference/ch03.en.html
+  description: |
+    Detects modifications to system services including systemd units, init scripts, or service configurations that could indicate persistence attempts or system compromise. Attackers often create or modify system services to maintain persistence on compromised systems.
+    
+    Next Steps:
+    1. Verify if the service modification was authorized and performed by legitimate administrators
+    2. Review the specific service being modified and its configuration changes
+    3. Check for any suspicious processes or files associated with the modified service
+    4. Examine system logs for other indicators of compromise around the same timeframe
+    5. Validate the user account performing the modifications has appropriate privileges
+    6. Consider isolating the system if unauthorized modifications are confirmed
+  where: |
+    (safe(log.process_name, "") == "systemctl" && 
+     (safe(log.command_line, "") contains "enable" || 
+      safe(log.command_line, "") contains "disable" || 
+      safe(log.command_line, "") contains "mask" || 
+      safe(log.command_line, "") contains "unmask")) ||
+    (safe(log.file_path, "") contains "/etc/systemd/system/" && 
+     safe(log.event_type, "") == "file_modify") ||
+    (safe(log.file_path, "") contains "/etc/init.d/" && 
+     safe(log.event_type, "") == "file_modify") ||
+    (safe(log.message, "") contains "Created symlink" && 
+     safe(log.message, "") contains "/etc/systemd/system/")
+  deduplicateBy:
+    - origin.user
+    - origin.host

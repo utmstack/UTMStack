@@ -1,0 +1,48 @@
+- id: 1004
+  dataTypes:
+    - syslog
+  name: RFC-6587 Frame Length Manipulation
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 3
+  category: Protocol Manipulation
+  technique: "T1499.002 - Endpoint Denial of Service: Service Exhaustion Flood"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc6587#section-3.4.1
+    - https://attack.mitre.org/techniques/T1499/002/
+    - https://cwe.mitre.org/data/definitions/130.html
+  description: |
+    Detects attempts to manipulate frame length fields in octet-counting method to cause buffer overflows, message truncation, or parser confusion by providing extremely large or negative length values.
+    
+    Next Steps:
+    - Review the source IP address for any previous suspicious activity
+    - Check if the declared frame lengths match expected syslog message sizes
+    - Analyze network traffic from the source IP for other protocol manipulation attempts
+    - Verify if the syslog receiver experienced any performance issues or crashes
+    - Consider blocking the source IP if malicious intent is confirmed
+    - Review syslog parser configurations for proper input validation
+  where: |
+    safe(log.transport, "") == "tcp" && 
+    safe(log.framing, "") == "octet-counting" &&
+    (
+      safe(log.declared_length, 0) > 8192 ||
+      safe(log.declared_length, 0) < 0 ||
+      safe(log.length_overflow, false) == true ||
+      (safe(log.declared_length, 0) > 0 && safe(log.actual_length, 0) > safe(log.max_message_size, 2048))
+    )
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.port
+          operator: filter_term
+          value: '{{target.port}}'
+      within: now-10m
+      count: 5
+  deduplicateBy:
+    - adversary.ip
+    - target.port

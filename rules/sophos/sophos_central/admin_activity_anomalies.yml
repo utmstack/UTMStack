@@ -1,0 +1,36 @@
+- id: 1025
+  dataTypes:
+    - sophos-central
+  name: Sophos Central Admin Activity Anomaly
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Privileged Account Activity
+  technique: "T1098 - Account Manipulation"
+  adversary: origin
+  references:
+    - https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/GlobalSettings/ApiTokenManagement/index.html
+    - https://attack.mitre.org/techniques/T1098/
+  description: |
+    Detects anomalous administrative activities in Sophos Central including unusual configuration changes, mass policy modifications, or admin actions outside normal hours that could indicate compromised admin accounts.
+    
+    Next Steps:
+    1. Verify the admin user's identity and confirm if the action was authorized
+    2. Review the specific administrative action performed and assess its impact
+    3. Check if the admin user's credentials may have been compromised
+    4. Examine the source IP and location of the administrative activity
+    5. Review recent login activities for the admin account
+    6. Validate that the policy or configuration changes align with organizational security policies
+    7. Consider temporarily disabling the admin account if compromise is suspected
+    8. Review audit logs for other suspicious activities by the same admin user
+    9. Implement additional MFA controls for admin accounts if not already in place
+  where: |
+    (safe(log.type, "") in ["admin_action", "configuration_change", "policy_modification"] ||
+     safe(log.event, "") =~ "(?i)(admin|administrator|privilege|role.*change)") &&
+    (safe(log.userId, "") != "" || safe(log.admin_user, "") != "" || safe(log.modified_by, "") != "") &&
+    (safe(log.action, "") =~ "(?i)(delete.*policy|disable.*protection|remove.*user|grant.*admin|modify.*setting)" ||
+     safe(log.message, "") =~ "(?i)(mass.*change|bulk.*modif|disable.*all|delete.*all)")
+  deduplicateBy:
+    - lastEvent.log.userId
+    - lastEvent.log.action

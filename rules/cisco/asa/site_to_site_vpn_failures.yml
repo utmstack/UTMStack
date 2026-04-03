@@ -1,0 +1,49 @@
+- id: 1021
+  dataTypes:
+    - asa
+  name: Site-to-Site VPN Connection Failures
+  impact:
+    confidentiality: 2
+    integrity: 2
+    availability: 3
+  category: Network Security
+  technique: "T1498 - Network Denial of Service"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog.html
+    - https://attack.mitre.org/techniques/T1498/
+  description: |
+    Detects multiple site-to-site VPN connection failures which could indicate network issues, misconfigurations, or potential denial of service attacks. Monitors Phase 1 and Phase 2 IPSec failures.
+    
+    Next Steps:
+    1. Check the ASA logs for specific error messages to identify the root cause (authentication failures, network connectivity issues, or configuration mismatches)
+    2. Verify IPSec configuration on both endpoints (pre-shared keys, encryption settings, lifetime values)
+    3. Check network connectivity between the VPN endpoints using ping and traceroute
+    4. Review recent configuration changes on the ASA or peer devices
+    5. Monitor CPU and memory usage on the ASA to rule out resource exhaustion
+    6. Check for any ongoing DDoS attacks targeting the VPN service
+    7. Verify that the peer IP addresses are correct and haven't changed
+    8. Review firewall rules to ensure IPSec traffic (UDP 500, 4500, ESP) is allowed
+  where: |
+    safe(log.dataType, "") == "asa" && 
+    (
+      safe(log.messageId, "") in ["713061", "713062", "713063", "713065", "713081", "713082", "713086"] ||
+      safe(log.messageId, "") in ["751002", "751004", "751010", "751011", "750011", "717037", "717052"] ||
+      (contains(safe(log.message, ""), "Tunnel rejected") || 
+       contains(safe(log.message, ""), "IKE") && contains(safe(log.message, ""), "fail") ||
+       contains(safe(log.message, ""), "IPSec") && contains(safe(log.message, ""), "fail") ||
+       contains(safe(log.message, ""), "Phase 1") && contains(safe(log.message, ""), "fail") ||
+       contains(safe(log.message, ""), "Phase 2") && contains(safe(log.message, ""), "fail"))
+    )
+  afterEvents:
+    - indexPattern: v11-log-cisco-asa-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-30m
+      count: 10
+  deduplicateBy:
+    - lastEvent.origin.ip
+    - lastEvent.target.ip
+    - lastEvent.log.messageId

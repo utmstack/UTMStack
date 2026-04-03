@@ -1,0 +1,35 @@
+- id: 1023
+  dataTypes:
+    - netflow
+  name: NetFlow Export Manipulation Attempt
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Defense Evasion
+  technique: Indicator Removal
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1070/
+    - https://datatracker.ietf.org/doc/html/rfc7011
+  description: |
+    Detects potential NetFlow export manipulation attempts by identifying suspicious patterns such as flows with zero bytes/packets, abnormal protocol values, or flows targeting NetFlow collector ports. This could indicate an attacker attempting to manipulate network flow records to hide malicious activity or evade detection.
+    
+    Next Steps:
+    1. Investigate the source IP address and verify if it's a legitimate network device
+    2. Check NetFlow collector logs for any configuration changes or anomalies
+    3. Review network infrastructure for unauthorized access or configuration changes
+    4. Examine other network flows from the same source for additional suspicious patterns
+    5. Verify the integrity of NetFlow export configurations on network devices
+    6. Check for any recent network device firmware updates or configuration changes
+  where: (safe(log.ByteCount, 0) == 0 && safe(log.PacketCount, 0) > 0) || (safe(log.ByteCount, 0) > 0 && safe(log.PacketCount, 0) == 0) || safe(target.port, 0) in [2055, 4739, 6343, 9996] || safe(log.proto, 0) > 255
+  afterEvents:
+    - indexPattern: v11-log-netflow-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-30m
+      count: 5
+  deduplicateBy:
+    - origin.ip

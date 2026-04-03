@@ -1,0 +1,39 @@
+- id: 1024
+  dataTypes:
+    - json-input
+  name: JSON CPU Exhaustion Attack
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: Resource Exhaustion
+  technique: "T1496 - Resource Hijacking"
+  adversary: origin
+  references:
+    - https://medium.com/data-science-community-srm/json-is-incredibly-slow-heres-what-s-faster-ca35d5aaf9e8
+    - https://attack.mitre.org/techniques/T1496/
+  description: |
+    Detects attempts to exhaust CPU resources through malicious JSON processing. This includes complex parsing operations, excessive string manipulations, or patterns that cause high CPU usage during JSON deserialization. Such attacks can lead to denial of service conditions by overwhelming system resources.
+
+    Next Steps:
+    1. Investigate the source of the JSON input causing high CPU usage
+    2. Analyze the JSON structure and complexity that triggered the alert
+    3. Check for patterns of repeated requests from the same source
+    4. Review system resource utilization and performance metrics
+    5. Consider implementing rate limiting or input validation controls
+    6. Monitor for similar attacks from other sources
+    7. Review application logs for any error patterns or anomalies
+    8. Implement JSON schema validation to prevent malformed payloads
+  where: >
+    (safe(log.cpu_usage_percent, 0) > 90 && safe(log.component, "") == "json_parser") ||
+    safe(log.error, "") contains "CPU limit exceeded" ||
+    safe(log.error_type, "") == "cpu_exhaustion" ||
+    safe(log.processing_time_ms, 0) > 30000 ||
+    safe(log.parser_timeout, false) == true ||
+    safe(log.message, "") contains "JSON parsing timeout" ||
+    (safe(log.thread_state, "") == "blocked" && safe(log.blocked_on, "") contains "json") ||
+    safe(log.json_complexity_score, 0) > 1000 ||
+    safe(log.string_operations_count, 0) > 100000
+  deduplicateBy:
+    - origin.ip
+    - origin.host

@@ -1,0 +1,36 @@
+- id: 1001
+  dataTypes:
+    - github
+  name: GitHub Repository Permission Changes
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Access Control
+  technique: "T1069 - Permission Groups Discovery"
+  adversary: origin
+  references:
+    - https://docs.github.com/en/webhooks/webhook-events-and-payloads#member
+    - https://attack.mitre.org/techniques/T1069/
+  description: |
+    Detects changes to repository permissions including collaborator additions, role changes, or permission modifications. This could indicate unauthorized access attempts or privilege escalation.
+    
+    Next Steps:
+    1. Verify if the permission change was authorized by reviewing with the repository owner
+    2. Check the user who made the change (senderLogin) and confirm their authorization
+    3. Review the specific permission level granted and ensure it follows the principle of least privilege
+    4. Check for any suspicious activity from the newly added/modified user account
+    5. If unauthorized, immediately revoke the permissions and investigate how the change occurred
+    6. Review audit logs for other unauthorized changes by the same user
+  where: >
+    (safe(log.action, "") == "member_added" || 
+     safe(log.action, "") == "member_edited" || 
+     safe(log.action, "") == "member_removed" ||
+     safe(log.action, "") == "added" ||
+     safe(log.action, "") == "edited" ||
+     safe(log.action, "") == "removed") &&
+    safe(log.repositoryName, "") != "" &&
+    safe(log.senderLogin, "") != ""
+  deduplicateBy:
+    - log.repositoryName
+    - log.senderLogin

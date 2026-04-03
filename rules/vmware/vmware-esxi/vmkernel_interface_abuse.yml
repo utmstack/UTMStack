@@ -1,0 +1,42 @@
+- id: 1013
+  dataTypes:
+    - vmware-esxi
+  name: VMkernel Interface Abuse Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: System Security
+  technique: "T1210 - Exploitation of Remote Services"
+  adversary: origin
+  references:
+    - https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-security/GUID-F35D7005-58EB-48AC-99D5-B9942EB2A8EF.html
+    - https://attack.mitre.org/techniques/T1210/
+  description: |
+    Detects suspicious activities on VMkernel interfaces including unauthorized configuration changes, abnormal traffic patterns, or attempts to abuse management, vMotion, or vSAN interfaces. VMkernel interfaces are critical for ESXi host communication and management, making them high-value targets for attackers seeking to compromise virtualized infrastructure.
+    
+    Next Steps:
+    1. Verify the legitimacy of any VMkernel interface configuration changes by checking with system administrators
+    2. Review ESXi host logs for additional suspicious activities around the time of the alert
+    3. Check for unauthorized access to vCenter Server or ESXi management interfaces
+    4. Examine network traffic patterns on affected VMkernel interfaces
+    5. Validate that only authorized users have access to modify VMkernel interface configurations
+    6. Consider implementing additional monitoring on critical VMkernel interfaces
+    7. Review vMotion and vSAN traffic for anomalies if those services are affected
+  where: |
+    safe(log.message, "") != "" && 
+    (
+      (safe(log.message, "") =~ "(?i)vmk[0-9]+.*config.*change" ||
+       safe(log.message, "") =~ "(?i)vmkernel.*interface.*add" ||
+       safe(log.message, "") =~ "(?i)vmkernel.*interface.*remove" ||
+       safe(log.message, "") =~ "(?i)vmk.*ip.*address.*change" ||
+       safe(log.message, "") =~ "(?i)vmkernel.*port.*fail" ||
+       safe(log.message, "") =~ "(?i)vmk.*unauthorized.*access" ||
+       safe(log.message, "") =~ "(?i)management.*traffic.*vmk" ||
+       safe(log.message, "") =~ "(?i)vmotion.*interface.*abuse" ||
+       safe(log.message, "") =~ "(?i)vsan.*interface.*tamper") &&
+      safe(log.process, "") == "vmkernel"
+    ) ||
+    (safe(log.eventInfo, "") =~ "(?i)vmk.*security.*violation")
+  deduplicateBy:
+    - origin.hostname

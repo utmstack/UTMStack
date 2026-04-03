@@ -1,0 +1,51 @@
+- id: 1005
+  dataTypes:
+    - syslog
+  name: RFC-6587 TCP Stream Corruption
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 3
+  category: Data Corruption
+  technique: "T1565.002 - Data Manipulation: Transmitted Data Manipulation"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc6587#section-4.3
+    - https://attack.mitre.org/techniques/T1565/002/
+    - https://capec.mitre.org/data/definitions/540.html
+  description: |
+    Detects TCP stream corruption in syslog transmission including out-of-order messages, partial frames, invalid UTF-8 sequences, or connection state inconsistencies that may indicate man-in-the-middle attacks or intentional disruption of syslog data integrity.
+    
+    Next Steps:
+    1. Investigate the source and destination IP addresses involved in the corrupted stream
+    2. Check network infrastructure between source and destination for potential issues
+    3. Analyze network traffic patterns for signs of man-in-the-middle attacks
+    4. Verify syslog server and client configurations for proper TCP handling
+    5. Review firewall and network device logs for connection anomalies
+    6. Check for potential network attacks targeting syslog infrastructure
+    7. Validate data integrity of other concurrent syslog streams from the same source
+    8. Consider implementing additional network monitoring on the affected network segment
+  where: |
+    safe(log.transport, "") == "tcp" &&
+    (
+      safe(log.tcp_corruption, false) == true ||
+      safe(log.invalid_utf8, false) == true ||
+      safe(log.partial_frame, false) == true ||
+      safe(log.out_of_order, false) == true ||
+      safe(log.connection_reset, false) == true ||
+      (safe(log.sequence_gap, 0) > 0 && safe(log.sequence_gap, 0) > 100)
+    )
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.ip.keyword
+          operator: filter_term
+          value: '{{target.ip}}'
+      within: now-5m
+      count: 3
+  deduplicateBy:
+    - adversary.ip
+    - target.ip

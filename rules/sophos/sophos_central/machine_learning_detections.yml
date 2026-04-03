@@ -1,0 +1,35 @@
+- id: 1014
+  dataTypes:
+    - sophos-central
+  name: Sophos Central Machine Learning Threat Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Malware Detection
+  technique: "T1027 - Obfuscated Files or Information"
+  adversary: origin
+  references:
+    - https://developer.sophos.com/siem-api-schemas
+    - https://attack.mitre.org/techniques/T1027/
+  description: |
+    Detects threats identified by Sophos machine learning models, including zero-day malware and previously unknown threats. These detections indicate sophisticated threats that evaded signature-based detection and may represent advanced persistent threats or novel attack techniques.
+    
+    Next Steps:
+    1. Immediately isolate the affected endpoint to prevent lateral movement
+    2. Review the full file path and hash details for the detected threat
+    3. Check for related network connections and data exfiltration attempts
+    4. Examine recent user activity and process execution on the endpoint
+    5. Perform memory analysis and collect forensic artifacts
+    6. Review security logs for signs of privilege escalation or persistence mechanisms
+    7. Update threat intelligence feeds with IOCs discovered during investigation
+    8. Consider reimaging the affected system if contamination is confirmed
+  where: |
+    safe(log.type, "") == "Event::Endpoint::Threat::MachineLearningDetection" ||
+    safe(log.type, "") == "Event::Endpoint::MLDetection" ||
+    (safe(log.detectionMethod, "") == "ML" || safe(log.detectionMethod, "") == "MachineLearning") ||
+    (safe(log.name, "") contains "Machine Learning" && safe(log.severity, "") in ["high", "critical"]) ||
+    (safe(log.description, "") contains "ML detected" || safe(log.description, "") contains "machine learning")
+  deduplicateBy:
+    - target.host
+    - target.hash

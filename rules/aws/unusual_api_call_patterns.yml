@@ -1,0 +1,47 @@
+- id: 1006
+  dataTypes:
+    - aws
+  name: AWS Unusual API Call Patterns
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Anomaly Detection
+  technique: "T1106 - Execution through API"
+  adversary: origin
+  references:
+    - https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-record-contents.html
+    - https://attack.mitre.org/techniques/T1106/
+  description: |
+    Detects unusual API call patterns in AWS that may indicate unauthorized access or reconnaissance activities. This rule triggers when multiple sensitive API calls are made from the same source IP within a short time window, suggesting potential enumeration or discovery activities by attackers.
+    
+    Next Steps:
+    - Review the source IP address and determine if it's authorized for AWS API access
+    - Check if the user identity associated with these calls is legitimate and expected
+    - Examine the specific API calls made to understand the reconnaissance pattern and scope
+    - Review CloudTrail logs for the full session to identify any successful exploitation attempts
+    - Check if any resources were modified or accessed following the reconnaissance activities
+    - Verify if the API calls originated from expected geographical locations
+    - Consider blocking the source IP if unauthorized activity is confirmed
+    - Implement additional monitoring for the affected account and resources
+  where: |
+    safe(log.eventSource, "") != "" && 
+    safe(log.sourceIPAddress, "") != "" &&
+    safe(log.eventName, "") != "" &&
+    (
+      safe(log.eventName, "") in ["DescribeSecurityGroups", "DescribeNetworkAcls", "DescribeVpcs", "DescribeSubnets", "DescribeRouteTables", "DescribeInstances", "DescribeSnapshots", "DescribeVolumes", "DescribeImages", "DescribeKeyPairs", "ListBuckets", "GetBucketAcl", "GetBucketPolicy", "ListAccessKeys", "ListUsers", "ListRoles", "ListPolicies", "GetAccountAuthorizationDetails", "GenerateCredentialReport", "GetCredentialReport"]
+    ) &&
+    safe(log.errorCode, "") == ""
+  afterEvents:
+    - indexPattern: v11-log-aws-*
+      with:
+        - field: log.sourceIPAddress.keyword
+          operator: filter_term
+          value: '{{log.sourceIPAddress}}'
+        - field: log.eventName.keyword
+          operator: filter_term
+          value: '{{log.eventName}}'
+      within: now-15m
+      count: 10
+  deduplicateBy:
+    - lastEvent.log.sourceIPAddress

@@ -1,0 +1,35 @@
+- id: 1001
+  dataTypes:
+    - cef
+  name: CEF Parsing Failures Detection
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 2
+  category: Data Processing Error
+  technique: "T1070 - Indicator Removal on Host: Log Injection"
+  adversary: origin
+  references:
+    - https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.4/pdfdoc/cef-implementation-standard/cef-implementation-standard.pdf
+    - https://attack.mitre.org/techniques/T1070/
+  description: |
+    Detects CEF parsing failures which may indicate malformed logs, log injection attempts, or configuration issues. Failed parsing can hide malicious activities or indicate system problems. CEF (Common Event Format) logs that fail to parse correctly could be signs of tampering, injection attacks, or misconfigured log sources.
+    
+    Next Steps:
+    1. Review the original log message for malformation or suspicious content
+    2. Check if the log source is properly configured for CEF format
+    3. Investigate if there are patterns in parsing failures from specific sources
+    4. Verify log integrity and check for signs of tampering
+    5. Review recent changes to log collection infrastructure
+    6. Check for potential log injection or evasion attempts
+  where: |
+    (safe(lastEvent.log.cef_version, "") == "" || 
+     safe(lastEvent.log.cef_version, "") != "0") &&
+    safe(lastEvent.log.message, "") contains "CEF:" &&
+    (safe(lastEvent.log.parse_error, "") != "" ||
+     safe(lastEvent.log.error, "") contains "CEF" ||
+     "cef_parse_failure" in safe(lastEvent.log.tags, []) ||
+     !safe(lastEvent.log.message, "").matches("^.*CEF:\\d+\\|[^|]+\\|[^|]+\\|[^|]+\\|[^|]+\\|[^|]+\\|[^|]+\\|.*$"))
+  deduplicateBy:
+    - lastEvent.origin.ip
+    - lastEvent.log.source

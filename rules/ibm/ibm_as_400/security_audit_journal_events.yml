@@ -1,0 +1,40 @@
+- id: 1001
+  dataTypes:
+    - ibm-as400
+  name: IBM AS/400 Security Audit Journal Event Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Audit and Compliance
+  technique: "T1562.008 - Impair Defenses: Disable or Modify Cloud Logs"
+  adversary: origin
+  references:
+    - https://www.ibm.com/docs/en/i/7.4?topic=actions-security-auditing-journal-entries
+    - https://attack.mitre.org/techniques/T1562/008/
+  description: |
+    Detects significant security audit journal events in IBM AS/400 systems including authority failures, password violations, and security configuration changes. This rule monitors for QAUDJRN entries and various audit event types that may indicate security incidents or compliance violations.
+    
+    Next Steps:
+    1. Review the specific audit journal entry type (AF=Authority Failure, PW=Password, CP=Control Panel, SV=Service)
+    2. Identify the user account and system involved in the event
+    3. Correlate with other security events around the same timeframe
+    4. Verify if the activity was authorized and expected
+    5. Check for patterns of repeated violations from the same user or system
+    6. Review IBM AS/400 security policies and access controls
+    7. Document findings and update security monitoring if needed
+  where: |
+    safe(log.message, "") != "" && 
+    (
+      contains(safe(log.message, ""), "QAUDJRN") ||
+      contains(safe(log.message, ""), "journal entry") ||
+      contains(safe(log.message, ""), "audit event") ||
+      (contains(safe(log.message, ""), "entry type") && 
+       (contains(safe(log.message, ""), "AF") || 
+        contains(safe(log.message, ""), "PW") || 
+        contains(safe(log.message, ""), "CP") || 
+        contains(safe(log.message, ""), "SV")))
+    )
+  deduplicateBy:
+    - origin.host
+    - origin.user

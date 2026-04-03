@@ -1,0 +1,44 @@
+- id: 1017
+  dataTypes:
+    - firepower
+  name: Email Security Alert Detection
+  impact:
+    confidentiality: 4
+    integrity: 4
+    availability: 3
+  category: Email Security
+  technique: "T1566 - Phishing"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/td/docs/security/firepower/640/configuration/guide/fpmc-config-guide-v64/file_malware_events_and_network_file_trajectory.html
+    - https://attack.mitre.org/techniques/T1566/
+  description: |
+    Detects email security alerts including malicious attachments, phishing attempts, spam detection, and email-based malware distribution in Cisco Firepower logs. This rule triggers when email protocols (SMTP, POP3, IMAP) are used with malware or intrusion events detected.
+    
+    Next Steps:
+    1. Identify the sender and recipient email addresses from the alert details
+    2. Check if the malicious email was delivered or blocked by reviewing the disposition field
+    3. Search for other emails from the same sender IP or with the same file hash
+    4. If malware was detected, identify the file hash and check if other users received similar attachments
+    5. Consider blocking the sender IP/domain at the email gateway if multiple incidents are confirmed
+    6. Review user mailboxes for any delivered malicious content and initiate remediation if needed
+    7. Update email security policies to prevent similar threats
+  where: |
+    (safe(lastEvent.log.protocol, "") == "SMTP" || 
+     safe(lastEvent.log.protocol, "") == "POP3" || 
+     safe(lastEvent.log.protocol, "") == "IMAP") &&
+    (safe(lastEvent.log.disposition, "") == "MALWARE" ||
+     safe(lastEvent.log.disposition, "") == "CUSTOM_DETECTION" ||
+     safe(lastEvent.log.eventType, "") == "FILE_MALWARE_EVENT" ||
+     safe(lastEvent.log.eventType, "") == "INTRUSION_EVENT") &&
+    (safe(target.port, 0) == 25 ||
+     safe(target.port, 0) == 110 ||
+     safe(target.port, 0) == 143 ||
+     safe(target.port, 0) == 465 ||
+     safe(target.port, 0) == 587 ||
+     safe(target.port, 0) == 993 ||
+     safe(target.port, 0) == 995)
+  deduplicateBy:
+    - origin.ip
+    - lastEvent.log.fileHash
+    - lastEvent.log.disposition

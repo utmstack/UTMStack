@@ -1,0 +1,49 @@
+- id: 1024
+  dataTypes:
+    - rfc-6587
+  name: TCP Buffer Overflow Attempt Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 3
+  category: Application Security
+  technique: "T1055.001 - Process Injection: Dynamic-link Library Injection"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc6587
+    - https://attack.mitre.org/techniques/T1055/001/
+  description: |
+    Detects potential buffer overflow attempts in TCP syslog streams including oversized messages, malformed length fields, and attempts to exploit fixed-size buffers in syslog receivers.
+    
+    Next Steps:
+    1. Immediately isolate the source IP address to prevent further exploitation attempts
+    2. Review all syslog messages from the source IP in the last 24 hours for reconnaissance activity
+    3. Check if the target syslog receiver has crashed or is showing signs of compromise
+    4. Examine system logs on the syslog receiver for signs of code execution or privilege escalation
+    5. Verify that the syslog receiver is patched against known buffer overflow vulnerabilities
+    6. Consider implementing rate limiting and message size validation at the network level
+    7. Collect packet captures of the malicious traffic for forensic analysis
+  where: |
+    (safe(log.message_length, 0) > 8192 &&
+     safe(log.payload_size, 0) > 8192) ||
+    (safe(log.segment_data_length, 0) > safe(log.declared_length, 0) &&
+     safe(log.declared_length, 0) > 0) ||
+    (safe(log.octet_count, 0) > 65535) ||
+    (safe(log.payload, "") =~ "\\x90{50,}|\\x00{100,}") ||
+    (safe(log.delimiter_missing, false) == true &&
+     safe(log.payload_size, 0) > 4096) &&
+    safe(origin.ip, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.ip.keyword
+          operator: filter_term
+          value: '{{target.ip}}'
+      within: now-5m
+      count: 10
+  deduplicateBy:
+    - adversary.ip
+    - target.ip

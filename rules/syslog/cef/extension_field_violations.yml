@@ -1,0 +1,48 @@
+- id: 1003
+  dataTypes:
+    - cef
+  name: CEF Extension Field Violations
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Format Violation
+  technique: "T1070.002 - Indicator Removal on Host: Clear Linux or Mac System Logs"
+  adversary: origin
+  references:
+    - https://www.secef.net/wp-content/uploads/sites/10/2017/04/CommonEventFormatv23.pdf
+    - https://attack.mitre.org/techniques/T1070/002/
+  description: |
+    Detects violations in CEF extension fields including invalid key-value pairs, malformed extensions, or suspicious field names that could indicate log injection or tampering attempts. CEF extension fields should follow proper key=value format and contain only legitimate data.
+    
+    Next Steps:
+    1. Review the source device and investigate if it has been compromised
+    2. Examine the malformed CEF extension fields for signs of injection attempts
+    3. Check for other anomalous logs from the same source device or IP address
+    4. Verify the integrity of the logging infrastructure and security controls
+    5. If script tags or injection patterns are found, investigate for web-based attacks
+    6. Consider isolating the source device if compromise is suspected
+  where: |
+    (safe(log.cef_extensions, "") != "" && 
+     !safe(log.cef_extensions, "").matches("^[a-zA-Z0-9_]+=[^=\\s]+(\\s+[a-zA-Z0-9_]+=[^=\\s]+)*$")) ||
+    safe(log.cef_extensions, "").contains("<script") ||
+    safe(log.cef_extensions, "").contains("javascript:") ||
+    safe(log.cef_extensions, "").contains("../") ||
+    safe(log.cef_extensions, "").matches(".*[\\x00-\\x1F].*") ||
+    (safe(log.extension_field_count, 0) > 100) ||
+    (safe(log.cef_extensions, "") != "" && 
+     size(safe(log.cef_extensions, "")) > 8192)
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.cef_device_vendor.keyword
+          operator: filter_term
+          value: '{{safe(log.cef_device_vendor, "")}}'
+      within: now-1h
+      count: 3
+  deduplicateBy:
+    - origin.ip
+    - dataSource

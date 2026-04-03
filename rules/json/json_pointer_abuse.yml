@@ -1,0 +1,37 @@
+- id: 1018
+  dataTypes:
+    - json-input
+  name: JSON Pointer Path Traversal Abuse
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Path Traversal
+  technique: "T1083 - File and Directory Discovery"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc6901
+    - https://bishopfox.com/blog/json-interoperability-vulnerabilities
+    - https://attack.mitre.org/techniques/T1083/
+  description: |
+    Detects attempts to abuse JSON Pointer syntax for unauthorized access to data structures, including path traversal attempts and escape sequence manipulation to access restricted keys. JSON Pointer manipulation can be used to bypass access controls and extract sensitive data from JSON documents.
+
+    Next Steps:
+    1. Review the specific JSON pointer path and target data being accessed
+    2. Examine the application's JSON pointer validation and sanitization mechanisms
+    3. Check for successful data extraction attempts from the same source
+    4. Verify if the accessed paths contain sensitive information
+    5. Review application logs for related unauthorized access attempts
+    6. Consider implementing stricter JSON pointer validation and access controls
+  where: |
+    (safe(log.json_pointer, "") != "" || safe(log.path, "").contains("/")) &&
+    (safe(log.json_pointer, "").contains("~0") ||
+     safe(log.json_pointer, "").contains("~1") ||
+     safe(log.path, "").contains("/../") ||
+     safe(log.path, "").contains("/..%2F") ||
+     safe(log.path, "").contains("/..%252F") ||
+     safe(log.body, "").matches(".*\"path\"\\s*:\\s*\"[^\"]*(\\.\\.|~0~1|~1~0).*\".*") ||
+     safe(log.query_params, "").contains("pointer=/../"))
+  deduplicateBy:
+    - origin.ip
+    - origin.host

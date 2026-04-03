@@ -1,0 +1,53 @@
+- id: 1015
+  dataTypes:
+    - ibm-aix
+  name: IBM AIX Intrusion Detection Alert
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Intrusion Detection
+  technique: "T1068 - Exploitation for Privilege Escalation"
+  adversary: origin
+  references:
+    - https://www.ibm.com/docs/en/powersc-standard/2.1.0?topic=ids-configuring-intrusion-detection-prevention-idp-aix-endpoints
+    - https://attack.mitre.org/techniques/T1068/
+  description: |
+    Detects intrusion attempts and security violations identified by the IBM AIX intrusion detection system, including suspicious activities, privilege escalation attempts, and potential system compromises.
+    
+    Next Steps:
+    1. Immediately isolate the affected system from the network to prevent lateral movement
+    2. Review the intrusion detection logs for specific details about the attack vector and affected resources
+    3. Check for any suspicious processes running with elevated privileges using 'ps aux' and 'topas'
+    4. Examine system integrity with 'trustchk' command to verify critical system files
+    5. Review recent user authentication logs and check for unauthorized account creation or privilege changes
+    6. Collect forensic evidence including memory dumps, system logs, and file modifications
+    7. Apply security patches and update AIX security configurations based on the vulnerability exploited
+    8. Monitor related systems for similar intrusion attempts
+    9. Check for any unauthorized file modifications using 'find' command with modification time filters
+    10. Review network connections and active ports using 'netstat' and 'lsof' commands
+    11. Validate system configuration against security baselines and hardening guides
+    12. Document the incident details and update security monitoring rules based on attack patterns
+  where: >
+    (
+      safe(log.eventType, "") == "ids" ||
+      safe(log.eventType, "") == "securityd" ||
+      safe(log.eventType, "") == "audit" ||
+      safe(log.msg, "").contains("intrusion") ||
+      safe(log.msg, "").contains("suspicious") ||
+      safe(log.msg, "").contains("anomaly detected")
+    ) && 
+    (
+      safe(log.msg, "").contains("buffer overflow") ||
+      safe(log.msg, "").contains("privilege escalation") ||
+      safe(log.msg, "").contains("unauthorized modification") ||
+      safe(log.msg, "").contains("rootkit") ||
+      safe(log.msg, "").contains("backdoor") ||
+      safe(log.msg, "").contains("suspicious process") ||
+      safe(log.msg, "").contains("file integrity") ||
+      safe(action, "").contains("ALERT") ||
+      safe(log.returnCode, "") == "1"
+    )
+  deduplicateBy:
+    - target.host
+    - target.user

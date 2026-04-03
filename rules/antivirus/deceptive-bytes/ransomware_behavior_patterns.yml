@@ -1,0 +1,47 @@
+- id: 1014
+  dataTypes:
+    - deceptive_bytes
+  name: Ransomware Behavior Detected in Deception Environment
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 3
+  category: Impact
+  technique: "T1486 - Data Encrypted for Impact"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1486/
+    - https://attack.mitre.org/techniques/T1490/
+    - https://deceptivebytes.com/solution/
+  description: |
+    Detects ransomware-like behavior patterns when attackers interact with deceptive files, including rapid file enumeration, encryption attempts, and ransom note creation in the Deceptive Bytes deception environment.
+    
+    Next Steps:
+    1. Immediately isolate the affected system from the network to prevent ransomware spread
+    2. Check the process name and path identified in the alert for known ransomware indicators
+    3. Review file system activity from the same process for encryption patterns
+    4. Check for shadow copy deletion attempts (vssadmin, wmic shadowcopy delete)
+    5. Look for network connections to potential C2 servers from the identified process
+    6. Preserve forensic evidence and memory dumps if possible
+    7. Verify if this is a deception environment interaction or production system compromise
+    8. Check for lateral movement attempts from the source IP address
+    9. Review backup integrity and availability before any restoration attempts
+  where: |
+    safe(log.event_type, "") == "ransomware_behavior" && 
+    (safe(log.behavior_pattern, "") == "mass_encryption" || 
+     safe(log.behavior_pattern, "") == "file_enumeration" || 
+     safe(log.behavior_pattern, "") == "ransom_note_drop")
+  afterEvents:
+    - indexPattern: v11-log-antivirus-deceptive-bytes-*
+      with:
+        - field: log.process.keyword
+          operator: filter_term
+          value: '{{log.process}}'
+        - field: log.source_ip.keyword
+          operator: filter_term
+          value: '{{log.source_ip}}'
+      within: now-15m
+      count: 10
+  deduplicateBy:
+    - lastEvent.log.hostname
+    - lastEvent.log.process

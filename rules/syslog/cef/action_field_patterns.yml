@@ -1,0 +1,60 @@
+- id: 1019
+  dataTypes:
+    - cef
+  name: CEF Suspicious Action Field Patterns
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Security Policy Violation
+  technique: "T1562 - Impair Defenses"
+  adversary: origin
+  references:
+    - https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.3/cef-implementation-standard/Content/CEF/Chapter%202%20ArcSight%20Extension.htm
+    - https://attack.mitre.org/techniques/T1562/
+  description: |
+    Detects suspicious patterns in CEF action fields (act/deviceAction) that may indicate security policy bypasses, malicious activities, or attempts to evade detection through action manipulation. This rule identifies potentially malicious actions such as bypassing security controls, disabling protective mechanisms, or unusual action field values that deviate from normal patterns.
+    
+    Next Steps:
+    1. Review the specific action field value and context of the event
+    2. Investigate the source device/application generating the CEF event
+    3. Check if the action is part of legitimate administrative activity
+    4. Examine recent events from the same source for patterns of suspicious activity
+    5. Verify if security controls or monitoring systems have been compromised
+    6. Cross-reference with threat intelligence for known attack patterns
+    7. If confirmed malicious, implement containment measures and review security policies
+  where: |
+    safe(log.act, "") != "" && 
+    (
+      safe(log.act, "").lowerAscii().contains("bypass") ||
+      safe(log.act, "").lowerAscii().contains("override") ||
+      safe(log.act, "").lowerAscii().contains("disable") ||
+      safe(log.act, "").lowerAscii().contains("stop") ||
+      safe(log.act, "").lowerAscii().contains("kill") ||
+      safe(log.act, "").lowerAscii().contains("terminate") ||
+      safe(log.act, "").lowerAscii().contains("delete") ||
+      safe(log.act, "").lowerAscii().contains("remove") ||
+      safe(log.act, "").lowerAscii().contains("erase") ||
+      safe(log.act, "").lowerAscii().contains("destroy") ||
+      (safe(log.act, "").lowerAscii() == "allowed" && safe(log.severity, "") matches "^(8|9|10)$") ||
+      (safe(log.act, "").lowerAscii() == "blocked" && safe(log.severity, "") matches "^(0|1|2)$") ||
+      safe(log.act, "").matches("^[0-9]+$") ||
+      safe(log.act, "").length() > 50 ||
+      safe(log.act, "").contains("${") ||
+      safe(log.act, "").contains("$(") ||
+      safe(log.act, "").contains("`")
+    )
+  afterEvents:
+    - indexPattern: v11-log-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.act.keyword
+          operator: filter_term
+          value: '{{log.act}}'
+      within: now-2h
+      count: 15
+  deduplicateBy:
+    - origin.ip
+    - lastEvent.log.act

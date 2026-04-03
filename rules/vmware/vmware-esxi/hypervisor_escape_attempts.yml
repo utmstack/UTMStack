@@ -1,0 +1,35 @@
+- id: 1001
+  dataTypes:
+    - vmware-esxi
+  name: VMware ESXi Hypervisor Escape Attempt Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 3
+  category: Virtualization Security
+  technique: "T1611 - Escape to Host"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1611/
+    - https://www.usenix.org/system/files/woot19-paper_zhao.pdf
+    - https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-security/GUID-F35D7005-58EB-48AC-99D5-B9942EB2A8EF.html
+  description: |
+    Detects potential hypervisor escape attempts through suspicious VMX process activity, abnormal privilege escalation, or unauthorized access to host resources from guest VMs. This rule identifies various indicators of compromise including CVE-2024-37085 exploitation, VMCI backdoor attempts, and unauthorized vpxuser activities.
+    
+    Next Steps:
+    1. Immediately isolate the affected ESXi host from the network to prevent lateral movement
+    2. Review VMX process logs and system calls for evidence of escape attempts
+    3. Check for unauthorized changes to virtual machine configurations
+    4. Examine guest VM activities and processes for signs of compromise
+    5. Verify integrity of hypervisor files and configurations
+    6. Review security patches and ensure latest ESXi updates are applied
+    7. Analyze network traffic for data exfiltration or command and control communications
+    8. Consider forensic imaging of affected virtual machines before remediation
+  where: |
+    (safe(log.message, "") =~ "(?i)(vmx|vmware-vmx)" && safe(log.message, "") =~ "(?i)(escape|breakout|privilege|escalat|host access|unauthorized)") ||
+    (safe(log.process, "") =~ "(?i)vmx" && safe(severity, "") == "error") ||
+    (safe(log.message, "") =~ "(?i)vpxuser" && safe(log.message, "") =~ "(?i)(failed|denied|unauthorized)") ||
+    (safe(log.message, "") =~ "(?i)CVE-2024-37085") ||
+    (safe(log.message, "") =~ "(?i)VMCI" && safe(log.message, "") =~ "(?i)(backdoor|socket|unauthorized)")
+  deduplicateBy:
+    - origin.hostname

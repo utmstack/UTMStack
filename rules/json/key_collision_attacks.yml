@@ -1,0 +1,36 @@
+- id: 1010
+  dataTypes:
+    - json-input
+  name: JSON Key Collision Attack Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Parser Exploitation
+  technique: Duplicate Key Manipulation
+  adversary: origin
+  references:
+    - https://bishopfox.com/blog/json-interoperability-vulnerabilities
+    - https://attack.mitre.org/techniques/T1059/
+  description: |
+    Detects attempts to exploit JSON parser inconsistencies through duplicate keys, which can lead to security bypasses, data corruption, or unexpected application behavior. Key collision attacks exploit differences in how various JSON parsers handle duplicate keys - some use the first occurrence while others use the last, potentially allowing attackers to bypass security validations.
+
+    Next Steps:
+    1. Examine the source JSON payload and identify which keys are duplicated
+    2. Review the application's JSON parsing logic to understand which value is being used
+    3. Check for any security validations that might be bypassed due to parser inconsistencies
+    4. Analyze the impact on business logic and data integrity
+    5. Consider implementing strict JSON validation to reject payloads with duplicate keys
+    6. Review other requests from the same source for similar attack patterns
+  where: >
+    (safe(log.duplicate_keys_found, false) == true) ||
+    (safe(log.duplicate_key_count, 0) > 0) ||
+    (safe(log.parser_warning, "") contains "duplicate key") ||
+    (safe(log.parser_warning, "") contains "key collision") ||
+    (safe(log.validation_error, "") contains "duplicate property") ||
+    (safe(log.json_anomaly, "") contains "multiple keys") ||
+    (safe(log.key_count, 0) > 0 && safe(log.unique_key_count, 0) > 0 && log.key_count != log.unique_key_count) ||
+    (safe(log.parser_behavior, "") contains "last-key-wins" || safe(log.parser_behavior, "") contains "first-key-wins")
+  deduplicateBy:
+    - origin.ip
+    - lastEvent.log.duplicate_key_name

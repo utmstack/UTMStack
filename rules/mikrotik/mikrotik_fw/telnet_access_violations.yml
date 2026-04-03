@@ -1,0 +1,29 @@
+- id: 1005
+  dataTypes:
+    - firewall-mikrotik
+  name: Telnet Access Violation on MikroTik Device
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Insecure Protocol Usage
+  technique: "T1021.001 - Remote Services: Telnet"
+  adversary: origin
+  references:
+    - https://help.mikrotik.com/docs/spaces/ROS/pages/328094/Log
+    - https://attack.mitre.org/techniques/T1021/001/
+  description: |
+    Detects Telnet access attempts to MikroTik devices. Telnet is an insecure protocol that transmits credentials in clear text and should not be used for device management in production environments. Telnet connections may indicate unauthorized access attempts or security policy violations.
+
+    **Next Steps:**
+    1. Verify if the source IP is authorized for device management
+    2. Check if the connection was successful or blocked by firewall rules
+    3. Review MikroTik device logs for any configuration changes
+    4. Confirm whether Telnet service should be enabled on the device
+    5. Consider disabling Telnet and using SSH for secure remote access
+    6. Investigate any recent policy changes that might allow Telnet access
+    7. If unauthorized, block the source IP and review access controls
+  where: safe(target.port, 0) == 23 && safe(protocol, "") == "tcp" && safe(origin.ip, "") != "" && (safe(log.chain, "") contains "input" || safe(log.action, "") contains "drop" || (safe(log.topics, "") contains "system" && safe(log.kvMessage, "") contains "telnet"))
+  deduplicateBy:
+    - origin.ip
+    - target.ip

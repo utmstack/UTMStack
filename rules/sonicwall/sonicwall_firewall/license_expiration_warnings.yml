@@ -1,0 +1,30 @@
+- id: 1025
+  dataTypes:
+    - sonicwall_firewall
+  name: SonicWall License Expiration Warning
+  impact:
+    confidentiality: 1
+    integrity: 1
+    availability: 3
+  category: System Health
+  technique: "T1489 - Service Stop"
+  adversary: origin
+  references:
+    - https://www.sonicguard.com/License-and-Subscription.asp
+    - https://attack.mitre.org/techniques/T1489/
+  description: |
+    Detects license expiration warnings for SonicWall services including security subscriptions, support licenses, and feature licenses that may impact security protection capabilities. When licenses expire, critical security features like intrusion prevention, content filtering, and antivirus scanning may be disabled, leaving the network vulnerable to attacks.
+    
+    **Next Steps:**
+    1. Check the specific license type and expiration date mentioned in the alert
+    2. Contact SonicWall support or licensing team to renew the expired or expiring license
+    3. Verify that all security services are still functioning properly
+    4. Review license management processes to prevent future expirations
+    5. Consider setting up automated license monitoring and renewal processes
+    6. Document the incident and update license tracking systems
+  where: |
+    (safe(log.eventName, "").contains("license") || safe(log.eventName, "").contains("subscription") || safe(log.eventName, "").contains("expir") || safe(log.message, "").contains("license") || safe(log.message, "").contains("subscription") || safe(log.message, "").contains("expir") || safe(log.lic, "") != "") &&
+    (safe(log.eventName, "").contains("warning") || safe(log.eventName, "").contains("alert") || safe(log.eventName, "").contains("critical") || safe(log.eventName, "").contains("will expire") || safe(log.eventName, "").contains("has expired") || safe(log.message, "").contains("warning") || safe(log.message, "").contains("will expire") || safe(log.message, "").contains("has expired") || safe(log.message, "").contains("days remaining") || safe(log.severity, "") == "warning" || safe(log.severity, "") == "critical")
+  deduplicateBy:
+    - origin.host
+    - lastEvent.log.lic

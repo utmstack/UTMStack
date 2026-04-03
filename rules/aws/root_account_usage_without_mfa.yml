@@ -1,0 +1,35 @@
+- id: 1001
+  dataTypes:
+    - aws
+  name: AWS Root Account Usage Without MFA
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Authentication
+  technique: "T1078.004 - Valid Accounts: Cloud Accounts"
+  adversary: origin
+  references:
+    - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html
+    - https://attack.mitre.org/techniques/T1078/004/
+  description: |
+    Detects usage of AWS root account without Multi-Factor Authentication (MFA). Root account usage should be avoided for daily operations and must always use MFA when necessary. This is a critical security violation as the root account has unrestricted access to all AWS resources.
+    
+    Next Steps:
+    1. Immediately verify if this root account activity is authorized
+    2. Check the source IP address and user agent for suspicious patterns
+    3. Review all actions performed by the root account during this session
+    4. Enable MFA for the root account if not already enabled
+    5. Investigate why MFA was not used (possible bypass or configuration issue)
+    6. Consider implementing SCPs to restrict root account usage
+    7. Audit all recent root account activities for potential compromise
+    8. Review AWS CloudTrail logs for complete session details
+    9. Check for any privilege escalation attempts or unusual API calls
+    10. Implement additional monitoring for root account activities
+  where: |
+    safe(log.userIdentityType, "") == "Root" && 
+    safe(log.userIdentitySessionContextAttributesMfaAuthenticated, "") != "true" &&
+    safe(log.errorCode, "") == ""
+  deduplicateBy:
+    - lastEvent.log.userIdentityAccountId
+    - lastEvent.log.sourceIPAddress

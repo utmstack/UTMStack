@@ -1,0 +1,33 @@
+- id: 1017
+  dataTypes:
+    - sophos-central
+  name: Zero Trust Network Access Policy Violation
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Access Control
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  references:
+    - https://www.sophos.com/en-us/products/zero-trust-network-access
+    - https://attack.mitre.org/techniques/T1078/
+  description: |
+    Detects Zero Trust Network Access (ZTNA) policy violations where users or devices attempt to access resources they are not authorized for, potentially indicating compromised credentials or lateral movement attempts.
+    
+    Next Steps:
+    1. Review the specific policy that was violated and the resource being accessed
+    2. Investigate the user account and device involved in the violation
+    3. Check for any recent changes to user permissions or device health status
+    4. Verify device compliance status and security posture
+    5. Look for patterns of similar violations across multiple users or devices
+    6. Consider implementing additional access controls or device health checks
+    7. Review authentication logs for signs of credential compromise
+  where: |
+    safe(log.type, "") == "ztna" && 
+    safe(log.action, "") in ["blocked", "denied"] &&
+    safe(log.endpointType, "") != "" &&
+    (safe(log.reason, "") contains "policy" || safe(log.reason, "") contains "health_check_failed")
+  deduplicateBy:
+    - origin.user
+    - origin.host

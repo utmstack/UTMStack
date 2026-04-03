@@ -1,0 +1,31 @@
+- id: 1023
+  dataTypes:
+    - rfc-5425
+  name: RFC-5425 TLS Handshake Protocol Violations
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: TLS Security
+  technique: Handshake Manipulation
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5425
+    - https://attack.mitre.org/techniques/T1190/
+  description: |
+    Detects violations and anomalies in TLS handshake protocol that may indicate MITM attacks, downgrade attacks, or handshake manipulation in RFC-5425 syslog communications. This rule identifies various handshake failures, weak cipher suites, protocol downgrades, and suspicious TLS parameters.
+    
+    Next Steps:
+    1. Investigate the source IP address and verify if it's a legitimate syslog sender
+    2. Check for certificate validation issues and verify the authenticity of TLS certificates
+    3. Analyze network traffic for signs of man-in-the-middle attacks or SSL/TLS interception
+    4. Review TLS configuration on both client and server sides for weak cipher suites or deprecated protocols
+    5. Check for temporal patterns indicating systematic downgrade attacks
+    6. Validate syslog server TLS configuration and ensure strong security policies are enforced
+    7. Consider implementing certificate pinning or additional certificate validation measures
+    8. Monitor for repeated handshake failures from the same source that might indicate reconnaissance or attack attempts
+  where: (safe(log.tls_alert_code, 0) == 40 || safe(log.tls_alert_description, "") == "handshake_failure" || safe(log.tls_handshake_type, "") in ["invalid", "unknown"] || safe(log.message, "") =~ ".*handshake.*fail.*" || safe(log.tls_error, "") =~ ".*illegal.*parameter.*" || safe(log.tls_version, "") in ["SSLv2", "SSLv3", "TLS1.0"] || safe(log.tls_random_bytes, "") =~ ".*444F574E475244.*" || safe(log.tls_cipher_suite, "") =~ ".*(NULL|EXPORT|DES|RC4|MD5).*" || safe(log.certificate_fingerprint, "") == "" || safe(log.tls_error, "") =~ ".*renegotiation.*" || safe(log.message, "") =~ ".*downgrade.*detect.*") && safe(log.protocol, "") == "syslog-tls"
+  deduplicateBy:
+    - origin.ip
+    - target.ip
+    - log.tls_version

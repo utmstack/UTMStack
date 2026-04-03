@@ -1,0 +1,38 @@
+- id: 1028
+  dataTypes:
+    - vmware-esxi
+  name: License Compliance Violation Detection
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 3
+  category: License Violation
+  technique: License Violation
+  adversary: origin
+  references:
+    - https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vcenter-server-installation/GUID-8C9D2587-E9FC-4276-B4BC-48F620A3048B.html
+    - https://docs.vmware.com/en/VMware-vSphere/6.5/com.vmware.vsphere.troubleshooting.doc/GUID-252F28AD-AD5E-4559-BD98-3EA7B9360782.html
+    - https://core.vmware.com/esxi-log-message-formats
+  description: |
+    Detects license compliance violations, expired licenses, or attempts to bypass licensing restrictions which could indicate unauthorized system usage or tampering. License violations can lead to service interruptions and compliance issues.
+    
+    Next Steps:
+    - Check the host license status in vCenter Server or via ESXi CLI using 'vim-cmd vimsvc/license --show'
+    - Verify if evaluation period has expired (60 days from installation)
+    - Review vpxd logs at /var/log/vmware/vpxd/ for detailed licensing events
+    - Check hostd logs at /var/log/hostd.log for license-related messages
+    - Verify if features being used exceed current license level or entitlements
+    - Monitor for VMs that cannot be powered on due to license restrictions
+    - Check for unauthorized attempts to modify license configuration files
+    - Review license assignment in vCenter Server License Manager
+    - Validate license server connectivity if using network licensing
+    - Document any license violations for compliance reporting
+  where: |
+    safe(log.message, "") != "" && 
+    (safe(log.message, "").contains("license") || safe(log.message, "").contains("License") || safe(log.message, "").contains("evaluation")) &&
+    (safe(log.message, "").contains("expired") || safe(log.message, "").contains("invalid") || safe(log.message, "").contains("violation") || 
+     safe(log.message, "").contains("exceeded") || safe(log.message, "").contains("compliance") || safe(log.message, "").contains("unauthorized") ||
+     safe(log.message, "").contains("insufficient") || safe(log.message, "").contains("failed") || safe(log.message, "").contains("cannot") ||
+     safe(log.message, "").contains("evaluation mode") || safe(log.message, "").contains("disconnect") || safe(log.message, "").contains("restrict"))
+  deduplicateBy:
+    - lastEvent.origin.hostname

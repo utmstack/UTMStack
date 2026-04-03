@@ -1,0 +1,28 @@
+- id: 1022
+  dataTypes:
+    - azure
+  name: Azure Container Registry Critical Vulnerability Detected
+  impact:
+    confidentiality: 4
+    integrity: 4
+    availability: 3
+  category: Vulnerability Management
+  technique: "T1190 - Exploit Public-Facing Application"
+  adversary: origin
+  references:
+    - https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-container-registries-introduction
+    - https://attack.mitre.org/techniques/T1190/
+  description: |
+    Detects critical or high severity vulnerabilities in container images within Azure Container Registry, including newly pushed images or recently scanned images with security issues.
+    
+    Next Steps:
+    1. Review the vulnerability details and affected container image
+    2. Assess the impact and exploitability of the vulnerability
+    3. Update or patch the container image to address the vulnerability
+    4. Implement security scanning in CI/CD pipeline to prevent future issues
+    5. Consider quarantining affected images until patched
+    6. Monitor for any exploitation attempts against vulnerable containers
+  where: safe(log.type, "") == "ContainerRegistryRepositoryEvents" && safe(log.OperationName, "").contains("Microsoft.ContainerRegistry") && (safe(log.ResultType, "") == "VulnerabilityFound" || safe(log.Category, "") == "SecurityAssessment") && (safe(log.Severity, "") == "Critical" || safe(log.Severity, "") == "High" || safe(log.statusCode, 0) >= 400)
+  deduplicateBy:
+    - log.resourceId
+    - log.repositoryName

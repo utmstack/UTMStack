@@ -1,0 +1,52 @@
+- id: 1025
+  dataTypes:
+    - aws
+  name: AWS Cost Anomaly - Unusual Resource Creation
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: Resource Development
+  technique: "T1583.006 - Web Services"
+  adversary: origin
+  references:
+    - https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference.html
+    - https://attack.mitre.org/techniques/T1583/006/
+  description: |
+    Detects potential cost anomalies through unusual creation of expensive resources. This rule monitors for multiple EC2 instance launches or other high-cost resource creation that could indicate cryptomining or resource abuse.
+    
+    Next Steps:
+    1. Review the CloudTrail events to identify the specific instances created and their types
+    2. Check the instance types launched - look for high-performance GPU or compute-optimized instances
+    3. Verify if the user account that created these resources is legitimate
+    4. Review billing dashboard for unexpected cost spikes
+    5. Check if the instances are running cryptomining software or other unauthorized workloads
+    6. Consider terminating unauthorized instances immediately
+    7. Review and strengthen IAM policies to prevent unauthorized resource creation
+    8. Enable AWS Budget alerts if not already configured
+  where: safe(log.eventSource, "") == "ec2.amazonaws.com" && (safe(log.eventName, "") == "RunInstances" || safe(log.eventName, "") == "RequestSpotInstances") && safe(log.errorCode, "") == ""
+  afterEvents:
+    - indexPattern: v11-log-aws-*
+      with:
+        - field: log.userIdentityAccountId.keyword
+          operator: filter_term
+          value: '{{log.userIdentityAccountId}}'
+        - field: log.eventName.keyword
+          operator: filter_term
+          value: 'RunInstances'
+      within: now-2h
+      count: 20
+      or:
+        - indexPattern: v11-log-aws-*
+          with:
+            - field: log.userIdentityAccountId.keyword
+              operator: filter_term
+              value: '{{log.userIdentityAccountId}}'
+            - field: log.eventName.keyword
+              operator: filter_term
+              value: 'RequestSpotInstances'
+          within: now-2h
+          count: 20
+  deduplicateBy:
+    - log.userIdentityAccountId
+    - log.awsRegion

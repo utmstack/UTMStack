@@ -1,0 +1,44 @@
+- id: 1020
+  dataTypes:
+    - sophos-central
+  name: Security Policy Compliance Failure
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Policy Violation
+  technique: "T1562 - Impair Defenses"
+  adversary: origin
+  references:
+    - https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/EndpointProtection/ThreatProtectionPolicy/index.html
+    - https://attack.mitre.org/techniques/T1562/
+  description: |
+    Detects security policy compliance failures indicating endpoints or users violating established security policies, which could expose the organization to risks or indicate attempts to bypass security controls. This rule identifies various types of policy violations including disabled threat protection, outdated definitions, unauthorized applications, and policy tampering attempts.
+    
+    Next Steps:
+    1. Investigate the specific endpoint and policy violation details
+    2. Check if the violation was intentional (authorized change) or unauthorized
+    3. Review endpoint security status and update definitions if needed
+    4. Verify if the violation indicates a potential security incident or attack
+    5. Implement remediation actions to restore policy compliance
+    6. Monitor for additional violations from the same endpoint or user
+    7. Review and strengthen policy enforcement if necessary
+  where: |
+    safe(log.type, "") in ["policy_violation", "compliance_check"] &&
+    safe(log.compliance_status, "") == "failed" &&
+    (safe(log.policy_type, "") in ["threat_protection", "device_control", "application_control", "web_control"] ||
+     safe(log.violation_type, "") in ["disabled_protection", "outdated_definitions", "unauthorized_app", "policy_tampering"])
+  afterEvents:
+    - indexPattern: v11-log-sophos-central-*
+      with:
+        - field: log.endpointId.keyword
+          operator: filter_term
+          value: '{{log.endpointId}}'
+        - field: log.compliance_status.keyword
+          operator: filter_term
+          value: 'failed'
+      within: now-24h
+      count: 5
+  deduplicateBy:
+    - lastEvent.log.endpointId
+    - lastEvent.log.policy_type
