@@ -119,4 +119,10 @@ public class UtmLogstashFilterService {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
+
+    public Long getSystemSequenceNextValue() {
+        return logstashFilterRepository.findFirstBySystemOwnerIsTrueOrderByIdDesc()
+                .map(filter -> filter.getId() + 1)
+                .orElse(1L);
+    }
 }

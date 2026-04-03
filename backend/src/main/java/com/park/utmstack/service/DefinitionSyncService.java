@@ -89,6 +89,7 @@ public class DefinitionSyncService implements CommandLineRunner {
                         }
                     } else {
                         UtmLogstashFilter filter = new UtmLogstashFilter();
+                        filter.setId(filterService.getSystemSequenceNextValue());
                         filter.setModuleName(moduleName);
                         filter.setFilterName(moduleName + " Filter");
                         filter.setLogstashFilter(content);
@@ -141,7 +142,7 @@ public class DefinitionSyncService implements CommandLineRunner {
                     if (ruleOpt.isPresent()) {
                         ruleDto.setId(ruleOpt.get().getId());
                     } else {
-                        ruleDto.setId(rulesRepository.getNextId());
+                        ruleDto.setId(rulesService.getSystemSequenceNextValue());
                     }
 
                     ruleDto.setName(ruleYaml.getName());
