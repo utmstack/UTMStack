@@ -176,7 +176,6 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
         return '/dashboard/export-compliance/' + this.report.id;
     } else {
       const section = this.getActiveSectionParams();
-      // TODO: ELENA definir bandera para casos nuevos y viejos
       // return  encodeURIComponent('/compliance/print-view?section=' + section);
       return  encodeURIComponent('/compliance/evaluations-print-view=' + section);
     }
