@@ -52,6 +52,19 @@
     <span class="font-weight-semibold">Info! </span>
     <span>The SOC-AI integration did not analyze this alert due to inactivity or a processing error.</span>
   </div>
+  <button class="btn btn-primary" (click)="processAlert()" [disabled]="loadingProcess || !alert">
+    <i class="icon-brain mr-1" *ngIf="!loadingProcess"></i>
+    <i class="icon-spinner2 spinner mr-1" *ngIf="loadingProcess"></i>
+    {{ loadingProcess ? 'Analyzing...' : 'Analyze with SOC-AI' }}
+  </button>
 </div>
 
+<!-- Re-analyze button when analysis is completed -->
+<div *ngIf="socAiResponse && socAiResponse.status === indexSocAiStatus.Completed && !loading" class="mt-3">
+  <button class="btn btn-outline-primary btn-sm" (click)="processAlert()" [disabled]="loadingProcess || !alert">
+    <i class="icon-refresh mr-1" *ngIf="!loadingProcess"></i>
+    <i class="icon-spinner2 spinner mr-1" *ngIf="loadingProcess"></i>
+    {{ loadingProcess ? 'Re-analyzing...' : 'Re-analyze' }}
+  </button>
+</div>
 

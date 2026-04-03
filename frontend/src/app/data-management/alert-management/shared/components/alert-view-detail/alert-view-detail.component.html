@@ -198,7 +198,7 @@
   </div>
 
   <div class="w-100 mt-3" *ngIf="view === alertDetailTabEnum.SOC_AI">
-    <app-alert-soc-ai [alertID]="alert.id" [socAiActive]="socAi"></app-alert-soc-ai>
+    <app-alert-soc-ai [alertID]="alert.id" [alert]="alert" [socAiActive]="socAi"></app-alert-soc-ai>
   </div>
 
   <div class="w-100 mt-3" *ngIf="view=== alertDetailTabEnum.TAGS && relatedTagsRules">
