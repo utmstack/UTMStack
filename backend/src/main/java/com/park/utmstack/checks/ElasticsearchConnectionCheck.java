@@ -1,10 +1,15 @@
 package com.park.utmstack.checks;
 
 import com.park.utmstack.config.Constants;
+import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.cert.X509Certificate;
 import java.util.Objects;
 
 public class ElasticsearchConnectionCheck {
@@ -53,17 +58,45 @@ public class ElasticsearchConnectionCheck {
 
     private void pingElasticsearch() {
         try {
-            final String ELASTIC_URL = String.format("http://%1$s:%2$s",
+            final String ELASTIC_URL = String.format("https://%1$s:%2$s",
                 System.getenv(Constants.ENV_ELASTICSEARCH_HOST), System.getenv(Constants.ENV_ELASTICSEARCH_PORT));
 
-            OkHttpClient client = new OkHttpClient().newBuilder().build();
-            Request rq = new Request.Builder().url(ELASTIC_URL).build();
+            String user = System.getenv(Constants.ENV_ELASTICSEARCH_USER);
+            String password = System.getenv(Constants.ENV_ELASTICSEARCH_PASSWORD);
+
+            OkHttpClient client = createTrustAllClient();
+            Request rq = new Request.Builder()
+                .url(ELASTIC_URL)
+                .header("Authorization", Credentials.basic(user, password))
+                .build();
             Response rs = client.newCall(rq).execute();
             Objects.requireNonNull(rs.body()).close();
             if (!rs.isSuccessful())
-                throw new RuntimeException();
+                throw new RuntimeException("HTTP " + rs.code());
         } catch (Exception e) {
             throw new RuntimeException(e.getLocalizedMessage());
+        }
+    }
+
+    private OkHttpClient createTrustAllClient() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                }
+            };
+
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+
+            return new OkHttpClient.Builder()
+                .sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0])
+                .hostnameVerifier((hostname, session) -> true)
+                .build();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create SSL client: " + e.getMessage());
         }
     }
 }

@@ -355,7 +355,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"cluster.initial_master_nodes=node1",
 			"bootstrap.memory_lock=false",
 			"OPENSEARCH_INITIAL_ADMIN_PASSWORD=" + conf.OpenSearchPassword,
-			"DISABLE_INSTALL_DEMO_CONFIG=true",
 			"JAVA_HOME=/usr/share/opensearch/jdk",
 			"action.auto_create_index=true",
 			"compatibility.override_main_response_version=true",
