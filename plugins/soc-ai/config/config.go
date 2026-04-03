@@ -2,7 +2,9 @@ package config
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	sync "sync"
 	"time"
@@ -29,19 +31,26 @@ var (
 )
 
 type Config struct {
-	Backend                   string
-	InternalKey               string
-	OpensearchURL             string
-	OpensearchUser            string
-	OpensearchPassword        string
-	ModulesConfigHost         string
-	APIKey                    string
+	// System configuration
+	Backend           string
+	InternalKey       string
+	OpensearchURL     string
+	OpensearchUser    string
+	OpensearchPassword string
+	ModulesConfigHost string
+	ModuleActive      bool
+
+	// Analysis behavior
+	AutoAnalyze               bool
 	ChangeAlertStatus         bool
 	AutomaticIncidentCreation bool
-	Provider                  string
-	Model                     string
-	Url                       string
-	ModuleActive              bool
+
+	// LLM Configuration (generic)
+	URL           string
+	Model         string
+	AuthType      string            // "custom-headers", "none"
+	MaxTokens     int
+	CustomHeaders map[string]string // All headers including auth (from frontend)
 }
 
 func GetConfig() *Config {
@@ -180,33 +189,41 @@ func updateConfigFromGRPC(grpcConf *ConfigurationSection) {
 		return
 	}
 
-	model, customModel, customURL := "", "", ""
+	// Reset custom headers
+	config.CustomHeaders = make(map[string]string)
+
 	for _, c := range grpcConf.ModuleGroups[0].ModuleGroupConfigurations {
 		switch c.ConfKey {
+		// Behavior settings
+		case "utmstack.socai.autoAnalyze":
+			config.AutoAnalyze = c.ConfValue == "true"
 		case "utmstack.socai.incidentCreation":
 			config.AutomaticIncidentCreation = c.ConfValue == "true"
 		case "utmstack.socai.changeAlertStatus":
 			config.ChangeAlertStatus = c.ConfValue == "true"
-		case "utmstack.socai.provider":
-			config.Provider = c.ConfValue
-		case "utmstack.socai.key":
-			config.APIKey = c.ConfValue
-		case "utmstack.socai.model":
-			model = c.ConfValue
-		case "utmstack.socai.custom.model":
-			customModel = c.ConfValue
-		case "utmstack.socai.custom.url":
-			customURL = c.ConfValue
-		default:
-			catcher.Error("Unknown configuration key", nil, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
-		}
-	}
 
-	if config.Provider == "openai" {
-		config.Url = GPT_API_ENDPOINT
-		config.Model = model
-	} else {
-		config.Url = customURL
-		config.Model = customModel
+		// LLM settings
+		case "utmstack.socai.url":
+			config.URL = c.ConfValue
+		case "utmstack.socai.model":
+			config.Model = c.ConfValue
+		case "utmstack.socai.authType":
+			config.AuthType = c.ConfValue
+		case "utmstack.socai.maxTokens":
+			if c.ConfValue != "" {
+				if v, err := strconv.Atoi(c.ConfValue); err == nil {
+					config.MaxTokens = v
+				}
+			}
+		case "utmstack.socai.customHeaders":
+			if c.ConfValue != "" {
+				if err := json.Unmarshal([]byte(c.ConfValue), &config.CustomHeaders); err != nil {
+					catcher.Error("Failed to parse customHeaders JSON", err, map[string]any{
+						"process": "plugin_com.utmstack.soc-ai",
+						"value":   c.ConfValue,
+					})
+				}
+			}
+		}
 	}
 }

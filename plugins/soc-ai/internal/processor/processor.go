@@ -1,4 +1,4 @@
-package main
+package processor
 
 import (
 	"fmt"
@@ -10,7 +10,8 @@ import (
 	"github.com/utmstack/UTMStack/plugins/soc-ai/schema"
 )
 
-func processAlertToElastic(alert *schema.AlertFields) error {
+// SaveToElastic processes and saves the alert analysis to Elasticsearch
+func SaveToElastic(alert *schema.AlertFields) error {
 	resp := elastic.ConvertFromAlertDBToGPTResponse(alert)
 	resp.Status = "Completed"
 
@@ -31,13 +32,13 @@ func processAlertToElastic(alert *schema.AlertFields) error {
 	}
 
 	if config.GetConfig().ChangeAlertStatus {
-		err = elastic.ChangeAlertStatus(alert.ID, config.API_ALERT_COMPLETED_STATUS_CODE, alert.DataSource, alert.GPTClassification+" - "+alert.GPTReasoning)
+		err = elastic.ChangeAlertStatus(alert.Id, config.API_ALERT_COMPLETED_STATUS_CODE, alert.DataSource, alert.GPTClassification+" - "+alert.GPTReasoning)
 		if err != nil {
 			_ = catcher.Error("error while changing alert status in elastic: %v", err, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
 		}
 	}
 
-	if config.GetConfig().AutomaticIncidentCreation && alert.GPTClassification == "possible incident" {
+	if config.GetConfig().AutomaticIncidentCreation && alert.GPTClassification == schema.ClassificationPossibleIncident {
 		incidentsDetails, err := elastic.GetIncidentsByPattern("Incident in " + alert.DataSource)
 		if err != nil {
 			_ = catcher.Error("error while getting incidents by pattern: %v", err, map[string]any{"process": "plugin_com.utmstack.soc-ai"})

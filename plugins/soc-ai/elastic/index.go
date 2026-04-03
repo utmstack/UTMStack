@@ -54,9 +54,18 @@ func ElasticQuery(index string, query interface{}, op string) error {
 	return nil
 }
 
+// ElasticSearch performs a search with default pagination (uses top=10000)
 func ElasticSearch(index, field, value string) ([]byte, error) {
+	return ElasticSearchWithLimit(index, field, value, 10000)
+}
+
+// ElasticSearchWithLimit performs a search with a specified result limit
+func ElasticSearchWithLimit(index, field, value string, limit int) ([]byte, error) {
 	cnf := config.GetConfig()
-	url := cnf.Backend + config.API_ALERT_ENDPOINT + config.API_ALERT_INFO_PARAMS + index
+	// Build URL with explicit limit parameter
+	url := fmt.Sprintf("%s%s?page=0&size=%d&top=%d&indexPattern=%s",
+		cnf.Backend, config.API_ALERT_ENDPOINT, limit, limit, index)
+
 	headers := map[string]string{
 		"Content-Type":     "application/json",
 		"Utm-Internal-Key": cnf.InternalKey,

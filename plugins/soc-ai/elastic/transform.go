@@ -20,7 +20,7 @@ func ConvertFromAlertDBToGPTResponse(alertDetails *schema.AlertFields) schema.GP
 		Severity:       alertDetails.Severity,
 		Category:       alertDetails.Category,
 		AlertName:      alertDetails.Name,
-		ActivityID:     alertDetails.ID,
+		ActivityID:     alertDetails.Id,
 		Classification: alertDetails.GPTClassification,
 		Reasoning:      strings.Split(alertDetails.GPTReasoning, config.LOGS_SEPARATOR),
 		NextSteps:      []schema.NextStep{},
