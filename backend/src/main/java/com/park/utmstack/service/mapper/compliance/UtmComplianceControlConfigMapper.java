@@ -6,7 +6,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring", uses = UtmComplianceQueryConfigMapper.class)
+@Mapper(componentModel = "spring", uses = {
+        UtmComplianceQueryConfigMapper.class,
+        UtmComplianceStandardSectionMapper.class,
+        UtmComplianceStandardMapper.class})
 public interface UtmComplianceControlConfigMapper {
 
     @Mapping(target = "queriesConfigs", ignore = true)

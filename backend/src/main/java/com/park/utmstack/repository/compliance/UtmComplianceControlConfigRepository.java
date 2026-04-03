@@ -28,6 +28,7 @@ public interface UtmComplianceControlConfigRepository extends JpaRepository<UtmC
     SELECT DISTINCT c
     FROM UtmComplianceControlConfig c
     LEFT JOIN FETCH c.section s
+         JOIN FETCH s.standard st
     LEFT JOIN FETCH c.queriesConfigs q
     WHERE c.id IN :ids
     """)

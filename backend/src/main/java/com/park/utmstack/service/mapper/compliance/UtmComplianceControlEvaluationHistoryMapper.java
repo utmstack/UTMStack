@@ -1,12 +1,14 @@
 package com.park.utmstack.service.mapper.compliance;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationHistoryDto;
 import com.park.utmstack.service.dto.compliance.UtmComplianceQueryEvaluationDto;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-
 public class UtmComplianceControlEvaluationHistoryMapper {
 
     private UtmComplianceControlEvaluationHistoryMapper() {
@@ -21,7 +23,9 @@ public class UtmComplianceControlEvaluationHistoryMapper {
         dto.setStatus((String) src.get("status"));
         dto.setTimestamp(Instant.parse((String) src.get("timestamp")));
 
-        List<Map<String, Object>> q = (List<Map<String, Object>>) src.get("query_evaluations");
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<Map<String, Object>> q = mapper.convertValue(src.get("query_evaluations"), new TypeReference<>() {});
         if (q != null) {
             dto.setQueryEvaluations(q.stream().map(UtmComplianceControlEvaluationHistoryMapper::mapQueryEval).toList());
         }
@@ -41,7 +45,10 @@ public class UtmComplianceControlEvaluationHistoryMapper {
 
         dto.setHits(((Number) src.get("hits")).intValue());
         dto.setStatus((String) src.get("status"));
-        dto.setEvidence((List<Map<String, Object>>) src.get("evidence"));
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<Map<String, Object>> evidence = mapper.convertValue(src.get("evidence"), new TypeReference<>() {});
+        dto.setEvidence(evidence);
 
         return dto;
     }

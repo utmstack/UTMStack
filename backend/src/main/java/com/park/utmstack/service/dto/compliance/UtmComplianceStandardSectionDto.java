@@ -7,5 +7,5 @@ public class UtmComplianceStandardSectionDto {
     private Long id;
     private String standardSectionName;
     private String standardSectionDescription;
-    private Long standardId;
+    private UtmComplianceStandardDto standard;
 }
