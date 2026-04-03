@@ -1,0 +1,42 @@
+- id: 1015
+  dataTypes:
+    - json-input
+  name: JWT Token Security Issue Detected
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Authentication Bypass
+  technique: "T1550.001 - Use Alternate Authentication Material: Application Access Token"
+  adversary: origin
+  references:
+    - https://research.securitum.com/jwt-json-web-token-security/
+    - https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html
+    - https://attack.mitre.org/techniques/T1550/001/
+  description: |
+    Detects JWT token security issues including algorithm confusion, none algorithm usage, expired tokens, invalid signatures, or token manipulation attempts. These vulnerabilities can lead to authentication bypass and unauthorized access to protected resources.
+    
+    Next Steps:
+    1. Investigate the source IP and user agent for signs of malicious activity
+    2. Review JWT configuration to ensure proper algorithm validation
+    3. Check if "none" algorithm is explicitly disabled in JWT libraries
+    4. Validate token expiration and signature verification is properly implemented
+    5. Monitor for additional JWT manipulation attempts from the same source
+    6. Consider implementing JWT token blacklisting for compromised tokens
+  where: |
+    (safe(log.alg, "") == "none" ||
+     safe(log.alg, "") == "None" ||
+     safe(log.alg, "") == "NONE" ||
+     (safe(log.jwt_error, "") != "" && 
+      (contains(safe(log.jwt_error, ""), "signature") ||
+       contains(safe(log.jwt_error, ""), "expired") ||
+       contains(safe(log.jwt_error, ""), "invalid"))) ||
+     (safe(log.exp, 0) > 0 && safe(log.exp, 0) < timestamp_seconds(now())) ||
+     (safe(log.iat, 0) > 0 && safe(log.iat, 0) > timestamp_seconds(now())) ||
+     (contains(safe(raw, ""), "eyJhbGciOiJub25lIi") ||
+      contains(safe(raw, ""), "eyJhbGciOiJOb25lIi") ||
+      contains(safe(raw, ""), "eyJhbGciOiJOT05FIi")) ||
+     (safe(log.jti, "") != "" && safe(log.token_reuse, false) == true))
+  deduplicateBy:
+    - origin.ip
+    - origin.host

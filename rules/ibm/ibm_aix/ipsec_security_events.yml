@@ -1,0 +1,45 @@
+- id: 1013
+  dataTypes:
+    - ibm-aix
+  name: IBM AIX IPSec Security Event Detected
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Network Security
+  technique: "T1572 - Protocol Tunneling"
+  adversary: target
+  references:
+    - https://www.ibm.com/docs/en/aix/7.2?topic=security-ipsec
+    - https://attack.mitre.org/techniques/T1572/
+  description: |
+    Detects security events related to IPSec operations on IBM AIX systems, including tunnel establishment failures, encryption errors, and potential VPN compromise attempts. These events may indicate attempted unauthorized access, VPN configuration issues, or active attacks against encrypted communication channels.
+    
+    Next Steps:
+    - Review IPSec configuration and ensure proper authentication methods are in place
+    - Check system logs for any related authentication failures or network anomalies
+    - Verify the source IP addresses attempting to establish IPSec connections
+    - Review firewall rules and VPN access control lists
+    - If replay attacks are detected, ensure IPSec anti-replay protection is enabled
+    - Check for any recent changes to IPSec policies or certificates
+    - Monitor for any unusual network traffic patterns from the affected systems
+  where: >
+    (
+      safe(log.eventType, "") == "ipsec" ||
+      safe(log.eventType, "") == "iked" ||
+      safe(log.eventType, "") == "ipsecmgr" ||
+      safe(log.msg, "").contains("ipsec") ||
+      safe(log.msg, "").contains("tunnel") ||
+      safe(log.msg, "").contains("SA proposal")
+    ) && 
+    (
+      safe(log.msg, "").contains("authentication failed") ||
+      safe(log.msg, "").contains("negotiation failed") ||
+      safe(log.msg, "").contains("invalid SPI") ||
+      safe(log.msg, "").contains("replay attack") ||
+      safe(log.msg, "").contains("packet dropped") ||
+      safe(log.msg, "").contains("encryption failed") ||
+      safe(log.returnCode, "") != "0"
+    )
+  deduplicateBy:
+    - target.host

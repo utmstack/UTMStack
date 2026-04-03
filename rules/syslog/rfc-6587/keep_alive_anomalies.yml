@@ -1,0 +1,48 @@
+- id: 1007
+  dataTypes:
+    - rfc-6587
+  name: TCP Keep-Alive Anomaly Detection
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: Network Security
+  technique: "T1499.001 - Endpoint Denial of Service: OS Exhaustion Flood"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc1122#section-4.2.3.6
+    - https://attack.mitre.org/techniques/T1499/001/
+  description: |
+    Detects abnormal TCP keep-alive behavior including excessive keep-alive probes, unusually short intervals, or keep-alive flooding that may indicate connection persistence attacks or resource exhaustion attempts.
+    
+    Next Steps:
+    1. Review the source IP address (origin.ip) for suspicious activity patterns
+    2. Check if the keep-alive intervals are significantly shorter than normal (typically 7200 seconds)
+    3. Analyze the volume of keep-alive packets from the source to identify potential flooding
+    4. Verify if this is legitimate monitoring traffic or a persistence mechanism
+    5. Check for other anomalous network behavior from the same source
+    6. Consider blocking the source IP if malicious intent is confirmed
+    7. Review firewall and network device configurations for proper keep-alive timeout settings
+  where: |
+    safe(log.tcp_keep_alive, false) == true && 
+    (safe(log.keep_alive_interval, 0) < 60 || 
+     safe(log.keep_alive_count, 0) > 20 ||
+     (safe(log.tcp_flags, "") == "ACK" && safe(log.tcp_len, 0) == 0)) &&
+    safe(origin.ip, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.ip.keyword
+          operator: filter_term
+          value: '{{target.ip}}'
+        - field: log.tcp_keep_alive
+          operator: filter_term
+          value: 'true'
+      within: now-10m
+      count: 50
+  deduplicateBy:
+    - adversary.ip
+    - target.ip

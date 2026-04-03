@@ -1,0 +1,38 @@
+- id: 1024
+  dataTypes:
+    - rfc-5424
+  name: Syslog Message Truncation Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Data Loss Prevention
+  technique: "T1029 - Scheduled Transfer"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5424#section-6.1
+    - https://datatracker.ietf.org/doc/html/rfc5848#section-5.3.2
+    - https://attack.mitre.org/techniques/T1029/
+  description: |
+    Detects RFC-5424 syslog messages that appear to be truncated, which may indicate buffer overflow attempts, network issues, or deliberate data hiding. Messages should not exceed 2048 octets for reliable delivery. Truncation can prevent proper signature validation and hide malicious content at the end of messages.
+    
+    Next Steps:
+    1. Verify the source system configuration and syslog implementation
+    2. Check for network MTU issues or fragmentation problems
+    3. Examine the complete message content before truncation if available
+    4. Review other messages from the same source for patterns
+    5. Investigate if truncation is hiding malicious payloads or signatures
+    6. Consider implementing message size limits and proper error handling
+  where: |
+    (safe(log.message_length, 0) >= 2048 ||
+     safe(log.message, "").endsWith("...") ||
+     safe(log.message, "").endsWith("[truncated]") ||
+     safe(log.message, "").endsWith("[TRUNCATED]") ||
+     (safe(log.structured_data, "") != "" && 
+      !safe(log.structured_data, "").matches(".*\\]$")) ||
+     (safe(log.structured_data, "").contains("[") && 
+      !safe(log.structured_data, "").contains("]")) ||
+     safe(log.message, "").contains("\x00"))
+  deduplicateBy:
+    - origin.ip
+    - origin.host

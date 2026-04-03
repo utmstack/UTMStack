@@ -1,0 +1,35 @@
+- id: 1001
+  dataTypes:
+    - nids
+  name: NIDS Signature Match Pattern Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Intrusion Detection
+  technique: "T1205 - Traffic Signaling"
+  adversary: origin
+  references:
+    - https://www.snort.org/documents
+    - https://attack.mitre.org/techniques/T1205/
+    - https://suricata.readthedocs.io/
+  description: |
+    Detects when NIDS identifies malicious activity through signature pattern matching, indicating potential intrusion attempts or known attack patterns. This rule triggers when Suricata or similar NIDS systems generate high or critical severity alerts based on signature matches.
+    
+    Next Steps:
+    1. Review the specific signature that triggered the alert to understand the attack type
+    2. Analyze the source IP for additional malicious activity or reconnaissance attempts
+    3. Check if the target system shows signs of compromise or unusual behavior
+    4. Correlate with other security events from the same source or target
+    5. Consider blocking the source IP if confirmed malicious
+    6. Update network security rules if this represents a new attack pattern
+    7. Notify incident response team for critical severity alerts
+  where: |
+    safe(log.eventType, "") == "alert" && 
+    safe(log.signatureId, "") != "" &&
+    safe(log.severity, "") in ["high", "critical"] &&
+    safe(origin.ip, "") != "" &&
+    safe(target.ip, "") != ""
+  deduplicateBy:
+    - origin.ip
+    - safe(log.signatureId, "")

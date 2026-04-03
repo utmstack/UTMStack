@@ -1,0 +1,39 @@
+- id: 1001
+  dataTypes:
+    - firewall-pfsense
+  name: pfSense Firewall Rule Violations
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Policy Violation
+  technique: "T1562.007 - Impair Defenses: Disable or Modify System Firewall"
+  adversary: origin
+  references:
+    - https://docs.netgate.com/pfsense/en/latest/monitoring/logs/raw-filter-format.html
+    - https://attack.mitre.org/techniques/T1562/007/
+  description: |
+    Detects repeated attempts to violate firewall rules, indicating potential reconnaissance, policy bypass attempts, or misconfigured applications trying to access blocked resources. This rule triggers when the same source IP generates 20 or more blocked connection attempts within 15 minutes.
+    
+    Next Steps:
+    1. Investigate the source IP address and its geolocation
+    2. Review the specific firewall rules being violated and target destinations
+    3. Check if this is legitimate traffic from misconfigured applications or potential reconnaissance
+    4. Analyze traffic patterns and timing to distinguish between automated scanning and application issues
+    5. Consider temporarily blocking the source IP if malicious activity is confirmed
+    6. Review firewall rule effectiveness and adjust if necessary
+  where: safe(action, "") == "block" && safe(log.reason, "") == "match" && safe(origin.ip, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-firewall-pfsense-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: action.keyword
+          operator: filter_term
+          value: 'block'
+      within: now-15m
+      count: 20
+  deduplicateBy:
+    - origin.ip
+    - target.ip

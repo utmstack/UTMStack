@@ -1,0 +1,31 @@
+- id: 1019
+  dataTypes:
+    - sonicwall_firewall
+  name: SonicWall Endpoint Security Alert
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Endpoint
+  technique: "T1204.002 - User Execution: Malicious File"
+  adversary: origin
+  references:
+    - https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
+    - https://attack.mitre.org/techniques/T1204/002/
+  description: |
+    Detects endpoint security alerts from SonicWall including malware detection, suspicious process activity, or endpoint compromise indicators. This rule triggers on various endpoint security events such as spyware detection, malware identification, threat blocking, or suspicious file activity.
+    
+    Next Steps:
+    1. Immediately isolate the affected endpoint from the network if possible
+    2. Review the specific threat details in log.spycat and log.spypri fields
+    3. Check if the malicious file was successfully blocked or if remediation is needed
+    4. Examine the file hash and path details to understand the threat scope
+    5. Scan the affected system with updated antivirus/anti-malware tools
+    6. Review recent user activity on the affected endpoint
+    7. Check for lateral movement indicators from the compromised endpoint
+    8. Update endpoint protection signatures and policies if necessary
+    9. Document the incident and implement additional monitoring for the affected user/system
+  where: (safe(log.category, "").contains("Endpoint") || safe(log.msg, "").contains("endpoint")) && (safe(log.spycat, "") != "" || safe(log.spypri, "") != "" || safe(action, "") == "drop" || safe(log.msg, "").contains("malware") || safe(log.msg, "").contains("threat"))
+  deduplicateBy:
+    - adversary.host
+    - adversary.file

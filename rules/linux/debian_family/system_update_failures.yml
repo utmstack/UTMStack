@@ -1,0 +1,35 @@
+- id: 1017
+  dataTypes:
+    - debian_family
+  name: System Update Failures Detection
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 3
+  category: System Maintenance
+  technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+  adversary: origin
+  references:
+    - https://wiki.debian.org/AptCLI
+    - https://attack.mitre.org/techniques/T1562/001/
+  description: |
+    Detects system update failures that could indicate system compromise, network issues, or attempts to prevent security patches from being applied. Failed updates may leave systems vulnerable to known security issues and could indicate malicious interference with system maintenance processes.
+    
+    Next Steps:
+    1. Verify the specific nature of the update failure by examining the complete error message
+    2. Check network connectivity and repository accessibility from the affected system
+    3. Investigate if the failure is isolated to one system or affects multiple systems
+    4. Review system logs for any suspicious activities around the time of the update failure
+    5. Ensure that package repositories have not been tampered with or redirected
+    6. Check for any unauthorized changes to package management configuration files
+    7. Verify system integrity and check for signs of compromise if failures persist
+  where: |
+    (safe(log.process, "") == "apt" || safe(log.process, "") == "apt-get" || safe(log.process, "") == "dpkg") &&
+    (
+      safe(log.message, "") =~ ".*(failed|error|unable to fetch|404 Not Found|Hash Sum mismatch).*" ||
+      safe(log.message, "") =~ ".*(dpkg was interrupted|broken packages|unmet dependencies).*" ||
+      safe(log.message, "") =~ ".*(E: Failed to fetch|W: Failed to fetch|Err:).*" ||
+      safe(log.message, "") =~ ".*(Could not resolve|Temporary failure resolving).*"
+    )
+  deduplicateBy:
+    - origin.host

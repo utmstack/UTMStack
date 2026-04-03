@@ -1,0 +1,48 @@
+- id: 1024
+  dataTypes:
+    - linux
+  name: Secure Boot Violations
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Boot Security
+  technique: "T1542.001 - System Firmware"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1542/001/
+    - https://wiki.debian.org/SecureBoot
+    - https://www.debian.org/releases/stable/amd64/release-notes/ch-whats-new.en.html
+  description: |
+    Detects secure boot violations, unsigned kernel module loading, or attempts to disable UEFI secure boot protections that could allow malicious code execution at boot time.
+    
+    Next Steps:
+    1. Verify the system's secure boot status with 'mokutil --sb-state'
+    2. Check for unauthorized kernel modules with 'lsmod' and 'modinfo'
+    3. Review system boot logs for additional evidence of tampering
+    4. Examine EFI variables for unauthorized modifications
+    5. Verify system integrity using package verification tools
+    6. Consider reimaging the system if compromise is confirmed
+  where: |
+    (safe(log.message, "") contains "Secure Boot" && 
+     (safe(log.message, "") contains "violation" || 
+      safe(log.message, "") contains "disabled" || 
+      safe(log.message, "") contains "failed")) ||
+    (safe(log.message, "") contains "UEFI" && 
+     (safe(log.message, "") contains "unsigned" || 
+      safe(log.message, "") contains "invalid signature")) ||
+    (safe(log.facility, "") == "kern" && 
+     safe(log.message, "") contains "module verification failed") ||
+    (safe(log.command_line, "") contains "mokutil" && 
+     (safe(log.command_line, "") contains "--disable-validation" || 
+      safe(log.command_line, "") contains "--import" || 
+      safe(log.command_line, "") contains "--reset")) ||
+    (safe(log.file_path, "") contains "/sys/firmware/efi/efivars/" && 
+     safe(log.event_type, "") == "file_modify") ||
+    (safe(log.message, "") contains "shim" && 
+     (safe(log.message, "") contains "verification failed" || 
+      safe(log.message, "") contains "signature invalid")) ||
+    (safe(log.process_name, "") == "sbsign" || 
+     safe(log.process_name, "") == "pesign")
+  deduplicateBy:
+    - origin.host

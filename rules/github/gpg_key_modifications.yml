@@ -1,0 +1,31 @@
+- id: 1009
+  dataTypes:
+    - github
+  name: GitHub GPG Key Modification Activity
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: Defense Evasion
+  technique: "T1553 - Subvert Trust Controls"
+  adversary: origin
+  references:
+    - https://docs.github.com/en/authentication/managing-commit-signature-verification
+    - https://attack.mitre.org/techniques/T1553/
+  description: |
+    Detects GPG key additions, deletions, or modifications which could indicate attempts to impersonate commits or bypass signature verification. This is critical for maintaining code integrity and preventing supply chain attacks. GPG keys are used to cryptographically sign commits, ensuring the authenticity and integrity of code changes.
+    
+    Next Steps:
+    1. Verify if the GPG key modification was authorized by checking with the user
+    2. Review recent commits signed with the modified key for any suspicious changes
+    3. Check if the user's account shows any other suspicious activity (password changes, access from unusual locations)
+    4. If unauthorized, immediately revoke the GPG key and audit all commits signed with it
+    5. Review repository access logs for any unusual clone or push activities
+    6. Consider enforcing commit signature verification requirements on critical repositories
+  where: |
+    safe(log.action, "") in ["gpg_key.create", "gpg_key.delete", "gpg_key.update", "gpg_key.verify"] ||
+    (safe(log.event, "") == "gpg_key" && safe(log.action, "") in ["create", "delete", "update"]) ||
+    safe(log.action, "") == "commit.verify_signature"
+  deduplicateBy:
+    - log.senderLogin
+    - log.action

@@ -1,0 +1,30 @@
+- id: 1017
+  dataTypes:
+    - github
+  name: GitHub Advanced Security Feature Change Detected
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Defense Evasion
+  technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+  adversary: origin
+  references:
+    - https://docs.github.com/en/code-security/getting-started/github-security-features
+    - https://attack.mitre.org/techniques/T1562/001/
+  description: |
+    Detects changes to GitHub Advanced Security features including code scanning, secret scanning, or dependency review. Unauthorized changes could indicate an attempt to disable security controls before conducting malicious activities.
+    
+    Next Steps:
+    1. Verify if the user who made the change (lastEvent.log.senderLogin) is authorized to modify security settings
+    2. Check the repository (lastEvent.log.repositoryName) to determine if this is a critical or sensitive repository
+    3. Review the specific action taken (lastEvent.log.action) to understand what security feature was modified
+    4. Examine recent activity from the same user for other suspicious behavior
+    5. If unauthorized, immediately revert the security settings and investigate the user's access
+    6. Consider implementing branch protection rules to prevent security feature changes
+    7. Review access logs to determine if the account was compromised
+    8. Validate that proper approval workflows were followed for security configuration changes
+  where: safe(log.action, "") in ["security_and_analysis.enable", "security_and_analysis.disable", "advanced_security.enable", "advanced_security.disable", "code_scanning_analysis.delete", "secret_scanning.disable", "secret_scanning.enable"] || (safe(log.action, "") contains "advanced_security" && safe(log.action, "") contains "change")
+  deduplicateBy:
+    - lastEvent.log.repositoryName
+    - lastEvent.log.senderLogin

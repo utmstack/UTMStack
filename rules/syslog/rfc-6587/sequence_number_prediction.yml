@@ -1,0 +1,51 @@
+- id: 1009
+  dataTypes:
+    - rfc-6587
+  name: TCP Sequence Number Prediction Attack Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Network Security
+  technique: "T1557 - Adversary-in-the-Middle: TCP Session Hijacking"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc793#section-3.3
+    - https://attack.mitre.org/techniques/T1557/
+  description: |
+    Detects attempts to predict TCP sequence numbers which could indicate session hijacking, blind TCP reset attacks, or data injection attempts through sequence number guessing. This rule identifies patterns where TCP sequence numbers are significantly out of order, unexpected, or associated with invalid RST packets.
+    
+    Next Steps:
+    1. Investigate the source IP address for additional malicious activity
+    2. Check for other sessions from the same source that may be affected
+    3. Verify if the target system experienced any connection disruptions
+    4. Review network logs for signs of session hijacking or man-in-the-middle attacks
+    5. Consider blocking the source IP if confirmed malicious
+    6. Monitor for follow-up attacks from related IP addresses
+  where: |
+    (safe(log.tcp_seq_gap, 0) > 0 && 
+     safe(log.tcp_analysis_flags, "") =~ "out.*of.*order|retransmission") ||
+    (safe(log.tcp_seq_number, 0) > 0 && 
+     safe(log.tcp_expected_seq, 0) > 0 &&
+     abs(safe(log.tcp_seq_number, 0) - safe(log.tcp_expected_seq, 0)) > 1000000) ||
+    (safe(log.tcp_flags, "") == "RST" && 
+     safe(log.tcp_seq_valid, true) == false) &&
+    safe(origin.ip, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.ip.keyword
+          operator: filter_term
+          value: '{{target.ip}}'
+        - field: target.port.keyword
+          operator: filter_term
+          value: '{{target.port}}'
+      within: now-5m
+      count: 15
+  deduplicateBy:
+    - origin.ip
+    - target.ip
+    - target.port

@@ -1,0 +1,35 @@
+- id: 1011
+  dataTypes:
+    - asa
+  name: High CPU/Memory Utilization on Cisco ASA
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: System Performance
+  technique: "T1499 - Endpoint Denial of Service: Resource Exhaustion"
+  adversary: target
+  references:
+    - https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog/syslogs2.html
+    - https://attack.mitre.org/techniques/T1499/
+  description: |
+    Detects high CPU or memory utilization on Cisco ASA devices which could indicate a DoS attack, resource exhaustion, or system malfunction. High resource usage can impact firewall performance and availability, potentially affecting network security and connectivity.
+    
+    Next Steps:
+    1. Check current CPU and memory usage on the affected ASA device using 'show cpu usage' and 'show memory' commands
+    2. Review recent configuration changes that might have increased resource usage
+    3. Examine traffic patterns for potential DoS attacks or traffic spikes
+    4. Check for any running processes consuming excessive resources using 'show processes cpu-usage sorted'
+    5. Review ASA logs for any errors or warnings related to resource constraints
+    6. Consider implementing rate limiting or traffic shaping if legitimate traffic is causing the issue
+    7. If malicious activity is suspected, identify and block the source IP addresses
+    8. Monitor the device closely and consider scheduling a maintenance window if a restart is needed
+  where: |
+    safe(dataType, "") == "asa" && (
+      (safe(log.messageId, "") == "211001" && safe(log.message, "") contains "Memory allocation Error") ||
+      (safe(log.messageId, "") == "211003" && safe(log.message, "") contains "Error in computed percentage CPU usage value") ||
+      (safe(log.message, "") contains "CPU usage" && safe(log.message, "").matches(".*([8-9][0-9]|100)%.*")) ||
+      (safe(log.message, "") contains "memory usage" && safe(log.message, "").matches(".*([8-9][0-9]|100)%.*"))
+    )
+  deduplicateBy:
+    - target.host

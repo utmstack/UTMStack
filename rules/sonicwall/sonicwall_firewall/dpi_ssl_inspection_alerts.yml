@@ -1,0 +1,32 @@
+- id: 1010
+  dataTypes:
+    - firewall-sonicwall
+  name: SonicWall DPI-SSL Inspection Security Alert
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: SSL/TLS Security
+  technique: "T1573 - Encrypted Channel"
+  adversary: origin
+  references:
+    - https://www.sonicwall.com/support/knowledge-base/what-is-dpi-ssl/170505320011726
+    - https://attack.mitre.org/techniques/T1573/
+  description: |
+    Detects security issues identified during Deep Packet Inspection of SSL/TLS encrypted traffic. This includes certificate validation failures, suspicious encrypted payloads, malware in HTTPS traffic, or attempts to bypass SSL inspection. These events indicate potential threats using encrypted channels to hide malicious activity.
+    
+    Next Steps:
+    1. Review the specific DPI-SSL alert details to understand the nature of the security issue
+    2. Examine the source IP address and verify if it's a known internal or external system
+    3. Check the destination host/domain for reputation and legitimacy
+    4. Analyze certificate details if the alert involves certificate validation failures
+    5. Review recent network traffic patterns from the same source IP
+    6. Check for additional security alerts from the same source or destination
+    7. If malware is detected in HTTPS traffic, initiate incident response procedures
+    8. Consider blocking the source IP if confirmed malicious
+    9. Update SSL inspection policies if legitimate traffic is being incorrectly flagged
+    10. Document findings and update threat intelligence feeds if applicable
+  where: (safe(log.category, "") == "DPI-SSL" || safe(log.message, "").contains("DPI-SSL") || safe(log.message, "").contains("SSL inspection") || safe(log.message, "").contains("certificate") || safe(log.message, "").contains("HTTPS") || safe(log.dpi, "") != "" || safe(protocol, "") == "https" || safe(log.app, "") == "ssl") && (safe(log.message, "").contains("blocked") || safe(log.message, "").contains("invalid") || safe(log.message, "").contains("expired") || safe(log.message, "").contains("untrusted") || safe(log.message, "").contains("malicious") || safe(action, "") == "blocked" || safe(log.result, "") == "failed")
+  deduplicateBy:
+    - origin.ip
+    - target.ip

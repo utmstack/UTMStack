@@ -1,0 +1,40 @@
+- id: 1021
+  dataTypes:
+    - azure
+  name: Azure Function App Security Alert
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Application Security
+  technique: "T1212 - Exploitation for Credential Access"
+  adversary: origin
+  references:
+    - https://learn.microsoft.com/en-us/azure/azure-functions/monitor-functions
+    - https://attack.mitre.org/techniques/T1212/
+  description: |
+    Detects security-related errors and warnings in Azure Function Apps, including authentication failures, authorization denials, and suspicious execution patterns. This rule identifies potential security incidents in Azure Function Apps that may indicate credential access attempts or other malicious activities.
+    
+    Next Steps:
+    1. Review the specific error details and operation name in the Function App logs
+    2. Investigate the source IP address and check for suspicious geographic locations
+    3. Examine the frequency of similar events from the same origin
+    4. Verify legitimate business justification for the operations being performed
+    5. Check for any unauthorized code deployments or configuration changes
+    6. Review authentication and authorization settings for the affected Function App
+    7. Correlate with other Azure security events and alerts in the timeframe
+  where: safe(log.type, "") == "FunctionAppLogs" && (safe(log.Category, "") == "Host.Results" || safe(log.Category, "") == "Function") && (safe(log.Level, "") == "Error" || safe(log.Level, "") == "Warning") && (safe(log.OperationName, "").contains("Authentication") || safe(log.OperationName, "").contains("Authorization") || safe(log.ResultType, "") == "Failed" || safe(log.ResultType, "") == "Unauthorized")
+  afterEvents:
+    - indexPattern: v11-log-azure-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.resourceId.keyword
+          operator: filter_term
+          value: '{{log.resourceId}}'
+      within: now-15m
+      count: 5
+  deduplicateBy:
+    - origin.ip
+    - log.resourceId

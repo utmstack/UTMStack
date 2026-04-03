@@ -1,0 +1,28 @@
+- id: 1001
+  dataTypes:
+    - azure
+  name: Azure AD Privilege Escalation Attempt Detected
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Privilege Escalation
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  references:
+    - https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-alert
+    - https://attack.mitre.org/techniques/T1078/
+  description: |
+    Detects attempts to escalate privileges in Azure AD through role assignments. Monitors for the Microsoft.Authorization/roleAssignments/write operation which indicates a user or service principal is being granted additional permissions.
+    
+    Next Steps:
+    1. Verify the legitimacy of the role assignment by checking with the requesting user or administrator
+    2. Review the specific role being assigned and ensure it follows the principle of least privilege
+    3. Check if this is part of a scheduled maintenance or approved change request
+    4. Investigate the source IP address and user context for any suspicious patterns
+    5. Review Azure AD audit logs for any other suspicious activities from the same user or IP
+    6. If unauthorized, immediately revoke the role assignment and investigate potential account compromise
+  where: safe(lastEvent.log.operationName, "") == "Microsoft.Authorization/roleAssignments/write" && safe(lastEvent.log.categoryValue, "") == "Administrative"
+  deduplicateBy:
+    - adversary.user
+    - target.user

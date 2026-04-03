@@ -1,0 +1,31 @@
+- id: 1011
+  dataTypes:
+    - firewall-mikrotik
+  name: MikroTik Scheduler Abuse Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Defense Evasion
+  technique: "T1053 - Scheduled Task/Job"
+  adversary: origin
+  references:
+    - https://help.mikrotik.com/docs/display/ROS/Scheduler
+    - https://attack.mitre.org/techniques/T1053/
+  description: |
+    Detects potential abuse of MikroTik scheduler functionality which could be used for persistence or privilege escalation. Monitors for suspicious scheduler-related activities including creation, modification, or execution of scheduled tasks with system-level privileges.
+    
+    Next Steps:
+    1. Review the specific scheduler task that was added, changed, or removed
+    2. Verify the legitimacy of the administrative action through change management records
+    3. Check if the scheduler modification was performed by authorized personnel
+    4. Examine the script content or commands associated with the scheduler task
+    5. Monitor for any subsequent suspicious activities from the same source IP
+    6. Review MikroTik device configuration changes for unauthorized modifications
+  where: |
+    safe(log.topics, "") contains "system" && 
+    safe(log.topics, "") contains "info" &&
+    (safe(log.restData, "") contains "scheduler" || safe(log.restData, "") contains "script") &&
+    (safe(log.restData, "") contains "added" || safe(log.restData, "") contains "changed" || safe(log.restData, "") contains "removed")
+  deduplicateBy:
+    - origin.ip

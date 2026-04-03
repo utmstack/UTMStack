@@ -1,0 +1,46 @@
+- id: 1013
+  dataTypes:
+    - macos
+  name: Spotlight Index Manipulation
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Defense Evasion
+  technique: "T1070.004 - Indicator Removal on Host: File Deletion"
+  adversary: origin
+  references:
+    - https://support.apple.com/guide/mac-help/search-with-spotlight-mchlp1008/mac
+    - https://attack.mitre.org/techniques/T1070/004/
+  description: |
+    Detects attempts to manipulate Spotlight search index which could be used to hide malicious files or activities from search results. This includes index corruption, deletion, reindexing, exclusion modifications, and privacy setting changes.
+    
+    Next Steps:
+    1. Investigate the user account and system where the Spotlight manipulation occurred
+    2. Review recent file system activities and processes executed by the user
+    3. Check for suspicious files or directories that may have been hidden from Spotlight
+    4. Examine system logs for evidence of malware installation or unauthorized access
+    5. Verify if the Spotlight manipulation was part of legitimate system maintenance
+    6. Look for other defense evasion techniques used in conjunction with this activity
+    7. Consider restoring Spotlight index from backup if manipulation was malicious
+  where: |
+    (safe(log.subsystem, "") == "com.apple.spotlight" && 
+     (safe(log.eventMessage, "") contains "index corruption" || 
+      safe(log.eventMessage, "") contains "index deleted" || 
+      safe(log.eventMessage, "") contains "reindex" ||
+      safe(log.eventMessage, "") contains "exclusion" ||
+      safe(log.eventMessage, "") contains "privacy")) ||
+    (safe(log.process, "") == "mdutil" && 
+     (safe(log.eventMessage, "") contains "-E" ||
+      safe(log.eventMessage, "") contains "-i off" ||
+      safe(log.eventMessage, "") contains "disable" ||
+      safe(log.eventMessage, "") contains "erase")) ||
+    (safe(log.process, "") == "mds" && 
+     safe(log.messageType, "") == "error") ||
+    (safe(log.eventMessage, "") contains ".Spotlight-V100" && 
+     (safe(log.eventMessage, "") contains "delete" ||
+      safe(log.eventMessage, "") contains "modify" ||
+      safe(log.eventMessage, "") contains "access denied"))
+  deduplicateBy:
+    - origin.host
+    - origin.user

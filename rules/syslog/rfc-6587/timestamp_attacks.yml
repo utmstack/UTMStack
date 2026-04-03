@@ -1,0 +1,47 @@
+- id: 1018
+  dataTypes:
+    - rfc-6587
+  name: TCP Timestamp Manipulation Attack
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Network Security
+  technique: "T1557 - Adversary-in-the-Middle: Session Hijacking"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc7323#section-7
+    - https://attack.mitre.org/techniques/T1557/
+  description: |
+    Detects TCP timestamp attacks where attackers manipulate timestamp values to bypass sequence number protections, potentially enabling session hijacking or replay attacks. Monitors for timestamp anomalies such as non-monotonic values, large jumps, zero timestamps with ACK flags, or echo timestamps greater than current timestamps.
+    
+    Next Steps:
+    1. Analyze the TCP connection details and verify if the timestamp anomalies are legitimate
+    2. Check for other suspicious network activity from the same source IP
+    3. Review network logs for signs of session hijacking or man-in-the-middle attacks
+    4. Investigate if any sensitive data was accessed during the suspicious connection
+    5. Consider implementing additional network monitoring for the affected endpoints
+  where: |
+    safe(origin.ip, "") != "" &&
+    safe(log.tcp_options, "") contains "timestamp" &&
+    (
+      (safe(log.tcp_timestamp_delta, 0) < -1000) ||
+      (safe(log.tcp_timestamp_delta, 0) > 86400000) ||
+      (safe(log.tcp_timestamp, 0) == 0 && safe(log.tcp_flags, "") contains "ACK") ||
+      (safe(log.tcp_timestamp_echo, 0) > safe(log.tcp_timestamp, 0))
+    )
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.ip.keyword
+          operator: filter_term
+          value: '{{target.ip}}'
+      within: now-10m
+      count: 5
+  deduplicateBy:
+    - origin.ip
+    - target.ip
+    - target.port

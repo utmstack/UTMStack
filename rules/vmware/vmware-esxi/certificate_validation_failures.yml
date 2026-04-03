@@ -1,0 +1,33 @@
+- id: 1029
+  dataTypes:
+    - vmware-esxi
+  name: Certificate Validation Failure Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: Certificate Security
+  technique: "T1553.004 - Subvert Trust Controls: Install Root Certificate"
+  adversary: origin
+  references:
+    - https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-security/GUID-F35D7005-58EB-48AC-99D5-B9942EB2A8EF.html
+    - https://attack.mitre.org/techniques/T1553/004/
+  description: |
+    Detects certificate validation failures, expired certificates, or certificate tampering attempts that could indicate man-in-the-middle attacks or authentication bypass attempts on VMware ESXi hosts.
+    
+    Next Steps:
+    1. Verify the certificate chain and validity on the affected ESXi host
+    2. Check for any recent certificate changes or updates
+    3. Investigate potential man-in-the-middle attacks or network interference
+    4. Review ESXi host time synchronization and certificate expiration dates
+    5. Check for unauthorized certificate modifications or installations
+    6. Monitor for additional certificate-related errors from the same host
+  where: |
+    safe(log.message, "") != "" && 
+    (log.message.contains("certificate") || log.message.contains("Certificate") || 
+     log.message.contains("SSL") || log.message.contains("TLS") || log.message.contains("rui.crt")) &&
+    (log.message.contains("failed") || log.message.contains("invalid") || log.message.contains("expired") || 
+     log.message.contains("mismatch") || log.message.contains("untrusted") || log.message.contains("error") ||
+     log.message.contains("validation") || log.message.contains("verify"))
+  deduplicateBy:
+    - origin.hostname

@@ -1,0 +1,37 @@
+- id: 1022
+  dataTypes:
+    - ibm-aix
+  name: IBM AIX Performance Anomalies Detection
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: System Performance
+  technique: "T1496 - Resource Hijacking"
+  adversary: origin
+  references:
+    - https://www.ibm.com/docs/en/aix/7.1.0?topic=overview-error-logging-tasks
+    - https://attack.mitre.org/techniques/T1496/
+  description: |
+    Detects performance anomalies in IBM AIX systems including high CPU usage, memory exhaustion, and process issues that could indicate resource hijacking or system compromise. This rule monitors for performance-related events and error messages that may signal system stress or potential attacks.
+    
+    Next Steps:
+    1. Investigate system performance metrics (CPU, memory, I/O) on the affected host
+    2. Review running processes and identify any unusual or unauthorized processes
+    3. Check system logs for correlating events around the time of the anomaly
+    4. Examine user activity and recent system changes
+    5. Verify if performance degradation is due to legitimate workload or potential attack
+    6. Monitor for signs of resource hijacking, cryptocurrency mining, or DoS attacks
+    7. If malicious activity is suspected, isolate the system and perform forensic analysis
+  where: |
+    safe(log.eventType, "") != "" && 
+    (safe(log.eventType, "").toLowerCase().contains("perf") ||
+     safe(log.eventType, "").toLowerCase().contains("cpu") ||
+     safe(log.eventType, "").toLowerCase().contains("memory") ||
+     safe(log.eventType, "").toLowerCase().contains("vmstat") ||
+     safe(log.eventType, "").toLowerCase().contains("iostat") ||
+     safe(log.msg, "").toLowerCase().contains("out of memory") ||
+     safe(log.msg, "").toLowerCase().contains("cpu threshold") ||
+     safe(log.msg, "").toLowerCase().contains("performance degradation"))
+  deduplicateBy:
+    - lastEvent.target.host

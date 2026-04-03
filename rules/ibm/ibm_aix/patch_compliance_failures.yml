@@ -1,0 +1,36 @@
+- id: 1017
+  dataTypes:
+    - ibm-aix
+  name: IBM AIX Patch Compliance Failures
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 2
+  category: Vulnerability Management
+  technique: "T1190 - Exploit Public-Facing Application"
+  adversary: origin
+  references:
+    - https://www.ibm.com/docs/en/aix/7.2?topic=management-software-maintenance
+    - https://attack.mitre.org/techniques/T1190/
+  description: |
+    Detects patch compliance failures and system update issues in IBM AIX systems, including failed patch installations, missing critical updates, or unauthorized patch modifications. This rule identifies immediate patch failures that require attention to maintain system security posture.
+    
+    Next Steps:
+    1. Verify the patch installation status using 'lslpp -l' command
+    2. Check system logs for detailed error messages using 'errpt' command
+    3. Review failed patch details and prerequisites
+    4. Ensure sufficient disk space and system resources are available
+    5. Contact IBM support if critical security patches are failing
+    6. Document the failure for compliance reporting
+    7. Implement rollback procedures if necessary
+    8. Schedule immediate remediation for critical security patches
+    9. Review patch management processes to prevent future failures
+  where: |
+    (safe(log.eventType, "") == "PATCH_FAIL" || safe(log.eventType, "") == "UPDATE_FAIL") ||
+    (safe(log.commandType, "").contains("installp") && safe(log.returnCode, "") != "0") ||
+    (safe(log.message, "").contains("patch") && (safe(log.message, "").contains("failed") || safe(log.message, "").contains("error"))) ||
+    (safe(action, "").contains("UPDATE") && safe(log.returnCode, "") != "0") ||
+    (safe(origin.command, "").contains("oslevel") && safe(log.message, "").contains("missing"))
+  deduplicateBy:
+    - lastEvent.target.host
+    - lastEvent.log.commandType

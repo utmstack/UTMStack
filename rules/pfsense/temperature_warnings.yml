@@ -1,0 +1,37 @@
+- id: 1023
+  dataTypes:
+    - firewall-pfsense
+  name: pfSense Temperature Warning
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: System Health
+  technique: Hardware Overheating
+  adversary: system
+  references:
+    - https://docs.netgate.com/pfsense/en/latest/hardware/index.html
+    - https://attack.mitre.org/techniques/T1495/
+  description: |
+    Detects temperature warnings and thermal events in pfSense systems. High temperatures can cause system instability, hardware damage, and unexpected shutdowns. This may indicate cooling system failures, environmental issues, or hardware problems.
+    
+    Next Steps:
+    1. Immediately check the physical environment around the pfSense device for proper ventilation and ambient temperature
+    2. Verify that all cooling fans are operational and spinning at appropriate speeds
+    3. Check for dust accumulation on heat sinks, fans, and air vents that may be blocking airflow
+    4. Monitor CPU and system temperatures using pfSense diagnostic tools or hardware monitoring
+    5. Review system logs for any hardware failure indicators or SMART disk errors
+    6. Consider relocating the device to a cooler environment or improving cooling infrastructure
+    7. If temperatures remain high, plan for immediate hardware replacement to prevent permanent damage
+    8. Document the incident and review preventive maintenance schedules for cooling systems
+  where: (safe(log.eventType, "") == "kernel" || safe(log.eventType, "") == "system") && (safe(raw, "").contains("temperature") || safe(raw, "").contains("thermal") || safe(raw, "").contains("overheat") || safe(raw, "").contains("ACPI") && safe(raw, "").contains("temp") || safe(raw, "").contains("fan speed") || safe(raw, "").contains("cooling"))
+  afterEvents:
+    - indexPattern: v11-log-firewall-pfsense-*
+      with:
+        - field: log.syslogHost.keyword
+          operator: filter_term
+          value: '{{log.syslogHost}}'
+      within: now-10m
+      count: 3
+  deduplicateBy:
+    - log.syslogHost

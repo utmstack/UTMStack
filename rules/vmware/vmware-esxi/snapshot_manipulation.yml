@@ -1,0 +1,43 @@
+- id: 1017
+  dataTypes:
+    - vmware-esxi
+  name: Suspicious Snapshot Manipulation
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Virtual Machine Security
+  technique: "T1578.001 - Create or Modify System Process: Snapshot"
+  adversary: origin
+  references:
+    - https://blogs.vmware.com/security/2022/09/esxi-targeting-ransomware-the-threats-that-are-after-your-virtual-machines-part-1.html
+    - https://attack.mitre.org/techniques/T1578/001/
+  description: |
+    Detects suspicious snapshot manipulation activities that could indicate ransomware preparation, unauthorized access, or data exfiltration attempts. Monitors for rapid snapshot operations and unusual snapshot file access patterns.
+    
+    Next Steps:
+    1. Verify the legitimacy of snapshot operations with the system administrator
+    2. Check for any scheduled backup or maintenance activities
+    3. Review user permissions for snapshot management
+    4. Examine concurrent file system activities on the affected virtual machines
+    5. Look for additional signs of ransomware activity or unauthorized access
+    6. Monitor for unusual network traffic patterns from the affected ESXi host
+  where: |
+    (safe(log.message, "") contains "CreateSnapshot" || 
+     safe(log.message, "") contains "RemoveSnapshot" ||
+     safe(log.message, "") contains "RevertToSnapshot") &&
+    (safe(log.message, "") contains ".vmsn" ||
+     safe(log.message, "") contains ".vmdk" ||
+     safe(log.message, "") contains "snapshot" ||
+     safe(log.process, "") == "hostd" ||
+     safe(log.process, "") contains "vmx")
+  afterEvents:
+    - indexPattern: v11-log-vmware-*
+      with:
+        - field: origin.hostname.keyword
+          operator: filter_term
+          value: '{{origin.hostname}}'
+      within: now-10m
+      count: 5
+  deduplicateBy:
+    - origin.hostname

@@ -1,0 +1,41 @@
+- id: 1018
+  dataTypes:
+    - vmware-esxi
+  name: VM Template Tampering Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Template Security
+  technique: "T1608 - Stage Capabilities: Upload Malware"
+  adversary: origin
+  references:
+    - https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-security/GUID-F35D7005-58EB-48AC-99D5-B9942EB2A8EF.html
+    - https://attack.mitre.org/techniques/T1608/
+  description: |
+    Detects unauthorized modifications to VM templates that could lead to deployment of compromised virtual machines. 
+    Monitors for template conversion operations and template file modifications including ConvertToTemplate, 
+    MarkAsTemplate, MarkAsVirtualMachine, and template clone operations, as well as direct modifications to .vmtx files.
+    
+    Next Steps:
+    1. Verify the legitimacy of the template modification with the administrator who performed the action
+    2. Check if the modification was part of scheduled maintenance or approved change management
+    3. Examine the template contents for unauthorized software, backdoors, or malicious configurations
+    4. Review who has access to modify templates and validate their permissions
+    5. Check for any VMs deployed from the modified template and scan them for compromise
+    6. Review vCenter logs for additional suspicious activities around the same timeframe
+    7. Consider temporarily disabling the template until security validation is complete
+  where: |
+    safe(log.message, "") != "" &&
+    (safe(log.message, "") contains "ConvertToTemplate" ||
+     safe(log.message, "") contains "MarkAsTemplate" ||
+     safe(log.message, "") contains "MarkAsVirtualMachine" ||
+     (safe(log.message, "") contains "CloneVM_Task" && safe(log.message, "") contains "template") ||
+     (safe(log.message, "") contains ".vmtx" && 
+      (safe(log.message, "") contains "modify" || 
+       safe(log.message, "") contains "change" ||
+       safe(log.message, "") contains "delete" ||
+       safe(log.message, "") contains "edit")))
+  deduplicateBy:
+    - origin.hostname
+    - origin.user

@@ -1,0 +1,33 @@
+- id: 1018
+  dataTypes:
+    - ibm-aix
+  name: IBM AIX Security Policy Enforcement Events
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Security Controls
+  technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+  adversary: origin
+  references:
+    - https://www.ibm.com/docs/en/aix/7.2?topic=security-policy-management
+    - https://attack.mitre.org/techniques/T1562/
+  description: |
+    Detects security policy enforcement events and violations in IBM AIX systems, including policy rule violations, unauthorized policy changes, or attempts to bypass security controls. This rule identifies when security policies are being modified, enforced, or violated, which could indicate attempts to weaken system defenses.
+    
+    Next Steps:
+    1. Verify the legitimacy of the policy change or enforcement action
+    2. Review the user account performing the action and their authorization level
+    3. Check for any related security events or alerts in the timeframe
+    4. Examine the specific policy that was modified or violated
+    5. Validate that the change follows proper change management procedures
+    6. Consider implementing additional monitoring for the affected policy area
+    7. Review system audit logs for additional context around the event
+    8. Check if the policy change was part of an approved maintenance window
+    9. Verify the source host and ensure it's an authorized administrative system
+    10. Document the incident and update security policies if necessary
+  where: (safe(log.eventType, "") == "POLICY_ENFORCE" || safe(log.eventType, "") == "SECURITY_POLICY") || (safe(log.msgAll, "").contains("policy") && (safe(log.msgAll, "").contains("enforced") || safe(log.msgAll, "").contains("violated") || safe(log.msgAll, "").contains("bypass"))) || (safe(action, "").contains("POLICY") && (safe(action, "").contains("CHANGE") || safe(action, "").contains("MODIFY"))) || (safe(log.commandType, "") == "secpolicy" || safe(origin.command, "").contains("chsec")) || (safe(action, "").contains("SECURITY"))
+  deduplicateBy:
+    - origin.user
+    - action
+    - log.eventType

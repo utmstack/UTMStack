@@ -1,0 +1,37 @@
+- id: 1002
+  dataTypes:
+    - syslog
+  name: RFC-6587 Non-Transparent Framing Issues
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 3
+  category: Protocol Violation
+  technique: Data Manipulation
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc6587#section-3.4.2
+    - https://attack.mitre.org/techniques/T1499/
+  description: |
+    Detects issues with non-transparent framing method including improper line feed termination, mixed framing methods, or missing delimiters that could lead to message boundary confusion. These issues can result in log parsing failures, message corruption, or potential denial of service conditions.
+    
+    Next Steps:
+    1. Identify the source system sending malformed syslog messages by checking the origin IP address
+    2. Review the syslog configuration on the sending system to ensure proper RFC-6587 compliance
+    3. Check if the issue is consistent or intermittent by reviewing historical logs from the same source
+    4. Verify the syslog daemon or application version on the source system for known bugs
+    5. Consider implementing strict syslog parsing rules or upgrading the syslog infrastructure
+    6. Monitor for any data loss or corruption resulting from the framing issues
+    7. Document the issue and coordinate with system administrators to remediate the configuration
+  where: |
+    safe(log.transport, "") == "tcp" && 
+    safe(log.framing, "") == "non-transparent" &&
+    (
+      safe(log.missing_lf, false) == true ||
+      safe(log.mixed_framing, false) == true ||
+      safe(log.incomplete_frame, false) == true ||
+      (safe(log.message, "") != "" && !safe(log.message, "").endsWith("\n"))
+    )
+  deduplicateBy:
+    - adversary.ip
+    - lastEvent.log.facility

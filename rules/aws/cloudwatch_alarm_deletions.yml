@@ -1,0 +1,28 @@
+- id: 1019
+  dataTypes:
+    - aws
+  name: AWS CloudWatch Alarm Deletion
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 3
+  category: Defense Evasion
+  technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+  adversary: origin
+  references:
+    - https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_DeleteAlarms.html
+    - https://attack.mitre.org/techniques/T1562/001/
+  description: |
+    Detects deletion of CloudWatch alarms which could indicate attempts to disable monitoring and alerting mechanisms before conducting malicious activities. Attackers may delete alarms to prevent detection of subsequent unauthorized actions.
+    
+    Next Steps:
+    1. Identify the user account that deleted the alarm(s) and verify if this was authorized
+    2. Review the deleted alarm configurations to understand what monitoring was disabled
+    3. Check for any suspicious activities immediately following the alarm deletion
+    4. Review CloudTrail logs for other API calls made by the same user/role around the same time
+    5. Verify if the alarm deletion was part of legitimate maintenance or infrastructure changes
+    6. Consider implementing preventive controls using SCPs or IAM policies to restrict alarm deletion
+  where: safe(log.eventSource, "") == "monitoring.amazonaws.com" && safe(log.eventName, "") == "DeleteAlarms" && safe(log.errorCode, "") == ""
+  deduplicateBy:
+    - lastEvent.log.userIdentityPrincipalId
+    - origin.ip

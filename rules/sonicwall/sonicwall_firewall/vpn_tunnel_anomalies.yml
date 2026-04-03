@@ -1,0 +1,35 @@
+- id: 1011
+  dataTypes:
+    - firewall-sonicwall
+  name: SonicWall VPN Tunnel Anomalies Detection
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 3
+  category: Network Security
+  technique: "T1133 - External Remote Services"
+  adversary: origin
+  references:
+    - https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
+    - https://attack.mitre.org/techniques/T1133/
+  description: |
+    Detects anomalies in VPN tunnel connections including excessive connection attempts, unusual connection patterns, or VPN errors that may indicate attempted exploitation or unauthorized access attempts. This rule monitors for VPN-related events that contain error conditions, failures, timeouts, or disconnections which could signal malicious activity or reconnaissance.
+    
+    Next Steps:
+    1. Review the specific VPN error messages and connection patterns from the source IP
+    2. Check if the source IP has legitimate business reasons to connect via VPN
+    3. Examine authentication logs for failed login attempts from the same source
+    4. Verify if the VPN policy being accessed is appropriate for the user/source
+    5. Consider implementing additional VPN access controls if patterns suggest abuse
+    6. Monitor for lateral movement attempts if VPN access was successful
+  where: (safe(log.vpnpolicy, "") != "" || safe(log.category, "").contains("VPN") || safe(log.eventName, "").contains("VPN") || safe(log.message, "").contains("VPN")) && (safe(log.message, "").contains("error") || safe(log.message, "").contains("fail") || safe(log.message, "").contains("timeout") || safe(log.message, "").contains("disconnect") || safe(log.result, "").contains("fail"))
+  afterEvents:
+    - indexPattern: v11-log-firewall-sonicwall-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-15m
+      count: 10
+  deduplicateBy:
+    - origin.ip

@@ -1,0 +1,55 @@
+- id: 1012
+  dataTypes:
+    - generic
+  name: Escape Sequence Abuse
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: Log Injection
+  technique: "T1027.003 - Obfuscated Files or Information: Steganography"
+  adversary: origin
+  references:
+    - https://owasp.org/www-community/attacks/Log_Injection
+    - https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html
+    - https://attack.mitre.org/techniques/T1027/003/
+  description: |
+    Detects abuse of escape sequences in logs that could be used to bypass security controls, manipulate log output, or execute command injection. This includes various escape characters and encoding patterns commonly used in attacks.
+    
+    Next Steps:
+    1. Review the log message content to identify the specific escape sequences being used
+    2. Check if the source IP (if available) has attempted similar patterns recently
+    3. Determine if this is part of a larger attack pattern (SQL injection, command injection, XSS)
+    4. Investigate the application or service generating these logs for potential vulnerabilities
+    5. Review application input validation and encoding practices
+    6. Consider implementing input sanitization for the affected application
+    7. Analyze the application logs for additional indicators of compromise
+    8. Review security controls and WAF rules to prevent similar attacks
+  where: |
+    safe(log.message, "") != "" && (
+      safe(log.message, "").contains("\\x00") ||
+      safe(log.message, "").contains("\\x0a") ||
+      safe(log.message, "").contains("\\x0d") ||
+      safe(log.message, "").contains("\\x1a") ||
+      safe(log.message, "").contains("\\x1b") ||
+      safe(log.message, "").contains("\\x7f") ||
+      safe(log.message, "").contains("\\u0000") ||
+      safe(log.message, "").contains("\\u000a") ||
+      safe(log.message, "").contains("\\u000d") ||
+      safe(log.message, "").contains("%00") ||
+      safe(log.message, "").contains("%0a") ||
+      safe(log.message, "").contains("%0d") ||
+      safe(log.message, "").contains("%0A") ||
+      safe(log.message, "").contains("%0D") ||
+      safe(log.message, "").contains("&#x0a;") ||
+      safe(log.message, "").contains("&#x0d;") ||
+      safe(log.message, "").contains("&#10;") ||
+      safe(log.message, "").contains("&#13;") ||
+      safe(log.message, "").matches(".*\\\\[btnfr].*\\\\[btnfr].*") ||
+      safe(log.message, "").matches(".*\\\\x[0-9a-fA-F]{2}.*\\\\x[0-9a-fA-F]{2}.*") ||
+      safe(log.message, "").matches(".*\\\\u[0-9a-fA-F]{4}.*\\\\u[0-9a-fA-F]{4}.*") ||
+      safe(log.message, "").matches(".*%[0-9a-fA-F]{2}.*%[0-9a-fA-F]{2}.*%[0-9a-fA-F]{2}.*")
+    )
+  deduplicateBy:
+    - dataSource
+    - adversary.ip

@@ -1,0 +1,28 @@
+- id: 1012
+  dataTypes:
+    - firewall-pfsense
+  name: Certificate Management Security Issue
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Identity and Access Management
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  references:
+    - https://docs.netgate.com/pfsense/en/latest/certificates/certificate.html
+    - https://attack.mitre.org/techniques/T1078/
+  description: |
+    Detects certificate management issues in pfSense including expired certificates, failed certificate generation, or unauthorized certificate access attempts that could compromise secure communications.
+    
+    Next Steps:
+    1. Review the specific certificate error in the logs
+    2. Check certificate expiration dates and renewal status
+    3. Verify certificate authority chain integrity
+    4. Investigate any unauthorized access attempts to certificate stores
+    5. Update or renew certificates as needed
+    6. Monitor for additional certificate-related anomalies
+  where: safe(log.message, "").contains("cert") && (safe(log.message, "").contains("expired") || safe(log.message, "").contains("invalid") || safe(log.message, "").contains("failed") || safe(log.message, "").contains("denied") || safe(log.message, "").contains("revoked") || safe(log.message, "").contains("untrusted"))
+  deduplicateBy:
+    - origin.host
+    - origin.ip

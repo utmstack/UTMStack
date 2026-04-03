@@ -1,0 +1,38 @@
+- id: 1017
+  dataTypes:
+    - rfc-5425
+  name: ALPN/NPN Protocol Negotiation Issues
+  impact:
+    confidentiality: 2
+    integrity: 2
+    availability: 3
+  category: Protocol Security
+  technique: Protocol Downgrade Attack
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc7301
+    - https://attack.mitre.org/techniques/T1499/
+  description: |
+    Detects issues with Application-Layer Protocol Negotiation (ALPN) or Next Protocol Negotiation (NPN) including unsupported protocols, protocol mismatches, or attempts to use deprecated NPN. These issues can indicate protocol downgrade attacks, man-in-the-middle attempts, or misconfigured systems that could lead to security vulnerabilities.
+    
+    Next Steps:
+    - Investigate the source IP for additional suspicious TLS handshake patterns
+    - Review network traffic logs for evidence of protocol manipulation
+    - Check if the client and server configurations support secure protocol negotiation
+    - Verify certificate validity and TLS version being negotiated
+    - Monitor for repeated failures from the same source indicating potential attack attempts
+  where: "(safe(log.tls_alpn_error, \"\") != \"\" ||\n safe(log.tls_npn_used, \"false\") == \"true\" ||\n (safe(log.tls_alpn_offered, \"\") != \"\" && \n  safe(log.tls_alpn_selected, \"\") == \"\" &&\n  safe(log.tls_handshake_completed, \"false\") == \"true\") ||\n (safe(log.tls_alpn_selected, \"\") != \"\" &&\n  !safe(log.tls_alpn_offered, \"\").contains(safe(log.tls_alpn_selected, \"\"))))\n"
+  afterEvents:
+    - indexPattern: v11-log-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.event_type.keyword
+          operator: filter_term
+          value: tls_handshake
+      within: now-10m
+      count: 5
+  deduplicateBy:
+    - origin.ip
+    - target.ip

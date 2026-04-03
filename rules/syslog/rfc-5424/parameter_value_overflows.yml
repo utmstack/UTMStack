@@ -1,0 +1,46 @@
+- id: 1012
+  dataTypes:
+    - rfc-5424
+  name: RFC-5424 Parameter Value Overflow Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 3
+  category: Buffer Overflow
+  technique: "T1499 - Endpoint Denial of Service"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5424#section-6.3.3
+    - https://attack.mitre.org/techniques/T1499/
+  description: |
+    Detects attempts to overflow RFC-5424 structured data parameter values which could cause denial of service or memory corruption. This rule identifies syslog messages with excessively long parameter values, structured data fields, or message components that exceed RFC-5424 recommended limits.
+    
+    Next Steps:
+    1. Investigate the source IP address and determine if it's a known legitimate system
+    2. Check if the overflow attempts are part of a coordinated attack pattern
+    3. Review system logs for any application crashes or performance degradation
+    4. Verify syslog daemon configuration and buffer limits
+    5. Consider implementing rate limiting or input validation on the syslog server
+    6. Block the source IP if malicious activity is confirmed
+  where: |
+    (safe(log.structured_data, "") != "" && safe(log.structured_data, "").length() > 2048) ||
+    (safe(log.structured_data, "") != "" && (
+      safe(log.structured_data, "").matches(".*\\[\\w+\\s+\\w+=\"[^\"]{1024,}\"\\].*") ||
+      safe(log.structured_data, "").matches(".*\\[\\w+\\s+\\w+='[^']{1024,}'\\].*") ||
+      safe(log.structured_data, "").matches(".*\\[\\w+\\s+[^\\]]{2048,}\\].*")
+    )) ||
+    (safe(log.message_length, 0) > 8192) ||
+    (safe(log.app_name, "").length() > 48) ||
+    (safe(log.proc_id, "").length() > 128) ||
+    (safe(log.msg_id, "").length() > 32)
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-5m
+      count: 5
+  deduplicateBy:
+    - origin.ip
+    - origin.host

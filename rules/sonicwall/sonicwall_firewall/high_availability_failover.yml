@@ -1,0 +1,29 @@
+- id: 1012
+  dataTypes:
+    - firewall-sonicwall
+  name: SonicWall High Availability Failover Detection
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: System Availability
+  technique: "T1489 - Service Stop"
+  adversary: origin
+  references:
+    - https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
+    - https://attack.mitre.org/techniques/T1489/
+  description: |
+    Detects high availability failover events and cluster state changes in SonicWall firewalls which could indicate system issues, attacks on availability, or legitimate maintenance activities. HA failover events can signal hardware failures, network connectivity issues, or potential attacks targeting system availability.
+    
+    Next Steps:
+    1. Verify if the failover was planned maintenance or an unexpected event
+    2. Check the health status of both primary and secondary firewall units
+    3. Review network connectivity between HA cluster members
+    4. Examine system logs for hardware errors or resource exhaustion
+    5. Validate that the secondary unit successfully assumed primary role
+    6. Monitor for any service disruptions during the failover process
+    7. If unplanned, investigate potential causes such as DoS attacks or hardware failures
+  where: safe(log.category, "").contains("High Availability") || safe(log.eventName, "").contains("HA") || safe(log.message, "").contains("failover") || safe(log.message, "").contains("standby") || safe(log.message, "").contains("primary") || safe(log.message, "").contains("cluster") || safe(log.message, "").contains("heartbeat") || safe(log.usestandbysa, "") != ""
+  deduplicateBy:
+    - lastEvent.log.syslogHost
+    - lastEvent.log.category

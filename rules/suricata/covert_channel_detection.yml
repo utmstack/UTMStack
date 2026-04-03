@@ -1,0 +1,48 @@
+- id: 1006
+  dataTypes:
+    - nids
+  name: Covert Channel Detection
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Network Intrusion
+  technique: Covert Channel Communication
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1048/
+    - https://docs.suricata.io/en/latest/output/eve/eve-json-format.html
+  description: |
+    Detects potential covert channel communication through unusual protocols, DNS tunneling, or ICMP data exfiltration patterns. This rule identifies suspicious network communications that may be used to bypass security controls and exfiltrate data through legitimate-looking traffic.
+    
+    Next Steps:
+    1. Examine the source and destination IPs involved in the communication
+    2. Analyze the DNS queries for suspicious patterns, encoding, or unusual subdomain structures
+    3. Review ICMP traffic payload sizes and patterns for data hiding indicators
+    4. Check for base64 encoded data in DNS queries or other protocols
+    5. Correlate with endpoint security logs to identify the source process or application
+    6. Monitor for similar patterns from the same source IP over extended time periods
+    7. Consider network traffic analysis to identify covert communication protocols
+    8. Review firewall and proxy logs for blocked or allowed suspicious connections
+  where: |
+    (
+      (safe(log.event_type, "") == "alert" && 
+       contains(safe(log.alert.signature, ""), "DNS tunneling")) ||
+      (safe(log.proto, "") == "ICMP" && 
+       safe(log.flow.bytes_toserver, 0) > 1000) ||
+      (safe(log.proto, "") == "DNS" && 
+       safe(log.dns.query.length, 0) > 100) ||
+      (safe(log.app_proto, "") == "dns" && 
+       contains(safe(log.dns.query.rrname, ""), ".base64.") )
+    )
+  afterEvents:
+    - indexPattern: v11-log-nids-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-1h
+      count: 10
+  deduplicateBy:
+    - origin.ip
+    - target.ip

@@ -1,0 +1,34 @@
+- id: 1003
+  dataTypes:
+    - rfc-5424
+  name: RFC-5424 Facility and Severity Mismatches
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: Anomaly Detection
+  technique: "T1036 - Masquerading"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5424#section-6.2.1
+    - https://attack.mitre.org/techniques/T1036/
+  description: |
+    Detects unusual combinations of facility and severity values in RFC-5424 syslog messages that may indicate log manipulation, system compromise, or misconfiguration. Suspicious patterns include kernel messages with debug severity, security messages with inconsistent severity levels, or emergency messages from inappropriate facilities.
+    
+    **Next Steps:**
+    1. Verify the authenticity of the log source and examine the originating system
+    2. Check for signs of log tampering or injection attacks
+    3. Review system configuration and validate syslog daemon settings
+    4. Investigate concurrent events from the same source for additional anomalies
+    5. Cross-reference with known system maintenance activities or configuration changes
+  where: |
+    (safe(log.facility, -1) == 0 && safe(log.severity, -1) == 7) ||
+    (safe(log.facility, -1) == 4 && safe(log.severity, -1) > 5) ||
+    (safe(log.facility, -1) == 10 && safe(log.severity, -1) > 5) ||
+    (safe(log.facility, -1) == 13 && safe(log.severity, -1) == 7) ||
+    (safe(log.facility, -1) == 14 && safe(log.severity, -1) > 3) ||
+    (safe(log.severity, -1) == 0 && safe(log.facility, -1) > 15)
+  deduplicateBy:
+    - origin.host
+    - lastEvent.log.facility
+    - lastEvent.log.severity

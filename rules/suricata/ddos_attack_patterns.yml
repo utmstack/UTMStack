@@ -1,0 +1,56 @@
+- id: 1008
+  dataTypes:
+    - nids
+  name: DDoS Attack Patterns
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: Network Intrusion
+  technique: "T1498 - Network Denial of Service"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1498/
+    - https://attack.mitre.org/techniques/T1499/
+    - https://docs.suricata.io/en/latest/output/eve/eve-json-format.html
+  description: |
+    Detects various DDoS attack patterns including SYN floods, UDP floods, ICMP floods, HTTP floods, and amplification attacks based on Suricata network intrusion detection system alerts and traffic patterns.
+    
+    Next Steps:
+    1. Analyze traffic volume and patterns to the targeted destination
+    2. Check for similar attacks from multiple source IPs
+    3. Implement rate limiting or blocking rules for attacking sources
+    4. Monitor network bandwidth utilization and performance metrics
+    5. Consider activating DDoS mitigation services if available
+    6. Review firewall and load balancer configurations
+    7. Document the attack timeline and impact for incident response
+  where: |
+    (
+      (safe(log.event_type, "") == "alert" && 
+       (contains(safe(log.alert.signature, ""), "SYN flood") ||
+        contains(safe(log.alert.signature, ""), "DDoS") ||
+        contains(safe(log.alert.signature, ""), "amplification"))) ||
+      (safe(log.proto, "") == "TCP" && 
+       safe(log.tcp.flags, "") == "S" && 
+       safe(log.flow.pkts_toserver, 0) > 100 && 
+       safe(log.flow.duration, 0) < 5) ||
+      (safe(log.proto, "") == "UDP" && 
+       safe(log.flow.pkts_toserver, 0) > 1000 && 
+       safe(log.flow.duration, 0) < 10) ||
+      (safe(log.proto, "") == "ICMP" && 
+       safe(log.flow.pkts_toserver, 0) > 500 && 
+       safe(log.flow.duration, 0) < 5) ||
+      (safe(target.port, 0) == 123 && 
+       safe(log.flow.bytes_toclient, 0) > safe(log.flow.bytes_toserver, 0) * 10)
+    )
+  afterEvents:
+    - indexPattern: v11-log-suricata-*
+      with:
+        - field: target.ip.keyword
+          operator: filter_term
+          value: '{{target.ip}}'
+      within: now-5m
+      count: 50
+  deduplicateBy:
+    - adversary.ip
+    - target.ip

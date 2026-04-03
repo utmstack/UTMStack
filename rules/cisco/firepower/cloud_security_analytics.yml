@@ -1,0 +1,41 @@
+- id: 1019
+  dataTypes:
+    - firepower
+  name: Cloud Security Analytics Event Detection
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 2
+  category: Cloud Security
+  technique: "T1526 - Cloud Service Discovery"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/products/security/securex.html
+    - https://attack.mitre.org/techniques/T1526/
+  description: |
+    Detects cloud security analytics events including suspicious cloud API usage, unauthorized cloud resource access, and cloud-based threat indicators from SecureX integration. This rule monitors for high-severity cloud security events, blocked actions, and alerts from Cisco's cloud security services.
+    
+    Next Steps:
+    1. Review the specific cloud service and API call that triggered the alert
+    2. Verify if the source IP and user account are authorized to perform the action
+    3. Check the cloud provider's activity logs for additional context
+    4. If unauthorized, investigate potential compromise of cloud credentials
+    5. Review other activities from the same source IP or user in the past 24 hours
+    6. Consider blocking the source IP if malicious activity is confirmed
+    7. Update cloud security policies to prevent similar incidents
+  where: |
+    (safe(log.eventType, "") == "CLOUD_SECURITY_EVENT" ||
+     safe(log.eventType, "") == "SECUREX_EVENT" ||
+     safe(log.source, "") contains "SecureX" ||
+     safe(log.source, "") contains "Umbrella" ||
+     safe(log.category, "") == "Cloud Security") &&
+    (safe(log.action, "") == "BLOCKED" ||
+     safe(log.action, "") == "ALERT" ||
+     safe(log.severity, "") in ["HIGH", "CRITICAL"] ||
+     safe(log.cloudProvider, "") != "" ||
+     safe(log.cloudService, "") != "" ||
+     safe(log.apiCall, "") != "")
+  deduplicateBy:
+    - origin.ip
+    - log.cloudService
+    - log.apiCall

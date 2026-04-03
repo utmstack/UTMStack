@@ -1,0 +1,28 @@
+- id: 1005
+  dataTypes:
+    - firewall-fortiweb
+  name: FortiWeb API Security Violations
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: API Security
+  technique: "T1190 - Exploit Public-Facing Application"
+  adversary: origin
+  references:
+    - https://docs.fortinet.com/document/fortiweb/7.4.3/administration-guide/210196/blocking-known-attacks
+    - https://attack.mitre.org/techniques/T1190/
+  description: |
+    Detects API security violations including unauthorized access attempts, API abuse, rate limit violations, malformed requests, and attempts to exploit API vulnerabilities in FortiWeb protected applications.
+    
+    Next Steps:
+    1. Review the blocked request details in the FortiWeb logs to understand the nature of the API violation
+    2. Check if the source IP has a history of malicious activity or is from a suspicious geographic location
+    3. Verify if this is a legitimate user/application experiencing issues or a genuine attack
+    4. Review the API endpoint being targeted and ensure proper authentication and rate limiting are configured
+    5. If confirmed malicious, consider blocking the source IP at the firewall level
+    6. Check for any successful API requests from the same source that may have occurred before the block
+    7. Review API security policies to ensure they are properly configured and up to date
+  where: safe(action, "") in ["deny", "block", "alert_deny"] && safe(log.msg, "") =~ "(?i)(api.*violat|api.*abuse|api.*security|unauthorized.*api|api.*key.*invalid|api.*rate.*limit|malformed.*api.*request|api.*injection|/api/|/v[0-9]+/|/rest/|/graphql)"
+  deduplicateBy:
+    - origin.ip

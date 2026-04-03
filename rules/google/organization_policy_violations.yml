@@ -1,0 +1,36 @@
+- id: 1012
+  dataTypes:
+    - google
+  name: Organization Policy Violations Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: Defense Evasion
+  technique: "T1484 - Domain Policy Modification"
+  adversary: origin
+  references:
+    - https://cloud.google.com/resource-manager/docs/organization-policy/audit-logging
+    - https://cloud.google.com/resource-manager/docs/organization-policy/overview
+    - https://attack.mitre.org/techniques/T1484/
+  description: |
+    Detects violations of Google Cloud Organization Policies, including attempts to perform actions that violate security constraints such as resource location restrictions, service usage limitations, or custom policy constraints. These violations could indicate attempts to bypass security controls or unauthorized configuration changes.
+    
+    Next Steps:
+    1. Review the specific policy that was violated and the action that triggered the violation
+    2. Investigate the user account that attempted the action and verify if it was authorized
+    3. Check if this is part of a pattern of policy violations by the same user or service account
+    4. Review the resource or service that was targeted and assess potential impact
+    5. Verify organization policies are properly configured and up to date
+    6. Consider implementing additional monitoring for repeated violation attempts
+  where: |
+    safe(log.protoPayload.serviceName, "") == "orgpolicy.googleapis.com" && 
+    (
+      safe(log.protoPayload.metadata.dryRunResult, "") == "DENIED" ||
+      safe(log.protoPayload.status.code, 0) == 400 ||
+      safe(log.protoPayload.status.message, "") contains "violated one or more Org Policies" ||
+      safe(log.protoPayload.metadata.policyViolationInfo.violationInfo[0].constraint, "") != ""
+    )
+  deduplicateBy:
+    - lastEvent.log.protoPayload.authenticationInfo.principalEmail
+    - lastEvent.log.protoPayload.metadata.policyViolationInfo.violationInfo[0].constraint

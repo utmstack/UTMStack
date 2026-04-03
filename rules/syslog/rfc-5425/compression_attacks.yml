@@ -1,0 +1,53 @@
+- id: 1010
+  dataTypes:
+    - rfc-5425
+  name: RFC-5425 Compression-Based Attacks
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 3
+  category: Cryptographic Attacks
+  technique: "T1027 - Obfuscated Files or Information"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5425
+    - https://attack.mitre.org/techniques/T1027/
+    - https://en.wikipedia.org/wiki/CRIME
+    - https://en.wikipedia.org/wiki/BREACH
+  description: |
+    Detects potential compression-based attacks like CRIME or BREACH on RFC-5425 TLS syslog streams. These attacks can leak information through compression ratios or cause resource exhaustion through compression bombs.
+    
+    **Next Steps:**
+    1. Examine the specific compression metrics and algorithms being used
+    2. Verify if compression ratios are abnormally high indicating potential compression bombs
+    3. Check for patterns of compression level changes that might indicate probing attacks
+    4. Review TLS session details for signs of side-channel exploitation
+    5. Correlate with network traffic patterns to identify potential data exfiltration attempts
+    6. Analyze source IP reputation and geolocation for suspicious origins
+    7. Consider temporarily disabling compression on affected syslog streams if attacks are confirmed
+    8. Review syslog server configuration for proper compression settings and limits
+  where: |
+    safe(log.protocol, "") == "rfc-5425" && (
+      (safe(log.compression_enabled, false) == true && safe(log.tls_enabled, false) == true) ||
+      safe(log.compression_ratio, 0.0) > 100.0 ||
+      safe(log.compression_bomb_detected, false) == true ||
+      safe(log.decompression_error, false) == true ||
+      (safe(log.compressed_size, 0) > 0 && safe(log.uncompressed_size, 0) / safe(log.compressed_size, 1) > 1000) ||
+      safe(log.compression_algorithm, "") == "deprecated" ||
+      safe(log.compression_level_changed, false) == true
+    )
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.compression_enabled
+          operator: filter_term
+          value: 'true'
+      within: now-2h
+      count: 20
+  deduplicateBy:
+    - origin.ip
+    - target.ip
+    - log.compression_algorithm

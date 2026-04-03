@@ -1,0 +1,45 @@
+- id: 1015
+  dataTypes:
+    - vmware-esxi
+  name: iSCSI/NFS Storage Attack Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 3
+  category: Storage Security
+  technique: "T1485 - Data Destruction"
+  adversary: origin
+  references:
+    - https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-security/GUID-F35D7005-58EB-48AC-99D5-B9942EB2A8EF.html
+    - https://attack.mitre.org/techniques/T1485/
+  description: |
+    Detects attacks against iSCSI or NFS storage including authentication failures, SCSI reservation conflicts, unauthorized mount attempts, or suspicious storage network traffic patterns. These attacks can lead to data destruction, service disruption, or unauthorized access to storage resources.
+
+    Next Steps:
+    1. Examine the specific storage error message and affected datastore/LUN
+    2. Review storage authentication and authorization logs for the affected ESXi host
+    3. Check network connectivity and configuration for storage networks
+    4. Verify storage array logs for corresponding errors or unauthorized access attempts
+    5. Review ESXi host configuration for storage adapter and path status
+    6. If authentication failures detected, investigate for potential credential compromise
+    7. Monitor for additional storage-related alerts from the same host or storage array
+  where: |
+    safe(log.message, "") != "" && 
+    (
+      (safe(log.message, "") =~ "(?i)scsi.*reservation.*conflict" ||
+       safe(log.message, "") =~ "(?i)iscsi.*auth.*fail" ||
+       safe(log.message, "") =~ "(?i)iscsi.*login.*reject" ||
+       safe(log.message, "") =~ "(?i)iscsi.*session.*drop" ||
+       safe(log.message, "") =~ "(?i)nfs.*mount.*denied" ||
+       safe(log.message, "") =~ "(?i)nfs.*permission.*denied" ||
+       safe(log.message, "") =~ "(?i)storage.*path.*fail" ||
+       safe(log.message, "") =~ "(?i)datastore.*not.*accessible" ||
+       safe(log.message, "") =~ "(?i)lun.*not.*found" ||
+       safe(log.message, "") =~ "(?i)storage.*adapter.*error" ||
+       safe(log.message, "") =~ "(?i)failed.*to.*send.*packet.*dropped") &&
+      safe(log.process, "") == "vmkernel"
+    ) ||
+    (safe(log.eventInfo, "") =~ "(?i)storage.*security.*alert")
+  deduplicateBy:
+    - origin.hostname
+    - category

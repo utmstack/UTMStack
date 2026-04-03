@@ -1,0 +1,42 @@
+- id: 1004
+  dataTypes:
+    - ibm-as400
+  name: IBM AS/400 System Value Changes Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Configuration Change
+  technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+  adversary: origin
+  references:
+    - https://www.ibm.com/docs/en/i/7.4?topic=entries-sv-system-value-journal
+    - https://attack.mitre.org/techniques/T1562/001/
+  description: |
+    Detects changes to critical system values in IBM AS/400 systems including security-related system values like QAUDCTL, QAUDLVL, QSECURITY, and QPWDLVL. These system values control important security settings and their modification could indicate privilege escalation attempts or security control bypassing.
+    
+    Next Steps:
+    1. Review the specific system value that was changed and its new setting
+    2. Verify if the change was authorized and documented in change management
+    3. Check the user account that made the change for legitimacy
+    4. Review recent user activity for signs of compromise
+    5. Validate that security controls are still functioning as expected
+    6. Consider reverting unauthorized changes to maintain security posture
+  where: |
+    safe(log.message, "") != "" && 
+    (
+      (contains(safe(log.message, ""), "SV") && contains(safe(log.message, ""), "system value")) ||
+      contains(safe(log.message, ""), "system value changed") ||
+      contains(safe(log.message, ""), "CHGSYSVAL") ||
+      contains(safe(log.message, ""), "QAUDCTL") ||
+      contains(safe(log.message, ""), "QAUDLVL") ||
+      contains(safe(log.message, ""), "QSECURITY") ||
+      contains(safe(log.message, ""), "QPWDLVL") ||
+      contains(safe(log.message, ""), "QMAXSIGN") ||
+      contains(safe(log.message, ""), "QINACTITV") ||
+      contains(safe(log.message, ""), "QRMTSIGN") ||
+      contains(safe(log.message, ""), "QRETSVRSEC")
+    )
+  deduplicateBy:
+    - lastEvent.dataSource
+    - lastEvent.host

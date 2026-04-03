@@ -1,0 +1,39 @@
+- id: 1020
+  dataTypes:
+    - rhel_family
+  name: Critical System Configuration Changes in RHEL
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 3
+  category: Configuration Management
+  technique: System Configuration Modification
+  adversary: origin
+  references:
+    - https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/8/html/security_hardening/
+    - https://attack.mitre.org/techniques/T1543/
+  description: |
+    Detects critical system configuration changes in RHEL including modifications to system services, SELinux settings, firewall rules, and other security-relevant configurations that could indicate unauthorized access or system compromise.
+    
+    Next Steps:
+    1. Verify the legitimacy of the configuration change with the system administrator
+    2. Review the change details and determine if it aligns with authorized maintenance windows
+    3. Check if the user account making the change has proper authorization
+    4. Examine system logs for any suspicious activity preceding the configuration change
+    5. If unauthorized, immediately investigate for potential compromise and consider reverting changes
+    6. Review access logs and authentication events for the affected user account
+  where: |
+    (safe(lastEvent.log.type, "") in ["CONFIG_CHANGE", "SYSCALL", "PATH"] &&
+     (safe(lastEvent.log.path, "") =~ "/etc/selinux|/etc/systemd|/etc/security|/etc/pam\\.d|/etc/sudoers|/etc/ssh" ||
+      safe(lastEvent.log.name, "") =~ "/etc/selinux|/etc/systemd|/etc/security|/etc/pam\\.d|/etc/sudoers|/etc/ssh")) ||
+    (safe(lastEvent.log.program, "") in ["systemctl", "semanage", "setsebool", "firewall-cmd", "authconfig"] &&
+     safe(lastEvent.log.message, "") =~ "changed|modified|updated|disabled|enabled") ||
+    (safe(lastEvent.log.message, "") =~ "SELinux.*disabled|SELinux.*permissive|firewall.*stopped|service.*masked" &&
+     safe(lastEvent.log.severity, "") in ["warning", "error", "critical"]) ||
+    (safe(lastEvent.log.audit_type, "") == "CONFIG_CHANGE" &&
+     safe(lastEvent.log.success, "") == "yes" &&
+     safe(lastEvent.log.exe, "") !~ "/usr/bin/yum|/usr/bin/dnf|/usr/bin/rpm")
+  deduplicateBy:
+    - lastEvent.origin.host
+    - lastEvent.log.path
+    - lastEvent.origin.user

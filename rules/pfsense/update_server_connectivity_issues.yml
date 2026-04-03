@@ -1,0 +1,36 @@
+- id: 1025
+  dataTypes:
+    - firewall-pfsense
+  name: pfSense Update Server Connectivity Issue
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 2
+  category: System Updates
+  technique: "T1072 - Software Deployment Tools"
+  adversary: system
+  references:
+    - https://docs.netgate.com/pfsense/en/latest/install/upgrade.html
+    - https://attack.mitre.org/techniques/T1072/
+  description: |
+    Detects connectivity issues with pfSense update servers which may prevent critical security updates from being installed. This could indicate network problems, DNS issues, or potential interference with update mechanisms.
+    
+    Next Steps:
+    1. Verify network connectivity to pfSense update servers
+    2. Check DNS resolution for update server domains
+    3. Review firewall rules that might block update traffic
+    4. Examine proxy settings if configured
+    5. Check system date/time accuracy
+    6. Monitor for repeated failures that could indicate persistent issues
+    7. Validate SSL/TLS certificate trust chains for update servers
+  where: (safe(log.eventType, "") == "pkg" || safe(log.eventType, "") == "system") && (safe(raw, "").contains("update server") || safe(raw, "").contains("repository") || safe(raw, "").contains("pkg update") || safe(raw, "").contains("fetch failed") || safe(raw, "").contains("connection refused") || safe(raw, "").contains("unable to update") || safe(raw, "").contains("update check failed"))
+  afterEvents:
+    - indexPattern: v11-log-firewall-pfsense-*
+      with:
+        - field: origin.host.keyword
+          operator: filter_term
+          value: '{{origin.host}}'
+      within: now-1h
+      count: 3
+  deduplicateBy:
+    - origin.host

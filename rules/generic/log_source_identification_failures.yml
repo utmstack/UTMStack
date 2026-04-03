@@ -1,0 +1,36 @@
+- id: 1016
+  dataTypes:
+    - generic
+  name: Log Source Identification Failures
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 3
+  category: System
+  technique: "T1070.003 - Indicator Removal: Clear Command History"
+  adversary: origin
+  references:
+    - https://www.splunk.com/en_us/blog/learn/syslog.html
+    - https://attack.mitre.org/techniques/T1070/003/
+  description: |
+    Detects when log messages appear to be malformed or contain patterns that suggest attempts to obfuscate the true source of logs. This could indicate misconfigured systems, corrupted log data, or deliberate attempts to hide activity.
+    
+    Next Steps:
+    1. Review the raw log message content to identify the pattern or format issue
+    2. Check if the sending system is properly configured to send structured logs
+    3. Verify that intermediate log collectors or forwarders are not corrupting the data
+    4. Look for other anomalous logs from the same source IP address
+    5. If deliberate obfuscation is suspected, investigate the source system for compromise
+    6. Consider implementing log format validation at the collection point
+  where: |
+    safe(log.message, "") != "" &&
+    (
+      safe(log.message, "").contains("<-1>") ||
+      safe(log.message, "").contains("<>") ||
+      safe(log.message, "").matches("^[0-9]+\\s+<[0-9]+>.*") ||
+      safe(log.message, "").size() < 10 ||
+      safe(log.message, "").matches("^\\s*$") ||
+      !safe(log.message, "").matches(".*[a-zA-Z]+.*")
+    )
+  deduplicateBy:
+    - origin.ip

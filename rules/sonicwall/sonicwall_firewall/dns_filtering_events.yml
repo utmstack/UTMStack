@@ -1,0 +1,29 @@
+- id: 1018
+  dataTypes:
+    - sonicwall_firewall
+  name: SonicWall DNS Filtering Alert
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: DNS
+  technique: "T1071.004 - Application Layer Protocol: DNS"
+  adversary: origin
+  references:
+    - https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
+    - https://attack.mitre.org/techniques/T1071/004/
+  description: |
+    Detects DNS filtering events including blocked DNS queries, suspicious DNS behavior, or attempts to resolve malicious domains. This rule identifies when SonicWall firewall blocks DNS requests due to security policies, content filtering, or threat detection mechanisms.
+
+    Next Steps:
+    1. Review the blocked domain to determine if it's malicious or incorrectly categorized
+    2. Investigate the source IP for other suspicious DNS queries or network activity
+    3. Check if the blocked domain is part of a known threat campaign or botnet C&C infrastructure
+    4. Verify DNS filtering policies are properly configured and up-to-date
+    5. Consider adding the domain to threat intelligence feeds if confirmed malicious
+    6. Monitor for DNS tunneling attempts or other covert channel communications
+    7. Review user activity from the source IP for potential compromise indicators
+  where: (safe(log.category, "") == "DNS" || safe(log.app, "") == "DNS" || safe(log.appName, "") == "DNS") && (safe(action, "") == "drop" || safe(log.message, "").contains("dns filter") || safe(log.message, "").contains("dns block"))
+  deduplicateBy:
+    - lastEvent.origin.ip
+    - lastEvent.target.host

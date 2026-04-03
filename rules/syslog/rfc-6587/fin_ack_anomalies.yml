@@ -1,0 +1,46 @@
+- id: 1013
+  dataTypes:
+    - rfc-6587
+  name: FIN/ACK TCP Flag Anomalies
+  impact:
+    confidentiality: 2
+    integrity: 2
+    availability: 3
+  category: Network Attack
+  technique: "T1046 - Network Service Scanning"
+  adversary: origin
+  references:
+    - https://www.elastiflow.com/blog/posts/detecting-tcp-flag-based-attacks-with-elastiflow
+    - https://attack.mitre.org/techniques/T1046/
+  description: |
+    Detects anomalous FIN and ACK flag patterns used in stealth scanning and ACK flood attacks. Includes detection of FIN scans where attackers send FIN packets to identify open ports and ACK floods used for DoS attacks.
+    
+    Next Steps:
+    1. Verify if the source IP is internal or external - external sources are more suspicious
+    2. Check if the target ports are critical services (databases, web servers, etc.)
+    3. Review firewall logs for any connection attempts from the same source IP
+    4. Look for other scanning patterns from the same source (SYN scans, NULL scans)
+    5. If confirmed malicious, block the source IP at the firewall level
+    6. Document the incident and check if this is part of a larger reconnaissance campaign
+  where: |
+    (safe(log.tcp_flags, "") contains "FIN" && 
+     safe(log.connection_state, "") != "established" &&
+     safe(log.port_scan_indicator, false) == true) ||
+    (safe(log.tcp_flags, "") == "ACK" && 
+     safe(log.ack_without_syn, false) == true &&
+     safe(log.ack_count, 0) > 100 &&
+     safe(log.time_window, 0) <= 10)
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.tcp_flags.keyword
+          operator: filter_term
+          value: '{{log.tcp_flags}}'
+      within: now-10m
+      count: 50
+  deduplicateBy:
+    - adversary.ip
+    - lastEvent.log.tcp_flags

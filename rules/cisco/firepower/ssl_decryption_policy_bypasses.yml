@@ -1,0 +1,35 @@
+- id: 1004
+  dataTypes:
+    - firepower
+  name: SSL/TLS Decryption Policy Bypass Attempts
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Evasion
+  technique: "T1573 - Encrypted Channel"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/td/docs/security/firepower/70/configuration/guide/fpmc-config-guide-v70/ssl_tls_decryption.html
+    - https://attack.mitre.org/techniques/T1573/
+  description: |
+    Detects attempts to bypass SSL/TLS decryption policies, including certificate validation failures, untrusted certificates, or connections that could not be decrypted. This may indicate malicious actors attempting to hide their communications or evade security monitoring.
+    
+    Next Steps:
+    1. Investigate the source IP address for reputation and previous malicious activity
+    2. Review the destination IP/domain to determine if it's a known malicious or suspicious site
+    3. Check the SSL certificate details (fingerprint, issuer, CN) for indicators of compromise
+    4. Analyze the decryption failure reason to understand if this is a configuration issue or intentional evasion
+    5. Look for other SSL/TLS anomalies from the same source in recent timeframe
+    6. If self-signed or invalid certificates are detected, verify if they're expected for internal applications
+    7. Consider implementing stricter SSL/TLS policies for suspicious certificate characteristics
+    8. Document the incident and update SSL decryption policies if necessary
+  where: |
+    safe(log.eventType, "") == "SSL_EVENT" && 
+    ((safe(log.sslAction, "") == "DO_NOT_DECRYPT" && safe(log.sslReason, "") != "POLICY_MATCH") ||
+     (safe(log.sslCertStatus, "").contains("INVALID") || safe(log.sslCertStatus, "").contains("EXPIRED") || safe(log.sslCertStatus, "").contains("SELF_SIGNED") || safe(log.sslCertStatus, "").contains("UNTRUSTED")) ||
+     safe(log.sslFailureReason, "") != "" ||
+     safe(log.sslFlowStatus, "") == "ERROR")
+  deduplicateBy:
+    - origin.ip
+    - target.ip

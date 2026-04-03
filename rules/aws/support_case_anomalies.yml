@@ -1,0 +1,38 @@
+- id: 1028
+  dataTypes:
+    - aws
+  name: AWS Support Case Anomalies
+  impact:
+    confidentiality: 2
+    integrity: 2
+    availability: 2
+  category: Account Compromise
+  technique: Support Resource Abuse
+  adversary: origin
+  references:
+    - https://docs.aws.amazon.com/awssupport/latest/user/case-management.html
+    - https://attack.mitre.org/techniques/T1078/004/
+  description: |
+    Detects unusual support case activities such as multiple cases opened in short time, which could indicate an attacker trying to social engineer AWS support or gather information about the AWS environment.
+    
+    Next Steps:
+    1. Review the content of all support cases created by the user in question
+    2. Contact the user to verify if they initiated the support cases
+    3. Check CloudTrail logs for other suspicious activities by the same user identity
+    4. Review the IAM permissions of the user account for any recent changes
+    5. If unauthorized, immediately disable the compromised credentials
+    6. Document all support case details for potential incident response
+  where: safe(log.eventSource, "") == "support.amazonaws.com" && (safe(log.eventName, "") == "CreateCase" || safe(log.eventName, "") == "AddCommunicationToCase")
+  afterEvents:
+    - indexPattern: v11-log-aws-*
+      with:
+        - field: log.userIdentityArn.keyword
+          operator: filter_term
+          value: '{{log.userIdentityArn}}'
+        - field: log.eventSource.keyword
+          operator: filter_term
+          value: 'support.amazonaws.com'
+      within: now-1h
+      count: 5
+  deduplicateBy:
+    - lastEvent.log.userIdentityArn

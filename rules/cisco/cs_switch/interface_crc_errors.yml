@@ -1,0 +1,49 @@
+- id: 1014
+  dataTypes:
+    - cs_switch
+  name: Interface CRC Errors Detected
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 3
+  category: Network Hardware
+  technique: "T1499 - Endpoint Denial of Service"
+  adversary: target
+  references:
+    - https://pitstop.manageengine.com/portal/en/community/topic/crc-errors-on-cisco-interfaces
+    - https://attack.mitre.org/techniques/T1499/
+  description: |
+    Detects CRC errors on switch interfaces which may indicate cable issues, duplex mismatches, hardware failures, or physical layer attacks. CRC (Cyclic Redundancy Check) errors occur when data frames are corrupted during transmission.
+    
+    Next Steps:
+    1. Identify the affected interface and check physical connectivity (cables, connectors, transceivers)
+    2. Verify duplex and speed settings match on both ends of the connection
+    3. Check interface statistics for other error types (collisions, giants, runts)
+    4. Review environmental factors (temperature, electromagnetic interference)
+    5. Consider replacing cables or hardware if errors persist
+    6. Monitor for patterns suggesting intentional disruption or attack
+    7. Document findings and escalate if hardware replacement is needed
+  where: |
+    (safe(log.facility, "") == "LINEPROTO" || 
+     safe(log.facility, "") == "LINK" ||
+     safe(log.facility, "") == "IF") &&
+    (contains(safe(log.message, ""), "CRC error") ||
+     contains(safe(log.message, ""), "cyclic redundancy check") ||
+     contains(safe(log.message, ""), "input errors") ||
+     contains(safe(log.message, ""), "frame errors") ||
+     safe(log.mnemonic, "") == "RCVD_CRC_ERR" ||
+     safe(log.mnemonic, "") == "EXCESSIVE_CRC")
+  afterEvents:
+    - indexPattern: v11-log-cisco-switch-*
+      with:
+        - field: target.host.keyword
+          operator: filter_term
+          value: '{{target.host}}'
+        - field: log.interface.keyword
+          operator: filter_term
+          value: '{{log.interface}}'
+      within: now-15m
+      count: 20
+  deduplicateBy:
+    - target.host
+    - log.interface

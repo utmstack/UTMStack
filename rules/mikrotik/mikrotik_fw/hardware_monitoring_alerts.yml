@@ -1,0 +1,37 @@
+- id: 1028
+  dataTypes:
+    - firewall-mikrotik
+  name: MikroTik Critical Hardware Monitoring Alert
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: Hardware Failure
+  technique: "T1496 - Resource Hijacking"
+  adversary: origin
+  references:
+    - https://wiki.mikrotik.com/wiki/Manual:System/Health
+    - https://attack.mitre.org/techniques/T1496/
+  description: |
+    Detects critical hardware monitoring alerts on MikroTik devices including high temperature, voltage issues, fan failures, or other hardware problems that could lead to system instability or failure.
+    
+    **Next Steps:**
+    1. Check the physical status of the MikroTik device immediately
+    2. Verify environmental conditions (temperature, power supply, ventilation)
+    3. Review hardware health logs and system diagnostics
+    4. Check for any recent configuration changes or firmware updates
+    5. Consider emergency hardware replacement if critical failure is detected
+    6. Monitor device performance and stability
+    7. Review maintenance schedules and hardware warranties
+  where: |
+    (safe(log.topics, "") == "system" || contains(safe(log.topics, ""), "health") || contains(safe(log.topics, ""), "critical")) &&
+    (contains(lower(safe(log.kvMessage, "")), "temperature") && 
+     (contains(lower(safe(log.kvMessage, "")), "high") || contains(lower(safe(log.kvMessage, "")), "critical") || contains(lower(safe(log.kvMessage, "")), "warning"))) ||
+    (contains(lower(safe(log.kvMessage, "")), "voltage") && 
+     (contains(lower(safe(log.kvMessage, "")), "low") || contains(lower(safe(log.kvMessage, "")), "high") || contains(lower(safe(log.kvMessage, "")), "unstable"))) ||
+    (contains(lower(safe(log.kvMessage, "")), "fan") && 
+     (contains(lower(safe(log.kvMessage, "")), "fail") || contains(lower(safe(log.kvMessage, "")), "stop") || contains(lower(safe(log.kvMessage, "")), "error"))) ||
+    (contains(lower(safe(log.kvMessage, "")), "power") && contains(lower(safe(log.kvMessage, "")), "supply")) ||
+    contains(lower(safe(log.kvMessage, "")), "hardware error")
+  deduplicateBy:
+    - adversary.host

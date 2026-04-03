@@ -1,0 +1,50 @@
+- id: 1009
+  dataTypes:
+    - rfc-5424
+  name: RFC-5424 Suspicious Message ID Pattern Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Security Monitoring
+  technique: "T1562.002 - Impair Defenses: Disable or Modify Tools"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5424
+    - https://attack.mitre.org/techniques/T1562/002/
+  description: |
+    Detects suspicious patterns in RFC-5424 message ID fields that could indicate log injection, evasion attempts, or forged messages including overly long IDs, special characters, or patterns commonly used in attacks. This may indicate an attacker attempting to manipulate logging mechanisms to evade detection or inject malicious content into log streams.
+
+    Next Steps:
+    1. Examine the source system generating these suspicious message IDs
+    2. Review the full syslog message content for additional indicators of compromise
+    3. Check if the application generating these logs has been compromised
+    4. Analyze network traffic from the source IP for signs of malicious activity
+    5. Validate the legitimacy of the application name and message ID patterns
+    6. Consider implementing stricter message ID validation on logging infrastructure
+  where: |
+    safe(log.msgid, "") != "" && 
+    safe(log.msgid, "") != "-" &&
+    (
+      safe(log.msgid, "").matches(".*(DROP|PASS|BLOCK|ALLOW|ACCEPT|REJECT).*") && safe(log.msgid, "").matches(".*[;|&`$()<>].*") ||
+      safe(log.msgid, "").length() > 32 ||
+      safe(log.msgid, "").matches(".*\\s+.*") ||
+      safe(log.msgid, "").matches(".*[\\x00-\\x1F\\x7F].*") ||
+      safe(log.msgid, "").matches(".*(script|eval|exec|system|cmd).*") ||
+      safe(log.msgid, "").matches("^[0-9a-fA-F]{32,}$") ||
+      safe(log.msgid, "").matches(".*\\.\\./.*")
+    )
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.app_name.keyword
+          operator: filter_term
+          value: '{{log.app_name}}'
+      within: now-10m
+      count: 5
+  deduplicateBy:
+    - origin.ip
+    - log.app_name

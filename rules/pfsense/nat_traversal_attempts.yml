@@ -1,0 +1,45 @@
+- id: 1002
+  dataTypes:
+    - firewall-pfsense
+  name: pfSense NAT Traversal Attempts
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Network Attack
+  technique: "T1133 - External Remote Services"
+  adversary: origin
+  references:
+    - https://docs.netgate.com/pfsense/en/latest/nat/index.html
+    - https://attack.mitre.org/techniques/T1133/
+  description: |
+    Detects suspicious patterns indicating attempts to traverse NAT rules or exploit NAT configurations in pfSense firewalls. This rule identifies inbound connections from high ports to sensitive services that may indicate NAT traversal attempts for unauthorized access or data exfiltration.
+    
+    Next Steps:
+    1. Investigate the source IP address and geolocation for suspicious origins
+    2. Review NAT rules and port forwarding configurations for unauthorized changes
+    3. Examine the target services (SSH, RDP, SMB, SQL) for unauthorized access attempts
+    4. Check authentication logs for corresponding login attempts from the source IP
+    5. Analyze network traffic patterns for signs of lateral movement or data exfiltration
+    6. Verify if the connection attempts are from legitimate users or automated tools
+    7. Consider implementing additional access controls or IP restrictions if unauthorized access is confirmed
+  where: |
+    safe(log.direction, "") == "in" && 
+    safe(log.action, "") == "pass" && 
+    safe(origin.port, 0) > 1024 && 
+    (safe(target.port, 0) == 22 || safe(target.port, 0) == 3389 || safe(target.port, 0) == 445 || safe(target.port, 0) == 1433 || safe(target.port, 0) == 3306) &&
+    safe(log.realInterface, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-firewall-pfsense-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.direction.keyword
+          operator: filter_term
+          value: 'in'
+      within: now-5m
+      count: 10
+  deduplicateBy:
+    - origin.ip
+    - target.port

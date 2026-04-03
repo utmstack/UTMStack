@@ -1,0 +1,50 @@
+- id: 1010
+  dataTypes:
+    - aws
+  name: AWS VPC Flow Log Anomalies
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 2
+  category: Network Security
+  technique: "T1046 - Network Service Discovery"
+  adversary: origin
+  references:
+    - https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html
+    - https://attack.mitre.org/techniques/T1046/
+  description: |
+    Detects anomalies in VPC Flow Logs configuration that could indicate attempts to hide malicious network activity. Monitors for deletion or modification of flow log configurations.
+    
+    Next Steps:
+    1. Verify if the flow log changes were authorized by reviewing the AWS CloudTrail logs for the userIdentityArn
+    2. Check if the source IP address belongs to known administrative systems or jump boxes
+    3. Review other activities from the same source IP and user identity in the past 24-48 hours
+    4. Examine the affected VPC and its resources to understand the impact of disabled flow logging
+    5. If unauthorized, immediately re-enable flow logs and investigate what network activity may have occurred while logging was disabled
+    6. Review IAM permissions for the user/role that made these changes to ensure least privilege
+    7. Consider implementing preventive controls using AWS Config rules or SCPs to prevent unauthorized flow log modifications
+  where: |
+    safe(log.eventSource, "") == "ec2.amazonaws.com" && 
+    safe(log.eventName, "") in ["DeleteFlowLogs", "CreateFlowLogs", "ModifyFlowLogsAttribute"] &&
+    safe(log.sourceIPAddress, "") != "" &&
+    safe(log.errorCode, "") == "" &&
+    (
+      safe(log.eventName, "") == "DeleteFlowLogs" ||
+      (safe(log.eventName, "") == "CreateFlowLogs" && contains(safe(log.requestParameters.deliverLogsStatus, ""), "FAILED")) ||
+      (safe(log.eventName, "") == "ModifyFlowLogsAttribute" && safe(log.requestParameters.deliverLogsStatus, "") == "INACTIVE")
+    )
+  afterEvents:
+    - indexPattern: v11-log-aws-*
+      with:
+        - field: log.sourceIPAddress.keyword
+          operator: filter_term
+          value: '{{log.sourceIPAddress}}'
+        - field: log.eventName.keyword
+          operator: filter_term
+          value: 'DeleteFlowLogs'
+      within: now-24h
+      count: 2
+  deduplicateBy:
+    - lastEvent.log.sourceIPAddress
+    - lastEvent.log.userIdentity.arn
+    - lastEvent.log.awsRegion

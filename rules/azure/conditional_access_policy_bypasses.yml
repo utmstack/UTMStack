@@ -1,0 +1,30 @@
+- id: 1004
+  dataTypes:
+    - azure
+  name: Azure AD Conditional Access Policy Bypass Attempt
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Defense Evasion
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  references:
+    - https://danielchronlund.com/2022/01/07/the-attackers-guide-to-azure-ad-conditional-access/
+    - https://attack.mitre.org/techniques/T1078/
+  description: |
+    Detects potential attempts to bypass Azure AD Conditional Access policies through policy tampering or unauthorized modifications. Monitors for policy updates that could weaken security controls.
+    
+    Next Steps:
+    1. Immediately review the conditional access policy changes made and document all modifications
+    2. Verify the identity and authorization of the user who made the changes, including verifying they have legitimate administrative access
+    3. Check if the policy modifications align with approved change management processes and security approval workflows
+    4. Review Azure AD sign-in logs for any unusual authentication patterns or successful logins following the policy change
+    5. Assess if the modified policy creates security gaps, weakens access controls, or allows unauthorized access paths
+    6. Cross-reference the timing of policy changes with any recent security incidents or suspicious activities
+    7. Consider immediately reverting unauthorized changes and implementing stronger approval workflows for future policy modifications
+    8. Audit all other conditional access policies for similar unauthorized modifications
+  where: (safe(lastEvent.log.operationName, "") == "Update policy" || safe(lastEvent.log.operationName, "") == "Delete conditional access policy") && safe(lastEvent.log.service, "") == "Conditional Access"
+  deduplicateBy:
+    - lastEvent.log.targetPolicyId
+    - origin.user

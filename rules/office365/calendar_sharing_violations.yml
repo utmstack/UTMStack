@@ -1,0 +1,53 @@
+- id: 1008
+  dataTypes:
+    - o365
+  name: Unauthorized Calendar Sharing Modification
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Data Exposure
+  technique: "T1213 - Data from Information Repositories"
+  adversary: origin
+  references:
+    - https://docs.microsoft.com/en-us/microsoft-365/compliance/audit-log-activities
+    - https://attack.mitre.org/techniques/T1213/
+  description: |
+    Detects modifications to calendar sharing permissions that could expose sensitive scheduling information to unauthorized users. This rule identifies when users modify calendar delegation or folder permissions on calendar folders, which could indicate unauthorized access attempts or data exposure risks.
+    
+    Next Steps:
+    1. Verify if the calendar sharing modification was authorized by the calendar owner
+    2. Review the specific permissions granted and recipient of the sharing permissions
+    3. Check if the user performing the action has legitimate business need for calendar access
+    4. Investigate any unusual patterns of calendar sharing modifications by the same user
+    5. Review related authentication logs for the user account
+    6. Consider implementing additional approval workflows for calendar sharing modifications
+  where: |
+    safe(action, "") in ["UpdateCalendarDelegation", "AddFolderPermissions", "ModifyFolderPermissions", "RemoveFolderPermissions", "Set-MailboxFolderPermission", "Add-MailboxFolderPermission"] && 
+    safe(actionResult, "") == "Success" &&
+    safe(lastEvent.log.Item_FolderPath, "").contains("Calendar")
+  afterEvents:
+    - indexPattern: v11-log-o365-*
+      with:
+        - field: origin.user.keyword
+          operator: filter_term
+          value: '{{origin.user}}'
+        - field: action.keyword
+          operator: filter_term
+          value: 'UpdateCalendarDelegation'
+      within: now-4h
+      count: 3
+      or:
+        - indexPattern: v11-log-o365-*
+          with:
+            - field: origin.user.keyword
+              operator: filter_term
+              value: '{{origin.user}}'
+            - field: action.keyword
+              operator: filter_term
+              value: 'AddFolderPermissions'
+          within: now-4h
+          count: 2
+  deduplicateBy:
+    - lastEvent.origin.user
+    - lastEvent.log.Item_FolderPath

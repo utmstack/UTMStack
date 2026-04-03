@@ -1,0 +1,28 @@
+- id: 1007
+  dataTypes:
+    - antivirus-sentinel-one
+  name: Deep Visibility Threat Indicators
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Deep Visibility
+  technique: "T1055.001 - Process Injection: Dynamic-link Library Injection"
+  adversary: origin
+  references:
+    - https://www.sentinelone.com/platform/deep-visibility/
+    - https://attack.mitre.org/tactics/TA0009/
+  description: |
+    Detects threat indicators from SentinelOne's deep visibility feature, including suspicious process activities, endpoint anomalies, and potential compromise indicators based on event descriptions and endpoint device information.
+    
+    Next Steps:
+    1. Review the specific threat indicator details in the event description to understand the nature of the threat
+    2. Investigate the affected endpoint device and associated user accounts for signs of compromise
+    3. Check if similar indicators have been detected on other hosts in the environment using the same source IPs or MAC addresses
+    4. Verify if the detected activity is part of authorized software or administrative actions
+    5. If confirmed malicious, initiate incident response procedures including containment and remediation
+    6. Update security policies and endpoint protection configurations based on findings
+  where: safe(log.eventDescription, "") =~ "(?i)(deep visibility|visibility alert|threat indicator|ioc match|suspicious|malicious|anomaly|threat detected)" && (safe(log.endpointDeviceName, "") != "" || safe(log.sourceUser, "") != "" || safe(log.destinationUser, "") != "" || safe(log.sourceIps, "") != "" || safe(log.sourceMacs, "") != "")
+  deduplicateBy:
+    - log.endpointDeviceName
+    - log.sourceUser

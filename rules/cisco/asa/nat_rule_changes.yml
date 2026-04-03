@@ -1,0 +1,43 @@
+- id: 1006
+  dataTypes:
+    - asa
+  name: NAT Rule Configuration Changes
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: Configuration Change
+  technique: "T1599.001 - Network Boundary Bridging: Network Address Translation Traversal"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog.html
+    - https://attack.mitre.org/techniques/T1599/001/
+  description: |
+    Detects NAT rule configuration changes on Cisco ASA devices. NAT rule modifications can be used to redirect traffic, bypass security controls, or establish unauthorized access paths. Message ID 305006 indicates NAT configuration errors or changes.
+    
+    Next Steps:
+    - Verify if the configuration change was authorized and part of scheduled maintenance
+    - Review the specific NAT rules that were modified and their potential impact
+    - Check the user account that made the changes for legitimacy
+    - Look for any suspicious network traffic patterns following the NAT rule changes
+    - Document the change in your change management system if legitimate
+    - Review other recent configuration changes from the same source IP or user
+    - Correlate with any recent security incidents or unusual network behavior
+    - Validate that proper change control procedures were followed
+    - Check if the change aligns with your organization's security policies
+    - Review access logs to ensure the change was made from an authorized location
+  where: safe(lastEvent.log.messageId, "") == "305006" || (safe(lastEvent.log.message, "").contains("NAT") && (safe(lastEvent.log.message, "").contains("added") || safe(lastEvent.log.message, "").contains("removed") || safe(lastEvent.log.message, "").contains("modified") || safe(lastEvent.log.message, "").contains("changed"))) || (safe(lastEvent.log.commandName, "").startsWith("nat") || safe(lastEvent.log.commandName, "").startsWith("global") || safe(lastEvent.log.commandName, "").startsWith("static")) && safe(lastEvent.action, "") == "configuration_change"
+  afterEvents:
+    - indexPattern: v11-log-cisco-asa-*
+      with:
+        - field: lastEvent.log.host.keyword
+          operator: filter_term
+          value: '{{lastEvent.log.host}}'
+        - field: lastEvent.action.keyword
+          operator: filter_term
+          value: 'configuration_change'
+      within: now-1h
+      count: 3
+  deduplicateBy:
+    - lastEvent.log.host
+    - lastEvent.origin.user

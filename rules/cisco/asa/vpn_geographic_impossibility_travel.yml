@@ -1,0 +1,46 @@
+- id: 1001
+  dataTypes:
+    - asa
+  name: VPN Geographic Impossibility Travel
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Initial Access
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1078/
+    - https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog.html
+  description: |
+    Detects when a user authenticates from two geographically distant locations within a short time frame, which is physically impossible. This could indicate compromised VPN credentials being used by an attacker from a different location while the legitimate user is still active.
+    
+    Next Steps:
+    1. Verify the legitimacy of both VPN connections by contacting the user directly
+    2. Check the geographic locations of both IP addresses to confirm impossibility of travel
+    3. Calculate the physical distance and time between connections to verify impossibility
+    4. Review the user's recent authentication history for other anomalies
+    5. If confirmed suspicious, immediately disable the user's VPN access
+    6. Reset the user's credentials and enforce multi-factor authentication
+    7. Check for any data access or exfiltration during the suspicious sessions
+    8. Review logs for lateral movement attempts from the suspicious sessions
+    9. Analyze the legitimacy of both source IP addresses and their reputation
+    10. Document the incident and update security awareness training if needed
+  where: safe(log.message_id, "") == "113039" && safe(origin.user, "") != "" && safe(origin.ip, "") != "" && safe(log.action, "") == "connected"
+  afterEvents:
+    - indexPattern: v11-log-cisco-asa-*
+      with:
+        - field: origin.user.keyword
+          operator: filter_term
+          value: '{{origin.user}}'
+        - field: origin.ip.keyword
+          operator: must_not_term
+          value: '{{origin.ip}}'
+        - field: log.action.keyword
+          operator: filter_term
+          value: 'connected'
+      within: now-2h
+      count: 1
+  deduplicateBy:
+    - origin.user
+    - origin.ip

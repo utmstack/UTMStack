@@ -1,0 +1,37 @@
+- id: 1007
+  dataTypes:
+    - rfc-5424
+  name: RFC-5424 App Name Injection Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Security Monitoring
+  technique: "T1059 - Command and Scripting Interpreter"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5424
+    - https://attack.mitre.org/techniques/T1059/
+  description: |
+    Detects potential injection attempts in RFC-5424 syslog app-name field, including command injection patterns, path traversal attempts, and suspicious characters that could indicate log injection or manipulation. The app-name field should contain only legitimate application identifiers and not shell metacharacters or encoded content.
+    
+    **Next Steps:**
+    - Investigate the source system generating logs with suspicious app-name values
+    - Check for corresponding security events or system compromise indicators on the originating host
+    - Review recent configuration changes or software installations on the affected system
+    - Validate if the app-name patterns represent legitimate application behavior or potential injection attempts
+    - Consider blocking or monitoring traffic from the source IP if malicious activity is confirmed
+  where: |
+    safe(log.app_name, "") != "" && 
+    (
+      safe(log.app_name, "").matches(".*[;|&`$()<>].*") ||
+      safe(log.app_name, "").matches(".*\\.\\./.*") ||
+      safe(log.app_name, "").matches(".*\\\\x[0-9a-fA-F]{2}.*") ||
+      safe(log.app_name, "").matches(".*%[0-9a-fA-F]{2}.*") ||
+      safe(log.app_name, "").matches(".*(bash|sh|cmd|powershell|eval|exec).*") ||
+      safe(log.app_name, "").length() > 48 ||
+      safe(log.app_name, "").matches(".*[\\r\\n\\t].*")
+    )
+  deduplicateBy:
+    - lastEvent.log.app_name
+    - origin.ip

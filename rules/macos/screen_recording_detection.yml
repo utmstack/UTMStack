@@ -1,0 +1,36 @@
+- id: 1019
+  dataTypes:
+    - macos
+  name: Unauthorized Screen Recording Activity
+  impact:
+    confidentiality: 3
+    integrity: 1
+    availability: 1
+  category: Collection
+  technique: "T1113 - Screen Capture"
+  adversary: origin
+  references:
+    - https://macpaw.tech/research/is-mac-screen-captured/
+    - https://attack.mitre.org/techniques/T1113/
+  description: |
+    Detects potential unauthorized screen recording or screen capture activities that may be used for data exfiltration or surveillance. This rule identifies various screen capture mechanisms including system screencapture processes, TCC permission requests, and third-party applications attempting screen recording.
+    
+    Next Steps:
+    1. Verify if the screen recording activity was authorized by checking with the user
+    2. Review the process that initiated the screen recording for legitimacy
+    3. Check for any suspicious file creation patterns (.mov, .mp4 files)
+    4. Examine TCC (Transparency, Consent, and Control) logs for permission grants
+    5. Monitor for any subsequent data transfer activities that might indicate exfiltration
+    6. Review installed applications for potential malware or unauthorized software
+  where: |
+    (safe(log.subsystem, "") == "com.apple.screencapture" && safe(log.category, "") == "recording") ||
+    (safe(log.process, "") == "screencapture" && safe(log.message, "") contains "Capturing video") ||
+    (safe(log.process, "") == "screencaptureui" && safe(log.message, "") contains "video screenshot pressed") ||
+    (safe(log.message, "") contains "CGSIsScreenWatcherPresent") ||
+    (safe(log.message, "") contains "Setup recording filename" && safe(log.message, "") contains ".mov") ||
+    (safe(log.subsystem, "") == "com.apple.TCC" && safe(log.message, "") contains "kTCCServiceScreenCapture") ||
+    (safe(log.process, "") not in ["screencapture", "screencaptureui", "QuickTime Player", "Screenshot", "Zoom"] && 
+     safe(log.message, "") contains "screen recording")
+  deduplicateBy:
+    - origin.host
+    - origin.user

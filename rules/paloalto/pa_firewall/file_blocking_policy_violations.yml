@@ -1,0 +1,29 @@
+- id: 1011
+  dataTypes:
+    - pa_firewall
+  name: File Blocking Policy Violations
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: Policy Violation
+  technique: "T1105 - Ingress Tool Transfer"
+  adversary: origin
+  references:
+    - https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/monitoring/use-syslog-for-monitoring/syslog-field-descriptions/threat-log-fields
+    - https://attack.mitre.org/techniques/T1105/
+  description: |
+    Detects when files are blocked by Palo Alto firewall file blocking policies, indicating potential attempts to transfer malicious or unauthorized files through the network. This rule triggers when the firewall identifies and blocks files that violate configured security policies, which could indicate malware transfer attempts, data exfiltration, or policy violations.
+    
+    Next Steps:
+    1. Review the blocked file details including filename, file type, and source/destination
+    2. Investigate the origin IP address for any suspicious activity patterns
+    3. Check if this is a legitimate business file that needs policy adjustment
+    4. Examine the target destination to understand the intended file transfer
+    5. Review file blocking policies to ensure they are appropriately configured
+    6. Consider implementing additional monitoring for the source system
+    7. If malicious intent is suspected, initiate incident response procedures
+  where: safe(log.subtype, "") == "file" && safe(log.action, "") == "block-file" && safe(origin.ip, "") != ""
+  deduplicateBy:
+    - origin.ip
+    - origin.host

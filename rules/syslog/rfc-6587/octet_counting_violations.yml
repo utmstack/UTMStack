@@ -1,0 +1,43 @@
+- id: 1001
+  dataTypes:
+    - syslog
+  name: RFC-6587 Octet Counting Violations
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 2
+  category: Protocol Violation
+  technique: "T1095 - Non-Application Layer Protocol"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc6587
+    - https://attack.mitre.org/techniques/T1095/
+  description: |
+    Detects violations of RFC-6587 octet counting format where the declared message length does not match the actual message size, indicating potential message injection, corruption attempts, or protocol manipulation attacks.
+    
+    Next Steps:
+    1. Verify if the source IP is a legitimate syslog sender in your environment
+    2. Check for any recent changes to syslog configuration on the source system
+    3. Review the raw syslog messages for signs of injection or tampering
+    4. Examine network logs for unusual traffic patterns from the source IP
+    5. If unauthorized, block the source IP at the firewall level
+    6. Check if other systems are receiving similar malformed messages
+    7. Update syslog server configuration to enforce strict RFC-6587 compliance
+    8. Monitor for any data corruption or loss in affected log streams
+  where: |
+    safe(log.transport, "") == "tcp" && 
+    safe(log.framing, "") == "octet-counting" &&
+    safe(log.declared_length, 0) > 0 &&
+    safe(log.actual_length, 0) > 0 &&
+    safe(log.declared_length, 0) != safe(log.actual_length, 0)
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-15m
+      count: 10
+  deduplicateBy:
+    - adversary.ip
+    - lastEvent.log.facility

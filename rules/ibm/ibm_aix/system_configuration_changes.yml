@@ -1,0 +1,31 @@
+- id: 1020
+  dataTypes:
+    - ibm-aix
+  name: IBM AIX System Configuration Changes
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: System Configuration
+  technique: "T1082 - System Information Discovery"
+  adversary: origin
+  references:
+    - https://www.ibm.com/docs/en/aix/7.2?topic=management-system-configuration
+    - https://attack.mitre.org/techniques/T1082/
+  description: |
+    Detects system configuration changes and modifications in IBM AIX systems, including kernel parameter changes, system file modifications, and critical configuration updates. This rule monitors for configuration changes through various methods including direct command execution, system modification events, and configuration file edits.
+    
+    Next Steps:
+    1. Verify the legitimacy of the configuration change by checking with system administrators
+    2. Review the specific command executed and parameters modified
+    3. Check if the change was part of scheduled maintenance or approved change management
+    4. Examine the user account that performed the change for any signs of compromise
+    5. Validate that the change follows organizational security policies
+    6. Monitor for any system instability or security issues following the configuration change
+    7. Document the change for compliance and audit purposes
+    8. If unauthorized, immediately investigate potential privilege escalation or insider threat
+  where: (safe(log.eventType, "") == "CONFIG_CHANGE" || safe(log.eventType, "") == "SYSTEM_MOD") || (safe(action, "") != "" && action in ["CONFIG_CHANGE", "CONFIG_MODIFY", "SYSTEM_CONFIG"]) || (safe(log.objName, "") != "" && (log.objName.startsWith("chdev") || log.objName.startsWith("chfs") || log.objName.startsWith("chsys"))) || (safe(log.commandType, "") in ["config", "kernel"]) || (safe(log.msg, "") != "" && log.msg.contains("configuration") && (log.msg.contains("changed") || log.msg.contains("modified"))) || (safe(log.pwd, "") == "/etc" && safe(log.objName, "") != "" && (log.objName.contains("vi") || log.objName.contains("edit")))
+  deduplicateBy:
+    - lastEvent.log.osUserID
+    - lastEvent.log.objName
+    - lastEvent.origin.host

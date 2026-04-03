@@ -1,0 +1,42 @@
+- id: 1003
+  dataTypes:
+    - ibm-as400
+  name: IBM AS/400 Special Authority Usage Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Privilege Escalation
+  technique: "T1548 - Abuse Elevation Control Mechanism"
+  adversary: origin
+  references:
+    - https://www.ibm.com/docs/en/i/7.4?topic=profiles-special-authorities
+    - https://attack.mitre.org/techniques/T1548/
+  description: |
+    Detects usage of special authorities in IBM AS/400 systems including *ALLOBJ, *SECADM, *AUDIT, *SERVICE, *SPLCTL, *JOBCTL, *SAVSYS, and *IOSYSCFG. Special authorities provide elevated privileges that can be abused for unauthorized system access or configuration changes.
+    
+    Next Steps:
+    1. Verify if the special authority usage was authorized and part of legitimate administrative activities
+    2. Review the user account that executed the special authority commands
+    3. Check if the timing of the activity aligns with scheduled maintenance windows
+    4. Examine the specific commands executed with special authorities
+    5. Correlate with any recent privilege escalation requests or administrative changes
+    6. Monitor for any subsequent suspicious activities from the same user or system
+  where: |
+    safe(log.message, "") != "" && 
+    (
+      contains(safe(log.message, ""), "*ALLOBJ") ||
+      contains(safe(log.message, ""), "*SECADM") ||
+      contains(safe(log.message, ""), "*AUDIT") ||
+      contains(safe(log.message, ""), "*SERVICE") ||
+      contains(safe(log.message, ""), "*SPLCTL") ||
+      contains(safe(log.message, ""), "*JOBCTL") ||
+      contains(safe(log.message, ""), "*SAVSYS") ||
+      contains(safe(log.message, ""), "*IOSYSCFG") ||
+      contains(safe(log.message, ""), "special authority") ||
+      contains(safe(log.message, ""), "elevated privilege") ||
+      (contains(safe(log.message, ""), "SPCAUT") && !contains(safe(log.message, ""), "*NONE"))
+    )
+  deduplicateBy:
+    - lastEvent.origin.user
+    - lastEvent.origin.host

@@ -1,0 +1,43 @@
+- id: 1018
+  dataTypes:
+    - generic
+  name: Log Truncation Detection
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 1
+  category: System
+  technique: "T1565.001 - Data Manipulation: Stored Data Manipulation"
+  adversary: target
+  references:
+    - https://www.ibm.com/support/pages/qradar-truncation-tls-syslog-log-source-events
+    - https://github.com/rsyslog/rsyslog/issues/3249
+    - https://attack.mitre.org/techniques/T1565/001/
+  description: |
+    Detects potential log truncation issues where messages appear to be cut off, potentially indicating UDP packet size limits, buffer overflows, or attempts to hide malicious activity by truncating log entries.
+    
+    Next Steps:
+    1. Investigate the source of truncated logs by checking the origin IP address and system
+    2. Review system configurations for log size limits, buffer sizes, and UDP packet size settings
+    3. Check for concurrent suspicious activities from the same source during the timeframe
+    4. Verify if truncation is intentional (configuration issue) or malicious (attempt to hide evidence)
+    5. Review complete logs from alternative sources if available
+    6. Consider implementing log collection via TCP instead of UDP if packet size is the issue
+  where: |
+    (safe(log.message, "").endsWith("...")) ||
+    (safe(log.message, "").endsWith("..")) ||
+    (size(safe(log.message, "")) == 1024) ||
+    (size(safe(log.message, "")) == 2048) ||
+    (size(safe(log.message, "")) == 4096) ||
+    (safe(log.message, "").matches(".*[^\\s]$") && 
+     !safe(log.message, "").matches(".*[.!?;)]$"))
+  afterEvents:
+    - indexPattern: v11-log-generic-*
+      with:
+        - field: log.message.keyword
+          operator: filter_match
+          value: truncat
+      within: now-1h
+      count: 10
+  deduplicateBy:
+    - origin.ip

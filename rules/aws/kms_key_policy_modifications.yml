@@ -1,0 +1,32 @@
+- id: 1020
+  dataTypes:
+    - aws
+  name: AWS KMS Key Policy Modification
+  impact:
+    confidentiality: 5
+    integrity: 5
+    availability: 2
+  category: Credential Access
+  technique: "T1552 - Unsecured Credentials"
+  adversary: origin
+  references:
+    - https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html
+    - https://attack.mitre.org/techniques/T1552/
+  description: |
+    Detects modifications to AWS KMS key policies which could allow unauthorized access to encrypted data or enable data exfiltration. KMS key policy changes can grant new principals access to decrypt data, create grants for temporary access, or schedule keys for deletion.
+    
+    Next Steps:
+    1. Review the CloudTrail event details to identify the principal who made the change
+    2. Examine the new key policy to understand what permissions were granted or modified
+    3. Verify if the change was authorized and follows your organization's change management process
+    4. Check for any recent unusual activity from the user account that made the change
+    5. Review access logs for the affected KMS key to identify any unauthorized usage
+    6. If unauthorized, immediately revert the key policy changes and rotate affected credentials
+    7. Consider enabling MFA for KMS key policy modifications if not already enabled
+    8. Correlate with other CloudTrail events to identify potential attack patterns
+    9. Review IAM policies for the user/role that made the change to ensure least privilege
+    10. Document the incident and update security policies if necessary
+  where: safe(log.eventSource, "") == "kms.amazonaws.com" && (safe(log.eventName, "") == "PutKeyPolicy" || safe(log.eventName, "") == "CreateGrant" || safe(log.eventName, "") == "ScheduleKeyDeletion") && safe(log.errorCode, "") == ""
+  deduplicateBy:
+    - lastEvent.log.requestParameters.keyId
+    - lastEvent.log.userIdentity.principalId

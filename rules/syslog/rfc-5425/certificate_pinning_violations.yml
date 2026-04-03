@@ -1,0 +1,37 @@
+- id: 1015
+  dataTypes:
+  - rfc-5425
+  name: Certificate Pinning Violations
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Certificate Validation
+  technique: "T1553.004 - Subvert Trust Controls: Install Root Certificate"
+  adversary: origin
+  references:
+  - https://docs.digicert.com/en/certcentral/certificate-tools/discovery-user-guide/tls-ssl-endpoint-vulnerabilities.html
+  - https://attack.mitre.org/techniques/T1553/004/
+  description: |
+    Detects violations of certificate pinning policies indicating potential man-in-the-middle attacks or certificate substitution attempts. Certificate pinning violations occur when the presented certificate's public key or certificate chain doesn't match the expected pinned values, suggesting possible certificate tampering or MITM attacks.
+    
+    Next Steps:
+    1. Verify the legitimacy of the certificate being presented
+    2. Check for any recent certificate renewals or changes
+    3. Investigate network traffic for signs of man-in-the-middle attacks
+    4. Review certificate chain and validate issuer authenticity
+    5. Check for any unauthorized certificate installations on client systems
+    6. Monitor for additional certificate-related anomalies from the same source
+    7. Consider temporary blocking of the affected connection until verification
+  where: |
+    (safe(log.certificate_validation, "") == "failed" ||
+     safe(log.pin_validation_failed, false) == true ||
+     safe(log.certificate_pinning_error, false) == true) &&
+    (safe(log.expected_pin, "") != "" && safe(log.actual_pin, "") != "" &&
+     safe(log.expected_pin, "") != safe(log.actual_pin, "") ||
+     safe(log.message, "") contains "certificate pin" && safe(log.message, "") contains "mismatch" ||
+     safe(log.message, "") contains "HPKP" && safe(log.message, "") contains "violation" ||
+     safe(log.certificate_chain_modified, false) == true)
+  deduplicateBy:
+  - origin.ip
+  - target.host

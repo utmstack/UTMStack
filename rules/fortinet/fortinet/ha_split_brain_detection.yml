@@ -1,0 +1,40 @@
+- id: 1022
+  dataTypes:
+    - firewall-fortigate
+  name: High Availability Split-Brain Condition Detected
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 3
+  category: System Integrity
+  technique: Service Disruption
+  adversary: origin
+  references:
+    - https://community.fortinet.com/t5/FortiGate/Technical-Tip-High-Availability-Split-Brain/ta-p/214842
+    - https://docs.fortinet.com/document/fortigate/7.6.0/new-features/474848/backup-heartbeat-interface-mitigates-split-brain-scenarios
+  description: |
+    Split-brain condition detected in FortiGate HA cluster where both units are acting as primary. This critical condition causes IP conflicts, network disruption, and potential data corruption. Immediate remediation is required.
+    
+    Next Steps:
+    1. Immediately check HA heartbeat interface connectivity between cluster members
+    2. Verify all heartbeat links (primary and backup) are functioning
+    3. Check for network switch/cable failures between HA units
+    4. Review HA configuration for proper priorities and preemption settings
+    5. Force one unit to secondary role using 'diagnose sys ha reset-uptime' if necessary
+    6. Monitor cluster status with 'get system ha status' command
+    7. Consider implementing backup heartbeat interfaces to prevent future occurrences
+  where: safe(log.type, "") == "event" && safe(log.subtype, "") == "ha" && (safe(log.message, "") contains "backup heartbeat interfaces are used" || (safe(log.ha_role, "") == "primary" && safe(log.logdesc, "") contains "HA device interface peer information") || safe(log.message, "") contains "both devices acting as primary")
+  afterEvents:
+    - indexPattern: v11-log-firewall-fortigate-*
+      with:
+        - field: log.subtype.keyword
+          operator: filter_term
+          value: 'ha'
+        - field: log.ha_role.keyword
+          operator: filter_term
+          value: 'primary'
+      within: now-5m
+      count: 2
+  deduplicateBy:
+    - lastEvent.log.devid
+    - lastEvent.log.devname

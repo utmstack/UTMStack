@@ -1,0 +1,30 @@
+- id: 1014
+  dataTypes:
+    - rfc-6587
+  name: TCP Urgent Pointer Abuse
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Network Attack
+  technique: Protocol Exploitation
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc6587
+    - https://attack.mitre.org/techniques/T1205/001/
+  description: |
+    Detects abuse of the TCP urgent pointer mechanism which can be used for data exfiltration, covert channels, or to bypass security controls. Monitors for unusual urgent flag patterns and suspicious urgent pointer values. The URG flag is rarely used in modern networks, making its presence potentially suspicious.
+    
+    Next Steps:
+    - Investigate the source IP address for any other suspicious activities or known malicious indicators
+    - Check if the destination IP is internal or external, and whether it's a known command and control server
+    - Analyze the actual payload data to determine if malicious content is being transmitted via the urgent mechanism
+    - Review firewall and IDS logs for any attempts to bypass security controls around the same time
+    - Examine historical network traffic from the same source to establish baseline behavior
+    - Consider blocking the source IP if malicious activity is confirmed
+    - Update firewall rules to properly inspect and handle URG flags if not already configured
+  where: safe(log.tcp_flags, "") contains "URG" && (safe(log.urgent_pointer, 0) > 65000 || safe(log.urgent_pointer, 0) == 0 || safe(log.urgent_flag_frequency, 0) > 10) && safe(log.payload_size, 0) < 100
+  deduplicateBy:
+    - origin.ip
+    - target.ip
+    - log.urgent_pointer

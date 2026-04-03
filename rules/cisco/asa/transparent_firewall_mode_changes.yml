@@ -1,0 +1,41 @@
+- id: 1025
+  dataTypes:
+    - asa
+  name: Transparent Firewall Mode Configuration Changes
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Configuration Security
+  technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog.html
+    - https://attack.mitre.org/techniques/T1562/001/
+  description: |
+    Detects changes to transparent firewall mode configuration or issues with transparent mode operation. Mode changes can significantly alter the security behavior of the firewall and should be closely monitored. Transparent mode makes the firewall act as a Layer 2 bridge rather than a Layer 3 router, which can impact network segmentation and security controls.
+    
+    Next Steps:
+    1. Verify if the configuration change was authorized and scheduled
+    2. Review the user account that made the change to ensure it's legitimate
+    3. Check if the change aligns with approved change requests
+    4. Examine other recent configuration changes by the same user
+    5. Verify the new firewall mode configuration is appropriate for the network design
+    6. Review bridge group configurations if transparent mode was enabled
+    7. Test network connectivity and security policies after the change
+    8. Document the change if legitimate or revert if unauthorized
+  where: |
+    safe(log.dataType, "") == "asa" && 
+    (
+      (safe(log.messageId, "") in ["111009", "111010"] &&
+       (safe(log.message, "").contains("firewall") && safe(log.message, "").contains("transparent")) ||
+       (safe(log.command, "").contains("firewall") && safe(log.command, "").contains("transparent")) ||
+       (safe(log.message, "").contains("bridge") && safe(log.message, "").contains("group")) ||
+       (safe(log.command, "").contains("bridge") && safe(log.command, "").contains("group"))) ||
+      safe(log.messageId, "") in ["322004", "412001"] ||
+      (safe(log.message, "").contains("transparent") && safe(log.message, "").contains("firewall")) ||
+      (safe(log.message, "").contains("MAC") && safe(log.message, "").contains("moved") && safe(log.message, "").contains("interface"))
+    )
+  deduplicateBy:
+    - lastEvent.log.user
+    - lastEvent.log.hostname
