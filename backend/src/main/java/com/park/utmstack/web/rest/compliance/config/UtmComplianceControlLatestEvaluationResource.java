@@ -30,5 +30,13 @@ public class UtmComplianceControlLatestEvaluationResource {
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(controls, "/control-config/get-by-section");
         return ResponseEntity.ok().headers(headers).body(controls.getContent());
     }
+
+
+    @GetMapping("/get-by-id/{controlId}")
+    public ResponseEntity<UtmComplianceControlLatestEvaluationDto> getControlLatestEvaluationById(
+            @PathVariable Long controlId) {
+        var control = latestEvaluationService.getControlWithLastEvaluation(controlId);
+        return ResponseEntity.ok(control);
+    }
 }
 

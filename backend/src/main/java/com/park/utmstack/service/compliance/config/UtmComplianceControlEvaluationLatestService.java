@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
+
 @Service
 public class UtmComplianceControlEvaluationLatestService {
 
@@ -35,6 +37,12 @@ public class UtmComplianceControlEvaluationLatestService {
             var lastEval = elasticsearchService.getLatestControlEvaluation(control.getId());
             return UtmComplianceControlLatestEvaluationMapper.toDto(controlDto, lastEval);
         });
+    }
+
+    public UtmComplianceControlLatestEvaluationDto getControlWithLastEvaluation(Long controlId) {
+        UtmComplianceControlConfigDto controlDto = configService.findById(controlId);
+        var lastEval = elasticsearchService.getLatestControlEvaluation(controlId);
+        return UtmComplianceControlLatestEvaluationMapper.toDto(controlDto, lastEval);
     }
 }
 
