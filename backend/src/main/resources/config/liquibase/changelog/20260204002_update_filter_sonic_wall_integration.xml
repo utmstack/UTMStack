@@ -1,0 +1,549 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260204001" author="Manuel">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version = '3.0.3',
+                updated_at = now(),
+                logstash_filter= $$ # SonicWall Firewall, version 3.0.3
+# Based on docs
+# Support Syslog CEF format
+#
+# Documentations
+# 1- https://www.sonicwall.com/de-de/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
+# 2- https://www.sonicwall.com/de-de/techdocs/pdf/SonicOS-X_7.0.1_LogEvents_ReferenceGuide.pdf
+# 3- https://docs.elastic.co/integrations/sonicwall_firewall
+# 4- https://www.ossec.net/docs/log_samples/firewalls/sonicwall.html
+#
+# Implementation
+# 1. Parsing the RAW field containing the PfSense
+# 2. Parsing headers of syslog the message
+
+pipeline:
+  - dataTypes:
+      - firewall-sonicwall
+    steps:
+      #......................................................................#
+      #......................................................................#
+      # Using grok to parse syslogHeader of the message
+      #......................................................................#
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.dvcTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.syslogHost
+              pattern: '{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}\='
+            - fieldName: log.id
+              pattern: '{{.integer}}'
+            - fieldName: log.msgAll
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.dvcTime
+              pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.srcIp
+              pattern: '{{.ipv4}}'
+            - fieldName: log.msgAll
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}\='
+            - fieldName: log.device
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant1
+              pattern: '{{.data}}\='
+            - fieldName: log.sn
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant2
+              pattern: '{{.data}}\"'
+            - fieldName: log.dvcTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.irrelevant3
+              pattern: '{{.data}}\='
+            - fieldName: log.srcIp
+              pattern: '{{.ipv4}}'
+            - fieldName: log.msgAll
+              pattern: '{{.greedy}}'
+          source: raw
+
+      # ......................................................................#
+      # Checking if the log is in CEF format
+      #......................................................................#
+      # Using grok to parse syslogHeader of the message
+      # ......................................................................#
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.dvcTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.syslogHost
+              pattern: '{{.hostname}}'
+            - fieldName: log.formatType
+              pattern: '(CEF:)'
+            - fieldName: log.formatVersion
+              pattern: '(\s)?{{.integer}}'
+            - fieldName: log.cefMsgAll
+              pattern: '{{.greedy}}'
+          source: log.msgAll
+          where: contains("log.msgAll", "CEF:")
+
+      - grok:
+          patterns:
+            - fieldName: log.dvcTime
+              pattern: '((?i)\b(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b){{.space}}{{.monthDay}}{{.space}}{{.year}}{{.space}}{{.time}}'
+            - fieldName: log.sn
+              pattern: '{{.word}}'
+            - fieldName: log.formatType
+              pattern: '(CEF:)'
+            - fieldName: log.formatVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.cefMsgAll
+              pattern: '{{.greedy}}'
+          source: log.msgAll
+          where: contains("log.msgAll", "CEF:")
+
+      #......................................................................#
+      # Removing unnecessary characters of the syslogHeader
+      #......................................................................#
+      - trim:
+          function: prefix
+          substring: "<"
+          fields:
+            - log.priority
+      - trim:
+          function: suffix
+          substring: ">"
+          fields:
+            - log.priority
+      - trim:
+          function: suffix
+          substring: ":"
+          fields:
+            - log.formatType
+
+      #......................................................................#
+      # Using grok to parse CEF fields
+      #......................................................................#
+      - grok:
+          patterns:
+            - fieldName: log.dvcVendor
+              pattern: '\|{{.data}}\|'
+            - fieldName: log.dvcProduct
+              pattern: '{{.data}}\|'
+            - fieldName: log.dvcVersion
+              pattern: '{{.data}}\|'
+            - fieldName: log.eventId
+              pattern: '{{.data}}\|'
+            - fieldName: log.eventName
+              pattern: '{{.data}}\|'
+            - fieldName: log.severity
+              pattern: '{{.data}}\|'
+            - fieldName: log.msgAll
+              pattern: '{{.greedy}}'
+          source: log.cefMsgAll
+
+      - trim:
+          function: prefix
+          substring: "|"
+          fields:
+            - log.dvcVendor
+
+      - trim:
+          function: suffix
+          substring: "|"
+          fields:
+            - log.dvcVendor
+            - log.dvcProduct
+            - log.dvcVersion
+            - log.eventId
+            - log.eventName
+            - log.severity
+
+      # Using grok to extract values with spaces in fields
+      - grok:
+          patterns:
+            - fieldName: log.trash
+              pattern: '{{.data}}msg='
+            - fieldName: log.message
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.trash2
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.trash1
+              pattern: '{{.data}}ipscat='
+            - fieldName: log.ipscat1
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.trash3
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.trash4
+              pattern: '{{.data}}cs6='
+            - fieldName: log.cs61
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.trash5
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.trash6
+              pattern: '{{.data}}rule='
+            - fieldName: log.rule1
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.trash7
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.trash8
+              pattern: '{{.data}}Category='
+            - fieldName: log.category1
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.trash9
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.trash10
+              pattern: '{{.data}}note='
+            - fieldName: log.note1
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.trash11
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - trim:
+          function: prefix
+          substring: '"'
+          fields:
+            - log.message
+            - log.note1
+            - log.ipscat1
+            - log.cs61
+            - log.rule1
+            - log.category1
+            - log.fwaction
+
+      - trim:
+          function: suffix
+          substring: '"'
+          fields:
+            - log.message
+            - log.note1
+            - log.ipscat1
+            - log.cs61
+            - log.rule1
+            - log.category1
+            - log.fwaction
+
+      #......................................................................#
+      # Using kv to parse msgAll components from syslog format only
+      #......................................................................#
+      - kv:
+          fieldSplit: " "
+          valueSplit: "="
+          source: log.msgAll
+
+      # ................................................#
+      # Rename fields
+      # ................................................#
+      - rename:
+          from:
+            - log.dst
+          to: target.ip
+      - rename:
+          from:
+            - log.dstname
+          to: target.host
+      - rename:
+          from:
+            - log.proto
+          to: protocol
+      - rename:
+          from:
+            - log.src
+          to: origin.ip
+      - rename:
+          from:
+            - log.fwaction
+          to: action
+      - rename:
+          from:
+            - log.dstMac
+          to: target.mac
+      - rename:
+          from:
+            - log.srcMac
+          to: origin.mac
+      - rename:
+          from:
+            - log.dmac
+          to: target.mac
+      - rename:
+          from:
+            - log.smac
+          to: origin.mac
+      - rename:
+          from:
+            - log.message
+          to: log.msg
+      - rename:
+          from:
+            - log.note1
+          to: log.note
+      - rename:
+          from:
+            - log.ipscat1
+          to: log.ipscat
+      - rename:
+          from:
+            - log.cs61
+          to: log.cs6
+      - rename:
+          from:
+            - log.rule1
+          to: log.rule
+      - rename:
+          from:
+            - log.category1
+          to: log.category
+
+      # .......................................................................#
+      # Fields conversions
+      # .......................................................................#
+      - cast:
+          fields:
+            - log.gcat
+          to: string
+
+      #......................................................................#
+      # Define Syslog Group Category (gcat) Values
+      #......................................................................#
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: 'System'
+          where: equals("log.gcat", "1")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: 'Log'
+          where: equals("log.gcat", "2")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: 'Security Services'
+          where: equals("log.gcat", "3")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: 'Users'
+          where: equals("log.gcat", "4")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: 'Firewall Settings'
+          where: equals("log.gcat", "5")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: 'Network'
+          where: equals("log.gcat", "6")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: 'VPN'
+          where: equals("log.gcat", "7")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: 'High Availability'
+          where: equals("log.gcat", "8")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: '3G/4G, Modem, and Module'
+          where: equals("log.gcat", "9")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: 'Firewall'
+          where: equals("log.gcat", "10")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: 'Wireless'
+          where: equals("log.gcat", "11")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: 'VoIP'
+          where: equals("log.gcat", "12")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: 'SSL VPN'
+          where: equals("log.gcat", "13")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: 'Anti-Spam'
+          where: equals("log.gcat", "14")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: 'WAN Acceleration'
+          where: equals("log.gcat", "15")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: 'SD-WAN'
+          where: equals("log.gcat", "16")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.groupCategory
+            value: 'Multi-Tenancy'
+          where: equals("log.gcat", "17")
+
+      # Adding geolocation to origin.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+
+      # Adding geolocation to target.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where: exists("target.ip")
+
+      # .......................................................................#
+      # Adding severity based on log.pri
+      # .......................................................................#
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'high'
+          where: oneOf("log.pri", ["0", "1", "2", "3"])
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'medium'
+          where: equals("log.pri", "4")
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'low'
+          where: oneOf("log.pri", ["5", "6", "7"])
+
+      # ..........................................................................#
+      # Removing unnuse fields
+      #.........................................................................#
+      - delete:
+          fields:
+            - log.irrelevant
+            - log.irrelevant1
+            - log.irrelevant2
+            - log.irrelevant3
+            - log.msgAll
+            - log.cefMsgAll
+            - log.pri
+            - log.gcat
+            - log.message
+            - log.note1
+            - log.ipscat1
+            - log.cs61
+            - log.rule1
+            - log.category1
+            - log.trash
+            - log.trash1
+            - log.trash2
+            - log.trash3
+            - log.trash4
+            - log.trash5
+            - log.trash6
+            - log.trash7
+            - log.trash8
+            - log.trash9
+            - log.trash10
+            - log.trash11
+
+$$
+
+            WHERE id=1511
+
+            ]]>
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

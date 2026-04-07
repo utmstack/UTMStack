@@ -4,6 +4,9 @@ import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {DataType} from '../../../../models/rule.model';
 import {DataTypeService} from '../../../../services/data-type.service';
+import {uniqueStringValidator} from "../../../../app-rule/validators/customs.validators";
+import {debounceTime, map, tap} from "rxjs/operators";
+import {HttpResponse} from "@angular/common/http";
 
 @Component({
   selector: 'app-add-type',
@@ -13,6 +16,8 @@ import {DataTypeService} from '../../../../services/data-type.service';
 export class AddTypeComponent implements OnInit {
 
   @Input() type: DataType;
+
+  dataTypes: string[] = [];
   dataTypeForm: FormGroup;
   loading = false;
   mode: 'ADD' | 'EDIT';
@@ -25,7 +30,13 @@ export class AddTypeComponent implements OnInit {
 
   ngOnInit() {
     this.mode = this.type ? 'EDIT' : 'ADD';
+
     this.initForm();
+
+    this.dataType.valueChanges
+      .pipe(
+        debounceTime(500),
+      ).subscribe(value => this.searchDataTypes(value));
   }
 
   get dataType() {
@@ -43,11 +54,29 @@ export class AddTypeComponent implements OnInit {
 
   initForm() {
     this.dataTypeForm = this.formBuilder.group({
-      dataType: [ this.type ? this.type.dataType : '', [Validators.required, Validators.maxLength(250)]],
-      dataTypeName: [ this.type ? this.type.dataTypeName : '', [Validators.required, Validators.maxLength(250)]],
-      dataTypeDescription: [this.type ? this.type.dataTypeDescription : '']
+      dataType: [
+        this.type ? this.type.dataType : '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(50),
+          uniqueStringValidator(this.dataTypes)
+        ]
+      ],
+      dataTypeName: [
+        this.type ? this.type.dataTypeName : '',
+        [
+          Validators.required,
+          Validators.minLength(4),
+          Validators.maxLength(50)
+        ]
+      ],
+      dataTypeDescription: [
+        this.type ? this.type.dataTypeDescription : ''
+      ]
     });
   }
+
 
   onSubmit() {
     if (this.dataTypeForm.valid) {
@@ -79,6 +108,26 @@ export class AddTypeComponent implements OnInit {
              }
            });
     }
+  }
+
+  searchDataTypes(term: string) {
+
+    const request =   {
+      page: 0,
+      search: term
+    };
+
+    this.dataTypeService.getAll(request)
+      .pipe(
+        map((response: HttpResponse<DataType[]> ) =>  response.body || []))
+      .subscribe({
+        next: types => {
+          this.dataTypes.length = 0;
+          this.dataTypes.push(...types.map(t => t.dataType));
+          this.dataType.updateValueAndValidity({ emitEvent: false });
+        },
+        error: err => console.error('Error searching data types:', err.message)
+      });
   }
 
 }

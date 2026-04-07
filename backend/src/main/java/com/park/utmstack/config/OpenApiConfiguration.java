@@ -34,7 +34,7 @@ public class OpenApiConfiguration {
                     .addList(securitySchemeApiInternalKey)
                     .addList(securitySchemeApiKey))
             .components(new Components()
-                .addSecuritySchemes(securitySchemeBearer,
+                /*.addSecuritySchemes(securitySchemeBearer,
                     new SecurityScheme()
                         .name(securitySchemeBearer)
                         .type(SecurityScheme.Type.HTTP)
@@ -43,7 +43,7 @@ public class OpenApiConfiguration {
                 .addSecuritySchemes(securitySchemeApiInternalKey, new SecurityScheme()
                     .name("Utm-Internal-Key")
                     .type(SecurityScheme.Type.APIKEY)
-                    .in(SecurityScheme.In.HEADER))
+                    .in(SecurityScheme.In.HEADER))*/
                 .addSecuritySchemes(securitySchemeApiKey, new SecurityScheme()
                     .name(Constants.API_KEY_HEADER)
                     .type(SecurityScheme.Type.APIKEY)

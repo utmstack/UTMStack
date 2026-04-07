@@ -174,7 +174,7 @@ func (s *ConfigServer) SyncConfigs(backend string, internalKey string) {
 		url := fmt.Sprintf("%s/api/utm-modules/module-details-decrypted?nameShort=%s&serverId=1", backend, name)
 
 		for {
-			response, status, err := utils.DoReq[ConfigurationSection](url, nil, "GET", map[string]string{"Utm-Internal-Key": internalKey})
+			response, status, err := utils.DoReq[ConfigurationSection](url, nil, "GET", map[string]string{"Utm-Internal-Key": internalKey}, true)
 			if err == nil && status == http.StatusOK {
 				s.mu.Lock()
 				s.cache[t] = &response

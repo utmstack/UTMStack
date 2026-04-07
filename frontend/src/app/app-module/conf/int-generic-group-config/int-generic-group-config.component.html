@@ -42,8 +42,8 @@
         [disabled]="(!collectorValid(collector.groups) || savingConfig) ||
                     (collectorValid(collector.groups) && changes && changes.keys.length === 0) ||
                     (!pendingChangesForCollector(collector.groups))">
-          <i class="icon-cog5 mr-1"></i>
-          Save collector
+          <i [ngClass]="savingConfig ? 'icon-spinner2 spinner mr-1': 'icon-cog5 mr-1'"></i>
+          Save configuration
         </button>
       </div>
     </div>
@@ -182,7 +182,7 @@
       </button>
       <button class="btn utm-button utm-button-primary" (click)="saveConfig(group)"
               [disabled]="!tenantIsConfigValid(group) || (changes && changes.keys.length===0 || !configHasChanges(group.id)) || savingConfig || uniqueConfigNameConstrain">
-        <i [ngClass]="savingConfig ? 'icon-spinner2 spinner':'icon-cog5 mr-1'"></i>
+        <i [ngClass]="savingConfigs.get(group.id) ? 'icon-spinner2 spinner':'icon-cog5 mr-1'"></i>
         Save configuration
       </button>
     </div>

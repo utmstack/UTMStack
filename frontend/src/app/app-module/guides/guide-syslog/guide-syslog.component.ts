@@ -1,8 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
+import {PLATFORMS} from "../shared/constant";
 import {Step} from '../shared/step';
 import {SYSLOGSTEPS} from './syslog.steps';
-import {PLATFORMS} from "../shared/constant";
 
 @Component({
   selector: 'app-guide-syslog',
@@ -16,15 +16,6 @@ export class GuideSyslogComponent implements OnInit {
   @Input() moduleEnum: UtmModulesEnum;
   @Input() dataType: string;
   module = UtmModulesEnum;
-  moduleImages: SyslogModuleImages[] = [
-    {module: UtmModulesEnum.FORTIGATE, img: 'fortigate.png'},
-    {module: UtmModulesEnum.UFW, img: 'ufw.png'},
-    {module: UtmModulesEnum.MIKROTIK, img: 'mikrotik.png'},
-    {module: UtmModulesEnum.PALO_ALTO, img: 'paloalto.png'},
-    {module: UtmModulesEnum.SONIC_WALL, img: 'sonicwall.png'},
-    {module: UtmModulesEnum.DECEPTIVE_BYTES, img: 'deceptivebytes.png'},
-    {module: UtmModulesEnum.SOPHOS_XG, img: 'sophosxg.png'}
-  ];
 
   syslogPorts: SyslogModulePorts[] = [
     {module: UtmModulesEnum.FORTIGATE, port: '7005 TCP'},
@@ -45,7 +36,6 @@ export class GuideSyslogComponent implements OnInit {
     {module: UtmModulesEnum.DECEPTIVE_BYTES, port: '7010 TCP'},
     {module: UtmModulesEnum.DECEPTIVE_BYTES, port: '7010 UDP'},
 
-    {module: UtmModulesEnum.SOPHOS_XG, port: '7008 TCP'},
     {module: UtmModulesEnum.SOPHOS_XG, port: '7008 UDP'},
 
     {module: UtmModulesEnum.SYSLOG, port: '7014 TCP'},
@@ -107,10 +97,13 @@ export class GuideSyslogComponent implements OnInit {
   getDataType() {
     switch (this.moduleEnum) {
       case UtmModulesEnum.FIRE_POWER:
+        return 'firewall-cisco-asa'
       case UtmModulesEnum.CISCO:
-      case UtmModulesEnum.CISCO_SWITCH:
-      case UtmModulesEnum.MERAKI:
         return 'cisco';
+      case UtmModulesEnum.MERAKI:
+        return 'firewall-meraki';
+      case UtmModulesEnum.CISCO_SWITCH:
+        return 'cisco-switch';
 
       default: return this.dataType;
     }

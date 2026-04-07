@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet id="20260324003" author="Alex">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE public.utm_logstash_filter
+            SET filter_version='1.0.4',
+            logstash_filter=$$
+# Microsoft 365 filter, version 1.0.4
+
+# Based on Official documentation
+# See https://learn.microsoft.com/en-us/compliance/assurance/assurance-microsoft-365-audit-log-collection
+# https://learn.microsoft.com/es-es/office/office-365-management-api/aip-unified-audit-logs-best-practices
+# https://learn.microsoft.com/en-us/purview/audit-log-activities
+
+pipeline:
+  - dataTypes:
+      - o365
+    steps:
+      - json:
+          source: raw
+
+      - rename:
+          from:
+            - log.AppAccessContext.AADSessionId
+          to: log.appAccessContextAADSessionId
+
+      - rename:
+          from:
+            - log.AppAccessContext.APIId
+          to: log.appAccessContextAPIId
+
+      - rename:
+          from:
+            - log.AppAccessContext.ClientAppId
+          to: log.appAccessContextClientAppId
+
+      - rename:
+          from:
+            - log.AppAccessContext.CorrelationId
+          to: log.appAccessContextCorrelationId
+
+      - rename:
+          from:
+            - log.AppAccessContext.IssuedAtTime
+          to: log.deviceTime
+
+      - rename:
+          from:
+            - log.AppAccessContext.UniqueTokenId
+          to: log.appAccessContextUniqueTokenId
+
+      - rename:
+          from:
+            - log.ClientIPAddress
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.Operation
+          to: action
+
+      - rename:
+          from:
+            - log.Version
+          to: log.version
+
+      - rename:
+          from:
+            - log.ClientIP
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.ResultStatus
+          to: actionResult
+
+      - rename:
+          from:
+            - log.UserId
+          to: origin.user
+
+      - rename:
+          from:
+            - log.Folder.Path
+          to: log.folderPath
+
+      - rename:
+          from:
+            - log.Folder.Id
+          to: log.folderId
+
+      - rename:
+          from:
+            - log.DestFolder.Id
+          to: log.destFolderId
+
+      - rename:
+          from:
+            - log.DestFolder.Path
+          to: log.destFolderPath
+
+      # Adding geolocation to origin ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+
+      # Drop unnecessary events
+      - drop:
+          where: oneOf("action", ["SupervisionRuleMatch", "SupervisoryReviewTag", "ComplianceManagerAutomationChange", "LabelContentExplorerAccessedItem", "CreateCopilotPlugin", "CreateCopilotPromptBook", "DeleteCopilotPlugin", "DeleteCopilotPromptBook", "DisableCopilotPlugin", "DisableCopilotPromptBook", "EnableCopilotPlugin", "EnableCopilotPromptBook", "CopilotInteraction", "UpdateCopilotPlugin", "UpdateCopilotPromptBook", "UpdateCopilotSettings", "ApproveDisposal", "ExtendRetention", "RelabelItem", "SearchUpdated", "CaseUpdated", "SearchPermissionUpdated", "HoldUpdated", "PreviewItemDownloaded", "PreviewItemListed", "SearchCreated", "CaseAdded", "HoldCreated", "SearchRemoved", "HoldRemoved", "SearchExportDownloaded", "SearchPreviewed", "SearchResultsPurged", "RemovedSearchResultsSentToZoom", "RemovedSearchExported", "RemovedSearchPreviewed", "RemovedSearchResultsPurged", "SearchReportRemoved", "SearchResultsSentToZoom", "SearchStarted", "SearchExported", "SearchReport", "SearchStopped", "SearchViewed", "ViewedSearchExported", "ViewedSearchPreviewed", "AddRemediatedData", "BurnJob", "CreateWorkingSet", "CreateWorkingSetSearch", "CreateTag", "DeleteWorkingSetSearch", "DeleteTag", "DownloadDocument", "UpdateTag", "ExportJob", "UpdateWorkingSetSearch", "PreviewWorkingSetSearch", "ErrorRemediationJob", "TagFiles", "TagJob", "ViewDocument", "Copy", "Create", "ApplyRecordLabel", "HardDelete", "Send", "Update", "FileAccessed", "FileAccessedExtended", "ComplianceSettingChanged", "LockRecord", "UnlockRecord", "FileCheckedIn", "FileCheckedOut", "FileCopied", "FileDeletedFirstStageRecycleBin", "FileDeletedSecondStageRecycleBin", "RecordDelete", "DocumentSensitivityMismatchDetected", "FileCheckOutDiscarded", "FileDownloaded", "FileModifiedExtended", "FilePreviewed", "SearchQueryPerformed", "FileRecycled", "FolderRecycled", "FileVersionsAllMinorsRecycled", "FileVersionsAllRecycled", "FileVersionRecycled", "FileRestored", "FileUploaded", "PageViewed", "PageViewedExtended", "ClientViewSignaled", "PagePrefetched", "FolderCopied", "FolderCreated", "FolderDeletedFirstStageRecycleBin", "FolderDeletedSecondStageRecycleBin", "FolderRestored", "InformationBarriersInsightsReportCompleted", "InformationBarriersInsightsReportOneDriveSectionQueried", "InformationBarriersInsightsReportSchedule", "InformationBarriersInsightsReportSharePointSectionQueried", "updateddeviceconfiguration", "UpdatedPolicyConfigPriority", "BackupPolicyActivated", "RestoreTaskActivated", "BackupItemAdded", "BackupItemRemoved", "RestoreTaskCompleted", "DraftRestoreTaskCreated", "NewBackupPolicyCreated", "DraftRestoreTaskDeleted", "DraftRestoreTaskEdited", "BackupPolicyPaused", "GetBackupItem", "ViewBackupPolicyDetails", "GetRestoreTaskDetails", "ListAllBackupPolicies", "ListAllBackupItemsInPolicies", "ListAllBackupItemsInTenant", "ListAllBackupItemsInWorkload", "GetAllRestoreArtifactsInTask", "ListAllRestorePoints", "ListAllRestoreTasks", "BackupItemRestoreCompleted", "BackupItemRestoreTriggered", "SetAdvancedFeatures", "RunAntiVirusScan", "LogsCollection", "TaggingConfigurationUpdated", "AlertExcelDownloaded", "RemediationActionAdded", "RemediationActionUpdated", "SensorCreated", "SensorDeploymentAccessKeyReceived", "SensorDeploymentAccessKeyUpdated", "SensorActivationMethodConfigurationUpdated", "DomainControllerCoverageExcelDownloaded", "MonitoringAlertUpdated", "ReportDownloaded", "AlertNotificationsRecipientAdded", "MonitoringAlertNotificationRecipientAdded", "WorkspaceCreated", "AddCommentToIncident.", "AssignUserToIncident", "UpdateIncidentStatus", "AddTagsToIncident", "RemoveTagsFromIncident", "CreateComment", "CreateForm", "MoveForm", "ViewForm", "PreviewForm", "ExportForm", "AllowShareFormForCopy", "DisallowShareFormForCopy", "AddFormCoauthor", "RemoveFormCoauthor", "ViewRuntimeForm", "CreateResponse", "UpdateResponse", "ViewResponses", "ViewResponse", "GetSummaryLink", "DeleteSummaryLink", "ProInvitation", "ListForms", "SubmitResponse", "ConnectToExcelWorkbook", "CollectionCreated", "CollectionUpdated", "CollectionHardDeleted", "CollectionSoftDeleted", "CollectionRenamed", "MovedFormIntoCollection", "MovedFormOutofCollection", "PlanCopied", "TaskAssigned", "TaskCompleted", "PlanListRead", "TaskListRead", "ProjectCreated", "RoadmapCreated", "RoadmapItemCreated", "TaskCreated", "ProjectListAccessed", "RoadmapAccessed", "RoadmapItemAccessed", "TaskAccessed", "AuditSearchCreated", "AuditSearchCompleted", "AuditSearchCancelled", "AuditSearchExportJobCreated", "AuditSearchExportJobCompleted", "AuditSearchExportResultsDownloaded", "EntityCreated", "ClassificationAdded", "ClassificationDefinitionCreated", "GlossaryTermAssigned", "GlossaryTermCreated", "BotAddedToTeam", "ChannelAdded", "ConnectorAdded", "MeetingDetail", "MeetingParticipantDetail", "MemberAdded", "TabAdded", "SensitivityLabelApplied", "SensitivityLabelChanged", "ChatCreated", "TeamCreated", "MessageDeleted", "MessageEditedHasLink", "MessagesExported", "RecordingExported", "TranscriptsExported", "FailedValidation", "ChatRetrieved", "MessageHostedContentsListed", "PerformedCardAction", "MessageSent", "AINotesUpdate", "LiveNotesUpdate", "AppPublishedToCatalog", "MessageRead", "InviteeResponded", "ChannelOwnerResponded", "MessagesListed", "MessageCreatedHasLink", "MessageCreatedNotification", "MessageDeletedNotification", "MessageUpdatedNotification", "InviteSent", "SubscribedToMessages", "AppUpdatedInCatalog", "ChatUpdated", "MessageUpdated", "TabUpdated", "AppUpgraded", "MessageSent", "ScheduleGroupAdded", "ShiftAdded", "TimeOffAdded", "OpenShiftAdded", "ScheduleShared", "ClockedIn", "ClockedOut", "BreakEnded", "TimeClockEntryAdded", "RequestAdded", "RequestRespondedTo", "WorkforceIntegrationAdded", "OffShiftDialogAccepted", "CreateUpdateRequest", "EditUpdateRequest", "SubmitUpdate", "ViewUpdate", "AcceptedSharingLinkOnFolder", "FolderSharingLinkShared", "LinkedEntityCreated", "SubTaskCreated", "TaskCreated", "TaskRead", "TaskListCreated", "TaskListRead", "AccessedOdataLink", "CanceledQuery", "DeletedResult", "DownloadedReport", "ExecutedQuery", "UploadedOrgData", "ViewedExplore", "QuarantineReleaseRequestDeny", "QuarantinePreview", "QuarantineReleaseRequest", "QuarantineViewHeader", "UpdateUsageReportsPrivacySetting", "NewAdaptiveScope", "NewComplianceTag", "NewRetentionCompliancePolicy", "RemoveAdaptiveScope", "RemoveComplianceTag", "SetRestrictiveRetentionUI", "ExchangeDataProactivelyPreserved", "SharePointDataProactivelyPreserved", "ListCreated", "ListColumnCreated", "ListContentTypeCreated", "ListItemCreated", "SiteColumnCreated", "SiteContentTypeCreated", "ListContentTypeDeleted", "SiteColumnDeleted", "SiteContentTypeDeleted", "ListItemRecycled", "ListItemRestored", "ListColumnUpdated", "ListContentTypeUpdated", "SiteColumnUpdated", "SiteContentTypeUpdated", "SharingInvitationCreated", "AccessRequestUpdated", "SharingInvitationUpdated", "SharingInvitationRevoked", "AllowedDataLocationAdded", "SiteGeoMoveCancelled", "MigrationJobCompleted", "SiteGeoMoveCompleted", "SiteCollectionCreated", "HubSiteOrphanHubDeleted", "PreviewModeEnabledSet", "LegacyWorkflowEnabledSet", "OfficeOnDemandSet", "PeopleResultsScopeSet", "NewsFeedEnabledSet", "HubSiteJoined", "SiteCollectionQuotaModified", "HubSiteRegistered", "SiteGeoMoveScheduled", "GeoQuotaAllocated", "SiteAdminChangeRequest", "ManagedSyncClientAllowed", "FileSyncDownloadedFull", "FileSyncUploadedFull", "DataShareCreated", "DataShareDeleted", "GenerateCopyOfLakeData", "DownloadCopyOfLakeData", "SoftDeleteSettingsUpdated", "CloseConversation", "OpenConversation", "MessageCreation", "MessageDeleted", "FileDownloaded", "DataExport", "ThreadAccessFailure", "MarkedMessageChanged", "RemoveCuratedTopic", "UsagePolicyAcceptance", "AdminThreadMuted", "AdminThreadUnmuted", "FileUpdateDescription", "MessageUpdated", "FileVisited", "ThreadViewed", "PulseSubmit", "PulseCreate", "PulseExtendDeadline", "PulseInvite", "PulseCancel", "PulseShareResults", "PulseCreateDraft", "PulseDeleteDraft"])
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.AppAccessContext
+$$ WHERE id = 1528;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>
+
+
+
+
+
+

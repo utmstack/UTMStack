@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260210002" author="Manuel">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='3.0.2',
+                updated_at=now(),
+            logstash_filter=$$ # CISCO Switch filter, version 3.0.2
+# Based on https://www.cisco.com/c/en/us/support/ios-nx-os-software/index.html
+# and https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/17_xe/syslogs/17-15-x/b-system-message-guide-17-15-x.html
+# Support CISCO IOS from 15 SY to IOS XE v17
+# Filter Input requirements -> Syslog
+#
+# 1. Parsing the message field
+pipeline:
+  - dataTypes:
+      - cisco-switch
+    steps:
+      # Header fields
+      - grok:
+          patterns:
+            - fieldName: log.switchHeader
+              pattern: '{{.data}}%'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: raw
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '(\<{{.integer}}\>)'
+            - fieldName: log.irrelevant
+              pattern: '{{.integer}}(\s)?\:'
+            - fieldName: log.ciscoTime
+              pattern: '{{.greedy}}'
+          source: log.switchHeader
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '(\<{{.integer}}\>)'
+            - fieldName: log.ciscoTime
+              pattern: '{{.monthName}}{{.greedy}}'
+          source: log.switchHeader
+      - grok:
+          patterns:
+            - fieldName: log.ciscoTime
+              pattern: '{{.monthName}}{{.greedy}}'
+          source: log.switchHeader
+      #......................................................................#
+      # Beginning message parsing
+      # Variant -> %FACILITY-SUBFACILITY-SEVERITY-MNEMONIC: Message-text
+      - grok:
+          patterns:
+            - fieldName: log.facility
+              pattern: '{{.data}}-'
+            - fieldName: log.severity
+              pattern: '{{.data}}{{.integer}}'
+            - fieldName: log.facilityMnemonic
+              pattern: '{{.data}}\:'
+            - fieldName: log.ciscoMsg
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where: '(!contains("log.msg", "-MSG:SLOT")) && (!contains("log.msg", "-MSG: SLOT"))'
+      # Extracting subfacility if present
+      - grok:
+          patterns:
+            - fieldName: log.subFacility
+              pattern: '{{.greedy}}-'
+            - fieldName: log.severity
+              pattern: '{{.integer}}'
+          source: log.severity
+          where: '(!contains("log.msg", "-MSG:SLOT")) && (!contains("log.msg", "-MSG: SLOT"))'
+      # --------------------------
+      # Variant -> %CARD-SEVERITY-MSG:SLOT %FACILITY-SEVERITY-MNEMONIC: Message-text
+      - grok:
+          patterns:
+            - fieldName: log.card
+              pattern: '{{.data}}-'
+            - fieldName: log.irrelevant
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}\:'
+            - fieldName: log.slot
+              pattern: 'SLOT{{.integer}}'
+            - fieldName: log.tmpFacilityMnemonic
+              pattern: '{{.data}}\:'
+            - fieldName: log.ciscoMsg
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where: 'contains("log.msg", "-MSG:SLOT") || contains("log.msg", "-MSG: SLOT")'
+
+      - trim:
+          function: prefix
+          substring: '%'
+          fields:
+            - log.tmpFacilityMnemonic
+          where: 'contains("log.msg", "-MSG:SLOT") || contains("log.msg", "-MSG: SLOT")'
+      # %FACILITY-SEVERITY-MNEMONIC
+      - grok:
+          patterns:
+            - fieldName: log.facility
+              pattern: '{{.data}}-'
+            - fieldName: log.severity
+              pattern: '{{.data}}{{.integer}}'
+            - fieldName: log.facilityMnemonic
+              pattern: '{{.data}}\:'
+          source: log.tmpFacilityMnemonic
+          where: 'contains("log.msg", "-MSG:SLOT") || contains("log.msg", "-MSG: SLOT")'
+      # Extracting subfacility if present
+      - grok:
+          patterns:
+            - fieldName: log.subFacility
+              pattern: '{{.greedy}}-'
+            - fieldName: log.severity
+              pattern: '{{.integer}}'
+          source: log.severity
+          where: 'contains("log.msg", "-MSG:SLOT") || contains("log.msg", "-MSG: SLOT")'
+
+      # Cleaning common fields
+      - trim:
+          function: suffix
+          substring: '-'
+          fields:
+            - log.facility
+            - log.subFacility
+            - log.card
+      - trim:
+          function: suffix
+          substring: '%'
+          fields:
+            - log.ciscoTime
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.facilityMnemonic
+            - log.ciscoTime
+      - trim:
+          function: prefix
+          substring: '-'
+          fields:
+            - log.facilityMnemonic
+      #......................................................................#
+      # Decoding severity
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'high'
+          where: oneOf("log.severity", ["0", "1", "2", "3"])
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'medium'
+          where: log.severity=="4"
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'low'
+          where: oneOf("log.severity", ["5", "6", "7"])
+      #......................................................................#
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.switchHeader
+            - log.irrelevant
+            - log.tmpFacilityMnemonic
+                $$
+	WHERE id = 1510 ;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

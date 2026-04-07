@@ -25,3 +25,18 @@ export function minWordsValidator(minWords: number, minLengthPerWord: number): V
 }
 
 
+export function uniqueStringValidator(existing: string[]): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) { return null; }
+
+    const normalized = control.value.trim().toLowerCase();
+    const exists = existing
+      .map(x => x.trim().toLowerCase())
+      .includes(normalized);
+
+    return exists ? { unique: true } : null;
+  };
+}
+
+
+

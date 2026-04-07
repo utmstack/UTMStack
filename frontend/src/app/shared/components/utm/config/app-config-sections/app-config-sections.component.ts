@@ -321,15 +321,14 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   }
 
   getConfigs() {
+
+    this.configs = this.configs.filter(c => c.confParamShort !== 'utmstack.tfa.enable');
+
     if (this.isOnline && this.section.id === this.sectionType.INSTANCE_REGISTRATION) {
         return this.configs.filter( c => c.confParamShort !== 'utmstack.instance.auth');
     } else {
       return this.configs;
     }
-  }
-
-  isEnabledTfa(): boolean {
-    return this.configs.some(conf => conf.confParamShort === 'utmstack.tfa.enable' && conf.confParamValue === 'true');
   }
 
   serializeConfigValue(conf: SectionConfigParamType): string {

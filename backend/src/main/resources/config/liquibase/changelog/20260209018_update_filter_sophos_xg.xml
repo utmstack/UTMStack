@@ -1,0 +1,760 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260209018" author="JocLRojas">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='3.0.5',
+                updated_at=now(),
+            logstash_filter=$$ # Sophos_XG filter, version 3.0.5
+# Supports SF 20.0 version log types
+# See manual: https://docs.sophos.com/nsg/sophos-firewall/20.0/pdf/sf-syslog-guide-20.0.pdf
+# and documentation https://docs.sophos.com/nsg/sophos-firewall/20.0/Help/en-us/webhelp/onlinehelp/AdministratorHelp/Logs/TroubleshootingLogs/LogFileDetails/index.html#https-ftp-waf
+
+pipeline:
+  - dataTypes:
+      - firewall-sophos-xg
+    steps:
+      # Parsing the common fields
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.integer}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.0trash
+              pattern: '{{.data}}\='
+            - fieldName: log.syslogHostIP
+              pattern: '{{.ipv4}}'
+            - fieldName: log.notDefined
+              pattern: '{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.integer}}\>'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - kv:
+          fieldSplit: " "
+          valueSplit: "="
+          source: log.restData
+
+      # Extracting common fields for all logs
+      - grok:
+          patterns:
+            - fieldName: log.1trash
+              pattern: '{{.data}}log_type='
+            - fieldName: log.type
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.2trash
+              pattern: '{{.data}}log_component='
+            - fieldName: log.component
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.3trash
+              pattern: '{{.data}}log_subtype='
+            - fieldName: log.subType
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      # Parsing the raw field for log_type="Content Filtering" log_component="HTTP" log_subtype="Allowed"
+      - grok:
+          patterns:
+            - fieldName: log.4trash
+              pattern: '{{.data}}user_agent='
+            - fieldName: log.userAgent
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.5trash
+              pattern: '{{.data}}download_file_name='
+            - fieldName: log.downloadfilename
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.6trash
+              pattern: '{{.data}}upload_file_name='
+            - fieldName: log.uploadfilename
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      # Parsing the raw field for log_type="Content Filtering" log_component="Application" log_subtype="Denied"
+      - grok:
+          patterns:
+            - fieldName: log.4trash
+              pattern: '{{.data}}category='
+            - fieldName: log.category
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.5trash
+              pattern: '{{.data}}application_name='
+            - fieldName: log.applicationName
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.6trash
+              pattern: '{{.data}}application_technology='
+            - fieldName: log.applicationTech
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.7trash
+              pattern: '{{.data}}application_category='
+            - fieldName: log.applicationCategory
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.8trash
+              pattern: '{{.data}}message='
+            - fieldName: log.logMessage
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      # Parsing the raw field for log_type="Firewall" log_component="Firewall Rule|Invalid Traffic" log_subtype="Allowed|Denied"
+      - grok:
+          patterns:
+            - fieldName: log.4trash
+              pattern: '{{.data}}ether_type='
+            - fieldName: log.etherType
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      # Parsing the raw field for log_type="Event" log_component="DDNS|DHCP Server|Firewall Authentication" log_subtype="System|Authentication"
+      - grok:
+          patterns:
+            - fieldName: log.4trash
+              pattern: '{{.data}}raw_data='
+            - fieldName: log.rawData
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.5trash
+              pattern: '{{.data}}raw_data='
+            - fieldName: log.rawData
+              pattern: '\"{{.data}}\"'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.6trash
+              pattern: '{{.data}}usergroupname='
+            - fieldName: log.userGroupName
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.7trash
+              pattern: '{{.data}}auth_client='
+            - fieldName: log.authClient
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.8trash
+              pattern: '{{.data}}message='
+            - fieldName: log.logMessage
+              pattern: '\"{{.data}}\"'
+          source: log.restData
+
+      # Renaming useful fields
+      - rename:
+          from:
+            - log.appiscloud
+          to: log.appIsCloud
+
+      - rename:
+          from:
+            - log.category
+          to: log.categoryApp
+
+      - rename:
+          from:
+            - log.categorytype
+          to: log.categoryType
+
+      - rename:
+          from:
+            - log.uploadfilename
+          to: log.uploadFileName
+
+      - rename:
+          from:
+            - log.downloadfiletype
+          to: log.downloadFileType
+
+      - rename:
+          from:
+            - log.downloadfilename
+          to: log.downloadFileName
+
+      - rename:
+          from:
+            - log.uploadfiletype
+          to: log.uploadFileType
+
+      - rename:
+          from:
+            - log.contenttype
+          to: log.contentType
+
+      - rename:
+          from:
+            - log.conid
+          to: log.connectionId
+
+      - rename:
+          from:
+            - log.deviceid
+          to: log.deviceId
+
+      - rename:
+          from:
+            - log.domain
+          to: target.domain
+
+      - rename:
+          from:
+            - log.dstip
+          to: target.ip
+
+      - rename:
+          from:
+            - log.dstport
+          to: target.port
+
+      - rename:
+          from:
+            - log.exceptions
+          to: log.webExceptions
+
+      - rename:
+          from:
+            - log.fwruleid
+          to: log.firewallRuleId
+
+      - rename:
+          from:
+            - log.iap
+          to: log.webPolicy
+
+      - rename:
+          from:
+            - log.logid
+          to: log.Id
+
+      - rename:
+          from:
+            - log.bridgedisplayname
+          to: log.bridgeDisplayName
+
+      - rename:
+          from:
+            - log.bridgename
+          to: log.bridgeName
+
+      - rename:
+          from:
+            - log.recvbytes
+          to: origin.bytesReceived
+
+      - rename:
+          from:
+            - log.sentbytes
+          to: origin.bytesSent
+
+      - rename:
+          from:
+            - log.srcip
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.srcport
+          to: origin.port
+
+      - rename:
+          from:
+            - log.statuscode
+          to: log.statusCode
+
+      - rename:
+          from:
+            - log.protocol
+          to: protocol
+
+      - rename:
+          from:
+            - log.usedquota
+          to: log.responseTime
+
+      - rename:
+          from:
+            - log.usergp
+          to: log.userGroup
+
+      - rename:
+          from:
+            - log.username
+          to: origin.user
+
+      - rename:
+          from:
+            - log.srccountrycode
+          to: log.srcCountryCode
+
+      - rename:
+          from:
+            - log.dstcountrycode
+          to: log.dstCountryCode
+
+      - rename:
+          from:
+            - log.appresolvedby
+          to: log.appResolvedBy
+
+      - rename:
+          from:
+            - log.applicationrisk
+          to: log.applicationRisk
+
+      - rename:
+          from:
+            - log.applicationfilterpolicy
+          to: log.applicationFilterPolicy
+
+      - rename:
+          from:
+            - log.device
+          to: log.deviceType
+
+      - rename:
+          from:
+            - log.devicename
+          to: log.deviceName
+
+      - rename:
+          from:
+            - log.domainname
+          to: log.domainName
+
+      - rename:
+          from:
+            - log.timezone
+          to: log.timeZone
+
+      - rename:
+          from:
+            - log.filename
+          to: target.file
+
+      - rename:
+          from:
+            - log.filepath
+          to: target.path
+
+      - rename:
+          from:
+            - log.indisplayinterface
+          to: log.inDisplayInterface
+
+      - rename:
+          from:
+            - log.ininterface
+          to: log.inInterface
+
+      - rename:
+          from:
+            - log.outdisplayinterface
+          to: log.outDisplayInterface
+
+      - rename:
+          from:
+            - log.outinterface
+          to: log.outInterface
+
+      - rename:
+          from:
+            - log.vlanid
+          to: log.vLanId
+
+      - rename:
+          from:
+            - log.ftpcommand
+          to: command
+
+      - rename:
+          from:
+            - log.FTPurl
+          to: target.url
+
+      - rename:
+          from:
+            - log.FTPdirection
+          to: log.ftpDirection
+
+      - rename:
+          from:
+            - log.ipspolicyid
+          to: log.ipsPolicyId
+
+      - rename:
+          from:
+            - log.appfilterpolicyid
+          to: log.appFilterPolicyId
+
+      - rename:
+          from:
+            - log.natruleid
+          to: log.natRuleId
+
+      - rename:
+          from:
+            - log.srcmac
+          to: origin.mac
+
+      - rename:
+          from:
+            - log.policytype
+          to: log.policyType
+
+      - rename:
+          from:
+            - log.updatedip
+          to: log.updatedIp
+
+      - rename:
+          from:
+            - log.clienthostname
+          to: log.clientHostName
+
+      - rename:
+          from:
+            - log.ipaddress
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.clientphysicaladdress
+          to: log.clientPhysicalAddress
+
+      - rename:
+          from:
+            - log.timestamp
+          to: log.timesTamp
+
+      - rename:
+          from:
+            - log.starttime
+          to: log.startTime
+
+      - rename:
+          from:
+            - log.authmechanism
+          to: log.authMechanism
+
+      - rename:
+          from:
+            - log.eventtype
+          to: log.eventType
+
+      - rename:
+          from:
+            - log.executionpath
+          to: log.executionPath
+
+      - rename:
+          from:
+            - log.loginuser
+          to: log.loginUser
+
+      - rename:
+          from:
+            - log.processuser
+          to: log.processUser
+
+      - rename:
+          from:
+            - log.dstmac
+          to: target.mac
+
+      - rename:
+          from:
+            - log.dstdomain
+          to: target.domain
+
+      # Removing unnecessary characters
+      - trim:
+          function: prefix
+          substring: '"'
+          fields:
+            - log.categoryApp
+            - log.categoryType
+            - log.component
+            - log.subType
+            - log.type
+            - log.logMessage
+            - log.contentType
+            - log.deviceName
+            - log.domainName
+            - target.domain
+            - log.inDisplayInterface
+            - log.inInterface
+            - log.outDisplayInterface
+            - log.outInterface
+            - log.vLanId
+            - log.deviceType
+            - command
+            - log.clientHostName
+            - log.ipAddress
+            - log.clientPhysicalAddress
+            - log.authMechanism
+            - log.eventType
+            - log.executionPath
+            - log.loginUser
+            - log.processUser
+            - log.rawData
+            - log.userGroupName
+            - log.authClient
+            - target.file
+            - target.path
+            - log.ftpDirection
+            - target.url
+            - log.downloadFileName
+            - log.downloadFileType
+            - log.uploadFileName
+            - log.uploadFileType
+            - protocol
+            - log.reason
+            - log.referer
+            - log.status
+            - log.statusCode
+            - log.url
+            - log.virus
+            - log.userAgent
+            - log.userGroup
+            - origin.user
+            - log.bridgeName
+            - log.bridgeDisplayName
+            - log.timeZone
+            - log.applicationCategory
+            - log.applicationName
+            - log.applicationTech
+            - log.appResolvedBy
+
+      - trim:
+          function: suffix
+          substring: '"'
+          fields:
+            - log.categoryApp
+            - log.categoryType
+            - log.component
+            - log.subType
+            - log.type
+            - log.logMessage
+            - log.contentType
+            - log.deviceName
+            - log.domainName
+            - target.domain
+            - log.inDisplayInterface
+            - log.inInterface
+            - log.outDisplayInterface
+            - log.outInterface
+            - log.vLanId
+            - log.deviceType
+            - command
+            - log.clientHostName
+            - log.ipAddress
+            - log.clientPhysicalAddress
+            - log.authMechanism
+            - log.eventType
+            - log.executionPath
+            - log.loginUser
+            - log.processUser
+            - log.rawData
+            - log.userGroupName
+            - log.authClient
+            - target.file
+            - target.path
+            - log.ftpDirection
+            - target.url
+            - log.downloadFileName
+            - log.downloadFileType
+            - log.uploadFileName
+            - log.uploadFileType
+            - protocol
+            - log.reason
+            - log.referer
+            - log.status
+            - log.statusCode
+            - log.url
+            - log.virus
+            - log.userAgent
+            - log.userGroup
+            - origin.user
+            - log.bridgeName
+            - log.bridgeDisplayName
+            - log.timeZone
+            - log.applicationCategory
+            - log.applicationName
+            - log.applicationTech
+            - log.appResolvedBy
+
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - log.syslogPriority
+
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - log.syslogPriority
+
+      # Adding geolocation to target ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where: exists("target.ip")
+
+      # Adding geolocation to origin ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+
+      # Field conversions
+      - cast:
+          fields:
+            - target.port
+          to: int
+
+      - cast:
+          fields:
+            - log.statusCode
+            - origin.bytesReceived
+            - origin.bytesSent
+          to: float
+
+      # Renaming "log.statusCode" to "statusCode" to add it to the event structure
+      - rename:
+          from:
+            - log.statusCode
+          to: statusCode
+
+      # Adding actionResult
+      # denied by default
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where: (greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 299)) || (greaterOrEqual("statusCode", 300) && lessOrEqual("statusCode", 399) && greaterThan("origin.bytesReceived", 0))
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.0trash
+            - log.1trash
+            - log.2trash
+            - log.3trash
+            - log.4trash
+            - log.5trash
+            - log.6trash
+            - log.7trash
+            - log.8trash
+            - log.irrelevant
+            - log.rawdata
+            - log.message
+            - log.restData
+            - log.useragent
+            - log.activityname
+            - log.httpresponsecode
+            - log.overrideauthorizer
+            - log.overridename
+            - log.overridetoken
+            - log.transactionid
+            - log.applicationcategory
+            - log.applicationname
+            - log.applicationtechnology
+            - log.avpolicyname
+            - log.ethertype
+            - log.bridgedisplayname
+            - log.bridgename
+            - log.usergroupname
+            - log.authclient
+            - log.logcomponent
+            - log.logsubtype
+            - log.name
+            - log.logtype$$
+	WHERE id=801;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

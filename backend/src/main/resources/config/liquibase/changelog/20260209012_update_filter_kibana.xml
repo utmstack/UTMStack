@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260209012" author="JocLRojas">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='3.0.3',
+                updated_at=now(),
+            logstash_filter=$$ # Kibana filter, version 3.0.3
+# Supports Kibana Log and Kibana Audit version 7.17 or later.
+# See: https://www.elastic.co/guide/en/kibana/7.17/xpack-security-audit-logging.html
+# and https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-module-kibana.html#_fields_27 
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the kibana log
+pipeline:
+  - dataTypes:
+      - kibana
+    steps:
+      - json:
+          source: raw
+
+      - rename:
+          from:
+            - log.log.file.path
+          to: origin.file
+
+      - rename:
+          from:
+            - log.host.ip
+          to: log.origin.ips
+
+      - rename:
+          from:
+            - log.host.mac
+          to: log.origin.macs
+
+      - rename:
+          from:
+            - log.host.hostname
+          to: origin.host
+
+      - rename:
+          from:
+            - log.event.dataset
+          to: action
+
+      - rename:
+          from:
+            - log.agent.version
+          to: log.agentVersion
+
+      - rename:
+          from:
+            - log.host.os.kernel
+          to: log.osVersion
+
+      - rename:
+          from:
+            - log.host.os.name
+          to: log.osType
+
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+
+      # Parsing the message field for the log "audit"
+      - rename:
+          from:
+            - log.kibana._audit_temp.event.action
+          to: log.action
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.event.category
+          to: log.eventCategory
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.timestamp
+          to: log.deviceTime
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.@timestamp
+          to: log.deviceTime
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.user.name
+          to: origin.user
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.type
+          to: log.severityLabel
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.event.outcome
+          to: actionResult
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.message
+          to: log.message
+
+      - cast:
+          to: "[]string"
+          fields:
+            - log.origin.ips
+
+      - cast:
+          to: "[]string"
+          fields:
+            - log.origin.macs
+
+      # Parsing the message field
+      - grok:
+          patterns:
+            - fieldName: log.deviceTime
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.severityLabel
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.component
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.actionMessage
+              pattern: '{{.greedy}}'
+          source: log.message
+
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.deviceTime
+            - log.severityLabel
+            - log.component
+
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.deviceTime
+            - log.severityLabel
+            - log.component
+
+      # Reformatting timestamps Kibana Log field
+      - reformat:
+          fields:
+            - log.deviceTime
+          function: time
+          fromFormat: '2022-01-01T00:05:07.292-05:00'
+          toFormat: '2024-09-23T15:57:40.338364445Z'
+
+      # Adding severity based on log.severityLabel
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'high'
+          where: oneOf("log.severityLabel", ["critical", "alert", "error"])
+
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'medium'
+          where: equals("log.severityLabel", "warning")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'low'
+          where: oneOf("log.severityLabel", ["debug", "verbose", "notice", "information", "trace"])
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.metadata
+            - log.agent
+            - log.ecs
+            - log.event
+            - log.host
+            - log.input
+            - log.log
+            - log.service
+            - log.fileset
+            - log.kibana$$
+	WHERE id=1408;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

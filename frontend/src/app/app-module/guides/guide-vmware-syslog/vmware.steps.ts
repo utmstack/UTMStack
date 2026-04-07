@@ -20,8 +20,8 @@ export const VMWARE_STEPS: Step[] = [
   {id: '11', name: 'Set new host configuration, specifying options to change, by running a command:',
     content: {
       id: 'stepContent11',
-      commands: ['esxcli system syslog config set --loghost=\'tcp://your_utmstack_agent_ip:7002’',
-                 'esxcli system syslog config set --logdir=/scratch/log --loghost=your_utmstack_agent_ip --logdir-unique=true']
+      commands: ['esxcli system syslog config set --loghost=\'tcp://your_utmstack_agent_ip:7002\'',
+                 'esxcli system syslog config set --logdir=/scratch/log --loghost=your_utmstack_agent_ip:7002 --logdir-unique=true']
     }
   },
   {id: '12', name: 'After making configuration changes, load the new configuration by running this command:',

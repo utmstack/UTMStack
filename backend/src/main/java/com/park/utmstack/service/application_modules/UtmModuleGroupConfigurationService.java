@@ -5,11 +5,13 @@ import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
 import com.park.utmstack.domain.application_modules.enums.ModuleName;
 import com.park.utmstack.repository.UtmModuleGroupConfigurationRepository;
+import com.park.utmstack.repository.UtmModuleGroupRepository;
 import com.park.utmstack.repository.application_modules.UtmModuleRepository;
 import com.park.utmstack.event_processor.EventProcessorManagerService;
 import com.park.utmstack.util.CipherUtil;
 import com.park.utmstack.util.exceptions.ApiException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,14 +30,13 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class UtmModuleGroupConfigurationService {
 
     private static final String CLASSNAME = "UtmModuleGroupConfigurationService";
 
     private final UtmModuleGroupConfigurationRepository moduleConfigurationRepository;
     private final UtmModuleRepository moduleRepository;
-    private final EventProcessorManagerService eventProcessorManagerService;
-
 
     public void createConfigurationKeys(List<UtmModuleGroupConfiguration> keys) throws Exception {
         final String ctx = CLASSNAME + ".createConfigurationKeys";
@@ -52,9 +53,8 @@ public class UtmModuleGroupConfigurationService {
      * Update configuration of the application modules
      *
      * @param keys List of configuration keys to save
-     * @throws Exception In case of any error
      */
-    public UtmModule updateConfigurationKeys(Long moduleId, List<UtmModuleGroupConfiguration> keys) throws Exception {
+    public UtmModule updateConfigurationKeys(Long moduleId, List<UtmModuleGroupConfiguration> keys) {
         final String ctx = CLASSNAME + ".updateConfigurationKeys";
         try {
             if (CollectionUtils.isEmpty(keys))
@@ -62,7 +62,7 @@ public class UtmModuleGroupConfigurationService {
             for (UtmModuleGroupConfiguration key : keys) {
                 if (key.getConfRequired() && !StringUtils.hasText(key.getConfValue()))
                     throw new Exception(String.format("No value was found for required configuration: %1$s (%2$s)", key.getConfName(), key.getConfKey()));
-                if (key.getConfDataType().equals("password"))
+                if (key.getConfDataType().equals("password") || key.getConfDataType().equals("file"))
                     key.setConfValue(CipherUtil.encrypt(key.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
             }
             moduleConfigurationRepository.saveAll(keys);
@@ -77,7 +77,8 @@ public class UtmModuleGroupConfigurationService {
                     })
                     .orElseThrow(() -> new ApiException(String.format("Module with ID %1$s not found", moduleId), HttpStatus.NOT_FOUND));
         } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
+            log.error("{}: Error updating configuration keys: {}", ctx, e.getMessage());
+            throw new ApiException(String.format("%s: Error updating configuration keys: %s", ctx, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

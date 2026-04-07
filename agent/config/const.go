@@ -3,7 +3,7 @@ package config
 import (
 	"path/filepath"
 
-	"github.com/utmstack/UTMStack/agent/utils"
+	"github.com/utmstack/UTMStack/shared/fs"
 )
 
 type DataType string
@@ -25,24 +25,24 @@ var (
 	LogAuthProxyPort = "50051"
 	DependenciesPort = "9001"
 
-	ServiceLogFile      = filepath.Join(utils.GetMyPath(), "logs", "utmstack_agent.log")
+	ServiceLogFile      = filepath.Join(fs.GetExecutablePath(), "logs", "utmstack_agent.log")
 	ModulesServName     = "UTMStackModulesLogsCollector"
 	WinServName         = "UTMStackWindowsLogsCollector"
-	CollectorFileName   = filepath.Join(utils.GetMyPath(), "log-collector-config.json")
-	UUIDFileName        = filepath.Join(utils.GetMyPath(), "uuid.yml")
-	ConfigurationFile   = filepath.Join(utils.GetMyPath(), "config.yml")
-	PortRangeMin        = "7000"
-	PortRangeMax        = "9000"
-	RetentionConfigFile = filepath.Join(utils.GetMyPath(), "retention.json")
-	LogsDBFile          = filepath.Join(utils.GetMyPath(), "logs_process", "logs.db")
-	CertPath            = filepath.Join(utils.GetMyPath(), "certs", "utm.crt")
-	VersionPath         = filepath.Join(utils.GetMyPath(), "version.json")
+	CollectorFileName   = filepath.Join(fs.GetExecutablePath(), "log-collector-config.json")
+	UUIDFileName        = filepath.Join(fs.GetExecutablePath(), "uuid.yml")
+	ConfigurationFile   = filepath.Join(fs.GetExecutablePath(), "config.yml")
+	PortRangeMin        = "1"
+	PortRangeMax        = "65535"
+	RetentionConfigFile = filepath.Join(fs.GetExecutablePath(), "retention.json")
+	LogsDBFile          = filepath.Join(fs.GetExecutablePath(), "logs_process", "logs.db")
+	CertPath            = filepath.Join(fs.GetExecutablePath(), "certs", "utm.crt")
+	VersionPath         = filepath.Join(fs.GetExecutablePath(), "version.json")
 	UpdaterSelfLinux    = "utmstack_updater_self"
 
 	// TLS Configuration for Integrations
-	IntegrationCertPath = filepath.Join(utils.GetMyPath(), "certs", "integration.crt")
-	IntegrationKeyPath  = filepath.Join(utils.GetMyPath(), "certs", "integration.key")
-	IntegrationCAPath   = filepath.Join(utils.GetMyPath(), "certs", "integration-ca.crt")
+	IntegrationCertPath = filepath.Join(fs.GetExecutablePath(), "certs", "integration.crt")
+	IntegrationKeyPath  = filepath.Join(fs.GetExecutablePath(), "certs", "integration.key")
+	IntegrationCAPath   = filepath.Join(fs.GetExecutablePath(), "certs", "integration-ca.crt")
 
 	DataTypeWindowsAgent        DataType = "wineventlog"
 	DataTypeSyslog              DataType = "syslog"
@@ -77,7 +77,6 @@ var (
 	DataTypeIisModule           DataType = "iis"
 	DataTypeApacheModule        DataType = "apache"
 	DataTypeSentinelOne         DataType = "antivirus-sentinel-one"
-	DataTypeCiscoGeneric        DataType = "cisco"
 	DataTypeMacOs               DataType = "macos"
 	DataTypeGeneric             DataType = "generic"
 	DataTypeNetflow             DataType = "netflow"
@@ -91,7 +90,10 @@ var (
 		DataTypeVmware:         {UDP: "7002", TCP: "7002"},
 		DataTypeEset:           {UDP: "7003", TCP: "7003"},
 		DataTypeKaspersky:      {UDP: "7004", TCP: "7004"},
-		DataTypeCiscoGeneric:   {UDP: "514", TCP: "1470"},
+		DataTypeCiscoAsa:       {UDP: "514", TCP: "1470"},
+		DataTypeCiscoFirepower: {UDP: "514", TCP: "1470"},
+		DataTypeCiscoSwitch:    {UDP: "514", TCP: "1470"},
+		DataTypeCiscoMeraki:    {UDP: "514", TCP: "1470"},
 		DataTypeFortinet:       {UDP: "7005", TCP: "7005"},
 		DataTypePaloalto:       {UDP: "7006", TCP: "7006"},
 		DataTypeMikrotik:       {UDP: "7007", TCP: "7007"},
@@ -106,20 +108,27 @@ var (
 		DataTypeNetflow:        {UDP: "2055", TCP: ""},
 	}
 
-	ProhibitedPortsChange = []DataType{DataTypeCiscoGeneric, DataTypeNetflow}
+	// FilePaths defines default log file paths for file-based integrations
+	FilePaths = map[DataType][]string{
+		DataTypeNginxModule:      {"/var/log/nginx/access.log", "/var/log/nginx/error.log"},
+		DataTypePostgresqlModule: {"/var/log/postgresql/postgresql-*-main.log"},
+	}
 )
 
 func ValidateModuleType(typ string) string {
 	switch DataType(typ) {
 	case DataTypeSyslog, DataTypeVmware, DataTypeEset, DataTypeKaspersky, DataTypeFortinet, DataTypePaloalto,
-		DataTypeMikrotik, DataTypeSophosXG, DataTypeSonicwall, DataTypeSentinelOne, DataTypeCiscoGeneric,
+		DataTypeMikrotik, DataTypeSophosXG, DataTypeSonicwall, DataTypeSentinelOne,
+		DataTypeCiscoAsa, DataTypeCiscoFirepower, DataTypeCiscoSwitch, DataTypeCiscoMeraki,
 		DataTypeDeceptivebytes, DataTypeAix, DataTypePfsense, DataTypeFortiweb, DataTypeSuricata:
 		return "syslog"
 	case DataTypeNetflow:
 		return "netflow"
-	case DataTypeWindowsAgent, DataTypeLinuxAgent, DataTypeTraefikModule, DataTypeMongodbModule, DataTypeMysqlModule, DataTypePostgresqlModule,
+	case DataTypeNginxModule, DataTypePostgresqlModule:
+		return "file"
+	case DataTypeWindowsAgent, DataTypeLinuxAgent, DataTypeTraefikModule, DataTypeMongodbModule, DataTypeMysqlModule,
 		DataTypeRedisModule, DataTypeElasticsearchModule, DataTypeKafkaModule, DataTypeKibanaModule, DataTypeLogstashModule, DataTypeNatsModule,
-		DataTypeOsqueryModule, DataTypeLinuxAuditdModule, DataTypeHaproxyModule, DataTypeNginxModule, DataTypeIisModule, DataTypeApacheModule:
+		DataTypeOsqueryModule, DataTypeLinuxAuditdModule, DataTypeHaproxyModule, DataTypeIisModule, DataTypeApacheModule:
 		return "beats"
 	default:
 		return "nil"

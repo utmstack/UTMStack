@@ -41,7 +41,7 @@ func GetConfig() *ConfigurationSection {
 
 func StartConfigurationSystem() {
 	for {
-		pluginConfig := plugins.PluginCfg("com.utmstack", false)
+		pluginConfig := plugins.PluginCfg("com.utmstack")
 		if !pluginConfig.Exists() {
 			_ = catcher.Error("plugin configuration not found", nil, map[string]any{"process": "plugin_com.utmstack.azure"})
 			time.Sleep(reconnectDelay)
@@ -132,7 +132,7 @@ func StartConfigurationSystem() {
 
 			switch message := in.Payload.(type) {
 			case *BiDirectionalMessage_Config:
-				catcher.Info("Received configuration update", map[string]any{"config": message.Config, "process": "plugin_com.utmstack.azure"})
+				catcher.Info("Received configuration update", map[string]any{"process": "plugin_com.utmstack.azure"})
 				cnf = message.Config
 			}
 		}

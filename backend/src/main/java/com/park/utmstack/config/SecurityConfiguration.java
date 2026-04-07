@@ -128,8 +128,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .saml2Login()
                 .successHandler(new Saml2LoginSuccessHandler(tokenProvider,
-                                                              userRepository,
-                                                              saml2LoginFailureHandler()))
+                                                              userRepository))
                 .failureHandler(new Saml2LoginFailureHandler())
                 .and()
                 .apply(securityConfigurerAdapterForJwt())

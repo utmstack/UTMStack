@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"net"
 	"os"
+	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/agent-manager/config"
@@ -16,7 +17,8 @@ import (
 func InitGrpcServer() {
 	err := InitAgentService()
 	if err != nil {
-		catcher.Error("failed to init agent service", err, map[string]any{"process": "agent-manager"})
+		_ = catcher.Error("failed to init agent service", err, map[string]any{"process": "agent-manager"})
+		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
 
@@ -27,15 +29,17 @@ func InitGrpcServer() {
 }
 
 func StartGrpcServer() {
-	listener, err := net.Listen("tcp", "0.0.0.0:50051")
+	listener, err := net.Listen("tcp", "0.0.0.0:9000")
 	if err != nil {
-		catcher.Error("failed to listen", err, map[string]any{"process": "agent-manager"})
+		_ = catcher.Error("failed to listen", err, map[string]any{"process": "agent-manager"})
+		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
 
 	loadedCert, err := tls.LoadX509KeyPair(config.CertPath, config.CertKeyPath)
 	if err != nil {
-		catcher.Error("failed to load TLS credentials: %v", err, map[string]any{"process": "agent-manager"})
+		_ = catcher.Error("failed to load TLS credentials: %v", err, map[string]any{"process": "agent-manager"})
+		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
 
@@ -59,9 +63,10 @@ func StartGrpcServer() {
 	grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)
 	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
 
-	catcher.Info("Starting gRPC server on 0.0.0.0:50051", map[string]any{"process": "agent-manager"})
+	catcher.Info("Starting gRPC server on 0.0.0.0:9000", map[string]any{"process": "agent-manager"})
 	if err := grpcServer.Serve(listener); err != nil {
-		catcher.Error("failed to serve", err, map[string]any{"process": "agent-manager"})
+		_ = catcher.Error("failed to serve", err, map[string]any{"process": "agent-manager"})
+		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
 }

@@ -18,10 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class RequestDsl {
@@ -74,7 +71,25 @@ public class RequestDsl {
         if (pageable != null && pageable.isPaged()) {
             SearchUtil.applyPaginationAndSort(searchRequestBuilder, pageable, top);
         } else {
-            searchRequestBuilder.size(10000);
+            if (visualization.getChartType() == ChartType.LIST_CHART) {
+
+                searchRequestBuilder.size(10000);
+
+                Set<String> fields = new HashSet<>();
+                AggregationType agg = visualization.getAggregationType();
+                if (agg != null && agg.getBucket() != null) {
+                    collectBucketFields(agg.getBucket(), fields);
+                }
+
+                List<String> includeList = new ArrayList<>(fields)
+                        .stream()
+                        .map(this::normalizeField)
+                        .toList();
+
+                searchRequestBuilder.source(s -> s.filter(f -> f.excludes("*")));
+                searchRequestBuilder.source(s -> s.filter(f
+                        -> f.includes(includeList)));
+            }
         }
     }
 
@@ -96,7 +111,6 @@ public class RequestDsl {
             throw new UtmElasticsearchException(ctx + ": " + e.getMessage());
         }
     }
-
 
 
     /**
@@ -157,19 +171,19 @@ public class RequestDsl {
                 switch (bucket.getAggregation()) {
                     case TERMS:
                         TermsAggregation term = new TermsAggregation.Builder().field(bucket.getField())
-                            .size(bucket.getTerms().getSize()).order(List.of(Map.of(bucket.getTerms().getSortBy(),
-                                bucket.getTerms().getAsc() ? SortOrder.Asc : SortOrder.Desc))).build();
+                                .size(bucket.getTerms().getSize()).order(List.of(Map.of(bucket.getTerms().getSortBy(),
+                                        bucket.getTerms().getAsc() ? SortOrder.Asc : SortOrder.Desc))).build();
                         bucketAggregations.put(bucket.toString(), new Aggregation.Builder().terms(term));
                         break;
                     case RANGE:
                         RangeAggregation range = new RangeAggregation.Builder().field(bucket.getField())
-                            .ranges(bucket.getRanges().stream().map(r -> AggregationRange.of(a -> a.from(String.valueOf(r.getFrom()))
-                                .to(String.valueOf(r.getTo())))).collect(Collectors.toList())).build();
+                                .ranges(bucket.getRanges().stream().map(r -> AggregationRange.of(a -> a.from(String.valueOf(r.getFrom()))
+                                        .to(String.valueOf(r.getTo())))).collect(Collectors.toList())).build();
                         bucketAggregations.put(bucket.toString(), new Aggregation.Builder().range(range));
                         break;
                     case DATE_HISTOGRAM:
                         DateHistogramAggregation.Builder histogram = new DateHistogramAggregation.Builder().field(bucket.getField())
-                            .timeZone(TimezoneUtil.getAppTimezone().toString());
+                                .timeZone(TimezoneUtil.getAppTimezone().toString());
                         String interval = bucket.getDateHistogram().getInterval();
                         if (bucket.getDateHistogram().isFixedInterval())
                             histogram.fixedInterval(i -> i.time(interval));
@@ -204,24 +218,24 @@ public class RequestDsl {
                 switch (metric.getAggregation()) {
                     case AVERAGE:
                         metricAggregations.put(metric.getId(), Aggregation.of(agg ->
-                            agg.avg(avg -> avg.field(metric.getField()))));
+                                agg.avg(avg -> avg.field(metric.getField()))));
                         break;
                     case MAX:
                         metricAggregations.put(metric.getId(), Aggregation.of(agg ->
-                            agg.max(max -> max.field(metric.getField()))));
+                                agg.max(max -> max.field(metric.getField()))));
                         break;
                     case MIN:
                         metricAggregations.put(metric.getId(), Aggregation.of(agg ->
-                            agg.min(min -> min.field(metric.getField()))));
+                                agg.min(min -> min.field(metric.getField()))));
                         break;
                     case SUM:
                         metricAggregations.put(metric.getId(), Aggregation.of(agg ->
-                            agg.sum(sum -> sum.field(metric.getField()))));
+                                agg.sum(sum -> sum.field(metric.getField()))));
                         break;
                     case MEDIAN:
                         metricAggregations.put(metric.getId(), Aggregation.of(agg ->
-                            agg.percentiles(percentile -> percentile.field(metric.getField())
-                                .keyed(false).percents(50D))));
+                                agg.percentiles(percentile -> percentile.field(metric.getField())
+                                        .keyed(false).percents(50D))));
                         break;
                 }
             }
@@ -230,4 +244,35 @@ public class RequestDsl {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
+
+    private void collectBucketFields(Bucket bucket, Set<String> fields) {
+        if (bucket == null) return;
+
+        // 1. Field of this bucket (covers terms, ranges, date histogram)
+        if (bucket.getField() != null && !bucket.getField().isEmpty()) {
+            fields.add(bucket.getField());
+        }
+
+        // 2. Date histogram (field is in the bucket, not in DateHistogramBucket)
+        if (bucket.getDateHistogram() != null &&
+                bucket.getField() != null &&
+                !bucket.getField().isEmpty()) {
+            fields.add(bucket.getField());
+        }
+
+        // 3. Recurse into subBucket
+        if (bucket.getSubBucket() != null) {
+            collectBucketFields(bucket.getSubBucket(), fields);
+        }
+    }
+
+
+    private String normalizeField(String field) {
+        if (field.endsWith(".keyword")) {
+            return field.substring(0, field.length() - ".keyword".length());
+        }
+        return field;
+    }
+
+
 }

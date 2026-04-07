@@ -24,42 +24,31 @@ type IncidentDetail struct {
 }
 
 type AlertFields struct {
-	Timestamp         string           `json:"@timestamp"`
-	ID                string           `json:"id"`
-	ParentID          *string          `json:"parentId,omitempty"`
-	Status            int              `json:"status"`
-	StatusLabel       string           `json:"statusLabel"`
-	StatusObservation string           `json:"statusObservation"`
-	IsIncident        bool             `json:"isIncident"`
-	IncidentDetail    IncidentDetail   `json:"incidentDetail"`
-	Name              string           `json:"name"`
-	Category          string           `json:"category"`
-	Severity          int              `json:"severity"`
-	SeverityLabel     string           `json:"severityLabel"`
-	Description       string           `json:"description"`
-	Solution          string           `json:"solution"`
-	Technique         string           `json:"technique"`
-	Reference         []string         `json:"reference"`
-	DataType          string           `json:"dataType"`
-	Impact            *plugins.Impact  `json:"impact"`
-	ImpactScore       uint32           `json:"impactScore"`
-	DataSource        string           `json:"dataSource"`
-	Adversary         *plugins.Side    `json:"adversary"`
-	Target            *plugins.Side    `json:"target"`
-	Events            []*plugins.Event `json:"events"`
-	LastEvent         *plugins.Event   `json:"lastEvent"`
-	Tags              []string         `json:"tags"`
-	Notes             string           `json:"notes"`
-	TagRulesApplied   []int            `json:"tagRulesApplied"`
-	DeduplicatedBy    []string         `json:"deduplicatedBy"`
-	GroupedBy         []string         `json:"groupedBy"`
+	Timestamp         string         `json:"@timestamp"`
+	Status            int            `json:"status"`
+	StatusLabel       string         `json:"statusLabel"`
+	StatusObservation string         `json:"statusObservation"`
+	IsIncident        bool           `json:"isIncident"`
+	IncidentDetail    IncidentDetail `json:"incidentDetail"`
+	Severity          int            `json:"severity"`
+	SeverityLabel     string         `json:"severityLabel"`
+	Solution          string         `json:"solution"`
+	Reference         []string       `json:"reference"`
+	LastEvent         *plugins.Event `json:"lastEvent"`
+	Tags              []string       `json:"tags"`
+	Notes             string         `json:"notes"`
+	TagRulesApplied   []int          `json:"tagRulesApplied"`
+	DeduplicatedBy    []string       `json:"deduplicatedBy"`
+	GroupedBy         []string       `json:"groupedBy"`
+	plugins.Alert
 }
 
 func main() {
-	openSearchUrl := plugins.PluginCfg("org.opensearch", false).Get("opensearch").String()
+	openSearchUrl := plugins.PluginCfg("org.opensearch").Get("opensearch").String()
 	err := sdkos.Connect([]string{openSearchUrl}, "", "")
 	if err != nil {
 		_ = catcher.Error("cannot connect to OpenSearch", err, map[string]any{"process": "plugin_com.utmstack.alerts"})
+		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
 
@@ -68,6 +57,7 @@ func main() {
 		_ = catcher.Error("com.utmstack.alerts", err, map[string]any{
 			"process": "plugin_com.utmstack.alerts",
 		})
+		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
 }
@@ -125,16 +115,23 @@ func isDuplicate(alert *plugins.Alert) bool {
 	// 1. Filter by Name (always)
 	bb.FilterTerm("name", alert.Name)
 
+	bb.FilterRange("@timestamp", "gte", time.Now().UTC().Add(-24*7*time.Hour).Format(time.RFC3339Nano))
+	bb.FilterRange("@timestamp", "lte", time.Now().UTC().Format(time.RFC3339Nano))
+
 	// Compile regex for array index stripping
 	reArrayIndex := regexp.MustCompile(`\.[0-9]+(\.|$)`)
+
+	var execute bool = false
 
 	for _, d := range alert.DeduplicateBy {
 		d = strings.TrimSuffix(d, ".keyword")
 
 		value := gjson.Get(*alertString, d)
 		if value.Type == gjson.Null {
-			return false
+			continue
 		}
+
+		execute = true
 
 		// Calculate OpenSearch field name by removing array indices
 		searchField := reArrayIndex.ReplaceAllStringFunc(d, func(s string) string {
@@ -151,6 +148,10 @@ func isDuplicate(alert *plugins.Alert) bool {
 		} else if value.IsBool() {
 			bb.FilterTerm(searchField, value.Bool())
 		}
+	}
+
+	if !execute {
+		return false
 	}
 
 	// Create QueryBuilder and inject the Bool query
@@ -216,13 +217,17 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 	// Compile regex for array index stripping
 	reArrayIndex := regexp.MustCompile(`\.[0-9]+(\.|$)`)
 
+	var execute bool = false
+
 	for _, d := range alert.GroupBy {
 		d = strings.TrimSuffix(d, ".keyword")
 
 		value := gjson.Get(*alertString, d)
 		if value.Type == gjson.Null {
-			return nil
+			continue
 		}
+
+		execute = true
 
 		// Calculate OpenSearch field name by removing array indices
 		searchField := reArrayIndex.ReplaceAllStringFunc(d, func(s string) string {
@@ -239,6 +244,10 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		} else if value.IsBool() {
 			bb.FilterTerm(searchField, value.Bool())
 		}
+	}
+
+	if !execute {
+		return nil
 	}
 
 	// Create QueryBuilder and inject the Bool query
@@ -328,21 +337,11 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 
 	a := AlertFields{
 		Timestamp:     alert.Timestamp,
-		ID:            alert.Id,
-		ParentID:      parentId,
 		Status:        1,
 		StatusLabel:   "Automatic review",
-		Name:          alert.Name,
-		Category:      alert.Category,
 		Severity:      severityN,
 		SeverityLabel: severityLabel,
-		Description:   alert.Description,
-		Technique:     alert.Technique,
 		Reference:     alert.References,
-		DataType:      alert.DataType,
-		DataSource:    alert.DataSource,
-		Adversary:     alert.Adversary,
-		Target:        alert.Target,
 		LastEvent: func() *plugins.Event {
 			l := len(alert.Events)
 			if l == 0 {
@@ -350,12 +349,29 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 			}
 			return alert.Events[l-1]
 		}(),
-		Events:         alert.Events,
-		Impact:         alert.Impact,
-		ImpactScore:    alert.ImpactScore,
 		DeduplicatedBy: alert.DeduplicateBy,
 		GroupedBy:      alert.GroupBy,
 	}
+
+	a.Id = alert.Id
+	a.ParentId = func() string {
+		if parentId != nil {
+			return *parentId
+		}
+		return ""
+	}()
+	a.Name = alert.Name
+	a.Category = alert.Category
+	a.Description = alert.Description
+	a.Technique = alert.Technique
+	a.DataSource = alert.DataSource
+	a.DataType = alert.DataType
+	a.Adversary = alert.Adversary
+	a.Target = alert.Target
+	a.Events = alert.Events
+	a.Impact = alert.Impact
+	a.ImpactScore = alert.ImpactScore
+	a.Errors = alert.Errors
 
 	// Retry logic for indexing operation
 	maxRetries := 3
@@ -364,7 +380,7 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 	for retry := 0; retry < maxRetries; retry++ {
 		cancelableContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
-		err := sdkos.IndexDoc(cancelableContext, a, sdkos.BuildCurrentIndex("v11", "alert"), alert.Id)
+		err := sdkos.IndexDoc(cancelableContext, a, sdkos.BuildCurrentDayIndex("v11", "alert"), alert.Id)
 		if err == nil {
 			cancel()
 			return nil

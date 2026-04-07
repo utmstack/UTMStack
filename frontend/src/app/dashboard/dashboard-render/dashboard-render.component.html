@@ -1,5 +1,5 @@
 <div class="container-fluid pr-2 pl-2 pt-2">
-  <div *ngIf="dashboard" class="d-flex justify-content-between align-items-center mb-2">
+  <div *ngIf="dashboard?.name" class="d-flex justify-content-between align-items-center mb-2">
     <h5 class="card-title mb-0 label-header">{{dashboard.name}}
     </h5>
     <div class="header-elements d-flex justify-content-end align-items-center">
@@ -17,9 +17,9 @@
   </div>
 </div>
 <div class="w-100 h-100 mb-3">
-  <gridster [options]="options" style="background-color: #f1f1f1;z-index: 0; margin-bottom: 15px">
+  <gridster *ngIf="(layout$ | async) as layout" [options]="options" style="background-color: #f1f1f1;z-index: 0; margin-bottom: 15px">
     <gridster-item #gridsterItem
-                   *ngFor="let item of layout$ | async; trackBy: trackByFn; let index = index" [item]="item.grid"
+                   *ngFor="let item of layout; trackBy: trackByFn; let index = index" [item]="item.grid"
                    (mouseenter)="activeTimeGridster=item.visualization.id"
                    [ngStyle]="{'z-index':(activeTimeGridster===item.visualization.id?100:0)+''}">
                     <app-utm-viewer [building]="false"
@@ -36,7 +36,7 @@
   <div style="height: 15px"></div>
 </div>
 
-<div *ngIf="!loadingVisualizations"
+<div *ngIf="loadingVisualizations"
      class="dashboard-loader d-flex justify-content-start align-content-center w-100 h-100">
   <app-utm-spinner [height]="'110px'" [loading]="!loadingVisualizations" [width]="'110px'"
                    label="Loading dashboard"

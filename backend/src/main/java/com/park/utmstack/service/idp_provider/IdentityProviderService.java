@@ -1,6 +1,7 @@
 package com.park.utmstack.service.idp_provider;
 
 
+import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.idp_provider.IdentityProviderConfig;
 import com.park.utmstack.repository.idp_provider.IdentityProviderConfigRepository;
 import com.park.utmstack.service.dto.idp_provider.dto.*;
@@ -18,11 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,13 +32,13 @@ public class IdentityProviderService {
     private final IdentityProviderConfigRepository repository;
     private final ApplicationEventPublisher publisher;
 
-    public List<IdentityProviderConfig> getAllActiveProviders() {
-        return repository.findAllByActiveTrue();
-    }
-
     public IdentityProviderConfigResponseDto create(IdentityProviderCreateConfigDto dto) {
 
         validateMetadataUrl(dto.getMetadataUrl());
+
+        // Validate encryption key before mapper encrypts the private key
+        getValidatedEncryptionKey();
+
         IdentityProviderConfig entity = mapper.toEntity(dto);
         entity.setCreatedAt(LocalDateTime.now());
         entity.setUpdatedAt(LocalDateTime.now());
@@ -65,7 +65,8 @@ public class IdentityProviderService {
 
         if(dto instanceof IdentityProviderCreateConfigDto createDto){
             if (createDto.getSpPrivateKeyPem() != null) {
-                String encryptedKey = CipherUtil.encrypt(createDto.getSpPrivateKeyPem(), System.getenv("ENCRYPTION_KEY"));
+                String encryptionKey = getValidatedEncryptionKey();
+                String encryptedKey = CipherUtil.encrypt(createDto.getSpPrivateKeyPem(), encryptionKey);
                 existing.setSpPrivateKeyPem(encryptedKey);
             }
             if (createDto.getSpCertificatePem() != null) {
@@ -103,24 +104,52 @@ public class IdentityProviderService {
         repository.deleteById(id);
     }
 
+    /**
+     * Validates and retrieves the encryption key from environment variables.
+     *
+     * @return The validated encryption key
+     * @throws IllegalStateException if ENCRYPTION_KEY is not configured
+     */
+    private String getValidatedEncryptionKey() {
+        String encryptionKey = System.getenv(Constants.ENV_ENCRYPTION_KEY);
+        if (encryptionKey == null || encryptionKey.isBlank()) {
+            throw new IllegalStateException(
+                    "Environment variable " + Constants.ENV_ENCRYPTION_KEY + " not configured");
+        }
+        return encryptionKey;
+    }
+
     private void validateMetadataUrl(String metadataUrl) {
         if (metadataUrl == null || metadataUrl.trim().isEmpty()) {
             throw new SamlMetadataUrlInvalidException("Metadata URL is required");
         }
 
+        HttpURLConnection connection = null;
         try {
             URL url = new URL(metadataUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(5000);
             connection.setReadTimeout(5000);
 
             int responseCode = connection.getResponseCode();
             if (responseCode != 200) {
-                throw new SamlMetadataUrlInvalidException("Metadata URL is not accessible");
+                throw new SamlMetadataUrlInvalidException(
+                        String.format("Metadata URL is not accessible. HTTP Status: %d", responseCode));
             }
+        } catch (MalformedURLException e) {
+            throw new SamlMetadataUrlInvalidException(
+                    "Invalid metadata URL format: " + e.getMessage());
         } catch (IOException e) {
-            throw new SamlMetadataUrlInvalidException("Failed to access metadata URL");
+            throw new SamlMetadataUrlInvalidException(
+                    "Failed to access metadata URL: " + e.getMessage());
+        } catch (Exception e) {
+            throw new SamlMetadataUrlInvalidException(
+                    "Unexpected error validating metadata URL: " + e.getMessage());
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
     }
 

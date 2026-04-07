@@ -20,9 +20,9 @@
     </svg>
   </div>
   <ng-container *ngFor="let filter of filters">
-    <div class="card m-0 p-3 cursor-pointer">
+    <div (click)="viewFilter(filter)" class="card m-0 p-3 cursor-pointer">
       <div class="text-blue-800 d-flex align-content-center justify-content-between">
-        <h6 (click)="viewFilter(filter)" class="d-flex justify-content-start align-items-center cursor-pointer">
+        <h6 class="d-flex justify-content-start align-items-center cursor-pointer">
             <span inlineSVG="assets/icons/system/MARKET_RESEARCH.svg"
                   ngbTooltip="View filter"
                   [ngClass]="{'svg-spinner': pipeline.pipelineStatus === 'up'}"

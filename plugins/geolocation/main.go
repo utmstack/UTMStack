@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"os"
+	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
@@ -20,6 +21,7 @@ func main() {
 		_ = catcher.Error("com.utmstack.geolocation", err, map[string]any{
 			"process": "plugin_com.utmstack.geolocation",
 		})
+		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
 }

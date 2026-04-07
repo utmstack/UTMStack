@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260212005" author="Manuel Abascal">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            ------------------------------------------------------------------
+            -- TransactionId
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.TransactionId.keyword"',
+              '"field":"log.winlogEventDataTransactionId.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.TransactionId.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.TransactionId.keyword"',
+              '"field":"log.winlogEventDataTransactionId.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.TransactionId.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- ProfileChanged
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.ProfileChanged.keyword"',
+              '"field":"log.winlogEventDataProfileChanged.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.ProfileChanged.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.ProfileChanged.keyword"',
+              '"field":"log.winlogEventDataProfileChanged.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.ProfileChanged.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- RuleId
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.RuleId.keyword"',
+              '"field":"log.winlogEventDataRuleId.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.RuleId.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.RuleId.keyword"',
+              '"field":"log.winlogEventDataRuleId.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.RuleId.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- RuleName
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.RuleName.keyword"',
+              '"field":"log.winlogEventDataRuleName.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.RuleName.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.RuleName.keyword"',
+              '"field":"log.winlogEventDataRuleName.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.RuleName.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- MemberSid
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.MemberSid.keyword"',
+              '"field":"log.winlogEventDataMemberSid.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.MemberSid.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.MemberSid.keyword"',
+              '"field":"log.winlogEventDataMemberSid.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.MemberSid.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- TargetName
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.TargetName.keyword"',
+              '"field":"log.winlogEventDataTargetName.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.TargetName.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.TargetName.keyword"',
+              '"field":"log.winlogEventDataTargetName.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.TargetName.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- ReadOperation
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.ReadOperation.keyword"',
+              '"field":"log.winlogEventDataReadOperation.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.ReadOperation.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.ReadOperation.keyword"',
+              '"field":"log.winlogEventDataReadOperation.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.ReadOperation.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- ProcessID
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.ProcessID.keyword"',
+              '"field":"log.winlogEventDataProcessID.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.ProcessID.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.ProcessID.keyword"',
+              '"field":"log.winlogEventDataProcessID.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.ProcessID.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- ObjectServer
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.ObjectServer.keyword"',
+              '"field":"log.winlogEventDataObjectServer.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.ObjectServer.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.ObjectServer.keyword"',
+              '"field":"log.winlogEventDataObjectServer.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.ObjectServer.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- ObjectValueName
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.ObjectValueName.keyword"',
+              '"field":"log.winlogEventDataObjectValueName.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.ObjectValueName.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.ObjectValueName.keyword"',
+              '"field":"log.winlogEventDataObjectValueName.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.ObjectValueName.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- OperationType
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.OperationType.keyword"',
+              '"field":"log.winlogEventDataOperationType.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.OperationType.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.OperationType.keyword"',
+              '"field":"log.winlogEventDataOperationType.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.OperationType.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- OldValueType
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.OldValueType.keyword"',
+              '"field":"log.winlogEventDataOldValueType.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.OldValueType.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.OldValueType.keyword"',
+              '"field":"log.winlogEventDataOldValueType.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.OldValueType.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- NewValueType
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.NewValueType.keyword"',
+              '"field":"log.winlogEventDataNewValueType.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.NewValueType.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.NewValueType.keyword"',
+              '"field":"log.winlogEventDataNewValueType.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.NewValueType.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- Status
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.Status.keyword"',
+              '"field":"log.winlogEventDataStatus.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.Status.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.Status.keyword"',
+              '"field":"log.winlogEventDataStatus.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.Status.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- UserPrincipalName
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.UserPrincipalName.keyword"',
+              '"field":"log.winlogEventDataUserPrincipalName.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.UserPrincipalName.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.UserPrincipalName.keyword"',
+              '"field":"log.winlogEventDataUserPrincipalName.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.UserPrincipalName.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- DisplayName
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.DisplayName.keyword"',
+              '"field":"log.winlogEventDataDisplayName.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.DisplayName.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.DisplayName.keyword"',
+              '"field":"log.winlogEventDataDisplayName.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.DisplayName.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- TokenElevationType
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"log.winlog.event_data.TokenElevationType.keyword"',
+              '"field":"log.winlogEventDataTokenElevationType.keyword"')
+            WHERE filters LIKE '%"field":"log.winlog.event_data.TokenElevationType.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"log.winlog.event_data.TokenElevationType.keyword"',
+              '"field":"log.winlogEventDataTokenElevationType.keyword"')
+            WHERE aggregation LIKE '%"field":"log.winlog.event_data.TokenElevationType.keyword"%';
+
+
+            ------------------------------------------------------------------
+            -- computer_name → origin.host.keyword
+            -------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(filters,
+              '"field":"computer_name.keyword"',
+              '"field":"origin.host.keyword"')
+            WHERE filters LIKE '%"field":"computer_name.keyword"%';
+
+            UPDATE utm_visualization
+            SET aggregation = REPLACE(aggregation,
+              '"field":"computer_name.keyword"',
+              '"field":"origin.host.keyword"')
+            WHERE aggregation LIKE '%"field":"computer_name.keyword"%';
+
+
+
+
+
+            ]]>
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>

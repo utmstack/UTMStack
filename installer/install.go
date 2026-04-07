@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/utmstack/UTMStack/installer/config"
@@ -34,7 +35,7 @@ func Install() error {
 		return err
 	}
 
-	pass, err := setup.Apply(version.Version)
+	pass, err := setup.Apply(version.Version, false)
 	if err != nil {
 		return fmt.Errorf("error applying setup: %v", err)
 	}
@@ -45,7 +46,15 @@ func Install() error {
 
 	fmt.Println("Running post installation scripts. This may take a while.")
 	if err := docker.PostInstallation(); err != nil {
-		return err
+		fmt.Printf("\nCRITICAL ERROR: Post-installation failed: %v\n", err)
+		fmt.Println("Stopping Docker service to prevent security risk (ports may be left open).")
+		if stopErr := utils.StopService("docker"); stopErr != nil {
+			fmt.Printf("WARNING: Failed to stop Docker service: %v\n", stopErr)
+		} else {
+			fmt.Println("Docker service has been stopped. Manual intervention required.")
+			fmt.Println("Please check /var/log/utmstack-installer.log for details.")
+		}
+		os.Exit(1)
 	}
 
 	fmt.Println("Installation fisnished successfully. We have generated a configuration file for you, please do not modify or remove it. You can find it at /root/utmstack.yml.")

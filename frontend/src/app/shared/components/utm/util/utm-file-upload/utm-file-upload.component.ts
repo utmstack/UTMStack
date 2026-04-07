@@ -15,7 +15,7 @@ export class UtmFileUploadComponent implements OnInit {
   @Input() shoPreview = false;
   @Input() validateFileSize = false;
   @Input() maxFileSize = 10 * 1024;
-  maxFiles = 10;
+  maxFiles = 50;
   maxFilesError = false;
   @Output() fileEmit = new EventEmitter<any[]>();
   @Output() errorEmit = new EventEmitter<any>();

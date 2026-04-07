@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260209016" author="JocLRojas">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='3.0.3',
+                updated_at=now(),
+	        logstash_filter=$$ # Nginx filter, version 3.0.3
+# Supports Nginx access, error, emergency and notice  log
+# See: https://github.com/nginx/nginx
+# and https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-module-nginx.html for more documentation
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the Nginx log
+pipeline:
+  - dataTypes:
+      - nginx
+    steps:
+      - json:
+          source: raw
+
+      - rename:
+          from:
+            - log.log.file.path
+          to: origin.file
+
+      - rename:
+          from:
+            - log.host.ip
+          to: log.origin.ips
+
+      - rename:
+          from:
+            - log.host.mac
+          to: log.origin.macs
+
+      - rename:
+          from:
+            - log.host.hostname
+          to: origin.host
+
+      - rename:
+          from:
+            - log.event.dataset
+          to: action
+
+      - rename:
+          from:
+            - log.agent.version
+          to: log.agentVersion
+
+      - rename:
+          from:
+            - log.host.os.kernel
+          to: log.osVersion
+
+      - rename:
+          from:
+            - log.host.os.type
+          to: log.osType
+
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+
+      - cast:
+          to: "[]string"
+          fields:
+            - log.origin.ips
+
+      - cast:
+          to: "[]string"
+          fields:
+            - log.origin.macs
+
+      # Parsing the message field for the log "access" type
+      - grok:
+          patterns:
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}'
+            - fieldName: log.userIdent
+              pattern: '{{.word}}|(-)'
+            - fieldName: origin.user
+              pattern: '{{.word}}\.{{.word}}|(-)'
+            - fieldName: log.deviceTime
+              pattern: '\[(.*?)\]'
+            - fieldName: log.request
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.statusCode
+              pattern: '{{.integer}}'
+            - fieldName: origin.bytesReceived
+              pattern: '{{.integer}}|(-)'
+            - fieldName: log.referrer
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.userAgent
+              pattern: '{{.greedy}}'
+          source: log.message
+
+      # Removing unnecessary characters
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.deviceTime
+
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.deviceTime
+
+      - trim:
+          function: prefix
+          substring: '"'
+          fields:
+            - log.request
+            - log.referrer
+            - log.userAgent
+
+      - trim:
+          function: suffix
+          substring: '"'
+          fields:
+            - log.request
+            - log.referrer
+            - log.userAgent
+
+      # Parsing the request for the log "access" type
+      - grok:
+          patterns:
+            - fieldName: log.method
+              pattern: '{{.word}}'
+            - fieldName: origin.path
+              pattern: '\/[^ ]*'
+            - fieldName: protocol
+              pattern: '{{.greedy}}'
+          source: log.request
+
+      # Parsing the message field for the log "error" type
+      - grok:
+          patterns:
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}\/{{.monthNumber}}\/{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.severityLabel
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.processPidThreadId
+              pattern: '{{.integer}}\#{{.integer}}'
+            - fieldName: log.requestId
+              pattern: '(\:\s\*{{.integer}}\s)|(\:{{.space}})'
+            - fieldName: log.message
+              pattern: '{{.data}}\,'
+            - fieldName: origin.ip
+              pattern: '{{.data}}\,'
+            - fieldName: target.ip
+              pattern: '{{.data}}\,'
+            - fieldName: log.quest
+              pattern: '{{.word}}\:'
+            - fieldName: log.request
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.restdata
+              pattern: '{{.greedy}}'
+          source: log.message
+
+      # Removing unnecessary characters
+      - trim:
+          function: prefix
+          substring: '"'
+          fields:
+            - log.request
+
+      - trim:
+          function: suffix
+          substring: '"'
+          fields:
+            - log.request
+
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.severityLabel
+
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.severityLabel
+
+      - trim:
+          function: prefix
+          substring: ','
+          fields:
+            - log.restdata
+
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - log.message
+            - origin.ip
+            - target.ip
+
+      # Parsing the request for the log "error" type
+      - grok:
+          patterns:
+            - fieldName: log.method
+              pattern: '{{.word}}'
+            - fieldName: origin.path
+              pattern: '\/[^ ]*'
+            - fieldName: protocol
+              pattern: '{{.greedy}}'
+          source: log.request
+
+      # Parsing the message field for the log "emergency" type
+      - grok:
+          patterns:
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}\/{{.monthNumber}}\/{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.severityLabel
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.processPidThreadId
+              pattern: '{{.integer}}\#{{.integer}}'
+            - fieldName: log.requestId
+              pattern: '(\:\s\*{{.integer}}\s)|(\:{{.space}})'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+          source: log.message
+
+      # Removing unnecessary characters
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.severityLabel
+
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.severityLabel
+
+      # Parsing the message field for the log "notice" type
+      - grok:
+          patterns:
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}\/{{.monthNumber}}\/{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.severityLabel
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.processPidThreadId
+              pattern: '{{.integer}}\#{{.integer}}'
+            - fieldName: log.requestId
+              pattern: '(\:\s\*{{.integer}}\s)|(\:{{.space}})'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+          source: log.message
+
+      # Removing unnecessary characters
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.severityLabel
+
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.severityLabel
+
+      # Adding geolocation to target ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where: exists("target.ip")
+
+      # Adding geolocation to origin ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+
+      # Reformat and field conversions
+      - cast:
+          fields:
+            - log.statusCode
+          to: float
+
+      - cast:
+          fields:
+            - origin.bytesReceived
+          to: float
+
+      - reformat:
+          fields:
+            - log.deviceTime
+          function: time
+          fromFormat: '01/Feb/2022:08:01:18 -0500'
+          toFormat: '2024-09-23T15:57:40.338364445Z'
+
+      # Renaming "log.statusCode" to "statusCode" to add it to the event structure
+      - rename:
+          from:
+            - log.statusCode
+          to: statusCode
+
+      # Normalizing request method and renaming to action
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'get'
+          where: equals("log.method", "GET")
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'post'
+          where: equals("log.method", "POST")
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'put'
+          where: equals("log.method", "PUT")
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'delete'
+          where: equals("log.method", "DELETE")
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'request'
+          where: equals("log.method", "REQUEST")
+
+      # Adding actionResult
+      # denied by default
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where: (greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 299)) || (greaterOrEqual("statusCode", 300) && lessOrEqual("statusCode", 399) && greaterThan("origin.bytesReceived", 0))
+
+      # Adding severity based on log.severityLabel
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'high'
+          where: oneOf("log.severityLabel", ["critical", "alert", "error"])
+
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'medium'
+          where: equals("log.severityLabel", "warning")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'low'
+          where: oneOf("log.severityLabel", ["debug", "verbose", "notice", "information", "trace"])
+
+      # Removing log.method if action was set
+      - delete:
+          fields:
+            - log.method
+          where: exists("action")
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.service
+            - log.metadata
+            - log.log.offset
+            - log.log
+            - log.quest
+            - log.input.type
+            - log.input
+            - log.fileset.name
+            - log.fileset
+            - log.agent
+            - log.host
+            - log.event
+            - log.ecs
+            - log.log.file$$
+	WHERE id=1404;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

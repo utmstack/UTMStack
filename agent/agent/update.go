@@ -2,31 +2,54 @@ package agent
 
 import (
 	context "context"
-	"fmt"
+	"time"
 
 	"github.com/utmstack/UTMStack/agent/config"
-	"github.com/utmstack/UTMStack/agent/conn"
 	"github.com/utmstack/UTMStack/agent/models"
 	"github.com/utmstack/UTMStack/agent/utils"
+	"github.com/utmstack/UTMStack/shared/fs"
 )
 
-func UpdateAgent(cnf *config.Config, ctx context.Context) error {
-	connection, err := conn.GetAgentManagerConnection(cnf)
+const updateInterval = 5 * time.Minute
+
+func UpdateAgent(cnf *config.Config, ctx context.Context) {
+	var errLogged bool
+
+	for {
+		err := updateAgentOnce(cnf, ctx)
+		if err != nil {
+			if !errLogged {
+				utils.Logger.ErrorF("error updating agent: %v", err)
+				errLogged = true
+			}
+		} else {
+			errLogged = false
+		}
+
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(updateInterval):
+		}
+	}
+}
+
+func updateAgentOnce(cnf *config.Config, ctx context.Context) error {
+	connection, err := GetAgentManagerConnection(cnf)
 	if err != nil {
-		return fmt.Errorf("error connecting to Agent Manager: %v", err)
+		return err
 	}
 
 	client := NewAgentServiceClient(connection)
 
 	osInfo, err := utils.GetOsInfo()
 	if err != nil {
-		return fmt.Errorf("error getting os info: %v", err)
+		return err
 	}
 
 	version := models.Version{}
-	err = utils.ReadJson(config.VersionPath, &version)
-	if err != nil {
-		utils.Logger.Fatal("error reading version file: %v", err)
+	if err = fs.ReadJSON(config.VersionPath, &version); err != nil {
+		return err
 	}
 
 	request := &AgentRequest{
@@ -40,9 +63,5 @@ func UpdateAgent(cnf *config.Config, ctx context.Context) error {
 	}
 
 	_, err = client.UpdateAgent(ctx, request)
-	if err != nil {
-		return fmt.Errorf("error updating agent: %v", err)
-	}
-
-	return nil
+	return err
 }

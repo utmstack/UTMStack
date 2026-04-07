@@ -130,16 +130,27 @@ jobs:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
 
-      - name: Build Linux Binaries
+      - name: Build Linux Binaries (amd64)
         env:
           GOOS: linux
           GOARCH: amd64
         run: |
           cd ${{ github.workspace }}/agent
-          go build -o utmstack_agent_service -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+          go build -o utmstack_agent_service_linux_amd64 -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
           cd ${{ github.workspace }}/agent/updater
-          go build -o utmstack_updater_service .
+          go build -o utmstack_updater_service_linux_amd64 .
+
+      - name: Build Linux Binaries (arm64)
+        env:
+          GOOS: linux
+          GOARCH: arm64
+        run: |
+          cd ${{ github.workspace }}/agent
+          go build -o utmstack_agent_service_linux_arm64 -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+
+          cd ${{ github.workspace }}/agent/updater
+          go build -o utmstack_updater_service_linux_arm64 .
 
       - name: Build Windows Binaries (amd64)
         env:
@@ -147,10 +158,10 @@ jobs:
           GOARCH: amd64
         run: |
           cd ${{ github.workspace }}/agent
-          go build -o utmstack_agent_service.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+          go build -o utmstack_agent_service_windows_amd64.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
           cd ${{ github.workspace }}/agent/updater
-          go build -o utmstack_updater_service.exe .
+          go build -o utmstack_updater_service_windows_amd64.exe .
 
       - name: Build Windows Binaries (arm64)
         env:
@@ -158,34 +169,138 @@ jobs:
           GOARCH: arm64
         run: |
           cd ${{ github.workspace }}/agent
-          go build -o utmstack_agent_service_arm64.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+          go build -o utmstack_agent_service_windows_arm64.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
           cd ${{ github.workspace }}/agent/updater
-          go build -o utmstack_updater_service_arm64.exe .
+          go build -o utmstack_updater_service_windows_arm64.exe .
 
       - name: Sign Windows Agents
         run: |
           cd ${{ github.workspace }}/agent
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service.exe"
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service_arm64.exe"
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service_windows_amd64.exe"
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service_windows_arm64.exe"
 
           cd ${{ github.workspace }}/agent/updater
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_updater_service.exe"
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_updater_service_arm64.exe"
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_updater_service_windows_amd64.exe"
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_updater_service_windows_arm64.exe"
 
       - name: Upload signed binaries as artifacts
         uses: actions/upload-artifact@v4
         with:
           name: signed-agents
           path: |
-            ${{ github.workspace }}/agent/utmstack_agent_service
-            ${{ github.workspace }}/agent/utmstack_agent_service.exe
-            ${{ github.workspace }}/agent/utmstack_agent_service_arm64.exe
-            ${{ github.workspace }}/agent/updater/utmstack_updater_service
-            ${{ github.workspace }}/agent/updater/utmstack_updater_service.exe
-            ${{ github.workspace }}/agent/updater/utmstack_updater_service_arm64.exe
+            ${{ github.workspace }}/agent/utmstack_agent_service_linux_amd64
+            ${{ github.workspace }}/agent/utmstack_agent_service_linux_arm64
+            ${{ github.workspace }}/agent/utmstack_agent_service_windows_amd64.exe
+            ${{ github.workspace }}/agent/utmstack_agent_service_windows_arm64.exe
+            ${{ github.workspace }}/agent/updater/utmstack_updater_service_linux_amd64
+            ${{ github.workspace }}/agent/updater/utmstack_updater_service_linux_arm64
+            ${{ github.workspace }}/agent/updater/utmstack_updater_service_windows_amd64.exe
+            ${{ github.workspace }}/agent/updater/utmstack_updater_service_windows_arm64.exe
           retention-days: 1
-  
+
+  build_agent_darwin:
+    name: Build and Sign Agent (macOS)
+    needs: [setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
+    runs-on: macos-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Install Apple Certificate
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: |
+          # Create temporary keychain
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # Import certificate
+          echo "$CERTIFICATE_BASE64" | base64 --decode > $RUNNER_TEMP/certificate.p12
+          security import $RUNNER_TEMP/certificate.p12 -P "$CERTIFICATE_PASSWORD" \
+            -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          # Allow codesign without prompt
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+      - name: Build macOS Agent (arm64)
+        env:
+          GOOS: darwin
+          GOARCH: arm64
+          CGO_ENABLED: 0
+        run: |
+          cd ${{ github.workspace }}/agent
+          go build -o utmstack_agent_service_darwin_arm64 -v \
+            -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+
+          cd ${{ github.workspace }}/agent/updater
+          go build -o utmstack_updater_service_darwin_arm64 .
+
+      - name: Sign macOS Binaries
+        env:
+          SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+        run: |
+          # Sign agent
+          codesign --force --options runtime \
+            --sign "$SIGNING_IDENTITY" \
+            --timestamp \
+            ${{ github.workspace }}/agent/utmstack_agent_service_darwin_arm64
+
+          # Sign updater
+          codesign --force --options runtime \
+            --sign "$SIGNING_IDENTITY" \
+            --timestamp \
+            ${{ github.workspace }}/agent/updater/utmstack_updater_service_darwin_arm64
+
+      - name: Notarize macOS Binaries
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          # Create zip for notarization (notarytool requires zip/pkg/dmg)
+          cd ${{ github.workspace }}/agent
+          zip utmstack_agent_darwin_arm64.zip utmstack_agent_service_darwin_arm64
+
+          cd ${{ github.workspace }}/agent/updater
+          zip utmstack_updater_darwin_arm64.zip utmstack_updater_service_darwin_arm64
+
+          # Notarize agent
+          xcrun notarytool submit ${{ github.workspace }}/agent/utmstack_agent_darwin_arm64.zip \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_APP_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --wait
+
+          # Notarize updater
+          xcrun notarytool submit ${{ github.workspace }}/agent/updater/utmstack_updater_darwin_arm64.zip \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_APP_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --wait
+
+      - name: Upload macOS binaries as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-agents-darwin
+          path: |
+            ${{ github.workspace }}/agent/utmstack_agent_service_darwin_arm64
+            ${{ github.workspace }}/agent/updater/utmstack_updater_service_darwin_arm64
+          retention-days: 1
+
   build_utmstack_collector:
     name: Build UTMStack Collector
     needs: [setup_deployment]
@@ -195,24 +310,35 @@ jobs:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
 
-      - name: Build UTMStack Collector
+      - name: Build UTMStack Collectors
         run: |
           echo "Building UTMStack Collector..."
           cd ${{ github.workspace }}/utmstack-collector
 
           GOOS=linux GOARCH=amd64 go build -o utmstack_collector -v -ldflags "-X 'github.com/utmstack/UTMStack/utmstack-collector/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
+          echo "Building UTMStack AS400 Collector..."
+
+          cd ${{ github.workspace }}/as400
+          GOOS=linux GOARCH=amd64 go build -o utmstack_as400_collector_service -v -ldflags "-X 'github.com/utmstack/UTMStack/as400/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+
+          cd ${{ github.workspace }}/as400/updater
+          GOOS=linux GOARCH=amd64 go build -o utmstack_as400_updater_service -v .
+
       - name: Upload collector binary as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: utmstack-collector
-          path: ${{ github.workspace }}/utmstack-collector/utmstack_collector
+          name: utmstack-collectors
+          path: |
+            ${{ github.workspace }}/utmstack-collector/utmstack_collector
+            ${{ github.workspace }}/as400/utmstack_as400_collector_service
+            ${{ github.workspace }}/as400/updater/utmstack_as400_updater_service
           retention-days: 1
 
   build_agent_manager:
     name: Build Agent Manager Microservice
-    needs: [build_agent, build_utmstack_collector, setup_deployment]
-    if: ${{ always() && needs.build_agent.result == 'success' && needs.build_utmstack_collector.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
+    needs: [build_agent, build_agent_darwin, build_utmstack_collector, setup_deployment]
+    if: ${{ always() && needs.build_agent.result == 'success' && needs.build_agent_darwin.result == 'success' && needs.build_utmstack_collector.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
@@ -224,11 +350,17 @@ jobs:
           name: signed-agents
           path: ${{ github.workspace }}/agent
 
-      - name: Download UTMStack Collector from artifacts
+      - name: Download UTMStack Collectors from artifacts
         uses: actions/download-artifact@v4
         with:
-          name: utmstack-collector
+          name: utmstack-collectors
           path: ${{ github.workspace }}/utmstack-collector
+
+      - name: Download signed macOS agents from artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: signed-agents-darwin
+          path: ${{ github.workspace }}/agent-darwin
 
       - name: Prepare dependencies for Agent Manager Image
         run: |
@@ -236,24 +368,44 @@ jobs:
           GOOS=linux GOARCH=amd64  go build -o agent-manager -v .
 
           mkdir -p ./dependencies/collector
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/collector/linux-as400-collector.zip" -o ./dependencies/collector/linux-as400-collector.zip
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/collector/windows-as400-collector.zip" -o ./dependencies/collector/windows-as400-collector.zip
-
-          cp "${{ github.workspace }}/utmstack-collector/utmstack_collector" ./dependencies/collector/
+          cp "${{ github.workspace }}/utmstack-collector/utmstack-collector/utmstack_collector" ./dependencies/collector/
           cp "${{ github.workspace }}/utmstack-collector/version.json" ./dependencies/collector/
 
-          mkdir -p ./dependencies/agent/
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/agent/utmstack_agent_dependencies_linux.zip" -o ./dependencies/agent/utmstack_agent_dependencies_linux.zip
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/agent/utmstack_agent_dependencies_windows.zip" -o ./dependencies/agent/utmstack_agent_dependencies_windows.zip
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/agent/utmstack_agent_dependencies_windows_arm64.zip" -o ./dependencies/agent/utmstack_agent_dependencies_windows_arm64.zip
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/agent/utmstack-macos-agent-v10.pkg" -o ./dependencies/agent/utmstack-macos-agent.pkg
+          mkdir -p ./dependencies/collector/as400
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/collector/as400-collector.jar" -o ./dependencies/collector/as400/as400-collector.jar
 
-          cp "${{ github.workspace }}/agent/utmstack_agent_service" ./dependencies/agent/
-          cp "${{ github.workspace }}/agent/utmstack_agent_service.exe" ./dependencies/agent/
-          cp "${{ github.workspace }}/agent/utmstack_agent_service_arm64.exe" ./dependencies/agent/
-          cp "${{ github.workspace }}/agent/updater/utmstack_updater_service" ./dependencies/agent/
-          cp "${{ github.workspace }}/agent/updater/utmstack_updater_service.exe" ./dependencies/agent/
-          cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_arm64.exe" ./dependencies/agent/
+          cp "${{ github.workspace }}/as400/version.json" ./dependencies/collector/as400/
+          cp "${{ github.workspace }}/utmstack-collector/as400/utmstack_as400_collector_service" ./dependencies/collector/as400/
+          cp "${{ github.workspace }}/utmstack-collector/as400/updater/utmstack_as400_updater_service" ./dependencies/collector/as400/
+
+          mkdir -p ./dependencies/agent/
+
+          # Linux agents
+          cp "${{ github.workspace }}/agent/utmstack_agent_service_linux_amd64" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent/utmstack_agent_service_linux_arm64" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_linux_amd64" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_linux_arm64" ./dependencies/agent/
+
+          # Windows agents
+          cp "${{ github.workspace }}/agent/utmstack_agent_service_windows_amd64.exe" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent/utmstack_agent_service_windows_arm64.exe" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_windows_amd64.exe" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_windows_arm64.exe" ./dependencies/agent/
+
+          # macOS agents (signed and notarized)
+          cp "${{ github.workspace }}/agent-darwin/utmstack_agent_service_darwin_arm64" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent-darwin/updater/utmstack_updater_service_darwin_arm64" ./dependencies/agent/
+          curl -sSL "https://storage.googleapis.com/utmstack-updates/agent_updates/release/macos-agent/latest/utmstack-collector-mac" -o ./dependencies/agent/utmstack-collector-mac
+
+          # TODO: Remove legacy binary names after all agents have migrated to new naming convention
+          # Legacy names for backwards compatibility with existing agents
+          cp "${{ github.workspace }}/agent/utmstack_agent_service_linux_amd64" ./dependencies/agent/utmstack_agent_service
+          cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_linux_amd64" ./dependencies/agent/utmstack_updater_service
+          cp "${{ github.workspace }}/agent/utmstack_agent_service_windows_amd64.exe" ./dependencies/agent/utmstack_agent_service.exe
+          cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_windows_amd64.exe" ./dependencies/agent/utmstack_updater_service.exe
+          cp "${{ github.workspace }}/agent/utmstack_agent_service_windows_arm64.exe" ./dependencies/agent/utmstack_agent_service_arm64.exe
+          cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_windows_arm64.exe" ./dependencies/agent/utmstack_updater_service_arm64.exe
+
           cp "${{ github.workspace }}/agent/version.json" ./dependencies/agent/
       
       - name: Login to GitHub Container Registry
@@ -268,6 +420,7 @@ jobs:
         with:
           context: ./agent-manager
           push: true
+          provenance: false
           tags: ghcr.io/utmstack/utmstack/agent-manager:${{ needs.setup_deployment.outputs.tag }}
   
   build_event_processor:
@@ -323,6 +476,7 @@ jobs:
           context: .
           file: ./event_processor.Dockerfile
           push: true
+          provenance: false
           tags: ghcr.io/utmstack/utmstack/eventprocessor:${{ needs.setup_deployment.outputs.tag }}
           build-args: |
             BASE_IMAGE=ghcr.io/threatwinds/eventprocessor/base:${{ needs.setup_deployment.outputs.event_processor_tag }}
@@ -522,7 +676,7 @@ jobs:
               -H "Content-Type: application/json" \
               -H "id: $auth_id" \
               -H "key: $auth_key" \
-              -d "{\"instance_id\": \"$instance_id\", \"version\": \"$TAG\"}")
+              -d "{\"instances_ids\": [\"$instance_id\"], \"version\": \"$TAG\"}")
 
             http_code=$(echo "$response" | tail -n1)
             body=$(echo "$response" | sed '$d')

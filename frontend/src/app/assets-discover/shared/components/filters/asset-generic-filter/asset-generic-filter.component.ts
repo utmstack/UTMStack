@@ -43,10 +43,12 @@ export class AssetGenericFilterComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
+
     this.requestParams = {
       ...this.requestParams,
       prop: this.fieldFilter.field
     };
+
     this.fieldValues$ = this.assetGenericFilterService.onRefresh$
       .pipe(
         filter(filterData => !!filterData && filterData.refresh && filterData.fieldFilter === this.fieldFilter.field),

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260211005" author="Manuel Abascal">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            ------------------------------------------------------------------
+            -- Visualization 501: update timestamp range (24h → 7d)
+            ------------------------------------------------------------------
+            UPDATE utm_visualization
+            SET filters = REPLACE(
+                    filters,
+                    '["now-24h","now"]',
+                    '["now-7d","now"]'
+                )
+            WHERE id = 501;
+
+            ]]>
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>

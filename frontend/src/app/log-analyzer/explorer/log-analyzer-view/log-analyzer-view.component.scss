@@ -59,3 +59,27 @@ app-log-analyzer-field {
   height: 36px;
 }
 
+.sql-editor-container {
+  height: 30vh;
+  min-height: 200px;
+}
+
+@media (min-width: 1920px) {
+  .sql-editor-container {
+    height: 50%;
+  }
+}
+
+@media (min-width: 1366px) and (max-width: 1919px) {
+  .sql-editor-container {
+    height: 40%;
+  }
+}
+
+@media (max-width: 1365px) {
+  .sql-editor-container {
+    height: 30%;
+  }
+}
+
+

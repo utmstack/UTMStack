@@ -1,0 +1,295 @@
+pipeline:
+  - dataTypes:
+      - paloalto-cortex-xdr
+    steps:
+      # ==================================================================================
+      # 1. CEF / LEEF Handling
+      # ==================================================================================
+      - grok:
+          source: raw
+          where: 'contains(raw, "CEF:") || contains(raw, "LEEF:")'
+          patterns:
+            - fieldName: log.format_type
+              pattern: '{{.word}}'   # Extracts CEF or LEEF
+            - fieldName: log.ignore
+              pattern: ':'
+            - fieldName: log.format_version
+              pattern: '{{.data}}'   # Extracts version until next |
+            - fieldName: log.ignore
+              pattern: '\|'
+            - fieldName: log.vendor
+              pattern: '{{.data}}'
+            - fieldName: log.ignore
+              pattern: '\|'
+            - fieldName: log.product
+              pattern: '{{.data}}'
+            - fieldName: log.ignore
+              pattern: '\|'
+            - fieldName: log.device_version
+              pattern: '{{.data}}'
+            - fieldName: log.ignore
+              pattern: '\|'
+            - fieldName: log.event_class
+              pattern: '{{.data}}'
+            - fieldName: log.ignore
+              pattern: '\|'
+            - fieldName: log.name
+              pattern: '{{.data}}'
+            - fieldName: log.ignore
+              pattern: '\|'
+            - fieldName: log.severity
+              pattern: '{{.data}}'
+            - fieldName: log.ignore
+              pattern: '\|'
+            - fieldName: log.extension
+              pattern: '{{.greedy}}'
+
+      - kv:
+          source: log.extension
+          where: 'exists("log.extension")'
+          fieldSplit: " "
+          valueSplit: "="
+      
+      # Cleanup CEF fields
+      - delete:
+          fields: [log.ignore]
+
+      # ==================================================================================
+      # 2. CSV Handling - Threat Logs
+      # ==================================================================================
+      # Regex: (threat)(\s)?,...
+      - csv:
+          source: raw
+          where: 'regexMatch(raw, "^(threat)(\\s)?,.*")'
+          separator: ","
+          headers: 
+            - log.recordType
+            - log.class
+            - log.FUTURE_USE
+            - log.eventType
+            - log.generatedTime
+            - log.serverTime
+            - log.agentTime
+            - log.tzOffset
+            - log.FUTURE_USE_2
+            - log.facility
+            - log.customerId
+            - log.trapsId
+            - log.serverHost
+            - log.serverComponentVersion
+            - log.regionId
+            - log.isEndpoint
+            - log.agentId
+            - log.osType
+            - log.isVdi
+            - log.osVersion
+            - log.is64
+            - log.agentIp
+            - log.deviceName
+            - log.deviceDomain
+            - log.severity
+            - log.trapsSeverity
+            - log.agentVersion
+            - log.contentVersion
+            - log.protectionStatus
+            - log.preventionKey
+            - log.moduleId
+            - log.profile
+            - log.moduleStatusId
+            - log.verdict
+            - log.preventionMode
+            - log.terminate
+            - log.terminateTarget
+            - log.quarantine
+            - log.block
+            - log.postDetected
+            - log.eventParameters
+            - log.sourceProcessIdx
+            - log.targetProcessIdx
+            - log.fileIdx
+            - log.processes
+            - log.files
+            - log.users
+            - log.urls
+            - log.description
+
+      # ==================================================================================
+      # 3. CSV Handling - Config / Policy / System Management
+      # ==================================================================================
+      # Regex: ^(config|system),.*
+      # Note: The conf groups these together for Config Logs + System Logs separate.
+      # Config Logs column mapping:
+      - csv:
+          source: raw
+          where: 'regexMatch(raw, "^config,.*")'
+          separator: ","
+          headers:
+            - log.recordType
+            - log.class
+            - log.FUTURE_USE
+            - log.subClassId
+            - log.eventType
+            - log.eventCategory
+            - log.generatedTime
+            - log.serverTime
+            - log.FUTURE_USE_2
+            - log.facility
+            - log.customerId
+            - log.trapsId
+            - log.serverHost
+            - log.serverComponentVersion
+            - log.regionId
+            - log.isEndpoint
+            - log.severity
+            - log.trapsSeverity
+            - log.messageCode
+            - log.friendlyName
+            - log.FUTURE_USE_3
+            - log.msgTextEn
+            - log.userFullName
+            - log.userName
+            - log.userRole
+            - log.userDomain
+            - log.additionalData
+            - log.messageCode2
+            - log.errorText
+            - log.errorData
+            - log.resultData
+
+      # ==================================================================================
+      # 4. CSV Handling - Analytics Logs
+      # ==================================================================================
+      - csv:
+          source: raw
+          where: 'regexMatch(raw, "^analytics,.*")'
+          separator: ","
+          headers:
+            - log.recordType
+            - log.class
+            - log.FUTURE_USE
+            - log.eventType
+            - log.eventCategory
+            - log.generatedTime
+            - log.serverTime
+            - log.agentTime
+            - log.tzOffset
+            - log.FUTURE_USE_2
+            - log.facility
+            - log.customerId
+            - log.trapsId
+            - log.serverHost
+            - log.serverComponentVersion
+            - log.regionId
+            - log.isEndpoint
+            - log.agentId
+            - log.osType
+            - log.isVdi
+            - log.osVersion
+            - log.is64
+            - log.agentIp
+            - log.deviceName
+            - log.deviceDomain
+            - log.severity
+            - log.agentVersion
+            - log.contentVersion
+            - log.protectionStatus
+            - log.sha256
+            - log.type
+            - log.parentSha256
+            - log.lastSeen
+            - log.fileName
+            - log.filePath
+            - log.fileSize
+            - log.localAnalysisResult
+            - log.reported
+            - log.blocked
+            - log.executionCount
+
+      # ==================================================================================
+      # 5. CSV Handling - System Logs
+      # ==================================================================================
+      - csv:
+          source: raw
+          where: 'regexMatch(raw, "^system,.*")'
+          separator: ","
+          headers: 
+             - log.recordType
+             - log.class
+             - log.FUTURE_USE
+             - log.subClassId
+             - log.eventType
+             - log.eventCategory
+             - log.generatedTime
+             - log.serverTime
+             - log.FUTURE_USE_2
+             - log.facility
+             - log.customerId
+             - log.trapsId
+             - log.serverHost
+             - log.serverComponentVersion
+             - log.regionId
+             - log.isEndpoint
+             - log.agentId
+             - log.severity
+             - log.trapsSeverity
+             - log.messageCode
+             - log.friendlyName
+             - log.FUTURE_USE_3
+             - log.msgTextEn
+             - log.userFullName
+             - log.userName
+             - log.userRole
+             - log.userDomain
+             - log.agentTime
+             - log.tzOffset
+             - log.osType
+             - log.isVdi
+             - log.osVersion
+             - log.is64
+             - log.agentIp
+             - log.deviceName
+             - log.deviceDomain
+             - log.agentVersion
+             - log.contentVersion
+             - log.protectionStatus
+             - log.userFullName2
+             - log.username2
+             - log.userRole2
+             - log.userDomain2
+             - log.messageName
+             - log.messageId
+             - log.processStatus
+             - log.errorText
+             - log.errorData
+             - log.resultData
+             - log.parameters
+             - log.additionalData
+
+      # ==================================================================================
+      # 6. Standard Mappings
+      # ==================================================================================
+      # Map fields extracted from CEF/CSV to standard UTMStack schema (origin.ip, target.ip, etc)
+      # Assuming KV filter extracted typical CEF keys like src, dst, spt, dpt
+      
+      - rename:
+          from: [log.src, log.u_srcIp] # u_srcIp might be from CSV if named differently? No, CSV columns are named above.
+          to: origin.ip
+          where: 'exists("log.src")'
+      - rename:
+          from: [log.agentIp] # From CSV
+          to: origin.ip
+          where: 'exists("log.agentIp") && !exists("origin.ip")'
+
+      - rename:
+          from: [log.dst]
+          to: target.ip
+      - rename:
+          from: [log.spt, log.srcPort]
+          to: origin.port
+      - rename:
+          from: [log.dpt, log.dstPort]
+          to: target.port
+      
+      # Clean up FUTURE_USE fields
+      - delete:
+          fields: [log.FUTURE_USE, log.FUTURE_USE_2, log.FUTURE_USE_3]

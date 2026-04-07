@@ -23,12 +23,16 @@ const (
 )
 
 var (
-	cnf *ConfigurationSection
-	mu  sync.Mutex
-
+	cnf               *ConfigurationSection
+	mu                sync.Mutex
+	configUpdateChan  chan *ConfigurationSection
 	internalKey       string
 	modulesConfigHost string
 )
+
+func init() {
+	configUpdateChan = make(chan *ConfigurationSection, 1)
+}
 
 func GetConfig() *ConfigurationSection {
 	mu.Lock()
@@ -39,9 +43,13 @@ func GetConfig() *ConfigurationSection {
 	return cnf
 }
 
+func GetConfigUpdateChannel() <-chan *ConfigurationSection {
+	return configUpdateChan
+}
+
 func StartConfigurationSystem() {
 	for {
-		pluginConfig := plugins.PluginCfg("com.utmstack", false)
+		pluginConfig := plugins.PluginCfg("com.utmstack")
 		if !pluginConfig.Exists() {
 			_ = catcher.Error("plugin configuration not found", nil, map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
 			time.Sleep(reconnectDelay)
@@ -132,8 +140,19 @@ func StartConfigurationSystem() {
 
 			switch message := in.Payload.(type) {
 			case *BiDirectionalMessage_Config:
-				catcher.Info("Received configuration update", map[string]any{"config": message.Config, "process": "plugin_com.utmstack.crowdstrike"})
+				catcher.Info("Received configuration update", map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
+
+				mu.Lock()
 				cnf = message.Config
+				mu.Unlock()
+
+				select {
+				case configUpdateChan <- message.Config:
+
+				default:
+
+					catcher.Info("Configuration update channel full, skipping notification", map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
+				}
 			}
 		}
 	}

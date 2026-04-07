@@ -274,20 +274,23 @@ public class UtmNetworkScanService {
     private Page<UtmNetworkScan> filter(NetworkScanFilter f, Pageable p) throws Exception {
         final String ctx = CLASSNAME + ".filter";
         try {
-
-            /*if (page.getTotalPages() > 0) {
-                List<UtmDataInputStatus> utmDataInputStatuses = utmDataInputStatusRepository.findAll().stream().sorted(Comparator.comparing(UtmDataInputStatus::getSource)).collect(Collectors.toList());
-                page.forEach(m -> m.setMetrics(assetMetricsRepository.findAllByAssetName(m.getAssetName())));
-                page.forEach(m -> m.setDataInputList(utmDataInputStatuses.stream().filter(
-                    inputStatus -> inputStatus.getSource().equalsIgnoreCase(m.getAssetName()) ||
-                        inputStatus.getSource().equalsIgnoreCase(m.getAssetIp())).collect(Collectors.toList())));
-            }*/
-
             return networkScanRepository.searchByFilters(
                 f.getAssetIpMacName() == null ? null : "%" + f.getAssetIpMacName() + "%",
-                f.getOs(), f.getAlias(), f.getType(), f.getAlive(), f.getStatus(),
-                f.getProbe(), f.getOpenPorts(), f.getDiscoveredInitDate(),
-                f.getDiscoveredEndDate(), f.getGroups(), f.getRegisteredMode(), f.getAgent(), f.getOsPlatform(), f.getDataTypes(), p);
+                f.getOs(), !CollectionUtils.isEmpty(f.getOs()),
+                f.getAlias(), !CollectionUtils.isEmpty(f.getAlias()),
+                f.getType(), !CollectionUtils.isEmpty(f.getType()),
+                f.getAlive(), !CollectionUtils.isEmpty(f.getAlive()),
+                f.getStatus(), !CollectionUtils.isEmpty(f.getStatus()),
+                f.getProbe(), !CollectionUtils.isEmpty(f.getProbe()),
+                f.getOpenPorts(), !CollectionUtils.isEmpty(f.getOpenPorts()),
+                f.getDiscoveredInitDate(),
+                f.getDiscoveredEndDate(),
+                f.getGroups(), !CollectionUtils.isEmpty(f.getGroups()),
+                f.getRegisteredMode(),
+                f.getAgent(), !CollectionUtils.isEmpty(f.getAgent()),
+                f.getOsPlatform(), !CollectionUtils.isEmpty(f.getOsPlatform()),
+                f.getDataTypes(), !CollectionUtils.isEmpty(f.getDataTypes()),
+                p);
         } catch (InvalidDataAccessResourceUsageException e) {
             String msg = ctx + ": " + e.getMostSpecificCause().getMessage().replaceAll("\n", "");
             throw new Exception(msg);

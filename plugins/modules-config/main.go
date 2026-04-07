@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
@@ -18,13 +20,14 @@ func main() {
 		return
 	}
 
-	utmConfig := plugins.PluginCfg("com.utmstack", false)
+	utmConfig := plugins.PluginCfg("com.utmstack")
 	InternalKey = utmConfig.Get("internalKey").String()
 	BackendService = utmConfig.Get("backend").String()
 
 	if InternalKey == "" || BackendService == "" {
 		_ = catcher.Error("error getting configuration", fmt.Errorf("internal key or backend service is empty"), map[string]any{"process": "plugin_com.utmstack.modules-config"})
-		return
+		time.Sleep(5 * time.Second)
+		os.Exit(1)
 	}
 
 	go startGRPCServer()

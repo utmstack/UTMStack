@@ -1,4 +1,4 @@
-# MySQL filter, version 3.0.2
+# MySQL filter, version 3.0.3
 # Fields based on https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-mysql.html
 # https://dev.mysql.com/doc/refman/8.0/en/error-log-format.html
 # https://docs.oracle.com/en-us/iaas/Content/Logging/Reference/top_level_logging_format.htm
@@ -105,19 +105,19 @@ pipeline:
           params:
             key: severity
             value: 'high'
-          where: safe("log.level", "") == "Internal" || safe("log.level", "") == "internal" || safe("log.level", "") == "INTERNAL" || safe("log.level", "") == "Error" || safe("log.level", "") == "error" || safe("log.level", "") == "ERROR"
+          where: oneOf("log.level", ["Internal", "internal", "INTERNAL", "Error", "error", "ERROR"])
       - add:
           function: 'string'
           params:
             key: severity
             value: 'medium'
-          where: safe("log.level", "") && (safe("log.level", "") == "Warning" || safe("log.level", "") == "warning" || safe("log.level", "") == "WARNING")
+          where: exists("log.level") && oneOf("log.level", ["Warning", "warning", "WARNING"])
       - add:
           function: 'string'
           params:
             key: severity
             value: 'low'
-          where: safe("log.level", "") && safe("log.level", "") != "Internal" && safe("log.level", "") != "internal" && safe("log.level", "") != "INTERNAL" && safe("log.level", "") != "Error" && safe("log.level", "") != "error" && safe("log.level", "") != "ERROR" && safe("log.level", "") != "Warning" && safe("log.level", "") != "warning" && safe("log.level", "") != "WARNING"
+          where: exists("log.level") && !oneOf("log.level", ["Internal", "internal", "INTERNAL", "Error", "error", "ERROR", "Warning", "warning", "WARNING"])
       # Removing unused fields
       - delete:
           fields:

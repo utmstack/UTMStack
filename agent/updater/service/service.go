@@ -4,7 +4,7 @@ import (
 	"github.com/kardianos/service"
 	"github.com/utmstack/UTMStack/agent/updater/config"
 	"github.com/utmstack/UTMStack/agent/updater/updates"
-	"github.com/utmstack/UTMStack/agent/updater/utils"
+	"github.com/utmstack/UTMStack/shared/logger"
 )
 
 type program struct{}
@@ -21,7 +21,7 @@ func (p *program) Stop(s service.Service) error {
 func (p *program) run() {
 	cnf, err := config.GetCurrentConfig()
 	if err != nil {
-		utils.UpdaterLogger.ErrorF("error getting config: %v", err)
+		logger.Error("error getting config: %v", err)
 		return
 	}
 
@@ -33,11 +33,11 @@ func RunService() {
 	prg := new(program)
 	newService, err := service.New(prg, svcConfig)
 	if err != nil {
-		utils.UpdaterLogger.Fatal("error creating service: %v", err)
+		logger.Fatal("error creating service: %v", err)
 	}
 
 	err = newService.Run()
 	if err != nil {
-		utils.UpdaterLogger.Fatal("error running service: %v", err)
+		logger.Fatal("error running service: %v", err)
 	}
 }

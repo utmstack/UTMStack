@@ -10,6 +10,7 @@ import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.service.MailService;
 import com.park.utmstack.service.UtmSpaceNotificationControlService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.service.index_policy.IndexPolicyService;
 import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationHistoryDto;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlLatestEvaluationMapper;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlEvaluationHistoryMapper;
@@ -23,6 +24,7 @@ import com.utmstack.opensearch_connector.types.ElasticCluster;
 import com.utmstack.opensearch_connector.types.IndexSort;
 import com.utmstack.opensearch_connector.types.SearchSqlResponse;
 import com.utmstack.opensearch_connector.types.SqlQueryRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.opensearch.client.opensearch._types.FieldValue;
 import org.opensearch.client.opensearch._types.SortOrder;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
@@ -46,11 +48,13 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Leonardo M. López
  */
 @Service
+@Slf4j
 public class ElasticsearchService {
     private static final String CLASSNAME = "ElasticsearchService";
     private final Logger log = LoggerFactory.getLogger(ElasticsearchService.class);
@@ -58,16 +62,19 @@ public class ElasticsearchService {
     private final UserRepository userRepository;
     private final MailService mailService;
     private final UtmSpaceNotificationControlService spaceNotificationControlService;
+    private final IndexPolicyService indexPolicyService;
     private final OpensearchClientBuilder client;
 
     public ElasticsearchService(ApplicationEventService eventService, UserRepository userRepository,
                                 MailService mailService,
                                 UtmSpaceNotificationControlService spaceNotificationControlService,
+                                IndexPolicyService indexPolicyService,
                                 OpensearchClientBuilder client) {
         this.eventService = eventService;
         this.userRepository = userRepository;
         this.mailService = mailService;
         this.spaceNotificationControlService = spaceNotificationControlService;
+        this.indexPolicyService = indexPolicyService;
         this.client = client;
     }
 
@@ -82,7 +89,7 @@ public class ElasticsearchService {
         final String ctx = CLASSNAME + ".getFieldValues";
         try {
             return new ArrayList<>(client.getClient().getFieldValues(keyword, indexPattern,
-                null, 10000, TermOrder.Count, SortOrder.Desc).keySet());
+                    null, 10000, TermOrder.Count, SortOrder.Desc).keySet());
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
@@ -102,7 +109,7 @@ public class ElasticsearchService {
         final String ctx = CLASSNAME + ".getFieldValuesWithCount";
         try {
             return client.getClient().getFieldValues(field, index, SearchUtil.toQuery(filters), top,
-                orderByCount ? TermOrder.Count : TermOrder.Key, sortAsc ? SortOrder.Asc : SortOrder.Desc);
+                    orderByCount ? TermOrder.Count : TermOrder.Key, sortAsc ? SortOrder.Asc : SortOrder.Desc);
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
@@ -147,15 +154,17 @@ public class ElasticsearchService {
     public List<IndexPropertyType> getIndexProperties(String indexPattern) {
         final String ctx = CLASSNAME + ".getIndexProperties";
 
-        if (!indexExist(indexPattern))
-            throw new OpenSearchIndexNotFoundException(ctx  + ": Index [" + indexPattern + "] not found");
+        if (!indexExist(indexPattern)) {
+            log.info("{} Index pattern {} does not exist", ctx, indexPattern);
+            return Collections.emptyList();
+        }
 
         try {
             Map<String, String> properties = client.getClient().getIndexProperties(indexPattern);
             if (CollectionUtils.isEmpty(properties))
                 return Collections.emptyList();
             return properties.entrySet()
-                .stream().map(e -> new IndexPropertyType(e.getKey(), e.getValue())).collect(Collectors.toList());
+                    .stream().map(e -> new IndexPropertyType(e.getKey(), e.getValue())).collect(Collectors.toList());
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
@@ -171,7 +180,7 @@ public class ElasticsearchService {
      * @throws UtmElasticsearchException In case of any error
      */
     public Page<IndicesRecord> getAllIndexes(boolean includeSystemIndex, String pattern, Pageable pageable) throws
-        UtmElasticsearchException {
+            UtmElasticsearchException {
         final String ctx = CLASSNAME + ".getAllIndexes";
         try {
             Assert.notNull(pageable, "Argument pageable can't be null");
@@ -183,7 +192,7 @@ public class ElasticsearchService {
 
             if (!includeSystemIndex)
                 indices = indices.stream().filter(index -> !index.index().startsWith("."))
-                    .collect(Collectors.toList());
+                        .collect(Collectors.toList());
 
             PagedListHolder<IndicesRecord> pageDefinition = new PagedListHolder<>();
             pageDefinition.setSource(indices);
@@ -202,7 +211,7 @@ public class ElasticsearchService {
                 return IndexSort.unSorted();
             IndexSort.Builder sortBuilder = IndexSort.builder();
             sort.forEach(order -> sortBuilder.with(IndexSortableProperty.fromJsonValue(order.getProperty()),
-                order.getDirection().isAscending() ? SortOrder.Asc : SortOrder.Desc));
+                    order.getDirection().isAscending() ? SortOrder.Asc : SortOrder.Desc));
             return sortBuilder.build();
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
@@ -243,14 +252,14 @@ public class ElasticsearchService {
                     return;
 
                 UtmSpaceNotificationControl notificationControl = spaceNotificationControlService.findById(1L)
-                    .orElse(new UtmSpaceNotificationControl());
+                        .orElse(new UtmSpaceNotificationControl());
                 if (Objects.isNull(notificationControl.getId()))
                     notificationControl.setId(1L);
 
                 Instant now = LocalDateTime.now().toInstant(ZoneOffset.UTC);
 
                 if (Objects.isNull(notificationControl.getNextNotification()) ||
-                    now.isAfter(notificationControl.getNextNotification())) {
+                        now.isAfter(notificationControl.getNextNotification())) {
                     mailService.sendLowSpaceEmail(admins, clusterStatus);
                     notificationControl.setNextNotification(now.plus(24, ChronoUnit.HOURS));
                     spaceNotificationControlService.save(notificationControl);
@@ -270,7 +279,7 @@ public class ElasticsearchService {
         final String ctx = CLASSNAME + ".deleteOldestIndices";
         try {
             List<IndicesRecord> indices = client.getClient().getIndices(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.LOGS), IndexSort.builder()
-                .with(IndexSortableProperty.CreationDate, SortOrder.Asc).build());
+                    .with(IndexSortableProperty.CreationDate, SortOrder.Asc).build());
 
             // If no index that match with log-* was found then te function is terminated
             if (CollectionUtils.isEmpty(indices))
@@ -278,23 +287,30 @@ public class ElasticsearchService {
 
             // Indices are returned from oldest to newest ordered by creation.date asc
             for (IndicesRecord index : indices) {
+                Optional<ElasticCluster> opt = getClusterStatus();
+
+                if (opt.isEmpty() || opt.get().getResume().getDiskUsedPercent() < 70)
+                    break;
+
+                if (!indexPolicyService.isIndexRemovable(index.index())) {
+                    log.info("{} Skipping index {} because it is not in a removable state", ctx, index.index());
+                    continue;
+                }
+
                 try {
                     // Delete oldest indices
                     deleteIndex(Collections.singletonList(index.index()));
                     eventService.createEvent(String.format("Index %1$s was deleted to avoid system crash by space:\n" +
-                            "Creation Date: %2$s\n" +
-                            "Docs Count: %3$s\n" +
-                            "Size: %4$s",
-                        index.index(), index.creationDateString(), index.docsCount(), index.storeSize()), ApplicationEventType.INFO);
+                                    "Creation Date: %2$s\n" +
+                                    "Docs Count: %3$s\n" +
+                                    "Size: %4$s",
+                            index.index(), index.creationDateString(), index.docsCount(), index.storeSize()), ApplicationEventType.INFO);
+                    TimeUnit.SECONDS.sleep(10);
                 } catch (Exception e) {
                     String msg = String.format("%1$s: Fail to delete index: %2$s with message: %3$s", ctx, index.index(), e.getMessage());
                     eventService.createEvent(msg, ApplicationEventType.WARNING);
                 }
 
-                Optional<ElasticCluster> opt = getClusterStatus();
-
-                if (opt.isEmpty() || opt.get().getResume().getDiskUsedPercent() < 70)
-                    break;
             }
         } catch (Exception e) {
             String msg = String.format("%1$s: %2$s", ctx, e.getMessage());

@@ -135,3 +135,18 @@ fieldset {
   background-color: $success-color !important;
 }
 
+.form-body {
+  min-height: 725px;
+  max-height: 725px;
+  overflow-y: auto!important;
+  overflow-x: hidden!important;
+  flex-grow: 1;
+}
+
+@media screen and (max-height: 867px) {
+  .form-body {
+    min-height: 500px;
+    max-height: 500px;
+  }
+}
+

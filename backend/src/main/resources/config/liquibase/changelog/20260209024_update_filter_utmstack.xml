@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260209024" author="Manuel">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='3.0.5',
+                updated_at=now(),
+            logstash_filter= $$ # UTMStack filter, version 1.0.1
+
+pipeline:
+  - dataTypes:
+      - utmstack
+    steps:
+      # Only parse as JSON if it contains the standard schema with "msg": and "args":
+      - json:
+          source: raw
+          where: 'contains("raw", "\"msg\":") && contains("raw", "\"args\":")'
+
+      # If it doesn't have the standard schema, just store the content in log.message using grok
+      - grok:
+          source: raw
+          patterns:
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+          where: '!contains("raw", "\"msg\":") || !contains("raw", "\"args\":")'
+
+            $$
+	WHERE id=1531;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

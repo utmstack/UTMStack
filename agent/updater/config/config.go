@@ -2,11 +2,10 @@ package config
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"sync"
 
-	"gopkg.in/yaml.v3"
+	"github.com/utmstack/UTMStack/shared/fs"
 )
 
 type Config struct {
@@ -22,24 +21,11 @@ var (
 func GetCurrentConfig() (*Config, error) {
 	var errR error
 	confOnce.Do(func() {
-		ex, err := os.Executable()
-		if err != nil {
-			errR = fmt.Errorf("error getting executable path: %v", err)
-			return
-		}
-		exPath := filepath.Dir(ex)
-
-		configPath := filepath.Join(exPath, "config.yml")
-		content, err := os.ReadFile(configPath)
-		if err != nil {
-			errR = fmt.Errorf("error reading config file: %v", err)
-			return
-		}
+		configPath := filepath.Join(fs.GetExecutablePath(), "config.yml")
 
 		var loadedConfig Config
-		err = yaml.Unmarshal(content, &loadedConfig)
-		if err != nil {
-			errR = fmt.Errorf("error parsing config file: %v", err)
+		if err := fs.ReadYAML(configPath, &loadedConfig); err != nil {
+			errR = fmt.Errorf("error reading config file: %v", err)
 			return
 		}
 

@@ -41,7 +41,7 @@
         <p class="step-guide">
           <span class="step_number">4</span>
           In the newly created App registration, go to Certificates & Secrets, and create a new one by clicking on "New client secret".
-          Add a description. Set it to expires in 730 days (24 months) and click on Add. Copy the value in a safe place.
+          Add a description. Set it to expires in 730 days (24 months) and click on Add. <span class="text-primary font-weight-semibold">Copy the value in a safe place.</span>
         </p>
         <img alt="Certificates & secret" class="step-img"
              src="../../../../assets/img/guides/office365/o365-certificate-secret.png">
@@ -94,30 +94,6 @@
       <li>
         <p class="step-guide">
           <span class="step_number">10</span>
-          Go to
-          <a class="text-primary font-weight-semibold" href="https://compliance.microsoft.com"
-             target="_blank"> https://compliance.microsoft.com</a> and sign in.
-        </p>
-
-      </li>
-      <li>
-        <p class="step-guide">
-          <span class="step_number">11</span>
-          In the left navigation pane of the compliance portal, select Audit. If auditing isn't turned on for your organization,
-          a banner is displayed prompting you start recording user and admin activity.
-        </p>
-        <img alt="Overview" class="step-img mt-3"
-             src="../../../../assets/img/guides/office365/o365-auditing-banner.png">
-      </li>
-      <li>
-        <p class="step-guide">
-          <span class="step_number">12</span>
-          Select the Start recording user and admin activity banner. It may take up to 60 minutes for the change to take effect.
-        </p>
-      </li>
-      <li>
-        <p class="step-guide">
-          <span class="step_number">13</span>
           Return to Azure Active Directory and go to the Registered Apps (step number 3) and make a
           note the info that appears in the Overview section (client ID, tenant ID) and the secret.
         </p>
@@ -126,7 +102,7 @@
       </li>
       <li>
         <p class="step-guide">
-          <span class="step_number">14</span>
+          <span class="step_number">11</span>
           Insert information in the following inputs.You can add more than one o365
           configuration by clicking on Add tenant button.
         </p>
@@ -140,7 +116,7 @@
       </li>
       <li>
         <p class="step-guide mb-3">
-          <span class="step_number">15</span>
+          <span class="step_number">12</span>
           Click on the button shown below, to activate the UTMStack features related to this integration
         </p>
         <app-app-module-activate-button [module]="module.O365" [type]="'integration'"

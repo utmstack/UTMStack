@@ -1,0 +1,22 @@
+pipeline:
+  - dataTypes:
+      - macos
+    steps:
+      # 1. Handle Agent Wrapper (Optional)
+      - grok:
+          source: raw
+          patterns:
+            - fieldName: log.wrapper_open
+              pattern: '\[utm_stack_agent_ds='
+            - fieldName: log.datasource_override
+              pattern: '{{.data}}'
+            - fieldName: log.wrapper_close
+              pattern: '\]-'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+      
+      # 2. Cleanup
+      - delete:
+          fields: [log.wrapper_open, log.wrapper_close]

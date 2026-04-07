@@ -67,7 +67,7 @@ public class UtilSerializer {
         }
     }
 
-    public static <T> T jsonDeserialize(Class<T> type, String json) throws UtmSerializationException {
+    public static <T> T jsonDeserialize(Class<T> type, String json)  {
         String ctx = CLASS_NAME + ".jsonDeserialize";
         try {
             ObjectMapper om = new ObjectMapper();

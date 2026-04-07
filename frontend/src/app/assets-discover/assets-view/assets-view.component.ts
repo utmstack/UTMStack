@@ -19,7 +19,6 @@ import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
 import {ChartValueSeparator} from '../../shared/enums/chart-value-separator';
 import {ElasticOperatorsEnum} from '../../shared/enums/elastic-operators.enum';
 import {IncidentOriginTypeEnum} from '../../shared/enums/incident-response/incident-origin-type.enum';
-import {UtmDatePipe} from '../../shared/pipes/date.pipe';
 import {IncidentCommandType} from '../../shared/types/incident/incident-command.type';
 import {UtmFieldType} from '../../shared/types/table/utm-field.type';
 import {TimeFilterType} from '../../shared/types/time-filter.type';
@@ -44,7 +43,7 @@ import {SourceDataTypeConfigComponent} from '../source-data-type-config/source-d
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AssetsViewComponent implements OnInit, OnDestroy {
-  assets$: Observable<NetScanType[]>;
+
   assets: NetScanType[];
   // defaultTime: ElasticFilterDefaultTime = new ElasticFilterDefaultTime('now-30d', 'now');
   pageWidth = window.innerWidth;
@@ -55,8 +54,8 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   page = 0;
   loading = false;
   itemsPerPage = ITEMS_PER_PAGE;
-  viewAssetDetail: NetScanType;
-  sortBy = AssetFieldEnum.ASSET_ID + ',asc';
+  assetSelected: NetScanType;
+  sortBy = AssetFieldEnum.ASSET_IS_ALIVE + ',DESC';
   assetsFields: UtmFieldType[] = ASSETS_FIELDS;
   checkbox: any;
   assetFieldEnum = AssetFieldEnum;
@@ -83,7 +82,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   deleting: string[] = [];
   agentConsole: NetScanType;
   reasonRun: IncidentCommandType;
-  agent: string;
+  assetName: string;
   noData = false;
   destroy$ = new Subject<void>();
 
@@ -144,6 +143,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
       .subscribe( {
         next: (assets: NetScanType[]) => {
           this.assets = assets;
+          this.sortLastInput('desc');
           this.loading = false;
           this.cdr.markForCheck();
         },
@@ -279,7 +279,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
       case AssetFieldEnum.ASSET_METRICS:
         break;
       default:
-        this.viewAssetDetail = asset;
+        this.assetSelected = asset;
     }
   }
 
@@ -389,10 +389,13 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   }
 
   getLastInput(asset: NetScanType) {
-    console.log('getLastInput', asset.lastInput);
     if (asset.dataInputList.length > 0) {
-      const lastInput = asset.dataInputList[asset.dataInputList.length - 1].timestamp;
+
+      const lastInputStatus = asset.dataInputList[asset.dataInputList.length - 1];
+      const lastInput = lastInputStatus.timestamp;
+
       asset.lastInputTimestamp = lastInput;
+      asset.status = lastInputStatus.down;
       return this.formatTimestampToDate(lastInput);
     }
 
@@ -406,17 +409,17 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   }
 
   toggleAsset(asset: NetScanType) {
-    if (this.viewAssetDetail && this.viewAssetDetail.id === asset.id) {
-      this.viewAssetDetail = undefined;
+    if (this.assetSelected && this.assetSelected.id === asset.id) {
+      this.assetSelected = undefined;
     } else {
-      this.viewAssetDetail = asset;
+      this.assetSelected = asset;
     }
   }
 
   viwAgentDetail(event: Event, asset: NetScanType) {
     event.stopPropagation();
-    this.viewAssetDetail = asset;
-    this.agent = asset.assetName;
+    this.assetSelected = asset;
+    this.assetName = asset.assetName && asset.assetName !== '' ? asset.assetName : asset.assetIp;
   }
 
   isSourceConnected(asset: NetScanType, source: UtmDataInputStatus): boolean {
@@ -439,7 +442,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   }
 
   closeDetail() {
-    this.agent = undefined;
+    this.assetName = undefined;
     this.reasonRun.reason = '';
   }
 

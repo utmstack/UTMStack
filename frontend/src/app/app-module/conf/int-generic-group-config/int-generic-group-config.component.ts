@@ -1,12 +1,11 @@
 import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges} from '@angular/core';
 import {Subject} from 'rxjs';
-import {debounceTime, distinctUntilChanged, finalize, map, takeUntil, tap} from 'rxjs/operators';
+import {debounceTime, finalize, map, takeUntil, tap} from 'rxjs/operators';
 import {ModalService} from '../../../core/modal/modal.service';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {
   ModalConfirmationComponent
 } from '../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
-import {EncryptService} from '../../../shared/services/util/encrypt.service';
 import {ModuleChangeStatusBehavior} from '../../shared/behavior/module-change-status.behavior';
 import {IntCreateGroupComponent} from '../../shared/components/int-create-group/int-create-group.component';
 import {GroupTypeEnum} from '../../shared/enum/group-type.enum';
@@ -24,7 +23,7 @@ import {IntegrationConfigFactory} from './int-config-types/IntegrationConfigFact
   templateUrl: './int-generic-group-config.component.html',
   styleUrls: ['./int-generic-group-config.component.css']
 })
-export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDestroy {
+export class IntGenericGroupConfigComponent implements OnInit, OnDestroy {
   @Input() serverId: number;
   @Input() moduleId: number;
   @Input() groupType = GroupTypeEnum.TENANT;
@@ -46,10 +45,10 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
   destroy$ = new Subject<void>();
   uniqueConfigNameConstrain = false;
   invalidDomainOrIp = false;
+  savingConfigs = new Map<number, boolean>();
 
   constructor(private utmModuleGroupService: UtmModuleGroupService,
               private toast: UtmToastService,
-              private encryptService: EncryptService,
               private utmModuleGroupConfService: UtmModuleGroupConfService,
               private modalService: ModalService,
               private moduleChangeStatusBehavior: ModuleChangeStatusBehavior,
@@ -92,34 +91,6 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
 
   get collectorList() {
     return (this.config as CollectorConfiguration).collectorList;
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes.disablePreAction && changes.disablePreAction.currentValue) {
-      const collectors = [];
-      this.collectorList.forEach( c => {
-        collectors.push({
-          moduleId: this.moduleId,
-          keys: this.configs,
-          collector: {
-            ...c,
-            group: null,
-          }
-        });
-      });
-      this.collectorService.bulkCreate(collectors)
-          .pipe(map(response => response.body.results))
-          .subscribe( results => {
-            if (results.every( r => r.status === 'success')) {
-              this.moduleChangeStatusBehavior.setStatus(false, false);
-              this.getGroups().subscribe();
-            } else {
-              this.toast.showError('Error Removing Collector Configuration',
-                  'An error occurred while trying to remove the collector configuration. Please try again.');
-            }
-          },
-          error => console.log(error));
-    }
   }
 
   getGroups() {
@@ -189,7 +160,7 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
   }
 
   saveConfig(group: UtmModuleGroupType) {
-    this.savingConfig = true;
+    this.savingConfigs.set(group.id, true);
     const configs = this.changes.keys.filter(change => change.groupId === group.id);
 
     this.utmModuleGroupConfService.update({
@@ -197,7 +168,7 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
       keys: configs
     }).pipe(
       finalize(() => {
-        this.savingConfig = false;
+        this.savingConfigs.set(group.id, false);
         this.cdr.detectChanges();
       })
     ).subscribe({
@@ -293,7 +264,7 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
     return groups.some(group => this.pendingChangesForGroup(group));
   }
 
-  onFileUpload($event: any[], group: UtmModuleGroupType, integrationConfig: UtmModuleGroupConfType) {
+  /*onFileUpload($event: any[], group: UtmModuleGroupType, integrationConfig: UtmModuleGroupConfType) {
     if (integrationConfig.confKey === 'jsonKey') {
       this.encryptService.encrypt(JSON.stringify($event[0])).subscribe(response => {
         const indexGroup = this.groups.findIndex(value => value.id === group.id);
@@ -302,7 +273,21 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
         this.addChange(integrationConfig);
       });
     }
+  }*/
+
+  onFileUpload($event: any[], group: UtmModuleGroupType, integrationConfig: UtmModuleGroupConfType) {
+    if (integrationConfig.confKey === 'jsonKey') {
+      const json = JSON.stringify($event[0]);
+
+      const indexGroup = this.groups.findIndex(value => value.id === group.id);
+      const indexConf = this.groups[indexGroup].moduleGroupConfigurations.findIndex(value => value.id === integrationConfig.id);
+
+      this.groups[indexGroup].moduleGroupConfigurations[indexConf].confValue = json;
+
+      this.addChange(integrationConfig);
+    }
   }
+
 
   collectorValid(groups: UtmModuleGroupType[]) {
     return groups.every(group => this.tenantIsConfigValid(group));
@@ -317,6 +302,7 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
   }
 
   saveCollectorConfig(collector: any, action = 'CREATE') {
+    this.savingConfig = true;
     (this.config as CollectorConfiguration).saveCollector(collector)
       .subscribe(response => {
       this.savingConfig = false;
@@ -363,11 +349,21 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
     deleteModal.componentInstance.confirmBtnType = 'delete';
     deleteModal.result.then(() => {
       if (collector && collector.collector !== '') {
-        const collectorToSave = {
-          ...collector,
-          groups: []
-        };
-        this.deleteAction(collectorToSave);
+        (this.config as CollectorConfiguration).deleteAllConfigs(collector.id)
+          .subscribe({
+            next: () => {
+              if (this.groups.length === 1) {
+                this.moduleChangeStatusBehavior.setStatus(false, false);
+              }
+
+              this.toast.showSuccessBottom('Collector configuration deleted successfully');
+              this.getGroups().subscribe();
+            },
+            error: () => {
+              this.toast.showError('Error deleting collector configuration',
+                'An error occurred while trying to delete the collector configuration. Please try again.');
+            }
+          });
       }
     });
   }
@@ -425,6 +421,7 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
 
     this.addChange(integrationConfig);
   }
+
 
   ngOnDestroy() {
     this.destroy$.next();

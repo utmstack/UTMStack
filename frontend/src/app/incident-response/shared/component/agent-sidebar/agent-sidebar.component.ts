@@ -24,10 +24,13 @@ export class AgentSidebarComponent implements OnInit {
   }
 
   searchAgent($event: string | number) {
+    const searchValue = $event.toString().trim();
+    const searchQuery = searchValue ? `hostname.Contain=${searchValue}` : '';
+
     this.agentSidebarService.loadData({
       ...this.request,
       page: 0,
-      assetIpMacName: $event.toString()
+      searchQuery
     });
   }
 

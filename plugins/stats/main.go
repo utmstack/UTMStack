@@ -24,12 +24,13 @@ func main() {
 	statisticsQueue = make(chan map[plugins.Topic]plugins.DataProcessingMessage, runtime.NumCPU()*100)
 	statsMap = make(map[plugins.Topic]map[string]map[string]int64)
 
-	pCfg := plugins.PluginCfg("org.opensearch", false)
+	pCfg := plugins.PluginCfg("org.opensearch")
 	osUrl := pCfg.Get("opensearch").String()
 
 	err := sdkos.Connect([]string{osUrl}, "", "")
 	if err != nil {
 		_ = catcher.Error("failed when connecting to OpenSearch", err, map[string]any{"process": "plugin_com.utmstack.stats"})
+		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
 
@@ -55,6 +56,7 @@ func main() {
 		_ = catcher.Error("failed to start notification plugin", err, map[string]any{
 			"process": "plugin_com.utmstack.stats",
 		})
+		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
 

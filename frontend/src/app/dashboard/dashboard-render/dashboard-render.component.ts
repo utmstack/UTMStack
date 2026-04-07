@@ -69,57 +69,35 @@ export class DashboardRenderComponent implements OnInit, OnDestroy, AfterViewIni
               private dashboardBehavior: DashboardBehavior,
               private timeFilterBehavior: TimeFilterBehavior,
               private exportPdfService: ExportPdfService,
-              private spinner: NgxSpinnerService,
-              private refreshService: RefreshService,
-              private router: Router) {
+              private spinner: NgxSpinnerService) {
   }
 
   ngOnInit() {
+
     document.body.classList.add('overflow-hidden');
     this.loadingVisualizations = true;
-    this.layout$ = this.activatedRoute.data
-      .pipe(
-        tap((visualizations) => {
-          this.dashboard = this.layoutService.dashboard;
-          this.filters = this.dashboard && this.dashboard.filters ? JSON.parse(this.dashboard.filters) : [];
-         /* if (this.dashboard.refreshTime) {
-            console.log(this.dashboard.refreshTime);
-            this.onRefreshTime(this.dashboard.refreshTime);
-          }*/
-          this.loadingVisualizations = false;
-        }),
-        map(data => data.response)
+
+    this.layout$ = this.activatedRoute.data.pipe(
+      map(data => {
+        const response = data && data.response ? data.response : [];
+
+        this.dashboard = this.layoutService.dashboard ? this.layoutService.dashboard : null;
+
+        try {
+          this.filters = this.dashboard && this.dashboard.filters
+            ? JSON.parse(this.dashboard.filters)
+            : [];
+        } catch {
+          this.filters = [];
+        }
+
+        this.loadingVisualizations = false;
+
+        return response;
+      })
     );
 
-    /*this.activatedRoute.params.subscribe(params => {
-      this.dashboardId = params.id;
-      if (this.dashboardId) {
-        const request = {
-          page: 0,
-          size: 10000,
-          'idDashboard.equals': this.dashboardId,
-          sort: 'order,asc'
-        };
-        this.utmRenderVisualization.query(request).subscribe(response => {
-          this.layoutService.layout = [];
-          this.timeEnable = [];
-          this.visualizationRender = response.body;
-          this.dashboard = this.visualizationRender.length > 0 ? this.visualizationRender[0].dashboard : null;
-          this.filters = this.dashboard.filters ? JSON.parse(this.dashboard.filters) : [];
-          if (this.dashboard.refreshTime) {
-            this.onRefreshTime(this.dashboard.refreshTime);
-          }
-          for (const vis of this.visualizationRender) {
-            if (vis.showTimeFilter) {
-              this.timeEnable.push(vis.visualization.id);
-            }
-            const grid = JSON.parse(vis.gridInfo);
-            this.layoutService.addItem(vis.visualization, grid);
-          }
-          this.loadingVisualizations = false;
-        });
-      }
-    });*/
+
     this.dashboardBehavior.$filterDashboard.subscribe(dashboardFilter => {
       if (dashboardFilter) {
         mergeParams(dashboardFilter.filter, this.filtersValues).then(newFilters => {
@@ -158,13 +136,6 @@ export class DashboardRenderComponent implements OnInit, OnDestroy, AfterViewIni
     }
   }
 
-  ngOnDestroy(): void {
-    document.body.classList.remove('overflow-hidden');
-    clearInterval(this.interval);
-    this.layoutService.clearLayout();
-    this.dashboardBehavior.$filterDashboard.next(null);
-  }
-
   ngAfterViewInit(): void {
     this.cdr.detectChanges();
   }
@@ -192,6 +163,13 @@ export class DashboardRenderComponent implements OnInit, OnDestroy, AfterViewIni
 
   trackByFn(index: number, item: { grid: GridsterItem, visualization: VisualizationType }) {
     return item.visualization.id;
+  }
+
+  ngOnDestroy(): void {
+    document.body.classList.remove('overflow-hidden');
+    clearInterval(this.interval);
+    this.layoutService.clearLayout();
+    this.dashboardBehavior.$filterDashboard.next(null);
   }
 }
 

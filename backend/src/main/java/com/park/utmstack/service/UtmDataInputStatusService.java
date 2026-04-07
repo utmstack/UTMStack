@@ -1,8 +1,9 @@
 package com.park.utmstack.service;
 
 import com.park.utmstack.config.Constants;
-import com.park.utmstack.domain.datainput_ingestion.UtmDataInputStatus;
 import com.park.utmstack.domain.UtmServerModule;
+import com.park.utmstack.domain.correlation.config.UtmTenantConfig;
+import com.park.utmstack.domain.datainput_ingestion.UtmDataInputStatus;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
@@ -17,6 +18,7 @@ import com.park.utmstack.repository.datainput_ingestion.UtmDataInputStatusReposi
 import com.park.utmstack.repository.correlation.config.UtmDataTypesRepository;
 import com.park.utmstack.repository.network_scan.UtmNetworkScanRepository;
 import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.service.correlation.config.UtmTenantConfigService;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
 import com.park.utmstack.service.elasticsearch.SearchUtil;
 import com.park.utmstack.service.logstash_pipeline.response.statistic.StatisticDocument;
@@ -34,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -61,13 +62,14 @@ public class UtmDataInputStatusService {
     private final Logger log = LoggerFactory.getLogger(UtmDataInputStatusService.class);
 
     private final UtmDataInputStatusRepository dataInputStatusRepository;
-    private final UtmServerModuleService serverModuleService;
     private final ApplicationEventService applicationEventService;
     private final UtmNetworkScanService networkScanService;
     private final ElasticsearchService elasticsearchService;
     private final UtmDataTypesRepository dataTypesRepository;
     private final UtmNetworkScanRepository networkScanRepository;
     private final UtmDataInputStatusCheckpointRepository checkpointRepository;
+    private final UtmTenantConfigService utmTenantConfigService;
+    private final UtmServerModuleService serverModuleService;
 
 
     /**
@@ -120,7 +122,7 @@ public class UtmDataInputStatusService {
         dataInputStatusRepository.deleteById(id);
     }
 
-    @Scheduled(fixedDelay = 900000)
+   /* @Scheduled(fixedDelay = 900000)*/
     public void checkDatasource() {
         final String ctx = CLASSNAME + ".checkDatasource";
         final List<String> types = Arrays.asList("aws", "o365", "hids");
@@ -174,7 +176,7 @@ public class UtmDataInputStatusService {
         }
     }
 
-    @Scheduled(fixedDelay = 15000, initialDelay = 30000)
+   /* @Scheduled(fixedDelay = 15000, initialDelay = 30000)*/
     public void syncDataInputStatus() {
         final String ctx = CLASSNAME + ".syncDataInputStatus";
 
@@ -193,10 +195,14 @@ public class UtmDataInputStatusService {
             latestStats.forEach((key, stat) -> {
                 try {
                     String dataType = stat.getDataType();
-                    String dataSource = stat.getDataSource();
+                    String statName = stat.getDataSource();
+                    String sourceWithAlias = this.getSourceName(statName);
+                    String resolvedAlias = sourceWithAlias != null ? statName : null;
+                    String source = sourceWithAlias == null ? statName : sourceWithAlias;
+
                     long timestamp = Instant.parse(stat.getTimestamp()).getEpochSecond();
 
-                    String compositeKey = dataType + "-" + dataSource;
+                    String compositeKey = dataType + "-" + source;
 
                     UtmDataInputStatus status = existing.get(compositeKey);
                     boolean changed = false;
@@ -205,13 +211,16 @@ public class UtmDataInputStatusService {
                         status = UtmDataInputStatus.builder()
                                 .id(compositeKey)
                                 .dataType(dataType)
-                                .source(dataSource)
+                                .source(source)
+                                .alias(resolvedAlias)
                                 .timestamp(timestamp)
                                 .median(86400L)
                                 .build();
                         changed = true;
-                    } else if (status.getTimestamp() != timestamp) {
+
+                    } else if (status.getTimestamp() != timestamp || !Objects.equals(status.getAlias(), resolvedAlias)) {
                         status.setTimestamp(timestamp);
+                        status.setAlias(resolvedAlias);
                         changed = true;
                     }
 
@@ -237,7 +246,7 @@ public class UtmDataInputStatusService {
      * Gets the sources from utm_data_input_status that are not registered in utm_network_scan table
      * and create new assets with it. This method is a schedule with a delay of 1 hour
      */
-    @Scheduled(fixedDelay = 30000, initialDelay = 60000)
+    /*@Scheduled(fixedDelay = 30000, initialDelay = 60000)*/
     public void syncSourcesToAssets() {
         final String ctx = CLASSNAME + ".syncSourcesToAssets";
         try {
@@ -268,6 +277,7 @@ public class UtmDataInputStatusService {
             }
 
             Map<String, Boolean> sourcesWithStatus = extractSourcesWithUpDownStatus(sources);
+            Map<String, String> sourcesWithAlias = extractSourcesWithAlias(sources);
 
             List<String> keys = new ArrayList<>(sourcesWithStatus.keySet());
             List<UtmNetworkScan> assets = networkScanRepository.findByAssetIpInOrAssetNameIn(keys, keys);
@@ -281,16 +291,27 @@ public class UtmDataInputStatusService {
 
             for (Map.Entry<String, Boolean> entry : sourcesWithStatus.entrySet()) {
                 String key = entry.getKey();
+                String alias = sourcesWithAlias.get(key);
                 Boolean alive = entry.getValue();
+
 
                 UtmNetworkScan asset = assetsByKey.get(key);
 
+                if (asset == null && StringUtils.hasText(alias)) {
+                    asset = assetsByKey.get(alias);
+                }
+
                 if (asset != null) {
                     if (asset.getUpdateLevel() == null || asset.getUpdateLevel().equals(UpdateLevel.DATASOURCE) || asset.getUpdateLevel().equals(UpdateLevel.AGENT)) {
+
+                        if (StringUtils.hasText(alias) && !alias.equals(asset.getAssetAlias())) {
+                            asset.assetAliases(alias);
+                        }
+
                         asset.assetAlive(alive)
-                             .updateLevel(UpdateLevel.DATASOURCE)
-                             .assetStatus(AssetStatus.CHECK)
-                             .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+                                .updateLevel(UpdateLevel.DATASOURCE)
+                                .assetStatus(AssetStatus.CHECK)
+                                .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
 
                         networkScanService.save(asset);
                     }
@@ -305,19 +326,30 @@ public class UtmDataInputStatusService {
 
                 if (missing && UpdateLevel.DATASOURCE.equals(asset.getUpdateLevel())) {
                     asset.assetStatus(AssetStatus.MISSING)
-                          .updateLevel(null)
-                          .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+                            .updateLevel(null)
+                            .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
 
                     networkScanService.save(asset);
                 }
             });
 
-           networkScanRepository.deleteAllAssetsByDataType(excludeDataTypes);
+            networkScanRepository.deleteAllAssetsByDataType(excludeDataTypes);
 
         } catch (Exception e) {
             log.error("{}: Error synchronizing sources to assets - {}", ctx, e.getMessage(), e);
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
+    }
+
+    private Map<String, String> extractSourcesWithAlias(List<UtmDataInputStatus> sources) {
+        Map<String, String> alias = new HashMap<>();
+
+        sources.forEach(src -> {
+            if (StringUtils.hasText(src.getAlias())) {
+                alias.put(src.getSource(), src.getAlias());
+            }
+        });
+        return alias;
     }
 
     private Map<String, Boolean> extractSourcesWithUpDownStatus(List<UtmDataInputStatus> sources) {
@@ -485,16 +517,95 @@ public class UtmDataInputStatusService {
             }
         });
 
-        Instant lastTimestamp = result.values().stream()
+        Optional<Instant> maybeLastTimestamp = result.values().stream()
                 .map(doc -> Instant.parse(doc.getTimestamp()))
-                .max(Instant::compareTo)
-                .orElse(Instant.now());
+                .max(Instant::compareTo);
 
-        checkpoint.setLastProcessedTimestamp(lastTimestamp);
-
-        this.checkpointRepository.save(checkpoint);
+        if (maybeLastTimestamp.isPresent()) {
+            checkpoint.setLastProcessedTimestamp(maybeLastTimestamp.get());
+            this.checkpointRepository.save(checkpoint);
+        }
 
         return result;
     }
+
+    private String getSourceName(String assetName) {
+        final String ctx = CLASSNAME + ".getDataSource";
+
+        Optional<UtmTenantConfig> tenantConfig = this.utmTenantConfigService.findByAssetName(assetName);
+
+        if (tenantConfig.isEmpty()) {
+            return null;
+        }
+
+        List<String> sources = buildSourcesList(tenantConfig.get());
+
+        if (CollectionUtils.isEmpty(sources)) {
+            return null;
+        }
+
+        Optional<UtmDataInputStatus> dataInputStatus = this.findDataInputBySource(sources);
+
+        return dataInputStatus
+                .map(UtmDataInputStatus::getSource)
+                .orElse(null);
+    }
+
+    /**
+     * Builds a combined list of hostnames and IPs from tenant configuration
+     *
+     * @param tenantConfig the tenant configuration
+     * @return combined list of sources, or empty list if none available
+     */
+    private List<String> buildSourcesList(UtmTenantConfig tenantConfig) {
+        List<String> sources = new ArrayList<>();
+
+        if (!CollectionUtils.isEmpty(tenantConfig.getAssetHostnameList())) {
+            sources.addAll(tenantConfig.getAssetHostnameList());
+        }
+
+        if (!CollectionUtils.isEmpty(tenantConfig.getAssetIpList())) {
+            sources.addAll(tenantConfig.getAssetIpList());
+        }
+
+        return sources;
+    }
+
+    /**
+     * Finds a data input status by searching in the provided list of sources.
+     * Returns the first available source from the database.
+     *
+     * @param sources list of source hostnames/IPs to search for
+     * @return Optional containing the data input status if found
+     */
+    public Optional<UtmDataInputStatus> findDataInputBySource(List<String> sources) {
+        final String ctx = CLASSNAME + ".findDataInputBySource";
+
+        if (CollectionUtils.isEmpty(sources)) {
+            return Optional.empty();
+        }
+
+        try {
+            return this.dataInputStatusRepository.findBySourceIsIn(sources);
+
+        } catch (Exception ex) {
+            log.error("{}: Error finding data input status by source {} - {}",
+                    ctx, sources, ex.getMessage(), ex);
+            return Optional.empty();
+        }
+    }
+
+    public List<UtmDataInputStatus> findDataInputStatus() {
+
+        List<String> excludeDataTypes = dataTypesRepository.findAllByIncludedFalse()
+                .stream()
+                .map(UtmDataTypes::getDataType)
+                .collect(Collectors.toList());
+
+        excludeDataTypes.add(DataSourceConstants.IBM_AS400_TYPE);
+
+        return dataInputStatusRepository.extractSourcesToExport(excludeDataTypes);
+    }
+
 
 }

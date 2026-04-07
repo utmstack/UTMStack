@@ -1,12 +1,15 @@
 package com.park.utmstack.service.dto.collectors.dto;
 
 
-import agent.CollectorOuterClass.Collector;
 import com.park.utmstack.domain.collector.UtmCollector;
 import com.park.utmstack.domain.network_scan.UtmAssetGroup;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.CollectorStatusEnum;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class CollectorDTO {
     private int id;
     private CollectorStatusEnum status;
@@ -39,91 +42,4 @@ public class CollectorDTO {
         this.active = collector.isActive();
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public CollectorStatusEnum getStatus() {
-        return status;
-    }
-
-    public void setStatus(CollectorStatusEnum status) {
-        this.status = status;
-    }
-
-    public String getCollectorKey() {
-        return collectorKey;
-    }
-
-    public void setCollectorKey(String collectorKey) {
-        this.collectorKey = collectorKey;
-    }
-
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public CollectorModuleEnum getModule() {
-        return module;
-    }
-
-    public void setModule(CollectorModuleEnum module) {
-        this.module = module;
-    }
-
-    public String getLastSeen() {
-        return lastSeen;
-    }
-
-    public void setLastSeen(String lastSeen) {
-        this.lastSeen = lastSeen;
-    }
-
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
-
-    public UtmAssetGroup getGroup() {
-        return group;
-    }
-
-    public void setGroup(UtmAssetGroup group) {
-        this.group = group;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
 }

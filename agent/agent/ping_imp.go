@@ -2,14 +2,10 @@ package agent
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/utmstack/UTMStack/agent/config"
-	"github.com/utmstack/UTMStack/agent/conn"
 	"github.com/utmstack/UTMStack/agent/utils"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 var (
@@ -18,17 +14,12 @@ var (
 )
 
 func StartPing(cnf *config.Config, ctx context.Context) {
-	var connErrMsgWritten, errorLogged bool
+	var connErrLogged, streamErrLogged bool
 
 	for {
-		connection, err := conn.GetAgentManagerConnection(cnf)
+		connection, err := GetAgentManagerConnection(cnf)
 		if err != nil {
-			if !connErrMsgWritten {
-				utils.Logger.ErrorF("error connecting to Agent Manager: %v", err)
-				connErrMsgWritten = true
-			} else {
-				utils.Logger.LogF(100, "error connecting to Agent Manager: %v", err)
-			}
+			LogConnectionError(err, "Agent Manager", &connErrLogged)
 			time.Sleep(timeToSleep)
 			continue
 		}
@@ -36,52 +27,28 @@ func StartPing(cnf *config.Config, ctx context.Context) {
 		client := NewPingServiceClient(connection)
 		stream, err := client.Ping(ctx)
 		if err != nil {
-			if !connErrMsgWritten {
-				utils.Logger.ErrorF("failed to start Ping Stream: %v", err)
-				connErrMsgWritten = true
-			} else {
-				utils.Logger.LogF(100, "failed to start Ping Stream: %v", err)
-			}
+			LogStreamError(err, "Ping Stream", &connErrLogged)
 			time.Sleep(timeToSleep)
 			continue
 		}
 
 		utils.Logger.LogF(100, "Ping Stream started")
-		connErrMsgWritten = false
+		connErrLogged = false
 
 		ticker := time.NewTicker(pingInterval)
 
+	pingLoop:
 		for range ticker.C {
 			err := stream.Send(&PingRequest{Type: ConnectorType_AGENT})
 			if err != nil {
-				if strings.Contains(err.Error(), "EOF") {
-					utils.Logger.LogF(100, "error sending Ping request: %v", err)
-					time.Sleep(timeToSleep)
-					break
+				action := HandleGRPCStreamError(err, "error sending Ping request", &streamErrLogged)
+				if action == ActionReconnect {
+					break pingLoop
 				}
-				st, ok := status.FromError(err)
-				if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
-					if !errorLogged {
-						utils.Logger.ErrorF("error sending Ping request: %v", err)
-						errorLogged = true
-					} else {
-						utils.Logger.LogF(100, "error sending Ping request: %v", err)
-					}
-					time.Sleep(timeToSleep)
-					break
-				} else {
-					if !errorLogged {
-						utils.Logger.ErrorF("error sending Ping request: %v", err)
-						errorLogged = true
-					} else {
-						utils.Logger.LogF(100, "error sending Ping request: %v", err)
-					}
-					time.Sleep(timeToSleep)
-					continue
-				}
+				continue
 			}
 
-			errorLogged = false
+			streamErrLogged = false
 			utils.Logger.LogF(100, "Ping request sent")
 		}
 

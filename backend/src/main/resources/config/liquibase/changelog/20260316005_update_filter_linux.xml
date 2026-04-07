@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260316005" author="Alex">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE public.utm_logstash_filter
+            SET filter_version = '4.0.0',
+                updated_at = now(),
+                logstash_filter = $$# System Linux filter version 4.0.0
+# Support for systemd/journald JSON format from filebeat/journald
+# Converts SCREAMINGSNAKECASE and snakecase to camelCase
+# Maps to UTMStack Standard Event Schema
+# Optimized: Direct mapping to standard schema (no intermediate steps)
+
+pipeline:
+  - dataTypes:
+      - linux
+    steps:
+      # ========================================
+      # PHASE 1: EXTRACTION
+      # ========================================
+
+      # Parse JSON from systemd/journald
+      - json:
+          source: raw
+          where: 'startsWith("raw", "{")'
+
+      # ========================================
+      # PHASE 2: FIELD NORMALIZATION (camelCase conversion)
+      # ========================================
+
+      # Convert SCREAMINGSNAKECASE to camelCase
+      - rename:
+          from:
+            - log.MESSAGE
+          to: log.message
+          where: exists("log.MESSAGE")
+
+      - rename:
+          from:
+            - log.PRIORITY
+          to: log.priority
+          where: exists("log.PRIORITY")
+
+      - rename:
+          from:
+            - log.SYSLOGIDENTIFIER
+          to: log.syslogIdentifier
+          where: exists("log.SYSLOGIDENTIFIER")
+
+      - rename:
+          from:
+            - log.SYSLOGTIMESTAMP
+          to: log.syslogTimestamp
+          where: exists("log.SYSLOGTIMESTAMP")
+
+      - rename:
+          from:
+            - log.SYSLOGFACILITY
+          to: log.syslogFacility
+          where: exists("log.SYSLOGFACILITY")
+
+      - rename:
+          from:
+            - log.SYSLOGPID
+          to: log.syslogPid
+          where: exists("log.SYSLOGPID")
+
+      # Convert snakecase to camelCase (only for fields staying in log.*)
+      - rename:
+          from:
+            - log.PID
+          to: log.pid
+          where: exists("log.PID")
+
+      - rename:
+          from:
+            - log.UID
+          to: log.uid
+          where: exists("log.UID")
+
+      - rename:
+          from:
+            - log.GID
+          to: log.gid
+          where: exists("log.GID")
+
+      - rename:
+          from:
+            - log.TID
+          to: log.tid
+          where: exists("log.TID")
+
+      - rename:
+          from:
+            - log.EXE
+          to: log.exe
+          where: exists("log.EXE")
+
+      - rename:
+          from:
+            - log.UNIT
+          to: log.unit
+          where: exists("log.UNIT")
+
+      - rename:
+          from:
+            - log.SYSTEMDUNIT
+          to: log.systemdUnit
+          where: exists("log.SYSTEMDUNIT")
+
+      - rename:
+          from:
+            - log.SYSTEMDSLICE
+          to: log.systemdSlice
+          where: exists("log.SYSTEMDSLICE")
+
+      - rename:
+          from:
+            - log.SYSTEMDUSERSLICE
+          to: log.systemdUserSlice
+          where: exists("log.SYSTEMDUSERSLICE")
+
+      - rename:
+          from:
+            - log.SYSTEMDSESSION
+          to: log.systemdSession
+          where: exists("log.SYSTEMDSESSION")
+
+      - rename:
+          from:
+            - log.SESSIONID
+          to: log.sessionId
+          where: exists("log.SESSIONID")
+
+      - rename:
+          from:
+            - log.LEADER
+          to: log.leader
+          where: exists("log.LEADER")
+
+      - rename:
+          from:
+            - log.SYSTEMDOWNERUID
+          to: log.systemdOwnerUid
+          where: exists("log.SYSTEMDOWNERUID")
+
+      - rename:
+          from:
+            - log.SYSTEMDCGROUP
+          to: log.systemdCgroup
+          where: exists("log.SYSTEMDCGROUP")
+
+      - rename:
+          from:
+            - log.BOOTID
+          to: log.bootId
+          where: exists("log.BOOTID")
+
+      - rename:
+          from:
+            - log.MACHINEID
+          to: log.machineId
+          where: exists("log.MACHINEID")
+
+      - rename:
+          from:
+            - log.TRANSPORT
+          to: log.transport
+          where: exists("log.TRANSPORT")
+
+      - rename:
+          from:
+            - log.SELINUXCONTEXT
+          to: log.selinuxContext
+          where: exists("log.SELINUXCONTEXT")
+
+      - rename:
+          from:
+            - log.AUDITSESSION
+          to: log.auditSession
+          where: exists("log.AUDITSESSION")
+
+      - rename:
+          from:
+            - log.AUDITLOGINUID
+          to: log.auditLoginUid
+          where: exists("log.AUDITLOGINUID")
+
+      - rename:
+          from:
+            - log.CAPEFFECTIVE
+          to: log.capEffective
+          where: exists("log.CAPEFFECTIVE")
+
+      - rename:
+          from:
+            - log.REALTIMETIMESTAMP
+          to: log.realtimeTimestamp
+          where: exists("log.REALTIMETIMESTAMP")
+
+      - rename:
+          from:
+            - log.SOURCEREALTIMETIMESTAMP
+          to: log.sourceRealtimeTimestamp
+          where: exists("log.SOURCEREALTIMETIMESTAMP")
+
+      - rename:
+          from:
+            - log.MONOTONICTIMESTAMP
+          to: log.monotonicTimestamp
+          where: exists("log.MONOTONICTIMESTAMP")
+
+      - rename:
+          from:
+            - log.CURSOR
+          to: log.cursor
+          where: exists("log.CURSOR")
+
+      - rename:
+          from:
+            - log.SEQNUM
+          to: log.seqnum
+          where: exists("log.SEQNUM")
+
+      - rename:
+          from:
+            - log.SEQNUMID
+          to: log.seqnumId
+          where: exists("log.SEQNUMID")
+
+      - rename:
+          from:
+            - log.RUNTIMESCOPE
+          to: log.runtimeScope
+          where: exists("log.RUNTIMESCOPE")
+
+      - rename:
+          from:
+            - log.STREAMID
+          to: log.streamId
+          where: exists("log.STREAMID")
+
+      - rename:
+          from:
+            - log.SYSTEMDINVOCATIONID
+          to: log.systemdInvocationId
+          where: exists("log.SYSTEMDINVOCATIONID")
+
+      - rename:
+          from:
+            - log.CODEFILE
+          to: log.codeFile
+          where: exists("log.CODEFILE")
+
+      - rename:
+          from:
+            - log.CODELINE
+          to: log.codeLine
+          where: exists("log.CODELINE")
+
+      - rename:
+          from:
+            - log.CODEFUNC
+          to: log.codeFunc
+          where: exists("log.CODEFUNC")
+
+      - rename:
+          from:
+            - log.INVOCATIONID
+          to: log.invocationId
+          where: exists("log.INVOCATIONID")
+
+      - rename:
+          from:
+            - log.JOBID
+          to: log.jobId
+          where: exists("log.JOBID")
+
+      - rename:
+          from:
+            - log.JOBRESULT
+          to: actionResult
+          where: exists("log.JOBRESULT")
+
+      - rename:
+          from:
+            - log.JOBTYPE
+          to: log.jobType
+          where: exists("log.JOBTYPE")
+
+      - rename:
+          from:
+            - log.MESSAGEID
+          to: log.messageId
+          where: exists("log.MESSAGEID")
+
+      - rename:
+          from:
+            - log.CPUUSAGENSEC
+          to: log.cpuUsageNsec
+          where: exists("log.CPUUSAGENSEC")
+
+      - rename:
+          from:
+            - log.MEMORYPEAK
+          to: log.memoryPeak
+          where: exists("log.MEMORYPEAK")
+
+      - rename:
+          from:
+            - log.MEMORYSWAPPEAK
+          to: log.memorySwapPeak
+          where: exists("log.MEMORYSWAPPEAK")
+
+      # ========================================
+      # PHASE 3: STANDARD SCHEMA MAPPING
+      # ========================================
+
+      # Map directly to Standard Event Schema (no intermediate camelCase step)
+      - rename:
+          from:
+            - log.HOSTNAME
+          to: origin.host
+          where: exists("log.HOSTNAME")
+
+      - rename:
+          from:
+            - log.USERID
+          to: origin.user
+          where: exists("log.USERID")
+
+      - rename:
+          from:
+            - log.COMM
+          to: origin.process
+          where: exists("log.COMM")
+
+      - rename:
+          from:
+            - log.CMDLINE
+          to: origin.command
+          where: exists("log.CMDLINE")
+
+      # Map syslog priority (0-7) to severity labels
+      - add:
+          function: string
+          params:
+            key: severity
+            value: "emergency"
+          where: 'equals("log.priority", "0")'
+
+      - add:
+          function: string
+          params:
+            key: severity
+            value: "alert"
+          where: 'equals("log.priority", "1")'
+
+      - add:
+          function: string
+          params:
+            key: severity
+            value: "critical"
+          where: 'equals("log.priority", "2")'
+
+      - add:
+          function: string
+          params:
+            key: severity
+            value: "error"
+          where: 'equals("log.priority", "3")'
+
+      - add:
+          function: string
+          params:
+            key: severity
+            value: "warning"
+          where: 'equals("log.priority", "4")'
+
+      - add:
+          function: string
+          params:
+            key: severity
+            value: "notice"
+          where: 'equals("log.priority", "5")'
+
+      - add:
+          function: string
+          params:
+            key: severity
+            value: "info"
+          where: 'equals("log.priority", "6")'
+
+      - add:
+          function: string
+          params:
+            key: severity
+            value: "debug"
+          where: 'equals("log.priority", "7")'
+$$
+            WHERE module_name = 'LINUX_AGENT';
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

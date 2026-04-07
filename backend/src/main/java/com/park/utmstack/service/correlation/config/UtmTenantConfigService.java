@@ -118,12 +118,15 @@ public class UtmTenantConfigService {
         }
     }
 
-    /**
-     * Get all UtmTenantConfig.
-     *
-     * @param p the pagination parameters
-     * @return the list of tenant configurations
-     */
+    public Optional<UtmTenantConfig> findByAssetName(String assetName) {
+        final String ctx = CLASSNAME + ".findByAssetName";
+        try {
+            return utmTenantConfigRepository.findByAssetName(assetName);
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage());
+        }
+    }
+
     public Page<UtmTenantConfig> findAll(String search, Pageable p) {
         final String ctx = CLASSNAME + ".findAll";
         try {
@@ -132,4 +135,5 @@ public class UtmTenantConfigService {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
+
 }

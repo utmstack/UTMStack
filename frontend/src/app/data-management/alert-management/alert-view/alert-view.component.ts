@@ -8,7 +8,6 @@ import {NgxSpinnerService} from 'ngx-spinner';
 import {LocalStorageService} from 'ngx-webstorage';
 import {Observable, Subject} from 'rxjs';
 import {filter, takeUntil, tap} from 'rxjs/operators';
-import {TimelineItem} from 'src/app/shared/types/utm-timeline-item';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {
   ElasticFilterDefaultTime
@@ -30,7 +29,7 @@ import {
   ALERT_ECHOES_FIELD
 } from '../../../shared/constants/alert/alert-field.constant';
 import {AUTOMATIC_REVIEW, IGNORED} from '../../../shared/constants/alert/alert-status.constant';
-import {ADMIN_ROLE} from '../../../shared/constants/global.constant';
+import {ADMIN_ROLE, MAX_SEARCH_RESULTS} from '../../../shared/constants/global.constant';
 import {MAIN_INDEX_PATTERN} from '../../../shared/constants/main-index-pattern.constant';
 import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
 import {SortDirection} from '../../../shared/directives/sortable/type/sort-direction.type';
@@ -56,6 +55,7 @@ import {AlertActionRefreshService} from '../shared/services/alert-action-refresh
 import {AlertTagService} from '../shared/services/alert-tag.service';
 import {OPEN_ALERTS_KEY, OpenAlertsService} from '../shared/services/open-alerts.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
+import {ElasticDataTypesEnum} from "../../../shared/enums/elastic-data-types.enum";
 
 @Component({
   selector: 'app-alert-view',
@@ -140,6 +140,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   pageSizeChildren = ITEMS_PER_PAGE * 4;
   readonly ALERT_STATUS_FIELD = ALERT_STATUS_FIELD;
   readonly Math = Math;
+  readonly ElasticDataTypesEnum = ElasticDataTypesEnum;
 
   ngOnInit() {
     this.openAlerts = this.localStorage.retrieve(OPEN_ALERTS_KEY);
@@ -340,7 +341,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
 
   getAlert(calledFrom?: string, filtersParam?: ElasticFilterType[]) {
     this.elasticDataService.search(this.page, this.itemsPerPage,
-      100000000, this.dataNature,
+      MAX_SEARCH_RESULTS, this.dataNature,
       sanitizeFilters(this.filters), this.sortBy, true).subscribe(
       (res: HttpResponse<any>) => {
         this.totalItems = Number(res.headers.get('X-Total-Count'));
@@ -478,10 +479,10 @@ export class AlertViewComponent implements OnInit, OnDestroy {
 
   viewDetailAlert(alert: UtmAlertType, td: UtmFieldType) {
     if (td.field !== ALERT_STATUS_FIELD && td.field !== ALERT_ECHOES_FIELD) {
-      if (alert.echoes > 0) {
+      /*if (alert.echoes > 0) {
         alert.expanded = true;
         this.loadChildrenAlerts(alert);
-      }
+      }*/
       this.alertDetail = alert;
       this.viewAlertDetail = true;
     }

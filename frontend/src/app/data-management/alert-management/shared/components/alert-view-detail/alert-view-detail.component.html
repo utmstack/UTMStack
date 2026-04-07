@@ -158,7 +158,7 @@
 
 
     <div class="d-flex w-100 gap-1 justify-content-between mb-3">
-      <app-alert-host-detail *ngIf="alert.target" [alert]="alert" type="target" [hideEmptyField] = true class="w-45"></app-alert-host-detail>
+      <app-alert-host-detail *ngIf="!isEmpty(alert.target)" [alert]="alert" type="target" [hideEmptyField] = true class="w-45"></app-alert-host-detail>
       <app-alert-host-detail  [alert]="alert" type="adversary" [hideEmptyField] = true class="w-45"></app-alert-host-detail>
     </div>
   </div>

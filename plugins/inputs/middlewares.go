@@ -118,7 +118,7 @@ func (m *Middlewares) authFromContext(ctx context.Context) error {
 			return status.Error(codes.PermissionDenied, "invalid connection key")
 		}
 	} else if len(authInternalKey) > 0 {
-		internalKey := plugins.PluginCfg("com.utmstack", false).Get("internalKey").String()
+		internalKey := plugins.PluginCfg("com.utmstack").Get("internalKey").String()
 		if internalKey != authInternalKey[0] {
 			return status.Error(codes.PermissionDenied, "internal key does not match")
 		}

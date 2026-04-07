@@ -73,6 +73,17 @@ type ExpressionBackend struct {
 	Value    interface{} `yaml:"value"`
 }
 
+type ConfigState struct {
+	AssetsLastUpdate   time.Time
+	AssetsCount        int
+	RulesLastUpdate    time.Time
+	RulesCount         int
+	FiltersLastUpdate  time.Time
+	FiltersCount       int
+	PatternsLastUpdate time.Time
+	PatternsCount      int
+}
+
 func (b *ExpressionBackend) ToExpression() Expression {
 	return Expression{
 		Field:    b.Field,
@@ -267,6 +278,8 @@ func main() {
 		return
 	}
 
+	state := &ConfigState{}
+
 	for {
 		func() {
 			db, err := connect()
@@ -283,6 +296,17 @@ func main() {
 					_ = catcher.Error("failed to close database connection", err, map[string]any{"process": "plugin_com.utmstack.config"})
 				}
 			}()
+
+			changed, newState, err := hasChanges(db, state)
+			if err != nil {
+				_ = catcher.Error("failed to check for changes", err, map[string]any{"process": "plugin_com.utmstack.config"})
+				time.Sleep(30 * time.Second)
+				return
+			}
+
+			if !changed {
+				return
+			}
 
 			filters, err := getFilters(db)
 			if err != nil {
@@ -398,15 +422,58 @@ func main() {
 				time.Sleep(30 * time.Second)
 				return
 			}
+
+			*state = newState
 		}()
 
-		time.Sleep(5 * time.Minute)
+		time.Sleep(30 * time.Second)
 	}
+}
+
+func hasChanges(db *sql.DB, state *ConfigState) (bool, ConfigState, error) {
+	newState := ConfigState{}
+	changed := false
+
+	queries := []struct {
+		timestampQuery string
+		countQuery     string
+		targetTime     *time.Time
+		targetCount    *int
+		oldTime        time.Time
+		oldCount       int
+	}{
+		{"SELECT MAX(last_update) FROM utm_tenant_config", "SELECT COUNT(*) FROM utm_tenant_config", &newState.AssetsLastUpdate, &newState.AssetsCount, state.AssetsLastUpdate, state.AssetsCount},
+		{"SELECT MAX(rule_last_update) FROM utm_correlation_rules", "SELECT COUNT(*) FROM utm_correlation_rules WHERE rule_active = true", &newState.RulesLastUpdate, &newState.RulesCount, state.RulesLastUpdate, state.RulesCount},
+		{"SELECT MAX(updated_at) FROM utm_logstash_filter", "SELECT COUNT(*) FROM utm_logstash_filter WHERE is_active = true", &newState.FiltersLastUpdate, &newState.FiltersCount, state.FiltersLastUpdate, state.FiltersCount},
+		{"SELECT MAX(last_update) FROM utm_regex_pattern", "SELECT COUNT(*) FROM utm_regex_pattern", &newState.PatternsLastUpdate, &newState.PatternsCount, state.PatternsLastUpdate, state.PatternsCount},
+	}
+
+	for _, q := range queries {
+		var lastUpdate sql.NullTime
+		err := db.QueryRow(q.timestampQuery).Scan(&lastUpdate)
+		if err != nil {
+			return false, newState, err
+		}
+		if lastUpdate.Valid {
+			*q.targetTime = lastUpdate.Time
+		}
+
+		err = db.QueryRow(q.countQuery).Scan(q.targetCount)
+		if err != nil {
+			return false, newState, err
+		}
+
+		if (*q.targetTime).After(q.oldTime) || *q.targetCount != q.oldCount {
+			changed = true
+		}
+	}
+
+	return changed, newState, nil
 }
 
 // connect to postgres database
 func connect() (*sql.DB, error) {
-	pCfg := plugins.PluginCfg("com.utmstack", false)
+	pCfg := plugins.PluginCfg("com.utmstack")
 	password := pCfg.Get("postgresql.password").String()
 	server := pCfg.Get("postgresql.server").String()
 	port := pCfg.Get("postgresql.port").Int()

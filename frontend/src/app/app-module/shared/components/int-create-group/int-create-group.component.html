@@ -39,7 +39,7 @@
       Cancel
     </button>
     <button (click)="saveGroup()"
-            [disabled]="!formGroupConfig.valid"
+            [disabled]="!formGroupConfig.valid || loading"
             class="btn utm-button utm-button-primary
              d-flex justify-content-center
               align-items-center">

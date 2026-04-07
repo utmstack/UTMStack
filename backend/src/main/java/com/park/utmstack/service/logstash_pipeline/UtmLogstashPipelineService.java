@@ -20,6 +20,7 @@ import com.park.utmstack.service.logstash_pipeline.response.pipeline.PipelineDat
 import com.park.utmstack.service.logstash_pipeline.response.pipeline.PipelineStats;
 import com.park.utmstack.service.logstash_pipeline.response.statistic.StatisticDocument;
 import com.park.utmstack.service.web_clients.rest_template.RestTemplateService;
+import com.park.utmstack.util.exceptions.ApiException;
 import com.park.utmstack.web.rest.vm.UtmLogstashPipelineVM;
 import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
 import com.utmstack.opensearch_connector.types.BucketAggregation;
@@ -38,6 +39,7 @@ import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -267,57 +269,56 @@ public class UtmLogstashPipelineService {
      * Getting active pipelines stats from DB, general jvm stats from logstash
      */
     public ApiStatsResponse getLogstashStats() throws Exception {
-        final String ctx = CLASSNAME + ".getLogstashStats";
-        ApiStatsResponse statsResponse = new ApiStatsResponse();
+    final String ctx = CLASSNAME + ".getLogstashStats";
 
-        // Variables used to set the general pipeline's status
-        AtomicInteger activePipelinesCount = new AtomicInteger();
-        AtomicInteger upPipelinesCount = new AtomicInteger();
+    try {
+        ApiStatsResponse statsResponse = new ApiStatsResponse();
         boolean isCorrelationUp = isEngineUp();
 
-        try {
-            // Getting Jvm information (not used)
-            ApiEngineResponse jvmData = logstashJvmApiResponse();
-            if (jvmData != null) {
-                statsResponse.setGeneral(jvmData);
-            }
-            // List to store stats mapped from DB
-            List<PipelineStats> infoStats;
-
-            // Getting the active pipelines statistics
-            infoStats = activePipelinesList().stream().map(activePip -> {
-
-                // Calculating stats for pipelines
-                // Setting stats for non-logstash pipelines (correlation engine)
-                if (isCorrelationUp) {
-                    activePipelinesCount.getAndIncrement(); // Total pipelines that have to be active
-                    if (activePip.getPipelineStatus().equals(PipelineStatus.PIPELINE_STATUS_UP.get())) {
-                        upPipelinesCount.getAndIncrement();
-                    }
-                } else {
-                    activePip.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get());
-                }
-                // }
-                // Mapping stats from DB pipeline
-                return PipelineStats.getPipelineStats(activePip);
-            }).collect(Collectors.toList());
-
-            // Setting the final global status of pipelines
-            if (isCorrelationUp) {
-                if (upPipelinesCount.get() == 0) {
-                    jvmData.setStatus(PipelineStatus.ENGINE_STATUS_RED.get());
-                } else if (upPipelinesCount.get() == activePipelinesCount.get()) {
-                    jvmData.setStatus(PipelineStatus.ENGINE_STATUS_GREEN.get());
-                } else {
-                    jvmData.setStatus(PipelineStatus.ENGINE_STATUS_YELLOW.get());
-                }
-            }
-            statsResponse.setPipelines(infoStats);
-        } catch (Exception ex) {
-            throw new Exception(ctx + ": " + ex.getMessage());
+        ApiEngineResponse jvmData = logstashJvmApiResponse();
+        if (jvmData != null) {
+            statsResponse.setGeneral(jvmData);
         }
+
+        List<UtmLogstashPipeline> activePipelines = activePipelinesList();
+
+        if (!isCorrelationUp) {
+            activePipelines.forEach(p ->
+                p.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get())
+            );
+        }
+
+        List<PipelineStats> pipelineStatsList = activePipelines.stream()
+            .map(PipelineStats::getPipelineStats)
+            .sorted( Comparator.comparing(PipelineStats::getPipelineStatus).reversed())
+            .collect(Collectors.toList());
+
+        statsResponse.setPipelines(pipelineStatsList);
+
+        if (isCorrelationUp && jvmData != null) {
+            long upCount = activePipelines.stream()
+                .filter(p -> PipelineStatus.PIPELINE_STATUS_UP.get()
+                    .equals(p.getPipelineStatus()))
+                .count();
+
+            int totalCount = activePipelines.size();
+
+            if (upCount == 0) {
+                jvmData.setStatus(PipelineStatus.ENGINE_STATUS_RED.get());
+            } else if (upCount == totalCount) {
+                jvmData.setStatus(PipelineStatus.ENGINE_STATUS_GREEN.get());
+            } else {
+                jvmData.setStatus(PipelineStatus.ENGINE_STATUS_YELLOW.get());
+            }
+        }
+
         return statsResponse;
+
+    } catch (Exception ex) {
+        log.error("{}: An error occurred while fetching logstash stats: {}", ctx, ex.getMessage(), ex);
+        throw new ApiException(String.format("%s: An error occurred while fetching logstash stats", ctx), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+}
 
     /**
      * Method to set the DB pipelines status

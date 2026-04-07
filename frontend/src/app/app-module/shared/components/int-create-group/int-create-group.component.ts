@@ -3,12 +3,10 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {InputClassResolve} from '../../../../shared/util/input-class-resolve';
+import {GroupTypeEnum} from '../../enum/group-type.enum';
+import {UtmModuleCollectorService} from '../../services/utm-module-collector.service';
 import {UtmModuleGroupService} from '../../services/utm-module-group.service';
 import {UtmModuleGroupType} from '../../type/utm-module-group.type';
-import {GroupTypeEnum} from "../../enum/group-type.enum";
-import {UtmModuleCollectorService} from "../../services/utm-module-collector.service";
-import {UtmModulesEnum} from "../../enum/utm-module.enum";
-import {UtmModuleCollectorType} from "../../type/utm-module-collector.type";
 
 @Component({
   selector: 'app-int-create-group',

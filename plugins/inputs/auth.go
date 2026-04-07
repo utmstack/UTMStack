@@ -53,7 +53,7 @@ func (auth *LogAuthService) SyncAuth() {
 }
 
 func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
-	pConfig := plugins.PluginCfg("com.utmstack", false)
+	pConfig := plugins.PluginCfg("com.utmstack")
 	agentManager := pConfig.Get("agentManager").String()
 	internalKey := pConfig.Get("internalKey").String()
 

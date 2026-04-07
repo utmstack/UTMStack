@@ -72,7 +72,7 @@ func main() {
 }
 
 func loadCerts() (string, string, error) {
-	certsFolderPath := plugins.PluginCfg("com.utmstack", false).Get("certsFolder").String()
+	certsFolderPath := plugins.PluginCfg("com.utmstack").Get("certsFolder").String()
 
 	certsFolder, err := utils.MkdirJoin(certsFolderPath)
 	if err != nil {

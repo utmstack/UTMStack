@@ -33,7 +33,7 @@ func startQueue() {
 	retryDelay := 2 * time.Second
 
 	for retry := 0; retry < maxRetries; retry++ {
-		osUrl := plugins.PluginCfg("org.opensearch", false).Get("opensearch").String()
+		osUrl := plugins.PluginCfg("org.opensearch").Get("opensearch").String()
 
 		err := sdkos.Connect([]string{osUrl}, "", "")
 		if err == nil {
@@ -72,7 +72,7 @@ func startQueue() {
 
 				dataType := gjson.Get(l, "dataType").String()
 				id := gjson.Get(l, "id").String()
-				index := sdkos.BuildCurrentIndex("v11", "log", dataType)
+				index := sdkos.BuildCurrentDayIndex("v11", "log", dataType)
 
 				queue.AddItem(sdkos.BulkItem{
 					Index:      index,

@@ -635,9 +635,16 @@ app-header {
   border-radius: 0;
 }
 
+.import-rule-modal {
+  .modal-content {
+    max-height: 750px !important;
+    overflow-y: hidden;
+  }
+}
+
 .add-rule-modal {
   .modal-content {
-    max-height: 900px !important;
+    max-height: 850px !important;
     overflow-y: hidden;
   }
 }
@@ -1433,6 +1440,21 @@ app-utm-items-per-page {
     font-size: 2rem;
   }
 }
+
+@media screen and (max-height: 867px) {
+  .import-rule-modal {
+    .modal-content {
+      max-height: 650px !important;
+    }
+  }
+
+  .add-rule-modal {
+    .modal-content {
+      max-height: 650px !important;
+    }
+  }
+}
+
 
 
 

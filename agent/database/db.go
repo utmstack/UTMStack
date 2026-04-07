@@ -3,14 +3,13 @@ package database
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"sync"
 
 	"github.com/glebarez/sqlite"
 	"github.com/utmstack/UTMStack/agent/config"
-	"github.com/utmstack/UTMStack/agent/utils"
+	"github.com/utmstack/UTMStack/shared/fs"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -18,6 +17,7 @@ import (
 var (
 	dbInstance *Database
 	dbOnce     sync.Once
+	dbInitErr  error
 )
 
 type Database struct {
@@ -26,14 +26,20 @@ type Database struct {
 }
 
 func (d *Database) Migrate(data interface{}) error {
+	d.locker.Lock()
+	defer d.locker.Unlock()
 	return d.db.AutoMigrate(data)
 }
 
 func (d *Database) Create(data interface{}) error {
+	d.locker.Lock()
+	defer d.locker.Unlock()
 	return d.db.Create(data).Error
 }
 
 func (d *Database) Find(data interface{}, field string, value interface{}) (bool, error) {
+	d.locker.RLock()
+	defer d.locker.RUnlock()
 	err := d.db.Where(fmt.Sprintf("%v = ?", field), value).Find(data).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -45,6 +51,8 @@ func (d *Database) Find(data interface{}, field string, value interface{}) (bool
 }
 
 func (d *Database) GetAll(data interface{}) error {
+	d.locker.RLock()
+	defer d.locker.RUnlock()
 	if err := d.db.Find(data).Error; err != nil {
 		return err
 	}
@@ -52,14 +60,30 @@ func (d *Database) GetAll(data interface{}) error {
 }
 
 func (d *Database) Update(data interface{}, searchField string, searchValue string, modifyField string, newValue interface{}) error {
+	d.locker.Lock()
+	defer d.locker.Unlock()
 	return d.db.Model(data).Where(fmt.Sprintf("%v = ?", searchField), searchValue).Update(modifyField, newValue).Error
 }
 
 func (d *Database) Delete(data interface{}, field string, value string) error {
+	d.locker.Lock()
+	defer d.locker.Unlock()
 	return d.db.Where(fmt.Sprintf("%v = ?", field), value).Delete(data).Error
 }
 
+func (d *Database) Close() error {
+	d.locker.Lock()
+	defer d.locker.Unlock()
+	sqlDB, err := d.db.DB()
+	if err != nil {
+		return err
+	}
+	return sqlDB.Close()
+}
+
 func (d *Database) DeleteOld(data interface{}, retentionMegabytes int) (int, error) {
+	d.locker.Lock()
+	defer d.locker.Unlock()
 	currentSize, err := GetDatabaseSizeInMB()
 	if err != nil {
 		return 0, fmt.Errorf("error getting database size: %v", err)
@@ -67,41 +91,41 @@ func (d *Database) DeleteOld(data interface{}, retentionMegabytes int) (int, err
 
 	var rowsAffected int
 	for currentSize > retentionMegabytes {
-		result := d.db.Where("1 = 1").Order("created_at ASC").Limit(10).Delete(data)
+		result := d.db.Where("1 = 1").Order("created_at ASC").Limit(500).Delete(data)
 		if result.Error != nil {
-			return rowsAffected, result.Error
+			break
 		}
 		rowsAffected += int(result.RowsAffected)
-		d.db.Exec("VACUUM;")
+		if result.RowsAffected == 0 {
+			break
+		}
 		currentSize, err = GetDatabaseSizeInMB()
 		if err != nil {
-			return rowsAffected, fmt.Errorf("error getting database size: %v", err)
+			break
 		}
+	}
+
+	if rowsAffected > 0 {
+		d.db.Exec("VACUUM;")
 	}
 
 	return rowsAffected, nil
 }
 
-func (d *Database) Lock() {
-	d.locker.Lock()
-}
-
-func (d *Database) Unlock() {
-	d.locker.Unlock()
-}
-
-func GetDB() *Database {
+func GetDB() (*Database, error) {
 	dbOnce.Do(func() {
-		path := filepath.Join(utils.GetMyPath(), "logs_process")
-		err := utils.CreatePathIfNotExist(path)
-		if err != nil {
-			log.Fatalf("error creating database path: %v", err)
+		path := filepath.Join(fs.GetExecutablePath(), "logs_process")
+		if err := fs.CreateDirIfNotExist(path); err != nil {
+			dbInitErr = fmt.Errorf("creating database path: %w", err)
+			return
 		}
+
 		path = config.LogsDBFile
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			file, err := os.Create(path)
 			if err != nil {
-				log.Fatalf("error creating database file: %v", err)
+				dbInitErr = fmt.Errorf("creating database file: %w", err)
+				return
 			}
 			file.Close()
 		}
@@ -110,14 +134,17 @@ func GetDB() *Database {
 			Logger: logger.Default.LogMode(logger.Silent),
 		})
 		if err != nil {
-			log.Fatalf("error connecting with database: %v", err)
+			dbInitErr = fmt.Errorf("connecting with database: %w", err)
+			return
 		}
 
 		dbInstance = &Database{db: conn}
-
 	})
 
-	return dbInstance
+	if dbInitErr != nil {
+		return nil, dbInitErr
+	}
+	return dbInstance, nil
 }
 
 func GetDatabaseSizeInMB() (int, error) {
