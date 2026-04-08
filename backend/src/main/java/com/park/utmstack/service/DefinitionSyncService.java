@@ -114,7 +114,12 @@ public class DefinitionSyncService implements CommandLineRunner {
                             log.info("Updating existing filter for module: {}", moduleName);
                             filter.setLogstashFilter(content);
                             filter.setUpdatedAt(Instant.now());
-                            filterService.save(filter);
+                            try{
+                              filterService.save(filter);
+                            }
+                            catch (Exception e) {
+                                log.error("Error updating filter on file {}: {}", path, e.getMessage());
+                            }
                         }
                     } else {
                         UtmLogstashFilter filter = new UtmLogstashFilter();
@@ -132,8 +137,14 @@ public class DefinitionSyncService implements CommandLineRunner {
                             filter.setDatatype(dataTypeEntity.get());
                         }
 
-                        filterService.save(filter);
                         log.info("Creating filter from file {} for module: {} and dataType {}, filter: {}",path,moduleName, dataTypeStr,filter);
+                        try{
+                          filterService.save(filter);
+                        }
+                        catch (Exception e) {
+                            log.error("Error creating filter on file {}: {}", path, e.getMessage());
+                        }
+
                     }
                 } catch (IOException e) {
                     log.error("Error reading filter file {}: {}", path, e.getMessage());
