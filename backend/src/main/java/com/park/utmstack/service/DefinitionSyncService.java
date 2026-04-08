@@ -11,6 +11,7 @@ import com.park.utmstack.service.correlation.rules.UtmCorrelationRulesService;
 import com.park.utmstack.service.dto.correlation.AdversaryType;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesDTO;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesMapper;
+import com.park.utmstack.service.logstash_filter.UtmLogstashFilterService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -20,7 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.yaml.snakeyaml.Yaml;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.lang.Exception;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,28 +43,40 @@ public class DefinitionSyncService implements CommandLineRunner {
     private final UtmDataTypesRepository dataTypesRepository;
     private final UtmCorrelationRulesService rulesService;
     private final UtmCorrelationRulesMapper rulesMapper;
+    private final UtmLogstashFilterService filterService;
 
     @Override
-    @Transactional
     public void run(String... args) {
-        log.info("Starting definition sync from filesystem...");
-        syncFilters();
-        syncRules();
-        log.info("Definition sync completed.");
+        log.info("Starting definition sync from filesystem... ---");
+        try {
+            Set<String> filesystemFilters = syncFilters();
+            Set<String> filesystemRules = syncRules();
+
+            cleanupOrphanedFilters(filesystemFilters);
+            cleanupOrphanedRules(filesystemRules);
+
+            log.info("Definition sync completed successfully. ---");
+        } catch (Exception e) {
+            log.error("CRITICAL: Definition sync failed. Reason: {} ---", e.getMessage(), e);
+        }
     }
 
-    private void syncFilters() {
+    private Set<String> syncFilters() {
+        Set<String> foundModules = new HashSet<>();
         Path filtersPath = Paths.get(".",Constants.APP_FILTER_DEFINITIONS);
         if (!Files.exists(filtersPath) || !Files.isDirectory(filtersPath)) {
             log.warn("Filters directory not found: {}", Constants.APP_FILTER_DEFINITIONS);
-            return;
+            return foundModules;
         }
 
         try (Stream<Path> paths = Files.walk(filtersPath)) {
             paths.filter(path -> Files.isRegularFile(path) && isYamlFile(path)).forEach(path -> {
-                String moduleName = getFileNameWithoutExtension(path);
+                String rawName = getFileNameWithoutExtension(path);
+                String moduleName = rawName.toUpperCase().replace("-", "_");
+                foundModules.add(moduleName);
                 try {
                     String content = Files.readString(path);
+
                     Optional<UtmLogstashFilter> filterOpt = filterRepository.findOneByModuleName(moduleName);
 
                     if (filterOpt.isPresent()) {
@@ -70,11 +85,11 @@ public class DefinitionSyncService implements CommandLineRunner {
                             log.info("Updating existing filter for module: {}", moduleName);
                             filter.setLogstashFilter(content);
                             filter.setUpdatedAt(Instant.now());
-                            filterRepository.save(filter);
+                            filterService.save(filter, true);
                         }
                     } else {
-                        log.info("Inserting new filter for module: {}", moduleName);
                         UtmLogstashFilter filter = new UtmLogstashFilter();
+                        filter.setId(filterService.getSystemSequenceNextValue());
                         filter.setModuleName(moduleName);
                         filter.setFilterName(moduleName + " Filter");
                         filter.setLogstashFilter(content);
@@ -88,7 +103,7 @@ public class DefinitionSyncService implements CommandLineRunner {
                             filter.setDatatype(dataType.get());
                         }
 
-                        filterRepository.save(filter);
+                        filterService.save(filter, true);
                     }
                 } catch (IOException e) {
                     log.error("Error reading filter file {}: {}", path, e.getMessage());
@@ -97,13 +112,15 @@ public class DefinitionSyncService implements CommandLineRunner {
         } catch (IOException e) {
             log.error("Error listing filters directory: {}", e.getMessage());
         }
+        return foundModules;
     }
 
-    private void syncRules() {
+    private Set<String> syncRules() {
+        Set<String> foundRules = new HashSet<>();
         Path rulesPath = Paths.get(".",Constants.APP_RULE_DEFINITIONS);
         if (!Files.exists(rulesPath) || !Files.isDirectory(rulesPath)) {
             log.warn("Rules directory not found: {}", Constants.APP_RULE_DEFINITIONS);
-            return;
+            return foundRules;
         }
 
         Yaml yaml = new Yaml();
@@ -118,13 +135,14 @@ public class DefinitionSyncService implements CommandLineRunner {
                         return;
                     }
 
+                    foundRules.add(ruleYaml.getName());
                     Optional<UtmCorrelationRules> ruleOpt = rulesRepository.findOneByRuleName(ruleYaml.getName());
                     UtmCorrelationRulesDTO ruleDto = new UtmCorrelationRulesDTO();
 
                     if (ruleOpt.isPresent()) {
                         ruleDto.setId(ruleOpt.get().getId());
                     } else {
-                        ruleDto.setId(rulesRepository.getNextId());
+                        ruleDto.setId(rulesService.getSystemSequenceNextValue());
                     }
 
                     ruleDto.setName(ruleYaml.getName());
@@ -158,11 +176,10 @@ public class DefinitionSyncService implements CommandLineRunner {
 
                     UtmCorrelationRules entity = rulesMapper.toEntity(ruleDto);
                     if (ruleOpt.isPresent()) {
-                        rulesService.updateRule(entity);
-                        log.error("Updated rule {}: {}", path, ruleDto.getName());
+                        rulesService.updateRule(entity, true);
 
                     } else {
-                        rulesService.save(entity);
+                        rulesService.save(entity, true);
                     }
 
                 } catch (Exception e) {
@@ -172,11 +189,38 @@ public class DefinitionSyncService implements CommandLineRunner {
         } catch (IOException e) {
             log.error("Error walking rules directory: {}", e.getMessage());
         }
+        return foundRules;
+    }
+
+    private void cleanupOrphanedFilters(Set<String> currentFilesystemModules) {
+        if (currentFilesystemModules.isEmpty()) return;
+
+        List<UtmLogstashFilter> systemFilters = filterRepository.findAllBySystemOwnerIsTrue();
+        systemFilters.stream()
+            .filter(filter -> !currentFilesystemModules.contains(filter.getModuleName()))
+            .forEach(filter -> {
+                log.info("Deleting orphaned system filter: {}", filter.getModuleName());
+                filterService.delete(filter.getId());
+            });
+    }
+
+    private void cleanupOrphanedRules(Set<String> currentFilesystemRules) {
+        if (currentFilesystemRules.isEmpty()) return;
+
+        List<UtmCorrelationRules> systemRules = rulesRepository.findAllBySystemOwnerIsTrue();
+        systemRules.stream()
+            .filter(rule -> !currentFilesystemRules.contains(rule.getRuleName()))
+            .forEach(rule -> {
+                log.info("Deleting orphaned system rule: {}", rule.getRuleName());
+                try {
+                    rulesService.deleteRule(rule.getId(), true);
+                } catch (Exception e) {
+                    log.error("Error deleting orphaned system rule {}: {}", rule.getRuleName(), e.getMessage());
+                }
+            });
     }
 
     private boolean isYamlFile(Path path) {
-
-        log.error("Analyzing  files: {} ", path);
         String fileName = path.getFileName().toString().toLowerCase();
         return fileName.endsWith(".yaml") || fileName.endsWith(".yml");
     }
