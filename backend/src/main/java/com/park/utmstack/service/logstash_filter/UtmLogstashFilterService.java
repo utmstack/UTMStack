@@ -117,7 +117,7 @@ public class UtmLogstashFilterService {
 
     public Long getSystemSequenceNextValue() {
         return logstashFilterRepository.findFirstBySystemOwnerIsTrueOrderByIdDesc()
-                .map(filter -> (filter.getId() + 1)%1L)
+                .map(filter -> filter.getId() + 1)
                 .orElse(1L);
     }
 }
