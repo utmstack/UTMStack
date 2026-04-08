@@ -11,8 +11,8 @@ import com.park.utmstack.service.correlation.rules.UtmCorrelationRulesService;
 import com.park.utmstack.service.dto.correlation.AdversaryType;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesDTO;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesMapper;
+import com.park.utmstack.service.dto.correlation.RuleYaml;
 import com.park.utmstack.service.logstash_filter.UtmLogstashFilterService;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.yaml.snakeyaml.Yaml;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.lang.Exception;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -172,57 +170,69 @@ public class DefinitionSyncService implements CommandLineRunner {
             paths.filter(path -> Files.isRegularFile(path) && isYamlFile(path)).forEach(path -> {
                 try {
                     String content = Files.readString(path);
-                    RuleYaml ruleYaml = yaml.loadAs(content, RuleYaml.class);
-                    if (ruleYaml == null || ruleYaml.getName() == null) {
-                        log.warn("Skipping invalid rule file: {}", path);
-                        return;
+                    Object yamlObj = yaml.load(content);
+                    List<Map<String, Object>> rawRules = new ArrayList<>();
+
+                    if (yamlObj instanceof List) {
+                        rawRules.addAll((List<Map<String, Object>>) yamlObj);
+                    } else if (yamlObj instanceof Map) {
+                        rawRules.add((Map<String, Object>) yamlObj);
                     }
 
-                    foundRules.add(ruleYaml.getName());
-                    Optional<UtmCorrelationRules> ruleOpt = rulesRepository.findOneByRuleName(ruleYaml.getName());
-                    UtmCorrelationRulesDTO ruleDto = new UtmCorrelationRulesDTO();
+                    for (Map<String, Object> rawRule : rawRules) {
+                        RuleYaml ruleYaml = mapToRuleYaml(rawRule);
+                        if (ruleYaml == null || ruleYaml.getName() == null) {
+                            log.warn("Skipping invalid rule in file: {}", path);
+                            continue;
+                        }
 
-                    if (ruleOpt.isPresent()) {
-                        ruleDto.setId(ruleOpt.get().getId());
-                    } else {
-                        ruleDto.setId(rulesService.getSystemSequenceNextValue());
-                    }
+                        foundRules.add(ruleYaml.getName());
+                        Optional<UtmCorrelationRules> ruleOpt = rulesRepository.findOneByRuleName(ruleYaml.getName());
+                        UtmCorrelationRulesDTO ruleDto = new UtmCorrelationRulesDTO();
 
-                    ruleDto.setName(ruleYaml.getName());
-                    ruleDto.setCategory(ruleYaml.getCategory());
-                    ruleDto.setTechnique(ruleYaml.getTechnique());
-                    ruleDto.setAdversary(ruleYaml.getAdversary() != null ? ruleYaml.getAdversary() : AdversaryType.origin);
-                    ruleDto.setDescription(ruleYaml.getDescription());
-                    ruleDto.setReferences(ruleYaml.getReferences());
-                    ruleDto.setDefinition(ruleYaml.getWhere());
-                    ruleDto.setGroupBy(ruleYaml.getGroupBy());
-                    ruleDto.setDeduplicateBy(ruleYaml.getDeduplicateBy());
-                    ruleDto.setAfterEvents(ruleYaml.getAfterEvents());
-                    ruleDto.setSystemOwner(true);
-                    ruleDto.setRuleActive(true);
+                        if (ruleOpt.isPresent()) {
+                            ruleDto.setId(ruleOpt.get().getId());
+                        } else if (ruleYaml.getId() != null) {
+                            ruleDto.setId(ruleYaml.getId());
+                        } else {
+                            ruleDto.setId(rulesService.getSystemSequenceNextValue());
+                        }
 
-                    if (ruleYaml.getImpact() != null) {
-                        ruleDto.setConfidentiality(ruleYaml.getImpact().getConfidentiality());
-                        ruleDto.setIntegrity(ruleYaml.getImpact().getIntegrity());
-                        ruleDto.setAvailability(ruleYaml.getImpact().getAvailability());
-                    }
+                        ruleDto.setName(ruleYaml.getName());
+                        ruleDto.setCategory(ruleYaml.getCategory());
+                        ruleDto.setTechnique(ruleYaml.getTechnique());
+                        ruleDto.setAdversary(ruleYaml.getAdversary() != null ? ruleYaml.getAdversary() : AdversaryType.origin);
+                        ruleDto.setDescription(ruleYaml.getDescription());
+                        ruleDto.setReferences(ruleYaml.getReferences());
+                        ruleDto.setDefinition(ruleYaml.getWhere());
+                        ruleDto.setGroupBy(ruleYaml.getGroupBy());
+                        ruleDto.setDeduplicateBy(ruleYaml.getDeduplicateBy());
+                        ruleDto.setAfterEvents(ruleYaml.getAfterEvents());
+                        ruleDto.setSystemOwner(true);
+                        ruleDto.setRuleActive(true);
 
-                    // Map dataTypes strings to UtmDataTypes entities
-                    if (ruleYaml.getDataTypes() != null) {
-                        Set<UtmDataTypes> dataTypes = ruleYaml.getDataTypes().stream()
-                            .map(dtName -> dataTypesRepository.findOneByDataType(dtName.toLowerCase()))
-                            .filter(Optional::isPresent)
-                            .map(Optional::get)
-                            .collect(Collectors.toSet());
-                        ruleDto.setDataTypes(dataTypes);
-                    }
+                        if (ruleYaml.getImpact() != null) {
+                            ruleDto.setConfidentiality(ruleYaml.getImpact().getConfidentiality());
+                            ruleDto.setIntegrity(ruleYaml.getImpact().getIntegrity());
+                            ruleDto.setAvailability(ruleYaml.getImpact().getAvailability());
+                        }
 
-                    UtmCorrelationRules entity = rulesMapper.toEntity(ruleDto);
-                    if (ruleOpt.isPresent()) {
-                        rulesService.updateRule(entity, true);
+                        // Map dataTypes strings to UtmDataTypes entities
+                        if (ruleYaml.getDataTypes() != null) {
+                            Set<UtmDataTypes> dataTypes = ruleYaml.getDataTypes().stream()
+                                .map(dtName -> dataTypesRepository.findOneByDataType(dtName.toLowerCase()))
+                                .filter(Optional::isPresent)
+                                .map(Optional::get)
+                                .collect(Collectors.toSet());
+                            ruleDto.setDataTypes(dataTypes);
+                        }
 
-                    } else {
-                        rulesService.save(entity, true);
+                        UtmCorrelationRules entity = rulesMapper.toEntity(ruleDto);
+                        if (ruleOpt.isPresent()) {
+                            rulesService.updateRule(entity, true);
+                        } else {
+                            rulesService.save(entity, true);
+                        }
                     }
 
                 } catch (Exception e) {
@@ -233,6 +243,12 @@ public class DefinitionSyncService implements CommandLineRunner {
             log.error("Error walking rules directory: {}", e.getMessage());
         }
         return foundRules;
+    }
+
+    private RuleYaml mapToRuleYaml(Map<String, Object> map) {
+        Yaml yaml = new Yaml();
+        String dump = yaml.dump(map);
+        return yaml.loadAs(dump, RuleYaml.class);
     }
 
     private void cleanupOrphanedFilters(Set<Long> currentFilterIds) {
@@ -271,28 +287,5 @@ public class DefinitionSyncService implements CommandLineRunner {
         String fileName = path.getFileName().toString();
         int lastDotIndex = fileName.lastIndexOf('.');
         return (lastDotIndex == -1) ? fileName : fileName.substring(0, lastDotIndex);
-    }
-
-    @Data
-    public static class RuleYaml {
-        private List<String> dataTypes;
-        private String name;
-        private ImpactYaml impact;
-        private String category;
-        private String technique;
-        private AdversaryType adversary;
-        private String description;
-        private List<String> references;
-        private String where;
-        private List<com.park.utmstack.domain.correlation.rules.SearchRequest> afterEvents;
-        private List<String> groupBy;
-        private List<String> deduplicateBy;
-    }
-
-    @Data
-    public static class ImpactYaml {
-        private Integer confidentiality;
-        private Integer integrity;
-        private Integer availability;
     }
 }
