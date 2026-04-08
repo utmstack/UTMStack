@@ -587,4 +587,6 @@
 
   <include file="/config/liquibase/changelog/20260408001_add_module_id_to_utm_data_types.xml" relativeToChangelogFile="false"/>
 
+  <include file="/config/liquibase/changelog/20260408002_seed_module_id_in_utm_data_types.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
