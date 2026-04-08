@@ -1,0 +1,32 @@
+- id: 1006
+  dataTypes:
+    - github
+  name: GitHub OAuth App Installation Activity
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Access Control
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  references:
+    - https://docs.github.com/en/webhooks/webhook-events-and-payloads
+    - https://attack.mitre.org/techniques/T1078/
+  description: |
+    Detects OAuth app installation or authorization activities in GitHub. This could indicate unauthorized third-party app access to repositories or potential supply chain attacks through malicious OAuth apps.
+    
+    Next Steps:
+    1. Verify if the OAuth app installation was authorized by reviewing the app name and permissions requested
+    2. Check the user who performed the installation (senderLogin) and confirm if they have appropriate privileges
+    3. Review the repositories affected by the installation
+    4. Examine the OAuth app's publisher and verify its legitimacy
+    5. If unauthorized, immediately revoke the OAuth app access through GitHub settings
+    6. Review audit logs for any suspicious activities performed by the OAuth app
+    7. Consider implementing stricter OAuth app installation policies in your GitHub organization
+  where: |
+    safe(log.action, "") in ["oauth_app.create", "oauth_app.destroy", "oauth_app.revoke", "oauth_authorization.create", "oauth_authorization.destroy", "integration_installation.create", "integration_installation.repositories_added"] || 
+    (safe(log.event, "") == "installation" && safe(log.action, "") in ["created", "deleted", "suspend", "unsuspend"]) ||
+    (safe(log.event, "") == "installation_repositories" && safe(log.action, "") in ["added", "removed"])
+  deduplicateBy:
+    - safe(log.senderLogin, "")
+    - safe(log.action, "")

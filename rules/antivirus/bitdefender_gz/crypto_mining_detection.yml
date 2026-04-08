@@ -1,0 +1,38 @@
+- id: 1014
+  dataTypes:
+    - antivirus-bitdefender-gz
+  name: Crypto-Mining Detection
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 4
+  category: Resource Hijacking
+  technique: "T1496 - Resource Hijacking"
+  adversary: origin
+  references:
+    - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+    - https://attack.mitre.org/techniques/T1496/
+  description: "Detects cryptocurrency mining activities including miners, coin miners, and cryptojacking attempts detected by Bitdefender GravityZone.\n\nNext Steps:\n- Review the affected endpoint details (hostname, IP) to identify the compromised system\n- Check CPU and memory usage patterns on the affected system for unusual spikes\n- Look for network connections to known mining pools or suspicious outbound traffic\n- Search for related processes running with names like xmrig, minerd, cgminer, or bfgminer\n- Review recent file downloads and installations on the affected system\n- Check for persistence mechanisms (scheduled tasks, startup items, services)\n- Isolate the affected system if active mining is confirmed\n- Run a full system scan with updated definitions\n- Consider reimaging the system if compromise is extensive"
+  where: |
+    safe(log.productVendor, "") == "Bitdefender" &&
+    safe(log.product, "") == "GravityZone" &&
+    (
+      contains(toLower(safe(log.eventType, "")), "miner") ||
+      contains(toLower(safe(log.eventType, "")), "coin") ||
+      contains(toLower(safe(log.eventType, "")), "crypto") ||
+      contains(toLower(safe(log.requested, "")), "miner") ||
+      contains(toLower(safe(log.requested, "")), "coin") ||
+      contains(toLower(safe(log.requested, "")), "xmr") ||
+      contains(toLower(safe(log.requested, "")), "monero") ||
+      contains(toLower(safe(log.requested, "")), "bitcoin") ||
+      contains(toLower(safe(log.requested, "")), "ethereum") ||
+      contains(toLower(safe(log.requested, "")), "xmrig") ||
+      contains(toLower(safe(log.requested, "")), "minerd") ||
+      contains(toLower(safe(log.requested, "")), "cgminer") ||
+      contains(toLower(safe(log.requested, "")), "bfgminer") ||
+      contains(toLower(safe(log.requested, "")), "coinhive") ||
+      (safe(log.signatureID, "") != "" && contains(safe(log.eventType, ""), "Application.CoinMiner"))
+    )
+  deduplicateBy:
+    - lastEvent.origin.ip
+    - lastEvent.origin.host

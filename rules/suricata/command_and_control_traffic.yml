@@ -1,0 +1,50 @@
+- id: 1015
+  dataTypes:
+    - nids
+  name: Command and Control Traffic Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Command and Control
+  technique: "T1095 - Non-Application Layer Protocol"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1095/
+    - https://attack.mitre.org/techniques/T1571/
+    - https://www.snort.org/rule_docs/
+  description: |
+    Detects command and control (C2) communication patterns including suspicious periodic connections, non-standard ports, encrypted channels on unusual ports, DNS tunneling, and known C2 infrastructure indicators. This rule identifies malicious communications between compromised systems and command and control servers through various techniques including signature-based detection, protocol analysis, and behavioral indicators.
+    
+    Next Steps:
+    1. Immediately isolate the affected system (origin IP) from the network to prevent further C2 communication
+    2. Analyze network traffic logs for additional communications with the destination IP
+    3. Perform endpoint forensics on the compromised system to identify malware and persistence mechanisms
+    4. Check for lateral movement from the compromised system to other network assets
+    5. Review DNS logs for additional suspicious domain queries from the affected system
+    6. Update threat intelligence feeds and block the identified C2 infrastructure
+    7. Scan other systems for indicators of compromise (IoCs) related to the detected C2 activity
+    8. Review user activity and privilege escalation attempts from the compromised system
+    9. Consider reimaging the affected system after thorough forensic analysis
+    10. Implement additional monitoring for similar C2 patterns across the network
+  where: |
+    (safe(log.alert.signature, "") contains "command and control" || 
+     safe(log.alert.signature, "") contains "c&c" || 
+     safe(log.alert.signature, "") contains "c2" ||
+     safe(log.alert.signature, "") contains "beacon" ||
+     safe(log.alert.signature, "") contains "cobalt strike" ||
+     safe(log.alert.signature, "") contains "metasploit" ||
+     safe(log.alert.category, "") == "malware-cnc" ||
+     safe(log.alert.category, "") == "suspicious-traffic" ||
+     (safe(target.port, 0) > 1024 && safe(target.port, 0) not in [3306, 5432, 8080, 8443] && safe(log.tls.established, false) == true) ||
+     (safe(protocol, "") == "DNS" && safe(log.dns.type, "") == "TXT" && safe(log.dns.response_length, 0) > 200) ||
+     (safe(log.http.uri, "") matches "^/[a-zA-Z0-9]{8,16}$" && safe(log.http.method, "") == "GET") ||
+     (safe(log.flow.duration, 0) > 300 && safe(log.flow.packets, 0) < 100 && safe(log.flow.bytes, 0) < 10240) ||
+     safe(log.ja3.hash, "") in ["3b5074b1b5d032e5620f69f9f700ff0e", "6734f37431670b3ab4292b8f60f29984"]) &&
+    safe(origin.ip, "") != "" &&
+    safe(target.ip, "") != "" &&
+    !safe(target.ip, "") matches "^(10\\.|172\\.(1[6-9]|2[0-9]|3[01])\\.|192\\.168\\.)"
+  deduplicateBy:
+    - origin.ip
+    - target.ip
+    - target.port

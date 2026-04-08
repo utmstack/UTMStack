@@ -1,0 +1,52 @@
+- id: 1001
+  dataTypes:
+    - ibm-aix
+  name: IBM AIX RBAC Violation Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: Privilege Escalation
+  technique: "T1548 - Abuse Elevation Control Mechanism"
+  adversary: origin
+  references:
+    - https://www.ibm.com/docs/en/aix/7.2?topic=security-role-based-access-control
+    - https://attack.mitre.org/techniques/T1548/
+  description: |
+    Detects RBAC (Role-Based Access Control) violations in IBM AIX systems, including unauthorized privilege escalation attempts, failed role assignments, or attempts to execute privileged commands without proper authorization. This rule identifies multiple failed privilege escalation attempts that could indicate an adversary attempting to gain elevated access.
+    
+    Next Steps:
+    1. Investigate the source user and IP address for anomalous behavior
+    2. Review the specific commands being executed and their authorization status
+    3. Check for any successful privilege escalations following these attempts
+    4. Verify if the user account has been compromised or is being used maliciously
+    5. Review system audit logs for additional unauthorized access attempts
+    6. Consider temporarily disabling the affected user account if suspicious activity is confirmed
+    7. Examine the specific RBAC roles and permissions for the affected user
+    8. Check if there are any policy violations or misconfigurations in the RBAC system
+  where: (safe(log.eventType, "") == "RBAC_FAIL" || (safe(log.msg, "").contains("RBAC") && safe(log.msg, "").contains("denied"))) || (safe(log.commandType, "") == "sudo" && safe(log.returnCode, "") != "0") || (safe(action, "").contains("PRIVILEGE") && safe(log.returnCode, "") != "0")
+  afterEvents:
+    - indexPattern: v11-log-ibm-aix-*
+      with:
+        - field: origin.user.keyword
+          operator: filter_term
+          value: '{{origin.user}}'
+        - field: action.keyword
+          operator: filter_match
+          value: 'PRIVILEGE'
+      within: now-15m
+      count: 3
+      or:
+        - indexPattern: v11-log-ibm-aix-*
+          with:
+            - field: origin.user.keyword
+              operator: filter_term
+              value: '{{origin.user}}'
+            - field: log.returnCode.keyword
+              operator: must_not_term
+              value: '0'
+          within: now-15m
+          count: 5
+  deduplicateBy:
+    - origin.user
+    - origin.host

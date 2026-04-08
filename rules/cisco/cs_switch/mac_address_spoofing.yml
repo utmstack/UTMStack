@@ -1,0 +1,33 @@
+- id: 1002
+  dataTypes:
+    - cs_switch
+  name: MAC Address Spoofing Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: Network Attack
+  technique: MAC Spoofing
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/support/docs/switches/catalyst-3750-series-switches/72846-layer2-secftrs-catl3fixed.html
+    - https://attack.mitre.org/techniques/T1200/
+  description: |
+    Detects potential MAC address spoofing attempts by monitoring for MAC address flapping between ports, duplicate MAC addresses, or MAC addresses appearing on unexpected ports. This could indicate an attacker attempting to impersonate legitimate devices.
+    
+    Next Steps:
+    1. Identify the affected MAC address and ports involved in the flapping
+    2. Check if the MAC address belongs to a legitimate device that may be moving between ports
+    3. Review switch logs for any unauthorized configuration changes
+    4. Verify if port security or dynamic ARP inspection is properly configured
+    5. Investigate the source device and check for signs of ARP spoofing tools
+    6. Consider implementing port security to limit MAC addresses per port
+    7. Enable DHCP snooping and dynamic ARP inspection if not already configured
+  where: |
+    (safe(log.facility, "") == "SW_MATM" && safe(log.mnemonic, "") == "MACFLAP_NOTIF") ||
+    (safe(log.facility, "") == "SW_DAI" && safe(log.mnemonic, "") in ["INVALID_ARP", "DHCP_SNOOPING_DENY"]) ||
+    matches(safe(log.message, ""), "(?i)(mac.*flap|duplicate.*mac|mac.*move.*between.*port)") ||
+    matches(safe(log.message, ""), "(?i)(Host [0-9a-fA-F:.]+.*is flapping between port)") ||
+    (safe(log.severity, 999) <= 4 && matches(safe(log.message, ""), "(?i)(mac.*address.*conflict|duplicate.*address.*detected)"))
+  deduplicateBy:
+    - lastEvent.origin.mac

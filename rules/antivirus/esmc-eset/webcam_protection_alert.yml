@@ -1,0 +1,35 @@
+- id: 1019
+  dataTypes:
+    - antivirus-esmc-eset
+  name: Webcam Access Violation
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Privacy Protection
+  technique: "T1123 - Audio Capture"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1123/
+    - https://help.eset.com/eis/16.2/en-US/idh_config_webcam.html
+  description: |
+    Detects unauthorized or suspicious attempts to access the webcam, potentially indicating spyware or surveillance malware activity. ESET's webcam protection feature blocks unauthorized applications from accessing the camera device.
+    
+    Next Steps:
+    1. Investigate the process attempting to access the webcam - verify if it's legitimate software
+    2. Check if the user intentionally installed the application
+    3. Review recent software installations on the affected host
+    4. Scan the system for additional malware indicators
+    5. Check for other privacy-related alerts (microphone access, screen recording)
+    6. If unauthorized, quarantine the process and perform a full system scan
+    7. Review ESET logs for additional context about the blocked application
+    8. Consider updating webcam protection policies if legitimate applications are being blocked
+  where: |
+    (safe(log.message, "").toLowerCase().contains("webcam") || 
+     safe(log.jsonMessage, "").toLowerCase().contains("webcam") ||
+     safe(log.restHead, "").toLowerCase().contains("webcam")) &&
+    (safe(log.actionResult, "").toLowerCase().contains("block") || 
+     safe(log.action, "").toLowerCase().contains("block") ||
+     safe(log.message, "").toLowerCase().contains("block"))
+  deduplicateBy:
+    - target.host

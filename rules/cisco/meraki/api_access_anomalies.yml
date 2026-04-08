@@ -1,0 +1,36 @@
+- id: 1019
+  dataTypes:
+    - meraki
+  name: API Access Anomalies
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: API Security
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  references:
+    - https://documentation.meraki.com/General_Administration/Other_Topics/Cisco_Meraki_Dashboard_API
+    - https://attack.mitre.org/techniques/T1078/
+  description: |
+    Detects anomalous API access patterns that could indicate compromised API keys, unauthorized automation, or reconnaissance activities. This rule identifies excessive API request rates, high error rates, access to unusual endpoints, or bulk operations using destructive methods.
+    
+    Next Steps:
+    1. Verify if the source IP and API key are authorized for API access
+    2. Check if the API request patterns match expected automation or administrative activities
+    3. Review the specific endpoints being accessed and the operations being performed
+    4. Contact the API key owner to verify if the activity is legitimate
+    5. If unauthorized, immediately revoke the compromised API key
+    6. Review audit logs for any configuration changes made through the API
+    7. Implement API rate limiting and monitoring for the affected endpoints
+    8. Check for any lateral movement or privilege escalation attempts
+    9. Review network logs for suspicious traffic patterns from the same source
+  where: |
+    safe(log.eventType, "") in ["api_request", "api_error", "api_rate_limit"] &&
+    (safe(log.apiRequestRate, 0) > 100 ||
+     safe(log.apiErrorRate, 0) > 0.5 ||
+     safe(log.unusualEndpoint, false) == true ||
+     safe(log.requestMethod, "") in ["DELETE", "PUT"] && safe(log.bulkOperation, false) == true)
+  deduplicateBy:
+    - origin.ip
+    - origin.user

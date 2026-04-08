@@ -1,0 +1,37 @@
+- id: 1007
+  dataTypes:
+    - firepower
+  name: User Identity Mapping Failures
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Authentication
+  technique: "T1087 - Account Discovery"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/td/docs/security/secure-firewall/management-center/device-config/710/management-center-device-config-71/identity-policies.html
+    - https://attack.mitre.org/techniques/T1087/
+  description: |
+    Detects failures in user identity mapping including authentication failures, identity source connection issues, and user-to-IP mapping inconsistencies that may indicate credential attacks or identity spoofing.
+    
+    Next Steps:
+    1. Review the specific failure reason and authentication method used
+    2. Check if the identity source is experiencing connectivity issues
+    3. Verify if this is part of a pattern of authentication failures from the same user or IP
+    4. Investigate if the user account has been compromised or if there are credential stuffing attempts
+    5. Review network connectivity to identity sources (Active Directory, LDAP, etc.)
+    6. Check for any recent changes to identity policies or user permissions
+    7. Correlate with other authentication logs to identify potential attack patterns
+  where: |
+    (safe(log.eventType, "") == "USER_IDENTITY_FAILURE" ||
+     safe(log.eventType, "") == "IDENTITY_MAPPING_FAILURE" ||
+     safe(log.eventType, "") == "AUTH_FAILURE" ||
+     safe(log.eventType, "") == "CAPTIVE_PORTAL_FAILURE") &&
+    (safe(log.failureReason, "") != "" ||
+     safe(log.authMethod, "") == "FAILED" ||
+     safe(log.identitySource, "") contains "ERROR" ||
+     safe(log.mappingStatus, "") == "FAILED")
+  deduplicateBy:
+    - origin.ip
+    - origin.user

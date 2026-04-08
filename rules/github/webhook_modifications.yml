@@ -1,0 +1,49 @@
+- id: 1005
+  dataTypes:
+    - github
+  name: GitHub Webhook Modification Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Persistence
+  technique: "T1546 - Event Triggered Execution"
+  adversary: origin
+  references:
+    - https://docs.github.com/en/webhooks/webhook-events-and-payloads#webhook
+    - https://attack.mitre.org/techniques/T1546/
+  description: |
+    Detects modifications to webhook configurations which could be used to establish persistence, exfiltrate data, or redirect sensitive information to unauthorized endpoints. Webhooks can be abused to send repository data to attacker-controlled servers whenever specific events occur.
+    
+    Next Steps:
+    1. Review the webhook URL and verify it points to a legitimate, authorized endpoint
+    2. Check the webhook events and ensure they are appropriate for business needs
+    3. Verify the user who made the modification has authorization to manage webhooks
+    4. Review the webhook payload configuration for any sensitive data exposure
+    5. Check for any other webhook modifications by the same user across different repositories
+    6. If suspicious, disable the webhook immediately and investigate the user's recent activities
+    7. Review webhook access logs on the destination server if available
+  where: >
+    (safe(log.action, "") == "created" || 
+     safe(log.action, "") == "edited" ||
+     safe(log.action, "") == "deleted" ||
+     safe(log.action, "") == "hook.created" ||
+     safe(log.action, "") == "hook.edited" ||
+     safe(log.action, "") == "hook.deleted") &&
+    (safe(log.repositoryHooksUrl, "") != "" ||
+     safe(log.hook, "") != "") &&
+    safe(log.senderLogin, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-github-*
+      with:
+        - field: log.repositoryName.keyword
+          operator: filter_term
+          value: '{{log.repositoryName}}'
+        - field: log.senderLogin.keyword
+          operator: filter_term
+          value: '{{log.senderLogin}}'
+      within: now-1h
+      count: 3
+  deduplicateBy:
+    - lastEvent.log.repositoryName
+    - lastEvent.log.senderLogin

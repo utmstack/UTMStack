@@ -1,0 +1,39 @@
+- id: 1022
+  dataTypes:
+    - nids
+  name: Custom Signature Match Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Intrusion Detection
+  technique: "T1203 - Exploitation for Client Execution"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1203/
+    - https://suricata.io/features/custom-rules/
+  description: |
+    Detects network traffic matching custom-defined signatures for known attack patterns, exploits, or malicious payloads. Custom signatures are specifically crafted rules that identify unique indicators of compromise, exploitation attempts, or malicious activities that may not be covered by standard rule sets.
+
+    Next Steps:
+    1. Immediately investigate the source IP address and determine if it's internal or external
+    2. Review the specific custom signature that triggered (signature_id) and understand what attack pattern it detected
+    3. Analyze the full network packet capture for the timeframe around the alert
+    4. Check if the target system shows signs of compromise or successful exploitation
+    5. Examine other network traffic from the same source IP for additional malicious activity
+    6. Correlate with endpoint detection tools to identify any payloads that may have been delivered
+    7. Review firewall and proxy logs for additional context about the connection
+    8. If exploitation was successful, initiate incident response procedures and consider network isolation
+    9. Update threat intelligence feeds with IoCs if this represents a new threat
+    10. Consider tuning the custom signature if this is a false positive
+  where: |
+    safe(log.signature_type, "") == "custom" && 
+    safe(log.signature_id, "") != "" &&
+    safe(origin.ip, "") != "" &&
+    safe(log.severity, "") in ["high", "critical"] &&
+    (safe(log.alert_msg, "") contains "EXPLOIT" || 
+     safe(log.alert_msg, "") contains "MALWARE" ||
+     safe(log.alert_msg, "") contains "ATTACK")
+  deduplicateBy:
+    - origin.ip
+    - log.signature_id

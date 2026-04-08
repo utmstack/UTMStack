@@ -1,0 +1,50 @@
+- id: 1002
+  dataTypes:
+    - firewall-fortiweb
+  name: FortiWeb OWASP Top 10 Violation Attempts
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Web Application Security
+  technique: "T1190 - Exploit Public-Facing Application"
+  adversary: origin
+  references:
+    - https://docs.fortinet.com/document/fortiweb-cloud/23.3.0/user-guide/552829/known-attacks
+    - https://owasp.org/www-project-top-ten/
+    - https://attack.mitre.org/techniques/T1190/
+  description: |
+    Detects attempts to exploit OWASP Top 10 vulnerabilities including injection flaws, broken authentication, sensitive data exposure, XXE, broken access control, security misconfiguration, and more. This rule triggers when FortiWeb blocks or alerts on attack attempts that match known OWASP Top 10 vulnerability patterns.
+    
+    Next Steps:
+    1. Review the blocked request details in FortiWeb logs to understand the attack vector
+    2. Check if the source IP has attempted multiple different attack types
+    3. Verify if the targeted application has any known vulnerabilities
+    4. Consider blocking the source IP if attacks persist
+    5. Review application security headers and WAF rules for the targeted resource
+    6. Check for any successful requests from the same source IP before the block
+    7. Analyze the specific OWASP category and implement additional protections
+    8. Review application code for the detected vulnerability type
+  where: |
+    safe(action, "") in ["deny", "alert_deny", "block", "blocked"] && 
+    (
+      safe(log.msg, "").toLower().contains("injection") ||
+      safe(log.msg, "").toLower().contains("traversal") ||
+      safe(log.msg, "").toLower().contains("xxe") ||
+      safe(log.msg, "").toLower().contains("xml external entity") ||
+      safe(log.msg, "").toLower().contains("broken auth") ||
+      safe(log.msg, "").toLower().contains("sensitive data") ||
+      safe(log.msg, "").toLower().contains("security misconfig") ||
+      safe(log.msg, "").toLower().contains("owasp") ||
+      safe(log.msg, "").toLower().contains("sqli") ||
+      safe(log.msg, "").toLower().contains("xss") ||
+      safe(log.msg, "").toLower().contains("csrf") ||
+      safe(log.msg, "").toLower().contains("command injection") ||
+      safe(log.msg, "").toLower().contains("path traversal") ||
+      safe(log.msg, "").toLower().contains("lfi") ||
+      safe(log.msg, "").toLower().contains("rfi") ||
+      safe(log.msg, "").toLower().contains("deserialization")
+    )
+  deduplicateBy:
+    - target.ip
+    - origin.ip

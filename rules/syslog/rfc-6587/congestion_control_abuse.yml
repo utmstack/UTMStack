@@ -1,0 +1,48 @@
+- id: 1020
+  dataTypes:
+    - rfc-6587
+  name: TCP Congestion Control Abuse
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: Network Security
+  technique: "T1499 - Endpoint Denial of Service"
+  adversary: origin
+  references:
+    - https://www.researchgate.net/publication/2384706_TCP_Congestion_Control_with_a_Misbehaving_Receiver
+    - https://attack.mitre.org/techniques/T1499/
+  description: |
+    Detects TCP congestion control abuse where attackers exploit congestion control mechanisms to generate non-responsive traffic, cause denial of service, or suppress legitimate traffic. Monitors for ECN violations, optimistic ACKing, and malicious burst patterns.
+    
+    Next Steps:
+    1. Identify the source IP and determine if it belongs to a legitimate service or user
+    2. Check if the target system is experiencing performance degradation or service interruption
+    3. Review packet capture data to analyze TCP behavior patterns and confirm congestion control manipulation
+    4. Consider implementing rate limiting or blocking the source IP if malicious activity is confirmed
+    5. Monitor for similar patterns from other source IPs that may indicate a coordinated attack
+    6. Document the incident and update firewall rules or IDS signatures to prevent future attacks
+  where: |
+    safe(origin.ip, "") != "" &&
+    (
+      (safe(log.tcp_ecn_flags, "") != "" && safe(log.tcp_ecn_cwr, false) == true && safe(log.tcp_ecn_ece, false) == false) ||
+      (safe(log.tcp_ack_rate, 0) > 1000 && safe(log.tcp_data_rate, 0) < 100) ||
+      (safe(log.tcp_retransmission_rate, 0) > 0.3) ||
+      (safe(log.tcp_congestion_window, 0) > 0 && safe(log.tcp_congestion_window_delta, 0) > 65535) ||
+      (safe(log.tcp_duplicate_acks, 0) > 50 && safe(log.tcp_segment_lost, 0) == 0)
+    )
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.ip.keyword
+          operator: filter_term
+          value: '{{target.ip}}'
+      within: now-3m
+      count: 25
+  deduplicateBy:
+    - adversary.ip
+    - target.ip
+    - target.port

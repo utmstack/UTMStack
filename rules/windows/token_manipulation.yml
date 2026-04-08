@@ -1,0 +1,34 @@
+- id: 1035
+  dataTypes:
+    - wineventlog
+  name: Windows Token Manipulation
+  impact:
+    confidentiality: 5
+    integrity: 5
+    availability: 3
+  category: Privilege Escalation
+  technique: Access Token Manipulation
+  adversary: origin
+  references:
+    - https://medium.com/palantir/windows-privilege-abuse-auditing-detection-and-defense-3078a403d74e
+    - https://attack.mitre.org/techniques/T1134/
+  description: Detects potential token manipulation attacks used for privilege escalation. Monitors for suspicious combinations of privileged service calls (4673) and operations on privileged objects (4674) along with special privilege assignments (4672) that include sensitive privileges like SeDebugPrivilege, SeImpersonatePrivilege, or SeTcbPrivilege commonly abused for token manipulation.
+  where: safe(log.eventCode, "") == "4672" && safe(log.winlogEventDataPrivilegeList, "") != "" && (contains(safe(log.winlogEventDataPrivilegeList, ""), "SeDebugPrivilege") || contains(safe(log.winlogEventDataPrivilegeList, ""), "SeImpersonatePrivilege") || contains(safe(log.winlogEventDataPrivilegeList, ""), "SeTcbPrivilege") || contains(safe(log.winlogEventDataPrivilegeList, ""), "SeAssignPrimaryTokenPrivilege") || contains(safe(log.winlogEventDataPrivilegeList, ""), "SeLoadDriverPrivilege") || contains(safe(log.winlogEventDataPrivilegeList, ""), "SeRestorePrivilege"))
+  afterEvents:
+    - indexPattern: v11-log-*
+      with:
+        - field: origin.host.keyword
+          operator: filter_term
+          value: '{{origin.host}}'
+        - field: log.winlogEventDataTargetLogonId.keyword
+          operator: filter_term
+          value: '{{log.winlogEventDataTargetLogonId}}'
+        - field: log.eventCode.keyword
+          operator: should_terms
+          value: '4673,4674'
+      within: now-10m
+      count: 3
+  deduplicateBy:
+    - origin.host
+    - log.winlogEventDataTargetUserName
+    - log.winlogEventDataTargetLogonId

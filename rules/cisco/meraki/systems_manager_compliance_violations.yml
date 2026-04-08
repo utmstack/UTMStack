@@ -1,0 +1,31 @@
+- id: 1011
+  dataTypes:
+    - meraki
+  name: Systems Manager Compliance Violations
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Compliance
+  technique: Policy Violation
+  adversary: origin
+  references:
+    - https://documentation.meraki.com/SM/Tags_and_Policies/Security_Policies_in_Systems_Manager
+    - https://attack.mitre.org/techniques/T1078/
+  description: |
+    Detects when devices violate Systems Manager security policies, which could indicate non-compliance with organizational security requirements or potential security risks from unmanaged or compromised devices.
+    
+    Next Steps:
+    1. Investigate the specific device triggering compliance violations
+    2. Review the Systems Manager security policies that were violated
+    3. Check if the device has been compromised or if legitimate policy changes are needed
+    4. Verify if the device belongs to the organization or is a rogue device
+    5. Review device configuration and installed applications for policy violations
+    6. Consider quarantining the device if multiple violations occur
+    7. Update security policies if legitimate business needs require policy adjustments
+  where: |
+    safe(log.eventType, "") == "sm_compliance_violation" ||
+    (safe(log.eventType, "") == "sm_security_policy" && safe(log.status, "") == "violating") ||
+    (safe(log.message, "").contains("compliance") && safe(log.message, "").contains("violation") && safe(log.deviceType, "") == "systems_manager")
+  deduplicateBy:
+    - lastEvent.log.device.id

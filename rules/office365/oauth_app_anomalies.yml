@@ -1,0 +1,40 @@
+- id: 1022
+  dataTypes:
+    - o365
+  name: Office 365 OAuth Application Anomalous Activity
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Credential Access
+  technique: "T1528 - Steal Application Access Token"
+  adversary: origin
+  references:
+    - https://office365itpros.com/2023/12/15/oauth-apps-security/
+    - https://attack.mitre.org/techniques/T1528/
+  description: |
+    Detects anomalous OAuth application activities including suspicious consent patterns, high-privilege permission grants, or rapid consent events from a single user which may indicate compromised accounts or malicious OAuth apps. This rule identifies when users consent to OAuth applications with high-risk permissions such as Mail access, Files access, or User.ReadWrite permissions, followed by multiple consent events from the same IP address.
+    
+    Next Steps:
+    - Review the OAuth application details and permissions granted
+    - Verify if the user intentionally consented to the application
+    - Check for any suspicious activities from the user account after consent
+    - Investigate the OAuth application's reputation and publisher
+    - Consider revoking application permissions if deemed malicious
+    - Review other users who may have consented to the same application
+    - Implement conditional access policies to restrict high-risk OAuth consents
+  where: safe(action, "") == "Consent to application" && safe(actionResult, "") == "Success" && (safe(log.Scope, "").contains("Mail.") || safe(log.Scope, "").contains("Files.") || safe(log.Scope, "").contains("User.ReadWrite") || safe(log.Scope, "").contains(".All"))
+  afterEvents:
+    - indexPattern: v11-log-o365-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: action.keyword
+          operator: filter_term
+          value: 'Consent to application'
+      within: now-1h
+      count: 5
+  deduplicateBy:
+    - origin.ip
+    - lastEvent.log.appAccessContextClientAppId

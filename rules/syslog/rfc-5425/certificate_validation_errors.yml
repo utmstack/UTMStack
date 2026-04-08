@@ -1,0 +1,38 @@
+- id: 1002
+  dataTypes:
+    - rfc-5425
+  name: Certificate Validation Error Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: Network Security
+  technique: "T1553.004 - Subvert Trust Controls: Install Root Certificate"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5425
+    - https://attack.mitre.org/techniques/T1553/004/
+  description: |
+    Detects certificate validation errors in RFC-5425 syslog transport including expired certificates, untrusted CAs, and subject name mismatches which could indicate security threats or man-in-the-middle attacks.
+
+    Next Steps:
+    1. Investigate the source IP address for any signs of malicious activity
+    2. Verify if the certificate error is legitimate (expired cert) or suspicious (unknown CA, self-signed)
+    3. Check network traffic patterns around the time of the error
+    4. Review certificate chain and validate against known trusted CAs
+    5. Consider potential man-in-the-middle attacks if multiple certificate errors occur
+    6. Update certificate stores if legitimate certificates are being flagged
+  where: |
+    (safe(log.message, "") contains "certificate verify failed" ||
+     safe(log.message, "") contains "certificate verification failed" ||
+     safe(log.message, "") contains "unknown ca" ||
+     safe(log.message, "") contains "certificate expired" ||
+     safe(log.message, "") contains "certificate not yet valid" ||
+     safe(log.message, "") contains "self signed certificate" ||
+     safe(log.message, "") contains "Certificate subject does not match" ||
+     safe(log.message, "") contains "unable to verify the first certificate" ||
+     safe(log.message, "") contains "unable to get local issuer certificate") &&
+    safe(log.app_name, "") contains "syslog"
+  deduplicateBy:
+    - origin.ip
+    - target.ip

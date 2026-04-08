@@ -1,0 +1,44 @@
+- id: 1020
+  dataTypes:
+    - macos
+  name: Suspicious Microphone or Camera Access
+  impact:
+    confidentiality: 3
+    integrity: 1
+    availability: 1
+  category: Collection
+  technique: "T1123 - Audio Capture"
+  adversary: origin
+  references:
+    - https://www.rainforestqa.com/blog/macos-tcc-db-deep-dive
+    - https://attack.mitre.org/techniques/T1123/
+  description: |
+    Detects unauthorized or suspicious access to microphone or camera devices that may indicate surveillance or data collection activities. This rule monitors TCC (Transparency, Consent, and Control) framework events and AVFoundation subsystem activities that could suggest malicious applications attempting to access sensitive hardware.
+    
+    Next Steps:
+    1. Verify the legitimacy of the process accessing microphone/camera resources
+    2. Check if the application has proper permissions and user consent
+    3. Review recent application installations and updates
+    4. Examine the application's code signing and developer identity
+    5. Monitor for any data exfiltration activities from the same process
+    6. Consider quarantining the suspicious application if unauthorized access is confirmed
+    7. Review TCC database entries for unauthorized permission grants
+  where: |
+    (safe(log.subsystem, "") == "com.apple.TCC" && 
+     (safe(log.eventMessage, "") contains "kTCCServiceMicrophone" || 
+      safe(log.eventMessage, "") contains "kTCCServiceCamera")) ||
+    (safe(log.eventMessage, "") contains "Update Access Record:" && 
+     (safe(log.eventMessage, "") contains "Microphone" || 
+      safe(log.eventMessage, "") contains "Camera")) ||
+    (safe(log.process, "") == "tccd" && 
+     (safe(log.eventMessage, "") contains "AVCaptureDevice" || 
+      safe(log.eventMessage, "") contains "AudioDevice")) ||
+    (safe(log.eventMessage, "") contains "accessing microphone" && 
+     safe(log.process, "") not in ["FaceTime", "Zoom", "Skype", "Teams", "Slack", "Discord", "WhatsApp"]) ||
+    (safe(log.eventMessage, "") contains "accessing camera" && 
+     safe(log.process, "") not in ["FaceTime", "Zoom", "Skype", "Teams", "Photo Booth", "Discord", "WhatsApp"]) ||
+    (safe(log.subsystem, "") == "com.apple.avfoundation" && 
+     safe(log.eventMessage, "") contains "authorization status")
+  deduplicateBy:
+    - origin.process
+    - origin.user

@@ -1,0 +1,44 @@
+- id: 1006
+  dataTypes:
+    - rfc-5424
+  name: RFC-5424 Hostname Spoofing Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Security Monitoring
+  technique: "T1036 - Masquerading"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5424
+    - https://attack.mitre.org/techniques/T1036/
+  description: |
+    Detects potential hostname spoofing attempts in RFC-5424 syslog messages where the hostname field doesn't match the source IP or contains suspicious patterns like localhost references from external sources. This can indicate an attacker attempting to masquerade as a trusted host or bypass security controls.
+    
+    Next Steps:
+    1. Verify the legitimacy of the source IP and hostname combination
+    2. Check if the source IP is authorized to use the claimed hostname
+    3. Investigate recent network activity from the source IP
+    4. Review DNS records for the claimed hostname
+    5. Check for other spoofing attempts from the same source
+    6. Consider blocking the source IP if confirmed malicious
+    7. Review and update hostname validation policies if necessary
+  where: |
+    safe(log.hostname, "") != "" && 
+    safe(origin.ip, "") != "" &&
+    (
+      (safe(log.hostname, "") == "localhost" && !safe(origin.ip, "").matches("^(127\\.0\\.0\\.1|::1)$")) ||
+      (safe(log.hostname, "").matches("^(127\\.0\\.0\\.1|localhost|::1)$") && !safe(origin.ip, "").matches("^(127\\.0\\.0\\.1|::1|10\\.|172\\.(1[6-9]|2[0-9]|3[01])\\.|192\\.168\\.)")) ||
+      (safe(log.hostname, "").matches("^(10\\.|172\\.(1[6-9]|2[0-9]|3[01])\\.|192\\.168\\.)") && !safe(origin.ip, "").matches("^(10\\.|172\\.(1[6-9]|2[0-9]|3[01])\\.|192\\.168\\.)"))
+    )
+  afterEvents:
+    - indexPattern: v11-log-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-15m
+      count: 10
+  deduplicateBy:
+    - origin.ip
+    - log.hostname

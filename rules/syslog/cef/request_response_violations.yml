@@ -1,0 +1,46 @@
+- id: 1023
+  dataTypes:
+    - cef
+  name: CEF Request/Response Violation Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Application Security
+  technique: "T1190 - Exploit Public-Facing Application"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1190/
+    - https://docs.paloaltonetworks.com/strata-logging-service/log-reference/network-logs/network-url-log/network-url-cef-fields
+  description: |
+    Detects request/response violations in CEF logs including oversized requests, malformed data, protocol violations, or suspicious response codes that may indicate attacks or application errors. This rule identifies various forms of web application attacks such as buffer overflow attempts, protocol violations, and application-level denial of service attacks.
+    
+    Next Steps:
+    1. Investigate the source IP address for additional suspicious activity
+    2. Review the specific request content and headers for malicious patterns
+    3. Check application logs for related errors or crashes
+    4. Verify if the target application has known vulnerabilities
+    5. Analyze response codes and timing for potential DoS patterns
+    6. Review firewall and WAF logs for bypass attempts
+    7. Check for similar violations from the same source or targeting the same application
+    8. Consider blocking the source IP if confirmed malicious
+    9. Update application security controls and input validation
+    10. Review and tune request size limits and security policies
+  where: |
+    safe(log.dataType, "") == "cef" &&
+    (
+      (safe(log.severity, "") in ["8", "9", "10"] && contains(lower(safe(log.name, "")), "violation")) ||
+      (safe(log.requestMethod, "") != "" && safe(log.requestMethod, "") not in ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"]) ||
+      (safe(log.bytesIn, 0) > 10485760) ||
+      (safe(log.bytesOut, 0) > 104857600) ||
+      (safe(log.responseCode, "") in ["400", "413", "414", "431", "500", "502", "503", "504"]) ||
+      (contains(lower(safe(log.message, "")), "request too large")) ||
+      (contains(lower(safe(log.message, "")), "header too long")) ||
+      (contains(lower(safe(log.message, "")), "malformed request")) ||
+      (contains(lower(safe(log.message, "")), "protocol violation")) ||
+      (safe(log.request, "") != "" && size(safe(log.request, "")) > 8192) ||
+      (safe(log.requestCookies, "") != "" && size(safe(log.requestCookies, "")) > 4096)
+    )
+  deduplicateBy:
+    - origin.ip
+    - target.host

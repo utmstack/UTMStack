@@ -1,0 +1,77 @@
+- id: 1002
+  dataTypes:
+    - asa
+  name: Multiple Failed VPN Authentication Attempts
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Credential Access
+  technique: "T1110 - Brute Force"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1110/
+    - https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog/syslogs1.html
+  description: |
+    Detects multiple failed VPN authentication attempts from the same source IP address, which could indicate a brute force attack or password guessing attempt against VPN credentials.
+    
+    Next Steps:
+    - Review the source IP address and check if it is known or authorized
+    - Check for successful authentication attempts from the same IP after failed attempts
+    - Verify if the targeted user accounts exist and are active
+    - Consider temporarily blocking the source IP if attack continues
+    - Review VPN access logs for any unusual patterns or other indicators
+    - Contact the user if the IP is associated with a legitimate user to verify activity
+  where: |
+    (safe(log.message_id, "") == "113015" || 
+     safe(log.message_id, "") == "113021" || 
+     safe(log.message_id, "") == "109034" ||
+     safe(log.message_id, "") == "611102") && 
+    safe(origin.ip, "") != "" &&
+    (safe(log.reason, "") =~ "(?i)(invalid|failed|rejected|authentication)" ||
+     safe(log.message, "") =~ "(?i)(authentication.*failed|invalid.*password)")
+  afterEvents:
+    - indexPattern: v11-log-cisco-asa-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.message_id.keyword
+          operator: filter_term
+          value: '113015'
+      within: now-10m
+      count: 5
+      or:
+        - indexPattern: v11-log-cisco-asa-*
+          with:
+            - field: origin.ip.keyword
+              operator: filter_term
+              value: '{{origin.ip}}'
+            - field: log.message_id.keyword
+              operator: filter_term
+              value: '113021'
+          within: now-10m
+          count: 5
+        - indexPattern: v11-log-cisco-asa-*
+          with:
+            - field: origin.ip.keyword
+              operator: filter_term
+              value: '{{origin.ip}}'
+            - field: log.message_id.keyword
+              operator: filter_term
+              value: '109034'
+          within: now-10m
+          count: 5
+        - indexPattern: v11-log-cisco-asa-*
+          with:
+            - field: origin.ip.keyword
+              operator: filter_term
+              value: '{{origin.ip}}'
+            - field: log.message_id.keyword
+              operator: filter_term
+              value: '611102'
+          within: now-10m
+          count: 5
+  deduplicateBy:
+    - origin.ip
+    - origin.user

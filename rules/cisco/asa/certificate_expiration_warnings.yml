@@ -1,0 +1,30 @@
+- id: 1018
+  dataTypes:
+    - asa
+  name: Certificate Expiration and Validation Warnings
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 2
+  category: Initial Access
+  technique: "T1552.004 - Unsecured Credentials: Private Keys"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1552/004/
+    - https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog/syslogs7.html
+  description: |
+    Detects certificate expiration warnings and validation failures on Cisco ASA devices. Expired or invalid certificates can disrupt VPN services and may indicate attempts to bypass authentication or use of compromised certificates.
+    
+    Next Steps:
+    1. Identify the affected certificate and trustpoint from the alert details
+    2. Check the certificate expiration date and validity status
+    3. Review recent authentication logs for failed attempts using this certificate
+    4. Verify if this is a legitimate certificate that needs renewal or a potential security issue
+    5. Check for any unauthorized certificate installations or modifications
+    6. If legitimate, plan certificate renewal before expiration to prevent service disruption
+    7. Monitor for repeated validation failures which may indicate attack attempts
+    8. Review certificate chain and CA trust relationships
+  where: (safe(log.message_id, "") =~ "^717" || safe(log.message_id, "") == "751006") && safe(log.message, "") =~ "(?i)(certificate.*expir|cert.*invalid|certificate.*fail|crl.*fail|certificate.*revoked|cert.*validation.*error)"
+  deduplicateBy:
+    - lastEvent.log.trustpoint
+    - lastEvent.log.certificate_subject

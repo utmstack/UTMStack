@@ -1,0 +1,47 @@
+- id: 1022
+  dataTypes:
+    - wineventlog
+  name: NTDS.dit Extraction Attempt
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Credential Access
+  technique: "T1003.003 - OS Credential Dumping: NTDS"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1003/003/
+    - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4663
+  description: |
+    Detects attempts to access or copy the Active Directory domain database (NTDS.dit) which contains password hashes for all domain users. This is a critical indicator of credential theft attempts and potential domain compromise.
+    
+    Next Steps:
+    1. Immediately isolate the affected system to prevent further compromise
+    2. Review all recent activity from the source host and user account
+    3. Check for signs of lateral movement from this system
+    4. Verify integrity of domain controllers and examine recent administrative actions
+    5. Look for evidence of credential harvesting tools (ntdsutil, vssadmin, mimikatz)
+    6. Review privileged account usage and consider forcing password resets
+    7. Examine network traffic for data exfiltration attempts
+    8. Check backup systems and shadow copies for unauthorized access
+    9. Coordinate with incident response team for full forensic analysis
+  where: |
+    safe(log.eventCode, "") in ["4663", "4656"] && 
+    safe(log.winlogChannel, "") == "Security" &&
+    (
+      safe(log.winlog.event_data.ObjectName, "") =~ ".*\\\\ntds\\.dit" ||
+      safe(log.winlog.event_data.ObjectName, "") =~ ".*\\\\NTDS\\\\.*" ||
+      safe(log.winlogEventDataProcessName, "") =~ ".*\\\\ntdsutil\\.exe" ||
+      safe(log.winlogEventDataProcessName, "") =~ ".*\\\\vssadmin\\.exe"
+    ) &&
+    safe(log.winlog.event_data.AccessMask, "") != "0x0"
+  afterEvents:
+    - indexPattern: v11-log-wineventlog-*
+      with:
+        - field: origin.host.keyword
+          operator: filter_term
+          value: '{{origin.host}}'
+      within: now-30m
+      count: 2
+  deduplicateBy:
+    - adversary.host

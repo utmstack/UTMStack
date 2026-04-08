@@ -13,18 +13,19 @@ type PluginsConfig struct {
 }
 
 type PluginConfig struct {
-	Order         []string      `yaml:"order,omitempty"`
-	Port          int           `yaml:"port,omitempty"`
-	RulesFolder   string        `yaml:"rulesFolder,omitempty"`
-	GeoIPFolder   string        `yaml:"geoipFolder,omitempty"`
-	OpenSearch    string        `yaml:"opensearch,omitempty"`
-	PostgreSQL    PostgreConfig `yaml:"postgresql,omitempty"`
-	ServerName    string        `yaml:"serverName,omitempty"`
-	InternalKey   string        `yaml:"internalKey,omitempty"`
-	AgentManager  string        `yaml:"agentManager,omitempty"`
-	Backend       string        `yaml:"backend,omitempty"`
-	CertsFolder   string        `yaml:"certsFolder,omitempty"`
-	ModulesConfig string        `yaml:"modulesConfig,omitempty"`
+	Order         []string         `yaml:"order,omitempty"`
+	Port          int              `yaml:"port,omitempty"`
+	RulesFolder   string           `yaml:"rulesFolder,omitempty"`
+	GeoIPFolder   string           `yaml:"geoipFolder,omitempty"`
+	OpenSearch    OpenSearchConfig `yaml:"opensearch,omitempty"`
+	PostgreSQL    PostgreConfig    `yaml:"postgresql,omitempty"`
+	ServerName    string           `yaml:"serverName,omitempty"`
+	InternalKey   string           `yaml:"internalKey,omitempty"`
+	Env           string           `yaml:"env,omitempty"`
+	AgentManager  string           `yaml:"agentManager,omitempty"`
+	Backend       string           `yaml:"backend,omitempty"`
+	CertsFolder   string           `yaml:"certsFolder,omitempty"`
+	ModulesConfig string           `yaml:"modulesConfig,omitempty"`
 }
 
 type PostgreConfig struct {
@@ -33,6 +34,13 @@ type PostgreConfig struct {
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	Database string `yaml:"database"`
+}
+
+type OpenSearchConfig struct {
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
 }
 
 func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
@@ -59,7 +67,12 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 	utmstackPipeline.Plugins["com.utmstack"] = PluginConfig{
 		RulesFolder: "/workdir/rules",
 		GeoIPFolder: "/workdir/geolocation",
-		OpenSearch:  "http://node1:9200",
+		OpenSearch: OpenSearchConfig{
+			Host:     "node1",
+			Port:     "9200",
+			User:     "admin",
+			Password: conf.OpenSearchPassword,
+		},
 		PostgreSQL: PostgreConfig{
 			Server:   "postgres",
 			Port:     "5432",
@@ -69,6 +82,7 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 		},
 		ServerName:    conf.ServerName,
 		InternalKey:   conf.InternalKey,
+		Env:           conf.Branch,
 		AgentManager:  "10.21.199.3:9000",
 		Backend:       "http://backend:8080",
 		CertsFolder:   "/cert",
@@ -78,7 +92,12 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 	openSearchPipeline := PluginsConfig{}
 	openSearchPipeline.Plugins = make(map[string]PluginConfig)
 	openSearchPipeline.Plugins["org.opensearch"] = PluginConfig{
-		OpenSearch: "http://node1:9200",
+		OpenSearch: OpenSearchConfig{
+			Host:     "node1",
+			Port:     "9200",
+			User:     "admin",
+			Password: conf.OpenSearchPassword,
+		},
 	}
 
 	pipelineDir := filepath.Join(stack.EventsEngineWorkdir, "pipeline")

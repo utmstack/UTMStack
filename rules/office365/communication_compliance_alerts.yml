@@ -1,0 +1,27 @@
+- id: 1029
+  dataTypes:
+    - o365
+  name: Communication Compliance Alert
+  impact:
+    confidentiality: 2
+    integrity: 2
+    availability: 1
+  category: Discovery
+  technique: Account Discovery
+  adversary: origin
+  references:
+    - https://learn.microsoft.com/en-us/purview/communication-compliance
+    - https://attack.mitre.org/techniques/T1087/
+  description: |
+    Detects communication compliance policy violations including potentially threatening, harassing, or discriminatory language in messages, sensitive information sharing, or regulatory compliance violations in communications.
+    
+    Next Steps:
+    1. Review the specific compliance violation details and message content
+    2. Investigate the user's recent communication patterns
+    3. Check if this is part of a pattern of policy violations
+    4. Escalate to HR or compliance team if inappropriate content is confirmed
+    5. Consider additional training or disciplinary action based on severity
+    6. Review and update communication policies if needed
+  where: safe(action, "") == "CommunicationComplianceAlert" || (safe(log.ComplianceType, "") == "CommunicationCompliance" && safe(actionResult, "") == "PolicyMatch") || (safe(log.PolicyType, "") contains "Communication" && safe(log.Severity, "") in ["Medium", "High", "Critical"])
+  deduplicateBy:
+    - origin.user

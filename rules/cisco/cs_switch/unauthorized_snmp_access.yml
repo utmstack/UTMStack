@@ -1,0 +1,33 @@
+- id: 1011
+  dataTypes:
+    - cs_switch
+  name: Unauthorized SNMP Access Attempt
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Network Security
+  technique: "T1110 - Brute Force"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/snmp/configuration/xe-16/snmp-xe-16-book/nm-snmp-cfg-snmp-support.html
+    - https://attack.mitre.org/techniques/T1110/
+  description: |
+    Detects unauthorized SNMP access attempts on Cisco switches by monitoring for authentication failures or invalid community string usage. This could indicate an attacker attempting to gain unauthorized access to network device configuration and monitoring capabilities.
+    
+    Next Steps:
+    1. Verify if the source IP address is authorized to access SNMP on this device
+    2. Check SNMP configuration to ensure strong community strings are in use
+    3. Review switch logs for any successful SNMP connections from the same source
+    4. Consider implementing SNMP v3 with proper authentication and encryption
+    5. If unauthorized, block the source IP at the network perimeter
+    6. Document the incident and update SNMP access control lists accordingly
+  where: |
+    safe(log.facility, "") == "SNMP" && 
+    (safe(log.mnemonic, "") == "AUTHFAIL" || 
+     safe(log.mnemonic, "") == "INPUT_QFULL_ERR" ||
+     contains(safe(log.message, ""), "authentication failure") ||
+     contains(safe(log.message, ""), "invalid community") ||
+     contains(safe(log.message, ""), "unauthorized SNMP"))
+  deduplicateBy:
+    - origin.ip

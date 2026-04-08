@@ -1,0 +1,42 @@
+- id: 1018
+  dataTypes:
+    - firepower
+  name: Endpoint Security Integration Event Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Endpoint Security
+  technique: "T1204: User Execution"
+  adversary: origin
+  references:
+    - https://www.cisco.com/c/en/us/td/docs/security/firepower/620/configuration/guide/fpmc-config-guide-v62/file_malware_events_and_network_file_trajectory.html
+    - https://attack.mitre.org/techniques/T1204/
+  description: |
+    Detects endpoint security integration events from AMP for Endpoints including file execution alerts, process anomalies, and endpoint compromise indicators. These events indicate potential malware execution or system compromise on endpoints monitored by Cisco AMP integration with Firepower.
+    
+    Next Steps:
+    1. Review the specific threat details including file hash, process name, and threat score
+    2. Check if the affected endpoint has other recent security events or anomalies
+    3. Verify if the file hash is known malware in threat intelligence databases
+    4. Isolate the affected endpoint if active malware is confirmed
+    5. Collect forensic data from the endpoint including process tree and network connections
+    6. Review user activity on the affected system around the time of detection
+    7. Check for lateral movement attempts from the compromised endpoint
+    8. Update endpoint protection policies if new threat patterns are identified
+  where: >
+    (safe(log.eventType, "") == "AMP_EVENT" ||
+     safe(log.eventType, "") == "ENDPOINT_EVENT" ||
+     safe(log.eventSource, "").contains("AMP for Endpoints") ||
+     safe(log.detectionEngine, "") == "AMP") &&
+    (safe(log.disposition, "") == "MALWARE" ||
+     safe(log.disposition, "") == "CUSTOM_DETECTION" ||
+     safe(log.disposition, "") == "RETROSPECTIVE_MALWARE" ||
+     safe(log.eventSubtype, "") == "THREAT_DETECTED" ||
+     safe(log.eventSubtype, "") == "THREAT_QUARANTINED" ||
+     safe(log.eventSubtype, "") == "BLOCKED_EXECUTION" ||
+     safe(log.threatScore, 0) >= 70)
+  deduplicateBy:
+    - origin.host
+    - lastEvent.log.fileHash
+    - lastEvent.log.disposition

@@ -1,0 +1,42 @@
+- id: 1011
+  dataTypes:
+    - rfc-6587
+  name: RST Injection Attack
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: Network Attack
+  technique: "T1498 - Network Denial of Service"
+  adversary: origin
+  references:
+    - https://www.wallarm.com/what/what-is-syn-spoofing-or-tcp-reset-attack
+    - https://attack.mitre.org/techniques/T1498/
+  description: |
+    Detects potential RST injection attacks where an attacker sends forged TCP RST packets to disrupt established connections between devices. This can cause denial of service by forcing connection terminations.
+    
+    Next Steps:
+    1. Identify the source IP address sending the excessive RST packets
+    2. Check if the source IP is legitimate or potentially spoofed
+    3. Analyze network traffic patterns to determine if this is part of a larger attack
+    4. Review firewall logs for any blocked connection attempts from the same source
+    5. Consider implementing rate limiting or blocking the source IP if malicious
+    6. Monitor for any service disruptions or user complaints about dropped connections
+    7. Document the incident and update security controls as needed
+  where: |
+    safe(log.tcp_flags, "") contains "RST" && 
+    safe(log.rst_count, 0) > 50 &&
+    safe(log.time_window, 0) <= 60
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.tcp_flags.keyword
+          operator: filter_term
+          value: RST
+      within: now-5m
+      count: 100
+  deduplicateBy:
+    - adversary.ip

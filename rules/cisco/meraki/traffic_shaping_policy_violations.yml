@@ -1,0 +1,46 @@
+- id: 1017
+  dataTypes:
+    - meraki
+  name: Traffic Shaping Policy Violations
+  impact:
+    confidentiality: 2
+    integrity: 2
+    availability: 3
+  category: Policy Violation
+  technique: "T1496 - Resource Hijacking"
+  adversary: origin
+  references:
+    - https://documentation.meraki.com/MX/Firewall_and_Traffic_Shaping/Traffic_Shaping
+    - https://attack.mitre.org/techniques/T1496/
+  description: |
+    Detects violations of traffic shaping policies that could indicate bandwidth abuse, DDoS attempts, or compromised devices consuming excessive resources. This rule identifies events where bandwidth usage exceeds 95%, violation counts exceed 5, or blocked connections exceed 100.
+    
+    Next Steps:
+    1. Identify the source device/user causing the policy violations
+    2. Check if the device shows signs of compromise (malware, unauthorized software)
+    3. Review network traffic patterns and destination endpoints
+    4. Verify if the bandwidth usage is legitimate business activity
+    5. Check for signs of DDoS participation or data exfiltration
+    6. Review and adjust traffic shaping policies if needed
+    7. Consider isolating the device if malicious activity is confirmed
+    8. Update security controls to prevent future violations
+  where: |
+    safe(log.eventType, "") in ["traffic_shaping_exceeded", "bandwidth_limit_reached", "qos_violation"] &&
+    (safe(log.bandwidthUsagePercent, 0) > 95 || 
+     safe(log.violationCount, 0) > 5 ||
+     safe(log.blockedConnections, 0) > 100)
+  afterEvents:
+    - indexPattern: v11-log-firewall-meraki-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.clientMac.keyword
+          operator: filter_term
+          value: '{{log.clientMac}}'
+      within: now-30m
+      count: 5
+  deduplicateBy:
+    - origin.ip
+    - log.clientMac
+    - log.policyName

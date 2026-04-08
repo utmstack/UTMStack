@@ -1,0 +1,34 @@
+- id: 1018
+  dataTypes:
+    - meraki
+  name: Group Policy Misconfigurations
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Configuration Security
+  technique: "T1069 - Permission Groups Discovery"
+  adversary: destination
+  references:
+    - https://documentation.meraki.com/General_Administration/Cross-Platform_Content/Creating_and_Applying_Group_Policies
+    - https://attack.mitre.org/techniques/T1069/
+  description: |
+    Detects potential misconfigurations in group policies that could lead to unauthorized access, privilege escalation, or security policy bypasses.
+    
+    Next Steps:
+    1. Review the specific policy changes made by the user
+    2. Verify if the policy modifications were authorized and follow change management procedures
+    3. Check if the policy includes overly permissive settings (allow_all, bypass_security, disable_filtering)
+    4. Examine conflicting policies and resolve them to ensure consistent security enforcement
+    5. For policies affecting > 50 devices, verify the scope is intentional and not a misconfiguration
+    6. Review audit logs for any unauthorized access attempts following the policy change
+    7. Document the incident and revert unauthorized changes if necessary
+  where: |
+    safe(lastEvent.log.eventType, "") in ["group_policy_modified", "group_policy_error", "policy_conflict"] &&
+    (safe(lastEvent.log.policyAction, "") in ["allow_all", "bypass_security", "disable_filtering"] ||
+     safe(lastEvent.log.conflictingPolicies, 0) > 0 ||
+     safe(lastEvent.log.affectedDevices, 0) > 50)
+  deduplicateBy:
+    - destination.user
+    - lastEvent.log.policyName
+    - lastEvent.log.organizationName

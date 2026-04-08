@@ -1,0 +1,40 @@
+- id: 1019
+  dataTypes:
+    - firewall-fortiweb
+  name: FortiWeb HTTP Response Splitting Attempts
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Injection Attack
+  technique: HTTP Response Splitting
+  adversary: origin
+  references:
+    - https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/445549/attack
+    - https://attack.mitre.org/techniques/T1190/
+    - https://owasp.org/www-community/attacks/HTTP_Response_Splitting
+  description: |
+    Detects HTTP response splitting attempts that could allow attackers to inject arbitrary HTTP responses, potentially leading to XSS, cache poisoning, or phishing attacks. Response splitting exploits vulnerabilities where user input is reflected in HTTP headers without proper sanitization, allowing attackers to inject CRLF sequences to manipulate HTTP responses.
+    
+    Next Steps:
+    1. Immediately block the source IP if not already blocked
+    2. Review the attack payload in log.msg to understand the injection attempt
+    3. Check if the targeted application is vulnerable by reviewing its input validation
+    4. Search for other requests from the same source IP to identify attack patterns
+    5. Verify that FortiWeb's response splitting protection is properly configured
+    6. Review application logs for any successful exploitation attempts
+    7. Consider implementing additional input validation at the application level
+    8. Document the incident and update security policies if needed
+  where: |
+    safe(log.type, "") == "attack" && 
+    (safe(log.subtype, "") in ["response_splitting", "http_response_splitting"] ||
+     safe(log.msg, "").contains("response splitting") ||
+     safe(log.msg, "").contains("HTTP/1.1") && safe(log.msg, "").contains("\\r\\n") ||
+     safe(log.msg, "").contains("%0d%0a%0d%0a") ||
+     safe(log.msg, "").contains("Content-Length:") && safe(log.msg, "").contains("\\r\\n") ||
+     safe(log.msg, "").contains("Set-Cookie:") && safe(log.msg, "").contains("\\r\\n")) &&
+    safe(action, "") in ["Alert", "Block", "Deny"] &&
+    safe(origin.ip, "") != ""
+  deduplicateBy:
+    - adversary.ip
+    - lastEvent.log.policy

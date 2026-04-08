@@ -80,6 +80,7 @@ export class UtmAgentConsoleComponent implements OnInit, OnChanges, AfterViewIni
     this.agent = null;
     this.consoleSignal = `➜#`;
     this.websocketCommand.command = '';
+    this.websocketCommand.shell = 'cmd';
     this.authorize = false;
     this.token = null;
     this.command = null;

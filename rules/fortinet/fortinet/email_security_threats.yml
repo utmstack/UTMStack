@@ -1,0 +1,35 @@
+- id: 1013
+  dataTypes:
+    - fortinet
+  name: Email Security Threat Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Phishing
+  technique: "T1566 - Phishing"
+  adversary: origin
+  references:
+    - https://docs.fortinet.com/document/fortimail/7.4.0/log-reference/376951/antispam-logs
+    - https://attack.mitre.org/techniques/T1566/
+  description: |
+    Detects email-based security threats including phishing attempts, spam campaigns, and malicious attachments identified by FortiMail security scanners. This rule triggers on banned words, suspicious URLs, and failed authentication checks.
+    
+    Next Steps:
+    1. Review the email headers and content for signs of phishing or malware
+    2. Check if the sender's domain is legitimate and not spoofed
+    3. Investigate any URLs or attachments in the suspicious emails
+    4. Verify SPF, DKIM, and DMARC authentication results
+    5. Check if other users received similar emails from the same sender
+    6. Consider blocking the sender's IP or domain if confirmed malicious
+    7. Update email security policies if needed
+  where: |
+    (safe(log.type, "") == "spam" && safe(log.msg, "").contains("Detected by BannedWord test")) ||
+    safe(log.msg, "").contains("FortiGuard-WebFilter identified URL") ||
+    safe(log.msg, "").contains("DMARC: No DKIM signature") ||
+    safe(log.msg, "").contains("SPF check: Fail") ||
+    safe(log.msg, "").contains("DKIM invalid") ||
+    (safe(log.subtype, "") == "emailfilter" && safe(action, "") == "blocked")
+  deduplicateBy:
+    - origin.ip
+    - origin.emailAddress

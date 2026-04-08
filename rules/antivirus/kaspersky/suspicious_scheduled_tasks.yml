@@ -1,0 +1,37 @@
+- id: 1018
+  dataTypes:
+    - antivirus-kaspersky
+  name: Kaspersky Suspicious Scheduled Tasks Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Persistence
+  technique: "T1053 - Scheduled Task/Job"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1053/
+    - https://support.kaspersky.com/ScanEngine/1.0/en-US/186767.htm
+  description: |
+    Detects suspicious scheduled task creation or modification identified by Kaspersky, which could indicate persistence mechanisms used by malware or attackers. Scheduled tasks are commonly abused by attackers to maintain persistence, execute malicious code at specific times, or escalate privileges.
+    
+    Next Steps:
+    1. Review the scheduled task details in log.msg, log.fname, and log.descMsg fields
+    2. Check the specific threat signature in log.signatureID to understand the detection
+    3. Examine log.cs1 and log.cs2 fields for additional threat context and classification
+    4. Verify if the task creation was part of legitimate administrative activity
+    5. Check the affected host (origin.host) for other persistence mechanisms:
+       - Registry run keys
+       - Startup folder items
+       - Services
+       - WMI event subscriptions
+    6. Review log.deviceTime for timeline analysis and correlate with other security events
+    7. If confirmed malicious:
+       - Disable or remove the scheduled task immediately
+       - Scan the system for additional malware components
+       - Check if the malware has spread to other systems
+       - Preserve evidence and initiate incident response procedures
+  where: (safe(log.msg, "").toLowerCase().contains("scheduled") && safe(log.msg, "").toLowerCase().contains("task")) || safe(log.msg, "").toLowerCase().contains("schtasks") || safe(log.msg, "").toLowerCase().contains("schedule") || safe(log.descMsg, "").toLowerCase().contains("scheduled") || safe(log.descMsg, "").toLowerCase().contains("task") || safe(log.cs2, "").toLowerCase().contains("persist") || safe(log.fname, "").contains("\\Tasks\\") || safe(log.cat, "").toLowerCase().contains("persistence") && (safe(log.signatureID, "") != "" || safe(log.cs1, "").toLowerCase() == "infected" || safe(log.cs1, "").toLowerCase() == "suspicious" || safe(log.cefDeviceSeverity, "") != "")
+  deduplicateBy:
+    - origin.host
+    - log.signatureID

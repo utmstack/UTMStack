@@ -1,0 +1,37 @@
+- id: 1018
+  dataTypes:
+    - nids
+  name: SSL/TLS Anomalies Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Network Security
+  technique: "T1573 - Encrypted Channel"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1573/
+    - https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-52r2.pdf
+  description: |
+    Detects SSL/TLS anomalies including weak cipher suites, protocol downgrade attempts, self-signed certificates, expired certificates, or unusual TLS versions. These anomalies may indicate man-in-the-middle attacks, certificate abuse, or the use of weak cryptographic implementations.
+    
+    Next Steps:
+    1. Examine the certificate details and validate its authenticity
+    2. Check if the weak protocols or ciphers are required for legacy compatibility
+    3. Investigate the source and destination IPs for any suspicious patterns
+    4. Review network traffic for potential interception attempts
+    5. Verify if certificate warnings were bypassed by users
+    6. Consider implementing stronger TLS policies and certificate pinning
+  where: |
+    safe(log.protocol, "") in ["SSL", "TLS"] && (
+      safe(log.tls_version, "") in ["SSLv2", "SSLv3", "TLSv1.0"] ||
+      safe(log.cipher_strength, 256) < 128 ||
+      safe(log.certificate_expired, false) == true ||
+      safe(log.self_signed, false) == true ||
+      safe(log.cipher_suite, "") in ["NULL", "EXPORT", "DES", "RC4"] ||
+      safe(log.handshake_failure, false) == true
+    )
+  deduplicateBy:
+    - origin.ip
+    - target.ip
+    - safe(log.certificate_fingerprint, "")

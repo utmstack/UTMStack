@@ -1,0 +1,46 @@
+- id: 1023
+  dataTypes:
+    - linux
+  name: GRUB Security Events
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Boot Security
+  technique: "T1014 - Rootkit"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1014/
+    - https://www.gnu.org/software/grub/manual/grub/grub.html
+    - https://wiki.debian.org/GrubEFIReinstall
+  description: |
+    Detects suspicious GRUB bootloader activities including password bypass attempts, configuration changes, or module loading that could indicate boot-level compromise. This rule identifies potential rootkit installation or boot process manipulation attempts.
+    
+    Next Steps:
+    1. Verify the legitimacy of GRUB-related activities and check if they were authorized
+    2. Examine the system boot process and verify GRUB configuration integrity
+    3. Check for unauthorized changes to /boot/grub/ directory contents
+    4. Review system logs for additional indicators of boot-level compromise
+    5. Validate GRUB modules and configuration against known good baseline
+    6. Consider re-imaging the system if boot-level compromise is confirmed
+  where: |
+    (safe(log.message, "") contains "GRUB" && 
+     (safe(log.message, "") contains "authentication" || 
+      safe(log.message, "") contains "password" || 
+      safe(log.message, "") contains "bypass")) ||
+    (safe(log.process_name, "") == "grub-probe" && 
+     safe(log.user, "") != "root") ||
+    (safe(log.file_path, "") contains "/boot/grub/grub.cfg" && 
+     safe(log.event_type, "") == "file_read" && 
+     safe(log.user, "") != "root") ||
+    (safe(log.command_line, "") contains "grub" && 
+     (safe(log.command_line, "") contains "--unrestricted" || 
+      safe(log.command_line, "") contains "--users" || 
+      safe(log.command_line, "") contains "insmod")) ||
+    (safe(log.message, "") contains "grub rescue" || 
+     safe(log.message, "") contains "minimal BASH-like") ||
+    (safe(log.file_path, "") contains "/boot/grub/i386-pc/" && 
+     safe(log.event_type, "") == "file_create")
+  deduplicateBy:
+    - origin.host
+    - lastEvent.log.process_name

@@ -1,0 +1,36 @@
+- id: 1009
+  dataTypes:
+    - firewall-pfsense
+  name: Load Balancer Pool Member Failures
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: Impact
+  technique: "T1489 - Service Stop"
+  adversary: system
+  references:
+    - https://docs.netgate.com/pfsense/en/latest/loadbalancing/index.html
+    - https://attack.mitre.org/techniques/T1489/
+  description: |
+    Detects multiple load balancer pool member failures which could indicate service outages, misconfiguration, or targeted attacks against backend servers. This rule monitors pfSense relayd events for patterns indicating backend server failures or unavailability.
+    
+    Next Steps:
+    1. Immediately check the status of affected backend servers and services
+    2. Verify network connectivity between the load balancer and backend servers
+    3. Review load balancer configuration for misconfigurations
+    4. Check server logs on affected backend systems for errors or resource issues
+    5. Investigate if failures correlate with increased traffic or potential DDoS attacks
+    6. Consider implementing backup pool members or failover mechanisms
+    7. Monitor for potential targeted attacks against specific backend infrastructure
+  where: safe(log.eventType, "") == "relayd" && safe(log.csvMsg, "").matches(".*(host|pool|down|failed|unreachable).*")
+  afterEvents:
+    - indexPattern: v11-log-firewall-pfsense-*
+      with:
+        - field: log.eventType.keyword
+          operator: filter_term
+          value: 'relayd'
+      within: now-10m
+      count: 3
+  deduplicateBy:
+    - adversary.host

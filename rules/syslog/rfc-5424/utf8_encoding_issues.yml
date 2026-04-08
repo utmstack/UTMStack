@@ -1,0 +1,45 @@
+- id: 1013
+  dataTypes:
+    - rfc-5424
+  name: RFC-5424 UTF-8 Encoding Violation Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Encoding Attack
+  technique: "T1027 - Obfuscation: Indicator Removal on Host"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5424#section-6.4
+    - https://attack.mitre.org/techniques/T1027/
+  description: |
+    Detects invalid UTF-8 encoding in RFC-5424 syslog messages which could indicate evasion attempts, malformed log injection, or attempts to bypass log parsing mechanisms. Invalid UTF-8 sequences may be used by attackers to obfuscate malicious content or exploit parsing vulnerabilities.
+    
+    Next Steps:
+    1. Examine the raw log message for suspicious patterns or content
+    2. Investigate the source system and application generating these messages
+    3. Check for signs of log injection or tampering attempts
+    4. Review recent changes to logging configurations or applications
+    5. Verify if the encoding issues are legitimate (e.g., legacy systems) or malicious
+    6. Monitor for additional suspicious activity from the same source
+  where: |
+    safe(log.message, "") != "" && (
+      safe(log.message, "").contains("\xc0\x80") ||
+      safe(log.message, "").contains("\xe0\x80\x80") ||
+      safe(log.message, "").contains("\xf0\x80\x80\x80") ||
+      safe(log.message, "").contains("\xf8") ||
+      safe(log.message, "").contains("\xfc") ||
+      safe(log.message, "").contains("\xfe") ||
+      safe(log.message, "").contains("\xff") ||
+      safe(log.message, "").matches(".*[\\xc0-\\xc1][\\x80-\\xbf].*") ||
+      safe(log.message, "").matches(".*[\\xe0][\\x80-\\x9f][\\x80-\\xbf].*") ||
+      safe(log.message, "").matches(".*[\\xf0][\\x80-\\x8f][\\x80-\\xbf]{2}.*") ||
+      safe(log.message, "").matches(".*[\\xf4][\\x90-\\xbf][\\x80-\\xbf]{2}.*") ||
+      safe(log.message, "").matches(".*[\\x80-\\xbf].*") ||
+      safe(log.message, "").matches(".*[\\xc2-\\xdf]([^\\x80-\\xbf]|$).*") ||
+      safe(log.message, "").matches(".*[\\xe0-\\xef]([^\\x80-\\xbf]{2}|[\\x80-\\xbf][^\\x80-\\xbf]|[\\x80-\\xbf]$|$).*") ||
+      safe(log.message, "").matches(".*[\\xf0-\\xf4]([^\\x80-\\xbf]{3}|[\\x80-\\xbf]{1,2}[^\\x80-\\xbf]|[\\x80-\\xbf]{1,2}$|$).*")
+    )
+  deduplicateBy:
+    - origin.ip
+    - origin.host

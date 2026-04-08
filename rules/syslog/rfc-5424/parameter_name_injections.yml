@@ -1,0 +1,41 @@
+- id: 1011
+  dataTypes:
+    - rfc-5424
+  name: RFC-5424 Parameter Name Injection Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: Input Validation
+  technique: "T1059 - Command and Scripting Interpreter"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5424#section-6.3
+    - https://attack.mitre.org/techniques/T1059/
+  description: |
+    Detects attempts to inject malicious content through RFC-5424 structured data parameter names, which could lead to log injection attacks or command execution. This rule identifies suspicious characters and patterns in structured data that may indicate injection attempts including command separators, variable expansion syntax, and path traversal sequences.
+
+    Next Steps:
+    1. Review the structured data content for the detected injection patterns
+    2. Analyze the source system and application generating the malicious logs
+    3. Check if the injection attempt was successful by examining system logs
+    4. Implement input validation and sanitization on the log source
+    5. Consider blocking the source IP if this represents an active attack
+    6. Review other recent logs from the same source for additional injection attempts
+  where: |
+    safe(log.structured_data, "") != "" && (
+      safe(log.structured_data, "").contains("';") ||
+      safe(log.structured_data, "").contains('";') ||
+      safe(log.structured_data, "").contains("$(") ||
+      safe(log.structured_data, "").contains("${") ||
+      safe(log.structured_data, "").contains("`") ||
+      safe(log.structured_data, "").contains("&&") ||
+      safe(log.structured_data, "").contains("||") ||
+      safe(log.structured_data, "").contains("|") ||
+      safe(log.structured_data, "").contains("../") ||
+      safe(log.structured_data, "").contains("..\\") ||
+      safe(log.structured_data, "").matches(".*\\[\\w+\\s+(\\w+=[^\\]]*[;<>&|`$]+[^\\]]*)\\].*")
+    )
+  deduplicateBy:
+    - origin.ip
+    - origin.host

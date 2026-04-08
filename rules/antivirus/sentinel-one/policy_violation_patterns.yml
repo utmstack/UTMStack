@@ -1,0 +1,39 @@
+- id: 1016
+  dataTypes:
+    - antivirus-sentinel-one
+  name: SentinelOne Policy Violation Detected
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: Policy Violation
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  references:
+    - https://www.sentinelone.com/platform/singularity-cloud-workload-security/
+    - https://attack.mitre.org/techniques/T1078/
+  description: |
+    Detects policy violations in SentinelOne including unauthorized access attempts, prohibited application usage, or configuration changes that violate security policies.
+    
+    Next Steps:
+    1. Review the specific policy violation details in the log.eventDescription field
+    2. Identify the user account involved (log.destinationUser) and verify if this was authorized activity
+    3. Check the affected endpoint (log.endpointDeviceName) for any additional suspicious activity
+    4. Review the user's recent activity history for patterns of policy violations
+    5. If unauthorized, disable the user account and initiate incident response procedures
+    6. Update security policies if this was a legitimate action that needs to be allowed
+    7. Consider implementing additional controls or training if this is a recurring issue
+  where: |
+    safe(log.eventDescription, "") != "" && 
+    (
+      contains(lower(safe(log.eventDescription, "")), "policy violation") ||
+      contains(lower(safe(log.eventDescription, "")), "policy breach") ||
+      contains(lower(safe(log.eventDescription, "")), "unauthorized access") ||
+      contains(lower(safe(log.eventDescription, "")), "prohibited") ||
+      contains(lower(safe(log.eventDescription, "")), "compliance violation") ||
+      contains(lower(safe(log.eventDescription, "")), "configuration change")
+    ) &&
+    safe(log.destinationUser, "") != ""
+  deduplicateBy:
+    - adversary.user
+    - adversary.host

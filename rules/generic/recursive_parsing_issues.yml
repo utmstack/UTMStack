@@ -1,0 +1,35 @@
+- id: 1022
+  dataTypes:
+    - generic
+  name: Recursive Parsing Attack Detection
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: Denial of Service
+  technique: "T1499 - Resource Exhaustion"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1499/
+    - https://cwe.mitre.org/data/definitions/674.html
+  description: |
+    Detects patterns that could cause recursive parsing issues or infinite loops in log processors, potentially leading to CPU exhaustion or memory overflow. These attacks exploit nested structures or recursive function calls to overwhelm processing resources.
+    
+    Next Steps:
+    1. Identify the source IP and hostname generating these patterns
+    2. Check system resource usage (CPU, memory) on log processing systems
+    3. Review other logs from the same source for additional suspicious patterns
+    4. Consider blocking or rate-limiting the source if malicious intent is confirmed
+    5. Update log parsing configurations to handle recursive patterns safely
+    6. Implement resource limits on log processing functions
+  where: |
+    (safe(log.message, "").matches(".*\\$\\{[^}]*\\$\\{[^}]*\\}[^}]*\\}.*") ||
+     safe(log.message, "").matches(".*\\(\\([^)]*\\([^)]*\\)[^)]*\\)\\).*") ||
+     safe(log.message, "").matches(".*\\\\x[0-9a-fA-F]{2}\\\\x[0-9a-fA-F]{2}\\\\x[0-9a-fA-F]{2}\\\\x[0-9a-fA-F]{2}.*") ||
+     safe(log.message, "").contains("eval(eval(") ||
+     safe(log.message, "").contains("decode(decode(") ||
+     safe(log.message, "").contains("parse(parse(") ||
+     safe(log.message, "").matches(".*(&amp;){5,}.*") ||
+     safe(log.message, "").matches(".*(\\\\\\\\){10,}.*"))
+  deduplicateBy:
+    - origin.ip

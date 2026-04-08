@@ -1,0 +1,43 @@
+- id: 1016
+  dataTypes:
+    - o365
+  name: eDiscovery Abuse Detection
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Data Exfiltration
+  technique: "T1074 - Data Staged"
+  adversary: origin
+  references:
+    - https://learn.microsoft.com/en-us/purview/ediscovery-search-for-activities-in-the-audit-log
+    - https://attack.mitre.org/techniques/T1074/
+  description: |
+    Detects potential abuse of eDiscovery features including excessive searches, exports, or unauthorized access to sensitive data through eDiscovery operations. This rule identifies users performing multiple eDiscovery actions within a short timeframe, which could indicate malicious data staging or exfiltration attempts.
+    
+    Next Steps:
+    1. Review the user's authorization and role assignments for eDiscovery operations
+    2. Examine the scope and content of the searches performed
+    3. Verify if the searches align with legitimate business requirements or ongoing legal matters
+    4. Check for unusual patterns in search queries or export activities
+    5. Investigate if sensitive data was accessed or exported without proper justification
+    6. Review data classification and sensitivity of accessed content
+    7. Correlate with other suspicious activities from the same user account
+    8. Consider implementing additional monitoring for the user if activity appears unauthorized
+  where: |
+    safe(log.action, "") in ["SearchStarted", "SearchExported", "SearchCreated", "CaseAdded", "HoldCreated", "SearchExportDownloaded", "SearchPreviewed", "SearchResultsPurged", "RemoveSearchResultsSentToZoom", "RemoveSearchExported", "RemoveSearchPreviewed", "RemoveSearchResultsPurged", "SearchResultsSentToZoom", "ViewedSearchExported", "ViewedSearchPreviewed"] &&
+    safe(origin.user, "") != "" &&
+    safe(actionResult, "") == "Succeeded"
+  afterEvents:
+    - indexPattern: v11-log-o365-*
+      with:
+        - field: origin.user.keyword
+          operator: filter_term
+          value: '{{origin.user}}'
+        - field: log.action.keyword
+          operator: filter_term
+          value: '{{log.action}}'
+      within: now-1h
+      count: 10
+  deduplicateBy:
+    - origin.user

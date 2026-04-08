@@ -1,0 +1,38 @@
+- id: 1029
+  dataTypes:
+    - firewall-mikrotik
+  name: MikroTik Resource Exhaustion Attack Detected
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: Resource Exhaustion
+  technique: "T1499 - Endpoint Denial of Service"
+  adversary: origin
+  references:
+    - https://wiki.mikrotik.com/wiki/Manual:System/Resource
+    - https://attack.mitre.org/techniques/T1499/
+  description: |
+    Detects potential resource exhaustion attacks or conditions on MikroTik devices including high CPU usage, memory exhaustion, connection table overflow, or disk space issues that could indicate DoS attacks or system compromise.
+    
+    Next Steps:
+    1. Verify the MikroTik device status and resource utilization
+    2. Check for unusual traffic patterns or connection spikes
+    3. Review firewall logs for suspicious activity from the source IP
+    4. Monitor system performance metrics and resource consumption
+    5. Consider implementing rate limiting or access controls if attack is confirmed
+    6. Check for any configuration changes that might have triggered the condition
+  where: |
+    (safe(log.topics, "") == "system" || contains(safe(log.topics, ""), "resource") || contains(safe(log.topics, ""), "critical")) &&
+    ((contains(lower(safe(log.kvMessage, "")), "cpu") && 
+     (contains(lower(safe(log.kvMessage, "")), "100%") || contains(lower(safe(log.kvMessage, "")), "high") || contains(lower(safe(log.kvMessage, "")), "overload"))) ||
+    (contains(lower(safe(log.kvMessage, "")), "memory") && 
+     (contains(lower(safe(log.kvMessage, "")), "exhausted") || contains(lower(safe(log.kvMessage, "")), "full") || contains(lower(safe(log.kvMessage, "")), "low"))) ||
+    (contains(lower(safe(log.kvMessage, "")), "connection") && 
+     (contains(lower(safe(log.kvMessage, "")), "limit") || contains(lower(safe(log.kvMessage, "")), "overflow") || contains(lower(safe(log.kvMessage, "")), "table full"))) ||
+    (contains(lower(safe(log.kvMessage, "")), "disk") && 
+     (contains(lower(safe(log.kvMessage, "")), "full") || contains(lower(safe(log.kvMessage, "")), "space"))) ||
+    contains(lower(safe(log.kvMessage, "")), "out of memory") ||
+    contains(lower(safe(log.kvMessage, "")), "resource limit"))
+  deduplicateBy:
+    - origin.ip

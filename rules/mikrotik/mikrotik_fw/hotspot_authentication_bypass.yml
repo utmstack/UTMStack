@@ -1,0 +1,44 @@
+- id: 1017
+  dataTypes:
+    - mikrotik_fw
+  name: Hotspot Authentication Bypass Attempt
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Access Control Bypass
+  technique: Authentication Bypass
+  adversary: origin
+  references:
+    - https://help.mikrotik.com/docs/spaces/ROS/pages/328353/Securing+your+router
+    - https://attack.mitre.org/techniques/T1078/
+  description: |
+    Detects potential hotspot authentication bypass attempts where clients are accessing network resources without proper authentication or using spoofed MAC addresses. This rule identifies suspicious hotspot activity including bypass attempts and dropped authentication requests.
+    
+    Next Steps:
+    1. Investigate the source MAC address and IP for previous authentication attempts
+    2. Check hotspot configuration for security misconfigurations
+    3. Review network access logs for unauthorized resource access
+    4. Verify if the MAC address is authorized in the hotspot user database
+    5. Consider implementing additional MAC address filtering if bypass attempts persist
+    6. Review hotspot authentication logs for patterns of abuse
+  where: |
+    (safe(log.topics, "") == "hotspot" && 
+     safe(log.chain, "").contains("bypass")) ||
+    (safe(log.topics, "") == "hotspot" && 
+     safe(action, "") == "drop" &&
+     safe(origin.mac, "") != "")
+  afterEvents:
+    - indexPattern: v11-log-mikrotik-fw-*
+      with:
+        - field: origin.mac.keyword
+          operator: filter_term
+          value: '{{origin.mac}}'
+        - field: log.topics.keyword
+          operator: filter_term
+          value: 'hotspot'
+      within: now-10m
+      count: 5
+  deduplicateBy:
+    - origin.mac
+    - origin.ip

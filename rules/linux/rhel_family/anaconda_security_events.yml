@@ -1,0 +1,28 @@
+- id: 1008
+  dataTypes:
+    - rhel_family
+  name: Anaconda Installer Security Event Detected
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Defense Evasion
+  technique: "T1601 - Modify System Image"
+  adversary: origin
+  references:
+    - https://anaconda-installer.readthedocs.io/en/latest/common-bugs.html
+    - https://attack.mitre.org/techniques/T1601/
+  description: |
+    Detects suspicious activities during RHEL Anaconda installer execution, including unauthorized modifications to installation parameters, attempts to bypass security profiles, or suspicious package sources that could indicate supply chain attacks or system compromise attempts.
+    
+    Next Steps:
+    1. Review the specific security policy violation or error message in the logs
+    2. Verify the integrity of installation sources and repositories
+    3. Check if GPG signatures are properly configured and valid
+    4. Examine the installation media for signs of tampering
+    5. Review system configuration profiles for unauthorized modifications
+    6. Monitor for additional installation anomalies on the same system
+    7. Consider reimaging the system if compromise is confirmed
+  where: (safe(log.process, "") == "anaconda" || safe(log.file, "") contains "anaconda") && (safe(log.message, "") contains "security policy violation" || safe(log.message, "") contains "OSCAP addon error" || safe(log.message, "") contains "untrusted repository" || safe(log.message, "") contains "GPG check failed" || safe(log.message, "") contains "installation source error" || (safe(log.message, "") contains "traceback" && (safe(log.message, "") contains "permission denied" || safe(log.message, "") contains "authentication")))
+  deduplicateBy:
+    - target.host

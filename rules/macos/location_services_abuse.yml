@@ -1,0 +1,32 @@
+- id: 1021
+  dataTypes:
+    - macos
+  name: Location Services Unauthorized Access
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Privacy Violation
+  technique: "T1005 - Data from Local System"
+  adversary: origin
+  references:
+    - https://eclecticlight.co/2020/01/15/a-guide-to-catalinas-privacy-protection-2-controlling-privacy-settings/
+    - https://attack.mitre.org/techniques/T1005/
+  description: |
+    Detects unauthorized attempts to access location services or multiple location service permission requests that could indicate privacy violation attempts. This rule identifies when applications are denied access to location services or when unauthorized location access is attempted through the Transparency, Consent, and Control (TCC) framework.
+
+    Next Steps:
+    1. Review the application requesting location access and verify if it's legitimate
+    2. Check if the user has previously granted or denied location access to this application
+    3. Examine other privacy-related permission requests from the same application
+    4. Verify the application's digital signature and source
+    5. Monitor for additional TCC framework violations from the same process or user
+    6. Consider reviewing location services settings in System Preferences > Security & Privacy > Privacy > Location Services
+  where: |
+    (safe(log.subsystem, "") == "com.apple.TCC" && safe(log.eventMessage, "") contains "location") ||
+    (safe(log.process, "") == "tccd" && safe(log.eventMessage, "") contains "kTCCServiceLocation") ||
+    (safe(log.eventMessage, "") contains "LocationServices" && safe(log.eventMessage, "") contains "denied") ||
+    (safe(log.eventMessage, "") contains "CoreLocationAgent" && safe(log.eventMessage, "") contains "unauthorized")
+  deduplicateBy:
+    - origin.host
+    - target.process

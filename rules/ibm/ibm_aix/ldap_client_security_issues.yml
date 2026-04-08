@@ -1,0 +1,42 @@
+- id: 1011
+  dataTypes:
+    - ibm-aix
+  name: IBM AIX LDAP Client Security Issues Detected
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Authentication
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  references:
+    - https://www.ibm.com/support/pages/aix-how-configure-aix-ldap-or-krb5ldap-client
+    - https://attack.mitre.org/techniques/T1078/
+  description: |
+    Detects security issues related to LDAP client operations on IBM AIX systems, including authentication failures, connection errors, and potential unauthorized access attempts through LDAP services. This rule monitors for various LDAP-related security events that could indicate credential attacks, service disruptions, or misconfigurations.
+    
+    Next Steps:
+    1. Investigate the source IP address and user account involved in the LDAP authentication failure
+    2. Review LDAP server logs for corresponding authentication attempts and errors
+    3. Check for patterns of repeated failures from the same source that might indicate brute force attacks
+    4. Verify LDAP server configuration and connectivity status
+    5. Review recent changes to LDAP configuration or user account permissions
+    6. Monitor for successful authentications from the same source after failures
+    7. Check system logs for related authentication events across other services
+    8. Validate user account status and permissions in the LDAP directory
+  where: >
+    safe(log.eventType, "") == "ldapd" && 
+    (
+      safe(log.msg, "").contains("authentication failed") ||
+      safe(log.msg, "").contains("bind failed") ||
+      safe(log.msg, "").contains("connection refused") ||
+      safe(log.msg, "").contains("invalid credentials") ||
+      safe(log.msg, "").contains("ldap_bind") ||
+      safe(log.msg, "").contains("access denied") ||
+      safe(log.msg, "").contains("SSL connection error") ||
+      safe(log.msg, "").contains("timeout") ||
+      safe(log.returnCode, "") != "0"
+    )
+  deduplicateBy:
+    - lastEvent.log.from.host
+    - lastEvent.log.osUserID

@@ -1,0 +1,40 @@
+- id: 1006
+  dataTypes:
+    - firewall-pfsense
+  name: pfBlockerNG IP Blocking Activity
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 2
+  category: Network Security
+  technique: "T1071 - Application Layer Protocol"
+  adversary: origin
+  references:
+    - https://docs.netgate.com/pfsense/en/latest/packages/pfblockerng/index.html
+    - https://attack.mitre.org/techniques/T1071/
+  description: |
+    Detects when pfBlockerNG blocks multiple connection attempts from the same source IP address within a short time frame. This activity could indicate command and control communication attempts, reconnaissance against blocked malicious IPs, or persistent attempts to connect to known threat infrastructure. pfBlockerNG uses threat intelligence feeds to automatically block connections to known malicious IP addresses, domains, and geolocation-based threats.
+    
+    Next Steps:
+    1. Investigate the source IP address reputation using threat intelligence feeds
+    2. Check if the blocked destination IP appears in known malware C2 or botnet lists
+    3. Examine the frequency and timing patterns of the blocked connections
+    4. Review pfBlockerNG feed sources that triggered the blocks (IP reputation, geolocation, etc.)
+    5. Analyze other network traffic from the same source IP to identify potential infection
+    6. Consider implementing additional monitoring for the source host if it's internal
+    7. If source is external, verify firewall rules are properly configured
+    8. Document findings and update threat intelligence feeds if necessary
+  where: safe(action, "") == "block" && safe(log.reason, "") == "match" && safe(log.anchor, "").contains("pfB_") && safe(origin.ip, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-firewall-pfsense-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: action.keyword
+          operator: filter_term
+          value: 'block'
+      within: now-5m
+      count: 10
+  deduplicateBy:
+    - origin.ip

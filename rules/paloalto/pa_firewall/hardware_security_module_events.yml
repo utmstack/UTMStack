@@ -1,0 +1,28 @@
+- id: 1023
+  dataTypes:
+    - pa_firewall
+  name: Hardware Security Module Critical Events
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: System Security
+  technique: "T1200 - Hardware Additions"
+  adversary: origin
+  references:
+    - https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/certificate-management/hardware-security-module
+    - https://attack.mitre.org/techniques/T1200/
+  description: |
+    Detects critical hardware security module (HSM) events including key generation failures, cryptographic errors, and HSM connectivity issues that could indicate tampering or system compromise. HSM events are critical for maintaining cryptographic integrity and should be investigated immediately.
+    
+    Next Steps:
+    1. Verify HSM hardware status and connectivity
+    2. Check HSM audit logs for unauthorized access attempts
+    3. Review recent configuration changes to HSM settings
+    4. Validate certificate and key management operations
+    5. Contact HSM vendor support if hardware issues are suspected
+    6. Review backup and recovery procedures for cryptographic materials
+  where: (safe(log.message, "").contains("HSM") || safe(log.message, "").contains("hardware security module") || safe(log.category, "").contains("crypto") || safe(log.category, "").contains("hsm")) && (safe(log.severity, "") == "critical" || safe(log.severity, "") == "high" || safe(log.message, "").contains("fail") || safe(log.message, "").contains("error"))
+  deduplicateBy:
+    - lastEvent.log.syslogHost
+    - category

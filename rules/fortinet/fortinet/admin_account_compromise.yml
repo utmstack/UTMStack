@@ -1,0 +1,49 @@
+- id: 1001
+  dataTypes:
+    - firewall-fortigate-traffic
+  name: Admin Account Compromise Indicators
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Account Takeover
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1078/
+    - https://docs.fortinet.com/document/fortigate/7.4.1/fortios-log-message-reference/160372/list-of-log-types-and-subtypes
+  description: |
+    Detects multiple failed admin login attempts followed by a successful login from the same IP address, indicating potential account compromise through credential stuffing or brute force attacks.
+    
+    Next Steps:
+    1. Review the source IP address and check if it's from an expected location
+    2. Contact the admin user to verify if the login was legitimate
+    3. Check for any suspicious activities performed after the successful login
+    4. Review other authentication logs from the same IP address
+    5. Consider implementing IP-based access controls for admin accounts
+    6. Enable multi-factor authentication if not already configured
+    7. Reset the compromised admin account password if unauthorized access is confirmed
+  where: |
+    safe(log.logid, "") == "0100032001" && 
+    safe(log.type, "") == "event" && 
+    safe(log.subtype, "") == "system" && 
+    safe(log.logdesc, "") == "Admin login successful" && 
+    safe(origin.ip, "") != "" &&
+    safe(log.user, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-firewall-fortigate-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.logdesc.keyword
+          operator: filter_term
+          value: 'Admin login failed'
+        - field: log.user.keyword
+          operator: filter_term
+          value: '{{log.user}}'
+      within: now-30m
+      count: 3
+  deduplicateBy:
+    - origin.ip
+    - target.user

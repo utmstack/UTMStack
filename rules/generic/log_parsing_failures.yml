@@ -1,0 +1,26 @@
+- id: 1001
+  dataTypes:
+    - generic
+  name: Generic Log Parsing Failures
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 2
+  category: Data Quality
+  technique: Log Processing Error
+  adversary: origin
+  references:
+    - https://www.syslog-ng.com/technical-documents/doc/syslog-ng-open-source-edition/3.24/administration-guide/71
+    - https://attack.mitre.org/techniques/T1070/
+  description: |
+    Detects when generic log parsing fails, which could indicate malformed logs, corrupted data, or attempts to evade detection by sending malformed log entries. This rule triggers when log messages are empty or when JSON parsing fails.
+    
+    Next Steps:
+    1. Investigate the source of the malformed logs by checking the raw log data
+    2. Verify if this is a configuration issue or intentional log manipulation
+    3. Check if the log source is properly configured to send logs in the expected format
+    4. Review other logs from the same source for patterns of malformed data
+    5. Consider updating log collection configurations if this is a persistent issue
+  where: safe(log.message, "") == "" || (safe(log.message, "").contains("parse error") || safe(log.message, "").contains("invalid json") || safe(log.message, "").contains("syntax error"))
+  deduplicateBy:
+    - lastEvent.log.message

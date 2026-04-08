@@ -1,0 +1,42 @@
+- id: 1002
+  dataTypes:
+    - json-input
+  name: JSON Injection Attack Attempt
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Injection Attack
+  technique: JSON Injection
+  adversary: origin
+  references:
+    - https://www.acunetix.com/blog/web-security-zone/what-are-json-injections/
+    - https://attack.mitre.org/techniques/T1027/
+  description: |
+    Detects potential JSON injection attempts including malicious payloads, script injections, and attempts to manipulate JSON structure. These attacks can lead to XSS, authentication bypass, or remote code execution.
+    
+    Next Steps:
+    1. Examine the full JSON payload for injection patterns and malicious content
+    2. Check if the request was successful and what data was accessed or modified
+    3. Review authentication status and privileges of the requesting user
+    4. Investigate the source IP for other suspicious activities
+    5. Validate JSON parsing error logs for additional attack indicators
+    6. Check for any successful exploitation or data exfiltration
+  where: |
+    (safe(log.payload, "").contains("<script") ||
+     safe(log.payload, "").contains("javascript:") ||
+     safe(log.payload, "").contains("eval(") ||
+     safe(log.payload, "").contains("__proto__") ||
+     safe(log.payload, "").contains("constructor") ||
+     safe(log.payload, "").contains("prototype") ||
+     safe(log.data, "").contains("<script") ||
+     safe(log.data, "").contains("javascript:") ||
+     safe(log.data, "").contains("eval(") ||
+     safe(log.json_data, "").contains("','") ||
+     safe(log.json_data, "").contains('","') ||
+     safe(log.message, "").contains("malformed JSON") ||
+     safe(log.message, "").contains("unexpected character")) &&
+    safe(origin.ip, "") != ""
+  deduplicateBy:
+    - origin.ip
+    - target.hostname

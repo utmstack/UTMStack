@@ -65,8 +65,9 @@ public class UtmLogstashFilter implements Serializable {
     private Instant updatedAt;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "module_name", referencedColumnName = "module_name",insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @org.hibernate.annotations.NotFound(action = org.hibernate.annotations.NotFoundAction.IGNORE)
+    @JoinColumn(name = "module_name", referencedColumnName = "module_name", insertable = false, updatable = false, nullable = true)
     private UtmModule module;
 
     public UtmLogstashFilter() {

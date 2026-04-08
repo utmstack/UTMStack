@@ -1,0 +1,47 @@
+- id: 1012
+  dataTypes:
+  - rfc-5425
+  name: POODLE Attack Indicators
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Protocol Downgrade Attack
+  technique: "POODLE Attack (CVE-2014-3566)"
+  adversary: origin
+  references:
+  - https://www.cisa.gov/news-events/alerts/2014/10/17/ssl-30-protocol-vulnerability-and-poodle-attack
+  - https://attack.mitre.org/techniques/T1499/
+  - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-3566
+  description: |
+    Detects potential POODLE (Padding Oracle On Downgraded Legacy Encryption) attack indicators through forced SSL 3.0 downgrade attempts and CBC padding exploitation. This attack exploits vulnerabilities in SSL 3.0 protocol where attackers can decrypt HTTPS connections by forcing downgrades and exploiting CBC cipher padding vulnerabilities.
+    
+    Next Steps:
+    1. Immediately verify if SSL 3.0 is enabled on the target system and disable it if found
+    2. Check if the connection attempts are legitimate or suspicious based on source IP reputation
+    3. Review TLS/SSL configuration to ensure only TLS 1.2+ protocols are allowed
+    4. Investigate any successful connections from the same source IP within the time window
+    5. Consider implementing additional monitoring for protocol downgrade attempts
+    6. Update affected systems to support only secure TLS versions
+    7. Review firewall and IDS logs for additional indicators of attack
+  where: |
+    (safe(log.ssl_version, "") == "3.0" || safe(log.tls_version, "") == "SSLv3") &&
+    (safe(log.cipher_suite, "") contains "CBC" || safe(log.cipher, "") contains "_CBC_") &&
+    (safe(log.downgrade_attempt, false) == true ||
+     safe(log.message, "") contains "protocol downgrade" ||
+     (safe(log.handshake_failure, false) == true && safe(log.retry_count, 0) > 2))
+  afterEvents:
+  - indexPattern: v11-log-syslog-*
+    with:
+    - field: origin.ip.keyword
+      operator: filter_term
+      value: '{{origin.ip}}'
+    - field: target.ip.keyword
+      operator: filter_term
+      value: '{{target.ip}}'
+    within: now-10m
+    count: 5
+  deduplicateBy:
+  - origin.ip
+  - target.ip
+  - target.port

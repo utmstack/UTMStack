@@ -3,7 +3,6 @@ package services
 import (
 	"bytes"
 	"crypto/tls"
-	"database/sql"
 	"fmt"
 	"net/http"
 	"time"
@@ -64,28 +63,14 @@ func RegenerateKey(internal string) error {
 	return err
 }
 
-func SetBaseURL(password, hostname string) error {
-	// Connecting to utmstack
-	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable database=utmstack", password)
-	db, err := sql.Open("postgres", psqlconn)
+func SetBaseURL(hostname string) error {
+	containerID, err := getPostgresContainerID()
 	if err != nil {
 		return err
 	}
 
-	// Close connection when finish
-	defer db.Close()
+	baseURL := fmt.Sprintf("https://%s.utmstack.com", hostname)
+	query := fmt.Sprintf("UPDATE public.utm_configuration_parameter SET conf_param_value='%s' WHERE conf_param_short='utmstack.mail.baseUrl';", baseURL)
 
-	// Check connection status
-	err = db.Ping()
-	if err != nil {
-		return err
-	}
-
-	// Set Base URL
-	_, err = db.Exec(`UPDATE public.utm_configuration_parameter SET conf_param_value=$1 WHERE conf_param_short='utmstack.mail.baseUrl';`, fmt.Sprintf("https://%s.utmstack.com", hostname))
-	if err != nil {
-		return err
-	}
-
-	return err
+	return execPsql(containerID, "utmstack", query)
 }

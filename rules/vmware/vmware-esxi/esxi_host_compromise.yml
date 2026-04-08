@@ -1,0 +1,48 @@
+- id: 1008
+  dataTypes:
+    - vmware-esxi
+  name: ESXi Host Compromise Indicators
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 3
+  category: Execution
+  technique: "T1059 - Command and Scripting Interpreter"
+  adversary: origin
+  references:
+    - https://www.forescout.com/blog/vmware-esxi-servers-a-major-attack-vector-for-ransomware/
+    - https://cloud.google.com/blog/topics/threat-intelligence/vmware-esxi-zero-day-bypass
+    - https://attack.mitre.org/techniques/T1059/
+  description: |
+    Detects indicators of ESXi host compromise including ransomware preparation activities, suspicious file operations on virtual machines, logging tampering, and abnormal system changes. Monitors for encryption tools, VM power operations, and file system modifications.
+    
+    Next Steps:
+    1. Immediately isolate the affected ESXi host from the network to prevent lateral movement
+    2. Review all virtual machines on the host for signs of encryption or corruption
+    3. Check VM snapshots and backups to determine if they have been deleted or tampered with
+    4. Examine ESXi logs for unauthorized administrative access or configuration changes
+    5. Verify the integrity of the ESXi management interface and SSH access logs
+    6. Review network traffic from the ESXi host for unusual outbound connections
+    7. Check for presence of ransomware files or encryption tools on the host filesystem
+    8. Validate ESXi user accounts and permissions for unauthorized modifications
+    9. Assess the impact on running VMs and determine if immediate shutdown is necessary
+    10. Contact incident response team and consider engaging VMware support for forensic analysis
+  where: |
+    (safe(log.message, "") contains("encrypt.sh") ||
+     safe(log.message, "") contains("encrypt") ||
+     safe(log.message, "") contains(".vmdk") ||
+     safe(log.message, "") contains(".vswp") ||
+     safe(log.message, "") contains("esxcli vm process list") ||
+     safe(log.message, "") contains("esxcli vm process kill") ||
+     safe(log.message, "") contains("Device I/O error") ||
+     safe(log.message, "") contains("Medium Error Detected") ||
+     safe(log.message, "") contains("Uncorrectable error in data") ||
+     safe(log.message, "") contains("Disk error detected") ||
+     safe(log.message, "") contains("Unable to read partition table") ||
+     safe(log.message, "") contains("logging service disabled") ||
+     safe(log.message, "") contains("log events removed") ||
+     (safe(log.process, "") == "vmkernel" && safe(log.message, "") contains("SCSI sense")) ||
+     (safe(log.eventInfo, "") contains("ransom") || safe(log.eventInfo, "") contains("encrypt"))) &&
+    safe(origin.hostname, "") != ""
+  deduplicateBy:
+    - lastEvent.origin.hostname

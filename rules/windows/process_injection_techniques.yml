@@ -1,0 +1,76 @@
+- id: 1009
+  dataTypes:
+    - windows
+    - wineventlog
+  name: Process Injection Techniques Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Defense Evasion
+  technique: "T1055 - Process Injection"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1055/
+    - https://docs.microsoft.com/en-us/sysinternals/downloads/sysmon
+    - https://www.elastic.co/blog/ten-process-injection-techniques-technical-survey-common-and-trending-process
+  description: |
+    Detects various process injection techniques including CreateRemoteThread, SetWindowsHookEx, and other methods used by malware to inject code into legitimate processes. This rule monitors for suspicious cross-process activities targeting critical Windows processes and detects PowerShell/command line usage of injection APIs.
+    
+    Next Steps:
+    1. Investigate the source process and command line arguments for suspicious activity
+    2. Examine the target process for signs of compromise or abnormal behavior
+    3. Review process tree and parent-child relationships for the involved processes
+    4. Check for additional suspicious network connections or file system activities from the same host
+    5. Analyze memory dumps of target processes if available to confirm injection
+    6. Review system logs for privilege escalation attempts around the same timeframe
+    7. Correlate with threat intelligence to identify known malware families using similar techniques
+    8. Consider isolating the affected system if malicious activity is confirmed
+  where: |
+    (
+      safe(log.eventCode, "") == "8" &&
+      (
+        safe(log.winlog.event_data.TargetImage, "").matches("(?i)(lsass\\.exe|csrss\\.exe|services\\.exe|winlogon\\.exe|svchost\\.exe|explorer\\.exe)") ||
+        (
+          safe(log.winlog.event_data.SourceImage, "").matches("(?i)(powershell\\.exe|cmd\\.exe|rundll32\\.exe|regsvr32\\.exe)") &&
+          !safe(log.winlog.event_data.TargetImage, "").matches("(?i)(conhost\\.exe)")
+        )
+      )
+    ) ||
+    (
+      safe(log.eventCode, "") == "10" &&
+      safe(log.winlog.event_data.TargetImage, "").matches("(?i)(lsass\\.exe|csrss\\.exe|services\\.exe)") &&
+      safe(log.winlog.event_data.GrantedAccess, "").matches("(0x1F0FFF|0x1F1FFF|0x1FFFFF|0x1F3FFF)") &&
+      !safe(log.winlog.event_data.SourceImage, "").matches("(?i)(taskmgr\\.exe|procexp\\.exe|procmon\\.exe|svchost\\.exe)")
+    ) ||
+    (
+      (safe(log.eventCode, "") == "4688" || safe(log.winlogEventId, 0) == 4688) &&
+      (
+        safe(log.winlog.event_data.CommandLine, "").matches("(?i)VirtualAllocEx") ||
+        safe(log.winlog.event_data.CommandLine, "").matches("(?i)WriteProcessMemory") ||
+        safe(log.winlog.event_data.CommandLine, "").matches("(?i)CreateRemoteThread") ||
+        safe(log.winlog.event_data.CommandLine, "").matches("(?i)NtQueueApcThread") ||
+        safe(log.winlog.event_data.CommandLine, "").matches("(?i)SetWindowsHookEx") ||
+        safe(log.winlog.event_data.CommandLine, "").matches("(?i)RtlCreateUserThread")
+      )
+    ) ||
+    (
+      (safe(log.eventCode, "") == "4104" || safe(log.winlogEventId, 0) == 4104) &&
+      (
+        safe(log.winlog.event_data.ScriptBlockText, "").matches("(?i)\\[Kernel32\\]::(VirtualAllocEx|WriteProcessMemory|CreateRemoteThread)") ||
+        safe(log.winlog.event_data.ScriptBlockText, "").matches("(?i)\\[ntdll\\]::(NtQueueApcThread|RtlCreateUserThread)") ||
+        safe(log.winlog.event_data.ScriptBlockText, "").contains("Invoke-ReflectivePEInjection") ||
+        safe(log.winlog.event_data.ScriptBlockText, "").contains("Invoke-ProcessHollowing")
+      )
+    )
+  afterEvents:
+    - indexPattern: v11-log-wineventlog-*
+      with:
+        - field: origin.host.keyword
+          operator: filter_term
+          value: '{{origin.host}}'
+      within: now-15m
+      count: 3
+  deduplicateBy:
+    - adversary.host
+    - adversary.process

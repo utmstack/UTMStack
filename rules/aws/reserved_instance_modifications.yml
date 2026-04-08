@@ -1,0 +1,30 @@
+- id: 1026
+  dataTypes:
+    - aws
+  name: AWS Reserved Instance Modifications
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 1
+  category: Cost Management
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  references:
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ri-modifying.html
+    - https://attack.mitre.org/techniques/T1078/
+  description: |
+    Detects modifications to AWS Reserved Instances which could indicate unauthorized changes to cost optimization settings or attempts to manipulate billing. Reserved instances provide significant cost savings, and unauthorized modifications could lead to increased costs or reduced availability.
+    
+    Next Steps:
+    1. Verify if the modification was authorized by checking with the AWS account owner or finance team
+    2. Review the specific changes made to the reserved instances in the CloudTrail logs
+    3. Check if the user who made the modification has legitimate access to manage reserved instances
+    4. Look for any patterns of unusual modifications across multiple reserved instances
+    5. Verify if the modifications align with your organization's cost optimization policies
+    6. Consider implementing additional IAM policies to restrict reserved instance modifications
+    7. Review the reserved instance configuration changes for any financial impact
+    8. Check if similar modifications occurred from the same user identity recently
+  where: safe(log.eventSource, "") == "ec2.amazonaws.com" && safe(log.eventName, "") == "ModifyReservedInstances"
+  deduplicateBy:
+    - lastEvent.log.userIdentityArn
+    - lastEvent.log.awsRegion

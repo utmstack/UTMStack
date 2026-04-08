@@ -1,0 +1,50 @@
+- id: 1020
+  dataTypes:
+    - firepower
+  name: Threat Hunting Query Results Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Threat Hunting
+  technique: "T1057 - Process Discovery"
+  adversary: origin
+  references:
+    - https://blogs.cisco.com/security/with-cisco-threat-response-the-best-things-in-threat-hunting-are-free
+    - https://attack.mitre.org/techniques/T1057/
+  description: |
+    Detects significant threat hunting query results including advanced correlation matches, multi-product threat indicators, and high-confidence IOC matches from Cisco Threat Response.
+    
+    Next Steps:
+    1. Review the specific threat indicators or IOCs that triggered the alert
+    2. Check the correlation rule name and confidence score to understand the threat type
+    3. Investigate the source IP address for other suspicious activities
+    4. If multi-product matches are present, correlate findings across all affected systems
+    5. Examine related events within the same time window for additional context
+    6. Consider blocking the IOC if confidence is high and impact is significant
+    7. Document the threat hunting findings for future reference
+  where: |
+    (safe(log.eventType, "") == "THREAT_HUNTING_RESULT" ||
+     safe(log.eventType, "") == "CORRELATION_EVENT" ||
+     safe(log.eventType, "") == "THREAT_RESPONSE_EVENT" ||
+     safe(log.source, "").contains("Threat Response") ||
+     safe(log.correlationRule, "") != "") &&
+    (safe(log.threatConfidence, 0) >= 75 ||
+     safe(log.correlationCount, 0) >= 3 ||
+     safe(log.iocMatch, false) == true ||
+     safe(log.multiProductMatch, false) == true ||
+     (has(log.matchedProducts) && size(log.matchedProducts) >= 2))
+  afterEvents:
+    - indexPattern: v11-log-cisco-firepower-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.correlationRule.keyword
+          operator: filter_term
+          value: '{{log.correlationRule}}'
+      within: now-2h
+      count: 2
+  deduplicateBy:
+    - origin.ip
+    - log.correlationRule

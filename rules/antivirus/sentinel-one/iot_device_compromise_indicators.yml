@@ -1,0 +1,54 @@
+- id: 1020
+  dataTypes:
+    - antivirus-sentinel-one
+  name: SentinelOne IoT Device Compromise Indicator
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: IoT Security
+  technique: "T1203 - Exploitation for Client Execution"
+  adversary: origin
+  references:
+    - https://www.sentinelone.com/platform/singularity-ranger/
+    - https://attack.mitre.org/techniques/T1203/
+  description: |
+    Detects indicators of IoT device compromise including unauthorized firmware modifications, suspicious network behavior from IoT devices, or anomalous IoT device activity patterns detected by SentinelOne's Singularity Ranger. This rule triggers when IoT-related threats are identified including compromised embedded systems, firmware backdoors, industrial control system attacks, or SCADA system compromises.
+    
+    Next Steps:
+    1. Isolate the affected IoT device immediately to prevent lateral movement
+    2. Review device logs and network traffic to identify the initial compromise vector
+    3. Check for firmware modifications or unauthorized configuration changes
+    4. Verify if other IoT devices on the same network segment show similar indicators
+    5. Update device firmware to latest secure version if available
+    6. Consider factory reset and reconfiguration if compromise is confirmed
+    7. Review network segmentation to ensure IoT devices are properly isolated
+    8. Implement additional monitoring for IoT device communications
+  where: |
+    safe(log.eventDescription, "") != "" && 
+    (
+      contains(lower(safe(log.eventDescription, "")), "iot") ||
+      contains(lower(safe(log.eventDescription, "")), "embedded") ||
+      contains(lower(safe(log.eventDescription, "")), "firmware") ||
+      contains(lower(safe(log.eventDescription, "")), "smart device") ||
+      contains(lower(safe(log.eventDescription, "")), "industrial") ||
+      contains(lower(safe(log.eventDescription, "")), "scada") ||
+      contains(lower(safe(log.eventDescription, "")), "ics") ||
+      contains(lower(safe(log.eventDescription, "")), "operational technology") ||
+      contains(lower(safe(log.eventDescription, "")), "hmi") ||
+      contains(lower(safe(log.eventDescription, "")), "plc")
+    ) &&
+    (
+      contains(lower(safe(log.eventDescription, "")), "compromise") ||
+      contains(lower(safe(log.eventDescription, "")), "unauthorized") ||
+      contains(lower(safe(log.eventDescription, "")), "malicious") ||
+      contains(lower(safe(log.eventDescription, "")), "anomaly") ||
+      contains(lower(safe(log.eventDescription, "")), "suspicious") ||
+      contains(lower(safe(log.eventDescription, "")), "backdoor") ||
+      contains(lower(safe(log.eventDescription, "")), "botnet") ||
+      contains(lower(safe(log.eventDescription, "")), "exploit") ||
+      contains(lower(safe(log.eventDescription, "")), "infection") ||
+      contains(lower(safe(log.eventDescription, "")), "threat")
+    )
+  deduplicateBy:
+    - log.endpointDeviceName

@@ -1,0 +1,30 @@
+- id: 1001
+  dataTypes:
+    - google
+  name: Google Cloud IAM Policy Modifications
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Identity and Access Management
+  technique: "T1098 - Account Manipulation"
+  adversary: origin
+  references:
+    - https://cloud.google.com/iam/docs/audit-logging
+    - https://attack.mitre.org/techniques/T1098/
+  description: |
+    Detects IAM policy modifications in Google Cloud Platform which could indicate privilege escalation attempts or unauthorized access changes. Monitors SetIamPolicy operations across various GCP services.
+    
+    Next Steps:
+    1. Verify if the IAM policy change was authorized and follows change management procedures
+    2. Review the specific permissions granted or removed in the policy modification
+    3. Check if the user making the change has legitimate business justification
+    4. Examine the affected resources and assess potential security impact
+    5. Review recent activity by the user account for other suspicious actions
+    6. Validate the change against your organization's least privilege principles
+  where: |
+    safe(log.protoPayload.methodName, "").contains("SetIamPolicy") && 
+    safe(log.protoPayload.serviceName, "") != ""
+  deduplicateBy:
+    - adversary.user
+    - adversary.host

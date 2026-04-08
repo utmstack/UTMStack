@@ -1,0 +1,37 @@
+- id: 1008
+  dataTypes:
+    - firewall-sonicwall
+  name: SonicWall Botnet Activity Detected
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Command and Control
+  technique: "T1071 - Application Layer Protocol"
+  adversary: origin
+  references:
+    - https://www.sonicwall.com/support/knowledge-base/understanding-geo-ip-and-botnet-filter-diagnostics-options/200527122256150
+    - https://attack.mitre.org/techniques/T1071/
+  description: |
+    Detects potential botnet command and control (C2) communication or infected host behavior identified by SonicWall's botnet filter. This includes suspicious outbound connections, HTML infection chains, or known botnet signatures.
+    
+    Next Steps:
+    1. Investigate the source IP for additional suspicious activity
+    2. Check network logs for other connections from the same host
+    3. Analyze DNS queries from the affected host
+    4. Review endpoint logs for signs of malware infection
+    5. Consider isolating the affected host if infection is confirmed
+    6. Update threat intelligence feeds and security signatures
+    7. Scan the host with updated antivirus/anti-malware tools
+  where: (safe(log.category, "") == "Botnet" || safe(log.message, "").contains("botnet") || safe(log.message, "").contains("infected") || safe(log.message, "").contains("C&C") || safe(log.message, "").contains("command and control") || safe(log.af_service, "") == "botnet") && (safe(action, "") == "blocked" || safe(action, "") == "dropped" || safe(log.fw_action, "") == "drop")
+  afterEvents:
+    - indexPattern: v11-log-firewall-sonicwall-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-2h
+      count: 10
+  deduplicateBy:
+    - origin.ip
+    - target.ip

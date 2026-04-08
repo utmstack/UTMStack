@@ -1,0 +1,37 @@
+- id: 1014
+  dataTypes:
+    - firewall-pfsense
+  name: State Table Exhaustion Attack
+  impact:
+    confidentiality: 1
+    integrity: 1
+    availability: 3
+  category: Denial of Service
+  technique: "T1498 - Network Denial of Service"
+  adversary: origin
+  references:
+    - https://docs.netgate.com/pfsense/en/latest/firewall/troubleshooting-blocked-log-entries.html
+    - https://attack.mitre.org/techniques/T1498/
+  description: |
+    Detects potential state table exhaustion attacks on pfSense firewall by monitoring for rapid connection attempts, state table overflow warnings, or abnormal connection patterns that could lead to denial of service. State table exhaustion is a common DoS technique where attackers overwhelm the firewall's connection tracking table, preventing legitimate connections from being established.
+    
+    Next Steps:
+    1. Immediately check pfSense firewall state table utilization and limits
+    2. Review current active connections and identify suspicious high-volume sources
+    3. Analyze traffic patterns from the source IP to determine if this is malicious or legitimate traffic spike
+    4. Consider implementing rate limiting or blocking the source IP if confirmed malicious
+    5. Review and potentially increase state table limits if legitimate traffic is causing exhaustion
+    6. Monitor for similar attacks from other source IPs
+    7. Check firewall logs for additional indicators of coordinated attack patterns
+    8. Verify firewall performance metrics and resource utilization
+  where: (safe(log.eventType, "").contains("pf") || safe(log.eventType, "").contains("kernel")) && (safe(log.reason, "").contains("state") && (safe(log.reason, "").contains("full") || safe(log.reason, "").contains("exhausted") || safe(log.reason, "").contains("limit")))
+  afterEvents:
+    - indexPattern: v11-log-firewall-pfsense-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-5m
+      count: 100
+  deduplicateBy:
+    - origin.ip

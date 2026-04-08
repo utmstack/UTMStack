@@ -1,0 +1,49 @@
+- id: 1018
+  dataTypes:
+    - antivirus-sentinel-one
+  name: SentinelOne Container Security Alert
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Container Security
+  technique: "T1610 - Deploy Container"
+  adversary: origin
+  references:
+    - https://www.sentinelone.com/platform/singularity-cloud-workload-security/
+    - https://www.sentinelone.com/resources/cloud-workload-security-for-containers/
+    - https://attack.mitre.org/techniques/T1610/
+  description: |
+    Detects container-related security events including container drift, unauthorized container deployment, cryptominers in containers, or suspicious container behavior.
+    
+    Next Steps:
+    1. Identify the affected container and host system from the alert details
+    2. Review the container runtime logs for additional context
+    3. Check if the container is running authorized images from trusted registries
+    4. Investigate any network connections or processes spawned by the container
+    5. If unauthorized activity is confirmed, isolate the container and host
+    6. Review container deployment policies and runtime security configurations
+    7. Check for similar alerts across other container environments
+  where: |
+    safe(log.eventDescription, "") != "" && 
+    (
+      contains(lower(safe(log.eventDescription, "")), "container") ||
+      contains(lower(safe(log.eventDescription, "")), "kubernetes") ||
+      contains(lower(safe(log.eventDescription, "")), "k8s") ||
+      contains(lower(safe(log.eventDescription, "")), "docker") ||
+      contains(lower(safe(log.eventDescription, "")), "pod") ||
+      contains(lower(safe(log.eventDescription, "")), "cluster")
+    ) &&
+    (
+      contains(lower(safe(log.eventDescription, "")), "drift") ||
+      contains(lower(safe(log.eventDescription, "")), "unauthorized") ||
+      contains(lower(safe(log.eventDescription, "")), "cryptominer") ||
+      contains(lower(safe(log.eventDescription, "")), "malicious") ||
+      contains(lower(safe(log.eventDescription, "")), "anomaly") ||
+      contains(lower(safe(log.eventDescription, "")), "suspicious") ||
+      contains(lower(safe(log.eventDescription, "")), "breach") ||
+      contains(lower(safe(log.eventDescription, "")), "violation")
+    )
+  deduplicateBy:
+    - lastEvent.target.host
+    - lastEvent.origin.host

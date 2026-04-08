@@ -1,0 +1,40 @@
+- id: 1004
+  dataTypes:
+    - netflow
+  name: Geographic Location Anomaly Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Initial Access
+  technique: External Remote Services
+  adversary: origin
+  references:
+    - https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
+    - https://attack.mitre.org/techniques/T1133/
+  description: |
+    Detects network connections from unusual geographic locations or countries with known threat activity. This could indicate unauthorized access, VPN abuse, or connections from compromised systems in unexpected locations. The rule triggers when connections are made from countries outside of trusted regions (US, CA, GB, AU) to sensitive services like SSH, RDP, SMB, SQL Server, or MySQL.
+    
+    Next Steps:
+    1. Investigate the source IP address using threat intelligence feeds and OSINT sources
+    2. Verify if the connection is legitimate by checking with the system owner or user
+    3. Review authentication logs for the targeted service to identify successful logins
+    4. Check for any data exfiltration or lateral movement activities from the target system
+    5. Analyze the timing and frequency of connections from the suspicious geographic location
+    6. Consider implementing geographic access controls or VPN restrictions if unauthorized
+    7. Monitor for additional connections from the same country or IP range
+    8. Review firewall and IDS logs for other suspicious activities from the same source
+  where: |
+    safe(origin.geolocation.countryCode, "") != "" &&
+    safe(origin.geolocation.countryCode, "") != "US" &&
+    safe(origin.geolocation.countryCode, "") != "CA" &&
+    safe(origin.geolocation.countryCode, "") != "GB" &&
+    safe(origin.geolocation.countryCode, "") != "AU" &&
+    (safe(target.port, 0) == 22 || 
+     safe(target.port, 0) == 3389 || 
+     safe(target.port, 0) == 445 ||
+     safe(target.port, 0) == 1433 ||
+     safe(target.port, 0) == 3306)
+  deduplicateBy:
+    - origin.ip
+    - origin.geolocation.countryCode

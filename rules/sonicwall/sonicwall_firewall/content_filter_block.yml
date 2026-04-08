@@ -1,0 +1,36 @@
+- id: 1004
+  dataTypes:
+    - firewall-sonicwall
+  name: SonicWall Content Filter Block
+  impact:
+    confidentiality: 2
+    integrity: 2
+    availability: 1
+  category: Web Security
+  technique: "T1071.001 - Application Layer Protocol: Web Protocols"
+  adversary: origin
+  references:
+    - https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
+    - https://attack.mitre.org/techniques/T1071/001/
+  description: |
+    Detects when SonicWall Content Filter Service (CFS) blocks access to prohibited websites or content categories. This may indicate attempts to access malicious sites, inappropriate content, or policy violations. Content filtering blocks can reveal reconnaissance attempts, malware command and control communications, or data exfiltration attempts through web channels.
+    
+    Next Steps:
+    1. Review the blocked URL/domain and content category to determine if it's malicious or policy violation
+    2. Investigate the source IP for other suspicious network activity or policy violations
+    3. Check if the blocked content is related to known threat indicators or malware families
+    4. Verify if this represents a legitimate business need that requires policy adjustment
+    5. Monitor for repeated attempts from the same source which may indicate automated tools or persistence
+    6. Cross-reference with threat intelligence feeds to identify known bad domains
+  where: |
+    (safe(log.category, "").contains("Content Filter") ||
+     safe(log.msg, "").contains("CFS") ||
+     safe(log.msg, "").contains("Content Filter") ||
+     safe(log.eventName, "").contains("Content Filter") ||
+     safe(log.catid, "") != "" ||
+     safe(log.contentObject, "") != "") &&
+    (safe(action, "") == "blocked" || 
+     safe(log.fw_action, "") == "drop" ||
+     safe(log.result, "").contains("blocked"))
+  deduplicateBy:
+    - origin.ip

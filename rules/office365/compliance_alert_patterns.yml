@@ -1,0 +1,60 @@
+- id: 1015
+  dataTypes:
+    - o365
+  name: Suspicious Compliance Alert Activity
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Policy and Compliance
+  technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+  adversary: origin
+  references:
+    - https://learn.microsoft.com/en-us/purview/audit-log-activities
+    - https://attack.mitre.org/techniques/T1562/001/
+  description: |
+    Detects suspicious patterns in compliance-related activities including alert suppression, policy modifications, or audit log tampering that could indicate attempts to evade security monitoring or hide malicious activities in Office 365 Security & Compliance Center.
+    
+    Next Steps:
+    1. Review the specific compliance action performed and verify if it was authorized
+    2. Check if the user has legitimate administrative privileges for compliance operations
+    3. Analyze the timing and frequency of compliance changes - multiple rapid changes may indicate malicious activity
+    4. Examine what compliance policies, rules, or alerts were modified and assess the security impact
+    5. Review audit logs for any related suspicious activities before and after this event
+    6. Verify if the changes align with documented change management processes
+    7. Check for any correlation with other security alerts or unusual user behavior
+    8. If unauthorized, immediately review and restore appropriate compliance settings
+    9. Consider implementing additional monitoring on compliance configuration changes
+    10. Escalate to security team if evidence suggests malicious intent or privilege abuse
+  where: |
+    safe(log.Workload, "") == "SecurityComplianceCenter" &&
+    (
+      safe(action, "") == "AlertTriggered" ||
+      safe(action, "") == "AlertEntityGenerated" ||
+      safe(action, "") == "AlertUpdated" ||
+      safe(action, "") == "ComplianceSettingChanged" ||
+      safe(action, "") == "Set-ComplianceSecurityFilter" ||
+      safe(action, "") == "New-ComplianceSecurityFilter" ||
+      safe(action, "") == "Remove-ComplianceSecurityFilter" ||
+      safe(action, "") == "Set-AdminAuditLogConfig" ||
+      safe(action, "") == "Set-OrganizationConfig" ||
+      safe(action, "").contains("CompliancePolicy") ||
+      safe(action, "").contains("ComplianceRule") ||
+      safe(action, "").contains("ComplianceTag")
+    ) &&
+    safe(actionResult, "") == "Success"
+  afterEvents:
+    - indexPattern: v11-log-o365-*
+      with:
+        - field: origin.user.keyword
+          operator: filter_term
+          value: '{{origin.user}}'
+        - field: log.Workload.keyword
+          operator: filter_term
+          value: 'SecurityComplianceCenter'
+      within: now-2h
+      count: 5
+  deduplicateBy:
+    - origin.user
+    - action
+    - log.ObjectId

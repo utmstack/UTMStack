@@ -1,0 +1,30 @@
+- id: 1023
+  dataTypes:
+    - sonicwall_firewall
+  name: SonicWall Zero-Day Threat Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 3
+  category: Advanced Threat Protection
+  technique: "T1190 - Exploit Public-Facing Application"
+  adversary: origin
+  references:
+    - https://www.sonicwall.com/support/knowledge-base/capture-advanced-threat-protection-feature-overview/170504863294345
+    - https://attack.mitre.org/techniques/T1190/
+  description: |
+    Detects zero-day threats and unknown malware identified by SonicWall Capture ATP service including sandbox detonations and RTDMI (Real-Time Deep Memory Inspection) alerts. This rule triggers when the SonicWall firewall identifies previously unknown threats through advanced analysis techniques.
+    
+    Next Steps:
+    1. Immediately isolate the affected system from the network if possible
+    2. Review the full event details including file hashes, URLs, and source IPs
+    3. Check if the threat was successfully blocked or if additional containment is needed
+    4. Update threat intelligence feeds and IOCs based on the detected indicators
+    5. Perform forensic analysis on any systems that may have been compromised
+    6. Review firewall rules and security policies to ensure adequate protection
+    7. Document the incident and update incident response procedures if necessary
+  where: |
+    (safe(log.eventName, "").contains("ATP") || safe(log.eventName, "").contains("zero-day") || safe(log.eventName, "").contains("unknown") || safe(log.eventName, "").contains("sandbox") || safe(log.eventName, "").contains("RTDMI") || safe(log.message, "").contains("ATP") || safe(log.message, "").contains("zero-day") || safe(log.message, "").contains("unknown malware") || safe(log.message, "").contains("sandbox")) &&
+    (safe(log.eventName, "").contains("detected") || safe(log.eventName, "").contains("blocked") || safe(log.message, "").contains("detected") || safe(log.message, "").contains("blocked") || safe(log.result, "") == "blocked" || safe(action, "") == "blocked" || safe(log.severity, "") == "critical" || safe(log.severity, "") == "high")
+  deduplicateBy:
+    - origin.ip

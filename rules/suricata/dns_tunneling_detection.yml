@@ -1,0 +1,45 @@
+- id: 1016
+  dataTypes:
+    - nids
+  name: DNS Tunneling Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Command and Control
+  technique: "T1071.004 - Application Layer Protocol: DNS"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1071/004/
+    - https://www.sans.org/reading-room/whitepapers/dns/detecting-dns-tunneling-34152
+  description: |
+    Detects potential DNS tunneling activity based on abnormal DNS query patterns, including unusually long domain names, high frequency of DNS requests, or suspicious TXT record queries. DNS tunneling is a technique used by attackers to exfiltrate data or establish command and control channels by encoding data within DNS queries and responses.
+    
+    Next Steps:
+    1. Analyze the DNS queries to identify the specific domains and query types involved
+    2. Check the frequency and volume of DNS requests from the source IP
+    3. Examine the content of TXT record queries for encoded data
+    4. Correlate with network traffic to identify potential data exfiltration
+    5. Block suspicious domains at the DNS level if confirmed malicious
+    6. Monitor the source host for other indicators of compromise
+  where: |
+    safe(log.protocol, "") == "DNS" && (
+      safe(log.query_length, 0) > 50 ||
+      safe(log.query_type, "") == "TXT" ||
+      safe(log.subdomain_levels, 0) > 4 ||
+      safe(log.entropy, 0.0) > 4.5
+    )
+  afterEvents:
+    - indexPattern: v11-log-nids-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.protocol.keyword
+          operator: filter_term
+          value: 'DNS'
+      within: now-5m
+      count: 50
+  deduplicateBy:
+    - adversary.ip
+    - target.domain

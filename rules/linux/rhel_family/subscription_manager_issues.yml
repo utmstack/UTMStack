@@ -1,0 +1,67 @@
+- id: 1005
+  dataTypes:
+    - rhel_family
+  name: Subscription Manager Security Issue
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: System Management
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1078/
+    - https://access.redhat.com/documentation/en-us/red_hat_subscription_management/
+  description: |
+    Detects suspicious subscription manager activities that could indicate unauthorized system registration, subscription tampering, or attempts to bypass licensing controls. This includes unauthorized unregistration attempts, forced registrations, configuration changes to RHSM servers, subscription overrides, and direct file modifications to RHSM configuration directories.
+    
+    Next Steps:
+    1. Verify the legitimacy of the subscription manager activity by checking with system administrators
+    2. Review the user account performing the action and validate their authorization level
+    3. Examine system logs for additional suspicious activities around the same timeframe
+    4. Check RHSM configuration files for unauthorized modifications
+    5. Validate current subscription status and certificate integrity
+    6. If unauthorized, isolate the affected system and investigate for potential privilege escalation
+    7. Review access controls and procedures for subscription management
+  where: |
+    (
+      safe(log.comm, "") in ["subscription-manager", "rhsmcertd", "rhsm-service"] &&
+      (
+        (safe(log.args, "") contains "unregister" &&
+         safe(log.uid, "") != "0") ||
+        (safe(log.args, "") contains "register" &&
+         (safe(log.args, "") contains "--force" ||
+          safe(log.args, "") contains "--activationkey")) ||
+        (safe(log.args, "") contains "config" &&
+         (safe(log.args, "") contains "--server.hostname" ||
+          safe(log.args, "") contains "--server.proxy_hostname" ||
+          safe(log.args, "") contains "--rhsm.baseurl")) ||
+        safe(log.args, "") contains "override" ||
+        safe(log.args, "") contains "clean"
+      )
+    ) ||
+    (
+      safe(log.path, "") contains "/etc/rhsm/" &&
+      safe(log.syscall, "") in ["2", "257", "82", "83"] &&
+      safe(log.comm, "") not in ["subscription-manager", "rhsmcertd", "python", "python3"]
+    ) ||
+    (
+      safe(log.message, "") contains "subscription" &&
+      (
+        safe(log.message, "") contains "expired" ||
+        safe(log.message, "") contains "invalid" ||
+        safe(log.message, "") contains "failed" ||
+        safe(log.message, "") contains "certificate" ||
+        safe(log.message, "") contains "unauthorized"
+      )
+    ) ||
+    (
+      safe(log.eventType, "") == "SUBSCRIPTION_EVENT" &&
+      (
+        safe(log.status, "") == "failed" ||
+        safe(log.action, "") in ["unregister", "override", "force_register"]
+      )
+    )
+  deduplicateBy:
+    - origin.host
+    - origin.user

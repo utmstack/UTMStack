@@ -29,6 +29,18 @@ func GetDependencies() []Dependency {
 			Configure: configureUpdater,
 			Uninstall: uninstallUpdater,
 		},
+
+		// Auditd dependency - auto-configures Linux audit daemon
+		// No download - installs from system package manager
+		{
+			Name:       "auditd",
+			Version:    AuditdVersion,
+			BinaryPath: "/sbin/auditctl", // Check if auditd tools exist
+			Critical:   false,
+			Configure:  configureAuditd,
+			Update:     updateAuditdRules,
+			Uninstall:  cleanupAuditd,
+		},
 	}
 }
 

@@ -1,0 +1,39 @@
+- id: 1018
+  dataTypes:
+    - netflow
+  name: Memcached Amplification Attack Detection
+  impact:
+    confidentiality: 1
+    integrity: 1
+    availability: 3
+  category: DDoS Attack
+  technique: "T1498 - Network Denial of Service"
+  adversary: origin
+  references:
+    - https://blog.cloudflare.com/memcrashed-major-amplification-attacks-from-port-11211/
+    - https://attack.mitre.org/techniques/T1498/
+  description: |
+    Detects potential Memcached amplification attacks by identifying high-volume UDP traffic on port 11211 typically used in reflection DDoS attacks. Memcached amplification attacks exploit misconfigured Memcached servers to amplify attack traffic by up to 51,000 times.
+    
+    Next Steps:
+    1. Investigate the source IP addresses to determine if they are legitimate or compromised
+    2. Check if the Memcached servers are properly configured with authentication and firewalls
+    3. Monitor network traffic patterns for sustained high-volume UDP traffic
+    4. Consider blocking traffic to/from port 11211 if Memcached is not required
+    5. Review logs for other amplification attack indicators (DNS, NTP, SSDP)
+    6. Coordinate with network team to implement rate limiting or traffic filtering
+  where: (safe(target.port, 0) == 11211 || safe(origin.port, 0) == 11211) && safe(protocol, "") == "17" && safe(origin.bytesSent, 0) > 10000
+  afterEvents:
+    - indexPattern: v11-log-netflow-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: protocol.keyword
+          operator: filter_term
+          value: '17'
+      within: now-1m
+      count: 20
+  deduplicateBy:
+    - adversary.ip
+    - target.ip

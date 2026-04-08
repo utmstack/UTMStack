@@ -126,7 +126,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
             alertResponseRuleService.evaluateRules(alerts);
 
             if (moduleService.isModuleActive(ModuleName.SOC_AI))
-                socAIService.requestSocAiProcess(alerts.stream().map(UtmAlert::getId).collect(Collectors.toList()));
+                alerts.forEach(socAIService::analyzeAlert);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);

@@ -1,0 +1,30 @@
+- id: 1030
+  dataTypes:
+    - aws
+  name: AWS Control Tower Guardrail Violations
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Compliance
+  technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+  adversary: origin
+  references:
+    - https://docs.aws.amazon.com/controltower/latest/userguide/guardrails.html
+    - https://attack.mitre.org/techniques/T1562/001/
+  description: |
+    Detects violations of AWS Control Tower guardrails which are preventive or detective controls that help govern resources and monitor compliance across AWS accounts. This includes attempts to disable guardrails or violations detected by AWS Config rules.
+    
+    Next Steps:
+    1. Identify the specific guardrail that was violated or disabled by examining the event details
+    2. Review the account and user identity that triggered the violation
+    3. Check if this was an authorized change or potential security bypass
+    4. Verify the current state of Control Tower guardrails in the affected account
+    5. Review CloudTrail logs for any related suspicious activities by the same user
+    6. If unauthorized, re-enable the guardrail and investigate the root cause
+    7. Consider implementing additional preventive controls to protect guardrails
+  where: safe(log.eventSource, "") == "controltower.amazonaws.com" && (safe(log.eventName, "").contains("GuardrailViolation") || safe(log.eventName, "") == "DisableGuardrail" || safe(log.eventName, "") == "UpdateEnabledControl" || (safe(log.eventSource, "") == "config.amazonaws.com" && safe(log.configRuleName, "").startsWith("AWSControlTower") && safe(log.messageType, "") == "ComplianceChangeNotification"))
+  deduplicateBy:
+    - lastEvent.log.userIdentityAccountId
+    - lastEvent.log.eventName
+    - lastEvent.log.configRuleName

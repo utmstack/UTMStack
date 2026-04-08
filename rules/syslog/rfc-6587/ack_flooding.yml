@@ -1,0 +1,50 @@
+- id: 1010
+  dataTypes:
+    - rfc-6587
+  name: TCP ACK Flooding Attack Detection
+  impact:
+    confidentiality: 1
+    integrity: 1
+    availability: 3
+  category: Network Security
+  technique: "T1498: Network Denial of Service"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc793#section-3.4
+    - https://attack.mitre.org/techniques/T1498/
+  description: |
+    Detects TCP ACK flooding attacks where attackers send massive amounts of ACK packets to overwhelm target systems, consume bandwidth, or exhaust connection state tables. These attacks exploit the TCP protocol by sending ACK packets without a proper TCP handshake, causing resource exhaustion on the target.
+    
+    Next Steps:
+    1. Identify the source IP address(es) generating the ACK flood
+    2. Check if the source IP is spoofed or legitimate
+    3. Implement rate limiting or ACL rules to block the attacking IP(s)
+    4. Monitor target system resources (CPU, memory, connection tables)
+    5. Consider implementing SYN cookies or connection rate limiting
+    6. Review firewall logs for patterns of similar attacks
+    7. Contact upstream ISP if attack volume is significant
+  where: |
+    safe(log.tcp_flags, "") == "ACK" && 
+    safe(log.syn_flag, false) == false &&
+    safe(log.fin_flag, false) == false &&
+    safe(log.rst_flag, false) == false &&
+    safe(log.tcp_len, 0) == 0 &&
+    (safe(log.tcp_ack_number, 0) == 0 || 
+     safe(log.tcp_stream_invalid, false) == true) &&
+    safe(origin.ip, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.tcp_flags.keyword
+          operator: filter_term
+          value: 'ACK'
+        - field: log.tcp_len
+          operator: filter_term
+          value: '0'
+      within: now-1m
+      count: 50
+  deduplicateBy:
+    - adversary.ip

@@ -1,0 +1,36 @@
+- id: 1005
+  dataTypes:
+    - debian_family
+  name: AppArmor Policy Violation
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Defense Evasion
+  technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1562/001/
+    - https://wiki.ubuntu.com/AppArmor
+  description: |
+    Detects AppArmor policy violations and denied operations which may indicate unauthorized access attempts, privilege escalation, or malicious processes trying to bypass security restrictions. AppArmor is a Linux kernel security module that restricts programs' capabilities with per-program profiles.
+    
+    Next Steps:
+    1. Review the specific AppArmor profile and operation that was denied
+    2. Investigate the process or application that triggered the violation
+    3. Examine system logs for additional suspicious activities from the same host
+    4. Verify if the violation represents legitimate application behavior or potential security threat
+    5. Consider updating AppArmor profiles if the violation is legitimate, or implement additional security controls if malicious
+    6. Check for patterns of multiple violations that might indicate systematic bypass attempts
+  where: |
+    (safe(log.process, "") contains "kernel" || safe(log.process, "") contains "audit" || safe(log.facility, "") == "kern") &&
+    safe(log.message, "") contains "apparmor" &&
+    (safe(log.message, "") contains "DENIED" ||
+     safe(log.message, "") contains "ALLOWED" && safe(log.message, "") contains "requested_mask" ||
+     safe(log.message, "") contains "profile" && safe(log.message, "") contains "denied_mask" ||
+     safe(log.message, "") contains "operation" && safe(log.message, "") contains "name=" ||
+     safe(log.message, "") contains "info=\"Failed name lookup\"" ||
+     safe(log.message, "") contains "error=-13")
+  deduplicateBy:
+    - origin.host
+    - lastEvent.log.apparmor_profile

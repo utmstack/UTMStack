@@ -18,6 +18,8 @@ public final class Constants {
      */
     public static final String ENV_ELASTICSEARCH_HOST = "ELASTICSEARCH_HOST";
     public static final String ENV_ELASTICSEARCH_PORT = "ELASTICSEARCH_PORT";
+    public static final String ENV_ELASTICSEARCH_USER = "ELASTICSEARCH_USER";
+    public static final String ENV_ELASTICSEARCH_PASSWORD = "ELASTICSEARCH_PASSWORD";
     public static final String ENV_DB_HOST = "DB_HOST";
     public static final String ENV_DB_PORT = "DB_PORT";
     public static final String ENV_DB_NAME = "DB_NAME";

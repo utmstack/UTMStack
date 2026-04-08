@@ -1,0 +1,39 @@
+- id: 1021
+  dataTypes:
+    - ibm-aix
+  name: IBM AIX User Administration Events
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: User Management
+  technique: "T1098 - Account Manipulation"
+  adversary: origin
+  references:
+    - https://www.ibm.com/support/knowledgecenter/en/SSGMCP_9.0.0/com.ibm.aix.log.doc/filter.html
+    - https://attack.mitre.org/techniques/T1098/
+  description: |
+    Detects user administration events in IBM AIX including user creation, deletion, modification, and privilege changes. This rule monitors critical user management operations that could indicate unauthorized account manipulation or insider threats.
+    
+    Next Steps:
+    1. Review the specific user administration action and target user account
+    2. Verify the action was authorized and performed by legitimate administrators
+    3. Check for any suspicious patterns in timing or frequency of user changes
+    4. Validate that the changes align with organizational security policies
+    5. Monitor for any subsequent suspicious activities from affected accounts
+    6. Review system logs for additional context around the administration event
+    7. Check if the administrative action was performed from an expected source IP or host
+    8. Validate the timing of the user administration event against change management schedules
+  where: |
+    safe(log.msg, "") != "" && 
+    (safe(log.msg, "").lower().contains("useradd") || 
+     safe(log.msg, "").lower().contains("userdel") || 
+     safe(log.msg, "").lower().contains("usermod") || 
+     safe(log.msg, "").lower().contains("passwd") || 
+     safe(log.msg, "").lower().contains("chuser") || 
+     safe(log.msg, "").lower().contains("mkuser") || 
+     safe(log.msg, "").lower().contains("rmuser")) && 
+    safe(origin.user, "") != ""
+  deduplicateBy:
+    - safe(log.objName, "")
+    - safe(log.msg, "")

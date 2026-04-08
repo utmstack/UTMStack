@@ -1,0 +1,36 @@
+- id: 1016
+  dataTypes:
+    - cef
+  name: CEF Device Event Class ID Anomalies
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Anomaly Detection
+  technique: System Activity Monitoring
+  adversary: origin
+  references:
+    - https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.4/pdfdoc/cef-implementation-standard/cef-implementation-standard.pdf
+    - https://attack.mitre.org/techniques/T1070/
+  description: |
+    Detects unusual or suspicious device event class IDs in CEF logs that may indicate malicious activity, system compromise, or attempts to evade detection through log manipulation. This rule identifies CEF events with anomalous deviceEventClassId values including null/zero values, excessively long IDs, test/debug strings, or non-numeric formats that deviate from standard CEF specifications.
+    
+    Next Steps:
+    1. Review the source device and validate if the deviceEventClassId is legitimate
+    2. Check if the device configuration has been tampered with or misconfigured
+    3. Correlate with other security events from the same source IP/device
+    4. Verify the integrity of log forwarding mechanisms and CEF parsers
+    5. If confirmed malicious, investigate for potential log evasion or system compromise
+  where: |
+    safe(log.deviceEventClassId, "") != "" && 
+    (
+      safe(log.deviceEventClassId, "") == "0" ||
+      safe(log.deviceEventClassId, "") == "999999" ||
+      safe(log.deviceEventClassId, "").matches("^[A-Za-z]+$") ||
+      safe(log.deviceEventClassId, "").contains("test") ||
+      safe(log.deviceEventClassId, "").contains("debug") ||
+      size(safe(log.deviceEventClassId, "")) > 10
+    )
+  deduplicateBy:
+    - lastEvent.origin.ip
+    - lastEvent.log.deviceEventClassId

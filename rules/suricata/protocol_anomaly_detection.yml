@@ -1,0 +1,46 @@
+- id: 1002
+  dataTypes:
+    - nids
+  name: NIDS Protocol Anomaly Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 3
+  category: Network Security
+  technique: "T1001 - Data Obfuscation: Protocol Anomalies"
+  adversary: origin
+  references:
+    - https://suricata.io/features/protocol-anomaly-detection/
+    - https://attack.mitre.org/techniques/T1001/
+  description: |
+    Detects protocol anomalies and violations that may indicate malicious activity, including non-standard protocol usage, malformed packets, or protocol manipulation attempts. This rule identifies when network traffic exhibits behavior that deviates from expected protocol standards, which could indicate evasion techniques or malicious payloads.
+
+    Next Steps:
+    1. Analyze the specific protocol anomaly type and violation details from the alert
+    2. Review the source IP reputation and geographic location
+    3. Examine the destination port and service being targeted
+    4. Check for additional anomalous traffic from the same source within the timeframe
+    5. Investigate if this is part of a larger attack pattern or reconnaissance activity
+    6. Consider implementing additional protocol validation rules if this represents a new attack vector
+    7. Review firewall logs for any blocked connections from the same source
+  where: |
+    safe(log.eventType, "") in ["protocol_anomaly", "protocol_violation", "anomaly"] &&
+    safe(protocol, "") != "" &&
+    safe(origin.ip, "") != "" &&
+    (safe(log.anomalyType, "") != "" || safe(log.violationType, "") != "") &&
+    safe(target.port, 0) > 0
+  afterEvents:
+    - indexPattern: v11-log-suricata-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: protocol.keyword
+          operator: filter_term
+          value: '{{protocol}}'
+      within: now-15m
+      count: 5
+  deduplicateBy:
+    - origin.ip
+    - protocol
+    - target.port

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet id="20260331021" author="Alex">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE public.utm_visualization
+      SET aggregation= $$
+{
+  "metrics": [
+    {
+      "id": "1",
+      "aggregation": "COUNT",
+      "field": "",
+      "customLabel": ""
+    }
+  ],
+  "bucket": {
+    "id": "1000",
+    "aggregation": "TERMS",
+    "type": "BUCKET",
+    "field": "@timestamp",
+    "customLabel": "Date",
+    "subBucket": {
+      "id": "1001",
+      "aggregation": "TERMS",
+      "type": "BUCKET",
+      "field": "log.o365.UserKey.keyword",
+      "customLabel": "User Key",
+      "subBucket": {
+        "id": "1002",
+        "aggregation": "TERMS",
+        "type": "BUCKET",
+        "field": "action.keyword",
+        "customLabel": "Operation",
+        "subBucket": {
+          "id": "1003",
+          "aggregation": "TERMS",
+          "type": "BUCKET",
+          "field": "origin.ip.keyword",
+          "customLabel": "Client IP",
+          "subBucket": {
+            "id": "1004",
+            "aggregation": "TERMS",
+            "type": "BUCKET",
+            "field": "log.MailboxOwnerUPN.keyword",
+            "customLabel": "Mail Box",
+            "subBucket": {
+              "id": "1005",
+              "aggregation": "TERMS",
+              "type": "BUCKET",
+              "field": "actionResult.keyword",
+              "customLabel": "Result Status",
+              "subBucket": {
+                "id": "1006",
+                "aggregation": "TERMS",
+                "type": "BUCKET",
+                "field": "log.ExternalAccess.keyword",
+                "customLabel": "External Access",
+                "subBucket": {
+                  "id": "1007",
+                  "aggregation": "TERMS",
+                  "type": "BUCKET",
+                  "field": "log.tenant.keyword",
+                  "customLabel": "Tenant",
+                  "terms": {
+                    "sortBy": "_count",
+                    "asc": false,
+                    "size": 5
+                  }
+                },
+                "terms": {
+                  "sortBy": "_count",
+                  "asc": false,
+                  "size": 5
+                }
+              },
+              "terms": {
+                "sortBy": "_count",
+                "asc": false,
+                "size": 5
+              }
+            },
+            "terms": {
+              "sortBy": "_count",
+              "asc": false,
+              "size": 5
+            }
+          },
+          "terms": {
+            "sortBy": "_count",
+            "asc": false,
+            "size": 5
+          }
+        },
+        "terms": {
+          "sortBy": "_count",
+          "asc": false,
+          "size": 5
+        }
+      },
+      "terms": {
+        "sortBy": "_count",
+        "asc": false,
+        "size": 5
+      }
+    },
+    "terms": {
+      "sortBy": "_count",
+      "asc": false,
+      "size": 5
+    }
+  }
+}
+      $$
+            WHERE id = 801;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

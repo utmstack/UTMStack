@@ -1,0 +1,41 @@
+- id: 1021
+  dataTypes:
+    - netflow
+  name: Asset Enumeration Attempts via NetFlow
+  impact:
+    confidentiality: 3
+    integrity: 1
+    availability: 2
+  category: Network Reconnaissance
+  technique: Network Service Discovery
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1046/
+    - https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
+  description: |
+    Detects potential asset enumeration attempts by identifying a single source IP scanning multiple destination IPs on the same port within a short time window, indicating network reconnaissance activity. This pattern suggests an attacker is systematically probing the network to discover active services and assets.
+    
+    Next Steps:
+    1. Investigate the source IP address for additional suspicious activities
+    2. Check if the source IP is external or internal to determine attack vector
+    3. Review firewall logs for blocked connection attempts from the same source
+    4. Examine the specific ports being scanned to understand the attacker's targets
+    5. Verify if any successful connections were established following the scanning
+    6. Check for privilege escalation attempts or lateral movement from compromised systems
+    7. Consider implementing additional network segmentation to limit scanning effectiveness
+    8. Review and update intrusion detection signatures for similar scanning patterns
+  where: safe(origin.ip, "") != "" && safe(target.ip, "") != "" && safe(target.port, 0) > 0 && safe(protocol, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-netflow-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.port
+          operator: filter_term
+          value: '{{target.port}}'
+      within: now-5m
+      count: 20
+  deduplicateBy:
+    - origin.ip
+    - target.port

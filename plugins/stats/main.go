@@ -24,10 +24,14 @@ func main() {
 	statisticsQueue = make(chan map[plugins.Topic]plugins.DataProcessingMessage, runtime.NumCPU()*100)
 	statsMap = make(map[plugins.Topic]map[string]map[string]int64)
 
-	pCfg := plugins.PluginCfg("org.opensearch")
-	osUrl := pCfg.Get("opensearch").String()
+	cfg := plugins.PluginCfg("org.opensearch").Get("opensearch")
+	host := cfg.Get("host").String()
+	port := cfg.Get("port").String()
+	user := cfg.Get("user").String()
+	password := cfg.Get("password").String()
+	osUrl := "https://" + host + ":" + port
 
-	err := sdkos.Connect([]string{osUrl}, "", "")
+	err := sdkos.Connect([]string{osUrl}, user, password)
 	if err != nil {
 		_ = catcher.Error("failed when connecting to OpenSearch", err, map[string]any{"process": "plugin_com.utmstack.stats"})
 		time.Sleep(5 * time.Second)

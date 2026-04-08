@@ -1,0 +1,39 @@
+- id: 1019
+  dataTypes:
+    - netflow
+  name: SSDP Amplification Attack Detection
+  impact:
+    confidentiality: 1
+    integrity: 1
+    availability: 3
+  category: DDoS Attack
+  technique: "T1498 - Network Denial of Service"
+  adversary: origin
+  references:
+    - https://www.us-cert.gov/ncas/alerts/TA14-017A
+    - https://attack.mitre.org/techniques/T1498/
+  description: |
+    Detects potential SSDP (Simple Service Discovery Protocol) amplification attacks by identifying suspicious UDP traffic patterns on port 1900 used by Universal Plug and Play (UPnP) services. SSDP amplification attacks exploit the multicast nature of SSDP to amplify small requests into much larger responses, creating distributed denial-of-service conditions.
+    
+    Next Steps:
+    1. Verify if the source IP is legitimate by checking internal asset inventory
+    2. Analyze packet sizes and response ratios to confirm amplification characteristics
+    3. Check for multiple simultaneous connections from the same source to different SSDP servers
+    4. Implement rate limiting or blocking for suspicious source IPs
+    5. Review network infrastructure for improperly configured UPnP devices
+    6. Consider disabling UPnP services if not required for business operations
+  where: (safe(target.port, 0) == 1900 || safe(origin.port, 0) == 1900) && safe(protocol, "") == "17" && (safe(target.bytesSent, 0) > 2000 || safe(origin.packagesSent, 0) > 15)
+  afterEvents:
+    - indexPattern: v11-log-netflow-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.port
+          operator: filter_term
+          value: '1900'
+      within: now-5m
+      count: 30
+  deduplicateBy:
+    - origin.ip
+    - target.ip

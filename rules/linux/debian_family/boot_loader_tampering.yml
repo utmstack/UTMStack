@@ -1,0 +1,42 @@
+- id: 1022
+  dataTypes:
+    - linux
+  name: Boot Loader Tampering
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 3
+  category: Boot Security
+  technique: "T1542.003 - Bootkit"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1542/003/
+    - https://www.debian.org/doc/manuals/securing-debian-manual/ch3.en.html
+  description: |
+    Detects attempts to modify boot loader configuration files, kernel parameters, or boot scripts that could be used to establish persistence or bypass security controls. This includes modifications to GRUB configuration files, kernel images, or initrd files.
+    
+    Next Steps:
+    1. Immediately isolate the affected system to prevent further damage
+    2. Verify the integrity of boot loader files using checksums or file integrity monitoring baselines
+    3. Check system logs for any unauthorized access or privilege escalation attempts
+    4. Examine the modified files to understand what changes were made
+    5. Review user accounts and access logs to identify who made the modifications
+    6. Consider reimaging the system if bootkit installation is confirmed
+    7. Update security controls to prevent similar tampering attempts
+  where: |
+    (safe(log.file_path, "") contains "/boot/grub/" && 
+     safe(log.event_type, "") == "file_modify") ||
+    (safe(log.file_path, "") == "/etc/default/grub" && 
+     safe(log.event_type, "") == "file_modify") ||
+    (safe(log.process_name, "") == "grub-install" || 
+     safe(log.process_name, "") == "grub-mkconfig" || 
+     safe(log.process_name, "") == "update-grub") ||
+    (safe(log.file_path, "") contains "/boot/vmlinuz" && 
+     safe(log.event_type, "") == "file_modify") ||
+    (safe(log.file_path, "") contains "/boot/initrd" && 
+     safe(log.event_type, "") == "file_modify") ||
+    (safe(log.command_line, "") contains "grub-editenv" && 
+     safe(log.command_line, "") contains "set")
+  deduplicateBy:
+    - origin.host
+    - lastEvent.log.file_path

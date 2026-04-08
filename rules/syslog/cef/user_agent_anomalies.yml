@@ -1,0 +1,54 @@
+- id: 1022
+  dataTypes:
+    - cef
+  name: CEF User Agent Anomaly Detection
+  impact:
+    confidentiality: 2
+    integrity: 2
+    availability: 1
+  category: Web Security
+  technique: "T1071.001 - Application Layer Protocol: Web Protocols"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1071/001/
+    - https://learn.microsoft.com/en-us/azure/sentinel/cef-name-mapping
+  description: |
+    Detects anomalous user agent strings in CEF logs that may indicate malicious scripts, bots, vulnerability scanners, or attempts to bypass security controls through user agent spoofing. This rule identifies known attack tools, template injection attempts, and unusually short or long user agent strings.
+    
+    Next Steps:
+    1. Investigate the source IP address for additional suspicious activities
+    2. Review the specific URLs and resources accessed by this user agent
+    3. Check for other security events from the same IP address in recent timeframes
+    4. Analyze the request patterns to determine if automated scanning is occurring
+    5. Consider blocking the source IP if confirmed malicious
+    6. Review web application logs for potential exploitation attempts
+    7. Validate if the user agent represents legitimate automation tools
+  where: |
+    safe(log.dataType, "") == "cef" && 
+    safe(log.requestClientApplication, "") != "" &&
+    (
+      contains(lower(safe(log.requestClientApplication, "")), "sqlmap") ||
+      contains(lower(safe(log.requestClientApplication, "")), "nikto") ||
+      contains(lower(safe(log.requestClientApplication, "")), "havij") ||
+      contains(lower(safe(log.requestClientApplication, "")), "acunetix") ||
+      contains(lower(safe(log.requestClientApplication, "")), "nessus") ||
+      contains(lower(safe(log.requestClientApplication, "")), "metasploit") ||
+      contains(lower(safe(log.requestClientApplication, "")), "python-requests") ||
+      contains(lower(safe(log.requestClientApplication, "")), "curl/") ||
+      contains(lower(safe(log.requestClientApplication, "")), "wget/") ||
+      contains(safe(log.requestClientApplication, ""), "${") ||
+      contains(safe(log.requestClientApplication, ""), "{{") ||
+      size(safe(log.requestClientApplication, "")) > 500 ||
+      size(safe(log.requestClientApplication, "")) < 10
+    )
+  afterEvents:
+    - indexPattern: v11-log-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-1h
+      count: 10
+  deduplicateBy:
+    - origin.ip
+    - log.requestClientApplication

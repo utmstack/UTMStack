@@ -1,0 +1,49 @@
+- id: 1015
+  dataTypes:
+    - macos
+  name: Code Signing Violations
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 1
+  category: Execution
+  technique: "T1553.001 - Subvert Trust Controls: Gatekeeper Bypass"
+  adversary: origin
+  references:
+    - https://developer.apple.com/documentation/security/code_signing_services
+    - https://attack.mitre.org/techniques/T1553/001/
+  description: |
+    Detects code signing violations indicating unsigned, modified, or improperly signed executables that may bypass Gatekeeper or other security controls. This could indicate malware execution, tampering with legitimate applications, or attempts to bypass macOS security mechanisms.
+    
+    Next Steps:
+    1. Investigate the specific executable or application that triggered the violation
+    2. Check if the file is from a trusted source and properly signed
+    3. Verify the integrity of the application using codesign verification
+    4. Review recent downloads and installations on the affected system
+    5. Scan the system for malware using updated antivirus signatures
+    6. Consider reimaging the system if persistent violations occur from unknown sources
+  where: |
+    (safe(log.subsystem, "") == "com.apple.securityd" && 
+     (safe(log.eventMessage, "") contains "code signature" &&
+      (safe(log.eventMessage, "") contains "invalid" || 
+       safe(log.eventMessage, "") contains "fail" || 
+       safe(log.eventMessage, "") contains "reject" ||
+       safe(log.eventMessage, "") contains "violation"))) ||
+    (safe(origin.process, "") == "codesign" && 
+     safe(log.messageType, "") == "error") ||
+    (safe(log.eventMessage, "") contains "Gatekeeper" && 
+     (safe(log.eventMessage, "") contains "blocked" ||
+      safe(log.eventMessage, "") contains "unsigned" ||
+      safe(log.eventMessage, "") contains "notarization"||
+      safe(log.eventMessage, "") contains "quarantine")) ||
+    (safe(log.subsystem, "") == "com.apple.Security" && 
+     safe(log.category, "") == "SecAssessment" &&
+     (safe(log.eventMessage, "") contains "deny" ||
+      safe(log.eventMessage, "") contains "blocked")) ||
+    (safe(log.eventMessage, "") contains "spctl" && 
+     (safe(log.eventMessage, "") contains "rejected" ||
+      safe(log.eventMessage, "") contains "assessment" ||
+      safe(log.eventMessage, "") contains "disabled"))
+  deduplicateBy:
+    - origin.host
+    - origin.filename

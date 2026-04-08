@@ -1,55 +1,144 @@
 package validations
 
 import (
+	"encoding/json"
 	"fmt"
+	"maps"
 	"net/http"
+	"strings"
 
 	"github.com/threatwinds/go-sdk/utils"
 	"github.com/utmstack/UTMStack/plugins/modules-config/config"
 )
 
-func ValidateSOCAIConfig(config *config.ModuleGroup) error {
-	var apiKey, provider string
+// isAnthropicProvider detects if the URL is for Anthropic API
+func isAnthropicProvider(url string) bool {
+	return strings.Contains(url, "anthropic.com")
+}
 
-	if config == nil {
+// SOCAIConfig holds the parsed SOC-AI configuration
+type SOCAIConfig struct {
+	AutoAnalyze       bool
+	IncidentCreation  bool
+	ChangeAlertStatus bool
+	URL               string
+	Model             string
+	AuthType          string            // "custom-headers", "none"
+	MaxTokens         string
+	CustomHeaders     map[string]string // All headers including auth (from frontend)
+}
+
+func ValidateSOCAIConfig(cfg *config.ModuleGroup) error {
+	if cfg == nil {
 		return fmt.Errorf("SOC_AI configuration is nil")
 	}
 
-	for _, cnf := range config.ModuleGroupConfigurations {
-		switch {
-		case cnf.ConfKey == "utmstack.socai.key":
-			apiKey = cnf.ConfValue
-		case cnf.ConfKey == "utmstack.socai.provider":
-			provider = cnf.ConfValue
-		}
+	socai := parseSOCAIConfig(cfg)
+
+	// Validate required fields
+	if socai.URL == "" {
+		return fmt.Errorf("URL is required in SOC_AI configuration")
+	}
+	if socai.Model == "" {
+		return fmt.Errorf("Model is required in SOC_AI configuration")
 	}
 
-	if apiKey == "" {
-		return fmt.Errorf("API Key is required in SOC_AI configuration")
+	// Validate authType (optional - defaults to "none" if not specified)
+	if socai.AuthType == "" {
+		socai.AuthType = "none"
 	}
-	if provider == "" {
-		return fmt.Errorf("Provider is required in SOC_AI configuration")
-	} else if provider != "openai" {
-		return nil
-	}
-
-	url := "https://api.openai.com/v1/chat/completions"
-	headers := map[string]string{
-		"Authorization": fmt.Sprintf("Bearer %s", apiKey),
-		"Content-Type":  "application/json",
+	if socai.AuthType != "custom-headers" && socai.AuthType != "none" {
+		return fmt.Errorf("invalid authType '%s', must be 'custom-headers' or 'none'", socai.AuthType)
 	}
 
-	response, status, err := utils.DoReq[map[string]any](url, nil, "GET", headers, false)
-	if err != nil || status != http.StatusOK {
-		if status == http.StatusRequestTimeout {
-			return fmt.Errorf("SOC_AI connection timed out")
-		}
-		if status == http.StatusUnauthorized {
-			return fmt.Errorf("SOC_AI API Key is invalid")
-		}
-		fmt.Printf("Error validating SOC_AI connection: %v, status code: %d, response: %v\n", err, status, response)
-		return fmt.Errorf("SOC_AI API Key is invalid")
+	// Validate required fields based on authType
+	if socai.AuthType == "custom-headers" && len(socai.CustomHeaders) == 0 {
+		return fmt.Errorf("Custom Headers are required when authType is 'custom-headers'")
+	}
+
+	// Anthropic requires maxTokens
+	if isAnthropicProvider(socai.URL) && socai.MaxTokens == "" {
+		return fmt.Errorf("Max Tokens is required for Anthropic provider")
+	}
+
+	// Test connection
+	if err := testSOCAIConnection(socai); err != nil {
+		return err
 	}
 
 	return nil
+}
+
+func parseSOCAIConfig(cfg *config.ModuleGroup) SOCAIConfig {
+	socai := SOCAIConfig{
+		AuthType:      "none", // default - auth via custom headers or apiKey
+		CustomHeaders: make(map[string]string),
+	}
+
+	for _, cnf := range cfg.ModuleGroupConfigurations {
+		switch cnf.ConfKey {
+		case "utmstack.socai.autoAnalyze":
+			socai.AutoAnalyze = cnf.ConfValue == "true"
+		case "utmstack.socai.incidentCreation":
+			socai.IncidentCreation = cnf.ConfValue == "true"
+		case "utmstack.socai.changeAlertStatus":
+			socai.ChangeAlertStatus = cnf.ConfValue == "true"
+		case "utmstack.socai.url":
+			socai.URL = cnf.ConfValue
+		case "utmstack.socai.model":
+			socai.Model = cnf.ConfValue
+		case "utmstack.socai.authType":
+			if cnf.ConfValue != "" {
+				socai.AuthType = cnf.ConfValue
+			}
+		case "utmstack.socai.maxTokens":
+			socai.MaxTokens = cnf.ConfValue
+		case "utmstack.socai.customHeaders":
+			if cnf.ConfValue != "" {
+				if err := json.Unmarshal([]byte(cnf.ConfValue), &socai.CustomHeaders); err != nil {
+					fmt.Printf("Warning: Failed to parse customHeaders JSON: %v\n", err)
+				}
+			}
+		}
+	}
+
+	return socai
+}
+
+func testSOCAIConnection(socai SOCAIConfig) error {
+	headers := map[string]string{
+		"Content-Type": "application/json",
+	}
+
+	// Add custom headers (includes auth headers configured by frontend)
+	if socai.AuthType == "custom-headers" {
+		maps.Copy(headers, socai.CustomHeaders)
+	}
+	// If authType is "none", no additional headers are added
+
+	// Test connection with GET request (most APIs return error but validate auth)
+	response, status, err := utils.DoReq[map[string]any](socai.URL, nil, "GET", headers, false)
+
+	// Handle response
+	switch status {
+	case http.StatusOK, http.StatusMethodNotAllowed, http.StatusBadRequest:
+		// These are acceptable - means we reached the API and auth worked
+		// 405 = endpoint doesn't accept GET but auth passed
+		// 400 = bad request but auth passed
+		return nil
+	case http.StatusUnauthorized:
+		return fmt.Errorf("SOC_AI API Key is invalid (401 Unauthorized)")
+	case http.StatusForbidden:
+		return fmt.Errorf("SOC_AI API Key does not have permission (403 Forbidden)")
+	case http.StatusRequestTimeout:
+		return fmt.Errorf("SOC_AI connection timed out")
+	case http.StatusNotFound:
+		return fmt.Errorf("SOC_AI URL not found (404) - check the URL is correct")
+	default:
+		if err != nil {
+			return fmt.Errorf("SOC_AI connection failed: %v", err)
+		}
+		fmt.Printf("SOC_AI validation: status %d, response: %v\n", status, response)
+		return nil // Accept other status codes as potentially valid
+	}
 }

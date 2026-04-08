@@ -1,0 +1,30 @@
+- id: 1004
+  dataTypes:
+    - rfc-5424
+  name: RFC-5424 Version Field Anomalies
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 1
+  category: Protocol Violation
+  technique: "T1001.003 - Data Obfuscation: Protocol Impersonation"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5424#section-6.2.2
+    - https://attack.mitre.org/techniques/T1001/003/
+  description: |
+    Detects anomalies in the RFC-5424 version field. The version field must be "1" for RFC-5424 compliant messages. Non-standard versions may indicate log forgery, protocol confusion attacks, or misconfigured systems attempting to bypass security controls.
+    
+    Next Steps:
+    1. Investigate the source system and verify its syslog configuration
+    2. Check if the system is attempting to send RFC-3164 format messages to an RFC-5424 parser
+    3. Review recent changes to logging infrastructure or applications
+    4. Examine other log messages from the same source for consistency
+    5. Validate that the anomalous version field is not part of a legitimate system upgrade or migration
+    6. Consider implementing stricter syslog parsing rules to reject malformed messages
+  where: |
+    safe(log.version, "") != "" &&
+    safe(log.version, "") != "1"
+  deduplicateBy:
+    - origin.ip
+    - lastEvent.log.version

@@ -1,0 +1,44 @@
+- id: 1006
+  dataTypes:
+    - pa_firewall
+  name: Application Dependency Violations
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Policy Violation
+  technique: "T1071 - Application Layer Protocol"
+  adversary: origin
+  references:
+    - https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/app-id/application-dependencies
+    - https://attack.mitre.org/techniques/T1071/
+  description: |
+    Detects when applications violate defined dependency rules, which could indicate policy bypass attempts or misconfigured applications. This may occur when an application attempts to run without its required dependencies being satisfied.
+
+    Next Steps:
+    1. Review the specific application and dependency that was violated
+    2. Check if the application is authorized to run in this environment
+    3. Verify if the dependency requirements are properly configured
+    4. Investigate if this represents an attempted policy bypass
+    5. Review firewall rules to ensure proper application control
+    6. Check for signs of unauthorized application usage or tunneling attempts
+  where: |
+    safe(log.panOSAction, "") == "deny" &&
+    safe(log.panOSApplicationCategory, "") != "" &&
+    (safe(log.panOSDescription, "").contains("dependency") ||
+     safe(log.panOSThreatCategory, "").contains("dependency") ||
+     safe(log.message, "").contains("application-dependency"))
+  afterEvents:
+    - indexPattern: v11-log-firewall-paloalto-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.panOSAction.keyword
+          operator: filter_term
+          value: 'deny'
+      within: now-15m
+      count: 5
+  deduplicateBy:
+    - origin.ip
+    - target.ip

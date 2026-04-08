@@ -1,0 +1,39 @@
+- id: 1016
+  dataTypes:
+    - rfc-6587
+  name: TCP MSS Manipulation Attack
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: Network Security
+  technique: "T1499 - Endpoint Denial of Service"
+  adversary: origin
+  references:
+    - https://access.redhat.com/security/vulnerabilities/tcpsack
+    - https://attack.mitre.org/techniques/T1499/
+  description: |
+    Detects TCP MSS manipulation attacks where attackers send crafted packets with abnormally low MSS values to trigger excessive resource consumption. This can force systems to segment responses into multiple tiny TCP segments, drastically increasing bandwidth usage and consuming CPU resources.
+    
+    Next Steps:
+    1. Identify the source IP address initiating the MSS manipulation attempts
+    2. Check if the source IP is associated with known malicious activity
+    3. Review system performance metrics for signs of resource exhaustion
+    4. Analyze packet captures to confirm the MSS values and TCP options
+    5. Consider implementing rate limiting or blocking the source IP if attack persists
+    6. Update firewall rules to filter packets with abnormally low MSS values
+    7. Monitor for similar attacks from other source IPs
+  where: |
+    safe(log.tcp_mss, 0) > 0 && safe(log.tcp_mss, 0) < 48 &&
+    safe(origin.ip, "") != "" &&
+    (safe(log.tcp_flags, "") contains "SYN" || safe(log.tcp_options, "") contains "mss")
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-5m
+      count: 10
+  deduplicateBy:
+    - adversary.ip

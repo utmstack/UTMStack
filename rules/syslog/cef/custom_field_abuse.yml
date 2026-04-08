@@ -1,0 +1,41 @@
+- id: 1011
+  dataTypes:
+    - cef
+  name: CEF Custom Field Abuse Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Security Monitoring
+  technique: Protocol Manipulation
+  adversary: origin
+  references:
+    - https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.3/cef-implementation-standard/Content/CEF/Chapter%202%20ArcSight%20Extension.htm
+    - https://attack.mitre.org/techniques/T1036/
+  description: |
+    Detects potential abuse of CEF custom fields (cn, cs, flexString) where attackers may hide malicious content or bypass security controls by using custom fields inappropriately. This includes detection of script injection attempts, encoded payloads, sensitive data exposure, and unusually large field values that may indicate data exfiltration or buffer overflow attempts.
+    
+    Next Steps:
+    1. Review the specific CEF custom fields that triggered the alert (cs1-cs6, flexString1-flexString2, cn1-cn6)
+    2. Analyze the content of the flagged custom fields for malicious patterns
+    3. Check if the source device/application is properly configured and authorized to use these custom fields
+    4. Correlate with other security events from the same source IP or device
+    5. If script injection is detected, check for potential web application vulnerabilities
+    6. For encoded content, decode and analyze the payload for malicious intent
+    7. Review security device configurations to ensure proper field validation
+    8. Consider implementing additional input validation on systems generating CEF logs
+  where: |
+    (
+      (safe(log.cs1, "").contains("<script") || safe(log.cs2, "").contains("<script") || 
+       safe(log.cs3, "").contains("<script") || safe(log.cs4, "").contains("<script") ||
+       safe(log.cs5, "").contains("<script") || safe(log.cs6, "").contains("<script")) ||
+      (safe(log.flexString1, "").contains("eval(") || safe(log.flexString2, "").contains("eval(")) ||
+      (safe(log.cs1, "").matches(".*\\\\x[0-9a-fA-F]{2}.*") || safe(log.cs2, "").matches(".*\\\\x[0-9a-fA-F]{2}.*")) ||
+      (safe(log.cn1Label, "").contains("password") || safe(log.cn2Label, "").contains("password") ||
+       safe(log.cs1Label, "").contains("password") || safe(log.cs2Label, "").contains("password")) ||
+      (safe(log.cs1, "").size() > 1000 || safe(log.cs2, "").size() > 1000 || 
+       safe(log.flexString1, "").size() > 1000 || safe(log.flexString2, "").size() > 1000)
+    )
+  deduplicateBy:
+    - origin.ip
+    - log.deviceVendor

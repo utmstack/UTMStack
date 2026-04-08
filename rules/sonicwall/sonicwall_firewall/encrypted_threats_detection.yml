@@ -1,0 +1,32 @@
+- id: 1024
+  dataTypes:
+    - sonicwall_firewall
+  name: SonicWall Encrypted Threats Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Encrypted Traffic Analysis
+  technique: "T1573 - Encrypted Channel"
+  adversary: origin
+  references:
+    - https://www.sonicwall.com/solutions/advanced-threats/encrypted-threats/
+    - https://attack.mitre.org/techniques/T1573/
+  description: |
+    Detects threats hidden in encrypted traffic identified by SonicWall DPI-SSL (Deep Packet Inspection of SSL/TLS) including malware, exploits, and data exfiltration attempts over encrypted channels. This rule identifies when SonicWall's advanced threat protection has detected malicious activity within encrypted communications.
+
+    Next Steps:
+    1. Review the specific threat type and category identified in the event details
+    2. Examine the source and destination IP addresses for indicators of compromise
+    3. Check the SSL/TLS certificate details and validation status
+    4. Investigate the application or service attempting the encrypted communication
+    5. Review network traffic patterns to identify potential data exfiltration
+    6. Consider temporarily blocking the source IP if malicious activity is confirmed
+    7. Update security policies to prevent similar encrypted threats
+    8. Document findings for threat intelligence and future prevention
+  where: |
+    (safe(log.eventName, "").contains("SSL") || safe(log.eventName, "").contains("TLS") || safe(log.eventName, "").contains("encrypted") || safe(log.eventName, "").contains("DPI-SSL") || safe(log.message, "").contains("SSL") || safe(log.message, "").contains("TLS") || safe(log.message, "").contains("encrypted") || safe(protocol, "").contains("SSL") || safe(protocol, "").contains("TLS")) &&
+    (safe(log.eventName, "").contains("threat") || safe(log.eventName, "").contains("malware") || safe(log.eventName, "").contains("blocked") || safe(log.eventName, "").contains("violation") || safe(log.message, "").contains("threat") || safe(log.message, "").contains("malware") || safe(log.message, "").contains("blocked") || safe(log.result, "") == "blocked" || safe(action, "") == "blocked" || safe(log.ipscat, "") != "" || safe(log.spycat, "") != "")
+  deduplicateBy:
+    - origin.ip
+    - target.ip

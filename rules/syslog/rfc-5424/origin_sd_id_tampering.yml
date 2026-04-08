@@ -1,0 +1,34 @@
+- id: 1021
+  dataTypes:
+    - rfc-5424
+  name: Origin SD-ID Tampering Detection
+  impact:
+    confidentiality: 4
+    integrity: 5
+    availability: 2
+  category: Message Tampering
+  technique: T1565.002 - Stored Data Manipulation
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5424#section-6.3
+    - https://datatracker.ietf.org/doc/html/rfc5848
+    - https://attack.mitre.org/techniques/T1565/002/
+  description: Detects attempts to tamper with origin SD-ID in RFC-5424 structured data elements. Origin SD-ID contains critical source identification data including IP addresses and enterprise numbers. Tampering with these fields can be used to hide the true source of messages or impersonate legitimate systems.
+  where: |
+    (safe(log.structured_data, "") contains "origin" && 
+     safe(log.structured_data, "") contains "@") &&
+    (safe(log.origin_ip, "") != safe(origin.ip, "") ||
+     (safe(log.structured_data, "") matches ".*origin.*ip=\"([0-9]{1,3}\\.){3}[0-9]{1,3}\".*" &&
+      !safe(log.structured_data, "") matches ".*origin.*ip=\"(10\\.|172\\.(1[6-9]|2[0-9]|3[01])\\.|192\\.168\\.|127\\.).*\"") ||
+     safe(log.structured_data, "") matches ".*origin\\[[^\\]]*@[0-9]+\\].*origin\\[[^\\]]*@[0-9]+\\].*")
+  afterEvents:
+    - indexPattern: v11-log-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-5m
+      count: 10
+  deduplicateBy:
+    - origin.ip
+    - log.hostname

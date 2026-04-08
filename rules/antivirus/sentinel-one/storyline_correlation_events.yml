@@ -1,0 +1,30 @@
+- id: 1008
+  dataTypes:
+    - antivirus-sentinel-one
+  name: SentinelOne Storyline Correlation Events
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Behavioral Analysis
+  technique: "T1055 - Process Injection"
+  adversary: origin
+  references:
+    - https://www.sentinelone.com/blog/rapid-threat-hunting-with-deep-visibility-feature-spotlight/
+    - https://attack.mitre.org/techniques/T1055/
+    - https://docs.sentinelone.com/storyline/
+  description: |
+    Detects correlated threat events using SentinelOne's Storyline technology which tracks and links related malicious activities across processes, files, and network connections to identify complex attack chains. This rule triggers when storyline correlation events are detected, when multiple alerts are associated with a single process, or when correlation-type events are logged.
+    
+    Next Steps:
+    1. Review the Storyline timeline in SentinelOne console for the affected endpoint
+    2. Investigate all processes and network connections linked in the attack chain
+    3. Check if similar patterns exist on other endpoints in your environment
+    4. Isolate the affected endpoint if active malicious behavior is confirmed
+    5. Collect forensic data from the endpoint for deeper analysis
+    6. Review and update endpoint protection policies based on findings
+    7. Consider threat hunting for similar TTPs across the environment
+  where: safe(log.eventDescription, "") contains "storyline" || safe(log.dveventtype, "") contains "correlation" || (safe(log.alertscounter, 0) > 3 && safe(log.alertprocessname, "") != "")
+  deduplicateBy:
+    - log.syslogHost
+    - log.alertid

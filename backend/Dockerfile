@@ -1,6 +1,8 @@
 FROM eclipse-temurin:17
 
 ADD target/utmstack.war ./
+COPY filters /utmstack/filters
+COPY rules /utmstack/rules
 
 HEALTHCHECK --start-period=60s --interval=60s --timeout=60s --retries=3 \
   CMD curl -f http://localhost:8080/api/healthcheck || exit 1

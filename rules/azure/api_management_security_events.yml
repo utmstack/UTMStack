@@ -1,0 +1,29 @@
+- id: 1028
+  dataTypes:
+    - azure
+  name: API Management Security Events
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: API Security
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  references:
+    - https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-use-azure-monitor
+    - https://attack.mitre.org/techniques/T1078/
+  description: |
+    Detects suspicious API Management activities including authentication failures, unauthorized access attempts, or API policy violations in Azure API Management services.
+    
+    Next Steps:
+    1. Review the specific API endpoint and operation that triggered the alert
+    2. Investigate the source IP address and user identity associated with the request
+    3. Check for patterns of failed authentication attempts from the same source
+    4. Verify if the API access request aligns with legitimate business needs
+    5. Review API Management policies and access controls
+    6. Check for any recent changes to API permissions or policies
+    7. Consider implementing additional rate limiting or IP restrictions if needed
+  where: (safe(log.operationName, "").contains("Microsoft.ApiManagement") || safe(log.type, "") == "ApiManagementGatewayLogs") && (safe(log.statusCode, 0) == 401 || safe(log.statusCode, 0) == 403 || safe(log.responseCode, 0) == 401 || safe(log.responseCode, 0) == 403 || safe(log.actionResult, "") == "denied" || safe(log.lastError, "") != "" || safe(log.errors, "") != "")
+  deduplicateBy:
+    - origin.ip
+    - log.aadClientId

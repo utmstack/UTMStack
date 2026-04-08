@@ -1,0 +1,44 @@
+- id: 1002
+  dataTypes:
+    - netflow
+  name: Excessive Bandwidth Utilization Spike
+  impact:
+    confidentiality: 1
+    integrity: 1
+    availability: 3
+  category: Performance
+  technique: "T1496 - Resource Hijacking"
+  adversary: origin
+  references:
+    - https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
+    - https://attack.mitre.org/techniques/T1496/
+  description: |
+    Detects sudden spikes in bandwidth utilization that could indicate DDoS attacks, resource hijacking, or compromised systems being used for cryptocurrency mining or other bandwidth-intensive activities. This rule identifies flows with high byte counts (>50MB) occurring within short durations (<5 minutes).
+    
+    Next Steps:
+    1. Investigate the source and destination IP addresses involved in the high bandwidth transfer
+    2. Check if the communication pattern is expected for business operations
+    3. Analyze the protocol and port information to understand the nature of the traffic
+    4. Review historical network traffic patterns for the affected hosts
+    5. Check for signs of malware or unauthorized applications on the source system
+    6. Consider implementing rate limiting or traffic shaping if the activity is malicious
+    7. Monitor for similar patterns from other internal hosts that might indicate lateral movement
+  where: |
+    safe(origin.ip, "") != "" &&
+    safe(target.ip, "") != "" &&
+    safe(log.bytes, 0) > 50000000 &&
+    safe(log.flowDuration, 0) < 300
+  afterEvents:
+    - indexPattern: v11-log-netflow-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.ip.keyword
+          operator: filter_term
+          value: '{{target.ip}}'
+      within: now-10m
+      count: 5
+  deduplicateBy:
+    - origin.ip
+    - target.ip

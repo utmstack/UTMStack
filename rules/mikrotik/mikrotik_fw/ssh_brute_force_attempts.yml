@@ -1,0 +1,41 @@
+- id: 1004
+  dataTypes:
+    - firewall-mikrotik
+  name: SSH Brute Force Attack on MikroTik Device
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 2
+  category: Brute Force
+  technique: "T1110.001 - Brute Force: Password Guessing"
+  adversary: origin
+  references:
+    - https://help.mikrotik.com/docs/spaces/ROS/pages/132350014/SSH
+    - https://attack.mitre.org/techniques/T1110/001/
+  description: |
+    Detects SSH brute force attempts against MikroTik devices. Monitors for multiple SSH connection attempts on port 22 from the same source IP within a short time window, which may indicate password guessing attacks.
+    
+    Next Steps:
+    1. Verify the source IP address and check if it's from a known legitimate administrator
+    2. Review SSH access logs on the MikroTik device for successful authentications
+    3. Check if the source IP has been involved in other suspicious activities
+    4. Consider implementing rate limiting or IP blocking for repeated failed attempts
+    5. Ensure SSH access is restricted to authorized management networks only
+    6. Review MikroTik firewall rules and consider disabling SSH access from untrusted networks
+  where: safe(target.port, 0) == 22 && safe(protocol, "") == "tcp" && safe(origin.ip, "") != "" && (safe(lastEvent.log.chain, "") contains "input" || safe(lastEvent.log.action, "") contains "drop" || (safe(lastEvent.log.topics, "") contains "system" && safe(lastEvent.log.kvMessage, "") contains "ssh"))
+  afterEvents:
+    - indexPattern: v11-log-firewall-mikrotik-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.port
+          operator: filter_term
+          value: '22'
+        - field: protocol.keyword
+          operator: filter_term
+          value: 'tcp'
+      within: now-5m
+      count: 10
+  deduplicateBy:
+    - origin.ip

@@ -1,0 +1,36 @@
+- id: 1019
+  dataTypes:
+    - rfc-5425
+  name: Weak Key Exchange Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Cryptographic Weakness
+  technique: "T1600 - Weaken Encryption: Reduce Key Space"
+  adversary: origin
+  references:
+    - https://datatracker.ietf.org/doc/html/rfc5425
+    - https://attack.mitre.org/techniques/T1600/
+  description: |
+    Detects weak or vulnerable key exchange methods including export-grade ciphers, weak DH parameters, or attempts to use deprecated key exchange algorithms. This indicates potential cryptographic weaknesses that could be exploited by attackers to decrypt or intercept communications.
+    
+    Next Steps:
+    1. Review the specific cipher suite and key exchange algorithm used
+    2. Check if the weak cryptography is intentional or misconfigured
+    3. Verify the TLS/SSL configuration on the affected systems
+    4. Update cryptographic protocols to use stronger algorithms
+    5. Monitor for any successful connections using weak cryptography
+    6. Review network traffic for potential man-in-the-middle attacks
+  where: |
+    safe(log.tls_cipher_suite, "").contains("EXPORT") ||
+    safe(log.tls_cipher_suite, "").contains("NULL") ||
+    safe(log.tls_cipher_suite, "").contains("anon") ||
+    safe(log.tls_kex_algorithm, "").contains("RSA") ||
+    (safe(log.tls_dh_param_size, 0) > 0 && 
+     safe(log.tls_dh_param_size, 0) < 2048) ||
+    (safe(log.tls_kex_algorithm, "").contains("DHE_") &&
+     safe(log.tls_dh_param_size, 0) < 1024)
+  deduplicateBy:
+    - origin.ip
+    - target.ip

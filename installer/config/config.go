@@ -11,15 +11,16 @@ import (
 )
 
 type Config struct {
-	MainServer    string  `yaml:"main_server"`
-	Branch        string  `yaml:"branch"`
-	Password      string  `yaml:"password"`
-	DataDir       string  `yaml:"data_dir"`
-	ServerType    string  `yaml:"server_type"`
-	ServerName    string  `yaml:"server_name"`
-	InternalKey   string  `yaml:"internal_key"`
-	UpdatesFolder string  `yaml:"updates_folder"`
-	MappingName   *string `yaml:"mapping_name,omitempty"`
+	MainServer         string  `yaml:"main_server"`
+	Branch             string  `yaml:"branch"`
+	Password           string  `yaml:"password"`
+	OpenSearchPassword string  `yaml:"opensearch_password"`
+	DataDir            string  `yaml:"data_dir"`
+	ServerType         string  `yaml:"server_type"`
+	ServerName         string  `yaml:"server_name"`
+	InternalKey        string  `yaml:"internal_key"`
+	UpdatesFolder      string  `yaml:"updates_folder"`
+	MappingName        *string `yaml:"mapping_name,omitempty"`
 }
 
 var (
@@ -79,6 +80,10 @@ func GetConfig() *Config {
 
 		if config.InternalKey == "" {
 			config.InternalKey = utils.GenerateSecret(32)
+		}
+
+		if config.OpenSearchPassword == "" {
+			config.OpenSearchPassword = utils.GenerateSecret(16)
 		}
 
 		if config.Branch != "dev" &&

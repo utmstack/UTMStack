@@ -1,0 +1,45 @@
+- id: 1021
+  dataTypes:
+    - sonicwall_firewall
+  name: SonicWave Wireless Security Threat Detection
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 2
+  category: Wireless Security
+  technique: "T1465 - Rogue Access Point"
+  adversary: origin
+  references:
+    - https://www.sonicwall.com/support/knowledge-base/how-to-configure-rogue-access-point-detection-in-wireless-intrusion-detection-settings-ids/170505975277527/
+    - https://attack.mitre.org/techniques/T1465/
+  description: |
+    Detects wireless security threats including rogue access points, association floods, and suspicious wireless activity detected by SonicWave access points. This rule identifies unauthorized wireless devices, attack patterns, and security violations in the wireless network infrastructure.
+
+    Next Steps:
+    1. Immediately investigate the source MAC address and IP associated with the wireless threat
+    2. Check SonicWave access point logs for additional context and attack patterns
+    3. Verify if the detected device is authorized on the wireless network
+    4. For rogue access points: Physically locate and remove unauthorized devices
+    5. Review wireless security policies and access point configurations
+    6. Check for signs of data exfiltration or unauthorized network access
+    7. Update wireless intrusion detection signatures if new attack patterns are identified
+    8. Consider implementing additional wireless monitoring and access controls
+    9. Document the incident and update security procedures if necessary
+  where: |
+    (safe(log.category, "") == "WLAN IDS" || 
+     safe(log.eventName, "").contains("wireless") || 
+     safe(log.eventName, "").contains("rogue") || 
+     safe(log.message, "").contains("rogue") ||
+     safe(log.message, "").contains("wireless")) &&
+    (safe(log.eventName, "").contains("attack") || 
+     safe(log.eventName, "").contains("flood") || 
+     safe(log.eventName, "").contains("unauthorized") || 
+     safe(log.message, "").contains("attack") || 
+     safe(log.message, "").contains("flood") || 
+     safe(log.message, "").contains("unauthorized") || 
+     safe(log.result, "") == "blocked" || 
+     safe(action, "") == "blocked" ||
+     safe(log.severity, "") in ["high", "critical"])
+  deduplicateBy:
+    - origin.mac
+    - origin.ip

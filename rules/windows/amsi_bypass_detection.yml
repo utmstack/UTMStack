@@ -1,0 +1,43 @@
+- id: 1013
+  dataTypes:
+    - wineventlog
+  name: AMSI Bypass Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Defense Evasion
+  technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1562/001/
+    - https://docs.microsoft.com/en-us/windows/win32/amsi/antimalware-scan-interface-portal
+  description: |
+    Detects attempts to bypass the Antimalware Scan Interface (AMSI) through PowerShell commands, DLL hijacking, or memory patching techniques. AMSI bypass is commonly used by attackers to evade detection when executing malicious PowerShell scripts or other code.
+    
+    Next Steps:
+    1. Immediately isolate the affected host to prevent lateral movement
+    2. Examine the full PowerShell script block text in Event ID 4104 for malicious content
+    3. Review command line arguments in Event ID 4688 for suspicious PowerShell execution
+    4. Check for additional indicators of compromise on the host
+    5. Verify if legitimate administrative tools are being used or if this is malicious activity
+    6. Review recent file modifications and process execution history
+    7. Check for persistence mechanisms that may have been installed
+    8. Consider reimaging the system if compromise is confirmed
+  where: |
+    (safe(log.winlogEventId, "") == "4104" &&
+     (safe(log.winlogEventDataScriptBlockText, "").contains("[Ref].Assembly.GetType") &&
+      safe(log.winlogEventDataScriptBlockText, "").contains("amsi") &&
+      safe(log.winlogEventDataScriptBlockText, "").contains("SetValue")) ||
+     safe(log.winlogEventDataScriptBlockText, "").contains("AmsiUtils") ||
+     safe(log.winlogEventDataScriptBlockText, "").contains("amsiInitFailed") ||
+     safe(log.winlogEventDataScriptBlockText, "").contains("Bypass.AMSI") ||
+     safe(log.winlogEventDataScriptBlockText, "").contains("AmsiScanBuffer")) ||
+    (safe(log.winlogEventId, "") == "4688" &&
+     safe(log.winlogEventDataCommandLine, "").contains("powershell") &&
+     (safe(log.winlogEventDataCommandLine, "").contains("amsi.dll") ||
+      safe(log.winlogEventDataCommandLine, "").contains("AmsiScanBuffer") ||
+      safe(log.winlogEventDataCommandLine, "").contains("amsiInitFailed")))
+  deduplicateBy:
+    - origin.host
+    - origin.user

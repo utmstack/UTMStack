@@ -1,0 +1,52 @@
+- id: 1004
+  dataTypes:
+    - asa
+  name: Configuration Changes Outside Maintenance Window
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Defense Evasion
+  technique: "T1070: Indicator Removal"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1070/
+    - https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog/syslogs1.html
+  description: |
+    Detects configuration changes made to ASA devices outside of normal business hours or maintenance windows. This could indicate unauthorized configuration modifications or insider threat activity.
+    
+    Next Steps:
+    1. Verify if the user making changes is authorized for out-of-hours configuration modifications
+    2. Check if there was an approved emergency change request or maintenance window
+    3. Review the specific configuration commands executed (check log.command field)
+    4. Contact the user to confirm if the activity was legitimate
+    5. If unauthorized, immediately review all configuration changes made and assess impact
+    6. Check for any other suspicious activities from the same user or IP address
+    7. Consider revoking access if the activity cannot be verified as legitimate
+  where: |
+    safe(log.message_id, "") == "111008" && 
+    safe(log.origin_user, "") != "" &&
+    (safe(log.command, "").contains("config") || 
+     safe(log.command, "").contains("write") || 
+     safe(log.command, "").contains("copy") || 
+     safe(log.command, "").contains("delete") || 
+     safe(log.command, "").contains("clear") || 
+     safe(log.command, "").contains("no ") ||
+     safe(log.message, "").contains("configuration") || 
+     safe(log.message, "").contains("config") && safe(log.message, "").contains("changed")) &&
+    (int(safe(log.timestamp, "").split("T")[1].split(":")[0]) < 6 || 
+     int(safe(log.timestamp, "").split("T")[1].split(":")[0]) > 22)
+  afterEvents:
+    - indexPattern: v11-log-cisco-asa-*
+      with:
+        - field: log.origin_user.keyword
+          operator: filter_term
+          value: '{{log.origin_user}}'
+        - field: log.message_id.keyword
+          operator: filter_term
+          value: '111008'
+      within: now-30m
+      count: 3
+  deduplicateBy:
+    - origin.user
+    - origin.ip

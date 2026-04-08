@@ -1,0 +1,47 @@
+- id: 1002
+  dataTypes:
+    - antivirus-kaspersky
+  name: Kaspersky Application Privilege Escalation Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Privilege Escalation
+  technique: "T1055/T1134 - Process Injection and Access Token Manipulation"
+  adversary: origin
+  references:
+    - https://support.kaspersky.com/KLMS/8.2/en-US/151684.htm
+    - https://attack.mitre.org/techniques/T1055/
+    - https://attack.mitre.org/techniques/T1134/
+  description: |
+    Detects attempts to escalate privileges through application manipulation, process injection, or unauthorized elevation of permissions monitored by Kaspersky endpoint protection. These techniques are commonly used by attackers to gain higher-level permissions on compromised systems.
+    
+    Next Steps:
+    1. Immediately isolate the affected system to prevent lateral movement
+    2. Review the process that triggered the alert and its parent process chain
+    3. Check if the source process is legitimate or potentially malicious
+    4. Look for other suspicious activities on the same host in the last hour
+    5. Collect memory dumps if possible for forensic analysis
+    6. Review user account permissions and recent changes
+    7. Check for any unauthorized scheduled tasks or services
+    8. Update Kaspersky signatures and run a full system scan
+  where: |
+    safe(log.signatureID, "") != "" && 
+    safe(log.action, "") != "Allowed" &&
+    (
+      contains(safe(log.message, ""), "privilege") ||
+      contains(safe(log.message, ""), "elevation") ||
+      contains(safe(log.message, ""), "EXPLOIT") ||
+      contains(safe(log.message, ""), "Exploit") ||
+      contains(safe(log.message, ""), "process injection") ||
+      contains(safe(log.message, ""), "token manipulation") ||
+      contains(safe(log.cs1, ""), "EXPLOIT") ||
+      contains(safe(log.cs2, ""), "Exploit") ||
+      contains(safe(log.cs4, ""), "Exploit") ||
+      contains(safe(log.cefMsg, ""), "privilege") ||
+      contains(safe(log.cefMsg, ""), "elevation")
+    )
+  deduplicateBy:
+    - origin.host
+    - log.signatureID
+    - origin.user

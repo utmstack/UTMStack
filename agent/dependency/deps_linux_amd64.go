@@ -13,9 +13,6 @@ import (
 	"github.com/utmstack/UTMStack/shared/fs"
 )
 
-// TODO: Remove after testing native collectors
-// const beatsZip = "utmstack_agent_dependencies_linux.zip"
-
 // GetDependencies returns the list of dependencies for Linux amd64.
 func GetDependencies() []Dependency {
 	basePath := fs.GetExecutablePath()
@@ -32,31 +29,6 @@ func GetDependencies() []Dependency {
 			Configure: configureUpdater,
 			Uninstall: uninstallUpdater,
 		},
-		// TODO: Remove beats dependency after testing native collectors
-		// {
-		// 	Name:         "beats",
-		// 	Version:      BeatsVersion,
-		// 	BinaryPath:   filepath.Join(basePath, "beats", "filebeat", "filebeat"),
-		// 	DownloadName: beatsZip,
-		// 	DownloadURL: func(server string) string {
-		// 		return fmt.Sprintf(config.DependUrl, server, config.DependenciesPort, beatsZip)
-		// 	},
-		// 	Critical: false,
-		// 	PostDownload: func() error {
-		// 		zipPath := filepath.Join(basePath, beatsZip)
-		// 		if err := archive.Unzip(zipPath, basePath); err != nil {
-		// 			return fmt.Errorf("error unzipping beats: %v", err)
-		// 		}
-		// 		// Remove zip after extraction
-		// 		os.Remove(zipPath)
-		// 		// Set executable permissions
-		// 		beatsPath := filepath.Join(basePath, "beats")
-		// 		exec.Run("chmod", basePath, "-R", "755", beatsPath)
-		// 		return nil
-		// 	},
-		// 	Configure: configureBeats,
-		// 	Uninstall: uninstallBeats,
-		// },
 
 		// New beats dependency - only for uninstalling existing filebeat/winlogbeat
 		// No download, no install - native collectors are used instead
@@ -65,6 +37,18 @@ func GetDependencies() []Dependency {
 			Version:   BeatsVersion,
 			Critical:  false,
 			Uninstall: uninstallBeats,
+		},
+
+		// Auditd dependency - auto-configures Linux audit daemon
+		// No download - installs from system package manager
+		{
+			Name:       "auditd",
+			Version:    AuditdVersion,
+			BinaryPath: "/sbin/auditctl", // Check if auditd tools exist
+			Critical:   false,
+			Configure:  configureAuditd,
+			Update:     updateAuditdRules,
+			Uninstall:  cleanupAuditd,
 		},
 	}
 }
@@ -87,11 +71,6 @@ func uninstallUpdater() error {
 	}
 	return exec.Run(updaterPath, fs.GetExecutablePath(), "uninstall")
 }
-
-// TODO: Remove after testing native collectors
-// func configureBeats() error {
-// 	return collector.InstallAll()
-// }
 
 func uninstallBeats() error {
 	return collector.UninstallAll()

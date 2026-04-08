@@ -1,0 +1,40 @@
+- id: 1004
+  dataTypes:
+    - json-input
+  name: Nested Object Attack Detected
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 3
+  category: Complex Attack
+  technique: Nested Object Manipulation
+  adversary: origin
+  references:
+    - https://github.blog/security/vulnerability-research/execute-commands-by-sending-json-learn-how-unsafe-deserialization-vulnerabilities-work-in-ruby-projects/
+    - https://attack.mitre.org/techniques/T1055/001/
+  description: |
+    Detects attacks involving deeply nested JSON objects, excessive nesting levels, or attempts to exploit deserialization vulnerabilities through complex object structures. These attacks can lead to DoS, memory exhaustion, or code execution through manipulation of JSON parsing engines.
+    
+    Next Steps:
+    1. Immediately block the source IP if confirmed malicious
+    2. Review application logs for parsing errors or performance degradation
+    3. Check memory usage and CPU utilization during the timeframe
+    4. Examine the JSON payload structure for malicious patterns
+    5. Update JSON parsing limits and validation rules
+    6. Implement rate limiting for JSON processing endpoints
+    7. Review deserialization security configurations
+  where: |
+    (safe(log.nesting_depth, 0) > 50 ||
+     safe(log.object_count, 0) > 1000 ||
+     safe(log.array_depth, 0) > 20 ||
+     safe(log.error, "").contains("maximum nesting") ||
+     safe(log.error, "").contains("stack overflow") ||
+     safe(log.error, "").contains("recursion limit") ||
+     safe(log.error, "").contains("deserialization gadget") ||
+     safe(log.message, "").contains("excessive nesting") ||
+     safe(log.message, "").contains("circular reference") ||
+     safe(log.message, "").contains("polymorphic type") ||
+     (safe(log.processing_time_ms, 0) > 5000 && safe(log.object_count, 0) > 100)) &&
+    safe(origin.ip, "") != ""
+  deduplicateBy:
+    - origin.ip

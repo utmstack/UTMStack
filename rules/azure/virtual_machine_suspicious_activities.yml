@@ -1,0 +1,42 @@
+- id: 1010
+  dataTypes:
+    - azure
+  name: Virtual Machine Suspicious Activities
+  impact:
+    confidentiality: 2
+    integrity: 2
+    availability: 3
+  category: Compute Resource Compromise
+  technique: "T1578 - Modify Cloud Compute Infrastructure"
+  adversary: origin
+  references:
+    - https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log-schema
+    - https://attack.mitre.org/techniques/T1578/
+  description: |
+    Detects suspicious activities on Azure Virtual Machines including rapid creation, deletion, or configuration changes that could indicate compromise or abuse. This rule triggers when multiple VM operations are performed from the same IP address within a short timeframe.
+    
+    Next Steps:
+    1. Review the specific VM operations performed and verify if they are legitimate business activities
+    2. Check the user account and IP address associated with the activities for any signs of compromise
+    3. Examine the timing and frequency of operations to determine if they follow normal usage patterns
+    4. Verify if the operations were performed during expected business hours
+    5. Check for any associated alerts or anomalies in authentication logs
+    6. Review VM configurations and access logs for any unauthorized changes
+    7. Contact the resource owner to confirm if the activities were authorized
+  where: |
+    safe(log.operationName, "").contains("Microsoft.Compute/virtualMachines") &&
+    (safe(log.operationName, "").contains("/write") || safe(log.operationName, "").contains("/delete") || 
+     safe(log.operationName, "").contains("/restart/action") || safe(log.operationName, "").contains("/powerOff/action")) &&
+    safe(log.category, "") == "Administrative" &&
+    safe(log.resultSignature, "") == "Succeeded"
+  afterEvents:
+    - indexPattern: v11-log-azure-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+      within: now-10m
+      count: 8
+  deduplicateBy:
+    - origin.ip
+    - safe(log.correlationId, "")

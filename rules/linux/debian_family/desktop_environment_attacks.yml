@@ -1,0 +1,44 @@
+- id: 1012
+  dataTypes:
+    - debian_family
+  name: Desktop Environment Attack Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: User Interface Manipulation
+  technique: "T1056 - Input Capture"
+  adversary: origin
+  references:
+    - https://www.debian.org/security/
+    - https://attack.mitre.org/techniques/T1056/
+  description: |
+    Detects attacks targeting desktop environments like GNOME, KDE, XFCE including keyloggers, screen capture attempts, and session hijacking. This rule identifies suspicious activities such as desktop process crashes, authentication bypass attempts, unauthorized screen recording, and unauthorized access to X11 authentication files.
+    
+    Next Steps:
+    1. Examine the affected user account and host for signs of compromise
+    2. Check for unauthorized processes accessing desktop environment APIs
+    3. Review system logs for evidence of privilege escalation or lateral movement
+    4. Verify the legitimacy of any screen recording or input monitoring activities
+    5. Inspect X11 authentication files for unauthorized modifications
+    6. Consider isolating the affected system if malicious activity is confirmed
+  where: |
+    (safe(log.process_name, "") in ["gnome-shell", "plasmashell", "xfce4-panel", "mate-panel"] && safe(log.signal, "") in ["SIGSEGV", "SIGABRT"]) ||
+    (safe(log.component, "") in ["gdm", "gdm3", "lightdm", "sddm"] && safe(log.event_type, "") in ["authentication_failure", "session_hijack", "bypass_attempt"]) ||
+    (safe(log.message, "").contains("keylogger detected") || safe(log.message, "").contains("screen capture") || safe(log.message, "").contains("clipboard access") || safe(log.message, "").contains("input monitoring") || safe(log.message, "").contains("desktop recording")) ||
+    (safe(log.dbus_method, "") in ["Screenshot", "RecordDesktop", "GetClipboard"] && !(safe(log.caller, "") in ["gnome-screenshot", "spectacle", "flameshot"])) ||
+    ((safe(log.file_path, "").contains(".Xauthority") || safe(log.file_path, "").contains(".ICEauthority") || safe(log.file_path, "").contains("/tmp/.X11-unix/")) && safe(log.operation, "") in ["read", "write", "modify"] && !(safe(log.process_name, "") in ["Xorg", "gdm", "lightdm"]))
+  afterEvents:
+    - indexPattern: v11-log-linux-*
+      with:
+        - field: origin.user.keyword
+          operator: filter_term
+          value: '{{origin.user}}'
+        - field: target.host.keyword
+          operator: filter_term
+          value: '{{target.host}}'
+      within: now-15m
+      count: 3
+  deduplicateBy:
+    - lastEvent.origin.user
+    - lastEvent.target.host

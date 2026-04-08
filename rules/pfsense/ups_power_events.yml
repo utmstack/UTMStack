@@ -1,0 +1,28 @@
+- id: 1022
+  dataTypes:
+    - firewall-pfsense
+  name: pfSense UPS Power Event
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: System Health
+  technique: "T1495 - Firmware Corruption"
+  adversary: system
+  references:
+    - https://blog.victormendonca.com/2020/10/28/how-to-setup-ups-on-pfsense/
+    - https://attack.mitre.org/techniques/T1495/
+  description: |
+    Detects UPS power events in pfSense including power failures, battery switches, low battery warnings, and power restoration. These events are critical for maintaining system availability and preventing data loss during power disruptions.
+    
+    Next Steps:
+    1. Verify the current power status of the UPS and connected systems
+    2. Check UPS battery health and capacity levels
+    3. Review UPS configuration and maintenance schedules
+    4. Monitor for any cascade power failures on dependent systems
+    5. Validate backup power procedures and emergency shutdown processes
+    6. Check system logs for any data corruption or service interruptions
+    7. Ensure backup systems are functioning properly during power events
+  where: safe(log.eventType, "") == "apcupsd" && (safe(raw, "").contains("power failure") || safe(raw, "").contains("running on UPS batteries") || safe(raw, "").contains("battery power") || safe(raw, "").contains("low battery") || safe(raw, "").contains("power restored") || safe(raw, "").contains("mains returned") || safe(raw, "").contains("shutdown") || safe(raw, "").contains("battery exhausted"))
+  deduplicateBy:
+    - lastEvent.log.syslogHost

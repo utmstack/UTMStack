@@ -1,0 +1,37 @@
+- id: 1018
+  dataTypes:
+    - o365
+  name: License Assignment Anomalies
+  impact:
+    confidentiality: 3
+    integrity: 4
+    availability: 2
+  category: Privilege Escalation
+  technique: Valid Accounts
+  adversary: origin
+  references:
+    - https://learn.microsoft.com/en-us/azure/active-directory/reports-monitoring/concept-audit-logs
+    - https://attack.mitre.org/techniques/T1078/004/
+  description: Detects anomalous license assignment activities including bulk assignments, unusual timing, or assignments of high-privilege licenses that could indicate unauthorized privilege escalation
+  where: |
+    (safe(action, "") in ["Change user license", "Update user", "Set-MsolUserLicense", "Add-MsolRoleMember", "Set-AzureADUserLicense"] ||
+    (safe(log.Operation, "") contains "license" && safe(log.Operation, "") contains "assign") ||
+    (safe(log.ModifiedProperties, "") contains "AssignedLicense") ||
+    (safe(log.TargetResources, "") contains "license")) &&
+    safe(origin.user, "") != "" &&
+    safe(actionResult, "") == "Succeeded" &&
+    (safe(log.ModifiedProperties, "") contains "E5" || safe(log.ModifiedProperties, "") contains "E3" || safe(log.Parameters, "") contains "GlobalAdmin")
+  afterEvents:
+    - indexPattern: v11-log-*
+      with:
+        - field: origin.user.keyword
+          operator: filter_term
+          value: '{{origin.user}}'
+        - field: action.keyword
+          operator: filter_terms
+          value: ["Change user license", "Update user", "Set-MsolUserLicense"]
+      within: now-1h
+      count: 5
+  deduplicateBy:
+    - origin.user
+    - log.Target

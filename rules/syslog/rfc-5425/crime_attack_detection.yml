@@ -1,0 +1,47 @@
+- id: 1014
+  dataTypes:
+    - rfc-5425
+  name: CRIME Attack Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Compression Attack
+  technique: "T1040 - Network Sniffing: CRIME Attack (CVE-2012-4929)"
+  adversary: origin
+  references:
+    - https://www.freecodecamp.org/news/attacks-on-ssl-tls-and-how-to-protect-your-system/
+    - https://attack.mitre.org/techniques/T1040/
+    - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-4929
+  description: |
+    Detects potential CRIME (Compression Ratio Info-leak Made Easy) attack attempts exploiting TLS compression to extract sensitive information like session cookies. CRIME attacks leverage compression side-channel vulnerabilities to decrypt HTTPS traffic by analyzing compression ratios.
+
+    Next Steps:
+    1. Verify TLS compression is disabled on affected servers
+    2. Analyze network traffic patterns for repeated requests with varying cookie data
+    3. Check for compression ratio anomalies in SSL/TLS connections
+    4. Review server configurations to ensure SPDY and TLS compression are disabled
+    5. Monitor for additional compression-based attacks from the same source IP
+    6. Implement HTTP Strict Transport Security (HSTS) if not already configured
+  where: |
+    (safe(log.tls_compression, false) == true ||
+     safe(log.compression_enabled, false) == true ||
+     (safe(log.compression_method, "") != "" && safe(log.compression_method, "") != "null")) &&
+    (safe(log.request_size_variance, 0) > 100 ||
+     safe(log.compression_ratio_anomaly, false) == true ||
+     (safe(log.message, "") contains "compression" && safe(log.message, "") contains "ratio") ||
+     (safe(log.repeated_requests, 0) > 50 && safe(log.request_pattern, "") contains "cookie"))
+  afterEvents:
+    - indexPattern: v11-log-syslog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: target.host.keyword
+          operator: filter_term
+          value: '{{target.host}}'
+      within: now-30m
+      count: 20
+  deduplicateBy:
+    - origin.ip
+    - target.host

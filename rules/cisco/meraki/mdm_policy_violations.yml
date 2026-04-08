@@ -1,0 +1,34 @@
+- id: 1012
+  dataTypes:
+    - meraki
+  name: MDM Policy Violations
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Mobile Device Management
+  technique: "T1078.003 - Valid Accounts: Local Accounts"
+  adversary: origin
+  references:
+    - https://documentation.meraki.com/SM/Monitoring_and_Reporting/MDM_Commands_in_Systems_Manager
+    - https://attack.mitre.org/techniques/T1078/003/
+  description: |
+    Detects violations of MDM policies including jailbroken devices, unauthorized app installations, or attempts to bypass mobile device management controls. This rule identifies devices that are not compliant with organizational security policies and may pose security risks.
+    
+    Next Steps:
+    1. Immediately quarantine or restrict the affected device
+    2. Review the specific policy violation details and device compliance status
+    3. Check if the device shows signs of jailbreaking or rooting
+    4. Verify if unauthorized applications have been installed
+    5. Review user activity on the device for suspicious behavior
+    6. Update MDM policies if needed to prevent similar violations
+    7. Consider device reimaging if compromise is suspected
+  where: |
+    safe(log.eventType, "") == "mdm_policy_violation" ||
+    safe(log.eventType, "") == "mdm_jailbreak_detected" ||
+    safe(log.eventType, "") == "mdm_unauthorized_app" ||
+    (safe(log.message, "").matches(".*MDM.*policy.*violation.*")) ||
+    (safe(log.eventType, "") == "mdm_command" && safe(log.status, "") == "failed" && safe(log.reason, "").matches(".*(policy|compliance).*"))
+  deduplicateBy:
+    - lastEvent.log.deviceId
+    - lastEvent.log.policyName

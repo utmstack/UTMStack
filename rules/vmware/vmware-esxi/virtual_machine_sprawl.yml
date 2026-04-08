@@ -1,0 +1,48 @@
+- id: 1009
+  dataTypes:
+    - vmware-esxi
+  name: Virtual Machine Sprawl Detection
+  impact:
+    confidentiality: 2
+    integrity: 1
+    availability: 3
+  category: Resource Development
+  technique: "T1496 - Resource Hijacking"
+  adversary: origin
+  references:
+    - https://www.manageengine.com/network-monitoring/tech-topics/how-to-prevent-vm-sprawl.html
+    - https://www.vmware.com/docs/vsphere-esxi-vcenter-server-80-performance-best-practices
+    - https://attack.mitre.org/techniques/T1496/
+  description: |
+    Detects potential virtual machine sprawl by monitoring rapid VM creation, excessive resource allocation, and abnormal VM lifecycle patterns. Identifies VMs that may be consuming resources without legitimate purpose or management oversight.
+    
+    Next Steps:
+    1. Review VM creation logs and identify the user/service account responsible for VM creation
+    2. Verify if VM creation follows change management procedures
+    3. Check resource utilization patterns for newly created VMs
+    4. Investigate if VMs are being used for legitimate business purposes
+    5. Review VM naming conventions and tagging for proper classification
+    6. Assess overall infrastructure capacity and resource allocation policies
+    7. Consider implementing VM lifecycle management policies if not present
+  where: |
+    (safe(log.message, "") contains("VM created") ||
+     safe(log.message, "") contains("VM cloned") ||
+     safe(log.message, "") contains("VM deployed") ||
+     safe(log.message, "") contains("Resource allocation") ||
+     safe(log.message, "") contains("Memory overcommit") ||
+     safe(log.message, "") contains("CPU overcommit") ||
+     safe(log.message, "") contains("Storage allocation exceeded") ||
+     safe(log.message, "") contains("VM power on") ||
+     (safe(log.process, "") == "hostd" && safe(log.message, "") contains("CreateVM")) ||
+     (safe(log.process, "") == "vpxa" && safe(log.message, "") contains("CloneVM"))) &&
+    safe(origin.hostname, "") != ""
+  afterEvents:
+    - indexPattern: v11-log-vmware-esxi-*
+      with:
+        - field: origin.hostname.keyword
+          operator: filter_term
+          value: '{{origin.hostname}}'
+      within: now-2h
+      count: 20
+  deduplicateBy:
+    - origin.hostname

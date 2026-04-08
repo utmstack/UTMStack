@@ -1,0 +1,44 @@
+- id: 1009
+  dataTypes:
+    - cef
+  name: CEF Name Field Injection Attempts
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Log Injection
+  technique: "T1055 - Process Injection"
+  adversary: origin
+  references:
+    - https://www.microfocus.com/documentation/arcsight/arcsight-cef-23/
+    - https://attack.mitre.org/techniques/T1055/
+    - https://owasp.org/www-community/attacks/Log_Injection
+  description: |
+    Detects potential injection attempts in CEF name fields that could be used for log poisoning or SIEM evasion. This rule identifies various injection patterns including newlines, pipes, CEF headers, script tags, URL encoding, HTML entities, and excessively long field values that may indicate malicious activity.
+
+    Next Steps:
+    1. Review the source IP address and user account associated with the injection attempt
+    2. Examine the full CEF log entry to understand the context and payload
+    3. Check for additional logs from the same source showing similar injection patterns
+    4. Verify if the source system has proper input validation and sanitization
+    5. Consider implementing additional logging controls or WAF rules if applicable
+    6. Assess if the injection attempt was successful and review any downstream systems that processed the log
+  where: |
+    safe(log.name, "") != "" &&
+    (
+      safe(log.name, "").contains("\n") ||
+      safe(log.name, "").contains("\r") ||
+      safe(log.name, "").contains("|") ||
+      safe(log.name, "").matches(".*CEF:.*") ||
+      safe(log.name, "").contains("<script") ||
+      safe(log.name, "").contains("javascript:") ||
+      safe(log.name, "").contains("onerror=") ||
+      safe(log.name, "").contains("onclick=") ||
+      safe(log.name, "").matches(".*\\\\u[0-9a-fA-F]{4}.*") ||
+      safe(log.name, "").matches(".*%[0-9a-fA-F]{2}.*") ||
+      safe(log.name, "").contains("&#") ||
+      safe(log.name, "").contains("\\\\") ||
+      safe(log.name, "").length() > 512
+    )
+  deduplicateBy:
+    - origin.ip

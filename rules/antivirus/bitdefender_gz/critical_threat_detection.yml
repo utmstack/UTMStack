@@ -1,0 +1,32 @@
+- id: 1009
+  dataTypes:
+    - antivirus-bitdefender-gz
+  name: Bitdefender GravityZone High-Severity Threat Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 3
+  category: Malware Detection
+  technique: "T1204 - User Execution"
+  adversary: origin
+  references:
+    - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+    - https://attack.mitre.org/tactics/TA0002/
+  description: |
+    Detects high-severity threats identified by Bitdefender GravityZone including advanced malware, ransomware, and critical security incidents requiring immediate attention.
+    
+    Next Steps:
+    1. Immediately isolate the affected endpoint to prevent lateral movement
+    2. Review the threat details in Bitdefender GravityZone console for threat type and actions taken
+    3. Check the process that triggered the alert (log.processPid) and terminate if still running
+    4. Investigate the origin IP (origin.ip) for suspicious network connections
+    5. Review recent file modifications and network activity on the affected host
+    6. If ransomware is detected, initiate incident response procedures immediately
+    7. Collect forensic data from the endpoint before remediation
+    8. Update endpoint protection signatures and run a full system scan
+    9. Document the incident and update security controls based on findings
+    10. Check if other endpoints have similar infections using the signature ID
+  where: (safe(log.severity, "") == "10" || safe(log.severity, "") == "9" || safe(log.severity, "") == "8") && (safe(log.eventType, "") == "AntiMalware" || safe(log.eventType, "") == "HyperDetect Activity" || safe(log.eventType, "") == "Sandbox Analyzer Detection" || safe(log.eventType, "") == "Ransomware Detection" || safe(log.eventType, "") == "Exploit Mitigation")
+  deduplicateBy:
+    - lastEvent.log.hostId
+    - lastEvent.log.signatureID

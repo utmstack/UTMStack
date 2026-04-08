@@ -16,6 +16,8 @@ management:
     git:
       mode: full
   health:
+    elasticsearch:
+      enabled: false
     group:
       liveness:
         include: livenessState

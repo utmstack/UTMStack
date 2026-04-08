@@ -1,0 +1,51 @@
+- id: 1019
+  dataTypes:
+    - antivirus-sentinel-one
+  name: SentinelOne Cloud Workload Protection Alert
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Cloud Security
+  technique: "T1078.004 - Valid Accounts: Cloud Accounts"
+  adversary: origin
+  references:
+    - https://www.sentinelone.com/platform/singularity-cloud-workload-security/
+    - https://attack.mitre.org/techniques/T1078/004/
+  description: |
+    Detects cloud workload protection alerts including suspicious cloud API calls, unauthorized cloud resource access, cloud account compromise, or cloud-native threat detection.
+    
+    Next Steps:
+    1. Review the specific cloud workload alert details in the SentinelOne console
+    2. Identify the affected cloud resources (AWS, Azure, GCP) and account involved
+    3. Check for any unauthorized changes to cloud configurations or resources
+    4. Review cloud provider logs for the time period around the alert
+    5. Verify if the activity was authorized or part of legitimate operations
+    6. If suspicious, immediately revoke any compromised credentials or access keys
+    7. Enable additional cloud security monitoring and alerts if not already configured
+    8. Document findings and update incident response procedures as needed
+  where: |
+    safe(log.eventDescription, "") != "" && 
+    (
+      contains(lower(safe(log.eventDescription, "")), "cloud") ||
+      contains(lower(safe(log.eventDescription, "")), "aws") ||
+      contains(lower(safe(log.eventDescription, "")), "azure") ||
+      contains(lower(safe(log.eventDescription, "")), "gcp") ||
+      contains(lower(safe(log.eventDescription, "")), "lambda") ||
+      contains(lower(safe(log.eventDescription, "")), "s3") ||
+      contains(lower(safe(log.eventDescription, "")), "ec2") ||
+      contains(lower(safe(log.eventDescription, "")), "workload")
+    ) &&
+    (
+      contains(lower(safe(log.eventDescription, "")), "suspicious") ||
+      contains(lower(safe(log.eventDescription, "")), "unauthorized") ||
+      contains(lower(safe(log.eventDescription, "")), "anomaly") ||
+      contains(lower(safe(log.eventDescription, "")), "threat") ||
+      contains(lower(safe(log.eventDescription, "")), "compromise") ||
+      contains(lower(safe(log.eventDescription, "")), "breach") ||
+      contains(lower(safe(log.eventDescription, "")), "attack") ||
+      contains(lower(safe(log.eventDescription, "")), "malicious")
+    )
+  deduplicateBy:
+    - lastEvent.target.host
+    - lastEvent.log.accName

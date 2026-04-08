@@ -1,0 +1,28 @@
+- id: 1007
+  dataTypes:
+    - sophos-central
+  name: Application Control Block Event
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Application Control
+  technique: "T1204 - User Execution"
+  adversary: origin
+  references:
+    - https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/EndpointProtection/ApplicationControl/index.html
+    - https://attack.mitre.org/techniques/T1204/
+  description: |
+    Detects when Sophos Central blocks an application from running based on application control policies. This may indicate attempted execution of unauthorized or potentially malicious applications.
+    
+    Next Steps:
+    1. Review the blocked application details to determine if it's legitimate software
+    2. Check if the application is on the approved software list
+    3. Investigate the user who attempted to run the blocked application
+    4. Verify if similar blocking events occurred on other endpoints
+    5. Consider updating application control policies if legitimate software was blocked
+    6. If malicious, perform full endpoint scan and threat hunting
+  where: safe(log.type, "") == "Event::Endpoint::Application::Blocked" || (safe(log.type, "") == "Event::Endpoint::Application::AlertedOnly" && safe(log.action, "") == "blocked")
+  deduplicateBy:
+    - lastEvent.log.endpointId
+    - lastEvent.log.application

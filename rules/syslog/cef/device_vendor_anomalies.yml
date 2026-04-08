@@ -1,0 +1,56 @@
+- id: 1005
+  dataTypes:
+    - cef
+  name: CEF Device Vendor Anomalies
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Spoofing Detection
+  technique: Log Spoofing
+  adversary: origin
+  references:
+    - https://docs.paloaltonetworks.com/resources/cef
+    - https://attack.mitre.org/techniques/T1070/002/
+  description: |
+    Detects anomalies in CEF device vendor information including unknown vendors, sudden vendor changes, or mismatched vendor-product combinations that could indicate log spoofing or unauthorized log sources.
+    
+    **Next Steps:**
+    1. Verify the legitimacy of the device vendor and product information
+    2. Check if the source IP is authorized to send logs from this vendor
+    3. Investigate any recent network changes or new device deployments
+    4. Review CEF parser configurations and field mappings
+    5. Correlate with authentication logs from the source system
+    6. If confirmed as suspicious, block the source IP and investigate for compromise
+  where: |
+    (safe(log.cef_device_vendor, "") != "" &&
+     safe(log.previous_vendor, "") != "" &&
+     safe(log.cef_device_vendor, "") != safe(log.previous_vendor, "") &&
+     safe(origin.ip, "") == safe(log.previous_source_ip, "")) ||
+    (safe(log.cef_device_vendor, "") in ["test", "unknown", "demo", "example", "sample"] &&
+     safe(log.cef_severity, 0) >= 5) ||
+    (safe(log.cef_device_vendor, "") == "Cisco" && 
+     !contains(safe(log.cef_device_product, ""), "ASA") &&
+     !contains(safe(log.cef_device_product, ""), "IOS") &&
+     !contains(safe(log.cef_device_product, ""), "Firepower") &&
+     !contains(safe(log.cef_device_product, ""), "ISE") &&
+     !contains(safe(log.cef_device_product, ""), "AMP") &&
+     !contains(safe(log.cef_device_product, ""), "Umbrella")) ||
+    (safe(log.cef_device_vendor, "") == "Palo Alto Networks" && 
+     !contains(safe(log.cef_device_product, ""), "PAN-OS") &&
+     !contains(safe(log.cef_device_product, ""), "Traps") &&
+     !contains(safe(log.cef_device_product, ""), "Cortex") &&
+     !contains(safe(log.cef_device_product, ""), "Prisma")) ||
+    (safe(log.cef_device_vendor, "").startsWith("<") ||
+     safe(log.cef_device_vendor, "").startsWith(">") ||
+     contains(safe(log.cef_device_vendor, ""), "&") ||
+     contains(safe(log.cef_device_vendor, ""), "\"") ||
+     contains(safe(log.cef_device_vendor, ""), "'") ||
+     contains(safe(log.cef_device_vendor, ""), "\\") ||
+     contains(safe(log.cef_device_vendor, ""), "//")) ||
+    (size(safe(log.cef_device_vendor, "")) > 64 ||
+     size(safe(log.cef_device_product, "")) > 64)
+  deduplicateBy:
+    - origin.ip
+    - lastEvent.log.cef_device_vendor
+    - lastEvent.log.cef_device_product

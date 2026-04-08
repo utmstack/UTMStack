@@ -1,0 +1,45 @@
+- id: 1021
+  dataTypes:
+    - json-input
+  name: JSON Merge Conflict Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Data Integrity
+  technique: "T1565 - Data Manipulation"
+  adversary: origin
+  references:
+    - https://medium.com/@AlexanderObregon/handling-json-merge-conflicts-in-concurrent-updates-276d1bdc4a82
+    - https://attack.mitre.org/techniques/T1565/
+  description: |
+    Detects potential JSON merge conflicts that could indicate concurrent update attacks or data integrity issues. Multiple clients attempting to update the same JSON resource simultaneously can lead to data corruption or loss. This pattern may indicate coordinated attacks attempting to manipulate data or exploit race conditions in concurrent update mechanisms.
+
+    Next Steps:
+    1. Investigate the source IP addresses involved in the merge conflicts
+    2. Review the timing and frequency of conflicts to identify patterns
+    3. Check if the affected resource_id contains sensitive data
+    4. Verify application logs for signs of exploitation or data corruption
+    5. Review authentication logs for the involved users/sessions
+    6. Consider implementing stronger concurrency controls or optimistic locking
+  where: >
+    (safe(log.error, "") == "merge_conflict" || 
+     safe(log.status, 0) == 409 ||
+     safe(log.message, "") contains "version mismatch" ||
+     safe(log.error_type, "") == "concurrent_modification" ||
+     safe(log.conflict_type, "") == "merge" ||
+     (safe(log.response_code, 0) == 409 && safe(log.resource_type, "") == "json"))
+  afterEvents:
+    - indexPattern: v11-log-json-input-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{origin.ip}}'
+        - field: log.resource_id.keyword
+          operator: filter_term
+          value: '{{log.resource_id}}'
+      within: now-5m
+      count: 3
+  deduplicateBy:
+    - origin.ip
+    - log.resource_id

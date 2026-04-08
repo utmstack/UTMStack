@@ -1,0 +1,51 @@
+- id: 1004
+  dataTypes:
+    - firewall-fortiweb
+  name: FortiWeb DDoS Protection Activation
+  impact:
+    confidentiality: 1
+    integrity: 1
+    availability: 3
+  category: DoS/DDoS Protection
+  technique: Network Denial of Service
+  adversary: origin
+  references:
+    - https://docs.fortinet.com/document/fortiweb/7.0.0/administration-guide/981691/syntax-based-sql-xss-injection-detection
+    - https://attack.mitre.org/techniques/T1498/
+  description: |
+    Detects when FortiWeb DDoS protection mechanisms are triggered, indicating potential distributed denial of service attacks against protected web applications. This rule monitors for patterns in log messages that indicate DDoS protection activation, rate limiting, or attack mitigation actions.
+    
+    Next Steps:
+    1. Review the source IP addresses triggering the protection to identify attack patterns
+    2. Check if the blocked traffic represents legitimate users or actual attack traffic
+    3. Analyze the volume and frequency of requests from the identified sources
+    4. Consider implementing IP-based blocking at the network perimeter for confirmed attack sources
+    5. Review and adjust DDoS protection thresholds if false positives are occurring
+    6. Document the incident and update security controls as needed
+    7. Monitor for additional attack vectors or evasion techniques
+    8. Coordinate with network operations team for upstream blocking if attack persists
+  where: |
+    (
+      safe(log.message, "").contains("ddos") ||
+      safe(log.message, "").contains("DDoS") ||
+      safe(log.message, "").contains("dos attack") ||
+      safe(log.message, "").contains("DoS attack") ||
+      safe(log.message, "").contains("http flood") ||
+      safe(log.message, "").contains("HTTP flood") ||
+      safe(log.message, "").contains("slowloris") ||
+      safe(log.message, "").contains("Slowloris") ||
+      safe(log.message, "").contains("slow post") ||
+      safe(log.message, "").contains("slow read") ||
+      safe(log.message, "").contains("rate limit exceed") ||
+      safe(log.message, "").contains("connection limit") ||
+      safe(log.message, "").contains("request flood")
+    ) &&
+    (
+      safe(log.message, "").contains("deny") ||
+      safe(log.message, "").contains("block") ||
+      safe(log.message, "").contains("drop") ||
+      safe(log.message, "").contains("rate limit") ||
+      safe(log.message, "").contains("rate_limit")
+    )
+  deduplicateBy:
+    - origin.ip

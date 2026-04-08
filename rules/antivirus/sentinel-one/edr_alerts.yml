@@ -1,0 +1,38 @@
+- id: 1003
+  dataTypes:
+    - antivirus-sentinel-one
+  name: SentinelOne EDR Alert
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Endpoint Detection and Response
+  technique: "T1543 - Create or Modify System Process"
+  adversary: origin
+  references:
+    - https://www.sentinelone.com/platform/endpoint-detection-response/
+    - https://attack.mitre.org/techniques/T1543/
+  description: |
+    Detects endpoint detection and response alerts from SentinelOne, including process injection, credential dumping, lateral movement attempts, and persistence mechanisms.
+    
+    Next Steps:
+    1. Review the alert details to understand the specific threat detected
+    2. Check the affected endpoint's current status and isolation state
+    3. Investigate the process or file that triggered the alert
+    4. Review recent user activity on the affected endpoint
+    5. Check for similar alerts on other endpoints in the same network segment
+    6. If confirmed malicious, initiate incident response procedures
+    7. Consider updating endpoint policies based on the detected threat
+  where: |
+    (safe(log.eventDescription, "").contains("edr") || 
+     safe(log.eventDescription, "").contains("endpoint detection") || 
+     safe(log.eventDescription, "").contains("endpoint response") || 
+     safe(log.eventDescription, "").contains("endpoint alert") || 
+     safe(log.eventDescription, "").contains("threat detected") || 
+     safe(log.eventDescription, "").contains("malicious") || 
+     safe(log.eventDescription, "").contains("suspicious")) &&
+    safe(log.endpointDeviceName, "") != ""
+  deduplicateBy:
+    - lastEvent.log.endpointDeviceName
+    - lastEvent.log.eventDescription
+    - lastEvent.log.destinationUser

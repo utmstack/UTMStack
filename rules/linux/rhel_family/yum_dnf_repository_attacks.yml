@@ -1,0 +1,51 @@
+- id: 1001
+  dataTypes:
+    - rhel_family
+  name: YUM/DNF Repository Manipulation Attack
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Package Management
+  technique: "T1195.001 - Supply Chain Compromise: Compromise Software Dependencies and Development Tools"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1195/001/
+    - https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html-single/managing_software_with_the_dnf_tool/index
+  description: |
+    Detects potential attacks on YUM/DNF repositories including unauthorized repository additions, GPG key modifications, or suspicious package installations that could indicate supply chain compromise. This rule identifies attempts to manipulate package management systems to install malicious software or bypass security controls.
+
+    **Next Steps:**
+    1. **Immediate Response**: Isolate the affected system to prevent further compromise
+    2. **Investigate Repository Changes**: Review all recent repository configuration changes and verify legitimacy
+    3. **Package Verification**: Check all recently installed packages for authenticity and integrity
+    4. **GPG Key Analysis**: Verify all GPG keys and remove any unauthorized or suspicious keys
+    5. **System Integrity**: Perform full system integrity checks using tools like AIDE or Tripwire
+    6. **Network Analysis**: Monitor network traffic for suspicious download sources
+    7. **User Activity**: Review user activities and access logs for the timeframe of the incident
+    8. **Rollback Planning**: Prepare to rollback unauthorized changes and remove malicious packages
+    9. **Policy Review**: Strengthen package management policies and access controls
+    10. **Documentation**: Document all findings and remediation steps for incident response records
+  where: |
+    (
+      safe(log.comm, "") in ["yum", "dnf", "rpm"] &&
+      safe(log.exe, "") in ["/usr/bin/yum", "/usr/bin/dnf", "/usr/bin/rpm"] &&
+      (
+        (safe(log.path, "") contains ".repo" && safe(log.syscall, "") in ["2", "257"]) ||
+        (safe(log.path, "") contains "gpgkey" && safe(log.operation, "") == "write") ||
+        (safe(log.args, "") contains "install" && safe(log.args, "") contains "--nogpgcheck") ||
+        (safe(log.message, "") contains "Repository" && safe(log.message, "") contains "added") ||
+        (safe(log.message, "") contains "GPG key" && safe(log.message, "") contains "imported")
+      )
+    ) ||
+    (
+      safe(log.eventType, "") == "PACKAGE_INSTALLED" &&
+      (
+        safe(log.package_source, "") == "unknown" ||
+        safe(log.gpg_verification, "") == "failed" ||
+        safe(log.repository, "") not in ["rhel-8-baseos-rpms", "rhel-8-appstream-rpms", "rhel-9-baseos-rpms", "rhel-9-appstream-rpms"]
+      )
+    )
+  deduplicateBy:
+    - origin.host
+    - lastEvent.log.comm

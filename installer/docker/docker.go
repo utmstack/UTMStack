@@ -2,7 +2,6 @@ package docker
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/utmstack/UTMStack/installer/config"
 	"github.com/utmstack/UTMStack/installer/services"
@@ -82,27 +81,7 @@ func InitSwarm(mainIP string) error {
 }
 
 func PostInstallation() error {
-	time.Sleep(3 * time.Minute)
-
-	fmt.Print("  Securing ports 9200, 5432 and 10000")
-
-	if err := utils.RunCmd("docker", "service", "update", "--publish-rm", "9200", "utmstack_node1"); err != nil {
-		return err
-	}
-
-	if err := utils.RunCmd("docker", "service", "update", "--publish-rm", "5432", "utmstack_postgres"); err != nil {
-		return err
-	}
-
-	fmt.Println(" [OK]")
-
-	fmt.Print("  Restarting Stack")
-
-	time.Sleep(60 * time.Second)
-
-	if err := utils.RunCmd("systemctl", "restart", "docker"); err != nil {
-		return err
-	}
+	fmt.Print("  Waiting for backend")
 
 	if err := services.Backend(); err != nil {
 		return err

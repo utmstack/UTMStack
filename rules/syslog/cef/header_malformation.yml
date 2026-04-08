@@ -1,0 +1,43 @@
+- id: 1014
+  dataTypes:
+    - cef
+  name: CEF Header Malformation Detection
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Security Monitoring
+  technique: Protocol Anomaly
+  adversary: origin
+  references:
+    - https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.4/pdfdoc/cef-implementation-standard/cef-implementation-standard.pdf
+    - https://attack.mitre.org/techniques/T1499/
+  description: |
+    Detects malformed CEF (Common Event Format) headers that may indicate attacks attempting to bypass security monitoring, cause parsing failures, or hide malicious activity. This rule identifies various forms of CEF header malformation including incorrect format structure, invalid severity values, missing required fields, excessive field lengths, and malformed version indicators.
+    
+    Next Steps:
+    1. Examine the source system generating the malformed CEF logs
+    2. Verify if the malformation is due to misconfiguration or potential attack
+    3. Check for patterns in the malformed data that might indicate injection attempts
+    4. Review the device vendor and product information for authenticity
+    5. Correlate with other security events from the same source IP or system
+    6. If intentional, review and update log parsing configurations
+    7. Consider implementing additional input validation on the source system
+  where: |
+    (
+      (!safe(log.message, "").startsWith("CEF:") && safe(log.dataType, "") == "cef") ||
+      (safe(log.message, "").startsWith("CEF:") && 
+       !safe(log.message, "").matches("^CEF:[0-9]\\|[^|]+\\|[^|]+\\|[^|]+\\|[^|]+\\|[^|]+\\|[0-9]{1,2}\\|.*")) ||
+      (safe(log.severity, -1) > 10 || safe(log.severity, -1) < 0) ||
+      (safe(log.cef_version, "") != "" && safe(log.cef_version, "").toInt() > 1) ||
+      (safe(log.deviceVendor, "") == "" || safe(log.deviceProduct, "") == "" || 
+       safe(log.deviceVersion, "") == "" || safe(log.name, "") == "") ||
+      (safe(log.message, "").matches(".*CEF:[0-9]\\|{8,}.*")) ||
+      (safe(log.message, "").contains("CEF:") && 
+       safe(log.message.split("|"), []).size() < 7) ||
+      (safe(log.deviceEventClassId, "") == "" || safe(log.deviceEventClassId, "").size() > 1024) ||
+      safe(log.message, "").matches(".*CEF:[^0-9].*")
+    )
+  deduplicateBy:
+    - origin.ip
+    - log.deviceVendor

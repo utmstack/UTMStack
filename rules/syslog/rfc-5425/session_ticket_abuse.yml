@@ -1,0 +1,39 @@
+- id: 1018
+  dataTypes:
+  - rfc-5425
+  name: TLS Session Ticket Abuse Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Authentication Bypass
+  technique: "T1550 - Use Alternate Authentication Material"
+  adversary: origin
+  references:
+  - https://datatracker.ietf.org/doc/html/rfc5077
+  - https://attack.mitre.org/techniques/T1550/
+  description: |
+    Detects potential abuse of TLS session tickets including reuse across different zones, expired ticket usage, or rapid session resumption attempts that may indicate session hijacking or authentication bypass attempts.
+
+    Next Steps:
+    1. Verify the legitimacy of the TLS session ticket usage patterns
+    2. Check if the source IP is authorized to access the target zones
+    3. Analyze the frequency and timing of session resumptions from the same source
+    4. Investigate any associated authentication events or zone transfer activities
+    5. Review TLS configuration and session ticket lifetime policies
+    6. Consider implementing stricter session ticket validation and zone-based access controls
+  where: "(safe(log.tls_session_resumed, \"false\") == \"true\" && safe(log.tls_session_ticket_age, 0) > 86400) || (safe(log.tls_session_resumed, \"false\") == \"true\" && safe(log.tls_session_ticket_zone, \"\") != \"\" && safe(log.tls_current_zone, \"\") != \"\" && safe(log.tls_session_ticket_zone, \"\") != safe(log.tls_current_zone, \"\")) || (safe(log.tls_session_ticket_error, \"\") != \"\")"
+  afterEvents:
+  - indexPattern: v11-log-syslog-*
+    with:
+    - field: origin.ip.keyword
+      operator: filter_term
+      value: '{{origin.ip}}'
+    - field: log.tls_session_resumed.keyword
+      operator: filter_term
+      value: 'true'
+    within: now-1m
+    count: 10
+  deduplicateBy:
+  - origin.ip
+  - log.tls_session_id

@@ -5,6 +5,7 @@ import {LOG_INDEX_PATTERN, SOC_AI_INDEX_PATTERN} from '../../../../../shared/con
 import {ElasticOperatorsEnum} from '../../../../../shared/enums/elastic-operators.enum';
 import {ElasticDataService} from '../../../../../shared/services/elasticsearch/elastic-data.service';
 import {ElasticFilterType} from '../../../../../shared/types/filter/elastic-filter.type';
+import {UtmAlertType} from '../../../../../shared/types/alert/utm-alert.type';
 import {AlertSocAiService} from '../../services/alert-soc-ai.service';
 import {IndexSocAiStatus, SocAiType} from './soc-ai.type';
 
@@ -15,6 +16,7 @@ import {IndexSocAiStatus, SocAiType} from './soc-ai.type';
 })
 export class AlertSocAiComponent implements OnInit, OnDestroy {
   @Input() alertID: string;
+  @Input() alert: UtmAlertType;
   @Input() socAiActive: boolean;
   socAiResponse: SocAiType;
   indexSocAiStatus = IndexSocAiStatus;
@@ -75,9 +77,15 @@ export class AlertSocAiComponent implements OnInit, OnDestroy {
   }
 
   processAlert() {
+    if (!this.alert) {
+      this.utmToastService.showError('Error', 'Alert data is not available.');
+      return;
+    }
+
     this.loadingProcess = true;
-    this.alertSocAiService.processAlertBySoc([this.alertID])
+    this.alertSocAiService.analyzeAlert(this.alert)
       .subscribe((res) => {
+          this.utmToastService.showSuccessBottom('Alert submitted for SOC-AI analysis');
           setTimeout(() => {
             this.loadingProcess = false;
             this.getSocAiResponse();

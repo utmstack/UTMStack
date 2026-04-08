@@ -1,0 +1,46 @@
+- id: 1005
+  dataTypes:
+    - ibm-as400
+  name: IBM AS/400 User Profile Modification Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Account Management
+  technique: "T1098 - Account Manipulation"
+  adversary: internal
+  references:
+    - https://www.ibm.com/docs/en/i/7.3.0?topic=ios-cp-user-profile-change-security-audit-journal-entry
+    - https://attack.mitre.org/techniques/T1098/
+  description: |
+    Detects user profile modifications in IBM AS/400 systems including creation, changes, deletion, and restoration of user profiles. This rule monitors for various user profile management activities that could indicate unauthorized account manipulation or privilege escalation attempts.
+
+    Next Steps:
+    1. Verify the legitimacy of the user profile modification with the responsible administrator
+    2. Check if the modification was authorized and documented in change management systems
+    3. Review the user performing the modification for appropriate privileges
+    4. Examine the modified user profile for suspicious privilege escalations or unauthorized changes
+    5. Monitor for subsequent suspicious activities from the modified user account
+    6. Review system logs for any related security events or anomalies
+    7. If unauthorized, immediately disable the affected account and investigate further
+  where: |
+    safe(log.message, "") != "" && 
+    (
+      (contains(safe(log.message, ""), "CP") && contains(safe(log.message, ""), "user profile")) ||
+      contains(safe(log.message, ""), "CRTUSRPRF") ||
+      contains(safe(log.message, ""), "CHGUSRPRF") ||
+      contains(safe(log.message, ""), "DLTUSRPRF") ||
+      contains(safe(log.message, ""), "RSTUSRPRF") ||
+      contains(safe(log.message, ""), "profile created") ||
+      contains(safe(log.message, ""), "profile changed") ||
+      contains(safe(log.message, ""), "profile deleted") ||
+      contains(safe(log.message, ""), "profile restored") ||
+      contains(safe(log.message, ""), "user profile change") ||
+      contains(safe(log.message, ""), "password changed") ||
+      contains(safe(log.message, ""), "PWDCHG") ||
+      contains(safe(log.message, ""), "special authority assigned") ||
+      contains(safe(log.message, ""), "group profile")
+    )
+  deduplicateBy:
+    - lastEvent.user
+    - lastEvent.host
