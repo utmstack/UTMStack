@@ -1,0 +1,57 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - postgresql
+name: PostgreSQL Privilege Escalation Attempt Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1068 - Exploitation for Privilege Escalation"
+adversary: origin
+references:
+  - https://www.postgresql.org/docs/current/sql-grant.html
+  - https://attack.mitre.org/techniques/T1068/
+  - https://github.com/Aiven-Open/pghostile
+  - https://www.enterprisedb.com/blog/postgresql-extensions-impacted-cve-2022-2625-privilege-escalation
+description: |
+  Detects attempts to escalate privileges in PostgreSQL through role manipulation, grant statements, security definer functions, or configuration changes. This includes attempts to grant superuser privileges, create security definer functions, modify system settings, or use dangerous extensions that could lead to privilege escalation.
+  
+  Next Steps:
+  1. Identify the user/session that attempted privilege escalation using the session ID and connection details
+  2. Review the specific SQL command that triggered the alert to understand the attempted escalation method
+  3. Check PostgreSQL audit logs for previous suspicious activities from the same user or IP address
+  4. Verify if the privilege escalation attempt was successful by checking current user privileges
+  5. Review database schema changes and newly created functions or extensions
+  6. Consider temporarily revoking privileges for the suspicious user until investigation is complete
+  7. Implement additional monitoring on the affected database server
+where: |
+  (equals("log.messageType", "LOG") || equals("log.messageType", "ERROR")) && (
+    (contains("log.msg", "ALTER USER") && (contains("log.msg", "SUPERUSER") || contains("log.msg", "CREATEROLE") || contains("log.msg", "CREATEDB") || contains("log.msg", "REPLICATION") || contains("log.msg", "BYPASSRLS"))) ||
+    (contains("log.msg", "ALTER ROLE") && (contains("log.msg", "SUPERUSER") || contains("log.msg", "CREATEROLE") || contains("log.msg", "CREATEDB") || contains("log.msg", "REPLICATION") || contains("log.msg", "BYPASSRLS"))) ||
+    contains("log.msg", "GRANT ALL") ||
+    contains("log.msg", "GRANT SUPERUSER") ||
+    contains("log.msg", "pg_execute_server_program") ||
+    contains("log.msg", "pg_read_server_files") ||
+    contains("log.msg", "pg_write_server_files") ||
+    (contains("log.msg", "CREATE FUNCTION") && contains("log.msg", "SECURITY DEFINER")) ||
+    (contains("log.msg", "CREATE OR REPLACE FUNCTION") && contains("log.msg", "SECURITY DEFINER")) ||
+    contains("log.msg", "ALTER SYSTEM SET archive_command") ||
+    contains("log.msg", "ALTER SYSTEM SET session_preload_libraries") ||
+    contains("log.msg", "SET ROLE postgres") ||
+    contains("log.msg", "SET ROLE pg_") ||
+    contains("log.msg", "CREATE EXTENSION adminpack") ||
+    contains("log.msg", "CREATE EXTENSION file_fdw") ||
+    contains("log.msg", "CREATE EXTENSION dblink") ||
+    contains("log.msg", "lo_import") ||
+    contains("log.msg", "lo_export") ||
+    (contains("log.msg", "ALTER TABLE") && contains("log.msg", "OWNER TO")) ||
+    (contains("log.msg", "CREATE USER") && contains("log.msg", "IN ROLE pg_")) ||
+    (contains("log.msg", "CREATE ROLE") && contains("log.msg", "IN ROLE pg_")) ||
+    equals("log.errorCode", "42501") ||
+    equals("log.errorCode", "0LP01")
+  )
+groupBy:
+  - lastEvent.log.sessionId
+  - target.host

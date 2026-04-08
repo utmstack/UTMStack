@@ -1,0 +1,44 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - traefik
+name: Traefik SSRF via Service Discovery Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Server-Side Request Forgery
+technique: "T1090 - Proxy"
+adversary: origin
+references:
+  - https://owasp.org/www-community/attacks/Server_Side_Request_Forgery
+  - https://attack.mitre.org/techniques/T1090/
+description: |
+  Detects SSRF attempts through Traefik service discovery mechanisms. Attackers manipulate service registrations or routing rules to force Traefik to proxy requests to internal services or cloud metadata endpoints.
+
+  Next Steps:
+  1. Review the request for internal IP or metadata endpoint references
+  2. Check Traefik routing rules for unauthorized backend targets
+  3. Verify service discovery configurations for tampering
+  4. Implement IP allowlisting for backend services
+  5. Block access to metadata endpoints at the network level
+  6. Block the source IP if confirmed malicious
+where: |
+  exists("origin.ip") &&
+  (
+    (exists("origin.path") && (
+      contains("origin.path", "169.254.169.254") ||
+      contains("origin.path", "metadata.google.internal") ||
+      regexMatch("origin.path", "(?i)https?://(127\\.0\\.0\\.1|localhost|0\\.0\\.0\\.0)") ||
+      contains("origin.path", "file:///") ||
+      contains("origin.path", "gopher://")
+    )) ||
+    (exists("log.message") && (
+      regexMatch("log.message", "(?i)backend.*127\\.0\\.0\\.1") ||
+      regexMatch("log.message", "(?i)backend.*169\\.254\\.169\\.254") ||
+      (contains("log.message", "service") && contains("log.message", "localhost"))
+    ))
+  )
+groupBy:
+  - adversary.ip
+  - target.ip

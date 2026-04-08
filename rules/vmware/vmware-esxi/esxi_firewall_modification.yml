@@ -1,0 +1,40 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - vmware-esxi
+name: ESXi Firewall Rule Modification Detection
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562.004 - Impair Defenses: Disable or Modify System Firewall"
+adversary: origin
+references:
+  - https://kb.vmware.com/s/article/2008226
+  - https://attack.mitre.org/techniques/T1562/004/
+description: |
+  Detects modifications to ESXi firewall ruleset configurations using esxcli network firewall commands. Attackers modify firewall rules to enable outbound connections for C2 communication or to expose management interfaces.
+
+  Next Steps:
+  1. Review the specific firewall rule changes
+  2. Verify the changes were authorized maintenance operations
+  3. Check if new inbound or outbound rules were added
+  4. Restore default firewall rules if unauthorized
+  5. Investigate what traffic the rule changes would allow
+  6. Monitor network traffic for newly allowed connections
+where: |
+  exists("log.message") &&
+  (
+    contains("log.message", "esxcli network firewall") ||
+    (contains("log.message", "firewall") && contains("log.message", "ruleset")) ||
+    contains("log.message", "esxcli network firewall set --enabled false") ||
+    (contains("log.message", "firewall") && (
+      contains("log.message", "allowedip add") ||
+      contains("log.message", "set --allowed-all true") ||
+      contains("log.message", "set --enabled")
+    )) ||
+    (contains("log.message", "iptables") && exists("origin.hostname"))
+  )
+groupBy:
+  - adversary.hostname

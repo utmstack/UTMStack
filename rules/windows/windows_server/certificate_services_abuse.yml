@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: Certificate Services Abuse Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Credential Access
+technique: "T1558 - Steal or Forge Kerberos Tickets"
+adversary: origin
+references:
+  - https://www.splunk.com/en_us/blog/security/breaking-the-chain-defending-against-certificate-services-abuse.html
+  - https://attack.mitre.org/techniques/T1558/
+description: |
+  Detects suspicious certificate requests and issuance that could indicate Golden Certificate attacks or unauthorized certificate generation for persistence. This rule monitors Windows Certificate Services events for potentially malicious certificate operations, particularly those involving machine accounts or anonymous logons that could be leveraged for persistence and privilege escalation.
+  
+  Next Steps:
+  1. Investigate the certificate request details including the requesting user/machine
+  2. Verify if the certificate request was legitimate and authorized
+  3. Check for any recent changes to Certificate Authority policies or templates
+  4. Review Certificate Authority logs for other suspicious certificate issuance
+  5. Examine the requesting host for signs of compromise
+  6. Consider revoking any suspicious certificates issued
+  7. Validate Certificate Authority security configurations and access controls
+where: (equals("log.eventId", "4886") || equals("log.eventId", "4887")) && equals("log.providerName", "Microsoft-Windows-Security-Auditing") && (contains("log.eventDataSubjectUserName", "$") || equals("log.eventDataSubjectUserName", "ANONYMOUS LOGON"))
+groupBy:
+  - lastEvent.log.eventDataSubjectUserName
+  - origin.host

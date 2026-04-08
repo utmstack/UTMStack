@@ -1,0 +1,44 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Suspicious Process Execution from /tmp Directory
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1036 - Masquerading"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1036/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_susp_execution_tmp_folder.yml
+description: |
+  Detects process execution from the /tmp directory, which is a world-writable location commonly used by attackers to stage and execute malware. Legitimate applications rarely execute from /tmp. This pattern is seen in initial access payloads, cryptocurrency miners, reverse shells, and automated exploitation tools.
+
+  Next Steps:
+  1. Identify the specific binary or script executing from /tmp
+  2. Calculate the file hash and check against threat intelligence feeds
+  3. Determine how the file was placed in /tmp (downloaded, transferred, compiled)
+  4. Review the process's network connections and child processes
+  5. Check for persistence mechanisms that reference the /tmp file
+  6. Remove the malicious file and any associated persistence
+  7. Investigate the initial access vector that led to the file placement
+where: |
+  exists("log.message") &&
+  (regexMatch("log.message", "(?i)exec(ve)?.*(/tmp/|/var/tmp/|/dev/shm/)") ||
+   regexMatch("log.message", "(?i)/tmp/[a-zA-Z0-9._-]+\\s+(started|running|executed)") ||
+   regexMatch("log.message", "(?i)sh\\s+-c\\s+/tmp/") ||
+   regexMatch("log.message", "(?i)bash\\s+/tmp/") ||
+   regexMatch("log.message", "(?i)chmod\\s+\\+x\\s+/tmp/.*&&.*/tmp/"))
+afterEvents:
+  - indexPattern: v11-log-linux-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+    within: now-15m
+    count: 2
+groupBy:
+  - origin.host
+  - origin.user

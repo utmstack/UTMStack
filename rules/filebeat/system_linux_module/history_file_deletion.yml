@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Shell History File Deletion
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1070.003 - Indicator Removal: Clear Command History"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1070/003/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_susp_history_delete.yml
+description: |
+  Detects deletion, truncation, or clearing of shell history files (.bash_history, .zsh_history, .sh_history). Attackers delete history files to remove evidence of their commands after compromising a system. This is a common anti-forensic technique used during post-exploitation.
+
+  Next Steps:
+  1. Identify the user account that deleted the history file
+  2. Check for remaining shell history in other locations (syslog, auditd)
+  3. Review SIEM/remote log data for the commands that were likely being hidden
+  4. Investigate what activities preceded the history deletion
+  5. Look for other anti-forensic indicators (log clearing, timestamp manipulation)
+  6. Check for persistence mechanisms and ongoing compromise
+  7. Correlate with other alerts from the same host
+where: |
+  exists("log.message") &&
+  (regexMatch("log.message", "(?i)(rm|shred|unlink)\\s+.*\\.(bash_history|zsh_history|sh_history|history)") ||
+   regexMatch("log.message", "(?i)>\\s*~/?\\.?(bash_history|zsh_history|sh_history)") ||
+   regexMatch("log.message", "(?i)cat\\s+/dev/null\\s*>.*\\.(bash_history|zsh_history)") ||
+   regexMatch("log.message", "(?i)truncate\\s+.*\\.(bash_history|zsh_history)") ||
+   contains("log.message", "HISTFILE=/dev/null") ||
+   contains("log.message", "unset HISTFILE") ||
+   contains("log.message", "set +o history") ||
+   contains("log.message", "HISTSIZE=0"))
+groupBy:
+  - origin.host
+  - origin.user

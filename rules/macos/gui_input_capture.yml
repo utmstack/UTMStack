@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: GUI Input Capture via Fake Password Dialog
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Credential Access
+technique: "T1056.002 - Input Capture: GUI Input Capture"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1056/002/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_gui_input_capture.yml
+description: |
+  Detects osascript displaying fake password dialogs to capture user credentials. Attackers abuse AppleScript's "display dialog" with "hidden answer" to present phishing prompts that mimic legitimate macOS password requests, tricking users into entering their credentials.
+
+  Next Steps:
+  1. Identify the parent process that launched osascript with the dialog command
+  2. Review the full command line to determine what credentials were requested
+  3. Check if the user entered credentials and if they were exfiltrated
+  4. Examine the system for other persistence or staging mechanisms
+  5. Reset the affected user's password immediately as a precaution
+  6. Search for related osascript executions across the environment
+where: |
+  (equals("log.process", "osascript") || contains("log.eventMessage", "osascript")) &&
+  contains("log.eventMessage", "display dialog") &&
+  (contains("log.eventMessage", "hidden answer") || contains("log.eventMessage", "password"))
+groupBy:
+  - adversary.host
+  - adversary.user

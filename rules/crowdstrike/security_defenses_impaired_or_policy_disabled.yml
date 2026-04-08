@@ -1,0 +1,19 @@
+name: "Security Defenses Impaired or Policy Disabled"
+description: "An action was taken on the endpoint that resulted in a critical sensor process or security policy being disabled locally. This strongly indicates defense evasion tampering."
+category: "Defense Evasion"
+technique: "Impair Defenses: Disable or Modify Tools"
+references:
+  - "https://attack.mitre.org/techniques/T1562/001/"
+dataTypes:
+  - crowdstrike
+adversary: origin
+impact:
+  confidentiality: 0
+  integrity: 3
+  availability: 3
+where: >
+    equals("log.eventPatternDispositionFlagsPolicyDisabled", true) || 
+    oneOf("log.eventPatternDispositionValue", [8192, 8208, 8320, 8704, 9216, 10240, 12304, 73728, 73744])
+groupBy: 
+  - origin.host
+  - lastEvent.log.eventPatternDispositionDescription

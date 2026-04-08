@@ -1,0 +1,25 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "sophos-central"
+name: "Possible Botnet detected in Sophos Central"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: "Impact"
+technique: "T1071 - Application Layer Protocol"
+adversary: origin
+references:
+  - "https://attack.mitre.org/tactics/TA0040/"
+  - "https://attack.mitre.org/techniques/T1565/"
+description: "A bot, or a web robot is an automated malware program that scans blocks of network addresses and infects vulnerable computers. 
+                This allow hackers to take control of many computers at the same time and turn them into bots (also known as a zombie). 
+                Hackers typically use bots to infect large numbers of computers, which form a network or a botnet. 
+                Once the botnet is in your computer, it can be used in distributed denial of service (DDoS) attacks,
+                proxy and also can be used to perform automated tasks over the Internet, without you knowing it 
+                (for example sending spam, viruses or stealing personal and private information such as bank credentials or credit card numbers)."
+where: equals("log.type", "Event::Firewall::FirewallAdvancedThreatProtection")
+groupBy:
+  - adversary.host
+  - adversary.ip

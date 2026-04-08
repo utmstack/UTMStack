@@ -1,0 +1,24 @@
+# Rule version v1.0.4
+
+dataTypes:
+  - azure
+name: "Possible Consent Grant Attack via Azure-Registered Application"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: "Initial Access"
+technique: "T1078 - Valid Accounts"
+adversary: target
+description: "Detects when a user grants permissions to an Azure-registered application or when an administrator grants tenant-wide permissions to an application. An adversary may create an Azure-registered application that requests access to data such as contact information, email, or documents. Consent grant attacks are commonly used in phishing campaigns where malicious OAuth applications trick users into granting excessive permissions, enabling data exfiltration or unauthorized access to organizational resources."
+references:
+  - "https://attack.mitre.org/techniques/T1566/"
+  - "https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/manage-consent-requests"
+  - "https://learn.microsoft.com/en-us/defender-cloud-apps/investigate-risky-oauth"
+where: |
+  (equalsIgnoreCase("log.category", "AuditLogs") || contains("log.category", "Audit")) &&
+  equalsIgnoreCase("log.operationName", "Consent to application") &&
+  equals("log.resultType", "0")
+groupBy:
+  - target.ip
+  - target.user

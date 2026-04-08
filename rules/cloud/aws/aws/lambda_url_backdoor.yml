@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS Lambda Function URL Backdoor Creation
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Persistence
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/lambda/latest/dg/lambda-urls.html
+  - https://attack.mitre.org/techniques/T1059/
+description: |
+  Detects creation of Lambda function URLs which provide direct HTTPS endpoints to Lambda functions. Attackers may create function URL configurations as backdoor endpoints for persistent access, command execution, or data exfiltration without requiring API Gateway.
+
+  Next Steps:
+  1. Review the Lambda function code for malicious payloads or backdoor functionality
+  2. Check the function URL authentication type (AWS_IAM vs NONE)
+  3. Verify the IAM principal creating the function URL has authorization
+  4. Review the Lambda function's execution role for excessive permissions
+  5. Check if CORS settings allow cross-origin requests from unauthorized domains
+  6. If unauthorized, delete the function URL configuration and the Lambda function
+  7. Review CloudTrail logs for the function's invocation history
+  8. Implement SCPs to restrict Lambda function URL creation to authorized roles
+where: |
+  equals("log.eventSource", "lambda.amazonaws.com") &&
+  oneOf("log.eventName", ["CreateFunctionUrlConfig", "UpdateFunctionUrlConfig"]) &&
+  equals("log.errorCode", "") &&
+  contains("log.requestParameters", "\"authType\":\"NONE\"")
+groupBy:
+  - adversary.user
+  - lastEvent.log.requestParameters.functionName

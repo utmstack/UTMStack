@@ -1,0 +1,44 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - logstash
+name: Ruby Filter Code Execution Attack
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Execution
+technique: "T1059.004 - Command and Scripting Interpreter: Unix Shell"
+adversary: origin
+references:
+  - https://www.elastic.co/guide/en/logstash/current/plugins-filters-ruby.html
+  - https://attack.mitre.org/techniques/T1059/004/
+description: |
+  Detects malicious Ruby code execution attempts through the Ruby filter plugin that could lead to system compromise, data theft, or unauthorized access. This rule monitors for dangerous Ruby methods and patterns that could indicate an attacker is attempting to execute system commands, access files, or establish network connections through the Ruby filter.
+  
+  Next Steps:
+  1. Immediately isolate the affected Logstash instance to prevent further compromise
+  2. Review the Ruby filter configuration in your Logstash pipelines for any unauthorized modifications
+  3. Check system logs for any successful command executions or file access attempts
+  4. Examine network connections from the Logstash process for suspicious outbound connections
+  5. Review recent configuration changes and audit who has access to modify Logstash configurations
+  6. Consider disabling the Ruby filter plugin if not strictly necessary for your use case
+  7. Implement strict input validation and sandboxing for any Ruby code execution
+where: |
+  (equals("log.component", "logstash.filters.ruby") || 
+   equals("log.component", "logstash.filters") ||
+   equals("log.component", "logstash.pipeline")) && 
+  exists("log.message") && 
+  (
+    (contains("log.message", "ruby") && (contains("log.message", "exec") || contains("log.message", "system") || contains("log.message", "eval") || contains("log.message", "`"))) ||
+    (contains("log.message", "ruby") && (contains("log.message", "File.") || contains("log.message", "IO.") || contains("log.message", "Open3") || contains("log.message", "Kernel."))) ||
+    (contains("log.message", "ruby") && (contains("log.message", "require") || contains("log.message", "load")) && (contains("log.message", "/tmp/") || contains("log.message", "http://") || contains("log.message", "https://"))) ||
+    (contains("log.message", "ruby") && contains("log.message", "exception") && (contains("log.message", "SecurityError") || contains("log.message", "LoadError"))) ||
+    (contains("log.message", "ruby") && (contains("log.message", "socket") || contains("log.message", "net/http") || contains("log.message", "open-uri"))) ||
+    (contains("log.message", "ruby") && contains("log.message", "code") && (contains("log.message", "ENV[") || contains("log.message", "@@") || contains("log.message", "$"))) ||
+    (contains("log.message", "script_error") && contains("log.message", "ruby")) ||
+    (contains("log.message", "ruby") && contains("log.message", "thread") && contains("log.message", "unsafe"))
+  )
+groupBy:
+  - lastEvent.log.component
+  - adversary.host

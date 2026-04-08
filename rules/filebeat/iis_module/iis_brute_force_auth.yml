@@ -1,0 +1,42 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - iis
+name: IIS Windows Authentication Brute Force Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Brute Force
+technique: "T1110 - Brute Force"
+adversary: origin
+references:
+  - https://owasp.org/www-community/attacks/Brute_force_attack
+  - https://attack.mitre.org/techniques/T1110/
+description: |
+  Detects brute force attacks against IIS Windows Authentication (NTLM/Kerberos) by monitoring for repeated 401 authentication failures from the same source IP. This indicates credential stuffing or password spraying attacks targeting Windows-authenticated web applications.
+
+  Next Steps:
+  1. Review the source IP reputation and geolocation
+  2. Check if any successful authentication occurred after the failures
+  3. Identify the targeted user accounts
+  4. Implement account lockout policies and rate limiting
+  5. Consider deploying multi-factor authentication
+  6. Block the source IP if attack is confirmed
+where: |
+  exists("origin.ip") &&
+  equals("log.statusCode", 401)
+afterEvents:
+  - indexPattern: v11-log-iis-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.statusCode
+        operator: filter_term
+        value: '401'
+    within: now-5m
+    count: 15
+deduplicateBy:
+  - adversary.ip
+  - target.ip

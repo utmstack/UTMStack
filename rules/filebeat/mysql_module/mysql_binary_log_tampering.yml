@@ -1,0 +1,46 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - mysql
+name: MySQL Binary Log Tampering Detection
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1070 - Indicator Removal"
+adversary: origin
+references:
+  - https://dev.mysql.com/doc/refman/8.0/en/purge-binary-logs.html
+  - https://attack.mitre.org/techniques/T1070/
+description: |
+  Detects attempts to tamper with MySQL binary logs through PURGE BINARY LOGS or RESET MASTER commands. Attackers delete binary logs to cover tracks after data manipulation or exfiltration, or to disrupt replication.
+
+  Next Steps:
+  1. Identify the user account that executed the binary log manipulation
+  2. Review recent database changes that may have been covered up
+  3. Check if replication was impacted by the log deletion
+  4. Verify if the action was part of authorized maintenance
+  5. Review backup integrity and availability
+  6. Restrict SUPER privilege to authorized administrator accounts only
+where: |
+  exists("log.msg") &&
+  (
+    regexMatch("log.msg", "(?i)PURGE\\s+(BINARY|MASTER)\\s+LOGS") ||
+    regexMatch("log.msg", "(?i)RESET\\s+MASTER") ||
+    regexMatch("log.msg", "(?i)FLUSH\\s+BINARY\\s+LOGS") ||
+    regexMatch("log.msg", "(?i)SET\\s+GLOBAL\\s+binlog_format") ||
+    regexMatch("log.msg", "(?i)SET\\s+GLOBAL\\s+expire_logs_days\\s*=\\s*0") ||
+    regexMatch("log.msg", "(?i)SET\\s+GLOBAL\\s+sql_log_bin\\s*=\\s*(0|OFF)")
+  )
+afterEvents:
+  - indexPattern: v11-log-mysql-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+    within: now-10m
+    count: 2
+groupBy:
+  - adversary.host
+  - adversary.user

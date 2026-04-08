@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: M365 Suspicious OAuth Application File Downloads
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Collection
+technique: "T1530 - Data from Cloud Storage Object"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/defender-cloud-apps/investigate-anomaly-alerts
+  - https://attack.mitre.org/techniques/T1530/
+description: |
+  Detects Microsoft Defender for Cloud Apps alerts for suspicious OAuth application file download activities. Malicious OAuth apps granted consent by phished users can mass-download files from SharePoint and OneDrive.
+
+  Next Steps:
+  1. Identify the OAuth application and its registered publisher
+  2. Review the application's consented permissions (especially Files.Read.All)
+  3. Check which user consented to the application
+  4. Review the volume and types of files downloaded
+  5. If unauthorized, revoke the application consent and block the application
+  6. Check for other users who consented to the same application
+  7. Review the downloaded file contents for sensitivity
+where: |
+  (equals("log.Workload", "MicrosoftDefenderForCloudApps") && contains("log.Parameters", "Suspicious OAuth app file download")) ||
+  (contains("action", "AppFileDownloaded") && contains("log.Parameters", "OAuth"))
+groupBy:
+  - lastEvent.log.Parameters
+  - adversary.user

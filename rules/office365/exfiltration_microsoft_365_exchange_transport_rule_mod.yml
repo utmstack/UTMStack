@@ -1,0 +1,23 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: "Microsoft 365 Exchange Transport Rule Modification"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: "Exfiltration"
+technique: "T1537 - Transfer Data to Cloud Account"
+adversary: origin
+description: "Exfiltration consists of techniques that adversaries may use to steal data from your network. Once they’ve collected data, adversaries often package it to avoid detection while removing it. This can include compression and encryption. Techniques for getting data out of a target network typically include transferring it over their command and control channel or an alternate channel and may also include putting size limits on the transmission.<br>
+              Identifies when a transport rule has been disabled or deleted in Microsoft 365. Mail flow rules (also known as transport rules) are used to identify and take action on messages that flow through your organization. An adversary or insider threat may modify a transport rule to exfiltrate data or evade defenses."
+references:
+  - "https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/mail-flow-rules"
+  - "https://attack.mitre.org/techniques/T1537/"
+  - "https://attack.mitre.org/tactics/TA0010/"
+where: |
+  equals("log.Workload", "Exchange") && oneOf("action", ["Remove-TransportRule","Disable-TransportRule"]) && oneOf("actionResult", ["Success","PartiallySucceeded","True"])
+groupBy:
+  - adversary.ip
+  - adversary.user

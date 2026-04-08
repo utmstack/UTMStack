@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: MFA Disabled for Privileged Azure AD User
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1556 - Modify Authentication Process"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-reporting
+  - https://attack.mitre.org/techniques/T1556/
+description: |
+  Detects when Multi-Factor Authentication (MFA) is disabled for privileged users in Azure AD. This could indicate an attempt to weaken security controls for unauthorized access.
+  
+  Next Steps:
+  1. Verify if the MFA disable action was authorized and legitimate
+  2. Check who initiated the change and from which IP address
+  3. Review the user's recent login activity and permissions
+  4. Ensure the user account has not been compromised
+  5. Re-enable MFA if the change was unauthorized
+  6. Consider implementing conditional access policies to prevent unauthorized MFA changes
+where: |
+  (equals("log.operationName", "Disable Strong Authentication") ||
+   (equals("log.operationName", "Update user") && contains("log.properties", "StrongAuthenticationMethod"))) &&
+  equals("log.categoryValue", "Administrative")
+groupBy:
+  - lastEvent.log.correlationId
+  - lastEvent.log.targetUserPrincipalName

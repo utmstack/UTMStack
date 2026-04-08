@@ -1,0 +1,32 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "wineventlog"
+name: "Windows: Suspicious Managed Code Hosting Process"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: "Defense Evasion"
+technique: "T1055 - Process Injection"
+adversary: origin
+description: "Identifies a suspicious managed code hosting process which could indicate code injection or other form of suspicious
+              code execution."
+references:
+  - "https://attack.mitre.org/tactics/TA0005/"
+  - "https://attack.mitre.org/techniques/T1055/"
+where: regexMatch("log.eventDataProcessName", "(wscript.exe|cscript.exe|mshta.exe|wmic.exe|regsvr32.exe|svchost.exe|dllhost.exe|cmstp.exe)")
+afterEvents:
+  - indexPattern: v11-log-wineventlog-*
+    with:
+      - field: log.eventDataProcessName.keyword
+        operator: filter_term
+        value: '{{.log.eventDataProcessName}}'
+      - field: log.eventDataProcessID
+        operator: filter_term
+        value: '{{.log.eventDataProcessID}}'
+    within: now-5m
+    count: 3
+groupBy:
+  - origin.ip
+  - target.user

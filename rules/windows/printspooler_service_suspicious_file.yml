@@ -1,0 +1,22 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "wineventlog"
+name: "Windows: Suspicious PrintSpooler Service Executable File Creation"
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: "Privilege Escalation"
+technique: "T1068 - Exploitation for Privilege Escalation"
+adversary: origin
+description: "Detects attempts to exploit privilege escalation vulnerabilities related to the Print Spooler service. For more
+              information refer to the following CVE's - CVE-2020-1048, CVE-2020-1337 and CVE-2020-1300 and verify that the impacted
+              system is patched"
+references:
+  - "https://attack.mitre.org/tactics/TA0004/"
+  - "https://attack.mitre.org/techniques/T1068/"
+where: contains("log.eventDataProcessName", "spoolsv.exe") && !regexMatch("log.eventDataProcessPath", "^C:\\\\Windows\\\\System32\\\\spoolsv.exe$")
+groupBy:
+  - origin.ip
+  - target.user

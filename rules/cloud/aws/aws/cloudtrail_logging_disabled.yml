@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS CloudTrail Logging Disabled
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562.008 - Impair Defenses: Disable Cloud Logs"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-concepts.html
+  - https://attack.mitre.org/techniques/T1562/008/
+description: |
+  Detects attempts to disable CloudTrail logging which could be used to hide malicious activities and evade detection. CloudTrail provides audit logs of all AWS API calls and is critical for security monitoring and compliance.
+  
+  Next Steps:
+  1. Immediately verify if the CloudTrail modification was authorized
+  2. Check the user identity ({{log.userIdentityArn}}) and source IP ({{log.sourceIPAddress}}) for legitimacy
+  3. Review CloudTrail configuration to ensure logging is re-enabled for all regions
+  4. Check for any suspicious API calls made around the time of this event
+  5. If unauthorized, investigate what activities may have occurred while logging was disabled
+  6. Consider implementing SCPs or IAM policies to prevent CloudTrail modifications
+  7. Verify if the trail was configured for multi-region logging
+  8. Check if compliance requirements have been violated
+  9. Review AWS Config rules for CloudTrail compliance
+  10. Enable CloudTrail Insights for anomaly detection
+where: |
+  equals("log.eventSource", "cloudtrail.amazonaws.com") &&
+  oneOf("log.eventName", ["StopLogging", "DeleteTrail"]) &&
+  equals("log.errorCode", "")
+groupBy:
+  - adversary.user
+  - lastEvent.log.requestParameters.name

@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Azure Kubernetes Events Deleted
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/azure/aks/monitor-aks
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects deletion of Kubernetes events in Azure Kubernetes Service (AKS). Attackers delete events to cover traces of their activities within the cluster.
+
+  Next Steps:
+  1. Identify the user or service account that deleted the events
+  2. Check for other suspicious Kubernetes operations from the same identity
+  3. Review AKS audit logs for activities that occurred before the event deletion
+  4. Verify if this was part of a legitimate cluster maintenance operation
+  5. If unauthorized, investigate the cluster for signs of compromise
+  6. Review RBAC policies to restrict event deletion permissions
+where: |
+  contains("log.operationName", "MICROSOFT.CONTAINERSERVICE") &&
+  (contains("log.properties", "events") && contains("log.properties", "delete"))
+groupBy:
+  - lastEvent.log.resourceId
+  - adversary.user

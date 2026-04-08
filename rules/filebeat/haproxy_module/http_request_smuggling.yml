@@ -1,0 +1,54 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - haproxy
+name: HTTP Request Smuggling Attempt
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: HTTP Request Smuggling
+adversary: origin
+references:
+  - https://www.haproxy.com/blog/haproxy-log-customization
+  - https://attack.mitre.org/techniques/T1027/
+  - https://portswigger.net/web-security/request-smuggling
+description: |
+  Detects potential HTTP request smuggling attempts through conflicting Content-Length and Transfer-Encoding headers, malformed requests, or protocol violations. Request smuggling can allow attackers to bypass security controls and access unauthorized resources.
+  
+  Next Steps:
+  1. Analyze the full HTTP request headers and body for smuggling patterns
+  2. Check for conflicting Content-Length and Transfer-Encoding headers
+  3. Review backend server responses and connection handling
+  4. Examine firewall and proxy logs for correlation
+  5. Verify if legitimate traffic could trigger this pattern
+  6. Consider blocking the source IP if malicious activity is confirmed
+where: |
+  (exists("log.http_request") && 
+   (regexMatch("log.http_request", "(?i)transfer\-encoding") && 
+    regexMatch("log.http_request", "(?i)content\-length"))) ||
+  (exists("log.termination_state") && 
+   (contains("log.termination_state", "PR") || 
+    contains("log.termination_state", "PH") || 
+    contains("log.termination_state", "PT"))) ||
+  (exists("log.http_request") && 
+   (contains("log.http_request", "\\r\\n\\r\\n") || 
+    contains("log.http_request", "\\n\\n"))) ||
+  (exists("log.captured_request_headers") && 
+   (regexMatch("log.captured_request_headers", "(?i)chunked") && 
+    regexMatch("log.captured_request_headers", "(?i)identity"))) ||
+  (equals("log.http_status", 400) && 
+   exists("log.termination_state") && 
+   contains("log.termination_state", "R"))
+afterEvents:
+  - indexPattern: v11-log-haproxy-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-10m
+    count: 5
+groupBy:
+  - adversary.ip
+  - target.url

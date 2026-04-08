@@ -1,0 +1,94 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - suricata
+name: Cryptocurrency Mining Pool DNS Lookup Detected
+impact:
+  confidentiality: 1
+  integrity: 1
+  availability: 3
+category: Resource Hijacking
+technique: "T1496 - Resource Hijacking"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1496/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/network/zeek/zeek_dns_mining_pools.yml
+description: |
+  Detects DNS queries to known cryptocurrency mining pool domains. Unauthorized mining software on corporate systems indicates compromise, as attackers deploy cryptominers for profit using stolen compute resources. This degrades system performance and increases energy costs.
+
+  Next Steps:
+  1. Identify and terminate the mining process on the affected host
+  2. Determine how the miner was deployed (malware, unauthorized software, web-based)
+  3. Block mining pool domains at the DNS resolver
+  4. Check for additional compromise indicators - miners often accompany other malware
+  5. Scan for mining software across the environment
+  6. Block common mining ports (3333, 4444, 5555, 8333, 9999) at the firewall
+  7. Review system resource utilization for anomalous CPU/GPU usage
+where: |
+  equals("log.eventType", "dns") &&
+  exists("log.dns.query") &&
+  exists("origin.ip") &&
+  (
+    contains("log.dns.query", "monerohash.com") ||
+    contains("log.dns.query", "moneropool.com") ||
+    contains("log.dns.query", "moneropools.com") ||
+    contains("log.dns.query", "xmrpool.eu") ||
+    contains("log.dns.query", "xmrpool.net") ||
+    contains("log.dns.query", "xmr.nanopool.org") ||
+    contains("log.dns.query", "pool.minergate.com") ||
+    contains("log.dns.query", "minexmr.com") ||
+    contains("log.dns.query", "hashvault.pro") ||
+    contains("log.dns.query", "supportxmr.com") ||
+    contains("log.dns.query", "xmr-usa.dwarfpool.com") ||
+    contains("log.dns.query", "xmr-eu.dwarfpool.com") ||
+    contains("log.dns.query", "pool.hashvault.pro") ||
+    contains("log.dns.query", "xmr.pool.minergate.com") ||
+    contains("log.dns.query", "mine.moneropool.com") ||
+    contains("log.dns.query", "xmr.2miners.com") ||
+    contains("log.dns.query", "pool.xmr.pt") ||
+    contains("log.dns.query", "pool.minexmr.com") ||
+    contains("log.dns.query", "monero.herominers.com") ||
+    contains("log.dns.query", "xmr.f2pool.com") ||
+    contains("log.dns.query", "pool.supportxmr.com") ||
+    contains("log.dns.query", "monerohash.net") ||
+    contains("log.dns.query", "us-east.stratum-mining.com") ||
+    contains("log.dns.query", "gulf.moneroocean.stream") ||
+    contains("log.dns.query", "moneroocean.stream") ||
+    contains("log.dns.query", "eu.stratum.slushpool.com") ||
+    contains("log.dns.query", "stratum.slushpool.com") ||
+    contains("log.dns.query", "pool.hashrate.to") ||
+    contains("log.dns.query", "us-east1.miningpoolhub.com") ||
+    contains("log.dns.query", "asia.miningpoolhub.com") ||
+    contains("log.dns.query", "europe.miningpoolhub.com") ||
+    contains("log.dns.query", "pool.coinfoundry.org") ||
+    contains("log.dns.query", "unmineable.com") ||
+    contains("log.dns.query", "ethermine.org") ||
+    contains("log.dns.query", "flypool.org") ||
+    contains("log.dns.query", "eth.nanopool.org") ||
+    contains("log.dns.query", "prohashing.com") ||
+    contains("log.dns.query", "nicehash.com") ||
+    contains("log.dns.query", "luxor.tech") ||
+    contains("log.dns.query", "cruxpool.com") ||
+    contains("log.dns.query", "crazypool.org") ||
+    contains("log.dns.query", "hiveon.net") ||
+    contains("log.dns.query", "poolin.com") ||
+    (regexMatch("log.dns.query", "(?i)(stratum|mining|pool).*\\.(com|net|org|eu|io)$") && contains("log.dns.query", "xmr")) ||
+    (regexMatch("log.dns.query", "(?i)(stratum|mining|pool).*\\.(com|net|org|eu|io)$") && contains("log.dns.query", "monero")) ||
+    regexMatch("log.dns.query", "(?i)coinhive\\.com$") ||
+    contains("log.dns.query", "cryptonight.") ||
+    contains("log.dns.query", "coin-hive.com") ||
+    contains("log.dns.query", "jsecoin.com") ||
+    contains("log.dns.query", "authedmine.com") ||
+    contains("log.dns.query", "coinimp.com") ||
+    contains("log.dns.query", "crypto-loot.com") ||
+    contains("log.dns.query", "minecrunch.co") ||
+    contains("log.dns.query", "webmine.cz") ||
+    contains("log.dns.query", "ppxxmr.com") ||
+    contains("log.dns.query", "coinlab.biz") ||
+    contains("log.dns.query", "minero.cc") ||
+    contains("log.dns.query", "deepminer.js") ||
+    contains("log.dns.query", "cryptoloot.pro")
+  )
+groupBy:
+  - lastEvent.log.dns.query
+  - adversary.ip

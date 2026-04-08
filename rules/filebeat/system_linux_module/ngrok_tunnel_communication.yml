@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Ngrok Tunnel Communication Detected
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: Command and Control
+technique: "T1572 - Protocol Tunneling"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1572/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/network_connection/net_connection_lnx_ngrok_tunnel.yml
+description: |
+  Detects connections to ngrok tunnel infrastructure (tunnel.*.ngrok.com, *.ngrok.io, *.ngrok-free.app). Ngrok is a legitimate tunneling service that is frequently abused by attackers to establish reverse tunnels from compromised systems, bypassing firewalls and NAT. Its use on production servers is almost always unauthorized and indicates either C2 communication, data exfiltration, or unauthorized remote access.
+
+  Next Steps:
+  1. Identify the process establishing the ngrok tunnel
+  2. Determine what service or port is being exposed through the tunnel
+  3. Check if ngrok is authorized for use in the environment
+  4. Terminate the ngrok process and remove the binary
+  5. Block ngrok domains at the DNS/proxy level
+  6. Investigate what the attacker was accessing through the tunnel
+  7. Check for the ngrok configuration file for tunnel details
+  8. Hunt for ngrok usage on other systems
+where: |
+  exists("log.message") &&
+  (regexMatch("log.message", "(?i)tunnel\\..*\\.ngrok\\.com") ||
+   contains("log.message", ".ngrok.io") ||
+   contains("log.message", ".ngrok-free.app") ||
+   contains("log.message", "ngrok.com/api") ||
+   regexMatch("log.message", "(?i)ngrok\\s+(http|tcp|tls|start)"))
+groupBy:
+  - origin.host
+  - origin.user

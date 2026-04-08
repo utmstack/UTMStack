@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-mikrotik
+name: MikroTik DNS Static Entry Redirection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Credential Access
+technique: "T1584.002 - Compromise Infrastructure: DNS Server"
+adversary: origin
+references:
+  - https://help.mikrotik.com/docs/spaces/ROS/pages/328094/Log
+  - https://attack.mitre.org/techniques/T1584/002/
+description: |
+  Detects creation or modification of static DNS entries on MikroTik routers that could redirect traffic to attacker-controlled servers for credential harvesting or man-in-the-middle attacks.
+
+  Next Steps:
+  1. Review all static DNS entries for unauthorized additions
+  2. Verify the destination IP addresses of suspicious DNS entries
+  3. Check if DNS entries redirect to known legitimate services or suspicious IPs
+  4. Investigate if users may have been redirected to phishing sites
+  5. Remove unauthorized DNS entries immediately
+  6. Audit DNS server configuration for other anomalies
+where: |
+  contains("log.topics", "system") &&
+  (contains("log.message", "dns") || contains("log.message", "DNS")) &&
+  (contains("log.message", ["static", "added", "changed", "entry"]))
+groupBy:
+  - adversary.host
+  - adversary.ip

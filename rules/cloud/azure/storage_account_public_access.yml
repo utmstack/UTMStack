@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Storage Account Public Access Enabled
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Collection
+technique: "T1530 - Data from Cloud Storage Object"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log-schema
+  - https://attack.mitre.org/techniques/T1530/
+description: |
+  Detects when public access is enabled on Azure Storage Accounts which could lead to unauthorized data exposure. 
+  This configuration change creates a significant security risk as it allows anonymous access to stored data.
+
+  Next Steps:
+  1. Immediately review the affected storage account configuration
+  2. Verify if public access was intentionally enabled and properly authorized
+  3. Check if any sensitive data is stored in the account
+  4. Review access logs for any unauthorized access attempts
+  5. Consider disabling public access if not required for business operations
+  6. Implement network restrictions and access policies if public access is necessary
+  7. Monitor for any data exfiltration activities
+where: |
+  contains("log.operationName", "Microsoft.Storage/storageAccounts") &&
+  (contains("log.operationName", "/write") || contains("log.operationName", "/blobServices/write")) &&
+  equals("log.category", "Administrative") &&
+  equals("log.actionResult", "accepted") &&
+  (contains("log.properties", "allowBlobPublicAccess") || contains("log.properties", "publicAccess"))
+groupBy:
+  - lastEvent.log.aadObjectId
+  - lastEvent.log.resourceId

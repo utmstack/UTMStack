@@ -1,0 +1,40 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: macOS Ransomware Indicators
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Impact
+technique: "T1486 - Data Encrypted for Impact"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1486/
+description: |
+  Detects mass file encryption patterns on macOS that may indicate ransomware activity, including rapid file modifications with suspicious extensions and encryption tool usage.
+
+  Next Steps:
+  1. Immediately isolate the affected system from the network
+  2. Identify the process performing mass file operations
+  3. Check for ransom notes or changed file extensions
+  4. Verify backup availability and integrity
+  5. Preserve evidence for forensic analysis
+  6. Do not pay ransom - engage incident response team
+where: |
+  (contains("log.eventMessage", ["encrypted", "encrypt", ".locked", ".crypto", ".crypt"]) ||
+   regexMatch("log.eventMessage", "(?i)\\.(locky|cerber|wannacry|ryuk|maze|conti|lockbit)$")) &&
+  (contains("log.eventMessage", "rename") || contains("log.eventMessage", "modified") ||
+   contains("log.eventMessage", "write"))
+afterEvents:
+  - indexPattern: v11-log-macos-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+    within: now-10m
+    count: 50
+groupBy:
+  - adversary.host
+  - adversary.user

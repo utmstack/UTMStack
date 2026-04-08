@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Ruby Reverse Shell Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1059/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_ruby_reverse_shell.yml
+description: |
+  Detects Ruby-based reverse shell execution patterns using TCPSocket. Attackers use Ruby's TCPSocket class to establish a reverse shell connection, redirecting stdin/stdout/stderr to a remote socket for interactive command execution.
+
+  Next Steps:
+  1. Immediately isolate the affected system from the network
+  2. Identify the destination IP and port of the reverse shell connection
+  3. Determine how the attacker gained initial access to execute Ruby
+  4. Check for other compromised systems connecting to the same C2 address
+  5. Review process tree to identify the parent process that spawned Ruby
+  6. Examine the system for persistence mechanisms and lateral movement
+where: |
+  contains("log.message", "ruby") &&
+  (
+    contains("log.message", "TCPSocket") ||
+    (contains("log.message", "socket") && contains("log.message", "spawn"))
+  ) &&
+  contains("log.message", ["/bin/sh", "/bin/bash", "exec"])
+groupBy:
+  - origin.host
+  - origin.ip

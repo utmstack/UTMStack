@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: SID History Injection Attempt
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Defense Evasion, Privilege Escalation
+technique: "T1134.005 - Access Token Manipulation: SID-History Injection"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1134/005/
+  - https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4765
+  - https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4766
+  - https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4765
+description: |
+  Detects attempts to add SID History to an account, which can be used for privilege escalation. SID History injection allows attackers to inherit permissions from privileged accounts without being members of privileged groups. Both successful (4765) and failed (4766) attempts are monitored.
+  
+  Next Steps:
+  1. Immediately investigate the target user account and verify if SID History modification was legitimate
+  2. Check if the user performing the action has proper administrative privileges for this operation
+  3. Review the source SID being added to understand what permissions are being inherited
+  4. Examine recent authentication logs for the target account to identify potential unauthorized access
+  5. Verify Active Directory configuration and check for signs of domain controller compromise
+  6. Consider resetting the target account password and removing unauthorized SID History entries
+  7. Review domain administrator accounts and privileged group memberships for anomalies
+where: |
+  oneOf("log.eventId", ["4765", "4766"]) &&
+  equals("log.channel", "Security")
+groupBy:
+  - origin.host
+  - target.user

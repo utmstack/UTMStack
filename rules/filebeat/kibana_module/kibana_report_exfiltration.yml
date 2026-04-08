@@ -1,0 +1,48 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - kibana
+name: Kibana Mass Report Export Exfiltration Detection
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 1
+category: Data Exfiltration
+technique: "T1048 - Exfiltration Over Alternative Protocol"
+adversary: origin
+references:
+  - https://www.elastic.co/guide/en/kibana/current/reporting-getting-started.html
+  - https://attack.mitre.org/techniques/T1048/
+description: |
+  Detects mass report generation and CSV exports from Kibana that could indicate data exfiltration. Attackers with Kibana access can export large datasets via the reporting feature.
+
+  Next Steps:
+  1. Review the reports generated and their data content
+  2. Verify the user account and export authorization
+  3. Check the report download destinations
+  4. Restrict reporting permissions to authorized users
+  5. Implement data export limits and approval workflows
+  6. Monitor for large data downloads from Kibana
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "reporting") && contains("log.message", "generate")) ||
+    (contains("log.message", "csv_searchsource") && contains("log.message", "created")) ||
+    (contains("log.message", "report") && contains("log.message", "export")) ||
+    (contains("log.message", "/api/reporting/generate") && exists("origin.ip")) ||
+    (contains("log.message", "csv") && contains("log.message", "download"))
+  )
+afterEvents:
+  - indexPattern: v11-log-kibana-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.message
+        operator: filter_match
+        value: 'reporting OR csv OR export OR generate'
+    within: now-30m
+    count: 5
+groupBy:
+  - adversary.ip
+  - target.ip

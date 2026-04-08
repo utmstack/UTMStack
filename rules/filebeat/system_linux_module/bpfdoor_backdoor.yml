@@ -1,0 +1,40 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: BPFDoor Backdoor Indicators
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Malware Detection
+technique: "T1205.002 - Traffic Signaling: Socket Filters"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1205/002/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/auditd/path/lnx_auditd_bpfdoor_file_accessed.yml
+  - https://www.trendmicro.com/en_us/research/23/e/bpfdoor-linux-backdoor.html
+description: |
+  Detects indicators of the BPFDoor backdoor, a sophisticated Linux malware used by APT groups (particularly Red Menshen/DecisiveArchitect). BPFDoor uses Berkeley Packet Filters (BPF) to monitor network traffic and respond to magic packets, making it extremely stealthy. It hides by deleting its own binary and running from memory, using specific file paths and socket operations.
+
+  Next Steps:
+  1. THIS IS A HIGH-CONFIDENCE APT INDICATOR - immediately activate incident response
+  2. Isolate the affected host but preserve running processes for memory analysis
+  3. Check for BPF socket filters attached to network interfaces
+  4. Look for processes with deleted binary files (ls -la /proc/*/exe | grep deleted)
+  5. Search for BPFDoor-specific files: /var/run/haldrund.pid, /dev/shm/kdmtmpflush
+  6. Capture full memory dump before any remediation
+  7. Hunt for lateral movement and other compromised hosts
+  8. Engage threat intelligence team for APT attribution
+where: |
+  exists("log.message") &&
+  (contains("log.message", "/var/run/haldrund.pid") ||
+   contains("log.message", "/dev/shm/kdmtmpflush") ||
+   contains("log.message", "kdmtmpflush") ||
+   contains("log.message", "haldrund") ||
+   regexMatch("log.message", "(?i)/tmp/\\.(lock|font|pid)") ||
+   (contains("log.message", "BPF") && contains("log.message", "socket")) ||
+   contains("log.message", "bpfdoor"))
+groupBy:
+  - origin.host
+  - origin.user

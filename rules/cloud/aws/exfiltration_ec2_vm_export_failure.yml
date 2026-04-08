@@ -1,0 +1,25 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "aws"
+name: "AWS EC2 VM Export Failure"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: "Exfiltration"
+technique: "T1537 - Transfer Data to Cloud Account"
+adversary: origin
+description: "Identifies an attempt to export an AWS EC2 instance. A virtual machine (VM) export may indicate an attempt to extract or exfiltrate information"
+references:
+  - "https://attack.mitre.org/techniques/T1537/"
+  - "https://attack.mitre.org/tactics/TA0010/"
+  - "https://attack.mitre.org/tactics/TA0009/"
+  - "https://attack.mitre.org/techniques/T1005/"
+  - "https://docs.aws.amazon.com/vm-import/latest/userguide/vmexport.html#export-instance"
+where: |
+  equals("log.eventSource", "ec2.amazonaws.com") &&
+  equals("log.eventName", "CreateInstanceExportTask")
+groupBy:
+  - adversary.ip
+  - adversary.user

@@ -1,0 +1,47 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - iis
+name: IIS Unicode Bypass Directory Traversal Attack
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1027 - Obfuscated Files or Information"
+adversary: origin
+references:
+  - https://www.kb.cert.org/vuls/id/111677
+  - https://attack.mitre.org/techniques/T1027/
+description: |
+  Detects Unicode encoding bypass attempts including overlong UTF-8 sequences and alternative Unicode representations used to evade security filters and access restricted files. This attack exploits Unicode normalization vulnerabilities in IIS to traverse directories and access sensitive system files.
+  
+  **Next Steps:**
+  1. Examine the full HTTP request including headers and POST data
+  2. Check if the attack was successful by reviewing response codes and content lengths
+  3. Verify what files or directories were accessed during the attack
+  4. Review server logs for any executed commands or accessed sensitive files
+  5. Check for other suspicious activity from the same source IP
+  6. Implement proper input validation and Unicode normalization
+  7. Consider blocking the source IP if attack continues
+where: |
+  contains("target.path", "%c0%af") || contains("target.path", "%c0%ae") ||
+  contains("target.path", "%c1%9c") || contains("target.path", "%c0%2f") ||
+  contains("target.path", "%c0%5c") || contains("target.path", "%c1%8s") ||
+  contains("target.path", "%c1%1c") || contains("target.path", "%c1%af") ||
+  contains("target.path", "%e0%80%af") || contains("target.path", "%f0%80%80%af") ||
+  contains("target.path", "%u2215") || contains("target.path", "%u2216") ||
+  contains("target.path", "%uff0e") || contains("target.path", "..%c0%af") ||
+  (contains("target.path", "winnt") && contains("target.path", "system32")) ||
+  (contains("target.path", "cmd.exe") || contains("target.path", "command.com"))
+afterEvents:
+  - indexPattern: v11-log-iis-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-5m
+    count: 3
+groupBy:
+  - adversary.ip
+  - target.ip

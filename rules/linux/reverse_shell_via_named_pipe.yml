@@ -1,0 +1,24 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: "System Linux: Reverse Shell Created via Named Pipe"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 3
+category: "Execution"
+technique: "T1059.004 - Command and Scripting Interpreter"
+adversary: origin
+description: "Identifies a reverse shell via the abuse of named pipes on Linux with the help of OpenSSL or Netcat. First in, first out
+                (FIFO) files are special files for reading and writing to by Linux processes. For this to work, a named pipe is created
+                and passed to a Linux shell where the use of a network connection tool such as Netcat or OpenSSL has been established.
+                The stdout and stderr are captured in the named pipe from the network connection and passed back to the shell for
+                execution."
+references:
+  - "https://attack.mitre.org/tactics/TA0002/"
+  - "https://attack.mitre.org/techniques/T1059/004/"
+where: regexMatch("log.message", "((sh|bash|openssl) (-i|-connect))") && exists("log.host.id")
+groupBy:
+  - origin.ip
+  - origin.user

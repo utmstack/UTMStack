@@ -1,0 +1,61 @@
+# Rule version v1.0.0
+
+dataTypes:
+- hids
+name: Threat Intelligence IOC Match Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Command and Control
+technique: "T1071.001 - Application Layer Protocol: Web Protocols"
+adversary: origin
+references:
+- https://attack.mitre.org/techniques/T1071/001/
+- https://www.crowdstrike.com/cybersecurity-101/threat-intelligence/indicators-of-compromise-ioc/
+description: |
+  Detects when HIDS identifies a match against known threat intelligence indicators of compromise (IOCs) including malicious IPs, domains, file hashes, URLs, or behavioral patterns. This indicates potential malicious activity or active compromise based on vetted threat intelligence feeds and known attack signatures.
+  
+  Next Steps:
+  1. Immediately isolate the affected system to prevent lateral movement
+  2. Review the specific IOC type and value that triggered the alert
+  3. Check if other systems have communicated with the same IOC
+  4. Collect relevant artifacts (memory dumps, network logs, file samples)
+  5. Search for additional IOCs related to the same threat campaign
+  6. Review system logs for suspicious activities before and after the IOC match
+  7. Update security controls to block the identified IOCs across the environment
+  8. Correlate with external threat intelligence sources for campaign attribution
+  9. Check for persistence mechanisms and lateral movement indicators
+where: |
+  (equals("log.eventType", "threat_intel_match") || 
+   equals("log.alert_type", "ioc_match") ||
+   equals("log.rule_category", "threat_intelligence")) &&
+  (greaterOrEqual("log.threat_score", 70) || 
+   oneOf("log.threat_confidence", ["high", "medium"]) ||
+   oneOf("log.match_type", ["hash_match", "ip_match", "domain_match", "url_match", "registry_match", "mutex_match"]) ||
+   (exists("log.ioc_type") && exists("log.ioc_value")))
+afterEvents:
+- indexPattern: v11-log-hids-*
+  with:
+  - field: origin.hostname
+    operator: filter_term
+    value: '{{.origin.hostname}}'
+  - field: log.ioc_value
+    operator: filter_term
+    value: '{{.log.ioc_value}}'
+  within: now-1h
+  count: 3
+- indexPattern: v11-log-hids-*
+  with:
+  - field: log.ioc_type
+    operator: filter_term
+    value: '{{.log.ioc_type}}'
+  - field: log.threat_campaign
+    operator: filter_term
+    value: '{{.log.threat_campaign}}'
+  within: now-24h
+  count: 2
+groupBy:
+  - lastEvent.log.ioc_type
+  - lastEvent.log.ioc_value
+  - adversary.hostname

@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: SUID/SGID Bit Set on Binary - Potential Backdoor
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1548.001 - Abuse Elevation Control Mechanism: Setuid and Setgid"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1548/001/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_setgid_setuid.yml
+description: |
+  Detects the use of chmod to set SUID (u+s) or SGID (g+s) bits on binaries, especially after a chown to root. Attackers use SUID/SGID bits to create backdoors that allow any user to execute a binary with root privileges. This is a well-known persistence and privilege escalation technique.
+
+  Next Steps:
+  1. Identify the binary that had the SUID/SGID bit set
+  2. Determine if this is a known system binary or a dropped malicious file
+  3. Check the binary's contents and compare against package manager originals
+  4. Review who set the SUID/SGID bit and their authorization level
+  5. Remove the SUID/SGID bit from unauthorized binaries (chmod u-s g-s)
+  6. Search for other SUID/SGID binaries that may have been modified: find / -perm -4000
+  7. Investigate how the attacker gained root access to set the bit
+where: |
+  exists("log.message") &&
+  (regexMatch("log.message", "(?i)chmod\\s+.*[ug]\\+s\\s+") ||
+   regexMatch("log.message", "(?i)chmod\\s+[46][0-7]{3}\\s+") ||
+   regexMatch("log.message", "(?i)chmod\\s+.*4755\\s+") ||
+   regexMatch("log.message", "(?i)chmod\\s+.*2755\\s+") ||
+   regexMatch("log.message", "(?i)chmod\\s+.*6755\\s+"))
+groupBy:
+  - origin.host
+  - origin.user

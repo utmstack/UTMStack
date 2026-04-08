@@ -1,0 +1,19 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "sophos-central"
+name: "Real Time Protection disabled in Sophos Central"
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: "Defense Evasion"
+technique: "T1562 - Impair Defenses"
+adversary: origin
+references:
+  - "https://www.makeuseof.com/real-time-protection/"
+description: "Real-time protection has been disabled, which can help malware and attacks go undetected"
+where: equals("log.type", "Event::Endpoint::SavDisabled")
+groupBy:
+  - adversary.host
+  - adversary.ip

@@ -1,28 +1,38 @@
-- id: 1007
-  dataTypes:
-    - firewall-fortigate-traffic
-  name: Fortinet IPS Critical Severity Detection
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 2
-  category: Intrusion Detection
-  technique: "T1203 - Exploitation for Client Execution"
-  adversary: origin
-  references:
-    - https://docs.fortinet.com/document/fortigate/7.4.1/administration-guide/331728/ips-sensors
-    - https://attack.mitre.org/techniques/T1203/
-  description: |
-    Detects critical severity IPS events indicating active exploitation attempts or severe security threats targeting the network.
-    
-    Next Steps:
-    1. Immediately investigate the source IP address and determine if it's malicious
-    2. Check if the attack was successfully blocked by reviewing firewall logs
-    3. Identify the specific vulnerability or attack pattern that triggered the IPS alert
-    4. Review other security events from the same source IP across all systems
-    5. Consider blocking the source IP at the perimeter if multiple critical attacks are detected
-    6. Update IPS signatures and verify all systems are patched against the detected vulnerability
-    7. Document the incident and notify the security team if this is part of a larger campaign
-  where: safe(log.msg, "").contains("type=utm") && safe(log.msg, "").contains("subtype=ips") && (safe(log.msg, "").contains("severity=critical") || safe(log.msg, "").contains("severity=high")) && safe(log.msg, "").contains("action=blocked")
-  deduplicateBy:
-    - origin.ip
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-fortigate-traffic
+name: Fortinet IPS Critical Severity Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1203 - Exploitation for Client Execution"
+adversary: origin
+references:
+  - https://docs.fortinet.com/document/fortigate/7.4.1/administration-guide/331728/ips-sensors
+  - https://attack.mitre.org/techniques/T1203/
+description: |
+  Detects critical severity IPS events indicating active exploitation attempts or severe security threats targeting the network.
+
+  Next Steps:
+  1. Immediately investigate the source IP address and determine if it's malicious
+  2. Check if the attack was successfully blocked by reviewing firewall logs
+  3. Identify the specific vulnerability or attack pattern that triggered the IPS alert
+  4. Review other security events from the same source IP across all systems
+  5. Consider blocking the source IP at the perimeter if multiple critical attacks are detected
+  6. Update IPS signatures and verify all systems are patched against the detected vulnerability
+  7. Document the incident and notify the security team if this is part of a larger campaign
+where: contains("log.msg", "type=utm") && contains("log.msg", "subtype=ips") && (contains("log.msg", "severity=critical") || contains("log.msg", "severity=high")) && contains("log.msg", "action=blocked")
+afterEvents:
+  - indexPattern: v11-log-firewall-fortigate-traffic-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-15m
+    count: 3
+groupBy:
+  - adversary.ip
+  - target.ip

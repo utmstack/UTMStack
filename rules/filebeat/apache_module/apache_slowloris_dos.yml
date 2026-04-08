@@ -1,0 +1,57 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - apache
+name: Apache Slowloris DoS Attack Detection
+impact:
+  confidentiality: 0
+  integrity: 0
+  availability: 3
+category: Denial of Service
+technique: "T1499.001 - Endpoint Denial of Service: OS Exhaustion Flood"
+adversary: origin
+references:
+  - https://www.cloudflare.com/learning/ddos/ddos-attack-tools/slowloris/
+  - https://attack.mitre.org/techniques/T1499/001/
+description: |
+  Detects Slowloris-style slow HTTP denial of service attacks by identifying patterns of incomplete requests, connection timeouts, and excessive concurrent connections from a single source IP. Slowloris exhausts server resources by holding connections open with partial HTTP requests.
+
+  Next Steps:
+  1. Check Apache connection status and active connection counts
+  2. Identify the source IPs with the most concurrent connections
+  3. Review Apache error logs for timeout and connection reset messages
+  4. Implement connection timeouts and mod_reqtimeout if not already configured
+  5. Consider rate limiting connections per IP at the firewall level
+  6. Deploy a reverse proxy or CDN with DDoS protection
+where: |
+  exists("origin.ip") &&
+  (
+    (exists("log.message") && (
+      contains("log.message", "request failed: error reading the headers") ||
+      contains("log.message", "AH01382") ||
+      contains("log.message", "AH00567") ||
+      contains("log.message", "client denied by server configuration") ||
+      contains("log.message", "Timeout waiting for output from CGI script") ||
+      contains("log.message", "incomplete headers") ||
+      contains("log.message", "request body read timeout")
+    )) ||
+    (exists("log.errorCode") && (
+      equals("log.errorCode", "408") ||
+      equals("log.errorCode", "AH01382") ||
+      equals("log.errorCode", "AH00567")
+    ))
+  )
+afterEvents:
+  - indexPattern: v11-log-apache-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.message
+        operator: filter_match
+        value: 'timeout OR incomplete OR headers OR AH01382 OR AH00567'
+    within: now-5m
+    count: 15
+deduplicateBy:
+  - adversary.ip
+  - target.ip

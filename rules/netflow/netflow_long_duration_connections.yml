@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - netflow
+name: Abnormally Long-Lived Network Connection
+impact:
+  confidentiality: 2
+  integrity: 1
+  availability: 1
+category: Command and Control
+technique: "T1571 - Non-Standard Port"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1571/
+  - https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
+description: |
+  Detects abnormally long-lived network connections (lasting over 24 hours) to external destinations. Persistent connections may indicate C2 channels, backdoor access, or data exfiltration tunnels that maintain ongoing communication.
+
+  Next Steps:
+  1. Investigate the internal host maintaining the long connection
+  2. Identify the application or process responsible for the connection
+  3. Review the destination IP and port for known C2 indicators
+  4. Check the data transfer volume during the connection
+  5. Review connection patterns for beaconing behavior
+  6. If suspicious, terminate the connection and scan the host
+where: |
+  exists("origin.ip") &&
+  exists("target.ip") &&
+  greaterThan("log.duration", 86400) &&
+  equals("protocol", "TCP") &&
+  !inCIDR("target.ip", "10.0.0.0/8") &&
+  !inCIDR("target.ip", "172.16.0.0/12") &&
+  !inCIDR("target.ip", "192.168.0.0/16") &&
+  !oneOf("target.port", [443, 80, 22, 993, 995, 587])
+groupBy:
+  - adversary.ip
+  - target.ip
+  - target.port

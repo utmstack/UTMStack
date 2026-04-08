@@ -1,0 +1,20 @@
+name: "Inhibit System Recovery (Shadow Copy Deletion)"
+description: "The Falcon agent detected command line activity attempting to delete Volume Shadow Copies or disable recovery options. This is a highly reliable precursor to Ransomware encryption."
+category: "Impact"
+technique: "Inhibit System Recovery"
+references:
+  - "https://attack.mitre.org/techniques/T1490/"
+dataTypes:
+  - crowdstrike
+adversary: origin
+impact:
+  confidentiality: 0
+  integrity: 3
+  availability: 3
+where: >
+    equals("log.event_simpleName", "ProcessRollup2") && 
+    exists("log.eventCommandLine") && 
+    regexMatch("log.eventCommandLine", "(?i).*(vssadmin.*delete shadows|wmic.*shadowcopy.*delete|bcdedit.*recoveryenabled.*no).*")
+groupBy: 
+  - origin.host
+  - origin.user

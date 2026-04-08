@@ -1,0 +1,27 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: "AWS CloudWatch Log Stream Deletion"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: "Impact"
+technique: "T1485 - Data Destruction"
+adversary: origin
+description: "Identifies the deletion of an AWS CloudWatch log stream, which permanently deletes all associated archived log events with the stream"
+references:
+  - "https://attack.mitre.org/tactics/TA0040/"
+  - "https://attack.mitre.org/techniques/T1485/"
+  - "https://attack.mitre.org/tactics/TA0005/"
+  - "https://attack.mitre.org/techniques/T1562/"
+  - "https://awscli.amazonaws.com/v2/documentation/api/latest/reference/logs/delete-log-stream.html"
+  - "https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_DeleteLogStream.html"
+
+where: |
+  equals("log.eventSource", "logs.amazonaws.com") &&
+  equals("log.eventName", "DeleteLogStream")
+groupBy:
+  - adversary.ip
+  - adversary.user

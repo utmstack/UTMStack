@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Java Process Spawning Suspicious Child Process
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Execution
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1059/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_susp_java_children.yml
+  - https://www.lunasec.io/docs/blog/log4j-zero-day/
+description: |
+  Detects Java processes spawning suspicious child processes such as bash, sh, curl, wget, or python. This pattern is a strong indicator of exploitation of Java applications including Log4Shell (CVE-2021-44228), Confluence RCE vulnerabilities, and Java deserialization attacks. Legitimate Java applications rarely spawn shell processes.
+
+  Next Steps:
+  1. Immediately isolate the affected Java application server
+  2. Identify the specific Java application being exploited (check the Java process arguments)
+  3. Review application logs for exploitation payloads (JNDI lookups, deserialization gadgets)
+  4. Check for Log4j vulnerabilities in all Java dependencies
+  5. Inspect what commands were executed by the spawned child process
+  6. Look for reverse shells, webshells, or persistence mechanisms
+  7. Patch the vulnerable application immediately
+  8. Hunt for the same exploitation pattern across other Java application servers
+where: |
+  exists("log.message") &&
+  regexMatch("log.message", "(?i)java.*child.*(bash|/bin/sh|curl|wget|python|perl|ruby|nc |ncat)") ||
+  (contains("log.message", "java") &&
+   regexMatch("log.message", "(?i)(Runtime\\.getRuntime|ProcessBuilder|exec\\(|/bin/bash|/bin/sh)"))
+groupBy:
+  - origin.host
+  - origin.user

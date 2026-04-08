@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Azure AD Device Code Authentication Flow Detected
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Initial Access
+technique: "T1078 - Valid Accounts"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-device-code
+  - https://attack.mitre.org/techniques/T1078/
+description: |
+  Detects OAuth device code flow authentication in Azure AD. Device code phishing is a growing attack vector where attackers trick users into authenticating on a device the attacker controls, granting the attacker access tokens.
+
+  Next Steps:
+  1. Verify the device code authentication was initiated by the user on a legitimate device
+  2. Check the application requesting the device code for legitimacy
+  3. Review the source IP where the token was redeemed
+  4. Check for subsequent suspicious activities using the obtained token
+  5. If unauthorized, revoke the session and all refresh tokens
+  6. Consider blocking device code flow via conditional access policies
+  7. Educate users about device code phishing attacks
+where: |
+  (contains("log.properties", "deviceCode") && contains("log.operationName", "Sign-in")) ||
+  contains("log.properties", "urn:ietf:params:oauth:grant-type:device_code")
+groupBy:
+  - adversary.ip
+  - adversary.user

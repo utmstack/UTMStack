@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS EC2 Cryptomining Instance Launch Detection
+impact:
+  confidentiality: 1
+  integrity: 2
+  availability: 3
+category: Resource Hijacking
+technique: "T1496 - Resource Hijacking"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html
+  - https://attack.mitre.org/techniques/T1496/
+description: |
+  Detects EC2 instance launches using GPU or high-compute instance types commonly associated with cryptomining operations. Attackers with compromised AWS credentials frequently launch expensive GPU instances (p3, p4, g4, g5) or large compute-optimized instances for cryptocurrency mining.
+
+  Next Steps:
+  1. Verify the identity launching the instance ({{log.userIdentityArn}}) and confirm authorization
+  2. Check if the instance type matches legitimate workloads for the account
+  3. Review the source IP ({{log.sourceIPAddress}}) for suspicious origins
+  4. Examine the AMI used for the instance launch for known mining software
+  5. Check billing dashboards for unexpected cost spikes
+  6. If unauthorized, terminate the instance immediately and rotate compromised credentials
+  7. Review IAM policies to restrict instance type launches using SCPs
+  8. Enable AWS Budgets alerts for cost anomaly detection
+where: |
+  equals("log.eventSource", "ec2.amazonaws.com") &&
+  equals("log.eventName", "RunInstances") &&
+  equals("log.errorCode", "") &&
+  regexMatch("log.requestParameters.instanceType", "(?i)^(p3|p4d|p4de|p5|g4dn|g4ad|g5|g5g|c5\\.18xlarge|c5\\.24xlarge|c5a\\.24xlarge|c6i\\.32xlarge|c7g\\.16xlarge)")
+groupBy:
+  - adversary.user
+  - lastEvent.log.requestParameters.instanceType

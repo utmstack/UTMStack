@@ -1,0 +1,53 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - hids
+name: Windows Registry Modification Detected
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Persistence, Privilege Escalation
+technique: "T1547 - Boot or Logon Autostart Execution"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1547/
+  - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/registry-monitoring.html
+description: |
+  Detects modifications to Windows registry keys commonly used for persistence, privilege escalation, or system configuration changes. Monitors critical registry hives and keys that are often targeted by malware and attackers.
+  
+  Next Steps:
+  1. Identify the modified registry key and the type of change (added/modified/deleted)
+  2. Check if the modification was made by a legitimate administrative action or software update
+  3. Investigate the process that made the registry change and verify its legitimacy
+  4. Review other recent registry modifications from the same host for suspicious patterns
+  5. If unauthorized: Revert the registry change and investigate for additional persistence mechanisms
+  6. Check for related file system changes or new processes associated with the registry modification
+  7. Scan the affected system for malware and review security logs for signs of compromise
+where: |
+  equals("log.module", "syscheck") && 
+  exists("log.registry_path") && 
+  (regexMatch("log.registry_path", ".*\\\\(Run|RunOnce|RunOnceEx|RunServices|RunServicesOnce).*") ||
+   regexMatch("log.registry_path", ".*\\\\(CurrentVersion\\\\Explorer\\\\Shell Folders|User Shell Folders).*") ||
+   regexMatch("log.registry_path", ".*\\\\(Services|Drivers|AppInit_DLLs|Winlogon|Windows\\\\CurrentVersion\\\\Policies).*") ||
+   regexMatch("log.registry_path", ".*\\\\(Image File Execution Options|Debugger|GlobalFlag).*") ||
+   regexMatch("log.registry_path", ".*\\\\(Control Panel\\\\Desktop\\\\SCRNSAVE\\.EXE|ScreenSaveActive).*") ||
+   regexMatch("log.registry_path", ".*\\\\(Software\\\\Classes\\\\exefile\\\\shell\\\\open\\\\command).*")) &&
+  exists("log.event_type") && 
+  oneOf("log.event_type", ["modified", "added", "deleted"]) &&
+  exists("origin.host")
+afterEvents:
+  - indexPattern: v11-log-hids-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+      - field: log.registry_path
+        operator: filter_term
+        value: '{{.log.registry_path}}'
+    within: now-15m
+    count: 5
+groupBy:
+  - lastEvent.log.event_type
+  - lastEvent.log.registry_path
+  - adversary.host

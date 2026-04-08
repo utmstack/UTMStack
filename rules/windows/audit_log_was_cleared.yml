@@ -1,0 +1,18 @@
+# Rule version v1.0.2
+dataTypes:
+  - wineventlog
+name: "Windows audit log was cleared"
+impact:
+  confidentiality: 1
+  integrity: 2
+  availability: 3
+category: "Defense Evasion"
+technique: "T1070.001 - Indicator Removal: Clear Windows Event Logs"
+adversary: origin
+description: "Detects when the Windows audit log (Security event log) has been cleared. Adversaries may clear event logs to remove evidence of an intrusion."
+references:
+  - "https://attack.mitre.org/techniques/T1070/001/"
+where: equals("log.eventCode", 1102)
+groupBy:
+  - origin.ip
+  - target.user

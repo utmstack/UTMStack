@@ -1,0 +1,23 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "o365"
+name: "Microsoft 365 Exchange Transport Rule Creation"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: "Exfiltration"
+technique: "T1537 - Transfer Data to Cloud Account"
+adversary: origin
+description: "Exfiltration consists of techniques that adversaries may use to steal data from your network. Once they’ve collected data, adversaries often package it to avoid detection while removing it. This can include compression and encryption. Techniques for getting data out of a target network typically include transferring it over their command and control channel or an alternate channel and may also include putting size limits on the transmission.<br>
+              Identifies a transport rule creation in Microsoft 365. Exchange Online mail transport rules should be set to not forward email to domains outside of your organization as a best practice. An adversary may create transport rules to exfiltrate data."
+references:
+  - "https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/mail-flow-rules"
+  - "https://attack.mitre.org/techniques/T1537/"
+  - "https://attack.mitre.org/tactics/TA0010/"
+where: |
+  equals("log.Workload", "Exchange") && equals("action", "New-TransportRule") && oneOf("actionResult", ["Success","PartiallySucceeded","True"])
+groupBy:
+  - adversary.ip
+  - adversary.user

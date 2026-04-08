@@ -1,0 +1,46 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-paloalto
+name: PAN-OS DNS Security Alert Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Command and Control
+technique: "T1071.004 - Application Layer Protocol: DNS"
+adversary: origin
+references:
+  - https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/threat-prevention/dns-security
+  - https://attack.mitre.org/techniques/T1071/004/
+description: |
+  Detects PAN-OS DNS Security alerts including DNS sinkholing, domain generation algorithm (DGA) detection, DNS tunneling, and queries to known malicious domains. These alerts indicate potential C2 communication or data exfiltration via DNS.
+
+  Next Steps:
+  1. Identify the internal host generating suspicious DNS queries
+  2. Review the queried domains for DGA patterns or known malicious indicators
+  3. Check if DNS tunneling tools are installed on the source system
+  4. Review the DNS query frequency and payload sizes for anomalies
+  5. Investigate the source host for malware infection
+  6. Block the malicious domains and scan the affected host
+where: |
+  equals("log.pa_type", "THREAT") &&
+  (equals("log.pa_subtype", "dns") ||
+   (contains("log.message", "DNS") && contains("log.message", ["sinkhole", "DGA", "tunnel", "malicious"]))) &&
+  (oneOf("log.act", ["sinkhole", "block-url", "alert", "drop"]) ||
+   exists("log.DNSSICategory")) &&
+  exists("origin.ip")
+afterEvents:
+  - indexPattern: v11-log-firewall-paloalto-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.pa_subtype
+        operator: filter_term
+        value: 'dns'
+    within: now-30m
+    count: 3
+groupBy:
+  - adversary.ip
+  - target.host

@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - auditd
+name: ld.so.preload Shared Library Injection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1574.006 - Hijack Execution Flow: Dynamic Linker Hijacking"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1574/006/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/auditd/path/lnx_ldso_preload_injection.yml
+description: |
+  Detects access or modification of /etc/ld.so.preload, which is used to force-load shared libraries before any other library. This is a major persistence and privilege escalation vector used by rootkits and malware. Libraries specified in ld.so.preload are loaded into every dynamically-linked process on the system, giving an attacker code execution in every process including those running as root.
+
+  Next Steps:
+  1. Immediately investigate the contents of /etc/ld.so.preload
+  2. Identify the shared library referenced and analyze it for malicious code
+  3. Check which process and user modified the file
+  4. Search for the malicious shared library on disk and in memory
+  5. Verify system binary integrity with package manager (rpm -V or dpkg -V)
+  6. Check for rootkit indicators using rkhunter or chkrootkit
+  7. Consider the system fully compromised and plan for reimaging
+  8. Hunt for the same shared library or technique on other systems
+where: |
+  equals("action", "auditd.log") &&
+  (contains("log.auditd.log.name", "/etc/ld.so.preload") ||
+   contains("log.auditd.log.name", "ld.so.preload") ||
+   (exists("log.auditd.log.proctitle") &&
+    contains("log.auditd.log.proctitle", "ld.so.preload")))
+groupBy:
+  - adversary.host
+  - adversary.user

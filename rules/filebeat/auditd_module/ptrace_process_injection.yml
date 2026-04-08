@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - auditd
+name: Ptrace Process Injection Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1055.008 - Process Injection: Ptrace System Calls"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1055/008/
+description: |
+  Detects PTRACE_ATTACH and PTRACE_POKETEXT syscalls used for process injection on Linux. Attackers use ptrace to inject code into running processes for defense evasion and privilege escalation.
+
+  Next Steps:
+  1. Identify the process performing ptrace and its target
+  2. Check if this is a legitimate debugger (gdb, strace, lldb)
+  3. Review the parent process chain of the ptrace caller
+  4. Examine memory of the target process for injected code
+  5. Check for related network connections or file modifications
+  6. If unauthorized, terminate both processes and investigate
+where: |
+  equals("action", "auditd.log") &&
+  equals("log.record_type", "SYSCALL") &&
+  equals("log.syscall", "ptrace") &&
+  !(contains("log.exe", "/usr/bin/gdb") || contains("log.exe", "/usr/bin/strace") ||
+    contains("log.exe", "/usr/bin/ltrace") || contains("log.exe", "lldb") ||
+    contains("log.exe", "/usr/lib/systemd"))
+groupBy:
+  - adversary.host
+  - adversary.user

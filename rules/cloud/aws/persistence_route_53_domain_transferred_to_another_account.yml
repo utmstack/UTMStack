@@ -1,0 +1,24 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: "AWS Route 53 Domain Transferred to Another Account"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: "Persistence"
+technique: "T1098 - Account Manipulation"
+adversary: origin
+description: "Identifies when a request has been made to transfer a Route 53 domain to another AWS account"
+references:
+  - "https://attack.mitre.org/tactics/TA0003/"
+  - "https://attack.mitre.org/techniques/T1098/"
+  - "https://attack.mitre.org/tactics/TA0006/"
+  - "https://docs.aws.amazon.com/Route53/latest/APIReference/API_Operations_Amazon_Route_53.html"
+where: |
+  equals("log.eventSource", "route53.amazonaws.com") &&
+  equals("log.eventName", "TransferDomainToAnotherAwsAccount")
+groupBy:
+  - adversary.ip
+  - adversary.user

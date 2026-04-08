@@ -1,0 +1,51 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - ibm-aix
+name: IBM AIX Unauthorized Crontab Modification Detection
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1053.003 - Scheduled Task/Job: Cron"
+adversary: origin
+references:
+  - https://www.ibm.com/docs/en/aix/7.2?topic=c-crontab-command
+  - https://attack.mitre.org/techniques/T1053/003/
+description: |
+  Detects unauthorized crontab modifications on IBM AIX systems that could indicate persistence establishment by an attacker. Monitors for crontab changes, at job submissions, and modifications to /var/spool/cron.
+
+  Next Steps:
+  1. Review the crontab entries that were added or modified
+  2. Verify the user account making the changes
+  3. Check the scheduled commands for malicious payloads
+  4. Review /var/spool/cron for all user crontabs
+  5. Implement cron.allow/cron.deny restrictions
+  6. Monitor execution of suspicious scheduled tasks
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "crontab") && (
+      contains("log.message", "EDIT") ||
+      contains("log.message", "REPLACE") ||
+      contains("log.message", "-e") ||
+      contains("log.message", "installed")
+    )) ||
+    (contains("log.message", "/var/spool/cron") && (
+      contains("log.message", "modified") ||
+      contains("log.message", "created") ||
+      contains("log.message", "changed")
+    )) ||
+    (contains("log.message", "at ") && contains("log.message", "job")) ||
+    (contains("log.message", "cron") && contains("log.message", "CMD") && (
+      contains("log.message", "/tmp/") ||
+      contains("log.message", "wget") ||
+      contains("log.message", "curl") ||
+      contains("log.message", "bash -c") ||
+      contains("log.message", "python")
+    ))
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

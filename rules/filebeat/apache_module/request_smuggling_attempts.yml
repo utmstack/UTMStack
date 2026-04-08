@@ -1,0 +1,50 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - apache
+name: HTTP Request Smuggling Attempt
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references:
+  - https://portswigger.net/web-security/request-smuggling
+  - https://attack.mitre.org/techniques/T1190/
+description: |
+  Detects potential HTTP request smuggling attempts by identifying malformed requests with multiple Content-Length headers, Transfer-Encoding anomalies, or suspicious protocol versions that may bypass security controls.
+  
+  Next Steps:
+  1. Review the full HTTP request logs for the source IP to identify the exact smuggling technique used
+  2. Check if the request reached backend servers and what response was returned
+  3. Examine recent requests from the same source IP for patterns or other attack attempts
+  4. Verify web application firewall and reverse proxy configurations
+  5. Check for any successful backend requests that bypassed security controls
+  6. Review authentication logs for the source IP to identify potential account compromise
+  7. Consider blocking the source IP if confirmed malicious
+where: |
+  (contains("log.request", "Content-Length") && 
+   contains("log.request", "Transfer-Encoding")) ||
+  (contains("log.request", "\\r\\n\\r\\n") && 
+   contains("log.request", "HTTP/")) ||
+  (exists("log.protoVersion") && 
+   !equals("log.protoVersion", "1.0") && 
+   !equals("log.protoVersion", "1.1") && 
+   !equals("log.protoVersion", "2.0")) ||
+  (contains("origin.path", "%0d%0a") || 
+   contains("origin.path", "%0D%0A")) ||
+  (contains("log.request", " HTTP/1.1 ") && 
+   contains("log.request", " HTTP/"))
+afterEvents:
+  - indexPattern: v11-log-apache-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-10m
+    count: 5
+groupBy:
+  - adversary.ip
+  - adversary.path

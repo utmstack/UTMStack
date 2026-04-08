@@ -1,0 +1,84 @@
+# Rule version v1.0.4
+
+dataTypes:
+  - azure
+name: "Multi-Factor Authentication Disabled for an Azure User"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: "Persistence"
+technique: "T1556 - Modify Authentication Process"
+adversary: target
+description: |
+  Detects when multi-factor authentication (MFA) is disabled for an Azure AD/Entra ID user account through Audit Logs.
+  
+  **Security Context:**
+  Multi-factor authentication is a critical security control that requires users to provide additional verification beyond just a password. Disabling MFA for user accounts significantly weakens authentication security and is a common technique used by adversaries to maintain persistent access. Once MFA is disabled, attackers can authenticate using only compromised credentials without triggering additional verification steps, making detection more difficult.
+  
+  **Detection Logic:**
+  This rule monitors AuditLogs for successful "Disable Strong Authentication" operations, which represent the per-user MFA setting being turned off in Azure AD/Entra ID. This operation is distinct from Conditional Access MFA policies and represents the legacy per-user MFA enforcement method.
+  
+  **Investigation Steps:**
+  1. Identify the disabler: Check log.propertiesInitiatedBy for who disabled MFA
+  2. Identify affected user: Examine log.propertiesTargetResources for the user whose MFA was disabled
+  3. Verify authorization: Confirm if the MFA disabling was part of legitimate administrative action
+  4. Review user privilege: Determine if the affected user has elevated permissions (admins, privileged roles)
+  5. Check timing: Analyze if MFA was disabled after suspicious authentication events
+  6. Review authentication history: Look for failed authentication attempts before MFA disabling
+  7. Check for compromise indicators: Search for unusual sign-in patterns, impossible travel, or risky sign-ins
+  8. Examine subsequent logins: Monitor for authentication activity immediately after MFA disabling
+  9. Review MFA methods: Check what MFA methods the user had registered before disabling
+  10. Correlate with other events: Look for privilege escalation or data access after MFA disabling
+  
+  **Recommended Actions:**
+  - If unauthorized, immediately re-enable MFA for the affected user
+  - Force password reset for the affected account
+  - Review all authentication activity for the affected user
+  - Check for compromised credentials using Azure AD Identity Protection
+  - Revoke all active sessions for the affected user
+  - Enable Conditional Access policies instead of per-user MFA for better control
+  - Implement PIM approval workflows for modifying MFA settings
+  - Enable alerts for MFA changes on privileged accounts
+  - Audit accounts with permissions to modify user authentication settings
+  - Review and restrict who can disable MFA (typically requires User Administrator or higher)
+  
+  **Modern MFA Management:**
+  - **Per-user MFA (legacy)**: This detection targets the legacy per-user MFA setting
+  - **Conditional Access**: Modern approach using policies instead of per-user settings
+  - **Authentication Methods Policy**: Newer method for managing FIDO2, passwordless, etc.
+  
+  Organizations should migrate from per-user MFA to Conditional Access policies for more granular control.
+  
+  **Common Attack Patterns:**
+  - Disabling MFA after compromising an administrator account
+  - Removing MFA from privileged accounts for easier persistent access
+  - Disabling MFA before credential harvesting or lateral movement
+  - Insider threats removing MFA from their own accounts
+  - Disabling MFA on service accounts to enable automated authentication attacks
+  
+  **Related Detections:**
+  - MFA method removal/changes
+  - Conditional Access policy modifications
+  - Authentication methods policy changes
+  - Privileged role assignments without MFA
+  
+  **MITRE ATT&CK Reference:** T1556 - Modify Authentication Process
+  
+  **Azure Documentation:**
+  - AuditLogs table: https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs
+  - Per-user MFA: https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-userstates
+
+references:
+  - "https://attack.mitre.org/techniques/T1556/"
+  - "https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs"
+  - "https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-userstates"
+  - "https://learn.microsoft.com/en-us/entra/identity/authentication/concept-mfa-licensing"
+
+where: |
+  equalsIgnoreCase("log.category", "AuditLogs") &&
+  equalsIgnoreCase("log.operationName", "Disable Strong Authentication") &&
+  (equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))
+groupBy:
+  - target.ip
+  - target.user

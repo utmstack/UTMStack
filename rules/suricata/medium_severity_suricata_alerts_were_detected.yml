@@ -1,0 +1,27 @@
+# Rule version v1.0.1
+
+dataTypes:
+  - suricata
+name: Medium level Suricata alert
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 2
+category: "Discovery"
+technique: "T1046 - Network Service Discovery"
+adversary: target
+description: "Suricata has detected a medium severity alert that may indicate reconnaissance or scanning attempts. This could include port scanning, protocol anomalies, or suspicious network patterns that warrant investigation but may not represent an immediate threat."
+references:
+  - "https://suricata.readthedocs.io/en/latest/"
+where: equals("log.eventType", "alert") && equals("severity", "medium")
+afterEvents:
+  - indexPattern: v11-log-suricata-*
+    with:
+      - field: target.ip
+        operator: filter_term
+        value: '{{.target.ip}}'
+    within: now-15m
+    count: 5
+deduplicateBy:
+  - target.ip
+  - target.ip

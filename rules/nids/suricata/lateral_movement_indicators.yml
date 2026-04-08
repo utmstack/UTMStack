@@ -1,0 +1,50 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - suricata
+name: Lateral Movement Indicators
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Lateral Movement
+technique: "T1021 - Remote Services"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1021/
+  - https://attack.mitre.org/tactics/TA0008/
+  - https://www.snort.org/rule_docs/
+description: |
+  Detects indicators of lateral movement within the network including SMB/RDP scanning, authentication attempts across multiple systems, suspicious remote access patterns, and administrative tool usage. This rule identifies various lateral movement techniques including PsExec usage, WMI commands, RDP brute force attempts, SMB scanning, and connections to common administrative ports.
+  
+  Next Steps:
+  1. Investigate the source IP for other suspicious activities in the past 24 hours
+  2. Check if the source host has legitimate administrative access to target systems
+  3. Review authentication logs for failed/successful logins from the source IP
+  4. Examine process execution logs on both source and target systems
+  5. Validate if the detected services (SMB, RDP, WMI) are authorized for this source
+  6. Check for privilege escalation attempts on target systems
+  7. Review network segmentation to ensure proper access controls
+  8. Correlate with endpoint detection tools for additional IOCs
+where: |
+  (contains("log.alert.signature", ["lateral movement", "psexec", "wmi", "rdp brute", "smb scan"]) ||
+   oneOf("log.alert.category", ["network-scan", "misc-activity"]) ||
+   (oneOf("target.port", [445, 3389, 135, 139, 5985, 5986]) && equals("log.eventType", "alert")) ||
+   (oneOf("log.smb.command", ["SMB2_COMMAND_TREE_CONNECT", "SMB2_COMMAND_SESSION_SETUP"]) && !equals("log.smb.status", "STATUS_SUCCESS")) ||
+   (equals("protocol", "RDP") && equals("log.rdp.event_type", "connection_attempt")) ||
+   oneOf("log.service", ["wmi", "winrm", "psexec", "dcom"])) &&
+  exists("origin.ip") &&
+  exists("target.ip") &&
+  regexMatch("origin.ip", "^(10\\.|172\\.(1[6-9]|2[0-9]|3[01])\\.|192\\.168\\.)")
+afterEvents:
+  - indexPattern: v11-log-suricata-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-10m
+    count: 10
+groupBy:
+  - adversary.ip
+  - target.ip
+  - target.port

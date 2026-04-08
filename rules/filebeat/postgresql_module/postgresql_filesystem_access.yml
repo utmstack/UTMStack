@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - postgresql
+name: PostgreSQL Filesystem Access Abuse Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Collection
+technique: "T1083 - File and Directory Discovery"
+adversary: origin
+references:
+  - https://www.postgresql.org/docs/current/functions-admin.html
+  - https://attack.mitre.org/techniques/T1083/
+description: |
+  Detects abuse of PostgreSQL filesystem access functions including pg_read_file, pg_ls_dir, pg_read_binary_file, and lo_import/lo_export. These functions allow database users to read arbitrary files from the server filesystem.
+
+  Next Steps:
+  1. Identify the user executing filesystem access functions
+  2. Review what files or directories were accessed
+  3. Check if sensitive files (passwords, keys, configs) were read
+  4. Restrict filesystem access functions to superuser-only
+  5. Review pg_hba.conf and revoke unnecessary superuser access
+  6. Audit database roles and permissions
+where: |
+  exists("log.msg") &&
+  (
+    regexMatch("log.msg", "(?i)pg_read_file\\s*\\(") ||
+    regexMatch("log.msg", "(?i)pg_read_binary_file\\s*\\(") ||
+    regexMatch("log.msg", "(?i)pg_ls_dir\\s*\\(") ||
+    regexMatch("log.msg", "(?i)pg_stat_file\\s*\\(") ||
+    regexMatch("log.msg", "(?i)lo_import\\s*\\(") ||
+    regexMatch("log.msg", "(?i)lo_export\\s*\\(") ||
+    (contains("log.msg", "pg_read_file") && (
+      contains("log.msg", "/etc/passwd") ||
+      contains("log.msg", "/etc/shadow") ||
+      contains("log.msg", "pg_hba.conf") ||
+      contains("log.msg", "postgresql.conf") ||
+      contains("log.msg", ".pgpass")
+    ))
+  )
+groupBy:
+  - lastEvent.log.sessionId
+  - adversary.host

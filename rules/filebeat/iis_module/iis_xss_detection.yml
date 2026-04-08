@@ -1,0 +1,55 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - iis
+name: IIS Cross-Site Scripting (XSS) Detection
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Web Application Attack
+technique: "T1189 - Drive-by Compromise"
+adversary: origin
+references:
+  - https://owasp.org/www-community/attacks/xss/
+  - https://attack.mitre.org/techniques/T1189/
+description: |
+  Detects Cross-Site Scripting (XSS) attack attempts through IIS access logs by identifying JavaScript injection patterns, event handler injections, and encoded script payloads in request URLs.
+
+  Next Steps:
+  1. Review the request URL and parameters for XSS payloads
+  2. Check if the XSS payload is reflected or stored
+  3. Identify the vulnerable application endpoint
+  4. Implement output encoding and Content Security Policy headers
+  5. Deploy input sanitization on the affected endpoints
+  6. Block the source IP if persistent XSS attempts are detected
+where: |
+  exists("origin.ip") &&
+  exists("target.path") &&
+  (
+    regexMatch("target.path", "(?i)<script[^>]*>") ||
+    regexMatch("target.path", "(?i)(onerror|onload|onmouseover|onclick|onfocus|onblur)\\s*=") ||
+    contains("target.path", "javascript:") ||
+    contains("target.path", "vbscript:") ||
+    regexMatch("target.path", "(?i)<(img|svg|body|iframe|input|div|a)\\s+[^>]*(on\\w+)=") ||
+    contains("target.path", "%3Cscript") ||
+    contains("target.path", "%3cscript") ||
+    regexMatch("target.path", "(?i)document\\.(cookie|location|write)") ||
+    regexMatch("target.path", "(?i)(alert|confirm|prompt)\\s*\\(") ||
+    contains("target.path", "&#x3C;script") ||
+    contains("target.path", "data:text/html")
+  )
+afterEvents:
+  - indexPattern: v11-log-iis-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: target.path
+        operator: filter_match
+        value: 'script OR onerror OR onload OR javascript OR alert'
+    within: now-10m
+    count: 5
+groupBy:
+  - adversary.ip
+  - target.path

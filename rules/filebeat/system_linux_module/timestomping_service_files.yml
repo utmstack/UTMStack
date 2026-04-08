@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Timestomping of Service Files Detected
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1070.006 - Indicator Removal: Timestomp"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1070/006/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_touch_susp.yml
+description: |
+  Detects the use of touch -t to modify timestamps on .service files. Attackers use timestomping to make malicious systemd service files appear as if they were created during system installation, hiding persistence mechanisms from forensic analysis.
+
+  Next Steps:
+  1. Identify the specific .service files that were timestomped
+  2. Examine the contents of those service files for malicious commands
+  3. Compare file timestamps with package manager records (dpkg/rpm)
+  4. Check if the service files reference suspicious executables
+  5. Review systemd unit files for unauthorized additions
+  6. Verify the integrity of all service files against known-good baselines
+where: |
+  contains("log.message", "touch") &&
+  contains("log.message", "-t") &&
+  contains("log.message", ".service")
+groupBy:
+  - origin.host
+  - origin.user

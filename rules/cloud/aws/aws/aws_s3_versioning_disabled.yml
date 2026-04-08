@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS S3 Bucket Versioning Suspended
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 3
+category: Impact
+technique: "T1490 - Inhibit System Recovery"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html
+  - https://attack.mitre.org/techniques/T1490/
+description: |
+  Detects when S3 bucket versioning is suspended via PutBucketVersioning. Disabling versioning is a cloud ransomware preparation technique that prevents recovery of overwritten or deleted objects from version history.
+
+  Next Steps:
+  1. Verify if the versioning suspension was authorized and part of a change request
+  2. Identify the affected S3 bucket and its contents sensitivity
+  3. Check for subsequent DeleteObject or PutObject calls that would overwrite data
+  4. Review the user identity and source IP for legitimacy
+  5. Re-enable versioning immediately if unauthorized
+  6. Check if MFA Delete was configured on the bucket
+  7. Review S3 bucket lifecycle policies for any recent changes
+where: |
+  equals("log.eventSource", "s3.amazonaws.com") &&
+  equals("log.eventName", "PutBucketVersioning") &&
+  equals("log.errorCode", "") &&
+  contains("log.requestParameters", "Suspended")
+groupBy:
+  - adversary.user
+  - lastEvent.log.requestParameters.bucketName

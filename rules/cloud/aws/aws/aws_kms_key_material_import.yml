@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS KMS Key Material Import or Deletion
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Impact
+technique: "T1486 - Data Encrypted for Impact"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/kms/latest/developerguide/importing-keys.html
+  - https://attack.mitre.org/techniques/T1486/
+description: |
+  Detects ImportKeyMaterial or DeleteImportedKeyMaterial operations on AWS KMS. These are extremely rare operations that could indicate cloud ransomware preparation - an attacker importing their own key material to encrypt data and then deleting the imported key material to make decryption impossible without paying ransom.
+
+  Next Steps:
+  1. Immediately verify if this KMS key material operation was authorized
+  2. Identify the KMS key ID affected and all resources encrypted with it
+  3. Check the user identity and source IP for legitimacy
+  4. Review if any data encryption operations followed this event
+  5. Verify backup key material exists and is securely stored
+  6. If unauthorized, immediately disable the KMS key and investigate data integrity
+  7. Check for associated DeleteImportedKeyMaterial calls that would prevent decryption
+where: |
+  equals("log.eventSource", "kms.amazonaws.com") &&
+  oneOf("log.eventName", ["ImportKeyMaterial", "DeleteImportedKeyMaterial"]) &&
+  equals("log.errorCode", "")
+groupBy:
+  - adversary.user
+  - lastEvent.log.eventName

@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Azure Defender for Cloud Critical Security Alert
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Intrusion Detection
+technique: "TA0001 - Initial Access"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/azure/defender-for-cloud/alerts-overview
+  - https://learn.microsoft.com/en-us/azure/defender-for-cloud/alerts-schemas
+  - https://attack.mitre.org/tactics/TA0001/
+description: |
+  Detects critical severity alerts from Azure Defender for Cloud indicating potential active threats, malware infections, or successful breach attempts that require immediate response.
+  
+  Next Steps:
+  1. Review the full alert details in Azure Defender for Cloud portal
+  2. Verify the affected resource and assess the scope of potential compromise
+  3. Check for related suspicious activities on the affected resource
+  4. Implement immediate containment measures if threat is confirmed
+  5. Review security policies and configurations for the affected resource
+  6. Document the incident and update security procedures as needed
+where: |
+  (equals("log.eventName", "Microsoft.Security/locations/alerts/Activate/action") || contains("log.operationName", "Microsoft.Security")) &&
+  equals("log.category", "Security") &&
+  oneOf("log.level", ["Critical", "High", "Error"]) &&
+  (equals("log.properties.severity", "High") || equals("log.properties.alertSeverity", "High"))
+groupBy:
+  - lastEvent.log.correlationId
+  - lastEvent.log.eventDataId

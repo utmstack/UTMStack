@@ -1,0 +1,47 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - redis
+name: Redis Data Exfiltration Attempt Detected
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Exfiltration
+technique: "T1048 - Exfiltration Over Alternative Protocol"
+adversary: origin
+references:
+  - https://book.hacktricks.xyz/network-services-pentesting/6379-pentesting-redis
+  - https://attack.mitre.org/techniques/T1048/
+description: |
+  Detects potential data exfiltration attempts from Redis including mass data dumps, bulk key retrieval operations, or suspicious backup/restore activities that could indicate data theft.
+  
+  Next Steps:
+  1. Identify the source IP and user account associated with the suspicious Redis commands
+  2. Review the specific commands executed to determine the scope of data access
+  3. Check if the affected Redis instance contains sensitive data (passwords, tokens, API keys)
+  4. Analyze network traffic from the Redis server to identify potential data destinations
+  5. Review Redis access logs for other anomalous activities from the same source
+  6. If confirmed malicious, revoke access for the compromised account and rotate any exposed credentials
+  7. Consider implementing Redis ACLs to restrict access to sensitive operations
+where: |
+  exists("log.msg") && (
+    (regexMatch("log.msg", "(?i)(DUMP|RESTORE)\\s+") && safe(log.msg, "").size() > 1000) ||
+    (regexMatch("log.msg", "(?i)KEYS\\s+\\*") && !equals("log.levelEnc", "debug")) ||
+    (regexMatch("log.msg", "(?i)(SCAN|HSCAN|SSCAN|ZSCAN)\\s+\\d+\\s+MATCH\\s+\\*\\s+COUNT\\s+[1-9]\\d{3,}")) ||
+    (regexMatch("log.msg", "(?i)(BGSAVE|SAVE|LASTSAVE)") && regexMatch("log.msg", "(?i)(remote|external|http|ftp)")) ||
+    (regexMatch("log.msg", "(?i)SELECT\\s+\\d+") && regexMatch("log.msg", "(?i)(KEYS\\s+\\*|SCAN\\s+0)")) ||
+    (regexMatch("log.msg", "(?i)MIGRATE\\s+\\d+\\.\\d+\\.\\d+\\.\\d+")) ||
+    (regexMatch("log.msg", "(?i)(GET|HGETALL|SMEMBERS|ZRANGE).*") && regexMatch("log.msg", "(?i)(password|secret|token|api[_-]?key|private[_-]?key)"))
+  )
+afterEvents:
+  - indexPattern: v11-log-redis-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+    within: now-30m
+    count: 10
+groupBy:
+  - adversary.host
+  - adversary.user

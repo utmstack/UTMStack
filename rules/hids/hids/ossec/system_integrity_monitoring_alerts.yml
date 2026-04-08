@@ -1,0 +1,49 @@
+# Rule version v1.0.0
+
+dataTypes:
+- hids
+name: Critical System File Modification Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1070 - Indicator Removal on Host"
+adversary: origin
+references:
+- https://attack.mitre.org/techniques/T1070/
+- https://www.ossec.net/docs/manual/syscheck/
+description: |
+  Detects unauthorized modifications to critical system files monitored by OSSEC HIDS file integrity monitoring (FIM/syscheck), indicating potential compromise or tampering.
+  
+  Next Steps:
+  1. Identify the modified file(s) and review the changes made
+  2. Check the process and user that made the modifications
+  3. Verify if the changes were part of authorized system maintenance
+  4. Review system logs for other suspicious activities around the same time
+  5. If unauthorized, isolate the system and initiate incident response procedures
+  6. Restore files from known good backups if tampering is confirmed
+  7. Analyze file hashes and timestamps to determine the scope of changes
+  8. Check for persistence mechanisms that may have been installed
+where: |
+  (equals("log.module", "syscheck") ||
+   equals("log.module", "fim") ||
+   equals("log.eventType", "file_modified") ||
+   equals("log.eventType", "integrity_checksum_changed") ||
+   (contains("log.message", "file integrity") && 
+    (contains("log.message", "modified") || 
+     contains("log.message", "changed")))) &&
+  (contains("log.filePath", "/etc/") || 
+   contains("log.filePath", "/bin/") ||
+   contains("log.filePath", "/sbin/") ||
+   contains("log.filePath", "/usr/bin/") ||
+   contains("log.filePath", "/usr/sbin/") ||
+   contains("log.filePath", "/lib/") ||
+   contains("log.filePath", "/boot/") ||
+   contains("log.filePath", "system32") ||
+   contains("log.filePath", "syswow64") ||
+   contains("log.filePath", "windows/system32") ||
+   contains("log.filePath", "windows/syswow64"))
+groupBy:
+  - lastEvent.log.filePath
+  - adversary.host

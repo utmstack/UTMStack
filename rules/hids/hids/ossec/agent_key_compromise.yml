@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - hids
+name: HIDS Agent Key Compromise Indicators
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Credential Access
+technique: "T1552.004 - Unsecured Credentials: Private Keys"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1552/004/
+  - https://documentation.wazuh.com/current/user-manual/agents/agent-enrollment.html
+description: |
+  Detects indicators of stolen or replayed HIDS agent authentication keys, including multiple agents registering with the same key, authentication failures from key mismatch, or agent key file access.
+
+  Next Steps:
+  1. Identify the affected agent and its authentication key
+  2. Check for duplicate agent IDs or keys in the manager
+  3. Rotate the compromised agent key
+  4. Review the host where the key was potentially stolen
+  5. Check for unauthorized agents connecting to the manager
+  6. Verify agent enrollment security settings
+where: |
+  contains("log.message", "Duplicate agent") || contains("log.message", "Invalid key") ||
+  (contains("log.message", "agent key") && contains("log.message", "mismatch")) ||
+  (contains("log.message", "client.keys") && contains("log.message", "modified")) ||
+  (contains("log.message", "Authentication error") && contains("log.message", "agent")) ||
+  (contains("log.message", "agent-auth") && contains("log.message", "error"))
+groupBy:
+  - target.host

@@ -1,0 +1,54 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - iis
+name: IIS SQL Injection Attack Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Web Application Attack
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references:
+  - https://owasp.org/www-community/attacks/SQL_Injection
+  - https://attack.mitre.org/techniques/T1190/
+description: |
+  Detects SQL injection attempts through IIS access logs by identifying common SQL injection patterns in URL query strings and request parameters. These attacks target backend databases through web application vulnerabilities.
+
+  Next Steps:
+  1. Review the full request URL and parameters for SQL injection patterns
+  2. Check the backend database logs for corresponding query attempts
+  3. Identify the vulnerable application endpoint
+  4. Implement parameterized queries and input validation
+  5. Deploy a WAF with SQL injection protection
+  6. Block the source IP if confirmed malicious
+where: |
+  exists("origin.ip") &&
+  exists("target.path") &&
+  (
+    regexMatch("target.path", "(?i)(union\\s+(all\\s+)?select|select\\s+.*from\\s+.*where)") ||
+    regexMatch("target.path", "(?i)('\\s*(or|and)\\s+['\"]?[0-9].*=\\s*[0-9])") ||
+    regexMatch("target.path", "(?i)(;\\s*(drop|alter|create|truncate|delete|insert|update)\\s+(table|database|index))") ||
+    contains("target.path", "INFORMATION_SCHEMA") ||
+    contains("target.path", "xp_cmdshell") ||
+    regexMatch("target.path", "(?i)(waitfor\\s+delay|benchmark\\s*\\(|sleep\\s*\\()") ||
+    regexMatch("target.path", "(?i)(cast\\s*\\(|convert\\s*\\(|char\\s*\\().*\\)") ||
+    contains("target.path", "@@version") ||
+    contains("target.path", "sys.objects") ||
+    contains("target.path", "sysobjects")
+  )
+afterEvents:
+  - indexPattern: v11-log-iis-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: target.path
+        operator: filter_match
+        value: 'UNION OR SELECT OR xp_cmdshell OR INFORMATION_SCHEMA OR DROP'
+    within: now-10m
+    count: 5
+groupBy:
+  - adversary.ip
+  - target.path

@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Sudo Credential Caching Abuse
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Privilege Escalation
+technique: "T1548.003 - Abuse Elevation Control Mechanism: Sudo and Sudo Caching"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1548/003/
+description: |
+  Detects abuse of sudo credential caching on macOS including timestamp manipulation, sudoers file modifications to extend timeout, and tty_tickets bypass attempts.
+
+  Next Steps:
+  1. Check the sudoers configuration for unauthorized timestamp_timeout changes
+  2. Review /var/db/sudo/ for timestamp manipulation
+  3. Verify if sudo was used to execute suspicious commands
+  4. Check for sudoers file modifications via visudo or direct editing
+  5. Review the user account for unauthorized privilege escalation
+where: |
+  (contains("log.eventMessage", "sudoers") &&
+   (contains("log.eventMessage", "modified") || contains("log.eventMessage", "syntax error") ||
+    contains("log.eventMessage", "timestamp_timeout"))) ||
+  (contains("log.eventMessage", "sudo") && contains("log.eventMessage", "timestamp") &&
+   (contains("log.eventMessage", "too far in the future") || contains("log.eventMessage", "reset"))) ||
+  (contains("log.eventMessage", "/var/db/sudo") &&
+   (contains("log.eventMessage", "modified") || contains("log.eventMessage", "touch")))
+groupBy:
+  - adversary.host
+  - adversary.user

@@ -1,0 +1,21 @@
+name: "Suspicious Downloader Execution (Linux/macOS)"
+description: "Execution of native downloaders like curl or wget was detected on a Linux or macOS endpoint making HTTP connections, potentially indicating Ingress Tool Transfer by an adversary."
+category: "Command and Control"
+technique: "Ingress Tool Transfer"
+references:
+  - "https://attack.mitre.org/techniques/T1105/"
+dataTypes:
+  - crowdstrike
+adversary: origin
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 0
+where: >
+  exists("origin.operatingSystem") && 
+  oneOf("origin.operatingSystem", ["Mac", "Lin"]) && 
+  exists("log.eventCommandLine") && 
+  regexMatch("log.eventCommandLine", "(?i).*(curl|wget).*http.*")
+groupBy: 
+  - origin.host
+  - lastEvent.log.eventCommandLine

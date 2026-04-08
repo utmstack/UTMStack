@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - mysql
+name: MySQL Audit Log Disabling Detection
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1562.002 - Impair Defenses: Disable Windows Event Logging"
+adversary: origin
+references:
+  - https://dev.mysql.com/doc/refman/8.0/en/audit-log-installation.html
+  - https://attack.mitre.org/techniques/T1562/002/
+description: |
+  Detects attempts to disable MySQL audit logging by uninstalling the audit_log plugin, modifying audit log variables, or disabling general/slow query logging. Attackers disable auditing to operate without leaving traces.
+
+  Next Steps:
+  1. Verify if the audit log was intentionally disabled by an authorized administrator
+  2. Re-enable audit logging immediately if unauthorized
+  3. Check for recent suspicious database activity during the logging gap
+  4. Review user permissions and revoke unnecessary SUPER privileges
+  5. Implement monitoring for audit log status changes
+  6. Check if any data was accessed or modified while logging was disabled
+where: |
+  exists("log.msg") &&
+  (
+    regexMatch("log.msg", "(?i)UNINSTALL\\s+PLUGIN\\s+audit_log") ||
+    regexMatch("log.msg", "(?i)SET\\s+GLOBAL\\s+audit_log_policy\\s*=\\s*['\"]?NONE") ||
+    regexMatch("log.msg", "(?i)SET\\s+GLOBAL\\s+general_log\\s*=\\s*(0|OFF)") ||
+    regexMatch("log.msg", "(?i)SET\\s+GLOBAL\\s+slow_query_log\\s*=\\s*(0|OFF)") ||
+    regexMatch("log.msg", "(?i)SET\\s+GLOBAL\\s+log_output\\s*=\\s*['\"]?NONE") ||
+    regexMatch("log.msg", "(?i)UNINSTALL\\s+PLUGIN\\s+server_audit") ||
+    regexMatch("log.msg", "(?i)SET\\s+GLOBAL\\s+audit_log_flush\\s*=\\s*(0|OFF)")
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

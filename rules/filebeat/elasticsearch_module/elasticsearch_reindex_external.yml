@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - elasticsearch
+name: Elasticsearch External Reindex Exfiltration Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Data Exfiltration
+technique: "T1048 - Exfiltration Over Alternative Protocol"
+adversary: origin
+references:
+  - https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html
+  - https://attack.mitre.org/techniques/T1048/
+description: |
+  Detects _reindex API calls with remote/external source or destination that could indicate data exfiltration to attacker-controlled Elasticsearch clusters. The reindex API can transfer entire indices to remote clusters.
+
+  Next Steps:
+  1. Review the reindex request for remote host configuration
+  2. Verify the remote Elasticsearch cluster is legitimate
+  3. Check what index data is being transferred
+  4. Restrict reindex.remote.whitelist configuration
+  5. Monitor outbound network connections from the cluster
+  6. Block unauthorized external reindex operations
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "_reindex") && contains("log.message", "remote")) ||
+    (contains("log.message", "reindex") && contains("log.message", "remote.host")) ||
+    (contains("log.message", "reindex.remote.whitelist") && contains("log.message", "updated")) ||
+    (contains("log.message", "reindex") && regexMatch("log.message", "(?i)https?://[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+"))
+  )
+groupBy:
+  - adversary.ip
+  - target.ip

@@ -1,0 +1,46 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - iis
+name: IIS Double Encoding Directory Traversal Attack
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Discovery
+technique: "T1083 - File and Directory Discovery"
+adversary: origin
+references:
+  - https://www.acunetix.com/vulnerabilities/web/iis-extended-unicode-directory-traversal-vulnerability/
+  - https://attack.mitre.org/techniques/T1083/
+description: |
+  Detects double encoding attempts to bypass directory traversal filters, including encoded dot-dot-slash sequences that could allow unauthorized file access. Attackers use double URL encoding to bypass security filters and access files outside the intended directory structure.
+  
+  Next Steps:
+  1. Review the requested path and identify the specific encoding patterns used
+  2. Check server logs for successful or failed file access attempts
+  3. Investigate the source IP for other suspicious activities
+  4. Verify web application security filters are properly configured
+  5. Review IIS access logs for any unauthorized file access
+  6. Consider blocking the source IP if attack patterns continue
+  7. Examine HTTP response codes to determine if the attack was successful
+  8. Check for patterns of similar requests from the same source
+where: |
+  exists("target.path") &&
+  (contains("target.path", "%252e%252e") || contains("target.path", "%25%32%65") ||
+  contains("target.path", "%25%32%65%25%32%65") || contains("target.path", "%252f") ||
+  contains("target.path", "%255c") || contains("target.path", "%25%35%63") ||
+  contains("target.path", "%25%32%66") || contains("target.path", "%%32%65") ||
+  contains("target.path", "%%35%63") || contains("target.path", "..%252f") ||
+  contains("target.path", "..%255c"))
+afterEvents:
+  - indexPattern: v11-log-iis-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-10m
+    count: 5
+deduplicateBy:
+  - adversary.ip
+  - target.path

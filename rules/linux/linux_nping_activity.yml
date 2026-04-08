@@ -1,0 +1,21 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: "System Linux: Nping Process Activity"
+impact:
+  confidentiality: 1
+  integrity: 1
+  availability: 2
+category: "Discovery"
+technique: "T1046 - Network Service Discovery"
+adversary: origin
+description: "Some normal use of this command may originate from security engineers and network or server administrators, but this
+              is usually not routine or unannounced. Use of Nping by non-engineers or ordinary users is uncommon."
+references:
+  - "https://attack.mitre.org/tactics/TA0007/"
+  - "https://attack.mitre.org/techniques/T1046/"
+where: contains("log.message", "nping")
+deduplicateBy:
+  - origin.ip
+  - origin.user

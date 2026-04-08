@@ -1,0 +1,22 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: "System Linux: Namespace Manipulation Using Unshare"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: "Privilege Escalation"
+technique: "T1543 - Create or Modify System Process"
+adversary: origin
+description: "Identifies  suspicious usage of unshare to manipulate system namespaces. Unshare can be utilized to escalate privileges
+              or escape container security boundaries. Threat actors have utilized this binary to allow themselves to escape to the
+              host and access other resources or escalate privileges."
+references:
+  - "https://attack.mitre.org/tactics/TA0004/"
+  - "https://attack.mitre.org/techniques/T1543/"
+where: contains("log.message", "unshare") && !contains("log.message", "/usr/bin/snap") && !regexMatch("log.message", "(\\/usr\\/bin\\/udevadm|\\/lib\\/systemd\\/systemd-udevd|\\/usr\\/bin\\/unshare)")
+groupBy:
+  - origin.ip
+  - origin.user

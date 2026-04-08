@@ -1,0 +1,43 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - vmware-esxi
+name: ESXi Local Account Manipulation Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1098 - Account Manipulation"
+adversary: origin
+references:
+  - https://kb.vmware.com/s/article/1006530
+  - https://attack.mitre.org/techniques/T1098/
+description: |
+  Detects creation or modification of local ESXi user accounts. Attackers create backdoor accounts on ESXi hosts for persistent access, or modify existing accounts to escalate privileges.
+
+  Next Steps:
+  1. Verify if the user account change was authorized
+  2. Review the new account's permissions and roles
+  3. Check for any new administrator-level accounts
+  4. Remove unauthorized accounts immediately
+  5. Reset passwords for compromised accounts
+  6. Implement centralized authentication (Active Directory integration)
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "vim-cmd vimsvc/auth/") && (
+      contains("log.message", "entity_permission_add") ||
+      contains("log.message", "entity_permission_update")
+    )) ||
+    (contains("log.message", "useradd") || contains("log.message", "usermod") || contains("log.message", "userdel")) ||
+    (contains("log.message", "esxcli system account") && (
+      contains("log.message", "add") ||
+      contains("log.message", "set")
+    )) ||
+    (contains("log.message", "permission") && contains("log.message", "Admin") && (
+      contains("log.message", "added") || contains("log.message", "granted")
+    ))
+  )
+groupBy:
+  - adversary.hostname

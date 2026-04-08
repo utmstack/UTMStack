@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: Windows Remote Management (WinRM) Abuse
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Lateral Movement
+technique: "T1021.006 - Remote Services: Windows Remote Management"
+adversary: origin
+references:
+  - https://jpcertcc.github.io/ToolAnalysisResultSheet/details/WinRM.htm
+  - https://attack.mitre.org/techniques/T1021/006/
+description: |
+  Detects potential abuse of Windows Remote Management (WinRM) for lateral movement. Monitors for successful logon events (4624) with network logon type 3 combined with privilege escalation (4672) and WinRM-related process activity, indicating remote command execution via WinRM.
+  
+  Next Steps:
+  1. Investigate the source IP address and verify if it's an authorized administrative workstation
+  2. Review the target user account for any signs of compromise or unusual privilege usage
+  3. Examine recent PowerShell execution logs and command history on the target system
+  4. Check for concurrent suspicious activities from the same source IP across other systems
+  5. Verify if the WinRM connection aligns with scheduled maintenance or authorized administrative tasks
+  6. Review network traffic patterns between source and target systems for data exfiltration indicators
+  7. Validate the legitimacy of any processes spawned through the WinRM session
+  8. Consider implementing additional monitoring for WinRM usage if this represents unexpected activity
+where: equals("log.eventCode", "4624") && equals("log.eventDataLogonType", "3") && exists("log.eventDataProcessName") && (contains("log.eventDataProcessName", "wsmprovhost.exe") || contains("log.eventDataProcessName", "winrshost.exe") || contains("log.eventDataProcessName", "powershell.exe"))
+groupBy:
+  - target.user
+  - origin.host
+  - origin.ip

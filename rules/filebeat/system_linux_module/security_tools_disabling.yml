@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Security Tools Disabled or Stopped
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1562/001/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_security_tools_disabling.yml
+description: |
+  Detects commands used to stop, disable, or remove security tools on Linux systems. This includes firewalls (iptables, firewalld, ufw, nftables), EDR agents (falcon-sensor, cbdaemon, mdatp), SELinux/AppArmor enforcement, and other security services. Attackers disable security tools early in the kill chain to avoid detection during subsequent exploitation phases.
+
+  Next Steps:
+  1. Immediately verify if the security tool disabling was authorized
+  2. Check if the affected security tools are currently running
+  3. Re-enable any disabled security tools immediately
+  4. Investigate the user account and process that issued the command
+  5. Look for subsequent malicious activity that the attacker was trying to hide
+  6. Check for persistence mechanisms that disable security tools at boot
+  7. Verify SELinux/AppArmor enforcement status
+  8. Review other hosts for similar security tool disabling patterns
+where: |
+  exists("log.message") &&
+  (regexMatch("log.message", "(?i)systemctl\\s+(stop|disable|mask)\\s+(iptables|firewalld|ufw|nftables|falcon-sensor|cbdaemon|cbsensor|mdatp|clamd|ossec|wazuh|auditd|rsyslog|syslog-ng|apparmor)") ||
+   regexMatch("log.message", "(?i)service\\s+(iptables|firewalld|ufw|falcon-sensor|cbdaemon|auditd|rsyslog|apparmor)\\s+stop") ||
+   contains("log.message", "setenforce 0") ||
+   contains("log.message", "setenforce Permissive") ||
+   regexMatch("log.message", "(?i)aa-teardown") ||
+   regexMatch("log.message", "(?i)apparmor_parser\\s+-R") ||
+   regexMatch("log.message", "(?i)(apt|yum|dnf|rpm)\\s+.*(remove|erase)\\s+(iptables|firewalld|falcon-sensor|clamav|ossec|wazuh|auditd)"))
+groupBy:
+  - origin.host
+  - origin.user

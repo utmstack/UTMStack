@@ -1,0 +1,17 @@
+name: "Custom Indicator of Compromise (IoC) Detected"
+description: "The sensor has detected activity that matches an IoC (Hash, Domain, IP) supplied and entered by the client."
+category: "Threat Detection"
+technique: "User Execution"
+references:
+  - "https://attack.mitre.org/techniques/T1204/"
+dataTypes:
+  - crowdstrike
+adversary: origin
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+where: >
+  equals("log.metadataEventType", "CustomerIOCEvent")
+groupBy:
+  - lastEvent.log.metadataEventType

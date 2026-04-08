@@ -1,0 +1,52 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - iis
+name: IIS SSRF Attack Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Server-Side Request Forgery
+technique: "T1090 - Proxy"
+adversary: origin
+references:
+  - https://owasp.org/www-community/attacks/Server_Side_Request_Forgery
+  - https://attack.mitre.org/techniques/T1090/
+description: |
+  Detects Server-Side Request Forgery attacks targeting IIS web applications. Monitors for requests containing internal IP addresses, cloud metadata endpoints, and protocol handlers in URL parameters.
+
+  Next Steps:
+  1. Review the full request URL and query parameters
+  2. Check if internal services or metadata endpoints were accessed
+  3. Verify application URL validation and allowlisting
+  4. Implement SSRF protections in the application layer
+  5. Block the source IP if confirmed malicious
+  6. Review IIS application configurations for proxy-like behavior
+where: |
+  exists("origin.ip") &&
+  exists("target.path") &&
+  (
+    contains("target.path", "169.254.169.254") ||
+    contains("target.path", "metadata.google.internal") ||
+    contains("target.path", "metadata.azure.com") ||
+    regexMatch("target.path", "(?i)(url|redirect|dest|target|uri|file|page|load|fetch)=.*(127\\.0\\.0\\.1|localhost|0\\.0\\.0\\.0)") ||
+    regexMatch("target.path", "(?i)(url|redirect|dest|target|uri|file|page|load|fetch)=.*169\\.254\\.169\\.254") ||
+    contains("target.path", "file:///") ||
+    contains("target.path", "gopher://") ||
+    contains("target.path", "dict://")
+  )
+afterEvents:
+  - indexPattern: v11-log-iis-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: target.path
+        operator: filter_match
+        value: '169.254.169.254 OR localhost OR 127.0.0.1 OR metadata OR gopher://'
+    within: now-10m
+    count: 3
+groupBy:
+  - adversary.ip
+  - target.path

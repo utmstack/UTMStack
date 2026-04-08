@@ -1,0 +1,44 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - ibm-aix
+name: IBM AIX SSH Authorized Keys Manipulation Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Persistence
+technique: "T1098.004 - Account Manipulation: SSH Authorized Keys"
+adversary: origin
+references:
+  - https://www.ibm.com/docs/en/aix/7.2?topic=security-configuring-openssh
+  - https://attack.mitre.org/techniques/T1098/004/
+description: |
+  Detects modifications to SSH authorized_keys files on IBM AIX systems. Attackers add their SSH public keys to maintain persistent access to compromised systems.
+
+  Next Steps:
+  1. Review the authorized_keys file changes
+  2. Verify the added SSH keys belong to authorized users
+  3. Check which user accounts had keys modified
+  4. Remove unauthorized SSH keys immediately
+  5. Implement SSH key management policies
+  6. Monitor for SSH connections using the new keys
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "authorized_keys") && (
+      contains("log.message", "modified") ||
+      contains("log.message", "changed") ||
+      contains("log.message", "written") ||
+      contains("log.message", "appended")
+    )) ||
+    (contains("log.message", ".ssh/authorized_keys") && exists("origin.user")) ||
+    (contains("log.message", "ssh-rsa") && (
+      contains("log.message", ">>") ||
+      contains("log.message", "echo")
+    )) ||
+    (contains("log.message", "sshd_config") && contains("log.message", "AuthorizedKeysFile"))
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Azure AD New Root Certificate Authority Added
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1556 - Modify Authentication Process"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/entra/identity/authentication/concept-certificate-based-authentication
+  - https://attack.mitre.org/techniques/T1556/
+description: |
+  Detects when a new root certificate authority is added to the TrustedCAsForPasswordlessAuth configuration in Azure AD. Adding a rogue root CA enables persistent passwordless authentication backdoor access.
+
+  Next Steps:
+  1. Immediately verify the root CA addition was authorized
+  2. Review the certificate details and issuing authority
+  3. Check the user identity performing the change
+  4. Validate the CA against your organization's known PKI infrastructure
+  5. If unauthorized, remove the root CA immediately
+  6. Audit all certificate-based authentications since the CA was added
+  7. Review Azure AD authentication methods policies
+where: |
+  contains("log.operationName", "TrustedCAsForPasswordlessAuth") ||
+  (contains("log.operationName", "Update organization settings") && contains("log.properties", "certificateAuthorities"))
+groupBy:
+  - lastEvent.log.operationName
+  - adversary.user

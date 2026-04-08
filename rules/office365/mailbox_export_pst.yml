@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Office 365 Mailbox Export to PST
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 1
+category: Data Exfiltration
+technique: "T1114.002 - Email Collection: Remote Email Collection"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/exchange/policy-and-compliance/ediscovery/export-results-to-pst
+  - https://attack.mitre.org/techniques/T1114/002/
+description: |
+  Detects creation of mailbox export requests which generate PST files containing email data. Attackers with compromised admin credentials may use New-MailboxExportRequest or eDiscovery export to bulk exfiltrate email data from target mailboxes.
+
+  Next Steps:
+  1. Verify the mailbox export was authorized for legitimate eDiscovery or compliance purposes
+  2. Identify the target mailbox(es) being exported
+  3. Review the administrator performing the export and confirm authorization
+  4. Check the export destination and ensure it is within organizational control
+  5. Review the content filters applied to the export request
+  6. If unauthorized, cancel the export and revoke admin credentials
+  7. Review the exported data for sensitive or regulated content
+  8. Implement RBAC to restrict mailbox export permissions
+where: |
+  oneOf("action", ["New-MailboxExportRequest", "New-ComplianceSearchAction", "SearchExportDownloaded"]) &&
+  equals("actionResult", "Success")
+groupBy:
+  - lastEvent.action
+  - adversary.user

@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+- hids
+name: Rootkit Detection by HIDS
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1014 - Rootkit"
+adversary: origin
+references:
+- https://attack.mitre.org/techniques/T1014/
+- https://www.ossec.net/docs/manual/rootcheck/
+description: |
+  Detects rootkit activity identified by HIDS rootcheck module, indicating
+  potential system compromise with kernel-level persistence.
+  
+  Next Steps:
+  1. Immediately isolate the affected system from the network
+  2. Capture memory dump and disk image for forensic analysis
+  3. Review system processes and network connections for suspicious activity
+  4. Check for persistence mechanisms (startup scripts, scheduled tasks, services)
+  5. Verify integrity of system binaries and configuration files
+  6. Review logs for initial compromise vector and lateral movement
+  7. Consider rebuilding the system from clean media after investigation
+where: |
+  equals("log.module", "rootcheck") ||
+  equals("log.eventType", "rootkit_detected") ||
+  equals("log.alertType", "rootkit") ||
+  (contains("log.message", "rootkit") &&
+   (contains("log.message", "detected") ||
+    contains("log.message", "found"))) ||
+  contains("log.ruleId", "rootcheck")
+groupBy:
+  - lastEvent.log.message
+  - adversary.host

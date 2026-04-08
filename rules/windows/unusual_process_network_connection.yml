@@ -1,0 +1,21 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "wineventlog"
+name: "Windows: Unusual Process Network Connection"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: "Defense Evasion"
+technique: "Trusted Developer Utilities Proxy Execution"
+adversary: origin
+references:
+  - "https://attack.mitre.org/tactics/TA0005/"
+  - "https://attack.mitre.org/techniques/T1127/"
+description: "Identifies network activity from unexpected system applications. This may indicate adversarial activity as these
+              applications are often leveraged by adversaries to execute code and evade detection."
+where: regexMatch("log.eventDataProcessName", "(Microsoft.Workflow.Compiler.exe|bginfo.exe|cdb.exe|cmstp.exe|csi.exe|dnx.exe|fsi.exe|ieexec.exe|iexpress.exe|odbcconf.exe|rcsi.exe|xwizard.exe)")
+groupBy:
+  - origin.ip
+  - target.user

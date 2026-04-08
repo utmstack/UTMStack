@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - mongodb
+name: MongoDB Injection Attack Patterns
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references:
+  - https://www.mongodb.com/docs/manual/reference/log-messages/
+  - https://attack.mitre.org/techniques/T1190/
+  - https://owasp.org/www-project-web-security-testing-guide/v41/4-Web_Application_Security_Testing/07-Input_Validation_Testing/05.6-Testing_for_NoSQL_Injection
+description: |
+  Detects potential MongoDB injection attempts through suspicious query patterns including $where, $function, mapReduce operations, or malicious operators that may contain arbitrary JavaScript code execution. These patterns often indicate attempts to execute code, bypass authentication mechanisms, or perform unauthorized data access.
+  
+  Next Steps:
+  - Review the source IP address and check if it's from a known legitimate application or user
+  - Examine the full query to understand the attempted injection pattern and payload
+  - Check if the query was successful or resulted in an error response
+  - Look for other suspicious activities from the same source IP in recent timeframes
+  - Verify if any sensitive data was accessed, modified, or exfiltrated
+  - Consider blocking the source IP if confirmed malicious activity
+  - Review application code for proper input validation and parameterized queries
+  - Check MongoDB security configuration and access controls
+  - Monitor for privilege escalation attempts or lateral movement
+where: |
+  oneOf("log.component", ["QUERY", "COMMAND"]) &&
+  (contains("log.message", "$where") ||
+   contains("log.message", "$function") ||
+   (contains("log.message", "mapReduce") && contains("log.message", "function")) ||
+   contains("log.message", "db.eval") ||
+   (contains("log.message", "function()") && contains("log.message", "return")))
+groupBy:
+  - adversary.ip
+  - target.ip

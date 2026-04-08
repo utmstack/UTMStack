@@ -1,0 +1,24 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: "AWS Execution via System Manager"
+impact:
+  confidentiality: 2
+  integrity: 1
+  availability: 1
+category: "Initial Access"
+technique: "T1566 - Phishing"
+adversary: origin
+description: "Identifies the execution of commands and scripts via System Manager. Execution methods such as RunShellScript, RunPowerShellScript, and alike can be abused by an authenticated attacker to install a backdoor or to interact with a compromised instance via reverse-shell using system only commands<br><strong>Potential false positives</strong><br>Verify whether the user identity, user agent, and/or hostname should be making changes in your environment. Suspicious commands from unfamiliar users or hosts should be investigated. If known behavior is causing false positives, it can be exempted from the rule."
+references:
+  - "https://attack.mitre.org/tactics/TA0001/"
+  - "https://attack.mitre.org/techniques/T1566/"
+  - "https://docs.aws.amazon.com/systems-manager/latest/userguide/ssm-plugins.html"
+
+where: |
+  equals("log.eventSource", "ssm.amazonaws.com") &&
+  equals("log.eventName", "SendCommand")
+groupBy:
+  - adversary.ip
+  - adversary.user

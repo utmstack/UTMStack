@@ -1,0 +1,47 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - auditd
+name: Unauthorized File Access Attempts
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Collection
+technique: "T1005 - Data from Local System"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1005/
+  - https://www.elastic.co/guide/en/beats/filebeat/current/exported-fields-auditd.html
+description: |
+  Detects unauthorized attempts to access sensitive files and directories. This may indicate data exfiltration attempts, privilege escalation, or reconnaissance activities.
+  
+  Next Steps:
+  1. Verify the legitimacy of the file access attempt by checking if the user has authorized access
+  2. Review the user's recent activities and session details
+  3. Check for any privilege escalation attempts or suspicious login patterns
+  4. Examine the accessed files for sensitive data and assess potential impact
+  5. Consider isolating the affected system if unauthorized access is confirmed
+  6. Review and update file access permissions as necessary
+where: |
+  equals("log.auditd.log.record_type", "PATH") &&
+  equals("log.auditd.log.nametype", "NORMAL") &&
+  (contains("log.auditd.log.name", "/etc/shadow") ||
+   contains("log.auditd.log.name", "/etc/sudoers") ||
+   contains("log.auditd.log.name", "/.ssh/") ||
+   contains("log.auditd.log.name", "id_rsa") ||
+   contains("log.auditd.log.name", "id_ecdsa") ||
+   contains("log.auditd.log.name", "id_ed25519") ||
+   contains("log.auditd.log.name", "/etc/gshadow"))
+afterEvents:
+  - indexPattern: v11-log-auditd-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+    within: now-15m
+    count: 5
+groupBy:
+  - lastEvent.log.auditd.log.auid
+  - lastEvent.log.auditd.log.name
+  - adversary.host

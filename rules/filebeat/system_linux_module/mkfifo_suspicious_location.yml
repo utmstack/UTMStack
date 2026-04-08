@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Named Pipe Creation in Suspicious Location
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: Execution
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1059/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_mkfifo_named_pipe_creation_susp_location.yml
+  - https://www.mandiant.com/resources/blog/barracuda-esg-exploited-globally
+description: |
+  Detects creation of named pipes (FIFOs) in /tmp or /dev/shm using mkfifo. Named pipes in temporary directories are commonly used by attackers and malware for inter-process communication during exploitation. This technique was notably used in the Barracuda ESG exploitation campaign.
+
+  Next Steps:
+  1. Identify the named pipe file and examine its location
+  2. Determine which processes are reading from and writing to the pipe
+  3. Check for associated reverse shell or data exfiltration activity
+  4. Review the parent process that executed mkfifo
+  5. Look for other indicators of web application exploitation
+  6. Remove the named pipe and investigate the full attack chain
+where: |
+  contains("log.message", "mkfifo") &&
+  contains("log.message", ["/tmp/", "/dev/shm/", "/var/tmp/"])
+groupBy:
+  - origin.host
+  - origin.user

@@ -1,0 +1,41 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - elasticsearch
+name: Elasticsearch Cluster Security Settings Manipulation
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562 - Impair Defenses"
+adversary: origin
+references:
+  - https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-update-settings.html
+  - https://attack.mitre.org/techniques/T1562/
+description: |
+  Detects manipulation of Elasticsearch cluster settings to disable security features, modify audit logging, or weaken cluster defenses. Attackers modify these settings to operate undetected.
+
+  Next Steps:
+  1. Review the specific cluster settings that were modified
+  2. Verify the change was authorized by a cluster administrator
+  3. Revert unauthorized security setting changes immediately
+  4. Check if audit logging was disabled during the modification period
+  5. Review cluster access logs for other suspicious activity
+  6. Restrict _cluster/settings API access
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "_cluster/settings") && (
+      contains("log.message", "xpack.security") ||
+      contains("log.message", "xpack.monitoring") ||
+      contains("log.message", "audit") ||
+      contains("log.message", "action.destructive_requires_name")
+    )) ||
+    (contains("log.message", "cluster settings") && contains("log.message", "updated") && contains("log.message", "security")) ||
+    (contains("log.message", "xpack.security.enabled") && contains("log.message", "false")) ||
+    (contains("log.message", "xpack.security.audit.enabled") && contains("log.message", "false"))
+  )
+groupBy:
+  - adversary.ip
+  - target.ip

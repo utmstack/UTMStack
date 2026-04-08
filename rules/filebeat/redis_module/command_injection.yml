@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - redis
+name: Redis Command Injection Attempt
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059.004 - Command and Scripting Interpreter: Unix Shell"
+adversary: origin
+references:
+  - https://redis.io/docs/latest/operate/oss_and_stack/management/security/
+  - https://attack.mitre.org/techniques/T1059/004/
+description: |
+  Detects potential command injection attempts in Redis through dangerous commands like EVAL with suspicious patterns, CONFIG SET operations that modify critical settings, or attempts to execute system commands through Lua scripts.
+  
+  Next Steps:
+  1. Immediately investigate the source IP/host that initiated the suspicious command
+  2. Review Redis audit logs for any successful command executions
+  3. Check if Redis is exposed to untrusted networks
+  4. Verify Redis ACL configuration and user permissions
+  5. Look for any unauthorized changes to Redis configuration files
+  6. Check for any suspicious processes spawned by Redis
+  7. Consider rotating Redis passwords if compromise is suspected
+where: |
+  exists("log.message") && (
+    (regexMatch("log.message", "(?i)(EVAL|EVALSHA|SCRIPT\\s+LOAD).*\\b(os\\.execute|io\\.popen|io\\.open|loadfile|dofile|require)\\b")) ||
+    (regexMatch("log.message", "(?i)CONFIG\\s+SET\\s+(dir|dbfilename|requirepass|masterauth)")) ||
+    (regexMatch("log.message", "(?i)(EVAL|EVALSHA).*\\b(cat\\s+/etc/passwd|chmod|chown|wget|curl|nc|bash|sh)\\b")) ||
+    (regexMatch("log.message", "(?i)SCRIPT\\s+LOAD.*\\\\x[0-9a-fA-F]{2}")) ||
+    (equals("log.severity", "high") && regexMatch("log.message", "(?i)Lua\\s+script\\s+attempted\\s+to\\s+access"))
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

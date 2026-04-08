@@ -1,0 +1,58 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - apache
+name: Directory Traversal Attack Attempts
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Discovery
+technique: "T1083 - File and Directory Discovery"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1083/
+  - https://owasp.org/www-community/attacks/Path_Traversal
+description: |
+  Detects attempts to access files outside the web root directory using directory traversal techniques. 
+  This rule identifies various encoded and unencoded path traversal patterns that attackers use to 
+  access sensitive system files.
+  
+  Next Steps:
+  1. Immediately block the source IP address if confirmed malicious
+  2. Review web server access logs for other suspicious activities from the same IP
+  3. Check if any sensitive files were successfully accessed
+  4. Verify web application input validation and sanitization controls
+  5. Consider implementing or updating Web Application Firewall (WAF) rules
+  6. Review and harden file system permissions on the web server
+where: |
+  exists("origin.ip") &&
+  exists("log.request") &&
+  (
+    contains("log.request", "../") ||
+    contains("log.request", "..\\") ||
+    contains("log.request", "..%2f") ||
+    contains("log.request", "..%2F") ||
+    contains("log.request", "..%5c") ||
+    contains("log.request", "..%5C") ||
+    contains("log.request", "%2e%2e/") ||
+    contains("log.request", "%2e%2e\\") ||
+    contains("log.request", "..%252f") ||
+    contains("log.request", "..%255c") ||
+    contains("log.request", "/etc/passwd") ||
+    contains("log.request", "/windows/system32") ||
+    contains("log.request", "/proc/self") ||
+    contains("log.request", "C:\\Windows") ||
+    contains("log.request", "C:\\winnt")
+  )
+afterEvents:
+  - indexPattern: v11-log-apache-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-10m
+    count: 5
+deduplicateBy:
+  - adversary.ip
+  - target.ip

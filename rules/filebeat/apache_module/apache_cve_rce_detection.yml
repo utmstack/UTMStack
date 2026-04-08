@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - apache
+name: Apache CVE Path Traversal and RCE Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Exploitation
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references:
+  - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-41773
+  - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-42013
+  - https://attack.mitre.org/techniques/T1190/
+description: |
+  Detects exploitation attempts targeting known Apache HTTP Server CVEs including CVE-2021-41773 and CVE-2021-42013 path traversal/RCE vulnerabilities, as well as other Apache-specific attack patterns that enable remote code execution.
+
+  Next Steps:
+  1. Immediately verify the Apache version running on the target server
+  2. Check if the path traversal or RCE attempt was successful (200 status code)
+  3. Review the server for signs of compromise or unauthorized file access
+  4. Patch Apache to the latest version immediately
+  5. Check for reverse shells or dropped files on the server
+  6. Block the source IP and review firewall rules
+where: |
+  exists("origin.ip") &&
+  exists("origin.path") &&
+  (
+    contains("origin.path", ".%2e/") ||
+    contains("origin.path", "%2e%2e/") ||
+    contains("origin.path", "%%32%65") ||
+    contains("origin.path", ".%%32%65/") ||
+    contains("origin.path", "%2e%%32%65/") ||
+    contains("origin.path", "%%32%65%%32%65/") ||
+    (contains("origin.path", "/cgi-bin/") && contains("origin.path", "%2e%2e")) ||
+    (contains("origin.path", "/icons/") && contains("origin.path", "%2e%2e")) ||
+    regexMatch("origin.path", "(?i)/cgi-bin/.*\\.(sh|pl|py|cgi)\\?") ||
+    contains("origin.path", "/server-status") ||
+    contains("origin.path", "/server-info")
+  )
+groupBy:
+  - adversary.ip
+  - adversary.path

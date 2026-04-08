@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS Config Service Disabled
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562.008 - Impair Defenses: Disable Cloud Logs"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/config/latest/developerguide/stop-start-recorder.html
+  - https://attack.mitre.org/techniques/T1562/008/
+description: |
+  Detects attempts to disable AWS Config by stopping the configuration recorder or deleting the delivery channel. AWS Config tracks resource configuration changes and compliance, and disabling it is a common defense evasion technique.
+
+  Next Steps:
+  1. Verify if the AWS Config modification was authorized
+  2. Check the user identity and source IP for legitimacy
+  3. Review any infrastructure changes made while Config was disabled
+  4. Re-enable AWS Config immediately if unauthorized
+  5. Check for other defense evasion activities from the same source
+  6. Review CloudTrail for API calls during the gap in Config monitoring
+  7. Verify compliance requirements are being met
+where: |
+  equals("log.eventSource", "config.amazonaws.com") &&
+  oneOf("log.eventName", ["DeleteDeliveryChannel", "StopConfigurationRecorder", "DeleteConfigurationRecorder"]) &&
+  equals("log.errorCode", "")
+groupBy:
+  - adversary.user
+  - lastEvent.log.eventName

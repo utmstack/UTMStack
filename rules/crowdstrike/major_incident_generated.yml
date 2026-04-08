@@ -1,0 +1,18 @@
+name: "Major Incident Generated (CrowdScore)"
+description: "The CrowdScore engine has consolidated multiple detections into a critical incident, a possible indicator of Lateral Movement or widespread intrusion."
+category: "Lateral Movement"
+technique: "Lateral Tool Transfer"
+references:
+  - "https://attack.mitre.org/techniques/T1570/"
+  - "https://attack.mitre.org/tactics/TA0008/"
+dataTypes:
+  - crowdstrike
+adversary: origin
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+where: >
+  equals("log.metadataEventType", "IncidentSummaryEvent")
+groupBy:
+  - lastEvent.log.metadataEventType

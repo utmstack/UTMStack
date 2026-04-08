@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: SAM Database Access Attempt
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Credential Access
+technique: "T1003.002 - OS Credential Dumping: Security Account Manager"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1003/002/
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4661
+description: |
+  Detects attempts to access the Security Account Manager (SAM) database, which contains local user account hashes. This activity may indicate credential dumping attempts by attackers trying to extract password hashes for offline cracking or lateral movement.
+  
+  Next Steps:
+  1. Immediately investigate the user account and process that accessed the SAM database
+  2. Check for any unusual processes running on the affected system
+  3. Review recent logon events and privilege escalation activities
+  4. Examine network connections from the affected host for lateral movement
+  5. Consider isolating the affected system if malicious activity is confirmed
+  6. Review security policies for SAM database access permissions
+  7. Check for presence of credential dumping tools or suspicious files
+where: |
+  equals("log.eventCode", "4663") && 
+  equals("log.channel", "Security") &&
+  (
+    endsWith("log.eventDataObjectName", "\\SAM") ||
+    endsWith("log.eventDataObjectName", "\\SECURITY") ||
+    endsWith("log.eventDataObjectName", "\\SYSTEM")
+  ) &&
+  oneOf("log.eventDataAccessMask", ["131097", "2032127", "64", "32", "1"])
+groupBy:
+  - origin.host
+  - target.user

@@ -1,0 +1,52 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - mysql
+name: MySQL Trigger Manipulation Detection
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1505.001 - SQL Stored Procedures"
+adversary: origin
+references:
+  - https://dev.mysql.com/doc/refman/8.0/en/trigger-syntax.html
+  - https://dev.mysql.com/doc/refman/8.0/en/audit-log-reference.html
+  - https://attack.mitre.org/techniques/T1505/001/
+description: |
+  Detects attempts to create, alter, or drop database triggers which could be used for persistence, data tampering, or privilege escalation. Triggers can execute malicious code automatically on data changes and represent a significant security risk when manipulated by unauthorized users.
+
+  Next Steps:
+  1. Review the trigger manipulation commands in the alert details to understand what changes were attempted
+  2. Identify the user account that executed the trigger commands and verify if this activity was authorized
+  3. Examine the trigger definition for any suspicious or malicious code patterns, including calls to external functions or file operations
+  4. Check for any recent privilege escalations or account compromises for the executing user
+  5. Review database audit logs for other suspicious activities from the same source IP and user account
+  6. Verify if the trigger creation aligns with scheduled maintenance or authorized database changes
+  7. If unauthorized, immediately revoke the user's trigger creation privileges and audit all existing triggers for malicious content
+  8. Consider implementing stricter database access controls and trigger creation policies with approval workflows
+  9. Monitor for subsequent database activities that might leverage the newly created or modified triggers
+  10. Document the incident and update security procedures to prevent similar unauthorized trigger manipulations
+where: |
+  exists("log.msg") && 
+  (
+    contains("log.msg", "CREATE TRIGGER") ||
+    contains("log.msg", "create trigger") ||
+    contains("log.msg", "ALTER TRIGGER") ||
+    contains("log.msg", "alter trigger") ||
+    contains("log.msg", "DROP TRIGGER") ||
+    contains("log.msg", "drop trigger") ||
+    (contains("log.msg", "trigger") && contains("log.msg", "definer"))
+  )
+afterEvents:
+  - indexPattern: v11-log-mysql-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+    within: now-10m
+    count: 3
+groupBy:
+  - adversary.host
+  - adversary.user

@@ -1,0 +1,25 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: "AWS IAM Deactivation of MFA Device"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: "Impact"
+technique: "T1531 - Account Access Removal"
+adversary: origin
+description: "Identifies the deactivation of a specified multi-factor authentication (MFA) device and removes it from association with the user name for which it was originally enabled. In AWS Identity and Access Management (IAM), a device must be deactivated before it can be deleted"
+references:
+  - "https://attack.mitre.org/tactics/TA0040/"
+  - "https://attack.mitre.org/techniques/T1531/"
+  - "https://awscli.amazonaws.com/v2/documentation/api/latest/reference/iam/deactivate-mfa-device.html"
+  - "https://docs.aws.amazon.com/IAM/latest/APIReference/API_DeactivateMFADevice.html"
+
+where: |
+  equals("log.eventSource", "iam.amazonaws.com") &&
+  oneOf("log.eventName", ["DeactivateMFADevice", "DeleteVirtualMFADevice"])
+groupBy:
+  - adversary.ip
+  - adversary.user

@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: M365 New Federated Domain Added
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Persistence
+technique: "T1556 - Modify Authentication Process"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/microsoft-365/enterprise/plan-for-third-party-ssl-certificates
+  - https://attack.mitre.org/techniques/T1556/
+description: |
+  Detects when a new federated domain is added to Microsoft 365. Adding federated domains is a critical attack technique that enables Golden SAML attacks, allowing attackers to forge authentication tokens and maintain persistent backdoor access to the tenant.
+
+  Next Steps:
+  1. Immediately verify the federated domain addition was authorized
+  2. Review the federation configuration and signing certificates
+  3. Validate the identity provider endpoint URLs
+  4. Check the admin account that made the change for compromise
+  5. Review all authentications from the federated domain
+  6. If unauthorized, remove the federated domain immediately
+  7. Audit all changes to tenant federation settings
+where: |
+  oneOf("action", ["Set domain authentication", "Add unverified domain", "Verify domain"]) &&
+  (contains("log.Parameters", "Federated") || contains("log.Parameters", "federation")) &&
+  exists("origin.user")
+groupBy:
+  - adversary.user
