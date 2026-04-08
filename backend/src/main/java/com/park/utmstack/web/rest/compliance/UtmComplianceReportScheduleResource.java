@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest.compliance;
 
+import com.park.utmstack.aop.logging.AuditEvent;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.compliance.UtmComplianceReportSchedule;
 import com.park.utmstack.repository.compliance.UtmComplianceReportScheduleRepository;
@@ -62,6 +63,12 @@ public class UtmComplianceReportScheduleResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/compliance-report-schedules")
+    @AuditEvent(
+        attemptType = ApplicationEventType.COMPLIANCE_SCHEDULE_CREATE_ATTEMPT,
+        attemptMessage = "Attempting to create compliance report schedule for report ID: {complianceId}",
+        successType = ApplicationEventType.COMPLIANCE_SCHEDULE_CREATE_SUCCESS,
+        successMessage = "Compliance report schedule for report ID {complianceId} created successfully"
+    )
     public ResponseEntity<UtmComplianceReportSchedule> createUtmComplianceReportSchedule(
         @Valid @RequestBody UtmComplianceReportSchedule utmComplianceReportSchedule
     ) throws URISyntaxException {
@@ -95,6 +102,12 @@ public class UtmComplianceReportScheduleResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/compliance-report-schedules")
+    @AuditEvent(
+        attemptType = ApplicationEventType.CONFIG_UPDATE_ATTEMPT,
+        attemptMessage = "Attempting to update compliance report schedule with ID: {id}",
+        successType = ApplicationEventType.CONFIG_UPDATE_SUCCESS,
+        successMessage = "Compliance report schedule with ID {id} updated successfully"
+    )
     public ResponseEntity<UtmComplianceReportSchedule> updateUtmComplianceReportSchedule(
         @Valid @RequestBody UtmComplianceReportSchedule utmComplianceReportSchedule
     ) throws URISyntaxException {
@@ -170,6 +183,12 @@ public class UtmComplianceReportScheduleResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/compliance-report-schedules/{id}")
+    @AuditEvent(
+        attemptType = ApplicationEventType.COMPLIANCE_SCHEDULE_DELETE_ATTEMPT,
+        attemptMessage = "Attempting to delete compliance report schedule with ID: {id}",
+        successType = ApplicationEventType.COMPLIANCE_SCHEDULE_DELETE_SUCCESS,
+        successMessage = "Compliance report schedule with ID {id} deleted successfully"
+    )
     public ResponseEntity<Void> deleteUtmComplianceReportSchedule(@PathVariable Long id) {
         log.debug("REST request to delete UtmComplianceReportSchedule : {}", id);
         final String ctx = CLASSNAME + ".deleteUtmComplianceReportSchedule";

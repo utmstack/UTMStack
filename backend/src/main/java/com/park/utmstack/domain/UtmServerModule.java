@@ -1,15 +1,18 @@
 package com.park.utmstack.domain;
 
 
+import com.park.utmstack.service.dto.auditable.AuditableDTO;
+
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * A UtmServerModule.
  */
 @Entity
 @Table(name = "utm_server_module")
-public class UtmServerModule implements Serializable {
+public class UtmServerModule implements Serializable, AuditableDTO {
 
     private static final long serialVersionUID = 1L;
 
@@ -99,5 +102,13 @@ public class UtmServerModule implements Serializable {
 
     public void setServer(UtmServer server) {
         this.server = server;
+    }
+
+    @Override
+    public Map<String, Object> toAuditMap() {
+        return Map.of(
+            "moduleName", moduleName != null ? moduleName : "",
+            "prettyName", prettyName != null ? prettyName : ""
+        );
     }
 }

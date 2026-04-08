@@ -1,6 +1,8 @@
 package com.park.utmstack.web.rest.api_key;
 
 
+import com.park.utmstack.aop.logging.AuditEvent;
+import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.security.AuthoritiesConstants;
 import com.park.utmstack.service.UserService;
@@ -60,6 +62,12 @@ public class ApiKeyResource {
         })
     })
     @PostMapping
+    @AuditEvent(
+        attemptType = ApplicationEventType.API_KEY_CREATE_ATTEMPT,
+        attemptMessage = "Attempting to create API key: {name}",
+        successType = ApplicationEventType.API_KEY_CREATE_SUCCESS,
+        successMessage = "API key {name} created successfully"
+    )
     public ResponseEntity<ApiKeyResponseDTO> createApiKey(@RequestBody ApiKeyUpsertDTO dto) {
             Long userId = userService.getCurrentUserLogin().getId();
             ApiKeyResponseDTO responseDTO = apiKeyService.createApiKey(userId, dto);
@@ -134,6 +142,12 @@ public class ApiKeyResource {
         })
     })
     @PutMapping("/{id}")
+    @AuditEvent(
+        attemptType = ApplicationEventType.CONFIG_UPDATE_ATTEMPT,
+        attemptMessage = "Attempting to update API key with ID: {id}",
+        successType = ApplicationEventType.CONFIG_UPDATE_SUCCESS,
+        successMessage = "API key with ID {id} updated successfully"
+    )
     public ResponseEntity<ApiKeyResponseDTO> updateApiKey(@PathVariable("id") Long apiKeyId,
                                                           @RequestBody ApiKeyUpsertDTO dto) {
 
@@ -154,6 +168,12 @@ public class ApiKeyResource {
         })
     })
     @DeleteMapping("/{id}")
+    @AuditEvent(
+        attemptType = ApplicationEventType.API_KEY_DELETE_ATTEMPT,
+        attemptMessage = "Attempting to delete API key with ID: {id}",
+        successType = ApplicationEventType.API_KEY_DELETE_SUCCESS,
+        successMessage = "API key with ID {id} deleted successfully"
+    )
     public ResponseEntity<Void> deleteApiKey(@PathVariable("id") Long apiKeyId) {
 
         Long userId = userService.getCurrentUserLogin().getId();

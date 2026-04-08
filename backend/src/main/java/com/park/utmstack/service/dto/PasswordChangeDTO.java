@@ -1,9 +1,12 @@
 package com.park.utmstack.service.dto;
 
+import com.park.utmstack.service.dto.auditable.AuditableDTO;
+import java.util.Map;
+
 /**
  * A DTO representing a password change required data - current and new password.
  */
-public class PasswordChangeDTO {
+public class PasswordChangeDTO implements AuditableDTO {
     private String currentPassword;
     private String newPassword;
 
@@ -14,6 +17,11 @@ public class PasswordChangeDTO {
     public PasswordChangeDTO(String currentPassword, String newPassword) {
         this.currentPassword = currentPassword;
         this.newPassword = newPassword;
+    }
+
+    @Override
+    public Map<String, Object> toAuditMap() {
+        return Map.of("action", "password_change");
     }
 
     public String getCurrentPassword() {
