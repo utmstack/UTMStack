@@ -50,7 +50,7 @@ public class DefinitionSyncService implements CommandLineRunner {
     public void run(String... args) {
         log.info("Starting definition sync from filesystem... ---");
         try {
-            Set<String> filesystemFilters = syncFilters();
+            Set<Long> filesystemFilters = syncFilters();
             Set<String> filesystemRules = syncRules();
 
             cleanupOrphanedFilters(filesystemFilters);
@@ -62,12 +62,12 @@ public class DefinitionSyncService implements CommandLineRunner {
         }
     }
 
-    private Set<String> syncFilters() {
-        Set<String> foundModules = new HashSet<>();
+    private Set<Long> syncFilters() {
+        Set<Long> foundFilters = new HashSet<>();
         Path filtersPath = Paths.get(".",Constants.APP_FILTER_DEFINITIONS);
         if (!Files.exists(filtersPath) || !Files.isDirectory(filtersPath)) {
             log.warn("Filters directory not found: {}", Constants.APP_FILTER_DEFINITIONS);
-            return foundModules;
+            return foundFilters;
         }
 
         // Regex to extract the first dataType from the pipeline structure:
@@ -104,12 +104,12 @@ public class DefinitionSyncService implements CommandLineRunner {
                        return;
                     }
 
-                    foundModules.add(moduleName);
 
                     Optional<UtmLogstashFilter> filterOpt = filterRepository.findFirstByLogstashFilterAndSystemOwnerIsTrue(content);
 
                     if (filterOpt.isPresent()) {
                         UtmLogstashFilter filter = filterOpt.get();
+                        foundFilters.add(filter.getId());
                         if (!content.equals(filter.getLogstashFilter())) {
                             log.info("Updating existing filter for module: {}", moduleName);
                             filter.setLogstashFilter(content);
@@ -125,6 +125,7 @@ public class DefinitionSyncService implements CommandLineRunner {
                         filter.setSystemOwner(true);
                         filter.setActive(true);
                         filter.setUpdatedAt(Instant.now());
+                        foundFilters.add(filter.getId());
 
 
                         if (dataTypeEntity.isPresent()) {
@@ -143,7 +144,7 @@ public class DefinitionSyncService implements CommandLineRunner {
         } catch (IOException e) {
             log.error("Error listing filters directory: {}", e.getMessage());
         }
-        return foundModules;
+        return foundFilters;
     }
 
     private Set<String> syncRules() {
@@ -223,12 +224,11 @@ public class DefinitionSyncService implements CommandLineRunner {
         return foundRules;
     }
 
-    private void cleanupOrphanedFilters(Set<String> currentFilesystemModules) {
-        if (currentFilesystemModules.isEmpty()) return;
-
+    private void cleanupOrphanedFilters(Set<Long> currentFilterIds) {
+        if (currentFilterIds.isEmpty()) return;
         List<UtmLogstashFilter> systemFilters = filterRepository.findAllBySystemOwnerIsTrue();
         systemFilters.stream()
-            .filter(filter -> !currentFilesystemModules.contains(filter.getModuleName()))
+            .filter(filter -> !currentFilterIds.contains(filter.getId()))
             .forEach(filter -> {
                 log.info("Deleting orphaned system filter: {}", filter.getModuleName());
                 filterService.delete(filter.getId());
