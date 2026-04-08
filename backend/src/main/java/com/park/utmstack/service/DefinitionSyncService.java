@@ -46,6 +46,7 @@ public class DefinitionSyncService implements CommandLineRunner {
     private final UtmLogstashFilterService filterService;
 
     @Override
+    @Transactional
     public void run(String... args) {
         log.info("Starting definition sync from filesystem... ---");
         try {
@@ -69,15 +70,43 @@ public class DefinitionSyncService implements CommandLineRunner {
             return foundModules;
         }
 
+        // Regex to extract the first dataType from the pipeline structure:
+        // pipeline:
+        //   - dataTypes:
+        //       - value
+        java.util.regex.Pattern dataTypePattern = java.util.regex.Pattern.compile(
+            "pipeline:\\s*\\n\\s*-\\s*dataTypes:\\s*\\n\\s*-\\s*([^\\s\\n]+)",
+            java.util.regex.Pattern.MULTILINE
+        );
+
         try (Stream<Path> paths = Files.walk(filtersPath)) {
             paths.filter(path -> Files.isRegularFile(path) && isYamlFile(path)).forEach(path -> {
-                String rawName = getFileNameWithoutExtension(path);
-                String moduleName = rawName.toUpperCase().replace("-", "_");
-                foundModules.add(moduleName);
                 try {
                     String content = Files.readString(path);
+                    java.util.regex.Matcher matcher = dataTypePattern.matcher(content);
+                    if (!matcher.find()) {
+                        log.warn("Skipping filter file without dataType: {}", path);
+                        return;
+                    }
 
-                    Optional<UtmLogstashFilter> filterOpt = filterRepository.findOneByModuleName(moduleName);
+                    String dataTypeStr = matcher.group(1).trim().replace("\"", "").replace("'", "");
+                    log.info("found dataType: {}", dataTypeStr);
+
+                    Optional<UtmDataTypes> dataTypeEntity = dataTypesRepository.findOneByDataType(dataTypeStr.toLowerCase());
+
+                    String moduleName = null;
+                    if (dataTypeEntity.isPresent() && dataTypeEntity.get().getModule() != null) {
+                        moduleName = dataTypeEntity.get().getModule().getModuleName().toString();
+                    }
+
+                    if(moduleName==null){
+                       log.error("module name for filter: {} with dataType: {} not found, ignoring...",path,dataTypeStr);
+                       return;
+                    }
+
+                    foundModules.add(moduleName);
+
+                    Optional<UtmLogstashFilter> filterOpt = filterRepository.findFirstByLogstashFilterAndSystemOwnerIsTrue(content);
 
                     if (filterOpt.isPresent()) {
                         UtmLogstashFilter filter = filterOpt.get();
@@ -85,7 +114,7 @@ public class DefinitionSyncService implements CommandLineRunner {
                             log.info("Updating existing filter for module: {}", moduleName);
                             filter.setLogstashFilter(content);
                             filter.setUpdatedAt(Instant.now());
-                            filterService.save(filter, true);
+                            filterService.save(filter);
                         }
                     } else {
                         UtmLogstashFilter filter = new UtmLogstashFilter();
@@ -97,16 +126,18 @@ public class DefinitionSyncService implements CommandLineRunner {
                         filter.setActive(true);
                         filter.setUpdatedAt(Instant.now());
 
-                        // Try to find a matching data type
-                        Optional<UtmDataTypes> dataType = dataTypesRepository.findOneByDataType(moduleName.toLowerCase());
-                        if (dataType.isPresent()) {
-                            filter.setDatatype(dataType.get());
+
+                        if (dataTypeEntity.isPresent()) {
+                            filter.setDatatype(dataTypeEntity.get());
                         }
 
-                        filterService.save(filter, true);
+                        filterService.save(filter);
+                        log.info("Creating filter from file {} for module: {} and dataType {}, filter: {}",path,moduleName, dataTypeStr,filter);
                     }
                 } catch (IOException e) {
                     log.error("Error reading filter file {}: {}", path, e.getMessage());
+                } catch (Exception e) {
+                    log.error("Error processing filter file {}: {}", path, e.getMessage());
                 }
             });
         } catch (IOException e) {
