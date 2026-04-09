@@ -23,13 +23,14 @@ import {IntegrationConfigFactory} from './int-config-types/IntegrationConfigFact
   templateUrl: './int-generic-group-config.component.html',
   styleUrls: ['./int-generic-group-config.component.css']
 })
-export class IntGenericGroupConfigComponent implements OnInit, OnDestroy {
+export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDestroy {
   @Input() serverId: number;
   @Input() moduleId: number;
   @Input() groupType = GroupTypeEnum.TENANT;
   @Input() allowAdd = true;
   @Input() editable = true;
   @Input() disablePreAction = false;
+  @Input() hiddenValues: {[confKey: string]: string} = {};
   @Output() configValidChange = new EventEmitter<boolean>();
   @Output() runDisablePreAction = new EventEmitter<boolean>();
   loading = true;
@@ -55,6 +56,12 @@ export class IntGenericGroupConfigComponent implements OnInit, OnDestroy {
               private collectorService: UtmModuleCollectorService,
               public configFactory: IntegrationConfigFactory,
               private cdr: ChangeDetectorRef) {
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.hiddenValues && !changes.hiddenValues.firstChange && this.groups.length > 0) {
+      this.applyHiddenValues();
+    }
   }
 
   ngOnInit() {
@@ -98,9 +105,27 @@ export class IntGenericGroupConfigComponent implements OnInit, OnDestroy {
     return this.config.getIntegrationConfigs(this.moduleId)
         .pipe(
             tap(() => {
+              this.applyHiddenValues();
               this.configValidChange.emit(this.tenantGroupConfigValid());
               this.loading = false;
             }));
+  }
+
+  applyHiddenValues() {
+    if (!this.hiddenValues || Object.keys(this.hiddenValues).length === 0) {
+      return;
+    }
+    for (const group of this.groups) {
+      for (const conf of group.moduleGroupConfigurations) {
+        if (this.hiddenValues[conf.confKey] !== undefined) {
+          const newValue = this.hiddenValues[conf.confKey];
+          if (conf.confValue !== newValue) {
+            conf.confValue = newValue;
+            this.addChange(conf);
+          }
+        }
+      }
+    }
   }
 
   createGroup() {
@@ -173,15 +198,16 @@ export class IntGenericGroupConfigComponent implements OnInit, OnDestroy {
       })
     ).subscribe({
       next: () => {
-        this.pendingChanges = false;
-        this.changes = { keys: [], moduleId: this.moduleId };
+        // Remove only the saved group's changes, keep other groups' changes
+        this.changes.keys = this.changes.keys.filter(k => k.groupId !== group.id);
+        this.pendingChanges = this.changes.keys.length > 0;
         this.configValidChange.emit(this.tenantGroupConfigValid());
         this.toast.showSuccessBottom('Configuration saved successfully');
       },
       error: err => {
         if (err.status === 400) {
-          this.toast.showError('Invalid Configuration',
-            'The configuration data is invalid. Please check your inputs and try again.');
+          const message = this.extractValidationError(err);
+          this.toast.showError('Invalid Configuration', message);
         } else {
           this.toast.showError('Error saving configuration',
             'Error while trying to save tenant configuration, please try again.');
@@ -397,6 +423,10 @@ export class IntGenericGroupConfigComponent implements OnInit, OnDestroy {
   }
 
   isVisible(integrationConfig: UtmModuleGroupConfType): boolean {
+    // Hide fields that are set via hiddenValues
+    if (this.hiddenValues && this.hiddenValues[integrationConfig.confKey] !== undefined) {
+      return false;
+    }
 
     if (!integrationConfig.confVisibility) {
       return true;
@@ -422,6 +452,43 @@ export class IntGenericGroupConfigComponent implements OnInit, OnDestroy {
     this.addChange(integrationConfig);
   }
 
+
+  extractValidationError(err: any): string {
+    const defaultMsg = 'The configuration data is invalid. Please check your inputs and try again.';
+    try {
+      const body = err.error;
+      // Spring fieldErrors format
+      if (body && body.fieldErrors && body.fieldErrors.length > 0) {
+        return body.fieldErrors.map(e => e.message).join('. ');
+      }
+      // Spring message format
+      if (body && body.message) {
+        return body.message;
+      }
+      // X-UtmStack-error header
+      const headerError = err.headers ? err.headers.get('X-UtmStack-error') : null;
+      if (headerError) {
+        return headerError;
+      }
+      // Plain string body
+      if (typeof body === 'string' && body.length > 0) {
+        return body;
+      }
+    } catch (e) {}
+    return defaultMsg;
+  }
+
+  onPasswordFocus(config: UtmModuleGroupConfType) {
+    if (config.confDataType === 'password' && config.confValue === '*****') {
+      config.confValue = '';
+    }
+  }
+
+  onPasswordBlur(config: UtmModuleGroupConfType) {
+    if (config.confDataType === 'password' && (config.confValue === '' || config.confValue === null)) {
+      config.confValue = '*****';
+    }
+  }
 
   ngOnDestroy() {
     this.destroy$.next();

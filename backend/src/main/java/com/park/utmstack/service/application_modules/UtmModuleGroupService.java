@@ -250,6 +250,9 @@ public class UtmModuleGroupService {
             } else {
                 for (UtmModuleGroupConfiguration key : keys) {
                     if (key.getConfDataType().equals("password")) {
+                        if (Constants.MASKED_VALUE.equals(key.getConfValue())) {
+                            continue;
+                        }
                         key.setConfValue(CipherUtil.encrypt(key.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
                     }
                 }

@@ -46,11 +46,23 @@ type Config struct {
 	AutomaticIncidentCreation bool
 
 	// LLM Configuration (generic)
+	Provider      string
 	URL           string
 	Model         string
 	AuthType      string            // "custom-headers", "none"
 	MaxTokens     int
 	CustomHeaders map[string]string // All headers including auth (from frontend)
+}
+
+var providerDefaultURLs = map[string]string{
+	"openai":    "https://api.openai.com/v1/chat/completions",
+	"anthropic": "https://api.anthropic.com/v1/messages",
+	"azure":     "",
+	"gemini":    "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+	"ollama":    "http://localhost:11434/v1/chat/completions",
+	"mistral":   "https://api.mistral.ai/v1/chat/completions",
+	"deepseek":  "https://api.deepseek.com/chat/completions",
+	"groq":      "https://api.groq.com/openai/v1/chat/completions",
 }
 
 func GetConfig() *Config {
@@ -203,6 +215,8 @@ func updateConfigFromGRPC(grpcConf *ConfigurationSection) {
 			config.ChangeAlertStatus = c.ConfValue == "true"
 
 		// LLM settings
+		case "utmstack.socai.provider":
+			config.Provider = c.ConfValue
 		case "utmstack.socai.url":
 			config.URL = c.ConfValue
 		case "utmstack.socai.model":
@@ -224,6 +238,13 @@ func updateConfigFromGRPC(grpcConf *ConfigurationSection) {
 					})
 				}
 			}
+		}
+	}
+
+	// Resolve URL from provider if not explicitly set or if using a known provider
+	if config.Provider != "" && config.Provider != "custom" {
+		if defaultURL, ok := providerDefaultURLs[config.Provider]; ok && defaultURL != "" {
+			config.URL = defaultURL
 		}
 	}
 }

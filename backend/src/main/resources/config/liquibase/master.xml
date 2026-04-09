@@ -591,4 +591,6 @@
 
   <include file="/config/liquibase/changelog/20260409001_add_shell_to_alert_response_rule.xml" relativeToChangelogFile="false"/>
 
+  <include file="/config/liquibase/changelog/20260409002_update_socai_config.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
