@@ -10,6 +10,7 @@ export class IncidentRuleType {
   active: boolean;
   excludedAgents: string;
   agentPlatform: string;
+  shell?: string;
   createdBy: string;
   createdDate: Date;
   lastModifiedBy: string;

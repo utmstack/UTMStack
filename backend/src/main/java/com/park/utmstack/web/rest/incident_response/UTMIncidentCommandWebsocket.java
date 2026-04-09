@@ -61,7 +61,7 @@ public class UTMIncidentCommandWebsocket {
                 String commandVar = utmIncidentVariableService.replaceVariablesInCommand(commandVM.getCommand());
 
                 incidentResponseCommandService.sendCommand(String.valueOf(agentDTO.getId()), commandVar, commandVM.getOriginType(),
-                        commandVM.getOriginId(), commandVM.getReason(), executedBy, new StreamObserver<>() {
+                        commandVM.getOriginId(), commandVM.getReason(), executedBy, commandVM.getShell(), new StreamObserver<>() {
                             @Override
                             public void onNext(CommandResult value) {
                                 String output = utmIncidentVariableService.replaceSecretVariableValuesWithPlaceholders(value.getResult());

@@ -22,18 +22,22 @@ public class IncidentResponseCommandService {
                             String originId,
                             String reason,
                             String executedBy,
+                            String shell,
                             StreamObserver<CommandResult> responseObserver) {
-        // Get the stub
-        // Create the UtmCommand with the provided agent key and command
 
-        UtmCommand utmCommand = UtmCommand.newBuilder()
+        UtmCommand.Builder builder = UtmCommand.newBuilder()
             .setAgentId(agentId)
             .setCommand(command)
             .setOriginId(originId)
             .setOriginType(originType)
             .setReason(reason)
-            .setExecutedBy(executedBy)
-            .build();
+            .setExecutedBy(executedBy);
+
+        if (shell != null && !shell.isEmpty()) {
+            builder.setShell(shell);
+        }
+
+        UtmCommand utmCommand = builder.build();
 
         // Send command using the bidirectional stream
         StreamObserver<UtmCommand> requestObserver = nonBlockingStub.processCommand(responseObserver);
