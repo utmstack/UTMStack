@@ -2,7 +2,7 @@ package agent
 
 import (
 	"context"
-	_ "errors"
+	"crypto/subtle"
 	"fmt"
 	"strconv"
 	"strings"
@@ -79,11 +79,11 @@ func authHeaders(md metadata.MD, fullMethod string) error {
 		typ := strings.ToLower(connectorType[0])
 		switch typ {
 		case "agent":
-			if _, isValid := utils.IsKeyPairValid(key, uint(id), AgentServ.CacheAgentKey); !isValid {
+			if !AgentServ.ValidateAgentKey(key, uint(id)) {
 				return status.Error(codes.PermissionDenied, "invalid key")
 			}
 		case "collector":
-			if _, isValid := utils.IsKeyPairValid(key, uint(id), CollectorServ.CacheCollectorKey); !isValid {
+			if !CollectorServ.ValidateCollectorKey(key, uint(id)) {
 				return status.Error(codes.PermissionDenied, "invalid key")
 			}
 		default:
@@ -102,7 +102,7 @@ func authHeaders(md metadata.MD, fullMethod string) error {
 }
 
 func isInternalKeyValid(token string) bool {
-	return token == config.InternalKey
+	return subtle.ConstantTimeCompare([]byte(token), []byte(config.InternalKey)) == 1
 }
 
 func isInRoute(route string, list []string) bool {
