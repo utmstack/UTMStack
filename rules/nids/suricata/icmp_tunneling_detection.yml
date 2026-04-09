@@ -2,7 +2,7 @@
 
 dataTypes:
   - suricata
-name: ICMP Tunneling Detection
+name: ICMP Tunneling Detection via Suricata
 impact:
   confidentiality: 3
   integrity: 2

@@ -15,8 +15,8 @@ where: >
   equals("log.metadataEventType", "AuthActivityAuditEvent") && 
   equals("log.eventSuccess", false) && 
   exists("origin.ip")
-correlation:
-  - indexPattern: v11-log-crowdstrike
+afterEvents:
+  - indexPattern: v11-log-crowdstrike-*
     within: now-15m
     count: 5
     with:

@@ -93,7 +93,9 @@ public class DefinitionSyncService implements CommandLineRunner {
                     Optional<UtmDataTypes> dataTypeEntity = dataTypesRepository.findOneByDataType(dataTypeStr.toLowerCase());
 
                     String moduleName = null;
-                    if (dataTypeEntity.isPresent() && dataTypeEntity.get().getModule() != null) {
+                    if ("generic".equalsIgnoreCase(dataTypeStr)) {
+                        moduleName = "GENERIC";
+                    } else if (dataTypeEntity.isPresent() && dataTypeEntity.get().getModule() != null) {
                         moduleName = dataTypeEntity.get().getModule().getModuleName().toString();
                     }
 
