@@ -17,7 +17,6 @@ import (
 )
 
 const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
-const delayCheckConfig = 30 * time.Second
 
 type GroupModule struct {
 	GroupName      string
@@ -140,25 +139,73 @@ func startGroupModuleManager() {
 }
 
 func (m *GroupModuleManager) SyncConfigs() {
-	ticker := time.NewTicker(delayCheckConfig)
-	defer ticker.Stop()
+	time.Sleep(3 * time.Second)
 
-	for range ticker.C {
-		if err := ConnectionChecker(CHECKCON); err != nil {
-			_ = catcher.Error("External connection failure detected", err, map[string]any{"process": "plugin_com.utmstack.gcp"})
+	m.handleConfigUpdate(config.GetConfig())
+
+	for newConfig := range config.GetConfigUpdateChannel() {
+		catcher.Info("Received config update", map[string]any{
+			"moduleActive": newConfig != nil && newConfig.ModuleActive,
+			"process":      "plugin_com.utmstack.gcp",
+		})
+		m.handleConfigUpdate(newConfig)
+	}
+}
+
+func (m *GroupModuleManager) handleConfigUpdate(moduleConfig *config.ConfigurationSection) {
+	if err := ConnectionChecker(CHECKCON); err != nil {
+		_ = catcher.Error("External connection failure detected", err, map[string]any{"process": "plugin_com.utmstack.gcp"})
+	}
+
+	if moduleConfig == nil || !moduleConfig.ModuleActive {
+		for groupID, group := range m.Groups {
+			catcher.Info("Cancelling group", map[string]any{
+				"process": "plugin_com.utmstack.gcp",
+			})
+			group.Cancel()
+			delete(m.Groups, groupID)
 		}
+		return
+	}
 
-		moduleConfig := config.GetConfig()
-		if moduleConfig != nil && moduleConfig.ModuleActive {
-			for _, conf := range moduleConfig.ModuleGroups {
-				m.Groups[conf.Id] = getModuleConfig(conf)
-				group := m.Groups[conf.Id]
-				go group.PullLogs()
+	currentGroupIDs := make(map[int32]bool)
+	for _, conf := range moduleConfig.ModuleGroups {
+		currentGroupIDs[conf.Id] = true
+
+		if existing, ok := m.Groups[conf.Id]; ok {
+			newModule := getModuleConfig(conf)
+			if configChanged(existing, newModule) {
+				catcher.Info("Configuration changed for group, restarting", map[string]any{
+					"process": "plugin_com.utmstack.gcp",
+				})
+				existing.Cancel()
+				delete(m.Groups, conf.Id)
+				m.Groups[conf.Id] = newModule
+				go newModule.PullLogs()
 			}
 		} else {
-			for _, cnf := range m.Groups {
-				cnf.Cancel()
-			}
+			catcher.Info("Starting new group", map[string]any{
+				"process": "plugin_com.utmstack.gcp",
+			})
+			m.Groups[conf.Id] = getModuleConfig(conf)
+			group := m.Groups[conf.Id]
+			go group.PullLogs()
 		}
 	}
+
+	for groupID, group := range m.Groups {
+		if !currentGroupIDs[groupID] {
+			catcher.Info("Group removed, stopping", map[string]any{
+				"process": "plugin_com.utmstack.gcp",
+			})
+			group.Cancel()
+			delete(m.Groups, groupID)
+		}
+	}
+}
+
+func configChanged(old, new GroupModule) bool {
+	return old.JsonKey != new.JsonKey ||
+		old.ProjectID != new.ProjectID ||
+		old.SubscriptionID != new.SubscriptionID
 }

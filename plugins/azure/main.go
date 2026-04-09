@@ -98,14 +98,20 @@ func main() {
 		"process": "plugin_com.utmstack.azure",
 	})
 
-	processorManager.syncProcessors()
+	processorManager.watchConfigAndSync()
+}
 
-	delay := 5 * time.Minute
-	ticker := time.NewTicker(delay)
-	defer ticker.Stop()
+func (pm *ProcessorManager) watchConfigAndSync() {
+	time.Sleep(3 * time.Second)
 
-	for range ticker.C {
-		processorManager.syncProcessors()
+	pm.syncProcessors()
+
+	for newConfig := range config.GetConfigUpdateChannel() {
+		catcher.Info("Received config update, syncing processors", map[string]any{
+			"moduleActive": newConfig != nil && newConfig.ModuleActive,
+			"process":      "plugin_com.utmstack.azure",
+		})
+		pm.syncProcessors()
 	}
 }
 
@@ -120,9 +126,8 @@ func (pm *ProcessorManager) syncProcessors() {
 	for cloudName, loginAuthority := range cloudsInUse {
 		if err := connectionChecker(loginAuthority); err != nil {
 			catcher.Info("airgap or limited connectivity detected", map[string]any{
-				"cloud":          cloudName,
-				"loginAuthority": loginAuthority,
-				"process":        "plugin_com.utmstack.azure",
+				"cloud":   cloudName,
+				"process": "plugin_com.utmstack.azure",
 			})
 		}
 	}
