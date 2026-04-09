@@ -370,17 +370,15 @@ export class GuideSocAiComponent implements OnInit {
         this.formValues['url'] = urlConf.confValue || '';
       }
 
-      // Extract API key from custom headers
+      // Check if API key exists in custom headers — show masked if so
       const customHeaders = this.getConf('utmstack.socai.customHeaders');
-      if (customHeaders && customHeaders.confValue) {
+      if (customHeaders && customHeaders.confValue && customHeaders.confValue !== '{}') {
         try {
           const headers = JSON.parse(customHeaders.confValue);
           const authConfig = this.providerAuthHeaders[this.activeProvider];
           if (authConfig && headers[authConfig.headerName]) {
-            const rawValue = headers[authConfig.headerName];
-            this.formValues['apiKey'] = authConfig.headerValuePrefix
-              ? rawValue.replace(authConfig.headerValuePrefix, '')
-              : rawValue;
+            // API key exists — show masked, don't expose the real value
+            this.formValues['apiKey'] = '*****';
           }
         } catch (e) {}
         this.formValues['customHeaders'] = customHeaders.confValue;
@@ -462,12 +460,14 @@ export class GuideSocAiComponent implements OnInit {
     } else {
       // Known providers: build auth header from API key
       const authConfig = this.providerAuthHeaders[this.activeProvider];
-      if (authConfig && this.formValues['apiKey']) {
+      if (authConfig && this.formValues['apiKey'] && this.formValues['apiKey'] !== '*****') {
+        // User entered a new API key — build auth headers
         const headers: {[k: string]: string} = {};
         headers[authConfig.headerName] = authConfig.headerValuePrefix + this.formValues['apiKey'];
         this.pushChange(changes, 'utmstack.socai.authType', 'custom-headers');
         this.pushChange(changes, 'utmstack.socai.customHeaders', JSON.stringify(headers));
       }
+      // If apiKey is '*****', don't touch customHeaders — keep existing value in DB
     }
 
     this.moduleGroupConfService.update({
@@ -481,7 +481,8 @@ export class GuideSocAiComponent implements OnInit {
       (err) => {
         this.saving = false;
         if (err.status === 400) {
-          this.toast.showError('Invalid Configuration', 'Please check your inputs and try again.');
+          const message = this.extractValidationError(err);
+          this.toast.showError('Invalid Configuration', message);
         } else {
           this.toast.showError('Error', 'Failed to save configuration. Please try again.');
         }
@@ -499,6 +500,27 @@ export class GuideSocAiComponent implements OnInit {
         confVisibility: existing.confVisibility ? JSON.stringify(existing.confVisibility) : existing.confVisibility,
       });
     }
+  }
+
+  private extractValidationError(err: any): string {
+    const defaultMsg = 'The configuration data is invalid. Please check your inputs and try again.';
+    try {
+      const body = err.error;
+      if (body && body.fieldErrors && body.fieldErrors.length > 0) {
+        return body.fieldErrors.map((e: any) => e.message).join('. ');
+      }
+      if (body && body.message) {
+        return body.message;
+      }
+      const headerError = err.headers ? err.headers.get('X-UtmStack-error') : null;
+      if (headerError) {
+        return headerError;
+      }
+      if (typeof body === 'string' && body.length > 0) {
+        return body;
+      }
+    } catch (e) {}
+    return defaultMsg;
   }
 
   onToggle(key: string, value: boolean) {

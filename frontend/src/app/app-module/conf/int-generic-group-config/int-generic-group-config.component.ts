@@ -205,8 +205,8 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
       },
       error: err => {
         if (err.status === 400) {
-          this.toast.showError('Invalid Configuration',
-            'The configuration data is invalid. Please check your inputs and try again.');
+          const message = this.extractValidationError(err);
+          this.toast.showError('Invalid Configuration', message);
         } else {
           this.toast.showError('Error saving configuration',
             'Error while trying to save tenant configuration, please try again.');
@@ -451,6 +451,43 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
     this.addChange(integrationConfig);
   }
 
+
+  extractValidationError(err: any): string {
+    const defaultMsg = 'The configuration data is invalid. Please check your inputs and try again.';
+    try {
+      const body = err.error;
+      // Spring fieldErrors format
+      if (body && body.fieldErrors && body.fieldErrors.length > 0) {
+        return body.fieldErrors.map(e => e.message).join('. ');
+      }
+      // Spring message format
+      if (body && body.message) {
+        return body.message;
+      }
+      // X-UtmStack-error header
+      const headerError = err.headers ? err.headers.get('X-UtmStack-error') : null;
+      if (headerError) {
+        return headerError;
+      }
+      // Plain string body
+      if (typeof body === 'string' && body.length > 0) {
+        return body;
+      }
+    } catch (e) {}
+    return defaultMsg;
+  }
+
+  onPasswordFocus(config: UtmModuleGroupConfType) {
+    if (config.confDataType === 'password' && config.confValue === '*****') {
+      config.confValue = '';
+    }
+  }
+
+  onPasswordBlur(config: UtmModuleGroupConfType) {
+    if (config.confDataType === 'password' && (config.confValue === '' || config.confValue === null)) {
+      config.confValue = '*****';
+    }
+  }
 
   ngOnDestroy() {
     this.destroy$.next();

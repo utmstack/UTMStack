@@ -35,12 +35,15 @@ public class UtmModuleConfigValidator {
         List<UtmModuleGroupConfDTO> configDTOs = dbConfigs.stream()
                 .map(dbConf -> {
                     UtmModuleGroupConfiguration override = findInKeys(keys, dbConf.getConfKey());
-                    UtmModuleGroupConfiguration source = override != null ? override : dbConf;
-
-                    return new UtmModuleGroupConfDTO(
-                            source.getConfKey(),
-                            override != null ? source.getConfValue() : decryptIfNeeded(source.getConfDataType(), source.getConfValue())
-                    );
+                    String value;
+                    if (override != null && !Constants.MASKED_VALUE.equals(override.getConfValue())) {
+                        // User provided a new value — use it as plaintext
+                        value = override.getConfValue();
+                    } else {
+                        // No override or masked — decrypt from DB
+                        value = decryptIfNeeded(dbConf.getConfDataType(), dbConf.getConfValue());
+                    }
+                    return new UtmModuleGroupConfDTO(dbConf.getConfKey(), value);
                 })
                 .toList();
 

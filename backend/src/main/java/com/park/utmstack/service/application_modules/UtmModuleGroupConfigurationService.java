@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -51,9 +50,9 @@ public class UtmModuleGroupConfigurationService {
     }
 
     /**
-     * Update configuration of the application modules
-     *
-     * @param keys List of configuration keys to save
+     * Update configuration of the application modules.
+     * Password/file fields with the masked value are skipped (not changed).
+     * Password/file fields with a new value are encrypted before saving.
      */
     public UtmModule updateConfigurationKeys(Long moduleId, List<UtmModuleGroupConfiguration> keys) {
         final String ctx = CLASSNAME + ".updateConfigurationKeys";
@@ -61,28 +60,31 @@ public class UtmModuleGroupConfigurationService {
             if (CollectionUtils.isEmpty(keys))
                 throw new ApiException("No configuration keys were provided to update", HttpStatus.BAD_REQUEST);
 
-            // Load existing values from DB to detect unchanged encrypted fields
-            Map<String, String> existingValues = keys.stream()
-                .filter(k -> k.getId() != null)
-                .map(k -> moduleConfigurationRepository.findById(k.getId()).orElse(null))
-                .filter(java.util.Objects::nonNull)
-                .collect(Collectors.toMap(UtmModuleGroupConfiguration::getConfKey,
-                    c -> c.getConfValue() != null ? c.getConfValue() : "", (a, b) -> a));
-
             for (UtmModuleGroupConfiguration key : keys) {
+                boolean isSensitive = isSensitiveType(key.getConfDataType());
+
+                // Skip masked values — the user did not change this field
+                if (isSensitive && Constants.MASKED_VALUE.equals(key.getConfValue())) {
+                    continue;
+                }
+
                 if (key.getConfRequired() && !StringUtils.hasText(key.getConfValue()))
                     throw new Exception(String.format("No value was found for required configuration: %1$s (%2$s)", key.getConfName(), key.getConfKey()));
-                if (key.getConfDataType().equals("password") || key.getConfDataType().equals("file")) {
-                    String existingEncrypted = existingValues.get(key.getConfKey());
-                    // Only encrypt if the value actually changed (is not the same encrypted value from DB)
-                    if (existingEncrypted != null && existingEncrypted.equals(key.getConfValue())) {
-                        // Value unchanged - already encrypted in DB, don't re-encrypt
-                        continue;
-                    }
+
+                // Encrypt new sensitive values
+                if (isSensitive) {
                     key.setConfValue(CipherUtil.encrypt(key.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
                 }
             }
-            moduleConfigurationRepository.saveAll(keys);
+
+            // Remove masked entries so they don't overwrite DB values
+            List<UtmModuleGroupConfiguration> toSave = keys.stream()
+                .filter(k -> !(isSensitiveType(k.getConfDataType()) && Constants.MASKED_VALUE.equals(k.getConfValue())))
+                .collect(Collectors.toList());
+
+            if (!toSave.isEmpty()) {
+                moduleConfigurationRepository.saveAll(toSave);
+            }
 
             List<ModuleName> needRestartModules = Arrays.asList(ModuleName.AWS_IAM_USER, ModuleName.AZURE,
                     ModuleName.GCP, ModuleName.SOPHOS);
@@ -100,16 +102,15 @@ public class UtmModuleGroupConfigurationService {
     }
 
     /**
-     * Find all configurations of a module group
-     *
-     * @param groupId Identifier of the group to get the configurations
-     * @return A list of configuration of a group
-     * @throws Exception In case of any error
+     * Find all configurations of a module group.
+     * Sensitive values (password, file) are masked before returning.
      */
     public List<UtmModuleGroupConfiguration> findAllByGroupId(Long groupId) throws Exception {
         final String ctx = CLASSNAME + ".findAllByGroupId";
         try {
-            return moduleConfigurationRepository.findAllByGroupId(groupId);
+            List<UtmModuleGroupConfiguration> configs = moduleConfigurationRepository.findAllByGroupId(groupId);
+            maskSensitiveValues(configs);
+            return configs;
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
         }
@@ -117,15 +118,11 @@ public class UtmModuleGroupConfigurationService {
 
     /**
      * Gets all configuration parameter for a group and convert it to a map
-     *
-     * @param groupId Identifier of a group
-     * @return A map with the module group configuration
-     * @throws Exception In case of any error
      */
     public Map<String, String> getGroupConfigurationAsMap(Long groupId) throws Exception {
         final String ctx = CLASSNAME + ".getGroupConfigurationAsMap";
         try {
-            List<UtmModuleGroupConfiguration> configurations = findAllByGroupId(groupId);
+            List<UtmModuleGroupConfiguration> configurations = moduleConfigurationRepository.findAllByGroupId(groupId);
 
             if (CollectionUtils.isEmpty(configurations))
                 return Collections.emptyMap();
@@ -138,18 +135,30 @@ public class UtmModuleGroupConfigurationService {
 
     /**
      * Find a configuration parameter by his group and key
-     *
-     * @param groupId Identifier of the group to the param belongs
-     * @param confKey Key word of the configuration parameter
-     * @return A ${@link UtmModuleGroupConfiguration} object with the configuration parameter information
-     * @throws Exception In case of any error
      */
     public UtmModuleGroupConfiguration findByGroupIdAndConfKey(Long groupId, String confKey) throws Exception {
         final String ctx = CLASSNAME + ".findByGroupIdAndConfKey";
         try {
-            return moduleConfigurationRepository.findByGroupIdAndConfKey(groupId, confKey);
+            UtmModuleGroupConfiguration config = moduleConfigurationRepository.findByGroupIdAndConfKey(groupId, confKey);
+            if (config != null && isSensitiveType(config.getConfDataType())) {
+                config.setConfValue(Constants.MASKED_VALUE);
+            }
+            return config;
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
+        }
+    }
+
+    private boolean isSensitiveType(String dataType) {
+        return Constants.CONF_TYPE_PASSWORD.equals(dataType) || Constants.CONF_TYPE_FILE.equals(dataType);
+    }
+
+    private void maskSensitiveValues(List<UtmModuleGroupConfiguration> configs) {
+        if (configs == null) return;
+        for (UtmModuleGroupConfiguration config : configs) {
+            if (isSensitiveType(config.getConfDataType()) && StringUtils.hasText(config.getConfValue())) {
+                config.setConfValue(Constants.MASKED_VALUE);
+            }
         }
     }
 }

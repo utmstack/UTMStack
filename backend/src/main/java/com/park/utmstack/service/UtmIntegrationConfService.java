@@ -40,7 +40,8 @@ public class UtmIntegrationConfService {
         final String ctx = CLASSNAME + ".save";
         try {
             String dataType = utmIntegrationConf.getConfDatatype();
-            if (StringUtils.hasText(dataType) && dataType.equals("password"))
+            if (StringUtils.hasText(dataType) && dataType.equals("password")
+                    && !Constants.MASKED_VALUE.equals(utmIntegrationConf.getConfValue()))
                 utmIntegrationConf.setConfValue(CipherUtil.encrypt(utmIntegrationConf.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
             return utmIntegrationConfRepository.save(utmIntegrationConf);
         } catch (Exception e) {
