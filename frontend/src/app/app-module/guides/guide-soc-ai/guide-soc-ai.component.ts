@@ -394,12 +394,6 @@ export class GuideSocAiComponent implements OnInit {
       if (authType) {
         this.formValues['authType'] = authType.confValue || 'custom-headers';
       }
-
-      const customHeaders = this.getConf('utmstack.socai.customHeaders');
-      if (customHeaders) {
-        this.formValues['customHeaders'] = customHeaders.confValue || '{}';
-        this.parseHeadersFromJson(this.formValues['customHeaders']);
-      }
     } else {
       this.headerRows = [];
       // Set defaults for the new provider
