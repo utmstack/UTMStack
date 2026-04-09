@@ -1,0 +1,18 @@
+name: "Real-Time Response (RTR) Session Execution"
+description: "A user or API has initiated a remote response (RTR) session on an endpoint. This grants deep access to the host."
+category: "Execution"
+technique: "Remote Services"
+references:
+  - "https://attack.mitre.org/techniques/T1021/"
+dataTypes:
+  - crowdstrike
+adversary: origin
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+where: >
+  equals("log.metadataEventType", "RemoteResponseSessionStartEvent")
+groupBy:
+  - lastEvent.log.metadataEventType
+  - lastEvent.log.eventUserId

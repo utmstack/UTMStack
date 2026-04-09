@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Python PTY Shell Spawn - Interactive Shell Upgrade
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059.006 - Command and Scripting Interpreter: Python"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1059/006/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_python_pty_spawn.yml
+description: |
+  Detects the use of Python's pty module to spawn an interactive TTY shell. This is a standard post-exploitation technique where an attacker upgrades a basic reverse shell to a fully interactive terminal. The command "python -c 'import pty; pty.spawn(\"/bin/bash\")'" is taught in every penetration testing course and is a strong indicator of active hands-on-keyboard exploitation.
+
+  Next Steps:
+  1. The system is actively being exploited - immediately isolate the host
+  2. Identify the parent process (likely a reverse shell or webshell)
+  3. Check for the initial access vector that gave the attacker shell access
+  4. Review all commands executed in the spawned interactive shell
+  5. Look for privilege escalation attempts following the shell upgrade
+  6. Check for lateral movement from this host
+  7. Collect memory dump and disk forensic artifacts
+where: |
+  exists("log.message") &&
+  (regexMatch("log.message", "(?i)python[23]?\\s+-c\\s+.*import\\s+pty.*pty\\.spawn") ||
+   contains("log.message", "import pty;pty.spawn") ||
+   contains("log.message", "import pty; pty.spawn"))
+groupBy:
+  - origin.host
+  - origin.user

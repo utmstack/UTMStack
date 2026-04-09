@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - redis
+name: Redis Unauthorized Access Pattern Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: "T1078 - Valid Accounts"
+adversary: origin
+references:
+  - https://medium.com/@Victor.Z.Zhu/redis-unauthorized-access-vulnerability-simulation-victor-zhu-ac7a71b2e419
+  - https://attack.mitre.org/techniques/T1078/
+description: |
+  Detects patterns indicative of unauthorized access attempts to Redis including authentication failures, dangerous command usage without authentication, or attempts to bypass security restrictions. This rule identifies potential Redis security breaches through analysis of log messages for authentication failures, dangerous administrative commands, and unauthorized client activities.
+  
+  Next Steps:
+  1. Verify the legitimacy of the Redis client connection from the identified origin host
+  2. Check Redis authentication configuration and ensure AUTH is properly enabled
+  3. Review Redis configuration for exposed dangerous commands (FLUSHALL, FLUSHDB, CONFIG)
+  4. Investigate if any data was compromised during the unauthorized access attempt
+  5. Consider implementing Redis ACLs and restricting dangerous commands
+  6. Monitor for data exfiltration attempts from the affected Redis instance
+where: |
+  exists("log.msg") && (
+    (regexMatch("log.msg", "(?i)(AUTH\\s+failed|invalid\\s+password|authentication\\s+required)")) ||
+    (regexMatch("log.msg", "(?i)(FLUSHALL|FLUSHDB|CONFIG\\s+(GET|SET)|KEYS\\s+\\*|SCAN\\s+0)") && equals("log.severity", "warning")) ||
+    (regexMatch("log.msg", "(?i)CONFIG\\s+SET\\s+(dir\\s+/|dbfilename\\s+authorized_keys)")) ||
+    (regexMatch("log.msg", "(?i)(SAVE|BGSAVE).*ssh|authorized_keys")) ||
+    (regexMatch("log.msg", "(?i)Client\\s+id=\\d+\\s+addr=.*\\s+name=.*\\s+cmd=(flushall|flushdb|config)")) ||
+    (equals("log.severity", "high") && regexMatch("log.msg", "(?i)(Possible\\s+security\\s+attack|unauthorized\\s+client)"))
+  )
+afterEvents:
+  - indexPattern: v11-log-redis-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+    within: now-10m
+    count: 5
+groupBy:
+  - adversary.host
+  - adversary.ip

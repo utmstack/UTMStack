@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Office 365 Mailbox Delegation Abuse
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Persistence
+technique: "T1098.002 - Account Manipulation: Additional Email Delegate Permissions"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/exchange/recipients-in-exchange-online/manage-permissions-for-recipients
+  - https://attack.mitre.org/techniques/T1098/002/
+description: |
+  Detects addition of mailbox delegation permissions including FullAccess, SendAs, and SendOnBehalf. Attackers may add mailbox permissions to access sensitive emails, send phishing messages as the compromised user, or maintain persistent access to communications.
+
+  Next Steps:
+  1. Verify the mailbox delegation was authorized by the mailbox owner or administrator
+  2. Review the specific permissions granted (FullAccess, SendAs, SendOnBehalf)
+  3. Check who the delegate user is and their relationship to the mailbox owner
+  4. Review recent authentication activity for both the admin and delegate accounts
+  5. Examine the timing of the delegation for suspicious patterns
+  6. If unauthorized, remove the delegation permissions immediately
+  7. Review the mailbox for signs of unauthorized access or data theft
+  8. Enable mailbox audit logging if not already enabled
+where: |
+  oneOf("action", ["Add-MailboxPermission", "Add-RecipientPermission", "Set-Mailbox"]) &&
+  equals("actionResult", "Success") &&
+  (contains("log.Parameters", "FullAccess") ||
+   contains("log.Parameters", "SendAs") ||
+   contains("log.Parameters", "SendOnBehalf"))
+groupBy:
+  - adversary.user
+  - target.user

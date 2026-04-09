@@ -1,0 +1,24 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "o365"
+name: "Microsoft 365 Exchange Safe Attachment Rule Disabled"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: "Defense Evasion"
+technique: "T1562 - Impair Defenses"
+adversary: origin
+description: "Defense Evasion consists of techniques that adversaries use to avoid detection throughout their compromise. Techniques used for defense evasion include uninstalling/disabling security software or obfuscating/encrypting data and scripts. Adversaries also leverage and abuse trusted processes to hide and masquerade their malware. Other tactics’ techniques are cross-listed here when those techniques include the added benefit of subverting defenses.<br>
+              Identifies when a safe attachment rule is disabled in Microsoft 365. Safe attachment rules can extend malware
+              protections to include routing all messages and attachments without a known malware signature to a special hypervisor
+              environment. An adversary or insider threat may disable a safe attachment rule to exfiltrate data or evade defenses."
+references:
+  - "https://attack.mitre.org/techniques/T1562/"
+  - "https://attack.mitre.org/tactics/TA0005/"
+where: |
+  equals("log.Workload", "Exchange") && equals("action", "Disable-SafeAttachmentRule") && oneOf("actionResult", ["Success","PartiallySucceeded","True"])
+groupBy:
+  - adversary.ip
+  - adversary.user

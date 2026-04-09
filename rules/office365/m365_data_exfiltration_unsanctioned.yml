@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: M365 Data Exfiltration to Unsanctioned Application
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Exfiltration
+technique: "T1537 - Transfer Data to Cloud Account"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/defender-cloud-apps/discovered-apps
+  - https://attack.mitre.org/techniques/T1537/
+description: |
+  Detects Microsoft Defender for Cloud Apps (CASB) alerts for data exfiltration to unsanctioned applications. This indicates sensitive organizational data is being transferred to unauthorized cloud services.
+
+  Next Steps:
+  1. Identify the unsanctioned application and the data being transferred
+  2. Review the user's recent activity for other data exfiltration indicators
+  3. Check the volume and sensitivity of data transferred
+  4. Block the unsanctioned application if not already blocked
+  5. If unauthorized, investigate the user account for compromise
+  6. Review DLP policies for coverage gaps
+  7. Consider implementing session controls for risky applications
+where: |
+  (contains("action", "DlpRuleMatch") && contains("log.Parameters", "UnsanctionedApp")) ||
+  (equals("log.Workload", "MicrosoftDefenderForCloudApps") && contains("log.Parameters", "exfiltration"))
+groupBy:
+  - lastEvent.log.Parameters
+  - adversary.user

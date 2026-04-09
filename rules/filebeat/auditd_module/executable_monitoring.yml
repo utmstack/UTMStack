@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - auditd
+name: Suspicious Executable Monitoring
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1218 - System Binary Proxy Execution"
+adversary: origin
+references:
+  - https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/security_guide/sec-understanding_audit_log_files
+  - https://attack.mitre.org/techniques/T1218/
+description: |
+  Detects multiple executions of suspicious or high-risk executables that could indicate malicious activity or system compromise. This rule monitors for execution of binaries from temporary directories, commonly abused directories, or network tools that could be used for malicious purposes.
+  
+  Next Steps:
+  1. Investigate the specific executable and its source location
+  2. Check if the executable was downloaded from external sources recently
+  3. Analyze the complete process tree and parent processes
+  4. Review network connections associated with the suspicious process
+  5. Examine file system changes made by the executable
+  6. Check for persistence mechanisms or privilege escalation attempts
+  7. Correlate with other security events on the same host within the timeframe
+  8. Validate if the executable has valid digital signatures
+  9. Check process command line arguments for suspicious parameters
+where: |
+  equals("log.auditd.data.syscall", "execve") &&
+  (contains("log.auditd.data.exe", "/tmp/") || contains("log.auditd.data.exe", "/dev/shm/"))
+afterEvents:
+  - indexPattern: v11-log-auditd-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+      - field: log.auditd.data.syscall
+        operator: filter_term
+        value: execve
+    within: now-15m
+    count: 5
+groupBy:
+  - lastEvent.log.auditd.data.exe
+  - adversary.host

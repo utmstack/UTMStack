@@ -1,0 +1,24 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "aws"
+name: "AWS GuardDuty Detector Deletion"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: "Defense Evasion"
+technique: "T1562 - Impair Defenses"
+adversary: origin
+description: "Identifies the deletion of an Amazon GuardDuty detector. Upon deletion, GuardDuty stops monitoring the environment and all existing findings are lost"
+references:
+  - "https://attack.mitre.org/tactics/TA0005/"
+  - "https://attack.mitre.org/techniques/T1562/"
+  - "https://awscli.amazonaws.com/v2/documentation/api/latest/reference/guardduty/delete-detector.html"
+  - "https://docs.aws.amazon.com/guardduty/latest/APIReference/API_DeleteDetector.html"
+where: |
+  equals("log.eventSource", "guardduty.amazonaws.com") &&
+  equals("log.eventName", "DeleteDetector")
+groupBy:
+  - adversary.ip
+  - adversary.user

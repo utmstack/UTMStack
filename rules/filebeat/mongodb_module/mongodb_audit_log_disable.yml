@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - mongodb
+name: MongoDB Audit Log Disabling Detection
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1562.002 - Impair Defenses: Disable Windows Event Logging"
+adversary: origin
+references:
+  - https://www.mongodb.com/docs/manual/core/auditing/
+  - https://attack.mitre.org/techniques/T1562/002/
+description: |
+  Detects attempts to disable or modify MongoDB audit logging configuration. Attackers disable audit logs to operate without leaving traces after gaining access to the database.
+
+  Next Steps:
+  1. Verify if the audit configuration change was authorized
+  2. Re-enable audit logging immediately if unauthorized
+  3. Review database activity during the logging gap
+  4. Check for data access or modifications while auditing was disabled
+  5. Restrict access to audit configuration parameters
+  6. Implement alerts for audit log file size or timestamp anomalies
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "setParameter") && contains("log.message", "auditLog")) ||
+    (contains("log.message", "auditLog") && contains("log.message", "disabled")) ||
+    contains("log.message", "auditAuthorizationSuccess") ||
+    (contains("log.message", "setParameter") && contains("log.message", "logLevel") && contains("log.message", "-1")) ||
+    (contains("log.message", "shutdown") && contains("log.message", "audit"))
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

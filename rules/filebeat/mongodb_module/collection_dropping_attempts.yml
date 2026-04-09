@@ -1,0 +1,51 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - mongodb
+name: MongoDB Collection Dropping Attempts
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 3
+category: Impact
+technique: Data Destruction
+adversary: origin
+references:
+  - https://www.mongodb.com/docs/manual/reference/log-messages/
+  - https://attack.mitre.org/techniques/T1485/
+description: |
+  Detects attempts to drop collections or databases which could indicate destructive attacks or ransomware behavior. This includes drop commands for collections, databases, and indexes.
+  
+  Next Steps:
+  - Immediately verify if the drop operation was authorized by checking with the database administrator
+  - Check the user account that executed the drop command for signs of compromise
+  - Review MongoDB access logs for other suspicious activities from the same source
+  - Verify if proper backups exist for the dropped collections/databases
+  - Check for patterns of multiple drop operations across different databases
+  - Investigate any unusual authentication or connection events prior to the drop
+  - If unauthorized, consider disabling the account and restoring from backups
+where: |
+  oneOf("log.component", ["COMMAND", "STORAGE"]) &&
+  oneOf("log.severity", ["high", "medium", "warning", "error"]) &&
+  (contains("log.message", "drop") ||
+   contains("log.message", "dropDatabase") ||
+   contains("log.message", "dropCollection") ||
+   contains("log.message", "db.dropDatabase") ||
+   contains("log.message", ".drop()") ||
+   contains("log.message", "dropIndexes") ||
+   contains("log.message", "command drop")) &&
+  exists("origin.host")
+afterEvents:
+  - indexPattern: v11-log-mongodb-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+      - field: log.message
+        operator: filter_match
+        value: 'drop OR dropDatabase OR dropCollection'
+    within: now-10m
+    count: 3
+groupBy:
+  - adversary.host
+  - adversary.user

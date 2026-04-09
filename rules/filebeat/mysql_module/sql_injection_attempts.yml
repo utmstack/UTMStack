@@ -1,0 +1,59 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - mysql
+name: SQL Injection Attempts Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references:
+  - https://dev.mysql.com/doc/refman/8.0/en/error-log-format.html
+  - https://attack.mitre.org/techniques/T1190/
+  - https://owasp.org/www-community/attacks/SQL_Injection
+description: |
+  Detects potential SQL injection attempts through error messages indicating syntax errors, unauthorized access attempts, or suspicious SQL patterns in MySQL logs. SQL injection attacks can lead to unauthorized data access, data modification, or complete database compromise.
+  
+  Next Steps:
+  1. Review the SQL query and error message to confirm if this is a legitimate SQL injection attempt
+  2. Identify the source IP/host making the suspicious queries
+  3. Check application logs for corresponding web requests that may have triggered these queries
+  4. Review other recent queries from the same source for additional suspicious activity
+  5. If confirmed as malicious, block the source IP at the firewall/WAF level
+  6. Review and patch the vulnerable application code that allowed the injection
+  7. Consider implementing prepared statements and input validation in the affected application
+  8. Monitor database access logs for any unauthorized data access or modifications
+  9. Review database user permissions and remove unnecessary privileges
+where: |
+  exists("log.msg") &&
+  (
+    contains("log.msg", "1=1") ||
+    contains("log.msg", "' OR '") ||
+    contains("log.msg", "\" OR \"") ||
+    contains("log.msg", "' OR 1") ||
+    contains("log.msg", "xp_cmdshell") ||
+    (contains("log.msg", "UNION") && contains("log.msg", "SELECT") && contains("log.msg", "FROM")) ||
+    contains("log.msg", "INTO OUTFILE") ||
+    contains("log.msg", "INTO DUMPFILE") ||
+    contains("log.msg", "LOAD_FILE") ||
+    contains("log.msg", "BENCHMARK(") ||
+    contains("log.msg", "SLEEP(") ||
+    contains("log.msg", "WAITFOR DELAY") ||
+    contains("log.msg", "@@version") ||
+    contains("log.msg", "user()") ||
+    (contains("log.msg", "UNION") && contains("log.msg", "information_schema"))
+  )
+afterEvents:
+  - indexPattern: v11-log-mysql-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+    within: now-15m
+    count: 5
+groupBy:
+  - adversary.host
+  - adversary.user

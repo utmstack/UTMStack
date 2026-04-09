@@ -1,0 +1,51 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - iis
+name: Virtual Directory Traversal Attack
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Discovery
+technique: "T1083 - File and Directory Discovery"
+adversary: origin
+references:
+  - https://owasp.org/www-community/attacks/Path_Traversal
+  - https://attack.mitre.org/techniques/T1083/
+description: |
+  Detects attempts to traverse directories and access files outside the web root through various encoding techniques and traversal sequences. This attack attempts to access files and directories that are stored outside the web root folder by using relative file paths that contain '../' or similar sequences. Attackers may use various encoding techniques to bypass security filters.
+  
+  Next Steps:
+  - Review the source IP and user agent for suspicious patterns
+  - Check if the requests resulted in successful responses (200, 301, 302 status codes)
+  - Examine the full request path and identify what files were being accessed
+  - Verify web application security controls and input validation
+  - Check for other suspicious activity from the same source IP
+  - Review IIS logs for any successful file access outside the web root
+  - Consider blocking the source IP if malicious intent is confirmed
+where: |
+  (
+    regexMatch("target.path", ".*\\.\\.[\\\\/].*") ||
+    regexMatch("target.path", ".*%2e%2e[\\\\/].*") ||
+    regexMatch("target.path", ".*%252e%252e.*") ||
+    regexMatch("target.path", ".*%c0%ae%c0%ae.*") ||
+    regexMatch("target.path", ".*%e0%80%ae%e0%80%ae.*") ||
+    regexMatch("target.path", ".*/Windows/System32/.*") ||
+    regexMatch("target.path", ".*/boot\\.ini.*") ||
+    regexMatch("target.path", ".*/win\\.ini.*") ||
+    regexMatch("target.path", ".*/web\\.config.*") ||
+    regexMatch("target.path", ".*/applicationHost\\.config.*")
+  ) &&
+  exists("target.ip")
+afterEvents:
+  - indexPattern: v11-log-iis-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-30m
+    count: 3
+deduplicateBy:
+  - adversary.ip
+  - target.ip

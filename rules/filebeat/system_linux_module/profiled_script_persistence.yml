@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Shell Script Persistence via profile.d
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1546.004 - Event Triggered Execution: Unix Shell Configuration Modification"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1546/004/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/file_event/file_event_lnx_susp_shell_script_under_profile_directory.yml
+description: |
+  Detects creation or modification of shell scripts in /etc/profile.d/. Scripts in this directory are executed by every user at login, making it a powerful persistence mechanism. Attackers drop malicious scripts here to maintain persistent access and execute commands in the context of every user session.
+
+  Next Steps:
+  1. Identify the new or modified script in /etc/profile.d/ and examine its contents
+  2. Check if the script was created by a legitimate package installation or administrator
+  3. Compare the script against known-good baselines from package manager
+  4. Review the user and process that created or modified the script
+  5. Remove unauthorized scripts from /etc/profile.d/
+  6. Check for other persistence mechanisms on the same system
+where: |
+  contains("log.message", "/etc/profile.d/") &&
+  (
+    contains("log.message", ["created", "modified", "written", "installed"]) ||
+    (contains("log.message", [" cp ", " mv ", "tee ", "cat "]) && contains("log.message", "/etc/profile.d/")) ||
+    (contains("log.message", "chmod") && contains("log.message", "/etc/profile.d/"))
+  )
+groupBy:
+  - origin.host
+  - origin.user

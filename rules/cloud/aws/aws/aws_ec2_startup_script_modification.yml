@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS EC2 Instance Startup Script Modified
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html
+  - https://attack.mitre.org/techniques/T1059/
+description: |
+  Detects ModifyInstanceAttribute API calls targeting userData, which modifies the EC2 instance startup script. Attackers use this for persistent code execution with root/SYSTEM privileges on instance start.
+
+  Next Steps:
+  1. Identify the instance and review the new userData content (base64 decode it)
+  2. Check if the modification was part of an authorized deployment
+  3. Review the user identity and source IP for legitimacy
+  4. Check if the instance was stopped and restarted after the modification
+  5. Examine the instance for signs of compromise
+  6. If unauthorized, remove the userData and investigate the instance
+where: |
+  equals("log.eventSource", "ec2.amazonaws.com") &&
+  equals("log.eventName", "ModifyInstanceAttribute") &&
+  equals("log.errorCode", "") &&
+  contains("log.requestParameters", "userData")
+groupBy:
+  - adversary.user
+  - lastEvent.log.requestParameters.instanceId

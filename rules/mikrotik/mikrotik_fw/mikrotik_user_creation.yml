@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-mikrotik
+name: MikroTik New Admin User Creation
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1136 - Create Account"
+adversary: origin
+references:
+  - https://help.mikrotik.com/docs/spaces/ROS/pages/328094/Log
+  - https://attack.mitre.org/techniques/T1136/
+description: |
+  Detects creation of new administrative users on MikroTik RouterOS devices. Attackers who gain access to MikroTik routers frequently create backdoor accounts for persistent access.
+
+  Next Steps:
+  1. Verify the new user account was created by an authorized administrator
+  2. Review the permissions and group assignment of the new account
+  3. Check if the user was created through known management channels (Winbox, SSH, web)
+  4. Audit all existing user accounts for unauthorized entries
+  5. If unauthorized, immediately delete the account and change all admin passwords
+  6. Check for other signs of compromise such as script modifications or scheduler tasks
+where: |
+  contains("log.topics", "system") &&
+  contains("log.topics", "info") &&
+  (contains("log.message", "user") && contains("log.message", ["added", "created", "changed group"])) &&
+  !contains("log.message", "logged in")
+groupBy:
+  - adversary.ip
+  - adversary.user

@@ -1,0 +1,47 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - kafka
+name: Kafka Unauthorized Producer Spoofing Detection
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 2
+category: Data Manipulation
+technique: "T1565.001 - Data Manipulation: Stored Data Manipulation"
+adversary: origin
+references:
+  - https://kafka.apache.org/documentation/#producerconfigs
+  - https://attack.mitre.org/techniques/T1565/001/
+description: |
+  Detects unauthorized message production to Kafka topics that could indicate data injection or message spoofing. Monitors for producer authorization failures and unusual producer registrations.
+
+  Next Steps:
+  1. Identify the unauthorized producer client and source host
+  2. Review the messages produced to verify data integrity
+  3. Check Kafka ACLs for producer permissions
+  4. Block unauthorized producers via ACL configuration
+  5. Implement idempotent producer settings for critical topics
+  6. Review topic data for injected or manipulated messages
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "TOPIC_AUTHORIZATION_FAILED") && contains("log.message", "Produce")) ||
+    (contains("log.message", "not authorized to") && contains("log.message", "Write")) ||
+    (equals("log.severity", "ERROR") && contains("log.message", "ProduceRequest") && contains("log.message", "authorization")) ||
+    (contains("log.message", "transactional.id") && contains("log.message", "authorization"))
+  )
+afterEvents:
+  - indexPattern: v11-log-kafka-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+      - field: log.message
+        operator: filter_match
+        value: 'TOPIC_AUTHORIZATION_FAILED OR not authorized OR ProduceRequest'
+    within: now-10m
+    count: 5
+groupBy:
+  - adversary.host
+  - adversary.user

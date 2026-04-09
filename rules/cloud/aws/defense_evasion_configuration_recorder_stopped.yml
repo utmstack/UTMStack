@@ -1,0 +1,24 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "aws"
+name: "AWS Configuration Recorder Stopped"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: "Defense Evasion"
+technique: "T1562 - Impair Defenses"
+adversary: origin
+description: "Identifies an AWS configuration change to stop recording a designated set of resources"
+references:
+  - "https://awscli.amazonaws.com/v2/documentation/api/latest/reference/configservice/stop-configuration-recorder.html"
+  - "https://docs.aws.amazon.com/config/latest/APIReference/API_StopConfigurationRecorder.html"
+  - "https://attack.mitre.org/tactics/TA0005/"
+  - "https://attack.mitre.org/techniques/T1562/"
+where: |
+  equals("log.eventSource", "config.amazonaws.com") &&
+  equals("log.eventName", "StopConfigurationRecorder")
+groupBy:
+  - adversary.ip
+  - adversary.user

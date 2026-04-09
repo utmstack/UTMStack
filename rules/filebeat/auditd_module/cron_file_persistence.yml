@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - auditd
+name: Cron Job File Creation for Persistence
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1053.003 - Scheduled Task/Job: Cron"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1053/003/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/file_event/file_event_lnx_persistence_cron_files.yml
+description: |
+  Detects creation or modification of cron job files in /etc/cron.d/, /etc/cron.daily/, /etc/cron.hourly/, /etc/cron.weekly/, /etc/cron.monthly/, /etc/crontab, or /var/spool/cron/. Attackers commonly use cron jobs as a persistence mechanism to execute malicious commands at regular intervals. Unauthorized cron job creation is a strong indicator of ongoing compromise.
+
+  Next Steps:
+  1. Review the contents of the newly created or modified cron file
+  2. Check what commands are scheduled to run and their frequency
+  3. Identify the user that created the cron entry
+  4. Look for suspicious commands (reverse shells, download-and-execute, data exfiltration)
+  5. Check if the cron job references any recently dropped files
+  6. Remove unauthorized cron entries
+  7. Search for similar cron persistence on other hosts
+where: |
+  equals("action", "auditd.log") &&
+  (contains("log.auditd.log.name", "/etc/cron.d/") ||
+   contains("log.auditd.log.name", "/etc/cron.daily/") ||
+   contains("log.auditd.log.name", "/etc/cron.hourly/") ||
+   contains("log.auditd.log.name", "/etc/cron.weekly/") ||
+   contains("log.auditd.log.name", "/etc/cron.monthly/") ||
+   contains("log.auditd.log.name", "/etc/crontab") ||
+   contains("log.auditd.log.name", "/var/spool/cron/")) &&
+  !oneOf("log.auditd.log.exe", ["/usr/bin/dpkg", "/usr/bin/rpm", "/usr/bin/apt", "/usr/bin/yum", "/usr/bin/dnf", "/usr/sbin/cron", "/usr/sbin/anacron"])
+groupBy:
+  - lastEvent.log.auditd.log.name
+  - adversary.host

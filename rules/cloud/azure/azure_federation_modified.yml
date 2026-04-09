@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Azure AD Federation Settings Modified
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Credential Access
+technique: "T1556 - Modify Authentication Process"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/whatis-fed
+  - https://attack.mitre.org/techniques/T1556/
+description: |
+  Detects modifications to Azure AD domain federation settings. Changing federation configuration is a critical attack technique that enables Golden SAML attacks and domain takeover, allowing attackers to forge authentication tokens for any user.
+
+  Next Steps:
+  1. Immediately verify the federation modification was authorized
+  2. Check the user identity and source IP performing the change
+  3. Review the new federation settings for suspicious IdP configurations
+  4. Validate the signing certificate in the federation configuration
+  5. Check for subsequent sign-ins using federated authentication
+  6. If unauthorized, revert the federation changes and investigate all federated sessions
+  7. Review all privileged role assignments that occurred after the change
+where: |
+  contains("log.operationName", "Set federation settings on domain") ||
+  (contains("log.operationName", "Set domain authentication") && contains("log.properties", "Federated"))
+groupBy:
+  - lastEvent.log.operationName
+  - adversary.user

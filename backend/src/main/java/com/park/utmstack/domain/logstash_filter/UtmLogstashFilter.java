@@ -4,6 +4,7 @@ package com.park.utmstack.domain.logstash_filter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.correlation.config.UtmDataTypes;
+import com.park.utmstack.service.dto.auditable.AuditableDTO;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -11,13 +12,14 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Map;
 
 /**
  * A UtmLogstashFilter.
  */
 @Entity
 @Table(name = "utm_logstash_filter")
-public class UtmLogstashFilter implements Serializable {
+public class UtmLogstashFilter implements Serializable, AuditableDTO {
 
     private static final long serialVersionUID = 1L;
 
@@ -180,5 +182,13 @@ public class UtmLogstashFilter implements Serializable {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    @Override
+    public Map<String, Object> toAuditMap() {
+        return Map.of(
+            "filterName", filterName != null ? filterName : "",
+            "moduleName", moduleName != null ? moduleName : ""
+        );
     }
 }

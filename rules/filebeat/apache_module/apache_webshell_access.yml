@@ -1,0 +1,46 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - apache
+name: Apache Web Shell Access Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1505.003 - Server Software Component: Web Shell"
+adversary: origin
+references:
+  - https://www.microsoft.com/en-us/security/blog/2021/02/11/web-shell-attacks-continue-to-rise/
+  - https://attack.mitre.org/techniques/T1505/003/
+description: |
+  Detects access to known web shell file paths and suspicious PHP/JSP/ASP file access patterns that indicate web shell activity. Web shells provide persistent remote access to compromised web servers.
+
+  Next Steps:
+  1. Immediately investigate the accessed file path on the web server
+  2. Check if the file exists and examine its contents for malicious code
+  3. Review file creation timestamps and upload vectors
+  4. Scan the web directory for additional web shells
+  5. Check for lateral movement from the web server
+  6. Remove the web shell and patch the upload vulnerability
+where: |
+  exists("origin.ip") &&
+  exists("origin.path") &&
+  (
+    regexMatch("origin.path", "(?i)/(c99|r57|b374k|alfa|wso|madspot|mini|phpspy|cgitelnet|shell|cmd|eval|backdoor|hack|upload|filemanager)\\.(php|jsp|asp|aspx|cgi)") ||
+    regexMatch("origin.path", "(?i)/(wp-content|wp-includes|wp-admin)/.*\\.(php|phtml|php[3-7])\\?.*=") ||
+    regexMatch("origin.path", "(?i)\\.(php|jsp|asp|aspx)\\?(cmd|exec|command|shell|c|e|id|pass)=") ||
+    contains("origin.path", "/webshell") ||
+    contains("origin.path", "/c99.php") ||
+    contains("origin.path", "/r57.php") ||
+    contains("origin.path", "/b374k.php") ||
+    contains("origin.path", "/WSO.php") ||
+    contains("origin.path", "/alfa.php") ||
+    contains("origin.path", "/adminer.php") ||
+    contains("origin.path", "/phpspy.php")
+  ) &&
+  greaterOrEqual("log.statusCode", 200) &&
+  lessThan("log.statusCode", 400)
+groupBy:
+  - adversary.ip
+  - adversary.path

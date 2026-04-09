@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - auditd
+name: Container Escape Syscalls Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Privilege Escalation
+technique: "T1611 - Escape to Host"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1611/
+  - https://blog.trailofbits.com/2019/07/19/understanding-docker-container-escapes/
+description: |
+  Detects syscalls associated with container escape techniques including unshare with CLONE_NEWUSER, nsenter targeting PID 1, and host filesystem mounting from within containers.
+
+  Next Steps:
+  1. Identify the container from which the syscall originated
+  2. Review the container configuration for excessive capabilities
+  3. Check if the container was running in privileged mode
+  4. Investigate the process chain within the container
+  5. Review Kubernetes/Docker security policies
+  6. Isolate the container host if escape is confirmed
+where: |
+  equals("action", "auditd.log") &&
+  ((equals("log.record_type", "SYSCALL") &&
+    (equals("log.syscall", "unshare") || equals("log.syscall", "setns") ||
+     equals("log.syscall", "clone") || equals("log.syscall", "clone3"))) ||
+   (contains("log.message", "nsenter") && contains("log.message", "--target")) ||
+   (contains("log.message", "unshare") && contains("log.message", "CLONE_NEWUSER")) ||
+   (contains("log.message", "mount") &&
+    (contains("log.message", "/proc/1") || contains("log.message", "docker.sock"))))
+groupBy:
+  - adversary.host
+  - adversary.user

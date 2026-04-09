@@ -1,0 +1,20 @@
+name: "Suspicious Native Downloaders (LoLBin)"
+description: "Execution of native binaries like certutil, bitsadmin, curl, or wget was detected making external connections, potentially indicating Ingress Tool Transfer by an adversary."
+category: "Command and Control"
+technique: "Ingress Tool Transfer"
+references:
+  - "https://attack.mitre.org/techniques/T1105/"
+dataTypes:
+  - crowdstrike
+adversary: origin
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 0
+where: >
+  equals("log.event_simpleName", "ProcessRollup2") && 
+  exists("log.eventCommandLine") && 
+  regexMatch("log.eventCommandLine", "(?i).*(certutil.*-urlcache|bitsadmin.*-transfer|curl.*http|wget.*http).*")
+groupBy: 
+  - origin.host
+  - lastEvent.log.eventCommandLine

@@ -1,0 +1,65 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - iis
+name: ASPX Injection Attempt Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://www.acunetix.com/blog/articles/using-logs-to-investigate-a-web-application-attack/
+  - https://attack.mitre.org/techniques/T1059/
+description: |
+  Detects potential ASPX code injection attempts through suspicious query strings and POST data patterns targeting ASP.NET applications.
+  
+  Next Steps:
+  1. Review the specific request details and payload in the web server logs
+  2. Check if the request resulted in successful code execution or error responses
+  3. Examine application logs for any unusual system calls or file access
+  4. Verify the legitimacy of the source IP and user agent
+  5. Check for other suspicious activities from the same source IP
+  6. Review application security controls and input validation mechanisms
+  7. Consider blocking the source IP if confirmed malicious
+  8. Analyze the HTTP method and referrer to understand attack vector
+  9. Check for any related alerts from web application firewalls or intrusion detection systems
+where: |
+  exists("target.path") &&
+  (
+    regexMatch("target.path", "(?i)\.aspx") ||
+    regexMatch("target.path", "(?i)\.asp") ||
+    regexMatch("target.path", "(?i)\.asmx")
+  ) &&
+  (
+    regexMatch("target.path", "(?i)system\.") ||
+    regexMatch("target.path", "(?i)eval\(") ||
+    regexMatch("target.path", "(?i)execute\(") ||
+    regexMatch("target.path", "(?i)request\.form") ||
+    regexMatch("target.path", "(?i)request\.querystring") ||
+    regexMatch("target.path", "(?i)response\.write") ||
+    regexMatch("target.path", "(?i)server\.execute") ||
+    regexMatch("target.path", "(?i)server\.transfer") ||
+    regexMatch("target.path", "(?i)process\.start") ||
+    regexMatch("target.path", "(?i)shell\.application") ||
+    regexMatch("target.path", "(?i)wscript\.shell") ||
+    regexMatch("target.path", "(?i)scripting\.filesystemobject") ||
+    regexMatch("target.path", "(?i)%3cscript") ||
+    regexMatch("target.path", "(?i)<script") ||
+    regexMatch("target.path", "(?i)javascript:") ||
+    regexMatch("target.path", "(?i)vbscript:")
+  ) &&
+  !equals("log.statusCode", 404)
+afterEvents:
+  - indexPattern: v11-log-iis-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-30m
+    count: 5
+groupBy:
+  - adversary.ip
+  - target.ip

@@ -1,41 +1,41 @@
-- id: 1011
-  dataTypes:
-    - antivirus-kaspersky
-  name: Suspicious Packed Executable Detection
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 2
-  category: Malware
-  technique: "T1027.002 - Obfuscated Files or Information: Software Packing"
-  adversary: origin
-  references:
-    - https://www.kaspersky.com/resource-center/threats/suspicious-packers
-    - https://attack.mitre.org/techniques/T1027/002/
-  description: |
-    Detects when Kaspersky identifies suspicious packed executables, which are often used by malware to evade detection and analysis. Packed executables use compression or encryption to hide their true content and make reverse engineering more difficult.
-    
-    Next Steps:
-    1. Identify the affected system from origin.hostname and origin.ip fields
-    2. Review the detected threat details from log.descMsg and log.msg fields
-    3. Check the action taken by the antivirus (blocked/detected) in the action field
-    4. Verify if the file is legitimate software that uses packing for protection
-    5. If malicious, isolate the affected system immediately
-    6. Perform a full system scan to identify additional threats
-    7. Review process execution logs for suspicious child processes spawned by packed executables
-    8. Check network connections initiated by the suspicious executable
-    9. Submit the sample to Kaspersky or third-party sandbox for detailed analysis
-    10. Update antivirus signatures and ensure real-time protection is enabled
-  where: |
-    (safe(action, "") == "blocked" || safe(action, "") == "detected") &&
-    (safe(log.descMsg, "").contains("Packed") || 
-     safe(log.descMsg, "").contains("packer") ||
-     safe(log.msg, "").contains("packed") ||
-     safe(log.msg, "").contains("Packed") ||
-     safe(log.descMsg, "").matches("(?i).*(NSAnti|Themida|VMProtect|ASPack|UPX|PECompact|Enigma|Armadillo|PESpin|MEW|FSG|Petite).*") ||
-     safe(log.msg, "").matches("(?i).*(NSAnti|Themida|VMProtect|ASPack|UPX|PECompact|Enigma|Armadillo|PESpin|MEW|FSG|Petite).*") ||
-     safe(log.cat, "").contains("Trojan.Packed") ||
-     safe(log.cat, "").contains("Packed"))
-  deduplicateBy:
-    - origin.hostname
-    - origin.ip
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-kaspersky
+name: Suspicious Packed Executable Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1027.002 - Obfuscated Files or Information: Software Packing"
+adversary: origin
+references:
+  - https://www.kaspersky.com/resource-center/threats/suspicious-packers
+  - https://attack.mitre.org/techniques/T1027/002/
+description: |
+  Detects when Kaspersky identifies suspicious packed executables, which are often used by malware to evade detection and analysis. Packed executables use compression or encryption to hide their true content and make reverse engineering more difficult.
+  
+  Next Steps:
+  1. Identify the affected system from origin.hostname and origin.ip fields
+  2. Review the detected threat details from log.descMsg and log.msg fields
+  3. Check the action taken by the antivirus (blocked/detected) in the action field
+  4. Verify if the file is legitimate software that uses packing for protection
+  5. If malicious, isolate the affected system immediately
+  6. Perform a full system scan to identify additional threats
+  7. Review process execution logs for suspicious child processes spawned by packed executables
+  8. Check network connections initiated by the suspicious executable
+  9. Submit the sample to Kaspersky or third-party sandbox for detailed analysis
+  10. Update antivirus signatures and ensure real-time protection is enabled
+where: |
+  oneOf("action", ["blocked", "detected"]) &&
+  (contains("log.msg", ["Packed", "packer"]) ||
+   contains("log.msg", ["packed", "Packed"]) ||
+   contains("log.msg", ["NSAnti", "Themida", "VMProtect", "ASPack", "UPX",
+     "PECompact", "Enigma", "Armadillo"]) ||
+   contains("log.msg", ["NSAnti", "Themida", "VMProtect", "ASPack", "UPX",
+     "PECompact", "Enigma", "Armadillo"]) ||
+   contains("log.cat", ["Trojan.Packed", "Packed"]))
+groupBy:
+  - origin.host
+  - origin.ip

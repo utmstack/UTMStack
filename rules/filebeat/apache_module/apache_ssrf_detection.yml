@@ -1,0 +1,54 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - apache
+name: Apache SSRF Attack Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Server-Side Request Forgery
+technique: "T1090 - Proxy"
+adversary: origin
+references:
+  - https://owasp.org/www-community/attacks/Server_Side_Request_Forgery
+  - https://attack.mitre.org/techniques/T1090/
+description: |
+  Detects Server-Side Request Forgery (SSRF) attempts by identifying requests containing internal IP addresses, cloud metadata endpoints, or localhost references in URL parameters. Attackers use SSRF to access internal services, cloud instance metadata, or pivot to internal networks.
+
+  Next Steps:
+  1. Review the full request URL and parameters for internal IP or metadata references
+  2. Identify the application endpoint being targeted for SSRF
+  3. Check if any internal services were successfully accessed
+  4. Review application code for improper URL validation
+  5. Block the source IP if confirmed malicious
+  6. Implement URL allowlisting and SSRF protections in the application
+where: |
+  exists("origin.ip") &&
+  exists("origin.path") &&
+  (
+    contains("origin.path", "169.254.169.254") ||
+    contains("origin.path", "metadata.google.internal") ||
+    contains("origin.path", "metadata.azure.com") ||
+    regexMatch("origin.path", "(?i)(url|redirect|next|target|dest|uri|path|file|page|go|return|out|view|load|fetch)=.*(127\\.0\\.0\\.1|localhost|0\\.0\\.0\\.0|10\\.[0-9]+\\.[0-9]+\\.[0-9]+|172\\.(1[6-9]|2[0-9]|3[01])\\.[0-9]+\\.[0-9]+|192\\.168\\.[0-9]+\\.[0-9]+)") ||
+    regexMatch("origin.path", "(?i)(url|redirect|next|target|dest|uri|path|file|page|go|return|out|view|load|fetch)=https?://(127\\.0\\.0\\.1|localhost|0\\.0\\.0\\.0)") ||
+    contains("origin.path", "file:///") ||
+    contains("origin.path", "gopher://") ||
+    contains("origin.path", "dict://") ||
+    contains("origin.path", "ftp://127") ||
+    contains("origin.path", "ftp://localhost")
+  )
+afterEvents:
+  - indexPattern: v11-log-apache-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: origin.path
+        operator: filter_match
+        value: '169.254.169.254 OR localhost OR 127.0.0.1 OR metadata OR file:// OR gopher://'
+    within: now-10m
+    count: 3
+groupBy:
+  - adversary.ip
+  - adversary.path

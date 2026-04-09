@@ -1,0 +1,26 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "firewall-sophos-xg"
+name: "Probable Sophos ip spoofing attack"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: "Impact"
+technique: "T1499 - Endpoint Denial of Service"
+adversary: origin
+references: 
+  - "https://support.sophos.com/support/s/article/KB-000035616?language=en_US"
+  - "https://docs.sophos.com/nsg/sophos-firewall/17.5/Help/en-us/webhelp/onlinehelp/nsg/sfos/concepts/DoSBypassRuleManage.html"
+  - "https://attack.mitre.org/tactics/TA0040"
+  - "https://attack.mitre.org/techniques/T1499/"
+  - "https://www.cloudflare.com/learning/ddos/glossary/ip-spoofing/"
+description: "IP spoofing is the creation of Internet Protocol (IP) packets which have a modified source address in order to either hide 
+              the identity of the sender, to impersonate another computer system, or both. It is a technique often used by bad actors to 
+              invoke DDoS attacks against a target device or the surrounding infrastructure."
+where: |
+  equals("log.component", "IP spoof")
+groupBy:
+  - adversary.ip
+  - target.ip

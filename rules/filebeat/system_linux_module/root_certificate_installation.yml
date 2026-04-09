@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Root Certificate Installation Detected
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1553.004 - Subvert Trust Controls: Install Root Certificate"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1553/004/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_install_root_certificate.yml
+description: |
+  Detects the installation of root certificates on Linux systems using update-ca-certificates or update-ca-trust. Attackers install rogue root certificates to enable TLS interception (man-in-the-middle attacks), bypass certificate pinning, or establish trust for malicious code signing.
+
+  Next Steps:
+  1. Identify which certificate was installed and its issuer
+  2. Verify if the certificate installation was authorized
+  3. Check /usr/local/share/ca-certificates/ and /etc/pki/ca-trust/source/ for new certificates
+  4. Examine the process and user that triggered the certificate installation
+  5. Look for signs of TLS interception or MITM activity
+  6. Remove unauthorized certificates and update the trust store
+where: |
+  contains("log.message", ["update-ca-certificates", "update-ca-trust"]) &&
+  !contains("log.message", ["apt", "yum", "dnf", "dpkg"])
+groupBy:
+  - origin.host
+  - origin.user

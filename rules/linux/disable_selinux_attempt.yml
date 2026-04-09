@@ -1,0 +1,21 @@
+# Rule version v1.0.1
+
+dataTypes:
+  - "linux"
+name: "System Linux: Potential Disabling of SELinux"
+impact:
+  confidentiality: 1
+  integrity: 2
+  availability: 3
+category: "Defense Evasion"
+technique: "T1562.001 - Impair Defenses"
+adversary: origin
+description: "Identifies potential attempts to disable Security-Enhanced Linux (SELinux), which is a Linux kernel security feature to
+              support access control policies. Adversaries may disable security tools to avoid possible detection of their tools and activities."
+references:
+  - "https://attack.mitre.org/tactics/TA0005/"
+  - "https://attack.mitre.org/techniques/T1562/001/"
+where: contains("log.message", "setenforce 0")
+groupBy:
+  - origin.ip
+  - origin.user

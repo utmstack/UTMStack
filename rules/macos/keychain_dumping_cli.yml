@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Keychain Credential Dumping via CLI
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 0
+category: Credential Access
+technique: "T1555.001 - Credentials from Password Stores: Keychain"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1555/001/
+description: |
+  Detects command-line access to macOS Keychain credentials using security commands like dump-keychain, find-generic-password, or find-internet-password with the -w flag to extract passwords.
+
+  Next Steps:
+  1. Identify the user and process executing keychain dump commands
+  2. Determine which keychain items were accessed
+  3. Check for credential exfiltration to external destinations
+  4. Rotate any passwords that may have been extracted
+  5. Review the attack chain leading to keychain access
+  6. Consider restricting keychain access via MDM policies
+where: |
+  (equals("log.process", "security") || contains("log.eventMessage", "security ")) &&
+  (contains("log.eventMessage", "dump-keychain") ||
+   contains("log.eventMessage", "find-generic-password") && contains("log.eventMessage", "-w") ||
+   contains("log.eventMessage", "find-internet-password") && contains("log.eventMessage", "-w") ||
+   contains("log.eventMessage", "export-keychain") ||
+   contains("log.eventMessage", "unlock-keychain") && contains("log.eventMessage", "-p"))
+groupBy:
+  - adversary.host
+  - adversary.user

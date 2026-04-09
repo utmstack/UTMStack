@@ -1,0 +1,56 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - nginx
+name: Nginx Server-Side Template Injection Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Code Injection
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://portswigger.net/research/server-side-template-injection
+  - https://attack.mitre.org/techniques/T1059/
+description: |
+  Detects Server-Side Template Injection payloads in Nginx access logs. SSTI allows attackers to inject template directives that execute arbitrary code on the server through template engines.
+
+  Next Steps:
+  1. Review the request parameters for template injection payloads
+  2. Identify the backend template engine being targeted
+  3. Check if any payloads were successfully rendered
+  4. Implement input sanitization and template sandboxing
+  5. Block the source IP if confirmed malicious
+  6. Review application code for unsafe template rendering
+where: |
+  exists("origin.ip") &&
+  exists("origin.path") &&
+  (
+    regexMatch("origin.path", "(?i)\\{\\{[0-9]+\\*[0-9]+\\}\\}") ||
+    regexMatch("origin.path", "(?i)\\$\\{[0-9]+\\*[0-9]+\\}") ||
+    contains("origin.path", "{{config") ||
+    contains("origin.path", "{{self") ||
+    contains("origin.path", "__class__") ||
+    contains("origin.path", "__import__") ||
+    contains("origin.path", "__builtins__") ||
+    contains("origin.path", "__subclasses__") ||
+    contains("origin.path", "${T(java.lang") ||
+    contains("origin.path", "#{T(java.lang") ||
+    contains("origin.path", "${Runtime") ||
+    contains("origin.path", "{{request.application")
+  )
+afterEvents:
+  - indexPattern: v11-log-nginx-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: origin.path
+        operator: filter_match
+        value: '__class__ OR __import__ OR Runtime OR __subclasses__'
+    within: now-10m
+    count: 3
+groupBy:
+  - adversary.ip
+  - target.ip

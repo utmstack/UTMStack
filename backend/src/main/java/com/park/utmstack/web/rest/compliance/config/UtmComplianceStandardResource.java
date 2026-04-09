@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest.compliance.config;
 
+import com.park.utmstack.aop.logging.AuditEvent;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.compliance.UtmComplianceStandard;
 import com.park.utmstack.service.application_events.ApplicationEventService;
@@ -47,6 +48,12 @@ public class UtmComplianceStandardResource {
     }
 
     @PostMapping("/standard")
+    @AuditEvent(
+        attemptType = ApplicationEventType.COMPLIANCE_STANDARD_CREATE_ATTEMPT,
+        attemptMessage = "Attempting to create compliance standard: {standardName}",
+        successType = ApplicationEventType.COMPLIANCE_STANDARD_CREATE_SUCCESS,
+        successMessage = "Compliance standard {standardName} created successfully"
+    )
     public ResponseEntity<UtmComplianceStandard> createComplianceStandard(
         @Valid @RequestBody UtmComplianceStandard complianceStandard) {
         final String ctx = CLASS_NAME + ".createComplianceStandard";
@@ -75,6 +82,12 @@ public class UtmComplianceStandardResource {
     }
 
     @PutMapping("/standard")
+    @AuditEvent(
+        attemptType = ApplicationEventType.CONFIG_UPDATE_ATTEMPT,
+        attemptMessage = "Attempting to update compliance standard: {standardName}",
+        successType = ApplicationEventType.CONFIG_UPDATE_SUCCESS,
+        successMessage = "Compliance standard {standardName} updated successfully"
+    )
     public ResponseEntity<UtmComplianceStandard> updateComplianceStandard(
         @Valid @RequestBody UtmComplianceStandard complianceStandard) {
         final String ctx = CLASS_NAME + ".updateComplianceStandard";
@@ -132,6 +145,12 @@ public class UtmComplianceStandardResource {
     }
 
     @DeleteMapping("/standard/{id}")
+    @AuditEvent(
+        attemptType = ApplicationEventType.CONFIG_GROUP_DELETE_ATTEMPT,
+        attemptMessage = "Attempting to delete compliance standard with ID: {id}",
+        successType = ApplicationEventType.CONFIG_GROUP_DELETE_SUCCESS,
+        successMessage = "Compliance standard with ID {id} deleted successfully"
+    )
     public ResponseEntity<Void> deleteComplianceStandard(@PathVariable Long id) {
         final String ctx = CLASS_NAME + ".deleteComplianceStandard";
         try {

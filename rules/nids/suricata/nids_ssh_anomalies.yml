@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - suricata
+name: SSH Brute Force and Tunneling Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: Lateral Movement
+technique: "T1021.004 - Remote Services: SSH"
+adversary: origin
+references:
+  - https://suricata.readthedocs.io/en/latest/rules/ssh-keywords.html
+  - https://attack.mitre.org/techniques/T1021/004/
+description: |
+  Detects SSH-based attacks including brute force attempts, SSH tunneling indicators, and anomalous SSH traffic patterns identified by Suricata. SSH is commonly abused for lateral movement and encrypted tunneling.
+
+  Next Steps:
+  1. Investigate the source IP for SSH brute force patterns
+  2. Check if SSH tunneling is being used to bypass network controls
+  3. Review SSH key-based authentication for unauthorized keys
+  4. Check for SSH connections to unusual internal or external destinations
+  5. Review the SSH client version for known vulnerable or suspicious clients
+  6. Consider restricting SSH access to authorized jump hosts only
+where: |
+  equals("log.eventType", "alert") &&
+  (contains("log.alert.signature", ["SSH", "ssh"]) &&
+   contains("log.alert.signature", ["brute", "scan", "tunnel", "banner", "exploit", "overflow"])) &&
+  exists("origin.ip") &&
+  exists("target.ip")
+afterEvents:
+  - indexPattern: v11-log-suricata-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: target.ip
+        operator: filter_term
+        value: '{{.target.ip}}'
+    within: now-15m
+    count: 10
+groupBy:
+  - adversary.ip
+  - target.ip

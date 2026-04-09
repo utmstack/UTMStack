@@ -1,0 +1,42 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-esmc-eset
+name: ESET Repeated Quarantine Failures
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://help.eset.com/ees/8/en-US/
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects repeated quarantine failures in ESET, which may indicate malware actively resisting quarantine through file locks, permission manipulation, or rapid re-creation of malicious files.
+
+  Next Steps:
+  1. Identify the specific file or threat that cannot be quarantined
+  2. Check the file permissions and processes locking the file
+  3. Attempt manual quarantine or deletion in safe mode
+  4. Review the malware's persistence mechanisms
+  5. Consider isolating the endpoint for manual remediation
+  6. Run a boot-time scan if available
+where: |
+  (contains("log.message", "quarantine") &&
+   (contains("log.message", "failed") || contains("log.message", "error") ||
+    contains("log.message", "unable") || contains("log.message", "denied"))) ||
+  (contains("log.message", "clean") && contains("log.message", "failed") &&
+   contains("log.message", "threat"))
+afterEvents:
+  - indexPattern: v11-log-antivirus-esmc-eset-*
+    with:
+      - field: log.headHostname
+        operator: filter_term
+        value: '{{.log.headHostname}}'
+    within: now-1h
+    count: 5
+groupBy:
+  - lastEvent.log.headHostname
+  - target.host

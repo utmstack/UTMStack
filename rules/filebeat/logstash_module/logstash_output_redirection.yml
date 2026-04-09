@@ -1,0 +1,43 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - logstash
+name: Logstash Output Redirection to External Destination Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Data Exfiltration
+technique: "T1048 - Exfiltration Over Alternative Protocol"
+adversary: origin
+references:
+  - https://www.elastic.co/guide/en/logstash/current/output-plugins.html
+  - https://attack.mitre.org/techniques/T1048/
+description: |
+  Detects modification of Logstash output plugins to redirect data to external or unauthorized destinations. Attackers modify output configurations to exfiltrate log data to attacker-controlled servers.
+
+  Next Steps:
+  1. Review the output plugin configuration changes
+  2. Verify the output destination is a legitimate target
+  3. Check for any new output plugins added to pipelines
+  4. Remove unauthorized output destinations
+  5. Restrict Logstash configuration file access
+  6. Monitor outbound connections from the Logstash server
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "output") && (
+      contains("log.message", "http {") ||
+      contains("log.message", "tcp {") ||
+      contains("log.message", "s3 {") ||
+      contains("log.message", "kafka {") ||
+      contains("log.message", "syslog {") ||
+      contains("log.message", "file {")
+    )) ||
+    (contains("log.message", "output") && contains("log.message", "new connection")) ||
+    (contains("log.message", "output plugin") && contains("log.message", "started")) ||
+    (contains("log.message", "Connecting to") && regexMatch("log.message", "(?i)https?://[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+"))
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

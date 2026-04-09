@@ -1,0 +1,40 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - json-input
+name: JSONP Vulnerability Exploitation Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Execution
+technique: JSONP Exploitation
+adversary: origin
+references:
+  - https://owasp.org/www-community/attacks/Server_Side_Request_Forgery
+  - https://attack.mitre.org/techniques/T1059/007/
+description: |
+  Detects attempts to exploit JSONP endpoints through callback manipulation, XSS injection via callbacks, or unauthorized cross-domain data access. This rule identifies malicious callback parameters containing script tags, JavaScript execution functions, or non-standard callback names that could indicate exploitation attempts.
+  
+  Next Steps:
+  1. Review the origin IP and URL path to identify the source of the attack
+  2. Examine the callback parameter value for malicious content
+  3. Check application logs for successful data extraction or code execution
+  4. Verify JSONP endpoint security controls and callback validation
+  5. Consider blocking the source IP if confirmed malicious
+  6. Review and strengthen JSONP implementation security measures
+where: |
+  (exists("log.callback") &&
+   (contains("log.callback", "<") ||
+    contains("log.callback", ">") ||
+    contains("log.callback", "javascript:") ||
+    contains("log.callback", "alert(") ||
+    contains("log.callback", "eval(") ||
+    contains("log.callback", "Function(") ||
+    contains("log.callback", ".constructor("))) ||
+  (exists("log.url_query") &&
+   contains("log.url_query", "callback=") &&
+   contains("log.url_query", "<script"))
+groupBy:
+  - lastEvent.log.url_path
+  - adversary.ip

@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - github
+name: GitHub App Installation Token Suspicious Access
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: Credential Access
+technique: "T1528 - Steal Application Access Token"
+adversary: origin
+references:
+  - https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-an-installation-access-token-for-a-github-app
+  - https://attack.mitre.org/techniques/T1528/
+description: |
+  Detects suspicious GitHub App installation and token activity from unexpected sources. Attackers who steal GitHub App private keys can generate installation tokens for any organization that installed the app, gaining broad access to repositories.
+
+  Next Steps:
+  1. Review the GitHub App installation and its configured permissions
+  2. Verify the installation was authorized by an organization administrator
+  3. Check the App's webhook delivery history for unexpected endpoints
+  4. Review repository access granted by the App installation
+  5. Examine recent API calls made using the App's installation token
+  6. If compromised, revoke the App installation and rotate its private key
+  7. Review all repositories the App had access to for unauthorized changes
+  8. Implement IP allow-listing for the GitHub App
+where: |
+  (equals("log.action", "integration_installation.create") ||
+   equals("log.action", "integration_installation.repositories_added") ||
+   equals("log.action", "integration_installation.unsuspend")) &&
+  exists("log.senderLogin")
+groupBy:
+  - lastEvent.log.action
+  - lastEvent.log.senderLogin

@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Base64 Decode Piped to Shell Execution
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1140 - Deobfuscate/Decode Files or Information"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1140/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_base64_execution.yml
+description: |
+  Detects base64-encoded content being decoded and piped directly to bash or sh for execution. This is an extremely common technique used by malware droppers, initial access scripts, and post-exploitation frameworks to evade detection by encoding malicious commands. Legitimate use of base64 piped to shell execution is very rare in production environments.
+
+  Next Steps:
+  1. Capture and decode the base64 payload to understand what was executed
+  2. Identify the source of the encoded command (downloaded file, cron job, web request)
+  3. Check for persistence mechanisms installed by the decoded payload
+  4. Review network connections for C2 communication
+  5. Search for similar base64 patterns across all systems
+  6. Investigate the user account and parent process chain
+  7. Look for file drops or modifications made by the executed payload
+where: |
+  exists("log.message") &&
+  (regexMatch("log.message", "(?i)base64\\s+-d.*\\|\\s*(ba)?sh") ||
+   regexMatch("log.message", "(?i)base64\\s+--decode.*\\|\\s*(ba)?sh") ||
+   regexMatch("log.message", "(?i)echo\\s+.*\\|\\s*base64\\s+-d\\s*\\|\\s*(ba)?sh") ||
+   regexMatch("log.message", "(?i)\\|\\s*base64\\s+-(d|decode)\\s*\\|\\s*(ba)?sh"))
+groupBy:
+  - origin.host
+  - origin.user

@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - postgresql
+name: PostgreSQL Extension-Based RCE Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Code Execution
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://www.postgresql.org/docs/current/sql-createextension.html
+  - https://attack.mitre.org/techniques/T1059/
+description: |
+  Detects creation of PostgreSQL extensions that enable code execution such as plpythonu, plperlu, plsh, or pljava. Attackers use these procedural language extensions to execute arbitrary system commands through the database.
+
+  Next Steps:
+  1. Verify if the extension installation was authorized
+  2. Identify the user account that created the extension
+  3. Check for any functions created using the dangerous extension
+  4. Review pg_extension catalog for unauthorized extensions
+  5. Remove unauthorized extensions immediately
+  6. Restrict CREATE EXTENSION privileges
+where: |
+  exists("log.msg") &&
+  (
+    regexMatch("log.msg", "(?i)CREATE\\s+EXTENSION\\s+(IF\\s+NOT\\s+EXISTS\\s+)?(plpythonu|plpython2u|plpython3u|plperlu|plsh|pljava|plr|plruby)") ||
+    regexMatch("log.msg", "(?i)CREATE\\s+(OR\\s+REPLACE\\s+)?FUNCTION.*LANGUAGE\\s+(plpythonu|plpython2u|plpython3u|plperlu|plsh|pljava)") ||
+    regexMatch("log.msg", "(?i)CREATE\\s+EXTENSION.*adminpack") ||
+    regexMatch("log.msg", "(?i)LOAD\\s+['\"].*\\.(so|dll)['\"]")
+  )
+groupBy:
+  - lastEvent.log.sessionId
+  - adversary.host

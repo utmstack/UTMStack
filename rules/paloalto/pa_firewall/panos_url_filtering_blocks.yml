@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-paloalto
+name: PAN-OS Malicious URL Category Block
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Command and Control
+technique: "T1071.001 - Application Layer Protocol: Web Protocols"
+adversary: origin
+references:
+  - https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/url-filtering
+  - https://attack.mitre.org/techniques/T1071/001/
+description: |
+  Detects URL filtering blocks for malicious, phishing, or command-and-control URL categories on Palo Alto firewalls. Repeated blocks from the same host may indicate malware infection or compromised credentials.
+
+  Next Steps:
+  1. Investigate the internal host that attempted to access the malicious URL
+  2. Review the URL category and specific blocked domain for threat context
+  3. Check if the user clicked a phishing link in email
+  4. Scan the host for malware if the URL was a C2 callback
+  5. Review other connections from the same host for additional IOCs
+  6. Block the destination domain at DNS level for defense in depth
+where: |
+  equals("log.pa_type", "THREAT") &&
+  equals("log.pa_subtype", "url") &&
+  oneOf("log.act", ["block-url", "block-page", "block-override", "alert"]) &&
+  (oneOf("log.urlCategory", ["malware", "phishing", "command-and-control", "grayware", "hacking"]) ||
+   contains("log.category", ["malware", "phishing", "command-and-control", "grayware", "hacking"]))
+afterEvents:
+  - indexPattern: v11-log-firewall-paloalto-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.pa_subtype
+        operator: filter_term
+        value: 'url'
+    within: now-30m
+    count: 5
+groupBy:
+  - adversary.ip
+  - target.host

@@ -1,0 +1,46 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - apache
+name: Denial of Service Attack Pattern
+impact:
+  confidentiality: 1
+  integrity: 1
+  availability: 3
+category: Impact
+technique: "T1498 - Network Denial of Service"
+adversary: origin
+references:
+  - https://owasp.org/www-community/attacks/Denial_of_Service
+  - https://attack.mitre.org/techniques/T1498/
+description: |
+  Detects patterns indicative of denial of service attacks including slowloris, high request rates from single IPs, or requests designed to consume excessive server resources. This rule identifies various DoS attack indicators such as timeout responses, service unavailable errors, rate limiting responses, known DoS tool user agents, and abnormally large requests.
+  
+  Next Steps:
+  - Investigate the source IP for additional malicious activity
+  - Check server resource utilization during the timeframe
+  - Review firewall and load balancer logs for traffic patterns
+  - Implement rate limiting or IP blocking if confirmed malicious
+  - Analyze request patterns for application-layer attacks
+  - Consider implementing DDoS protection mechanisms
+where: |
+  exists("origin.ip") &&
+  (
+    (exists("log.userAgent") &&
+     (contains("log.userAgent", "slowloris") ||
+      contains("log.userAgent", "slowhttptest") ||
+      contains("log.userAgent", "R-U-Dead-Yet") ||
+      contains("log.userAgent", "PyLoris"))) ||
+    equals("log.statusCode", 429)
+  )
+afterEvents:
+  - indexPattern: v11-log-apache-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-1m
+    count: 100
+groupBy:
+  - adversary.ip
+  - target.ip

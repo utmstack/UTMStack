@@ -1,0 +1,42 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - kibana
+name: Kibana Dev Tools Dangerous Query Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://www.elastic.co/guide/en/kibana/current/console-kibana.html
+  - https://attack.mitre.org/techniques/T1059/
+description: |
+  Detects dangerous queries executed via Kibana Dev Tools console including index deletions, security setting changes, user creation, and role modifications. Dev Tools provides direct API access that can be abused by compromised accounts.
+
+  Next Steps:
+  1. Review the queries executed through Dev Tools
+  2. Identify the user account and session
+  3. Check if any destructive operations succeeded
+  4. Restrict Dev Tools access to authorized administrators
+  5. Review Kibana role assignments for over-privileged users
+  6. Enable audit logging for Kibana API actions
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "console") && (
+      contains("log.message", "DELETE /") ||
+      contains("log.message", "_security/user") ||
+      contains("log.message", "_security/role") ||
+      contains("log.message", "_cluster/settings") ||
+      contains("log.message", "_snapshot") ||
+      contains("log.message", "_scripts") ||
+      contains("log.message", "_reindex")
+    )) ||
+    (contains("log.message", "dev_tools") && contains("log.message", "execute"))
+  )
+groupBy:
+  - adversary.ip
+  - target.ip

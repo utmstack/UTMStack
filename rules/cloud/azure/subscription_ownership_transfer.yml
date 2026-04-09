@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Azure Subscription Ownership Transfer Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Identity and Access Management
+technique: "T1078 - Valid Accounts"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/azure/role-based-access-control/change-history-report
+  - https://attack.mitre.org/techniques/T1078/
+description: |
+  Detects when ownership of an Azure subscription is transferred by monitoring role assignment changes at the subscription level. This could indicate unauthorized access or insider threat activity.
+  
+  Next Steps:
+  1. Verify the legitimacy of the ownership transfer with the subscription administrator
+  2. Check if the user performing the transfer is authorized for this action
+  3. Review the timing and context of the transfer (business hours, planned change)
+  4. Examine other recent activities by the same user or from the same source IP
+  5. Validate that proper change management procedures were followed
+  6. Check for any unusual activity following the ownership transfer
+  7. If unauthorized, immediately revoke the new owner's access and escalate to security team
+where: |
+  equals("log.operationName", "Microsoft.Authorization/roleAssignments/write") &&
+  contains("log.properties", "Owner") &&
+  equals("log.category", "Administrative") &&
+  contains("log.resourceId", "/subscriptions/") &&
+  !contains("log.resourceId", "/resourceGroups/")
+groupBy:
+  - lastEvent.log.correlationId
+  - adversary.ip

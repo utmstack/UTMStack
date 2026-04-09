@@ -1,0 +1,40 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - redis
+name: Redis Rogue Replication Attack Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Exploitation
+technique: "T1210 - Exploitation of Remote Services"
+adversary: origin
+references:
+  - https://redis.io/docs/latest/operate/oss_and_stack/management/replication/
+  - https://attack.mitre.org/techniques/T1210/
+description: |
+  Detects rogue Redis replication attacks using SLAVEOF or REPLICAOF commands to connect the target Redis instance to an attacker-controlled server. This technique is used to load malicious Redis modules, exfiltrate data, or achieve remote code execution.
+
+  Next Steps:
+  1. Verify the replication target address is a legitimate Redis master
+  2. Check for any loaded modules after the replication command
+  3. Review Redis configuration for unauthorized changes
+  4. Disconnect from the rogue master using REPLICAOF NO ONE
+  5. Check for data exfiltration or corruption
+  6. Restrict SLAVEOF/REPLICAOF commands via ACL
+where: |
+  exists("log.message") &&
+  (
+    regexMatch("log.message", "(?i)(SLAVEOF|REPLICAOF)\\s+[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+") ||
+    regexMatch("log.message", "(?i)(SLAVEOF|REPLICAOF)\\s+\\w+") ||
+    (contains("log.message", "MASTER <-> REPLICA") && contains("log.message", "sync started")) ||
+    (contains("log.message", "Connecting to MASTER") && !contains("log.message", "already connected")) ||
+    contains("log.message", "FULLRESYNC") ||
+    regexMatch("log.message", "(?i)MODULE\\s+LOAD")
+  ) &&
+  !contains("log.message", "REPLICAOF NO ONE") &&
+  !contains("log.message", "SLAVEOF NO ONE")
+groupBy:
+  - adversary.host
+  - adversary.user

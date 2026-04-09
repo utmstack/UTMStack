@@ -1,0 +1,22 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "sophos-central"
+name: "Possible Ransomware Attack detected in Sophos Central"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: "Impact"
+technique: "T1486 - Data Encrypted for Impact"
+adversary: origin
+references:
+  - "https://attack.mitre.org/tactics/TA0040/"
+  - "https://attack.mitre.org/techniques/T1565/"
+description: "Ransomware, is a type of malware that prevents users from accessing their system or 
+                personal files and requires payment of a ransom in order to gain access to them again. Identifies 
+                ransomware attempts"
+where: regexMatch("log.type", "Event::Endpoint::(HmpaCryptoGuardSMBOrigin|HmpaCryptoGuardSMB)|^Event::Endpoint::HmpaCryptoGuard$")
+groupBy:
+  - adversary.host
+  - adversary.ip

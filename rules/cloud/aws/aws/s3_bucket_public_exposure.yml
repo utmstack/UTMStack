@@ -1,0 +1,40 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS S3 Bucket Public Exposure
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Collection
+technique: "T1530 - Data from Cloud Storage Object"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html
+  - https://attack.mitre.org/techniques/T1530/
+description: |
+  Detects S3 bucket configuration changes that expose buckets to public access, including ACL modifications and public access block removal. This can lead to unauthorized data exposure and potential data breach.
+  
+  Next Steps:
+  1. Immediately review the affected S3 bucket permissions and revert unauthorized changes
+  2. Check CloudTrail logs for the source of the configuration change
+  3. Verify if the change was authorized by examining change management tickets
+  4. Review bucket contents to determine sensitivity of potentially exposed data
+  5. Enable S3 Block Public Access at the account level to prevent future exposures
+  6. Implement bucket policies that restrict public access
+  7. Enable S3 access logging for the affected bucket
+  8. Consider implementing AWS Config rules to monitor S3 bucket permissions
+where: |
+  equals("log.eventSource", "s3.amazonaws.com") && 
+  (equals("log.eventName", "PutBucketAcl") || 
+   equals("log.eventName", "PutBucketPublicAccessBlock") || 
+   equals("log.eventName", "DeleteBucketPublicAccessBlock") || 
+   equals("log.eventName", "PutObjectAcl")) &&
+  equals("log.errorCode", "") &&
+  (oneOf("log.requestParameters.x-amz-acl", ["public-read", "public-read-write"]) ||
+   contains("log.requestParameters.acl", "AllUsers") ||
+   equals("log.eventName", "DeleteBucketPublicAccessBlock"))
+groupBy:
+  - lastEvent.log.requestParameters.bucketName
+  - lastEvent.log.userIdentity.accessKeyId

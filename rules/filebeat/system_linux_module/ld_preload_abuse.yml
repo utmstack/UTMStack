@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: LD_PRELOAD Library Injection in System Logs
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1574.006 - Hijack Execution Flow: Dynamic Linker Hijacking"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1574/006/
+description: |
+  Detects modifications to /etc/ld.so.preload or LD_PRELOAD usage in system logs, indicating dynamic linker hijacking for persistence or credential interception.
+
+  Next Steps:
+  1. Examine /etc/ld.so.preload for unauthorized shared library entries
+  2. Analyze the referenced shared library for malicious code
+  3. Check for LD_PRELOAD in environment variables and shell profiles
+  4. Identify the user and process that made the modification
+  5. Remove malicious preload entries and libraries
+  6. Audit running processes for injected libraries
+where: |
+  (contains("log.message", "ld.so.preload") || contains("log.message", "LD_PRELOAD")) &&
+  (contains("log.message", "modified") || contains("log.message", "write") ||
+   contains("log.message", "export LD_PRELOAD") || contains("log.message", "changed") ||
+   contains("log.message", "opened for writing"))
+groupBy:
+  - origin.host
+  - origin.user

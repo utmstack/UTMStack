@@ -1,0 +1,46 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - suricata
+name: ICMP Tunneling Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: Command and Control
+technique: "T1572 - Protocol Tunneling"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1572/
+  - https://www.sans.org/reading-room/whitepapers/covert/icmp-tunneling-is-is-secure-1857
+description: |
+  Detects potential ICMP tunneling activity based on abnormal ICMP packet patterns, including oversized ICMP packets, unusual ICMP types, high payload entropy, or abnormal ICMP codes. ICMP tunneling is a covert channel technique used by attackers to bypass network security controls and establish command and control communications.
+  
+  Next Steps:
+  1. Investigate the source IP address for other suspicious network activities
+  2. Analyze the ICMP packet payload for hidden data or commands
+  3. Check if the destination IP is a known external server or suspicious domain
+  4. Review network logs for patterns of regular ICMP traffic to the same destination
+  5. Examine endpoint logs on the source machine for signs of compromise
+  6. Consider blocking ICMP traffic to external destinations if not business-critical
+  7. Implement ICMP payload inspection rules to detect tunneling signatures
+  8. Monitor for other covert channel techniques from the same source
+where: |
+  equals("log.protocol", "ICMP") &&
+  (greaterThan("log.packet_size", 128) ||
+   greaterThan("log.payload_entropy", 6.0) ||
+   greaterThan("log.icmp_code", 15))
+afterEvents:
+  - indexPattern: v11-log-suricata-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.protocol
+        operator: filter_term
+        value: 'ICMP'
+    within: now-10m
+    count: 100
+groupBy:
+  - adversary.ip
+  - target.ip

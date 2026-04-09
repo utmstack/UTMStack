@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: User Added to Admin Group via dscl
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1078.003 - Valid Accounts: Local Accounts"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1078/003/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_dscl_add_user_to_admin_group.yml
+description: |
+  Detects the use of dscl to add a user to the admin group on macOS. This is a privilege escalation technique where attackers grant themselves or a compromised account administrative privileges to gain elevated access to the system.
+
+  Next Steps:
+  1. Identify which user was added to the admin group and by whom
+  2. Verify if the change was authorized by IT administration
+  3. Check for other privilege modifications on the same system
+  4. Review the user's recent activity for signs of compromise
+  5. Remove unauthorized admin group membership immediately
+  6. Audit all admin group members across macOS endpoints
+where: |
+  contains("log.eventMessage", "dscl") &&
+  contains("log.eventMessage", "-append") &&
+  contains("log.eventMessage", "/Groups/admin") &&
+  contains("log.eventMessage", "GroupMembership")
+groupBy:
+  - adversary.host
+  - adversary.user

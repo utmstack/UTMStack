@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Azure AD Temporary Access Pass Registration
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Credential Access
+technique: "T1078.004 - Valid Accounts: Cloud Accounts"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/entra/identity/authentication/howto-authentication-temporary-access-pass
+  - https://attack.mitre.org/techniques/T1078/004/
+description: |
+  Detects registration of Temporary Access Pass (TAP) in Azure AD. TAPs can be used to bypass MFA requirements and are a growing attack vector for initial access and MFA circumvention.
+
+  Next Steps:
+  1. Verify the TAP was requested through legitimate channels (IT helpdesk)
+  2. Check the admin user who created the TAP for legitimacy
+  3. Review the target user and reason for TAP issuance
+  4. Check for sign-ins using the TAP, especially from unusual locations
+  5. Verify MFA registration events following the TAP usage
+  6. If unauthorized, revoke the TAP immediately and investigate
+  7. Review TAP policy settings for appropriate lifetime and usage limits
+where: |
+  (contains("log.operationName", "Admin registered security info") && contains("log.properties", "Temporary Access Pass")) ||
+  (contains("log.operationName", "Update user") && contains("log.properties", "TemporaryAccessPass"))
+groupBy:
+  - lastEvent.log.properties.targetResources
+  - adversary.user

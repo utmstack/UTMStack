@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: SMBv1 Usage Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: Lateral Movement
+technique: "T1210 - Exploitation of Remote Services"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
+  - https://attack.mitre.org/techniques/T1210/
+description: |
+  Detects usage of the deprecated and vulnerable SMBv1 protocol which could be exploited for lateral movement or ransomware propagation. SMBv1 is susceptible to numerous security vulnerabilities including EternalBlue and should be disabled in favor of SMBv2/SMBv3.
+  
+  Next Steps:
+  1. Immediately investigate the source system using SMBv1 and identify which service or application is still dependent on this protocol
+  2. Review network traffic logs to determine if this is internal communication or external access attempts
+  3. Check for any signs of exploitation attempts or successful compromises on the affected system
+  4. Identify all systems in the environment that may still have SMBv1 enabled
+  5. Plan migration to SMBv2/SMBv3 and disable SMBv1 on all systems where possible
+  6. Monitor for any lateral movement patterns that may indicate ongoing compromise
+  7. Consider implementing network segmentation to limit exposure if SMBv1 cannot be immediately disabled
+where: equals("log.eventId", "3000") && equals("log.providerName", "Microsoft-Windows-SMBServer") && contains("log.message", "SMB1")
+groupBy:
+  - origin.host
+  - origin.ip

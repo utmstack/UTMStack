@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: EBS Snapshot Sharing Violations
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Exfiltration
+technique: "T1537 - Transfer Data to Cloud Account"
+adversary: origin
+references:
+  - https://securitylabs.datadoghq.com/cloud-security-atlas/attacks/sharing-ebs-snapshot/
+  - https://attack.mitre.org/techniques/T1537/
+description: |
+  Detects potential data exfiltration through EBS snapshot sharing. Monitors for CreateSnapshot followed by ModifySnapshotAttribute events that could indicate an attacker creating snapshots and sharing them with external accounts or making them public.
+  
+  Next Steps:
+  1. Identify the affected snapshot ID and volume ID from the event details
+  2. Review the account or group the snapshot was shared with in requestParameters
+  3. Verify if the sharing was authorized by checking with the account owner
+  4. If unauthorized, immediately revoke the snapshot sharing permissions
+  5. Review CloudTrail logs for other suspicious activities by the same user/role
+  6. Check if the source volume contains sensitive data
+  7. Consider implementing preventive controls using IAM policies or SCPs to restrict snapshot sharing
+where: |
+  equals("log.eventSource", "ec2.amazonaws.com") && 
+  equals("log.eventName", "ModifySnapshotAttribute") &&
+  equals("log.errorCode", "") &&
+  (
+    contains("log.requestParameters", "CREATE_VOLUME_PERMISSION") ||
+    contains("log.requestParameters", "createVolumePermission") ||
+    (contains("log.requestParameters", "group") && contains("log.requestParameters", "all"))
+  )
+groupBy:
+  - lastEvent.log.responseElements.snapshotId
+  - lastEvent.log.userIdentity.accountId

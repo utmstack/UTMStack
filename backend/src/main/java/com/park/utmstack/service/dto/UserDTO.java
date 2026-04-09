@@ -4,18 +4,21 @@ import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.Authority;
 import com.park.utmstack.domain.User;
 
+import com.park.utmstack.service.dto.auditable.AuditableDTO;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * A DTO representing a user, with his authorities.
  */
-public class UserDTO {
+public class UserDTO implements AuditableDTO {
 
     private Long id;
 
@@ -185,6 +188,15 @@ public class UserDTO {
 
     public void setTfaSecret(String tfaSecret) {
         this.tfaSecret = tfaSecret;
+    }
+
+    @Override
+    public Map<String, Object> toAuditMap() {
+        return Map.of(
+            "login", login != null ? login : "",
+            "email", email != null ? email : "",
+            "authorities", authorities != null ? authorities.toString() : ""
+        );
     }
 
     @Override

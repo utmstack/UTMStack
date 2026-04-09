@@ -1,0 +1,56 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - iis
+name: IIS Web Shell Upload Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Initial Access
+technique: "T1505.003 - Server Software Component: Web Shell"
+adversary: origin
+references:
+  - https://www.microsoft.com/en-us/security/blog/2022/12/12/iis-modules-the-evolution-of-web-shells-and-how-to-detect-them/
+  - https://attack.mitre.org/techniques/T1505/003/
+description: |
+  Detects potential web shell uploads based on suspicious file extensions and POST requests to uncommon paths. This rule identifies POST requests to ASP.NET-related file extensions in suspicious directory paths commonly used for web shell placement.
+  
+  Next Steps:
+  1. Immediately investigate the target server and file path for uploaded web shells
+  2. Check file system for recently uploaded .aspx, .asp, .asmx, .ashx, or .axd files
+  3. Review IIS logs for additional suspicious requests from the same source IP
+  4. Examine the uploaded file content for malicious code
+  5. Check for privilege escalation attempts following the upload
+  6. Review authentication logs for compromised accounts
+  7. Implement file upload restrictions and input validation
+  8. Block the source IP if confirmed malicious
+  9. Scan the entire web directory for additional web shells
+  10. Review recent file modifications on the web server
+where: |
+  equals("log.method", "POST") && 
+  exists("target.path") &&
+  (
+    contains("target.path", ".aspx") ||
+    contains("target.path", ".asp") ||
+    contains("target.path", ".asmx") ||
+    contains("target.path", ".ashx") ||
+    contains("target.path", ".axd")
+  ) &&
+  (
+    regexMatch("target.path", "(?i)upload") ||
+    regexMatch("target.path", "(?i)temp") ||
+    regexMatch("target.path", "(?i)tmp") ||
+    regexMatch("target.path", "(?i)test") ||
+    regexMatch("target.path", "(?i)shell") ||
+    regexMatch("target.path", "(?i)cmd") ||
+    regexMatch("target.path", "(?i)eval") ||
+    regexMatch("target.path", "(?i)exec") ||
+    regexMatch("target.path", "(?i)webshell") ||
+    regexMatch("target.path", "(?i)backdoor")
+  ) &&
+  greaterOrEqual("log.statusCode", 200) &&
+  lessThan("log.statusCode", 300)
+groupBy:
+  - adversary.ip
+  - target.path

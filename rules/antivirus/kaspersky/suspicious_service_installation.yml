@@ -1,37 +1,36 @@
-- id: 1020
-  dataTypes:
-    - antivirus-kaspersky
-  name: Kaspersky Suspicious Service Installation Detection
-  impact:
-    confidentiality: 2
-    integrity: 4
-    availability: 2
-  category: Persistence
-  technique: "T1543.003 - Create or Modify System Process: Windows Service"
-  adversary: origin
-  references:
-    - https://attack.mitre.org/techniques/T1543/003/
-    - https://support.kaspersky.com/ScanEngine/2.1/en-US/186767.htm
-  description: |
-    Detects suspicious Windows service installation or modification attempts identified by Kaspersky, which could indicate malware persistence mechanisms or privilege escalation attempts. Service manipulation is a common technique used by malware to maintain persistence on compromised systems.
-    
-    Next Steps:
-    1. Identify the service name and executable path from the alert details
-    2. Verify if the service installation was authorized and legitimate
-    3. Check the digital signature and reputation of the service executable
-    4. Review parent process that initiated the service installation
-    5. Look for other suspicious activities on the affected host around the same time
-    6. If confirmed malicious, stop and remove the service, quarantine associated files
-    7. Perform full system scan and check for additional compromise indicators
-  where: |
-    (safe(log.message, "").contains("Service") && safe(log.message, "").contains("install") || 
-     safe(log.message, "").contains("sc.exe") && safe(log.message, "").contains("create") || 
-     safe(log.message, "").contains("New") && safe(log.message, "").contains("Service") || 
-     safe(log.fname, "").contains("\\services.exe") || 
-     safe(log.cs2, "").contains("Service")) && 
-    (safe(log.cs1, "") == "infected" || 
-     safe(log.cs1, "") == "suspicious" || 
-     safe(log.cefDeviceSeverity, 0) >= 3)
-  deduplicateBy:
-    - origin.host
-    - log.fname
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-kaspersky
+name: Kaspersky Suspicious Service Installation Detection
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 2
+category: Persistence, Privilege Escalation
+technique: "T1543.003 - Create or Modify System Process: Windows Service"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1543/003/
+  - https://support.kaspersky.com/ScanEngine/2.1/en-US/186767.htm
+description: |
+  Detects suspicious Windows service installation or modification attempts identified by Kaspersky, which could indicate malware persistence mechanisms or privilege escalation attempts. Service manipulation is a common technique used by malware to maintain persistence on compromised systems.
+  
+  Next Steps:
+  1. Identify the service name and executable path from the alert details
+  2. Verify if the service installation was authorized and legitimate
+  3. Check the digital signature and reputation of the service executable
+  4. Review parent process that initiated the service installation
+  5. Look for other suspicious activities on the affected host around the same time
+  6. If confirmed malicious, stop and remove the service, quarantine associated files
+  7. Perform full system scan and check for additional compromise indicators
+where: |
+  (containsAll("log.msg", ["Service", "install"]) ||
+   containsAll("log.msg", ["sc.exe", "create"]) ||
+   containsAll("log.msg", ["New", "Service"]) ||
+   contains("log.fname", "\\services.exe") ||
+   contains("log.cs2", "Service")) &&
+  (oneOf("log.cs1", ["infected", "suspicious"]) ||
+   greaterOrEqual("log.cefDeviceSeverity", "3"))
+groupBy:
+  - origin.host

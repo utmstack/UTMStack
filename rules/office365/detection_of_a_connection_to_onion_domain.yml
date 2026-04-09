@@ -1,0 +1,25 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "o365"
+name: "Microsoft 365 Detection of a connection to a .onion domain"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: "Command and Control"
+technique: "T1090 - Proxy"
+adversary: target
+description: "Tor is a software suite and network that provides increased anonymity on the Internet. 
+              It creates a multi-hop proxy network and utilizes multilayer encryption to 
+              protect both the message and routing information. Tor utilizes Onion Routing, 
+              in which messages are encrypted with multiple layers of encryption; at each step in the proxy network, 
+              the topmost layer is decrypted and the contents forwarded on to the next node until it reaches its destination."
+references:
+  - "https://attack.mitre.org/software/S0183/"
+  - "https://attack.mitre.org/software/"
+where: |
+  contains("log.siteUrl", ".onion")
+groupBy:
+  - target.ip
+  - target.user

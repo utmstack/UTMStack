@@ -1,0 +1,61 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - apache
+name: Web Application Brute Force Attack
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: Credential Access
+technique: "T1110 - Brute Force"
+adversary: origin
+references:
+  - https://owasp.org/www-community/attacks/Brute_force_attack
+  - https://attack.mitre.org/techniques/T1110/
+description: |
+  Detects brute force login attempts against web applications by monitoring for multiple failed authentication attempts (401/403 status codes) from the same IP address within a short time window. This rule identifies potential credential stuffing and password spraying attacks targeting web application login pages.
+  
+  Next Steps:
+  1. Investigate the source IP address for reputation and geolocation
+  2. Review Apache access logs for the affected paths and timeline of attempts
+  3. Check if any successful logins occurred from the same IP after failed attempts
+  4. Verify the targeted login endpoints are properly secured with rate limiting
+  5. Consider implementing IP-based blocking or CAPTCHA for repeated failures
+  6. Review user accounts targeted in the attack for any compromise indicators
+where: |
+  (equals("log.statusCode", 401) || equals("log.statusCode", 403)) &&
+  (contains("origin.path", "login") ||
+   contains("origin.path", "signin") ||
+   contains("origin.path", "auth") ||
+   contains("origin.path", "admin") ||
+   contains("origin.path", "wp-login") ||
+   contains("origin.path", "administrator") ||
+   contains("origin.path", "user/login") ||
+   contains("origin.path", "account/login")) &&
+  equals("log.method", "POST")
+afterEvents:
+  - indexPattern: v11-log-apache-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.statusCode
+        operator: filter_term
+        value: '401'
+    within: now-5m
+    count: 10
+    or:
+      - indexPattern: v11-log-apache-*
+        with:
+          - field: origin.ip
+            operator: filter_term
+            value: '{{.origin.ip}}'
+          - field: log.statusCode
+            operator: filter_term
+            value: '403'
+        within: now-5m
+        count: 10
+groupBy:
+  - adversary.ip
+  - adversary.path

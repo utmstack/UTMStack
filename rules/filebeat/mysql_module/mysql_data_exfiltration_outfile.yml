@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - mysql
+name: MySQL Data Exfiltration via OUTFILE/DUMPFILE
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Data Exfiltration
+technique: "T1048 - Exfiltration Over Alternative Protocol"
+adversary: origin
+references:
+  - https://dev.mysql.com/doc/refman/8.0/en/select-into.html
+  - https://attack.mitre.org/techniques/T1048/
+description: |
+  Detects attempts to exfiltrate data from MySQL using SELECT INTO OUTFILE or SELECT INTO DUMPFILE commands. These commands write query results to files on the server filesystem, which attackers use to extract sensitive data or write web shells.
+
+  Next Steps:
+  1. Review the SQL query to identify what data is being exported
+  2. Check the target file path for web-accessible directories
+  3. Verify if any files were successfully written to the filesystem
+  4. Review the user account permissions (FILE privilege)
+  5. Remove FILE privilege from non-administrative accounts
+  6. Check for web shells if files were written to web directories
+where: |
+  exists("log.msg") &&
+  (
+    regexMatch("log.msg", "(?i)SELECT.*INTO\\s+OUTFILE") ||
+    regexMatch("log.msg", "(?i)SELECT.*INTO\\s+DUMPFILE") ||
+    regexMatch("log.msg", "(?i)LOAD_FILE\\s*\\(") ||
+    regexMatch("log.msg", "(?i)INTO\\s+OUTFILE\\s+['\"]/(var|tmp|etc|www|home)") ||
+    regexMatch("log.msg", "(?i)INTO\\s+DUMPFILE\\s+['\"]/(var|tmp|etc|www|home)")
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

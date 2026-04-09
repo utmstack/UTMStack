@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Azure Sentinel High/Critical Alert Pattern Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Threat Detection
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/azure/sentinel/security-alert-schema
+  - https://attack.mitre.org/techniques/T1562/
+description: |
+  Detects high-severity or critical alerts from Azure Sentinel that may indicate coordinated attack activity or serious security incidents requiring immediate investigation. This rule identifies new alerts with High or Critical severity levels from Microsoft Sentinel that could represent active threats.
+  
+  Next Steps:
+  1. Review the alert details and affected resources immediately
+  2. Correlate with other security events in the environment
+  3. Check for signs of lateral movement or privilege escalation
+  4. Verify if the alert represents a true positive through manual investigation
+  5. Implement containment measures if attack activity is confirmed
+  6. Document findings and update incident response procedures
+where: |
+  oneOf("log.AlertSeverity", ["High", "Critical"]) &&
+  equals("log.VendorName", "Microsoft Sentinel") &&
+  equals("log.Status", "New")
+groupBy:
+  - lastEvent.log.AlertType
+  - adversary.ip

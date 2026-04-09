@@ -1,0 +1,41 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - elasticsearch
+name: Elasticsearch Painless Script RCE Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Code Execution
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting-painless.html
+  - https://attack.mitre.org/techniques/T1059/
+description: |
+  Detects malicious Painless or Groovy script execution in Elasticsearch that could lead to remote code execution. Monitors for dangerous script patterns including Runtime.exec, ProcessBuilder, and system command execution.
+
+  Next Steps:
+  1. Review the script contents for malicious commands
+  2. Identify the user or API key that submitted the script
+  3. Check for successful command execution on the server
+  4. Disable dynamic scripting if not required
+  5. Implement script allowlisting using the script context
+  6. Block the source IP if confirmed malicious
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "script") && (
+      contains("log.message", "Runtime.getRuntime") ||
+      contains("log.message", "ProcessBuilder") ||
+      contains("log.message", "exec(") ||
+      contains("log.message", "getRuntime().exec") ||
+      regexMatch("log.message", "(?i)\\.class\\.forName")
+    )) ||
+    (contains("log.message", "groovy") && contains("log.message", "execute")) ||
+    (contains("log.message", "script_score") && regexMatch("log.message", "(?i)(java\\.|Runtime|Process)"))
+  )
+groupBy:
+  - adversary.host
+  - adversary.ip

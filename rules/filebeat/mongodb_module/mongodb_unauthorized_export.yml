@@ -1,0 +1,49 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - mongodb
+name: MongoDB Unauthorized Data Export Detection
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 1
+category: Data Exfiltration
+technique: "T1048 - Exfiltration Over Alternative Protocol"
+adversary: origin
+references:
+  - https://www.mongodb.com/docs/database-tools/mongoexport/
+  - https://attack.mitre.org/techniques/T1048/
+description: |
+  Detects unauthorized mongoexport or mongodump operations that could indicate data exfiltration from MongoDB databases. Monitors for bulk data export commands and large result set queries.
+
+  Next Steps:
+  1. Identify the user and source host performing the export
+  2. Verify if the export was part of authorized backup operations
+  3. Review the exported collections and data sensitivity
+  4. Check network traffic for data leaving the environment
+  5. Restrict mongoexport/mongodump access to authorized accounts
+  6. Implement database access auditing
+where: |
+  exists("log.message") &&
+  (
+    contains("log.message", "mongoexport") ||
+    contains("log.message", "mongodump") ||
+    contains("log.message", "mongorestore") ||
+    (contains("log.message", "aggregate") && contains("log.message", "$out")) ||
+    (contains("log.message", "find") && contains("log.message", "ntoreturn: 0")) ||
+    (contains("log.message", "getMore") && regexMatch("log.message", "(?i)cursorid:\\s*[0-9]+.*nreturned:\\s*[0-9]{4,}"))
+  )
+afterEvents:
+  - indexPattern: v11-log-mongodb-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+      - field: log.message
+        operator: filter_match
+        value: 'mongoexport OR mongodump OR getMore'
+    within: now-15m
+    count: 5
+groupBy:
+  - adversary.host
+  - adversary.user

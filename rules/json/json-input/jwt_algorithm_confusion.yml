@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - json-input
+name: JWT Algorithm Confusion Attack Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Authentication Bypass
+technique: "T1550 - Use Alternate Authentication Material"
+adversary: origin
+references:
+  - https://portswigger.net/web-security/jwt/algorithm-confusion
+  - https://attack.mitre.org/techniques/T1550/
+description: |
+  Detects JWT algorithm confusion attacks including alg:none bypass, RS256 to HS256 key confusion, and forged JWT tokens. These attacks exploit JWT libraries that don't properly validate the algorithm header.
+
+  Next Steps:
+  1. Review the JWT token for algorithm manipulation
+  2. Check if the application verifies the JWT algorithm server-side
+  3. Implement algorithm allowlisting in JWT verification
+  4. Verify that none algorithm is explicitly rejected
+  5. Review JWT key management practices
+  6. Block the source IP if attack is confirmed
+where: |
+  (
+    regexMatch("raw", "(?i)\"alg\"\\s*:\\s*\"none\"") ||
+    regexMatch("raw", "(?i)\"alg\"\\s*:\\s*\"None\"") ||
+    regexMatch("raw", "(?i)\"alg\"\\s*:\\s*\"NONE\"") ||
+    regexMatch("raw", "(?i)\"alg\"\\s*:\\s*\"nOnE\"") ||
+    (contains("raw", "\"alg\"") && contains("raw", "\"HS256\"") && contains("raw", "\"kid\"")) ||
+    (contains("raw", "eyJ") && contains("raw", "\"alg\":\"none\"")) ||
+    regexMatch("raw", "(?i)\"alg\"\\s*:\\s*\"HS(256|384|512)\".*\"jku\"") ||
+    (contains("raw", "\"jwk\"") && contains("raw", "\"kty\"") && contains("raw", "\"n\""))
+  )
+groupBy:
+  - adversary.ip
+  - target.host

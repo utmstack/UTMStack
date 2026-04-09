@@ -1,0 +1,23 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: "AWS IAM Assume Role Policy Update"
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: "Initial Access"
+technique: "T1078 - Valid Accounts"
+adversary: origin
+description: "Identifies attempts to modify an AWS IAM Assume Role Policy. An adversary may attempt to modify the AssumeRolePolicy of a misconfigured role in order to gain the privileges of that role"
+references:
+  - "https://attack.mitre.org/tactics/TA0004/"
+  - "https://attack.mitre.org/techniques/T1078/"
+  - "https://labs.bishopfox.com/tech-blog/5-privesc-attack-vectors-in-aws"
+where: |
+  equals("log.eventSource", "iam.amazonaws.com") &&
+  equals("log.eventName", "UpdateAssumeRolePolicy")
+groupBy:
+  - adversary.ip
+  - adversary.user

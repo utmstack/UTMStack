@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: AWS SSM Agent Hijacking - Unauthorized Registration
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Command and Control
+technique: "T1219 - Remote Access Software"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1219/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_ssm_agent_abuse.yml
+  - https://www.mitiga.io/blog/new-attack-vector-aws-ssm-agent-as-a-remote-access-trojan
+description: |
+  Detects unauthorized re-registration of the AWS Systems Manager (SSM) agent with a different AWS account. Attackers with local access to an EC2 instance can re-register the SSM agent to their own AWS account, gaining persistent remote command execution capability through a legitimate AWS service. This technique is particularly dangerous because SSM traffic blends with normal AWS API calls.
+
+  Next Steps:
+  1. Verify the SSM agent registration is pointing to the correct AWS account
+  2. Check the activation code and ID used in the registration
+  3. Compare the SSM agent configuration with expected values from your AWS account
+  4. Review SSM session history for unauthorized command execution
+  5. Check CloudTrail logs for SSM API calls from unexpected accounts
+  6. Re-register the SSM agent with your legitimate AWS account
+  7. Investigate how the attacker gained local access to the instance
+  8. Rotate all credentials accessible from the compromised instance
+where: |
+  exists("log.message") &&
+  regexMatch("log.message", "(?i)amazon-ssm-agent\\s+.*-register\\s+.*-(code|id|region)")
+groupBy:
+  - origin.host
+  - origin.user

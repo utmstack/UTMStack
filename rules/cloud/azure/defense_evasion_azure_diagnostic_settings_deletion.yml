@@ -1,0 +1,48 @@
+# Rule version v1.0.4
+
+dataTypes:
+  - azure
+name: "Azure Diagnostic Settings Deletion"
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 3
+category: "Defense Evasion"
+technique: "T1562.008 - Impair Defenses: Disable Cloud Logs"
+adversary: target
+references:
+  - "https://attack.mitre.org/techniques/T1562/008/"
+  - "https://attack.mitre.org/tactics/TA0005/"
+  - "https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings"
+  - "https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log"
+description: |
+  Detects the deletion of diagnostic settings in Azure, which are critical for sending platform logs, metrics, and activity data to destinations like Log Analytics workspaces, Event Hubs, or storage accounts. Adversaries delete diagnostic settings to evade detection by disabling security monitoring and audit logging capabilities.
+  
+  This technique is commonly observed when attackers:
+  - Attempt to hide malicious activities from security teams
+  - Disable logging before executing destructive operations
+  - Remove evidence trails of their presence in the environment
+  - Prevent detection of lateral movement or data exfiltration
+  
+  Legitimate deletions are rare and typically occur only during:
+  - Infrastructure decommissioning or major reconfigurations
+  - Cost optimization initiatives (but should be heavily scrutinized)
+  - Migration to new monitoring solutions
+  
+  Next Steps:
+  1. Immediately verify if the deletion was authorized and documented
+  2. Identify who performed the operation and from which IP address
+  3. Check if diagnostic settings were immediately recreated (potential test)
+  4. Review recent activities on the affected resource for suspicious behavior
+  5. Verify if other resources had their diagnostic settings deleted
+  6. Restore diagnostic settings immediately to resume monitoring
+  7. Investigate the caller's account for potential compromise
+  8. Check for other defense evasion techniques in the timeline
+where: |
+  (equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) &&
+  (equalsIgnoreCase("log.operationName", "MICROSOFT.INSIGHTS/DIAGNOSTICSETTINGS/DELETE") ||
+  contains("log.operationName", "Delete diagnostic setting")) &&
+  equalsIgnoreCase("log.resultType", "0")
+groupBy:
+  - target.ip
+  - target.user

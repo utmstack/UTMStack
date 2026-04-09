@@ -1,0 +1,22 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: "AWS RDS Snapshot Export"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: "Exfiltration"
+technique: "T1537 - Transfer Data to Cloud Account"
+adversary: origin
+description: "Identifies the export of an Amazon Relational Database Service (RDS) Aurora database snapshot"
+references:
+  - "https://attack.mitre.org/tactics/TA0010/"
+  - "https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_StartExportTask.html"
+where: |
+  equals("log.eventSource", "rds.amazonaws.com") &&
+  equals("log.eventName", "StartExportTask")
+groupBy:
+  - adversary.ip
+  - adversary.user

@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - hids
+name: Mass HIDS Agent Disconnection
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 3
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1562/001/
+  - https://documentation.wazuh.com/current/user-manual/agents/agent-connection.html
+description: |
+  Detects mass simultaneous agent disconnections which may indicate a coordinated attack to disable monitoring across multiple hosts, a network segment failure, or HIDS service disruption.
+
+  Next Steps:
+  1. Verify if the disconnections are due to network issues or planned maintenance
+  2. Check the HIDS manager service health
+  3. Identify the affected agents and their network segment
+  4. Look for signs of active attack on the disconnected hosts
+  5. Re-establish agent connections and verify host integrity
+  6. If deliberate, investigate the method used to disconnect agents
+where: |
+  (contains("log.message", "disconnected") || contains("log.message", "Disconnection") ||
+   contains("log.message", "Agent was removed") || contains("log.message", "lost connection")) &&
+  (contains("log.message", "agent") || equals("log.module", "agent"))
+afterEvents:
+  - indexPattern: v11-log-hids-*
+    with:
+      - field: log.message
+        operator: filter_match
+        value: "disconnect"
+    within: now-5m
+    count: 10
+groupBy:
+  - target.host

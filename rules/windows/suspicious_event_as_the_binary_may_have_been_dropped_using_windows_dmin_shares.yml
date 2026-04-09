@@ -1,0 +1,20 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "wineventlog"
+name: "Windows: New Windows Service Created to start from windows root path. Suspicious event as the binary may have been dropped using Windows Admin Shares"
+impact:
+  confidentiality: 1
+  integrity: 2
+  availability: 3
+category: "Execution"
+technique: "T1021.002 - Remote Services: SMB/Windows Admin Shares"
+adversary: target
+description: "Adversaries may use Valid Accounts to interact with a remote network share using Server Message Block (SMB). 
+              The adversary may then perform actions as the logged-on user."
+references:
+  - "https://attack.mitre.org/techniques/T1021/002/"
+where: regexMatch("log.eventDataImagePath", "(^%systemroot%\\(.+)\\(.+).exe)") && equals("log.eventCode", 7045) && oneOf("log.channel", ["system", "System"])
+groupBy:
+  - origin.host
+  - target.user

@@ -1,0 +1,25 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: "AWS EC2 Encryption Disabled"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: "Impact"
+technique: "T1565 - Data Manipulation"
+adversary: origin
+description: "Identifies disabling of Amazon Elastic Block Store (EBS) encryption by default in the current region. Disabling encryption by default does not change the encryption status of your existing volumes"
+references:
+  - "https://attack.mitre.org/tactics/TA0040/"
+  - "https://attack.mitre.org/techniques/T1565/"
+  - "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html"
+  - "https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/disable-ebs-encryption-by-default.html"
+  - "https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DisableEbsEncryptionByDefault.html"
+where: |
+  equals("log.eventSource", "ec2.amazonaws.com") &&
+  equals("log.eventName", "DisableEbsEncryptionByDefault")
+groupBy:
+  - adversary.ip
+  - adversary.user

@@ -1,0 +1,75 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - suricata
+name: Tor Proxy/Gateway DNS Lookup Detected
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Command and Control
+technique: "T1090.003 - Proxy: Multi-hop Proxy"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1090/003/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/network/zeek/zeek_dns_torproxy.yml
+description: |
+  Detects DNS lookups to known Tor proxy and gateway domains. These services allow web traffic to be routed through the Tor network without installing the Tor browser, commonly used by attackers to anonymize C2 traffic or access dark web resources from corporate networks.
+
+  Next Steps:
+  1. Investigate the source host for malware using Tor for C2 communications
+  2. Determine if the user has a legitimate reason to access Tor services
+  3. Block Tor proxy domains at the DNS resolver level
+  4. Check for data exfiltration through Tor-routed connections
+  5. Review the host for other indicators of compromise
+  6. Implement network controls to block Tor relay IPs at the firewall
+  7. Monitor for Tor bridge connections as an evasion technique
+where: |
+  equals("log.eventType", "dns") &&
+  exists("log.dns.query") &&
+  exists("origin.ip") &&
+  (
+    contains("log.dns.query", ".torproject.org") ||
+    contains("log.dns.query", ".tor2web.") ||
+    contains("log.dns.query", ".onion.to") ||
+    contains("log.dns.query", ".onion.cab") ||
+    contains("log.dns.query", ".onion.nu") ||
+    contains("log.dns.query", ".onion.link") ||
+    contains("log.dns.query", ".onion.it") ||
+    contains("log.dns.query", ".onion.city") ||
+    contains("log.dns.query", ".onion.direct") ||
+    contains("log.dns.query", ".onion.top") ||
+    contains("log.dns.query", ".onion.casa") ||
+    contains("log.dns.query", ".onion.plus") ||
+    contains("log.dns.query", ".onion.dog") ||
+    contains("log.dns.query", ".onion.rip") ||
+    contains("log.dns.query", ".onion.guide") ||
+    contains("log.dns.query", ".onion.ws") ||
+    contains("log.dns.query", ".onion.pet") ||
+    contains("log.dns.query", ".onion.sh") ||
+    contains("log.dns.query", ".onion.ly") ||
+    contains("log.dns.query", ".onion.mn") ||
+    contains("log.dns.query", ".onion.si") ||
+    contains("log.dns.query", ".onion.lu") ||
+    contains("log.dns.query", ".darknet.to") ||
+    contains("log.dns.query", ".onion.foundation") ||
+    endsWith("log.dns.query", ".torproxy.io") ||
+    endsWith("log.dns.query", ".tor-gateways.de") ||
+    endsWith("log.dns.query", ".torstorm.org") ||
+    endsWith("log.dns.query", ".tor.taxi") ||
+    endsWith("log.dns.query", ".tor.direct") ||
+    endsWith("log.dns.query", ".torghost.com") ||
+    endsWith("log.dns.query", ".tor.gs") ||
+    endsWith("log.dns.query", ".tor.cat") ||
+    endsWith("log.dns.query", ".tor.haus") ||
+    endsWith("log.dns.query", ".tor.rocks") ||
+    endsWith("log.dns.query", ".tor.lol") ||
+    endsWith("log.dns.query", ".onion.in.net") ||
+    endsWith("log.dns.query", ".onion.glass") ||
+    endsWith("log.dns.query", ".onion.ms") ||
+    endsWith("log.dns.query", ".onion.gg") ||
+    endsWith("log.dns.query", ".tor.pm")
+  )
+groupBy:
+  - lastEvent.log.dns.query
+  - adversary.ip

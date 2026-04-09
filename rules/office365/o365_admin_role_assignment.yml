@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Office 365 Global Admin Role Assignment
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1098 - Account Manipulation"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference
+  - https://attack.mitre.org/techniques/T1098/
+description: |
+  Detects assignment of high-privilege administrative roles in Office 365, particularly Global Administrator, Exchange Administrator, and SharePoint Administrator. These roles provide extensive control over the tenant and are high-value targets for persistence.
+
+  Next Steps:
+  1. Verify the role assignment was authorized through proper governance
+  2. Review the specific role being assigned and the target user
+  3. Check if the assigning administrator's account shows signs of compromise
+  4. Verify the role assignment follows the principle of least privilege
+  5. Review the target user's recent activities post-assignment
+  6. If unauthorized, immediately remove the role assignment
+  7. Implement Privileged Identity Management (PIM) for just-in-time access
+  8. Enable alerts on all privileged role modifications
+where: |
+  oneOf("action", ["Add member to role.", "Add eligible member to role in PIM requested (permanent)."]) &&
+  equals("actionResult", "Success")
+groupBy:
+  - adversary.user
+  - target.user

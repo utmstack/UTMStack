@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest.correlation.rules;
 
+import com.park.utmstack.aop.logging.AuditEvent;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRulesFilter;
@@ -74,6 +75,12 @@ public class UtmCorrelationRulesResource {
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, with status {@code 400 (Bad Request)}, or with status {@code 500 (Internal)} if errors occurred.
      */
     @PostMapping("/correlation-rule")
+    @AuditEvent(
+        attemptType = ApplicationEventType.CORRELATION_RULE_CREATE_ATTEMPT,
+        attemptMessage = "Attempting to create correlation rule: {name}",
+        successType = ApplicationEventType.CORRELATION_RULE_CREATE_SUCCESS,
+        successMessage = "Correlation rule {name} created successfully"
+    )
     public ResponseEntity<Void> addCorrelationRule(@Valid @RequestBody UtmCorrelationRulesDTO utmCorrelationRulesDTO) {
         final String ctx = CLASSNAME + ".addCorrelationRule";
 
@@ -107,6 +114,12 @@ public class UtmCorrelationRulesResource {
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, with status {@code 400 (Bad Request)}, or with status {@code 500 (Internal)} if errors occurred.
      */
     @PutMapping("/correlation-rule/activate-deactivate")
+    @AuditEvent(
+        attemptType = ApplicationEventType.CORRELATION_RULE_UPDATE_ATTEMPT,
+        attemptMessage = "Attempting to change activation status for correlation rule with ID: {id}",
+        successType = ApplicationEventType.CORRELATION_RULE_UPDATE_SUCCESS,
+        successMessage = "Activation status for correlation rule with ID {id} changed successfully"
+    )
     public ResponseEntity<Void> activateOrDeactivateCorrelationRule(@RequestParam Long id,
                                                                     @RequestParam Boolean active) {
         final String ctx = CLASSNAME + ".activateOrDeactivateCorrelationRule";
@@ -133,6 +146,12 @@ public class UtmCorrelationRulesResource {
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, with status {@code 400 (Bad Request)}, or with status {@code 500 (Internal)} if errors occurred.
      */
     @PutMapping("/correlation-rule")
+    @AuditEvent(
+        attemptType = ApplicationEventType.CORRELATION_RULE_UPDATE_ATTEMPT,
+        attemptMessage = "Attempting to update correlation rule: {name}",
+        successType = ApplicationEventType.CORRELATION_RULE_UPDATE_SUCCESS,
+        successMessage = "Correlation rule {name} updated successfully"
+    )
     public ResponseEntity<Void> updateCorrelationRule(@Valid @RequestBody UtmCorrelationRulesDTO correlationRulesDTO) {
         final String ctx = CLASSNAME + ".updateCorrelationRule";
         try {
@@ -225,6 +244,12 @@ public class UtmCorrelationRulesResource {
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, with status {@code 400 (Bad Request)}, or with status {@code 500 (Internal)} if errors occurred.
      */
     @DeleteMapping("/correlation-rule/{id}")
+    @AuditEvent(
+        attemptType = ApplicationEventType.CORRELATION_RULE_DELETE_ATTEMPT,
+        attemptMessage = "Attempting to delete correlation rule with ID: {id}",
+        successType = ApplicationEventType.CORRELATION_RULE_DELETE_SUCCESS,
+        successMessage = "Correlation rule with ID {id} deleted successfully"
+    )
     public ResponseEntity<Void> removeCorrelationRule(@PathVariable Long id) {
         final String ctx = CLASSNAME + ".removeCorrelationRule";
         try {

@@ -1,0 +1,63 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - mysql
+name: MySQL Privilege Escalation Attempt
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1078 - Valid Accounts"
+adversary: origin
+references:
+  - https://dev.mysql.com/doc/refman/8.0/en/privilege-system.html
+  - https://attack.mitre.org/techniques/T1078/
+  - https://legalhackers.com/advisories/MySQL-Exploit-Remote-Root-Code-Execution-Privesc-CVE-2016-6662.html
+description: |
+  Detects attempts to escalate privileges in MySQL through GRANT statements, role modifications, or exploitation of FILE privileges. This rule monitors for:
+  - GRANT statements with dangerous privileges (ALL PRIVILEGES, SUPER, FILE)
+  - User creation and modification with elevated privileges
+  - Attempts to access system files through FILE privileges
+  - Direct manipulation of mysql.user table
+  - UDF (User Defined Function) creation attempts
+  - Access denied errors related to privilege operations
+  
+  Next Steps:
+  1. Identify the source of the privilege escalation attempt (user, IP, application)
+  2. Review the MySQL user's legitimate access requirements
+  3. Check MySQL audit logs for any successful privilege changes
+  4. Verify if the user has been granted new privileges: SHOW GRANTS FOR 'username'@'host'
+  5. Review recent changes to mysql.user table
+  6. If malicious, revoke unnecessary privileges immediately
+  7. Consider enabling MySQL audit plugin for enhanced monitoring
+  8. Review application code for hardcoded credentials or SQL injection vulnerabilities
+where: |
+  exists("log.msg") && 
+  (
+    (contains("log.msg", "GRANT") && (contains("log.msg", "ALL PRIVILEGES") || contains("log.msg", "SUPER") || contains("log.msg", "FILE") || contains("log.msg", "WITH GRANT OPTION"))) ||
+    (contains("log.msg", "CREATE USER") && contains("log.msg", "IDENTIFIED")) ||
+    (contains("log.msg", "ALTER USER") && (contains("log.msg", "SUPER") || contains("log.msg", "FILE"))) ||
+    contains("log.msg", "SET ROLE") ||
+    contains("log.msg", "LOAD DATA INFILE") ||
+    (contains("log.msg", "SELECT") && contains("log.msg", "INTO OUTFILE") && contains("log.msg", "/etc/")) ||
+    (contains("log.msg", "mysql.user") && (contains("log.msg", "UPDATE") || contains("log.msg", "INSERT"))) ||
+    contains("log.msg", "FLUSH PRIVILEGES") ||
+    equals("log.errorCode", "ER_SPECIFIC_ACCESS_DENIED_ERROR") ||
+    (equals("log.errorCode", "ER_ACCESS_DENIED_ERROR") && contains("log.msg", "SUPER")) ||
+    (contains("log.msg", "UDF") && (contains("log.msg", "CREATE FUNCTION") || contains("log.msg", "lib_mysqludf_sys")))
+  )
+afterEvents:
+  - indexPattern: v11-log-mysql-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+      - field: log.thread
+        operator: filter_term
+        value: '{{.log.thread}}'
+    within: now-5m
+    count: 3
+groupBy:
+  - adversary.host
+  - adversary.user

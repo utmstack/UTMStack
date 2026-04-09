@@ -1,0 +1,41 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: SSH Authorized Key Injection via System Logs
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Persistence
+technique: "T1098.004 - Account Manipulation: SSH Authorized Keys"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1098/004/
+description: |
+  Detects unauthorized modifications to SSH authorized_keys files as seen in system logs, indicating potential persistence via injected SSH public keys.
+
+  Next Steps:
+  1. Review the authorized_keys file for unauthorized keys
+  2. Identify the user and process that made the change
+  3. Check SSH login logs for connections using the new key
+  4. Remove unauthorized keys and rotate credentials
+  5. Monitor for subsequent connections from unknown sources
+where: |
+  contains("log.message", "authorized_keys") &&
+  (contains("log.message", "modified") || contains("log.message", "write") ||
+   contains("log.message", "opened for writing") || contains("log.message", "changed"))
+afterEvents:
+  - indexPattern: v11-log-linux-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+      - field: log.message
+        operator: filter_match
+        value: "authorized_keys"
+    within: now-1h
+    count: 3
+groupBy:
+  - origin.host
+  - origin.user

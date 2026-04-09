@@ -1,0 +1,42 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - apache
+name: ModSecurity Rule Violations Detected
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1203 - Exploitation for Client Execution"
+adversary: origin
+references:
+  - https://www.feistyduck.com/library/modsecurity-handbook-free/online/ch04-logging.html
+  - https://attack.mitre.org/techniques/T1203/
+description: |
+  Detects when ModSecurity Web Application Firewall rules are triggered, indicating potential web application attacks or policy violations. This could include SQL injection, XSS, path traversal, or other OWASP Top 10 attack attempts.
+  
+  Next Steps:
+  1. Review the specific ModSecurity rule that was triggered and the request details
+  2. Analyze the blocked request for malicious patterns or payloads
+  3. Check if this is part of a coordinated attack by reviewing other requests from the same IP
+  4. Verify that ModSecurity rules are properly tuned to minimize false positives
+  5. Consider blocking the source IP if confirmed malicious activity
+where: |
+  exists("origin.ip") &&
+  exists("log.message") &&
+  (contains("log.message", "ModSecurity: Warning") ||
+   contains("log.message", "ModSecurity: Access denied") ||
+   (equals("log.statusCode", 403) && contains("log.message", "mod_security")) ||
+   (equals("log.statusCode", 403) && contains("log.message", "ModSecurity")))
+afterEvents:
+  - indexPattern: v11-log-apache-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-15m
+    count: 5
+groupBy:
+  - adversary.ip
+  - adversary.path

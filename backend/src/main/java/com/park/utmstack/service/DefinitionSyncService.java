@@ -11,8 +11,8 @@ import com.park.utmstack.service.correlation.rules.UtmCorrelationRulesService;
 import com.park.utmstack.service.dto.correlation.AdversaryType;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesDTO;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesMapper;
+import com.park.utmstack.service.dto.correlation.RuleYaml;
 import com.park.utmstack.service.logstash_filter.UtmLogstashFilterService;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.yaml.snakeyaml.Yaml;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.lang.Exception;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -46,10 +44,11 @@ public class DefinitionSyncService implements CommandLineRunner {
     private final UtmLogstashFilterService filterService;
 
     @Override
+    @Transactional
     public void run(String... args) {
         log.info("Starting definition sync from filesystem... ---");
         try {
-            Set<String> filesystemFilters = syncFilters();
+            Set<Long> filesystemFilters = syncFilters();
             Set<String> filesystemRules = syncRules();
 
             cleanupOrphanedFilters(filesystemFilters);
@@ -61,31 +60,64 @@ public class DefinitionSyncService implements CommandLineRunner {
         }
     }
 
-    private Set<String> syncFilters() {
-        Set<String> foundModules = new HashSet<>();
+    private Set<Long> syncFilters() {
+        Set<Long> foundFilters = new HashSet<>();
         Path filtersPath = Paths.get(".",Constants.APP_FILTER_DEFINITIONS);
         if (!Files.exists(filtersPath) || !Files.isDirectory(filtersPath)) {
             log.warn("Filters directory not found: {}", Constants.APP_FILTER_DEFINITIONS);
-            return foundModules;
+            return foundFilters;
         }
+
+        // Regex to extract the first dataType from the pipeline structure:
+        // pipeline:
+        //   - dataTypes:
+        //       - value
+        java.util.regex.Pattern dataTypePattern = java.util.regex.Pattern.compile(
+            "pipeline:\\s*\\n\\s*-\\s*dataTypes:\\s*\\n\\s*-\\s*([^\\s\\n]+)",
+            java.util.regex.Pattern.MULTILINE
+        );
 
         try (Stream<Path> paths = Files.walk(filtersPath)) {
             paths.filter(path -> Files.isRegularFile(path) && isYamlFile(path)).forEach(path -> {
-                String rawName = getFileNameWithoutExtension(path);
-                String moduleName = rawName.toUpperCase().replace("-", "_");
-                foundModules.add(moduleName);
                 try {
                     String content = Files.readString(path);
+                    java.util.regex.Matcher matcher = dataTypePattern.matcher(content);
+                    if (!matcher.find()) {
+                        log.warn("Skipping filter file without dataType: {}", path);
+                        return;
+                    }
 
-                    Optional<UtmLogstashFilter> filterOpt = filterRepository.findOneByModuleName(moduleName);
+                    String dataTypeStr = matcher.group(1).trim().replace("\"", "").replace("'", "");
+                    log.info("found dataType: {}", dataTypeStr);
+
+                    Optional<UtmDataTypes> dataTypeEntity = dataTypesRepository.findOneByDataType(dataTypeStr.toLowerCase());
+
+                    String moduleName = null;
+                    if (dataTypeEntity.isPresent() && dataTypeEntity.get().getModule() != null) {
+                        moduleName = dataTypeEntity.get().getModule().getModuleName().toString();
+                    }
+
+                    if(moduleName==null){
+                       log.error("module name for filter: {} with dataType: {} not found, ignoring...",path,dataTypeStr);
+                       return;
+                    }
+
+
+                    Optional<UtmLogstashFilter> filterOpt = filterRepository.findFirstByLogstashFilterAndSystemOwnerIsTrue(content);
 
                     if (filterOpt.isPresent()) {
                         UtmLogstashFilter filter = filterOpt.get();
+                        foundFilters.add(filter.getId());
                         if (!content.equals(filter.getLogstashFilter())) {
                             log.info("Updating existing filter for module: {}", moduleName);
                             filter.setLogstashFilter(content);
                             filter.setUpdatedAt(Instant.now());
-                            filterService.save(filter, true);
+                            try{
+                              filterService.save(filter);
+                            }
+                            catch (Exception e) {
+                                log.error("Error updating filter on file {}: {}", path, e.getMessage());
+                            }
                         }
                     } else {
                         UtmLogstashFilter filter = new UtmLogstashFilter();
@@ -96,23 +128,32 @@ public class DefinitionSyncService implements CommandLineRunner {
                         filter.setSystemOwner(true);
                         filter.setActive(true);
                         filter.setUpdatedAt(Instant.now());
+                        foundFilters.add(filter.getId());
 
-                        // Try to find a matching data type
-                        Optional<UtmDataTypes> dataType = dataTypesRepository.findOneByDataType(moduleName.toLowerCase());
-                        if (dataType.isPresent()) {
-                            filter.setDatatype(dataType.get());
+
+                        if (dataTypeEntity.isPresent()) {
+                            filter.setDatatype(dataTypeEntity.get());
                         }
 
-                        filterService.save(filter, true);
+                        log.info("Creating filter from file {} for module: {} and dataType {}, filter: {}",path,moduleName, dataTypeStr,filter);
+                        try{
+                          filterService.save(filter);
+                        }
+                        catch (Exception e) {
+                            log.error("Error creating filter on file {}: {}", path, e.getMessage());
+                        }
+
                     }
                 } catch (IOException e) {
                     log.error("Error reading filter file {}: {}", path, e.getMessage());
+                } catch (Exception e) {
+                    log.error("Error processing filter file {}: {}", path, e.getMessage());
                 }
             });
         } catch (IOException e) {
             log.error("Error listing filters directory: {}", e.getMessage());
         }
-        return foundModules;
+        return foundFilters;
     }
 
     private Set<String> syncRules() {
@@ -129,57 +170,69 @@ public class DefinitionSyncService implements CommandLineRunner {
             paths.filter(path -> Files.isRegularFile(path) && isYamlFile(path)).forEach(path -> {
                 try {
                     String content = Files.readString(path);
-                    RuleYaml ruleYaml = yaml.loadAs(content, RuleYaml.class);
-                    if (ruleYaml == null || ruleYaml.getName() == null) {
-                        log.warn("Skipping invalid rule file: {}", path);
-                        return;
+                    Object yamlObj = yaml.load(content);
+                    List<Map<String, Object>> rawRules = new ArrayList<>();
+
+                    if (yamlObj instanceof List) {
+                        rawRules.addAll((List<Map<String, Object>>) yamlObj);
+                    } else if (yamlObj instanceof Map) {
+                        rawRules.add((Map<String, Object>) yamlObj);
                     }
 
-                    foundRules.add(ruleYaml.getName());
-                    Optional<UtmCorrelationRules> ruleOpt = rulesRepository.findOneByRuleName(ruleYaml.getName());
-                    UtmCorrelationRulesDTO ruleDto = new UtmCorrelationRulesDTO();
+                    for (Map<String, Object> rawRule : rawRules) {
+                        RuleYaml ruleYaml = mapToRuleYaml(rawRule);
+                        if (ruleYaml == null || ruleYaml.getName() == null) {
+                            log.warn("Skipping invalid rule in file: {}", path);
+                            continue;
+                        }
 
-                    if (ruleOpt.isPresent()) {
-                        ruleDto.setId(ruleOpt.get().getId());
-                    } else {
-                        ruleDto.setId(rulesService.getSystemSequenceNextValue());
-                    }
+                        foundRules.add(ruleYaml.getName());
+                        Optional<UtmCorrelationRules> ruleOpt = rulesRepository.findOneByRuleName(ruleYaml.getName());
+                        UtmCorrelationRulesDTO ruleDto = new UtmCorrelationRulesDTO();
 
-                    ruleDto.setName(ruleYaml.getName());
-                    ruleDto.setCategory(ruleYaml.getCategory());
-                    ruleDto.setTechnique(ruleYaml.getTechnique());
-                    ruleDto.setAdversary(ruleYaml.getAdversary() != null ? ruleYaml.getAdversary() : AdversaryType.origin);
-                    ruleDto.setDescription(ruleYaml.getDescription());
-                    ruleDto.setReferences(ruleYaml.getReferences());
-                    ruleDto.setDefinition(ruleYaml.getWhere());
-                    ruleDto.setGroupBy(ruleYaml.getGroupBy());
-                    ruleDto.setDeduplicateBy(ruleYaml.getDeduplicateBy());
-                    ruleDto.setAfterEvents(ruleYaml.getAfterEvents());
-                    ruleDto.setSystemOwner(true);
-                    ruleDto.setRuleActive(true);
+                        if (ruleOpt.isPresent()) {
+                            ruleDto.setId(ruleOpt.get().getId());
+                        } else if (ruleYaml.getId() != null) {
+                            ruleDto.setId(ruleYaml.getId());
+                        } else {
+                            ruleDto.setId(rulesService.getSystemSequenceNextValue());
+                        }
 
-                    if (ruleYaml.getImpact() != null) {
-                        ruleDto.setConfidentiality(ruleYaml.getImpact().getConfidentiality());
-                        ruleDto.setIntegrity(ruleYaml.getImpact().getIntegrity());
-                        ruleDto.setAvailability(ruleYaml.getImpact().getAvailability());
-                    }
+                        ruleDto.setName(ruleYaml.getName());
+                        ruleDto.setCategory(ruleYaml.getCategory());
+                        ruleDto.setTechnique(ruleYaml.getTechnique());
+                        ruleDto.setAdversary(ruleYaml.getAdversary() != null ? ruleYaml.getAdversary() : AdversaryType.origin);
+                        ruleDto.setDescription(ruleYaml.getDescription());
+                        ruleDto.setReferences(ruleYaml.getReferences());
+                        ruleDto.setDefinition(ruleYaml.getWhere());
+                        ruleDto.setGroupBy(ruleYaml.getGroupBy());
+                        ruleDto.setDeduplicateBy(ruleYaml.getDeduplicateBy());
+                        ruleDto.setAfterEvents(ruleYaml.getAfterEvents());
+                        ruleDto.setSystemOwner(true);
+                        ruleDto.setRuleActive(true);
 
-                    // Map dataTypes strings to UtmDataTypes entities
-                    if (ruleYaml.getDataTypes() != null) {
-                        Set<UtmDataTypes> dataTypes = ruleYaml.getDataTypes().stream()
-                            .map(dtName -> dataTypesRepository.findOneByDataType(dtName.toLowerCase()))
-                            .filter(Optional::isPresent)
-                            .map(Optional::get)
-                            .collect(Collectors.toSet());
-                        ruleDto.setDataTypes(dataTypes);
-                    }
+                        if (ruleYaml.getImpact() != null) {
+                            ruleDto.setConfidentiality(ruleYaml.getImpact().getConfidentiality());
+                            ruleDto.setIntegrity(ruleYaml.getImpact().getIntegrity());
+                            ruleDto.setAvailability(ruleYaml.getImpact().getAvailability());
+                        }
 
-                    UtmCorrelationRules entity = rulesMapper.toEntity(ruleDto);
-                    if (ruleOpt.isPresent()) {
-                        rulesService.updateRule(entity, true);
+                        // Map dataTypes strings to UtmDataTypes entities
+                        if (ruleYaml.getDataTypes() != null) {
+                            Set<UtmDataTypes> dataTypes = ruleYaml.getDataTypes().stream()
+                                .map(dtName -> dataTypesRepository.findOneByDataType(dtName.toLowerCase()))
+                                .filter(Optional::isPresent)
+                                .map(Optional::get)
+                                .collect(Collectors.toSet());
+                            ruleDto.setDataTypes(dataTypes);
+                        }
 
-                    } else {
-                        rulesService.save(entity, true);
+                        UtmCorrelationRules entity = rulesMapper.toEntity(ruleDto);
+                        if (ruleOpt.isPresent()) {
+                            rulesService.updateRule(entity, true);
+                        } else {
+                            rulesService.save(entity, true);
+                        }
                     }
 
                 } catch (Exception e) {
@@ -192,12 +245,17 @@ public class DefinitionSyncService implements CommandLineRunner {
         return foundRules;
     }
 
-    private void cleanupOrphanedFilters(Set<String> currentFilesystemModules) {
-        if (currentFilesystemModules.isEmpty()) return;
+    private RuleYaml mapToRuleYaml(Map<String, Object> map) {
+        Yaml yaml = new Yaml();
+        String dump = yaml.dump(map);
+        return yaml.loadAs(dump, RuleYaml.class);
+    }
 
+    private void cleanupOrphanedFilters(Set<Long> currentFilterIds) {
+        if (currentFilterIds.isEmpty()) return;
         List<UtmLogstashFilter> systemFilters = filterRepository.findAllBySystemOwnerIsTrue();
         systemFilters.stream()
-            .filter(filter -> !currentFilesystemModules.contains(filter.getModuleName()))
+            .filter(filter -> !currentFilterIds.contains(filter.getId()))
             .forEach(filter -> {
                 log.info("Deleting orphaned system filter: {}", filter.getModuleName());
                 filterService.delete(filter.getId());
@@ -229,28 +287,5 @@ public class DefinitionSyncService implements CommandLineRunner {
         String fileName = path.getFileName().toString();
         int lastDotIndex = fileName.lastIndexOf('.');
         return (lastDotIndex == -1) ? fileName : fileName.substring(0, lastDotIndex);
-    }
-
-    @Data
-    public static class RuleYaml {
-        private List<String> dataTypes;
-        private String name;
-        private ImpactYaml impact;
-        private String category;
-        private String technique;
-        private AdversaryType adversary;
-        private String description;
-        private List<String> references;
-        private String where;
-        private List<com.park.utmstack.domain.correlation.rules.SearchRequest> afterEvents;
-        private List<String> groupBy;
-        private List<String> deduplicateBy;
-    }
-
-    @Data
-    public static class ImpactYaml {
-        private Integer confidentiality;
-        private Integer integrity;
-        private Integer availability;
     }
 }

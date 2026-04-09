@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-esmc-eset
+name: ESET ERA/ESMC Console Suspicious Activity
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Lateral Movement
+technique: "T1072 - Software Deployment Tools"
+adversary: origin
+references:
+  - https://help.eset.com/esmc_admin/70/en-US/
+  - https://attack.mitre.org/techniques/T1072/
+description: |
+  Detects suspicious activity on the ESET ERA/ESMC management console including unauthorized policy changes, mass task deployments, or admin account modifications that could indicate console compromise.
+
+  Next Steps:
+  1. Verify the admin account performing console operations
+  2. Review recent policy changes and task deployments
+  3. Check admin login history for unauthorized access
+  4. Verify the content of any pushed policies or tasks
+  5. Suspend suspicious admin accounts
+  6. Audit endpoints affected by recent console changes
+where: |
+  (contains("log.message", "policy") &&
+   (contains("log.message", "modified") || contains("log.message", "assigned") ||
+    contains("log.message", "created"))) ||
+  (contains("log.message", "client task") &&
+   (contains("log.message", "executed") || contains("log.message", "deployed"))) ||
+  (contains("log.message", "administrator") &&
+   ((contains("log.message", "created") || contains("log.message", "modified")) ||
+    (contains("log.message", "login") && contains("log.message", "failed"))))
+afterEvents:
+  - indexPattern: v11-log-antivirus-esmc-eset-*
+    with:
+      - field: log.headHostname
+        operator: filter_term
+        value: '{{.log.headHostname}}'
+    within: now-30m
+    count: 10
+groupBy:
+  - lastEvent.log.headHostname
+  - target.host

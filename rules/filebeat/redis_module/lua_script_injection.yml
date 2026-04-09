@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - redis
+name: Redis Lua Script Injection Attack
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Execution
+technique: Script Injection
+adversary: origin
+references:
+  - https://antirez.com/news/119
+  - https://redis.io/docs/latest/develop/interact/programmability/lua-debugging/
+  - https://attack.mitre.org/techniques/T1059/007/
+description: |
+  Detects potential Lua script injection attacks in Redis including malicious EVAL/EVALSHA commands, script-based exploitation attempts, or suspicious scripting activity.
+  
+  Next Steps:
+  1. Immediately review the Redis logs to identify the source of the suspicious script commands
+  2. Check if the Redis instance is exposed to untrusted networks
+  3. Verify that Redis authentication is properly configured and strong passwords are in use
+  4. Review all Lua scripts loaded into Redis for malicious code
+  5. Consider implementing command blacklisting for EVAL/EVALSHA if not required
+  6. Monitor for any unauthorized data access or modification following the alert
+  7. If compromise is confirmed, rotate Redis passwords and review all stored data for tampering
+where: |
+  exists("log.message") && (
+    contains("log.message", "Cross Protocol Scripting") ||
+    (contains("log.message", "POST") && contains("log.message", "Host:")) ||
+    (contains("log.message", "EVAL") && contains("log.message", ["os.execute", "io.popen", "io.open", "loadfile", "dofile"])) ||
+    contains("log.message", "Lua script attempted to access") ||
+    (contains("log.message", "lua") && contains("log.message", "attack"))
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

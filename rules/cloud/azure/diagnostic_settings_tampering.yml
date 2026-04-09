@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Azure Diagnostic Settings Tampering
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562.008 - Impair Defenses: Disable Cloud Logs"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings
+  - https://attack.mitre.org/techniques/T1562/008/
+description: |
+  Detects deletion or modification of Azure diagnostic settings which are used to route platform logs and metrics to monitoring destinations. Attackers may disable diagnostic settings to prevent their activities from being logged and detected.
+
+  Next Steps:
+  1. Verify if the diagnostic settings change was authorized through change management
+  2. Identify which resources lost their diagnostic logging
+  3. Review the identity performing the change and confirm authorization
+  4. Check if any suspicious activities occurred after logging was disabled
+  5. Restore diagnostic settings for affected resources immediately
+  6. Implement Azure Policy to enforce diagnostic settings on all resources
+  7. Set up alerts for diagnostic settings modifications
+  8. Review Azure Activity Log for other defense evasion activities by the same identity
+where: |
+  contains("log.operationName", "Microsoft.Insights/diagnosticSettings") &&
+  (contains("log.operationName", "delete") ||
+   contains("log.operationName", "Delete")) &&
+  equals("log.resultType", "Success")
+groupBy:
+  - lastEvent.log.resourceId
+  - adversary.user

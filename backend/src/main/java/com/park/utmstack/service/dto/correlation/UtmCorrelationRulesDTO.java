@@ -4,6 +4,7 @@ import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import com.park.utmstack.domain.correlation.rules.AfterEvents;
 import com.park.utmstack.domain.correlation.rules.RuleDefinition;
 import com.park.utmstack.domain.correlation.rules.SearchRequest;
+import com.park.utmstack.service.dto.auditable.AuditableDTO;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,10 +13,11 @@ import org.hibernate.validator.constraints.URL;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Data
-public class UtmCorrelationRulesDTO implements Serializable {
+public class UtmCorrelationRulesDTO implements Serializable, AuditableDTO {
 
     private static final long serialVersionUID = 1L;
 
@@ -63,6 +65,15 @@ public class UtmCorrelationRulesDTO implements Serializable {
     private List<String> deduplicateBy;
 
     private List<String> groupBy;
+
+    @Override
+    public Map<String, Object> toAuditMap() {
+        return Map.of(
+            "name", name != null ? name : "",
+            "category", category != null ? category : "",
+            "technique", technique != null ? technique : ""
+        );
+    }
 
 }
 

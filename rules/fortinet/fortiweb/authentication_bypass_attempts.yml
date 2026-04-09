@@ -1,41 +1,51 @@
-- id: 1007
-  dataTypes:
-    - firewall-fortiweb
-  name: FortiWeb Authentication Bypass Attempt Detected
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 1
-  category: Access Control
-  technique: "T1078 - Valid Accounts"
-  adversary: origin
-  references:
-    - https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/252057/event
-    - https://attack.mitre.org/techniques/T1078/
-    - https://attack.mitre.org/techniques/T1190/
-  description: |
-    Detects authentication bypass attempts including direct access to protected resources, authentication flow manipulation, and credential stuffing attacks on FortiWeb protected applications.
-    
-    Next Steps:
-    1. Review the source IP address and check if it's from a known location or VPN service
-    2. Examine the specific authentication bypass technique attempted (check log.attack_type and log.msg fields)
-    3. Verify if any successful authentication occurred from the same IP address
-    4. Check for other attack patterns from the same source IP in the last 24 hours
-    5. Consider blocking the source IP if multiple bypass attempts are confirmed
-    6. Review application logs for any successful unauthorized access
-    7. Validate that authentication mechanisms are properly configured and up to date
-  where: |
-    safe(origin.ip, "") != "" && 
-    safe(log.type, "") == "attack" &&
-    (
-      safe(log.subtype, "") == "account-lockout-detection" ||
-      safe(log.msg, "").contains("authentication") ||
-      safe(log.msg, "").contains("Authentication") ||
-      safe(log.msg, "").contains("bypass") ||
-      safe(log.msg, "").contains("unauthorized access") ||
-      safe(log.attack_type, "") == "auth_bypass" ||
-      safe(log.trigger_policy, "").contains("auth")
-    ) &&
-    safe(action, "") in ["deny", "alert", "block"]
-  deduplicateBy:
-    - origin.ip
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-fortiweb
+name: FortiWeb Authentication Bypass Attempt Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Defense Evasion, Persistence, Privilege Escalation, Initial Access
+technique: "T1078 - Valid Accounts"
+adversary: origin
+references:
+  - https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/252057/event
+  - https://attack.mitre.org/techniques/T1078/
+  - https://attack.mitre.org/techniques/T1190/
+description: |
+  Detects authentication bypass attempts including direct access to protected resources, authentication flow manipulation, and credential stuffing attacks on FortiWeb protected applications.
+
+  Next Steps:
+  1. Review the source IP address and check if it's from a known location or VPN service
+  2. Examine the specific authentication bypass technique attempted (check log.attack_type and log.msg fields)
+  3. Verify if any successful authentication occurred from the same IP address
+  4. Check for other attack patterns from the same source IP in the last 24 hours
+  5. Consider blocking the source IP if multiple bypass attempts are confirmed
+  6. Review application logs for any successful unauthorized access
+  7. Validate that authentication mechanisms are properly configured and up to date
+where: |
+  exists("origin.ip") && 
+  equals("log.type", "attack") &&
+  (
+    equals("log.subtype", "account-lockout-detection") ||
+    contains("log.msg", "authentication") ||
+    contains("log.msg", "Authentication") ||
+    contains("log.msg", "bypass") ||
+    contains("log.msg", "unauthorized access") ||
+    equals("log.attack_type", "auth_bypass") ||
+    contains("log.trigger_policy", "auth")
+  ) &&
+  oneOf("action", ["deny", "alert", "block"])
+afterEvents:
+  - indexPattern: v11-log-firewall-fortiweb-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-15m
+    count: 3
+groupBy:
+  - adversary.ip
+  - target.ip

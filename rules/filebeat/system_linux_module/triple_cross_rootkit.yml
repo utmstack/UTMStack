@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Triple Cross eBPF Rootkit Installation Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Malware Detection
+technique: "T1014 - Rootkit"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1014/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_triple_cross_rootkit_install.yml
+  - https://github.com/h3xduck/TripleCross
+description: |
+  Detects installation of the Triple Cross eBPF rootkit. This rootkit uses the Linux Traffic Control (tc) subsystem with qdisc and filter commands to install eBPF programs that can hide processes, files, and network connections while providing a backdoor. The characteristic pattern is sudo tc with qdisc/filter subcommands.
+
+  Next Steps:
+  1. Immediately isolate the affected system from the network
+  2. Check for eBPF programs loaded in the kernel (bpftool prog list)
+  3. Examine tc qdisc and filter configurations for malicious entries
+  4. Review loaded kernel modules and eBPF programs
+  5. Check for hidden processes, files, and network connections
+  6. Consider reimaging the system as rootkit removal is unreliable
+where: |
+  contains("log.message", "sudo") &&
+  contains("log.message", " tc ") &&
+  (contains("log.message", "qdisc") || contains("log.message", "filter"))
+groupBy:
+  - origin.host
+  - origin.user

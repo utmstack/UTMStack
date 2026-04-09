@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: EC2 Instance Metadata Abuse
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Credential Access
+technique: "T1552.005 - Unsecured Credentials: Cloud Instance Metadata API"
+adversary: origin
+references:
+  - https://hackingthe.cloud/aws/exploitation/ec2-metadata-ssrf/
+  - https://attack.mitre.org/techniques/T1552/005/
+description: |
+  Detects potential abuse of EC2 instance metadata service (IMDS) which could indicate SSRF exploitation or credential theft. Monitors for unusual API calls using credentials with IMDSv1 role delivery or suspicious patterns of EC2 metadata access.
+  
+  Next Steps:
+  1. Identify the EC2 instance and application making the metadata requests
+  2. Check if the instance has IMDSv2 enforced (HttpTokens set to "required")
+  3. Review the instance's IAM role permissions and recent API activity
+  4. Investigate any web applications running on the instance for SSRF vulnerabilities
+  5. Check CloudTrail logs for unusual API calls using the instance profile credentials
+  6. If unauthorized access is confirmed, rotate the instance profile credentials and enforce IMDSv2
+where: |
+  (equals("log.eventSource", "ec2.amazonaws.com") &&
+   equals("log.eventName", "ModifyInstanceMetadataOptions") &&
+   equals("log.errorCode", "") &&
+   contains("log.requestParameters", "httpTokens\":\"optional")) ||
+  (exists("log.requestParameters") &&
+   contains("log.requestParameters", "ec2:RoleDelivery\":\"1.0") &&
+   equals("log.errorCode", ""))
+groupBy:
+  - lastEvent.log.sourceIPAddress
+  - lastEvent.log.userIdentityAccountId

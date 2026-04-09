@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Download and Execute from Staging Directory
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Execution
+technique: "T1105 - Ingress Tool Transfer"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1105/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_curl_wget_exec_tmp.yml
+description: |
+  Detects the pattern of downloading a file using curl or wget to /tmp or /dev/shm and then executing it. This is one of the most common multi-stage attack patterns where an attacker downloads a payload from their infrastructure to a staging directory and immediately executes it. This pattern is seen in cryptocurrency miners, botnet agents, and initial compromise payloads.
+
+  Next Steps:
+  1. Identify the URL from which the file was downloaded
+  2. Block the download URL and associated domain at the proxy/firewall
+  3. Retrieve and analyze the downloaded file (if still present) for malware analysis
+  4. Check for persistence mechanisms installed by the payload
+  5. Review network connections for C2 communication
+  6. Hunt for the same download URL or file hash across all systems
+  7. Investigate the initial access vector that led to the download command
+where: |
+  exists("log.message") &&
+  (regexMatch("log.message", "(?i)(curl|wget)\\s+.*-o\\s+(/tmp/|/dev/shm/|/var/tmp/)") ||
+   regexMatch("log.message", "(?i)(curl|wget)\\s+.*>\\s*(/tmp/|/dev/shm/|/var/tmp/)") ||
+   regexMatch("log.message", "(?i)(curl|wget)\\s+.*(/tmp/|/dev/shm/).*&&.*chmod.*\\+x") ||
+   regexMatch("log.message", "(?i)(curl|wget)\\s+.*\\|\\s*(ba)?sh") ||
+   regexMatch("log.message", "(?i)(curl|wget)\\s+.*(/tmp/|/dev/shm/).*&&.*/tmp/"))
+groupBy:
+  - origin.host
+  - origin.user

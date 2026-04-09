@@ -1,0 +1,19 @@
+name: "Endpoint Network Containment Action"
+description: "Containment of a host on the network has been requested, or a previously applied containment has been lifted."
+category: "Impact"
+technique: "Account Access Removal"
+references:
+  - "https://attack.mitre.org/techniques/T1531/"
+dataTypes:
+  - crowdstrike
+adversary: origin
+impact:
+  confidentiality: 0
+  integrity: 2
+  availability: 3
+where: >
+  exists("log.eventOperationName") && 
+  oneOf("log.eventOperationName", ["containment_requested", "lift_containment_requested"])
+groupBy:
+  - lastEvent.log.eventUserId
+  - lastEvent.log.eventOperationName

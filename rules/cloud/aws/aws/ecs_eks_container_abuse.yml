@@ -1,0 +1,40 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS ECS/EKS Container Abuse Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1610 - Deploy Container"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security.html
+  - https://attack.mitre.org/techniques/T1610/
+description: |
+  Detects suspicious container operations in AWS ECS and EKS including registration of task definitions with privileged mode, host network access, or sensitive volume mounts. Attackers may deploy malicious containers to execute code, escalate privileges, or access host resources.
+
+  Next Steps:
+  1. Review the task definition or pod specification for privileged settings
+  2. Check if the container image is from a trusted registry
+  3. Verify the IAM principal registering the task has authorization
+  4. Examine container environment variables for embedded credentials
+  5. Review network mode settings for host network access
+  6. Check volume mounts for access to sensitive host paths
+  7. If unauthorized, deregister the task definition and terminate running tasks
+  8. Implement OPA/Gatekeeper policies to prevent privileged containers
+where: |
+  (equals("log.eventSource", "ecs.amazonaws.com") &&
+   equals("log.eventName", "RegisterTaskDefinition") &&
+   equals("log.errorCode", "") &&
+   (contains("log.requestParameters", "\"privileged\":true") ||
+    contains("log.requestParameters", "\"networkMode\":\"host\"") ||
+    contains("log.requestParameters", "\"pidMode\":\"host\"") ||
+    contains("log.requestParameters", "/var/run/docker.sock") ||
+    contains("log.requestParameters", "/etc/shadow") ||
+    contains("log.requestParameters", "/root")))
+groupBy:
+  - adversary.user
+  - lastEvent.log.eventName

@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-meraki
+name: Evil Twin Access Point Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Wireless Security
+technique: "T1557 - Adversary-in-the-Middle"
+adversary: origin
+references:
+  - https://documentation.meraki.com/MR/Monitoring_and_Reporting/Air_Marshal
+  - https://attack.mitre.org/techniques/T1557/
+description: |
+  Detects evil twin attacks where a rogue access point mimics a legitimate corporate SSID to intercept wireless traffic. Meraki Air Marshal identifies spoofed SSIDs that match corporate network names but originate from unauthorized hardware.
+
+  Next Steps:
+  1. Verify the detected SSID against authorized access point inventory
+  2. Check the BSSID (MAC address) against known Meraki access points
+  3. Use Air Marshal containment features to prevent client connections
+  4. Physically locate the rogue AP using signal strength triangulation
+  5. Check if any clients have connected to the rogue AP
+  6. Review network traffic from affected clients for signs of credential theft
+where: |
+  equals("log.eventType", "airmarshal_events") &&
+  (equals("log.type", "ssid_spoofing") ||
+   equals("log.type", "rogue_ssid_detected") ||
+   (contains("log.message", "SSID Spoofing") || contains("log.message", "Evil Twin"))) &&
+  exists("log.bssid")
+groupBy:
+  - lastEvent.log.bssid
+  - adversary.host

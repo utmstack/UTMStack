@@ -1,0 +1,48 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - postgresql
+name: PostgreSQL Dangerous Stored Procedure Creation Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Code Execution
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://www.postgresql.org/docs/current/sql-createfunction.html
+  - https://attack.mitre.org/techniques/T1059/
+description: |
+  Detects creation of PostgreSQL functions using dangerous procedural languages (plpythonu, plperlu, plsh) that allow system command execution. Attackers create these functions as a vector for remote code execution on the database server.
+
+  Next Steps:
+  1. Review the function definition for malicious commands
+  2. Identify the user who created the function
+  3. Check if the function has been executed
+  4. Drop unauthorized functions immediately
+  5. Restrict procedural language usage to trusted accounts
+  6. Audit all existing functions for suspicious behavior
+where: |
+  exists("log.msg") &&
+  (
+    regexMatch("log.msg", "(?i)CREATE\\s+(OR\\s+REPLACE\\s+)?FUNCTION.*LANGUAGE\\s+(plpythonu|plpython2u|plpython3u|plperlu|plsh)") ||
+    (regexMatch("log.msg", "(?i)CREATE\\s+(OR\\s+REPLACE\\s+)?FUNCTION") && (
+      contains("log.msg", "os.system") ||
+      contains("log.msg", "subprocess") ||
+      contains("log.msg", "os.popen") ||
+      contains("log.msg", "exec(") ||
+      contains("log.msg", "system(")
+    ))
+  )
+afterEvents:
+  - indexPattern: v11-log-postgresql-*
+    with:
+      - field: target.host
+        operator: filter_term
+        value: '{{.target.host}}'
+    within: now-10m
+    count: 3
+groupBy:
+  - lastEvent.log.sessionId
+  - adversary.host

@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Dynamic Library Hijacking Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1574.004 - Hijack Execution Flow: Dylib Hijacking"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1574/004/
+  - https://objective-see.org/blog/blog_0x46.html
+description: |
+  Detects dynamic library (dylib) hijacking on macOS where attackers place malicious dylibs in locations searched before legitimate libraries, allowing code execution in the context of trusted applications.
+
+  Next Steps:
+  1. Identify the application loading the suspicious dylib
+  2. Check the dylib's code signature and notarization status
+  3. Compare the dylib path against expected library locations
+  4. Verify the dylib hash against known-good versions
+  5. Check for weak dylib references using otool
+  6. Remove the malicious dylib and investigate the delivery method
+where: |
+  (contains("log.eventMessage", "dylib") || contains("log.eventMessage", "DYLD")) &&
+  (contains("log.eventMessage", "hijack") || contains("log.eventMessage", "suspicious") ||
+   contains("log.eventMessage", "unsigned") || contains("log.eventMessage", "load failed") ||
+   (contains("log.eventMessage", "DYLD_INSERT_LIBRARIES") && contains("log.eventMessage", "set")) ||
+   regexMatch("log.eventMessage", "(?i)dylib.*(/tmp/|/Users/.*/Downloads/|/var/tmp/)"))
+groupBy:
+  - lastEvent.log.eventMessage
+  - adversary.host

@@ -25,6 +25,12 @@ public interface UtmLogstashFilterRepository extends JpaRepository<UtmLogstashFi
 
     Optional<UtmLogstashFilter> findOneByModuleName(String moduleName);
 
+    Optional<UtmLogstashFilter> findFirstByDatatypeDataType(String dataType);
+
+    Optional<UtmLogstashFilter> findFirstBySystemOwnerIsTrueOrderByIdDesc();
+
+    Optional<UtmLogstashFilter> findFirstByLogstashFilterAndSystemOwnerIsTrue(String logstashFilter);
+
     @Query("select ulf from UtmLogstashFilter ulf where ulf.id in (:filterList) and ulf.systemOwner=false")
     List<UtmLogstashFilter> findAllByListOfId(@Param("filterList") List<Long> filterList);
 

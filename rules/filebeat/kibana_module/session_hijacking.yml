@@ -1,0 +1,55 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - kibana
+name: Potential Session Hijacking Activity
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Collection
+technique: "T1185 - Browser Session Hijacking"
+adversary: origin
+references:
+  - https://www.elastic.co/guide/en/kibana/current/xpack-security-audit-logging.html
+  - https://attack.mitre.org/techniques/T1185/
+description: |
+  Detects potential session hijacking activities based on suspicious authentication patterns, multiple IP addresses using the same session, or rapid location changes that may indicate stolen session tokens.
+  
+  Next Steps:
+  1. Investigate the user account and recent login patterns
+  2. Check for concurrent sessions from different IP addresses or locations
+  3. Review session activity logs for unusual behavior patterns
+  4. Verify if the user reported any suspicious activity
+  5. Consider forcing session termination and requiring re-authentication
+  6. Check for any recent credential compromise indicators
+  7. Review security controls on user workstations and browsers
+where: |
+  contains("log.actionMessage", "http_request") &&
+  exists("origin.user") &&
+  (contains("log.actionMessage", "session") ||
+   contains("log.component", "security")) &&
+  (equals("actionResult", "failure") ||
+   equals("log.severityLabel", "warning") ||
+   equals("log.severityLabel", "error"))
+afterEvents:
+  - indexPattern: v11-log-kibana-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+    within: now-1h
+    count: 20
+  - indexPattern: v11-log-kibana-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: origin.ip
+        operator: must_not_term
+        value: '{{.origin.ip}}'
+    within: now-30m
+    count: 1
+groupBy:
+  - adversary.ip
+  - adversary.user

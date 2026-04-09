@@ -1,0 +1,21 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "firewall-sophos-xg"
+name: "Probable Sophos initial access vulnerability"
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: "Initial Access"
+technique: "T1078.001 - Valid Accounts"
+adversary: origin
+references: 
+  - "https://attack.mitre.org/tactics/TA0001/"
+  - "https://attack.mitre.org/techniques/T1078/001/"
+description: "Sophos firewall has detected the Guest account activation"
+where: |
+  equals("log.Id", "17925")
+groupBy:
+  - adversary.ip
+  - adversary.user

@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - iis
+name: IIS ViewState Deserialization Attack Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Code Execution
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references:
+  - https://www.microsoft.com/en-us/security/blog/2020/09/24/defending-against-malicious-viewstate/
+  - https://attack.mitre.org/techniques/T1190/
+description: |
+  Detects .NET ViewState deserialization attacks targeting IIS applications. Attackers craft malicious ViewState payloads using tools like ysoserial.net to achieve remote code execution by exploiting insecure deserialization of ViewState data.
+
+  Next Steps:
+  1. Review the POST request body for suspicious ViewState payloads
+  2. Check if the application has ViewState MAC validation enabled
+  3. Verify the .NET machine key has not been compromised
+  4. Look for signs of successful code execution on the server
+  5. Update .NET framework and enable ViewState encryption
+  6. Block the source IP if attack is confirmed
+where: |
+  exists("origin.ip") &&
+  equals("log.method", "POST") &&
+  exists("target.path") &&
+  (
+    (exists("log.request") && (
+      contains("log.request", "ysoserial") ||
+      contains("log.request", "ObjectDataProvider") ||
+      contains("log.request", "TypeConfuseDelegate") ||
+      contains("log.request", "ActivitySurrogateSelector")
+    )) ||
+    (exists("log.message") && (
+      contains("log.message", "Validation of viewstate MAC failed") ||
+      contains("log.message", "Invalid viewstate") ||
+      contains("log.message", "ViewState deserialization")
+    ))
+  )
+groupBy:
+  - adversary.ip
+  - target.path

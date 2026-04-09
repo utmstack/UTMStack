@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - suricata
+name: ARP Spoofing Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Network Attack
+technique: "T1557.002 - Adversary-in-the-Middle: ARP Cache Poisoning"
+adversary: origin
+references:
+  - https://suricata.readthedocs.io/en/latest/rules/index.html
+  - https://attack.mitre.org/techniques/T1557/002/
+description: |
+  Detects ARP spoofing and ARP cache poisoning attacks identified by Suricata. ARP spoofing allows attackers to intercept traffic between hosts on the same network segment, enabling man-in-the-middle attacks, credential theft, and session hijacking.
+
+  Next Steps:
+  1. Identify the source MAC address involved in the ARP spoofing
+  2. Locate the physical port and switch where the spoofing originates
+  3. Check if the ARP responses are claiming to be the default gateway
+  4. Review affected hosts for intercepted credentials or modified traffic
+  5. Enable Dynamic ARP Inspection (DAI) on switches if not configured
+  6. Investigate the device for attack tools (Ettercap, Bettercap, arpspoof)
+where: |
+  equals("log.eventType", "alert") &&
+  (contains("log.alert.signature", ["ARP", "arp"]) &&
+   contains("log.alert.signature", ["spoof", "poison", "duplicate", "conflict", "gratuitous"])) &&
+  exists("origin.ip")
+groupBy:
+  - adversary.ip
+  - adversary.mac

@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - vmware-esxi
+name: ESXi Unsigned VIB Installation Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Persistence
+technique: "T1195.002 - Supply Chain Compromise: Compromise Software Supply Chain"
+adversary: origin
+references:
+  - https://www.mandiant.com/resources/blog/esxi-hypervisors-malware-persistence
+  - https://attack.mitre.org/techniques/T1195/002/
+description: |
+  Detects installation of unsigned or community-supported VIB (vSphere Installation Bundle) packages on ESXi hosts. APT groups use malicious VIBs for persistent backdoor access to hypervisors that survive reboots and updates.
+
+  Next Steps:
+  1. Review the installed VIB package details and acceptance level
+  2. Verify the VIB was from an authorized VMware or vendor source
+  3. Check for any changes to ESXi acceptance level (CommunitySupported)
+  4. Examine the VIB contents for malicious payloads
+  5. Remove unauthorized VIBs immediately
+  6. Reset ESXi acceptance level to PartnerSupported or VMwareCertified
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "esxcli software vib install") || contains("log.message", "esxcli software vib update")) ||
+    (contains("log.message", "VIB") && (contains("log.message", "installed") || contains("log.message", "Install"))) ||
+    (contains("log.message", "acceptance level") && contains("log.message", "CommunitySupported")) ||
+    contains("log.message", "--force --no-sig-check") ||
+    (contains("log.message", "esxcli software acceptance") && contains("log.message", "set"))
+  )
+groupBy:
+  - adversary.hostname

@@ -1,0 +1,44 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - postgresql
+name: PostgreSQL COPY TO/FROM PROGRAM RCE Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Code Execution
+technique: "T1005 - Data from Local System"
+adversary: origin
+references:
+  - https://www.postgresql.org/docs/current/sql-copy.html
+  - https://attack.mitre.org/techniques/T1005/
+description: |
+  Detects use of PostgreSQL COPY TO/FROM PROGRAM for remote command execution. This feature allows superusers to execute arbitrary system commands through the database, which attackers exploit after gaining superuser access.
+
+  Next Steps:
+  1. Identify the database user executing the COPY PROGRAM command
+  2. Review the system command being executed
+  3. Check for signs of compromise on the database server
+  4. Verify if the action was part of authorized database operations
+  5. Restrict COPY PROGRAM access to essential superuser accounts only
+  6. Review pg_hba.conf for overly permissive access rules
+where: |
+  exists("log.msg") &&
+  (
+    regexMatch("log.msg", "(?i)COPY\\s+.*\\s+(TO|FROM)\\s+PROGRAM") ||
+    regexMatch("log.msg", "(?i)COPY\\s+\\(.*\\)\\s+TO\\s+PROGRAM") ||
+    (contains("log.msg", "COPY") && contains("log.msg", "PROGRAM") && (
+      contains("log.msg", "/bin/") ||
+      contains("log.msg", "bash") ||
+      contains("log.msg", "curl") ||
+      contains("log.msg", "wget") ||
+      contains("log.msg", "python") ||
+      contains("log.msg", "perl") ||
+      contains("log.msg", "nc ") ||
+      contains("log.msg", "ncat")
+    ))
+  )
+groupBy:
+  - lastEvent.log.sessionId
+  - adversary.host

@@ -1,0 +1,70 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - apache
+name: Apache API Endpoint Enumeration Detection
+impact:
+  confidentiality: 2
+  integrity: 1
+  availability: 1
+category: Discovery
+technique: "T1087 - Account Discovery"
+adversary: origin
+references:
+  - https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/01-Information_Gathering/
+  - https://attack.mitre.org/techniques/T1087/
+description: |
+  Detects rapid sequential API endpoint enumeration by identifying multiple 404/405 responses from the same source IP in a short time window. This indicates an attacker systematically probing for valid API endpoints, hidden resources, or vulnerable paths.
+
+  Next Steps:
+  1. Review the sequence of requested paths to identify the enumeration pattern
+  2. Check if any valid endpoints were discovered during the scan
+  3. Assess whether sensitive API documentation or endpoints were exposed
+  4. Implement rate limiting on the affected endpoints
+  5. Consider deploying a WAF with API protection capabilities
+  6. Block the source IP if scanning is confirmed
+where: |
+  exists("origin.ip") &&
+  (equals("log.statusCode", 404) || equals("log.statusCode", 405)) &&
+  exists("origin.path") &&
+  (
+    contains("origin.path", "/api/") ||
+    contains("origin.path", "/v1/") ||
+    contains("origin.path", "/v2/") ||
+    contains("origin.path", "/v3/") ||
+    contains("origin.path", "/rest/") ||
+    contains("origin.path", "/graphql") ||
+    contains("origin.path", "/swagger") ||
+    contains("origin.path", "/openapi") ||
+    contains("origin.path", "/.env") ||
+    contains("origin.path", "/.git") ||
+    contains("origin.path", "/debug") ||
+    contains("origin.path", "/actuator") ||
+    contains("origin.path", "/healthcheck") ||
+    contains("origin.path", "/metrics")
+  )
+afterEvents:
+  - indexPattern: v11-log-apache-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.statusCode
+        operator: filter_term
+        value: '404'
+    within: now-5m
+    count: 20
+    or:
+      - indexPattern: v11-log-apache-*
+        with:
+          - field: origin.ip
+            operator: filter_term
+            value: '{{.origin.ip}}'
+          - field: log.statusCode
+            operator: filter_term
+            value: '405'
+        within: now-5m
+        count: 20
+deduplicateBy:
+  - adversary.ip
+  - target.ip

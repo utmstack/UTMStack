@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest.logstash_filter;
 
+import com.park.utmstack.aop.logging.AuditEvent;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.logstash_filter.UtmLogstashFilter;
 import com.park.utmstack.domain.logstash_pipeline.UtmGroupLogstashPipelineFilters;
@@ -62,6 +63,12 @@ public class UtmFilterResource {
      * @return the ResponseEntity with status 201 (Created) and with body the new utmLogstashFilter, or with status 400 (Bad Request) if the utmLogstashFilter has already an ID
      */
     @PostMapping
+    @AuditEvent(
+        attemptType = ApplicationEventType.LOGSTASH_FILTER_CREATE_ATTEMPT,
+        attemptMessage = "Attempting to create Logstash filter: {filterName}",
+        successType = ApplicationEventType.LOGSTASH_FILTER_CREATE_SUCCESS,
+        successMessage = "Logstash filter {filterName} created successfully"
+    )
     public ResponseEntity<UtmLogstashFilter> createLogstashFilter(@Valid @RequestBody UtmLogstashFilter logstashFilter,
                                                                   @RequestParam Long pipelineId) {
         final String ctx = CLASSNAME + ".createLogstashFilter";
@@ -105,6 +112,12 @@ public class UtmFilterResource {
      * or with status 500 (Internal Server Error) if the utmLogstashFilter couldn't be updated
      */
     @PutMapping
+    @AuditEvent(
+        attemptType = ApplicationEventType.LOGSTASH_FILTER_UPDATE_ATTEMPT,
+        attemptMessage = "Attempting to update Logstash filter: {filterName}",
+        successType = ApplicationEventType.LOGSTASH_FILTER_UPDATE_SUCCESS,
+        successMessage = "Logstash filter {filterName} updated successfully"
+    )
     public ResponseEntity<UtmLogstashFilter> updateLogstashFilter(@Valid @RequestBody UtmLogstashFilter logstashFilter) {
         final String ctx = CLASSNAME + ".updateLogstashFilter";
         try {
@@ -197,6 +210,12 @@ public class UtmFilterResource {
      * @return the ResponseEntity with status 200 (OK)
      */
     @DeleteMapping("/{id}")
+    @AuditEvent(
+        attemptType = ApplicationEventType.LOGSTASH_FILTER_DELETE_ATTEMPT,
+        attemptMessage = "Attempting to delete Logstash filter with ID: {id}",
+        successType = ApplicationEventType.LOGSTASH_FILTER_DELETE_SUCCESS,
+        successMessage = "Logstash filter with ID {id} deleted successfully"
+    )
     public ResponseEntity<Void> deleteLogstashFilter(@PathVariable Long id) {
         final String ctx = CLASSNAME + ".deleteLogstashFilter";
         try {

@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest.compliance.config;
 
+import com.park.utmstack.aop.logging.AuditEvent;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.compliance.UtmComplianceReportConfig;
 import com.park.utmstack.service.application_events.ApplicationEventService;
@@ -60,6 +61,12 @@ public class UtmComplianceReportConfigResource {
     }
 
     @PostMapping("/report-config")
+    @AuditEvent(
+        attemptType = ApplicationEventType.CONFIG_UPDATE_ATTEMPT,
+        attemptMessage = "Attempting to create compliance report config: {configReportName}",
+        successType = ApplicationEventType.CONFIG_UPDATE_SUCCESS,
+        successMessage = "Compliance report config {configReportName} created successfully"
+    )
     public ResponseEntity<UtmComplianceReportConfig> createComplianceReportConfig(
         @Valid @RequestBody UtmComplianceReportConfig complianceReportConfig) {
         final String ctx = CLASS_NAME + ".createComplianceReportConfig";
@@ -83,6 +90,12 @@ public class UtmComplianceReportConfigResource {
     }
 
     @PutMapping("/report-config")
+    @AuditEvent(
+        attemptType = ApplicationEventType.CONFIG_UPDATE_ATTEMPT,
+        attemptMessage = "Attempting to update compliance report config: {configReportName}",
+        successType = ApplicationEventType.CONFIG_UPDATE_SUCCESS,
+        successMessage = "Compliance report config {configReportName} updated successfully"
+    )
     public ResponseEntity<UtmComplianceReportConfig> updateComplianceReportConfig(
         @Valid @RequestBody UtmComplianceReportConfig complianceReportConfig) {
         final String ctx = CLASS_NAME + ".updateComplianceReportConfig";
@@ -153,6 +166,12 @@ public class UtmComplianceReportConfigResource {
     }
 
     @DeleteMapping("/report-config/{id}")
+    @AuditEvent(
+        attemptType = ApplicationEventType.CONFIG_GROUP_DELETE_ATTEMPT,
+        attemptMessage = "Attempting to delete compliance report config with ID: {id}",
+        successType = ApplicationEventType.CONFIG_GROUP_DELETE_SUCCESS,
+        successMessage = "Compliance report config with ID {id} deleted successfully"
+    )
     public ResponseEntity<Void> deleteComplianceReportConfig(@PathVariable Long id) {
         final String ctx = CLASS_NAME + ".deleteComplianceReportConfig";
         try {
@@ -191,6 +210,12 @@ public class UtmComplianceReportConfigResource {
     }
 
     @PostMapping("/report-config/import")
+    @AuditEvent(
+        attemptType = ApplicationEventType.REPORT_IMPORT_ATTEMPT,
+        attemptMessage = "Attempting to import compliance reports",
+        successType = ApplicationEventType.REPORT_IMPORT_SUCCESS,
+        successMessage = "Compliance reports imported successfully"
+    )
     public ResponseEntity<Void> importReports(@Valid @RequestBody ImportReportsBody body) {
         final String ctx = CLASS_NAME + ".importReports";
         try {

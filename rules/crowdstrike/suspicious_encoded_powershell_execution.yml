@@ -1,0 +1,20 @@
+name: "Suspicious Encoded PowerShell Execution"
+description: "A PowerShell process was spawned with arguments indicating base64 encoded commands (-enc, -EncodedCommand). Malware and threat actors often use this to evade string-based detection."
+category: "Execution"
+technique: "Command and Scripting Interpreter: PowerShell"
+references:
+  - "https://attack.mitre.org/techniques/T1059/001/"
+dataTypes:
+  - crowdstrike
+adversary: origin
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+where: >
+  equals("log.event_simpleName", "ProcessRollup2") && 
+  exists("log.eventCommandLine") && 
+  regexMatch("log.eventCommandLine", "(?i).*(powershell|pwsh).*-(e|en|enc|encodedcommand|ec)\\s+.*")
+groupBy: 
+  - origin.host
+  - lastEvent.log.eventCommandLine

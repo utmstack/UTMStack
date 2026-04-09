@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Azure Subscription Permission Elevation via ElevateAccess
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Privilege Escalation
+technique: "T1078.004 - Valid Accounts: Cloud Accounts"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/azure/role-based-access-control/elevate-access-global-admin
+  - https://attack.mitre.org/techniques/T1078/004/
+description: |
+  Detects the MICROSOFT.AUTHORIZATION/ELEVATEACCESS/ACTION operation which grants a Global Administrator access to ALL Azure subscriptions in the tenant. This is an extremely high-impact action that should be very rare and carefully monitored.
+
+  Next Steps:
+  1. Immediately verify this action was authorized by a known Global Administrator
+  2. Check if a change request or emergency procedure exists for this action
+  3. Review what subscription-level changes were made after the elevation
+  4. Check for new role assignments at the management group or subscription level
+  5. If unauthorized, remove the User Access Administrator role and audit all changes
+  6. Enable Azure PIM (Privileged Identity Management) if not already in use
+where: |
+  regexMatch("log.operationName", "(?i)MICROSOFT\\.AUTHORIZATION/ELEVATEACCESS/ACTION")
+groupBy:
+  - adversary.ip
+  - adversary.user

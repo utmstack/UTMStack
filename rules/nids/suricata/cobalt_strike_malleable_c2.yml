@@ -1,0 +1,58 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - suricata
+name: Cobalt Strike Malleable C2 Profile Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Command and Control
+technique: "T1071.001 - Application Layer Protocol: Web Protocols"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1071/001/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_hktl_cobalt_strike_malleable_c2_requests.yml
+  - https://www.cobaltstrike.com/help-malleable-c2
+description: |
+  Detects HTTP traffic patterns matching known Cobalt Strike malleable C2 profiles. Cobalt Strike operators use malleable C2 profiles to disguise their C2 traffic as legitimate services (Amazon, OCSP, OneDrive, jQuery). This rule matches specific URI patterns, HTTP headers, and user agent combinations that are characteristic of common malleable C2 profiles.
+
+  Next Steps:
+  1. Immediately isolate the source host from the network
+  2. Capture full packet data for the identified C2 sessions
+  3. Perform memory forensics to extract the beacon configuration
+  4. Identify the C2 server infrastructure and block at network perimeter
+  5. Search for additional compromised hosts communicating with the same infrastructure
+  6. Check for lateral movement and credential theft from the compromised host
+  7. Engage incident response procedures for confirmed C2 activity
+where: |
+  equals("log.eventType", "http") &&
+  exists("origin.ip") &&
+  exists("target.ip") &&
+  (
+    (contains("log.http.url", "/s/ref=nb_sb_noss_1/") && contains("log.http.http_user_agent", "Mozilla")) ||
+    (contains("log.http.url", "/MFEwTzBNMEswSTAJBg") && contains("log.http.http_content_type", "application/ocsp-response")) ||
+    (regexMatch("log.http.url", "(?i)/jquery-3\\.[0-9]+\\.[0-9]+\\.min\\.js$") && contains("log.http.http_user_agent", "Mozilla")) ||
+    (contains("log.http.url", "/_api/v2.0/") && contains("log.http.hostname", "onedrive")) ||
+    (contains("log.http.url", "/pixel.gif") && contains("log.http.url", "utmac=")) ||
+    (regexMatch("log.http.url", "(?i)/api/v1/push$") && contains("log.http.http_content_type", "application/octet-stream")) ||
+    (contains("log.http.url", "/updates/") && endsWith("log.http.url", ".cab")) ||
+    (regexMatch("log.http.url", "(?i)/__utm\\.gif\\?utmac=") && contains("log.http.http_user_agent", "Mozilla"))
+  )
+afterEvents:
+  - indexPattern: v11-log-suricata-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: target.ip
+        operator: filter_term
+        value: '{{.target.ip}}'
+      - field: log.eventType
+        operator: filter_term
+        value: 'http'
+    within: now-30m
+    count: 3
+groupBy:
+  - adversary.ip
+  - target.ip

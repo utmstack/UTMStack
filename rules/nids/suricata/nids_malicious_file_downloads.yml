@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - suricata
+name: Malicious File Download Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1105 - Ingress Tool Transfer"
+adversary: target
+references:
+  - https://suricata.readthedocs.io/en/latest/rules/file-keywords.html
+  - https://attack.mitre.org/techniques/T1105/
+description: |
+  Detects downloads of potentially malicious executable files over HTTP identified by Suricata file inspection. This includes PE executables, scripts, and other suspicious file types being transferred from external sources.
+
+  Next Steps:
+  1. Identify the internal host downloading the file
+  2. Review the file hash against threat intelligence databases
+  3. Check if the download was initiated by user action or automated
+  4. Quarantine or delete the downloaded file if confirmed malicious
+  5. Scan the host for additional malware or compromise indicators
+  6. Block the source domain/IP and investigate the delivery mechanism
+where: |
+  equals("log.eventType", "alert") &&
+  (contains("log.alert.signature", ["executable", "EXE download", "PE file", "script download", "malware download"]) ||
+   oneOf("log.alert.category", ["A Network Trojan was detected", "Potentially Bad Traffic", "Misc Attack"]) &&
+   contains("log.alert.signature", ["download", "file"])) &&
+  exists("origin.ip") &&
+  exists("target.ip")
+groupBy:
+  - lastEvent.log.alert.signature
+  - target.ip
+  - target.ip
