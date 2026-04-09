@@ -213,6 +213,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		"GRPC_AGENT_MANAGER_PORT=9000",
 		"EVENT_PROCESSOR_HOST=event-processor-manager",
 		"EVENT_PROCESSOR_PORT=9002",
+		"SOC_AI_BASE_URL=http://event-processor-manager:8090",
 	}
 
 	// Disable TFA in dev and rc environments

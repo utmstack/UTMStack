@@ -21,11 +21,23 @@ type SOCAIConfig struct {
 	AutoAnalyze       bool
 	IncidentCreation  bool
 	ChangeAlertStatus bool
+	Provider          string
 	URL               string
 	Model             string
 	AuthType          string            // "custom-headers", "none"
 	MaxTokens         string
 	CustomHeaders     map[string]string // All headers including auth (from frontend)
+}
+
+var providerDefaultURLs = map[string]string{
+	"openai":    "https://api.openai.com/v1/chat/completions",
+	"anthropic": "https://api.anthropic.com/v1/messages",
+	"azure":     "",
+	"gemini":    "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+	"ollama":    "http://localhost:11434/v1/chat/completions",
+	"mistral":   "https://api.mistral.ai/v1/chat/completions",
+	"deepseek":  "https://api.deepseek.com/chat/completions",
+	"groq":      "https://api.groq.com/openai/v1/chat/completions",
 }
 
 func ValidateSOCAIConfig(cfg *config.ModuleGroup) error {
@@ -83,6 +95,8 @@ func parseSOCAIConfig(cfg *config.ModuleGroup) SOCAIConfig {
 			socai.IncidentCreation = cnf.ConfValue == "true"
 		case "utmstack.socai.changeAlertStatus":
 			socai.ChangeAlertStatus = cnf.ConfValue == "true"
+		case "utmstack.socai.provider":
+			socai.Provider = cnf.ConfValue
 		case "utmstack.socai.url":
 			socai.URL = cnf.ConfValue
 		case "utmstack.socai.model":
@@ -99,6 +113,13 @@ func parseSOCAIConfig(cfg *config.ModuleGroup) SOCAIConfig {
 					fmt.Printf("Warning: Failed to parse customHeaders JSON: %v\n", err)
 				}
 			}
+		}
+	}
+
+	// Resolve URL from provider if not custom
+	if socai.Provider != "" && socai.Provider != "custom" {
+		if defaultURL, ok := providerDefaultURLs[socai.Provider]; ok && defaultURL != "" {
+			socai.URL = defaultURL
 		}
 	}
 

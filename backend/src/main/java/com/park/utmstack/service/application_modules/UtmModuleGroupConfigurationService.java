@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -59,11 +60,27 @@ public class UtmModuleGroupConfigurationService {
         try {
             if (CollectionUtils.isEmpty(keys))
                 throw new ApiException("No configuration keys were provided to update", HttpStatus.BAD_REQUEST);
+
+            // Load existing values from DB to detect unchanged encrypted fields
+            Map<String, String> existingValues = keys.stream()
+                .filter(k -> k.getId() != null)
+                .map(k -> moduleConfigurationRepository.findById(k.getId()).orElse(null))
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toMap(UtmModuleGroupConfiguration::getConfKey,
+                    c -> c.getConfValue() != null ? c.getConfValue() : "", (a, b) -> a));
+
             for (UtmModuleGroupConfiguration key : keys) {
                 if (key.getConfRequired() && !StringUtils.hasText(key.getConfValue()))
                     throw new Exception(String.format("No value was found for required configuration: %1$s (%2$s)", key.getConfName(), key.getConfKey()));
-                if (key.getConfDataType().equals("password") || key.getConfDataType().equals("file"))
+                if (key.getConfDataType().equals("password") || key.getConfDataType().equals("file")) {
+                    String existingEncrypted = existingValues.get(key.getConfKey());
+                    // Only encrypt if the value actually changed (is not the same encrypted value from DB)
+                    if (existingEncrypted != null && existingEncrypted.equals(key.getConfValue())) {
+                        // Value unchanged - already encrypted in DB, don't re-encrypt
+                        continue;
+                    }
                     key.setConfValue(CipherUtil.encrypt(key.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
+                }
             }
             moduleConfigurationRepository.saveAll(keys);
 

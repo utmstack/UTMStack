@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260409002" author="Yorjander">
+        <sql>
+            UPDATE utm_module
+            SET module_description = 'SOC AI uses advanced language models to investigate Security Operations Center alerts by analyzing large volumes of data, identifying patterns, and providing insights into potential security incidents. By leveraging natural language processing capabilities, security analysts can efficiently triage alerts, prioritize threats, and gather contextual information to aid in incident response and remediation.',
+                module_icon = 'soc-ai.svg'
+            WHERE module_name = 'SOC_AI';
+
+            UPDATE utm_module_group_configuration
+            SET conf_visibility = '{"dependsOn": "utmstack.socai.provider", "values": ["custom"]}'
+            WHERE conf_key = 'utmstack.socai.url';
+
+            UPDATE utm_module_group_configuration
+            SET conf_visibility = '{"dependsOn": "utmstack.socai.provider", "values": ["anthropic", "custom"]}'
+            WHERE conf_key = 'utmstack.socai.maxTokens';
+
+            DELETE FROM utm_module_group_configuration
+            WHERE conf_key = 'utmstack.socai.key';
+        </sql>
+    </changeSet>
+</databaseChangeLog>

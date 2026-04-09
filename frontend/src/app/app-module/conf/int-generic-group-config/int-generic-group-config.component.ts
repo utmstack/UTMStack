@@ -23,13 +23,14 @@ import {IntegrationConfigFactory} from './int-config-types/IntegrationConfigFact
   templateUrl: './int-generic-group-config.component.html',
   styleUrls: ['./int-generic-group-config.component.css']
 })
-export class IntGenericGroupConfigComponent implements OnInit, OnDestroy {
+export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDestroy {
   @Input() serverId: number;
   @Input() moduleId: number;
   @Input() groupType = GroupTypeEnum.TENANT;
   @Input() allowAdd = true;
   @Input() editable = true;
   @Input() disablePreAction = false;
+  @Input() hiddenValues: {[confKey: string]: string} = {};
   @Output() configValidChange = new EventEmitter<boolean>();
   @Output() runDisablePreAction = new EventEmitter<boolean>();
   loading = true;
@@ -55,6 +56,12 @@ export class IntGenericGroupConfigComponent implements OnInit, OnDestroy {
               private collectorService: UtmModuleCollectorService,
               public configFactory: IntegrationConfigFactory,
               private cdr: ChangeDetectorRef) {
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.hiddenValues && !changes.hiddenValues.firstChange && this.groups.length > 0) {
+      this.applyHiddenValues();
+    }
   }
 
   ngOnInit() {
@@ -98,9 +105,27 @@ export class IntGenericGroupConfigComponent implements OnInit, OnDestroy {
     return this.config.getIntegrationConfigs(this.moduleId)
         .pipe(
             tap(() => {
+              this.applyHiddenValues();
               this.configValidChange.emit(this.tenantGroupConfigValid());
               this.loading = false;
             }));
+  }
+
+  applyHiddenValues() {
+    if (!this.hiddenValues || Object.keys(this.hiddenValues).length === 0) {
+      return;
+    }
+    for (const group of this.groups) {
+      for (const conf of group.moduleGroupConfigurations) {
+        if (this.hiddenValues[conf.confKey] !== undefined) {
+          const newValue = this.hiddenValues[conf.confKey];
+          if (conf.confValue !== newValue) {
+            conf.confValue = newValue;
+            this.addChange(conf);
+          }
+        }
+      }
+    }
   }
 
   createGroup() {
@@ -397,6 +422,10 @@ export class IntGenericGroupConfigComponent implements OnInit, OnDestroy {
   }
 
   isVisible(integrationConfig: UtmModuleGroupConfType): boolean {
+    // Hide fields that are set via hiddenValues
+    if (this.hiddenValues && this.hiddenValues[integrationConfig.confKey] !== undefined) {
+      return false;
+    }
 
     if (!integrationConfig.confVisibility) {
       return true;
