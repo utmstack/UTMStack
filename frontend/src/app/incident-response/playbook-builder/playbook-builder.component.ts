@@ -69,7 +69,8 @@ export class PlaybookBuilderComponent implements OnInit, OnDestroy {
       agentType: [false],
       excludedAgents: [[]],
       defaultAgent: [''],
-      agentPlatform: ['', Validators.required]
+      agentPlatform: ['', Validators.required],
+      shell: ['cmd']
     });
     this.viewportHeight = window.innerHeight;
   }
@@ -108,7 +109,7 @@ export class PlaybookBuilderComponent implements OnInit, OnDestroy {
         this.rulePrefix = getElementPrefix(this.rule.name);
 
 
-        this.formRule.patchValue(ruleData, { emitEvent: false });
+        this.formRule.patchValue(ruleData);
 
         const name = this.formRule.get('name').value;
         this.formRule.get('name').setValue(this.replacePrefixInName(name));
