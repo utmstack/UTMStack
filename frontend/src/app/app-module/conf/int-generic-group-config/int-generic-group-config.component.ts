@@ -198,8 +198,9 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDest
       })
     ).subscribe({
       next: () => {
-        this.pendingChanges = false;
-        this.changes = { keys: [], moduleId: this.moduleId };
+        // Remove only the saved group's changes, keep other groups' changes
+        this.changes.keys = this.changes.keys.filter(k => k.groupId !== group.id);
+        this.pendingChanges = this.changes.keys.length > 0;
         this.configValidChange.emit(this.tenantGroupConfigValid());
         this.toast.showSuccessBottom('Configuration saved successfully');
       },
