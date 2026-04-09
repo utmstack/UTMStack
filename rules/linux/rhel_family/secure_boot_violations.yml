@@ -1,7 +1,7 @@
 # Rule version v1.0.0
 
 dataTypes:
-  - rsyslog-linux
+  - linux
 name: RHEL Secure Boot Violation Detection
 impact:
   confidentiality: 2

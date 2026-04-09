@@ -1,7 +1,7 @@
 # Rule version v1.0.0
 
 dataTypes:
-  - rsyslog-linux
+  - linux
 name: YUM/DNF Repository Manipulation Attack
 impact:
   confidentiality: 3
