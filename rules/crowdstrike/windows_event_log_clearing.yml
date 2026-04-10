@@ -1,0 +1,20 @@
+name: "CrowdStrike Hunting: Windows Event Log Clearing"
+description: "A raw process execution was detected attempting to clear Windows Event Logs. Adversaries use this technique to cover their tracks after compromising a host."
+category: "Defense Evasion"
+technique: "Indicator Removal: Clear Windows Event Logs"
+references:
+  - "https://attack.mitre.org/techniques/T1070/001/"
+dataTypes:
+  - crowdstrike
+adversary: origin
+impact:
+  confidentiality: 0
+  integrity: 3
+  availability: 2
+where: >
+  equals("log.event_simpleName", "ProcessRollup2") && 
+  exists("log.eventCommandLine") && 
+  regexMatch("log.eventCommandLine", "(?i).*(wevtutil\\s+cl.*|Clear-EventLog.*|Remove-EventLog.*).*")
+groupBy: 
+  - origin.host
+  - origin.user

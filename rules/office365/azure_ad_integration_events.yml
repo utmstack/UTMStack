@@ -1,49 +1,48 @@
-- id: 1011
-  dataTypes:
-    - o365
-  name: Azure AD Integration Suspicious Activity
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 2
-  category: Identity and Access Management
-  technique: "T1098 - Account Manipulation"
-  adversary: origin
-  references:
-    - https://learn.microsoft.com/en-us/purview/audit-log-activities
-    - https://attack.mitre.org/techniques/T1098/
-  description: |
-    Detects suspicious Azure Active Directory integration events including multiple failed authentication attempts, unusual role assignments, or bulk user modifications that could indicate an attempted compromise of identity management systems. This rule identifies patterns of authentication failures, privilege escalations, and bulk account modifications that may suggest malicious activity targeting the organization's identity infrastructure.
-    
-    Next Steps:
-    1. Review the specific Azure AD activity details and affected user accounts
-    2. Analyze the frequency and timing of the detected events for patterns
-    3. Verify the legitimacy of any role assignments or user modifications
-    4. Check for concurrent suspicious activities from the same IP address or user
-    5. Review Azure AD sign-in logs for additional context around failed authentications
-    6. Validate whether the activities align with known business processes or authorized administrative tasks
-    7. Consider implementing additional monitoring for the affected accounts
-    8. If malicious activity is confirmed, immediately review and revoke any unauthorized permissions or access
-  where: |
-    safe(log.Workload, "") == "AzureActiveDirectory" && 
-    (
-      (safe(action, "") == "UserLoginFailed" && safe(actionResult, "") == "Failed") ||
-      (safe(action, "") == "Add member to role" && safe(actionResult, "") == "Success") ||
-      (safe(action, "") == "Update user" && safe(actionResult, "") == "Success") ||
-      (safe(action, "") == "Delete user" && safe(actionResult, "") == "Success") ||
-      (safe(action, "") == "Add service principal" && safe(actionResult, "") == "Success")
-    )
-  afterEvents:
-    - indexPattern: v11-log-o365-*
-      with:
-        - field: origin.user.keyword
-          operator: filter_term
-          value: '{{origin.user}}'
-        - field: log.Workload.keyword
-          operator: filter_term
-          value: 'AzureActiveDirectory'
-      within: now-15m
-      count: 10
-  deduplicateBy:
-    - origin.user
-    - origin.ip
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Azure AD Integration Suspicious Activity
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: Identity and Access Management
+technique: "T1098 - Account Manipulation"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/purview/audit-log-activities
+  - https://attack.mitre.org/techniques/T1098/
+description: |
+  Detects suspicious Azure Active Directory integration events including multiple failed authentication attempts, unusual role assignments, or bulk user modifications that could indicate an attempted compromise of identity management systems. This rule identifies patterns of authentication failures, privilege escalations, and bulk account modifications that may suggest malicious activity targeting the organization's identity infrastructure.
+  
+  Next Steps:
+  1. Review the specific Azure AD activity details and affected user accounts
+  2. Analyze the frequency and timing of the detected events for patterns
+  3. Verify the legitimacy of any role assignments or user modifications
+  4. Check for concurrent suspicious activities from the same IP address or user
+  5. Review Azure AD sign-in logs for additional context around failed authentications
+  6. Validate whether the activities align with known business processes or authorized administrative tasks
+  7. Consider implementing additional monitoring for the affected accounts
+  8. If malicious activity is confirmed, immediately review and revoke any unauthorized permissions or access
+where: |
+  equals("log.Workload", "AzureActiveDirectory") &&
+  (
+    (equals("action", "Add member to role") && equals("actionResult", "Success")) ||
+    (equals("action", "Delete user") && equals("actionResult", "Success")) ||
+    (equals("action", "Add service principal") && equals("actionResult", "Success"))
+  )
+afterEvents:
+  - indexPattern: v11-log-o365-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: log.Workload
+        operator: filter_term
+        value: 'AzureActiveDirectory'
+    within: now-15m
+    count: 5
+groupBy:
+  - adversary.ip
+  - adversary.user

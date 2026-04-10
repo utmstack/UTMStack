@@ -1,0 +1,22 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "wineventlog"
+name: "Windows: UAC Bypass Attempt via Privileged IFileOperation COM Interface"
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 2
+category: "Privilege Escalation"
+technique: "T1548.002 - Abuse Elevation Control Mechanism: Bypass User Account Control"
+adversary: origin
+description: "Identifies attempts to bypass User Account Control (UAC) via DLL side-loading. Attackers may attempt to bypass UAC to
+              stealthily execute code with elevated permissions."
+references:
+  - "https://attack.mitre.org/tactics/TA0004/"
+  - "https://attack.mitre.org/techniques/T1548/002/"
+where: regexMatch("log.eventDataFileName", "(wow64log.dll|comctl32.dll|DismCore.dll|OskSupport.dll|duser.dll|Accessibility.ni.dll)") &&
+       regexMatch("log.eventDataProcessName", "(dllhost.exe|eventvwr.exe|computerdefaults.exe|sdclt.exe|fodhelper.exe|wsreset.exe|slui.exe)") && !regexMatch("log.eventDataFileName", "(C:\\\\Windows\\\\SoftwareDistribution\\\\|C:\\\\Windows\\\\WinSxS\\\\)")
+groupBy:
+  - origin.ip
+  - target.user

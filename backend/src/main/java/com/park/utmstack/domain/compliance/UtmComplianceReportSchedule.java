@@ -7,9 +7,12 @@ import com.park.utmstack.domain.compliance.types.IndexPatternWithFilterType;
 import com.park.utmstack.util.UtilSerializer;
 import com.park.utmstack.util.exceptions.UtmSerializationException;
 
+import com.park.utmstack.service.dto.auditable.AuditableDTO;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 
@@ -18,7 +21,7 @@ import javax.validation.constraints.Size;
  */
 @Entity
 @Table(name = "utm_compliance_report_schedule")
-public class UtmComplianceReportSchedule implements Serializable {
+public class UtmComplianceReportSchedule implements Serializable, AuditableDTO {
 
     private static final long serialVersionUID = 1L;
 
@@ -122,6 +125,14 @@ public class UtmComplianceReportSchedule implements Serializable {
 
     public void setUrlWithParams(String urlWithParams) {
         this.urlWithParams = urlWithParams;
+    }
+
+    @Override
+    public Map<String, Object> toAuditMap() {
+        return Map.of(
+            "complianceId", complianceId != null ? complianceId : "",
+            "scheduleString", scheduleString != null ? scheduleString : ""
+        );
     }
 
     @Override

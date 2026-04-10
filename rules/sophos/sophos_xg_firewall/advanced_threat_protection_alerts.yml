@@ -1,29 +1,40 @@
-- id: 1001
-  dataTypes:
-    - firewall-sophos-xg
-  name: Sophos XG Advanced Threat Protection Alert
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 2
-  category: Malware
-  technique: "T1204 - User Execution"
-  adversary: origin
-  references:
-    - https://docs.sophos.com/nsg/sophos-firewall/20.0/Help/en-us/webhelp/onlinehelp/AdministratorHelp/AdvancedProtection/index.html
-    - https://attack.mitre.org/techniques/T1204/
-  description: |
-    Detects when Sophos XG Firewall's Advanced Threat Protection (ATP) identifies malicious activity, including sandboxing results, malware detection, and zero-day threats. This rule triggers on ATP events indicating threat detection, malware identification, or virus findings.
-    
-    Next Steps:
-    1. Immediately isolate the affected host from the network
-    2. Review the ATP threat details and sandbox analysis results
-    3. Check for any file transfers or downloads from the source IP
-    4. Scan the internal network for indicators of compromise
-    5. Update threat intelligence feeds and firewall signatures
-    6. Review user activity from the affected source
-    7. Consider reimaging the affected system if malware is confirmed
-  where: safe(log.type, "") == "ATP" && safe(log.component, "") == "Threat Protection" && (safe(log.subType, "") == "Malware" || safe(log.subType, "") == "Threat" || safe(log.virus, "") != "" || (safe(log.logMessage, "") != "" && (contains(safe(log.logMessage, ""), "malware") || contains(safe(log.logMessage, ""), "threat") || contains(safe(log.logMessage, ""), "virus"))))
-  deduplicateBy:
-    - origin.ip
-    - target.ip
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-sophos-xg
+name: Sophos XG Advanced Threat Protection Alert
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Malware
+technique: "T1204 - User Execution"
+adversary: origin
+references:
+  - https://docs.sophos.com/nsg/sophos-firewall/20.0/Help/en-us/webhelp/onlinehelp/AdministratorHelp/AdvancedProtection/index.html
+  - https://attack.mitre.org/techniques/T1204/
+description: |
+  Detects when Sophos XG Firewall's Advanced Threat Protection (ATP) identifies malicious activity, including sandboxing results, malware detection, and zero-day threats. This rule triggers on ATP events indicating threat detection, malware identification, or virus findings.
+
+  Next Steps:
+  1. Immediately isolate the affected host from the network
+  2. Review the ATP threat details and sandbox analysis results
+  3. Check for any file transfers or downloads from the source IP
+  4. Scan the internal network for indicators of compromise
+  5. Update threat intelligence feeds and firewall signatures
+  6. Review user activity from the affected source
+  7. Consider reimaging the affected system if malware is confirmed
+where: |
+  equals("log.type", "ATP") && equals("log.component", "Threat Protection") &&
+  (oneOf("log.subType", ["Malware", "Threat"]) || exists("log.virus"))
+afterEvents:
+  - indexPattern: v11-log-firewall-sophos-xg-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-30m
+    count: 2
+groupBy:
+  - adversary.ip
+  - target.ip

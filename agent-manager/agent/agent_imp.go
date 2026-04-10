@@ -29,11 +29,18 @@ type AgentService struct {
 	AgentStreamMap        map[uint]AgentService_AgentStreamServer
 	AgentStreamMutex      sync.Mutex
 	CacheAgentKey         map[uint]string
-	CacheAgentKeyMutex    sync.Mutex
+	CacheAgentKeyMutex    sync.RWMutex
 	CommandResultChannel  map[string]chan *CommandResult
 	CommandResultChannelM sync.Mutex
 
 	DBConnection *database.DB
+}
+
+func (s *AgentService) ValidateAgentKey(key string, id uint) bool {
+	s.CacheAgentKeyMutex.RLock()
+	defer s.CacheAgentKeyMutex.RUnlock()
+	_, valid := utils.IsKeyPairValid(key, id, s.CacheAgentKey)
+	return valid
 }
 
 func InitAgentService() error {
@@ -338,20 +345,35 @@ func (s *AgentService) ProcessCommand(stream PanelService_ProcessCommandServer) 
 			return status.Errorf(codes.Internal, "failed to send command to agent: %v", err)
 		}
 
-		result := <-s.CommandResultChannel[cmdID]
-		err = s.DBConnection.Upsert(
-			&models.AgentCommand{},
-			"agent_id = ? AND cmd_id = ?",
-			map[string]interface{}{"command_status": models.Executed, "result": result.Result},
-			cmd.AgentId, cmdID,
-		)
-		if err != nil {
-			catcher.Error("failed to update command status", err, map[string]any{"process": "agent-manager"})
-		}
+		select {
+		case result := <-s.CommandResultChannel[cmdID]:
+			err = s.DBConnection.Upsert(
+				&models.AgentCommand{},
+				"agent_id = ? AND cmd_id = ?",
+				map[string]interface{}{"command_status": models.Executed, "result": result.Result},
+				cmd.AgentId, cmdID,
+			)
+			if err != nil {
+				catcher.Error("failed to update command status", err, map[string]any{"process": "agent-manager"})
+			}
 
-		err = stream.Send(result)
-		if err != nil {
-			return err
+			err = stream.Send(result)
+			if err != nil {
+				return err
+			}
+		case <-time.After(5 * time.Minute):
+			s.CommandResultChannelM.Lock()
+			delete(s.CommandResultChannel, cmdID)
+			s.CommandResultChannelM.Unlock()
+
+			_ = s.DBConnection.Upsert(
+				&models.AgentCommand{},
+				"agent_id = ? AND cmd_id = ?",
+				map[string]interface{}{"command_status": models.Error, "result": "command timed out after 5 minutes"},
+				cmd.AgentId, cmdID,
+			)
+
+			return status.Errorf(codes.DeadlineExceeded, "agent did not respond within 5 minutes")
 		}
 
 		s.CommandResultChannelM.Lock()

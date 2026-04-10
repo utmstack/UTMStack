@@ -1,0 +1,28 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "aws"
+name: "AWS Config Service Tampering"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: "Defense Evasion"
+technique: "T1562 - Impair Defenses"
+adversary: origin
+description: "Identifies attempts to delete an AWS Config Service resource. An adversary may tamper with Config services in order to reduce visibility into the security posture of an account and / or its workload instances"
+references:
+  - "https://attack.mitre.org/tactics/TA0005/"
+  - "https://attack.mitre.org/techniques/T1562/"
+  - "https://docs.aws.amazon.com/config/latest/developerguide/how-does-config-work.html"
+  - "https://docs.aws.amazon.com/config/latest/APIReference/API_Operations.html"
+where: |
+  equals("log.eventSource", "config.amazonaws.com") &&
+  oneOf("log.eventName", ["DeleteConfigRule", "DeleteOrganizationConfigRule",
+  "DeleteConfigurationAggregator", "DeleteConfigurationRecorder",
+  "DeleteConformancePack", "DeleteOrganizationConformancePack",
+  "DeleteDeliveryChannel", "DeleteRemediationConfiguration",
+  "DeleteRetentionConfiguration"])
+groupBy:
+  - adversary.ip
+  - adversary.user

@@ -119,11 +119,14 @@
                  && integrationConfig.confDataType !== 'select'
                  && integrationConfig.confDataType !== 'file'"
                    (input)="addChange(integrationConfig)"
+                   (focus)="onPasswordFocus(integrationConfig)"
+                   (blur)="onPasswordBlur(integrationConfig)"
                    [(ngModel)]="integrationConfig.confValue"
                    [attr.autocomplete]="'disabled'"
                    [id]="'sectionParam'+integrationConfig.id"
                    [name]="integrationConfig.confName"
                    [type]="integrationConfig.confDataType"
+                   [placeholder]="integrationConfig.confDataType === 'password' ? 'Enter new value to change' : ''"
                    (ngModelChange)="integrationConfig.confOptions === 'unique' ? inputChange$.next({id: integrationConfig.groupId, value: $event}) : null"
                    class="form-control" [required]="integrationConfig.confRequired">
 

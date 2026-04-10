@@ -45,16 +45,6 @@ public class ModuleSocAi implements IModule {
     public List<ModuleConfigurationKey> getConfigurationKeys(Long groupId) throws Exception {
         List<ModuleConfigurationKey> keys = new ArrayList<>();
 
-        // soc_ai_key
-        keys.add(ModuleConfigurationKey.builder()
-            .withGroupId(groupId)
-            .withConfKey("utmstack.socai.key")
-            .withConfName("Key")
-            .withConfDescription("OpenAI Connection key")
-            .withConfDataType("password")
-            .withConfRequired(true)
-            .build());
-
         keys.add(ModuleConfigurationKey.builder()
             .withGroupId(groupId)
             .withConfKey("utmstack.socai.incidentCreation")

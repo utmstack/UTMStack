@@ -1,0 +1,64 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: Golden Ticket Attack Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Credential Access
+technique: "T1558.001 - Steal or Forge Kerberos Tickets: Golden Ticket"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1558/001/
+  - https://adsecurity.org/?p=1640
+  - https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=4769
+description: |
+  Detects Golden Ticket attacks where adversaries forge Kerberos TGTs using the KRBTGT account
+  hash, granting unlimited domain access. The rule detects anomalous TGT usage patterns including
+  TGS requests with unusual encryption types, tickets with abnormally long lifetimes, and Kerberos
+  authentication from non-domain-controller sources for the KRBTGT service.
+
+  Next Steps:
+  1. Immediately verify if the KRBTGT account password has been compromised
+  2. Reset the KRBTGT password TWICE to invalidate all existing tickets
+  3. Identify the source host and investigate for full domain compromise
+  4. Review all domain admin activity from the suspected timeframe
+  5. Check for DCSync or NTDS.dit extraction as precursor activities
+  6. Audit all privileged account access across the domain
+  7. Consider rebuilding the domain if compromise is confirmed
+  8. Implement Kerberos armoring and constrained delegation
+where: |
+  (
+    equals("log.eventCode", "4769") &&
+    equals("log.channel", "Security") &&
+    equals("log.eventDataServiceName", "krbtgt") &&
+    !equals("log.eventDataStatus", "0") &&
+    exists("origin.ip")
+  ) ||
+  (
+    equals("log.eventCode", "4768") &&
+    equals("log.channel", "Security") &&
+    !oneOf("log.eventDataTicketEncryptionType", ["18", "17"]) &&
+    exists("target.user") &&
+    !regexMatch("target.user", "(?i)\\$$")
+  ) ||
+  (
+    equals("log.eventCode", "4672") &&
+    equals("log.channel", "Security") &&
+    contains("log.eventDataPrivilegeList", "SeTcbPrivilege") &&
+    !regexMatch("log.eventDataSubjectUserName", "(?i)^(SYSTEM|LOCAL SERVICE|NETWORK SERVICE)$") &&
+    !regexMatch("log.eventDataSubjectUserName", "(?i)\\$$")
+  )
+afterEvents:
+  - indexPattern: v11-log-wineventlog-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+    within: now-30m
+    count: 3
+groupBy:
+  - origin.host
+  - target.user

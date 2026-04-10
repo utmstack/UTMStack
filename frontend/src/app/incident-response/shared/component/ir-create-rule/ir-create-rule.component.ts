@@ -58,7 +58,8 @@ export class IrCreateRuleComponent implements OnInit {
       agentType: [false],
       excludedAgents: [[]],
       defaultAgent: [''],
-      agentPlatform: ['', Validators.required]
+      agentPlatform: ['', Validators.required],
+      shell: ['cmd']
     });
     this.getPlatforms();
   }
@@ -71,6 +72,7 @@ export class IrCreateRuleComponent implements OnInit {
       this.formRule.patchValue(this.rule, {emitEvent: false});
       const name = this.formRule.get('name').value;
       this.formRule.get('name').setValue(this.replacePrefixInName(name));
+      this.command = this.rule.command;
       for (const condition of this.rule.conditions) {
         this.getValuesForField(condition.field);
         const ruleCondition = this.fb.group({
@@ -78,13 +80,9 @@ export class IrCreateRuleComponent implements OnInit {
           value: [condition.value, Validators.required],
           operator: [condition.operator]
         });
-        this.command = this.rule.command;
         this.ruleConditions.push(ruleCondition);
-        this.getAgents(this.formRule.get('agentPlatform').value);
-        this.formRule.get('excludedAgents').setValue(this.rule.excludedAgents);
-        this.formRule.get('agentType').setValue(this.rule.excludedAgents.length === 0 && this.rule.defaultAgent !== '');
-        this.formRule.get('defaultAgent').setValue(this.rule.defaultAgent);
       }
+      this.loadAgentsForEdit(this.formRule.get('agentPlatform').value);
     } else if (this.alert) {
       const alertName = this.getValueFromAlert(ALERT_NAME_FIELD);
       const ruleName = this.rulePrefix + alertName;
@@ -140,6 +138,9 @@ export class IrCreateRuleComponent implements OnInit {
   }
 
   removeRuleCondition(index: number) {
+    if (index === 0) {
+      return;
+    }
     this.ruleConditions.removeAt(index);
   }
 
@@ -162,9 +163,24 @@ export class IrCreateRuleComponent implements OnInit {
     });
   }
 
+  isWindows(): boolean {
+    const platform = this.formRule.get('agentPlatform').value;
+    return platform && platform.toLowerCase() === 'windows';
+  }
+
+  loadAgentsForEdit(platform: any) {
+    this.utmNetScanService.query({page: 0, size: 10000, agent: true, osPlatform: platform}).subscribe(response => {
+      this.agents = response.body;
+      if (this.agents.length === 1) {
+        this.formRule.get('excludedAgents').disable();
+      }
+    });
+  }
+
   getAgents(platform: any) {
     this.formRule.get('excludedAgents').setValue([]);
     this.formRule.get('defaultAgent').setValue('');
+    this.formRule.get('shell').setValue(this.isWindows() ? 'cmd' : null);
     this.utmNetScanService.query({page: 0, size: 10000, agent: true, osPlatform: platform}).subscribe(response => {
       this.agents = response.body;
       if (this.agents.length  === 1) {

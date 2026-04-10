@@ -1,0 +1,49 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - ibm-aix
+name: IBM AIX NIM Master Exploitation Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Lateral Movement
+technique: "T1210 - Exploitation of Remote Services"
+adversary: origin
+references:
+  - https://www.ibm.com/docs/en/aix/7.2?topic=management-network-installation-nim
+  - https://attack.mitre.org/techniques/T1210/
+description: |
+  Detects exploitation of IBM AIX Network Installation Management (NIM) master to deploy malicious packages, modify client configurations, or perform lateral movement across AIX infrastructure.
+
+  Next Steps:
+  1. Verify the NIM operations were authorized
+  2. Review NIM client configurations for unauthorized changes
+  3. Check for malicious LPP/installp packages in NIM resources
+  4. Verify NIM master access controls
+  5. Review NIM client machine definitions
+  6. Audit NIM operation logs for unauthorized deployments
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "nim") && (
+      contains("log.message", "define") ||
+      contains("log.message", "cust") ||
+      contains("log.message", "maint") ||
+      contains("log.message", "bos_inst") ||
+      contains("log.message", "alt_disk_install")
+    )) ||
+    (contains("log.message", "nimclient") && contains("log.message", "-o")) ||
+    (contains("log.message", "NIM") && contains("log.message", "push") && contains("log.message", "operation")) ||
+    (contains("log.message", "lpp_source") && contains("log.message", "define"))
+  )
+afterEvents:
+  - indexPattern: v11-log-ibm-aix-*
+    with:
+      - field: origin.host
+        operator: filter_term
+        value: '{{.origin.host}}'
+    within: now-30m
+    count: 3
+groupBy:
+  - adversary.host

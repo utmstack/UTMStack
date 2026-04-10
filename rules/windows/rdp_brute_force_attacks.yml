@@ -1,43 +1,44 @@
-- id: 1031
-  dataTypes:
-    - wineventlog
-  name: RDP Brute Force Attack
-  impact:
-    confidentiality: 3
-    integrity: 2
-    availability: 2
-  category: Brute Force
-  technique: "T1110.001 - Brute Force: Password Guessing"
-  adversary: origin
-  references:
-    - https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=4625
-    - https://attack.mitre.org/techniques/T1110/001/
-  description: |
-    Detects multiple failed RDP login attempts from the same source IP address, indicating a potential brute force attack. This rule monitors Windows Event ID 4625 (failed logon) with focus on network logon types (type 3) which are commonly used for RDP connections. The rule triggers when 10 or more failed attempts occur from the same IP within 15 minutes.
-    
-    Next Steps:
-    1. Investigate the source IP address for malicious indicators and geolocation
-    2. Check if the targeted user accounts are legitimate and active
-    3. Review successful logons from the same IP after failed attempts
-    4. Implement IP blocking or rate limiting for the source address
-    5. Enable account lockout policies if not already configured
-    6. Consider implementing multi-factor authentication for RDP access
-    7. Review RDP access logs for any successful connections during the attack timeframe
-  where: safe(log.eventCode, "") == "4625" && safe(log.winlogEventDataLogonType, "") == "3" && safe(log.winlogEventDataIpAddress, "") != "" && safe(log.winlogEventDataIpAddress, "") != "-" && safe(log.winlogEventDataIpAddress, "") != "::1" && safe(log.winlogEventDataIpAddress, "") != "127.0.0.1"
-  afterEvents:
-    - indexPattern: v11-log-wineventlog-*
-      with:
-        - field: log.winlogEventDataIpAddress.keyword
-          operator: filter_term
-          value: '{{log.winlogEventDataIpAddress}}'
-        - field: log.eventCode.keyword
-          operator: filter_term
-          value: '4625'
-        - field: log.winlogEventDataLogonType.keyword
-          operator: filter_term
-          value: '3'
-      within: now-15m
-      count: 10
-  deduplicateBy:
-    - adversary.ip
-    - target.host
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: RDP Brute Force Attack
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: Credential Access
+technique: "T1110.001 - Brute Force: Password Guessing"
+adversary: origin
+references:
+  - https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=4625
+  - https://attack.mitre.org/techniques/T1110/001/
+description: |
+  Detects multiple failed RDP login attempts from the same source IP address, indicating a potential brute force attack. This rule monitors Windows Event ID 4625 (failed logon) with focus on network logon types (type 3) which are commonly used for RDP connections. The rule triggers when 10 or more failed attempts occur from the same IP within 15 minutes.
+  
+  Next Steps:
+  1. Investigate the source IP address for malicious indicators and geolocation
+  2. Check if the targeted user accounts are legitimate and active
+  3. Review successful logons from the same IP after failed attempts
+  4. Implement IP blocking or rate limiting for the source address
+  5. Enable account lockout policies if not already configured
+  6. Consider implementing multi-factor authentication for RDP access
+  7. Review RDP access logs for any successful connections during the attack timeframe
+where: equals("log.eventCode", "4625") && equals("log.eventDataLogonType", "3") && exists("origin.ip") && !equals("origin.ip", "-") && !equals("origin.ip", "::1") && !equals("origin.ip", "127.0.0.1")
+afterEvents:
+  - indexPattern: v11-log-wineventlog-*
+    with:
+      - field: origin.ip.keyword
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.eventCode
+        operator: filter_term
+        value: '4625'
+      - field: log.eventDataLogonType
+        operator: filter_term
+        value: '3'
+    within: now-15m
+    count: 10
+groupBy:
+  - origin.ip
+  - target.host

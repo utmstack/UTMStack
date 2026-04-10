@@ -1,0 +1,24 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "sophos-central"
+name: "Man in the Middle Attack detected in Sophos Central"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: "Credential Access"
+technique: "T1557 - Adversary-in-the-Middle"
+adversary: origin
+references:
+  - "https://attack.mitre.org/tactics/TA0006/"
+  - "https://attack.mitre.org/techniques/T1557/"
+description: "Adversaries may attempt to position themselves between two or more networked devices 
+              using an adversary-in-the-middle technique to support follow-on behaviors such as Network Sniffing 
+              or Transmitted Data Manipulation. By abusing features of common networking protocols that can determine 
+              the flow of network traffic (e.g. ARP, DNS, LLMNR, etc.), adversaries may force a device to communicate 
+              through an adversary controlled system so they can collect information or perform additional actions."
+where: contains("log.type", "Event::Smc::MitmAttackEvent")
+groupBy:
+  - adversary.host
+  - adversary.ip

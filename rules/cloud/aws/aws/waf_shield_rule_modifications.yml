@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS WAF and Shield Rule Modifications
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects modifications or deletions of AWS WAF web ACLs and rules which could be used to remove web application protections before launching an attack. Attackers may disable WAF rules to allow malicious traffic or remove rate limiting protections.
+
+  Next Steps:
+  1. Verify if the WAF modification was authorized through change management
+  2. Review the specific rules or web ACL that were modified or deleted
+  3. Check the IAM principal and source IP performing the change
+  4. Assess whether any web applications are now exposed without WAF protection
+  5. Review recent web application logs for attack attempts following the WAF change
+  6. If unauthorized, restore the WAF configuration from backup or AWS Config
+  7. Implement IAM policies to restrict WAF modification access
+  8. Enable AWS Config rules to monitor WAF configuration compliance
+where: |
+  (equals("log.eventSource", "wafv2.amazonaws.com") || equals("log.eventSource", "waf.amazonaws.com")) &&
+  oneOf("log.eventName", ["DeleteWebACL", "DeleteRule", "DeleteRuleGroup", "UpdateWebACL", "DeleteIPSet", "DeleteRegexPatternSet", "DisassociateWebACL"]) &&
+  equals("log.errorCode", "")
+groupBy:
+  - adversary.user
+  - lastEvent.log.eventName

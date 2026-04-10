@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - github
+name: GitHub Repository Visibility Changed to Public
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Data Exfiltration
+technique: "T1537 - Transfer Data to Cloud Account"
+adversary: origin
+references:
+  - https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility
+  - https://attack.mitre.org/techniques/T1537/
+description: |
+  Detects when a private repository's visibility is changed to public, potentially exposing proprietary source code, credentials, and sensitive configuration. This is a critical event that can lead to data exposure and intellectual property theft.
+
+  Next Steps:
+  1. Immediately verify if the visibility change was authorized
+  2. Review the repository contents for secrets, credentials, and proprietary code
+  3. Check if the repository was cloned or forked after becoming public
+  4. Scan the repository for exposed API keys, passwords, and tokens
+  5. If unauthorized, immediately revert the repository to private
+  6. Rotate any secrets or credentials found in the repository
+  7. Review the repository's commit history for sensitive data
+  8. Implement organization policy to prevent public repository creation
+where: |
+  (equals("log.action", "repo.access") ||
+   equals("log.action", "repo.visibility_change") ||
+   equals("log.action", "repo.update")) &&
+  equals("log.visibility", "public") &&
+  exists("log.senderLogin")
+groupBy:
+  - lastEvent.log.repositoryName
+  - lastEvent.log.senderLogin

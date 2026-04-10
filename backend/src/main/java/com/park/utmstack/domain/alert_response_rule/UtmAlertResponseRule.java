@@ -64,6 +64,10 @@ public class UtmAlertResponseRule implements Serializable {
     @Column(name = "last_modified_date")
     private Instant lastModifiedDate;
 
+    @Size(max = 20)
+    @Column(name = "rule_shell", length = 20)
+    private String ruleShell;
+
     @Column(name = "system_owner", nullable = false)
     private Boolean systemOwner;
 
@@ -92,6 +96,7 @@ public class UtmAlertResponseRule implements Serializable {
         this.ruleActive = dto.getActive();
         this.agentPlatform = dto.getAgentPlatform();
         this.defaultAgent = dto.getDefaultAgent();
+        this.ruleShell = dto.getShell();
         this.systemOwner = dto.getSystemOwner();
         if (!CollectionUtils.isEmpty(dto.getExcludedAgents()))
             this.excludedAgents = String.join(",", dto.getExcludedAgents());

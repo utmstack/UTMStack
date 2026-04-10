@@ -102,6 +102,12 @@ public class TfaResource {
     }
 
     @PostMapping("/complete")
+    @AuditEvent(
+        attemptType = ApplicationEventType.TFA_ENABLE_ATTEMPT,
+        attemptMessage = "Attempting to modify MFA configuration",
+        successType = ApplicationEventType.TFA_ENABLE_SUCCESS,
+        successMessage = "MFA configuration modified successfully"
+    )
     public ResponseEntity<Void> completeTfa(@RequestBody TfaSaveRequest request) {
         final String ctx = CLASSNAME + ".completeTfa";
         try {

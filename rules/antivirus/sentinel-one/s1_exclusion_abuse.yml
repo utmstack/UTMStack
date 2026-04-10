@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: SentinelOne Suspicious Exclusion Addition
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://support.sentinelone.com/
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects suspicious additions to SentinelOne exclusion or allowlist entries, which attackers abuse to prevent detection of their malware or tools after gaining console access.
+
+  Next Steps:
+  1. Review the specific exclusion or allowlist entry that was added
+  2. Identify the administrator who made the change
+  3. Check if the excluded path or hash corresponds to known malware
+  4. Verify the change through change management records
+  5. Remove unauthorized exclusions immediately
+  6. Audit the admin account for compromise indicators
+  7. Scan endpoints for threats in previously excluded locations
+where: |
+  ((contains("log.eventDescription", "exclusion") || contains("log.eventDescription", "allowlist") ||
+    contains("log.eventDescription", "whitelist") || contains("log.eventDescription", "exception")) &&
+   (contains("log.eventDescription", "added") || contains("log.eventDescription", "created") ||
+    contains("log.eventDescription", "modified"))) ||
+  oneOf("log.activityType", ["exclusion_created", "whitelist_created", "exclusion_modified"])
+groupBy:
+  - lastEvent.log.activityType
+  - adversary.host

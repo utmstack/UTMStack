@@ -1,0 +1,22 @@
+# Rule version v1.0.2
+dataTypes:
+  - wineventlog
+name: "Windows: Persistence via PowerShell profile"
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: "Persistence"
+technique: "T1546.013 - Event Triggered Execution: PowerShell Profile"
+adversary: origin
+description: "Identifies the creation or modification of a PowerShell profile. PowerShell profile is a script that is executed when
+              PowerShell starts to customize the user environment, which can be abused by attackers to persist in a environment where
+              PowerShell is common."
+references:
+  - "https://attack.mitre.org/tactics/TA0003/"
+  - "https://attack.mitre.org/techniques/T1098/002/"
+where: equals("log.eventCode", 4663) &&
+       regexMatch("log.eventDataObjectName", "(:\\Users\\.*\\Documents\\(WindowsPowerShell|PowerShell)\\.*profile\\.ps1$|:\\Windows\\System32\\WindowsPowerShell\\.*profile\\.ps1$)")
+groupBy:
+  - origin.ip
+  - target.user

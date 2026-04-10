@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Gatekeeper Bypass via Quarantine Attribute Removal
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1553.001 - Subvert Trust Controls: Gatekeeper Bypass"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1553/001/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_xattr_gatekeeper_bypass.yml
+description: |
+  Detects the removal of the com.apple.quarantine extended attribute from files using xattr -d. macOS Gatekeeper uses this attribute to enforce security checks on downloaded files. Removing it allows unsigned or untrusted applications to execute without Gatekeeper verification, bypassing a critical security control.
+
+  Next Steps:
+  1. Identify the file from which the quarantine attribute was removed
+  2. Examine the file for malicious content or signatures
+  3. Determine who and what process removed the attribute
+  4. Check if the file was subsequently executed
+  5. Scan the file with antimalware tools
+  6. Review download history to determine the origin of the file
+where: |
+  contains("log.eventMessage", "xattr") &&
+  contains("log.eventMessage", "-d") &&
+  contains("log.eventMessage", "com.apple.quarantine")
+groupBy:
+  - adversary.host
+  - adversary.user

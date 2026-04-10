@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - suricata
+name: Baby Shark C2 Communication Pattern Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Command and Control
+technique: "T1071.001 - Application Layer Protocol: Web Protocols"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1071/001/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_hktl_baby_shark_default_agent_url.yml
+  - https://unit42.paloaltonetworks.com/new-babyshark-malware-targets-u-s-national-security-think-tanks/
+description: |
+  Detects HTTP traffic matching the Baby Shark C2 framework URL pattern. Baby Shark is a reconnaissance tool and C2 framework used primarily by North Korean APT groups (Kimsuky/Thallium). The distinctive URL pattern 'momyshark?key=' is unique to this framework and has very low false positive rates.
+
+  Next Steps:
+  1. IMMEDIATELY escalate - potential nation-state attack (Kimsuky/DPRK)
+  2. Isolate the affected host without alerting the attacker
+  3. Engage specialized incident response with APT experience
+  4. Preserve all forensic evidence including network captures
+  5. Block the C2 domain/IP at the network perimeter
+  6. Search for other Baby Shark/Kimsuky indicators across the environment
+  7. Coordinate with relevant government agencies (CISA, FBI)
+where: |
+  equals("log.eventType", "http") &&
+  exists("origin.ip") &&
+  (
+    contains("log.http.url", "momyshark?key=") ||
+    contains("log.http.url", "momyshark%3Fkey%3D") ||
+    (contains("log.http.url", "babyshark") && contains("log.http.url", "key="))
+  )
+groupBy:
+  - adversary.ip
+  - target.ip

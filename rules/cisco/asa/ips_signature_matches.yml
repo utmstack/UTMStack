@@ -1,29 +1,42 @@
-- id: 1010
-  dataTypes:
-    - asa
-  name: IPS Signature Match - Malicious Pattern Detected
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 2
-  category: Intrusion Detection
-  technique: "T1190 - Exploit Public-Facing Application"
-  adversary: origin
-  references:
-    - https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog.html
-    - https://attack.mitre.org/techniques/T1190/
-  description: |
-    Detects when ASA IPS features identify malicious patterns in network traffic. Message ID 108003 indicates ESMTP/SMTP connections terminated due to malicious patterns. Also monitors for general IPS/IDS signature matches and threat intelligence hits.
-    
-    Next Steps:
-    1. Review the specific IPS signature that was triggered and understand its severity
-    2. Investigate the source IP address for reputation and previous malicious activity
-    3. Check if the target system shows any signs of compromise
-    4. Review firewall logs for any successful connections from the same source
-    5. Consider blocking the source IP if multiple signatures are triggered
-    6. Verify that IPS signatures are up-to-date
-    7. Document the incident and any actions taken
-  where: safe(log.messageId, "") == "108003" || (safe(log.message, "") =~ ".*malicious.*pattern.*" && safe(log.message, "") =~ ".*(detected|terminated|blocked).*") || (safe(log.message, "") =~ ".*IPS.*signature.*" && safe(log.message, "") =~ ".*(matched|triggered|detected).*") || (safe(log.action, "") in ["ips_alert", "ids_alert", "threat_detected"])
-  deduplicateBy:
-    - origin.ip
-    - target.ip
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-cisco-asa
+name: IPS Signature Match - Malicious Pattern Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references:
+  - https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog.html
+  - https://attack.mitre.org/techniques/T1190/
+description: |
+  Detects when ASA IPS features identify malicious patterns in network traffic. Message ID 108003 indicates ESMTP/SMTP connections terminated due to malicious patterns. Also monitors for general IPS/IDS signature matches and threat intelligence hits.
+
+  Next Steps:
+  1. Review the specific IPS signature that was triggered and understand its severity
+  2. Investigate the source IP address for reputation and previous malicious activity
+  3. Check if the target system shows any signs of compromise
+  4. Review firewall logs for any successful connections from the same source
+  5. Consider blocking the source IP if multiple signatures are triggered
+  6. Verify that IPS signatures are up-to-date
+  7. Document the incident and any actions taken
+where: |
+  equals("log.messageId", "108003")
+  || (contains("log.message", "malicious pattern") && contains("log.message", ["detected", "terminated", "blocked"]))
+  || (contains("log.message", "IPS") && contains("log.message", "signature") && contains("log.message", ["matched", "triggered", "detected"]))
+  || oneOf("log.action", ["ips_alert", "ids_alert", "threat_detected"])
+afterEvents:
+  - indexPattern: v11-log-firewall-cisco-asa-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-15m
+    count: 3
+groupBy:
+  - adversary.ip
+  - target.ip

@@ -46,6 +46,9 @@ public class UtmAlertResponseRuleDTO {
     @Size(max = 500)
     private String defaultAgent;
 
+    @Size(max = 20)
+    private String shell;
+
     private List<String> excludedAgents = new ArrayList<>();
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -76,6 +79,7 @@ public class UtmAlertResponseRuleDTO {
         this.active = rule.getRuleActive();
         this.agentPlatform = rule.getAgentPlatform();
         this.defaultAgent = rule.getDefaultAgent();
+        this.shell = rule.getRuleShell();
         if (StringUtils.hasText(rule.getExcludedAgents())) {
             this.excludedAgents.addAll(Arrays.asList(rule.getExcludedAgents().split(",")));
         }

@@ -1,48 +1,48 @@
-- id: 1006
-  dataTypes:
-    - windows
-    - wineventlog
-  name: PowerShell Empire Detection
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 2
-  category: Command and Control
-  technique: "T1059.001 - Command and Scripting Interpreter: PowerShell"
-  adversary: origin
-  references:
-    - https://attack.mitre.org/techniques/T1059/001/
-    - https://www.powershellempire.com/
-    - https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_logging
-  description: |
-    Detects potential PowerShell Empire framework usage based on characteristic command patterns, obfuscation techniques, and encoded payloads commonly used by this post-exploitation framework. PowerShell Empire is a post-exploitation framework that uses PowerShell and Python agents to maintain persistence and execute commands on compromised systems.
-    
-    Next Steps:
-    1. Immediately isolate the affected host to prevent lateral movement
-    2. Analyze the complete PowerShell script block content for additional IOCs
-    3. Check for persistence mechanisms (scheduled tasks, registry entries, services)
-    4. Review network connections from the host for C2 communication
-    5. Examine process tree and parent processes that spawned PowerShell
-    6. Search for additional Empire artifacts across the environment
-    7. Reset credentials for any accounts used on the compromised system
-    8. Conduct memory analysis to identify injected code or payloads
-    9. Review recent user activity and file access patterns
-    10. Update endpoint detection rules based on specific Empire techniques observed
-  where: |
-    (safe(log.eventCode, "") == "4104" || safe(log.winlogEventId, 0) == 4104) &&
-    safe(log.winlogProviderName, "") == "Microsoft-Windows-PowerShell" &&
-    (
-      safe(log.winlog.event_data.ScriptBlockText, "").contains("System.Management.Automation.AmsiUtils") ||
-      safe(log.winlog.event_data.ScriptBlockText, "").matches("(?i)(empire|invoke-empire|invoke-psempire)") ||
-      safe(log.winlog.event_data.ScriptBlockText, "").matches("(?i)\\[System\\.Convert\\]::FromBase64String") ||
-      safe(log.winlog.event_data.ScriptBlockText, "").matches("(?i)IEX\\s*\\(\\s*New-Object") ||
-      safe(log.winlog.event_data.ScriptBlockText, "").matches("(?i)-enc\\s+[A-Za-z0-9+/=]{100,}") ||
-      safe(log.winlog.event_data.ScriptBlockText, "").matches("(?i)\\$DoIt\\s*=\\s*@") ||
-      safe(log.winlog.event_data.ScriptBlockText, "").matches("(?i)\\[System\\.Text\\.Encoding\\]::Unicode\\.GetString") ||
-      safe(log.winlog.event_data.ScriptBlockText, "").contains("Invoke-Shellcode") ||
-      safe(log.winlog.event_data.ScriptBlockText, "").contains("Invoke-ReflectivePEInjection") ||
-      safe(log.winlog.event_data.ScriptBlockText, "").contains("Invoke-Mimikatz")
-    )
-  deduplicateBy:
-    - origin.host
-    - origin.user
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: PowerShell Empire Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059.001 - Command and Scripting Interpreter: PowerShell"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1059/001/
+  - https://www.powershellempire.com/
+  - https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_logging
+description: |
+  Detects potential PowerShell Empire framework usage based on characteristic command patterns, obfuscation techniques, and encoded payloads commonly used by this post-exploitation framework. PowerShell Empire is a post-exploitation framework that uses PowerShell and Python agents to maintain persistence and execute commands on compromised systems.
+  
+  Next Steps:
+  1. Immediately isolate the affected host to prevent lateral movement
+  2. Analyze the complete PowerShell script block content for additional IOCs
+  3. Check for persistence mechanisms (scheduled tasks, registry entries, services)
+  4. Review network connections from the host for C2 communication
+  5. Examine process tree and parent processes that spawned PowerShell
+  6. Search for additional Empire artifacts across the environment
+  7. Reset credentials for any accounts used on the compromised system
+  8. Conduct memory analysis to identify injected code or payloads
+  9. Review recent user activity and file access patterns
+  10. Update endpoint detection rules based on specific Empire techniques observed
+where: |
+  (equals("log.eventCode", "4104") || equals("log.eventId", 4104)) &&
+  equals("log.providerName", "Microsoft-Windows-PowerShell") &&
+  (
+    contains("log.eventDataScriptBlockText", "System.Management.Automation.AmsiUtils") ||
+    regexMatch("log.eventDataScriptBlockText", "(?i)(empire|invoke-empire|invoke-psempire)") ||
+    regexMatch("log.eventDataScriptBlockText", "(?i)\\[System\\.Convert\\]::FromBase64String") ||
+    regexMatch("log.eventDataScriptBlockText", "(?i)IEX\\s*\\(\\s*New-Object") ||
+    regexMatch("log.eventDataScriptBlockText", "(?i)-enc\\s+[A-Za-z0-9+/=]{100,}") ||
+    regexMatch("log.eventDataScriptBlockText", "(?i)\\$DoIt\\s*=\\s*@") ||
+    regexMatch("log.eventDataScriptBlockText", "(?i)\\[System\\.Text\\.Encoding\\]::Unicode\\.GetString") ||
+    contains("log.eventDataScriptBlockText", "Invoke-Shellcode") ||
+    contains("log.eventDataScriptBlockText", "Invoke-ReflectivePEInjection") ||
+    contains("log.eventDataScriptBlockText", "Invoke-Mimikatz")
+  )
+groupBy:
+  - origin.host
+  - target.user

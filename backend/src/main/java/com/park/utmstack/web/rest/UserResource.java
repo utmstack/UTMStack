@@ -1,8 +1,9 @@
 package com.park.utmstack.web.rest;
 
+import com.park.utmstack.aop.logging.AuditEvent;
+import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.User;
-import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.security.AuthoritiesConstants;
 import com.park.utmstack.security.SecurityUtils;
@@ -93,6 +94,12 @@ public class UserResource {
      */
     @PostMapping("/users")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @AuditEvent(
+        attemptType = ApplicationEventType.USER_CREATION_ATTEMPT,
+        attemptMessage = "Attempting to create user {login}",
+        successType = ApplicationEventType.USER_CREATION_SUCCESS,
+        successMessage = "User {login} created successfully"
+    )
     public ResponseEntity<User> createUser(@Valid @RequestBody UserDTO userDTO) {
         final String ctx = CLASSNAME + ".createUser";
         try {
@@ -133,6 +140,12 @@ public class UserResource {
      */
     @PutMapping("/users")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @AuditEvent(
+        attemptType = ApplicationEventType.USER_UPDATE_ATTEMPT,
+        attemptMessage = "Attempting to update user {login}",
+        successType = ApplicationEventType.USER_UPDATE_SUCCESS,
+        successMessage = "User {login} updated successfully"
+    )
     public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserDTO userDTO) {
         final String ctx = CLASSNAME + ".updateUser";
         try {

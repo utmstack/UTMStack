@@ -1,57 +1,58 @@
-- id: 1019
-  dataTypes:
-    - o365
-  name: Multi-Geo Data Violations
-  impact:
-    confidentiality: 3
-    integrity: 2
-    availability: 1
-  category: Data Loss
-  technique: "T1030 - Data Transfer Size Limits"
-  adversary: origin
-  references:
-    - https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-multi-geo
-    - https://attack.mitre.org/techniques/T1030/
-  description: |
-    Detects violations of multi-geo data residency policies including unauthorized data movements between regions, cross-geo access violations, or attempts to bypass geo-restrictions. This rule identifies activities such as site geo moves, cross-geo file operations, and data location parameter modifications that may indicate unauthorized data transfer or policy violations.
-    
-    Next Steps:
-    1. Review the user's authorization level for multi-geo operations
-    2. Verify if the geo movement was approved through proper change management
-    3. Check data classification and residency requirements for affected content
-    4. Examine the source and destination locations for compliance violations
-    5. Review audit logs for related suspicious activities by the same user
-    6. Validate that the operation aligns with organizational data governance policies
-  where: |
-    (safe(action, "") in ["SiteGeoMoveScheduled", "SiteGeoMoveCompleted", "SiteGeoMoveCancelled", "AllowedDataLocationAdded", "GeoQuotaAllocated", "MigrationJobCompleted"] ||
-    (safe(log.Workload, "") == "OneDrive" && safe(log.ItemName, "") contains "cross-geo") ||
-    (safe(log.SourceFileName, "") != "" && safe(log.DestinationFileName, "") != "" && safe(log.SourceRelativeUrl, "") contains "geo" && safe(log.DestinationRelativeUrl, "") contains "geo") ||
-    (safe(log.Parameters, "") contains "DataLocation" || safe(log.Parameters, "") contains "PreferredDataLocation")) &&
-    safe(origin.user, "") != "" &&
-    safe(actionResult, "") == "Succeeded" &&
-    safe(origin.ip, "") != ""
-  afterEvents:
-    - indexPattern: v11-log-o365-*
-      with:
-        - field: origin.user.keyword
-          operator: filter_term
-          value: '{{origin.user}}'
-        - field: action.keyword
-          operator: filter_term
-          value: 'SiteGeoMoveScheduled'
-      within: now-24h
-      count: 3
-      or:
-        - indexPattern: v11-log-o365-*
-          with:
-            - field: origin.user.keyword
-              operator: filter_term
-              value: '{{origin.user}}'
-            - field: action.keyword
-              operator: filter_term
-              value: 'AllowedDataLocationAdded'
-          within: now-24h
-          count: 2
-  deduplicateBy:
-    - origin.user
-    - origin.ip
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Multi-Geo Data Violations
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Data Loss
+technique: "T1030 - Data Transfer Size Limits"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-multi-geo
+  - https://attack.mitre.org/techniques/T1030/
+description: |
+  Detects violations of multi-geo data residency policies including unauthorized data movements between regions, cross-geo access violations, or attempts to bypass geo-restrictions. This rule identifies activities such as site geo moves, cross-geo file operations, and data location parameter modifications that may indicate unauthorized data transfer or policy violations.
+  
+  Next Steps:
+  1. Review the user's authorization level for multi-geo operations
+  2. Verify if the geo movement was approved through proper change management
+  3. Check data classification and residency requirements for affected content
+  4. Examine the source and destination locations for compliance violations
+  5. Review audit logs for related suspicious activities by the same user
+  6. Validate that the operation aligns with organizational data governance policies
+where: |
+  (oneOf("action", ["SiteGeoMoveScheduled", "SiteGeoMoveCompleted", "SiteGeoMoveCancelled", "AllowedDataLocationAdded", "GeoQuotaAllocated", "MigrationJobCompleted"]) ||
+  (equals("log.Workload", "OneDrive") && contains("log.ItemName", "cross-geo")) ||
+  (exists("log.SourceFileName") && exists("log.DestinationFileName") && contains("log.SourceRelativeUrl", "geo") && contains("log.DestinationRelativeUrl", "geo")) ||
+  (contains("log.Parameters", "DataLocation") || contains("log.Parameters", "PreferredDataLocation"))) &&
+  exists("origin.user") &&
+  equals("actionResult", "Succeeded") &&
+  exists("origin.ip")
+afterEvents:
+  - indexPattern: v11-log-o365-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: action
+        operator: filter_term
+        value: 'SiteGeoMoveScheduled'
+    within: now-24h
+    count: 3
+    or:
+      - indexPattern: v11-log-o365-*
+        with:
+          - field: origin.user
+            operator: filter_term
+            value: '{{.origin.user}}'
+          - field: action
+            operator: filter_term
+            value: 'AllowedDataLocationAdded'
+        within: now-24h
+        count: 2
+groupBy:
+  - adversary.ip
+  - adversary.user

@@ -1,0 +1,26 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: "AWS CloudTrail Log Updated"
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: "Impact"
+technique: "T1565 - Data Manipulation"
+adversary: origin
+description: "Identifies an update to an AWS log trail setting that specifies the delivery of log files"
+references:
+  - "https://attack.mitre.org/tactics/TA0040/"
+  - "https://attack.mitre.org/techniques/T1565/"
+  - "https://attack.mitre.org/tactics/TA0009/"
+  - "https://attack.mitre.org/techniques/T1530/"
+  - "https://docs.aws.amazon.com/awscloudtrail/latest/APIReference/API_UpdateTrail.html"
+  - "https://awscli.amazonaws.com/v2/documentation/api/latest/reference/cloudtrail/update-trail.html"
+where: |
+  equals("log.eventSource", "cloudtrail.amazonaws.com") &&
+  equals("log.eventName", "UpdateTrail")
+groupBy:
+  - adversary.ip
+  - adversary.user

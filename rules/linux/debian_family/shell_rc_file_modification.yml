@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Shell RC File Modification for Persistence
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Persistence
+technique: "T1546.004 - Event Triggered Execution: Unix Shell Configuration Modification"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1546/004/
+description: |
+  Detects modifications to shell configuration files (.bashrc, .bash_profile, /etc/profile.d/) that attackers use for persistence by inserting malicious commands executed on every shell session.
+
+  Next Steps:
+  1. Review the modified shell configuration file for injected commands
+  2. Compare the file against a known-good baseline
+  3. Identify the user account that made the modification
+  4. Check for reverse shells, downloaders, or credential harvesters in the added content
+  5. Review all shell RC files for the affected user and system-wide profiles
+  6. Remove malicious entries and investigate the compromise vector
+where: |
+  (contains("log.message", ".bashrc") || contains("log.message", ".bash_profile") ||
+   contains("log.message", ".profile") || contains("log.message", "/etc/profile.d/") ||
+   contains("log.message", ".zshrc") || contains("log.message", ".zprofile") ||
+   contains("log.message", "/etc/bash.bashrc") || contains("log.message", "/etc/profile")) &&
+  (contains("log.message", "modified") || contains("log.message", "opened for writing") ||
+   contains("log.message", "write") || contains("log.message", "changed"))
+groupBy:
+  - origin.host
+  - origin.user

@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Osascript Encoded or Suspicious Execution
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059.002 - Command and Scripting Interpreter: AppleScript"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1059/002/
+description: |
+  Detects suspicious osascript executions from the command line including encoded scripts, scripts executing shell commands, or scripts performing system modifications. Attackers abuse AppleScript for execution and evasion.
+
+  Next Steps:
+  1. Decode and review the AppleScript content
+  2. Identify the parent process that spawned osascript
+  3. Check for system modifications made by the script
+  4. Review network connections initiated by the script
+  5. Investigate the delivery mechanism of the malicious script
+where: |
+  (equals("log.process", "osascript") || contains("log.eventMessage", "osascript")) &&
+  (contains("log.eventMessage", "-e") &&
+   (contains("log.eventMessage", "do shell script") || contains("log.eventMessage", "curl") ||
+    contains("log.eventMessage", "wget") || contains("log.eventMessage", "base64") ||
+    contains("log.eventMessage", "chmod") || contains("log.eventMessage", "/bin/bash") ||
+    contains("log.eventMessage", "python") || contains("log.eventMessage", "openssl")) ||
+   contains("log.eventMessage", "osacompile") ||
+   (contains("log.eventMessage", "osascript") && contains("log.eventMessage", "<<<")) ||
+   regexMatch("log.eventMessage", "(?i)osascript.*-l\\s+JavaScript"))
+groupBy:
+  - adversary.host
+  - adversary.user

@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: macOS System Log Clearing Detected
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1070.002 - Indicator Removal: Clear Linux or Mac System Logs"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1070/002/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_clear_system_logs.yml
+description: |
+  Detects attempts to clear or delete macOS system logs using rm, unlink, or shred commands targeting /var/log or ~/Library/Logs directories. Attackers clear logs to remove evidence of their activities and hinder forensic investigation.
+
+  Next Steps:
+  1. Identify which log files were deleted and attempt to recover them from backups
+  2. Determine the user and process responsible for the log deletion
+  3. Review remaining logs and system activity before the deletion event
+  4. Check for other anti-forensic activity on the same system
+  5. Investigate the system for signs of compromise that the attacker tried to hide
+  6. Ensure centralized logging is in place to prevent future evidence destruction
+where: |
+  (
+    contains("log.eventMessage", ["rm ", "unlink ", "shred "]) &&
+    contains("log.eventMessage", ["/var/log", "/Library/Logs", "system.log", "install.log", "asl/"])
+  ) ||
+  (
+    contains("log.eventMessage", "log erase") &&
+    equals("log.process", "log")
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

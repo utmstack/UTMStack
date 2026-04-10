@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: JXA In-Memory Execution Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059.002 - Command and Scripting Interpreter: AppleScript"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1059/002/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_jxa_in_memory_execution.yml
+  - https://posts.specterops.io/persistent-jxa-66e1c3cd1cf5
+description: |
+  Detects JavaScript for Automation (JXA) in-memory execution via osascript. Attackers use JXA with eval(), NSData.dataWithContentsOfURL, or ObjC.import to download and execute code entirely in memory, avoiding file-based detection. This is a fileless attack technique specific to macOS.
+
+  Next Steps:
+  1. Capture the full command line arguments of the osascript process
+  2. Identify the URL from which the payload was downloaded
+  3. Determine the parent process that invoked osascript
+  4. Check for network connections to the payload hosting server
+  5. Examine the system for any persistence mechanisms installed by the payload
+  6. Block the identified payload URL at the network level
+where: |
+  (equals("log.process", "osascript") || contains("log.eventMessage", "osascript")) &&
+  contains("log.eventMessage", ["-e", "-l JavaScript"]) &&
+  (
+    contains("log.eventMessage", "eval") ||
+    contains("log.eventMessage", "NSData.dataWithContentsOfURL") ||
+    contains("log.eventMessage", "ObjC.import") ||
+    (contains("log.eventMessage", "JavaScript") && contains("log.eventMessage", "dataWithContentsOfURL"))
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

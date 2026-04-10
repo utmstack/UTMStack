@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: SSH Private Key Theft Attempt
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 0
+category: Credential Access
+technique: "T1552.004 - Unsecured Credentials: Private Keys"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1552/004/
+description: |
+  Detects attempts to access or copy SSH private keys from user home directories on macOS, which attackers use for lateral movement and unauthorized access to remote systems.
+
+  Next Steps:
+  1. Identify the process and user accessing the SSH private key
+  2. Check if the key was copied or transmitted to an external location
+  3. Rotate the compromised SSH key pair immediately
+  4. Review authorized_keys on remote systems for the compromised key
+  5. Check for lateral movement using the stolen key
+  6. Investigate the initial compromise vector
+where: |
+  (contains("log.eventMessage", ".ssh/id_rsa") || contains("log.eventMessage", ".ssh/id_ed25519") ||
+   contains("log.eventMessage", ".ssh/id_ecdsa") || contains("log.eventMessage", ".ssh/id_dsa") ||
+   contains("log.eventMessage", ".ssh/identity")) &&
+  (contains("log.eventMessage", "read") || contains("log.eventMessage", "copy") ||
+   contains("log.eventMessage", "open") || contains("log.eventMessage", "cat") ||
+   contains("log.eventMessage", "scp") || contains("log.eventMessage", "base64"))
+groupBy:
+  - adversary.host
+  - adversary.user

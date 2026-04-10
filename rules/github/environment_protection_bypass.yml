@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - github
+name: GitHub Environment Protection Rule Bypass
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects changes to GitHub environment protection rules including removal of required reviewers, wait timers, or branch restrictions. Attackers may modify these protections to deploy malicious code to production environments without approval.
+
+  Next Steps:
+  1. Verify the environment protection change was authorized
+  2. Review the specific protections that were modified or removed
+  3. Check which deployment environment was affected (production, staging)
+  4. Review recent deployments to the affected environment
+  5. Verify the repository admin making the change
+  6. If unauthorized, restore the environment protection rules immediately
+  7. Review deployment logs for unauthorized deployments during the protection gap
+  8. Implement required reviewers for critical environment changes
+where: |
+  (equals("log.action", "environment.update_protection_rule") ||
+   equals("log.action", "environment.delete_protection_rule") ||
+   equals("log.action", "environment.update") ||
+   equals("log.action", "environment.delete")) &&
+  exists("log.senderLogin")
+groupBy:
+  - lastEvent.log.repositoryName
+  - lastEvent.log.senderLogin

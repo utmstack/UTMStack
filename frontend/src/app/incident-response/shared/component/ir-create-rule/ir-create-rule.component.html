@@ -116,6 +116,7 @@
                        class="w-30"
                        [loadingText]="'Loading alert fields...'"
                        [loading]="!alertFields"
+                       [disabled]="i === 0"
                        bindLabel="label"
                        bindValue="field"
                        formControlName="field"
@@ -139,15 +140,16 @@
                        formControlName="value"
                        id="values">
             </ng-select>
-            <i class="icon-cross2 cursor-pointer ml-3" ngbTooltip="Delete condition"
+            <i *ngIf="i > 0" class="icon-cross2 cursor-pointer ml-3" ngbTooltip="Delete condition"
                placement="left"
                (click)="removeRuleCondition(i)"></i>
+            <i *ngIf="i === 0" class="icon-lock2 ml-3 text-muted" ngbTooltip="Alert name is required"></i>
           </div>
           <div class="d-flex justify-content-between pr-4">
             <div>
-              <span *ngIf="ruleConditions.length === 0 || !ruleConditions.valid"
+              <span *ngIf="!ruleConditions.valid"
                     class="text-danger-300 font-size-base">
-                You must set at least one trigger condition
+                You must select an alert name and complete all trigger conditions
               </span>
             </div>
             <button class="btn utm-button btn-success align-self-end" (click)="addRuleCondition()">
@@ -175,7 +177,7 @@
       <div class="d-flex mt-3 flex-column">
         <div class="alert alert-info alert-styled-right mb-2 info-dismissible">
           <span class="font-weight-semibold">Info! </span>
-          <span>Select the agent handling strategy for the automation. If <strong>not active</strong>, commands will run on specified platform agents if the trigger conditions and dataSource field value of the alert match. Alternatively, choose a <strong>default agent</strong> to run the automation if no other agent matches the criteria. If this option is <strong>active</strong>, commands will run only on specified platform agents if the trigger conditions and dataSource field value of the alert match, if not, the <strong>automation won't be executed</strong>.</span>
+          <span>Select the agent handling strategy for the automation. If <strong>not active</strong>, commands will run on specified platform agents if the trigger conditions and dataSource field value of the alert match. Alternatively, choose a <strong>dedicated agent</strong> to run the automation if no other agent matches the criteria. If this option is <strong>active</strong>, commands will run only on specified platform agents if the trigger conditions and dataSource field value of the alert match, if not, the <strong>automation won't be executed</strong>.</span>
         </div>
           <app-utm-toggle (toggleChange)="onChangeToggle($event)"
                           [active]="formRule.get('agentType').value"
@@ -208,7 +210,7 @@
       </div>
       <div *ngIf="formRule.get('agentType').value" class="d-flex mt-2 flex-column">
         <div  class="col-6 p-0">
-          <label class="pb-1" for="exclude">Default agent</label>
+          <label class="pb-1" for="exclude">Dedicated agent</label>
           <ng-select [clearable]="false"
                      [items]="agents"
                      [placeholder]="'Select agent'"
@@ -235,6 +237,13 @@
       </div>
     </div>
     <div *ngIf="step===3" class="configure-step mt-3 mb-3">
+      <div *ngIf="isWindows()" class="form-group mb-3">
+        <label class="pb-1">Shell</label>
+        <select formControlName="shell" class="form-control w-25">
+          <option value="cmd">cmd</option>
+          <option value="powershell">powershell</option>
+        </select>
+      </div>
       <span class="font-size-lg mb-2"> <i
         class="icon-keyboard"></i> Press <b>TAB</b> to use alert fields in the command</span>
       <div class="window">

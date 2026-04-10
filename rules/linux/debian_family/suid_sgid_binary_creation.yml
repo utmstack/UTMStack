@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: SUID/SGID Binary Creation Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1548.001 - Abuse Elevation Control Mechanism: Setuid and Setgid"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1548/001/
+  - https://gtfobins.github.io/
+description: |
+  Detects when SUID or SGID bits are set on executables using chmod. Attackers use this technique to create binaries that run with elevated privileges for privilege escalation.
+
+  Next Steps:
+  1. Identify the specific binary that had SUID/SGID bits set
+  2. Verify whether the chmod operation was performed by an authorized administrator
+  3. Check the binary for malicious content or unexpected functionality
+  4. Review the file path - SUID binaries in /tmp or user directories are highly suspicious
+  5. Compare against known legitimate SUID binaries on the system
+  6. Remove the SUID/SGID bit if unauthorized and investigate the account used
+where: |
+  (contains("log.message", "chmod") &&
+   (contains("log.message", "+s") || contains("log.message", "4755") ||
+    contains("log.message", "2755") || contains("log.message", "6755") ||
+    contains("log.message", "u+s") || contains("log.message", "g+s")))
+groupBy:
+  - origin.host
+  - origin.user

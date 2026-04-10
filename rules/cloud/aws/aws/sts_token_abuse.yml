@@ -1,0 +1,46 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS STS Token Abuse Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Privilege Escalation
+technique: "T1078.004 - Cloud Accounts"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/IAM/latest/UserGuide/cloudtrail-integration.html
+  - https://attack.mitre.org/techniques/T1078/004/
+  - https://www.elastic.co/security-labs/exploring-aws-sts-assumeroot
+description: |
+  Detects potential abuse of AWS STS AssumeRole operations. This rule identifies when roles are assumed from unusual IP addresses or when there are multiple role assumptions in a short time period, which could indicate lateral movement or privilege escalation. The rule specifically flags AssumeRole operations performed without MFA authentication.
+  
+  Next Steps:
+  1. Verify if the source IP address belongs to your organization's known IP ranges
+  2. Check if the assumed role is appropriate for the user or service that initiated the request
+  3. Review the user identity and verify if this is expected behavior for this account
+  4. Examine CloudTrail logs for other suspicious activities from the same source IP or user identity
+  5. If unauthorized, immediately revoke the temporary credentials and review IAM policies
+  6. Consider implementing MFA requirements for sensitive role assumptions
+  7. Review and potentially restrict the trust policy for the assumed role
+where: |
+  equals("log.eventSource", "sts.amazonaws.com") &&
+  equals("log.eventName", "AssumeRole") &&
+  equals("log.errorCode", "") &&
+  !equals("log.userIdentitySessionContextAttributesMfaAuthenticated", "true") &&
+  !equals("log.userIdentityType", "AWSService") &&
+  !contains("log.userAgent", "aws-sdk") &&
+  !contains("log.userAgent", "Botocore")
+afterEvents:
+  - indexPattern: v11-log-aws-*
+    with:
+      - field: log.sourceIPAddress
+        operator: filter_term
+        value: '{{.log.sourceIPAddress}}'
+    within: now-15m
+    count: 20
+groupBy:
+  - lastEvent.log.userIdentityArn
+  - adversary.ip

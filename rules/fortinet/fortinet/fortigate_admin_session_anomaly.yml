@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-fortigate-traffic
+name: FortiGate Admin Login from Unusual Source
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Initial Access
+technique: "T1078 - Valid Accounts"
+adversary: origin
+references:
+  - https://docs.fortinet.com/document/fortigate/7.4.1/fortios-log-message-reference/160372/list-of-log-types-and-subtypes
+  - https://attack.mitre.org/techniques/T1078/
+description: |
+  Detects FortiGate admin logins from unusual or external IP addresses. Successful administrative access from non-management networks may indicate credential compromise.
+
+  Next Steps:
+  1. Verify the login was performed by a legitimate administrator
+  2. Check the geographic location of the source IP
+  3. Review actions performed during the admin session
+  4. Verify if trusted host restrictions are configured for admin accounts
+  5. Enable MFA for administrator accounts if not already active
+  6. If unauthorized, disable the account and audit recent changes
+where: |
+  equals("log.logid", "0100032001") &&
+  equals("log.type", "event") &&
+  equals("log.subtype", "system") &&
+  equals("log.logdesc", "Admin login successful") &&
+  exists("origin.ip") &&
+  !inCIDR("origin.ip", "10.0.0.0/8") &&
+  !inCIDR("origin.ip", "172.16.0.0/12") &&
+  !inCIDR("origin.ip", "192.168.0.0/16") &&
+  !inCIDR("origin.ip", "127.0.0.0/8")
+groupBy:
+  - adversary.ip
+  - adversary.user

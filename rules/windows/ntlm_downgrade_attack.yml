@@ -1,0 +1,47 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: NTLM Authentication Downgrade Attack
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1562/001/
+  - https://www.praetorian.com/blog/ntlm-relaying-attacks/
+  - https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/network-security-lan-manager-authentication-level
+description: |
+  Detects NTLM authentication downgrade attacks via registry modifications to LMCompatibilityLevel,
+  NtlmMinClientSec, and NtlmMinServerSec. Attackers modify these registry values to weaken NTLM
+  authentication security, enabling credential interception, relay attacks, and offline cracking
+  of captured NTLM hashes. Downgrading to LM or NTLMv1 authentication makes credential theft
+  significantly easier.
+
+  Next Steps:
+  1. Check the new registry value to determine the downgrade severity
+  2. LMCompatibilityLevel < 3 enables NTLMv1 which is trivially crackable
+  3. Identify the process and user that made the registry modification
+  4. Restore the registry values to enforce NTLMv2 (LMCompatibilityLevel = 5)
+  5. Review Group Policy for conflicting NTLM settings
+  6. Check for NTLM relay attacks following the downgrade
+  7. Audit network traffic for NTLMv1 authentication attempts
+  8. Consider disabling NTLM entirely where possible
+where: |
+  equals("log.eventCode", "4657") &&
+  equals("log.channel", "Security") &&
+  (
+    regexMatch("log.eventDataObjectName", "(?i)\\\\CurrentControlSet\\\\Control\\\\Lsa\\\\LMCompatibilityLevel") ||
+    regexMatch("log.eventDataObjectName", "(?i)\\\\CurrentControlSet\\\\Control\\\\Lsa\\\\MSV1_0\\\\NtlmMinClientSec") ||
+    regexMatch("log.eventDataObjectName", "(?i)\\\\CurrentControlSet\\\\Control\\\\Lsa\\\\MSV1_0\\\\NtlmMinServerSec") ||
+    regexMatch("log.eventDataObjectName", "(?i)\\\\CurrentControlSet\\\\Control\\\\Lsa\\\\MSV1_0\\\\RestrictSendingNTLMTraffic") ||
+    regexMatch("log.eventDataObjectName", "(?i)\\\\CurrentControlSet\\\\Control\\\\Lsa\\\\MSV1_0\\\\AuditReceivingNTLMTraffic") ||
+    regexMatch("log.eventDataObjectName", "(?i)\\\\CurrentControlSet\\\\Services\\\\Netlogon\\\\Parameters\\\\RequireSignOrSeal")
+  ) &&
+  !regexMatch("log.eventDataSubjectUserName", "(?i)^(SYSTEM|TrustedInstaller)$")
+groupBy:
+  - origin.host
+  - target.user

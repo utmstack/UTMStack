@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - github
+name: GitHub Self-Hosted Runner Compromise Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Supply Chain Compromise
+technique: "T1195.002 - Supply Chain Compromise: Compromise Software Supply Chain"
+adversary: origin
+references:
+  - https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners
+  - https://attack.mitre.org/techniques/T1195/002/
+description: |
+  Detects suspicious self-hosted runner operations including unexpected runner registration, deregistration, or workflows specifically targeting self-hosted runners. Compromised self-hosted runners can provide access to the internal network and secrets stored on the runner machine.
+
+  Next Steps:
+  1. Verify the runner registration or deregistration was authorized
+  2. Review the runner's labels and the workflows targeting it
+  3. Check if the runner machine has been compromised
+  4. Review secrets and environment variables accessible to the runner
+  5. Examine recent workflow runs on the affected runner for malicious jobs
+  6. If compromised, deregister the runner and re-image the machine
+  7. Rotate all secrets and tokens accessible to the runner
+  8. Implement runner groups with restricted repository access
+where: |
+  (equals("log.action", "self_hosted_runner.register") ||
+   equals("log.action", "self_hosted_runner.remove") ||
+   equals("log.action", "self_hosted_runner.update") ||
+   equals("log.action", "self_hosted_runner_group.create") ||
+   equals("log.action", "self_hosted_runner_group.update")) &&
+  exists("log.senderLogin")
+groupBy:
+  - lastEvent.log.action
+  - lastEvent.log.senderLogin

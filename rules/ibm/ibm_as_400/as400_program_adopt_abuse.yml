@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - ibm-as400
+name: IBM AS/400 Program Adopt Authority Abuse Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1548 - Abuse Elevation Control Mechanism"
+adversary: origin
+references:
+  - https://www.ibm.com/docs/en/i/7.5?topic=programs-adopted-authority
+  - https://attack.mitre.org/techniques/T1548/
+description: |
+  Detects programs using adopted authority with *ALLOBJ special authority on IBM AS/400. Attackers create programs that adopt elevated privileges to bypass authorization controls and access sensitive objects.
+
+  Next Steps:
+  1. Review the program using adopted authority
+  2. Verify the program owner and adoption profile
+  3. Check if *ALLOBJ authority is necessary for the program
+  4. Remove unnecessary adopted authority
+  5. Implement adopted authority auditing
+  6. Review all programs adopting elevated authority
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "ADOPTED") && contains("log.message", "*ALLOBJ")) ||
+    (contains("log.message", "ADOPT") && contains("log.message", "authority")) ||
+    (contains("log.message", "CRTPGM") && contains("log.message", "USRPRF(*OWNER)")) ||
+    (contains("log.message", "CHGPGM") && contains("log.message", "USRPRF(*OWNER)")) ||
+    (contains("log.message", "program adopt") && contains("log.message", "special authority")) ||
+    (contains("log.message", "adopted") && contains("log.message", "QSECOFR"))
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

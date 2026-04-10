@@ -2,7 +2,7 @@ import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {FormGroup} from '@angular/forms';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {Observable, of, Subject} from 'rxjs';
-import {catchError, finalize, map, takeUntil, tap} from 'rxjs/operators';
+import {catchError, filter, finalize, map, takeUntil, tap} from 'rxjs/operators';
 import {UtmNetScanService} from '../../../../assets-discover/shared/services/utm-net-scan.service';
 import {NetScanType} from '../../../../assets-discover/shared/types/net-scan.type';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
@@ -50,6 +50,16 @@ export class ActionBuilderComponent implements OnInit, OnDestroy {
               this.group.get('command').setValue(command);
             })
         );
+
+    this.group.get('agentPlatform').valueChanges
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(val => !!val)
+      )
+      .subscribe(platform => {
+        this.loadingAgents = true;
+        this.agents$ = this.fetchAgents(platform);
+      });
   }
 
   getPlatforms() {

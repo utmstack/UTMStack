@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: SharePoint Permission Escalation Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Privilege Escalation
+technique: "T1098 - Account Manipulation"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/sharepoint/manage-site-collection-administrators
+  - https://attack.mitre.org/techniques/T1098/
+description: |
+  Detects escalation of SharePoint permissions including adding site collection administrators and granting site admin privileges to external users. These changes can provide unauthorized access to sensitive SharePoint data and configuration settings.
+
+  Next Steps:
+  1. Verify the permission change was authorized by a legitimate site owner
+  2. Review the specific permissions granted and the target user
+  3. Check if the target user is an external or guest account
+  4. Review the affected site collection's data sensitivity
+  5. Examine recent activities by the newly privileged user
+  6. If unauthorized, remove the elevated permissions immediately
+  7. Review SharePoint audit logs for data access by the privileged account
+  8. Implement SharePoint access governance policies
+where: |
+  oneOf("action", ["SiteCollectionAdminAdded", "SiteAdmin"]) &&
+  equals("actionResult", "Success")
+groupBy:
+  - adversary.user
+  - target.user

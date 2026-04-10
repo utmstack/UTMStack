@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"gorm.io/gorm"
@@ -24,14 +25,14 @@ type Filter struct {
 	Value interface{}
 }
 
-func NewFilter(searchQuery string) []Filter {
-	defer func() {
-		if r := recover(); r != nil {
-			// Handle the panic here
-			fmt.Println("Panic occurred:", r)
-		}
-	}()
+// validFieldName ensures the field name only contains safe characters (letters, digits, underscores)
+var validFieldName = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 
+func IsValidFieldName(field string) bool {
+	return validFieldName.MatchString(field)
+}
+
+func NewFilter(searchQuery string) []Filter {
 	filters := make([]Filter, 0)
 	if searchQuery == "" {
 		return filters
@@ -42,11 +43,27 @@ func NewFilter(searchQuery string) []Filter {
 	}
 	for _, v := range query {
 		filter := strings.Split(v, "=")
+		if len(filter) != 2 {
+			continue
+		}
 		filerQuery := strings.Split(filter[0], ".")
+		if len(filerQuery) != 2 {
+			continue
+		}
+		field := filerQuery[0]
+		if !IsValidFieldName(field) {
+			fmt.Printf("Rejected invalid filter field: %s\n", field)
+			continue
+		}
+		op := resolveOperator(filerQuery[1])
+		if op == "" {
+			continue
+		}
 		filters = append(filters, Filter{
-			Field: filerQuery[0],
-			Op:    resolveOperator(filerQuery[1]),
-			Value: filter[1]})
+			Field: field,
+			Op:    op,
+			Value: filter[1],
+		})
 	}
 	return filters
 }

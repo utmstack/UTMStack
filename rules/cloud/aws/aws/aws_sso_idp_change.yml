@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS SSO Identity Provider Configuration Changed
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Credential Access
+technique: "T1556 - Modify Authentication Process"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/singlesignon/latest/userguide/manage-your-identity-source.html
+  - https://attack.mitre.org/techniques/T1556/
+description: |
+  Detects changes to AWS SSO identity provider configuration including directory association and external IdP configuration changes. Modifying the identity provider can enable impersonation of any user in the organization.
+
+  Next Steps:
+  1. Verify the IdP configuration change was part of an approved change request
+  2. Check the user identity performing the change for proper authorization
+  3. Review the new IdP configuration for legitimacy
+  4. Check for suspicious sign-ins following the IdP change
+  5. Validate the external IdP settings against the organization's known configuration
+  6. If unauthorized, revert the IdP configuration immediately
+  7. Audit all SSO-based sessions created after the change
+where: |
+  equals("log.eventSource", "sso.amazonaws.com") &&
+  oneOf("log.eventName", ["AssociateDirectory", "DisassociateDirectory", "EnableExternalIdPConfiguration", "DisableExternalIdPConfiguration", "UpdateExternalIdPConfiguration"]) &&
+  equals("log.errorCode", "")
+groupBy:
+  - adversary.user
+  - lastEvent.log.eventName

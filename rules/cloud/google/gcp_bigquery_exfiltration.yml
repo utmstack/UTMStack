@@ -1,0 +1,46 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - google
+name: GCP BigQuery Data Exfiltration Detection
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 1
+category: Data Exfiltration
+technique: "T1567 - Exfiltration Over Web Service"
+adversary: origin
+references:
+  - https://cloud.google.com/bigquery/docs/audit-logging
+  - https://attack.mitre.org/techniques/T1567/
+description: |
+  Detects BigQuery operations that may indicate data exfiltration including large data exports, table copies to external projects, and extract jobs writing to external storage. Attackers may use BigQuery to query and export large datasets from compromised projects.
+
+  Next Steps:
+  1. Review the BigQuery job details including source and destination datasets
+  2. Check the data volume being exported or copied
+  3. Verify the destination project or storage bucket is legitimate
+  4. Review the identity performing the operation and verify authorization
+  5. Check if the query accesses sensitive tables or datasets
+  6. If unauthorized, cancel running jobs and revoke the identity's BigQuery permissions
+  7. Implement VPC Service Controls to restrict data export
+  8. Enable BigQuery authorized views to restrict data access
+where: |
+  contains("log.protoPayload.serviceName", "bigquery.googleapis.com") &&
+  (contains("log.protoPayload.methodName", "jobservice.insert") ||
+   contains("log.protoPayload.methodName", "tableservice.exportdata") ||
+   contains("log.protoPayload.methodName", "datasets.copy"))
+afterEvents:
+  - indexPattern: v11-log-google-*
+    with:
+      - field: log.protoPayload.authenticationInfo.principalEmail
+        operator: filter_term
+        value: '{{.log.protoPayload.authenticationInfo.principalEmail}}'
+      - field: log.protoPayload.serviceName
+        operator: filter_term
+        value: bigquery.googleapis.com
+    within: now-30m
+    count: 10
+groupBy:
+  - lastEvent.log.protoPayload.methodName
+  - adversary.user

@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: SSH Authorized Keys Modification
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Persistence
+technique: "T1098.004 - Account Manipulation: SSH Authorized Keys"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1098/004/
+  - https://man.openbsd.org/sshd.8
+description: |
+  Detects modifications to SSH authorized_keys files, which attackers use to establish persistent access by adding their own public keys to user accounts.
+
+  Next Steps:
+  1. Review the authorized_keys file contents for unauthorized public keys
+  2. Identify the user account and process that made the modification
+  3. Compare current authorized_keys with a known-good baseline
+  4. Check SSH logs for any connections using the newly added key
+  5. Verify the change was authorized by the account owner
+  6. Remove unauthorized keys and rotate affected credentials
+  7. Monitor for subsequent SSH connections from unknown sources
+where: |
+  (contains("log.message", "authorized_keys") || contains("log.message", "authorized_keys2")) &&
+  (contains("log.message", "modified") || contains("log.message", "opened for writing") ||
+   contains("log.message", "changed") || contains("log.process", "sshd") ||
+   contains("log.message", ".ssh") && contains("log.message", "write"))
+groupBy:
+  - origin.host
+  - origin.user

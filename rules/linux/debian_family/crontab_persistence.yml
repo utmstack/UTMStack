@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Crontab Persistence Mechanism Detected
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1053.003 - Scheduled Task/Job: Cron"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1053/003/
+  - https://man7.org/linux/man-pages/man5/crontab.5.html
+description: |
+  Detects crontab modifications, additions to /etc/cron.d/, or at job creation that may indicate persistence mechanisms installed by an attacker. Adversaries commonly use cron jobs to maintain access or execute malicious payloads on a schedule.
+
+  Next Steps:
+  1. Review the specific crontab entry or cron file that was modified or created
+  2. Identify the user account responsible for the change
+  3. Examine the command or script referenced in the cron job for malicious content
+  4. Check if the crontab change was part of authorized maintenance
+  5. Review other persistence mechanisms on the host
+  6. If unauthorized, remove the cron entry and investigate the source of compromise
+where: |
+  (contains("log.process", "crontab") || contains("log.process", "cron") || contains("log.process", "atd")) &&
+  (contains("log.message", "REPLACE") ||
+   contains("log.message", "INSTALL") ||
+   contains("log.message", "cron.d") ||
+   contains("log.message", "crontab") ||
+   contains("log.message", "at job") ||
+   (contains("log.message", "EDIT") && contains("log.message", "crontab")) ||
+   (contains("log.message", "BEGIN EDIT") || contains("log.message", "END EDIT")))
+groupBy:
+  - origin.host
+  - origin.user

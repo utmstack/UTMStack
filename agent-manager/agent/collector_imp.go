@@ -43,11 +43,18 @@ type CollectorService struct {
 	CollectorConfigsCache     map[uint][]*CollectorConfigGroup
 	CollectorConfigsCacheM    sync.Mutex
 	CacheCollectorKey         map[uint]string
-	CacheCollectorKeyMutex    sync.Mutex
+	CacheCollectorKeyMutex    sync.RWMutex
 	CollectorPendigConfigChan chan *CollectorConfig
 	CollectorTypes            []enum.UTMModule
 
 	DBConnection *database.DB
+}
+
+func (s *CollectorService) ValidateCollectorKey(key string, id uint) bool {
+	s.CacheCollectorKeyMutex.RLock()
+	defer s.CacheCollectorKeyMutex.RUnlock()
+	_, valid := utils.IsKeyPairValid(key, id, s.CacheCollectorKey)
+	return valid
 }
 
 func InitCollectorService() {

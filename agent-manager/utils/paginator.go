@@ -28,7 +28,19 @@ func NewPaginator(limit int, page int, sort string) Pagination {
 	if len(sort) > 0 {
 		srt := make([]string, 0)
 		for _, s := range strings.Split(sort, "&") {
-			srt = append(srt, strings.Replace(s, ",", " ", 1))
+			parts := strings.SplitN(s, ",", 2)
+			field := parts[0]
+			if !IsValidFieldName(field) {
+				continue
+			}
+			direction := "asc"
+			if len(parts) == 2 {
+				d := strings.ToLower(strings.TrimSpace(parts[1]))
+				if d == "desc" {
+					direction = "desc"
+				}
+			}
+			srt = append(srt, field+" "+direction)
 		}
 		p.Sort = strings.Join(srt, ",")
 	}

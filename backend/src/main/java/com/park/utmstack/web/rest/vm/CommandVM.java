@@ -12,6 +12,8 @@ public class CommandVM {
     @NotBlank
     String reason;
 
+    String shell;
+
     public String getCommand() {
         return command;
     }
@@ -42,5 +44,13 @@ public class CommandVM {
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public String getShell() {
+        return shell;
+    }
+
+    public void setShell(String shell) {
+        this.shell = shell;
     }
 }

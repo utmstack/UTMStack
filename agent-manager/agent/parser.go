@@ -100,7 +100,11 @@ func replaceSecretValues(input string) string {
 			return match
 		}
 		encryptedValue := matches[2]
-		decryptedValue, _ := utils.DecryptValue(config.EncryptionKey, encryptedValue)
+		decryptedValue, err := utils.DecryptValue(config.EncryptionKey, encryptedValue)
+		if err != nil {
+			catcher.Error("failed to decrypt secret value in command", err, map[string]any{"process": "agent-manager"})
+			return match
+		}
 		return decryptedValue
 	})
 }

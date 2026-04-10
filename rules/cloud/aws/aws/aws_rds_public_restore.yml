@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS RDS Database Restored as Publicly Accessible
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Exfiltration
+technique: "T1020 - Automated Exfiltration"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_RestoreFromSnapshot.html
+  - https://attack.mitre.org/techniques/T1020/
+description: |
+  Detects RestoreDBInstanceFromDBSnapshot or RestoreDBClusterFromSnapshot API calls that may create publicly accessible database instances. Attackers use this to exfiltrate database contents by restoring a snapshot as a publicly accessible instance.
+
+  Next Steps:
+  1. Verify the database restore was authorized and part of an approved workflow
+  2. Check if the restored instance is publicly accessible
+  3. Review the security group and subnet configuration of the restored instance
+  4. Identify the source snapshot and its data sensitivity
+  5. If publicly accessible and unauthorized, immediately modify the instance to private
+  6. Check for any connections to the restored instance from external IPs
+where: |
+  equals("log.eventSource", "rds.amazonaws.com") &&
+  oneOf("log.eventName", ["RestoreDBInstanceFromDBSnapshot", "RestoreDBClusterFromSnapshot"]) &&
+  equals("log.errorCode", "") &&
+  contains("log.requestParameters", "publiclyAccessible")
+groupBy:
+  - adversary.user
+  - lastEvent.log.eventName

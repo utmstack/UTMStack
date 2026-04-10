@@ -1,0 +1,21 @@
+# Rule version v1.0.1
+
+dataTypes:
+  - "linux"
+name: "System Linux: Hping Process Activity"
+impact:
+  confidentiality: 1
+  integrity: 1
+  availability: 2
+category: "Discovery"
+technique: "T1082 - System Information Discovery"
+adversary: origin
+description: "Hping ran on a Linux host. Hping is a FOSS command-line packet analyzer and has the ability to construct network packets
+              for a wide variety of network security testing applications, including scanning and firewall auditing."
+references:
+  - "https://attack.mitre.org/tactics/TA0007/"
+  - "https://attack.mitre.org/techniques/T1082/"
+where: contains("log.message", "hping")
+deduplicateBy:
+  - origin.ip
+  - origin.user

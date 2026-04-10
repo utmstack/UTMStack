@@ -1,0 +1,22 @@
+# Rule version v1.0.1
+
+dataTypes:
+  - "linux"
+name: "System Linux: File Deletion via Shred"
+impact:
+  confidentiality: 1
+  integrity: 2
+  availability: 3
+category: "Defense Evasion"
+technique: "T1070.004 - Indicator Removal"
+adversary: target
+description: "Malware or other files dropped or created on a system by an adversary may leave traces behind as to what was done within
+              a network and how. Adversaries may remove these files over the course of an intrusion to keep their footprint low or
+              remove them at the end as part of the post-intrusion cleanup process."
+references:
+  - "https://attack.mitre.org/tactics/TA0005/"
+  - "https://attack.mitre.org/techniques/T1070/004/"
+where: regexMatch("log.message", "(shred (-u|--remove|-z|--zero))")
+groupBy:
+  - target.ip
+  - target.user

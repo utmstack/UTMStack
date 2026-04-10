@@ -69,6 +69,11 @@ func GetCloudConfig(env CloudEnvironment) CloudConfig {
 	return config
 }
 
+var (
+	activeGroupsMu sync.RWMutex
+	activeGroups   = make(map[int32]*config.ModuleGroup)
+)
+
 func main() {
 	mode := plugins.GetCfg("plugin_com.utmstack.o365").Env.Mode
 	if mode != "manager" {
@@ -81,23 +86,97 @@ func main() {
 		go plugins.SendLogsFromChannel("com.utmstack.o365")
 	}
 
+	watchConfigAndPull()
+}
+
+func syncActiveGroups(newConfig *config.ConfigurationSection) {
+	activeGroupsMu.Lock()
+	defer activeGroupsMu.Unlock()
+
+	if newConfig == nil || !newConfig.ModuleActive {
+		catcher.Info("Module deactivated, clearing all groups", map[string]any{
+			"process": "plugin_com.utmstack.o365",
+		})
+		activeGroups = make(map[int32]*config.ModuleGroup)
+		return
+	}
+
+	newGroups := make(map[int32]*config.ModuleGroup)
+	for _, grp := range newConfig.ModuleGroups {
+		newGroups[grp.Id] = grp
+	}
+
+	for id := range activeGroups {
+		if _, exists := newGroups[id]; !exists {
+			catcher.Info("Group removed from configuration", map[string]any{
+				"process": "plugin_com.utmstack.o365",
+			})
+		}
+	}
+
+	for id := range newGroups {
+		if _, exists := activeGroups[id]; !exists {
+			catcher.Info("New group added to configuration", map[string]any{
+				"process": "plugin_com.utmstack.o365",
+			})
+		}
+	}
+
+	activeGroups = newGroups
+}
+
+func getActiveGroups() []*config.ModuleGroup {
+	activeGroupsMu.RLock()
+	defer activeGroupsMu.RUnlock()
+
+	groups := make([]*config.ModuleGroup, 0, len(activeGroups))
+	for _, grp := range activeGroups {
+		groups = append(groups, grp)
+	}
+	return groups
+}
+
+func watchConfigAndPull() {
+	time.Sleep(3 * time.Second)
+
+	initialConfig := config.GetConfig()
+	if initialConfig != nil && initialConfig.ModuleActive {
+		syncActiveGroups(initialConfig)
+	}
+
 	delay := 5 * time.Minute
 	ticker := time.NewTicker(delay)
 	defer ticker.Stop()
 
 	startTime := time.Now().UTC().Add(-delay)
 
-	for range ticker.C {
-		endTime := time.Now().UTC()
+	for {
+		select {
+		case newConfig := <-config.GetConfigUpdateChannel():
+			catcher.Info("Received config update, syncing groups", map[string]any{
+				"moduleActive": newConfig != nil && newConfig.ModuleActive,
+				"process":      "plugin_com.utmstack.o365",
+			})
+			syncActiveGroups(newConfig)
 
-		moduleConfig := config.GetConfig()
-		if moduleConfig != nil && moduleConfig.ModuleActive {
-			checkConfiguredEnvironments(moduleConfig.ModuleGroups)
+		case <-ticker.C:
+			endTime := time.Now().UTC()
+
+			groups := getActiveGroups()
+			if len(groups) == 0 {
+				catcher.Info("No active groups, skipping pull", map[string]any{
+					"process": "plugin_com.utmstack.o365",
+				})
+				startTime = endTime.Add(1 * time.Nanosecond)
+				continue
+			}
+
+			checkConfiguredEnvironments(groups)
 
 			var wg sync.WaitGroup
-			wg.Add(len(moduleConfig.ModuleGroups))
+			wg.Add(len(groups))
 
-			for _, grp := range moduleConfig.ModuleGroups {
+			for _, grp := range groups {
 				go func(group *config.ModuleGroup) {
 					defer wg.Done()
 					pull(startTime, endTime, group)
@@ -105,9 +184,8 @@ func main() {
 			}
 
 			wg.Wait()
+			startTime = endTime.Add(1 * time.Nanosecond)
 		}
-
-		startTime = endTime.Add(1 * time.Nanosecond)
 	}
 }
 

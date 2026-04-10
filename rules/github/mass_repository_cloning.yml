@@ -1,46 +1,46 @@
-- id: 1002
-  dataTypes:
-    - github
-  name: GitHub Mass Repository Cloning Detection
-  impact:
-    confidentiality: 3
-    integrity: 2
-    availability: 1
-  category: Collection
-  technique: "T1213 - Data from Information Repositories"
-  adversary: origin
-  references:
-    - https://docs.github.com/en/webhooks/webhook-events-and-payloads#push
-    - https://attack.mitre.org/techniques/T1213/
-  description: |
-    Detects when multiple repositories are cloned or accessed in a short time period, which could indicate data exfiltration or reconnaissance activities. This rule monitors for patterns of repository access that exceed normal user behavior, potentially indicating an insider threat or compromised account attempting to steal source code.
-    
-    Next Steps:
-    1. Review the user account activity to determine if this is legitimate behavior
-    2. Check if the user typically accesses multiple repositories as part of their role
-    3. Verify if the account shows signs of compromise (unusual login locations, times, or authentication methods)
-    4. Review which repositories were accessed and determine their sensitivity
-    5. Contact the user to verify the activity if suspicious
-    6. Consider temporarily suspending the account if malicious activity is confirmed
-    7. Review access logs for the specific repositories that were cloned
-    8. Check for any data downloads or exports from the same user session
-  where: >
-    (safe(log.action, "") == "push" || 
-     safe(log.action, "") == "clone" ||
-     safe(log.action, "") == "fetch" ||
-     safe(log.action, "") == "pull") &&
-    safe(log.repository.clone_url, "") != "" &&
-    safe(log.sender.login, "") != ""
-  afterEvents:
-    - indexPattern: v11-log-github-*
-      with:
-        - field: log.sender.login.keyword
-          operator: filter_term
-          value: '{{log.sender.login}}'
-        - field: log.action.keyword
-          operator: filter_match
-          value: 'clone fetch pull'
-      within: now-30m
-      count: 10
-  deduplicateBy:
-    - lastEvent.log.sender.login
+# Rule version v1.0.0
+
+dataTypes:
+  - github
+name: GitHub Mass Repository Cloning Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Collection
+technique: "T1213 - Data from Information Repositories"
+adversary: origin
+references:
+  - https://docs.github.com/en/webhooks/webhook-events-and-payloads#push
+  - https://attack.mitre.org/techniques/T1213/
+description: |
+  Detects when multiple repositories are cloned or accessed in a short time period, which could indicate data exfiltration or reconnaissance activities. This rule monitors for patterns of repository access that exceed normal user behavior, potentially indicating an insider threat or compromised account attempting to steal source code.
+  
+  Next Steps:
+  1. Review the user account activity to determine if this is legitimate behavior
+  2. Check if the user typically accesses multiple repositories as part of their role
+  3. Verify if the account shows signs of compromise (unusual login locations, times, or authentication methods)
+  4. Review which repositories were accessed and determine their sensitivity
+  5. Contact the user to verify the activity if suspicious
+  6. Consider temporarily suspending the account if malicious activity is confirmed
+  7. Review access logs for the specific repositories that were cloned
+  8. Check for any data downloads or exports from the same user session
+where: |
+  (equals("log.action", "clone") ||
+   equals("log.action", "git.clone") ||
+   equals("log.action", "git.fetch")) &&
+  exists("log.repositoryName") &&
+  exists("log.senderLogin")
+afterEvents:
+  - indexPattern: v11-log-github-*
+    with:
+      - field: log.senderLogin
+        operator: filter_term
+        value: '{{.log.senderLogin}}'
+      - field: log.action
+        operator: filter_match
+        value: 'clone fetch'
+    within: now-30m
+    count: 10
+groupBy:
+  - lastEvent.log.senderLogin

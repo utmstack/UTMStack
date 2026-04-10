@@ -436,6 +436,9 @@ public class CollectorOpsService {
                 utmModuleGroupRepository.deleteAll(configs);
             } else {
                 for (UtmModuleGroupConfiguration key : keys) {
+                    if (key.getConfDataType().equals("password") && Constants.MASKED_VALUE.equals(key.getConfValue())) {
+                        continue;
+                    }
                     if (key.getConfRequired() && !StringUtils.hasText(key.getConfValue()))
                         throw new Exception(String.format("No value was found for required configuration: %1$s (%2$s)", key.getConfName(), key.getConfKey()));
                     if (key.getConfDataType().equals("password"))

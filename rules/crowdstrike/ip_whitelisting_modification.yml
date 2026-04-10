@@ -1,0 +1,19 @@
+name: "IP Whitelisting Modification"
+description: "IP addresses have been added to or removed from the CrowdStrike whitelist. An attacker could use this to evade network blocking."
+category: "Defense Evasion"
+technique: "Impair Defenses: Disable or Modify Cloud Firewall"
+references:
+  - "https://attack.mitre.org/techniques/T1562/007/"
+dataTypes:
+  - crowdstrike
+adversary: origin
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 2
+where: >
+  exists("log.eventOperationName") && 
+  oneOf("log.eventOperationName", ["ip_rules_added", "ip_rules_removed"])
+groupBy:
+  - lastEvent.log.eventUserId
+  - lastEvent.log.eventOperationName

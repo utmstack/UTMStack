@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - github
+name: GitHub Organization Member to Owner Role Escalation
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1098 - Account Manipulation"
+adversary: origin
+references:
+  - https://docs.github.com/en/organizations/managing-peoples-access-to-your-organization-with-roles/roles-in-an-organization
+  - https://attack.mitre.org/techniques/T1098/
+description: |
+  Detects escalation of GitHub organization member roles from member to owner. Organization owners have full administrative access including managing billing, teams, repositories, and security settings. Unauthorized role escalation can lead to complete organizational compromise.
+
+  Next Steps:
+  1. Verify the role change was authorized by an existing organization owner
+  2. Review the user being promoted and their business justification
+  3. Check if the promoting owner's account shows signs of compromise
+  4. Review the new owner's recent activities post-escalation
+  5. Check for changes to organization settings, webhooks, or security configurations
+  6. If unauthorized, immediately demote the user and investigate the promoting account
+  7. Enable required two-factor authentication for all organization owners
+  8. Implement audit log streaming for real-time organization event monitoring
+where: |
+  (equals("log.action", "org.update_member") ||
+   equals("log.action", "org.add_member")) &&
+  equals("log.permission", "admin") &&
+  exists("log.senderLogin")
+groupBy:
+  - lastEvent.log.senderLogin
+  - lastEvent.log.user

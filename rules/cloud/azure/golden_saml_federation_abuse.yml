@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Azure AD Golden SAML and Federation Domain Abuse
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Credential Access
+technique: "T1606.002 - Forge Web Credentials: SAML Tokens"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/azure/active-directory/hybrid/whatis-fed
+  - https://attack.mitre.org/techniques/T1606/002/
+description: |
+  Detects additions or modifications of federated domains in Azure AD which could indicate Golden SAML attacks. Attackers who compromise AD FS signing certificates or add rogue federation domains can forge SAML tokens to impersonate any user in the organization.
+
+  Next Steps:
+  1. Immediately verify if the federation domain change was authorized
+  2. Review the domain being added and its federation metadata endpoint
+  3. Check the AD FS signing certificate for unauthorized modifications
+  4. Verify the identity of the administrator making the change
+  5. Review Azure AD audit logs for other suspicious tenant-level changes
+  6. If unauthorized, immediately remove the federated domain and revoke all active sessions
+  7. Rotate the AD FS token signing certificate
+  8. Enable Certificate Authority revocation checking for federation certificates
+where: |
+  (contains("log.operationName", "Set federation settings on domain") ||
+   contains("log.operationName", "Set domain authentication") ||
+   contains("log.operationName", "Add unverified domain") ||
+   contains("log.operationName", "Add verified domain") ||
+   contains("log.operationName", "Set DomainFederationSettings")) &&
+  equals("log.categoryValue", "Administrative")
+groupBy:
+  - lastEvent.log.operationName
+  - adversary.user

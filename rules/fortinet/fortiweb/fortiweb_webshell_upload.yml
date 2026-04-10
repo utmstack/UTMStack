@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-fortiweb
+name: FortiWeb Web Shell Upload Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Persistence
+technique: "T1505.003 - Server Software Component: Web Shell"
+adversary: origin
+references:
+  - https://docs.fortinet.com/document/fortiweb/7.4.3/administration-guide/210196/blocking-known-attacks
+  - https://attack.mitre.org/techniques/T1505/003/
+description: |
+  Detects web shell upload attempts blocked or detected by FortiWeb. Web shells provide persistent remote access and command execution on compromised web servers.
+
+  Next Steps:
+  1. Verify if the upload attempt was blocked or if it succeeded
+  2. Review the uploaded file name and extension for known web shell patterns
+  3. Scan the web server for existing web shells that may have been uploaded earlier
+  4. Check the upload endpoint for proper file validation controls
+  5. Review the source IP for additional attack attempts
+  6. If a web shell was successfully uploaded, immediately isolate the server
+where: |
+  oneOf("action", ["deny", "block", "alert_deny", "alert"]) &&
+  (regexMatch("log.msg", "(?i)(web.*shell|backdoor.*upload|cmd.*shell|reverse.*shell|\.php.*upload|\.asp.*upload|\.jsp.*upload|c99|r57|china.*chopper|weevely|b374k)") ||
+   (contains("log.attack_type", "file_upload") && contains("log.msg", ["shell", "backdoor", "malicious"])) ||
+   regexMatch("log.msg", "(?i)(file.*upload.*violat|upload.*restrict|dangerous.*file.*type)"))
+groupBy:
+  - adversary.ip
+  - target.ip

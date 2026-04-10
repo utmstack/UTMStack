@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: macOS Cron Job Persistence
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Persistence
+technique: "T1053.003 - Scheduled Task/Job: Cron"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1053/003/
+description: |
+  Detects crontab modifications on macOS systems. Although cron is deprecated on macOS in favor of launchd, attackers still use it for persistence as it is less commonly monitored.
+
+  Next Steps:
+  1. Review the crontab entry for suspicious commands
+  2. Check the user account that modified the crontab
+  3. Verify the scheduled command is not downloading or executing malware
+  4. Remove unauthorized cron entries
+  5. Check for other persistence mechanisms
+where: |
+  (contains("log.eventMessage", "crontab") || equals("log.process", "cron")) &&
+  (contains("log.eventMessage", "REPLACE") || contains("log.eventMessage", "INSTALL") ||
+   contains("log.eventMessage", "BEGIN EDIT") || contains("log.eventMessage", "END EDIT") ||
+   contains("log.eventMessage", "crontab") && contains("log.eventMessage", "modified"))
+groupBy:
+  - adversary.host
+  - adversary.user

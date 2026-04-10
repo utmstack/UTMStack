@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Time Machine Backup Deletion Detected
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 3
+category: Impact
+technique: "T1490 - Inhibit System Recovery"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1490/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_tmutil_delete_backup.yml
+description: |
+  Detects the use of tmutil to delete Time Machine backups on macOS. This is a common ransomware preparation technique where attackers delete backups to prevent recovery after encryption. Legitimate backup deletions are rare and should be closely monitored.
+
+  Next Steps:
+  1. Immediately verify if backup deletion was authorized
+  2. Identify the user and process that executed tmutil delete
+  3. Check for ransomware indicators on the system (file encryption, ransom notes)
+  4. Verify the integrity of remaining backups
+  5. Isolate the system from the network if ransomware is suspected
+  6. Ensure offsite or cloud backups are intact and accessible
+where: |
+  contains("log.eventMessage", "tmutil") &&
+  contains("log.eventMessage", "delete")
+groupBy:
+  - adversary.host
+  - adversary.user

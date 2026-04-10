@@ -1,0 +1,21 @@
+# Rule version v1.0.1
+
+dataTypes:
+  - "linux"
+name: "System Linux: Persistence via KDE AutoStart Script or Desktop File Modification"
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 3
+category: "Persistence"
+technique: "T1547 - Boot or Logon Autostart Execution"
+adversary: origin
+description: "Identifies the creation or modification of a K Desktop Environment (KDE) AutoStart script or desktop file that will
+              execute upon each user logon. Adversaries may abuse this method for persistence."
+references:
+  - "https://attack.mitre.org/tactics/TA0003/"
+  - "https://attack.mitre.org/techniques/T1547/"
+where: regexMatch("log.message", "sh,desktop") && regexMatch("log.message", "(/home/(.+)/.config/autostart/|/root/.config/autostart/|/home/(.+)/.kde/Autostart/|/root/.kde/Autostart/|/home/(.+)/.kde4/Autostart/|/root/.kde4/Autostart/|/home/(.+)/.kde/share/autostart/|/root/.kde/share/autostart/|/home/(.+)/.kde4/share/autostart/|/root/.kde4/share/autostart/|/home/(.+)/.local/share/autostart/|/root/.local/share/autostart/|/home/(.+)/.config/autostart-scripts/|/root/.config/autostart-scripts/|/etc/xdg/autostart/|/usr/share/autostart/)") && !regexMatch("log.message", "(yum|dpkg|install|dnf|teams|yum-cron|dnf-automatic)")
+groupBy:
+  - origin.ip
+  - origin.user

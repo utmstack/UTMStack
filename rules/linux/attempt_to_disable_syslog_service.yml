@@ -1,0 +1,21 @@
+# Rule version v1.0.1
+
+dataTypes:
+  - "linux"
+name: "System Linux: Attempt to Disable Syslog Service"
+impact:
+  confidentiality: 1
+  integrity: 2
+  availability: 3
+category: "Defense Evasion"
+technique: "T1562.001 - Impair Defenses"
+adversary: origin
+description: "Adversaries may attempt to disable the syslog service in an attempt to an attempt to disrupt event logging and evade
+              detection by security controls."
+references:
+  - "https://attack.mitre.org/tactics/TA0005/"
+  - "https://attack.mitre.org/techniques/T1562/001/"
+where: regexMatch("log.message", "((service|chkconfig) (syslog|rsyslog|syslog-ng) (stop|disable|off|kill))|((systemctl) (stop|disable|off|kill) (syslog|rsyslog|syslog-ng))")
+groupBy:
+  - origin.ip
+  - origin.user

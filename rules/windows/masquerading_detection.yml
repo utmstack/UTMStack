@@ -1,0 +1,65 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: Process Masquerading Detection
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1036.005 - Masquerading: Match Legitimate Name or Location"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1036/005/
+  - https://www.elastic.co/blog/how-hunt-masquerade-ball
+  - https://redcanary.com/threat-detection-report/techniques/masquerading/
+description: |
+  Detects executables masquerading as legitimate Windows system processes but running from
+  incorrect locations. For example, svchost.exe should only run from C:\Windows\System32,
+  and explorer.exe should only run from C:\Windows. Malware commonly uses legitimate process
+  names to avoid detection by analysts and automated tools.
+
+  Next Steps:
+  1. Identify the actual file path of the masquerading process
+  2. Compare the file hash against known good versions of the legitimate binary
+  3. Check the digital signature of the suspicious executable
+  4. Analyze the executable in a sandbox environment
+  5. Review the parent process that launched the masquerading binary
+  6. Kill the suspicious process and quarantine the file
+  7. Search for other instances of the same file across the environment
+where: |
+  (equals("log.eventCode", "4688") || equals("log.eventCode", "1")) &&
+  (
+    (
+      regexMatch("log.eventDataProcessName", "(?i)\\\\csrss\\.exe$") &&
+      !regexMatch("log.eventDataProcessName", "(?i)^C:\\\\Windows\\\\(System32|SysWOW64)\\\\csrss\\.exe$")
+    ) ||
+    (
+      regexMatch("log.eventDataProcessName", "(?i)\\\\services\\.exe$") &&
+      !regexMatch("log.eventDataProcessName", "(?i)^C:\\\\Windows\\\\System32\\\\services\\.exe$")
+    ) ||
+    (
+      regexMatch("log.eventDataProcessName", "(?i)\\\\smss\\.exe$") &&
+      !regexMatch("log.eventDataProcessName", "(?i)^C:\\\\Windows\\\\System32\\\\smss\\.exe$")
+    ) ||
+    (
+      regexMatch("log.eventDataProcessName", "(?i)\\\\wininit\\.exe$") &&
+      !regexMatch("log.eventDataProcessName", "(?i)^C:\\\\Windows\\\\System32\\\\wininit\\.exe$")
+    ) ||
+    (
+      regexMatch("log.eventDataProcessName", "(?i)\\\\explorer\\.exe$") &&
+      !regexMatch("log.eventDataProcessName", "(?i)^C:\\\\Windows\\\\explorer\\.exe$")
+    ) ||
+    (
+      regexMatch("log.eventDataProcessName", "(?i)\\\\svchost\\.exe$") &&
+      !regexMatch("log.eventDataProcessName", "(?i)^C:\\\\Windows\\\\(System32|SysWOW64)\\\\svchost\\.exe$")
+    ) ||
+    (
+      regexMatch("log.eventDataProcessName", "(?i)\\\\lsass\\.exe$") &&
+      !regexMatch("log.eventDataProcessName", "(?i)^C:\\\\Windows\\\\System32\\\\lsass\\.exe$")
+    )
+  )
+groupBy:
+  - origin.host
+  - target.user

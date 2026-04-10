@@ -1,0 +1,81 @@
+# Rule version v1.0.4
+
+dataTypes:
+  - azure
+name: "Azure Global Administrator Role Addition to PIM User"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: "Persistence"
+technique: "T1098.001 - Account Manipulation: Additional Cloud Credentials"
+adversary: target
+description: |
+  Detects when users are granted Global Administrator (Company Administrator) role assignments through Azure AD/Entra ID Privileged Identity Management (PIM).
+  
+  **Security Context:**
+  The Global Administrator role is the most powerful administrative role in Azure AD/Entra ID, granting complete control over all aspects of the directory and services that use Azure AD identities. PIM enables just-in-time privileged access through eligible (requires activation) or time-bound assignments. Adversaries who gain sufficient privileges may add themselves or other compromised accounts to this role to establish persistence and maintain full administrative control over the tenant.
+  
+  **Detection Logic:**
+  This rule monitors AuditLogs for successful PIM role assignments specifically for the Global Administrator role. It detects both:
+  - **Eligible assignments (permanent)**: User can activate the role when needed
+  - **Active assignments (time-bound)**: Role is directly active for a specified duration
+  
+  The rule identifies these assignments through the operation names and filters for the Global Administrator role specifically.
+  
+  **Investigation Steps:**
+  1. Identify the assignor: Check log.propertiesInitiatedBy for who made the role assignment
+  2. Identify the assignee: Examine log.propertiesTargetResources for the user receiving the role
+  3. Verify authorization: Confirm if this assignment was part of approved privileged access request
+  4. Check assignment type: Determine if it's eligible (requires activation) or time-bound (direct)
+  5. Review duration: For time-bound assignments, check the duration of the assignment
+  6. Analyze timing: Determine if assignment follows suspicious authentication or compromise indicators
+  7. Review justification: Check if a business justification was provided in log.propertiesAdditionalDetails
+  8. Check user history: Review the assignee's account for recent suspicious activity
+  9. Examine recent actions: Look for privileged operations performed immediately after assignment
+  10. Correlate with sign-ins: Check for unusual authentication patterns before/after assignment
+  
+  **Recommended Actions:**
+  - If unauthorized, immediately revoke the Global Administrator role assignment
+  - Review all recent PIM role assignments for anomalies
+  - Enable PIM approval workflows for Global Administrator role assignments
+  - Implement maximum assignment duration limits for time-bound assignments
+  - Require MFA and justification for all Global Administrator activations
+  - Enable PIM alerts for high-privilege role assignments
+  - Audit accounts with Privileged Role Administrator permissions
+  - Review and limit the number of permanent Global Administrator assignments
+  - Enable Azure AD Identity Protection to detect compromised credentials
+  - Implement break-glass emergency access accounts following best practices
+  
+  **PIM Assignment Types:**
+  - **Eligible (permanent)**: User must activate the role when needed, typically with MFA and justification
+  - **Active (time-bound)**: Role is directly assigned for a limited duration without activation required
+  - Both types should be monitored as adversaries may use either for persistence
+  
+  **Common Attack Patterns:**
+  - Compromised Privileged Role Administrator adding backdoor accounts
+  - Insider threat establishing persistent administrative access
+  - Privilege escalation from lower-privilege administrative roles
+  - Adding service principals or managed identities to Global Administrator role
+  - Creating long-duration time-bound assignments for sustained access
+  
+  **MITRE ATT&CK Reference:** T1098.001 - Account Manipulation: Additional Cloud Credentials
+  
+  **Azure Documentation:**
+  - AuditLogs table: https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs
+  - PIM for Azure AD roles: https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure
+
+references:
+  - "https://attack.mitre.org/techniques/T1098/001/"
+  - "https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs"
+  - "https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure"
+  - "https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference#global-administrator"
+
+where: |
+  equalsIgnoreCase("log.category", "AuditLogs") &&
+  (equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS")) &&
+  (contains("log.operationName", "Add eligible member to role") || contains("log.operationName", "Add member to role")) &&
+  (contains("log.properties.targetResources.displayName", "Global Administrator") || contains("log.properties.targetResources.displayName", "Company Administrator"))
+groupBy:
+  - target.ip
+  - target.user

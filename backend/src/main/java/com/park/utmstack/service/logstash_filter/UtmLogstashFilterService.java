@@ -35,14 +35,9 @@ public class UtmLogstashFilterService {
      * @return the persisted entity
      */
     public UtmLogstashFilter save(UtmLogstashFilter logstashFilter) {
-        return save(logstashFilter, false);
-    }
-
-    public UtmLogstashFilter save(UtmLogstashFilter logstashFilter, boolean forcedSystemMode) {
         final String ctx = CLASSNAME + ".save";
         try {
             logstashFilter.setUpdatedAt(Instant.now());
-            logstashFilter.setSystemOwner(forcedSystemMode);
             return logstashFilterRepository.save(logstashFilter);
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());

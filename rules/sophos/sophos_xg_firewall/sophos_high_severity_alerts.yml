@@ -1,0 +1,24 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "firewall-sophos-xg"
+name: "Sophos detected high priority alerts"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: "Initial Access"
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references: 
+  - "https://docs.sophos.com/nsg/sophos-firewall/17.5/Help/en-us/webhelp/onlinehelp/nsg/concepts/LogIDStructure.html"
+  - "https://docs.sophos.com/nsg/sophos-firewall/17.5/Help/en-us/webhelp/onlinehelp/nsg/sfos/concepts/LogMessages.html"
+description: "The Sophos firewall device has detected a high priority event. For the alert purpose, high priority is when log priority is: Emergency, Critical or Alert, and not part of the list of risked applications.
+              Please see the logs attached to this alert for additional details."
+where: |
+  oneOf("log.priority", ["Emergency", "Critical", "Alert"]) &&
+  !regexMatch("log.application", "(Torrent|Proxy|EXE File Download|eMule P2P|Ares P2P|Avast Antivirus|NetFlix|McAfee Antivirus|AVG Antivirus|ISAKMP VPN|WeTransfer Base|Xbox LIVE|OSC_AMU)") &&
+  !regexMatch("log.applicationName", "(Torrent|Proxy|EXE File Download|eMule P2P|Ares P2P|Avast Antivirus|NetFlix|McAfee Antivirus|AVG Antivirus|ISAKMP VPN|WeTransfer Base|Xbox LIVE|OSC_AMU)")
+groupBy:
+  - adversary.ip
+  - target.ip

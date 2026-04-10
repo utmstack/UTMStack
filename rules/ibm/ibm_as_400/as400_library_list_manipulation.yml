@@ -1,0 +1,50 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - ibm-as400
+name: IBM AS/400 Library List Manipulation Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1574 - Hijack Execution Flow"
+adversary: origin
+references:
+  - https://www.ibm.com/docs/en/i/7.5?topic=concepts-library-lists
+  - https://attack.mitre.org/techniques/T1574/
+description: |
+  Detects manipulation of IBM AS/400 library lists using CHGLIBL, ADDLIBLE, or CHGSYSLIBL commands. Attackers modify library lists to inject malicious programs that execute instead of legitimate system commands (library list hijacking).
+
+  Next Steps:
+  1. Review the library list changes and added libraries
+  2. Verify the changes were authorized
+  3. Check the contents of added libraries for malicious programs
+  4. Compare program names in added libraries against system libraries
+  5. Remove unauthorized library list entries
+  6. Restrict CHGLIBL and ADDLIBLE authority
+where: |
+  exists("log.message") &&
+  (
+    contains("log.message", "CHGLIBL") ||
+    contains("log.message", "ADDLIBLE") ||
+    contains("log.message", "CHGSYSLIBL") ||
+    contains("log.message", "RMVLIBLE") ||
+    (contains("log.message", "library list") && (
+      contains("log.message", "changed") ||
+      contains("log.message", "modified") ||
+      contains("log.message", "added")
+    )) ||
+    (contains("log.message", "EDTLIBL") && exists("origin.user"))
+  )
+afterEvents:
+  - indexPattern: v11-log-ibm-as400-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+    within: now-15m
+    count: 3
+groupBy:
+  - adversary.host
+  - adversary.user

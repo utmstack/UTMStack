@@ -1,0 +1,25 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: "Microsoft 365 Exchange Safe Link Policy Disabled"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: "Initial Access"
+technique: "T1566 - Phishing"
+adversary: origin
+description: "When it comes to protecting its users, Microsoft takes the threat of phishing seriously. Spoofing is a common technique that's 
+              used by attackers. Spoofed messages appear to originate from someone or somewhere other than the actual source. This technique is often 
+              used in phishing campaigns that are designed to obtain user credentials. The anti-spoofing technology in EOP specifically examines forgery of the From header in the message body (used to display the message sender in email clients). When EOP has high confidence that the From header is forged, the message is identified as spoofed.<br>
+              Identifies when a Safe Link policy is disabled in Microsoft 365. Safe Link policies for Office applications extend
+              phishing protection to documents that contains hyperlinks, even after they have been delivered to a user."
+references:
+  - "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/atp-safe-links?view=o365-worldwide"
+  - "https://attack.mitre.org/techniques/T1566/"
+where: |
+  equals("log.Workload", "Exchange") && equals("action", "Disable-SafeLinksRule") && oneOf("actionResult", ["Success","PartiallySucceeded","True"])
+groupBy:
+  - adversary.ip
+  - adversary.user

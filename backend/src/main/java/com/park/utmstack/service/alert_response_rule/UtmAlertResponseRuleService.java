@@ -283,8 +283,9 @@ public class UtmAlertResponseRuleService {
                     if (agent.getStatus().equals(AgentStatusEnum.ONLINE)) {
                         String reason = "The incident response automation executed this command because it was accomplished the conditions of the rule with ID: " + cmd.getRuleId();
                         final StringBuilder results = new StringBuilder();
+                        String shell = cmd.getRule() != null ? cmd.getRule().getRuleShell() : null;
                         incidentResponseCommandService.sendCommand(String.valueOf(agent.getId()), utmIncidentVariableService.replaceVariablesInCommand(cmd.getCommand()), "INCIDENT_RESPONSE_AUTOMATION",
-                                cmd.getRuleId().toString(), reason, Constants.SYSTEM_ACCOUNT, new StreamObserver<>() {
+                                cmd.getRuleId().toString(), reason, Constants.SYSTEM_ACCOUNT, shell, new StreamObserver<>() {
                                     @Override
                                     public void onNext(CommandResult commandResult) {
                                         results.append(commandResult.getResult());

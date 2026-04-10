@@ -1,0 +1,24 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "aws"
+name: "AWS CloudTrail Log Deleted"
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: "Defense Evasion"
+technique: "T1562 - Impair Defenses"
+adversary: origin
+description: "Identifies the deletion of an AWS log trail. An adversary may delete trails in an attempt to evade defenses"
+references:
+  - "https://attack.mitre.org/tactics/TA0005/"
+  - "https://attack.mitre.org/techniques/T1562/"
+  - "https://docs.aws.amazon.com/awscloudtrail/latest/APIReference/API_DeleteTrail.html"
+  - "https://awscli.amazonaws.com/v2/documentation/api/latest/reference/cloudtrail/delete-trail.html"
+where: |
+  equals("log.eventSource", "cloudtrail.amazonaws.com") &&
+  equals("log.eventName", "DeleteTrail")
+groupBy:
+  - adversary.ip
+  - adversary.user
