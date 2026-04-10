@@ -9,7 +9,7 @@ require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/google/uuid v1.6.0
 	github.com/kardianos/service v1.2.4
-	github.com/threatwinds/go-sdk v1.1.15
+	github.com/threatwinds/go-sdk v1.1.18
 	github.com/threatwinds/logger v1.2.3
 	google.golang.org/grpc v1.79.1
 	google.golang.org/protobuf v1.36.11
