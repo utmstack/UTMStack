@@ -1,5 +1,5 @@
 import {HttpResponse} from '@angular/common/http';
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, ChangeDetectorRef} from '@angular/core';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {LOG_INDEX_PATTERN, SOC_AI_INDEX_PATTERN} from '../../../../../shared/constants/main-index-pattern.constant';
 import {ElasticOperatorsEnum} from '../../../../../shared/enums/elastic-operators.enum';
@@ -26,6 +26,7 @@ export class AlertSocAiComponent implements OnInit, OnDestroy {
 
   constructor(private elasticDataService: ElasticDataService,
               private alertSocAiService: AlertSocAiService,
+              private cdt:ChangeDetectorRef,
               private utmToastService: UtmToastService) {}
 
   ngOnInit() {
@@ -36,6 +37,7 @@ export class AlertSocAiComponent implements OnInit, OnDestroy {
 
   getSocAiResponse() {
     this.loading = true;
+    this.cdt.markForCheck()
     const filter: ElasticFilterType[] = [{
       field: 'activityId',
       operator: ElasticOperatorsEnum.IS,
@@ -44,6 +46,7 @@ export class AlertSocAiComponent implements OnInit, OnDestroy {
     this.elasticDataService.search(1, 1, 1, SOC_AI_INDEX_PATTERN, filter)
       .subscribe((res: HttpResponse<any>) => {
         this.loading = false;
+        this.cdt.markForCheck()
         if (!res || res.body.length === 0) {
           this.socAiResponse = res.body;
         } else {
@@ -60,8 +63,9 @@ export class AlertSocAiComponent implements OnInit, OnDestroy {
           }
         }
       },
-      (res: HttpResponse<any>) => {
+      (_res: HttpResponse<any>) => {
         this.loading = false;
+        this.cdt.markForCheck()
       }
     );
   }
@@ -83,15 +87,17 @@ export class AlertSocAiComponent implements OnInit, OnDestroy {
     }
 
     this.loadingProcess = true;
+    this.cdt.markForCheck()
     this.alertSocAiService.analyzeAlert(this.alert)
       .subscribe((res) => {
           this.utmToastService.showSuccessBottom('Alert submitted for SOC-AI analysis');
           setTimeout(() => {
             this.loadingProcess = false;
+            this.cdt.markForCheck()
             this.getSocAiResponse();
           }, 3000);
       },
-      (error) => {
+      (_error) => {
         this.utmToastService.showError('Error', 'An error occurred while processing the alert. Please try again later.');
         this.loadingProcess = false;
       });
