@@ -301,6 +301,10 @@
 
     <include file="config/liquibase/changelog/20260112001_add_threatwinds_credentials_section.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260112002_create_table_compliance_control_config.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260112003_create_table_compliance_query_config.xml" relativeToChangelogFile="false"/>
+
     <include file="config/liquibase/changelog/20260113001_update_macos_integration_category.xml" relativeToChangelogFile="false"/>
 
     <include file="/config/liquibase/changelog/20260114001_update_section_instance_config.xml" relativeToChangelogFile="false"/>
@@ -320,10 +324,6 @@
     <include file="/config/liquibase/changelog/20260122004_update_azure_visualizations.xml" relativeToChangelogFile="false"/>
 
     <include file="/config/liquibase/changelog/20260126001_update_regex_for_configuration_parameter_base_url.xml" relativeToChangelogFile="false"/>
-
-    <include file="/config/liquibase/changelog/20260112001_create_table_compliance_control_config.xml" relativeToChangelogFile="false"/>
-
-    <include file="/config/liquibase/changelog/20260112002_create_table_compliance_query_config.xml" relativeToChangelogFile="false"/>
 
     <include file="/config/liquibase/changelog/20260128001_update_azure_correlation_rules.xml" relativeToChangelogFile="false"/>
 
