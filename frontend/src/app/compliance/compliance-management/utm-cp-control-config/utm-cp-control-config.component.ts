@@ -56,7 +56,7 @@ export class UtmCpControlConfigComponent implements OnInit {
       size: 1000,
       sort: 'id,asc',
       'standardSectionId.equals': this.section.id,
-      'configSolution.contains': this.solution
+      'controlSolution.contains': this.solution
     };
     this.complianceControls = [];
     this.cpControlConfigService.query(query).subscribe(response => {

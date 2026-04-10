@@ -7,9 +7,8 @@ import {createRequestOption} from '../../../shared/util/request-util';
 import {ComplianceControlEvaluationHistoryResponse} from '../type/compliance-control-evaluation-history-response.type';
 import {ComplianceControlLatestEvaluationType} from '../type/compliance-control-latest-evaluation.type';
 import {ComplianceControlType} from '../type/compliance-control.type';
-import {ComplianceReportType} from '../type/compliance-report.type';
 
-export interface ControlParams  { // TODO: ELENA para que
+export interface ControlParams  {
   template: ComplianceControlType;
   sectionId: number;
   standardId: number;
@@ -19,7 +18,7 @@ export interface ControlParams  { // TODO: ELENA para que
   providedIn: 'root'
 })
 export class CpControlConfigService extends RefreshDataService<{ sectionId: number,
-                  loading: boolean, reportSelected: number, page?: number }, HttpResponse<ComplianceReportType[]>> {
+                  loading: boolean, reportSelected: number, page?: number }, HttpResponse<ComplianceControlType[]>> {
 
   private resourceUrl = SERVER_API_URL + 'api/compliance/control-config';
   private loadControlSubject = new BehaviorSubject<ControlParams>(null);
@@ -73,10 +72,9 @@ export class CpControlConfigService extends RefreshDataService<{ sectionId: numb
   }
 
   evaluationsByControl(controlId: number, req?: any): Observable<HttpResponse<ComplianceControlEvaluationHistoryResponse>> {
-    const options = createRequestOption(req); // TODO: ELENA valorar si dejo el req
     return this.http.get<ComplianceControlEvaluationHistoryResponse>(
       `${this.resourceUrl}/${controlId}/evaluations`,
-      { params: options, observe: 'response' }
+      { observe: 'response' }
     );
   }
 
@@ -84,4 +82,10 @@ export class CpControlConfigService extends RefreshDataService<{ sectionId: numb
     this.loadControlSubject.next(params);
   }
 
+  find(controlId: number): Observable<HttpResponse<ComplianceControlType>> {
+    return this.http.get<ComplianceControlType>(
+      `${this.resourceUrl}/get-by-id/${controlId}`,
+      { observe: 'response' }
+    );
+  }
 }

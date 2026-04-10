@@ -19,10 +19,20 @@ import {
 import {
   ComplianceQueryEvaluationsViewComponent
 } from '../compliance-evaluation-history-view/compliance-query-evaluations-view/compliance-query-evaluations-view.component';
+
+import {ComplianceLatestEvaluationsViewComponent} from '../compliance-latest-evaluations-view/compliance-latest-evaluations-view.component';
+import {
+  ComplianceLatestEvalPrintViewComponent
+// tslint:disable-next-line:max-line-length
+} from '../compliance-latest-evaluations-view/components/compliance-latest-eval-print-view/compliance-latest-eval-print-view.component';
+import {
+  ComplianceLatestEvalDetailPrintViewComponent
+// tslint:disable-next-line:max-line-length
+} from '../compliance-latest-evaluations-view/components/compliance-latest-evaluation-view-detail/compliance-latest-eval-detail-print-view/compliance-latest-eval-detail-print-view.component';
 import {
   ComplianceLatestEvaluationViewDetailComponent
-} from '../compliance-latest-evaluations-view/compliance-latest-evaluation-view-detail/compliance-latest-evaluation-view-detail.component';
-import {ComplianceLatestEvaluationsViewComponent} from '../compliance-latest-evaluations-view/compliance-latest-evaluations-view.component';
+// tslint:disable-next-line:max-line-length
+} from '../compliance-latest-evaluations-view/components/compliance-latest-evaluation-view-detail/compliance-latest-evaluation-view-detail.component';
 import {ComplianceReportsViewComponent} from '../compliance-reports-view/compliance-reports-view.component';
 import {
   CompliancePrintViewComponent
@@ -94,7 +104,9 @@ import {ComplianceStatusLabelPipe} from './pipes/compliance-status-label.pipe';
     ComplianceTimelineComponent,
     ComplianceQueryEvaluationsViewComponent,
     ComplianceLatestEvaluationViewDetailComponent,
-    ComplianceStatusLabelPipe
+    ComplianceStatusLabelPipe,
+    ComplianceLatestEvalPrintViewComponent,
+    ComplianceLatestEvalDetailPrintViewComponent
   ],
   imports: [
     CommonModule,
@@ -141,7 +153,9 @@ import {ComplianceStatusLabelPipe} from './pipes/compliance-status-label.pipe';
         ComplianceLatestEvaluationsViewComponent,
         ComplianceEvaluationHistoryViewComponent,
         UtmCpSectionConfigComponent,
-        ComplianceStatusLabelPipe
+        ComplianceStatusLabelPipe,
+        ComplianceLatestEvalPrintViewComponent,
+        ComplianceLatestEvalDetailPrintViewComponent
     ]
 })
 export class ComplianceSharedModule {
