@@ -40,6 +40,7 @@ var providerDefaultURLs = map[string]string{
 	"groq":      "https://api.groq.com/openai/v1/chat/completions",
 }
 
+
 var providerDisplayNames = map[string]string{
 	"openai":    "OpenAI",
 	"anthropic": "Anthropic",
@@ -166,10 +167,10 @@ func testSOCAIConnection(socai SOCAIConfig) error {
 	}
 
 	// Test connection with GET request (most APIs return error but validate auth)
-	_, status, err := utils.DoReq[map[string]any](socai.URL, nil, "GET", headers, false)
+	_, status, err := utils.DoReq[map[string]any](socai.URL, nil, "POST", headers, false)
 
 	switch status {
-	case http.StatusOK, http.StatusMethodNotAllowed, http.StatusBadRequest:
+	case http.StatusOK, http.StatusBadRequest:
 		// These are acceptable - means we reached the API and auth worked
 		return nil
 	case http.StatusUnauthorized:
@@ -182,7 +183,7 @@ func testSOCAIConnection(socai SOCAIConfig) error {
 		return fmt.Errorf("Invalid API Key for %s. Please verify your API Key is correct.", providerName)
 	case http.StatusForbidden:
 		return fmt.Errorf("%s API Key does not have the required permissions (HTTP 403). Please verify the API Key has access to the chat completions endpoint.", providerName)
-	case http.StatusNotFound:
+	case http.StatusNotFound, http.StatusMethodNotAllowed:
 		if socai.Provider == "azure" {
 			return fmt.Errorf("Azure OpenAI endpoint not found (HTTP 404). Please verify your Endpoint URL includes the correct resource name and deployment.")
 		}
