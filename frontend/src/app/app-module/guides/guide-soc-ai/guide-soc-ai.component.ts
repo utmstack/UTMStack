@@ -259,7 +259,7 @@ export class GuideSocAiComponent implements OnInit {
     this.providerFormCache[this.activeProvider] = {
       values: {...this.formValues},
       customModel: this.customModelValue,
-      headers: [...this.headerRows.map(r => ({...r}))]
+      headers: (this.headerRows||[]).map(r => ({...r}))
     };
 
     this.activeProvider = event.nextId;
@@ -470,10 +470,12 @@ export class GuideSocAiComponent implements OnInit {
     }).subscribe(
       () => {
         this.saving = false;
+        this.cdr.markForCheck()
         this.toast.showSuccessBottom('SOC AI configuration saved successfully');
       },
       (err) => {
         this.saving = false;
+        this.cdr.markForCheck()
         if (err.status === 400) {
           const message = this.extractValidationError(err);
           this.toast.showError('Invalid Configuration', message);
