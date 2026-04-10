@@ -123,8 +123,10 @@ func (c *BackendClient) GetRequest(ctx context.Context, url string) ([]byte, err
 }
 
 func (b *BackendClient) IndexEvaluationResult(ctx context.Context, index string, doc any) error {
-	baseURL := plugins.PluginCfg("org.opensearch", false).Get("opensearch").String()
-	endpoint := fmt.Sprintf("%s/%s/_doc", baseURL, index)
+	osCfg := LoadOpenSearchConfig()
+	client := NewOpenSearchHTTPClient()
+
+	endpoint := fmt.Sprintf("%s/%s/_doc", osCfg.URL, index)
 
 	jsonBody, err := json.Marshal(doc)
 	if err != nil {
@@ -137,15 +139,17 @@ func (b *BackendClient) IndexEvaluationResult(ctx context.Context, index string,
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	req.SetBasicAuth(osCfg.User, osCfg.Pass)
 
-	resp, err := b.httpClient.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return fmt.Errorf("index request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 300 {
-		return fmt.Errorf("indexing failed with status %d", resp.StatusCode)
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("indexing failed with status %d: %s", resp.StatusCode, string(body))
 	}
 
 	return nil

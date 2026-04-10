@@ -9,40 +9,32 @@ import (
 
 	"github.com/threatwinds/go-sdk/catcher"
 	sdkos "github.com/threatwinds/go-sdk/os"
-	"github.com/threatwinds/go-sdk/plugins"
 )
 
 func ConnectOpenSearch() error {
-	osUrl := plugins.PluginCfg("org.opensearch", false).Get("opensearch").String()
+	osCfg := LoadOpenSearchConfig()
 
-	err := sdkos.Connect([]string{osUrl}, "", "")
+	err := sdkos.Connect([]string{osCfg.URL}, osCfg.User, osCfg.Pass)
 	if err != nil {
 		return catcher.Error("failed to connect to OpenSearch", err, map[string]any{
-			"url": osUrl,
+			"url":  osCfg.URL,
+			"user": osCfg.User,
 		})
 	}
 
 	catcher.Info("Connected to OpenSearch", map[string]any{
-		"url": osUrl,
+		"url": osCfg.URL,
 	})
-
 	return nil
 }
 
-type SQLResponse struct {
-	Schema   []any   `json:"schema"`
-	DataRows [][]any `json:"datarows"`
-	Total    int     `json:"total"`
-}
-
 func (b *BackendClient) ExecuteSQLQuery(ctx context.Context, sql string) (SQLResult, error) {
-	baseURL := plugins.PluginCfg("org.opensearch", false).Get("opensearch").String()
-	sqlEndpoint := fmt.Sprintf("%s/_plugins/_sql", baseURL)
+	osCfg := LoadOpenSearchConfig()
+	client := NewOpenSearchHTTPClient()
 
-	body := map[string]string{
-		"query": sql,
-	}
+	sqlEndpoint := fmt.Sprintf("%s/_plugins/_sql", osCfg.URL)
 
+	body := map[string]string{"query": sql}
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
 		return SQLResult{}, fmt.Errorf("failed to marshal SQL body: %w", err)
@@ -54,8 +46,9 @@ func (b *BackendClient) ExecuteSQLQuery(ctx context.Context, sql string) (SQLRes
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	req.SetBasicAuth(osCfg.User, osCfg.Pass)
 
-	resp, err := b.httpClient.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return SQLResult{}, fmt.Errorf("SQL request failed: %w", err)
 	}
