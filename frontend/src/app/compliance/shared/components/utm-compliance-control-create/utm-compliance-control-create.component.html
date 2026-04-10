@@ -30,7 +30,7 @@
           <label class="pb-1" for="standard">Standard</label>
           <app-utm-cp-standard-select
             (standardSelect)="onStandardChange($event)"
-            [standardId]="control && control.section ? control.section.standardId : null"
+            [standardId]="control && control.section ? control.section.standard.id : null"
             id="standard"
             [showAdd] = false>
           </app-utm-cp-standard-select>
