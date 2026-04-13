@@ -51,6 +51,12 @@ func (p *AbstractProvider) PerformTestRequest() (int, error) {
 
 	body,_ := json.Marshal(map[string]any{
 		"model": p.Model,
+        "messages": []map[string]string{
+			 {
+				"role": "user",
+				"content": "only say ok",
+			  },
+		},
 	})
 
 	_, status, err := utils.DoReq[map[string]any](p.URL,body , "POST", headers, false)
