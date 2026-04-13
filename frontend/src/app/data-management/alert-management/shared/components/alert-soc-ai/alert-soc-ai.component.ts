@@ -31,11 +31,11 @@ export class AlertSocAiComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.socAiActive) {
-      this.getSocAiResponse();
+        this.initialLoad()
     }
   }
 
-  getSocAiResponse() {
+  initialLoad(){
     this.loading = true;
     this.cdt.markForCheck()
     const filter: ElasticFilterType[] = [{
@@ -52,8 +52,34 @@ export class AlertSocAiComponent implements OnInit, OnDestroy {
         } else {
           this.socAiResponse = res.body[0];
         }
+      },
+      (_res: HttpResponse<any>) => {
+        this.loading = false;
+        this.cdt.markForCheck()
+      }
+    );
+  }
 
-        if (this.socAiResponse.status ===  IndexSocAiStatus.Processing) {
+
+  getSocAiResponse() {
+    this.loading = true;
+    this.cdt.markForCheck()
+    const filter: ElasticFilterType[] = [{
+      field: 'activityId',
+      operator: ElasticOperatorsEnum.IS,
+      value: this.alertID
+    }];
+    this.elasticDataService.search(1, 1, 1, SOC_AI_INDEX_PATTERN, filter)
+      .subscribe((res: HttpResponse<any>) => {
+        if (!res || res.body.length === 0) {
+          this.socAiResponse = res.body;
+        } else {
+          this.socAiResponse = res.body[0];
+          this.loading = false;
+          this.cdt.markForCheck()
+        }
+
+        if (res.body.length==0 || this.socAiResponse.status ===  IndexSocAiStatus.Processing) {
           if (!this.interval) {
             this.startInterval();
           }
