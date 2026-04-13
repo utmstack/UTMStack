@@ -693,6 +693,23 @@ app-header {
   }
 }
 
+
+.utm-popover-alerts {
+  max-width: 800px !important;
+
+  .arrow {
+    &::after {
+      //border-right-color: $blue-scroll;
+    }
+  }
+
+  .popover-header {
+    //background-color: $blue-scroll !important;
+    background-color: #ffffff;
+  }
+}
+
+
 .utm-popover {
   max-width: 800px !important;
 
