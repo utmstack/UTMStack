@@ -1,6 +1,7 @@
 package providers
 
 import (
+	"encoding/json"
 	"fmt"
 	"maps"
 
@@ -48,6 +49,10 @@ func (p *AbstractProvider) PerformTestRequest() (int, error) {
 		maps.Copy(headers, p.CustomHeaders)
 	}
 
-	_, status, err := utils.DoReq[map[string]any](p.URL, nil, "POST", headers, false)
+	body,_ := json.Marshal(map[string]any{
+		"model": p.Model,
+	})
+
+	_, status, err := utils.DoReq[map[string]any](p.URL,body , "POST", headers, false)
 	return status, err
 }
