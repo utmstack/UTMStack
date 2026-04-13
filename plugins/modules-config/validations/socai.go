@@ -1,7 +1,9 @@
 package validations
+
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/utmstack/UTMStack/plugins/modules-config/config"
 	"github.com/utmstack/UTMStack/plugins/modules-config/validations/socai"
@@ -26,6 +28,7 @@ func parseSOCAIConfig(cfg *config.ModuleGroup) socai.SOCAIConfig {
 	}
 
 	for _, cnf := range cfg.ModuleGroupConfigurations {
+		cnf.ConfValue=strings.Trim(cnf.ConfValue," ")
 		switch cnf.ConfKey {
 		case "utmstack.socai.autoAnalyze":
 			socai.AutoAnalyze = cnf.ConfValue == "true"
