@@ -45,13 +45,21 @@ func (p *GeminiProvider) testConnection() error {
 	case http.StatusOK:
 		return nil
 	case http.StatusBadRequest:
-		return fmt.Errorf("Invalid Gemini API Key. Please verify your x-api-key is correct.")
+		if strings.HasPrefix(err.Error(),"API key not valid."){
+			return fmt.Errorf("Invalid Gemini API Key. Please verify your x-api-key is correct.")
+		}else{
+			return nil
+		}
 	case http.StatusUnauthorized:
 		return fmt.Errorf("Invalid Google Gemini API Key. Please verify your API Key is correct.")
 	case http.StatusForbidden:
 		return fmt.Errorf("Google Gemini API Key does not have the required permissions (HTTP 403).")
 	case http.StatusNotFound, http.StatusMethodNotAllowed:
-		return fmt.Errorf("Google Gemini API endpoint not found (HTTP 404). Please verify the API URL is correct.")
+		if strings.HasSuffix(err.Error(),"available models and their supported methods."){
+			return fmt.Errorf("Invalid Gemini model %s.",p.Model)
+		}else{
+			return nil
+		}
 	case http.StatusTooManyRequests:
 		return fmt.Errorf("Google Gemini API rate limit exceeded (HTTP 429). Your API Key may have exceeded its quota.")
 	default:
