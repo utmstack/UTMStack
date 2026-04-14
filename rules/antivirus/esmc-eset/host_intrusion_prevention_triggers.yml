@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-esmc-eset
+name: ESET Host Intrusion Prevention System Triggered
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Privilege Escalation
+technique: "T1055 - Process Injection"
+adversary: origin
+references:
+  - https://help.eset.com/ees/8/en-US/idh_hips_main.html
+  - https://attack.mitre.org/techniques/T1055/
+description: |
+  Detects when ESET's Host-based Intrusion Prevention System (HIPS) blocks suspicious behavior, including process manipulation, registry modifications, and file system changes that indicate potential malware activity. HIPS events indicate active attempts to compromise system integrity through various attack techniques.
+  
+  Next Steps:
+  1. Review the blocked process or action details in the ESET console
+  2. Identify the source application attempting the blocked behavior
+  3. Check if the blocked action is from legitimate software (false positive)
+  4. If malicious, isolate the affected system and perform full malware scan
+  5. Review system logs for any successful compromise attempts before HIPS activation
+  6. Update HIPS rules if necessary to prevent similar attacks
+  7. Check for persistence mechanisms on the affected host
+  8. Review network connections from the suspicious process if applicable
+where: equals("log.actionResult", "HIPS_Event") && equals("log.action", "blocked") && oneOf("log.severity", ["medium", "high"])
+groupBy:
+  - lastEvent.log.objectname
+  - target.host

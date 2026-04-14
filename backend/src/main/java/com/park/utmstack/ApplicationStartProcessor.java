@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
 
+
 public class ApplicationStartProcessor implements EnvironmentPostProcessor {
     private static final String CLASSNAME = "ApplicationStartProcessor";
     private Connection con;
@@ -36,8 +37,6 @@ public class ApplicationStartProcessor implements EnvironmentPostProcessor {
             // Checking elasticsearch connection
             elasticsearchConnectionCheck();
 
-            ConsoleColors.magentaBold();
-            System.out.println("------------------------------------------------");
             ConsoleColors.reset();
         } catch (Exception e) {
             if (!Objects.isNull(con)) {

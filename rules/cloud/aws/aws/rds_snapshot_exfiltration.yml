@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS RDS Snapshot Sharing for Data Exfiltration
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Data Exfiltration
+technique: "T1537 - Transfer Data to Cloud Account"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ShareSnapshot.html
+  - https://attack.mitre.org/techniques/T1537/
+description: |
+  Detects RDS snapshot sharing modifications that could be used for data exfiltration. Attackers may share database snapshots with external AWS accounts to exfiltrate sensitive data, or make snapshots public to download them from an attacker-controlled account.
+
+  Next Steps:
+  1. Identify which RDS snapshot was shared and its data sensitivity
+  2. Verify the target AWS account ID the snapshot was shared with
+  3. Check if the snapshot was made public (shared with all AWS accounts)
+  4. Verify the change was authorized through data governance procedures
+  5. If unauthorized, immediately remove the snapshot sharing and rotate database credentials
+  6. Review the database contents for sensitive or regulated data
+  7. Check for other snapshot operations by the same principal
+  8. Implement preventive SCPs to restrict snapshot sharing
+where: |
+  equals("log.eventSource", "rds.amazonaws.com") &&
+  oneOf("log.eventName", ["ModifyDBSnapshotAttribute", "ModifyDBClusterSnapshotAttribute"]) &&
+  equals("log.errorCode", "") &&
+  (contains("log.requestParameters", "attributeName\":\"restore") ||
+   contains("log.requestParameters", "all"))
+groupBy:
+  - adversary.user
+  - lastEvent.log.requestParameters.dBSnapshotIdentifier

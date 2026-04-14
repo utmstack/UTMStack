@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: SentinelOne AI-Based Threat Hunting Alerts
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Privilege Escalation
+technique: "T1055 - Process Injection"
+adversary: origin
+references:
+  - https://www.sentinelone.com/platform/ai-powered-prevention/
+  - https://attack.mitre.org/tactics/TA0043/
+  - https://attack.mitre.org/techniques/T1055/
+description: |
+  Detects threats identified by SentinelOne's AI and machine learning threat hunting capabilities, including zero-day exploits, fileless attacks, and previously unknown malware variants.
+  
+  Next Steps:
+  1. Immediately isolate the affected system to prevent lateral movement
+  2. Review the threat details in SentinelOne console for threat classification and confidence score
+  3. Check if the AI detection correlates with any unusual process behavior or network activity
+  4. Examine memory dumps if available for fileless attack indicators
+  5. Search for similar AI detections across other endpoints in the environment
+  6. If confirmed as a zero-day or new variant, submit samples to threat intelligence teams
+  7. Update security policies based on the AI detection patterns observed
+where: |
+  (
+    regexMatch("log.eventDescription", "(?i)(ai detected|machine learning|threat hunt|hunting alert|ai threat|automated detection)") ||
+    oneOf("log.engines", ["AI", "MachineLearning", "Static AI", "Behavioral AI"]) ||
+    contains("log.threatClassificationSource", "AI")
+  ) &&
+  exists("log.endpointDeviceName") &&
+  (exists("log.threatId") || exists("log.threatName") || exists("log.threatClassification"))
+groupBy:
+  - lastEvent.log.accName
+  - lastEvent.log.endpointDeviceName

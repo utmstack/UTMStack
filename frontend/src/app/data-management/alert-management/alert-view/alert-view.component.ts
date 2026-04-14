@@ -378,8 +378,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   }
 
   addToSelected(alert: any) {
-    console.log(alert);
-    const index = this.alertSelected.indexOf(alert);
+    const index = this.alertSelected.findIndex((a)=>a.id ===alert.id);
     if (index === -1) {
       this.alertSelected.push(alert);
     } else {

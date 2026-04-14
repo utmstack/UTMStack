@@ -327,6 +327,10 @@ private static final long serialVersionUID = 0L;
   @SuppressWarnings("serial")
   private volatile java.lang.Object shell_ = "";
   /**
+   * <pre>
+   * Shell to execute command: "cmd", "powershell" (Windows), "sh", "bash" (Linux/macOS). Empty = default
+   * </pre>
+   *
    * <code>string shell = 8;</code>
    * @return The shell.
    */
@@ -344,6 +348,10 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
+   * <pre>
+   * Shell to execute command: "cmd", "powershell" (Windows), "sh", "bash" (Linux/macOS). Empty = default
+   * </pre>
+   *
    * <code>string shell = 8;</code>
    * @return The bytes for shell.
    */
@@ -1330,6 +1338,10 @@ private static final long serialVersionUID = 0L;
 
     private java.lang.Object shell_ = "";
     /**
+     * <pre>
+     * Shell to execute command: "cmd", "powershell" (Windows), "sh", "bash" (Linux/macOS). Empty = default
+     * </pre>
+     *
      * <code>string shell = 8;</code>
      * @return The shell.
      */
@@ -1346,6 +1358,10 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
+     * <pre>
+     * Shell to execute command: "cmd", "powershell" (Windows), "sh", "bash" (Linux/macOS). Empty = default
+     * </pre>
+     *
      * <code>string shell = 8;</code>
      * @return The bytes for shell.
      */
@@ -1363,6 +1379,10 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
+     * <pre>
+     * Shell to execute command: "cmd", "powershell" (Windows), "sh", "bash" (Linux/macOS). Empty = default
+     * </pre>
+     *
      * <code>string shell = 8;</code>
      * @param value The shell to set.
      * @return This builder for chaining.
@@ -1376,6 +1396,10 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
+     * <pre>
+     * Shell to execute command: "cmd", "powershell" (Windows), "sh", "bash" (Linux/macOS). Empty = default
+     * </pre>
+     *
      * <code>string shell = 8;</code>
      * @return This builder for chaining.
      */
@@ -1386,6 +1410,10 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
+     * <pre>
+     * Shell to execute command: "cmd", "powershell" (Windows), "sh", "bash" (Linux/macOS). Empty = default
+     * </pre>
+     *
      * <code>string shell = 8;</code>
      * @param value The bytes for shell to set.
      * @return This builder for chaining.

@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Azure Disk Snapshot Exfiltration
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Data Exfiltration
+technique: "T1537 - Transfer Data to Cloud Account"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/azure/virtual-machines/disks-incremental-snapshots
+  - https://attack.mitre.org/techniques/T1537/
+description: |
+  Detects Azure disk snapshot operations that could be used for data exfiltration, including sharing snapshots across subscriptions, generating SAS URIs for download, or copying snapshots to external storage accounts.
+
+  Next Steps:
+  1. Identify the disk snapshot and the virtual machine it was taken from
+  2. Review the target location or account where the snapshot is being shared
+  3. Verify the operator has authorization for cross-subscription snapshot operations
+  4. Check if a SAS URI was generated that could allow external download
+  5. Review the data sensitivity of the affected virtual machine's disk
+  6. If unauthorized, revoke any generated SAS tokens and delete shared snapshots
+  7. Implement Azure Policy to restrict snapshot sharing across subscriptions
+  8. Enable diagnostic logging for disk operations
+where: |
+  (contains("log.operationName", "Microsoft.Compute/snapshots") ||
+   contains("log.operationName", "Microsoft.Compute/disks")) &&
+  (contains("log.operationName", "beginGetAccess") ||
+   contains("log.operationName", "export")) &&
+  equals("log.resultType", "Success")
+groupBy:
+  - lastEvent.log.operationName
+  - adversary.user

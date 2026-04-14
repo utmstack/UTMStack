@@ -1,0 +1,21 @@
+# Rule version v1.0.1
+
+dataTypes:
+  - "linux"
+name: "System Linux: Potential DNS Tunneling via Iodine"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: "Command and Control"
+technique: "T1572 - Protocol Tunneling"
+adversary: target
+description: "Iodine is a tool for tunneling Internet protocol version 4 (IPV4) traffic over the DNS protocol to circumvent firewalls,
+              network security groups, and network access lists while evading detection."
+references:
+  - "https://attack.mitre.org/tactics/TA0011/"
+  - "https://attack.mitre.org/techniques/T1572/"
+where: contains("log.message", "iodine")
+groupBy:
+  - target.ip
+  - target.user

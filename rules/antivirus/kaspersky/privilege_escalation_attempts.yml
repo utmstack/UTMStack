@@ -1,0 +1,41 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-kaspersky
+name: Kaspersky Application Privilege Escalation Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Privilege Escalation
+technique: "T1055/T1134 - Process Injection and Access Token Manipulation"
+adversary: origin
+references:
+  - https://support.kaspersky.com/KLMS/8.2/en-US/151684.htm
+  - https://attack.mitre.org/techniques/T1055/
+  - https://attack.mitre.org/techniques/T1134/
+description: |
+  Detects attempts to escalate privileges through application manipulation, process injection, or unauthorized elevation of permissions monitored by Kaspersky endpoint protection. These techniques are commonly used by attackers to gain higher-level permissions on compromised systems.
+  
+  Next Steps:
+  1. Immediately isolate the affected system to prevent lateral movement
+  2. Review the process that triggered the alert and its parent process chain
+  3. Check if the source process is legitimate or potentially malicious
+  4. Look for other suspicious activities on the same host in the last hour
+  5. Collect memory dumps if possible for forensic analysis
+  6. Review user account permissions and recent changes
+  7. Check for any unauthorized scheduled tasks or services
+  8. Update Kaspersky signatures and run a full system scan
+where: |
+  exists("log.signatureID") &&
+  !equals("action", "Allowed") &&
+  (contains("log.msg", ["privilege", "elevation", "EXPLOIT", "Exploit",
+     "process injection", "token manipulation"]) ||
+   contains("log.cs1", "EXPLOIT") ||
+   contains("log.cs2", "Exploit") ||
+   contains("log.cs4", "Exploit") ||
+   contains("log.msg", ["privilege", "elevation"]))
+groupBy:
+  - log.signatureID
+  - origin.host
+  - origin.user

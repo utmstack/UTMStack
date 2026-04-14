@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-bitdefender-gz
+name: Bitdefender GravityZone Quarantine Failure Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects when Bitdefender GravityZone fails to quarantine detected malware. This could indicate that the malware is actively resisting remediation attempts or that there are permission issues preventing proper quarantine.
+  
+  Next Steps:
+  - Immediately isolate the affected system from the network
+  - Check if the malware process is still running and attempt manual termination
+  - Verify antivirus permissions and ensure it has necessary privileges
+  - Review system logs for signs of privilege escalation or rootkit activity
+  - Consider reimaging the system if quarantine continues to fail
+  - Check for similar failures on other systems in the environment
+  - Investigate the specific malware detected and research its capabilities
+  - Review quarantine configuration and storage capacity
+where: |
+  oneOf("log.eventType", ["quarantine_failed", "quarantine_failure"]) ||
+  (equals("log.eventType", "AntiMalware") &&
+    (containsAll("log.requestToParse", ["quarantine", "fail"]) ||
+     contains("log.restData", ["quarantine failed", "unable to quarantine", "failed to quarantine"]) ||
+     (equals("log.severity", "failure") && contains("log.requestToParse", "quarantine"))))
+groupBy:
+  - lastEvent.log.hostId
+  - lastEvent.log.signatureID

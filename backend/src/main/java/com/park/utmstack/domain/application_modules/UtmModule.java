@@ -32,7 +32,7 @@ public class UtmModule implements Serializable {
     @Column(name = "pretty_name")
     private String prettyName;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = com.park.utmstack.domain.application_modules.enums.ModuleNameConverter.class)
     @Column(name = "module_name")
     private ModuleName moduleName;
 
@@ -62,9 +62,11 @@ public class UtmModule implements Serializable {
     @JoinColumn(name = "server_id", insertable = false, updatable = false)
     private UtmServer server;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
     private Set<UtmModuleGroup> moduleGroups = new HashSet<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
     private Set<UtmLogstashFilter> filters;
 

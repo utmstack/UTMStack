@@ -22,7 +22,9 @@ spring:
         database-platform: tech.jhipster.domain.util.FixedPostgreSQL10Dialect
     elasticsearch: # This configuration is for the elasticsearch health indicator, please do not remove
         rest:
-            uris: http://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+            uris: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+            username: ${ELASTICSEARCH_USER}
+            password: ${ELASTICSEARCH_PASSWORD}
     liquibase:
         contexts: prod
     mail:

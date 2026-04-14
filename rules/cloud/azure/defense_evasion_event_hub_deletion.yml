@@ -1,0 +1,58 @@
+# Rule version v1.0.4
+
+dataTypes:
+  - azure
+name: "Azure Event Hub Deletion"
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 3
+category: "Defense Evasion"
+technique: "T1562.008 - Impair Defenses: Disable Cloud Logs"
+adversary: origin
+references:
+  - "https://attack.mitre.org/techniques/T1562/008/"
+  - "https://attack.mitre.org/tactics/TA0005/"
+  - "https://learn.microsoft.com/en-us/azure/event-hubs/monitor-event-hubs"
+  - "https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log"
+description: |
+  Detects the deletion of an Azure Event Hub, which is a critical event processing service that ingests and processes large volumes of events, logs, and telemetry data. Event Hubs are commonly used for security monitoring, log aggregation, and SIEM integration. Adversaries may delete Event Hubs to evade detection by disrupting log collection pipelines and preventing security events from reaching monitoring systems.
+  
+  Threat Context:
+  - Event Hubs are often used to stream logs to SIEM solutions
+  - Deletion interrupts security monitoring and incident detection capabilities
+  - Can be part of anti-forensics activities to cover tracks
+  - May indicate an attempt to blind security operations before further attacks
+  
+  Legitimate Use Cases:
+  - Decommissioning unused Event Hubs during cost optimization
+  - Infrastructure cleanup during application retirement
+  - Migration to new Event Hub namespaces or different logging solutions
+  - Testing and development environment cleanup
+  
+  Suspicious Indicators:
+  - Event Hub actively receiving logs suddenly deleted
+  - Deletion performed by non-administrative accounts
+  - Multiple Event Hubs deleted in quick succession
+  - Deletion outside change management windows
+  - Deletion from unusual locations or IP addresses
+  - Event Hub connected to production SIEM or security monitoring
+  
+  Next Steps:
+  1. Verify if the deletion was authorized via change management process
+  2. Identify who performed the deletion (caller) and their role
+  3. Check if the Event Hub was actively receiving security logs
+  4. Determine the impact on security monitoring and log collection
+  5. Review recent authentication activity for the caller account
+  6. Check for other suspicious activities in the timeline (diagnostic settings changes, etc.)
+  7. Verify if backups of the Event Hub configuration exist
+  8. If unauthorized, restore the Event Hub and investigate for account compromise
+  9. Review authorization rules and access policies for remaining Event Hubs
+where: |
+  (equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) &&
+  (equalsIgnoreCase("log.operationName", "MICROSOFT.EVENTHUB/NAMESPACES/EVENTHUBS/DELETE") ||
+  contains("log.operationName", "Delete EventHub")) &&
+  (equalsIgnoreCase("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))
+groupBy:
+  - adversary.ip
+  - adversary.user

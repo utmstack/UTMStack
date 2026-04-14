@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest;
 
+import com.park.utmstack.aop.logging.AuditEvent;
 import com.park.utmstack.domain.UtmServerModule;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.service.UtmServerModuleQueryService;
@@ -56,6 +57,12 @@ public class UtmServerModuleResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/utm-server-modules")
+    @AuditEvent(
+        attemptType = ApplicationEventType.SERVER_MODULE_CREATE_ATTEMPT,
+        attemptMessage = "Attempting to create server module: {prettyName}",
+        successType = ApplicationEventType.SERVER_MODULE_CREATE_SUCCESS,
+        successMessage = "Server module {prettyName} created successfully"
+    )
     public ResponseEntity<UtmServerModule> createUtmServerModule(@RequestBody UtmServerModule utmServerModule) throws URISyntaxException {
         log.debug("REST request to save UtmServerModule : {}", utmServerModule);
         if (utmServerModule.getId() != null) {
@@ -77,6 +84,12 @@ public class UtmServerModuleResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/utm-server-modules")
+    @AuditEvent(
+        attemptType = ApplicationEventType.SERVER_MODULE_UPDATE_ATTEMPT,
+        attemptMessage = "Attempting to update server module: {prettyName}",
+        successType = ApplicationEventType.SERVER_MODULE_UPDATE_SUCCESS,
+        successMessage = "Server module {prettyName} updated successfully"
+    )
     public ResponseEntity<UtmServerModule> updateUtmServerModule(@RequestBody UtmServerModule utmServerModule) throws URISyntaxException {
         log.debug("REST request to update UtmServerModule : {}", utmServerModule);
         if (utmServerModule.getId() == null) {
@@ -135,6 +148,12 @@ public class UtmServerModuleResource {
      * @return the ResponseEntity with status 200 (OK)
      */
     @DeleteMapping("/utm-server-modules/{id}")
+    @AuditEvent(
+        attemptType = ApplicationEventType.SERVER_MODULE_DELETE_ATTEMPT,
+        attemptMessage = "Attempting to delete server module with ID: {id}",
+        successType = ApplicationEventType.SERVER_MODULE_DELETE_SUCCESS,
+        successMessage = "Server module with ID {id} deleted successfully"
+    )
     public ResponseEntity<Void> deleteUtmServerModule(@PathVariable Long id) {
         log.debug("REST request to delete UtmServerModule : {}", id);
         utmServerModuleService.delete(id);

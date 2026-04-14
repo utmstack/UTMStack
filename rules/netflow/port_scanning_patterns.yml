@@ -1,0 +1,46 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - netflow
+name: Port Scanning Activity Detection
+impact:
+  confidentiality: 2
+  integrity: 1
+  availability: 1
+category: Discovery
+technique: "T1046 - Network Service Scanning"
+adversary: origin
+references:
+  - https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
+  - https://attack.mitre.org/techniques/T1046/
+description: |
+  Detects port scanning activities based on patterns of connections to multiple ports with minimal data transfer. This could indicate reconnaissance activities or vulnerability scanning attempts.
+  
+  Next Steps:
+  1. Verify the scanning activity by examining the target ports and services
+  2. Check if the origin IP is known to be legitimate (security scanner, monitoring tool)
+  3. Analyze the scope of the scan - single target or multiple targets
+  4. Review firewall and intrusion detection logs for additional context
+  5. Investigate any successful connections or unusual response patterns
+  6. Consider blocking the origin IP if malicious activity is confirmed
+where: |
+  exists("origin.ip") &&
+  exists("target.ip") &&
+  lessOrEqual("log.packets", 10) &&
+  lessThan("log.bytes", 1000) &&
+  greaterThan("target.port", 0) &&
+  equals("protocol", "TCP")
+afterEvents:
+  - indexPattern: v11-log-netflow-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: target.ip
+        operator: filter_term
+        value: '{{.target.ip}}'
+    within: now-2m
+    count: 25
+deduplicateBy:
+  - adversary.ip
+  - target.ip

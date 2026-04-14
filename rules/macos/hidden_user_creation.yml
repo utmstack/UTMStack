@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Hidden User Account Creation on macOS
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1564.002 - Hide Artifacts: Hidden Users"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1564/002/
+description: |
+  Detects creation of hidden user accounts on macOS. Attackers create hidden users (UID < 500, IsHidden flag) to maintain persistent, stealthy access to compromised systems.
+
+  Next Steps:
+  1. List all user accounts including hidden ones using dscl
+  2. Identify the hidden account and its UID
+  3. Check the account's group memberships and privileges
+  4. Verify if the account was created by a legitimate administrator
+  5. Disable and remove the unauthorized account
+  6. Review system access logs for the hidden account
+where: |
+  (contains("log.eventMessage", "dscl") || contains("log.eventMessage", "sysadminctl") ||
+   contains("log.eventMessage", "dseditgroup")) &&
+  (contains("log.eventMessage", "IsHidden") ||
+   (contains("log.eventMessage", "create") && contains("log.eventMessage", "/Users/")) ||
+   (contains("log.eventMessage", "UniqueID") && contains("log.eventMessage", "create")) ||
+   contains("log.eventMessage", "hidden user") ||
+   regexMatch("log.eventMessage", "(?i)dscl.*create.*/Users/.*IsHidden.*1"))
+groupBy:
+  - adversary.host
+  - adversary.user

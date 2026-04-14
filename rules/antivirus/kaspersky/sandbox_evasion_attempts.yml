@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-kaspersky
+name: Kaspersky Sandbox Evasion Attempts Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Discovery
+technique: "T1497 - Virtualization/Sandbox Evasion"
+adversary: origin
+references:
+  - https://www.kaspersky.com/enterprise-security/malware-sandbox
+  - https://attack.mitre.org/techniques/T1497/
+  - https://attack.mitre.org/techniques/T1497/001/
+description: |
+  Identifies malware attempting to detect and evade sandbox environments. This includes time-based evasion, environment checks, anti-VM techniques, and other behaviors designed to avoid analysis in controlled environments.
+  
+  Next Steps:
+  1. Immediately isolate the affected system to prevent potential malware spread
+  2. Review the process that triggered the sandbox evasion detection
+  3. Check for any suspicious parent processes or child processes
+  4. Collect memory dumps and samples for deeper analysis
+  5. Review recent file downloads and email attachments on the affected system
+  6. Check if similar detection occurred on other systems in the network
+  7. Consider submitting the sample to Kaspersky for further analysis
+where: |
+  exists("log.signatureID") &&
+  (contains("log.msg", ["sandbox", "evasion", "anti-VM", "virtualization"]) ||
+   contains("log.msg", ["sandbox", "evasion"]) ||
+   contains("log.cs1", "SANDBOX_") ||
+   contains("log.cs4", ["Evasion", "AntiVM", "environment check", "time delay", "VM detection"]) ||
+   (equals("log.cat", "Behavior Detection") &&
+    contains("log.msg", ["delay", "sleep"])))
+deduplicateBy:
+  - origin.host

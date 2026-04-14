@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - sophos-central
+name: Endpoint Threat Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Malware Detection
+technique: "T1055 - Process Injection"
+adversary: origin
+references:
+  - https://developer.sophos.com/docs/endpoint-v1/1/routes/events/get
+  - https://attack.mitre.org/techniques/T1055/
+description: |
+  Detects threats identified on endpoints by Sophos Central, including malware, PUAs (Potentially Unwanted Applications), and suspicious behavior. This rule triggers when Sophos Central identifies threats such as process injection, malware execution, or other malicious activities on managed endpoints.
+
+  Next Steps:
+  1. Immediately isolate the affected endpoint from the network to prevent lateral movement
+  2. Review the threat details including threat name, file path, and detection method
+  3. Examine the endpoint's recent activity logs for signs of compromise
+  4. Check if the threat was successfully quarantined or requires manual intervention
+  5. Verify if other endpoints in the environment show similar threat indicators
+  6. Review user activity on the affected endpoint around the time of detection
+  7. Perform forensic analysis of the affected files and processes if needed
+  8. Update security policies and endpoint configurations if gaps are identified
+  9. Conduct threat hunting across the environment for similar indicators of compromise
+where: |
+  oneOf("log.type", ["Event::Endpoint::Threat::Detected", "Event::Endpoint::Threat::HIPSDetected", "Event::Endpoint::Threat::PuaDetected"]) ||
+  (oneOf("log.severity", ["high", "critical"]) && equals("log.category", "threat") && exists("log.threatName"))
+groupBy:
+  - adversary.host
+  - adversary.ip

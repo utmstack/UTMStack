@@ -1,0 +1,21 @@
+# Rule version v1.0.1
+
+dataTypes:
+  - "linux"
+name: "System Linux: Kernel Module Removal"
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 3
+category: "Defense Evasion"
+technique: "T1562.001 - Impair Defenses"
+adversary: origin
+description: "Kernel modules are pieces of code that can be loaded and unloaded into the kernel upon demand. They extend the
+              functionality of the kernel without the need to reboot the system. This rule identifies attempts to remove a kernel module."
+references:
+  - "https://attack.mitre.org/tactics/TA0005/"
+  - "https://attack.mitre.org/techniques/T1562/001/"
+where: regexMatch("log.message", "(modprobe(.+)sudo(.+)(-r|--remove)|modprobe(.+)(-r|--remove)(.+)sudo|sudo(.+)modprobe(.+)(-r|--remove)|sudo(.+)(-r|--remove)(.+)modprobe|(-r|--remove)modprobe(.+)sudo|(-r|--remove)(.+)sudo(.+)modprobe)")
+groupBy:
+  - origin.ip
+  - origin.user

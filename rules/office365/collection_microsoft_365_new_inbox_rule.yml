@@ -1,0 +1,26 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "o365"
+name: "Microsoft 365 New Inbox Rule Created"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: "Collection"
+technique: "T1114 - Email Collection"
+adversary: origin
+description: "Credential Access consists of techniques for stealing credentials like account names and passwords. Techniques used to get credentials include keylogging or credential dumping. Using legitimate credentials can give adversaries access to systems, make them harder to detect, and provide the opportunity to create more accounts to help achieve their goals.<br>
+    Identifies when a new Inbox rule is created in Microsoft 365. Inbox rules process messages in the Inbox based on conditions and take actions, such as moving a message to a specified folder or deleting a message. Adequate permissions are required on the mailbox to create an Inbox rule."
+references:
+  - "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/responding-to-a-compromised-email-account?view=o365-worldwide"
+  - "https://docs.microsoft.com/en-us/powershell/module/exchange/new-inboxrule?view=exchange-ps"
+  - "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/detect-and-remediate-outlook-rules-forms-attack?view=o365-worldwide"
+  - "https://attack.mitre.org/techniques/T1114/"
+  - "https://attack.mitre.org/techniques/T1114/003/"
+  - "https://attack.mitre.org/tactics/TA0009/"
+where: |
+  equals("log.Workload", "Exchange") && equals("action", "New-InboxRule") && oneOf("actionResult", ["Success","Succeeded","PartiallySucceeded","True"])
+groupBy:
+  - adversary.ip
+  - adversary.user

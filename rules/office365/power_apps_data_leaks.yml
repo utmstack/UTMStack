@@ -1,0 +1,66 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Power Apps Data Connector Suspicious Activity
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Data Exfiltration
+technique: "T1530 - Data from Cloud Storage Object"
+adversary: origin
+references:
+  - https://docs.microsoft.com/en-us/power-platform/admin/audit-data-user-activity
+  - https://attack.mitre.org/techniques/T1530/
+description: |
+  Detects creation or modification of Power Apps data connectors that could lead to unauthorized data access or exfiltration from corporate data sources. This rule identifies suspicious Power Apps activities including app creation/modification, data connection changes, and data export/import operations that may indicate an attempt to access or exfiltrate sensitive organizational data.
+  
+  Next Steps:
+  1. Review the specific Power Apps activity and determine if it was authorized
+  2. Verify the user's role and permissions for Power Apps and data connectors
+  3. Examine the data sources being connected to and assess their sensitivity
+  4. Check for any recent data exports or unusual data access patterns
+  5. Review the user's recent activity for other suspicious behavior
+  6. Validate the legitimacy of any new apps or data connections created
+  7. Consider implementing additional monitoring for the affected user account
+  8. If unauthorized, immediately revoke access and investigate potential data compromise
+where: |
+  oneOf("action", ["CreateDataConnection", "UpdateDataConnection", "ExportData", "ImportData"]) &&
+  equals("actionResult", "Success") &&
+  equals("log.Workload", "PowerApps")
+afterEvents:
+  - indexPattern: v11-log-o365-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: action
+        operator: filter_term
+        value: 'CreateDataConnection'
+    within: now-12h
+    count: 2
+    or:
+      - indexPattern: v11-log-o365-*
+        with:
+          - field: origin.user
+            operator: filter_term
+            value: '{{.origin.user}}'
+          - field: action
+            operator: filter_term
+            value: 'UpdateDataConnection'
+        within: now-12h
+        count: 2
+      - indexPattern: v11-log-o365-*
+        with:
+          - field: origin.user
+            operator: filter_term
+            value: '{{.origin.user}}'
+          - field: action
+            operator: filter_term
+            value: 'ExportData'
+        within: now-12h
+        count: 3
+groupBy:
+  - adversary.ip
+  - adversary.user

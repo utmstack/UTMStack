@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: AzureHound Reconnaissance Tool Detected
+impact:
+  confidentiality: 2
+  integrity: 1
+  availability: 0
+category: Discovery
+technique: "T1087.004 - Account Discovery: Cloud Account"
+adversary: origin
+references:
+  - https://bloodhound.readthedocs.io/en/latest/data-collection/azurehound.html
+  - https://attack.mitre.org/techniques/T1087/004/
+description: |
+  Detects AzureHound user agent in Azure AD sign-in logs. AzureHound is the Azure AD data collector for BloodHound, used to enumerate all users, groups, roles, apps, and relationships in the tenant for attack path analysis.
+
+  Next Steps:
+  1. Identify the user account running AzureHound
+  2. Determine if this is an authorized security assessment
+  3. Review the scope of data collected (users, groups, roles, apps)
+  4. Check for lateral movement or privilege escalation following the enumeration
+  5. If unauthorized, revoke the user's tokens and investigate
+  6. Review API permissions that allowed the enumeration
+  7. Consider implementing Graph API rate limiting or monitoring
+where: |
+  contains("log.properties", "azurehound") ||
+  contains("log.properties", "AzureHound")
+deduplicateBy:
+  - adversary.user
+  - adversary.ip

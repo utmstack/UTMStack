@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Shell Profile Modification for Persistence
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Persistence
+technique: "T1546.004 - Event Triggered Execution: Unix Shell Configuration Modification"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1546/004/
+description: |
+  Detects modifications to shell profile files (.bash_profile, .zshrc, .zprofile) on macOS which attackers use to execute malicious commands every time a shell session starts.
+
+  Next Steps:
+  1. Review the modified shell profile file for injected commands
+  2. Compare against a known-good baseline
+  3. Check for reverse shells, downloaders, or environment variable manipulation
+  4. Identify the user and process that made the change
+  5. Restore the profile from backup if tampered
+where: |
+  (contains("log.eventMessage", ".bash_profile") || contains("log.eventMessage", ".zshrc") ||
+   contains("log.eventMessage", ".zprofile") || contains("log.eventMessage", ".bashrc") ||
+   contains("log.eventMessage", ".zshenv") || contains("log.eventMessage", "/etc/zshrc") ||
+   contains("log.eventMessage", "/etc/profile")) &&
+  (contains("log.eventMessage", "modified") || contains("log.eventMessage", "written") ||
+   contains("log.eventMessage", "created") || contains("log.eventMessage", "changed"))
+groupBy:
+  - adversary.host
+  - adversary.user

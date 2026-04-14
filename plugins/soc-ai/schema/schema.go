@@ -1,25 +1,45 @@
 package schema
 
-type SearchResult struct{}
+import (
+	"fmt"
+	"strings"
+)
 
-type SeachRequest struct{}
+// Valid LLM classification values
+const (
+	ClassificationPossibleIncident     = "possible incident"
+	ClassificationPossibleFalsePositive = "possible false positive"
+	ClassificationStandardAlert        = "standard alert"
+)
 
+// ValidClassifications maps valid classification values for quick lookup
+var ValidClassifications = map[string]string{
+	"possible incident":      ClassificationPossibleIncident,
+	"possible false positive": ClassificationPossibleFalsePositive,
+	"standard alert":         ClassificationStandardAlert,
+}
+
+// SearchDetailsRequest is used for searching alert details via the backend API
 type SearchDetailsRequest []struct {
 	Field    string `json:"field"`
 	Operator string `json:"operator"`
 	Value    string `json:"value"`
 }
 
+// GPTRequest represents a request to the LLM API (OpenAI compatible)
 type GPTRequest struct {
-	Model    string       `json:"model"`
-	Messages []GPTMessage `json:"messages"`
+	Model     string       `json:"model"`
+	Messages  []GPTMessage `json:"messages"`
+	MaxTokens int          `json:"max_tokens,omitempty"` // Required for some providers (e.g., Anthropic)
 }
 
+// GPTMessage represents a message in the LLM conversation
 type GPTMessage struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
 }
 
+// GPTResponse represents the response from the LLM API
 type GPTResponse struct {
 	ID                string      `json:"id"`
 	Object            string      `json:"object"`
@@ -30,6 +50,7 @@ type GPTResponse struct {
 	SystemFingerprint string      `json:"system_fingerprint"`
 }
 
+// GPTChoice represents a choice in the LLM response
 type GPTChoice struct {
 	Index        int        `json:"index"`
 	Message      GPTMessage `json:"message"`
@@ -37,12 +58,43 @@ type GPTChoice struct {
 	FinishReason string     `json:"finish_reason"`
 }
 
+// GPTUsage represents token usage information
 type GPTUsage struct {
 	PromptTokens     int `json:"prompt_tokens"`
 	CompletionTokens int `json:"completion_tokens"`
 	TotalTokens      int `json:"total_tokens"`
 }
 
+// AnthropicRequest represents a request to the Anthropic API
+type AnthropicRequest struct {
+	Model     string              `json:"model"`
+	System    string              `json:"system,omitempty"`
+	Messages  []AnthropicMessage  `json:"messages"`
+	MaxTokens int                 `json:"max_tokens"`
+}
+
+// AnthropicMessage represents a message in the Anthropic conversation
+type AnthropicMessage struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
+// AnthropicResponse represents the response from Anthropic API
+type AnthropicResponse struct {
+	ID      string             `json:"id"`
+	Type    string             `json:"type"`
+	Role    string             `json:"role"`
+	Content []AnthropicContent `json:"content"`
+	Model   string             `json:"model"`
+}
+
+// AnthropicContent represents content in Anthropic response
+type AnthropicContent struct {
+	Type string `json:"type"`
+	Text string `json:"text"`
+}
+
+// GPTAlertResponse represents the structured response from LLM analysis
 type GPTAlertResponse struct {
 	Timestamp      string     `json:"@timestamp,omitempty"`
 	Status         string     `json:"status,omitempty"`
@@ -55,12 +107,53 @@ type GPTAlertResponse struct {
 	NextSteps      []NextStep `json:"nextSteps,omitempty"`
 }
 
+// NextStep represents a recommended action step
 type NextStep struct {
 	Step    int    `json:"step"`
 	Action  string `json:"action"`
 	Details string `json:"details"`
 }
 
+// Validate checks that the LLM response has valid required fields
+// and normalizes the classification to lowercase
+func (r *GPTAlertResponse) Validate() error {
+	// Normalize and validate classification
+	classification := strings.ToLower(strings.TrimSpace(r.Classification))
+	if classification == "" {
+		return fmt.Errorf("classification is required")
+	}
+
+	normalized, valid := ValidClassifications[classification]
+	if !valid {
+		return fmt.Errorf("invalid classification '%s': must be one of: %s, %s, %s",
+			r.Classification,
+			ClassificationPossibleIncident,
+			ClassificationPossibleFalsePositive,
+			ClassificationStandardAlert)
+	}
+	r.Classification = normalized
+
+	// Validate reasoning exists
+	if len(r.Reasoning) == 0 {
+		return fmt.Errorf("reasoning is required: LLM must provide at least one reason")
+	}
+
+	// Filter out empty reasoning strings
+	validReasons := make([]string, 0, len(r.Reasoning))
+	for _, reason := range r.Reasoning {
+		if trimmed := strings.TrimSpace(reason); trimmed != "" {
+			validReasons = append(validReasons, trimmed)
+		}
+	}
+	if len(validReasons) == 0 {
+		return fmt.Errorf("reasoning is required: all provided reasons were empty")
+	}
+	r.Reasoning = validReasons
+
+	return nil
+}
+
+// ChangeAlertStatus is the request body for changing alert status
 type ChangeAlertStatus struct {
 	AlertIDs          []string `json:"alertIds"`
 	DataSource        string   `json:"dataSource"`
@@ -68,6 +161,7 @@ type ChangeAlertStatus struct {
 	Status            int      `json:"status"`
 }
 
+// CreateNewIncidentRequest is the request body for creating a new incident
 type CreateNewIncidentRequest struct {
 	IncidentName        string    `json:"incidentName"`
 	IncidentDescription string    `json:"incidentDescription"`
@@ -75,6 +169,7 @@ type CreateNewIncidentRequest struct {
 	AlertList           AlertList `json:"alertList"`
 }
 
+// AlertList represents a list of alerts for incident operations
 type AlertList []struct {
 	AlertID       string `json:"alertId"`
 	AlertName     string `json:"alertName"`
@@ -82,6 +177,7 @@ type AlertList []struct {
 	AlertSeverity int    `json:"alertSeverity"`
 }
 
+// IncidentResp represents an incident response from the API
 type IncidentResp struct {
 	ID                  int    `json:"id"`
 	IncidentName        string `json:"incidentName"`
@@ -93,130 +189,39 @@ type IncidentResp struct {
 	IncidentSolution    string `json:"incidentSolution"`
 }
 
+// AddNewAlertToIncidentRequest is the request body for adding alerts to an incident
 type AddNewAlertToIncidentRequest struct {
-	IncidenId int       `json:"incidentId"`
-	AlertList AlertList `json:"alertList"`
+	IncidentId int       `json:"incidentId"`
+	AlertList  AlertList `json:"alertList"`
 }
 
-type AlertDetails []Alert
-
-type Alert struct {
-	Timestamp         string         `json:"@timestamp"`
-	ID                string         `json:"id"`
-	ParentID          *string        `json:"parentId,omitempty"`
-	Status            int            `json:"status"`
-	StatusLabel       string         `json:"statusLabel"`
-	StatusObservation string         `json:"statusObservation"`
-	IsIncident        bool           `json:"isIncident"`
-	IncidentDetail    IncidentDetail `json:"incidentDetail"`
-	Name              string         `json:"name"`
-	Category          string         `json:"category"`
-	Severity          int            `json:"severity"`
-	SeverityLabel     string         `json:"severityLabel"`
-	Description       string         `json:"description"`
-	Solution          string         `json:"solution"`
-	Technique         string         `json:"technique"`
-	Reference         []string       `json:"reference"`
-	DataType          string         `json:"dataType"`
-	Impact            *Impact        `json:"impact"`
-	ImpactScore       int32          `json:"impactScore"`
-	DataSource        string         `json:"dataSource"`
-	Adversary         *Side          `json:"adversary"`
-	Target            *Side          `json:"target"`
-	Events            []*Event       `json:"events"`
-	LastEvent         *Event         `json:"lastEvent"`
-	Tags              []string       `json:"tags"`
-	Notes             string         `json:"notes"`
-	TagRulesApplied   []int          `json:"tagRulesApplied"`
-	DeduplicatedBy    []string       `json:"deduplicatedBy"`
-}
-
-type Impact struct {
-	Confidentiality int32 `json:"confidentiality,omitempty"`
-	Integrity       int32 `json:"integrity,omitempty"`
-	Availability    int32 `json:"availability,omitempty"`
-}
-
-type Event struct {
-	Id               string   `json:"id,omitempty"`
-	Timestamp        string   `json:"timestamp,omitempty"`
-	DeviceTime       string   `json:"deviceTime,omitempty"`
-	DataType         string   `json:"dataType,omitempty"`
-	DataSource       string   `json:"dataSource,omitempty"`
-	TenantId         string   `json:"tenantId,omitempty"`
-	TenantName       string   `json:"tenantName,omitempty"`
-	Raw              string   `json:"raw,omitempty"`
-	Log              []string `json:"log,omitempty"`
-	Target           *Side    `json:"target,omitempty"`
-	Origin           *Side    `json:"origin,omitempty"`
-	Protocol         string   `json:"protocol,omitempty"`
-	ConnectionStatus string   `json:"connectionStatus,omitempty"`
-	StatusCode       int64    `json:"statusCode,omitempty"`
-	ActionResult     string   `json:"actionResult,omitempty"`
-	Action           string   `json:"action,omitempty"`
-	Command          string   `json:"command,omitempty"`
-	Severity         string   `json:"severity,omitempty"`
-}
-
-type Side struct {
-	BytesSent        float64     `json:"bytesSent,omitempty"`
-	BytesReceived    float64     `json:"bytesReceived,omitempty"`
-	PackagesSent     int64       `json:"packagesSent,omitempty"`
-	PackagesReceived int64       `json:"packagesReceived,omitempty"`
-	Connections      int64       `json:"connections,omitempty"`
-	UsedCpuPercent   int64       `json:"usedCpuPercent,omitempty"`
-	UsedMemPercent   int64       `json:"usedMemPercent,omitempty"`
-	TotalCpuUnits    int64       `json:"totalCpuUnits,omitempty"`
-	TotalMem         int64       `json:"totalMem,omitempty"`
-	Ip               string      `json:"ip,omitempty"`
-	Host             string      `json:"host,omitempty"`
-	User             string      `json:"user,omitempty"`
-	Group            string      `json:"group,omitempty"`
-	Port             int64       `json:"port,omitempty"`
-	Domain           string      `json:"domain,omitempty"`
-	Fqdn             string      `json:"fqdn,omitempty"`
-	Mac              string      `json:"mac,omitempty"`
-	Process          string      `json:"process,omitempty"`
-	Geolocation      Geolocation `json:"geolocation,omitempty"`
-	File             string      `json:"file,omitempty"`
-	Path             string      `json:"path,omitempty"`
-	Hash             string      `json:"hash,omitempty"`
-	Url              string      `json:"url,omitempty"`
-	Email            string      `json:"email,omitempty"`
-}
-
-type Geolocation struct {
-	GeolocationCountry     string  `json:"geolocationCountry,omitempty"`
-	GeolocationCity        string  `json:"geolocationCity,omitempty"`
-	GeolocationLatitude    float64 `json:"geolocationLatitude,omitempty"`
-	GeolocationLongitude   float64 `json:"geolocationLongitude,omitempty"`
-	GeolocationAsn         int64   `json:"geolocationAsn,omitempty"`
-	GeolocationAso         string  `json:"geolocationAso,omitempty"`
-	GeolocationCountryCode string  `json:"geolocationcCuntryCode,omitempty"`
-	GeolocationAccuracy    int32   `json:"geolocationaAcuracy,omitempty"`
-}
-
+// UpdateDocRequest represents an Elasticsearch update by query request
 type UpdateDocRequest struct {
 	Query  Query  `json:"query"`
 	Script Script `json:"script"`
 }
 
+// Query represents an Elasticsearch query
 type Query struct {
 	Bool `json:"bool"`
 }
 
+// Bool represents an Elasticsearch bool query
 type Bool struct {
 	Must []Must `json:"must"`
 }
 
+// Must represents a must clause in Elasticsearch bool query
 type Must struct {
 	Match Match `json:"match"`
 }
 
+// Match represents a match clause in Elasticsearch query
 type Match struct {
 	ActivityID string `json:"activityId"`
 }
 
+// Script represents an Elasticsearch script for updates
 type Script struct {
 	Source string           `json:"source"`
 	Lang   string           `json:"lang"`

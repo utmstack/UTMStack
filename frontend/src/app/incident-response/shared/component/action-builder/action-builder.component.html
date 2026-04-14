@@ -56,7 +56,7 @@
 
         <div class="col-6">
           <label class="pb-1" [for]="group.get('agentType').value ? 'default' : 'exclude'">
-            {{ group.get('agentType').value ? 'Default agent' : 'Exclude agents' }}
+            {{ group.get('agentType').value ? 'Dedicated agent' : 'Exclude agents' }}
           </label>
 
           <!-- Default agent select -->
@@ -92,6 +92,17 @@
             (change)="onChangeExclude($event)">
           </ng-select>
 
+        </div>
+      </div>
+
+      <div *ngIf="group.get('agentPlatform').value && group.get('agentPlatform').value.toLowerCase() === 'windows'"
+           class="row mt-3">
+        <div class="col-3">
+          <label class="pb-1">Shell</label>
+          <select formControlName="shell" class="form-control">
+            <option value="cmd">cmd</option>
+            <option value="powershell">powershell</option>
+          </select>
         </div>
       </div>
 

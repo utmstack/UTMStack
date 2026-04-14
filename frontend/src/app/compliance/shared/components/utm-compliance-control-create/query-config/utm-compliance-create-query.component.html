@@ -1,0 +1,108 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="d-flex gap-3 row">
+    <div class="form-group col-6">
+      <label for="queryName">Query Name</label>
+      <input formControlName="queryName" class="form-control" id="queryName">
+      <div *ngIf="form.get('queryName').dirty && form.get('queryName').invalid">
+        <small *ngIf="form.get('queryName').hasError('required')" class="form-text text-danger">
+          Query name is required.
+        </small>
+        <small *ngIf="form.get('queryName').hasError('minlength')" class="form-text text-danger">
+          Query name must be at least 10 characters long.
+        </small>
+        <small *ngIf="form.get('queryName').hasError('maxlength')" class="form-text text-danger">
+          Query name must not exceed 200 characters.
+        </small>
+      </div>
+    </div>
+
+    <div class="col-6">
+      <label for="evalRule">Evaluation Rule</label>
+      <ng-select
+        formControlName="evaluationRule"
+        [items]="evaluationRules"
+        [closeOnSelect]="true"
+        [clearable]="true"
+        bindLabel="evaluationRule"
+        bindValue="id"
+        [loadingText]="'Loading Evaluation Rules...'"
+        id="evalRule">
+      </ng-select>
+
+      <div *ngIf="form.get('evaluationRule').dirty && form.get('evaluationRule').invalid">
+        <small *ngIf="form.get('evaluationRule').hasError('required')" class="form-text text-danger">
+          Evaluation Rule is required.
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-3 row">
+    <div class="form-group col-6">
+      <label for="queryDesc">Description ({{ 2000 - ((form.get('queryDescription').value || '').length) }}) </label>
+      <textarea formControlName="queryDescription" class="form-control" id="queryDesc"></textarea>
+      <div *ngIf="form.get('queryDescription').dirty && form.get('queryDescription').invalid">
+        <small *ngIf="form.get('queryDescription').hasError('required')" class="form-text text-danger">
+          Query description is required.
+        </small>
+        <small *ngIf="form.get('queryDescription').hasError('maxlength')" class="form-text text-danger">
+          Query description must not exceed 2000 characters.
+        </small>
+      </div>
+    </div>
+
+    <div class="col-6" *ngIf="form.get('evaluationRule') && form.get('evaluationRule').value !== null && form.get('evaluationRule').value !== 'NO_HITS_ALLOWED'">
+      <label for="ruleValue">Rule Value</label>
+      <input
+        type="number"
+        formControlName="ruleValue"
+        class="form-control"
+        id="ruleValue"
+        min="1">
+      <div *ngIf="form.get('ruleValue').dirty && form.get('ruleValue').invalid">
+        <small *ngIf="form.get('ruleValue').hasError('required')" class="form-text text-danger">
+          Rule value is required.
+        </small>
+        <small *ngIf="form.get('ruleValue').hasError('min')" class="form-text text-danger">
+          Rule value must be greater than 0.
+        </small>
+        <small *ngIf="form.get('ruleValue').hasError('pattern')" class="form-text text-danger">
+          Rule value must be a positive integer.
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>SQL Query</label>
+    <div class="editor-container">
+      <app-code-editor
+        [showFullEditor]="false"
+        formControlName="sqlQuery"
+        [consoleOptions]="codeEditorOptions"
+        [customKeywords]="loadFieldNames().concat(indexPatternNames)"
+        (indexPatternChange)="indexPatternSelected($event)">
+      </app-code-editor>
+    </div>
+    <div *ngIf="errorMessage || (form.get('sqlQuery').invalid && form.get('sqlQuery').touched)">
+      <small class="form-text text-danger">
+        {{ errorMessage || 'SQL Query is required.'}}
+      </small>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-end">
+    <button *ngIf="query"
+            type="button"
+            class="btn utm-button utm-button-primary"
+            (click)="cancelEdit()">
+        Cancel
+    </button>
+    <button
+      type="submit"
+      class="btn utm-button utm-button-primary ml-2"
+      [disabled]="form.invalid">
+      {{ query ? 'Save changes' : 'Add query' }}
+    </button>
+  </div>
+</form>

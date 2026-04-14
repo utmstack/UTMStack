@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - deceptive-bytes
+name: Privilege Escalation Bait Accessed
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1068 - Exploitation for Privilege Escalation"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1068/
+  - https://attack.mitre.org/techniques/T1078/
+  - https://www.checkpoint.com/cyber-hub/cyber-security/what-is-deception-technology/
+description: |
+  Detects when an attacker accesses deceptive privileged account baits or attempts to escalate privileges using trapped credentials, indicating active exploitation attempts. This is a high-priority alert as it indicates an active attacker who has progressed beyond initial access and is attempting to gain elevated privileges.
+  
+  Next Steps:
+  - Immediately isolate the affected system to prevent lateral movement
+  - Review authentication logs for the source IP and user account to identify scope of compromise
+  - Check for other deception bait interactions from the same source in the past 24 hours
+  - Investigate any legitimate user activity that may have been compromised
+  - Collect forensic data from the endpoint including running processes and network connections
+  - Review SIEM/EDR alerts for related suspicious activities from the same source
+  - Document the attacker's TTPs for threat intelligence sharing
+  - Consider resetting credentials for any accounts that may have been exposed
+  - Update firewall rules to block the attacker's source IP if confirmed malicious
+where: |
+  equals("log.event_type", "bait_accessed") &&
+  equals("log.bait_type", "privileged_account") &&
+  oneOf("log.target_privilege", ["admin", "system", "administrator"])
+groupBy:
+  - adversary.ip
+  - adversary.user

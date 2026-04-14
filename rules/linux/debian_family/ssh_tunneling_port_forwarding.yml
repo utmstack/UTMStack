@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: SSH Tunneling or Port Forwarding Detected
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Command and Control
+technique: "T1572 - Protocol Tunneling"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1572/
+  - https://man.openbsd.org/ssh
+description: |
+  Detects SSH local, remote, or dynamic port forwarding which attackers use to tunnel traffic through compromised hosts, bypass network segmentation, and exfiltrate data.
+
+  Next Steps:
+  1. Identify the source and destination of the SSH tunnel
+  2. Determine if the port forwarding was authorized by network administrators
+  3. Review what traffic is being tunneled through the SSH connection
+  4. Check for data exfiltration or access to restricted network segments
+  5. If unauthorized, terminate the SSH session and block the connection
+  6. Review SSH configuration to restrict port forwarding if not needed
+where: |
+  contains("log.process", "sshd") &&
+  (regexMatch("log.message", "(?i)ssh\\s+.*-[LRD]\\s+") ||
+   contains("log.message", "port forwarding") ||
+   contains("log.message", "Local forwarding") ||
+   contains("log.message", "Remote forwarding") ||
+   contains("log.message", "Dynamic forwarding") ||
+   contains("log.message", "tunnel") ||
+   regexMatch("log.message", "(?i)open forward.*port"))
+groupBy:
+  - origin.host
+  - origin.ip

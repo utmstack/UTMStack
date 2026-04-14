@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-cisco-firepower
+name: Firepower IOC (Indicator of Compromise) Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: "T1566 - Phishing"
+adversary: origin
+references:
+  - https://www.cisco.com/c/en/us/td/docs/security/firepower/70/configuration/guide/fpmc-config-guide-v70/file_malware_events_and_network_file_trajectory.html
+  - https://attack.mitre.org/tactics/TA0040/
+  - https://attack.mitre.org/techniques/T1566/
+description: |
+  Detects when Firepower identifies an Indicator of Compromise (IOC), indicating a host may be infected with malware or compromised. IOCs can include file hashes, malware signatures, or behavioral patterns that suggest malicious activity.
+
+  Next Steps:
+  1. Immediately isolate the affected host from the network to prevent lateral movement
+  2. Review the specific IOC details including threat name, SHA256 hash, and file path
+  3. Search for the same IOC across other endpoints in your environment
+  4. Check if the affected host has made any suspicious network connections recently
+  5. Collect memory dumps and disk images for forensic analysis if required
+  6. Review user activity logs to identify potential initial compromise vector
+  7. Update antivirus signatures and threat intelligence feeds with new IOC data
+  8. Perform deep scan of the affected system and related network segments
+  9. Consider reimaging the affected system after complete evidence collection
+  10. Update security controls to prevent similar future compromises
+where: (equals("log.eventType", "AMP_IOC") || equals("log.eventType", "IOC_DETECTED") || contains("log.message", "indication of compromise") || contains("log.message", "IOC")) && exists("origin.ip") && (exists("log.threatName") || exists("log.sha256") || exists("log.fileName"))
+groupBy:
+  - adversary.ip

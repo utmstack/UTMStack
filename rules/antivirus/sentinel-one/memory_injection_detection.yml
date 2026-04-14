@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: Memory Injection Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Privilege Escalation
+technique: "T1055 - Process Injection"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1055/
+  - https://attack.mitre.org/techniques/T1055/001/
+description: |
+  Detects memory injection attempts including DLL injection, process hollowing, reflective DLL injection, and other in-memory attack techniques detected by SentinelOne.
+  
+  Next Steps:
+  1. Immediately isolate the affected system to prevent lateral movement
+  2. Identify the injected process and the target process from the alert details
+  3. Check for persistence mechanisms on the affected system
+  4. Review SentinelOne console for additional threat indicators and related events
+  5. Collect memory dump if possible for forensic analysis
+  6. Check if the injection technique matches known threat actor TTPs
+  7. Review network connections from the affected system for C2 communication
+  8. Ensure SentinelOne remediation actions have been applied successfully
+where: |
+  regexMatch("log.eventDescription", "(?i)(memory.injection|dll.injection|process.injection|reflective.dll|process.hollow|code.injection|thread.hijack|injection.detected|malicious.injection)") ||
+  regexMatch("log.eventDescToParse", "(?i)(memory.injection|dll.injection|process.injection|reflective.dll|process.hollow|code.injection|thread.hijack|injection.detected|malicious.injection)")
+groupBy:
+  - adversary.host
+  - adversary.user

@@ -1,0 +1,19 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "sophos-central"
+name: "Potentially compromised or blocked device detected in Sophos Central"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: "Resource Development"
+technique: "T1584"
+adversary: origin
+references: 
+  - "https://attack.mitre.org/techniques/T1584/"
+description: "Adversaries may compromise third-party infrastructure that can be used during targeting"
+where: oneOf("log.type", ['Event::Endpoint::Device::Blocked', 'Event::UAV::PotentiallyCompromisedDevice'])
+groupBy:
+  - adversary.host
+  - adversary.ip

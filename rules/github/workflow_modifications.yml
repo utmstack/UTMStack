@@ -1,0 +1,43 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - github
+name: GitHub Workflow Modifications Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: "T1195.001 - Supply Chain Compromise: Compromise Software Dependencies and Development Tools"
+adversary: origin
+references:
+  - https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
+  - https://attack.mitre.org/techniques/T1195/001/
+description: |
+  Detects modifications to GitHub Actions workflows which could be used to inject malicious code into the CI/CD pipeline or steal secrets. Attackers may modify workflows to execute arbitrary code, exfiltrate secrets, or compromise the software supply chain.
+  
+  Next Steps:
+  1. Review the modified workflow files to identify any suspicious changes or additions
+  2. Check if the user who made the modifications has legitimate access and business justification
+  3. Look for any attempts to access secrets or environment variables in the workflow
+  4. Verify if any external actions or Docker images were added that could be malicious
+  5. Review commit history and pull request approvals for the workflow changes
+  6. Consider temporarily disabling the workflow if suspicious activity is confirmed
+  7. Audit repository access permissions and enable branch protection rules for workflow files
+  8. Check for any unusual timing of modifications (off-hours, weekends)
+  9. Verify the integrity of the repository and look for other suspicious activities
+  10. Review access logs for the user account that made the modifications
+where: |
+  (equals("log.action", "workflows.updated") || 
+   equals("log.action", "workflows.created") || 
+   equals("log.action", "workflow_run.completed") ||
+   equals("log.action", "workflow_dispatch")) &&
+  exists("log.repositoryName") &&
+  exists("log.senderLogin") &&
+  (contains("log.headCommitModified", ".github/workflows/") ||
+   contains("log.headCommitAdded", ".github/workflows/") ||
+   contains("log.path", ".github/workflows/") ||
+   contains("log.filename", ".github/workflows/"))
+groupBy:
+  - lastEvent.log.repositoryName
+  - lastEvent.log.senderLogin

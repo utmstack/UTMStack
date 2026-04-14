@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: RDS Security Group Changes
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: Defense Evasion
+technique: "T1562.007 - Impair Defenses: Disable or Modify Cloud Firewall"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/logging-using-cloudtrail.html
+  - https://attack.mitre.org/techniques/T1562/007/
+description: |
+  Detects modifications to RDS database security groups that could expose databases to unauthorized access. This includes adding new ingress rules or modifying existing security group configurations that may compromise database security.
+
+  Next Steps:
+  1. Review the security group changes to determine if they were authorized
+  2. Check if the changes expose RDS instances to public internet (0.0.0.0/0)
+  3. Verify the identity of the user who made the changes and confirm authorization
+  4. Review CloudTrail logs for additional suspicious activities by the same user
+  5. If unauthorized, immediately revert the security group changes
+  6. Consider implementing preventive controls using AWS Config rules or SCPs
+  7. Document the incident and update change management procedures if needed
+where: |
+  equals("log.eventSource", "rds.amazonaws.com") &&
+  oneOf("log.eventName", ["AuthorizeDBSecurityGroupIngress", "CreateDBSecurityGroup", "DeleteDBSecurityGroup", "RevokeDBSecurityGroupIngress"]) &&
+  equals("log.errorCode", "") &&
+  contains("log.requestParameters", "0.0.0.0/0")
+groupBy:
+  - lastEvent.log.eventName
+  - lastEvent.log.userIdentityArn

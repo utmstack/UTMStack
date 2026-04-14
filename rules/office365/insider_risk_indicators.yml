@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Insider Risk Indicator Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Collection
+technique: Data from Local System
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/purview/insider-risk-management
+  - https://attack.mitre.org/techniques/T1005/
+description: |
+  Detects insider risk indicators such as unusual data access patterns, mass downloads, sensitive data exfiltration attempts, or policy violations that may indicate malicious insider activity or compromised accounts.
+  
+  Next Steps:
+  1. Review the specific insider risk alert details and policy violated
+  2. Investigate the user's recent activity patterns and data access history
+  3. Check if the user has legitimate business justification for the flagged activity
+  4. Review the user's role, permissions, and access to sensitive resources
+  5. Correlate with HR records for any recent disciplinary actions or employment changes
+  6. Examine network logs for any unusual data transfer patterns or external communications
+  7. Consider implementing additional monitoring or access restrictions if suspicious activity is confirmed
+  8. Escalate to security team and HR if malicious intent is suspected
+where: |
+  equals("action", "InsiderRiskAlert") || (contains("log.PolicyName", "InsiderRisk") && equals("actionResult", "PolicyViolation")) || (oneOf("log.RiskLevel", ["High", "Critical"]) && equals("log.AlertSource", "InsiderRiskManagement"))
+groupBy:
+  - lastEvent.log.PolicyName
+  - lastEvent.log.RiskLevel
+  - adversary.user

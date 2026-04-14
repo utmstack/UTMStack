@@ -1,0 +1,44 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - ibm-as400
+name: IBM AS/400 Job Queue Manipulation Detection
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1053 - Scheduled Task/Job"
+adversary: origin
+references:
+  - https://www.ibm.com/docs/en/i/7.5?topic=concepts-job-queues
+  - https://attack.mitre.org/techniques/T1053/
+description: |
+  Detects suspicious job submissions and job queue manipulations on IBM AS/400 that could indicate unauthorized task execution with elevated authority or persistence mechanisms.
+
+  Next Steps:
+  1. Review the submitted job details and user profile
+  2. Verify the job submission was authorized
+  3. Check if the job runs with elevated authority (USER parameter)
+  4. Review the job's program and command list
+  5. Restrict SBMJOB authority for non-administrative users
+  6. Monitor job queue activity for unusual patterns
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "SBMJOB") && (
+      contains("log.message", "USER(QSECOFR)") ||
+      contains("log.message", "USER(QSYSOPR)") ||
+      contains("log.message", "*ALLOBJ")
+    )) ||
+    (contains("log.message", "CHGJOBQE") && exists("origin.user")) ||
+    (contains("log.message", "HLDJOBQ") || contains("log.message", "RLSJOBQ")) ||
+    (contains("log.message", "ADDJOBSCDE") && exists("origin.user")) ||
+    (contains("log.message", "job") && contains("log.message", "submitted") && (
+      contains("log.message", "QBATCH") ||
+      contains("log.message", "QSYSNOMAX")
+    ))
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

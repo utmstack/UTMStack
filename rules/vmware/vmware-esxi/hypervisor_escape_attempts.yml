@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - vmware-esxi
+name: VMware ESXi Hypervisor Escape Attempt Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Privilege Escalation
+technique: "T1611 - Escape to Host"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1611/
+  - https://www.usenix.org/system/files/woot19-paper_zhao.pdf
+  - https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-security/GUID-F35D7005-58EB-48AC-99D5-B9942EB2A8EF.html
+description: |
+  Detects potential hypervisor escape attempts through suspicious VMX process activity, abnormal privilege escalation, or unauthorized access to host resources from guest VMs. This rule identifies various indicators of compromise including CVE-2024-37085 exploitation, VMCI backdoor attempts, and unauthorized vpxuser activities.
+  
+  Next Steps:
+  1. Immediately isolate the affected ESXi host from the network to prevent lateral movement
+  2. Review VMX process logs and system calls for evidence of escape attempts
+  3. Check for unauthorized changes to virtual machine configurations
+  4. Examine guest VM activities and processes for signs of compromise
+  5. Verify integrity of hypervisor files and configurations
+  6. Review security patches and ensure latest ESXi updates are applied
+  7. Analyze network traffic for data exfiltration or command and control communications
+  8. Consider forensic imaging of affected virtual machines before remediation
+where: |
+  (regexMatch("log.message", "(?i)(vmx|vmware-vmx)") && regexMatch("log.message", "(?i)(escape|breakout|privilege|escalat|host access|unauthorized)")) ||
+  (regexMatch("log.process", "(?i)vmx") && equals("severity", "error")) ||
+  (regexMatch("log.message", "(?i)vpxuser") && regexMatch("log.message", "(?i)(failed|denied|unauthorized)")) ||
+  (regexMatch("log.message", "(?i)CVE-2024-37085")) ||
+  (regexMatch("log.message", "(?i)VMCI") && regexMatch("log.message", "(?i)(backdoor|socket|unauthorized)"))
+groupBy:
+  - adversary.hostname

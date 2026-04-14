@@ -1,0 +1,23 @@
+# Rule version v1.0.2
+dataTypes:
+  - wineventlog
+name: "Windows: Printer driver failed to load, possible remote code execution using PrinterNightmare exploit: CVE-2021-34527"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: "Lateral Movement"
+technique: "T1210 - Exploitation of Remote Services"
+adversary: origin
+description: "Adversaries may exploit remote services to gain unauthorized access to internal systems once inside of a network. 
+              Exploitation of a software vulnerability occurs when an adversary takes advantage of a programming error in a program, 
+              service, or within the operating system software or kernel itself to execute adversary-controlled code. 
+              A common goal for post-compromise exploitation of remote services is for lateral movement to enable access to a remote system."
+references:
+  - "https://attack.mitre.org/techniques/T1210/"
+where: equals("log.eventCode", 4663) &&
+       regexMatch("log.eventDataObjectName", "\\Windows\\System32\\spool\\drivers\\") &&
+       regexMatch("log.eventDataObjectName", "\\.(dll|exe)$") && !contains("log.eventDataProcessName", "spoolsv.exe")
+groupBy:
+  - origin.ip
+  - target.user

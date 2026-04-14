@@ -25,6 +25,8 @@ func startGRPCServer() error {
 	config.RegisterConfigServiceServer(server, config.GetConfigServer())
 	config.GetConfigServer().SyncConfigs(BackendService, InternalKey)
 
+	go config.GetConfigServer().StartPeriodicRetry(BackendService, InternalKey)
+
 	if err := server.Serve(listener); err != nil {
 		return catcher.Error("failed to serve grpc", err, map[string]any{"process": "plugin_com.utmstack.modules-config"})
 	}

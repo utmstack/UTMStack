@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - sophos-central
+name: Sophos Central Ransomware Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Ransomware Activity
+technique: "T1486 - Data Encrypted for Impact"
+adversary: origin
+references:
+  - https://developer.sophos.com/siem-api-schemas
+  - https://attack.mitre.org/techniques/T1486/
+description: |
+  Detects ransomware activity including CryptoGuard alerts, master boot record attacks, and file system encryption attempts. This is a critical security event requiring immediate response.
+
+  Next Steps:
+  1. Immediately isolate the affected endpoint from the network
+  2. Identify the user account and processes involved in the ransomware activity
+  3. Check for lateral movement to other systems using the same user credentials
+  4. Verify backup integrity and availability for potential restoration
+  5. Analyze file system changes and encrypted file patterns
+  6. Review network connections for command and control communications
+  7. Search for ransomware notes or payment demands on the system
+  8. Coordinate with incident response team for containment and recovery
+  9. Monitor for similar patterns on other endpoints in the environment
+  10. Document all findings for forensic analysis and threat intelligence
+where: |
+  oneOf("log.type", ["Event::Endpoint::Threat::RansomwareDetected", "Event::Endpoint::CryptoGuard::FileEncryption"]) ||
+  (equals("log.name", "CryptoGuard") && equals("log.action", "blocked")) ||
+  (equals("log.name", "Ransomware detected") && equals("log.severity", "critical")) ||
+  (equals("log.type", "Event::Endpoint::Threat::Detected") && equals("log.threatType", "Ransomware"))
+groupBy:
+  - adversary.host
+  - adversary.ip

@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - json-input
+name: JWT Token Security Issue Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Lateral Movement
+technique: "T1550.001 - Use Alternate Authentication Material: Application Access Token"
+adversary: origin
+references:
+  - https://research.securitum.com/jwt-json-web-token-security/
+  - https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html
+  - https://attack.mitre.org/techniques/T1550/001/
+description: |
+  Detects JWT token security issues including algorithm confusion, none algorithm usage, expired tokens, invalid signatures, or token manipulation attempts. These vulnerabilities can lead to authentication bypass and unauthorized access to protected resources.
+  
+  Next Steps:
+  1. Investigate the source IP and user agent for signs of malicious activity
+  2. Review JWT configuration to ensure proper algorithm validation
+  3. Check if "none" algorithm is explicitly disabled in JWT libraries
+  4. Validate token expiration and signature verification is properly implemented
+  5. Monitor for additional JWT manipulation attempts from the same source
+  6. Consider implementing JWT token blacklisting for compromised tokens
+where: |
+  (equalsIgnoreCase("log.alg", "none") ||
+   (exists("log.jwt_error") &&
+    (contains("log.jwt_error", "signature verification failed") ||
+     contains("log.jwt_error", "invalid signature") ||
+     contains("log.jwt_error", "algorithm mismatch"))) ||
+   (contains("raw", "eyJhbGciOiJub25lIi") ||
+    contains("raw", "eyJhbGciOiJOb25lIi") ||
+    contains("raw", "eyJhbGciOiJOT05FIi")) ||
+   (exists("log.jti") && equals("log.token_reuse", true)))
+groupBy:
+  - adversary.host
+  - adversary.ip

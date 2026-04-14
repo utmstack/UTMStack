@@ -1,0 +1,21 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: "System Linux: Interactive Terminal Spawned via Python"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 3
+category: "Execution"
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+description: "Identifies when a terminal (tty) is spawned via Python. Attackers may upgrade a simple reverse shell to a fully
+              interactive tty after obtaining initial access to a host."
+references:
+  - "https://attack.mitre.org/tactics/TA0002/"
+  - "https://attack.mitre.org/techniques/T1059/"
+where: contains("log.message", "python") && regexMatch("log.message", "(import pty; pty.spawn\\(\\'\\/bin\\/(sh|dash|bash)\\'\\))")
+groupBy:
+  - origin.ip
+  - origin.user

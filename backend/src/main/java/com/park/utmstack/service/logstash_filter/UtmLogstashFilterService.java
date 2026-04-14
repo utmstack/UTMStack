@@ -38,7 +38,6 @@ public class UtmLogstashFilterService {
         final String ctx = CLASSNAME + ".save";
         try {
             logstashFilter.setUpdatedAt(Instant.now());
-            logstashFilter.setSystemOwner(false);
             return logstashFilterRepository.save(logstashFilter);
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
@@ -114,5 +113,11 @@ public class UtmLogstashFilterService {
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
+    }
+
+    public Long getSystemSequenceNextValue() {
+        return logstashFilterRepository.findFirstBySystemOwnerIsTrueOrderByIdDesc()
+                .map(filter -> filter.getId() + 1)
+                .orElse(1L);
     }
 }

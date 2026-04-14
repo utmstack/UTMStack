@@ -1,10 +1,11 @@
 import {HttpResponse} from '@angular/common/http';
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, ChangeDetectorRef} from '@angular/core';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {LOG_INDEX_PATTERN, SOC_AI_INDEX_PATTERN} from '../../../../../shared/constants/main-index-pattern.constant';
 import {ElasticOperatorsEnum} from '../../../../../shared/enums/elastic-operators.enum';
 import {ElasticDataService} from '../../../../../shared/services/elasticsearch/elastic-data.service';
 import {ElasticFilterType} from '../../../../../shared/types/filter/elastic-filter.type';
+import {UtmAlertType} from '../../../../../shared/types/alert/utm-alert.type';
 import {AlertSocAiService} from '../../services/alert-soc-ai.service';
 import {IndexSocAiStatus, SocAiType} from './soc-ai.type';
 
@@ -15,6 +16,7 @@ import {IndexSocAiStatus, SocAiType} from './soc-ai.type';
 })
 export class AlertSocAiComponent implements OnInit, OnDestroy {
   @Input() alertID: string;
+  @Input() alert: UtmAlertType;
   @Input() socAiActive: boolean;
   socAiResponse: SocAiType;
   indexSocAiStatus = IndexSocAiStatus;
@@ -24,16 +26,18 @@ export class AlertSocAiComponent implements OnInit, OnDestroy {
 
   constructor(private elasticDataService: ElasticDataService,
               private alertSocAiService: AlertSocAiService,
+              private cdt:ChangeDetectorRef,
               private utmToastService: UtmToastService) {}
 
   ngOnInit() {
     if (this.socAiActive) {
-      this.getSocAiResponse();
+        this.initialLoad()
     }
   }
 
-  getSocAiResponse() {
+  initialLoad(){
     this.loading = true;
+    this.cdt.markForCheck()
     const filter: ElasticFilterType[] = [{
       field: 'activityId',
       operator: ElasticOperatorsEnum.IS,
@@ -42,13 +46,40 @@ export class AlertSocAiComponent implements OnInit, OnDestroy {
     this.elasticDataService.search(1, 1, 1, SOC_AI_INDEX_PATTERN, filter)
       .subscribe((res: HttpResponse<any>) => {
         this.loading = false;
+        this.cdt.markForCheck()
         if (!res || res.body.length === 0) {
           this.socAiResponse = res.body;
         } else {
           this.socAiResponse = res.body[0];
         }
+      },
+      (_res: HttpResponse<any>) => {
+        this.loading = false;
+        this.cdt.markForCheck()
+      }
+    );
+  }
 
-        if (this.socAiResponse.status ===  IndexSocAiStatus.Processing) {
+
+  getSocAiResponse() {
+    this.loading = true;
+    this.cdt.markForCheck()
+    const filter: ElasticFilterType[] = [{
+      field: 'activityId',
+      operator: ElasticOperatorsEnum.IS,
+      value: this.alertID
+    }];
+    this.elasticDataService.search(1, 1, 1, SOC_AI_INDEX_PATTERN, filter)
+      .subscribe((res: HttpResponse<any>) => {
+        if (!res || res.body.length === 0) {
+          this.socAiResponse = res.body;
+        } else {
+          this.socAiResponse = res.body[0];
+          this.loading = false;
+          this.cdt.markForCheck()
+        }
+
+        if (res.body.length==0 || this.socAiResponse.status ===  IndexSocAiStatus.Processing) {
           if (!this.interval) {
             this.startInterval();
           }
@@ -58,8 +89,9 @@ export class AlertSocAiComponent implements OnInit, OnDestroy {
           }
         }
       },
-      (res: HttpResponse<any>) => {
+      (_res: HttpResponse<any>) => {
         this.loading = false;
+        this.cdt.markForCheck()
       }
     );
   }
@@ -75,15 +107,23 @@ export class AlertSocAiComponent implements OnInit, OnDestroy {
   }
 
   processAlert() {
+    if (!this.alert) {
+      this.utmToastService.showError('Error', 'Alert data is not available.');
+      return;
+    }
+
     this.loadingProcess = true;
-    this.alertSocAiService.processAlertBySoc([this.alertID])
+    this.cdt.markForCheck()
+    this.alertSocAiService.analyzeAlert(this.alert)
       .subscribe((res) => {
+          this.utmToastService.showSuccessBottom('Alert submitted for SOC-AI analysis');
           setTimeout(() => {
             this.loadingProcess = false;
+            this.cdt.markForCheck()
             this.getSocAiResponse();
           }, 3000);
       },
-      (error) => {
+      (_error) => {
         this.utmToastService.showError('Error', 'An error occurred while processing the alert. Please try again later.');
         this.loadingProcess = false;
       });

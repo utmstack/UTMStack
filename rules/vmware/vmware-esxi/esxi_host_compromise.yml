@@ -1,0 +1,47 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - vmware-esxi
+name: ESXi Host Compromise Indicators
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Execution
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://www.forescout.com/blog/vmware-esxi-servers-a-major-attack-vector-for-ransomware/
+  - https://cloud.google.com/blog/topics/threat-intelligence/vmware-esxi-zero-day-bypass
+  - https://attack.mitre.org/techniques/T1059/
+description: |
+  Detects indicators of ESXi host compromise including ransomware preparation activities, suspicious file operations on virtual machines, logging tampering, and abnormal system changes. Monitors for encryption tools, VM power operations, and file system modifications.
+  
+  Next Steps:
+  1. Immediately isolate the affected ESXi host from the network to prevent lateral movement
+  2. Review all virtual machines on the host for signs of encryption or corruption
+  3. Check VM snapshots and backups to determine if they have been deleted or tampered with
+  4. Examine ESXi logs for unauthorized administrative access or configuration changes
+  5. Verify the integrity of the ESXi management interface and SSH access logs
+  6. Review network traffic from the ESXi host for unusual outbound connections
+  7. Check for presence of ransomware files or encryption tools on the host filesystem
+  8. Validate ESXi user accounts and permissions for unauthorized modifications
+  9. Assess the impact on running VMs and determine if immediate shutdown is necessary
+  10. Contact incident response team and consider engaging VMware support for forensic analysis
+where: |
+  (contains("log.message", "encrypt.sh") ||
+   (contains("log.message", "encrypt") && !contains("log.message", "TLS") && !contains("log.message", "SSL")) ||
+   contains("log.message", "esxcli vm process list") ||
+   contains("log.message", "esxcli vm process kill") ||
+   contains("log.message", "Device I/O error") ||
+   contains("log.message", "Medium Error Detected") ||
+   contains("log.message", "Uncorrectable error in data") ||
+   contains("log.message", "Disk error detected") ||
+   contains("log.message", "Unable to read partition table") ||
+   contains("log.message", "logging service disabled") ||
+   contains("log.message", "log events removed") ||
+   (equals("log.process", "vmkernel") && contains("log.message", "SCSI sense")) ||
+   (contains("log.eventInfo", "ransom") || contains("log.eventInfo", "encrypt"))) &&
+  exists("origin.hostname")
+groupBy:
+  - adversary.hostname

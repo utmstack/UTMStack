@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Audit Log Tampering Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1070.001 - Indicator Removal: Clear Windows Event Logs"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/purview/audit-log-enable-disable
+  - https://attack.mitre.org/techniques/T1070/001/
+description: |
+  Detects attempts to tamper with audit logs by disabling auditing, modifying audit configurations, or clearing audit data. This could indicate an attempt to hide malicious activities.
+  
+  Next Steps:
+  1. Investigate the user account that performed the audit configuration changes
+  2. Review recent activities by this user to identify potential malicious actions
+  3. Check if the audit configuration was restored after being disabled
+  4. Correlate with other security events around the same timeframe
+  5. Verify if this was an authorized administrative action
+  6. Review any recent privilege escalation or account compromise indicators
+where: |
+  (oneOf("action", ["Set-AdminAuditLogConfig", "Remove-AdminAuditLogConfig", "Disable-OrganizationCustomization", "Set-OrganizationConfig"]) ||
+  (equals("log.Workload", "Exchange") && contains("log.ObjectId", "AdminAuditLog")) ||
+  (contains("log.Parameters", "UnifiedAuditLogIngestionEnabled") && contains("log.Parameters", "false"))) &&
+  exists("origin.user") &&
+  equals("actionResult", "Succeeded")
+groupBy:
+  - lastEvent.action
+  - adversary.user

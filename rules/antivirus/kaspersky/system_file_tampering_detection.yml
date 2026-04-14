@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-kaspersky
+name: Kaspersky System File Tampering Detection
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://support.kaspersky.com/kwts/6.1/267200
+  - https://attack.mitre.org/techniques/T1562/001/
+  - https://attack.mitre.org/techniques/T1036/
+description: |
+  Detects attempts to tamper with critical system files, Windows services, or protected system components. This includes unauthorized modifications to system binaries, service configurations, or attempts to manipulate security-critical files.
+  
+  Next Steps:
+  1. Identify the affected system file or component from the log details
+  2. Check if the modification was authorized (planned maintenance, legitimate software update)
+  3. Review process information to identify the source of the tampering attempt
+  4. Look for additional indicators of compromise on the affected system
+  5. Investigate any parent processes or scripts that initiated the modification
+  6. Check for persistence mechanisms that may have been established
+  7. Consider isolating the system if unauthorized tampering is confirmed
+where: |
+  exists("log.signatureID") &&
+  (contains("log.msg", ["system file", "critical file", "protected file", "service tamper"]) ||
+   contains("log.cs1", "SYSTEM_MOD") ||
+   contains("log.cs4", "SystemFile") ||
+   contains("log.msg", ["system modification", "unauthorized change"]) ||
+   (equals("log.cat", "Behavior Detection") && contains("log.msg", "modify")))
+groupBy:
+  - origin.host

@@ -1,0 +1,54 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - ibm-aix
+name: IBM AIX Intrusion Detection Alert
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1068 - Exploitation for Privilege Escalation"
+adversary: origin
+references:
+  - https://www.ibm.com/docs/en/powersc-standard/2.1.0?topic=ids-configuring-intrusion-detection-prevention-idp-aix-endpoints
+  - https://attack.mitre.org/techniques/T1068/
+description: |
+  Detects intrusion attempts and security violations identified by the IBM AIX intrusion detection system, including suspicious activities, privilege escalation attempts, and potential system compromises.
+  
+  Next Steps:
+  1. Immediately isolate the affected system from the network to prevent lateral movement
+  2. Review the intrusion detection logs for specific details about the attack vector and affected resources
+  3. Check for any suspicious processes running with elevated privileges using 'ps aux' and 'topas'
+  4. Examine system integrity with 'trustchk' command to verify critical system files
+  5. Review recent user authentication logs and check for unauthorized account creation or privilege changes
+  6. Collect forensic evidence including memory dumps, system logs, and file modifications
+  7. Apply security patches and update AIX security configurations based on the vulnerability exploited
+  8. Monitor related systems for similar intrusion attempts
+  9. Check for any unauthorized file modifications using 'find' command with modification time filters
+  10. Review network connections and active ports using 'netstat' and 'lsof' commands
+  11. Validate system configuration against security baselines and hardening guides
+  12. Document the incident details and update security monitoring rules based on attack patterns
+where: |
+  (
+    equals("log.eventType", "ids") ||
+    equals("log.eventType", "securityd") ||
+    equals("log.eventType", "audit") ||
+    contains("log.msg", "intrusion") ||
+    contains("log.msg", "suspicious") ||
+    contains("log.msg", "anomaly detected")
+  ) && 
+  (
+    contains("log.msg", "buffer overflow") ||
+    contains("log.msg", "privilege escalation") ||
+    contains("log.msg", "unauthorized modification") ||
+    contains("log.msg", "rootkit") ||
+    contains("log.msg", "backdoor") ||
+    contains("log.msg", "suspicious process") ||
+    contains("log.msg", "file integrity") ||
+    contains("action", "ALERT") ||
+    equals("log.returnCode", "1")
+  )
+groupBy:
+  - target.host
+  - target.user

@@ -1,0 +1,29 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: SentinelOne Rollback Operation Patterns Detection
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 3
+category: Impact
+technique: "T1490 - Inhibit System Recovery"
+adversary: origin
+references:
+  - https://www.cybervigilance.uk/insights/sentinelone-how-does-rollback-work
+  - https://attack.mitre.org/techniques/T1490/
+description: |
+  Detects rollback operations in SentinelOne that may indicate ransomware recovery attempts or suspicious rollback activity. Rollback operations are critical system recovery events that should be monitored for both legitimate recovery and potential abuse scenarios.
+  
+  Next Steps:
+  1. Verify if the rollback operation was authorized by checking with the system administrator
+  2. Check if there were any ransomware or malware detections on the affected system prior to the rollback
+  3. Review the system logs to understand what changes were rolled back
+  4. Confirm the identity of the user who initiated the rollback operation
+  5. If unauthorized, investigate potential system compromise and consider isolating the affected endpoint
+  6. Document the rollback operation and its justification for compliance purposes
+where: regexMatch("log.eventDescription", ".*[Rr]ollback.*") && (equals("log.activityType", "rollback") || exists("log.rollbackStatus") || equals("log.cat", "SystemEvent"))
+groupBy:
+  - lastEvent.log.endpointDeviceName
+  - lastEvent.log.syslogHost

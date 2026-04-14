@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - github
+name: GitHub Workflow pull_request_target Injection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Supply Chain Compromise
+technique: "T1195.001 - Supply Chain Compromise: Compromise Software Dependencies and Development Tools"
+adversary: origin
+references:
+  - https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request_target
+  - https://attack.mitre.org/techniques/T1195/001/
+description: |
+  Detects modifications to GitHub Actions workflow files that may introduce pull_request_target trigger abuse. This trigger runs with repository write permissions and secrets access even on forked PRs, making it a high-value target for supply chain attacks.
+
+  Next Steps:
+  1. Review the workflow file changes for pull_request_target trigger usage
+  2. Check if the workflow checks out PR head code (dangerous with pull_request_target)
+  3. Verify the committer is an authorized repository maintainer
+  4. Review the workflow for unsafe uses of PR title, body, or labels in script context
+  5. Check for recent fork-based PRs that could exploit the workflow
+  6. If malicious, revert the workflow change and review PR history
+  7. Implement branch protection requiring code review for workflow changes
+  8. Use workflow_run instead of pull_request_target where possible
+where: |
+  (equals("log.action", "workflows.completed_workflow_run") ||
+   equals("log.action", "workflows.created_workflow_run")) &&
+  exists("log.senderLogin") &&
+  (contains("log.workflowFileName", "pull_request_target") ||
+   contains("log.event", "pull_request_target"))
+groupBy:
+  - lastEvent.log.repositoryName
+  - lastEvent.log.senderLogin

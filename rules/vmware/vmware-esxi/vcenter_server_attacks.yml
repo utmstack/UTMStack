@@ -1,0 +1,51 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - vmware-esxi
+name: VMware vCenter Server Attack Indicators
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Initial Access
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references:
+  - https://us-cert.cisa.gov/ncas/alerts/aa22-138b
+  - https://blogs.vmware.com/security/2022/09/esxi-targeting-ransomware-the-threats-that-are-after-your-virtual-machines-part-1.html
+  - https://attack.mitre.org/techniques/T1190/
+description: |
+  Detects potential attacks targeting vCenter Server including authentication anomalies, privilege escalation attempts, and suspicious command execution. Monitors for indicators of compromise such as unusual SSH enablement, service modifications, and administrative group changes.
+  
+  Next Steps:
+  1. Immediately isolate the affected vCenter Server from the network
+  2. Review authentication logs for suspicious login attempts
+  3. Check for unauthorized SSH access or administrative privilege escalations
+  4. Verify integrity of ESXi configurations and VIB installations
+  5. Scan for indicators of ransomware or malware deployment
+  6. Review network traffic for lateral movement attempts
+  7. Implement emergency access controls and change administrative passwords
+  8. Contact VMware security team if vulnerability exploitation is suspected
+where: |
+  (contains("log.message", "SSH enabled") ||
+   contains("log.message", "esxcli") ||
+   contains("log.message", "openssl enc") ||
+   contains("log.message", "VMware admins") ||
+   contains("log.message", "ESX admins") ||
+   contains("log.message", "virtualization admins") ||
+   contains("log.message", "storage admins") ||
+   contains("log.message", "password reset") ||
+   contains("log.message", "VIB install") ||
+   contains("log.message", "authentication failed") ||
+   (equals("log.process", "vpxd") && equals("severity", "error"))) &&
+  exists("origin.hostname")
+afterEvents:
+  - indexPattern: v11-log-vmware-esxi-*
+    with:
+      - field: origin.hostname
+        operator: filter_term
+        value: '{{.origin.hostname}}'
+    within: now-30m
+    count: 5
+groupBy:
+  - adversary.host

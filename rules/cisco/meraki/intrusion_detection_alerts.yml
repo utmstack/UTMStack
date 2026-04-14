@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-meraki
+name: Meraki IDS High Priority Intrusion Alert
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references:
+  - https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples
+  - https://attack.mitre.org/techniques/T1190/
+description: |
+  Detects high and medium priority intrusion detection alerts from Meraki IDS/IPS system. These alerts indicate potential exploitation attempts, malicious traffic patterns, or known attack signatures detected by the Snort engine.
+
+  Next Steps:
+  1. Review the specific signature that triggered the alert and assess its severity
+  2. Investigate the source IP for additional malicious activity or reputation
+  3. Check if the destination system shows signs of compromise
+  4. Verify if this is part of a larger attack campaign by correlating with other security events
+  5. Consider blocking the source IP if confirmed malicious
+  6. Review firewall rules and IPS signatures for potential tuning
+  7. Document the incident and update threat intelligence feeds if applicable
+where: |
+  equals("log.eventType", "security_event") && 
+  equals("log.alertType", "ids_alerted") &&
+  lessOrEqual("log.priority", 2) &&
+  exists("origin.ip") &&
+  exists("target.ip")
+groupBy:
+  - lastEvent.log.signature
+  - adversary.ip

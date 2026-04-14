@@ -1,0 +1,20 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: "System Linux: A user has been added to the administrators group"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: "Privilege Escalation"
+technique: "T1484 - Domain Policy Modification"
+adversary: origin
+description: "Detects when a user has been added to the administrators group (sudo) on a Linux system."
+references:
+  - "https://attack.mitre.org/tactics/TA0004"
+  - "https://attack.mitre.org/techniques/T1484/"
+where: regexMatch("log.message", "(((adduser|useradd|usermod)(.+)([Aa]dded user|new user|add)(.+)to(.+)group)(.+)sudo)") && contains("log.message", "usermod -aG sudo")
+groupBy:
+  - origin.ip
+  - origin.user

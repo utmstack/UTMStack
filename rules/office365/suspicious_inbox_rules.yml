@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Suspicious Email Forwarding Rule Created
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Persistence
+technique: "T1114.003 - Email Collection: Email Forwarding Rule"
+adversary: origin
+references:
+  - https://redcanary.com/blog/threat-detection/email-forwarding-rules/
+  - https://attack.mitre.org/techniques/T1114/003/
+description: |
+  Detects creation or modification of inbox rules that forward emails to external domains, which is a common technique used by attackers to exfiltrate emails and maintain persistence after compromising an account. Attackers often create these rules to automatically forward sensitive emails to external addresses under their control.
+  
+  Next Steps:
+  1. Verify if the user creating the rule is legitimate and authorized
+  2. Check the destination email address in the forwarding rule for external domains
+  3. Review recent authentication logs for the affected user account
+  4. Examine other administrative actions performed by this user recently
+  5. Check for any other suspicious inbox rules created by the same user
+  6. Validate if the forwarding address belongs to a legitimate business contact
+  7. Consider temporarily disabling the forwarding rule pending investigation
+  8. Review email logs to see what emails may have already been forwarded
+where: |
+  oneOf("action", ["New-InboxRule", "Set-InboxRule"]) && exists("origin.user") && (contains("log.Parameters", "ForwardTo") || contains("log.Parameters", "RedirectTo") || contains("log.Parameters", "ForwardAsAttachmentTo"))
+groupBy:
+  - adversary.user

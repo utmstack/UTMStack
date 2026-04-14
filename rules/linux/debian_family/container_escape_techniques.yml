@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Container Escape Technique Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Privilege Escalation
+technique: "T1611 - Escape to Host"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1611/
+  - https://blog.trailofbits.com/2019/07/19/understanding-docker-container-escapes/
+description: |
+  Detects container escape techniques including Docker socket access from within containers, nsenter escapes, cgroups release_agent abuse, and privileged container breakouts.
+
+  Next Steps:
+  1. Identify the container and pod from which the escape was attempted
+  2. Review the container configuration for excessive privileges
+  3. Check if the Docker socket was mounted into the container
+  4. Investigate the user and process chain involved in the escape attempt
+  5. Review container security policies and PodSecurityPolicies
+  6. Isolate the affected container host and investigate for lateral movement
+  7. Audit container images for vulnerabilities or backdoors
+where: |
+  (contains("log.message", "docker.sock") && contains("log.message", "mount")) ||
+  (contains("log.message", "nsenter") && contains("log.message", "--target")) ||
+  (contains("log.message", "release_agent") && contains("log.message", "cgroup")) ||
+  (contains("log.message", "--privileged") && contains("log.message", "docker")) ||
+  (contains("log.message", "/proc/1/root") || contains("log.message", "/proc/1/ns")) ||
+  (contains("log.message", "CAP_SYS_ADMIN") && contains("log.message", "container")) ||
+  (contains("log.message", "mount") && contains("log.message", "/dev/") &&
+   (contains("log.message", "container") || contains("log.message", "docker")))
+groupBy:
+  - origin.host
+  - origin.user

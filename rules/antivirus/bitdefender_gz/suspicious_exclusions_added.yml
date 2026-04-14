@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-bitdefender-gz
+name: Bitdefender GravityZone Suspicious Exclusion Added
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects when exclusions are added to Bitdefender GravityZone that may allow malware to operate undetected. Attackers often add exclusions to antivirus software to prevent detection of their malicious tools and activities.
+  
+  Next Steps:
+  1. Review the exclusion details to determine what files, folders, or processes were excluded
+  2. Verify if the exclusion was authorized by security team or IT administrators
+  3. Check if the excluded path contains any suspicious executables or scripts
+  4. Review recent activity from the user who added the exclusion
+  5. If unauthorized, immediately remove the exclusion and scan the excluded locations
+  6. Consider implementing a change control process for antivirus exclusions
+where: |
+  equals("log.eventType", "exclusion_added") ||
+  (oneOf("log.eventType", ["policy_change", "configuration_change"]) &&
+   contains("log.requested", "exclusion"))
+groupBy:
+  - lastEvent.log.eventType
+  - lastEvent.log.hostId

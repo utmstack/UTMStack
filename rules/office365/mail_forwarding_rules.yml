@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Suspicious Mail Forwarding Rule Creation
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Data Exfiltration
+technique: "T1114.001 - Email Collection: Local Email Collection"
+adversary: origin
+references:
+  - https://docs.microsoft.com/en-us/microsoft-365/compliance/auditing-troubleshooting-scenarios
+  - https://attack.mitre.org/techniques/T1114/001/
+description: |
+  Detects creation or modification of inbox rules that forward emails to external recipients, which could indicate data exfiltration attempts. This rule monitors for the creation of new inbox rules or modifications to existing rules that contain forwarding parameters.
+
+  Next Steps:
+  1. Review the specific forwarding parameters in the log.Parameters field to identify the destination email address
+  2. Verify if the forwarding destination is a legitimate business email or an external/suspicious address
+  3. Check if the user who created the rule has legitimate business justification for email forwarding
+  4. Review recent authentication logs for the affected user account for signs of compromise
+  5. Examine the timing of the rule creation - if created outside business hours or immediately after login, investigate further
+  6. Check for other suspicious activities by the same user account around the same timeframe
+  7. If malicious, disable the forwarding rule and reset user credentials
+where: |
+  oneOf("action", ["NewInboxRule", "Set-InboxRule", "UpdateInboxRules"]) && 
+  equals("actionResult", "Success") &&
+  (contains("log.Parameters", "ForwardTo") || contains("log.Parameters", "ForwardAsAttachmentTo") || contains("log.Parameters", "RedirectTo"))
+groupBy:
+  - adversary.ip
+  - adversary.user

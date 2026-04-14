@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS GuardDuty High-Severity Finding
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Persistence, Privilege Escalation, Initial Access
+technique: "T1078 - Valid Accounts"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings.html
+  - https://attack.mitre.org/techniques/T1078/
+description: |
+  Detects high-severity findings from AWS GuardDuty indicating potential security threats such as malicious activity, unauthorized access, or compromised instances. GuardDuty analyzes CloudTrail events, VPC Flow Logs, and DNS logs to identify threats.
+  
+  Next Steps:
+  1. Review the specific GuardDuty finding details including the threat type and affected resources
+  2. Check the affected AWS account and region for any unauthorized changes
+  3. Investigate the source IP addresses and user activities associated with the finding
+  4. Review CloudTrail logs for suspicious API calls around the time of the finding
+  5. If compromise is confirmed, rotate credentials and review IAM permissions
+  6. Enable AWS CloudTrail logging if not already enabled
+  7. Consider implementing AWS Security Hub for centralized security findings
+where: equals("log.eventSource", "guardduty.amazonaws.com") && greaterOrEqual("log.severity", 7)
+groupBy:
+  - lastEvent.log.accountId
+  - lastEvent.log.region
+  - lastEvent.log.type

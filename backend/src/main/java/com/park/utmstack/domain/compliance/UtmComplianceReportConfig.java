@@ -11,6 +11,7 @@ import com.park.utmstack.domain.compliance.enums.ComplianceStatus;
 import com.park.utmstack.domain.compliance.enums.ComplianceType;
 import com.park.utmstack.domain.compliance.types.RequestParamFilter;
 import com.park.utmstack.domain.shared_types.DataColumn;
+import com.park.utmstack.service.dto.auditable.AuditableDTO;
 import com.park.utmstack.util.UtilSerializer;
 import com.park.utmstack.util.exceptions.UtmSerializationException;
 import org.hibernate.annotations.GenericGenerator;
@@ -20,13 +21,14 @@ import org.springframework.util.StringUtils;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A ComplianceTemplate.
  */
 @Entity
 @Table(name = "utm_compliance_report_config")
-public class UtmComplianceReportConfig implements Serializable {
+public class UtmComplianceReportConfig implements Serializable, AuditableDTO {
 
     private static final long serialVersionUID = 1L;
 
@@ -350,5 +352,13 @@ public class UtmComplianceReportConfig implements Serializable {
 
     public void setConfigReportStatus(ComplianceStatus complianceStatus) {
         this.configReportStatus = complianceStatus;
+    }
+
+    @Override
+    public Map<String, Object> toAuditMap() {
+        return Map.of(
+            "configReportName", configReportName != null ? configReportName : "",
+            "configSolution", configSolution != null ? configSolution : ""
+        );
     }
 }

@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-mikrotik
+name: MikroTik SOCKS Proxy Enablement Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Command and Control
+technique: "T1090 - Proxy"
+adversary: origin
+references:
+  - https://help.mikrotik.com/docs/spaces/ROS/pages/328094/Log
+  - https://attack.mitre.org/techniques/T1090/
+description: |
+  Detects SOCKS proxy enablement on MikroTik routers, a common indicator of Meris botnet infection and other RouterOS-targeting malware. Attackers enable SOCKS proxy to route malicious traffic through compromised routers.
+
+  Next Steps:
+  1. Immediately check if the SOCKS proxy service is enabled on the router
+  2. Verify if the change was authorized by a legitimate administrator
+  3. Check for known Meris botnet indicators (scheduler scripts, unauthorized users)
+  4. Review firewall rules for any recently added NAT or port forwarding entries
+  5. If compromised, disable SOCKS proxy, remove unauthorized users and scripts
+  6. Update RouterOS to the latest firmware version
+where: |
+  contains("log.topics", "system") &&
+  (contains("log.message", "socks") || contains("log.message", "SOCKS")) &&
+  (contains("log.message", ["enabled", "changed", "added", "proxy"]))
+groupBy:
+  - adversary.host
+  - adversary.ip

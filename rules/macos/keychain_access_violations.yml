@@ -1,0 +1,43 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Keychain Access Violations Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Credential Access
+technique: "T1555.001 - Credentials from Password Stores: Keychain"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1555/001/
+  - https://support.apple.com/guide/keychain-access/mac-keychain-password-kyca1242/mac
+  - https://jumpcloud.com/support/understand-mac-keychain-access
+description: |
+  Detects unauthorized or suspicious attempts to access macOS Keychain, including failed access attempts, unusual process access, and potential credential theft activities. This rule identifies security subsystem events related to keychain access failures, denials, or unauthorized attempts.
+  
+  Next Steps:
+  1. Investigate the process attempting keychain access and verify if it's legitimate
+  2. Check for any recent malware infections or suspicious processes on the affected host
+  3. Review user activity around the time of the violation
+  4. Examine keychain access logs for patterns of abuse
+  5. Consider resetting credentials if unauthorized access is confirmed
+  6. Monitor for additional credential access attempts from the same host or user
+where: |
+  (equals("log.subsystem", "com.apple.security") || 
+   equals("log.subsystem", "com.apple.securityd") ||
+   equals("log.process", "securityd") ||
+   equals("log.process", "security")) &&
+  (contains("log.eventMessage", "keychain") || 
+   contains("log.eventMessage", "Keychain")) &&
+  (contains("log.eventMessage", "error") || 
+   contains("log.eventMessage", "failed") ||
+   contains("log.eventMessage", "denied") ||
+   contains("log.eventMessage", "unauthorized") ||
+   contains("log.eventMessage", "-25308") ||
+   contains("log.eventMessage", "accountsd wants to use")) &&
+  oneOf("log.messageType", ["error", "fault"])
+groupBy:
+  - adversary.host
+  - adversary.user

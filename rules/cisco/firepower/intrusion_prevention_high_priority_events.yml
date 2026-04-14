@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-cisco-firepower
+name: Intrusion Prevention System High Priority Events
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Execution
+technique: "T1203 - Exploitation for Client Execution"
+adversary: origin
+references:
+  - https://www.cisco.com/c/en/us/td/docs/security/secure-firewall/management-center/device-config/710/management-center-device-config-71/intrusion-overview.html
+  - https://attack.mitre.org/techniques/T1203/
+description: |
+  Detects high priority IPS events from Cisco Firepower indicating potential exploitation attempts, zero-day attacks, or critical vulnerabilities being targeted. These events represent immediate threats that require urgent investigation.
+
+  Next Steps:
+  1. Immediately isolate the affected system if the attack was successful
+  2. Review the specific signature ID and classification to understand the attack vector
+  3. Check if the target system shows signs of compromise (unusual processes, network connections, file modifications)
+  4. Analyze firewall logs to determine if the attack was blocked or if any malicious traffic passed through
+  5. Search for similar attempts from the same source IP across other systems
+  6. Update IPS signatures and ensure all systems are patched against the exploited vulnerability
+  7. Consider blocking the source IP if it shows persistent malicious behavior
+  8. Document the incident and update security controls based on findings
+where: |
+  equals("log.eventType", "IPS_EVENT") && 
+  (equals("log.priority", 1) || 
+   lessOrEqual("log.severity", 2) ||
+   equals("log.impact", "HIGH") ||
+   contains("log.classification", "attempted-admin") ||
+   contains("log.classification", "attempted-user") ||
+   contains("log.classification", "web-application-attack") ||
+   contains("log.classification", "exploit-kit"))
+groupBy:
+  - adversary.ip
+  - target.ip

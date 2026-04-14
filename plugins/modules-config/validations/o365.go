@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/utmstack/UTMStack/plugins/modules-config/config"
@@ -122,37 +123,61 @@ func ValidateO365Config(config *config.ModuleGroup) error {
 
 	req, err := http.NewRequest(http.MethodPost, requestUrl, bytes.NewBufferString(data.Encode()))
 	if err != nil {
-		return fmt.Errorf("failed to create request: %w", err)
+		return fmt.Errorf("Unable to validate Office 365 configuration. Please try again.")
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("O365 authentication request failed: %w", err)
+		return fmt.Errorf("Cannot connect to Microsoft login service. Please verify your network connection.")
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf("failed to read response: %w", err)
+		return fmt.Errorf("Received an invalid response from Microsoft. Please try again.")
 	}
 
 	var loginResp MicrosoftLoginResponse
 	if err := json.Unmarshal(body, &loginResp); err != nil {
-		return fmt.Errorf("failed to parse response: %w", err)
+		return fmt.Errorf("Received an unexpected response from Microsoft. Please try again.")
 	}
 
 	if loginResp.Error != "" {
-		return fmt.Errorf("O365 authentication failed: %s - %s", loginResp.Error, loginResp.ErrorDesc)
+		desc := strings.ToLower(loginResp.ErrorDesc)
+		switch loginResp.Error {
+		case "invalid_client":
+			if strings.Contains(desc, "aadsts7000215") || strings.Contains(desc, "secret") {
+				return fmt.Errorf("Invalid Client Secret. Please verify the Client Secret value (not the Secret ID) is correct and has not expired.")
+			}
+			return fmt.Errorf("Invalid Client ID or Client Secret. Please verify your Office 365 API credentials.")
+		case "unauthorized_client":
+			if strings.Contains(desc, "aadsts70001") || strings.Contains(desc, "not found") {
+				return fmt.Errorf("Client ID was not found in the tenant '%s'. Please verify the Client ID and Tenant ID are correct.", tenantId)
+			}
+			return fmt.Errorf("The application is not authorized. Please verify the Client ID has the required API permissions in Azure AD.")
+		case "invalid_grant":
+			if strings.Contains(desc, "aadsts65001") || strings.Contains(desc, "consent") {
+				return fmt.Errorf("Admin consent is required. Please grant admin consent for the Office 365 Management API permissions in Azure AD.")
+			}
+			return fmt.Errorf("Office 365 authentication failed. Please verify your Client ID, Client Secret, and Tenant ID.")
+		case "invalid_request":
+			if strings.Contains(desc, "tenant") {
+				return fmt.Errorf("Invalid Tenant ID '%s'. Please verify the Office 365 Tenant ID is correct.", tenantId)
+			}
+			return fmt.Errorf("Invalid authentication request. Please verify your Client ID and Tenant ID are correct.")
+		default:
+			return fmt.Errorf("Office 365 authentication failed: %s. Please verify your Client ID, Client Secret, and Tenant ID.", loginResp.ErrorDesc)
+		}
 	}
 
 	if loginResp.AccessToken == "" {
-		return fmt.Errorf("O365 authentication failed: no access token received")
+		return fmt.Errorf("Office 365 did not return an access token. Please verify your Client ID, Client Secret, and Tenant ID are correct.")
 	}
 
 	if err := validateManagementAPIAccess(loginResp.TokenType, loginResp.AccessToken, cloudConfig.ManagementEndpoint, tenantId); err != nil {
-		return fmt.Errorf("authentication successful but Management API access failed: %w", err)
+		return err
 	}
 
 	return nil
@@ -169,7 +194,7 @@ func validateManagementAPIAccess(tokenType, accessToken, managementEndpoint, ten
 
 	req, err := http.NewRequest(http.MethodGet, pingUrl, nil)
 	if err != nil {
-		return fmt.Errorf("failed to create validation request: %w", err)
+		return fmt.Errorf("Unable to validate Office 365 Management API access. Please try again.")
 	}
 
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", tokenType, accessToken))
@@ -177,7 +202,7 @@ func validateManagementAPIAccess(tokenType, accessToken, managementEndpoint, ten
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("management API request failed: %w", err)
+		return fmt.Errorf("Cannot connect to the Office 365 Management API. Please verify your network connection.")
 	}
 	defer resp.Body.Close()
 
@@ -185,7 +210,14 @@ func validateManagementAPIAccess(tokenType, accessToken, managementEndpoint, ten
 		return nil
 	}
 
-	body, _ := io.ReadAll(resp.Body)
-	return fmt.Errorf("validation failed (HTTP %d): %s",
-		resp.StatusCode, string(body))
+	switch resp.StatusCode {
+	case http.StatusUnauthorized:
+		return fmt.Errorf("Office 365 Management API rejected the authentication (HTTP 401). The access token may be invalid. Please try saving the configuration again.")
+	case http.StatusForbidden:
+		return fmt.Errorf("The application does not have permission to access the Office 365 Management API (HTTP 403). Please add the 'ActivityFeed.Read' permission and grant admin consent in Azure AD.")
+	case http.StatusNotFound:
+		return fmt.Errorf("Office 365 Management API endpoint not found (HTTP 404). Please verify the Tenant ID '%s' and Cloud Environment are correct.", tenantId)
+	default:
+		return fmt.Errorf("Office 365 Management API returned HTTP %d. Please verify the app has the required permissions in Azure AD.", resp.StatusCode)
+	}
 }

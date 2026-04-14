@@ -301,6 +301,10 @@
 
     <include file="config/liquibase/changelog/20260112001_add_threatwinds_credentials_section.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20260112002_create_table_compliance_control_config.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20260112003_create_table_compliance_query_config.xml" relativeToChangelogFile="false"/>
+
     <include file="config/liquibase/changelog/20260113001_update_macos_integration_category.xml" relativeToChangelogFile="false"/>
 
     <include file="/config/liquibase/changelog/20260114001_update_section_instance_config.xml" relativeToChangelogFile="false"/>
@@ -537,6 +541,60 @@
 
   <include file="/config/liquibase/changelog/20260325001_update_azure.xml" relativeToChangelogFile="false"/>
 
+  <include file="/config/liquibase/changelog/20260331001_update_o365_sync_uploaded_visualization.xml" relativeToChangelogFile="false"/>
 
+  <include file="/config/liquibase/changelog/20260331002_update_o365_filesync_downloaded_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331003_update_o365_ad_successful_login_location_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331004_update_o365_secure_link_operation_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331005_update_o365_mailitems_accessed_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331006_update_o365_ad_unsuccessful_login_location_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331007_update_o365_sharing_set_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331008_update_o365_file_access_and_activity_by_client_ip_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331009_update_o365_file_renamed_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331010_update_o365_onedrive_file_download_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331011_update_o365_file_access_and_activity_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331012_update_o365_sharepoint_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331013_update_o365_secure_link_operation_by_client_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331014_update_o365_email_access_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331015_update_o365_exchange_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331016_update_o365_sharing_link_operation_by_client_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331017_update_o365_file_accessed_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331018_update_o365_sharing_link_operation_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331019_update_o365_filesyncdownloadedfull_by_ip_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260331020_update_o365_activity_visualization.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260401001_update_windows_filter.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260401002_update_window_rules.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260401003_update_windows_rule_data_types.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260403001_update_socai_group_config.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260408001_add_module_id_to_utm_data_types.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260408002_seed_module_id_in_utm_data_types.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260409001_add_shell_to_alert_response_rule.xml" relativeToChangelogFile="false"/>
+
+  <include file="/config/liquibase/changelog/20260409002_update_socai_config.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

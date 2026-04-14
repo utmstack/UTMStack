@@ -1,0 +1,27 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-bitdefender-gz
+name: Crypto-Mining Detection
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 3
+category: Impact
+technique: "T1496 - Resource Hijacking"
+adversary: origin
+references:
+  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://attack.mitre.org/techniques/T1496/
+description: "Detects cryptocurrency mining activities including miners, coin miners, and cryptojacking attempts detected by Bitdefender GravityZone.\n\nNext Steps:\n- Review the affected endpoint details (hostname, IP) to identify the compromised system\n- Check CPU and memory usage patterns on the affected system for unusual spikes\n- Look for network connections to known mining pools or suspicious outbound traffic\n- Search for related processes running with names like xmrig, minerd, cgminer, or bfgminer\n- Review recent file downloads and installations on the affected system\n- Check for persistence mechanisms (scheduled tasks, startup items, services)\n- Isolate the affected system if active mining is confirmed\n- Run a full system scan with updated definitions\n- Consider reimaging the system if compromise is extensive"
+where: |
+  equals("log.productVendor", "Bitdefender") &&
+  equals("log.product", "GravityZone") &&
+  (
+    contains("log.eventType", ["miner", "coin", "crypto", "CoinMiner"]) ||
+    contains("log.requested", ["miner", "coin", "xmr", "monero", "bitcoin",
+      "ethereum", "xmrig", "minerd", "cgminer", "bfgminer", "coinhive"])
+  )
+groupBy:
+  - adversary.host
+  - adversary.ip

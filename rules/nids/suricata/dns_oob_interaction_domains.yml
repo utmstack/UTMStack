@@ -1,0 +1,60 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - suricata
+name: DNS Query to Out-of-Band Interaction Domain
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Initial Access
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1190/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/network/dns/net_dns_external_service_interaction_domains.yml
+  - https://portswigger.net/burp/documentation/collaborator
+description: |
+  Detects DNS queries to known out-of-band (OOB) interaction testing domains used by penetration testing tools and exploit frameworks. These domains (Burp Collaborator, interactsh, dnslog.cn, canarytokens) are almost exclusively used during active exploitation attempts such as SSRF, RCE, XXE, and Log4Shell attacks. Legitimate use is extremely rare outside of authorized security testing.
+
+  Next Steps:
+  1. Identify the application or service that triggered the DNS query
+  2. Check web server logs for corresponding exploitation attempts (SSRF, XXE, JNDI)
+  3. Determine if this is authorized penetration testing activity
+  4. If unauthorized, investigate the target application for vulnerabilities
+  5. Block the OOB interaction domains at the DNS resolver
+  6. Check for successful exploitation indicators on the target systems
+  7. Review WAF/IDS logs for correlated attack signatures
+where: |
+  equals("log.eventType", "dns") &&
+  exists("log.dns.query") &&
+  (
+    contains("log.dns.query", ".burpcollaborator.net") ||
+    contains("log.dns.query", ".oastify.com") ||
+    contains("log.dns.query", ".interact.sh") ||
+    contains("log.dns.query", ".interactsh.com") ||
+    contains("log.dns.query", ".canarytokens.com") ||
+    contains("log.dns.query", ".dnslog.cn") ||
+    contains("log.dns.query", ".ceye.io") ||
+    contains("log.dns.query", ".bxss.me") ||
+    contains("log.dns.query", ".xss.ht") ||
+    contains("log.dns.query", ".requestbin.net") ||
+    contains("log.dns.query", ".pipedream.net") ||
+    contains("log.dns.query", ".webhook.site") ||
+    contains("log.dns.query", ".r87.me") ||
+    contains("log.dns.query", ".dnsbin.zhack.ca") ||
+    contains("log.dns.query", ".pingb.in") ||
+    contains("log.dns.query", ".beeceptor.com") ||
+    contains("log.dns.query", ".requestrepo.com") ||
+    contains("log.dns.query", ".oast.fun") ||
+    contains("log.dns.query", ".oast.live") ||
+    contains("log.dns.query", ".oast.site") ||
+    contains("log.dns.query", ".oast.online") ||
+    contains("log.dns.query", ".oast.me") ||
+    contains("log.dns.query", ".requestcatcher.com") ||
+    contains("log.dns.query", ".canarytokens.org")
+  ) &&
+  exists("origin.ip")
+groupBy:
+  - lastEvent.log.dns.query
+  - adversary.ip

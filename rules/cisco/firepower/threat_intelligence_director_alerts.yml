@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-cisco-firepower
+name: Threat Intelligence Director (TID) Alert Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Command and Control
+technique: "T1071.001 - Application Layer Protocol: Web Protocols"
+adversary: origin
+references:
+  - https://www.cisco.com/c/en/us/td/docs/security/firepower/70/configuration/guide/fpmc-config-guide-v70/tid_overview.html
+  - https://attack.mitre.org/techniques/T1071/
+description: |
+  Detects when Cisco Firepower Threat Intelligence Director identifies connections to known malicious indicators including IPs, domains, URLs, and SHA256 hashes from threat feeds. This rule triggers when TID blocks or would block connections based on threat intelligence matches with high confidence scores.
+
+  Next Steps:
+  - Immediately isolate the affected system if the connection was not blocked
+  - Review the specific threat indicator (IP/domain/URL/hash) that triggered the alert
+  - Check the threat category and score to understand the severity
+  - Investigate all recent network activity from the source IP address
+  - Search for similar indicators across other systems in the network
+  - Review endpoint logs for signs of malware or suspicious processes
+  - If a file hash triggered the alert, locate and quarantine the file
+  - Check if other systems have communicated with the same malicious indicator
+  - Update firewall rules to ensure the indicator is blocked network-wide
+  - Report the incident to the security team for further investigation
+where: |
+  equals("log.eventType", "TID_EVENT") && 
+  (equals("log.action", "BLOCK") || 
+   equals("log.action", "WOULD_BLOCK") ||
+   exists("log.tidIndicatorType")) &&
+  (exists("log.tidCategory") || 
+   greaterOrEqual("log.threatScore", 80))
+groupBy:
+  - lastEvent.log.tidIndicator
+  - adversary.ip

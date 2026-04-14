@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Microsoft Teams External User Phishing Detection
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: Initial Access
+technique: "T1566 - Phishing"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/microsoftteams/communicate-with-users-from-other-organizations
+  - https://attack.mitre.org/techniques/T1566/
+description: |
+  Detects suspicious external user interactions in Microsoft Teams including external users sending messages with links, file sharing from external users, and mass external user additions. Teams is increasingly used as a phishing vector to bypass email security controls.
+
+  Next Steps:
+  1. Review the external user's identity and their organization
+  2. Check the content of messages for phishing links or social engineering
+  3. Verify if external access is necessary for the affected teams and channels
+  4. Review any files shared by the external user for malicious content
+  5. Check if any users clicked on links or downloaded shared files
+  6. If malicious, remove the external user and block their domain
+  7. Implement Teams external access policies to restrict communication
+  8. Enable Safe Links and Safe Attachments for Teams
+where: |
+  (equals("action", "MemberAdded") || equals("action", "ChatCreated") || equals("action", "MessageSent")) &&
+  equals("actionResult", "Success") &&
+  contains("log.Parameters", "#EXT#")
+afterEvents:
+  - indexPattern: v11-log-o365-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: log.Parameters
+        operator: filter_match
+        value: '#EXT#'
+    within: now-1h
+    count: 5
+groupBy:
+  - adversary.ip
+  - adversary.user

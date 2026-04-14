@@ -1,0 +1,24 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "aws"
+name: "AWS EC2 Snapshot Activity"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: "Exfiltration"
+technique: "T1537 - Transfer Data to Cloud Account"
+adversary: origin
+description: "An attempt was made to modify AWS EC2 snapshot attributes. Snapshots are sometimes shared by threat actors in order to exfiltrate bulk data from an EC2 fleet. If the permissions were modified, verify the snapshot was not shared with an unauthorized or unexpected AWS account"
+references:
+  - "https://attack.mitre.org/tactics/TA0010/"
+  - "https://attack.mitre.org/techniques/T1537/"
+  - "https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/modify-snapshot-attribute.html"
+  - "https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_ModifySnapshotAttribute.html"
+where: |
+  equals("log.eventSource", "ec2.amazonaws.com") &&
+  equals("log.eventName", "ModifySnapshotAttribute")
+groupBy:
+  - adversary.ip
+  - adversary.user

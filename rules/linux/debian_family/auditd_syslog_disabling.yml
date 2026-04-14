@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Audit or Logging Service Disabled
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects attempts to stop or disable audit and logging services (auditd, rsyslog, syslog-ng, journald) which attackers do to prevent their activities from being recorded.
+
+  Next Steps:
+  1. Immediately investigate the host where logging was disabled
+  2. Identify the user account that stopped the service
+  3. Restart the logging service and verify log integrity
+  4. Review any gap in logging for potential attack evidence
+  5. Check for other defense evasion techniques on the host
+  6. Investigate the attack chain that led to disabling logging
+where: |
+  (contains("log.message", "systemctl") || contains("log.message", "service")) &&
+  (contains("log.message", "stop") || contains("log.message", "disable") ||
+   contains("log.message", "mask") || contains("log.message", "kill")) &&
+  (contains("log.message", "auditd") || contains("log.message", "rsyslog") ||
+   contains("log.message", "syslog-ng") || contains("log.message", "journald") ||
+   contains("log.message", "syslog")) &&
+  !(contains("log.message", "restart") || contains("log.message", "reload"))
+groupBy:
+  - origin.host
+  - origin.user

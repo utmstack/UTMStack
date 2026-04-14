@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - deceptive-bytes
+name: Decoy System Enumeration
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Discovery
+technique: "T1082 - System Information Discovery"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1082/
+  - https://deceptivebytes.com/solution/
+description: |
+  Detects when an attacker performs system enumeration activities on decoy systems or services. This includes port scanning, service discovery, or system information gathering on deception assets.
+  
+  Next Steps:
+  - Immediately investigate the source IP address for other suspicious activities
+  - Check if the source IP has attempted to access other decoy or real systems
+  - Review network logs for lateral movement attempts from this source
+  - Consider blocking the source IP if malicious intent is confirmed
+  - Document the attack pattern for threat intelligence sharing
+  - Verify if the attacker has discovered any real assets alongside decoys
+where: |
+  equals("log.eventType", "system_enumeration") &&
+  (equals("log.isDecoy", true) || equals("log.isDecoy", "true")) &&
+  oneOf("log.action", ["port_scan", "service_discovery", "system_info"]) &&
+  exists("origin.ip")
+deduplicateBy:
+  - adversary.ip
+  - lastEvent.log.targetHost
+  - lastEvent.log.decoyName

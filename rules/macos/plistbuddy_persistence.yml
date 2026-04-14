@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: PlistBuddy Persistence via RunAtLoad
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1543.001 - Create or Modify System Process: Launch Agent"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1543/001/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_persistence_via_plistbuddy.yml
+description: |
+  Detects the use of PlistBuddy to set RunAtLoad to true in LaunchAgent or LaunchDaemon plist files. This is a persistence technique where attackers modify property list files to ensure their malicious payload runs automatically at system boot or user login.
+
+  Next Steps:
+  1. Identify the plist file being modified and examine its full contents
+  2. Determine what executable or script the plist is configured to run
+  3. Check if the referenced executable is legitimate or malicious
+  4. Review the process that invoked PlistBuddy and its parent chain
+  5. Remove the malicious plist file and associated executables
+  6. Check for other LaunchAgent/LaunchDaemon persistence on the system
+where: |
+  contains("log.eventMessage", "PlistBuddy") &&
+  contains("log.eventMessage", "RunAtLoad") &&
+  contains("log.eventMessage", ["LaunchAgents", "LaunchDaemons"])
+groupBy:
+  - adversary.host
+  - adversary.user

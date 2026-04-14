@@ -1,0 +1,41 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - ibm-as400
+name: IBM AS/400 Exit Point Tampering Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1562 - Impair Defenses"
+adversary: origin
+references:
+  - https://www.ibm.com/docs/en/i/7.5?topic=programs-exit
+  - https://attack.mitre.org/techniques/T1562/
+description: |
+  Detects tampering with IBM AS/400 exit points using ADDEXITPGM to register malicious programs. Exit points intercept system operations and can be used for credential capture, data interception, or persistent backdoor access.
+
+  Next Steps:
+  1. Review the exit point program being registered
+  2. Verify the exit point registration was authorized
+  3. Check the program source code for malicious functionality
+  4. List all registered exit points with WRKREGINF
+  5. Remove unauthorized exit point programs
+  6. Restrict ADDEXITPGM authority to security administrators
+where: |
+  exists("log.message") &&
+  (
+    contains("log.message", "ADDEXITPGM") ||
+    contains("log.message", "RMVEXITPGM") ||
+    contains("log.message", "CHGEXITPGM") ||
+    (contains("log.message", "exit point") && (
+      contains("log.message", "registered") ||
+      contains("log.message", "added") ||
+      contains("log.message", "changed")
+    )) ||
+    (contains("log.message", "WRKREGINF") && contains("log.message", "exit"))
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

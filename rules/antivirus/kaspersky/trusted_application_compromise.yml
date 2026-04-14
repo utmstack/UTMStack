@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-kaspersky
+name: Kaspersky Trusted Application Compromise Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1218 - Signed Binary Proxy Execution"
+adversary: origin
+references:
+  - https://www.kaspersky.com/enterprise-security/wiki-section/products/kaspersky-anti-targeted-attack-platform
+  - https://attack.mitre.org/techniques/T1218/
+  - https://attack.mitre.org/techniques/T1574/
+description: |
+  Identifies when legitimate or trusted applications exhibit malicious behavior, potentially indicating compromise or exploitation. This includes detecting when signed binaries are used for malicious purposes or when trusted processes perform suspicious activities. This is a critical security event that indicates an attacker may be using living-off-the-land techniques to evade detection.
+  
+  Next Steps:
+  1. Immediately isolate the affected system to prevent lateral movement
+  2. Identify the compromised trusted application and its process chain
+  3. Review recent system changes and user activities on the affected host
+  4. Check for persistence mechanisms (scheduled tasks, services, registry keys)
+  5. Analyze network connections from the compromised application
+  6. Look for data exfiltration indicators from the affected system
+  7. Consider reimaging the system if compromise is confirmed
+  8. Update security policies to monitor the exploited application more closely
+where: |
+  exists("log.signatureID") &&
+  (contains("log.msg", ["trusted application", "signed binary", "legitimate program"]) ||
+   contains("log.cs1", "TRUSTED_COMP") ||
+   contains("log.cs4", "TrustedApp") ||
+   contains("log.msg", "whitelisted") ||
+   (equals("log.cat", "Exploit Prevention") && contains("log.msg", "exploit")) ||
+   containsAll("log.msg", ["behavior", "trusted"])) &&
+  oneOf("log.cefDeviceSeverity", ["High", "Medium"])
+groupBy:
+  - origin.host

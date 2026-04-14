@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - json-input
+name: JSON Hijacking Attempt Detected
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Execution
+technique: JSON Hijacking
+adversary: origin
+references:
+  - https://owasp.org/www-community/attacks/JSON_Hijacking
+  - https://attack.mitre.org/techniques/T1059/007/
+description: |
+  Detects attempts to hijack JSON data through malicious script tags, Array constructor overrides, or cross-domain data theft patterns. JSON hijacking attacks attempt to steal sensitive data by exploiting vulnerabilities in JSON responses through script tag inclusion or prototype manipulation.
+  
+  Next Steps:
+  1. Review the request details and identify the source of the hijacking attempt
+  2. Check if the origin IP is from a known malicious source
+  3. Examine the full request payload for additional malicious indicators
+  4. Verify if any sensitive data was exposed in the JSON response
+  5. Implement proper CSRF tokens and validate referer headers
+  6. Consider blocking the source IP if malicious activity is confirmed
+  7. Review application code for proper JSON response security measures
+where: |
+  (contains("raw", "<script") ||
+   contains("raw", "Array.prototype") ||
+   contains("raw", "Object.defineProperty") ||
+   contains("raw", "window.location") ||
+   contains("raw", "document.domain") ||
+   contains("raw", "postMessage") ||
+   (exists("log.callback") && contains("log.callback", "eval")) ||
+   (exists("origin.url") && exists("target.domain") && 
+    !contains(safe(origin.url, ""), safe(target.domain, ""))))
+groupBy:
+  - adversary.ip
+  - target.domain

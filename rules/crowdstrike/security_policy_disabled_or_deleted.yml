@@ -1,0 +1,19 @@
+name: "Security Policy Disabled or Deleted"
+description: "An administrator or actor has disabled or deleted a security prevention policy in Falcon, which may leave endpoints vulnerable."
+category: "Defense Evasion"
+technique: "Impair Defenses: Disable or Modify Tools"
+references:
+  - "https://attack.mitre.org/techniques/T1562/001/"
+dataTypes:
+  - crowdstrike
+adversary: origin
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 3
+where: >
+  exists("log.eventOperationName") && 
+  oneOf("log.eventOperationName", ["disable_policy", "delete_policy", "remove_policy"])
+groupBy:
+  - lastEvent.log.eventUserId
+  - lastEvent.log.eventOperationName

@@ -1,0 +1,40 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - vmware-esxi
+name: ESXi Ransomware Attack Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Impact
+technique: "T1486 - Data Encrypted for Impact"
+adversary: origin
+references:
+  - https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-039a
+  - https://attack.mitre.org/techniques/T1486/
+description: |
+  Detects ESXi ransomware attack patterns including mass VM shutdown, VMDK encryption indicators, suspicious script execution, and deletion of VM snapshots. ESXiArgs and similar ransomware families target ESXi hosts to encrypt virtual machine disk files.
+
+  Next Steps:
+  1. Immediately isolate the ESXi host from the network
+  2. Check if VMs are shutting down or being encrypted
+  3. Verify snapshot and backup integrity
+  4. Do NOT power on encrypted VMs
+  5. Preserve forensic evidence before recovery attempts
+  6. Contact incident response team immediately
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "vim-cmd vmsvc/power.off") || contains("log.message", "esxcli vm process kill")) ||
+    (contains("log.message", "openssl") && contains("log.message", "enc")) ||
+    (contains("log.message", ".vmdk") && (contains("log.message", "encrypt") || contains("log.message", "openssl"))) ||
+    (contains("log.message", "encrypt.sh") || contains("log.message", "encrypt.py")) ||
+    (contains("log.message", "esxcli vm process list") && contains("log.message", "kill")) ||
+    (contains("log.message", "snapshot") && contains("log.message", "removeall")) ||
+    (contains("log.message", ".vmx") && contains("log.message", "removed")) ||
+    contains("log.message", "ransom") ||
+    (contains("log.message", "chmod") && contains("log.message", "+x") && contains("log.message", ".sh"))
+  )
+groupBy:
+  - adversary.hostname

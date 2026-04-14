@@ -1,0 +1,47 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Container Platform Security Attacks
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1611 - Escape to Host"
+adversary: origin
+references:
+  - https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/building_running_and_managing_containers/index
+  - https://attack.mitre.org/techniques/T1611/
+description: |
+  Detects attacks against container platforms including Docker, Podman, and CRI-O such as container escape attempts, privilege escalation, unauthorized image pulls, and runtime manipulation. This rule identifies suspicious container activities that may indicate an adversary attempting to break out of container isolation or manipulate container runtime environments.
+
+  Next Steps:
+  1. Investigate the affected container and host system for signs of compromise
+  2. Review container logs and runtime configurations for unauthorized changes
+  3. Check for unusual process execution or file system modifications
+  4. Verify container image integrity and scan for malicious content
+  5. Review security policies for containers (seccomp, AppArmor, SELinux)
+  6. Consider isolating the affected container and host system
+  7. Update container security policies and runtime configurations as needed
+where: |
+  (oneOf("origin.process", ["docker", "podman", "crio", "containerd"]) ||
+   oneOf("origin.process", ["dockerd", "podman", "crio", "containerd"]) ||
+   oneOf("log.service", ["docker", "podman", "crio", "containerd"]) ||
+   oneOf("log.process_name", ["dockerd", "podman", "crio", "containerd"])) &&
+  (
+    contains("log.message", "container escape") ||
+    contains("log.message", "privilege escalation") ||
+    contains("log.message", "unauthorized pull") ||
+    contains("log.message", "runtime manipulation") ||
+    contains("log.message", "seccomp violation") ||
+    contains("log.message", "AppArmor violation") ||
+    contains("log.message", "SELinux denial") ||
+    (equals("action", "exec") && contains("log.command", "/proc/self/exe")) ||
+    (equals("action", "mount") && contains("log.path", "/sys")) ||
+    equals("log.event_type", "container_breakout") ||
+    (oneOf("log.syscall", ["mount", "pivot_root", "chroot"]) && equals("log.result", "denied"))
+  )
+groupBy:
+  - lastEvent.log.container_id
+  - origin.host

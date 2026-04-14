@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Azure AD Privileged App Role Assignment
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1098.003 - Account Manipulation: Additional Cloud Roles"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/entra/identity-platform/app-objects-and-service-principals
+  - https://attack.mitre.org/techniques/T1098/003/
+description: |
+  Detects privileged app role assignments to service principals in Azure AD, which is the mechanism used in illicit consent grant attacks. Attackers create or modify applications with high-privilege API permissions to access organizational data.
+
+  Next Steps:
+  1. Review the application and the specific API permissions granted
+  2. Verify the consent was authorized by a legitimate administrator
+  3. Check if the application is known and trusted
+  4. Review the application publisher and redirect URIs
+  5. Check for data access using the application's permissions
+  6. If unauthorized, remove the role assignment and revoke application consent
+  7. Review and restrict user consent settings in Azure AD
+where: |
+  contains("log.operationName", "Add app role assignment to service principal") ||
+  (contains("log.operationName", "Consent to application") && contains("log.properties", "AppRoleAssignment"))
+groupBy:
+  - lastEvent.log.properties.targetResources
+  - adversary.user

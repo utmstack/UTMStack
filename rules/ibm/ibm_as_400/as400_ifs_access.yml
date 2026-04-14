@@ -1,0 +1,54 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - ibm-as400
+name: IBM AS/400 Unauthorized IFS Access Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Collection
+technique: "T1005 - Data from Local System"
+adversary: origin
+references:
+  - https://www.ibm.com/docs/en/i/7.5?topic=system-integrated-file
+  - https://attack.mitre.org/techniques/T1005/
+description: |
+  Detects unauthorized access to the IBM AS/400 Integrated File System (IFS). Monitors for access to sensitive directories, configuration files, and bulk file operations that could indicate data theft.
+
+  Next Steps:
+  1. Review the IFS paths and files being accessed
+  2. Verify the user has authorization for the accessed directories
+  3. Check for bulk file downloads or copies
+  4. Review NetServer and FTP access logs
+  5. Restrict IFS directory permissions
+  6. Implement IFS object auditing for sensitive directories
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "IFS") && (
+      contains("log.message", "QSYS.LIB") ||
+      contains("log.message", "/QIBM/") ||
+      contains("log.message", "/home/") ||
+      contains("log.message", "/tmp/")
+    ) && (
+      contains("log.message", "access") ||
+      contains("log.message", "read") ||
+      contains("log.message", "copy") ||
+      contains("log.message", "download")
+    )) ||
+    (contains("log.message", "CPYFRMSTMF") || contains("log.message", "CPYTOSTMF")) ||
+    (contains("log.message", "NetServer") && contains("log.message", "file access")) ||
+    (contains("log.message", "FTP") && contains("log.message", "GET") && contains("log.message", "/QSYS"))
+  )
+afterEvents:
+  - indexPattern: v11-log-ibm-as400-*
+    with:
+      - field: log.message
+        operator: filter_match
+        value: 'IFS OR CPYFRMSTMF OR CPYTOSTMF OR NetServer'
+    within: now-15m
+    count: 10
+groupBy:
+  - adversary.host
+  - adversary.user

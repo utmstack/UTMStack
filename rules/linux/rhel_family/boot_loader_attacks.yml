@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: RHEL Boot Loader Attack Detection
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Persistence
+technique: "T1542.003 - Pre-OS Boot: Bootkit"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1542/003/
+  - https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/protecting-systems-against-intrusive-usb-devices_security-hardening
+description: |
+  Detects attempts to modify or tamper with the boot loader configuration, including unauthorized changes to GRUB files, boot parameters, or kernel modules that could indicate bootkit installation attempts.
+  
+  Next Steps:
+  1. Verify the legitimacy of the boot loader modification - check if it was part of a scheduled maintenance or system update
+  2. Examine the source of the modification (user account, process, remote connection)
+  3. Review system logs for other suspicious activities around the same time
+  4. Check file integrity of critical boot files (/boot/grub2/, /etc/default/grub, kernel files)
+  5. Scan the system for malware and rootkits
+  6. If unauthorized, isolate the system and perform forensic analysis
+  7. Verify boot process integrity and consider restoring from known good backups
+where: |
+  (contains("log.file_path", "/boot/grub2/") && oneOf("log.action", ["modify", "write", "delete"])) ||
+  (equals("log.file_path", "/etc/default/grub") && oneOf("log.action", ["modify", "write"])) ||
+  (contains("log.command", "grub2-mkconfig")) ||
+  (contains("log.command", "grub2-install")) ||
+  (contains("log.file_path", "/boot/vmlinuz") && oneOf("log.action", ["modify", "replace"])) ||
+  (contains("log.file_path", "/boot/initramfs") && oneOf("log.action", ["modify", "replace"])) ||
+  (equals("log.event_type", "boot_loader_modification")) ||
+  (exists("log.module_name") && equals("log.action", "kernel_module_load") && contains("log.module_path", "/boot/"))
+groupBy:
+  - lastEvent.log.file_path
+  - origin.host

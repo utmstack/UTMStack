@@ -13,6 +13,7 @@ import (
 
 	"github.com/threatwinds/go-sdk/entities"
 	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/UTMStack/agent/collector/auditd"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/utils"
 )
@@ -157,5 +158,6 @@ func (l *LinuxSystemArm64) Stop() {
 func GetCollectors() []Collector {
 	return []Collector{
 		&LinuxSystemArm64{},
+		auditd.New(),
 	}
 }

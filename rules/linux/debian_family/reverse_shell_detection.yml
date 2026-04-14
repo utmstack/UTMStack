@@ -1,0 +1,40 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Reverse Shell Execution Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Execution
+technique: "T1059.004 - Command and Scripting Interpreter: Unix Shell"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1059/004/
+  - https://www.revshells.com/
+description: |
+  Detects common reverse shell patterns including bash TCP redirects, python socket connections, netcat listeners with execute flags, and socat reverse shells. These are strong indicators of active compromise.
+
+  Next Steps:
+  1. Immediately isolate the affected system from the network
+  2. Identify the destination IP and port of the reverse shell
+  3. Determine the initial access vector that led to reverse shell execution
+  4. Review process trees to identify the parent process
+  5. Check for any data exfiltration or lateral movement
+  6. Perform full incident response on the compromised host
+  7. Block the C2 IP address at the network perimeter
+where: |
+  regexMatch("log.message", "(?i)bash\\s+-i\\s+>&\\s+/dev/tcp/") ||
+  regexMatch("log.message", "(?i)python[23]?\\s+-c\\s+.*socket.*connect") ||
+  regexMatch("log.message", "(?i)nc\\s+(-e|--exec|-c)\\s+") ||
+  regexMatch("log.message", "(?i)ncat\\s+(-e|--exec)\\s+") ||
+  regexMatch("log.message", "(?i)socat\\s+.*exec.*tcp") ||
+  regexMatch("log.message", "(?i)perl\\s+-e\\s+.*socket.*INET") ||
+  regexMatch("log.message", "(?i)php\\s+-r\\s+.*fsockopen") ||
+  regexMatch("log.message", "(?i)ruby\\s+-rsocket\\s+-e") ||
+  regexMatch("log.message", "(?i)mkfifo\\s+.*nc\\s+") ||
+  regexMatch("log.message", "(?i)\\b0<&\\d+-;exec\\s+\\d+<>/dev/tcp/")
+groupBy:
+  - origin.host
+  - origin.ip

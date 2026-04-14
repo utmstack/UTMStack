@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - ibm-aix
+name: IBM AIX Rootkit Indicator Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1014 - Rootkit"
+adversary: origin
+references:
+  - https://www.ibm.com/docs/en/aix/7.2?topic=security-trusted-computing-base
+  - https://attack.mitre.org/techniques/T1014/
+description: |
+  Detects AIX-specific rootkit indicators including hidden processes, modified system binaries, suspicious kernel extensions, and integrity violations in the Trusted Computing Base.
+
+  Next Steps:
+  1. Run trustchk command to verify system binary integrity
+  2. Compare running processes with ps output for hidden processes
+  3. Check for modified shared libraries in /usr/lib
+  4. Review recently loaded kernel extensions
+  5. Initiate forensic investigation on the affected system
+  6. Consider rebuilding the system from trusted media
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "trustchk") && contains("log.message", "FAIL")) ||
+    (contains("log.message", "tcbck") && contains("log.message", "violation")) ||
+    (contains("log.message", "TCB") && contains("log.message", "integrity")) ||
+    (contains("log.message", "genkex") && contains("log.message", "unknown")) ||
+    (contains("log.message", "/dev/kmem") && !equals("origin.user", "root")) ||
+    (contains("log.message", "ld.so") && contains("log.message", "preload")) ||
+    (contains("log.message", "LIBPATH") && contains("log.message", "modified")) ||
+    contains("log.message", "LD_PRELOAD")
+  )
+groupBy:
+  - adversary.host

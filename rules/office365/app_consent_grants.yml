@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Office 365 App Consent Grants Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Persistence
+technique: "T1098.003 - Account Manipulation: Additional Cloud Credentials"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/defender-office-365/detect-and-remediate-illicit-consent-grants
+  - https://attack.mitre.org/techniques/T1098/003/
+description: |
+  Detects when OAuth consent is granted to an application in Office 365. Attackers may use malicious OAuth apps to gain persistent access to user data without requiring credentials. This technique allows attackers to maintain access even after password changes.
+  
+  Next Steps:
+  1. Review the application that received consent and verify its legitimacy
+  2. Check the permissions granted to the application
+  3. Investigate the user who granted consent for suspicious activity
+  4. Review application audit logs for any unauthorized data access
+  5. If malicious, revoke the application consent and remove the app registration
+  6. Consider implementing application consent policies to prevent unauthorized app installations
+where: |
+  equals("action", "Consent to application") && equals("actionResult", "Success")
+groupBy:
+  - lastEvent.log.appAccessContextClientAppId
+  - adversary.user

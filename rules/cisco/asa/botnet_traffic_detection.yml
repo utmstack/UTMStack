@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-cisco-asa
+name: Botnet Command and Control Traffic Detected
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Command and Control
+technique: "T1071 - Application Layer Protocol"
+adversary: origin
+references:
+  - https://www.cisco.com/c/en/us/td/docs/security/asa/special/botnet/asa-botnet.pdf
+  - https://attack.mitre.org/techniques/T1071/
+description: |
+  Detects botnet command and control traffic identified by Cisco ASA's dynamic filter/botnet database. Message IDs 338001-338002 indicate blacklisted traffic from/to malicious addresses. This could indicate compromised hosts communicating with known botnet infrastructure.
+
+  Next Steps:
+  1. Immediately isolate the affected host(s) to prevent further communication with C2 infrastructure
+  2. Review the source IP address (origin.ip) to identify the compromised internal host
+  3. Check the destination IP/domain against threat intelligence sources to confirm malicious nature
+  4. Examine other logs from the affected host for signs of initial compromise or lateral movement
+  5. Run full antivirus/anti-malware scans on the affected system
+  6. Review DNS logs for additional suspicious queries from the same host
+  7. Check for any data exfiltration attempts or unusual outbound traffic patterns
+  8. Consider reimaging the affected system if compromise is confirmed
+where: |
+  oneOf("log.messageId", ["338001", "338002"])
+  || regexMatch("log.message", "botnet.*(detected|blocked|dropped)")
+  || contains("log.message", "dynamic filter blacklisted")
+  || contains("log.message", "malicious address")
+groupBy:
+  - adversary.ip
+  - target.ip

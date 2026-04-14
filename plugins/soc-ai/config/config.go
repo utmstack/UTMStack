@@ -2,7 +2,9 @@ package config
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	sync "sync"
 	"time"
@@ -29,17 +31,38 @@ var (
 )
 
 type Config struct {
-	Backend                   string
-	InternalKey               string
-	Opensearch                string
-	ModulesConfigHost         string
-	APIKey                    string
+	// System configuration
+	Backend           string
+	InternalKey       string
+	OpensearchURL     string
+	OpensearchUser    string
+	OpensearchPassword string
+	ModulesConfigHost string
+	ModuleActive      bool
+
+	// Analysis behavior
+	AutoAnalyze               bool
 	ChangeAlertStatus         bool
 	AutomaticIncidentCreation bool
-	Provider                  string
-	Model                     string
-	Url                       string
-	ModuleActive              bool
+
+	// LLM Configuration (generic)
+	Provider      string
+	URL           string
+	Model         string
+	AuthType      string            // "custom-headers", "none"
+	MaxTokens     int
+	CustomHeaders map[string]string // All headers including auth (from frontend)
+}
+
+var providerDefaultURLs = map[string]string{
+	"openai":    "https://api.openai.com/v1/chat/completions",
+	"anthropic": "https://api.anthropic.com/v1/messages",
+	"azure":     "",
+	"gemini":    "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+	"ollama":    "http://localhost:11434/v1/chat/completions",
+	"mistral":   "https://api.mistral.ai/v1/chat/completions",
+	"deepseek":  "https://api.deepseek.com/chat/completions",
+	"groq":      "https://api.groq.com/openai/v1/chat/completions",
 }
 
 func GetConfig() *Config {
@@ -60,14 +83,18 @@ func StartConfigurationSystem() {
 			continue
 		}
 
+		osCfg := plugins.PluginCfg("org.opensearch").Get("opensearch")
+
 		configMutex.Lock()
 		config.Backend = pluginConfig.Get("backend").String()
 		config.InternalKey = pluginConfig.Get("internalKey").String()
-		config.Opensearch = pluginConfig.Get("opensearch").String()
+		config.OpensearchURL = "https://" + osCfg.Get("host").String() + ":" + osCfg.Get("port").String()
+		config.OpensearchUser = osCfg.Get("user").String()
+		config.OpensearchPassword = osCfg.Get("password").String()
 		config.ModulesConfigHost = pluginConfig.Get("modulesConfig").String()
 		configMutex.Unlock()
 
-		if config.Backend == "" || config.InternalKey == "" || config.Opensearch == "" || config.ModulesConfigHost == "" {
+		if config.Backend == "" || config.InternalKey == "" || config.OpensearchURL == "" || config.ModulesConfigHost == "" {
 			fmt.Println("Backend, Internal key, Opensearch or Modules Config Host is not set, skipping UTMStack plugin execution")
 			time.Sleep(reconnectDelay)
 			continue
@@ -174,33 +201,50 @@ func updateConfigFromGRPC(grpcConf *ConfigurationSection) {
 		return
 	}
 
-	model, customModel, customURL := "", "", ""
+	// Reset custom headers
+	config.CustomHeaders = make(map[string]string)
+
 	for _, c := range grpcConf.ModuleGroups[0].ModuleGroupConfigurations {
 		switch c.ConfKey {
+		// Behavior settings
+		case "utmstack.socai.autoAnalyze":
+			config.AutoAnalyze = c.ConfValue == "true"
 		case "utmstack.socai.incidentCreation":
 			config.AutomaticIncidentCreation = c.ConfValue == "true"
 		case "utmstack.socai.changeAlertStatus":
 			config.ChangeAlertStatus = c.ConfValue == "true"
+
+		// LLM settings
 		case "utmstack.socai.provider":
 			config.Provider = c.ConfValue
-		case "utmstack.socai.key":
-			config.APIKey = c.ConfValue
+		case "utmstack.socai.url":
+			config.URL = c.ConfValue
 		case "utmstack.socai.model":
-			model = c.ConfValue
-		case "utmstack.socai.custom.model":
-			customModel = c.ConfValue
-		case "utmstack.socai.custom.url":
-			customURL = c.ConfValue
-		default:
-			catcher.Error("Unknown configuration key", nil, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
+			config.Model = c.ConfValue
+		case "utmstack.socai.authType":
+			config.AuthType = c.ConfValue
+		case "utmstack.socai.maxTokens":
+			if c.ConfValue != "" {
+				if v, err := strconv.Atoi(c.ConfValue); err == nil {
+					config.MaxTokens = v
+				}
+			}
+		case "utmstack.socai.customHeaders":
+			if c.ConfValue != "" {
+				if err := json.Unmarshal([]byte(c.ConfValue), &config.CustomHeaders); err != nil {
+					catcher.Error("Failed to parse customHeaders JSON", err, map[string]any{
+						"process": "plugin_com.utmstack.soc-ai",
+						"value":   c.ConfValue,
+					})
+				}
+			}
 		}
 	}
 
-	if config.Provider == "openai" {
-		config.Url = GPT_API_ENDPOINT
-		config.Model = model
-	} else {
-		config.Url = customURL
-		config.Model = customModel
+	// Resolve URL from provider if not explicitly set or if using a known provider
+	if config.Provider != "" && config.Provider != "custom" {
+		if defaultURL, ok := providerDefaultURLs[config.Provider]; ok && defaultURL != "" {
+			config.URL = defaultURL
+		}
 	}
 }

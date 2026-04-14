@@ -29,28 +29,6 @@ func GetDependencies() []Dependency {
 			Configure: configureUpdater,
 			Uninstall: uninstallUpdater,
 		},
-		// TODO: Remove beats dependency after testing native collectors
-		// {
-		// 	Name:         "beats",
-		// 	Version:      BeatsVersion,
-		// 	BinaryPath:   filepath.Join(basePath, "beats", "filebeat", "filebeat.exe"),
-		// 	DownloadName: beatsZip,
-		// 	DownloadURL: func(server string) string {
-		// 		return fmt.Sprintf(config.DependUrl, server, config.DependenciesPort, beatsZip)
-		// 	},
-		// 	Critical: false,
-		// 	PostDownload: func() error {
-		// 		zipPath := filepath.Join(basePath, beatsZip)
-		// 		if err := archive.Unzip(zipPath, basePath); err != nil {
-		// 			return fmt.Errorf("error unzipping beats: %v", err)
-		// 		}
-		// 		// Remove zip after extraction
-		// 		os.Remove(zipPath)
-		// 		return nil
-		// 	},
-		// 	Configure: configureBeats,
-		// 	Uninstall: uninstallBeats,
-		// },
 
 		// New beats dependency - only for uninstalling existing filebeat/winlogbeat
 		// No download, no install - native collectors are used instead
@@ -75,11 +53,6 @@ func uninstallUpdater() error {
 	}
 	return exec.Run(updaterPath, fs.GetExecutablePath(), "uninstall")
 }
-
-// TODO: Remove after testing native collectors
-// func configureBeats() error {
-// 	return collector.InstallAll()
-// }
 
 func uninstallBeats() error {
 	return collector.UninstallAll()

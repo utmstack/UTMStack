@@ -29,7 +29,7 @@ func CreateNewIncident(alertDetails *schema.AlertFields) error {
 		IncidentDescription: fmt.Sprintf("AI GENERATED ANALYSIS: Multiple related alerts were detected and grouped in the %s datasource during the last 24 hours. Artificial intelligence classified this grouping as a possible incident", alertDetails.DataSource),
 		IncidentAssignedTo:  "None",
 		AlertList: schema.AlertList{{
-			AlertID:       alertDetails.ID,
+			AlertID:       alertDetails.Id,
 			AlertName:     alertDetails.Name,
 			AlertStatus:   alertDetails.Status,
 			AlertSeverity: alertDetails.Severity,
@@ -61,9 +61,9 @@ func AddAlertToIncident(incidentId int, alertDetails *schema.AlertFields) error 
 	}
 
 	body := schema.AddNewAlertToIncidentRequest{
-		IncidenId: incidentId,
+		IncidentId: incidentId,
 		AlertList: schema.AlertList{{
-			AlertID:       alertDetails.ID,
+			AlertID:       alertDetails.Id,
 			AlertName:     alertDetails.Name,
 			AlertStatus:   alertDetails.Status,
 			AlertSeverity: alertDetails.Severity,

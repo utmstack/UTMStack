@@ -1,6 +1,8 @@
 package com.park.utmstack.web.rest.idp_provider;
 
 
+import com.park.utmstack.aop.logging.AuditEvent;
+import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.idp_provider.enums.ProviderType;
 import com.park.utmstack.service.dto.idp_provider.dto.*;
 import com.park.utmstack.service.idp_provider.IdentityProviderService;
@@ -33,6 +35,12 @@ public class IdentityProviderConfigResource {
     private final IdentityProviderMapper mapper;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @AuditEvent(
+        attemptType = ApplicationEventType.IDP_CONFIG_CREATE_ATTEMPT,
+        attemptMessage = "Attempting to create Identity Provider configuration: {name}",
+        successType = ApplicationEventType.IDP_CONFIG_CREATE_SUCCESS,
+        successMessage = "Identity Provider configuration {name} created successfully"
+    )
     public ResponseEntity<IdentityProviderConfigResponseDto> create(@RequestParam String name,
                                                                     @RequestParam String providerType,
                                                                     @RequestParam String metadataUrl,
@@ -54,6 +62,12 @@ public class IdentityProviderConfigResource {
 
 
     @PutMapping("/{id}")
+    @AuditEvent(
+        attemptType = ApplicationEventType.IDP_CONFIG_UPDATE_ATTEMPT,
+        attemptMessage = "Attempting to update Identity Provider configuration with ID: {id}",
+        successType = ApplicationEventType.IDP_CONFIG_UPDATE_SUCCESS,
+        successMessage = "Identity Provider configuration with ID {id} updated successfully"
+    )
     public ResponseEntity<IdentityProviderConfigResponseDto> update(@PathVariable Long id,
                                                                     @RequestParam String name,
                                                                     @RequestParam String providerType,
@@ -89,6 +103,12 @@ public class IdentityProviderConfigResource {
     }
 
     @DeleteMapping("/{id}")
+    @AuditEvent(
+        attemptType = ApplicationEventType.IDP_CONFIG_DELETE_ATTEMPT,
+        attemptMessage = "Attempting to delete Identity Provider configuration with ID: {id}",
+        successType = ApplicationEventType.IDP_CONFIG_DELETE_SUCCESS,
+        successMessage = "Identity Provider configuration with ID {id} deleted successfully"
+    )
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();

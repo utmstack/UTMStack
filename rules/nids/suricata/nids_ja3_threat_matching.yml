@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - suricata
+name: JA3 Fingerprint Threat Intelligence Match
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Command and Control
+technique: "T1071.001 - Application Layer Protocol: Web Protocols"
+adversary: origin
+references:
+  - https://suricata.readthedocs.io/en/latest/rules/ja3-keywords.html
+  - https://attack.mitre.org/techniques/T1071/001/
+description: |
+  Detects TLS client fingerprints (JA3 hashes) matching known malicious software, C2 frameworks, or threat intelligence feeds. JA3 fingerprinting identifies unique TLS client behaviors regardless of destination IP.
+
+  Next Steps:
+  1. Identify the internal host generating the suspicious JA3 fingerprint
+  2. Review the JA3 hash against known malware fingerprint databases
+  3. Investigate the process making the TLS connection
+  4. Check if the JA3 matches known C2 frameworks (Cobalt Strike, Metasploit, Empire)
+  5. Scan the host for malware
+  6. Block or monitor connections with the identified JA3 fingerprint
+where: |
+  equals("log.eventType", "alert") &&
+  (contains("log.alert.signature", ["ja3", "JA3", "TLS fingerprint"]) &&
+   contains("log.alert.signature", ["malware", "malicious", "trojan", "c2", "cobalt", "beacon"])) &&
+  exists("origin.ip") &&
+  exists("target.ip")
+groupBy:
+  - adversary.ip
+  - target.ip

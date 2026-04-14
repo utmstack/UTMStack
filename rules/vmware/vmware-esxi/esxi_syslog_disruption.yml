@@ -1,0 +1,40 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - vmware-esxi
+name: ESXi Syslog Forwarding Disruption Detection
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562.002 - Impair Defenses: Disable Windows Event Logging"
+adversary: origin
+references:
+  - https://kb.vmware.com/s/article/2003322
+  - https://attack.mitre.org/techniques/T1562/002/
+description: |
+  Detects attempts to disable or modify ESXi syslog forwarding to prevent security monitoring. Attackers disable syslog to operate without detection by the SIEM.
+
+  Next Steps:
+  1. Verify the syslog configuration change was authorized
+  2. Re-enable syslog forwarding immediately if unauthorized
+  3. Check for suspicious activity during the logging gap
+  4. Review ESXi host for signs of compromise
+  5. Implement monitoring for syslog service status
+  6. Restrict access to syslog configuration
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "esxcli system syslog") && (
+      contains("log.message", "config set") ||
+      contains("log.message", "reload") ||
+      contains("log.message", "--loghost")
+    )) ||
+    (contains("log.message", "syslog") && contains("log.message", "stopped")) ||
+    (contains("log.message", "vmsyslogd") && contains("log.message", "terminated")) ||
+    (contains("log.message", "syslog") && contains("log.message", "disabled")) ||
+    (contains("log.message", "Syslog.global.logHost") && contains("log.message", "changed"))
+  )
+groupBy:
+  - adversary.hostname

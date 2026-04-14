@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-kaspersky
+name: Kaspersky Critical Object Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1204 - User Execution: Malicious File"
+adversary: origin
+references:
+  - https://support.kaspersky.com/ScanEngine/1.0/en-US/186767.htm
+  - https://attack.mitre.org/techniques/T1204/
+description: |
+  Detects when Kaspersky identifies critical threats including malware, trojans, or other dangerous objects that require immediate attention. High severity detections often indicate active threats.
+  
+  Next Steps:
+  1. Immediately isolate the affected system from the network to prevent lateral movement
+  2. Identify the malware name/signature from log.cs1, log.cs2, or log.cs4 fields
+  3. Check if Kaspersky successfully quarantined or removed the threat
+  4. Scan other systems in the same network segment for similar infections
+  5. Review recent user activity and email attachments that could be the infection vector
+  6. Collect and preserve forensic artifacts if needed for incident response
+  7. Update antivirus signatures and run a full system scan
+  8. Consider reimaging the system if the infection is severe or persistent
+where: |
+  (greaterOrEqual("log.cefDeviceSeverity", "7") || 
+   equalsIgnoreCase("log.cefDeviceSeverity", "High") ||
+   equalsIgnoreCase("log.cefDeviceSeverity", "Very-High")) &&
+  (contains("log.cs1", ["INFECTED", "MALWARE", "TROJAN"]) ||
+   contains("log.cs2", ["Trojan", "HEUR:", "PDM:", "UDS:"]) ||
+   contains("log.cs4", ["Trojan", "HEUR:", "PDM:", "UDS:"]) ||
+   contains("log.msg", ["infected", "malicious", "dangerous"]))
+groupBy:
+  - origin.host
+  - log.signatureID

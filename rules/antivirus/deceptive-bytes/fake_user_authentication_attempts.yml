@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - deceptive-bytes
+name: Fake User Authentication Attempts
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Credential Access
+technique: "T1110 - Brute Force"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1110/
+  - https://deceptivebytes.com/solution/
+description: |
+  Detects authentication attempts using decoy user accounts created by Deceptive Bytes. This indicates an attacker has obtained what they believe are valid credentials and is attempting to use them.
+  
+  Next Steps:
+  - Immediately investigate the source IP address for other suspicious activities
+  - Check if the same IP has triggered other deception alerts or security events
+  - Review how the attacker obtained the decoy credentials (phishing, credential dumping, insider threat)
+  - Examine network logs for lateral movement attempts from this IP
+  - Consider blocking the source IP if confirmed malicious
+  - Check for any legitimate user accounts that may have been compromised
+  - Review authentication logs for attempts using real credentials from the same source
+  - Notify the security team for potential active breach investigation
+where: equals("log.eventType", "authentication") && equals("log.isDecoyUser", true) && exists("log.authResult") && exists("origin.ip")
+groupBy:
+  - lastEvent.log.username
+  - adversary.ip

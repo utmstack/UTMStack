@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: Custom Detection Rule Triggers
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://docs.sentinelone.com/
+  - https://attack.mitre.org/techniques/T1059/
+description: |
+  Detects when custom detection rules configured in SentinelOne trigger, indicating organization-specific threat patterns or policy violations have been identified. Custom rules are tailored to detect specific behaviors or patterns unique to the organization's security requirements.
+  
+  Next Steps:
+  1. Review the specific custom rule that triggered and understand its purpose
+  2. Investigate the affected endpoint (log.syslogHost) for additional suspicious activity
+  3. Check if the same custom rule has triggered on other endpoints
+  4. Verify if the detection is a false positive based on the custom rule's logic
+  5. If legitimate threat activity, initiate incident response procedures
+  6. Consider updating the custom rule if false positives are frequent
+where: |
+  (contains("log.eventDescription", ["custom rule", "custom detection", "Custom Rules"]) ||
+   equals("log.detectionSource", "CustomRule") ||
+   equals("log.ruleType", "Custom")) &&
+  exists("log.syslogHost")
+groupBy:
+  - lastEvent.log.eventDescription
+  - lastEvent.log.syslogHost

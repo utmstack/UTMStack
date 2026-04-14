@@ -1,0 +1,58 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Debian-Specific Rootkits
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1014 - Rootkit"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1014/
+  - https://www.debian.org/security/
+  - https://wiki.debian.org/Teams/Security
+description: |
+  Detects indicators of known Debian/Linux rootkits including file modifications, hidden processes, network backdoors, and kernel module manipulation commonly seen in Debian environments. This rule identifies various rootkit behaviors such as unauthorized modifications to system binaries, kernel module loading, hidden processes, and suspicious network activity.
+  
+  Next Steps:
+  1. Immediately isolate the affected system from the network
+  2. Examine the detected file paths and processes for signs of tampering
+  3. Check for additional indicators of compromise using antimalware tools
+  4. Review system logs for the timeline of infection
+  5. Verify integrity of critical system files using package manager verification (dpkg -V)
+  6. Consider reimaging the system if rootkit persistence is confirmed
+  7. Analyze network connections for command and control communications
+  8. Update security tools and perform full system scan
+where: |
+  (contains("log.file_path", "/usr/bin/passwd") && 
+   equals("log.event_type", "file_modify") && 
+   !equals("log.process_name", "dpkg")) ||
+  (contains("log.file_path", "/etc/ld.so.preload") && 
+   oneOf("log.event_type", ["file_create", "file_modify"])) ||
+  (oneOf("log.process_name", ["reptile", "bdvl", "azazel", "jynx", "xorddos"]) || 
+   contains("log.file_path", "reptile") || 
+   contains("log.file_path", "bdvl")) ||
+  (contains("log.command_line", "insmod") && 
+   (contains("log.command_line", "rootkit") || 
+    contains("log.command_line", "hide") || 
+    contains("log.command_line", "backdoor"))) ||
+  (contains("log.file_path", "/proc/") && 
+   contains("log.file_path", "/maps") && 
+   contains("log.message", "deleted")) ||
+  (oneOf("log.network_port", [31337, 12345, 6666]) && 
+   equals("log.event_type", "network_listen")) ||
+  (contains("log.file_path", "/dev/ptmx") && 
+   equals("log.event_type", "file_create") && 
+   !equals("log.user", "root")) ||
+  (contains("log.message", "LKM") && 
+   (contains("log.message", "rootkit") || 
+    contains("log.message", "hiding"))) ||
+  (regexMatch("log.file_path", "/lib/modules/.*/.*\\.ko") &&
+   equals("log.event_type", "file_create") &&
+   !equals("log.process_name", "dpkg"))
+groupBy:
+  - lastEvent.log.process_name
+  - origin.host

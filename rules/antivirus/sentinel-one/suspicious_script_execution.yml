@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: SentinelOne Suspicious Script Execution Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://www.sentinelone.com/platform/singularity-cloud-workload-security/
+  - https://attack.mitre.org/techniques/T1059/
+description: |
+  Detects suspicious script execution activities including PowerShell, Python, Bash, or other scripting interpreters that may indicate malicious activity or fileless attacks. SentinelOne's behavioral detection engine identifies these patterns as potential threats that could compromise system integrity.
+  
+  Next Steps:
+  1. Review the specific script or command that triggered the alert in the SentinelOne console
+  2. Check if the script execution is authorized and part of normal operations
+  3. Investigate the process tree to understand the parent process and execution chain
+  4. Look for encoded or obfuscated commands within the script content
+  5. Check for persistence mechanisms or scheduled tasks created by the script
+  6. Review network connections initiated by the script process
+  7. If confirmed malicious, isolate the affected endpoint and perform threat hunting across the environment
+where: |
+  exists("log.eventDescription") &&
+  (
+    contains("log.eventDescription", ["malicious script", "suspicious script", "fileless attack", "suspicious process"]) ||
+    (contains("log.eventDescription", ["powershell", "cmd.exe", "bash", "python", "wscript", "cscript"]) &&
+     contains("log.eventDescription", ["encoded", "obfuscated", "download", "bypass", "invoke", "hidden", "base64", "exploit"]))
+  ) &&
+  exists("log.endpointDeviceName")
+groupBy:
+  - lastEvent.log.endpointDeviceName
+  - lastEvent.log.eventDescription

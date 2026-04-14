@@ -1,0 +1,46 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS IAM Privilege Escalation Path Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1098 - Account Manipulation"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_manage.html
+  - https://attack.mitre.org/techniques/T1098/
+  - https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/
+description: |
+  Detects IAM actions commonly chained for privilege escalation including PassRole, CreatePolicyVersion, AttachUserPolicy, and AssumeRole. Attackers exploit these API calls to elevate their permissions within an AWS environment by creating new policy versions with elevated privileges or assuming roles with higher access.
+
+  Next Steps:
+  1. Review the IAM actions performed and determine if they constitute a privilege escalation chain
+  2. Check the IAM principal and verify their authorized permission level
+  3. Examine the policy document or role being targeted for overly permissive access
+  4. Verify through change management if these IAM changes were approved
+  5. If unauthorized, immediately revert the IAM changes and rotate credentials
+  6. Review IAM Access Analyzer findings for excessive permissions
+  7. Implement permission boundaries to limit privilege escalation paths
+  8. Enable AWS CloudTrail Insights for anomaly detection on IAM operations
+where: |
+  equals("log.eventSource", "iam.amazonaws.com") &&
+  oneOf("log.eventName", ["CreatePolicyVersion", "SetDefaultPolicyVersion", "AttachUserPolicy", "AttachGroupPolicy", "AttachRolePolicy", "PutUserPolicy", "PutGroupPolicy", "PutRolePolicy", "AddUserToGroup"]) &&
+  equals("log.errorCode", "")
+afterEvents:
+  - indexPattern: v11-log-aws-*
+    with:
+      - field: log.userIdentityArn
+        operator: filter_term
+        value: '{{.log.userIdentityArn}}'
+      - field: log.eventSource
+        operator: filter_term
+        value: iam.amazonaws.com
+    within: now-30m
+    count: 3
+groupBy:
+  - adversary.user
+  - lastEvent.log.eventName

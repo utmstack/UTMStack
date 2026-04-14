@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - ibm-aix
+name: IBM AIX System Integrity Violation Detected
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1070 - Indicator Removal on Host"
+adversary: origin
+references:
+  - https://www.ibm.com/docs/en/ssw_aix_72/security/security_pdf.pdf
+  - https://attack.mitre.org/techniques/T1070/
+description: |
+  Detects attempts to compromise system integrity in IBM AIX, including unauthorized modifications to critical system files, audit tampering, security configuration changes, and privilege escalation attempts. This rule monitors for various indicators of system compromise including audit event tampering, security configuration file modifications, suspicious sudo usage, and privilege escalation attempts.
+  
+  Next Steps:
+  1. Immediately investigate the affected system and user account
+  2. Review audit logs for related suspicious activities
+  3. Check for unauthorized changes to system configuration files
+  4. Verify the legitimacy of any privilege escalation attempts
+  5. Monitor for additional indicators of compromise
+  6. Consider isolating the affected system if malicious activity is confirmed
+  7. Review backup and recovery procedures for critical system files
+  8. Examine command history and process execution logs
+  9. Validate user permissions and access controls
+  10. Check for presence of unauthorized tools or backdoors
+where: (contains("log.eventType", "AUD_") && equals("action", "FILE_Write")) || (contains("log.objName", "/etc/security/") && equals("action", "FILE_Write")) || (equals("log.commandType", "sudo") && contains("origin.command", "passwd")) || (contains("log.msg", "audit") && contains("log.msg", "disable")) || (equals("log.osUserID", "root") && !equals("origin.user", "root"))
+groupBy:
+  - lastEvent.log.objName
+  - adversary.host

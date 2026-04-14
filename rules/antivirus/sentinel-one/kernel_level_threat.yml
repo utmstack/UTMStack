@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: Kernel-Level Threat Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Privilege Escalation
+technique: "T1068 - Exploitation for Privilege Escalation"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1068/
+  - https://attack.mitre.org/techniques/T1014/
+description: |
+  Detects kernel-level threats including rootkits, kernel exploits, driver manipulation, and other low-level system attacks that attempt to compromise the operating system kernel.
+  
+  Next Steps:
+  1. Immediately isolate the affected system from the network to prevent lateral movement
+  2. Verify the threat detection in SentinelOne console and check threat details
+  3. Run a full system scan on the affected endpoint
+  4. Check for persistence mechanisms and suspicious kernel modules/drivers
+  5. Review system logs for any unauthorized kernel-level changes or driver installations
+  6. If rootkit is confirmed, consider reimaging the system after forensic data collection
+  7. Update endpoint protection signatures and kernel protection modules
+where: |
+  regexMatch("log.eventDescription", "(?i)(kernel|rootkit|driver|ring.?0|system.?level)") &&
+  contains("log.eventDescription", ["threat", "malicious", "exploit", "compromise",
+    "detect", "block", "prevent", "isolate"])
+groupBy:
+  - lastEvent.log.eventDescription
+  - lastEvent.log.syslogHost

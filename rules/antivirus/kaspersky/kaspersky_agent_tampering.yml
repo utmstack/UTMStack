@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-kaspersky
+name: Kaspersky Agent Disabled or Tampered
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://support.kaspersky.com/
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects when the Kaspersky security agent is disabled, stopped, or tampered with. This is a critical indicator of defense evasion as attackers disable endpoint protection to execute malware undetected.
+
+  Next Steps:
+  1. Immediately investigate the affected endpoint
+  2. Identify the user or process that disabled the agent
+  3. Check for concurrent malicious activity
+  4. Re-enable the Kaspersky agent
+  5. Perform a full system scan
+  6. Check for similar events on other endpoints
+where: |
+  exists("log.signatureID") &&
+  (regexMatch("log.msg", "(?i)(kaspersky|klnagent|kavfs|kesl).*( disabled| stopped| removed| tampered| uninstalled)") ||
+   regexMatch("log.msg", "(?i)(protection|self-defense).*(disabled|off|stopped)") ||
+   (contains("log.cs1", "PROTECTION") && contains("log.message", "disabled")) ||
+   (contains("log.msg", "agent") && contains("log.message", "not running")))

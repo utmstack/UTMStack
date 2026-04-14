@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Login Items Persistence Modification
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Persistence
+technique: "T1547.015 - Boot or Logon Autostart Execution: Login Items"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1547/015/
+  - https://developer.apple.com/documentation/servicemanagement
+description: |
+  Detects modifications to Login Items on macOS which are used to persist applications that launch at user login. Attackers abuse this mechanism to maintain persistent access.
+
+  Next Steps:
+  1. Review the specific Login Item that was added or modified
+  2. Check the application referenced by the Login Item for legitimacy
+  3. Verify the code signature of the application
+  4. Review System Preferences > Users & Groups > Login Items
+  5. Check ~/Library/Application Support/com.apple.backgroundtaskmanagementagent/
+  6. Remove unauthorized Login Items and investigate the source
+where: |
+  (contains("log.eventMessage", "Login Item") || contains("log.eventMessage", "loginitem") ||
+   contains("log.eventMessage", "BackgroundItems") || contains("log.eventMessage", "loginwindow")) &&
+  (contains("log.eventMessage", "added") || contains("log.eventMessage", "registered") ||
+   contains("log.eventMessage", "enabled") || contains("log.eventMessage", "modified") ||
+   contains("log.eventMessage", "SMLoginItemSetEnabled"))
+groupBy:
+  - lastEvent.log.eventMessage
+  - adversary.host

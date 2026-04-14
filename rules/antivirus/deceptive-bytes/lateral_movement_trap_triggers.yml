@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - deceptive-bytes
+name: Lateral Movement Trap Triggered
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Lateral Movement
+technique: "T1021 - Remote Services"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1021/
+  - https://deceptivebytes.com/solution/
+description: |
+  Detects when an attacker triggers a deceptive trap while attempting lateral movement across the network. This indicates potential compromise and active threat movement within the environment.
+  
+  Next Steps:
+  1. Immediately isolate the source IP address to prevent further lateral movement
+  2. Review all activities from the source IP in the last 24-48 hours
+  3. Check if the source system shows signs of compromise (unusual processes, new services, etc.)
+  4. Identify what credentials or methods were used in the lateral movement attempt
+  5. Review network logs for any successful connections from this source to other systems
+  6. Initiate incident response procedures for potential active threat
+  7. Consider deploying additional deception tokens around critical assets
+where: equals("log.event_type", "trap_triggered") && equals("log.trap_type", "lateral_movement") && exists("origin.ip")
+groupBy:
+  - lastEvent.log.trap_type
+  - adversary.ip

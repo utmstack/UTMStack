@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - deceptive-bytes
+name: Nation-State Tactic Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Advanced Persistent Threat
+technique: "T1595 - Active Scanning / Nation-State Attack Patterns"
+adversary: origin
+references:
+  - https://attack.mitre.org/groups/
+  - https://www.cisa.gov/topics/cyber-threats-and-advisories/advanced-persistent-threats
+description: |
+  Detects sophisticated attack patterns and techniques commonly associated with nation-state actors including advanced persistence mechanisms, custom tooling, and strategic lateral movement.
+  
+  Next Steps:
+  1) Immediately isolate affected systems and preserve forensic evidence
+  2) Review all decoy interactions and identify compromised credentials
+  3) Check for lateral movement attempts from the source IP across all systems
+  4) Analyze custom tools or malware samples if detected
+  5) Engage incident response team for potential APT activity
+  6) Review network traffic for command & control communications
+  7) Implement enhanced monitoring on high-value targets identified in the attack
+where: |
+  oneOf("log.event_type", ["decoy_interaction", "honeypot_access", "deception_triggered"]) &&
+  equals("log.threat_level", "critical") &&
+  (equals("log.attack_sophistication", "advanced") || greaterOrEqual("log.threat_score", 85)) &&
+  (equals("log.apt_indicators", true) ||
+   equals("log.custom_malware", true) ||
+   equals("log.advanced_ttps", true) ||
+   greaterThan("log.targeted_decoys", 1) ||
+   equals("log.persistence_attempt", true))
+groupBy:
+  - adversary.host
+  - adversary.ip

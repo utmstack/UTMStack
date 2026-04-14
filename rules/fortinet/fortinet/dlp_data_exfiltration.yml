@@ -1,0 +1,46 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-fortigate-traffic
+name: Data Loss Prevention Trigger
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Exfiltration
+technique: "T1048 - Exfiltration Over Alternative Protocol"
+adversary: origin
+references:
+  - https://docs.fortinet.com/document/fortigate/7.6.3/administration-guide/153498/data-loss-prevention
+  - https://attack.mitre.org/techniques/T1048/
+description: |
+  Detects attempts to exfiltrate sensitive data that triggers DLP policies. This includes detection of credit card numbers, social security numbers, PII, financial records, and other regulated data attempting to leave the network.
+
+  Next Steps:
+  1. Identify the source IP and user associated with the DLP violation
+  2. Review the DLP profile that was triggered to understand what type of sensitive data was involved
+  3. Check if this is part of a pattern of data exfiltration attempts from the same source
+  4. Verify if the blocked action was legitimate business activity or potential data theft
+  5. Review other logs from the same source IP for suspicious activities
+  6. Contact the user if needed to understand the context of the attempted data transfer
+  7. Consider implementing additional access controls if unauthorized access to suspected
+where: |
+  (equals("log.subtype", "dlp") && equals("log.action", "blocked")) ||
+  (contains("log.msg", "DLP sensor")) ||
+  (contains("log.msg", "sensitive data detected")) ||
+  (exists("log.dlp_profile") && equals("log.dlp_action", "block")) ||
+  (contains("log.msg", "Data pattern matched"))
+afterEvents:
+  - indexPattern: v11-log-firewall-fortigate-traffic-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.subtype
+        operator: filter_term
+        value: 'dlp'
+    within: now-1h
+    count: 3
+groupBy:
+  - lastEvent.log.dlp_profile
+  - adversary.ip

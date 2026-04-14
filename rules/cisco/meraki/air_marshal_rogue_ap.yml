@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-meraki
+name: Air Marshal Rogue Access Point Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: "T1200 - Hardware Additions"
+adversary: origin
+references:
+  - https://documentation.meraki.com/MR/Monitoring_and_Reporting/Air_Marshal
+  - https://attack.mitre.org/techniques/T1200/
+description: |
+  Detects when Meraki Air Marshal identifies rogue access points or unauthorized SSIDs in the wireless environment. This could indicate malicious wireless infrastructure attempting to intercept traffic or perform man-in-the-middle attacks.
+
+  Next Steps:
+  1. Verify if the detected BSSID and SSID are known legitimate access points that may not be properly registered
+  2. Check the RSSI value to determine proximity - higher values indicate the rogue AP is closer to your infrastructure
+  3. Use wireless scanning tools to physically locate the rogue access point using the BSSID
+  4. Review network traffic logs for any suspicious connections to unknown wireless networks
+  5. Check if any sensitive data might have been exposed through connections to the rogue AP
+  6. Consider implementing MAC address filtering or 802.1X authentication to prevent unauthorized connections
+  7. Document the incident and update the wireless security policy if needed
+where: |
+  equals("log.eventType", "airmarshal_events") &&
+  equals("log.type", "rogue_ssid_detected") &&
+  exists("log.bssid") &&
+  greaterOrEqual("log.rssi", -50)
+groupBy:
+  - adversary.host

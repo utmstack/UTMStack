@@ -1,0 +1,48 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Data Loss Prevention Policy Violation
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Data Loss Prevention
+technique: "T1213 - Data from Information Repositories"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/purview/dlp-learn-about-dlp
+  - https://attack.mitre.org/techniques/T1213/
+description: |
+  Detects violations of Data Loss Prevention (DLP) policies including attempts to share, access, or exfiltrate sensitive information such as credit card numbers, social security numbers, or confidential business data.
+  
+  This rule triggers when Office 365 DLP policies detect unauthorized handling of sensitive data across Exchange, SharePoint, OneDrive, Teams, or Security Compliance Center workloads.
+  
+  **Next Steps:**
+  1. **Immediate Response:** Review the specific DLP policy violation details and sensitive data types involved
+  2. **User Investigation:** Verify if the user action was intentional and authorized, check user's role and data access permissions
+  3. **Data Assessment:** Determine what sensitive information was involved and potential exposure scope
+  4. **Policy Review:** Evaluate if DLP policy settings are appropriate or need adjustment
+  5. **Incident Documentation:** Record the violation details, investigation findings, and remediation actions taken
+  6. **User Training:** If unintentional, provide additional data handling training to the user
+  7. **System Monitoring:** Monitor for additional violations from the same user or similar patterns
+where: |
+  (
+    equals("action", "DLPRuleMatch") ||
+    equals("action", "DlpPolicyMatch") ||
+    equals("action", "DLPRuleUndo") ||
+    contains("log.PolicyDetails", "DLP") ||
+    contains("log.ExceptionInfo", "DLP")
+  ) &&
+  (
+    equals("log.Workload", "Exchange") ||
+    equals("log.Workload", "SharePoint") ||
+    equals("log.Workload", "OneDrive") ||
+    equals("log.Workload", "Teams") ||
+    equals("log.Workload", "SecurityComplianceCenter")
+  ) &&
+  !equals("actionResult", "Failed")
+groupBy:
+  - lastEvent.log.PolicyId
+  - lastEvent.log.SensitiveInfoTypeData
+  - adversary.user

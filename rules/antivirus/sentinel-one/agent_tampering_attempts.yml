@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: SentinelOne Agent Tampering Attempts
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://support.sentinelone.com/hc/en-us/articles/360001089343-Protecting-the-SentinelOne-Agent
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects attempts to tamper with, disable, or modify the SentinelOne agent. This is a critical security event as attackers often try to disable security tools before launching their main attack. Immediate response required.
+  
+  Next Steps:
+  1. Immediately isolate the affected endpoint to prevent further damage
+  2. Review the user account associated with the tampering attempt
+  3. Check system logs for any suspicious activities before and after the tampering attempt
+  4. Verify if the SentinelOne agent is still functioning properly
+  5. Look for any malware or unauthorized software that may have been installed
+  6. Review network connections from the affected host for command and control activity
+  7. If tampering was successful, consider reimaging the system after forensic analysis
+where: |
+  regexMatch("log.eventDescription", ".*(tamper|disable|stop|uninstall|modify).*agent.*") ||
+  regexMatch("log.eventDescription", ".*agent.*(tamper|disable|stop|uninstall|modify).*") ||
+  oneOf("log.activityType", ["agent_uninstall", "agent_disable", "agent_tamper"]) ||
+  equals("log.eventType", "AgentTamperingAttempt") ||
+  (regexMatch("log.processName", ".*(sentinelone|sentinel).*") &&
+   oneOf("log.action", ["kill", "terminate", "stop", "disable"]))
+groupBy:
+  - lastEvent.log.agentId
+  - adversary.host

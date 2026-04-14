@@ -1,0 +1,40 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-bitdefender-gz
+name: Real-time Protection Disabled
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects when real-time protection features are disabled on an endpoint. This is a critical security event as it leaves the system vulnerable to malware infections and requires immediate investigation.
+  
+  Next Steps:
+  1. Immediately investigate who disabled the real-time protection and why
+  2. Check if the action was authorized by IT security team
+  3. Review recent activity on the affected endpoint for signs of compromise
+  4. Re-enable real-time protection if the action was unauthorized
+  5. Check for any malware infections that may have occurred while protection was disabled
+  6. Review system logs for any suspicious activities during the protection downtime
+  7. Consider implementing additional controls to prevent unauthorized disabling of security tools
+where: |
+  exists("log.syslogHostIP") &&
+  (
+    (equals("log.eventType", "modules") && 
+     equals("log.product", "av") &&
+     contains("log.restData", "real-time")) ||
+    (equals("log.eventType", "Product ModulesStatus") &&
+     oneOf("log.severity", ["4", "5"]) &&
+     (contains("log.restData", "protection disabled") ||
+      contains("log.restData", "real-time scanning disabled")))
+  )
+groupBy:
+  - lastEvent.log.eventType
+  - lastEvent.log.syslogHostIP

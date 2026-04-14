@@ -1,0 +1,47 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - syslog
+name: CEF Source Impersonation Detection
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1036 - Masquerading"
+adversary: origin
+references:
+  - https://www.microfocus.com/documentation/arcsight/arcsight-cef-23/
+  - https://attack.mitre.org/techniques/T1036/
+description: |
+  Detects CEF messages with spoofed device vendor or product fields that could indicate an attacker injecting false security events or masquerading as a trusted security device to inject malicious log data.
+
+  Next Steps:
+  1. Verify the source IP matches the claimed device vendor/product
+  2. Check if the CEF header fields are consistent with known devices
+  3. Compare against the device inventory for the source IP
+  4. Investigate the source system for signs of compromise
+  5. Implement CEF source validation in the log pipeline
+  6. Block unauthorized CEF sources at the network level
+where: |
+  exists("origin.ip") &&
+  exists("log.deviceVendor") &&
+  exists("log.deviceProduct") &&
+  (
+    (regexMatch("log.deviceVendor", "(?i)^(unknown|test|debug|hack|admin|null)$")) ||
+    (contains("log.deviceVendor", "<") || contains("log.deviceVendor", ">") || contains("log.deviceVendor", ";")) ||
+    (contains("log.deviceProduct", "<") || contains("log.deviceProduct", ">") || contains("log.deviceProduct", ";")) ||
+    (regexMatch("log.deviceVendor", ".*[|\\n\\r].*")) ||
+    (regexMatch("log.deviceProduct", ".*[|\\n\\r].*"))
+  )
+afterEvents:
+  - indexPattern: v11-log-syslog-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-15m
+    count: 5
+groupBy:
+  - lastEvent.log.deviceVendor
+  - adversary.ip

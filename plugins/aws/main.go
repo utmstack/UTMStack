@@ -22,10 +22,9 @@ import (
 )
 
 const (
-	defaultTenant       = "ce66672c-e36d-4761-a8c8-90058fee1a24"
-	urlCheckConnection  = "https://sts.amazonaws.com"
-	wait                = 1 * time.Second
-	configCheckInterval = 10 * time.Second
+	defaultTenant      = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+	urlCheckConnection = "https://sts.amazonaws.com"
+	wait               = 1 * time.Second
 )
 
 type activeGroupStream struct {
@@ -63,47 +62,53 @@ func main() {
 }
 
 func watchConfigChanges() {
-	ticker := time.NewTicker(configCheckInterval)
-	defer ticker.Stop()
+	time.Sleep(3 * time.Second)
 
-	for range ticker.C {
-		moduleConfig := config.GetConfig()
+	initialConfig := config.GetConfig()
+	if initialConfig != nil && initialConfig.ModuleActive {
+		syncStreams(initialConfig)
+	}
 
-		if moduleConfig == nil || !moduleConfig.ModuleActive {
+	for newConfig := range config.GetConfigUpdateChannel() {
+		if newConfig == nil || !newConfig.ModuleActive {
 			stopAllStreams()
 			continue
 		}
 
-		currentGroupIDs := make(map[int32]bool)
-		for _, group := range moduleConfig.ModuleGroups {
-			currentConfig := getAWSProcessor(group)
-			groupID := group.Id
-			currentGroupIDs[groupID] = true
+		syncStreams(newConfig)
+	}
+}
 
-			existing := activeStreams[groupID]
+func syncStreams(moduleConfig *config.ConfigurationSection) {
+	currentGroupIDs := make(map[int32]bool)
+	for _, group := range moduleConfig.ModuleGroups {
+		currentConfig := getAWSProcessor(group)
+		groupID := group.Id
+		currentGroupIDs[groupID] = true
 
-			if existing == nil {
-				startGroupStream(groupID, group)
-			} else if existing.config != currentConfig {
-				catcher.Info("Configuration changed for group, restarting", map[string]any{
-					"group":   group.GroupName,
-					"process": "plugin_com.utmstack.aws",
-				})
-				existing.cancel()
-				delete(activeStreams, groupID)
-				startGroupStream(groupID, group)
-			}
+		existing := activeStreams[groupID]
+
+		if existing == nil {
+			startGroupStream(groupID, group)
+		} else if existing.config != currentConfig {
+			catcher.Info("Configuration changed for group, restarting", map[string]any{
+				"group":   group.GroupName,
+				"process": "plugin_com.utmstack.aws",
+			})
+			existing.cancel()
+			delete(activeStreams, groupID)
+			startGroupStream(groupID, group)
 		}
+	}
 
-		for groupID, stream := range activeStreams {
-			if !currentGroupIDs[groupID] {
-				catcher.Info("Group removed, stopping stream", map[string]any{
-					"groupId": groupID,
-					"process": "plugin_com.utmstack.aws",
-				})
-				stream.cancel()
-				delete(activeStreams, groupID)
-			}
+	for groupID, stream := range activeStreams {
+		if !currentGroupIDs[groupID] {
+			catcher.Info("Group removed, stopping stream", map[string]any{
+				"groupId": groupID,
+				"process": "plugin_com.utmstack.aws",
+			})
+			stream.cancel()
+			delete(activeStreams, groupID)
 		}
 	}
 }

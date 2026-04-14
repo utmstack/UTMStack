@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Suspicious Binary Execution from Temporary Directory
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059.004 - Command and Scripting Interpreter: Unix Shell"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1059/004/
+description: |
+  Detects execution of binaries from temporary directories (/tmp, /dev/shm, /var/tmp) which is a common technique used by malware and attackers after initial compromise to stage and run payloads.
+
+  Next Steps:
+  1. Identify the specific binary being executed from the temporary directory
+  2. Collect and analyze the binary (hash, strings, behavior)
+  3. Determine how the binary was placed in the temporary directory
+  4. Review network connections from the affected host
+  5. Check for persistence mechanisms established by the binary
+  6. Remove the binary and investigate the initial access vector
+  7. Scan the system for additional indicators of compromise
+where: |
+  (regexMatch("log.message", "(?i)(exec|run|start|command|process).*(/tmp/|/dev/shm/|/var/tmp/)") ||
+   regexMatch("log.message", "(?i)(/tmp/|/dev/shm/|/var/tmp/)[^ ]+\\s+(started|executed|running)") ||
+   (contains("log.message", "EXECVE") &&
+    (contains("log.message", "/tmp/") || contains("log.message", "/dev/shm/") ||
+     contains("log.message", "/var/tmp/")))) &&
+  !(contains("log.process", "apt") || contains("log.process", "dpkg") ||
+    contains("log.process", "yum") || contains("log.process", "dnf") ||
+    contains("log.process", "pip"))
+groupBy:
+  - origin.host
+  - origin.user

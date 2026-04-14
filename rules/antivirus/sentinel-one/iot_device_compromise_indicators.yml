@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: SentinelOne IoT Device Compromise Indicator
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1203 - Exploitation for Client Execution"
+adversary: origin
+references:
+  - https://www.sentinelone.com/platform/singularity-ranger/
+  - https://attack.mitre.org/techniques/T1203/
+description: |
+  Detects indicators of IoT device compromise including unauthorized firmware modifications, suspicious network behavior from IoT devices, or anomalous IoT device activity patterns detected by SentinelOne's Singularity Ranger. This rule triggers when IoT-related threats are identified including compromised embedded systems, firmware backdoors, industrial control system attacks, or SCADA system compromises.
+  
+  Next Steps:
+  1. Isolate the affected IoT device immediately to prevent lateral movement
+  2. Review device logs and network traffic to identify the initial compromise vector
+  3. Check for firmware modifications or unauthorized configuration changes
+  4. Verify if other IoT devices on the same network segment show similar indicators
+  5. Update device firmware to latest secure version if available
+  6. Consider factory reset and reconfiguration if compromise is confirmed
+  7. Review network segmentation to ensure IoT devices are properly isolated
+  8. Implement additional monitoring for IoT device communications
+where: |
+  exists("log.eventDescription") &&
+  contains("log.eventDescription", ["iot", "embedded", "firmware",
+    "industrial", "scada", "ics", "plc"]) &&
+  contains("log.eventDescription", ["compromise", "malicious",
+    "backdoor", "botnet", "exploit", "infection"]) &&
+  exists("log.endpointDeviceName")
+groupBy:
+  - lastEvent.log.endpointDeviceName
+  - lastEvent.log.eventDescription

@@ -1,0 +1,10 @@
+ <div class="card-header p-2">
+    <h6 class="d-flex align-items-center text-blue-800 font-weight-light">
+      Control Status Timeline
+    </h6>
+  </div>
+  <div class="chart-container">
+    <div echarts [options]="options" class="chart"
+         (chartClick)="onChartClick($event)">
+    </div>
+  </div>

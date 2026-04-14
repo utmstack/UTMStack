@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Rootkit Indicator Files Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1564.001 - Hide Artifacts: Hidden Files and Directories"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1564/001/
+  - https://www.chkrootkit.org/
+description: |
+  Detects common rootkit indicators including known rootkit file paths, suspicious hidden directories, and rootkit toolkit files that indicate a deeply compromised system.
+
+  Next Steps:
+  1. Immediately isolate the affected system
+  2. Run rootkit detection tools (rkhunter, chkrootkit) from trusted media
+  3. Compare system binaries against known-good hashes
+  4. Check for hidden processes and network connections
+  5. Perform memory forensics to identify kernel-level rootkits
+  6. Plan for system reimaging as rootkits are difficult to fully remove
+  7. Investigate the initial access vector
+where: |
+  regexMatch("log.message", "(?i)(suckit|adore|knark|rkdet|t0rn|ambient|shv[456]|ramen|lion|SHV|Omega|dica|romanian|LOC|RK|ark)") ||
+  regexMatch("log.message", "(?i)/dev/(\\.(hidden|null|hda|pts)|shm/\\.)") ||
+  regexMatch("log.message", "(?i)/(tmp|var/tmp)/\\.(ICE-unix|X11-unix)/\\.") ||
+  regexMatch("log.message", "(?i)/(usr|lib)/(lib(dl|proc)\\.so\\.hidden|\\.(hidden|backup))") ||
+  (contains("log.message", "rootkit") &&
+   (contains("log.message", "found") || contains("log.message", "detected") ||
+    contains("log.message", "warning")))
+groupBy:
+  - origin.host
+  - origin.user

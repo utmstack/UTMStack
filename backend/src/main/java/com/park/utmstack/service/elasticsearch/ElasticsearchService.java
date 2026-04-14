@@ -11,6 +11,9 @@ import com.park.utmstack.service.MailService;
 import com.park.utmstack.service.UtmSpaceNotificationControlService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.index_policy.IndexPolicyService;
+import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationHistoryDto;
+import com.park.utmstack.service.mapper.compliance.UtmComplianceControlLatestEvaluationMapper;
+import com.park.utmstack.service.mapper.compliance.UtmComplianceControlEvaluationHistoryMapper;
 import com.park.utmstack.util.chart_builder.IndexPropertyType;
 import com.park.utmstack.util.exceptions.OpenSearchIndexNotFoundException;
 import com.park.utmstack.util.exceptions.UtmElasticsearchException;
@@ -22,6 +25,7 @@ import com.utmstack.opensearch_connector.types.IndexSort;
 import com.utmstack.opensearch_connector.types.SearchSqlResponse;
 import com.utmstack.opensearch_connector.types.SqlQueryRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.opensearch.client.opensearch._types.FieldValue;
 import org.opensearch.client.opensearch._types.SortOrder;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch.cat.indices.IndicesRecord;
@@ -419,4 +423,63 @@ public class ElasticsearchService {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
+
+    public List<UtmComplianceControlEvaluationHistoryDto> getControlEvaluations(Long controlId) {
+        final String ctx = CLASSNAME + ".getControlEvaluations";
+        try {
+            Query query = Query.of(q -> q.term(t -> t
+                    .field("control_id")
+                    .value(FieldValue.of(controlId.toString())))
+            );
+
+            SearchRequest request = new SearchRequest.Builder()
+                    .index("v11-log-compliance-evaluation")
+                    .query(query)
+                    .size(30)
+                    .sort(s -> s.field(f -> f
+                            .field("timestamp")
+                            .order(SortOrder.Desc)
+                    ))
+                    .build();
+
+            SearchResponse<Map> response = search(request, Map.class);
+
+            var evaluations = response.hits().hits().stream()
+                    .map(hit -> UtmComplianceControlEvaluationHistoryMapper.mapToEvaluationDto(hit.source()))
+                    .toList();
+
+          return evaluations;
+
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage(), e);
+        }
+    }
+
+    public UtmComplianceControlEvaluationHistoryDto getLatestControlEvaluation(Long controlId) {
+        try {
+            SearchRequest request = new SearchRequest.Builder()
+                    .index("v11-log-compliance-evaluation")
+                    .query(q -> q.term(t -> t
+                            .field("control_id")
+                            .value(v -> v.longValue(controlId))
+                    ))
+                    .sort(s -> s.field(f -> f.field("timestamp").order(SortOrder.Desc)))
+                    .size(1)
+                    .build();
+
+            SearchResponse<Map> response = client.getClient().search(request, Map.class);
+
+            if (response.hits().hits().isEmpty()) {
+                return null;
+            }
+
+            Map<String, Object> source = response.hits().hits().get(0).source();
+
+            return UtmComplianceControlLatestEvaluationMapper.mapToEvaluationDto(source);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching last evaluation for control " + controlId, e);
+        }
+    }
+
 }

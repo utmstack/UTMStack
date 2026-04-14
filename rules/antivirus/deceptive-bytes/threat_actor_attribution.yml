@@ -1,0 +1,40 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - deceptive-bytes
+name: Threat Actor Attribution
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 2
+category: Threat Intelligence
+technique: "T1583 - Acquire Infrastructure"
+adversary: origin
+references:
+  - https://attack.mitre.org/groups/
+  - https://malpedia.caad.fkie.fraunhofer.de/
+description: |
+  Correlates observed attack patterns, tools, techniques, and infrastructure with known threat actor profiles to provide attribution intelligence and identify potential threat actors based on high-confidence indicators.
+  
+  Next Steps:
+  1. Review the attributed threat actor profile and historical campaigns for context
+  2. Analyze the specific TTPs (Tactics, Techniques, and Procedures) that triggered the attribution
+  3. Check for related activity from the same actor across other systems or time periods
+  4. Correlate with threat intelligence feeds to validate attribution confidence
+  5. Document observed infrastructure and tooling for future threat hunting
+  6. Consider implementing specific detections for this actor's known techniques
+  7. Share attribution indicators with security teams for enhanced monitoring
+  8. Escalate to incident response team if high-profile threat actor is identified
+where: |
+  equals("log.eventType", "threat_attribution") &&
+  greaterOrEqual("log.attributionConfidence", 70) &&
+  exists("log.actorProfile") &&
+  equals("log.deceptionTriggered", true) &&
+  (greaterOrEqual("log.ttpsMatched", 3) ||
+   equals("log.infrastructureMatch", true) ||
+   exists("log.toolingFingerprint")) &&
+  equals("log.historicalCampaignMatch", true)
+groupBy:
+  - lastEvent.log.actorProfile
+  - lastEvent.log.campaignId
+  - adversary.host

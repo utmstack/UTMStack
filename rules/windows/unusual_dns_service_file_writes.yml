@@ -1,0 +1,23 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "wineventlog"
+name: "Windows: Unusual File Modification by dns.exe"
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 2
+category: "Lateral Movement"
+technique: "T1210 - Exploitation of Remote Services"
+adversary: origin
+description: "Identifies an unexpected file being modified by dns.exe, the process responsible for Windows DNS Server services, which
+                may indicate activity related to remote code execution or other forms of exploitation."
+references:
+  - "https://attack.mitre.org/tactics/TA0001/"
+  - "https://attack.mitre.org/techniques/T1133/"
+where: equals("log.eventCode", 4663) &&
+       contains("log.eventDataProcessName", "dns.exe") && !regexMatch("log.eventDataFileName", "(dns\\.log$|\\.dns$|\\Windows\\System32\\dns\\)") &&
+       regexMatch("log.eventDataFileName", "\\.(dll|exe|bat|ps1|vbs)$")
+groupBy:
+  - origin.ip
+  - target.user

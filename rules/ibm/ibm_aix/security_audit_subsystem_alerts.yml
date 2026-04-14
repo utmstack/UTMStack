@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - ibm-aix
+name: IBM AIX Security Audit Subsystem Alert
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://www.ibm.com/support/pages/aix-audit-audit-subsystem-aix
+  - https://attack.mitre.org/techniques/T1562/
+description: |
+  Detects critical security events from the IBM AIX audit subsystem, including audit configuration changes, audit service disruptions, or attempts to tamper with audit logs. This rule identifies when the audit subsystem fails, is disabled, or when audit-related files are modified.
+  
+  Next Steps:
+  1. Verify the legitimacy of the audit subsystem changes with the system administrator
+  2. Check if this is part of scheduled maintenance or authorized configuration changes
+  3. Review the specific audit event type and return code for failure details
+  4. Examine the user account that performed the action and verify it has appropriate permissions
+  5. Investigate any recent changes to audit policies or configurations
+  6. Check for additional security events around the same time period
+  7. Verify audit log integrity and ensure no logs have been tampered with
+  8. Review system logs for any other indicators of compromise
+where: (startsWith("log.eventType", "audit") && !equals("log.returnCode", "0")) || (contains("log.message", "audit") && (contains("log.message", "stop") || contains("log.message", "disable") || contains("log.message", "fail"))) || (equals("action", "FILE_MODIFY") && startsWith("log.objName", "/etc/security/audit/")) || (equals("log.commandType", "audit"))
+groupBy:
+  - lastEvent.log.eventType
+  - adversary.user

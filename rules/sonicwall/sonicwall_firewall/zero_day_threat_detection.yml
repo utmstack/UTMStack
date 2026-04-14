@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-sonicwall
+name: SonicWall Zero-Day Threat Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Initial Access
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references:
+  - https://www.sonicwall.com/support/knowledge-base/capture-advanced-threat-protection-feature-overview/170504863294345
+  - https://attack.mitre.org/techniques/T1190/
+description: |
+  Detects zero-day threats and unknown malware identified by SonicWall Capture ATP service including sandbox detonations and RTDMI (Real-Time Deep Memory Inspection) alerts. This rule triggers when the SonicWall firewall identifies previously unknown threats through advanced analysis techniques.
+
+  Next Steps:
+  1. Immediately isolate the affected system from the network if possible
+  2. Review the full event details including file hashes, URLs, and source IPs
+  3. Check if the threat was successfully blocked or if additional containment is needed
+  4. Update threat intelligence feeds and IOCs based on the detected indicators
+  5. Perform forensic analysis on any systems that may have been compromised
+  6. Review firewall rules and security policies to ensure adequate protection
+  7. Document the incident and update incident response procedures if necessary
+where: |
+  (contains("log.eventName", "ATP") || contains("log.eventName", "zero-day") || contains("log.eventName", "unknown") || contains("log.eventName", "sandbox") || contains("log.eventName", "RTDMI") || contains("log.message", "ATP") || contains("log.message", "zero-day") || contains("log.message", "unknown malware") || contains("log.message", "sandbox")) &&
+  (contains("log.eventName", "detected") || contains("log.eventName", "blocked") || contains("log.message", "detected") || contains("log.message", "blocked") || equals("log.result", "blocked") || equals("action", "blocked") || equals("log.severity", "critical") || equals("log.severity", "high"))
+groupBy:
+  - adversary.ip

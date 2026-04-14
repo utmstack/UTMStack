@@ -1,0 +1,40 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Exchange Admin Configuration Changes
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Configuration Changes
+technique: "T1098 - Account Manipulation"
+adversary: origin
+references:
+  - https://docs.microsoft.com/en-us/exchange/security-and-compliance/exchange-auditing-reports/view-administrator-audit-log
+  - https://attack.mitre.org/techniques/T1098/
+description: |
+  Detects changes to Exchange administrative configuration that could impact security settings, user permissions, or mail flow policies. This rule monitors for successful execution of critical Exchange administrative cmdlets that can affect organizational security posture.
+
+  Next Steps:
+  1. Review the specific administrative action performed and verify it was authorized
+  2. Check if the user performing the action has appropriate privileges
+  3. Examine the timing and frequency of administrative changes
+  4. Validate configuration changes against change management policies
+  5. Review any related audit logs for the time period around the change
+  6. Confirm the source IP and location of the administrative session
+  7. If unauthorized, immediately review affected configurations and revert if necessary
+where: |
+  oneOf("action", ["Set-AdminAuditLogConfig", "Set-TransportRule", "Set-MalwareFilterPolicy", "Set-HostedContentFilterPolicy", "Set-DkimSigningConfig", "Set-OrganizationConfig", "Set-RoleGroup", "Add-RoleGroupMember", "Remove-RoleGroupMember", "New-ManagementRoleAssignment", "Remove-ManagementRoleAssignment"]) && 
+  equals("actionResult", "Success")
+afterEvents:
+  - indexPattern: v11-log-o365-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+    within: now-1h
+    count: 10
+groupBy:
+  - lastEvent.action
+  - adversary.user

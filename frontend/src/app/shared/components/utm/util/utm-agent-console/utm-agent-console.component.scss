@@ -69,6 +69,22 @@
 
 .command-header {
   background: #C6C6C6;
+
+  .shell-select {
+    border: 1px solid #999;
+    border-radius: 3px;
+    font-size: 11px;
+    background-color: #f8f8f8;
+    color: #333;
+    padding: 0 4px;
+    height: 22px;
+    cursor: pointer;
+
+    &:focus {
+      outline: none;
+      border-color: #666;
+    }
+  }
 }
 
 .h-450px {

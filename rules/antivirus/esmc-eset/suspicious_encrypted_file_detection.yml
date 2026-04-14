@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-esmc-eset
+name: Suspicious Encrypted File Activity
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Impact
+technique: "T1486 - Data Encrypted for Impact"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1486/
+  - https://help.eset.com/protect_admin/10.1/en-US/events-exported-to-json-format.html
+description: |
+  Detects suspicious encrypted file activities that may indicate ransomware encryption attempts or unauthorized file encryption operations. This rule triggers when ESET detects ransomware-related threats or file encryption activities.
+  
+  Next Steps:
+  1. Immediately isolate the affected system to prevent spread
+  2. Check if backup systems are accessible and uncompromised
+  3. Review the threat details in log.jsonMessage for specific ransomware variant
+  4. Look for other systems showing similar encryption patterns
+  5. Preserve forensic evidence before remediation
+  6. Consider engaging incident response team for ransomware cases
+  7. Do not power off the system if encryption is in progress
+where: |
+  equals("log.msgType", "Threat_Event") &&
+  contains("log.jsonMessage", ["ransomware", "filecoder", "encrypted", ".encrypted"])
+groupBy:
+  - lastEvent.log.msgType
+  - target.host

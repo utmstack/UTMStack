@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Notarization Bypass Attempt Detected
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1553.001 - Subvert Trust Controls: Gatekeeper Bypass"
+adversary: origin
+references:
+  - https://redcanary.com/threat-detection-report/techniques/gatekeeper-bypass/
+  - https://attack.mitre.org/techniques/T1553/001/
+description: |
+  Detects attempts to bypass macOS notarization checks through various methods including quarantine attribute manipulation, AppleDouble file format abuse, or ZIP archive exploitation. This rule identifies suspicious activities that attempt to circumvent Apple's security mechanisms designed to protect users from malicious software.
+
+  Next Steps:
+  1. Investigate the specific process and command that triggered this alert
+  2. Check if the user account has legitimate administrative privileges
+  3. Examine recent file downloads and modifications by the user
+  4. Review system logs for other suspicious activities by the same user
+  5. Verify if any unsigned applications were recently executed
+  6. Check for presence of malware or unwanted software on the system
+  7. Consider quarantining the affected system if malicious activity is confirmed
+  8. Review security policies regarding software installation and execution
+where: |
+  (equals("log.process", "spctl") && contains("log.eventMessage", "assessment")) ||
+  (equals("log.subsystem", "com.apple.xprotect") && contains("log.eventMessage", "failed on rPathCmd")) ||
+  (contains("log.eventMessage", "com.apple.quarantine") && contains("log.eventMessage", "remove")) ||
+  (equals("log.process", "xattr") && contains("log.eventMessage", "-d com.apple.quarantine")) ||
+  (contains("log.eventMessage", "LSFileQuarantineEnabled") && contains("log.eventMessage", "false")) ||
+  (contains("log.eventMessage", "ACL") && contains("log.eventMessage", "quarantine"))
+groupBy:
+  - adversary.host
+  - adversary.user

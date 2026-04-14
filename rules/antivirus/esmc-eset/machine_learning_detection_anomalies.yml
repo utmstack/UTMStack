@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-esmc-eset
+name: Machine Learning Detection Anomalies
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1204.002 - User Execution: Malicious File"
+adversary: origin
+references:
+  - https://help.eset.com/protect_admin/11.0/en-US/events-exported-to-json-format.html
+  - https://attack.mitre.org/techniques/T1204/002/
+description: |
+  Identifies threats detected by ESET's machine learning engine that analyzes file behavior patterns and characteristics to identify previously unknown malware variants. Machine learning detection indicates advanced malware that may evade signature-based detection methods.
+  
+  Next Steps:
+  - Immediately investigate the affected host for signs of compromise
+  - Review the threat details in the log message to understand the malware type and behavior
+  - Check if the malware was successfully blocked or quarantined
+  - Look for similar detections across other hosts in your environment
+  - Consider isolating the affected system if the threat was not successfully contained
+  - Review process activity around the time of detection for suspicious behavior
+  - Collect and analyze the malware sample if available for threat intelligence
+  - Update security policies to prevent similar threats
+  - Check for any data exfiltration or lateral movement attempts from the affected host
+where: |
+  contains("log.message", "machine learning") &&
+  contains("log.message", ["threat", "detected", "found"]) &&
+  exists("log.msgType") &&
+  exists("log.headHostname")
+groupBy:
+  - lastEvent.log.headHostname
+  - target.host

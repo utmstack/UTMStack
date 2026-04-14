@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Azure Primary Refresh Token Access Attempt
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Credential Access
+technique: "T1528 - Steal Application Access Token"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/entra/identity/devices/concept-primary-refresh-token
+  - https://attack.mitre.org/techniques/T1528/
+description: |
+  Detects attempts to access the Primary Refresh Token (PRT) in Azure AD. PRT theft is a high-confidence compromise indicator as PRTs provide SSO access across all Azure AD-integrated applications and can be used to bypass conditional access policies.
+
+  Next Steps:
+  1. Immediately investigate the user account associated with this alert
+  2. Check the device from which the PRT access was attempted
+  3. Review sign-in logs for the affected user for anomalous patterns
+  4. Check for token replay attacks or sessions from unexpected locations
+  5. If compromise is confirmed, revoke all refresh tokens for the user
+  6. Re-register the device and force re-authentication
+  7. Review conditional access policies for PRT-based bypass vulnerabilities
+where: |
+  contains("log.operationName", "Primary Refresh Token") ||
+  (contains("log.properties", "PRT") && contains("log.properties", "access"))
+groupBy:
+  - adversary.ip
+  - adversary.user

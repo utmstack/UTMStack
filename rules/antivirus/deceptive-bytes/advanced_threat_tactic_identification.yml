@@ -1,0 +1,51 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - deceptive-bytes
+name: Advanced Threat Tactic Identification
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Advanced Persistent Threat
+technique: Multiple Tactics
+adversary: origin
+references:
+  - https://attack.mitre.org/tactics/TA0001/
+  - https://attack.mitre.org/tactics/TA0002/
+  - https://attack.mitre.org/tactics/TA0003/
+description: |
+  Detects advanced threat tactics including initial access, execution, and persistence techniques by monitoring deception environment interactions and behavioral patterns. This rule triggers when deceptive assets are accessed with high behavior scores indicating sophisticated attack patterns.
+  
+  Next Steps:
+  1. Immediately isolate the affected endpoint(s) associated with the source IP
+  2. Review the specific tactic name to understand the attack phase (initial access, execution, persistence, etc.)
+  3. Check all deception assets that were triggered to map the attacker's movement
+  4. Analyze the behavior score details to understand the sophistication level
+  5. Look for related alerts from the same source IP across different systems
+  6. Collect forensic data from the endpoint before any remediation
+  7. Review authentication logs for any credential abuse from this source
+  8. Check network logs for lateral movement attempts
+  9. Update security controls to block the identified tactics
+  10. Consider deploying additional deception assets in the path of the attacker
+where: |
+  equals("log.eventType", "advanced_threat_detected") &&
+  equals("log.threatLevel", "critical") &&
+  (oneOf("log.tacticName", ["initial_access", "execution", "persistence", "privilege_escalation", "defense_evasion"])) &&
+  equals("log.deceptionTriggered", true) &&
+  greaterOrEqual("log.behaviorScore", 80)
+afterEvents:
+  - indexPattern: v11-log-deceptive-bytes-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.tacticName
+        operator: filter_term
+        value: '{{.log.tacticName}}'
+    within: now-15m
+    count: 3
+groupBy:
+  - lastEvent.log.tacticName
+  - lastEvent.log.threatLevel
+  - adversary.ip

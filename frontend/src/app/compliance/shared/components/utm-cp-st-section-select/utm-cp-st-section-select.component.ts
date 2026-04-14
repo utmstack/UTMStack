@@ -18,6 +18,7 @@ export class UtmCpStSectionSelectComponent implements OnInit {
   @Input() required: boolean;
   @Input() onlyWithReport: boolean;
   @Output() standardSectionSelect = new EventEmitter<number>();
+  @Input()  showAdd = true;
   private standarId: number;
 
   constructor(private cpStandardSectionService: CpStandardSectionService,

@@ -1,0 +1,44 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - vmware-esxi
+name: ESXi Virtual Disk Theft Detection
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 1
+category: Collection
+technique: "T1005 - Data from Local System"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1005/
+description: |
+  Detects potential theft of virtual machine disk files (.vmdk) through Datastore Browser downloads, SCP transfers, or unauthorized vmkfstools operations. Attackers exfiltrate VMDK files to obtain complete system images.
+
+  Next Steps:
+  1. Identify the user and source accessing the VMDK files
+  2. Verify if the file access was authorized
+  3. Review network traffic for large data transfers
+  4. Check datastore browser access logs
+  5. Restrict datastore access permissions
+  6. Implement file integrity monitoring on datastores
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", ".vmdk") && (
+      contains("log.message", "download") ||
+      contains("log.message", "GET /folder/") ||
+      contains("log.message", "scp") ||
+      contains("log.message", "cp ")
+    )) ||
+    (contains("log.message", "vmkfstools") && (
+      contains("log.message", "-i") ||
+      contains("log.message", "--clonevirtualdisk") ||
+      contains("log.message", "-X") ||
+      contains("log.message", "--exportvirtualdisk")
+    )) ||
+    (contains("log.message", "Datastore") && contains("log.message", "browse") && contains("log.message", ".vmdk"))
+  )
+groupBy:
+  - adversary.hostname
+  - adversary.ip

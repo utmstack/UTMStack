@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-bitdefender-gz
+name: Antivirus Service Stopped or Disabled
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects when the Bitdefender antivirus service or critical security modules are stopped, disabled, or experiencing failures. This is a critical security event that could indicate malicious tampering or system issues.
+
+  Next Steps:
+  - Verify if the service was intentionally stopped by authorized personnel
+  - Check system logs for any errors or crashes that may have caused the service to stop
+  - Look for signs of malware or unauthorized access attempts around the time of the event
+  - Review recent system changes or updates that might have affected the antivirus service
+  - If tampering is suspected, isolate the affected system and perform a forensic analysis
+  - Restart the Bitdefender service and ensure all modules are functioning properly
+  - Monitor for recurring issues that might indicate persistent threats
+where: |
+  (equals("log.eventType", "modules") ||
+   equals("log.eventType", "Product ModulesStatus") ||
+   equals("log.eventType", "registration")) &&
+  (oneOf("log.severity", ["high", "5"]) ||
+   contains("log.product", "disabled") ||
+   contains("log.product", "stopped") ||
+   (contains("log.restData", "module") && contains("log.restData", "stopped")) ||
+   (contains("log.restData", "module") && contains("log.restData", "disabled")) ||
+   (contains("log.restData", "av") && contains("log.restData", "failure")))
+groupBy:
+  - lastEvent.log.eventType
+  - lastEvent.log.hostId

@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-kaspersky
+name: Living Off the Land Binaries (LOLBins) Abuse Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1218 - System Binary Proxy Execution"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1218/
+  - https://lolbas-project.github.io/
+  - https://www.kaspersky.com/enterprise-security/wiki-section/products/fileless-threats-protection
+description: |
+  Detects the malicious use of legitimate Windows system binaries (LOLBins) to execute malicious code. Attackers abuse these trusted tools to bypass security controls and maintain persistence. LOLBins are particularly dangerous because they are signed Microsoft binaries that are trusted by most security products.
+  
+  Next Steps:
+  1. Immediately isolate the affected system from the network to prevent lateral movement
+  2. Review the full context of the detection including command line parameters and parent processes
+  3. Check for any network connections or file downloads initiated by the LOLBin process
+  4. Look for persistence mechanisms (scheduled tasks, registry keys, services) created around the same time
+  5. Scan for additional indicators of compromise on the affected system
+  6. Review user account activity for signs of compromise or privilege escalation
+  7. Consider reimaging the system if fileless malware is confirmed
+where: |
+  (equals("log.signatureID", "3") || equals("log.cs1", "DETECT")) &&
+  (regexMatch("log.msg", "(?i).*(rundll32|regsvr32|mshta|certutil|bitsadmin|powershell|wmic|cscript|wscript|msiexec|installutil|regasm|regsvcs).*") ||
+   contains("log.cs4", ["fileless", "LOLBin", "LOLBas"])) &&
+  (contains("log.msg", ["download", "execute", "bypass", "encoded", "obfuscat", "hidden", "malicious"]) ||
+   exists("log.actionResult"))
+groupBy:
+  - log.cs4
+  - origin.host

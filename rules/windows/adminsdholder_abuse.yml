@@ -1,0 +1,41 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: AdminSDHolder Abuse Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Persistence, Privilege Escalation
+technique: "T1098 - Account Manipulation"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1098/
+  - https://adsecurity.org/?p=1906
+  - https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/appendix-c--protected-accounts-and-groups-in-active-directory
+description: |
+  Detects modifications to the AdminSDHolder object which can be used for persistence by granting elevated privileges. The SDProp process propagates these permissions to protected groups every 60 minutes, making this a critical security event.
+  
+  Next Steps:
+  1. Immediately review the user account that performed the modification
+  2. Check if the modification was authorized and part of legitimate administrative activities
+  3. Examine the specific permissions that were changed on the AdminSDHolder object
+  4. Monitor for privilege escalation activities in the next 60 minutes (SDProp cycle)
+  5. Review all members of protected groups for unauthorized additions
+  6. Audit recent administrative activities by the same user account
+  7. Consider temporarily disabling the user account if unauthorized activity is suspected
+where: |
+  oneOf("log.eventCode", ["4662", "5136", "4670"]) && 
+  equals("log.channel", "Security") &&
+  (
+    contains("log.eventDataObjectName", "CN=AdminSDHolder,CN=System")
+  ) &&
+  (
+    oneOf("log.eventDataOperationType", ["Object Access", "Write Property"]) ||
+    oneOf("log.eventDataAccessMask", ["131072", "262144", "524288"])
+  ) &&
+  !equals("log.eventDataSubjectUserName", "SYSTEM")
+groupBy:
+  - lastEvent.log.eventDataObjectName
+  - lastEvent.log.eventDataSubjectUserName

@@ -1,0 +1,48 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: System Integrity Protection (SIP) Bypass Attempt
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1553.006 - Subvert Trust Controls: Code Signing Policy Modification"
+adversary: origin
+references:
+  - https://www.microsoft.com/en-us/security/blog/2025/01/13/analyzing-cve-2024-44243-a-macos-system-integrity-protection-bypass-through-kernel-extensions/
+  - https://attack.mitre.org/techniques/T1553/006/
+description: |
+  Detects attempts to bypass System Integrity Protection (SIP) through unauthorized modifications to protected locations or suspicious kernel extension loading with rootless entitlements. SIP is a critical security mechanism in macOS that protects system files and processes from modification, even by privileged users.
+  
+  Next Steps:
+  1. Immediately isolate the affected macOS system to prevent further compromise
+  2. Check SIP status using 'csrutil status' command to verify if it has been disabled
+  3. Review system logs for related process execution and file modifications
+  4. Examine running kernel extensions using 'kextstat' command
+  5. Investigate the user account and process that attempted the SIP bypass
+  6. Check for persistence mechanisms and unauthorized modifications to system files
+  7. Review recent software installations and updates that might have triggered this alert
+  8. Consider reimaging the system if SIP has been successfully bypassed
+where: |
+  (
+    equals("log.process", "storagekitd") && 
+    contains("log.eventMessage", "com.apple.rootless.install.heritable")
+  ) ||
+  (
+    regexMatch("log.processImagePath", ".*/System/Library/.*") && 
+    regexMatch("log.eventMessage", ".*(csrutil|disable|rootless).*") &&
+    equals("log.eventType", "logEvent")
+  ) ||
+  (
+    equals("log.subsystem", "com.apple.kernel") &&
+    regexMatch("log.eventMessage", ".*(SIP|rootless).*bypass.*")
+  ) ||
+  (
+    regexMatch("log.process", ".*kext.*") &&
+    contains("log.eventMessage", "rootless")
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

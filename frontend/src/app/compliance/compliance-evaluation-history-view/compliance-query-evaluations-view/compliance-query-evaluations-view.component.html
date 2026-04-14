@@ -1,0 +1,94 @@
+<div class="container-fluid px-3">
+  <div class="w-100">
+    <div class="control-detail-summary-header p-2">
+      <h6 class="d-flex align-items-center text-blue-800 font-weight-light">
+        Control Status Details
+      </h6>
+      <label class="control-status" [ngClass]="evaluation.status || 'NOT_EVALUATED'">
+        {{ evaluation.status | complianceStatusLabel }}
+      </label>
+    </div>
+    <div class="d-flex justify-content-end pr-2">
+      <p class="">
+        {{ evaluation.timestamp | date: 'yyyy-MM-dd HH:mm:ss' }}
+      </p>
+    </div>
+    <div class="card w-100 h-100" *ngFor="let evaluations of evaluation.queryEvaluations" >
+      <div class="card-body p-0 position-relative" >
+        <div class="card bg-light border-0 m-0">
+          <div class="d-flex p-2 m-1 justify-content-between align-items-center">
+            <h5 class="card-title mb-0 text-uppercase label-header d-flex align-items-center">
+              {{ evaluations.indexPatternName }}
+            </h5>
+          </div>
+        </div>
+
+        <table class="table mb-0" style="position: relative; z-index: 1;">
+          <thead>
+            <tr>
+              <th>
+                Status
+              </th>
+              <th>
+                Query Name
+              </th>
+              <th>
+                Description
+              </th>
+            </tr>
+          </thead>
+          <tbody *ngFor="let query of evaluations.queries;">
+            <tr class="cursor-pointer" (click)="queryDetail = query">
+              <td style="width: 12%; position: relative; z-index: 0;"
+                  [ngClass]="{
+                    'border-left-success': query.status === ComplianceStatusExtendedEnum.COMPLIANT,
+                    'border-left-danger': query.status === ComplianceStatusExtendedEnum.NON_COMPLIANT,
+                    'border-left-neutral': query.status !== ComplianceStatusExtendedEnum.COMPLIANT
+                                           && query.status !== ComplianceStatusExtendedEnum.NON_COMPLIANT
+                  }"
+              >
+                {{ query.status | complianceStatusLabel }}
+              </td>
+              <td style="width: 40%; position: relative; z-index: 0;">
+                <span>
+                  {{ query.queryName }}
+                </span>
+              </td>
+              <td style="width: 48%; position: relative; z-index: 0;">
+                <span class="text-truncate d-inline-block" style="max-width: 480px;">
+                  {{ query.queryDescription }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+</div>
+
+
+<div *ngIf="queryDetail" class="utm-right-container">
+  <div (click)="queryDetail = undefined" class="overlay overlay-lg col-md-7"></div>
+    <div class="card utm-right-action utm-right-action-lg ml-0">
+        <div [ngClass]="{
+                    'border-left-success': queryDetail.status === ComplianceStatusExtendedEnum.COMPLIANT,
+                    'border-left-danger': queryDetail.status === ComplianceStatusExtendedEnum.NON_COMPLIANT,
+                    'border-left-neutral': queryDetail.status !== ComplianceStatusExtendedEnum.COMPLIANT
+                                           && queryDetail.status !== ComplianceStatusExtendedEnum.NON_COMPLIANT
+                  }"
+             class="title d-flex justify-content-between  align-items-center border-bottom-1
+                border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+          <h6 class="card-title text-blue-800 font-weight-light">
+            <label [innerHTML]="queryDetail.queryName | safe:'html'"
+                   class="font-size-base text-wrap">
+            </label>
+          </h6>
+          <button (click)="queryDetail= undefined" aria-label="Close"
+                  class="close button-close" type="button">
+            <div class="close-icon"></div>
+          </button>
+        </div>
+        <app-compliance-query-evaluation-detail [query]="queryDetail"></app-compliance-query-evaluation-detail>
+    </div>
+  </div>
+</div>

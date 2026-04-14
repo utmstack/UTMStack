@@ -1,0 +1,56 @@
+<div class="p-2 report-container">
+  <h6 *ngIf="section"
+      class="card-title mb-0 text-uppercase label-header text-blue-800 mb-2">
+    {{section.standardSectionName}}
+  </h6>
+  <app-utm-search-input (searchFor)="onSearchFor($event)"
+                        [placeholder]="'Search report by solution'"
+                        [searching]="false"></app-utm-search-input>
+  <div *ngIf="loadingTemplates"
+       class="w-100 d-flex justify-content-center align-items-center mt-2">
+    <app-utm-spinner [height]="'110px'" [loading]="loadingTemplates" [width]="'110px'"
+                     label="Loading templates">
+    </app-utm-spinner>
+  </div>
+  <div *ngIf="!loadingTemplates && complianceControls.length>0"
+       [fromRoot]="true"
+       [infiniteScrollDistance]="1"
+       [infiniteScrollThrottle]="50"
+       [scrollWindow]="false"
+       class="mt-2"
+       infiniteScroll>
+    <div *ngFor="let control of complianceControls"
+         class="w-100 card p-2 d-flex  flex-column flex-grow-1">
+            <span class="align-self-end span-small-icon">
+              <i  (click)="editControl(control)"
+                 *ngIf="isDevMode()"
+                 class="icon-pencil cursor-pointer mr-2"
+                 container="body"
+                 ngbTooltip="Edit report"
+                 placement="bottom"
+                 tooltipClass="utm-tooltip-bottom"></i>
+           <i (click)="deleteControl(control)"
+              *ngIf="isDevMode()"
+              class="icon-cross2 cursor-pointer"
+              container="body"
+              ngbTooltip="Delete report"
+              placement="bottom"
+              tooltipClass="utm-tooltip-bottom"></i>
+        </span>
+      <a (click)="toggleDetail(control.id)"
+         [attr.aria-expanded]="showDetailFor===control.id"
+         aria-controls="collapse"
+         class="font-size-base text-justify text-blue-800 cursor-pointer">
+          {{ control.controlName }}
+      </a>
+      <div *ngIf="control.id===showDetailFor">
+        <p [innerHTML]="control.controlSolution | safe:'html'"
+           class="font-size-base text-justify mt-2">
+        </p>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="!loadingTemplates && complianceControls.length===0" class="">
+    <app-no-data-found></app-no-data-found>
+  </div>
+</div>

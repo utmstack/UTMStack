@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260408002" author="Gemini">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            -- Mapping UtmDataTypes to UtmModule based on known relationships from UtmLogstashFilter and integration definitions
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'AZURE' LIMIT 1) WHERE id = 3;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'CISCO' LIMIT 1) WHERE id = 6;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'MERAKI' LIMIT 1) WHERE id = 5;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'FIRE_POWER' LIMIT 1) WHERE id = 13;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'WINDOWS_AGENT' LIMIT 1) WHERE id = 1;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'IIS' LIMIT 1) WHERE id = 8;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'SOPHOS_XG' LIMIT 1) WHERE id = 7;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'FORTIGATE' LIMIT 1) WHERE id = 10;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'VMWARE' LIMIT 1) WHERE id = 11;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'GCP' LIMIT 1) WHERE id = 12;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'REDIS' LIMIT 1) WHERE id = 14;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'POSTGRESQL' LIMIT 1) WHERE id = 15;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'OSQUERY' LIMIT 1) WHERE id = 16;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'NGINX' LIMIT 1) WHERE id = 17;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'MYSQL' LIMIT 1) WHERE id = 18;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'MONGODB' LIMIT 1) WHERE id = 19;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'LOGSTASH' LIMIT 1) WHERE id = 20;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'KIBANA' LIMIT 1) WHERE id = 21;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'KAFKA' LIMIT 1) WHERE id = 22;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'ELASTICSEARCH' LIMIT 1) WHERE id = 23;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'AUDITD' LIMIT 1) WHERE id = 24;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'APACHE' LIMIT 1) WHERE id = 25;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'LINUX_AGENT' LIMIT 1) WHERE id = 26;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'ESET' LIMIT 1) WHERE id = 27;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'KASPERSKY' LIMIT 1) WHERE id = 28;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'SENTINEL_ONE' LIMIT 1) WHERE id = 29;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'GITHUB' LIMIT 1) WHERE id = 31;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'MACOS' LIMIT 1) WHERE id = 32;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'MIKROTIK' LIMIT 1) WHERE id = 33;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'PALO_ALTO' LIMIT 1) WHERE id = 34;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'CISCO_SWITCH' LIMIT 1) WHERE id = 35;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'SONIC_WALL' LIMIT 1) WHERE id = 36;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'DECEPTIVE_BYTES' LIMIT 1) WHERE id = 37;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'BITDEFENDER' LIMIT 1) WHERE id = 38;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'JSON' LIMIT 1) WHERE id = 42;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'TRAEFIK' LIMIT 1) WHERE id = 41;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'NATS' LIMIT 1) WHERE id = 40;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'HAPROXY' LIMIT 1) WHERE id = 39;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'SYSLOG' LIMIT 1) WHERE id = 43;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'PFSENSE' LIMIT 1) WHERE id = 44;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'NETFLOW' LIMIT 1) WHERE id = 45;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'FORTIWEB' LIMIT 1) WHERE id = 46;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'AIX' LIMIT 1) WHERE id = 47;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'AS_400' LIMIT 1) WHERE id = 48;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'O365' LIMIT 1) WHERE id = 4;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'AWS_IAM_USER' LIMIT 1) WHERE id = 2;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'SURICATA' LIMIT 1) WHERE id = 49;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'UTMSTACK' LIMIT 1) WHERE id = 50;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'CROWDSTRIKE' LIMIT 1) WHERE id = 51;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'ORACLE' LIMIT 1) WHERE id = 52;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'SOPHOS' LIMIT 1) WHERE id = 30;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'SOC_AI' LIMIT 1) WHERE id = 42240;
+            UPDATE utm_data_types SET module_id = (SELECT id FROM utm_module WHERE module_name = 'FILE_INTEGRITY' LIMIT 1) WHERE id = 42241;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

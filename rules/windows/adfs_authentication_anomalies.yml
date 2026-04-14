@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: ADFS Authentication Anomalies
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: Defense Evasion, Persistence, Privilege Escalation, Initial Access
+technique: "T1078 - Valid Accounts"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/windows-server/identity/ad-fs/troubleshooting/ad-fs-tshoot-logging
+  - https://attack.mitre.org/techniques/T1078/
+description: |
+  Detects anomalous authentication attempts against Active Directory Federation Services (ADFS) including multiple failed attempts that could indicate password spraying or brute force attacks. This rule monitors for authentication failures, token validation failures, and other ADFS security events that may indicate malicious activity.
+
+  Next Steps:
+  1. Review the source IP address and determine if it's from a known/trusted location
+  2. Check for patterns of failed authentication attempts across multiple users
+  3. Examine ADFS audit logs for additional context around the authentication failures
+  4. Verify if the targeted user accounts are valid and active
+  5. Consider implementing IP-based blocking if malicious activity is confirmed
+  6. Review ADFS configuration for security hardening opportunities
+  7. Correlate with other authentication events across the domain
+where: equals("log.providerName", "AD FS") && (equals("log.eventId", "411") || equals("log.eventId", "342") || equals("log.eventId", "516")) && contains("log.message", "token validation failed")
+afterEvents:
+  - indexPattern: v11-log-wineventlog-*
+    with:
+      - field: origin.ip.keyword
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-10m
+    count: 10
+groupBy:
+  - origin.ip
+  - target.user

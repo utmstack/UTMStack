@@ -1,0 +1,57 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: RPM Database Tampering Detection
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1070 - Indicator Removal"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1070/
+  - https://access.redhat.com/articles/3763
+description: |
+  Detects potential tampering with the RPM database which could indicate an attacker attempting to hide malicious package installations or system modifications. This includes unauthorized access to RPM database files, non-privileged users attempting to rebuild the database, or corruption indicators in RPM logs.
+  
+  Next Steps:
+  1. Immediately investigate the source host and verify system integrity
+  2. Check for unauthorized package installations or removals using 'rpm -qa --last'
+  3. Verify RPM database integrity with 'rpm --verifydb'
+  4. Review system logs for suspicious process execution around the time of detection
+  5. Examine file system integrity and check for signs of rootkit installation
+  6. Correlate with other security events from the same host
+  7. If compromise is confirmed, isolate the system and initiate incident response procedures
+  8. Consider rebuilding the system from known good backups if extensive tampering is detected
+where: |
+  (
+    contains("log.path", "/var/lib/rpm/") &&
+    (
+      oneOf("log.syscall", ["2", "257", "82", "83", "87"]) ||
+      oneOf("log.operation", ["write", "unlink", "rename", "truncate"])
+    ) &&
+    !oneOf("log.comm", ["rpm", "yum", "dnf", "packagekitd", "systemd"])
+  ) ||
+  (
+    oneOf("log.exe", ["/usr/bin/rpm", "/usr/bin/rpmdb"]) &&
+    contains("log.args", "--rebuilddb") &&
+    !equals("log.uid", "0")
+  ) ||
+  (
+    equals("log.eventType", "FILE_MODIFIED") &&
+    oneOf("log.file_path", ["/var/lib/rpm/Packages", "/var/lib/rpm/.rpm.lock", "/var/lib/rpm/__db.001", "/var/lib/rpm/__db.002", "/var/lib/rpm/__db.003"]) &&
+    !oneOf("log.process_name", ["rpm", "yum", "dnf", "packagekitd"])
+  ) ||
+  (
+    contains("log.message", "rpmdb") &&
+    (
+      contains("log.message", "corrupted") ||
+      contains("log.message", "checksum") ||
+      contains("log.message", "mismatch")
+    )
+  )
+groupBy:
+  - origin.host
+  - target.file

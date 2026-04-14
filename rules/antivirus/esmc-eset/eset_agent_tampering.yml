@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-esmc-eset
+name: ESET Agent Disabled or Tampered
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://help.eset.com/ees/8/en-US/idh_config_era_agent.html
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects when the ESET security agent is disabled, uninstalled, or tampered with. This is a critical defense evasion indicator as attackers commonly disable endpoint protection before executing their payload.
+
+  Next Steps:
+  1. Immediately investigate the affected endpoint
+  2. Determine who or what process disabled the agent
+  3. Check for concurrent malicious activity on the endpoint
+  4. Reinstall and re-enable the ESET agent
+  5. Review the endpoint for malware or unauthorized software
+  6. Check if similar tampering occurred on other endpoints
+where: |
+  (regexMatch("log.message", "(?i)(eset|ekrn|egui|agent)") &&
+   regexMatch("log.message", "(?i)(disabled|stopped|uninstalled|removed|tampered|terminated)")) ||
+  (contains("log.message", "protection status") && contains("log.message", "disabled")) ||
+  (contains("log.message", "agent") && contains("log.message", "not responding")) ||
+  (equals("log.eventType", "AGENT_EVENT") && contains("log.message", "removed"))
+groupBy:
+  - lastEvent.log.eventType
+  - target.host

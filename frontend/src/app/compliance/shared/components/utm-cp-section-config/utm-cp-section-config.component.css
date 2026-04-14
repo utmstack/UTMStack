@@ -1,0 +1,46 @@
+.section-name {
+  padding: 8px 16px;
+  background-color: #f7f7f7;
+  transition: background-color 0.3s;
+}
+
+.section-title {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.dropdown-btn, .section-item {
+  text-align: left;
+  padding: 5px 16px;
+  font-size: 13px;
+  line-height: 20px;
+  text-decoration: none;
+  border-radius: 6px;
+}
+
+.dropdown-btn.active,
+.dropdown-btn:hover,
+.section-item:hover,
+.section-item.active {
+  font-weight: 500;
+  font-size: 0.90rem;
+  background-color: rgb(233 233 233 / 0.7);
+}
+
+.dropdown-btn span{
+  flex-grow: 1;
+}
+
+.submenu {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: 300ms ease-in-out;
+}
+
+.submenu.show {
+  grid-template-rows: 1fr;
+}
+
+.submenu .sub-menu-content {
+  overflow: hidden;
+}

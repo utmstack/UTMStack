@@ -1,0 +1,27 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: "AWS RDS Cluster Deletion"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: "Impact"
+technique: "T1485 - Data Destruction"
+adversary: origin
+description: "Identifies the deletion of an Amazon Relational Database Service (RDS) Aurora database cluster or global database cluster"
+references:
+  - "https://attack.mitre.org/tactics/TA0040/"
+  - "https://attack.mitre.org/techniques/T1485/"
+  - "https://awscli.amazonaws.com/v2/documentation/api/latest/reference/rds/delete-db-cluster.html"
+  - "https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_DeleteDBCluster.html"
+  - "https://awscli.amazonaws.com/v2/documentation/api/latest/reference/rds/delete-global-cluster.html"
+  - "https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_DeleteGlobalCluster.html"
+
+where: |
+  equals("log.eventSource", "rds.amazonaws.com") &&
+  oneOf("log.eventName", ["DeleteDBCluster", "DeleteGlobalCluster"])
+groupBy:
+  - adversary.ip
+  - adversary.user

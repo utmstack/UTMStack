@@ -1,0 +1,21 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: "System Linux: Potential Privilege Escalation via PKEXEC"
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 3
+category: "Privilege Escalation"
+technique: "T1068 - Exploitation for Privilege Escalation"
+adversary: origin
+description: "Identifies an attempt to exploit a local privilege escalation in polkit pkexec (CVE-2021-4034) via unsecure environment
+              variable injection. Successful exploitation allows an unprivileged user to escalate to the root user."
+references:
+  - "https://attack.mitre.org/tactics/TA0004/"
+  - "https://attack.mitre.org/techniques/T1068/"
+where: contains("log.message", "pkexec") && (contains("log.message", "SHELL variable") || contains("log.message", "PATH variable") || contains("log.message", "XAUTHORITY") || regexMatch("log.message", "The value for the SHELL variable was not found"))
+groupBy:
+  - origin.ip
+  - origin.user

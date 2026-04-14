@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: RHEL Secure Boot Violation Detection
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1553.006 - Subvert Trust Controls: Code Signing Policy Modification"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1553/006/
+  - https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/using-uefi-secure-boot_security-hardening
+description: |
+  Detects violations of UEFI Secure Boot policy including unsigned kernel modules, tampering with MOK (Machine Owner Key) database, attempts to disable Secure Boot, or loading of unauthorized boot components. This indicates potential compromise of the boot chain integrity or attempts to bypass security controls.
+  
+  Next Steps:
+  1. Immediately isolate the affected system to prevent lateral movement
+  2. Verify current Secure Boot status with 'mokutil --sb-state' command
+  3. Check for unauthorized kernel modules with 'lsmod' and compare against baseline
+  4. Review recent system changes, updates, or administrative activities
+  5. Examine MOK database contents with 'mokutil --list-enrolled'
+  6. Check system logs for any unauthorized access or privilege escalation
+  7. Validate boot chain integrity and consider system restoration from known good backup
+  8. Review and strengthen access controls for system administration
+where: |
+  (equals("log.event_type", "secure_boot_violation")) ||
+  (contains("log.message", "Secure Boot") && (contains("log.message", "violation") || contains("log.message", "failed") || contains("log.message", "unsigned") || contains("log.message", "invalid"))) ||
+  (contains("log.command", "mokutil") && (contains("log.command", "--disable-validation") || contains("log.command", "--reset") || contains("log.command", "--delete"))) ||
+  ((contains("log.file_path", "/sys/firmware/efi/efivars/") || contains("log.file_path", "/boot/efi/EFI/redhat/")) && oneOf("log.action", ["modify", "delete"])) ||
+  (contains("log.kernel_message", "PKCS#7 signature not signed with a trusted key") || contains("log.kernel_message", "module verification failed") || contains("log.kernel_message", "Secure Boot forbids loading")) ||
+  (oneOf("log.module_sig_status", ["unsigned", "invalid", "rejected"])) ||
+  (oneOf("log.efi_variable", ["SecureBoot", "SetupMode", "PK", "KEK", "db", "dbx"]) && oneOf("log.action", ["modify", "delete"])) ||
+  (contains("log.shim_message", "verification failed") || contains("log.shim_message", "signature invalid"))
+groupBy:
+  - origin.host
+  - origin.user

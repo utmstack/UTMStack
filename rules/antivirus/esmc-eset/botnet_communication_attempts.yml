@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-esmc-eset
+name: ESET Botnet Communication Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Command and Control
+technique: "T1071 - Application Layer Protocol"
+adversary: origin
+references:
+  - https://www.eset.com/us/botnet/
+  - https://support.eset.com/en/kb7487-resolve-the-incomingattackgeneric-or-botnetcncgeneric-network-protection-alert
+  - https://attack.mitre.org/techniques/T1071/
+description: |
+  Detects attempts to communicate with known botnet command and control servers. ESET identifies typical communication patterns when a computer is infected and a bot is attempting to communicate with malicious C2 infrastructure.
+  
+  Next Steps:
+  1. Immediately isolate the affected system from the network to prevent further C2 communication
+  2. Check the hostname (log.headHostname) to identify the affected system
+  3. Review the full log message content (log.jsonMessage) for additional threat details including target IPs and processes
+  4. Review process activity on the affected host to identify the malicious process
+  5. Scan the system with ESET for complete malware removal
+  6. Check other systems in the network for similar C2 communication attempts
+  7. Update firewall rules to block any identified C2 server IPs found in the logs
+  8. Consider reimaging the system if the infection persists
+  9. Review ESET logs for the time period around this detection to identify related malicious activity
+where: |
+  contains("log.jsonMessage", ["Botnet", "CnC.Generic", "botnet", "C&C", "command and control"]) &&
+  exists("log.headHostname")
+groupBy:
+  - lastEvent.log.headHostname
+  - lastEvent.log.jsonMessage

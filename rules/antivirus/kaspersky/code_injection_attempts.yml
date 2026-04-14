@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-kaspersky
+name: Code Injection Attempt Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Privilege Escalation
+technique: "T1055 - Process Injection"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1055/
+  - https://support.kaspersky.com/KESWin/11/en-us/151065.htm
+description: |
+  Detects attempts to inject malicious code into legitimate processes. This technique is commonly used by malware to evade detection and gain elevated privileges by running within trusted processes.
+  
+  Next Steps:
+  1. Immediately isolate the affected system to prevent lateral movement
+  2. Identify the source process that attempted the injection
+  3. Check if the malware was successfully quarantined or if manual removal is needed
+  4. Review system logs for any suspicious activities around the same timeframe
+  5. Scan the system with updated antivirus definitions
+  6. Check for persistence mechanisms (scheduled tasks, registry keys, services)
+  7. Review network connections from the affected host for C2 communications
+  8. Consider reimaging the system if critical processes were compromised
+where: |
+  (regexMatch("log.msg", "(?i).*(inject|injection|CreateRemoteThread|SetWindowsHookEx|WriteProcessMemory).*") ||
+   (contains("log.cs4", ["inject", "hooking", "trojan", "backdoor"]) && 
+    contains("action", ["terminate", "delete", "quarantine"]))) &&
+  contains("log.msg", ["lsass", "csrss", "winlogon", "services", "svchost", "explorer"])
+deduplicateBy:
+  - origin.host
+  - log.cs4

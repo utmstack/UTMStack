@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - vmware-esxi
+name: Virtual Machine Escape Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Privilege Escalation
+technique: "T1611 - Escape to Host"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1611/
+  - https://www.csoonline.com/article/3837874/vmware-esxi-gets-critical-patches-for-in-the-wild-virtual-machine-escape-attack.html
+  - https://blogs.vmware.com/security/2022/09/esxi-targeting-ransomware-the-threats-that-are-after-your-virtual-machines-part-1.html
+description: |
+  Detects VM escape attempts through abnormal guest operations, suspicious VMware Tools activity, or attempts to access host resources from guest VMs. VM escape is a critical security event where an attacker breaks out of virtual machine containment to access the hypervisor or host system.
+  
+  Next Steps:
+  1. Immediately isolate the affected virtual machine from the network
+  2. Review VMware ESXi host logs for additional suspicious activities
+  3. Check for unauthorized VIB installations or modifications
+  4. Verify VMware Tools integrity and version on affected VMs
+  5. Scan the VM for malware and examine running processes
+  6. Review VM configuration files for unauthorized changes
+  7. Update VMware ESXi to latest security patches
+  8. Consider forensic analysis of the VM if compromise is confirmed
+where: |
+  (regexMatch("log.message", "(?i)guest.*(operation|ops)") && regexMatch("log.message", "(?i)(failed|denied|error|unauthorized)")) ||
+  (regexMatch("log.message", "(?i)vmware.*tools") && regexMatch("log.message", "(?i)(exploit|malicious|unauthorized|abnormal)")) ||
+  (regexMatch("log.message", "(?i)(vmdk|vswp)") && regexMatch("log.message", "(?i)(modify|rename|delete)") && !regexMatch("log.process", "(?i)(vmware|esxcli)")) ||
+  (regexMatch("log.message", "(?i)vib.*install") && regexMatch("log.message", "(?i)(malicious|unsigned|failed)")) ||
+  (regexMatch("log.eventInfo", "(?i)(vm.*escape|breakout|containment.*breach)"))
+groupBy:
+  - lastEvent.log.process
+  - adversary.hostname

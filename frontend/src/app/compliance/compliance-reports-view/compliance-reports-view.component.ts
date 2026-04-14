@@ -141,7 +141,6 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
   }
 
   getTableHeight() {
-    console.log('getTableHeight:', 100 - ((350 / this.viewportHeight) * 100) + 'vh');
     return 100 - ((350 / this.viewportHeight) * 100) + 'vh';
   }
 

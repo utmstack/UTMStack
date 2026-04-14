@@ -1,0 +1,43 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - syslog
+name: CEF File Hash Mismatch Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Impact
+technique: "T1565.001 - Data Manipulation: Stored Data Manipulation"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1565/001/
+  - https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.4/pdfdoc/cef-implementation-standard/cef-implementation-standard.pdf
+description: |
+  Detects file hash mismatches in CEF logs which may indicate file tampering, malware infection, or unauthorized modifications to critical files. This rule monitors custom string fields (cs1-cs6) for hash values and their labels, as well as dedicated hash fields to identify discrepancies.
+
+  **Next Steps:**
+  1. Verify the affected file integrity by recalculating its hash
+  2. Check if the file modification was authorized and documented
+  3. Investigate the source and timing of the file change
+  4. Review system logs for unauthorized access or malware activity
+  5. Compare with known good file versions or backups
+  6. If malicious activity is confirmed, isolate the affected system and initiate incident response procedures
+where: |
+  equals("log.dataType", "cef") && 
+  (
+    (oneOf("log.cs1Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs1") && contains("log.message", "mismatch")) ||
+    (oneOf("log.cs2Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs2") && contains("log.message", "mismatch")) ||
+    (oneOf("log.cs3Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs3") && contains("log.message", "mismatch")) ||
+    (oneOf("log.cs4Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs4") && contains("log.message", "mismatch")) ||
+    (oneOf("log.cs5Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs5") && contains("log.message", "mismatch")) ||
+    (oneOf("log.cs6Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs6") && contains("log.message", "mismatch")) ||
+    (exists("log.fileHash") && contains("log.message", "mismatch")) ||
+    (exists("log.oldFileHash") && exists("log.fileHash") && safe(log.oldFileHash, "") != safe(log.fileHash, "")) ||
+    contains("log.message", "hash mismatch") ||
+    contains("log.message", "checksum failure") ||
+    contains("log.message", "integrity violation")
+  )
+groupBy:
+  - lastEvent.log.fname
+  - adversary.host

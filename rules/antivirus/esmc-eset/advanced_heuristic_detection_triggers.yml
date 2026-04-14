@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-esmc-eset
+name: Advanced Heuristic Detection Triggers
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Privilege Escalation
+technique: "T1055 - Process Injection"
+adversary: origin
+references:
+  - https://help.eset.com/eea/8/en-US/idh_config_threat_sense.html
+  - https://attack.mitre.org/techniques/T1055/
+description: |
+  Detects when ESET's advanced heuristic engine identifies suspicious behavior patterns that may indicate novel malware or zero-day threats. These detections use DNA signatures and behavioral analysis.
+  
+  Next Steps:
+  - Review the affected hostname and user context to understand the scope
+  - Check the process name (if available) that triggered the detection
+  - Verify if the action taken (cleaned/deleted/quarantined) was successful
+  - Look for related alerts from the same host within the past 24 hours
+  - If multiple hosts show similar detections, investigate potential lateral movement
+  - Consider isolating the affected system if threat persists
+  - Review ESET console link (if available) for detailed threat information
+  - Check file hash against threat intelligence databases if available
+  - Capture and analyze the malicious file sample if quarantined
+  - Review system logs for any unusual activities before and after detection
+  - Update ESET signatures and run a full system scan
+where: |
+  oneOf("log.msgType", ["EnterpriseInspectorAlert_Event", "threat_event", "FirewallAggregatedAlert_Event"]) &&
+  contains("log.jsonMessage", ["heuristic", "NewHeur", "suspicious behavior"]) &&
+  contains("log.jsonMessage", ["cleaned", "deleted", "quarantined", "blocked"])
+afterEvents:
+  - indexPattern: v11-log-antivirus-esmc-eset-*
+    with:
+      - field: log.headHostname
+        operator: filter_term
+        value: '{{.log.headHostname}}'
+    within: now-30m
+    count: 3
+groupBy:
+  - lastEvent.log.headHostname
+  - lastEvent.log.msgType

@@ -1,0 +1,42 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Apple Script Abuse Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059.002 - Command and Scripting Interpreter: AppleScript"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1059/002/
+  - https://developer.apple.com/documentation/os/logging
+  - https://www.crowdstrike.com/en-us/blog/how-to-leverage-apple-unified-log-for-incident-response/
+description: |
+  Detects suspicious AppleScript execution that could indicate malicious activity, including osascript command-line usage, automation attempts, and script-based attacks on macOS systems. AppleScript can be abused by attackers to execute commands, interact with applications, and perform system manipulation.
+  
+  Next Steps:
+  1. Review the specific AppleScript commands being executed
+  2. Check if the script execution is part of legitimate automation or suspicious activity
+  3. Examine the process tree to understand the execution context
+  4. Verify if the user executing the script has legitimate reasons to do so
+  5. Look for additional indicators of compromise on the affected system
+  6. Consider blocking or monitoring the source if malicious intent is confirmed
+where: |
+  (oneOf("log.process", ["osascript", "Script Editor", "AppleScript", "Automator"]) ||
+   contains("log.eventMessage", "osascript") ||
+   contains("log.eventMessage", "AppleScript") ||
+   equals("log.subsystem", "com.apple.applescript")) &&
+  (contains("log.eventMessage", "tell application") ||
+   contains("log.eventMessage", "do shell script") ||
+   contains("log.eventMessage", "keystroke") ||
+   contains("log.eventMessage", "System Events") ||
+   contains("log.eventMessage", "admin privileges") ||
+   contains("log.eventMessage", "sudo") ||
+   contains("log.eventMessage", "password")) &&
+  oneOf("log.eventType", ["logEvent", "traceEvent"])
+groupBy:
+  - adversary.host
+  - adversary.user

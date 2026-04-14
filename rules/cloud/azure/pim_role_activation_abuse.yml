@@ -1,0 +1,46 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Azure PIM Role Activation Anomaly
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Privilege Escalation
+technique: "T1078 - Valid Accounts"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-configure
+  - https://attack.mitre.org/techniques/T1078/
+description: |
+  Detects unusual Privileged Identity Management (PIM) role activation patterns including activation of high-privilege roles such as Global Administrator or Privileged Role Administrator. Repeated or unusual PIM activations may indicate an attacker leveraging compromised credentials to escalate privileges.
+
+  Next Steps:
+  1. Verify the user activating the PIM role has legitimate business justification
+  2. Review the specific role being activated and its scope
+  3. Check the activation justification message provided by the user
+  4. Review the activation duration and whether it exceeds normal patterns
+  5. Check for unusual source IP or device during the activation
+  6. If unauthorized, immediately deactivate the role and disable the user account
+  7. Review PIM audit logs for other suspicious activations by the same user
+  8. Implement PIM access reviews and require approval for critical roles
+where: |
+  (contains("log.operationName", "Add member to role completed (PIM activation)") ||
+   contains("log.operationName", "Add eligible member to role in PIM completed") ||
+   contains("log.operationName", "Activate PIM role")) &&
+  equals("log.categoryValue", "Administrative")
+afterEvents:
+  - indexPattern: v11-log-azure-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: log.categoryValue
+        operator: filter_term
+        value: Administrative
+    within: now-4h
+    count: 3
+groupBy:
+  - lastEvent.log.operationName
+  - adversary.user

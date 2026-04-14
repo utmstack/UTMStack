@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - cisco-switch
+name: VLAN Hopping Attack Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1599 - Network Boundary Bridging"
+adversary: origin
+references:
+  - https://www.cisco.com/c/en/us/support/docs/switches/catalyst-3750-series-switches/72846-layer2-secftrs-catl3fixed.html
+  - https://attack.mitre.org/techniques/T1599/
+description: |
+  Detects potential VLAN hopping attacks through switch spoofing or double tagging. Monitors for DTP negotiation attempts, trunk port changes, or multiple VLAN tags that could indicate an attacker trying to gain unauthorized access to other VLANs.
+
+  Next Steps:
+  1. Immediately identify the affected switch port and connected device
+  2. Review switch configuration for DTP enabled ports and disable where not needed
+  3. Check trunk port configurations and ensure proper native VLAN settings
+  4. Verify VLAN access lists and ensure proper segmentation
+  5. Investigate the source MAC address for any previous suspicious activity
+  6. Review network topology to assess potential lateral movement paths
+  7. Consider implementing VLAN ACLs or private VLANs for additional protection
+  8. Document the incident and update switch hardening procedures
+where: |
+  (equals("log.facility", "SW_VLAN") && oneOf("log.facilityMnemonic", ["VLAN_INCONSISTENCY", "MACFLAP_NOTIF", "TRUNK_MODE_CHANGE"]))
+  || (equals("log.facility", "DTP") && oneOf("log.facilityMnemonic", ["NONTRUNKPORTON", "DOMAINMISMATCH", "TRUNKPORTON"]))
+  || regexMatch("log.message", "(?i)(received 802.1Q BPDU on non trunk|native vlan mismatch|inconsistent vlan|double tag)")
+  || (lessOrEqual("log.severity", 4) && regexMatch("log.message", "(?i)(vlan.*tag.*tag|switch.*spoofing|dtp.*negotiation)"))
+groupBy:
+  - adversary.ip
+  - adversary.mac

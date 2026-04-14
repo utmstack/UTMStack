@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: AWS SecurityHub Finding Evasion
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562 - Impair Defenses"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-findings.html
+  - https://attack.mitre.org/techniques/T1562/
+description: |
+  Detects attempts to suppress or manipulate AWS SecurityHub findings through BatchUpdateFindings, DeleteInsight, or UpdateFindings operations. Attackers use these to hide evidence of their activities from security monitoring.
+
+  Next Steps:
+  1. Review what findings were modified or suppressed and their severity
+  2. Check the user identity performing these actions for legitimacy
+  3. Investigate whether this was part of legitimate finding management workflow
+  4. Review the original findings that were suppressed for security relevance
+  5. Check for other defense evasion activities from the same user or IP
+  6. Restore suppressed findings if the action was unauthorized
+  7. Review SecurityHub aggregation and automation rules for tampering
+where: |
+  equals("log.eventSource", "securityhub.amazonaws.com") &&
+  oneOf("log.eventName", ["BatchUpdateFindings", "DeleteInsight", "UpdateFindings", "DeleteActionTarget"]) &&
+  equals("log.errorCode", "") &&
+  !equals("log.userIdentityType", "AWSService")
+afterEvents:
+  - indexPattern: v11-log-aws-*
+    with:
+      - field: log.userIdentityArn
+        operator: filter_term
+        value: '{{.log.userIdentityArn}}'
+      - field: log.eventSource
+        operator: filter_term
+        value: 'securityhub.amazonaws.com'
+    within: now-30m
+    count: 5
+groupBy:
+  - adversary.user
+  - lastEvent.log.eventName

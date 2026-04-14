@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - ibm-aix
+name: IBM AIX Trusted Computing Base Violation
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1070 - Indicator Removal"
+adversary: origin
+references:
+  - https://www.ibm.com/docs/en/aix/7.2?topic=configuration-trusted-computing-base
+  - https://attack.mitre.org/techniques/T1070/
+description: |
+  Detects violations of the Trusted Computing Base (TCB) in IBM AIX, including unauthorized modifications to critical system files, security database tampering, or attempts to modify files protected by TCB. TCB violations indicate potential system compromise or unauthorized privilege escalation attempts.
+  
+  Next Steps:
+  1. Immediately investigate the user account and source host involved in the TCB violation
+  2. Review the specific object/file that was modified and assess the impact
+  3. Check system logs for any related authentication failures or privilege escalation attempts
+  4. Verify the integrity of critical system files using tcbck command
+  5. Review recent system changes and patches that might have triggered legitimate TCB events
+  6. If malicious activity is confirmed, isolate the affected system and initiate incident response procedures
+  7. Consider running a full system integrity check and malware scan
+where: (equals("log.eventType", "tcbck") && contains("log.message", "FAIL")) || (contains("log.message", "TCB") && (contains("log.message", "violation") || contains("log.message", "modified"))) || (equals("log.eventType", "FILE_Mode") && exists("log.objName") && startsWith("log.objName", "/etc/security/")) || (equals("action", "FILE_MODIFY") && exists("log.objName") && (startsWith("log.objName", "/usr/bin/") || startsWith("log.objName", "/usr/sbin/") || startsWith("log.objName", "/etc/security/")))
+groupBy:
+  - lastEvent.log.objName
+  - adversary.user

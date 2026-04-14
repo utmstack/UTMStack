@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-paloalto
+name: IOC Match from Threat Intelligence Feed
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1027 - Obfuscated Files or Information"
+adversary: origin
+references:
+  - https://docs.paloaltonetworks.com/cortex/cortex-xsoar/threat-intelligence-management
+  - https://attack.mitre.org/techniques/T1027/
+description: |
+  Detects when network traffic matches known Indicators of Compromise (IOCs) from threat intelligence feeds. This includes malicious IPs, domains, URLs, or file hashes associated with known threat actors or campaigns. The Palo Alto firewall has identified and blocked traffic based on threat intelligence data.
+
+  Next Steps:
+  1. Review the specific IOC that triggered the alert and verify its legitimacy
+  2. Investigate the source IP address for additional suspicious activities
+  3. Check if the same IOC has been observed from other internal hosts
+  4. Examine the target destination for potential compromise indicators
+  5. Update threat intelligence feeds and firewall rules as necessary
+  6. Consider isolating affected hosts if compromise is confirmed
+  7. Document the incident and IOC details for threat hunting activities
+where: |
+  (contains("log.panOSThreatCategory", "malware") ||
+   contains("log.panOSThreatCategory", "command-and-control") ||
+   contains("log.panOSThreatCategory", "phishing") ||
+   contains("log.panOSThreatCategory", "botnet") ||
+   contains("log.msg", "threat-intel") ||
+   contains("log.msg", "ioc-match")) &&
+  oneOf("log.panOSAction", ["block", "deny", "drop", "reset-both", "reset-client", "reset-server"])
+groupBy:
+  - lastEvent.log.panOSThreatID
+  - adversary.ip
+  - target.ip

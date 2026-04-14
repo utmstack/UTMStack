@@ -1,0 +1,52 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-esmc-eset
+name: Suspicious Process Behavior Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Privilege Escalation
+technique: "T1055 - Process Injection"
+adversary: origin
+references:
+  - https://help.eset.com/ees/12/en-US/idh_dialog_epfw_ids_alert.html
+  - https://attack.mitre.org/techniques/T1055/
+description: |
+  Detects suspicious process behaviors including injection attempts, privilege escalation, and abnormal process creation patterns identified by ESET's behavioral monitoring. This alert indicates potential malware activity or exploitation attempts on the affected system.
+  
+  Next Steps:
+  1. Immediately review the alert details to identify:
+     - Affected hostname (check log.headHostname)
+     - Specific threat or behavior detected (check log.jsonMessage)
+     - Process name and path if available
+     - Time of detection (check log.deviceTime)
+  2. Investigate the process that triggered the alert:
+     - Verify if it's a legitimate application or unknown/suspicious
+     - Check process creation chain and parent-child relationships
+     - Review file hash against threat intelligence sources
+  3. Check for related security events:
+     - Look for other ESET alerts from the same host
+     - Search for network connections from the suspicious process
+     - Review authentication events around the same timeframe
+  4. Containment actions if malicious:
+     - Isolate the affected host from the network
+     - Kill the suspicious process if still running
+     - Preserve forensic evidence (memory dump, logs)
+  5. Remediation steps:
+     - Run full antivirus scan on the affected system
+     - Check for persistence mechanisms (registry, scheduled tasks)
+     - Update ESET signatures and perform system hardening
+  6. Prevention measures:
+     - Review and update application control policies
+     - Ensure ESET real-time protection is enabled
+     - Consider implementing application whitelisting
+where: |
+  oneOf("log.msgType", ["EnterpriseInspectorAlert_Event", "HIPS_Event"]) &&
+  exists("log.jsonMessage") &&
+  contains("log.jsonMessage", ["Process injection", "Suspicious behavior",
+    "Anomalous process", "blocked", "terminated", "prevented"])
+groupBy:
+  - lastEvent.log.headHostname
+  - lastEvent.log.msgType

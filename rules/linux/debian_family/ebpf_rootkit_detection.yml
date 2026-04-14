@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: eBPF Rootkit Activity Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1014 - Rootkit"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1014/
+  - https://www.elastic.co/security-labs/a-peek-behind-the-bpf-curtain
+description: |
+  Detects malicious eBPF program loading which can be used for rootkit functionality, network traffic interception, and process hiding. eBPF-based rootkits operate at the kernel level and are difficult to detect.
+
+  Next Steps:
+  1. Identify the process and user that loaded the eBPF program
+  2. List currently loaded BPF programs using bpftool
+  3. Check if the eBPF program was loaded by a legitimate monitoring tool
+  4. Review the BPF program type and attached hooks
+  5. Investigate for signs of process hiding or network traffic manipulation
+  6. If malicious, reboot the system and perform forensic analysis
+where: |
+  (contains("log.message", "bpf(") || contains("log.message", "BPF") ||
+   contains("log.message", "ebpf") || contains("log.message", "bpftool")) &&
+  (contains("log.message", "PROG_LOAD") || contains("log.message", "prog_load") ||
+   contains("log.message", "BPF_PROG_TYPE_TRACING") ||
+   contains("log.message", "BPF_PROG_TYPE_KPROBE") ||
+   contains("log.message", "BPF_PROG_TYPE_XDP") ||
+   contains("log.message", "attached") || contains("log.message", "loaded")) &&
+  !(contains("log.process", "systemd") || contains("log.process", "cilium") ||
+    contains("log.process", "falco") || contains("log.process", "bpftrace"))
+groupBy:
+  - origin.host
+  - origin.user

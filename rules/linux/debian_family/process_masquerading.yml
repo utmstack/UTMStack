@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Process Masquerading Detected
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1036.004 - Masquerading: Masquerade Task or Service"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1036/004/
+description: |
+  Detects processes attempting to masquerade as legitimate system processes by renaming themselves through /proc/self/comm or using misleading process names. This technique is used to evade detection.
+
+  Next Steps:
+  1. Compare the displayed process name with the actual binary path
+  2. Verify the binary hash against known legitimate system binaries
+  3. Check the parent process chain for suspicious activity
+  4. Investigate what the process is actually doing (network connections, file access)
+  5. If confirmed malicious, terminate the process and remove the binary
+  6. Check for other masquerading processes on the system
+where: |
+  (contains("log.message", "/proc/self/comm") ||
+   contains("log.message", "/proc/self/exe") ||
+   contains("log.message", "prctl") && contains("log.message", "PR_SET_NAME")) &&
+  (contains("log.message", "write") || contains("log.message", "modified") ||
+   contains("log.message", "open"))
+groupBy:
+  - origin.host
+  - origin.user

@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: Storyline Correlation Event
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Attack Chain Detection
+technique: Attack Chain Analysis
+adversary: origin
+references:
+  - https://www.sentinelone.com/platform/storyline-active-response/
+  - https://attack.mitre.org/tactics/enterprise/
+description: |
+  Detects correlated attack patterns identified by SentinelOne's Storyline feature, which connects related events to reveal complete attack chains and multi-stage threats.
+  
+  Next Steps:
+  1. Review the complete attack chain in the SentinelOne console's Storyline view
+  2. Identify all affected endpoints and users involved in the attack chain
+  3. Check for lateral movement or persistence mechanisms across the related events
+  4. Isolate affected endpoints if active threats are detected
+  5. Collect forensic data from all systems identified in the storyline
+  6. Review and update security policies based on the attack patterns observed
+  7. Analyze the attack timeline and identify any gaps in detection
+  8. Coordinate with incident response team for threat hunting activities
+where: regexMatch("log.eventDescription", "(?i)(storyline|attack chain|correlated|multi.?stage|campaign)") && regexMatch("log.message", "(?i)(threat|attack|compromise|breach)")
+groupBy:
+  - lastEvent.log.eventDescription
+  - adversary.host

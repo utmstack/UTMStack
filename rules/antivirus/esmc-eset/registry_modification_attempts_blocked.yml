@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-esmc-eset
+name: Registry Modification Attempts Blocked
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Persistence
+technique: "T1112 - Modify Registry"
+adversary: origin
+references:
+  - https://help.eset.com/esmc_admin/70/en-US/events-exported-to-json-format.html
+  - https://attack.mitre.org/techniques/T1112/
+description: |
+  Identifies attempts to modify critical Windows registry keys that were blocked by ESET, indicating potential persistence or system tampering attempts. Registry modifications are a common technique used by malware to establish persistence, disable security features, or alter system behavior.
+  
+  Next Steps:
+  1. Review the blocked action details to understand what registry key was targeted
+  2. Investigate the source process and user account involved in the attempt
+  3. Check for other security events from the same host around the same time
+  4. Verify if this is legitimate administrative activity or potential malicious behavior
+  5. If suspicious, isolate the affected system and perform a full malware scan
+  6. Review system logs for any successful registry modifications before the block occurred
+where: |
+  exists("log.jsonMessage") &&
+  contains("log.jsonMessage", "registry") &&
+  oneOf("log.action", ["blocked", "denied", "prevented"]) &&
+  oneOf("log.severity", ["high", "medium"])
+groupBy:
+  - lastEvent.log.action
+  - target.host

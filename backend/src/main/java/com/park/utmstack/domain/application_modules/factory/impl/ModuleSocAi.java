@@ -45,16 +45,6 @@ public class ModuleSocAi implements IModule {
     public List<ModuleConfigurationKey> getConfigurationKeys(Long groupId) throws Exception {
         List<ModuleConfigurationKey> keys = new ArrayList<>();
 
-        // soc_ai_key
-        keys.add(ModuleConfigurationKey.builder()
-            .withGroupId(groupId)
-            .withConfKey("utmstack.socai.key")
-            .withConfName("Key")
-            .withConfDescription("OpenAI Connection key")
-            .withConfDataType("password")
-            .withConfRequired(true)
-            .build());
-
         keys.add(ModuleConfigurationKey.builder()
             .withGroupId(groupId)
             .withConfKey("utmstack.socai.incidentCreation")
@@ -127,20 +117,13 @@ public class ModuleSocAi implements IModule {
                 .filter(c -> !"utmstack.socai.provider".equals(c.getConfKey()))
                 .toList();
 
-        List<UtmModuleGroupConfiguration> filteredConfigs = providerConfig != null && "custom".equals(providerConfig.getConfValue())
-                ? filterCustomConfigs(configs)
-                : filterStandardConfigs(configs);
+        List<UtmModuleGroupConfiguration> filteredConfigs = filterStandardConfigs(configs);
 
         filteredConfigs.add(providerConfig);
 
         return utmStackConfigValidator.validate(module, configuration, filteredConfigs);
     }
 
-    private List<UtmModuleGroupConfiguration> filterCustomConfigs(List<UtmModuleGroupConfiguration> configs) {
-        return configs.stream()
-                .filter(config -> !config.getConfKey().equals("utmstack.socai.model"))
-                .collect(Collectors.toList());
-    }
 
     private List<UtmModuleGroupConfiguration> filterStandardConfigs(List<UtmModuleGroupConfiguration> configs) {
         return configs.stream()

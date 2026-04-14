@@ -112,7 +112,7 @@ func PollAndUpdateAdminEmail(instanceConf InstanceConfig) {
 	for {
 		time.Sleep(5 * time.Minute)
 
-		email, err := services.GetAdminEmail(serverConfig)
+		email, err := services.GetAdminEmail()
 		if err != nil {
 			config.Logger().ErrorF("error getting admin email: %v", err)
 			continue

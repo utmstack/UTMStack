@@ -1,0 +1,24 @@
+# Rule version v1.0.3
+
+dataTypes:
+  - "aws"
+name: "AWS WAF Access Control List Deletion"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: "Defense Evasion"
+technique: "T1562 - Impair Defenses"
+adversary: origin
+description: "Identifies the deletion of a specified AWS Web Application Firewall (WAF) access control list"
+references:
+  - "https://attack.mitre.org/tactics/TA0005/"
+  - "https://attack.mitre.org/techniques/T1562/"
+  - "https://awscli.amazonaws.com/v2/documentation/api/latest/reference/waf-regional/delete-web-acl.html"
+  - "https://docs.aws.amazon.com/waf/latest/APIReference/API_wafRegional_DeleteWebACL.html"
+where: |
+  oneOf("log.eventSource", ["waf.amazonaws.com", "waf-regional.amazonaws.com", "wafv2.amazonaws.com"]) &&
+  equals("log.eventName", "DeleteWebACL")
+groupBy:
+  - adversary.ip
+  - adversary.user

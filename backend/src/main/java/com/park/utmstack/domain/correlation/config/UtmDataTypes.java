@@ -46,6 +46,10 @@ public class UtmDataTypes implements Serializable {
     @Column(name = "system_owner", nullable = false)
     private Boolean systemOwner;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "module_id")
+    private com.park.utmstack.domain.application_modules.UtmModule module;
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = {
                     CascadeType.PERSIST,
                     CascadeType.MERGE
@@ -120,5 +124,13 @@ public class UtmDataTypes implements Serializable {
 
     public void setSystemOwner(Boolean systemOwner) {
         this.systemOwner = systemOwner;
+    }
+
+    public com.park.utmstack.domain.application_modules.UtmModule getModule() {
+        return module;
+    }
+
+    public void setModule(com.park.utmstack.domain.application_modules.UtmModule module) {
+        this.module = module;
     }
 }

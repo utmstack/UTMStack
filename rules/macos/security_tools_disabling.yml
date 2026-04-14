@@ -1,0 +1,49 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: macOS Security Tools Disabled
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1562/001/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_disable_security_tools.yml
+description: |
+  Detects attempts to disable or unload macOS security tools using launchctl or spctl. Attackers commonly disable endpoint security products such as LuLu, BlockBlock, Santa, CarbonBlack, CrowdStrike, and osquery, or disable Gatekeeper via spctl to execute malicious payloads without detection.
+
+  Next Steps:
+  1. Identify which security tool was disabled and restore it immediately
+  2. Determine what process or user initiated the disabling command
+  3. Check for malware or suspicious executables that may have been run after the tool was disabled
+  4. Review the timeline for other defense evasion or execution events
+  5. Re-enable all disabled security tools and verify their status
+  6. Investigate why the user had privileges to disable security tools
+where: |
+  (
+    contains("log.eventMessage", "launchctl") &&
+    contains("log.eventMessage", "unload") &&
+    (
+      contains("log.eventMessage", "LuLu") ||
+      contains("log.eventMessage", "BlockBlock") ||
+      contains("log.eventMessage", "Santa") ||
+      contains("log.eventMessage", "CarbonBlack") ||
+      contains("log.eventMessage", "com.carbonblack") ||
+      contains("log.eventMessage", "CrowdStrike") ||
+      contains("log.eventMessage", "com.crowdstrike") ||
+      contains("log.eventMessage", "osquery") ||
+      contains("log.eventMessage", "com.facebook.osqueryd") ||
+      contains("log.eventMessage", "com.objective-see")
+    )
+  ) ||
+  (
+    contains("log.eventMessage", "spctl") &&
+    contains("log.eventMessage", "--master-disable")
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

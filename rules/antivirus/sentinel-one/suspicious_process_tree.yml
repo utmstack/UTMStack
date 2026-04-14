@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: Suspicious Process Tree Analysis
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Defense Evasion, Privilege Escalation
+technique: "T1055 - Process Injection"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1055/
+  - https://attack.mitre.org/techniques/T1057/
+description: |
+  Detects suspicious process tree patterns identified by SentinelOne, including unusual parent-child relationships, process hollowing, and malicious process chains commonly used in attacks.
+  
+  Next Steps:
+  1. Review the process tree details in the SentinelOne console to understand the parent-child relationships
+  2. Identify the affected host from log.syslogHost and the user account from log.destinationUser
+  3. Check if the process chain is associated with legitimate software or administrative activity
+  4. Look for indicators of process injection, hollowing, or other malicious techniques
+  5. Investigate other recent process creation events on the same host
+  6. If confirmed malicious, isolate the endpoint and terminate the suspicious processes
+  7. Review the threat storyline in SentinelOne for full attack context
+  8. Collect memory dumps if advanced analysis is required
+where: |
+  (contains("log.eventDescription", ["process tree", "parent", "process chain",
+    "process spawn", "suspicious process", "abnormal process", "process anomaly"]) ||
+   contains("log.threatName", ["process", "injection", "hollow"]) ||
+   contains("log.mitigationMode", "process")) &&
+  exists("log.syslogHost")
+groupBy:
+  - lastEvent.log.syslogHost
+  - lastEvent.log.threatId

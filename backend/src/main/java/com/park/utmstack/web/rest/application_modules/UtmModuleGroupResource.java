@@ -1,6 +1,7 @@
 package com.park.utmstack.web.rest.application_modules;
 
 import com.park.utmstack.aop.logging.AuditEvent;
+import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
@@ -131,7 +132,19 @@ public class UtmModuleGroupResource {
     public ResponseEntity<List<UtmModuleGroup>> getModuleGroups(@RequestParam Long moduleId) {
         final String ctx = CLASSNAME + ".getModuleGroups";
         try {
-            return ResponseEntity.ok(moduleGroupService.findAllByModuleId(moduleId));
+            List<UtmModuleGroup> groups = moduleGroupService.findAllByModuleId(moduleId);
+            for (UtmModuleGroup group : groups) {
+                if (group.getModuleGroupConfigurations() != null) {
+                    for (UtmModuleGroupConfiguration conf : group.getModuleGroupConfigurations()) {
+                        if ((Constants.CONF_TYPE_PASSWORD.equals(conf.getConfDataType())
+                                || Constants.CONF_TYPE_FILE.equals(conf.getConfDataType()))
+                                && conf.getConfValue() != null) {
+                            conf.setConfValue(Constants.MASKED_VALUE);
+                        }
+                    }
+                }
+            }
+            return ResponseEntity.ok(groups);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);

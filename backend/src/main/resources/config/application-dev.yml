@@ -29,7 +29,9 @@ spring:
         database: POSTGRESQL # For Postgresql database
     elasticsearch: # This configuration is for the elasticsearch health indicator, please do not remove
         rest:
-            uris: http://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+            uris: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+            username: ${ELASTICSEARCH_USER}
+            password: ${ELASTICSEARCH_PASSWORD}
     liquibase:
         contexts: dev
     mail:

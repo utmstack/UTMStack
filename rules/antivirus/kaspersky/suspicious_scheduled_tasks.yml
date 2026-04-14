@@ -1,0 +1,46 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-kaspersky
+name: Kaspersky Suspicious Scheduled Tasks Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution, Persistence, Privilege Escalation
+technique: "T1053 - Scheduled Task/Job"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1053/
+  - https://support.kaspersky.com/ScanEngine/1.0/en-US/186767.htm
+description: |
+  Detects suspicious scheduled task creation or modification identified by Kaspersky, which could indicate persistence mechanisms used by malware or attackers. Scheduled tasks are commonly abused by attackers to maintain persistence, execute malicious code at specific times, or escalate privileges.
+  
+  Next Steps:
+  1. Review the scheduled task details in log.msg, log.fname, and log.descMsg fields
+  2. Check the specific threat signature in log.signatureID to understand the detection
+  3. Examine log.cs1 and log.cs2 fields for additional threat context and classification
+  4. Verify if the task creation was part of legitimate administrative activity
+  5. Check the affected host (origin.host) for other persistence mechanisms:
+     - Registry run keys
+     - Startup folder items
+     - Services
+     - WMI event subscriptions
+  6. Review log.deviceTime for timeline analysis and correlate with other security events
+  7. If confirmed malicious:
+     - Disable or remove the scheduled task immediately
+     - Scan the system for additional malware components
+     - Check if the malware has spread to other systems
+     - Preserve evidence and initiate incident response procedures
+where: |
+  (containsAll("log.msg", ["scheduled", "task"]) ||
+   contains("log.msg", ["schtasks", "schedule"]) ||
+   contains("log.msg", ["scheduled", "task"]) ||
+   contains("log.cs2", "persist") ||
+   contains("log.fname", "\\Tasks\\") ||
+   contains("log.cat", "persistence")) &&
+  (exists("log.signatureID") ||
+   oneOf("log.cs1", ["infected", "suspicious"]) ||
+   exists("log.cefDeviceSeverity"))
+groupBy:
+  - origin.host

@@ -1,0 +1,50 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - suricata
+name: DNS TXT Record Contains Execution Strings
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Command and Control
+technique: "T1071.004 - Application Layer Protocol: DNS"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1071/004/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/network/dns/net_dns_susp_txt_exec_strings.yml
+description: |
+  Detects DNS TXT record responses containing Windows command execution strings such as IEX, Invoke-Expression, cmd.exe, powershell, and other execution indicators. This technique is used for DNS-based C2 payload delivery where commands are encoded in DNS TXT records and executed by the compromised host.
+
+  Next Steps:
+  1. Capture and decode the full DNS TXT record content
+  2. Analyze the payload for specific commands being delivered
+  3. Isolate the host requesting these DNS records
+  4. Block the queried domain at the DNS resolver
+  5. Check for evidence of command execution on the endpoint
+  6. Review DNS logs for similar queries from other hosts
+  7. Perform endpoint forensics to identify the malware requesting these records
+where: |
+  equals("log.eventType", "dns") &&
+  equals("log.dns.type", "answer") &&
+  exists("log.dns.answers") &&
+  (
+    contains("log.dns.answers", "IEX") ||
+    contains("log.dns.answers", "Invoke-Expression") ||
+    contains("log.dns.answers", "cmd.exe") ||
+    contains("log.dns.answers", "powershell") ||
+    contains("log.dns.answers", "cmd /c") ||
+    contains("log.dns.answers", "Start-Process") ||
+    contains("log.dns.answers", "DownloadString") ||
+    contains("log.dns.answers", "DownloadFile") ||
+    contains("log.dns.answers", "Net.WebClient") ||
+    contains("log.dns.answers", "FromBase64String") ||
+    contains("log.dns.answers", "/bin/bash") ||
+    contains("log.dns.answers", "/bin/sh") ||
+    contains("log.dns.answers", "wget ") ||
+    contains("log.dns.answers", "curl ")
+  ) &&
+  exists("origin.ip")
+groupBy:
+  - lastEvent.log.dns.query
+  - adversary.ip

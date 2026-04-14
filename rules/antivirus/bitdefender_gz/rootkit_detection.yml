@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-bitdefender-gz
+name: Rootkit Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1014 - Rootkit"
+adversary: origin
+references:
+  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://attack.mitre.org/techniques/T1014/
+description: |
+  Detects rootkit infections and kernel-level threats that attempt to hide malicious activity at the system level using Bitdefender GravityZone's advanced detection capabilities.
+  
+  Next Steps:
+  1. Immediately isolate the affected system from the network to prevent lateral movement
+  2. Capture a memory dump and disk image for forensic analysis
+  3. Check for signs of privilege escalation or kernel-level modifications
+  4. Review system logs for any suspicious driver installations or kernel module loading
+  5. Scan other systems in the same network segment for similar infections
+  6. Consider rebuilding the system from a known clean state as rootkits can be difficult to fully remove
+  7. Review how the rootkit was initially delivered (email attachment, exploit kit, etc.)
+  8. Update all security software and operating system patches
+where: |
+  equals("log.eventType", "malware_detected") &&
+  oneOf("log.severity", ["high", "critical"]) &&
+  (
+    contains("log.restData", ["rootkit", "kernel", "tdss", "zeroaccess",
+      "necurs", "bootkit", "alureon", "rustock", "sinowal"]) ||
+    contains("log.requested", "rootkit") ||
+    equals("log.signatureID", "rootkit")
+  )
+groupBy:
+  - lastEvent.log.hostId
+  - lastEvent.log.signatureID

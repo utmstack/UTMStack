@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Systemd Timer Persistence Mechanism
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1053.003 - Scheduled Task/Job: Cron"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1053/003/
+  - https://www.freedesktop.org/software/systemd/man/systemd.timer.html
+description: |
+  Detects creation or modification of systemd timer units which can be used as a persistence mechanism. Systemd timers are an alternative to cron and can execute commands on a schedule.
+
+  Next Steps:
+  1. Review the timer unit file and associated service unit
+  2. Check the OnCalendar or OnBoot directives for scheduling
+  3. Examine the ExecStart command in the associated service
+  4. Verify the timer was created by an authorized administrator
+  5. Compare against baseline of known legitimate timers
+  6. If unauthorized, disable the timer and investigate
+where: |
+  (contains("log.process", "systemctl") || contains("log.process", "systemd")) &&
+  contains("log.message", ".timer") &&
+  (contains("log.message", "Created symlink") || contains("log.message", "enable") ||
+   contains("log.message", "started") || contains("log.message", "Reloading") ||
+   contains("log.message", "loaded"))
+groupBy:
+  - origin.host
+  - origin.user

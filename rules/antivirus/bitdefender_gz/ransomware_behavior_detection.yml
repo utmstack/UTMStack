@@ -1,0 +1,44 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-bitdefender-gz
+name: Ransomware Behavior Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Impact
+technique: "T1486 - Data Encrypted for Impact"
+adversary: origin
+references:
+  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://attack.mitre.org/techniques/T1486/
+description: |
+  Detects ransomware behavior patterns including file encryption attempts, mass file modifications, and ransomware-specific malware types detected by Bitdefender GravityZone.
+  
+  Next Steps:
+  1. Immediately isolate the affected system from the network to prevent spread
+  2. Check for recent backup availability and integrity
+  3. Review process execution history on the affected host
+  4. Look for suspicious file modifications or mass encryption activities
+  5. Check for ransomware notes or changed file extensions
+  6. Investigate the source of infection (email attachments, downloads, RDP compromise)
+  7. Scan other systems for similar indicators
+  8. Consider engaging incident response team for containment and recovery
+where: |
+  (contains("log.message", ["ransomware", "ransom", "locky", "cerber",
+    "wannacry", "petya", "ryuk", "sodinokibi", "maze"]) ||
+   contains("log.signatureID", "ransomware") ||
+   (equals("log.severity", "10") && contains("log.eventType", "malware"))) &&
+  exists("log.severity")
+afterEvents:
+  - indexPattern: v11-log-antivirus-bitdefender-gz-*
+    with:
+      - field: log.hostId
+        operator: filter_term
+        value: '{{.log.hostId}}'
+    within: now-10m
+    count: 5
+groupBy:
+  - lastEvent.log.hostId
+  - lastEvent.log.signatureID

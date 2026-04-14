@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-esmc-eset
+name: ESET Blocked Suspicious PowerShell Activity
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Execution
+technique: "T1059.001 - Command and Scripting Interpreter: PowerShell"
+adversary: origin
+references:
+  - https://help.eset.com/ees/8/en-US/idh_hips_main.html
+  - https://attack.mitre.org/techniques/T1059/001/
+description: |
+  Detects when ESET blocks suspicious PowerShell commands or scripts that exhibit malicious behavior patterns, including obfuscated scripts, encoded commands, or attempts to bypass execution policies. This is a high-priority security event that indicates potential malicious activity was prevented.
+  
+  Next Steps:
+  1. Review the blocked PowerShell command details in the log message
+  2. Identify the user account and process that attempted to execute PowerShell
+  3. Check if this is part of legitimate administrative activity or scripting
+  4. Investigate the source of the PowerShell execution (parent process, script location)
+  5. Look for other suspicious activities from the same host or user
+  6. Consider isolating the affected system if malicious intent is confirmed
+  7. Review and update PowerShell execution policies if needed
+where: regexMatch("log.message", "(?i)(powershell|pwsh)") && equals("log.action", "blocked") && exists("log.headHostname")
+groupBy:
+  - lastEvent.log.headHostname
+  - target.host

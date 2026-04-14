@@ -1,0 +1,25 @@
+* {
+  font-size: .75rem !important;
+}
+
+.span-small-icon i {
+  font-size: 10px !important;
+}
+
+.border-left-danger {
+  border-left: 5px solid #dc3545 !important;
+}
+
+.border-left-success{
+  border-left: 5px solid #28a745 !important;
+}
+
+.border-left-neutral {
+  border-left: 5px solid #6C757D !important;
+}
+
+button {
+  white-space: nowrap;
+}
+
+

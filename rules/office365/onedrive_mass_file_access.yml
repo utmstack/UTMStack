@@ -1,0 +1,75 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: OneDrive Mass File Access Detected
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 2
+category: Data Reconnaissance
+technique: "T1530 - Data from Cloud Storage Object"
+adversary: origin
+references:
+  - https://o365reports.com/2024/01/30/audit-file-access-in-sharepoint-online-using-powershell/
+  - https://attack.mitre.org/techniques/T1530/
+description: |
+  Detects when a user accesses an abnormally high number of files in OneDrive within a short time period (200+ files in 30 minutes), which could indicate automated data collection, reconnaissance, or preparation for data exfiltration. This behavior is often associated with insider threats, compromised accounts, or malicious scripts designed to harvest sensitive data from cloud storage.
+  
+  Next Steps:
+  1. Immediately verify the legitimacy of the user account and check for signs of compromise
+  2. Review the specific files accessed to determine sensitivity and business impact
+  3. Check for concurrent suspicious activities like bulk downloads or external sharing
+  4. Examine authentication logs for unusual login patterns or locations
+  5. Verify if the access pattern aligns with the user's normal work responsibilities
+  6. Consider temporarily restricting the user's OneDrive access pending investigation
+  7. Review OneDrive sharing permissions and external access configurations
+  8. Check for any automated tools or scripts that might be accessing the files
+  9. Correlate with other security events from the same user or IP address
+  10. Document findings and escalate to incident response team if malicious activity is confirmed
+where: |
+  oneOf("action", ["FileAccessed", "FileAccessedExtended", "FilePreviewed"]) && exists("origin.user") && equals("log.Workload", "OneDrive")
+afterEvents:
+  - indexPattern: v11-log-o365-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: action
+        operator: filter_term
+        value: 'FileAccessed'
+      - field: log.Workload
+        operator: filter_term
+        value: 'OneDrive'
+    within: now-30m
+    count: 67
+    or:
+      - indexPattern: v11-log-o365-*
+        with:
+          - field: origin.user
+            operator: filter_term
+            value: '{{.origin.user}}'
+          - field: action
+            operator: filter_term
+            value: 'FileAccessedExtended'
+          - field: log.Workload
+            operator: filter_term
+            value: 'OneDrive'
+        within: now-30m
+        count: 67
+      - indexPattern: v11-log-o365-*
+        with:
+          - field: origin.user
+            operator: filter_term
+            value: '{{.origin.user}}'
+          - field: action
+            operator: filter_term
+            value: 'FilePreviewed'
+          - field: log.Workload
+            operator: filter_term
+            value: 'OneDrive'
+        within: now-30m
+        count: 67
+deduplicateBy:
+  - adversary.user
+  - adversary.ip

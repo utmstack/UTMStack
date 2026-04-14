@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: SentinelOne Behavioral Threat Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Privilege Escalation
+technique: "T1055 - Process Injection"
+adversary: origin
+references:
+  - https://www.sentinelone.com/platform/behavioral-ai/
+  - https://attack.mitre.org/techniques/T1055/
+description: |
+  Detects behavioral threat patterns identified by SentinelOne's AI engine, including suspicious process behaviors, anomalous system calls, and deviations from normal endpoint activity patterns.
+  
+  Next Steps:
+  1. Review the specific behavioral indicator that triggered the alert in log.eventDescription
+  2. Identify the affected host and user account from log.syslogHost and log.destinationUser
+  3. Check if the behavior is associated with legitimate software or administrative activity
+  4. Investigate other recent activities from the same host for signs of compromise
+  5. If confirmed malicious, isolate the endpoint and initiate incident response procedures
+  6. Review SentinelOne console for additional threat details and recommended remediation actions
+  7. Collect memory dumps if process injection or in-memory threats are suspected
+  8. Check for persistence mechanisms that may have been established
+where: (regexMatch("log.eventDescription", "(?i)(behavioral|anomaly|suspicious behavior|abnormal|pattern detected|threat behavior|malicious activity)") || regexMatch("log.eventDescription", "(?i)(process injection|code injection|memory manipulation|hollowing)")) && exists("log.syslogHost") && exists("log.eventDescription")
+groupBy:
+  - lastEvent.log.eventDescription
+  - lastEvent.log.syslogHost

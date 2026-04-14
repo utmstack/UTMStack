@@ -1,0 +1,55 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Suspicious External Sharing Activity
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Data Loss Prevention
+technique: "T1567 - Exfiltration Over Web Service"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/purview/audit-log-activities
+  - https://attack.mitre.org/techniques/T1567/
+description: |
+  Detects unauthorized or suspicious external sharing activities in SharePoint and OneDrive that could indicate data exfiltration attempts or policy violations when sharing sensitive content with external parties.
+  
+  Next Steps:
+  1. Review the shared content and assess its sensitivity level
+  2. Verify if the external sharing was authorized by data owners
+  3. Check if the recipient has legitimate business need for access
+  4. Validate against organizational data sharing policies
+  5. Examine user's recent activity for other suspicious sharing patterns
+  6. Consider revoking access if sharing was unauthorized
+  7. Update DLP policies if needed to prevent future violations
+  8. Document findings and coordinate with data protection team
+where: |
+  (equals("log.Workload", "SharePoint") || equals("log.Workload", "OneDrive")) &&
+  (
+    equals("action", "SharingInvitationCreated") ||
+    equals("action", "AnonymousLinkCreated") ||
+    equals("action", "AnonymousLinkUsed") ||
+    equals("action", "SecureLinkCreated") ||
+    equals("action", "SharingSet") ||
+    equals("action", "CompanyLinkCreated") ||
+    equals("action", "AddedToSecureLink")
+  ) &&
+  equals("actionResult", "Success") &&
+  (
+    equals("log.TargetUserOrGroupType", "Guest") ||
+    contains("log.SiteUrl", "external") ||
+    contains("log.EventData", "AllowExternalSharing")
+  )
+afterEvents:
+  - indexPattern: v11-log-o365-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+    within: now-1h
+    count: 5
+groupBy:
+  - lastEvent.log.ObjectId
+  - adversary.user

@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Privacy Preferences (TCC) Database Tampering
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Privilege Escalation, Defense Evasion
+technique: "T1548 - Abuse Elevation Control Mechanism"
+adversary: origin
+references:
+  - https://www.huntress.com/blog/full-transparency-controlling-apples-tcc
+  - https://attack.mitre.org/techniques/T1548/
+description: |
+  Detects unauthorized modifications to the macOS TCC (Transparency, Consent, and Control) database which controls application privacy permissions. The TCC database manages access permissions for sensitive resources like camera, microphone, location services, and file system access. Unauthorized modifications to this database can allow malicious applications to bypass privacy controls and gain access to sensitive user data.
+
+  Next Steps:
+  1. Investigate the process that modified the TCC database and verify if it's authorized
+  2. Check what specific permissions were modified in the TCC database
+  3. Review recent application installations and permission requests
+  4. Examine system logs for other suspicious activities around the same timeframe
+  5. Verify the integrity of system privacy settings and restore from backup if necessary
+  6. Consider implementing additional monitoring for TCC database access
+where: |
+  (contains("log.eventMessage", "Update Access Record:") && equals("log.subsystem", "com.apple.TCC")) ||
+  (equals("log.process", "sqlite3") && contains("log.eventMessage", "TCC.db")) ||
+  (equals("log.process", "tccutil") && contains("log.eventMessage", "reset")) ||
+  (contains("log.eventMessage", "TCC") && contains("log.eventMessage", "INSERT")) ||
+  (contains("log.eventMessage", "TCC") && contains("log.eventMessage", "UPDATE")) ||
+  (contains("log.eventMessage", "TCC") && contains("log.eventMessage", "DELETE")) ||
+  (equals("log.subsystem", "com.apple.TCC") && equals("log.category", "access") && contains("log.eventMessage", "modification"))
+groupBy:
+  - adversary.host
+  - adversary.user

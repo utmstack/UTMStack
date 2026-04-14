@@ -1,20 +1,19 @@
 package utils
 
 import (
-	"math/rand"
+	"crypto/rand"
+	"math/big"
 )
 
 func GenerateSecret(size int) string {
-	var characters = []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
+	characters := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
+	charLen := big.NewInt(int64(len(characters)))
 
-	var s string
-	for {
-		if len(s) >= size {
-			break
-		}
-
-		s += string(characters[rand.Intn(len(characters))])
+	result := make([]rune, size)
+	for i := 0; i < size; i++ {
+		idx, _ := rand.Int(rand.Reader, charLen)
+		result[i] = characters[idx.Int64()]
 	}
 
-	return s
+	return string(result)
 }

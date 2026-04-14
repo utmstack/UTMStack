@@ -1,0 +1,65 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: TCC Database Manipulation Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation, Defense Evasion
+technique: "T1548 - Abuse Elevation Control Mechanism"
+adversary: origin
+references:
+  - https://interpressecurity.com/resources/report/return-of-the-macos-transparency-consent-and-control-tcc-database-manipulation/
+  - https://www.sentinelone.com/labs/bypassing-macos-tcc-user-privacy-protections-by-accident-and-design/
+  - https://attack.mitre.org/techniques/T1548/
+description: |
+  Detects unauthorized attempts to manipulate the Transparency, Consent, and Control (TCC) database to bypass privacy protections and gain access to protected resources. This detection identifies various methods of TCC database manipulation including direct database modifications, unauthorized access attempts, and privilege escalation through TCC bypass techniques.
+
+  Next Steps:
+  1. Investigate the process attempting to modify the TCC database
+  2. Check if the modification was authorized and expected
+  3. Review system logs for any suspicious activity around the time of detection
+  4. Verify the integrity of the TCC database
+  5. Check for any unauthorized applications that may have gained elevated privileges
+  6. Review recent software installations or system changes
+  7. Consider reimaging the affected system if unauthorized TCC manipulation is confirmed
+where: |
+  (
+    equals("log.process", "tccd") &&
+    (
+      regexMatch("log.eventMessage", ".*unauthorized.*access.*") ||
+      contains("log.eventMessage", "bypass") ||
+      contains("log.eventMessage", "CVE-2020-9934")
+    )
+  ) ||
+  (
+    regexMatch("log.processImagePath", ".*/Library/Application Support/com\\.apple\\.TCC/TCC\\.db.*") &&
+    regexMatch("log.eventMessage", ".*(write|modify|INSERT|UPDATE|DELETE).*") &&
+    !equals("log.process", "tccd")
+  ) ||
+  (
+    contains("log.eventMessage", "TCC.db") &&
+    (
+      regexMatch("log.eventMessage", ".*(sqlite3|INSERT INTO|UPDATE|DELETE FROM).*") ||
+      regexMatch("log.eventMessage", ".*(kTCCServiceDeveloperTool|kTCCServiceScreenCapture|kTCCServiceAccessibility).*")
+    )
+  ) ||
+  (
+    equals("log.subsystem", "com.apple.TCC") &&
+    (
+      contains("log.eventMessage", "Full Disk Access") ||
+      contains("log.eventMessage", "Screen Recording") ||
+      contains("log.eventMessage", "Accessibility")
+    ) &&
+    regexMatch("log.eventMessage", ".*(grant|bypass|override).*")
+  ) ||
+  (
+    exists("log.process") &&
+    regexMatch("log.eventMessage", ".*com\\.apple\\.private\\.tcc\\.manager.*") &&
+    !equals("log.process", "tccd")
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

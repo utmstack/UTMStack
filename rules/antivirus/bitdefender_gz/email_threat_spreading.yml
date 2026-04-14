@@ -1,0 +1,47 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-bitdefender-gz
+name: Email-Based Threat Spreading
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: "T1566 - Phishing"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1566/
+  - https://www.bitdefender.com/business/support/en/77209-135324-event-types.html
+description: |
+  Detects email-based malware spreading including phishing attempts, malicious attachments, and email-borne threats through Bitdefender's Exchange protection. This rule triggers on Exchange-specific malware events and monitors for patterns of email-based threats.
+  
+  Next Steps:
+  1. Investigate the affected email and sender:
+     - Check the sender's email address and domain reputation
+     - Review email headers for spoofing indicators
+     - Analyze attachment hash values if present in log.restData
+     - Check log.severity for threat level assessment
+  2. Review related events:
+     - Look for similar events from the same sender or to other recipients
+     - Check if the email was delivered or blocked
+     - Verify if any users clicked links or opened attachments
+     - Search for the same signatureID across other hosts
+  3. Remediation actions:
+     - If delivered, recall the email from all recipients immediately
+     - Reset credentials if phishing was successful
+     - Block sender domain/IP at email gateway
+     - Update email security policies if needed
+     - Scan affected endpoints for malware if attachments were opened
+     - Update Bitdefender Exchange protection rules
+  4. Investigation commands:
+     - Check host status: Verify log.hostId endpoint protection status
+     - Review product version: Ensure log.productVersion is up to date
+     - Analyze event patterns: Look for unusual log.eventType combinations
+where: |
+  oneOf("log.eventType", ["exchange-malware", "exchange-user-credentials", "exchange-organization-info"]) ||
+  (contains("log.eventType", "exchange") && equals("log.severity", "High")) ||
+  (contains("log.product", "Exchange") && contains("log.eventType", ["malware", "phishing"]))
+groupBy:
+  - lastEvent.log.hostId
+  - lastEvent.log.signatureID

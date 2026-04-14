@@ -1,0 +1,44 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: SentinelOne Endpoint Detection and Response (EDR) Alerts
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://www.sentinelone.com/platform/edr/
+  - https://attack.mitre.org/techniques/T1059/
+  - https://attack.mitre.org/techniques/T1547/
+description: |
+  Critical EDR alerts from SentinelOne including suspicious endpoint activities, unauthorized system changes, malicious command execution, and advanced persistent threat (APT) indicators. These alerts indicate potential security incidents that require immediate investigation.
+  
+  Next Steps:
+  1. Identify the affected endpoint(s) and user accounts involved
+  2. Review the specific threat details and indicators of compromise (IoCs)
+  3. Check for any lateral movement or persistence mechanisms
+  4. Isolate the affected endpoint(s) if necessary
+  5. Collect forensic data and memory dumps if required
+  6. Review related security events from the same host in the last 24-48 hours
+  7. Verify if the detected activity is legitimate or false positive
+  8. If confirmed malicious, initiate incident response procedures
+  9. Update security controls and detection rules based on findings
+  10. Document the incident and lessons learned
+where: |
+  (
+    regexMatch("log.eventDescription", "(?i)(edr|endpoint detection|endpoint alert|endpoint threat|endpoint incident|suspicious endpoint|compromised endpoint|endpoint breach|endpoint attack)") ||
+    regexMatch("log.message", "(?i)(edr alert|endpoint response|incident response|threat response)")
+  ) &&
+  (
+    regexMatch("log.eventDescription", "(?i)(critical|high|severe|malicious|unauthorized|breach)") ||
+    exists("log.destinationUser") ||
+    exists("log.endpointDeviceName")
+  ) &&
+  exists("log.syslogHost")
+groupBy:
+  - lastEvent.log.endpointDeviceName
+  - lastEvent.log.syslogHost

@@ -1,0 +1,42 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: SystemD Unit File Attack Detected
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Persistence, Privilege Escalation
+technique: "T1543.002 - Create or Modify System Process: Systemd Service"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1543/002/
+  - https://www.linuxjournal.com/content/systemd-service-strengthening
+description: |
+  Detects malicious SystemD unit file creation or modification attempts, including privilege escalation through invalid usernames, suspicious service directives, or attempts to create persistent backdoors through systemd generators or malicious service configurations.
+  
+  Next Steps:
+  1. Investigate the user account attempting to modify systemd unit files
+  2. Examine the specific unit file content for malicious directives
+  3. Check for any new services that were created or started
+  4. Review system logs for privilege escalation attempts
+  5. Verify the legitimacy of any new systemd generators
+  6. Check file permissions and ownership of modified unit files
+  7. Look for persistence mechanisms in systemd configuration
+  8. Consider isolating the affected system if malicious activity is confirmed
+where: |
+  (equals("log.process", "systemd") || equals("log.process", "systemctl")) &&
+       (
+         (contains("log.message", "Failed to parse user") && regexMatch("log.message", "[0-9].*")) ||
+         (contains("log.message", "unit file") && 
+          (contains("log.message", "ExecStart") || contains("log.message", "ExecStartPre") || contains("log.message", "ExecStartPost")) && 
+          (contains("log.message", "/tmp/") || contains("log.message", "/dev/shm/") || contains("log.message", "bash -c") || contains("log.message", "sh -c"))) ||
+         (contains("log.message", "User=") && regexMatch("log.message", "User=[0-9].*")) ||
+         (contains("log.message", "systemd-generator") && (contains("log.message", "created") || contains("log.message", "modified"))) ||
+         contains("log.message", "NoNewPrivileges=false") ||
+         contains("log.message", "ProtectSystem=false")
+       )
+groupBy:
+  - origin.host
+  - origin.user

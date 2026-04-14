@@ -1,0 +1,24 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: "Microsoft 365 Exchange Anti-Phish Policy Deletion"
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: "Initial Access"
+technique: "T1566 - Phishing"
+adversary: origin
+description: "Adversaries may send phishing messages to gain access to victim systems. All forms of phishing are electronically delivered social engineering. Phishing can be targeted, known as spearphishing. In spearphishing, a specific individual, company, or industry will be targeted by the adversary. More generally, adversaries can conduct non-targeted phishing, such as in mass malware spam campaigns.<br>
+              Adversaries may send victims emails containsing malicious attachments or links, typically to execute malicious code on victim systems. Phishing may also be conducted via third-party services, like social media platforms. Phishing may also involve social engineering techniques, such as posing as a trusted source.<br>
+              Identifies the deletion of an anti-phishing policy in Microsoft 365. By default, Microsoft 365 includes built-in features that help protect users from phishing attacks. Anti-phishing polices increase this protection by refining settings to better detect and prevent attacks."
+references:
+  - "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/set-up-anti-phishing-policies?view=o365-worldwide"
+  - "https://attack.mitre.org/techniques/T1566/"
+  - "https://attack.mitre.org/tactics/TA0001/"
+where: |
+  equals("log.Workload", "Exchange") && equals("action", "Remove-AntiPhishPolicy") && oneOf("actionResult", ["Success","PartiallySucceeded","True"])
+groupBy:
+  - adversary.ip
+  - adversary.user

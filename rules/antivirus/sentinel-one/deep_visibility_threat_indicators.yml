@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: Deep Visibility Threat Indicators
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1070 - Indicator Removal on Host"
+adversary: origin
+references:
+  - https://www.sentinelone.com/blog/rapid-threat-hunting-with-deep-visibility-feature-spotlight/
+  - https://attack.mitre.org/techniques/T1070/
+description: |
+  Detects advanced threat indicators through SentinelOne's deep visibility monitoring. This rule triggers when specific threat-related events are detected in the SentinelOne logs.
+  
+  Next Steps:
+  1. Review the event description to understand the specific threat indicator
+  2. Check the affected host (syslogHost) for signs of compromise
+  3. Investigate any associated user accounts (sourceUser, destinationUser)
+  4. Review source IP addresses for suspicious origins
+  5. Check if this is part of a larger attack campaign
+  6. Consider isolating the affected endpoint if threat is confirmed
+where: |
+  exists("log.eventDescription") &&
+  (
+    contains("log.eventDescription", ["malware detected", "threat detected", "malicious file", "malicious process",
+      "exploit detected", "ransomware detected", "trojan detected", "backdoor detected", "rootkit detected",
+      "cryptominer detected", "worm detected", "spyware detected"]) ||
+    (contains("log.eventDescription", "threat") && oneOf("log.threatClassification", ["Malware", "Exploit", "Ransomware", "Trojan", "PUP"])) ||
+    (contains("log.eventDescription", "malicious") && exists("log.threatId"))
+  ) &&
+  exists("log.syslogHost")
+groupBy:
+  - lastEvent.log.eventDescription
+  - lastEvent.log.syslogHost

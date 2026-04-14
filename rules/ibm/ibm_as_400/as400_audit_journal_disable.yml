@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - ibm-as400
+name: IBM AS/400 Audit Journal Disabling Detection
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1562.002 - Impair Defenses: Disable Windows Event Logging"
+adversary: origin
+references:
+  - https://www.ibm.com/docs/en/i/7.5?topic=auditing-changing-security
+  - https://attack.mitre.org/techniques/T1562/002/
+description: |
+  Detects attempts to disable or modify IBM AS/400 security auditing via CHGAUD, QAUDCTL, or QAUDLVL system value changes. Attackers disable auditing to cover their tracks.
+
+  Next Steps:
+  1. Verify the audit configuration change was authorized
+  2. Re-enable auditing immediately if unauthorized
+  3. Check QAUDJRN journal for recent entries before the change
+  4. Review system activity during the audit gap
+  5. Restrict CHGAUD and system value change authority
+  6. Implement monitoring for audit control system values
+where: |
+  exists("log.message") &&
+  (
+    contains("log.message", "CHGAUD") ||
+    (contains("log.message", "QAUDCTL") && contains("log.message", "*NONE")) ||
+    (contains("log.message", "QAUDLVL") && contains("log.message", "changed")) ||
+    (contains("log.message", "QAUDLVL2") && contains("log.message", "changed")) ||
+    (contains("log.message", "audit") && contains("log.message", "disabled")) ||
+    (contains("log.message", "QAUDJRN") && contains("log.message", "DLTJRN")) ||
+    contains("log.message", "CHGSYSVAL SYSVAL(QAUDCTL) VALUE('*NONE')")
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

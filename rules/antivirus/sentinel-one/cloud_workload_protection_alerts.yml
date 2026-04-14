@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: SentinelOne Cloud Workload Protection Alert
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Persistence, Privilege Escalation, Initial Access
+technique: "T1078.004 - Valid Accounts: Cloud Accounts"
+adversary: origin
+references:
+  - https://www.sentinelone.com/platform/singularity-cloud-workload-security/
+  - https://attack.mitre.org/techniques/T1078/004/
+description: |
+  Detects cloud workload protection alerts including suspicious cloud API calls, unauthorized cloud resource access, cloud account compromise, or cloud-native threat detection.
+  
+  Next Steps:
+  1. Review the specific cloud workload alert details in the SentinelOne console
+  2. Identify the affected cloud resources (AWS, Azure, GCP) and account involved
+  3. Check for any unauthorized changes to cloud configurations or resources
+  4. Review cloud provider logs for the time period around the alert
+  5. Verify if the activity was authorized or part of legitimate operations
+  6. If suspicious, immediately revoke any compromised credentials or access keys
+  7. Enable additional cloud security monitoring and alerts if not already configured
+  8. Document findings and update incident response procedures as needed
+where: |
+  exists("log.eventDescription") &&
+  contains("log.eventDescription", ["cloud", "aws", "azure", "gcp",
+    "lambda", "s3", "ec2", "workload"]) &&
+  contains("log.eventDescription", ["threat detected", "malicious", "compromise",
+    "breach", "attack detected", "unauthorized access"]) &&
+  (exists("log.threatId") || exists("log.endpointDeviceName"))
+groupBy:
+  - lastEvent.log.accName
+  - target.host

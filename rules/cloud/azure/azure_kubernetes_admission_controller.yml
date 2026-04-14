@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - azure
+name: Azure Kubernetes Admission Webhook Modified
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1078.004 - Valid Accounts: Cloud Accounts"
+adversary: origin
+references:
+  - https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/
+  - https://attack.mitre.org/techniques/T1078/004/
+description: |
+  Detects creation or modification of MutatingAdmissionWebhook or ValidatingAdmissionWebhook configurations in Azure Kubernetes Service. Attackers use admission controllers to inject malicious containers or modify workload specifications.
+
+  Next Steps:
+  1. Review the webhook configuration and its target service
+  2. Verify the webhook was created as part of a legitimate deployment
+  3. Check the webhook's namespace selector and object selector
+  4. Examine what resources the webhook intercepts (pods, deployments, etc.)
+  5. If unauthorized, delete the webhook and audit all recent pod deployments
+  6. Review cluster RBAC for excessive admission controller permissions
+where: |
+  contains("log.operationName", "MICROSOFT.CONTAINERSERVICE") &&
+  (contains("log.properties", "MutatingWebhookConfiguration") || contains("log.properties", "ValidatingWebhookConfiguration")) &&
+  (contains("log.properties", "create") || contains("log.properties", "update") || contains("log.properties", "patch"))
+groupBy:
+  - lastEvent.log.resourceId
+  - adversary.user

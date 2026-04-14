@@ -1,0 +1,54 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - deceptive-bytes
+name: Zero-Day Behavior Patterns Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1211 - Exploitation for Defense Evasion"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1211/
+  - https://attack.mitre.org/techniques/T1055/
+  - https://attack.mitre.org/techniques/T1620/
+description: |
+  Identifies potential zero-day exploits and unknown malware through abnormal behavior patterns, deception interactions, and anomaly detection in endpoint activities.
+  
+  Next Steps:
+  1. Immediately isolate the affected system from the network to prevent lateral movement
+  2. Capture memory dumps and process information for forensic analysis
+  3. Check for similar behavioral anomalies on other endpoints in the same network segment
+  4. Review the exploit technique and process chain to understand the attack vector
+  5. Submit samples to threat intelligence platforms for analysis
+  6. Update security controls based on the identified exploit patterns
+  7. Document all IOCs (file hashes, network connections, process behaviors) for threat hunting
+where: |
+  oneOf("log.eventType", ["unknown_threat", "behavioral_anomaly", "zero_day_suspect"]) &&
+  equals("log.threatSignature", "unknown") &&
+  equals("log.deceptionEnvironment", true) &&
+  (
+    (greaterOrEqual("log.memoryAnomalyScore", 90)) ||
+    (greaterOrEqual("log.processChainAnomalyScore", 85)) ||
+    (greaterOrEqual("log.networkBehaviorScore", 88)) ||
+    (greaterOrEqual("log.fileSystemAnomalyScore", 92))
+  ) &&
+  equals("log.knownMalwareFamily", "") &&
+  exists("log.exploitTechnique")
+afterEvents:
+  - indexPattern: v11-log-deceptive-bytes-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.processName
+        operator: filter_term
+        value: '{{.log.processName}}'
+    within: now-30m
+    count: 2
+groupBy:
+  - lastEvent.log.exploitTechnique
+  - lastEvent.log.processHash
+  - adversary.host

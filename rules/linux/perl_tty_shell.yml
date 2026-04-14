@@ -1,0 +1,21 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: "System Linux: Interactive Terminal Spawned via Perl"
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: "Execution"
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+description: "Identifies when a terminal (tty) is spawned via Perl. Attackers may upgrade a simple reverse shell to a fully
+              interactive tty after obtaining initial access to a host."
+references:
+  - "https://attack.mitre.org/tactics/TA0002/"
+  - "https://attack.mitre.org/techniques/T1059/"
+where: regexMatch("log.message", "(perl)") && regexMatch("log.message", "(exec \\'/bin/sh\\';|exec \\'/bin/dash\\';|exec \\'/bin/bash\\';)")
+groupBy:
+  - origin.ip
+  - origin.user

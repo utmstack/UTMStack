@@ -1,0 +1,41 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-bitdefender-gz
+name: Advanced Persistent Threat (APT) Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Command and Control
+technique: "TA0011 - Application Layer Protocol"
+adversary: origin
+references:
+  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://attack.mitre.org/tactics/TA0011/
+description: |
+  Detects indicators of Advanced Persistent Threats including targeted attacks, sophisticated malware, and persistent threats detected by Bitdefender GravityZone's HyperDetect module.
+  
+  Next Steps:
+  - Investigate the affected endpoint to determine the scope of compromise
+  - Review process execution history and network connections from the affected system
+  - Check for lateral movement by examining authentication logs from the same source IP
+  - Isolate the affected system if active threat is confirmed
+  - Collect forensic artifacts including memory dumps and event logs
+  - Search for similar malware indicators across the environment
+  - Review user account activities for signs of credential compromise
+  - Contact security operations center if threat actors match known APT groups
+where: |
+  equals("log.product", "Bitdefender GravityZone") &&
+  greaterOrEqual("log.severity", 8) &&
+  (
+    contains("log.eventType", ["apt", "targeted", "advanced", "persistent", "hyperdetect"]) ||
+    contains("log.restData", ["apt", "targeted attack", "advanced persistent",
+      "lazarus", "equation", "sofacy", "cozy bear", "fancy bear",
+      "panda", "kitten", "carbanak", "fin7", "fileless"]) ||
+    equals("log.signatureID", "hyperdetect")
+  ) &&
+  exists("log.hostId")
+groupBy:
+  - lastEvent.log.eventType
+  - lastEvent.log.hostId

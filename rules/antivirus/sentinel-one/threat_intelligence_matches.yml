@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: Threat Intelligence Matches
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 2
+category: Execution
+technique: "T1203 - Exploitation for Client Execution"
+adversary: origin
+references:
+  - https://www.sentinelone.com/blog/decrypting-sentinelone-cloud-detection-the-threat-intelligence-engine-in-real-time-cwpp/
+  - https://attack.mitre.org/techniques/T1203/
+description: |
+  Detects matches against threat intelligence feeds including known malicious hashes, IPs, domains, and behavioral patterns associated with APT groups and cybercrime campaigns. This indicates that SentinelOne has identified a file, behavior, or network connection that matches known threat indicators.
+  
+  Next Steps:
+  1. Immediately isolate the affected endpoint to prevent lateral movement
+  2. Review the threat intelligence match details to understand the specific indicator that was matched
+  3. Check if the same hash or threat indicator has been seen on other endpoints
+  4. Investigate the process tree and parent processes that led to this detection
+  5. Review network connections from the affected host for potential C2 communications
+  6. If a file hash match, search for the same hash across all endpoints
+  7. Contact threat intelligence team for additional context on the matched indicator
+  8. Preserve forensic evidence before remediation
+  9. Review file reputation scores and threat classification details
+  10. Analyze the timeline of events leading to the threat intelligence match
+  11. Check for any related indicators of compromise (IoCs) in the environment
+  12. Verify if this is a false positive by cross-referencing with other security tools
+where: exists("log.externalthreatvalue") || (exists("log.filecontenthash") && greaterOrEqual("log.confidencelevel", 90)) || contains("log.dveventtype", "threat_intel") || contains("log.eventDescription", "reputation")
+groupBy:
+  - lastEvent.log.externalthreatvalue
+  - lastEvent.log.filecontenthash
+  - lastEvent.log.syslogHost

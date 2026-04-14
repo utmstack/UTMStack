@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - deceptive-bytes
+name: Living Off The Land Attack Using Deceptive Resources
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1218 - Signed Binary Proxy Execution"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1218/
+  - https://attack.mitre.org/techniques/T1053/
+  - https://lolbas-project.github.io/
+  - https://deceptivebytes.com/solution/
+description: |
+  Detects when attackers use legitimate system tools and binaries to interact with deceptive resources, indicating Living Off The Land (LOLBins) attack techniques. This is a high-confidence indicator of malicious activity as legitimate users should not be accessing deceptive resources with system binaries.
+  
+  Next Steps:
+  1. Immediately isolate the affected system to prevent lateral movement
+  2. Review the process execution chain to identify the parent process and any child processes
+  3. Check if the user account is compromised by reviewing recent authentication logs
+  4. Examine command line arguments and scripts executed by the LOLBin
+  5. Search for other deceptive resource interactions from the same user or system
+  6. Collect memory dump if possible for forensic analysis
+  7. Review network connections made by the process for C2 communication
+  8. Check for persistence mechanisms (scheduled tasks, registry modifications, services)
+where: equals("log.event_type", "lolbin_trap") && oneOf("log.process_name", ["powershell.exe", "cmd.exe", "wmic.exe", "mshta.exe", "rundll32.exe", "regsvr32.exe", "certutil.exe", "bitsadmin.exe"]) && exists("log.deceptive_target")
+groupBy:
+  - lastEvent.log.deceptive_target
+  - adversary.host
+  - adversary.user

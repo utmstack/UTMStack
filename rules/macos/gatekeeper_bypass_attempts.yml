@@ -1,0 +1,58 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Gatekeeper Bypass Attempt Detected
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1553.001 - Subvert Trust Controls: Gatekeeper Bypass"
+adversary: origin
+references:
+  - https://book.hacktricks.wiki/en/macos-hardening/macos-security-and-privilege-escalation/macos-security-protections/macos-gatekeeper.html
+  - https://redcanary.com/blog/threat-detection/gatekeeper/
+  - https://attack.mitre.org/techniques/T1553/001/
+description: |
+  Detects attempts to bypass Gatekeeper security checks through database manipulation, quarantine attribute removal, or exploitation of assessment vulnerabilities. Gatekeeper is a macOS security feature that verifies downloaded applications before they run, and bypassing it can allow malicious software to execute without proper verification.
+
+  Next Steps:
+  1. Immediately examine the affected system for unauthorized applications or modifications
+  2. Check system logs for unusual file downloads or installations around the time of the bypass attempt
+  3. Verify the integrity of applications in /Applications and ~/Applications directories
+  4. Review quarantine database (/var/db/SystemPolicy) for unauthorized modifications
+  5. Check for persistence mechanisms that might have been installed by bypassing Gatekeeper
+  6. Scan the system for malware using updated antivirus signatures
+  7. Consider reimaging the system if compromise is confirmed
+  8. Review user accounts and privileges for unauthorized changes
+  9. Monitor network traffic for suspicious outbound connections
+  10. Document the incident and update security policies as needed
+where: |
+  (
+    equals("log.process", "syspolicyd") && 
+    (
+      regexMatch("log.eventMessage", ".*assessment.*bypass.*") ||
+      regexMatch("log.eventMessage", ".*quarantine.*removed.*") ||
+      regexMatch("log.eventMessage", ".*GKE.*override.*")
+    )
+  ) ||
+  (
+    regexMatch("log.eventMessage", ".*xattr.*-d.*com\\.apple\\.quarantine.*") &&
+    equals("log.eventType", "logEvent")
+  ) ||
+  (
+    regexMatch("log.processImagePath", ".*/var/db/SystemPolicy.*") &&
+    regexMatch("log.eventMessage", ".*(modify|write|delete).*")
+  ) ||
+  (
+    equals("log.subsystem", "com.apple.security.assessment") &&
+    (contains("log.eventMessage", "bypass") || contains("log.eventMessage", "override") || contains("log.eventMessage", "disable"))
+  ) ||
+  (
+    equals("log.process", "spctl") &&
+    contains("log.eventMessage", "--disable")
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

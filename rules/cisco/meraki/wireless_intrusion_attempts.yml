@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-meraki
+name: Wireless Intrusion Attempts
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Reconnaissance
+technique: "T1595.002 - Active Scanning: Vulnerability Scanning"
+adversary: origin
+references:
+  - https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples
+  - https://attack.mitre.org/techniques/T1595/002/
+description: |
+  Detects wireless intrusion attempts including deauthentication attacks, association floods, and other wireless-specific attack patterns that could compromise the wireless network integrity.
+
+  Next Steps:
+  1. Review the wireless access point logs for the affected device
+  2. Identify the source MAC address and physical location if possible
+  3. Check for unauthorized devices or rogue access points in the vicinity
+  4. Verify wireless security configurations and update if necessary
+  5. Consider implementing additional wireless monitoring and detection capabilities
+  6. Document the incident and update security policies if needed
+where: |
+  equals("log.eventType", "wids_alerted") ||
+  (equals("log.type", "airmarshal_events") && 
+   (contains("log.subtype", "attack") || 
+    contains("log.subtype", "flood") ||
+    contains("log.subtype", "deauth"))) ||
+  (contains("log.message", "deauthentication attack") ||
+   contains("log.message", "association flood") ||
+   contains("log.message", "wireless intrusion"))
+deduplicateBy:
+  - adversary.ip
+  - target.mac

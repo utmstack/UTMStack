@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Office 365 Safe Attachment Policy Violation
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: "T1566.001 - Phishing: Spearphishing Attachment"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/defender-office-365/safe-attachments-about
+  - https://attack.mitre.org/techniques/T1566/001/
+description: |
+  Detects violations of Safe Attachment policies including malicious files blocked during detonation, policy modifications that reduce protection, or attempts to bypass attachment scanning that could lead to malware delivery. This rule identifies when Safe Attachment policies are modified, disabled, or when malicious attachments are detected and blocked by Office 365 security controls.
+
+  Next Steps:
+  1. Review the specific Safe Attachment policy change or violation that occurred
+  2. Verify if the policy modification was authorized and legitimate
+  3. Check if any malicious attachments were successfully blocked or if any bypassed controls
+  4. Investigate the user account that performed the action for signs of compromise
+  5. Review email logs for any related suspicious email activity
+  6. Validate current Safe Attachment policy configurations are properly restrictive
+  7. Consider implementing additional email security controls if gaps are identified
+where: |
+  oneOf("action", ["Set-SafeAttachmentPolicy", "Remove-SafeAttachmentPolicy", "Disable-SafeAttachmentRule"]) &&
+  equals("actionResult", "Success")
+groupBy:
+  - lastEvent.action
+  - adversary.user

@@ -66,5 +66,7 @@ public enum ModuleName {
     ORACLE,
     SURICATA,
     UTMSTACK,
-    CROWDSTRIKE
+    CROWDSTRIKE,
+    SYSLOG_GENERIC,
+    WINDOWS_EVENTS
 }

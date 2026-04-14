@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Threat Intelligence Alert Pattern
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: Phishing
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/microsoft-365/security/defender/threat-analytics
+  - https://attack.mitre.org/techniques/T1566/
+description: |
+  Detects threat intelligence alerts from Office 365 security services indicating known malicious activities, threat actor patterns, or indicators of compromise matching threat intelligence feeds. These alerts are generated when Microsoft's threat intelligence systems identify suspicious activities, malicious file attachments, URLs, or communication patterns associated with known threat actors.
+
+  Next Steps:
+  1. Immediately review the alert details and associated threat intelligence indicators
+  2. Investigate the affected user account for any compromise indicators
+  3. Check email activity and file access patterns for the affected user
+  4. Verify if any malicious files were opened or downloaded
+  5. Review authentication logs for unusual sign-in patterns
+  6. Examine network connections and data transfer activities
+  7. Check for lateral movement attempts within the organization
+  8. Implement containment measures if compromise is confirmed
+  9. Update security policies and user training based on attack vectors
+  10. Report findings to incident response team and document lessons learned
+where: |
+  equals("action", "ThreatIntelligenceAlertTriggered") || (equals("log.AlertType", "ThreatIntelligence") && !equals("actionResult", "Success"))
+groupBy:
+  - adversary.user
+  - target.user

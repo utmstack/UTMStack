@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-bitdefender-gz
+name: Memory-Based Threat Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Privilege Escalation
+technique: "T1055 - Process Injection"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1055/
+  - https://www.bitdefender.com/business/support/en/77209-135324-event-types.html
+description: |
+  Detects memory-based threats including process injection, memory manipulation, and fileless malware executing in memory based on Bitdefender GravityZone event types.
+  
+  Next Steps:
+  1. Identify the affected process and host using log.hostId and origin.path fields
+  2. Check if the process is legitimate or if it shows signs of compromise
+  3. Review the process tree to identify parent-child relationships
+  4. Look for other suspicious activities on the same host in the last hour
+  5. Collect memory dump if the process is still running
+  6. Analyze network connections from the affected process
+  7. Check for persistence mechanisms on the affected system
+  8. Isolate the host if active malicious behavior is confirmed
+where: |
+  exists("log.eventType") &&
+  (oneOf("log.eventType", ["aph", "antiexploit", "hd"]) ||
+   (exists("origin.path") && contains("origin.path", "memory"))) &&
+  (oneOf("log.severity", ["critical", "high"]) ||
+   exists("log.malwareName") ||
+   exists("log.threatName"))
+groupBy:
+  - lastEvent.log.hostId
+  - adversary.path

@@ -1,0 +1,22 @@
+# Rule version v1.0.1
+
+dataTypes:
+  - "linux"
+name: "System Linux: File Transfer or Listener Established via Netcat"
+impact:
+  confidentiality: 1
+  integrity: 2
+  availability: 3
+category: "Execution"
+technique: "T1059.004 - Command and Scripting Interpreter"
+adversary: target
+description: "A netcat process is engaging in network activity on a Linux host. Netcat is often used as a persistence mechanism by
+              exporting a reverse shell or by serving a shell on a listening port. Netcat is also sometimes used for data
+              exfiltration."
+references:
+  - "https://attack.mitre.org/tactics/TA0002/"
+  - "https://attack.mitre.org/techniques/T1059/004/"
+where: regexMatch("log.message", "((nc|ncat|netcat|netcat.openbsd|netcat.traditional) (-l|-p|-lp|(-e)(.+)(\\/bin\\/bash|\\/bin\\/sh)|(\\/bin\\/bash|\\/bin\\/sh)(.+)(-e)))")
+groupBy:
+  - target.ip
+  - target.user

@@ -1,0 +1,43 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - github
+name: GitHub Sensitive Data Commit Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Collection
+technique: "T1074 - Data Staged"
+adversary: origin
+references:
+  - https://docs.github.com/en/webhooks/webhook-events-and-payloads#push
+  - https://attack.mitre.org/techniques/T1074/
+description: |
+  Detects commits that may contain sensitive data such as API keys, passwords, private keys, or other credentials based on commit message patterns or file names.
+  
+  Next Steps:
+  1. Review the commit content to verify if sensitive data was actually exposed
+  2. Check the repository visibility (public vs private)
+  3. If confirmed, immediately rotate any exposed credentials
+  4. Remove the sensitive data from repository history using git filter-branch or BFG Repo-Cleaner
+  5. Enable GitHub secret scanning for the repository
+  6. Review repository access logs to determine if the exposed data was accessed
+  7. Implement pre-commit hooks to prevent future credential commits
+where: |
+  equals("log.action", "push") &&
+  (contains("log.headCommitAdded", ".pem") ||
+   contains("log.headCommitAdded", ".key") ||
+   contains("log.headCommitAdded", ".p12") ||
+   contains("log.headCommitAdded", ".pfx") ||
+   contains("log.headCommitAdded", "id_rsa") ||
+   contains("log.headCommitAdded", "id_dsa") ||
+   contains("log.headCommitModified", ".pem") ||
+   contains("log.headCommitModified", ".key") ||
+   contains("log.headCommitModified", ".p12") ||
+   contains("log.headCommitModified", ".pfx") ||
+   contains("log.headCommitModified", "id_rsa") ||
+   contains("log.headCommitModified", "id_dsa"))
+groupBy:
+  - lastEvent.log.headCommitId
+  - lastEvent.log.repositoryName

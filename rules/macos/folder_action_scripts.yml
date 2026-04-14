@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Folder Actions Script Abuse
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Persistence
+technique: "T1546.002 - Event Triggered Execution: Screensaver"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1546/002/
+  - https://posts.specterops.io/folder-actions-for-persistence-on-macos-8923f222343d
+description: |
+  Detects abuse of macOS Folder Actions to establish persistence. Folder Actions allow scripts to be attached to folders and execute when files are added, providing a stealthy persistence mechanism.
+
+  Next Steps:
+  1. Review the Folder Action scripts attached to directories
+  2. Check ~/Library/Scripts/Folder Action Scripts/ for suspicious scripts
+  3. Use Folder Actions Setup.app to review attached actions
+  4. Verify the script content for malicious commands
+  5. Remove unauthorized Folder Action scripts
+  6. Check com.apple.FolderActions.plist for modifications
+where: |
+  (contains("log.eventMessage", "Folder Action") || contains("log.eventMessage", "FolderActions") ||
+   contains("log.eventMessage", "com.apple.FolderActions")) &&
+  (contains("log.eventMessage", "attached") || contains("log.eventMessage", "enabled") ||
+   contains("log.eventMessage", "added") || contains("log.eventMessage", "script") ||
+   contains("log.eventMessage", "modified"))
+groupBy:
+  - adversary.host
+  - adversary.user

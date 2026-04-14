@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: OpenShift Security Violations
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Credential Access
+technique: "T1552.007 - Unsecured Credentials: Container API"
+adversary: origin
+references:
+  - https://docs.openshift.com/container-platform/latest/security/index.html
+  - https://attack.mitre.org/techniques/T1552/007/
+description: |
+  Detects security violations in OpenShift Container Platform including unauthorized API access, RBAC violations, security context constraint breaches, and malicious pod deployments. These violations indicate potential security breaches or misconfigurations that could lead to unauthorized access or privilege escalation within the cluster.
+
+  Next Steps:
+  1. Immediately investigate the user account and source IP involved in the violation
+  2. Review the specific OpenShift namespace and resources being accessed
+  3. Check RBAC configurations and Security Context Constraints (SCC) policies
+  4. Examine pod specifications for security violations or privileged access attempts
+  5. Verify API audit logs for additional unauthorized access patterns
+  6. Review admission controller and webhook configurations
+  7. Consider temporarily restricting access for the affected user/service account
+  8. Document findings and update security policies if needed
+where: |
+  (contains("log.service", "openshift") || contains("log.program", "openshift") ||
+   exists("log.kubernetes_component") || contains("log.namespace", "openshift")) &&
+  (
+    contains("log.message", "RBAC violation") ||
+    contains("log.message", "SCC violation") ||
+    contains("log.message", "unauthorized API call") ||
+    contains("log.message", "forbidden") ||
+    contains("log.message", "admission webhook denied") ||
+    contains("log.message", "security policy violation") ||
+    oneOf("log.audit_verb", ["create", "delete", "patch"]) && equals("log.audit_response_code", 403) ||
+    equals("log.event_type", "pod_security_violation") ||
+    equals("log.privileged", true) && !startsWith("log.user", "system:serviceaccount:openshift") ||
+    (oneOf("log.resource", ["secrets", "configmaps", "serviceaccounts"]) && equals("log.verb", "get") && equals("log.response_code", 403))
+  )
+groupBy:
+  - origin.host
+  - origin.user

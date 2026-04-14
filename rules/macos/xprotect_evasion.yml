@@ -1,0 +1,62 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: XProtect Evasion or Tampering Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://www.sentinelone.com/blog/macos-malware-researchers-how-to-bypass-xprotect-on-catalina/
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects attempts to evade or tamper with XProtect malware detection including modification of XProtect files, databases, or YARA rules. XProtect is Apple's built-in antimalware system, and attempts to bypass or disable it indicate potential malicious activity.
+
+  Next Steps:
+  1. Immediately investigate the affected system and user account for signs of compromise
+  2. Check for recently installed software or suspicious downloads that may have triggered the evasion attempt
+  3. Review system logs for other defense evasion activities around the same timeframe
+  4. Verify the integrity of XProtect files and configurations
+  5. Run a comprehensive malware scan using additional security tools
+  6. Consider isolating the affected system if malicious activity is confirmed
+  7. Review user privileges and access controls to prevent unauthorized system modifications
+  8. Document the incident and update security policies if necessary
+where: |
+  (
+    equals("log.subsystem", "com.apple.XProtectFramework") &&
+    (
+      contains("log.eventMessage", "bypass") ||
+      contains("log.eventMessage", "evasion") ||
+      contains("log.eventMessage", "disable")
+    )
+  ) ||
+  (
+    regexMatch("log.processImagePath", ".*/Library/Apple/System/Library/CoreServices/XProtect\\.bundle.*") &&
+    regexMatch("log.eventMessage", ".*(modify|write|delete).*")
+  ) ||
+  (
+    regexMatch("log.eventMessage", ".*XProtect\\.(yara|meta\\.plist|bundle).*") &&
+    (
+      regexMatch("log.eventMessage", ".*(modify|tamper|delete).*") ||
+      !equals("log.process", "XProtectService")
+    )
+  ) ||
+  (
+    equals("log.process", "MRT") &&
+    (contains("log.eventMessage", "kill") || contains("log.eventMessage", "terminate") || contains("log.eventMessage", "stop"))
+  ) ||
+  (
+    regexMatch("log.eventMessage", ".*gk\\.db.*") &&
+    regexMatch("log.eventMessage", ".*(modify|delete|truncate).*")
+  ) ||
+  (
+    equals("log.subsystem", "com.apple.MRT") &&
+    (contains("log.eventMessage", "bypass") || contains("log.eventMessage", "disable") || contains("log.eventMessage", "fail"))
+  )
+groupBy:
+  - lastEvent.log.process
+  - adversary.host

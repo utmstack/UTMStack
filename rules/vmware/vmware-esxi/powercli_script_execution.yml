@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - vmware-esxi
+name: PowerCLI Script Execution Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1059/
+  - https://blogs.vmware.com/vsphere/2013/07/capturing-logins-to-esxi-by-a-root-account.html
+description: |
+  Detects PowerCLI script execution on VMware ESXi hosts by monitoring for authentication events and command execution patterns associated with MS Web Services Client Protocol, which is unique to PowerCLI connections. PowerCLI is VMware's powerful command-line tool that can be used by attackers to perform reconnaissance, lateral movement, or persistence on virtualized infrastructure.
+  
+  Next Steps:
+  1. Verify if the PowerCLI activity is authorized by checking with the VMware administrators
+  2. Review the source IP address and user account to determine if they are legitimate
+  3. Check for any suspicious commands or configuration changes made through PowerCLI
+  4. Review ESXi audit logs for any unauthorized changes to VM configurations or host settings
+  5. If unauthorized, immediately revoke access and investigate the scope of potential compromise
+  6. Consider implementing stricter access controls and monitoring for PowerCLI usage
+where: |
+  regexMatch("log.message", "(?i)MS Web Services Client Protocol") ||
+  (regexMatch("log.message", "(?i)authentication of user") && regexMatch("log.message", "(?i)PowerCLI")) ||
+  (regexMatch("log.process", "(?i)vimsvc") && regexMatch("log.message", "(?i)Auth") && regexMatch("log.message", "(?i)User")) ||
+  (regexMatch("log.message", "(?i)Syslog\\.global\\.log") && regexMatch("log.message", "(?i)Set-VMHost")) ||
+  regexMatch("log.message", "(?i)Get-VMHostSysLogServer")
+groupBy:
+  - adversary.hostname

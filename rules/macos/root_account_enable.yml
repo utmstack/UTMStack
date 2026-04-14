@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: macOS Root Account Enabled
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1078 - Valid Accounts"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1078/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_dsenableroot_enable_root_account.yml
+  - https://support.apple.com/en-us/102367
+description: |
+  Detects the execution of dsenableroot to enable the root account on macOS. The root account is disabled by default on macOS for security. Enabling it grants the highest level of system privileges and is commonly done by attackers for privilege escalation and persistent elevated access.
+
+  Next Steps:
+  1. Verify if the root account activation was authorized by IT administration
+  2. Identify the user and process that ran dsenableroot
+  3. Disable the root account immediately if unauthorized (dsenableroot -d)
+  4. Check for unauthorized logins using the root account
+  5. Review the system for other privilege escalation or persistence mechanisms
+  6. Audit sudo and su usage on the affected system
+where: |
+  contains("log.eventMessage", "dsenableroot") &&
+  !contains("log.eventMessage", "-d")
+groupBy:
+  - adversary.host
+  - adversary.user

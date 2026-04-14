@@ -1,0 +1,46 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - aws
+name: Lambda Function Privilege Escalation
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1548 - Abuse Elevation Control Mechanism"
+adversary: origin
+references:
+  - https://bishopfox.com/blog/privilege-escalation-in-aws
+  - https://attack.mitre.org/techniques/T1548/
+description: |
+  Detects potential privilege escalation through Lambda functions when IAM policies are attached to roles or users that can be exploited. This may indicate an attacker attempting to escalate privileges by attaching administrative policies to Lambda execution roles.
+  
+  Next Steps:
+  1. Verify if the policy attachment was authorized and follows change management procedures
+  2. Review the attached policy permissions, especially if AdministratorAccess or IAMFullAccess policies were attached
+  3. Check the Lambda function's code and recent invocations for suspicious activity
+  4. Review CloudTrail logs for other IAM changes by the same user/role
+  5. Validate if the Lambda function legitimately requires the elevated permissions
+  6. Consider revoking the policy attachment if unauthorized and investigate the source of the change
+  7. Check for any unusual Lambda function executions following the policy attachment
+  8. Review the user/role history for previous privilege escalation attempts
+where: |
+  equals("log.eventSource", "iam.amazonaws.com") &&
+  oneOf("log.eventName", ["AttachRolePolicy", "AttachUserPolicy"]) &&
+  equals("log.errorCode", "") &&
+  (contains("log.requestParameters.policyArn", "AdministratorAccess") || contains("log.requestParameters.policyArn", "IAMFullAccess"))
+afterEvents:
+  - indexPattern: v11-log-aws-*
+    with:
+      - field: log.userIdentity.arn
+        operator: filter_term
+        value: '{{.log.userIdentity.arn}}'
+      - field: log.eventName
+        operator: filter_term
+        value: AttachRolePolicy
+    within: now-1h
+    count: 2
+groupBy:
+  - lastEvent.log.requestParameters.roleArn
+  - lastEvent.log.userIdentity.arn

@@ -28,7 +28,8 @@ func GetCorrelationContext(alert schema.AlertFields) (string, error) {
 func findRelatedAlerts(current schema.AlertFields) (schema.AlertCorrelation, error) {
 	correlation := schema.AlertCorrelation{CurrentAlert: current}
 
-	result, err := elastic.ElasticSearch(config.ALERT_INDEX_PATTERN, "name", current.Name)
+	// Use limited search to avoid fetching thousands of alerts for common alert names
+	result, err := elastic.ElasticSearchWithLimit(config.ALERT_INDEX_PATTERN, "name", current.Name, config.CORRELATION_MAX_ALERTS)
 	if err != nil {
 		return correlation, fmt.Errorf("error getting historical alerts: %v", err)
 	}
@@ -39,13 +40,13 @@ func findRelatedAlerts(current schema.AlertFields) (schema.AlertCorrelation, err
 	}
 
 	for _, hist := range alerts {
-		if hist.ID == current.ID {
+		if hist.Id == current.Id {
 			continue
 		}
 		if related, matches := isAlertRelated(current, hist); related {
 			classif := getAlertClassification(hist.Tags)
 			for _, m := range matches {
-				incrementCount(correlation.Counts, m, classif)
+				incrementCount(&correlation.Counts, m, classif)
 			}
 			correlation.RelatedAlerts = append(correlation.RelatedAlerts, hist)
 		}
@@ -54,7 +55,7 @@ func findRelatedAlerts(current schema.AlertFields) (schema.AlertCorrelation, err
 }
 
 func isAlertRelated(current, historical schema.AlertFields) (bool, []string) {
-	if current.ID == historical.ID || current.Name != historical.Name {
+	if current.Id == historical.Id || current.Name != historical.Name {
 		return false, nil
 	}
 
@@ -69,8 +70,8 @@ func isAlertRelated(current, historical schema.AlertFields) (bool, []string) {
 	if current.Adversary != nil && current.Adversary.User != "" && historical.Adversary != nil && current.Adversary.User == historical.Adversary.User {
 		matches = append(matches, "AdversaryUser")
 	}
-	if current.Target != nil && current.Target.User != "" && historical.Adversary != nil && current.Target.User == historical.Adversary.User {
-		matches = append(matches, "AdversaryUser")
+	if current.Target != nil && current.Target.User != "" && historical.Target != nil && current.Target.User == historical.Target.User {
+		matches = append(matches, "TargetUser")
 	}
 
 	sort.Strings(matches)
@@ -93,25 +94,28 @@ func getAlertClassification(tags []string) string {
 	}
 }
 
-func incrementCount(cnts schema.MatchTypeCounts, matchType, classif string) {
-	var ac schema.AlertCounts
+func incrementCount(cnts *schema.MatchTypeCounts, matchType, classif string) {
+	var ac *schema.AlertCounts
 
 	switch matchType {
-	case "SourceIP":
-		ac = cnts.OriginIP
-	case "DestinationIP":
-		ac = cnts.TargetIP
-	case "SourceUser":
-		ac = cnts.OriginUser
-	case "DestinationUser":
-		ac = cnts.TargetUser
+	case "AdversaryIP":
+		ac = &cnts.OriginIP
+	case "TargetIP":
+		ac = &cnts.TargetIP
+	case "AdversaryUser":
+		ac = &cnts.OriginUser
+	case "TargetUser":
+		ac = &cnts.TargetUser
+	default:
+		return
 	}
+
 	switch classif {
 	case "Possible incident":
 		ac.Incidents++
 	case "False positive":
 		ac.FalsePositive++
-	case "Standard Alert":
+	case "Standard alert":
 		ac.Standard++
 	default:
 		ac.Unclassified++
@@ -167,14 +171,14 @@ func translateMatchTypes(types []string) string {
 
 	for _, t := range types {
 		switch t {
-		case "SourceIP":
-			out = append(out, "Source IP")
-		case "DestinationIP":
-			out = append(out, "Destination IP")
-		case "SourceUser":
-			out = append(out, "Source User")
-		case "DestinationUser":
-			out = append(out, "Destination User")
+		case "AdversaryIP":
+			out = append(out, "Adversary IP")
+		case "TargetIP":
+			out = append(out, "Target IP")
+		case "AdversaryUser":
+			out = append(out, "Adversary User")
+		case "TargetUser":
+			out = append(out, "Target User")
 		}
 	}
 	return strings.Join(out, " and ")

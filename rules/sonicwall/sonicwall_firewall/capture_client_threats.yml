@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-sonicwall
+name: SonicWall Capture Client Threat Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Privilege Escalation
+technique: "T1055 - Process Injection"
+adversary: origin
+references:
+  - https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
+  - https://attack.mitre.org/techniques/T1055/
+description: |
+  Detects threats identified by SonicWall Capture Client including advanced malware, zero-day exploits, and sophisticated attack techniques. Capture Client provides advanced threat protection through sandboxing and behavioral analysis.
+
+  Next Steps:
+  1. Immediately isolate the affected host to prevent lateral movement
+  2. Review the specific threat details in SonicWall management console
+  3. Analyze the malware sample if available for attribution and IOCs
+  4. Check for any successful file downloads or executions on the host
+  5. Scan the host with updated antivirus signatures
+  6. Review network traffic for any data exfiltration attempts
+  7. Update security policies if new attack vectors are identified
+where: (contains("log.msg", "Capture Client") || contains("log.app", "Capture") || contains("log.category", "Capture")) && (exists("log.ipscat") || exists("log.ipspri") || exists("log.dpi") || equals("log.action", "drop"))
+groupBy:
+  - adversary.host
+  - adversary.ip

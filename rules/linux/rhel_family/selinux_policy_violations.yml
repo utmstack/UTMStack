@@ -1,0 +1,58 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Critical SELinux Policy Violation
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1068 - Exploitation for Privilege Escalation"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1068/
+  - https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/using_selinux/troubleshooting-problems-related-to-selinux_using-selinux
+description: |
+  Detects critical SELinux policy violations that may indicate privilege escalation attempts, unauthorized access, or malicious activity bypassing mandatory access controls. This rule identifies AVC denials for sensitive capabilities, attempts to access shadow files, modifications to critical system directories, unconfined processes accessing executables, and unauthorized SELinux management commands.
+  
+  Next Steps:
+  1. Immediately review the specific SELinux violation details including source context (scontext), target context (tcontext), and attempted permission
+  2. Identify the process (comm field) and user attempting the action
+  3. Determine if this is legitimate administrative activity or potential attack
+  4. Check system logs around the time of violation for related suspicious activities
+  5. Verify current SELinux enforcement status using 'getenforce' command
+  6. Review recent policy changes and user activities on the affected system
+  7. If malicious, isolate the system and perform forensic analysis
+  8. Update SELinux policies if legitimate access was incorrectly denied
+  9. Monitor for additional violations from the same source
+where: |
+  (
+    equals("log.type", "AVC") &&
+    equals("log.selinux_denied", "denied") &&
+    (
+      (oneOf("log.tclass", ["capability", "capability2", "process", "security"]) && 
+       oneOf("log.permission", ["sys_admin", "sys_module", "sys_ptrace", "setuid", "setgid", "dac_override", "dac_read_search"])) ||
+      (equals("log.tclass", "file") && 
+       contains("log.tcontext", "shadow_t") &&
+       oneOf("log.permission", ["read", "write", "append"])) ||
+      (equals("log.tclass", "dir") &&
+       oneOf("log.path", ["/etc", "/boot", "/usr/lib", "/usr/lib64"]) &&
+       oneOf("log.permission", ["write", "add_name", "remove_name"])) ||
+      (contains("log.scontext", "unconfined_t") &&
+       contains("log.tcontext", "_exec_t")) ||
+      (oneOf("log.comm", ["setenforce", "semodule", "restorecon"]) &&
+       !contains("log.scontext", "unconfined_t"))
+    )
+  ) ||
+  (
+    contains("log.message", "SELinux") &&
+    (
+      contains("log.message", "enforcing") &&
+      contains("log.message", "disabled")
+    )
+  )
+groupBy:
+  - lastEvent.log.scontext
+  - lastEvent.log.tcontext
+  - origin.host

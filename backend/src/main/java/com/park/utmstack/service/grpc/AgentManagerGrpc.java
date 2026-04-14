@@ -111,9 +111,9 @@ public final class AgentManagerGrpc {
       "\n\013origin_type\030\n \001(\t\022\021\n\torigin_id\030\013 \001(\t*W" +
       "\n\022AgentCommandStatus\022\020\n\014NOT_EXECUTED\020\000\022\t" +
       "\n\005QUEUE\020\001\022\013\n\007PENDING\020\002\022\014\n\010EXECUTED\020\003\022\t\n\005" +
-      "ERROR\020\0042\234\003\n\014AgentService\0229\n\013UpdateAgent\022" +
-      "\023.agent.AgentRequest\032\023.agent.AuthRespons" +
-      "e\"\000\022;\n\rRegisterAgent\022\023.agent.AgentReques" +
+      "ERROR\020\0042\234\003\n\014AgentService\022;\n\rRegisterAgen" +
+      "t\022\023.agent.AgentRequest\032\023.agent.AuthRespo" +
+      "nse\"\000\0229\n\013UpdateAgent\022\023.agent.AgentReques" +
       "t\032\023.agent.AuthResponse\"\000\022:\n\013DeleteAgent\022" +
       "\024.agent.DeleteRequest\032\023.agent.AuthRespon" +
       "se\"\000\022=\n\nListAgents\022\022.agent.ListRequest\032\031" +

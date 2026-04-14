@@ -1,0 +1,42 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-bitdefender-gz
+name: Bitdefender GravityZone High Severity Threat Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1204.002 - User Execution: Malicious File"
+adversary: origin
+references:
+  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://attack.mitre.org/techniques/T1204/002/
+  - https://attack.mitre.org/techniques/T1055/
+description: |
+  Detects high-severity malware threats identified by Bitdefender GravityZone that require immediate attention. This rule triggers on severity levels 8-10, which indicate critical threats such as trojans, ransomware, rootkits, or other advanced malware.
+  
+  Next Steps:
+  1. Immediately isolate the affected endpoint(s) from the network to prevent lateral movement
+  2. Review the threat details in Bitdefender GravityZone console:
+     - Check threat name and malware type from the event details
+     - Verify the affected file path and process information
+     - Review the action taken by Bitdefender (quarantine, delete, etc.)
+  3. Investigate the source of infection:
+     - Check origin.ip and origin.path for the malware source
+     - Review recent user activity and email attachments
+     - Look for similar threats on other endpoints
+  4. Perform forensic analysis:
+     - Collect memory dumps if rootkit or fileless malware is suspected
+     - Check for persistence mechanisms (registry, scheduled tasks, services)
+     - Review network connections from the affected host
+  5. Remediation actions:
+     - Ensure Bitdefender has successfully cleaned/quarantined the threat
+     - Run full system scan on affected and neighboring systems
+     - Update antivirus signatures and security policies
+     - Consider reimaging if system integrity is compromised
+where: oneOf("log.severity", ["8", "9", "10"]) && oneOf("log.eventType", ["avc", "malware_detected", "av"])
+groupBy:
+  - lastEvent.log.signatureID
+  - lastEvent.log.syslogHostIP

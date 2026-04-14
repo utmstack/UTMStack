@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-esmc-eset
+name: ESET Network Attack Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Initial Access
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references:
+  - https://help.eset.com/ees/7/en-US/idh_config_epfw_network_attack_protection.html
+  - https://attack.mitre.org/techniques/T1190/
+description: |
+  Detects network-based attacks and exploits blocked by ESET's Network Attack Protection (IDS). This includes attempts to exploit known vulnerabilities in network services and protocols.
+  
+  Next Steps:
+  1. Review the attack details in ESET console to identify the specific vulnerability or attack pattern
+  2. Check if the source IP is known malicious using threat intelligence sources
+  3. Verify if other systems received similar attacks from the same source
+  4. Review firewall logs for additional suspicious activity from the source IP
+  5. Consider blocking the source IP at the perimeter firewall if attacks persist
+  6. Update network security policies and ensure all systems are patched
+where: |
+  equals("log.event_type", "NetworkProtection_Event") &&
+  equals("log.action", "blocked") &&
+  exists("origin.ip")
+groupBy:
+  - adversary.ip
+  - target.host

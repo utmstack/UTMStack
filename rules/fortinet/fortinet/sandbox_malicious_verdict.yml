@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-fortigate-traffic
+name: FortiSandbox Malicious File Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1204 - User Execution"
+adversary: origin
+references:
+  - https://docs.fortinet.com/document/fortisandbox/4.4.0/administration-guide/274898/how-files-determined-to-be-suspicious-low-medium-or-high
+  - https://attack.mitre.org/techniques/T1204/
+description: |
+  Detects when FortiSandbox identifies a file as malicious based on behavioral analysis and static scanning. This indicates active malware attempting to infiltrate the network through file transfers or downloads.
+
+  Next Steps:
+  - Immediately isolate the source IP address and affected systems
+  - Identify the file hash and search for other instances across the network
+  - Review network traffic from the source IP for additional suspicious activity
+  - Check if the malicious file was successfully blocked or if remediation is needed
+  - Update endpoint protection signatures with the identified file hash
+  - Investigate the user account associated with the file download/transfer
+  - Document the incident and notify the security team for further analysis
+where: |
+  (equals("log.subtype", "sandbox") && equals("log.verdict", "malicious")) ||
+  (contains("log.msg", "sandbox verdict: malicious")) ||
+  (equals("log.risk", "high") && equals("log.subtype", "sandbox")) ||
+  (contains("log.msg", "FortiSandbox detected malware")) ||
+  (contains("log.msg", "verdict=malicious")) ||
+  (contains("log.msg", "subtype=sandbox") && contains("log.msg", "malicious"))
+groupBy:
+  - lastEvent.log.filehash
+  - adversary.ip

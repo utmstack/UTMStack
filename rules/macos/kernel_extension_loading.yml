@@ -1,0 +1,69 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Suspicious Kernel Extension Loading Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Persistence, Privilege Escalation
+technique: "T1547.006 - Boot or Logon Autostart Execution: Kernel Modules and Extensions"
+adversary: origin
+references:
+  - https://www.microsoft.com/en-us/security/blog/2025/01/13/analyzing-cve-2024-44243-a-macos-system-integrity-protection-bypass-through-kernel-extensions/
+  - https://attack.mitre.org/techniques/T1547/006/
+description: |
+  Detects suspicious or unauthorized kernel extension (kext) loading attempts that could indicate rootkit installation or system compromise. This rule monitors for kext loading activities that bypass normal security protections, involve unsigned or invalid extensions, or occur in sensitive system directories.
+  
+  Next Steps:
+  1. Investigate the specific kernel extension being loaded and verify its legitimacy
+  2. Check if the extension is signed by a trusted developer
+  3. Review system logs for any related security violations or SIP bypasses
+  4. Examine the process that initiated the kext loading
+  5. Verify if the loading occurred during legitimate system maintenance
+  6. Consider quarantining the system if unauthorized rootkit activity is suspected
+  7. Review system integrity and scan for additional persistence mechanisms
+where: |
+  (
+    regexMatch("log.process", ".*(kextload|kextutil|kextcache).*") &&
+    (
+      contains("log.eventMessage", "load") ||
+      contains("log.eventMessage", "install")
+    ) &&
+    (
+      !regexMatch("log.processImagePath", ".*/System/Library/.*") ||
+      contains("log.eventMessage", "unsigned") ||
+      regexMatch("log.eventMessage", ".*invalid.*signature.*")
+    )
+  ) ||
+  (
+    equals("log.subsystem", "com.apple.kernel") &&
+    contains("log.eventMessage", "kext") &&
+    (
+      regexMatch("log.eventMessage", ".*load.*failed.*") ||
+      regexMatch("log.eventMessage", ".*authentication.*error.*") ||
+      contains("log.eventMessage", "rootless")
+    )
+  ) ||
+  (
+    equals("log.process", "kernel") &&
+    contains("log.eventMessage", "kext") &&
+    (
+      regexMatch("log.eventMessage", ".*third.*party.*") ||
+      contains("log.eventMessage", "unsigned") ||
+      regexMatch("log.eventMessage", ".*developer.*mode.*")
+    )
+  ) ||
+  (
+    contains("log.eventMessage", "/System/Library/Extensions") &&
+    regexMatch("log.eventMessage", ".*(modify|write|create).*") &&
+    !equals("log.process", "kextcache")
+  ) ||
+  (
+    equals("log.process", "eslogger") &&
+    regexMatch("log.eventMessage", ".*kext.*bypass.*")
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

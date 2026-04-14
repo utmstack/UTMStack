@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-meraki
+name: Rogue SSID Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: "T1200 - Hardware Additions"
+adversary: origin
+references:
+  - https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples
+  - https://attack.mitre.org/techniques/T1200/
+description: |
+  Detects when a rogue SSID is identified in the wireless environment. This could indicate an evil twin attack or unauthorized access point deployment attempting to intercept wireless traffic or credentials.
+
+  Next Steps:
+  1. Immediately investigate the rogue access point's physical location using the MAC address
+  2. Check if the rogue SSID name matches legitimate corporate SSIDs (potential evil twin attack)
+  3. Verify if the rogue AP is broadcasting from an unauthorized location
+  4. Review wireless client connection logs for any devices that may have connected to the rogue SSID
+  5. Consider performing a physical sweep of the area to locate and remove the unauthorized device
+  6. Update wireless intrusion detection policies if needed
+  7. Notify security team and facilities management for potential physical security breach
+where: |
+  equals("log.eventType", "rogue_ssid_detected") || 
+  (equals("log.type", "airmarshal_events") && 
+   equals("log.subtype", "rogue_ssid_detected")) ||
+  (contains("log.message", "rogue") && 
+   contains("log.message", "SSID"))
+groupBy:
+  - adversary.mac

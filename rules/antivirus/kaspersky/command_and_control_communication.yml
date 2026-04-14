@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-kaspersky
+name: Kaspersky Command and Control Communication Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Command and Control
+technique: "T1071 - Application Layer Protocol"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1071/
+  - https://support.kaspersky.com/KLMS/8.2/en-US/151504.htm
+description: |
+  Detects potential command and control (C2) communication attempts identified by Kaspersky, including suspicious outbound connections, malware callbacks, and botnet communication patterns. This rule triggers when Kaspersky identifies network threats related to botnet activity, C2 communications, or malware beaconing that was not successfully blocked.
+  
+  Next Steps:
+  1. Immediately isolate the affected system from the network to prevent further C2 communication
+  2. Review the target IP address against threat intelligence feeds to confirm malicious activity
+  3. Check if other systems have communicated with the same C2 server
+  4. Analyze the process or malware that initiated the connection
+  5. Review Kaspersky logs for additional context about the threat
+  6. Perform a full system scan and forensic analysis on the affected machine
+  7. Update antivirus signatures and ensure real-time protection is enabled
+  8. Consider reimaging the system if compromise is confirmed
+where: |
+  (contains("log.cs2", ["Bot", "bot", "C2", "Command", "command"]) ||
+   contains("log.msg", ["callback", "beacon", "botnet", "command and control"]) ||
+   equals("log.cat", "NetworkThreat")) &&
+  exists("target.ip") &&
+  action != "blocked" && action != "Blocked"
+groupBy:
+  - origin.host
+  - target.ip

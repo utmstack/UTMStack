@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: M365 Mailbox PST Export Detected
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 1
+category: Collection
+technique: "T1114.002 - Email Collection: Remote Email Collection"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/purview/ediscovery-export-search-results
+  - https://attack.mitre.org/techniques/T1114/002/
+description: |
+  Detects PST file exports from Microsoft 365 mailboxes. Bulk email export to PST format is a primary method of email exfiltration, often performed by compromised admin accounts or insider threats.
+
+  Next Steps:
+  1. Verify the PST export was authorized and part of a legitimate process
+  2. Check the user performing the export for proper authorization
+  3. Review which mailboxes were exported and their sensitivity
+  4. Check for associated eDiscovery search operations
+  5. If unauthorized, revoke the user's eDiscovery permissions
+  6. Review the export download logs for destination information
+  7. Check for other mass data access by the same user
+where: |
+  oneOf("action", ["New-ComplianceSearchAction", "SearchExportDownloaded"]) &&
+  contains("log.Parameters", "Export") &&
+  exists("origin.user")
+groupBy:
+  - adversary.user

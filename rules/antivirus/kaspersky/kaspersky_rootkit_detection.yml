@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-kaspersky
+name: Kaspersky Rootkit Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1014 - Rootkit"
+adversary: origin
+references:
+  - https://support.kaspersky.com/
+  - https://attack.mitre.org/techniques/T1014/
+description: |
+  Detects rootkit activity identified by Kaspersky security, including hidden processes, kernel-level modifications, and rootkit-specific malware classifications that indicate a deeply compromised system.
+
+  Next Steps:
+  1. Immediately isolate the affected system
+  2. Do not trust any output from the compromised system
+  3. Perform offline forensic analysis
+  4. Plan for full system reimaging
+  5. Check for lateral movement from the compromised host
+  6. Determine the initial infection vector
+where: |
+  exists("log.signatureID") &&
+  (regexMatch("log.msg", "(?i)(rootkit|bootkit|Rootkit|hidden.*process|hidden.*module)") ||
+   contains("log.cs2", "Rootkit") || contains("log.cs4", "Rootkit") ||
+   contains("log.cs2", "Bootkit") || contains("log.cs4", "Bootkit") ||
+   (contains("log.msg", "System Analysis") && contains("log.msg", "hidden")))

@@ -1,0 +1,25 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "firewall-sophos-xg"
+name: "Probable Sophos denial of service (DoS) attack"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: "Impact"
+technique: "T1499 - Endpoint Denial of Service"
+adversary: origin
+references: 
+  - "https://support.sophos.com/support/s/article/KB-000035754?language=en_US"
+  - "https://docs.sophos.com/nsg/sophos-firewall/18.5/PDF/SF%20syslog%20guide%2018.5.pdf"
+  - "https://attack.mitre.org/tactics/TA0040"
+  - "https://attack.mitre.org/techniques/T1499/"
+description: "A Denial of Service (DoS) attack is an attempt to make a machine or network resource unavailable to the intended users.
+              One common method of attack involves saturating the target machine with external communications requests so that it cannot
+              respond to legitimate traffic or the machine responds so slowly that it is essentially useless."
+where: |
+  equalsIgnoreCase("log.component", "dos attacks") && equalsIgnoreCase("log.subType", "dos")
+groupBy:
+  - adversary.ip
+  - target.ip

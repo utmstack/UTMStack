@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - deceptive-bytes
+name: Deception API Call Tracking
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: Execution
+technique: "T1106 - Native API"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1106/
+  - https://deceptivebytes.com/solution/
+description: |
+  Tracks suspicious API calls made to decoy services or endpoints. This behavior indicates an attacker is attempting to interact with what they believe are legitimate services but are actually deception assets.
+  
+  Next Steps:
+  - Review the source IP address and check if it's from a known legitimate source
+  - Examine the API endpoint accessed and the HTTP method used
+  - Look for other activity from the same IP address across all log sources
+  - Check if the source IP has accessed multiple decoy endpoints (indicating reconnaissance)
+  - Investigate any authentication tokens or credentials used in the API calls
+  - Consider blocking the source IP if malicious intent is confirmed
+  - Document the attack pattern for threat intelligence sharing
+where: equals("log.eventType", "api_call") && equals("log.isDecoy", "true") && exists("log.httpMethod") && exists("origin.ip")
+groupBy:
+  - lastEvent.log.apiEndpoint
+  - adversary.ip

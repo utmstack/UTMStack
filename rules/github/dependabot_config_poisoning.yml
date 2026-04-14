@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - github
+name: GitHub Dependabot Configuration Poisoning
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Supply Chain Compromise
+technique: "T1195.002 - Supply Chain Compromise: Compromise Software Supply Chain"
+adversary: origin
+references:
+  - https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuring-dependabot-version-updates
+  - https://attack.mitre.org/techniques/T1195/002/
+description: |
+  Detects modifications to dependabot.yml configuration files that could redirect dependency updates to malicious registries or introduce malicious packages. Attackers may modify the Dependabot configuration to substitute legitimate dependencies with malicious alternatives.
+
+  Next Steps:
+  1. Review the dependabot.yml changes for suspicious registry configurations
+  2. Check if custom registries point to legitimate package repositories
+  3. Verify the committer is an authorized repository maintainer
+  4. Review recently opened Dependabot PRs for unexpected dependency changes
+  5. Check if any malicious packages were introduced through dependency updates
+  6. If malicious, revert the configuration and audit all recent dependency changes
+  7. Implement CODEOWNERS to require review for configuration file changes
+  8. Enable dependency review for pull requests
+where: |
+  (equals("log.action", "git.push") || equals("log.action", "repo.update_file")) &&
+  exists("log.senderLogin") &&
+  contains("log.commitMessage", "dependabot")
+afterEvents:
+  - indexPattern: v11-log-github-*
+    with:
+      - field: log.repositoryName
+        operator: filter_term
+        value: '{{.log.repositoryName}}'
+      - field: log.senderLogin
+        operator: filter_term
+        value: '{{.log.senderLogin}}'
+    within: now-24h
+    count: 2
+groupBy:
+  - lastEvent.log.repositoryName
+  - lastEvent.log.senderLogin

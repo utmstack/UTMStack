@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Unauthorized /etc/shadow or /etc/passwd Access
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Credential Access
+technique: "T1003.008 - OS Credential Dumping: /etc/passwd and /etc/shadow"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1003/008/
+description: |
+  Detects unauthorized reading of /etc/shadow or suspicious modifications to /etc/passwd, which may indicate credential harvesting or account manipulation by an attacker.
+
+  Next Steps:
+  1. Identify the process and user account that accessed the sensitive file
+  2. Determine if the access was from a legitimate system process (e.g., login, passwd, useradd)
+  3. Check for tools like unshadow, john, or hashcat on the system
+  4. Review if password hashes may have been exfiltrated
+  5. Force password resets for all accounts if credential theft is confirmed
+  6. Investigate the compromise vector and check for lateral movement
+where: |
+  (contains("log.message", "/etc/shadow") || contains("log.message", "/etc/passwd")) &&
+  (contains("log.message", "read") || contains("log.message", "open") ||
+   contains("log.message", "cat ") || contains("log.message", "copy") ||
+   contains("log.message", "modified") || contains("log.message", "changed") ||
+   contains("log.message", "write")) &&
+  !(contains("log.process", "passwd") || contains("log.process", "useradd") ||
+    contains("log.process", "usermod") || contains("log.process", "groupadd") ||
+    contains("log.process", "chpasswd") || contains("log.process", "login"))
+groupBy:
+  - origin.host
+  - origin.user

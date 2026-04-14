@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - deceptive-bytes
+name: Criminal Group Signatures
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Organized Crime Activity
+technique: Criminal Group TTPs
+adversary: origin
+references:
+  - https://attack.mitre.org/groups/
+  - https://www.ic3.gov/Media/PDF/AnnualReport/2023_IC3Report.pdf
+  - https://www.acalvio.com/cyber-deception/the-role-of-deception-technology-in-the-endpoint-security-reference-architecture/
+  - https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-320a
+description: |
+  Identifies attack signatures and behavioral patterns associated with known criminal groups including ransomware operators, financial crime syndicates, and organized cybercrime operations. Deception technology detects malicious activity by monitoring interactions with decoy assets that should never be accessed in legitimate workflows.
+  
+  Next Steps:
+  1. IMMEDIATE: Isolate the affected endpoint to prevent lateral movement
+  2. Verify the criminal group signature or toolset identified in the alert details
+  3. Check if the source IP/domain appears in threat intelligence feeds or previous incidents
+  4. Review all activity from the affected endpoint in the last 24-48 hours
+  5. Search for indicators of lateral movement or data staging activities
+  6. Scan other endpoints for similar patterns or IoCs
+  7. If ransomware indicators are present, activate ransomware response playbook
+  8. Collect forensic evidence: process creation logs, network connections, file modifications
+  9. Check for data exfiltration attempts to external IPs or cloud services
+  10. Review all user account activity associated with the endpoint for signs of compromise
+  11. Document all findings and coordinate with incident response team
+  12. Consider threat hunting across the environment for related criminal group activities
+where: |
+  oneOf("log.eventType", ["threat_detected", "deception_triggered", "malicious_activity"]) &&
+  oneOf("log.threatType", ["criminal_group", "ransomware", "organized_crime"]) &&
+  (exists("log.signature") || exists("log.toolset") || exists("log.groupName")) &&
+  (oneOf("log.action", ["blocked", "detected", "prevented"]) ||
+   oneOf("log.severity", ["high", "critical"])) &&
+  (oneOf("log.indicatorType", ["ransomware", "financial_theft", "cryptomining", "data_exfiltration"]) ||
+   greaterOrEqual("log.threatScore", 70))
+groupBy:
+  - lastEvent.log.groupName
+  - lastEvent.log.signature
+  - adversary.host

@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - sophos-central
+name: Server Protection Alerts
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Server Security
+technique: "T1505 - Server Software Component"
+adversary: origin
+references:
+  - https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/Servers/index.html
+  - https://attack.mitre.org/techniques/T1505/
+description: |
+  Detects critical security alerts on servers protected by Sophos Central, including unauthorized access attempts, service tampering, and malware targeting server infrastructure. This rule monitors for high-severity threats specifically targeting server endpoints.
+
+  Next Steps:
+  1. Immediately isolate the affected server from the network if threat is confirmed active
+  2. Review the specific threat details in Sophos Central console to understand the attack vector
+  3. Check server logs for unauthorized access attempts or privilege escalation activities
+  4. Verify integrity of critical server services and configurations
+  5. Scan for additional indicators of compromise on the server and connected systems
+  6. Review recent server changes, updates, or new software installations
+  7. Check for lateral movement attempts from the compromised server
+  8. Implement additional monitoring for the affected server endpoint
+  9. Update security policies and access controls based on findings
+  10. Document the incident and update security procedures if necessary
+where: |
+  oneOf("log.type", ["Event::Server::Threat::Detected", "Event::Server::Protection::Disabled", "Event::Server::Exploit::Prevented"]) ||
+  (equals("log.endpointType", "server") && oneOf("log.severity", ["high", "critical"]) && exists("log.threatName"))
+groupBy:
+  - adversary.host
+  - adversary.ip

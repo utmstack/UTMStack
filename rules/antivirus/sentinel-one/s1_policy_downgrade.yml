@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: SentinelOne Policy Downgraded from Protect to Detect
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://support.sentinelone.com/
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects when a SentinelOne policy is downgraded from Protect mode to Detect-only mode, which stops automatic threat remediation. This is a critical defense evasion indicator as attackers with console access weaken protection before deploying malware.
+
+  Next Steps:
+  1. Identify the administrator who changed the policy
+  2. Verify through change management if this was authorized
+  3. Check for concurrent threat detections on affected endpoints
+  4. Restore the Protect policy immediately if unauthorized
+  5. Review admin account access for compromise
+  6. Scan all affected endpoints for unmitigated threats
+where: |
+  (contains("log.eventDescription", "policy") &&
+   ((contains("log.eventDescription", "Detect") && contains("log.eventDescription", "changed")) ||
+    contains("log.eventDescription", "downgrade") ||
+    (contains("log.eventDescription", "Protect") && contains("log.eventDescription", "Detect")))) ||
+  (oneOf("log.activityType", ["policy_updated", "policy_changed"]) &&
+   contains("log.eventDescription", "Detect"))
+groupBy:
+  - lastEvent.log.activityType
+  - adversary.host

@@ -1,0 +1,22 @@
+# Rule version v1.0.1
+
+dataTypes:
+  - "linux"
+name: "System Linux: Kernel module load via insmod"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: "Persistence"
+technique: "T1547.006 - Boot or Logon Autostart Execution"
+adversary: origin
+description: "Detects the use of the insmod binary to load a Linux kernel object file. Threat actors can use this binary, given they have root privileges, 
+              to load a rootkit on a system providing them with complete control and the ability to hide from security products. 
+              Manually loading a kernel module in this manner should not be at all common and can indicate suspcious or malicious behavior."
+references:
+  - "https://attack.mitre.org/tactics/TA0003/"
+  - "https://attack.mitre.org/techniques/T1547/006/"
+where: regexMatch("log.message", "(insmod (.+).ko)")
+groupBy:
+  - origin.ip
+  - origin.user

@@ -36,6 +36,11 @@ on:
         type: string
         default: "clean install"
         description: "Maven goals to execute"
+      copy_filters_and_rules:
+        required: false
+        type: boolean
+        default: false
+        description: "Copy filters and rules folders to build context"
 
 jobs:
   build:
@@ -98,6 +103,13 @@ jobs:
           registry: ghcr.io
           username: utmstack
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Copy filters and rules to build context
+        if: ${{ inputs.copy_filters_and_rules }}
+        run: |
+          cp -r filters ./${{ inputs.image_name }}/
+          cp -r rules ./${{ inputs.image_name }}/
+          echo "✅ Copied filters and rules to ./${{ inputs.image_name }}/"
 
       - name: Build and Push the Image
         uses: docker/build-push-action@v6

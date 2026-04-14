@@ -24,7 +24,8 @@ export interface ConsoleOptions {
   cursorSmoothCaretAnimation?: 'off' | 'on';
 }
 
-const SQL_KEYWORDS = ['CREATE', 'DROP', 'ALTER', 'TRUNCATE',
+const SQL_KEYWORDS = [
+  'CREATE', 'DROP', 'ALTER', 'TRUNCATE',
   'SELECT', 'INSERT', 'UPDATE', 'DELETE',
   'COMMIT', 'ROLLBACK',
   'AND', 'OR', 'NOT', 'BETWEEN', 'IN', 'LIKE', 'EXISTS',
@@ -52,15 +53,22 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
   @Input() showFullEditor = true;
   @Input() showSuggestions = false;
   @Input() consoleOptions?: ConsoleOptions;
-  @Output() execute = new EventEmitter<string>();
-  @Output() clearData = new EventEmitter<void>();
-  @Output() indexPatternChange = new EventEmitter<string>();
   @Input() queryError: string | null = null;
   @Input() customKeywords: string[] = [];
+
+  @Output() indexPatternChange = new EventEmitter<string>();
+  @Output() execute = new EventEmitter<string>();
+  @Output() clearData = new EventEmitter<void>();
 
   sqlQuery = '';
   errorMessage = '';
   successMessage = '';
+
+  private editorInstance?: monaco.editor.IStandaloneCodeEditor;
+  private completionProvider?: monaco.IDisposable;
+
+  private updatingFromOutside = false;
+
   readonly defaultOptions: ConsoleOptions = {
     value: this.sqlQuery,
     language: 'sql',
@@ -79,9 +87,6 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
     lineNumbers: 'on',
     cursorSmoothCaretAnimation: 'off'
   };
-  private completionProvider?: monaco.IDisposable;
-  private onChange = (_: any) => {};
-  private onTouched = () => {};
 
   constructor(private sqlValidationService: SqlValidationService) {}
 
@@ -89,7 +94,23 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
     this.consoleOptions = { ...this.defaultOptions, ...this.consoleOptions };
   }
 
-  onEditorInit(editorInstance: monaco.editor.IStandaloneCodeEditor) {
+  private onChange = (_: any) => {};
+  private onTouched = () => {};
+
+  ngOnDestroy(): void {
+    if (this.completionProvider) {
+      this.completionProvider.dispose();
+      this.completionProvider = undefined;
+    }
+  }
+
+  onEditorInit(editor: monaco.editor.IStandaloneCodeEditor) {
+    this.editorInstance = editor;
+
+    if (this.sqlQuery) {
+      editor.setValue(this.sqlQuery);
+    }
+
     this.completionProvider = monaco.languages.registerCompletionItemProvider('sql', {
       provideCompletionItems: () => {
         const allKeywords = Array.from(new Set([
@@ -100,19 +121,49 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
         const suggestions: monaco.languages.CompletionItem[] = allKeywords.map(k => ({
           label: k,
           kind: monaco.languages.CompletionItemKind.Text,
-          insertText: k,
+          insertText: k
         }));
 
         return { suggestions };
       }
     });
 
-    editorInstance.onDidChangeModelContent(() => {
-      const val = editorInstance.getValue();
+    editor.onDidChangeModelContent(() => {
+      if (this.updatingFromOutside) {
+        return;
+      }
+
+      const val = editor.getValue();
       this.sqlQuery = val;
       this.onChange(val);
       this.onTouched();
     });
+  }
+
+  writeValue(value: any): void {
+    this.updatingFromOutside = true;
+
+    this.sqlQuery = value || '';
+
+    if (this.editorInstance) {
+      this.editorInstance.setValue(this.sqlQuery);
+    }
+
+    this.updatingFromOutside = false;
+  }
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState?(isDisabled: boolean): void {
+    if (this.editorInstance) {
+      this.editorInstance.updateOptions({ readOnly: isDisabled });
+    }
   }
 
   executeQuery(): void {
@@ -134,11 +185,16 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
     this.sqlQuery = '';
     this.clearMessages();
     this.clearData.emit();
+    this.onChange('');
   }
 
   formatQuery(): void {
     this.clearMessages();
     this.sqlQuery = this.formatSql(this.sqlQuery);
+    if (this.editorInstance) {
+      this.editorInstance.setValue(this.sqlQuery);
+    }
+    this.onChange(this.sqlQuery);
   }
 
   private formatSql(sql: string): string {
@@ -164,23 +220,7 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
     this.successMessage = '';
   }
 
-  writeValue(value: any): void {
-    this.sqlQuery = value || '';
-  }
-
-  registerOnChange(fn: any): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: any): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState?(isDisabled: boolean): void {
-    // Optional: handle disabled state
-  }
-
-   extractIndexPattern(sql: string): string | null {
+  extractIndexPattern(sql: string): string | null {
     const normalized = sql
       .replace(/\s+/g, ' ')
       .toLowerCase();
@@ -203,19 +243,8 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
     const originalFragment = normalized.substring(start, end).trim();
 
     if (originalFragment.length > 0) {
-     const indexPatternSelected = this.customKeywords.find(keyword => keyword === originalFragment);
-
-     if (indexPatternSelected) {
-       this.indexPatternChange.emit(indexPatternSelected);
-     }
-   }
-  }
-
-  ngOnDestroy(): void {
-    if (this.completionProvider) {
-      this.completionProvider.dispose();
-      this.completionProvider = undefined;
+      const indexPatternSelected = this.customKeywords.find(keyword => keyword === originalFragment);
+      this.indexPatternChange.emit(indexPatternSelected ? indexPatternSelected : null);
     }
   }
-
 }

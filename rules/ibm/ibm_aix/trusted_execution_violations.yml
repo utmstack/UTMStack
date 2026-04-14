@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - ibm-aix
+name: IBM AIX Trusted Execution Violation
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1036 - Masquerading"
+adversary: origin
+references:
+  - https://www.ibm.com/support/pages/trusted-execution-enablement
+  - https://attack.mitre.org/techniques/T1036/
+description: |
+  Detects violations of Trusted Execution (TE) policies in IBM AIX, including execution of untrusted binaries, signature verification failures, or attempts to bypass trusted execution controls. These violations may indicate attempts to execute malicious or unauthorized code on the system.
+  
+  Next Steps:
+  1. Immediately verify the integrity of the executed binary and its digital signature
+  2. Check if the binary is from a trusted source or has been tampered with
+  3. Review system logs for any concurrent privilege escalation attempts or suspicious activities
+  4. Examine the user's recent activities, access patterns, and authentication history
+  5. Validate the system's trusted execution configuration and policies are properly enforced
+  6. Check for any recent changes to the trusted execution database or policies
+  7. Analyze the source and nature of the untrusted binary or process
+  8. Consider isolating the affected system if malicious activity is confirmed
+  9. Review file system integrity and check for signs of compromise
+  10. Escalate to security team if this appears to be part of a broader attack
+where: (equals("log.eventType", "trustchk") && !equals("log.returnCode", "0")) || (contains("log.msg", "Trusted Execution") && (contains("log.msg", "fail") || contains("log.msg", "violat"))) || (equals("log.eventType", "PROC_Execute") && contains("log.msg", "untrusted")) || (equals("action", "EXEC") && contains("log.objName", "/tmp/") && equals("origin.user", "root"))
+groupBy:
+  - adversary.host
+  - adversary.user
