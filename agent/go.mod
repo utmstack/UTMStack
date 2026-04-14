@@ -13,7 +13,7 @@ require (
 	github.com/netsampler/goflow2 v1.3.7
 	github.com/spf13/cobra v1.10.2
 	github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068
-	github.com/threatwinds/go-sdk v1.1.14
+	github.com/threatwinds/go-sdk v1.1.18
 	github.com/threatwinds/logger v1.2.3
 	github.com/utmstack/UTMStack/shared v0.0.0
 	golang.org/x/sys v0.41.0
