@@ -51,7 +51,7 @@
     "jspdf": "^2.3.1",
     "leaflet": "^1.6.0",
     "leaflet.heat": "^0.2.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.18.1",
     "magic-check": "^1.0.3",
     "moment": "^2.30.1",
     "moment-timezone": "^0.5.21",
