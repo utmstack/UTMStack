@@ -106,8 +106,6 @@ func runUpdateProcess(basePath string) error {
 		return fmt.Errorf("error stopping agent: %v", err)
 	}
 
-	time.Sleep(10 * time.Second)
-
 	// Migration: check if old naming convention exists and migrate to new naming
 	oldBinPath := filepath.Join(basePath, oldBin)
 	if !fs.Exists(oldBinPath) {
@@ -171,7 +169,6 @@ func rollbackAgent(currentBin, backupBin, basePath string) {
 	logger.Info("Rolling back agent to previous version...")
 
 	svc.Stop(config.SERV_AGENT_NAME)
-	time.Sleep(5 * time.Second)
 
 	os.Remove(filepath.Join(basePath, currentBin))
 	os.Rename(filepath.Join(basePath, backupBin), filepath.Join(basePath, currentBin))
