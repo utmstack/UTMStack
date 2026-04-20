@@ -117,20 +117,13 @@ public class ModuleSocAi implements IModule {
                 .filter(c -> !"utmstack.socai.provider".equals(c.getConfKey()))
                 .toList();
 
-        List<UtmModuleGroupConfiguration> filteredConfigs = providerConfig != null && "custom".equals(providerConfig.getConfValue())
-                ? filterCustomConfigs(configs)
-                : filterStandardConfigs(configs);
+        List<UtmModuleGroupConfiguration> filteredConfigs = filterStandardConfigs(configs);
 
         filteredConfigs.add(providerConfig);
 
         return utmStackConfigValidator.validate(module, configuration, filteredConfigs);
     }
 
-    private List<UtmModuleGroupConfiguration> filterCustomConfigs(List<UtmModuleGroupConfiguration> configs) {
-        return configs.stream()
-                .filter(config -> !config.getConfKey().equals("utmstack.socai.model"))
-                .collect(Collectors.toList());
-    }
 
     private List<UtmModuleGroupConfiguration> filterStandardConfigs(List<UtmModuleGroupConfiguration> configs) {
         return configs.stream()

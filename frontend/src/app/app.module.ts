@@ -4,7 +4,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
-import {NgbDatepickerConfig, NgbModalConfig} from '@ng-bootstrap/ng-bootstrap';
+import {NgbDatepickerConfig, NgbModalConfig, NgbTooltipConfig} from '@ng-bootstrap/ng-bootstrap';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import * as moment from 'moment';
@@ -151,8 +151,9 @@ export function initTimezoneFormat(apiChecker: ApiServiceCheckerService,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppModule {
-  constructor(private dpConfig: NgbDatepickerConfig, private config: NgbModalConfig) {
+  constructor(private dpConfig: NgbDatepickerConfig, private config: NgbModalConfig, private tooltipConfig: NgbTooltipConfig) {
     this.dpConfig.minDate = {year: moment().year() - 100, month: 1, day: 1};
     config.backdrop = 'static';
+    this.tooltipConfig.container = 'body';
   }
 }

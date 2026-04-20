@@ -392,18 +392,18 @@ p {
 
 //tooltip
 .utm-tooltip, .utm-tooltip-top, .utm-tooltip-bottom, .utm-tooltip-left {
-  z-index: 999 !important;
   opacity: 10 !important;
+  position: absolute !important;
 }
 
 .tooltip {
-  z-index: 1240 !important;
+  z-index: 100000 !important;
 }
 
 .utm-tooltip .tooltip-inner {
   //background-color: $grey-color;
   font-size: 100%;
-  z-index: 999 !important;
+  z-index: 99999 !important;
 }
 
 .utm-tooltip-bottom .tooltip-inner {
@@ -415,19 +415,16 @@ p {
 .utm-tooltip-top .tooltip-inner {
   //background-color: $grey-color !important;
   font-size: 100%;
-  z-index: 999 !important;
 }
 
 .utm-tooltip-left .tooltip-inner {
   //background-color: $grey-color !important;
   font-size: 100%;
-  z-index: 999 !important;
 }
 
 .utm-tooltip-right .tooltip-inner {
   //background-color: $grey-color !important;
   font-size: 100%;
-  z-index: 999 !important;
 }
 
 .utm-tooltip-top .arrow::before {
@@ -676,7 +673,7 @@ app-header {
 }
 
 .popover {
-  z-index: 2065 !important;
+  z-index: 99999 !important;
 }
 
 .utm-popover-right {
@@ -695,6 +692,23 @@ app-header {
     background-color: white !important;
   }
 }
+
+
+.utm-popover-alerts {
+  max-width: 800px !important;
+
+  .arrow {
+    &::after {
+      //border-right-color: $blue-scroll;
+    }
+  }
+
+  .popover-header {
+    //background-color: $blue-scroll !important;
+    background-color: #ffffff;
+  }
+}
+
 
 .utm-popover {
   max-width: 800px !important;
@@ -726,7 +740,6 @@ app-header {
   .utm-popover-xs {
     //top: 37px !important;
     max-width: 300px !important;
-    z-index: 2062 !important;
   }
 
   .popover-header {
@@ -756,7 +769,6 @@ app-header {
   .utm-popover-xs {
     //top: 37px !important;
     max-width: 300px !important;
-    z-index: 2062 !important;
   }
 
   .popover-header {
@@ -1205,9 +1217,6 @@ $topnav-background-color: #FFFFFF;
   z-index: 2061 !important;
 }
 
-.tooltip {
-  z-index: 2062 !important;
-}
 
 .alert-warning {
   color: #232f3e !important;

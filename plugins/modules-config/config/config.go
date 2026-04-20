@@ -22,19 +22,30 @@ type pluginConnection struct {
 	done   <-chan struct{}
 }
 
+type failedModule struct {
+	moduleName  string
+	pluginType  PluginType
+	lastAttempt time.Time
+	retries     int
+	lastError   string
+}
+
 type ConfigServer struct {
 	UnimplementedConfigServiceServer
 
-	mu      sync.RWMutex
-	plugins map[PluginType][]*pluginConnection
-	cache   map[PluginType]*ConfigurationSection
+	mu            sync.RWMutex
+	plugins       map[PluginType][]*pluginConnection
+	cache         map[PluginType]*ConfigurationSection
+	failedModules map[PluginType]*failedModule
+	failedMu      sync.RWMutex
 }
 
 func GetConfigServer() *ConfigServer {
 	configOnce.Do(func() {
 		configServer = &ConfigServer{
-			plugins: make(map[PluginType][]*pluginConnection),
-			cache:   make(map[PluginType]*ConfigurationSection),
+			plugins:       make(map[PluginType][]*pluginConnection),
+			cache:         make(map[PluginType]*ConfigurationSection),
+			failedModules: make(map[PluginType]*failedModule),
 		}
 	})
 	return configServer
@@ -120,96 +131,124 @@ func (s *ConfigServer) monitorDisconnect(t PluginType, conn *pluginConnection) {
 }
 
 func (s *ConfigServer) NotifyUpdate(moduleName string, section *ConfigurationSection) {
-	pluginType := PluginType_UNKNOWN
-
-	switch moduleName {
-	case "AWS_IAM_USER":
-		pluginType = PluginType_AWS_IAM_USER
-	case "AZURE":
-		pluginType = PluginType_AZURE
-	case "BITDEFENDER":
-		pluginType = PluginType_BITDEFENDER
-	case "GCP":
-		pluginType = PluginType_GCP
-	case "O365":
-		pluginType = PluginType_O365
-	case "SOC_AI":
-		pluginType = PluginType_SOC_AI
-	case "SOPHOS":
-		pluginType = PluginType_SOPHOS
-	case "CROWDSTRIKE":
-		pluginType = PluginType_CROWDSTRIKE
-	default:
-		catcher.Error("unknown module name", nil, map[string]any{"process": "plugin_com.utmstack.modules-config", "module": moduleName})
-		return
-	}
-
-	s.mu.Lock()
-	s.cache[pluginType] = section
-	connectedPlugins := append([]*pluginConnection{}, s.plugins[pluginType]...)
-	s.mu.Unlock()
-
-	if len(connectedPlugins) == 0 {
-		catcher.Info(fmt.Sprintf("No active connections for plugin type: %s", pluginType), map[string]any{"process": "plugin_com.utmstack.modules-config"})
-		return
-	}
-
-	for _, conn := range connectedPlugins {
-		err := conn.stream.Send(&BiDirectionalMessage{
-			Payload: &BiDirectionalMessage_Config{
-				Config: section,
-			},
+	pluginType, exists := AllModules[moduleName]
+	if !exists {
+		catcher.Error("unknown module name", nil, map[string]any{
+			"process": "plugin_com.utmstack.modules-config",
+			"module":  moduleName,
 		})
-		if err != nil {
-			catcher.Error("error sending configuration update", err, map[string]any{"process": "plugin_com.utmstack.modules-config"})
-			continue
+		return
+	}
+
+	connections := s.updateCache(pluginType, section)
+	s.clearFailedModule(pluginType, moduleName)
+	s.notifyConnectedPlugins(connections, section, moduleName)
+}
+
+func (s *ConfigServer) fetchModuleConfig(backend, moduleName, internalKey string) (*ConfigurationSection, int, error) {
+	url := fmt.Sprintf("%s/api/utm-modules/module-details-decrypted?nameShort=%s&serverId=1", backend, moduleName)
+
+	response, status, err := utils.DoReq[ConfigurationSection](
+		url,
+		nil,
+		"GET",
+		map[string]string{"Utm-Internal-Key": internalKey},
+		true,
+	)
+
+	if err != nil || status != http.StatusOK {
+		return nil, status, err
+	}
+
+	return &response, status, nil
+}
+
+func (s *ConfigServer) updateCache(pluginType PluginType, config *ConfigurationSection) []*pluginConnection {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.cache[pluginType] = config
+	return append([]*pluginConnection{}, s.plugins[pluginType]...)
+}
+
+func (s *ConfigServer) clearFailedModule(pluginType PluginType, moduleName string) {
+	s.failedMu.Lock()
+	defer s.failedMu.Unlock()
+
+	if _, exists := s.failedModules[pluginType]; exists {
+		delete(s.failedModules, pluginType)
+		catcher.Info(
+			fmt.Sprintf("Module %s removed from retry list after successful config update", moduleName), map[string]any{
+				"process":    "plugin_com.utmstack.modules-config",
+				"pluginType": pluginType,
+			},
+		)
+	}
+}
+
+func (s *ConfigServer) notifyConnectedPlugins(connections []*pluginConnection, config *ConfigurationSection, moduleName string) {
+	if len(connections) == 0 {
+		catcher.Info("No active connections for plugin type", map[string]any{
+			"process": "plugin_com.utmstack.modules-config",
+			"module":  moduleName,
+		},
+		)
+		return
+	}
+
+	for _, conn := range connections {
+		if err := conn.stream.Send(&BiDirectionalMessage{
+			Payload: &BiDirectionalMessage_Config{Config: config},
+		}); err != nil {
+			catcher.Error("failed to send config update", err, map[string]any{
+				"process": "plugin_com.utmstack.modules-config",
+				"module":  moduleName,
+			},
+			)
 		}
 	}
 }
 
-func (s *ConfigServer) syncModuleWithRetry(
-	moduleName string,
-	pluginType PluginType,
-	backend string,
-	internalKey string,
-) error {
+func (s *ConfigServer) trackFailure(pluginType PluginType, moduleName string, err error) {
+	s.failedMu.Lock()
+	defer s.failedMu.Unlock()
+
+	errMsg := "unknown error"
+	if err != nil {
+		errMsg = err.Error()
+	}
+
+	if existing, exists := s.failedModules[pluginType]; exists {
+		existing.retries++
+		existing.lastAttempt = time.Now()
+		existing.lastError = errMsg
+	} else {
+		s.failedModules[pluginType] = &failedModule{
+			moduleName:  moduleName,
+			pluginType:  pluginType,
+			lastAttempt: time.Now(),
+			retries:     1,
+			lastError:   errMsg,
+		}
+	}
+}
+
+func (s *ConfigServer) syncModuleWithRetry(moduleName string, pluginType PluginType, backend string, internalKey string) error {
 	const maxRetries = 5
 	baseDelay := 2 * time.Second
 
-	url := fmt.Sprintf("%s/api/utm-modules/module-details-decrypted?nameShort=%s&serverId=1", backend, moduleName)
+	var lastErr error
+	var lastStatus int
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
-		response, status, err := utils.DoReq[ConfigurationSection](
-			url,
-			nil,
-			"GET",
-			map[string]string{"Utm-Internal-Key": internalKey},
-			true,
-		)
+		config, status, err := s.fetchModuleConfig(backend, moduleName, internalKey)
+		lastStatus = status
+		lastErr = err
 
 		if err == nil && status == http.StatusOK {
-			s.mu.Lock()
-			s.cache[pluginType] = &response
-			connectedPlugins := append([]*pluginConnection{}, s.plugins[pluginType]...)
-			s.mu.Unlock()
-
-			if len(connectedPlugins) > 0 {
-				for _, conn := range connectedPlugins {
-					if err := conn.stream.Send(&BiDirectionalMessage{
-						Payload: &BiDirectionalMessage_Config{Config: &response},
-					}); err != nil {
-						catcher.Error(
-							"failed to send late-arrival config",
-							err,
-							map[string]any{
-								"process": "plugin_com.utmstack.modules-config",
-								"module":  moduleName,
-							},
-						)
-					}
-				}
-			}
-
+			connections := s.updateCache(pluginType, config)
+			s.clearFailedModule(pluginType, moduleName)
+			s.notifyConnectedPlugins(connections, config, moduleName)
 			return nil
 		}
 
@@ -219,10 +258,14 @@ func (s *ConfigServer) syncModuleWithRetry(
 		}
 	}
 
-	return catcher.Error("failed to sync module after max retries", nil, map[string]any{
-		"process": "plugin_com.utmstack.modules-config",
-		"module":  moduleName,
-		"retries": maxRetries + 1,
+	s.trackFailure(pluginType, moduleName, lastErr)
+
+	return catcher.Error("failed to sync module after max retries, will retry periodically", lastErr, map[string]any{
+		"process":     "plugin_com.utmstack.modules-config",
+		"module":      moduleName,
+		"pluginType":  pluginType,
+		"retries":     maxRetries + 1,
+		"status_code": lastStatus,
 	},
 	)
 }
@@ -249,8 +292,49 @@ func (s *ConfigServer) SyncConfigs(backend string, internalKey string) {
 	}
 
 	if err := g.Wait(); err != nil {
-		catcher.Error("module config sync failed", err, map[string]any{
-			"process": "plugin_com.utmstack.modules-config",
-		})
+		catcher.Error("module config sync failed", err, map[string]any{"process": "plugin_com.utmstack.modules-config"})
+	}
+}
+
+func (s *ConfigServer) StartPeriodicRetry(backend string, internalKey string) {
+	const retryInterval = 5 * time.Minute
+
+	ticker := time.NewTicker(retryInterval)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		s.failedMu.RLock()
+		toRetry := make([]*failedModule, 0, len(s.failedModules))
+		for _, fm := range s.failedModules {
+			toRetry = append(toRetry, fm)
+		}
+		s.failedMu.RUnlock()
+
+		if len(toRetry) == 0 {
+			continue
+		}
+
+		catcher.Info(fmt.Sprintf("Retrying %d failed module(s)", len(toRetry)), map[string]any{"process": "plugin_com.utmstack.modules-config"})
+
+		for _, fm := range toRetry {
+			err := s.syncModuleWithRetry(fm.moduleName, fm.pluginType, backend, internalKey)
+
+			if err != nil {
+				s.failedMu.RLock()
+				currentRetries := 0
+				if existing, ok := s.failedModules[fm.pluginType]; ok {
+					currentRetries = existing.retries
+				}
+				s.failedMu.RUnlock()
+
+				catcher.Error(fmt.Sprintf("Module sync retry failed (attempt %d)", currentRetries), err, map[string]any{
+					"process":    "plugin_com.utmstack.modules-config",
+					"module":     fm.moduleName,
+					"pluginType": fm.pluginType,
+					"retries":    currentRetries,
+				},
+				)
+			}
+		}
 	}
 }
