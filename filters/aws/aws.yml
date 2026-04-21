@@ -130,7 +130,7 @@ pipeline:
       - rename:
           from:
             - log.requestParameters.bucketName
-          to: log.userIdentityAccesrequestParametersBucketNamesKeyId
+          to: log.userIdentityAccessrequestParametersBucketNamesKeyId
 
       - rename:
           from:
