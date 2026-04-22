@@ -106,8 +106,6 @@ func runUpdateProcess(basePath string) error {
 		return fmt.Errorf("error stopping agent: %v", err)
 	}
 
-	time.Sleep(10 * time.Second)
-
 	// Migration: check if old naming convention exists and migrate to new naming
 	oldBinPath := filepath.Join(basePath, oldBin)
 	if !fs.Exists(oldBinPath) {
@@ -138,6 +136,32 @@ func runUpdateProcess(basePath string) error {
 		return fmt.Errorf("error renaming new binary: %v", err)
 	}
 
+	// Promote version.json BEFORE starting the agent so that the new agent's
+	// dependency.Reconcile() sees the new updater_version on first boot.
+	// If anything fails after this, rollback restores the previous version.json.
+	versionNewPath := filepath.Join(basePath, "version_new.json")
+	versionPath := filepath.Join(basePath, "version.json")
+	versionBackupPath := filepath.Join(basePath, "version.json.old")
+
+	os.Remove(versionBackupPath)
+	versionBackedUp := false
+	if fs.Exists(versionPath) {
+		if err := os.Rename(versionPath, versionBackupPath); err != nil {
+			os.Rename(filepath.Join(basePath, oldBin), filepath.Join(basePath, newBin))
+			os.Rename(backupPath, filepath.Join(basePath, oldBin))
+			return fmt.Errorf("error backing up version.json: %v", err)
+		}
+		versionBackedUp = true
+	}
+	if err := os.Rename(versionNewPath, versionPath); err != nil {
+		if versionBackedUp {
+			os.Rename(versionBackupPath, versionPath)
+		}
+		os.Rename(filepath.Join(basePath, oldBin), filepath.Join(basePath, newBin))
+		os.Rename(backupPath, filepath.Join(basePath, oldBin))
+		return fmt.Errorf("error promoting version.json: %v", err)
+	}
+
 	if err := svc.Start(config.SERV_AGENT_NAME); err != nil {
 		rollbackAgent(oldBin, backupBin, basePath)
 		return fmt.Errorf("error starting agent: %v", err)
@@ -153,16 +177,7 @@ func runUpdateProcess(basePath string) error {
 	}
 
 	logger.Info("Health check passed for agent")
-
-	versionNewPath := filepath.Join(basePath, "version_new.json")
-	versionPath := filepath.Join(basePath, "version.json")
-	if fs.Exists(versionNewPath) {
-		if err := os.Rename(versionNewPath, versionPath); err != nil {
-			logger.Error("error updating version file: %v", err)
-		} else {
-			logger.Info("Version file updated successfully")
-		}
-	}
+	os.Remove(versionBackupPath)
 
 	return nil
 }
@@ -171,10 +186,17 @@ func rollbackAgent(currentBin, backupBin, basePath string) {
 	logger.Info("Rolling back agent to previous version...")
 
 	svc.Stop(config.SERV_AGENT_NAME)
-	time.Sleep(5 * time.Second)
 
 	os.Remove(filepath.Join(basePath, currentBin))
 	os.Rename(filepath.Join(basePath, backupBin), filepath.Join(basePath, currentBin))
+
+	// Restore previous version.json if it was backed up during promotion.
+	versionPath := filepath.Join(basePath, "version.json")
+	versionBackupPath := filepath.Join(basePath, "version.json.old")
+	if fs.Exists(versionBackupPath) {
+		os.Remove(versionPath)
+		os.Rename(versionBackupPath, versionPath)
+	}
 
 	svc.Start(config.SERV_AGENT_NAME)
 	os.Remove(filepath.Join(basePath, "version_new.json"))
