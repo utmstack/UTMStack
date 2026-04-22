@@ -21,6 +21,29 @@ const (
 	MacosCollectorVersion = "11.2.3"
 )
 
+// getUpdaterVersion reads the desired updater version from version.json
+// (the updater_version field). Falls back to UpdaterVersion if the
+// file is missing, unreadable, or the field is empty.
+//
+// The source of truth for this value is version.json shipped by the server,
+// which the updater promotes on each successful agent update.
+func getUpdaterVersion() string {
+	var v struct {
+		UpdaterVersion string `json:"updater_version"`
+	}
+	versionPath := filepath.Join(fs.GetExecutablePath(), "version.json")
+	if !fs.Exists(versionPath) {
+		return UpdaterVersion
+	}
+	if err := fs.ReadJSON(versionPath, &v); err != nil {
+		return UpdaterVersion
+	}
+	if v.UpdaterVersion == "" {
+		return UpdaterVersion
+	}
+	return v.UpdaterVersion
+}
+
 // UpdaterFile returns the updater binary name with OS and architecture suffix.
 // Format: utmstack_updater_service_<os>_<arch>[.exe]
 // Examples:
@@ -43,6 +66,7 @@ type Dependency struct {
 	DownloadURL  func(server string) string // URL template to download from
 	DownloadName string                     // Filename to save as (if different from BinaryPath basename)
 	Critical     bool                       // If true, failure blocks agent startup
+	PreDownload  func() (cleanup func(), err error) // Called before download, returns cleanup for rollback
 	PostDownload func() error               // Run after download (e.g., unzip). Can be nil.
 	Configure    func() error               // Run on first install (can be nil)
 	Update       func() error               // Run on version change (can be nil, uses Configure)
@@ -188,12 +212,33 @@ func Reconcile(server string, skipCertValidation bool) error {
 		} else if inst.Version != dep.Version {
 			// VERSION CHANGED: Download (if needed) and update
 			utils.Logger.Info("Updating dependency: %s (%s -> %s)", dep.Name, inst.Version, dep.Version)
+			
+			// Call PreDownload hook if defined
+			var cleanup func()
+			if dep.PreDownload != nil {
+				var err error
+				cleanup, err = dep.PreDownload()
+				if err != nil {
+					errMsg := fmt.Errorf("failed to run PreDownload for %s: %v", dep.Name, err)
+					utils.Logger.ErrorF("%v", errMsg)
+					if dep.Critical {
+						criticalErrors = append(criticalErrors, errMsg)
+					}
+					continue
+				}
+			}
+
 			if dep.DownloadURL != nil {
 				if err := downloadDependency(dep, server, skipCertValidation); err != nil {
 					errMsg := fmt.Errorf("failed to download dependency update %s: %v", dep.Name, err)
 					utils.Logger.ErrorF("%v", errMsg)
 					if dep.Critical {
 						criticalErrors = append(criticalErrors, errMsg)
+					}
+					// Rollback: call cleanup if PreDownload succeeded
+					if cleanup != nil {
+						utils.Logger.Info("Rolling back PreDownload changes for %s", dep.Name)
+						cleanup()
 					}
 					continue
 				}
@@ -209,6 +254,11 @@ func Reconcile(server string, skipCertValidation bool) error {
 					utils.Logger.ErrorF("%v", errMsg)
 					if dep.Critical {
 						criticalErrors = append(criticalErrors, errMsg)
+					}
+					// Rollback: call cleanup if PreDownload succeeded
+					if cleanup != nil {
+						utils.Logger.Info("Rolling back PreDownload changes for %s", dep.Name)
+						cleanup()
 					}
 					continue
 				}
