@@ -1,0 +1,307 @@
+name: "Reusable: Sign Agent Binaries"
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+        description: "Target OS to sign for: 'windows' or 'macos'"
+      artifact_name:
+        required: true
+        type: string
+        description: "Name of the artifact (uploaded by a previous job) that contains the unsigned binaries"
+      binaries:
+        required: true
+        type: string
+        description: |
+          Newline-separated list of binary paths to sign, relative to the root of the downloaded artifact.
+          Example:
+            agent/utmstack_agent_service_windows_amd64.exe
+            agent/updater/utmstack_updater_service_windows_amd64.exe
+      signed_artifact_name:
+        required: false
+        type: string
+        default: ""
+        description: "Name for the output artifact (defaults to <artifact_name>-signed)"
+      retention_days:
+        required: false
+        type: number
+        default: 1
+
+      # ---- Windows / GCP KMS (used only when os=windows) ----
+      gcp_project_id:
+        required: false
+        type: string
+        default: ""
+      kms_location:
+        required: false
+        type: string
+        default: "global"
+      kms_keyring:
+        required: false
+        type: string
+        default: ""
+      kms_key:
+        required: false
+        type: string
+        default: ""
+      cert_chain_path:
+        required: false
+        type: string
+        default: ".github/certs/codesign-chain.pem"
+        description: "Path (in the repo) to the PEM cert chain used by jsign"
+      jsign_version:
+        required: false
+        type: string
+        default: "7.0"
+      sign_name:
+        required: false
+        type: string
+        default: "UTMStack Agent"
+      sign_url:
+        required: false
+        type: string
+        default: "https://utmstack.com"
+      tsa_url:
+        required: false
+        type: string
+        default: "http://timestamp.sectigo.com"
+
+    secrets:
+      # Windows
+      GCP_WINDOWS_SIGNER_SA_KEY:
+        required: false
+      WINDOWS_SIGNER_CERT_CHAIN_PEM:
+        required: false
+        description: "Full PEM cert chain content. When set, overrides cert_chain_path."
+      # macOS
+      APPLE_CERTIFICATE_BASE64:
+        required: false
+      APPLE_CERTIFICATE_PASSWORD:
+        required: false
+      APPLE_SIGNING_IDENTITY:
+        required: false
+      APPLE_ID:
+        required: false
+      APPLE_APP_PASSWORD:
+        required: false
+      APPLE_TEAM_ID:
+        required: false
+
+jobs:
+  sign:
+    name: Sign ${{ inputs.os }} binaries
+    runs-on: ${{ inputs.os == 'windows' && 'ubuntu-latest' || 'macos-latest' }}
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout (for cert chain)
+        if: inputs.os == 'windows'
+        uses: actions/checkout@v4
+
+      - name: Download unsigned binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ./unsigned
+
+      # =========================================================
+      # Windows path: jsign + GCP KMS
+      # =========================================================
+      - name: Authenticate to Google Cloud
+        if: inputs.os == 'windows'
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_WINDOWS_SIGNER_SA_KEY }}
+
+      - name: Set up gcloud
+        if: inputs.os == 'windows'
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Set up Java (for jsign)
+        if: inputs.os == 'windows'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Download jsign
+        if: inputs.os == 'windows'
+        env:
+          JSIGN_VERSION: ${{ inputs.jsign_version }}
+        run: |
+          curl -fsSL -o jsign.jar \
+            "https://github.com/ebourg/jsign/releases/download/${JSIGN_VERSION}/jsign-${JSIGN_VERSION}.jar"
+          java -jar jsign.jar --version
+
+      - name: Prepare cert chain
+        if: inputs.os == 'windows'
+        env:
+          CHAIN_SECRET: ${{ secrets.WINDOWS_SIGNER_CERT_CHAIN_PEM }}
+          CHAIN_REPO_PATH: ${{ inputs.cert_chain_path }}
+        run: |
+          set -euo pipefail
+          OUT="${RUNNER_TEMP}/codesign-chain.pem"
+          if [ -n "$CHAIN_SECRET" ]; then
+            echo "→ Using cert chain from secret"
+            printf '%s\n' "$CHAIN_SECRET" > "$OUT"
+          elif [ -f "$CHAIN_REPO_PATH" ]; then
+            echo "→ Using cert chain from repo: $CHAIN_REPO_PATH"
+            cp "$CHAIN_REPO_PATH" "$OUT"
+          else
+            echo "::error::No cert chain available. Set WINDOWS_SIGNER_CERT_CHAIN_PEM secret or commit a chain at ${CHAIN_REPO_PATH}"
+            exit 1
+          fi
+          echo "CERT_CHAIN_FILE=${OUT}" >> "$GITHUB_ENV"
+
+      - name: Sign Windows binaries
+        if: inputs.os == 'windows'
+        env:
+          PROJECT_ID: ${{ inputs.gcp_project_id }}
+          KEYRING_LOCATION: ${{ inputs.kms_location }}
+          KEYRING_NAME: ${{ inputs.kms_keyring }}
+          KEY_NAME: ${{ inputs.kms_key }}
+          SIGN_NAME: ${{ inputs.sign_name }}
+          SIGN_URL: ${{ inputs.sign_url }}
+          TSA_URL: ${{ inputs.tsa_url }}
+          BINARIES: ${{ inputs.binaries }}
+        run: |
+          set -euo pipefail
+
+          TOKEN=$(gcloud auth print-access-token)
+          KEYSTORE="projects/${PROJECT_ID}/locations/${KEYRING_LOCATION}/keyRings/${KEYRING_NAME}"
+
+          while IFS= read -r raw; do
+            bin=$(echo "$raw" | xargs)
+            [ -z "$bin" ] && continue
+            target="./unsigned/${bin}"
+            echo "→ Signing ${target}"
+            ls -la "$target"
+
+            java -jar jsign.jar \
+              --storetype GOOGLECLOUD \
+              --storepass "$TOKEN" \
+              --keystore "$KEYSTORE" \
+              --alias "$KEY_NAME" \
+              --certfile "$CERT_CHAIN_FILE" \
+              --tsaurl "$TSA_URL" \
+              --tsmode RFC3161 \
+              --name "$SIGN_NAME" \
+              --url "$SIGN_URL" \
+              "$target"
+
+            echo "✓ Signed ${target}"
+          done <<< "$BINARIES"
+
+      - name: Install osslsigncode
+        if: inputs.os == 'windows'
+        run: sudo apt-get update && sudo apt-get install -y osslsigncode
+
+      - name: Verify Windows signatures
+        if: inputs.os == 'windows'
+        env:
+          BINARIES: ${{ inputs.binaries }}
+        run: |
+          set -euo pipefail
+          while IFS= read -r raw; do
+            bin=$(echo "$raw" | xargs)
+            [ -z "$bin" ] && continue
+            echo "→ Verifying ./unsigned/${bin}"
+            osslsigncode verify "./unsigned/${bin}"
+          done <<< "$BINARIES"
+
+      # =========================================================
+      # macOS path: codesign + notarytool
+      # =========================================================
+      - name: Install Apple certificate
+        if: inputs.os == 'macos'
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          echo "$CERTIFICATE_BASE64" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
+          security import "$RUNNER_TEMP/certificate.p12" -P "$CERTIFICATE_PASSWORD" \
+            -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
+
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+      - name: Sign macOS binaries
+        if: inputs.os == 'macos'
+        env:
+          SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          BINARIES: ${{ inputs.binaries }}
+        run: |
+          set -euo pipefail
+          while IFS= read -r raw; do
+            bin=$(echo "$raw" | xargs)
+            [ -z "$bin" ] && continue
+            target="./unsigned/${bin}"
+            echo "→ Signing ${target}"
+            codesign --force --options runtime \
+              --sign "$SIGNING_IDENTITY" \
+              --timestamp \
+              "$target"
+          done <<< "$BINARIES"
+
+      - name: Notarize macOS binaries
+        if: inputs.os == 'macos'
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          BINARIES: ${{ inputs.binaries }}
+        run: |
+          set -euo pipefail
+          while IFS= read -r raw; do
+            bin=$(echo "$raw" | xargs)
+            [ -z "$bin" ] && continue
+            target="./unsigned/${bin}"
+            zip_path="${target}.notarize.zip"
+            echo "→ Notarizing ${target}"
+            ( cd "$(dirname "$target")" && zip "$(basename "$target").notarize.zip" "$(basename "$target")" )
+
+            xcrun notarytool submit "$zip_path" \
+              --apple-id "$APPLE_ID" \
+              --password "$APPLE_APP_PASSWORD" \
+              --team-id "$APPLE_TEAM_ID" \
+              --wait
+
+            rm -f "$zip_path"
+            echo "✓ Notarized ${target}"
+          done <<< "$BINARIES"
+
+      # =========================================================
+      # Upload signed binaries
+      # =========================================================
+      - name: Compute signed artifact name
+        id: artifact
+        env:
+          OVERRIDE: ${{ inputs.signed_artifact_name }}
+          DEFAULT: ${{ inputs.artifact_name }}-signed
+        run: |
+          if [ -n "$OVERRIDE" ]; then
+            echo "name=$OVERRIDE" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=$DEFAULT" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload signed binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.artifact.outputs.name }}
+          path: ./unsigned/
+          retention-days: ${{ inputs.retention_days }}
+          if-no-files-found: error
