@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UtmModuleGroupConfDTO {
+    private String confDataType;
     private String confKey;
     private String confValue;
 }

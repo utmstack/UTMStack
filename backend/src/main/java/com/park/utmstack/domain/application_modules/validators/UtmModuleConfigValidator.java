@@ -43,7 +43,7 @@ public class UtmModuleConfigValidator {
                         // No override or masked
                         value = dbConf.getConfValue();
                     }
-                    return new UtmModuleGroupConfDTO(dbConf.getConfKey(), value);
+                    return new UtmModuleGroupConfDTO(dbConf.getConfDataType(),dbConf.getConfKey(), value);
                 })
                 .toList();
 
@@ -59,10 +59,4 @@ public class UtmModuleConfigValidator {
                 .orElse(null);
     }
 
-    private String decryptIfNeeded(String dataType, String value) {
-        if (Constants.CONF_TYPE_PASSWORD.equals(dataType) || Constants.CONF_TYPE_FILE.equals(dataType)) {
-            return CipherUtil.decrypt(value, System.getenv(Constants.ENV_ENCRYPTION_KEY));
-        }
-        return value;
-    }
 }
