@@ -43,6 +43,11 @@ public class UtmModuleGroupConfigurationService {
         try {
             if (CollectionUtils.isEmpty(keys))
                 return;
+            for (UtmModuleGroupConfiguration key : keys) {
+                if (isSensitiveType(key.getConfDataType()) && StringUtils.hasText(key.getConfValue())) {
+                    key.setConfValue(CipherUtil.encrypt(key.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
+                }
+            }
             moduleConfigurationRepository.saveAll(keys);
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());

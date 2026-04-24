@@ -159,6 +159,17 @@ public class UtmModuleGroupResource {
         final String ctx = CLASSNAME + ".getConfigurationGroups";
 
         Optional<UtmModuleGroup> group = moduleGroupService.findOne(groupId);
+        group.ifPresent(g -> {
+            if (g.getModuleGroupConfigurations() != null) {
+                for (UtmModuleGroupConfiguration conf : g.getModuleGroupConfigurations()) {
+                    if ((Constants.CONF_TYPE_PASSWORD.equals(conf.getConfDataType())
+                            || Constants.CONF_TYPE_FILE.equals(conf.getConfDataType()))
+                            && conf.getConfValue() != null) {
+                        conf.setConfValue(Constants.MASKED_VALUE);
+                    }
+                }
+            }
+        });
         return ResponseUtil.wrapOrNotFound(group);
 
     }
