@@ -45,7 +45,6 @@ public class EventProcessorManagerService {
                 .toUriString();
 
         try{
-            this.decryptModuleConfig (module);
             ResponseEntity<String> response = restTemplateService.post(
                     url,
                     List.of(module),

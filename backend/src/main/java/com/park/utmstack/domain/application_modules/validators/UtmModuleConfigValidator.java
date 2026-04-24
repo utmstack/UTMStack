@@ -40,8 +40,8 @@ public class UtmModuleConfigValidator {
                         // User provided a new value — use it as plaintext
                         value = override.getConfValue();
                     } else {
-                        // No override or masked — decrypt from DB
-                        value = decryptIfNeeded(dbConf.getConfDataType(), dbConf.getConfValue());
+                        // No override or masked
+                        value = dbConf.getConfValue();
                     }
                     return new UtmModuleGroupConfDTO(dbConf.getConfKey(), value);
                 })
