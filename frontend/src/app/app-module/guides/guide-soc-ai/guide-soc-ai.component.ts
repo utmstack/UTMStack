@@ -308,7 +308,7 @@ export class GuideSocAiComponent implements OnInit {
         this.providerFormCache[this.activeProvider] = {
           values: {...this.formValues},
           customModel: this.customModelValue,
-          headers: [...this.headerRows.map(r => ({...r}))]
+          headers: Array.from(this.headerRows.map(r => ({...r})))
         };
       }
       this.loading = false;
