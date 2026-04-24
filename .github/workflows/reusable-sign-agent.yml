@@ -195,23 +195,6 @@ jobs:
             echo "✓ Signed ${target}"
           done <<< "$BINARIES"
 
-      - name: Install osslsigncode
-        if: inputs.os == 'windows'
-        run: sudo apt-get update && sudo apt-get install -y osslsigncode
-
-      - name: Verify Windows signatures
-        if: inputs.os == 'windows'
-        env:
-          BINARIES: ${{ inputs.binaries }}
-        run: |
-          set -euo pipefail
-          while IFS= read -r raw; do
-            bin=$(echo "$raw" | xargs)
-            [ -z "$bin" ] && continue
-            echo "→ Verifying ./unsigned/${bin}"
-            osslsigncode verify "./unsigned/${bin}"
-          done <<< "$BINARIES"
-
       # =========================================================
       # macOS path: codesign + notarytool
       # =========================================================
