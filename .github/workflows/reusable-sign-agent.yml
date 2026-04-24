@@ -135,7 +135,6 @@ jobs:
         run: |
           curl -fsSL -o jsign.jar \
             "https://github.com/ebourg/jsign/releases/download/${JSIGN_VERSION}/jsign-${JSIGN_VERSION}.jar"
-          java -jar jsign.jar --version
 
       - name: Prepare cert chain
         if: inputs.os == 'windows'
