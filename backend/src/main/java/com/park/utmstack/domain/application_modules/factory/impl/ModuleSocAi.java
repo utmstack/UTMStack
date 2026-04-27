@@ -127,8 +127,8 @@ public class ModuleSocAi implements IModule {
 
     private List<UtmModuleGroupConfiguration> filterStandardConfigs(List<UtmModuleGroupConfiguration> configs) {
         return configs.stream()
-                .filter(config -> config.getConfKey().equals("utmstack.socai.custom.model") ||
-                        config.getConfKey().equals("utmstack.socai.custom.url"))
+                .filter(config -> !config.getConfKey().equals("utmstack.socai.custom.model") &&
+                        !config.getConfKey().equals("utmstack.socai.custom.url"))
                 .collect(Collectors.toList());
     }
 
