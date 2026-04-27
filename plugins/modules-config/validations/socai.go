@@ -24,6 +24,7 @@ func ValidateSOCAIConfig(cfg *config.ModuleGroup) error {
 func parseSOCAIConfig(cfg *config.ModuleGroup) socai.SOCAIConfig {
 	socai := socai.SOCAIConfig{
 		AuthType:      "none",
+		Model:         "",
 		CustomHeaders: make(map[string]string),
 	}
 

@@ -27,7 +27,7 @@ func (p *OpenAIProvider) Validate() error {
 		return fmt.Errorf("OpenAI validation error: %v", err)
 	}
 
-	if p.Model == "" {
+	if p.AbstractProvider.Model == "" {
 		return fmt.Errorf("Model is required for OpenAI provider")
 	}
 
