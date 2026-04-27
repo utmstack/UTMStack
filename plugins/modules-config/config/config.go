@@ -161,14 +161,6 @@ func (s *ConfigServer) NotifyUpdate(moduleName string, section *ConfigurationSec
 
 func (s *ConfigServer) fetchModuleConfig(backend, moduleName, internalKey string) (*ConfigurationSection, int, error) {
 	url := fmt.Sprintf("%s/api/utm-modules/moduleDetails?nameShort=%s&serverId=1", backend, moduleName)
-	// Remove after testing, before release to production
-	catcher.Info("fetchModuleConfig: requesting", map[string]any{
-		"process":        "plugin_com.utmstack.modules-config",
-		"module":         moduleName,
-		"url":            url,
-		"internalKey":    internalKey,
-		"internalKeyLen": len(internalKey),
-	})
 
 	response, status, err := utils.DoReq[ConfigurationSection](
 		url,
@@ -177,32 +169,9 @@ func (s *ConfigServer) fetchModuleConfig(backend, moduleName, internalKey string
 		map[string]string{"Utm-Internal-Key": internalKey},
 		true,
 	)
-	// Remove after testing, before release to production
-	catcher.Info("fetchModuleConfig: response received", map[string]any{
-		"process":    "plugin_com.utmstack.modules-config",
-		"module":     moduleName,
-		"status":     status,
-		"err":        fmt.Sprintf("%v", err),
-		"groupCount": len(response.ModuleGroups),
-		"moduleName": response.ModuleName,
-	})
 
 	if err != nil || status != http.StatusOK {
 		return nil, status, err
-	}
-	// Remove after testing, before release to production
-	for _, g := range response.ModuleGroups {
-		for _, cnf := range g.ModuleGroupConfigurations {
-			catcher.Info("fetchModuleConfig: incoming field (pre-decrypt)", map[string]any{
-				"process":      "plugin_com.utmstack.modules-config",
-				"module":       moduleName,
-				"groupId":      g.Id,
-				"confKey":      cnf.ConfKey,
-				"confDataType": cnf.ConfDataType,
-				"valueLen":     len(cnf.ConfValue),
-				"confValue":    cnf.ConfValue,
-			})
-		}
 	}
 
 	if err := s.runDecrypter(&response); err != nil {
@@ -210,20 +179,6 @@ func (s *ConfigServer) fetchModuleConfig(backend, moduleName, internalKey string
 			"process": "plugin_com.utmstack.modules-config",
 			"module":  moduleName,
 		})
-	}
-	// Remove after testing, before release to production
-	for _, g := range response.ModuleGroups {
-		for _, cnf := range g.ModuleGroupConfigurations {
-			catcher.Info("fetchModuleConfig: field (post-decrypt)", map[string]any{
-				"process":      "plugin_com.utmstack.modules-config",
-				"module":       moduleName,
-				"groupId":      g.Id,
-				"confKey":      cnf.ConfKey,
-				"confDataType": cnf.ConfDataType,
-				"valueLen":     len(cnf.ConfValue),
-				"confValue":    cnf.ConfValue,
-			})
-		}
 	}
 
 	return &response, status, nil

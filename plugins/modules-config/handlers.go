@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"io"
 	"net"
 	"net/http"
 
@@ -24,13 +22,6 @@ func startGRPCServer() error {
 	if err != nil {
 		return catcher.Error("failed to listen on port 9003", err, map[string]any{"process": "plugin_com.utmstack.modules-config"})
 	}
-	// Remove after testing, before release to production
-	catcher.Info("startGRPCServer: initializing decrypter", map[string]any{
-		"process":        "plugin_com.utmstack.modules-config",
-		"InternalKey":    InternalKey,
-		"InternalKeyLen": len(InternalKey),
-		"BackendService": BackendService,
-	})
 
 	config.GetConfigServer().SetDecrypter(func(section *config.ConfigurationSection) error {
 		return crypto.DecryptConfigurationSection(section, InternalKey)
@@ -78,62 +69,13 @@ func UpdateModuleConfig(c *gin.Context) {
 		return
 	}
 
-	rawBody, readErr := io.ReadAll(c.Request.Body)
-	if readErr != nil {
-		_ = catcher.Error("failed to read request body", readErr, map[string]any{
-			"process": "plugin_com.utmstack.modules-config",
-			"module":  moduleName,
-		})
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to read body"})
-		return
-	}
-	c.Request.Body = io.NopCloser(bytes.NewBuffer(rawBody))
-	// Remove after testing, before release to production
-	catcher.Info("UpdateModuleConfig: raw request body", map[string]any{
-		"process": "plugin_com.utmstack.modules-config",
-		"module":  moduleName,
-		"bodyLen": len(rawBody),
-		"rawBody": string(rawBody),
-	})
-
 	body := []config.ConfigurationSection{}
 	if err := c.ShouldBindJSON(&body); err != nil {
-		_ = catcher.Error("failed to bind JSON in UpdateModuleConfig", err, map[string]any{
-			"process": "plugin_com.utmstack.modules-config",
-			"module":  moduleName,
-		})
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
-	catcher.Info("UpdateModuleConfig: parsed body", map[string]any{
-		"process":      "plugin_com.utmstack.modules-config",
-		"module":       moduleName,
-		"sectionCount": len(body),
-	})
-	// Remove after testing, before release to production
 	if len(body) != 0 {
-		for _, g := range body[0].ModuleGroups {
-			for _, cnf := range g.ModuleGroupConfigurations {
-				catcher.Info("incoming Update field (pre-decrypt)", map[string]any{
-					"process":      "plugin_com.utmstack.modules-config",
-					"module":       moduleName,
-					"groupId":      g.Id,
-					"confKey":      cnf.ConfKey,
-					"confDataType": cnf.ConfDataType,
-					"valueLen":     len(cnf.ConfValue),
-					"confValue":    cnf.ConfValue,
-				})
-			}
-		}
-		// Remove after testing, before release to production
-		catcher.Info("UpdateModuleConfig: calling decrypter", map[string]any{
-			"process":        "plugin_com.utmstack.modules-config",
-			"module":         moduleName,
-			"InternalKey":    InternalKey,
-			"InternalKeyLen": len(InternalKey),
-		})
-
 		if err := crypto.DecryptConfigurationSection(&body[0], InternalKey); err != nil {
 			_ = catcher.Error("failed to decrypt module config on update", err, map[string]any{
 				"process": "plugin_com.utmstack.modules-config",
@@ -142,21 +84,6 @@ func UpdateModuleConfig(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to decrypt configuration"})
 			return
 		}
-		// Remove after testing, before release to production
-		for _, g := range body[0].ModuleGroups {
-			for _, cnf := range g.ModuleGroupConfigurations {
-				catcher.Info("Update field (post-decrypt)", map[string]any{
-					"process":      "plugin_com.utmstack.modules-config",
-					"module":       moduleName,
-					"groupId":      g.Id,
-					"confKey":      cnf.ConfKey,
-					"confDataType": cnf.ConfDataType,
-					"valueLen":     len(cnf.ConfValue),
-					"confValue":    cnf.ConfValue,
-				})
-			}
-		}
-
 		config.GetConfigServer().NotifyUpdate(moduleName, &body[0])
 	} else {
 		catcher.Info("Received empty configuration body, no updates made", map[string]any{"process": "plugin_com.utmstack.modules-config"})
@@ -177,7 +104,7 @@ func ValidateModuleConfig(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
-	// Remove after testing, before release to production
+
 	if err := crypto.DecryptModuleGroup(moduleName, &body, InternalKey); err != nil {
 		_ = catcher.Error("failed to decrypt module config on validate", err, map[string]any{
 			"process": "plugin_com.utmstack.modules-config",
