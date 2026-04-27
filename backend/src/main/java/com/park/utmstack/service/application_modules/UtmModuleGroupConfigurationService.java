@@ -110,6 +110,7 @@ public class UtmModuleGroupConfigurationService {
      * Find all configurations of a module group.
      * Sensitive values (password, file) are masked before returning.
      */
+    @Transactional(readOnly = true)
     public List<UtmModuleGroupConfiguration> findAllByGroupId(Long groupId) throws Exception {
         final String ctx = CLASSNAME + ".findAllByGroupId";
         try {
@@ -124,6 +125,7 @@ public class UtmModuleGroupConfigurationService {
     /**
      * Gets all configuration parameter for a group and convert it to a map
      */
+    @Transactional(readOnly = true)
     public Map<String, String> getGroupConfigurationAsMap(Long groupId) throws Exception {
         final String ctx = CLASSNAME + ".getGroupConfigurationAsMap";
         try {
@@ -141,6 +143,7 @@ public class UtmModuleGroupConfigurationService {
     /**
      * Find a configuration parameter by his group and key
      */
+    @Transactional(readOnly = true)
     public UtmModuleGroupConfiguration findByGroupIdAndConfKey(Long groupId, String confKey) throws Exception {
         final String ctx = CLASSNAME + ".findByGroupIdAndConfKey";
         try {
