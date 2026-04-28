@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/plugins/modules-config/config"
+	"github.com/utmstack/UTMStack/plugins/modules-config/crypto"
 	"github.com/utmstack/UTMStack/plugins/modules-config/validations"
 	"google.golang.org/grpc"
 )
@@ -21,6 +22,10 @@ func startGRPCServer() error {
 	if err != nil {
 		return catcher.Error("failed to listen on port 9003", err, map[string]any{"process": "plugin_com.utmstack.modules-config"})
 	}
+
+	config.GetConfigServer().SetDecrypter(func(section *config.ConfigurationSection) error {
+		return crypto.DecryptConfigurationSection(section, InternalKey)
+	})
 
 	config.RegisterConfigServiceServer(server, config.GetConfigServer())
 	config.GetConfigServer().SyncConfigs(BackendService, InternalKey)
@@ -71,6 +76,14 @@ func UpdateModuleConfig(c *gin.Context) {
 	}
 
 	if len(body) != 0 {
+		if err := crypto.DecryptConfigurationSection(&body[0], InternalKey); err != nil {
+			_ = catcher.Error("failed to decrypt module config on update", err, map[string]any{
+				"process": "plugin_com.utmstack.modules-config",
+				"module":  moduleName,
+			})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to decrypt configuration"})
+			return
+		}
 		config.GetConfigServer().NotifyUpdate(moduleName, &body[0])
 	} else {
 		catcher.Info("Received empty configuration body, no updates made", map[string]any{"process": "plugin_com.utmstack.modules-config"})
@@ -89,6 +102,15 @@ func ValidateModuleConfig(c *gin.Context) {
 	body := config.ModuleGroup{}
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	if err := crypto.DecryptModuleGroup(moduleName, &body, InternalKey); err != nil {
+		_ = catcher.Error("failed to decrypt module config on validate", err, map[string]any{
+			"process": "plugin_com.utmstack.modules-config",
+			"module":  moduleName,
+		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to decrypt configuration"})
 		return
 	}
 

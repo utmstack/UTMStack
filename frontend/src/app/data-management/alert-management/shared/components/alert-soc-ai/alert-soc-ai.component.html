@@ -47,10 +47,22 @@
   </div>
 </div>
 
-<div *ngIf="(isEmpty(socAiResponse) || socAiResponse && socAiResponse.status === indexSocAiStatus.Error) && !loading" class="w-100">
+<div *ngIf="socAiResponse && socAiResponse.status === indexSocAiStatus.Error && !loading" class="w-100">
+  <div class="w-100 alert alert-danger alert-styled-right mb-3 alert-dismissible">
+    <span class="font-weight-semibold">Error! </span>
+    <span>The SOC-AI integration could not analyze this alert due to a processing error. Please try again.</span>
+  </div>
+  <button class="btn utm-button utm-button-primary" (click)="processAlert()" [disabled]="loadingProcess || !alert">
+    <i class="icon-brain mr-1" *ngIf="!loadingProcess"></i>
+    <i class="icon-spinner2 spinner mr-1" *ngIf="loadingProcess"></i>
+    {{ loadingProcess ? 'Analyzing...' : 'Analyze with SOC AI' }}
+  </button>
+</div>
+
+<div *ngIf="isEmpty(socAiResponse) && !loading" class="w-100">
   <div class="w-100 alert alert-info alert-styled-right mb-3 alert-dismissible">
     <span class="font-weight-semibold">Info! </span>
-    <span>The SOC-AI integration did not analyze this alert due to inactivity or a processing error.</span>
+    <span>This alert has not been analyzed by SOC-AI yet. You can start the analysis below.</span>
   </div>
   <button class="btn utm-button utm-button-primary" (click)="processAlert()" [disabled]="loadingProcess || !alert">
     <i class="icon-brain mr-1" *ngIf="!loadingProcess"></i>

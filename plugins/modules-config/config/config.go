@@ -30,6 +30,8 @@ type failedModule struct {
 	lastError   string
 }
 
+type Decrypter func(*ConfigurationSection) error
+
 type ConfigServer struct {
 	UnimplementedConfigServiceServer
 
@@ -38,6 +40,7 @@ type ConfigServer struct {
 	cache         map[PluginType]*ConfigurationSection
 	failedModules map[PluginType]*failedModule
 	failedMu      sync.RWMutex
+	decrypt       Decrypter
 }
 
 func GetConfigServer() *ConfigServer {
@@ -49,6 +52,17 @@ func GetConfigServer() *ConfigServer {
 		}
 	})
 	return configServer
+}
+
+func (s *ConfigServer) SetDecrypter(d Decrypter) {
+	s.decrypt = d
+}
+
+func (s *ConfigServer) runDecrypter(section *ConfigurationSection) error {
+	if s.decrypt == nil {
+		return nil
+	}
+	return s.decrypt(section)
 }
 
 func (s *ConfigServer) GetModuleGroup(moduleName PluginType) *ConfigurationSection {
@@ -146,7 +160,7 @@ func (s *ConfigServer) NotifyUpdate(moduleName string, section *ConfigurationSec
 }
 
 func (s *ConfigServer) fetchModuleConfig(backend, moduleName, internalKey string) (*ConfigurationSection, int, error) {
-	url := fmt.Sprintf("%s/api/utm-modules/module-details-decrypted?nameShort=%s&serverId=1", backend, moduleName)
+	url := fmt.Sprintf("%s/api/utm-modules/moduleDetails?nameShort=%s&serverId=1", backend, moduleName)
 
 	response, status, err := utils.DoReq[ConfigurationSection](
 		url,
@@ -158,6 +172,13 @@ func (s *ConfigServer) fetchModuleConfig(backend, moduleName, internalKey string
 
 	if err != nil || status != http.StatusOK {
 		return nil, status, err
+	}
+
+	if err := s.runDecrypter(&response); err != nil {
+		return nil, status, catcher.Error("failed to decrypt module config", err, map[string]any{
+			"process": "plugin_com.utmstack.modules-config",
+			"module":  moduleName,
+		})
 	}
 
 	return &response, status, nil

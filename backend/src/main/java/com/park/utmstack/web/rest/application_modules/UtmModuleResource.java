@@ -124,9 +124,7 @@ public class UtmModuleResource {
         final String ctx = CLASSNAME + ".getModuleDetailsDecrypted";
         try {
             UtmModule module = moduleFactory.getInstance(nameShort).getDetails(utmServerRepository.getUtmServer());
-            if (InternalApiKeyFilter.isApiKeyHeaderInUse()) {
-                this.eventProcessorManagerService.decryptModuleConfig(module);
-            } else {
+            if (!InternalApiKeyFilter.isApiKeyHeaderInUse()) {
                 String msg = ctx + ": You must provide the header used to communicate internally with this resource";
                 log.error(msg);
                 eventService.createEvent(msg, ApplicationEventType.ERROR);

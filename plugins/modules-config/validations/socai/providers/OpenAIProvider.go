@@ -15,7 +15,7 @@ func NewOpenAIProvider(
 	AuthType string,
 	CustomHeaders map[string]string,
 ) IProvider {
-	base := NewAbstractProvider( "https://api.openai.com/v1/chat/completions", Model, AuthType, CustomHeaders)
+	base := NewAbstractProvider("https://api.openai.com/v1/chat/completions", Model, AuthType, CustomHeaders)
 
 	return &OpenAIProvider{
 		AbstractProvider: *base,
@@ -27,7 +27,7 @@ func (p *OpenAIProvider) Validate() error {
 		return fmt.Errorf("OpenAI validation error: %v", err)
 	}
 
-	if p.Model == "" {
+	if p.AbstractProvider.Model == "" {
 		return fmt.Errorf("Model is required for OpenAI provider")
 	}
 

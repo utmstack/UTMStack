@@ -4,6 +4,7 @@ go 1.25.5
 
 require (
 	cloud.google.com/go/pubsub v1.50.1
+	github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0
 	github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/v2 v2.0.1
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.6.4
 	github.com/aws/aws-sdk-go-v2/config v1.32.8
@@ -13,6 +14,7 @@ require (
 	github.com/crowdstrike/gofalcon v0.19.0
 	github.com/gin-gonic/gin v1.11.0
 	github.com/threatwinds/go-sdk v1.1.15
+	golang.org/x/sync v0.19.0
 	google.golang.org/api v0.267.0
 	google.golang.org/grpc v1.79.1
 	google.golang.org/protobuf v1.36.11
@@ -118,7 +120,6 @@ require (
 	golang.org/x/exp v0.0.0-20260112195511-716be5621a96 // indirect
 	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/oauth2 v0.35.0 // indirect
-	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
 	golang.org/x/time v0.14.0 // indirect

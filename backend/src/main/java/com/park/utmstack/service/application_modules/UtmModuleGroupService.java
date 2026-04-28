@@ -249,13 +249,19 @@ public class UtmModuleGroupService {
                 moduleGroupRepository.deleteAll(dbConfigs);
             } else {
                 for (UtmModuleGroupConfiguration key : keys) {
-                    if (key.getConfDataType().equals("password")) {
-                        if (Constants.MASKED_VALUE.equals(key.getConfValue())) {
-                            continue;
-                        }
+                    boolean isSensitive = isSensitiveType(key.getConfDataType());
+                    if (isSensitive && Constants.MASKED_VALUE.equals(key.getConfValue())) {
+                        continue;
+                    }
+                    if (isSensitive) {
                         key.setConfValue(CipherUtil.encrypt(key.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
                     }
                 }
+
+                List<UtmModuleGroupConfiguration> toSave = keys.stream()
+                        .filter(k -> !(isSensitiveType(k.getConfDataType()) && Constants.MASKED_VALUE.equals(k.getConfValue())))
+                        .collect(Collectors.toList());
+
                 List<Long> keyGroupIds = keys.stream()
                         .map(UtmModuleGroupConfiguration::getGroupId)
                         .toList();
@@ -265,13 +271,19 @@ public class UtmModuleGroupService {
                         .collect(Collectors.toList());
 
                 moduleGroupRepository.deleteAll(groupsToDelete);
-                moduleGroupConfigurationRepository.saveAll(keys);
+                if (!toSave.isEmpty()) {
+                    moduleGroupConfigurationRepository.saveAll(toSave);
+                }
             }
 
         } catch (Exception e) {
             log.error("{}: Error updating collector configuration keys for collector id {}: {}", ctx, collectorConfig.getCollector().getId(), e.getMessage());
             throw new ApiException(String.format("%s: Error updating collector configuration keys for collector id %d", ctx, collectorConfig.getCollector().getId()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private boolean isSensitiveType(String dataType) {
+        return Constants.CONF_TYPE_PASSWORD.equals(dataType) || Constants.CONF_TYPE_FILE.equals(dataType);
     }
 
 }

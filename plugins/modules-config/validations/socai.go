@@ -9,9 +9,6 @@ import (
 	"github.com/utmstack/UTMStack/plugins/modules-config/validations/socai"
 )
 
-
-
-
 func ValidateSOCAIConfig(cfg *config.ModuleGroup) error {
 	if cfg == nil {
 		return fmt.Errorf("SOC AI configuration is not provided")
@@ -24,11 +21,12 @@ func ValidateSOCAIConfig(cfg *config.ModuleGroup) error {
 func parseSOCAIConfig(cfg *config.ModuleGroup) socai.SOCAIConfig {
 	socai := socai.SOCAIConfig{
 		AuthType:      "none",
+		Model:         "",
 		CustomHeaders: make(map[string]string),
 	}
 
 	for _, cnf := range cfg.ModuleGroupConfigurations {
-		cnf.ConfValue=strings.Trim(cnf.ConfValue," ")
+		cnf.ConfValue = strings.Trim(cnf.ConfValue, " ")
 		switch cnf.ConfKey {
 		case "utmstack.socai.autoAnalyze":
 			socai.AutoAnalyze = cnf.ConfValue == "true"
@@ -59,6 +57,3 @@ func parseSOCAIConfig(cfg *config.ModuleGroup) socai.SOCAIConfig {
 
 	return socai
 }
-
-
-
