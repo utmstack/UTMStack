@@ -96,6 +96,7 @@ public class UtmModuleResource {
     public ResponseEntity<ModuleDTO> getModuleById(@PathVariable Long id) {
         final String ctx = CLASSNAME + ".getModuleById";
         try {
+
             return ResponseEntity.ok().body(utmModuleQueryService.findById(id));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
@@ -110,7 +111,8 @@ public class UtmModuleResource {
                                                       @RequestParam ModuleName nameShort) {
         final String ctx = CLASSNAME + ".getModuleDetails";
         try {
-            return ResponseEntity.ok(moduleFactory.getInstance(nameShort).getDetails(serverId));
+            UtmModule module = moduleFactory.getInstance(nameShort).getDetails(utmServerRepository.getUtmServer());
+            return ResponseEntity.ok(module);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
