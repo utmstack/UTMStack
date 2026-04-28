@@ -11,6 +11,7 @@ import (
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/shared/exec"
 	"github.com/utmstack/UTMStack/shared/fs"
+	"github.com/utmstack/UTMStack/shared/svc"
 )
 
 // GetDependencies returns the list of dependencies for Windows amd64.
@@ -19,15 +20,16 @@ func GetDependencies() []Dependency {
 
 	return []Dependency{
 		{
-			Name:       "updater",
-			Version:    UpdaterVersion,
-			BinaryPath: filepath.Join(basePath, UpdaterFile("")),
+			Name:        "updater",
+			Version:     getUpdaterVersion(),
+			BinaryPath:  filepath.Join(basePath, UpdaterFile("")),
 			DownloadURL: func(server string) string {
 				return fmt.Sprintf(config.DependUrl, server, config.DependenciesPort, UpdaterFile(""))
 			},
-			Critical:  false, // Agent can run without updater
-			Configure: configureUpdater,
-			Uninstall: uninstallUpdater,
+			Critical:    false, // Agent can run without updater
+			PreDownload: preDownloadUpdater,
+			Configure:   configureUpdater,
+			Uninstall:   uninstallUpdater,
 		},
 
 		// New beats dependency - only for uninstalling existing filebeat/winlogbeat
@@ -56,4 +58,20 @@ func uninstallUpdater() error {
 
 func uninstallBeats() error {
 	return collector.UninstallAll()
+}
+
+func preDownloadUpdater() (func(), error) {
+	// Stop the updater service before download
+	if err := svc.Stop(config.SERVICE_UPDATER_NAME); err != nil {
+		// Service might not be running or installed yet - that's OK
+		// Return cleanup function anyway (safe to start)
+		return func() {
+			_ = svc.Start(config.SERVICE_UPDATER_NAME)
+		}, nil
+	}
+	
+	// Return cleanup function that restarts the service
+	return func() {
+		_ = svc.Start(config.SERVICE_UPDATER_NAME)
+	}, nil
 }

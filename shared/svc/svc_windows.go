@@ -7,24 +7,59 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"time"
 )
 
-// Start starts a Windows service by name.
+const (
+	pollInterval = 500 * time.Millisecond
+	stopTimeout  = 60 * time.Second
+	startTimeout = 60 * time.Second
+)
+
+// Start starts a Windows service by name and waits until it's running.
 func Start(serviceName string) error {
-	cmd := exec.Command("sc", "start", serviceName)
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to start service %s: %w", serviceName, err)
+	// Already running? Nothing to do
+	if running, _ := IsActive(serviceName); running {
+		return nil
 	}
-	return nil
+
+	cmd := exec.Command("sc", "start", serviceName)
+	cmd.Run() // Ignore error, we'll check actual state
+
+	// Poll until running or timeout
+	deadline := time.Now().Add(startTimeout)
+	for time.Now().Before(deadline) {
+		if running, _ := IsActive(serviceName); running {
+			return nil
+		}
+		time.Sleep(pollInterval)
+	}
+
+	return fmt.Errorf("timeout waiting for service %s to start", serviceName)
 }
 
-// Stop stops a Windows service by name.
+// Stop stops a Windows service by name and waits until it's stopped.
 func Stop(serviceName string) error {
-	cmd := exec.Command("sc", "stop", serviceName)
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to stop service %s: %w", serviceName, err)
+	// Already stopped? Nothing to do
+	status, _ := Status(serviceName)
+	if status == StatusStopped {
+		return nil
 	}
-	return nil
+
+	cmd := exec.Command("sc", "stop", serviceName)
+	cmd.Run() // Ignore error, we'll check actual state
+
+	// Poll until stopped or timeout
+	deadline := time.Now().Add(stopTimeout)
+	for time.Now().Before(deadline) {
+		status, _ := Status(serviceName)
+		if status == StatusStopped {
+			return nil
+		}
+		time.Sleep(pollInterval)
+	}
+
+	return fmt.Errorf("timeout waiting for service %s to stop", serviceName)
 }
 
 // Restart restarts a Windows service by stopping and starting it.
@@ -37,12 +72,11 @@ func Restart(serviceName string) error {
 
 // IsActive checks if a Windows service is running.
 func IsActive(serviceName string) (bool, error) {
-	cmd := exec.Command("sc", "query", serviceName)
-	output, err := cmd.Output()
+	status, err := Status(serviceName)
 	if err != nil {
-		return false, fmt.Errorf("failed to query service %s: %w", serviceName, err)
+		return false, err
 	}
-	return strings.Contains(string(output), "RUNNING"), nil
+	return status == StatusRunning, nil
 }
 
 // Status returns the status of a Windows service.

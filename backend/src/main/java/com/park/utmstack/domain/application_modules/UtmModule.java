@@ -62,6 +62,7 @@ public class UtmModule implements Serializable {
     @JoinColumn(name = "server_id", insertable = false, updatable = false)
     private UtmServer server;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
     private Set<UtmModuleGroup> moduleGroups = new HashSet<>();
 

@@ -450,7 +450,6 @@ jobs:
       maven_profile: 'prod'
       maven_goals: 'clean package'
       copy_filters_and_rules: true
-
   build_frontend:
     name: Build Frontend Microservice
     needs: [validations, setup_deployment]

@@ -15,7 +15,7 @@ func NewOpenAIProvider(
 	AuthType string,
 	CustomHeaders map[string]string,
 ) IProvider {
-	base := NewAbstractProvider( "https://api.openai.com/v1/chat/completions", Model, AuthType, CustomHeaders)
+	base := NewAbstractProvider("https://api.openai.com/v1/chat/completions", Model, AuthType, CustomHeaders)
 
 	return &OpenAIProvider{
 		AbstractProvider: *base,
