@@ -102,6 +102,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
         if (countryList) {
           this.loadSelectOptions(this.getName(countryList.confParamShort));
         }
+        this.configToSave=this.configs
         this.validConfigSection.emit(this.checkConfigValid());
       }, error => {
         this.toastService.showError('Error', 'Error getting application configurations');
