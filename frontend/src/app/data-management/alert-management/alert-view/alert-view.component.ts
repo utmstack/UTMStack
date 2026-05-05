@@ -388,7 +388,6 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   }
 
   onSortBy($event: SortEvent) {
-    console.log($event)
     this.sortBy = $event.column + ',' + $event.direction;
     this.getAlert('on sort by');
   }
