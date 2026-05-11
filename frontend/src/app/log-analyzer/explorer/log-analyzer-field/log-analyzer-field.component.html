@@ -1,9 +1,9 @@
 <div class="card h-100">
   <div *ngIf="fieldSelected.length>0" class="selected-fields mb-2">
-    <div class="d-flex justify-content-between pl-2 pt-2 pb-0">
+    <div class="d-flex justify-content-between  pl-2 pt-2 pb-0 overflow-y-auto">
       <span class="font-weight-semibold">Selected fields</span>
     </div>
-    <div class="sel-fields p-2">
+    <div class="sel-fields p-2  ">
       <app-log-analyzer-field-card (addFieldToColumn)="addToColumns($event)" *ngFor="let field of fieldSelected"
                                    [pattern]="pattern"
                                    [fieldSelected]="fieldSelected"
