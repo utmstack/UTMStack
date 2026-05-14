@@ -16,13 +16,17 @@ import json
 
 # Define the URL
 url = "https://${this.instance}:8080/v1/logs"
-logs = []  # Replace with your actual log data
-payload = json.dumps(logs)
+
+# Define the payload (replace this with your actual log data)
+payload = json.dumps({
+  "dataType": "json-input",
+  "dataSource": "api-gateway",
+  "raw": "{\\"level\\":\\"error\\",\\"msg\\":\\"connection refused\\",\\"user\\":\\"admin\\",\\"ip\\":\\"10.0.0.5\\",\\"endpoint\\":\\"/api/login\\",\\"status\\":500}"
+})
 
 # Define headers
 headers = {
   'Utm-Connection-Key': '${this.mask}',
-  'Utm-Log-Source': 'your log source (mandatory header)',
   'Content-Type': 'application/json'
 }
 
@@ -39,14 +43,13 @@ OkHttpClient client = new OkHttpClient().newBuilder().build();
 
 // Define the media type and request body (replace this with your actual request body)
 MediaType mediaType = MediaType.parse("application/json");
-RequestBody body = RequestBody.create(mediaType, "[]\\n");
+RequestBody body = RequestBody.create(mediaType, "{\\"dataType\\":\\"json-input\\",\\"dataSource\\":\\"api-gateway\\",\\"raw\\":\\"{\\\\\\"level\\\\\\":\\\\\\"error\\\\\\",\\\\\\"msg\\\\\\":\\\\\\"connection refused\\\\\\",\\\\\\"user\\\\\\":\\\\\\"admin\\\\\\",\\\\\\"ip\\\\\\":\\\\\\"10.0.0.5\\\\\\",\\\\\\"endpoint\\\\\\":\\\\\\"/api/login\\\\\\",\\\\\\"status\\\\\\":500}\\"}");
 
 // Create the request
 Request request = new Request.Builder()
   .url("https://${this.instance}:8080/v1/logs")
   .method("POST", body)
   .addHeader("Utm-Connection-Key", "${this.mask}")
-  .addHeader("Utm-Log-Source", "your log source (mandatory header)")
   .addHeader("Content-Type", "application/json")
   .build();
 
@@ -70,7 +73,7 @@ func main() {
   method := "POST"
 
   // Define the payload (replace this with your actual payload)
-  payload := strings.NewReader([])
+  payload := strings.NewReader("{\\"dataType\\":\\"json-input\\",\\"dataSource\\":\\"api-gateway\\",\\"raw\\":\\"{\\\\\\"level\\\\\\":\\\\\\"error\\\\\\",\\\\\\"msg\\\\\\":\\\\\\"connection refused\\\\\\",\\\\\\"user\\\\\\":\\\\\\"admin\\\\\\",\\\\\\"ip\\\\\\":\\\\\\"10.0.0.5\\\\\\",\\\\\\"endpoint\\\\\\":\\\\\\"/api/login\\\\\\",\\\\\\"status\\\\\\":500}\\"}")
 
   // Create an HTTP client
   client := &http.Client{}
@@ -85,7 +88,6 @@ func main() {
 
   // Add headers
   req.Header.Add("Utm-Connection-Key", "${this.mask}")
-  req.Header.Add("Utm-Log-Source", "your log source (mandatory header)")
   req.Header.Add("Content-Type", "application/json")
 
   // Send the request
@@ -119,11 +121,14 @@ var options = {
   'url': 'https://${this.instance}:8080/v1/logs',
   'headers': {
     'Utm-Connection-Key': '${this.mask}',
-    'Utm-Log-Source': 'your log source (mandatory header)',
     'Content-Type': 'application/json'
   },
   // Define the request body (replace this with your actual request body)
-  body: JSON.stringify([])
+  body: JSON.stringify({
+    "dataType": "json-input",
+    "dataSource": "api-gateway",
+    "raw": "{\\"level\\":\\"error\\",\\"msg\\":\\"connection refused\\",\\"user\\":\\"admin\\",\\"ip\\":\\"10.0.0.5\\",\\"endpoint\\":\\"/api/login\\",\\"status\\":500}"
+  })
 };
 
 // Send the request
@@ -137,11 +142,16 @@ request(options, function (error, response) {
 # Define headers
 $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 $headers.Add("Utm-Connection-Key", "${this.mask}")
-$headers.Add("Utm-Log-Source", "your log source (mandatory header)")
 $headers.Add("Content-Type", "application/json")
 
 # Define the request body (replace this with your actual request body)
-$body = @"[]"@
+$body = @"
+{
+  "dataType": "json-input",
+  "dataSource": "api-gateway",
+  "raw": "{\\"level\\":\\"error\\",\\"msg\\":\\"connection refused\\",\\"user\\":\\"admin\\",\\"ip\\":\\"10.0.0.5\\",\\"endpoint\\":\\"/api/login\\",\\"status\\":500}"
+}
+"@
 
 # Send the request and capture the response
 $response = Invoke-RestMethod 'https://${this.instance}:8080/v1/logs' -Method 'POST' -Headers $headers -Body $body
@@ -153,23 +163,28 @@ $response | ConvertTo-Json
   curlCode = `
   curl --location --request POST 'https://${this.instance}:8080/v1/logs' \\
   --header 'Utm-Connection-Key: ${this.mask}' \\
-  --header 'Utm-Log-Source: your log source (mandatory header)' \\
   --header 'Content-Type: application/json' \\
-  --data '[]'
+  --data '{
+    "dataType": "json-input",
+    "dataSource": "api-gateway",
+    "raw": "{\\"level\\":\\"error\\",\\"msg\\":\\"connection refused\\",\\"user\\":\\"admin\\",\\"ip\\":\\"10.0.0.5\\",\\"endpoint\\":\\"/api/login\\",\\"status\\":500}"
+  }'
   `;
   token: string;
   view: 'python' | 'java' | 'javascript' | 'golang' | 'bash' | 'powershell' = 'python';
   exampleCode = `
-  [
-    {
-        "timestamp": "2023-10-11T08:30:15.123Z",
-        "level": "INFO",
-        "message": "Application started successfully.",
-        "component": "Server",
-        "module": "app.js",
-        "source": "MyApp"
-    }
-  ]
+  {
+    "dataType": "json-input",
+    "dataSource": "api-gateway",
+    "raw": "{
+      \\"level\\": \\"error\\",
+      \\"msg\\": \\"connection refused\\",
+      \\"user\\": \\"admin\\",
+      \\"ip\\": \\"10.0.0.5\\",
+      \\"endpoint\\": \\"/api/login\\",
+      \\"status\\": 500
+    }"
+  }
   `;
   responseBody = `{"status": "received"}`;
 

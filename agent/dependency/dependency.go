@@ -60,17 +60,17 @@ func UpdaterFile(suffix string) string {
 
 // Dependency represents a dependency that the agent needs.
 type Dependency struct {
-	Name         string                     // Unique identifier
-	Version      string                     // Current version in this agent build
-	BinaryPath   string                     // Path to check if already exists
-	DownloadURL  func(server string) string // URL template to download from
-	DownloadName string                     // Filename to save as (if different from BinaryPath basename)
-	Critical     bool                       // If true, failure blocks agent startup
+	Name         string                             // Unique identifier
+	Version      string                             // Current version in this agent build
+	BinaryPath   string                             // Path to check if already exists
+	DownloadURL  func(server string) string         // URL template to download from
+	DownloadName string                             // Filename to save as (if different from BinaryPath basename)
+	Critical     bool                               // If true, failure blocks agent startup
 	PreDownload  func() (cleanup func(), err error) // Called before download, returns cleanup for rollback
-	PostDownload func() error               // Run after download (e.g., unzip). Can be nil.
-	Configure    func() error               // Run on first install (can be nil)
-	Update       func() error               // Run on version change (can be nil, uses Configure)
-	Uninstall    func() error               // Run when dependency is removed (can be nil)
+	PostDownload func() error                       // Run after download (e.g., unzip). Can be nil.
+	Configure    func() error                       // Run on first install (can be nil)
+	Update       func() error                       // Run on version change (can be nil, uses Configure)
+	Uninstall    func() error                       // Run when dependency is removed (can be nil)
 }
 
 // Exists checks if the dependency binary exists on disk.
@@ -212,7 +212,7 @@ func Reconcile(server string, skipCertValidation bool) error {
 		} else if inst.Version != dep.Version {
 			// VERSION CHANGED: Download (if needed) and update
 			utils.Logger.Info("Updating dependency: %s (%s -> %s)", dep.Name, inst.Version, dep.Version)
-			
+
 			// Call PreDownload hook if defined
 			var cleanup func()
 			if dep.PreDownload != nil {

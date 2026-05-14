@@ -4,6 +4,7 @@ import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.domain.shared_types.CsvExportingParams;
+import com.park.utmstack.domain.shared_types.DataColumn;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.elastic.SqlSearchDto;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
@@ -203,6 +204,27 @@ public class ElasticsearchResource {
                 return ResponseEntity.ok().build();
 
             List<Map> hits = searchResponse.hits().hits().stream().map(Hit::source).collect(Collectors.toList());
+
+            boolean needsEchoes = false;
+            for (DataColumn col : params.getColumns()) {
+                if ("echoes".equals(col.getField())) {
+                    needsEchoes = true;
+                    break;
+                }
+            }
+            if (needsEchoes) {
+                hits.forEach(d -> {
+                    Object id = d.get("id");
+                    if (id != null) {
+                        long countEchoes = elasticsearchService.count(
+                                List.of(new FilterType("parentId", OperatorType.IS, id.toString())),
+                                params.getIndexPattern()
+                        );
+                        d.put("echoes", countEchoes);
+                    }
+                });
+            }
+
             UtilCsv.prepareToDownload(response, params.getColumns(), hits);
 
             return ResponseEntity.ok().build();

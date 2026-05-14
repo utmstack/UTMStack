@@ -62,9 +62,7 @@ public class UtmModuleService {
                     module.setModuleActive(activationStatus);
                     module = moduleRepository.save(module);
 
-                    List<ModuleName> nonRemovableConf = List.of(ModuleName.SOC_AI);
-
-                    if (!activationStatus && !nonRemovableConf.contains(nameShort))
+                    if (!activationStatus)
                         moduleGroupRepository.deleteAllByModuleId(module.getId());
 
                     enableDisableModuleMenus(nameShort, activationStatus);

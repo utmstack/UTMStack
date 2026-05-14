@@ -3,6 +3,8 @@ import {ALERT_FIELDS} from '../../../../../shared/constants/alert/alert-field.co
 import {FILTER_OPERATORS} from '../../../../../shared/constants/filter-operators.const';
 import {ElasticOperatorsEnum} from '../../../../../shared/enums/elastic-operators.enum';
 import {AlertRuleType} from '../../../alert-rules/alert-rule.type';
+import { BehaviorSubject } from 'rxjs';
+import{ElasticFilterType} from 'src/app/shared/types/filter/elastic-filter.type'
 
 @Component({
   selector: 'app-alert-rule-detail',
@@ -11,14 +13,17 @@ import {AlertRuleType} from '../../../alert-rules/alert-rule.type';
 })
 export class AlertRuleDetailComponent implements OnInit {
   @Input() rule: AlertRuleType;
+  ruleCondition = new BehaviorSubject<ElasticFilterType[]>([])
 
   constructor() { }
 
   ngOnInit() {
+    this.ruleCondition.next(this.rule.conditions)
   }
 
   getFieldName(field: string): string {
-    return ALERT_FIELDS.filter(value => value.field === field)[0].label;
+    const alert_field = ALERT_FIELDS.find(value => value.field.trim().toLowerCase() == field.trim().toLowerCase())
+    return alert_field? alert_field.label : field;
   }
 
   getFilterName(operator: ElasticOperatorsEnum): string {

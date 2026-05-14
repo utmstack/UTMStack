@@ -13,8 +13,9 @@ export class ElasticDataExportService {
   }
 
   exportCsv(params, filePrefix): Promise<boolean> {
+    const expandedParams = {...params, columns: this.expandColumns(params.columns || [])};
     return new Promise<boolean>(resolve => {
-      this.elasticDataService.exportToCsv(params).subscribe((dat) => {
+      this.elasticDataService.exportToCsv(expandedParams).subscribe((dat) => {
         const data = new Blob([dat], {type: 'text/csv;charset=utf-8;'});
         if (data.size > 0) {
           // Browsers that support HTML5 download attribute
@@ -33,5 +34,17 @@ export class ElasticDataExportService {
         resolve(true);
       });
     });
+  }
+
+  private expandColumns(columns: any[]): any[] {
+    const result: any[] = [];
+    for (const col of columns) {
+      if (col.type === 'object' && col.fields && col.fields.length > 0) {
+        result.push(...col.fields.filter((f: any) => f.visible));
+      } else {
+        result.push(col);
+      }
+    }
+    return result;
   }
 }

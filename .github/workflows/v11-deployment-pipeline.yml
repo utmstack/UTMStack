@@ -122,10 +122,10 @@ jobs:
           fi
 
   build_agent:
-    name: Build and Sign Agent
+    name: Build Agent Binaries
     needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
-    runs-on: utmstack-signer
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
@@ -174,132 +174,82 @@ jobs:
           cd ${{ github.workspace }}/agent/updater
           go build -o utmstack_updater_service_windows_arm64.exe .
 
-      - name: Sign Windows Agents
-        run: |
-          cd ${{ github.workspace }}/agent
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service_windows_amd64.exe"
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service_windows_arm64.exe"
-
-          cd ${{ github.workspace }}/agent/updater
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_updater_service_windows_amd64.exe"
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_updater_service_windows_arm64.exe"
-
-      - name: Upload signed binaries as artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: signed-agents
-          path: |
-            ${{ github.workspace }}/agent/utmstack_agent_service_linux_amd64
-            ${{ github.workspace }}/agent/utmstack_agent_service_linux_arm64
-            ${{ github.workspace }}/agent/utmstack_agent_service_windows_amd64.exe
-            ${{ github.workspace }}/agent/utmstack_agent_service_windows_arm64.exe
-            ${{ github.workspace }}/agent/updater/utmstack_updater_service_linux_amd64
-            ${{ github.workspace }}/agent/updater/utmstack_updater_service_linux_arm64
-            ${{ github.workspace }}/agent/updater/utmstack_updater_service_windows_amd64.exe
-            ${{ github.workspace }}/agent/updater/utmstack_updater_service_windows_arm64.exe
-          retention-days: 1
-
-  build_agent_darwin:
-    name: Build and Sign Agent (macOS)
-    needs: [setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' }}
-    runs-on: macos-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.23'
-
-      - name: Install Apple Certificate
-        env:
-          CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
-          CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-        run: |
-          # Create temporary keychain
-          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
-
-          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-
-          # Import certificate
-          echo "$CERTIFICATE_BASE64" | base64 --decode > $RUNNER_TEMP/certificate.p12
-          security import $RUNNER_TEMP/certificate.p12 -P "$CERTIFICATE_PASSWORD" \
-            -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
-
-          # Allow codesign without prompt
-          security set-key-partition-list -S apple-tool:,apple:,codesign: \
-            -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-
-      - name: Build macOS Agent (arm64)
+      - name: Build macOS Binaries (arm64)
         env:
           GOOS: darwin
           GOARCH: arm64
           CGO_ENABLED: 0
         run: |
           cd ${{ github.workspace }}/agent
-          go build -o utmstack_agent_service_darwin_arm64 -v \
-            -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+          go build -o utmstack_agent_service_darwin_arm64 -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
           cd ${{ github.workspace }}/agent/updater
           go build -o utmstack_updater_service_darwin_arm64 .
 
-      - name: Sign macOS Binaries
-        env:
-          SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-        run: |
-          # Sign agent
-          codesign --force --options runtime \
-            --sign "$SIGNING_IDENTITY" \
-            --timestamp \
-            ${{ github.workspace }}/agent/utmstack_agent_service_darwin_arm64
-
-          # Sign updater
-          codesign --force --options runtime \
-            --sign "$SIGNING_IDENTITY" \
-            --timestamp \
-            ${{ github.workspace }}/agent/updater/utmstack_updater_service_darwin_arm64
-
-      - name: Notarize macOS Binaries
-        env:
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        run: |
-          # Create zip for notarization (notarytool requires zip/pkg/dmg)
-          cd ${{ github.workspace }}/agent
-          zip utmstack_agent_darwin_arm64.zip utmstack_agent_service_darwin_arm64
-
-          cd ${{ github.workspace }}/agent/updater
-          zip utmstack_updater_darwin_arm64.zip utmstack_updater_service_darwin_arm64
-
-          # Notarize agent
-          xcrun notarytool submit ${{ github.workspace }}/agent/utmstack_agent_darwin_arm64.zip \
-            --apple-id "$APPLE_ID" \
-            --password "$APPLE_APP_PASSWORD" \
-            --team-id "$APPLE_TEAM_ID" \
-            --wait
-
-          # Notarize updater
-          xcrun notarytool submit ${{ github.workspace }}/agent/updater/utmstack_updater_darwin_arm64.zip \
-            --apple-id "$APPLE_ID" \
-            --password "$APPLE_APP_PASSWORD" \
-            --team-id "$APPLE_TEAM_ID" \
-            --wait
-
-      - name: Upload macOS binaries as artifacts
+      - name: Upload Linux binaries as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: signed-agents-darwin
+          name: agents-linux
           path: |
-            ${{ github.workspace }}/agent/utmstack_agent_service_darwin_arm64
-            ${{ github.workspace }}/agent/updater/utmstack_updater_service_darwin_arm64
+            agent/utmstack_agent_service_linux_amd64
+            agent/utmstack_agent_service_linux_arm64
+            agent/updater/utmstack_updater_service_linux_amd64
+            agent/updater/utmstack_updater_service_linux_arm64
           retention-days: 1
+
+      - name: Upload unsigned Windows binaries as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agents-windows-unsigned
+          path: |
+            agent/utmstack_agent_service_windows_amd64.exe
+            agent/utmstack_agent_service_windows_arm64.exe
+            agent/updater/utmstack_updater_service_windows_amd64.exe
+            agent/updater/utmstack_updater_service_windows_arm64.exe
+          retention-days: 1
+
+      - name: Upload unsigned macOS binaries as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agents-darwin-unsigned
+          path: |
+            agent/utmstack_agent_service_darwin_arm64
+            agent/updater/utmstack_updater_service_darwin_arm64
+          retention-days: 1
+
+  sign_agent_windows:
+    name: Sign Windows Agent Binaries
+    needs: [build_agent, setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
+    uses: ./.github/workflows/reusable-sign-agent.yml
+    with:
+      os: windows
+      artifact_name: agents-windows-unsigned
+      signed_artifact_name: agents-windows-signed
+      gcp_project_id: ${{ vars.GCP_PROJECT_PROD }}
+      kms_location: ${{ vars.KMS_KEYRING_LOCATION }}
+      kms_keyring: ${{ vars.KMS_KEYRING_NAME }}
+      kms_key: ${{ vars.KMS_KEY_NAME }}
+      binaries: |
+        utmstack_agent_service_windows_amd64.exe
+        utmstack_agent_service_windows_arm64.exe
+        updater/utmstack_updater_service_windows_amd64.exe
+        updater/utmstack_updater_service_windows_arm64.exe
+    secrets: inherit
+
+  sign_agent_macos:
+    name: Sign macOS Agent Binaries
+    needs: [build_agent, setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
+    uses: ./.github/workflows/reusable-sign-agent.yml
+    with:
+      os: macos
+      artifact_name: agents-darwin-unsigned
+      signed_artifact_name: agents-darwin-signed
+      binaries: |
+        utmstack_agent_service_darwin_arm64
+        updater/utmstack_updater_service_darwin_arm64
+    secrets: inherit
 
   build_utmstack_collector:
     name: Build UTMStack Collector
@@ -337,17 +287,23 @@ jobs:
 
   build_agent_manager:
     name: Build Agent Manager Microservice
-    needs: [build_agent, build_agent_darwin, build_utmstack_collector, setup_deployment]
-    if: ${{ always() && needs.build_agent.result == 'success' && needs.build_agent_darwin.result == 'success' && needs.build_utmstack_collector.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
+    needs: [sign_agent_windows, sign_agent_macos, build_utmstack_collector, setup_deployment]
+    if: ${{ always() && needs.sign_agent_windows.result == 'success' && needs.sign_agent_macos.result == 'success' && needs.build_utmstack_collector.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
 
-      - name: Download signed agents from artifacts
+      - name: Download Linux agents from artifact
         uses: actions/download-artifact@v4
         with:
-          name: signed-agents
+          name: agents-linux
+          path: ${{ github.workspace }}/agent
+
+      - name: Download signed Windows agents from artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: agents-windows-signed
           path: ${{ github.workspace }}/agent
 
       - name: Download UTMStack Collectors from artifacts
@@ -356,10 +312,10 @@ jobs:
           name: utmstack-collectors
           path: ${{ github.workspace }}/utmstack-collector
 
-      - name: Download signed macOS agents from artifacts
+      - name: Download signed macOS agents from artifact
         uses: actions/download-artifact@v4
         with:
-          name: signed-agents-darwin
+          name: agents-darwin-signed
           path: ${{ github.workspace }}/agent-darwin
 
       - name: Prepare dependencies for Agent Manager Image
@@ -407,7 +363,7 @@ jobs:
           cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_windows_arm64.exe" ./dependencies/agent/utmstack_updater_service_arm64.exe
 
           cp "${{ github.workspace }}/agent/version.json" ./dependencies/agent/
-      
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -422,7 +378,7 @@ jobs:
           push: true
           provenance: false
           tags: ghcr.io/utmstack/utmstack/agent-manager:${{ needs.setup_deployment.outputs.tag }}
-  
+
   build_event_processor:
     name: Build Event Processor Microservice
     needs: [setup_deployment]
@@ -495,7 +451,6 @@ jobs:
       maven_profile: 'prod'
       maven_goals: 'clean package'
       copy_filters_and_rules: true
-  
   build_frontend:
     name: Build Frontend Microservice
     needs: [validations, setup_deployment]
@@ -504,7 +459,7 @@ jobs:
     with:
       image_name: frontend
       tag: ${{ needs.setup_deployment.outputs.tag }}
-  
+
   build_user_auditor:
     name: Build User-Auditor Microservice
     needs: [validations, setup_deployment]
@@ -516,7 +471,7 @@ jobs:
       java_version: '11'
       use_version_file: false
       maven_goals: 'clean install -U'
-  
+
   build_web_pdf:
     name: Build Web-PDF Microservice
     needs: [validations, setup_deployment]
@@ -693,4 +648,4 @@ jobs:
           done
 
           echo "✅ Scheduled release for all instances with version $TAG"
-    
+

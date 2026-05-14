@@ -96,6 +96,7 @@ public class UtmModuleResource {
     public ResponseEntity<ModuleDTO> getModuleById(@PathVariable Long id) {
         final String ctx = CLASSNAME + ".getModuleById";
         try {
+
             return ResponseEntity.ok().body(utmModuleQueryService.findById(id));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
@@ -110,7 +111,8 @@ public class UtmModuleResource {
                                                       @RequestParam ModuleName nameShort) {
         final String ctx = CLASSNAME + ".getModuleDetails";
         try {
-            return ResponseEntity.ok(moduleFactory.getInstance(nameShort).getDetails(serverId));
+            UtmModule module = moduleFactory.getInstance(nameShort).getDetails(utmServerRepository.getUtmServer());
+            return ResponseEntity.ok(module);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
@@ -124,9 +126,7 @@ public class UtmModuleResource {
         final String ctx = CLASSNAME + ".getModuleDetailsDecrypted";
         try {
             UtmModule module = moduleFactory.getInstance(nameShort).getDetails(utmServerRepository.getUtmServer());
-            if (InternalApiKeyFilter.isApiKeyHeaderInUse()) {
-                this.eventProcessorManagerService.decryptModuleConfig(module);
-            } else {
+            if (!InternalApiKeyFilter.isApiKeyHeaderInUse()) {
                 String msg = ctx + ": You must provide the header used to communicate internally with this resource";
                 log.error(msg);
                 eventService.createEvent(msg, ApplicationEventType.ERROR);

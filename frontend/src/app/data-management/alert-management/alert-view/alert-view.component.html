@@ -108,7 +108,7 @@
                   <th (sort)="onSortBy($event)"
                       *ngFor="let item of fields;"
                       [hidden]="!item.visible"
-                      [isSortable]="item.type !== ElasticDataTypesEnum.OBJECT"
+                      [isSortable]="item.type !== ElasticDataTypesEnum.OBJECT && item.field !== ALERT_ECHOES_FIELD"
                       [sortEvent]="sortEvent"
                       [sortable]="item.type !== ElasticDataTypesEnum.STRING ? item.field : item.field +'.keyword'"
                       appColumnSortable

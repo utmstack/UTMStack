@@ -17,7 +17,7 @@
 
     <ng-container *ngIf="!loading">
       <!-- Provider tabs -->
-      <ngb-tabset (tabChange)="onTabChange($event)">
+      <ngb-tabset [activeId]="activeProvider" (tabChange)="onTabChange($event)">
         <ngb-tab *ngFor="let provider of providers" [id]="provider.id">
           <ng-template ngbTabTitle>
             <img [src]="provider.logo" [alt]="provider.name" class="provider-logo mr-1">

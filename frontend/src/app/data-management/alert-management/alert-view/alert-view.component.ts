@@ -139,6 +139,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   totalChildren: number;
   pageSizeChildren = ITEMS_PER_PAGE * 4;
   readonly ALERT_STATUS_FIELD = ALERT_STATUS_FIELD;
+  readonly ALERT_ECHOES_FIELD = ALERT_ECHOES_FIELD;
   readonly Math = Math;
   readonly ElasticDataTypesEnum = ElasticDataTypesEnum;
 

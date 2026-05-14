@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"strconv"
 	"strings"
 
@@ -49,13 +50,13 @@ func (m *Middlewares) HttpAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		connectionKey := c.GetHeader(proxyAPIKeyHeader)
 		if connectionKey == "" {
-			e := catcher.Error("missing connection key", nil, map[string]any{"process": "plugin_com.utmstack.inputs"})
+			e := catcher.Error("cannot authenticate", errors.New("missing connection key"), map[string]any{"process": "plugin_com.utmstack.inputs", "status": http.StatusUnauthorized})
 			e.GinError(c)
 			return
 		}
 		isValid := m.AuthService.IsConnectionKeyValid(connectionKey)
 		if !isValid {
-			e := catcher.Error("invalid connection key", nil, map[string]any{"process": "plugin_com.utmstack.inputs"})
+			e := catcher.Error("cannot authenticate", errors.New("invalid connection key"), map[string]any{"process": "plugin_com.utmstack.inputs", "status": http.StatusUnauthorized})
 			e.GinError(c)
 			return
 		}

@@ -27,7 +27,7 @@ func startHTTPServer(middlewares *Middlewares, cert string, key string) {
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.Default()
-	router.POST("/v1/log", middlewares.HttpAuth(), Log)
+	router.POST("/v1/logs", middlewares.HttpAuth(), Log)
 	router.POST("/v1/github-webhook", middlewares.GitHubAuth(), GitHub)
 	router.GET("/v1/ping", Ping)
 	router.GET("/v1/health", func(c *gin.Context) { c.Status(http.StatusOK) })
