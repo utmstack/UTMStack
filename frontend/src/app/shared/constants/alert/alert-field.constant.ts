@@ -19,6 +19,7 @@ export const ALERT_ASSETS_GROUP_ID_FIELD = 'assetGroupId';
 export const ALERT_NOTE_FIELD = 'notes';
 export const ALERT_OBSERVATION_FIELD = 'statusObservation';
 export const ALERT_TIMESTAMP_FIELD = '@timestamp';
+export const ALERT_LAST_ECHO = 'last_echo';
 export const ALERT_ID_FIELD = 'id';
 export const ALERT_CASE_ID_FIELD = 'id';
 export const ALERT_GLOBAL_FIELD = 'alertType';
@@ -141,6 +142,12 @@ export const ALERT_FIELDS: UtmFieldType[] = [
   {
     label: 'Time',
     field: ALERT_TIMESTAMP_FIELD,
+    type: ElasticDataTypesEnum.DATE,
+    visible: true,
+  },
+  {
+    label: 'Last Echo',
+    field: ALERT_LAST_ECHO,
     type: ElasticDataTypesEnum.DATE,
     visible: true,
   },

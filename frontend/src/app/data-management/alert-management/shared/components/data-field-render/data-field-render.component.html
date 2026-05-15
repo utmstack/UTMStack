@@ -18,6 +18,12 @@
     </app-alert-action-select>
   </ng-container>
 
+  <td *ngSwitchCase="ALERT_LAST_ECHO" >
+    <span *ngIf="data.last_echo">
+      {{data.last_echo['@timestamp']|date:utmFormatDate:'UTC'}}
+    </span>
+  </td>
+
   <ng-content *ngSwitchCase="ALERT_ECHOES_FIELD"  select="[echoes]"></ng-content>
   <app-alert-ip *ngSwitchCase="ALERT_TARGET_IP_FIELD" [alert]="data" [type]="'target'"></app-alert-ip>
   <app-alert-ip *ngSwitchCase="ALERT_ADVERSARY_IP_FIELD" [alert]="data" [type]="'adversary'"></app-alert-ip>
