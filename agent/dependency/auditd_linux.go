@@ -98,45 +98,40 @@ func configureAuditd() error {
 
 	utils.Logger.Info("Detected distro: ID=%s, IDLike=%s, PackageManager=%s", distro.ID, distro.IDLike, distro.PackageManager)
 
-	// Install auditd if not already installed
 	if !isAuditdInstalled() {
 		utils.Logger.Info("Installing auditd package...")
 		if err := installAuditd(distro); err != nil {
-			utils.Logger.ErrorF("Failed to install auditd: %v", err)
-			return nil // Non-critical, don't fail the agent
+			utils.Logger.Info("auditd setup skipped: package install failed (%v)", err)
+			return nil
 		}
 		utils.Logger.Info("auditd package installed successfully")
 	} else {
 		utils.Logger.Info("auditd is already installed")
 	}
 
-	// Pre-flight check: can we modify audit configuration?
 	if canConfigure, reason := canConfigureAuditd(); !canConfigure {
 		utils.Logger.Info("auditd rule deployment skipped: %s", reason)
-		return nil // Non-critical, don't fail the agent
+		return nil
 	}
 
-	// Deploy audit rules
 	utils.Logger.Info("Deploying UTMStack audit rules...")
 	if err := deployRules(); err != nil {
-		utils.Logger.ErrorF("Failed to deploy audit rules: %v", err)
-		return nil // Non-critical, don't fail the agent
+		utils.Logger.Info("auditd setup skipped: rule deployment failed (%v)", err)
+		return nil
 	}
 	utils.Logger.Info("UTMStack audit rules deployed successfully")
 
-	// Start and enable auditd service
 	utils.Logger.Info("Starting auditd service...")
 	if err := startAuditd(); err != nil {
-		utils.Logger.ErrorF("Failed to start auditd service: %v", err)
-		return nil // Non-critical, don't fail the agent
+		utils.Logger.Info("auditd setup skipped: service start failed (%v)", err)
+		return nil
 	}
 	utils.Logger.Info("auditd service started and enabled")
 
-	// Reload rules
 	utils.Logger.Info("Reloading audit rules...")
 	if err := reloadRules(); err != nil {
-		utils.Logger.ErrorF("Failed to reload audit rules: %v", err)
-		return nil // Non-critical, don't fail the agent
+		utils.Logger.Info("auditd setup skipped: rule reload failed (%v)", err)
+		return nil
 	}
 	utils.Logger.Info("Audit rules reloaded successfully")
 

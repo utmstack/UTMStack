@@ -5,6 +5,7 @@ package auditd
 
 import (
 	"context"
+	"errors"
 	"os"
 	"sync"
 	"time"
@@ -35,9 +36,10 @@ func (a *AuditdCollector) Name() string {
 
 // Start begins collecting audit events and sending them to the queue
 func (a *AuditdCollector) Start(ctx context.Context, queue chan *plugins.Log) {
-	// Preflight check for audit capability
 	if err := checkAuditCapability(); err != nil {
-		utils.Logger.ErrorF("auditd: preflight check failed: %v", err)
+		if !errors.Is(err, ErrAuditUnavailable) {
+			utils.Logger.ErrorF("auditd: preflight check failed: %v", err)
+		}
 		return
 	}
 
@@ -59,9 +61,15 @@ func (a *AuditdCollector) Start(ctx context.Context, queue chan *plugins.Log) {
 
 		exitCode := a.runAuditClient(ctx, host, queue)
 
-		if exitCode == 0 {
+		switch exitCode {
+		case 0:
 			utils.Logger.Info("auditd client exited normally")
-		} else {
+		case auditdExitPermanent:
+			// Environment cannot run auditd (e.g. missing CAP_AUDIT_*, kernel
+			// audit disabled). Retrying will never succeed — exit silently.
+			utils.Logger.Info("auditd collector disabled: audit subsystem not accessible in this environment")
+			return
+		default:
 			utils.Logger.ErrorF("auditd client exited with code %d, restarting in %v", exitCode, restartDelay)
 		}
 
@@ -79,35 +87,40 @@ func (a *AuditdCollector) Start(ctx context.Context, queue chan *plugins.Log) {
 	}
 }
 
+// auditdExitPermanent signals that the collector cannot run in this
+// environment and must not be retried.
+const auditdExitPermanent = -2
+
 // runAuditClient creates the audit client and runs the receive loop
 func (a *AuditdCollector) runAuditClient(ctx context.Context, host string, queue chan *plugins.Log) int {
 	a.mu.Lock()
 	clientCtx, cancel := context.WithCancel(ctx)
 	a.cancel = cancel
 
-	// Attempt to set kernel backlog limit to prevent event loss under high load.
-	// This requires CAP_AUDIT_CONTROL; log warning if it fails but continue.
+	// Attempt to set kernel backlog limit and wait time. Both are best-effort
+	// tuning that require CAP_AUDIT_CONTROL — if they fail we just continue
+	// with kernel defaults, so log at Info level to avoid noise on restricted
+	// hosts (e.g. containers without audit capabilities).
 	if err := setKernelBacklogLimit(kernelBacklogLimit); err != nil {
-		utils.Logger.ErrorF("auditd: failed to set kernel backlog limit to %d: %v (continuing with default)", kernelBacklogLimit, err)
+		utils.Logger.Info("auditd: could not set kernel backlog limit (%v), using default", err)
 	} else {
 		utils.Logger.Info("auditd: kernel backlog limit set to %d", kernelBacklogLimit)
 	}
 
-	// Set backlog wait time to 0 to prevent audited processes from blocking
-	// when the audit backlog queue is full. The kernel will drop events instead.
-	// This is the "kernel" backpressure mitigation strategy from Elastic Auditbeat.
 	if err := setBacklogWaitTime(0); err != nil {
-		utils.Logger.ErrorF("auditd: failed to set backlog wait time to 0: %v (continuing)", err)
+		utils.Logger.Info("auditd: could not set backlog wait time (%v), using default", err)
 	} else {
 		utils.Logger.Info("auditd: backlog wait time set to 0 (non-blocking mode)")
 	}
 
-	// Create multicast audit client
+	// Create multicast audit client. Failure here (typically EPERM when the
+	// agent lacks CAP_AUDIT_READ) is permanent for the current process — the
+	// outer Start loop treats auditdExitPermanent as a no-retry condition.
 	client, err := newAuditClient()
 	if err != nil {
 		a.mu.Unlock()
-		utils.Logger.ErrorF("auditd: error creating audit client: %v", err)
-		return -1
+		utils.Logger.Info("auditd: cannot open audit netlink socket (%v); collector will not run", err)
+		return auditdExitPermanent
 	}
 	a.client = client
 

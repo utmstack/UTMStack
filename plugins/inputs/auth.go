@@ -19,11 +19,19 @@ import (
 
 const maxMessageSize = 20 * 1024 * 1024 // 20MB
 
+// missRefreshCooldown bounds how often a cache-miss can force a sync against
+// the agent-manager, to prevent forged ids from triggering unbounded RPCs.
+const missRefreshCooldown = 2 * time.Second
+
 type LogAuthService struct {
 	Mutex              *sync.Mutex
 	CollectorKeyCache  map[uint]string
 	AgentKeyCache      map[uint]string
 	ConnectionKeyCache string
+
+	refreshMu        sync.Mutex
+	lastAgentRefresh time.Time
+	lastCollRefresh  time.Time
 }
 
 func NewLogAuthService() *LogAuthService {
@@ -143,22 +151,59 @@ func (auth *LogAuthService) syncConnectionKey() {
 }
 
 func (auth *LogAuthService) IsKeyValid(key string, id uint, typ string) bool {
-	switch typ {
-	case "agent":
-		for agentId, agentKey := range auth.AgentKeyCache {
-			if key == agentKey && id == agentId {
-				return true
-			}
-		}
-	case "collector":
-		for collId, collKey := range auth.CollectorKeyCache {
-			if key == collKey && id == collId {
-				return true
-			}
-		}
+	if auth.lookupKey(key, id, typ) {
+		return true
+	}
+
+	if auth.refreshOnMiss(typ) {
+		return auth.lookupKey(key, id, typ)
 	}
 
 	return false
+}
+
+func (auth *LogAuthService) lookupKey(key string, id uint, typ string) bool {
+	if key == "" {
+		return false
+	}
+	auth.Mutex.Lock()
+	defer auth.Mutex.Unlock()
+	switch typ {
+	case "agent":
+		return auth.AgentKeyCache[id] == key
+	case "collector":
+		return auth.CollectorKeyCache[id] == key
+	}
+	return false
+}
+
+// refreshOnMiss triggers an immediate syncKeys for the given connector type,
+// at most once per missRefreshCooldown window per type. Returns true if a
+// refresh was actually executed (so the caller can re-check the cache).
+func (auth *LogAuthService) refreshOnMiss(typ string) bool {
+	var connectorType agent.ConnectorType
+	var last *time.Time
+	switch typ {
+	case "agent":
+		connectorType = agent.ConnectorType_AGENT
+		last = &auth.lastAgentRefresh
+	case "collector":
+		connectorType = agent.ConnectorType_COLLECTOR
+		last = &auth.lastCollRefresh
+	default:
+		return false
+	}
+
+	auth.refreshMu.Lock()
+	if time.Since(*last) < missRefreshCooldown {
+		auth.refreshMu.Unlock()
+		return false
+	}
+	*last = time.Now()
+	auth.refreshMu.Unlock()
+
+	auth.syncKeys(connectorType)
+	return true
 }
 
 func (auth *LogAuthService) IsConnectionKeyValid(connectionKey string) bool {
