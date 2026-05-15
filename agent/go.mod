@@ -13,11 +13,11 @@ require (
 	github.com/netsampler/goflow2 v1.3.7
 	github.com/spf13/cobra v1.10.2
 	github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068
-	github.com/threatwinds/go-sdk v1.1.14
+	github.com/threatwinds/go-sdk v1.1.21
 	github.com/threatwinds/logger v1.2.3
 	github.com/utmstack/UTMStack/shared v0.0.0
-	golang.org/x/sys v0.41.0
-	google.golang.org/grpc v1.79.1
+	golang.org/x/sys v0.42.0
+	google.golang.org/grpc v1.80.0
 	google.golang.org/protobuf v1.36.11
 	gorm.io/gorm v1.31.1
 )
@@ -68,11 +68,11 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
-	golang.org/x/arch v0.23.0 // indirect
-	golang.org/x/crypto v0.47.0 // indirect
+	golang.org/x/arch v0.24.0 // indirect
+	golang.org/x/crypto v0.49.0 // indirect
 	golang.org/x/exp v0.0.0-20260112195511-716be5621a96 // indirect
-	golang.org/x/net v0.49.0 // indirect
-	golang.org/x/text v0.33.0 // indirect
+	golang.org/x/net v0.52.0 // indirect
+	golang.org/x/text v0.35.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260203192932-546029d2fa20 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260203192932-546029d2fa20 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
