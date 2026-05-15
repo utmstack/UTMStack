@@ -174,12 +174,13 @@ public class ElasticsearchResource {
                 results.forEach(d -> {
                     Object id = d.get("id");
                     if (id != null) {
-                        long countEchoes = elasticsearchService.count(
-                                List.of(new FilterType("parentId", OperatorType.IS,  id.toString())),
-                                indexPattern
-                        );
+                        List<FilterType> echoFilter = List.of(new FilterType("parentId", OperatorType.IS, id.toString()));
+                        long countEchoes = elasticsearchService.count(echoFilter, indexPattern);
                         d.put("hasChildren", countEchoes > 0);
                         d.put("echoes", countEchoes);
+                        if (countEchoes > 0) {
+                            d.put("last_echo", elasticsearchService.getLatestDocument(echoFilter, indexPattern));
+                        }
                     }
                 });
             }
