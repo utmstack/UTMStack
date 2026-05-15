@@ -14,7 +14,7 @@ export class GuideCiscoComponent implements OnInit {
   @Input() serverId: number;
 
   ciscoPaths: CiscoOSPaths[] = [
-    {os: 'linux', path: '/opt/utmstack_agent_service_linux_amd64/log-collector-config.json'},
+    {os: 'linux', path: '/opt/utmstack-linux-agent/log-collector-config.json'},
     {os: 'windows', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\log-collector-config.json'}
   ];
   ciscoPorts: CiscoPorts[] = [
