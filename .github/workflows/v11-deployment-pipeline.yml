@@ -134,6 +134,7 @@ jobs:
         env:
           GOOS: linux
           GOARCH: amd64
+          CGO_ENABLED: 0
         run: |
           cd ${{ github.workspace }}/agent
           go build -o utmstack_agent_service_linux_amd64 -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
@@ -145,6 +146,7 @@ jobs:
         env:
           GOOS: linux
           GOARCH: arm64
+          CGO_ENABLED: 0
         run: |
           cd ${{ github.workspace }}/agent
           go build -o utmstack_agent_service_linux_arm64 -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
@@ -156,6 +158,7 @@ jobs:
         env:
           GOOS: windows
           GOARCH: amd64
+          CGO_ENABLED: 0
         run: |
           cd ${{ github.workspace }}/agent
           go build -o utmstack_agent_service_windows_amd64.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
@@ -167,6 +170,7 @@ jobs:
         env:
           GOOS: windows
           GOARCH: arm64
+          CGO_ENABLED: 0
         run: |
           cd ${{ github.workspace }}/agent
           go build -o utmstack_agent_service_windows_arm64.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .

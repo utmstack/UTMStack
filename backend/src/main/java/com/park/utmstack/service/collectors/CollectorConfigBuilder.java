@@ -41,7 +41,7 @@ public class CollectorConfigBuilder {
                 UtmModuleGroupConfiguration original = configRepo.findById(config.getId())
                                                         .orElseThrow(() -> new RuntimeException("Configuration id " + config.getId() + " not found"));
 
-                if (Objects.equals(config.getConfValue(), original.getConfValue())) {
+                if (Objects.equals(config.getConfValue(), Constants.MASKED_VALUE) || Objects.equals(config.getConfValue(), original.getConfValue())) {
                     config.setConfValue(
                             CipherUtil.decrypt(original.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY))
                     );

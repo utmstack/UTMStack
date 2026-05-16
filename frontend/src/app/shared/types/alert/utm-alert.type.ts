@@ -33,6 +33,7 @@ export class UtmAlertType {
   expanded: boolean;
   echoes: number;
   lastEvent: any;
+  last_echo?: UtmAlertType;
 }
 
 export enum AlertStatusLabelEnum {

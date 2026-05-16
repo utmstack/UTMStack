@@ -69,7 +69,7 @@ export const createPlatforms = (
       linuxPath,
       linuxRestart,
       [
-        `sudo bash -c "/opt/utmstack_agent_service_linux_amd64/utmstack_agent_service load-tls-certs [YOUR_CERT_PATH] [YOUR_KEY_PATH]"`
+        `sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_service load-tls-certs [YOUR_CERT_PATH] [YOUR_KEY_PATH]"`
       ]
     ),
     createPlatform(
@@ -80,7 +80,7 @@ export const createPlatforms = (
       linuxPath,
       linuxRestart,
       [
-        `sudo bash -c "/opt/utmstack_agent_service_linux_amd64/utmstack_agent_service load-tls-certs [YOUR_CERT_PATH] [YOUR_KEY_PATH]"`
+        `sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_service load-tls-certs [YOUR_CERT_PATH] [YOUR_KEY_PATH]"`
       ]
     )
   ]
@@ -114,15 +114,15 @@ export const createFileBeatsPlatforms = (
 export const PLATFORMS = createPlatforms(
   'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service_windows_amd64.exe " -ArgumentList \'ACTION\', \'AGENT_NAME\', \'PROTOCOL\', \'TLS\' -NoNewWindow -Wait\n',
   'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service_windows_arm64.exe" -ArgumentList \'ACTION\', \'AGENT_NAME\', \'PROTOCOL\, \'TLS\' -NoNewWindow -Wait\n',
-  'sudo bash -c "/opt/utmstack_agent_service_linux_amd64/utmstack_agent_service_linux_amd64 ACTION AGENT_NAME PROTOCOL TLS"',
-  'sudo bash -c "/opt/utmstack_agent_service_linux_amd64/utmstack_agent_service_linux_arm64 ACTION AGENT_NAME PROTOCOL TLS"'
+  'sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_service_linux_amd64 ACTION AGENT_NAME PROTOCOL TLS"',
+  'sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_service_linux_arm64 ACTION AGENT_NAME PROTOCOL TLS"'
 );
 
 export const FILEBEAT_PLATFORMS = createFileBeatsPlatforms(
   'cd "C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\"; Start-Process "filebeat.exe" -ArgumentList "modules", "enable", "AGENT_NAME"',
-  'cd /opt/utmstack_agent_service_linux_amd64/beats/filebeat/ && ./filebeat modules enable AGENT_NAME',
+  'cd /opt/utmstack-linux-agent/beats/filebeat/ && ./filebeat modules enable AGENT_NAME',
   'C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\modules.d\\',
   'Stop-Service -Name UTMStackModulesLogsCollector; Start-Sleep -Seconds 5; Start-Service -Name UTMStackModulesLogsCollector',
-  '/opt/utmstack_agent_service_linux_amd64/beats/filebeat/modules.d/',
+  '/opt/utmstack-linux-agent/beats/filebeat/modules.d/',
   'sudo systemctl restart UTMStackModulesLogsCollector'
 );

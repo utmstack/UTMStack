@@ -1,4 +1,4 @@
-# Fortinet firewall module filter, version 3.0.3
+# Fortinet firewall module filter, version 3.1.0
 # Based in docs and samples provided
 # 
 # Documentations
@@ -30,7 +30,179 @@ pipeline:
       - delete:
           fields:
             - log.msg
-      
+
+      # CEF support: re-parse log.kvMessage to extract CEF header.
+      # Fails silently (all-or-nothing) on non-CEF events.
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - fieldName: log.syslogTimestamp
+              pattern: '{{.syslogDate}}'
+            - fieldName: log.syslogHost
+              pattern: '{{.notSpace}}'
+            - fieldName: ""
+              pattern: 'CEF:'
+            - fieldName: log.cefVersion
+              pattern: '{{.integer}}'
+            - fieldName: ""
+              pattern: '\|'
+            - fieldName: log.cefVendor
+              pattern: '{{.data}}'
+            - fieldName: ""
+              pattern: '\|'
+            - fieldName: log.cefProduct
+              pattern: '{{.data}}'
+            - fieldName: ""
+              pattern: '\|'
+            - fieldName: log.cefProductVersion
+              pattern: '{{.data}}'
+            - fieldName: ""
+              pattern: '\|'
+            - fieldName: log.cefSignatureId
+              pattern: '{{.data}}'
+            - fieldName: ""
+              pattern: '\|'
+            - fieldName: log.cefName
+              pattern: '{{.data}}'
+            - fieldName: ""
+              pattern: '\|'
+            - fieldName: log.cefSeverity
+              pattern: '{{.integer}}'
+            - fieldName: ""
+              pattern: '\|'
+            - fieldName: log.kvMessage
+              pattern: '{{.greedy}}'
+
+      # Recover deviceExternalId mangled by kv (CEF header token).
+      - rename:
+          from: [log.serverrst3deviceExternalId, log.clientrst3deviceExternalId]
+          to: log.deviceExternalId
+
+      # Normalize FTNTFGT* fields to canonical FortiGate names.
+      - rename:
+          from: [log.FTNTFGTlogid]
+          to: log.logid
+      - rename:
+          from: [log.FTNTFGTeventtime]
+          to: log.eventtime
+      - rename:
+          from: [log.FTNTFGTtz]
+          to: log.tz
+      - rename:
+          from: [log.FTNTFGTsubtype]
+          to: log.subtype
+      - rename:
+          from: [log.FTNTFGTlevel]
+          to: log.level
+      - rename:
+          from: [log.FTNTFGTvd]
+          to: log.vd
+      - rename:
+          from: [log.FTNTFGTsrcintfrole]
+          to: log.srcintfrole
+      - rename:
+          from: [log.FTNTFGTdstintfrole]
+          to: log.dstintfrole
+      - rename:
+          from: [log.FTNTFGTsrccountry]
+          to: log.srccountry
+      - rename:
+          from: [log.FTNTFGTdstcountry]
+          to: log.dstcountry
+      - rename:
+          from: [log.FTNTFGTpolicyid]
+          to: log.policyid
+      - rename:
+          from: [log.FTNTFGTpolicytype]
+          to: log.policytype
+      - rename:
+          from: [log.FTNTFGTpoluuid]
+          to: log.poluuid
+      - rename:
+          from: [log.FTNTFGTpolicyname]
+          to: log.policyname
+      - rename:
+          from: [log.FTNTFGTtrandisp]
+          to: log.trandisp
+      - rename:
+          from: [log.FTNTFGTappcat]
+          to: log.appcat
+      - rename:
+          from: [log.FTNTFGTapp]
+          to: log.app
+      - rename:
+          from: [log.FTNTFGTduration]
+          to: log.duration
+      - rename:
+          from: [log.FTNTFGTsentpkt]
+          to: origin.packagesSent
+      - rename:
+          from: [log.FTNTFGTrcvdpkt]
+          to: origin.packagesReceived
+      - rename:
+          from: [log.FTNTFGTsrchwvendor]
+          to: log.sourceVendor
+      - rename:
+          from: [log.FTNTFGTmastersrcmac]
+          to: log.masterSourceMac
+      - rename:
+          from: [log.FTNTFGTsrcmac]
+          to: origin.mac
+      - rename:
+          from: [log.FTNTFGTdevtype]
+          to: log.devtype
+      - rename:
+          from: [log.FTNTFGTdstinetsvc]
+          to: log.dstinetsvc
+      - rename:
+          from: [log.FTNTFGTdstregion]
+          to: log.dstregion
+      - rename:
+          from: [log.FTNTFGTdstcity]
+          to: log.dstcity
+      - rename:
+          from: [log.FTNTFGTdstreputation]
+          to: log.dstreputation
+      - rename:
+          from: [log.FTNTFGTvwlid]
+          to: log.vwlid
+      - rename:
+          from: [log.FTNTFGTsrcserver]
+          to: log.srcserver
+
+      # Split CEF "cat" (e.g. "traffic:local") → log.type + log.catSubtype.
+      - grok:
+          source: log.cat
+          patterns:
+            - fieldName: log.type
+              pattern: '{{.word}}'
+            - fieldName: ""
+              pattern: ':'
+            - fieldName: log.catSubtype
+              pattern: '{{.word}}'
+      - delete:
+          fields: [log.cat]
+
+      # CEF long-form aliases → canonical names.
+      - rename:
+          from: [log.deviceExternalId]
+          to: log.devid
+      - rename:
+          from: [log.deviceInboundInterface]
+          to: log.srcintf
+      - rename:
+          from: [log.deviceOutboundInterface]
+          to: log.dstintf
+      - rename:
+          from: [log.externalId]
+          to: log.sessionid
+      - rename:
+          from: [log.sourceTranslatedAddress]
+          to: log.transip
+      - rename:
+          from: [log.sourceTranslatedPort]
+          to: log.transport
+
       # Using grok to parse kv issued fields
       - grok:
           patterns:
@@ -55,22 +227,27 @@ pipeline:
       - rename:
           from:
             - log.action
+            - log.act
           to: action
       - rename:
           from:
             - log.dstip
+            - log.dst
           to: target.ip
       - rename:
           from:
             - log.dstport
+            - log.dpt
           to: target.port
       - rename:
           from:
             - log.srcip
+            - log.src
           to: origin.ip
       - rename:
           from:
             - log.srcport
+            - log.spt
           to: origin.port
       - rename:
           from:
@@ -111,6 +288,7 @@ pipeline:
       - rename:
           from:
             - log.rcvdbyte
+            - log.in
           to: origin.bytesReceived
       - rename:
           from:
@@ -119,11 +297,25 @@ pipeline:
       - rename:
           from:
             - log.sentbyte
+            - log.out
           to: origin.bytesSent
       - rename:
           from:
             - log.sentpkt
           to: origin.packagesSent
+
+      # Type casting for numeric fields.
+      - cast:
+          fields:
+            - origin.port
+            - target.port
+            - origin.bytesReceived
+            - origin.bytesSent
+            - origin.packagesReceived
+            - origin.packagesSent
+            - log.cefSeverity
+            - log.cefVersion
+          to: int
 
       # Removing unused caracters
       - trim:

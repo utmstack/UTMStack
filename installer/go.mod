@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/installer
 go 1.25.1
 
 require (
-	github.com/cloudfoundry/gosigar v1.3.116
+	github.com/cloudfoundry/gosigar v1.3.118
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/kardianos/service v1.2.4
 	github.com/shirou/gopsutil/v3 v3.24.5
@@ -74,7 +74,7 @@ require (
 	golang.org/x/arch v0.23.0 // indirect
 	golang.org/x/crypto v0.47.0 // indirect
 	golang.org/x/net v0.49.0 // indirect
-	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.41.0 // indirect

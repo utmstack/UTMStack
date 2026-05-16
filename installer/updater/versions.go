@@ -43,6 +43,10 @@ func GetVersion() (VersionFile, error) {
 }
 
 func SaveVersion(vers, edition, changelog string) error {
+	if _, err := GetVersion(); err != nil {
+		return fmt.Errorf("error loading current version before saving: %v", err)
+	}
+
 	if vers != "" {
 		version.Version = vers
 	}

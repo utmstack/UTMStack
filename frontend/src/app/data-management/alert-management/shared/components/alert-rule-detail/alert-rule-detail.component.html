@@ -25,8 +25,8 @@
        <span class="p-1 utm-box-label">
             Rule conditions
        </span>
-    <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2"
-         *ngFor="let condition of rule.conditions">
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2 overflow-y-auto"
+         *ngFor="let condition of ruleCondition | async">
       <span class="text-blue-800 font-weight-light has-minimum-width">{{getFieldName(condition.field)}}</span>&nbsp;
       <span class="font-weight-light  font-weight-semibold mr-2">{{getFilterName(condition.operator)}}</span>&nbsp;
       <span class="">{{condition.value}}</span>&nbsp;

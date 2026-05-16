@@ -378,6 +378,24 @@ public class ElasticsearchService {
         }
     }
 
+    public Map<String, Object> getLatestDocument(List<FilterType> filters, String indexPattern) {
+        final String ctx = CLASSNAME + ".getLatestDocument";
+        try {
+            SearchRequest request = new SearchRequest.Builder()
+                    .index(indexPattern)
+                    .query(SearchUtil.toQuery(filters))
+                    .sort(s -> s.field(f -> f.field("@timestamp").order(SortOrder.Desc)))
+                    .size(1)
+                    .build();
+
+            SearchResponse<Map> response = search(request, Map.class);
+            if (response.hits().hits().isEmpty()) return null;
+            return response.hits().hits().get(0).source();
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage(), e);
+        }
+    }
+
 
     public <T> SearchResponse<T> search(SearchRequest request, Class<T> type) {
         final String ctx = CLASSNAME + ".search";

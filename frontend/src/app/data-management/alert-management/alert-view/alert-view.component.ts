@@ -26,6 +26,7 @@ import {
   EVENT_IS_ALERT,
   FALSE_POSITIVE_OBJECT,
   INCIDENT_FIELDS,
+  ALERT_LAST_ECHO,
   ALERT_ECHOES_FIELD
 } from '../../../shared/constants/alert/alert-field.constant';
 import {AUTOMATIC_REVIEW, IGNORED} from '../../../shared/constants/alert/alert-status.constant';
@@ -139,6 +140,9 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   totalChildren: number;
   pageSizeChildren = ITEMS_PER_PAGE * 4;
   readonly ALERT_STATUS_FIELD = ALERT_STATUS_FIELD;
+  readonly ALERT_ECHOES_FIELD = ALERT_ECHOES_FIELD;
+  readonly ALERT_LAST_ECHO = ALERT_LAST_ECHO;
+  readonly ALERT_TIMESTAMP_FIELD = ALERT_TIMESTAMP_FIELD;
   readonly Math = Math;
   readonly ElasticDataTypesEnum = ElasticDataTypesEnum;
 

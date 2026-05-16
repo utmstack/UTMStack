@@ -83,7 +83,7 @@ func GetConfig() *Config {
 		}
 
 		if config.OpenSearchPassword == "" {
-			config.OpenSearchPassword = utils.GenerateSecret(16)
+			config.OpenSearchPassword = utils.GenerateComplexSecret(16)
 		}
 
 		if config.Branch != "dev" &&

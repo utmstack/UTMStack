@@ -1,5 +1,6 @@
 package com.park.utmstack.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.park.utmstack.domain.shared_types.DataColumn;
@@ -18,11 +19,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class UtilCsv {
     private static final String CLASS_NAME = "UtilCsv";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
      * Build a csv file with columns and data and write it to HttpServletResponse writer
@@ -35,7 +38,7 @@ public class UtilCsv {
     public static void prepareToDownload(HttpServletResponse response, DataColumn[] columns, List<?> data) throws
             UtmCsvException {
         final String ctx = CLASS_NAME + ".prepareToDownload";
-        final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")
                 .withLocale(Locale.getDefault()).withZone(TimezoneUtil.getAppTimezone());
         try {
             Assert.notEmpty(columns);
@@ -69,6 +72,14 @@ public class UtilCsv {
                                 String.valueOf(value).replace("\n", " ").replace("\t", " ");
                     } else if (value instanceof List) {
                         cells[i] = ((List<?>) value).stream().map(String::valueOf).collect(Collectors.joining(","));
+                    } else if (value instanceof Number) {
+                        cells[i] = String.valueOf(value);
+                    } else if (value instanceof Map) {
+                        try {
+                            cells[i] = OBJECT_MAPPER.writeValueAsString(value);
+                        } catch (Exception ex) {
+                            cells[i] = value.toString();
+                        }
                     }
                 }
                 rows.add(cells);
