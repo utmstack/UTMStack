@@ -196,7 +196,7 @@ export class PlaybookBuilderComponent implements OnInit, OnDestroy {
   }
 
   createRule() {
-    if (this.rule.id) {
+    if (this.rule && this.rule.id) {
       this.editRule();
     } else {
       this.saveRule();
