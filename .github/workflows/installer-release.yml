@@ -12,7 +12,7 @@ on:
         required: true
         type: string
       environment:
-        description: 'Environment (dev or rc)'
+        description: 'Environment (dev, rc, or production)'
         required: true
         type: string
       prerelease:
@@ -188,12 +188,14 @@ jobs:
           sudo /usr/local/bin/utmstack_installer
 
   # ============================================
-  # V11 RC - Upload to prerelease only
+  # V11 RC / Production - Build installer and upload to GitHub release.
+  # The `prerelease` input controls whether the GitHub Release is marked as
+  # a prerelease (rc) or a normal release (production).
   # ============================================
-  build_v11_rc:
-    name: Build V11 Installer for Prerelease
+  build_v11_release:
+    name: Build V11 Installer for Release
     runs-on: ubuntu-24.04
-    if: inputs.version_major == 'v11' && inputs.environment == 'rc'
+    if: inputs.version_major == 'v11' && (inputs.environment == 'rc' || inputs.environment == 'production')
     steps:
       - name: Check out code
         uses: actions/checkout@v4

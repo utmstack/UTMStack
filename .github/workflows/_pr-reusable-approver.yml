@@ -1,0 +1,100 @@
+name: Reusable - PR approver
+
+# Single source of truth for whether the PR passes. Downloads the artifacts
+# produced by go_deps and ai_review, posts sticky PR comments, runs the
+# team-membership permission check, and — using a GitHub App installation
+# token minted at runtime — leaves a formal PR review and (on release/**)
+# enables auto-merge.
+
+on:
+  workflow_call:
+    inputs:
+      tier3_reviewers:
+        required: false
+        type: string
+        default: ''
+        description: "Comma-separated GitHub handles to @mention when AI flags Tier 3"
+      org:
+        required: false
+        type: string
+        default: 'utmstack'
+        description: "GitHub org used for team-membership checks"
+      admin_team:
+        required: false
+        type: string
+        default: 'administrators'
+        description: "Team slug allowed to merge"
+      core_team:
+        required: false
+        type: string
+        default: 'core-developers'
+        description: "Second team slug allowed to merge"
+      merge_method:
+        required: false
+        type: string
+        default: 'squash'
+        description: "Auto-merge method on release/**: merge | squash | rebase"
+    secrets:
+      APPROVER_APP_ID:
+        required: false
+        description: "GitHub App ID for the approver bot. Without it, the job only posts sticky comments — no formal review, no auto-merge."
+      APPROVER_PRIVATE_KEY:
+        required: false
+        description: "GitHub App private key (full PEM content) for the approver bot."
+      API_SECRET:
+        required: false
+        description: "PAT with read:org for team-membership checks. Falls back to the App token if absent (App must have Organization → Members: Read)."
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  approve:
+    name: Decide
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      # Mint a short-lived installation token from the GitHub App. The token
+      # is automatically revoked when the job ends. If the App secrets aren't
+      # configured, this step is skipped and the approver runs in comments-only
+      # mode (no formal review, no auto-merge).
+      - name: Generate approver token from GitHub App
+        id: app-token
+        if: ${{ env.APP_ID != '' }}
+        env:
+          APP_ID: ${{ secrets.APPROVER_APP_ID }}
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APPROVER_APP_ID }}
+          private-key: ${{ secrets.APPROVER_PRIVATE_KEY }}
+
+      - name: Download all PR-check artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/artifacts/
+
+      - name: List downloaded artifacts
+        run: |
+          ls -la /tmp/artifacts/ || true
+          find /tmp/artifacts -type f | head -50
+
+      - name: Run approver
+        env:
+          ARTIFACTS_DIR: /tmp/artifacts
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Prefer the freshly-minted App token; fall back to GITHUB_TOKEN
+          # for org-read calls only if API_SECRET isn't set either.
+          APPROVER_TOKEN: ${{ steps.app-token.outputs.token }}
+          API_SECRET: ${{ secrets.API_SECRET || steps.app-token.outputs.token }}
+          TIER3_REVIEWERS: ${{ inputs.tier3_reviewers }}
+          ORG: ${{ inputs.org }}
+          ADMIN_TEAM: ${{ inputs.admin_team }}
+          CORE_TEAM: ${{ inputs.core_team }}
+          MERGE_METHOD: ${{ inputs.merge_method }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: bash .github/scripts/approver.sh
