@@ -105,17 +105,16 @@
                                             icon="icon-table"
                                             tooltipClass="utm-tooltip-top"></app-utm-dtable-columns>
                   </th>
-                  <ng-container *ngFor="let item of fields;">
-                    <th (sort)="onSortBy($event)"
-                        [hidden]="!item.visible"
-                        [isSortable]="item.type !== ElasticDataTypesEnum.OBJECT && item.field !== ALERT_ECHOES_FIELD && item.field !== ALERT_LAST_ECHO"
-                        [sortEvent]="sortEvent"
-                        [sortable]="item.type !== ElasticDataTypesEnum.STRING ? item.field : item.field +'.keyword'"
-                        appColumnSortable
-                        class="font-weight-semibold cursor-pointer">
-                      {{item.label}}
-                    </th>
-                  </ng-container>
+                  <th (sort)="onSortBy($event)"
+                      *ngFor="let item of fields;"
+                      [hidden]="!item.visible"
+                      [isSortable]="item.type !== ElasticDataTypesEnum.OBJECT && item.field !== ALERT_ECHOES_FIELD"
+                      [sortEvent]="sortEvent"
+                      [sortable]="item.type !== ElasticDataTypesEnum.STRING ? item.field : item.field +'.keyword'"
+                      appColumnSortable
+                      class="font-weight-semibold cursor-pointer">
+                    {{item.label}}
+                  </th>
                 </tr>
               </thead>
               <tbody *ngIf="alerts && alerts.length > 0">
@@ -241,7 +240,7 @@
 
   <ng-container *ngIf="alert.expanded">
         <tr>
-          <td style="height: 500px" [attr.colspan]="fields.length + 3" >
+          <td style="height: 500px" [attr.colspan]="fields.length + 2" >
                 <app-alert-echoes-timeline [alert]="alert"
                               [page]="currentChildrenPage"
                               [pageSize]="pageSizeChildren"

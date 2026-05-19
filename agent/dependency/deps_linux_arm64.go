@@ -97,7 +97,7 @@ func preDownloadUpdater() (func(), error) {
 			_ = svc.Start(config.SERVICE_UPDATER_NAME)
 		}, nil
 	}
-	
+
 	// Return cleanup function that restarts the service
 	return func() {
 		_ = svc.Start(config.SERVICE_UPDATER_NAME)
