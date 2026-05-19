@@ -52,7 +52,7 @@ export class CpStandardManagementComponent implements OnInit {
   }
 
   newCompliance() {
-    //this.modalService.open(UtmComplianceCreateComponent, {centered: true});
+    // this.modalService.open(UtmComplianceCreateComponent, {centered: true});
     this.modalService.open(UtmComplianceControlCreateComponent, {centered: true, size: 'lg'});
   }
 }
