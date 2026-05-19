@@ -199,11 +199,11 @@ if $deps_failed; then
     deps_body=$(cat <<EOF
 ### ❌ Go dependencies check failed
 
-Hay dependencias Go desactualizadas o módulos que no se pudieron inspeccionar.
-Por favor corre \`bash .github/scripts/go-deps.sh --update --discover\`
-localmente y commitea los \`go.mod\` / \`go.sum\` actualizados.
+There are outdated Go dependencies, or modules that could not be inspected.
+Run \`bash .github/scripts/go-deps.sh --update --discover\` locally and
+commit the updated \`go.mod\` / \`go.sum\` files.
 
-<details><summary>Salida del script</summary>
+<details><summary>Script output</summary>
 
 \`\`\`
 $deps_output
@@ -222,11 +222,11 @@ fi
 case "$max_tier" in
     1)
         ai_header="### ✅ AI review — Approved"
-        ai_intro="Todos los prompts retornaron Tier 1. No se detectaron issues bloqueantes en este diff."
+        ai_intro="All prompts returned Tier 1. No blocking issues detected in this diff."
         ;;
     2)
         ai_header="### ⚠️ AI review — Changes requested"
-        ai_intro="Uno o más prompts encontraron issues que el autor debería arreglar antes de mergear. Detalles abajo."
+        ai_intro="One or more prompts found issues the author should fix before merging. Details below."
         ;;
     3)
         mention=""
@@ -238,7 +238,7 @@ case "$max_tier" in
             done
         fi
         ai_header="### 🛑 AI review — Engineer review required"
-        ai_intro="Este PR toca paths críticos o introduce cambios que el modelo no puede juzgar con confianza suficiente. ${mention}por favor revisar."
+        ai_intro="This PR touches critical paths or introduces changes the model cannot judge with sufficient confidence. ${mention}please review."
         ;;
     *)
         ai_header="### ❓ AI review — Unknown verdict"
@@ -297,11 +297,11 @@ if ! $authorized; then
     perm_body=$(cat <<EOF
 ### ⛔ Permission denied
 
-Solo miembros de @${ORG}/${ADMIN_TEAM} o @${ORG}/${CORE_TEAM} pueden mergear PRs en este repositorio.
+Only members of @${ORG}/${ADMIN_TEAM} or @${ORG}/${CORE_TEAM} can merge PRs into this repository.
 
-**Autor del PR:** @${PR_AUTHOR}
+**PR author:** @${PR_AUTHOR}
 
-Los comentarios anteriores (deps + AI review) siguen siendo válidos — si haces los arreglos, los checks se reejecutarán automáticamente, pero la aprobación queda en manos de un administrador.
+The comments above (deps + AI review) are still valid — if you address them, the checks will re-run automatically, but final approval is left to an administrator.
 
 @${ORG}/${ADMIN_TEAM} please review.
 EOF
