@@ -95,17 +95,21 @@ else
     diff_content=$(cat "$DIFF_FILE")
 fi
 
-user_message=$(printf '%s\n\n---\n\nPR diff to review:\n\n```diff\n%s\n```\n' \
-    "$prompt_body" "$diff_content")
+# Write the user message to a temp file. Passing it through --arg would hit
+# the system ARG_MAX limit on PRs with large diffs ("Argument list too long").
+user_message_file=$(mktemp)
+printf '%s\n\n---\n\nPR diff to review:\n\n```diff\n%s\n```\n' \
+    "$prompt_body" "$diff_content" > "$user_message_file"
 
-request_body=$(jq -n \
+request_body_file=$(mktemp)
+jq -n \
     --arg model "$MODEL" \
-    --arg content "$user_message" \
+    --rawfile content "$user_message_file" \
     '{
         model: $model,
         messages: [{role: "user", content: $content}],
         temperature: 0.2
-    }')
+    }' > "$request_body_file"
 
 # --- Call the API ------------------------------------------------------------
 
@@ -115,7 +119,7 @@ http_status=$(curl -sS -o "$response_file" -w '%{http_code}' \
     -H "Content-Type: application/json" \
     -H "api-key: ${THREATWINDS_API_KEY}" \
     -H "api-secret: ${THREATWINDS_API_SECRET}" \
-    --data "$request_body" || echo "000")
+    --data-binary "@${request_body_file}" || echo "000")
 
 if [[ "$http_status" != "200" ]]; then
     echo "ThreatWinds API HTTP $http_status"

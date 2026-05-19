@@ -21,6 +21,8 @@ jobs:
   go_deps:
     name: Go deps
     uses: ./.github/workflows/_pr-reusable-go-deps.yml
+    secrets:
+      API_SECRET: ${{ secrets.API_SECRET }}
 
   ai_review:
     name: AI review
