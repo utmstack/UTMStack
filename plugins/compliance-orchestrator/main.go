@@ -2,25 +2,37 @@ package main
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/plugins/compliance-orchestrator/scheduler"
 	"github.com/utmstack/UTMStack/plugins/compliance-orchestrator/workers"
 )
 
 func main() {
+	mode := plugins.GetCfg("plugin_com.utmstack.compliance-orchestrator").Env.Mode
+	if mode != "manager" {
+		return
+	}
+
 	catcher.Info("Starting Compliance Orchestrator", map[string]any{
-		"process": "compliance-orchestrator",
+		"process": "plugin_com.utmstack.compliance-orchestrator",
 	})
 
 	backend, err := bootstrap()
 	if err != nil {
-		catcher.Info("Compliance Orchestrator bootstrap failed", map[string]any{})
-		return
+		_ = catcher.Error("Compliance Orchestrator bootstrap failed", err, map[string]any{
+			"process": "plugin_com.utmstack.compliance-orchestrator",
+		})
+		time.Sleep(5 * time.Second)
+		os.Exit(1)
 	}
 
-	catcher.Info("Compliance Orchestrator bootstrapped successfully", nil)
+	catcher.Info("Compliance Orchestrator bootstrapped successfully", map[string]any{
+		"process": "plugin_com.utmstack.compliance-orchestrator",
+	})
 
 	ctx := context.Background()
 

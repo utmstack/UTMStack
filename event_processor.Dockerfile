@@ -19,3 +19,4 @@ COPY ./plugins/soc-ai/com.utmstack.soc-ai.plugin /workdir/plugins/utmstack/
 COPY ./plugins/modules-config/com.utmstack.modules-config.plugin /workdir/plugins/utmstack/
 COPY ./plugins/crowdstrike/com.utmstack.crowdstrike.plugin /workdir/plugins/utmstack/
 COPY ./plugins/feeds/com.utmstack.feeds.plugin /workdir/plugins/utmstack/
+COPY ./plugins/compliance-orchestrator/com.utmstack.compliance-orchestrator.plugin /workdir/plugins/utmstack/

@@ -16,13 +16,14 @@ func waitForBackend(bc *client.BackendClient) error {
 		err := bc.HealthCheck(context.Background())
 		if err == nil {
 			catcher.Info("Connected to Backend", map[string]any{
-				"process": "compliance-orchestrator",
+				"process": "plugin_com.utmstack.compliance-orchestrator",
 			})
 			return nil
 		}
 
 		catcher.Error("Cannot connect to Backend, retrying", err, map[string]any{
-			"retry": retry + 1,
+			"retry":   retry + 1,
+			"process": "plugin_com.utmstack.compliance-orchestrator",
 		})
 
 		if retry < maxRetries-1 {
@@ -47,7 +48,8 @@ func waitForOpenSearch() error {
 		}
 
 		catcher.Error("Cannot connect to OpenSearch, retrying", err, map[string]any{
-			"retry": retry + 1,
+			"retry":   retry + 1,
+			"process": "plugin_com.utmstack.compliance-orchestrator",
 		})
 
 		if retry < maxRetries-1 {
