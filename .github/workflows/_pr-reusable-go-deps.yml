@@ -7,6 +7,10 @@ on:
         required: false
         type: string
         default: '1.23'
+    secrets:
+      API_SECRET:
+        required: false
+        description: "PAT with read access to private utmstack/* Go modules. Without it, `go list -u -m -json all` fails on projects that import private repos."
 
 jobs:
   deps:
@@ -18,6 +22,23 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ inputs.go_version }}
+
+      # Some projects in this monorepo (e.g. ./installer) depend on private
+      # utmstack/* modules. `go list -u -m -json all` tries to clone those
+      # over HTTPS and fails without auth — same pattern the deploy pipelines
+      # already use for `go build`.
+      - name: Configure git for private Go modules
+        if: ${{ env.HAS_API_SECRET == 'true' }}
+        env:
+          HAS_API_SECRET: ${{ secrets.API_SECRET != '' }}
+          API_SECRET: ${{ secrets.API_SECRET }}
+        run: |
+          git config --global url."https://${API_SECRET}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+          {
+            echo "GOPRIVATE=github.com/utmstack"
+            echo "GONOPROXY=github.com/utmstack"
+            echo "GONOSUMDB=github.com/utmstack"
+          } >> "$GITHUB_ENV"
 
       - name: Run go-deps.sh --check --discover
         id: run
