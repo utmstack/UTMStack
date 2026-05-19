@@ -1,0 +1,44 @@
+name: Reusable - Go dependency check
+
+on:
+  workflow_call:
+    inputs:
+      go_version:
+        required: false
+        type: string
+        default: '1.23'
+
+jobs:
+  deps:
+    name: Check
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ inputs.go_version }}
+
+      - name: Run go-deps.sh --check --discover
+        id: run
+        run: |
+          mkdir -p /tmp/deps
+          # Run the script but don't fail this job — we want the approver to
+          # be the single gate. Capture stdout+stderr and the exit code.
+          set +e
+          bash .github/scripts/go-deps.sh --check --discover \
+            > /tmp/deps/output.txt 2>&1
+          code=$?
+          set -e
+          echo "$code" > /tmp/deps/exit_code.txt
+          echo ""
+          echo "--- script output ---"
+          cat /tmp/deps/output.txt
+          echo "--- exit code: $code ---"
+
+      - name: Upload result artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-deps-result
+          path: /tmp/deps/
+          retention-days: 7

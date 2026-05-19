@@ -1,5 +1,9 @@
 name: Generate AI Changelog
 
+# Thin wrapper around .github/scripts/generate-changelog.sh, which calls
+# ThreatWinds /chat/completions to turn the commit log between two tags
+# into end-user release notes.
+
 on:
   workflow_call:
     inputs:
@@ -8,198 +12,93 @@ on:
         required: true
         type: string
       previous_tag:
-        description: 'Previous tag to compare against (optional, auto-detected if not provided)'
+        description: 'Previous tag to compare against (optional, auto-detected if empty)'
         required: false
         type: string
         default: ''
       product_name:
-        description: 'Product name for the changelog'
+        description: 'Product name'
         required: false
         type: string
         default: 'UTMStack'
       product_description:
-        description: 'Product description for context'
+        description: 'Product description'
         required: false
         type: string
         default: 'Unified Threat Management and SIEM Platform'
+      model:
+        description: 'ThreatWinds model ID (e.g., gemini-3-flash-lite, gemini-3-pro, claude-sonnet-4-6)'
+        required: false
+        type: string
+        default: 'gemini-3-flash-lite'
     secrets:
-      OPENAI_API_KEY:
+      THREATWINDS_API_KEY:
+        required: true
+      THREATWINDS_API_SECRET:
         required: true
     outputs:
       changelog:
-        description: 'Generated changelog content'
-        value: ${{ jobs.generate-changelog.outputs.changelog }}
+        description: 'Generated changelog content (multiline)'
+        value: ${{ jobs.generate.outputs.changelog }}
       previous_tag:
         description: 'The previous tag used for comparison'
-        value: ${{ jobs.generate-changelog.outputs.previous_tag }}
+        value: ${{ jobs.generate.outputs.previous_tag }}
 
 jobs:
-  generate-changelog:
-    name: Generate AI Changelog
-    runs-on: ubuntu-latest
+  generate:
+    name: Generate
+    runs-on: ubuntu-24.04
     outputs:
-      changelog: ${{ steps.generate-changelog.outputs.changelog }}
-      previous_tag: ${{ steps.get-tags.outputs.previous_tag }}
-
+      changelog: ${{ steps.run.outputs.changelog }}
+      previous_tag: ${{ steps.run.outputs.previous_tag }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
+          # Need full history for git tag listing and `git log A..B`.
           fetch-depth: 0
 
-      - name: Get previous tag
-        id: get-tags
-        run: |
-          CURRENT_TAG="${{ inputs.current_tag }}"
-          echo "Current release tag: $CURRENT_TAG"
-
-          # Use provided previous_tag or auto-detect
-          if [ -n "${{ inputs.previous_tag }}" ]; then
-            PREVIOUS_TAG="${{ inputs.previous_tag }}"
-            echo "Using provided previous tag: $PREVIOUS_TAG"
-          else
-            # Get all tags sorted by version (newest first)
-            ALL_TAGS=$(git tag --sort=-v:refname)
-            FOUND_CURRENT=false
-            PREVIOUS_TAG=""
-
-            for tag in $ALL_TAGS; do
-              if [ "$FOUND_CURRENT" = true ]; then
-                PREVIOUS_TAG="$tag"
-                break
-              fi
-              if [ "$tag" = "$CURRENT_TAG" ]; then
-                FOUND_CURRENT=true
-              fi
-            done
-
-            if [ -z "$PREVIOUS_TAG" ]; then
-              # No previous tag found, get first commit
-              PREVIOUS_TAG=$(git rev-list --max-parents=0 HEAD | head -1)
-              echo "No previous tag found, using first commit: $PREVIOUS_TAG"
-            fi
-          fi
-
-          echo "Previous tag/commit: $PREVIOUS_TAG"
-          echo "current_tag=$CURRENT_TAG" >> $GITHUB_OUTPUT
-          echo "previous_tag=$PREVIOUS_TAG" >> $GITHUB_OUTPUT
-
-      - name: Get commits between tags
-        id: get-commits
-        run: |
-          CURRENT_TAG="${{ steps.get-tags.outputs.current_tag }}"
-          PREVIOUS_TAG="${{ steps.get-tags.outputs.previous_tag }}"
-
-          echo "Getting commits between $PREVIOUS_TAG and $CURRENT_TAG"
-
-          # Get commit messages with hash, author, and message
-          COMMITS=$(git log ${PREVIOUS_TAG}..${CURRENT_TAG} --pretty=format:"- %h %s (%an)" --no-merges)
-
-          # Count commits
-          COMMIT_COUNT=$(git rev-list --count ${PREVIOUS_TAG}..${CURRENT_TAG} --no-merges)
-
-          echo "Found $COMMIT_COUNT commits"
-
-          # Save commits to file (to handle multiline)
-          echo "$COMMITS" > /tmp/commits.txt
-
-          # Also get changed files summary
-          CHANGED_FILES=$(git diff --stat ${PREVIOUS_TAG}..${CURRENT_TAG} | tail -1)
-          echo "changed_files=$CHANGED_FILES" >> $GITHUB_OUTPUT
-          echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
-
-      - name: Generate changelog with OpenAI
-        id: generate-changelog
+      - name: Generate changelog
+        id: run
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          THREATWINDS_API_KEY: ${{ secrets.THREATWINDS_API_KEY }}
+          THREATWINDS_API_SECRET: ${{ secrets.THREATWINDS_API_SECRET }}
           PRODUCT_NAME: ${{ inputs.product_name }}
           PRODUCT_DESCRIPTION: ${{ inputs.product_description }}
+          MODEL: ${{ inputs.model }}
+          OUTPUT_FILE: /tmp/changelog.md
         run: |
-          COMMITS=$(cat /tmp/commits.txt)
-          CURRENT_TAG="${{ steps.get-tags.outputs.current_tag }}"
-          PREVIOUS_TAG="${{ steps.get-tags.outputs.previous_tag }}"
-          COMMIT_COUNT="${{ steps.get-commits.outputs.commit_count }}"
-          CHANGED_FILES="${{ steps.get-commits.outputs.changed_files }}"
+          bash .github/scripts/generate-changelog.sh \
+            "${{ inputs.current_tag }}" \
+            "${{ inputs.previous_tag }}"
 
-          # Create the prompt
-          PROMPT="You are a product marketing writer creating release notes for end users of a software product.
-
-          Product: $PRODUCT_NAME - $PRODUCT_DESCRIPTION
-          Release: $CURRENT_TAG
-
-          Here are the commit messages from this release:
-          $COMMITS
-
-          Create user-friendly release notes in markdown format. This is for NON-TECHNICAL end users who want to know what's new and improved in the product.
-
-          IMPORTANT RULES:
-          1. ONLY include changes that DIRECTLY AFFECT END USERS - things they can see, use, or benefit from
-          2. COMPLETELY IGNORE internal/technical changes like:
-             - CI/CD, GitHub Actions, deployment pipelines
-             - Code refactoring, component restructuring
-             - Database migrations, backend infrastructure
-             - Internal API changes, gRPC, service communication
-             - Developer tooling, linting, formatting
-             - README updates, internal documentation
-          3. Write in simple, non-technical language
-          4. Focus on BENEFITS to the user, not implementation details
-          5. Group into these categories ONLY (skip empty categories):
-             - **What's New** - New features users can now use
-             - **Improved** - Enhancements to existing features
-             - **Fixed** - Bugs that were affecting users
-          6. Start with a brief 1-2 sentence summary of the release highlights
-          7. Use bullet points, be concise (one line per item)
-          8. Do NOT wrap output in markdown code blocks
-          9. Do NOT include commit hashes or author names
-          10. If most commits are internal/technical, just summarize with 'Minor improvements and bug fixes'
-
-          Write the release notes directly in markdown format, ready to be used as-is."
-
-          # Call OpenAI API
-          RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $OPENAI_API_KEY" \
-            -d "$(jq -n \
-              --arg prompt "$PROMPT" \
-              '{
-                model: "gpt-4o-mini",
-                messages: [
-                  {role: "system", content: "You are a technical writer specializing in software changelogs."},
-                  {role: "user", content: $prompt}
-                ],
-                temperature: 0.3,
-                max_tokens: 2000
-              }')")
-
-          # Extract the changelog from response
-          CHANGELOG=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty')
-
-          if [ -z "$CHANGELOG" ]; then
-            echo "Error: Failed to generate changelog"
-            echo "Response: $RESPONSE"
-            # Fallback to simple commit list
-            CHANGELOG="## What's Changed
-
-          $COMMITS
-
-          **Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG}...${CURRENT_TAG}"
+          # Resolve the previous tag the script actually used so the caller
+          # can output it (the script prints it to stdout; re-derive it the
+          # same way to be safe).
+          if [ -n "${{ inputs.previous_tag }}" ]; then
+            prev='${{ inputs.previous_tag }}'
+          else
+            current='${{ inputs.current_tag }}'
+            all_tags=$(git tag --sort=-v:refname)
+            found=false
+            prev=""
+            for t in $all_tags; do
+              if [ "$found" = true ]; then prev="$t"; break; fi
+              if [ "$t" = "$current" ]; then found=true; fi
+            done
+            if [ -z "$prev" ]; then
+              prev=$(git rev-list --max-parents=0 HEAD | head -1)
+            fi
           fi
+          echo "previous_tag=$prev" >> "$GITHUB_OUTPUT"
 
-          # Add comparison link at the end
-          CHANGELOG="${CHANGELOG}
+          # Multiline output for the changelog.
+          {
+            echo 'changelog<<EOF'
+            cat /tmp/changelog.md
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
 
-          ---
-          **Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG}...${CURRENT_TAG}"
-
-          # Save changelog to file
-          echo "$CHANGELOG" > /tmp/changelog.md
-
-          # Output changelog using multiline format
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          cat /tmp/changelog.md >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Output changelog preview
+      - name: Preview
         run: |
           echo "## Generated Changelog Preview"
           echo ""
