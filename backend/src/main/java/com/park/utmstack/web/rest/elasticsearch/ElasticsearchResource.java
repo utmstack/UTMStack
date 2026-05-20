@@ -23,6 +23,7 @@ import com.utmstack.opensearch_connector.types.ElasticCluster;
 import com.utmstack.opensearch_connector.types.SearchSqlResponse;
 import com.utmstack.opensearch_connector.types.SqlQueryRequest;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.csv.CSVPrinter;
 import org.opensearch.client.opensearch.cat.indices.IndicesRecord;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.opensearch.client.opensearch.core.search.Hit;
@@ -197,37 +198,38 @@ public class ElasticsearchResource {
     @PostMapping("/search/csv")
     public ResponseEntity<Void> searchToCsv(@RequestBody @Valid CsvExportingParams params, HttpServletResponse response) {
         final String ctx = CLASSNAME + ".searchToCsv";
-        try {
-            SearchResponse<Map> searchResponse = elasticsearchService.search(params.getFilters(), params.getTop(),
-                    params.getIndexPattern(), Pageable.unpaged(), Map.class);
 
-            if (Objects.isNull(searchResponse) || Objects.isNull(searchResponse.hits()) || searchResponse.hits().total().value() == 0)
-                return ResponseEntity.ok().build();
-
-            List<Map> hits = searchResponse.hits().hits().stream().map(Hit::source).collect(Collectors.toList());
-
-            boolean needsEchoes = false;
-            for (DataColumn col : params.getColumns()) {
-                if ("echoes".equals(col.getField())) {
-                    needsEchoes = true;
-                    break;
-                }
+        boolean needsEchoes = false;
+        for (DataColumn col : params.getColumns()) {
+            if ("echoes".equals(col.getField())) {
+                needsEchoes = true;
+                break;
             }
-            if (needsEchoes) {
-                hits.forEach(d -> {
-                    Object id = d.get("id");
-                    if (id != null) {
-                        long countEchoes = elasticsearchService.count(
-                                List.of(new FilterType("parentId", OperatorType.IS, id.toString())),
-                                params.getIndexPattern()
-                        );
-                        d.put("echoes", countEchoes);
-                    }
-                });
-            }
+        }
+        final boolean enrichEchoes = needsEchoes;
 
-            UtilCsv.prepareToDownload(response, params.getColumns(), hits);
-
+        try (CSVPrinter printer = UtilCsv.openCsvStream(response, params.getColumns())) {
+            elasticsearchService.searchStream(
+                    params.getFilters(),
+                    params.getTop(),
+                    params.getIndexPattern(),
+                    500,
+                    Map.class,
+                    batch -> {
+                        if (enrichEchoes) {
+                            for (Map d : batch) {
+                                Object id = d.get("id");
+                                if (id != null) {
+                                    long countEchoes = elasticsearchService.count(
+                                            List.of(new FilterType("parentId", OperatorType.IS, id.toString())),
+                                            params.getIndexPattern());
+                                    d.put("echoes", countEchoes);
+                                }
+                            }
+                        }
+                        UtilCsv.writeCsvBatch(printer, params.getColumns(), batch);
+                        return true;
+                    });
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();

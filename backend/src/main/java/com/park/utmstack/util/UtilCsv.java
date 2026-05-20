@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -103,5 +104,78 @@ public class UtilCsv {
             String msg = ctx + ": " + e.getMessage();
             throw new UtmCsvException(msg);
         }
+    }
+
+    /**
+     * Opens a CSV response stream: sets content-type/disposition headers and writes the header row.
+     * Caller is responsible for closing the returned printer (try-with-resources is fine).
+     *
+     * Column names are normalized in-place by stripping a trailing {@code .keyword}.
+     */
+    public static CSVPrinter openCsvStream(HttpServletResponse response, DataColumn[] columns) throws IOException {
+        Assert.notEmpty(columns);
+
+        Arrays.stream(columns).forEach(column ->
+                column.setField(column.getField().replace(".keyword", "")));
+
+        String[] headers = Stream.of(columns).map(column -> {
+            if (StringUtils.hasText(column.getLabel()))
+                return column.getLabel();
+            return column.getField().replace(".keyword", "");
+        }).toArray(String[]::new);
+
+        response.setContentType("text/csv");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=data.csv");
+
+        return new CSVPrinter(response.getWriter(),
+                CSVFormat.DEFAULT.withHeader(headers).withQuoteMode(QuoteMode.ALL));
+    }
+
+    /**
+     * Writes a batch of source maps as CSV rows using the same field-extraction logic as
+     * {@link #prepareToDownload}. Intended to be called repeatedly while paginating through
+     * a large result set; pair with {@link #openCsvStream}.
+     */
+    public static void writeCsvBatch(CSVPrinter printer, DataColumn[] columns, List<?> data) throws IOException {
+        if (data == null || data.isEmpty()) return;
+
+        final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")
+                .withLocale(Locale.getDefault()).withZone(TimezoneUtil.getAppTimezone());
+
+        for (Object d : data) {
+            String[] cells = new String[columns.length];
+            for (int i = 0; i < columns.length; i++) {
+                String fieldName = columns[i].getField();
+                String fieldType = columns[i].getType();
+                cells[i] = null;
+
+                Object value;
+                try {
+                    value = JsonPath.parse(d).read("$." + fieldName);
+                } catch (PathNotFoundException e) {
+                    continue;
+                }
+
+                if (value == null)
+                    continue;
+
+                if (value instanceof String) {
+                    cells[i] = "date".equals(fieldType) ? DATE_FORMATTER.format(Instant.parse(String.valueOf(value))) :
+                            String.valueOf(value).replace("\n", " ").replace("\t", " ");
+                } else if (value instanceof List) {
+                    cells[i] = ((List<?>) value).stream().map(String::valueOf).collect(Collectors.joining(","));
+                } else if (value instanceof Number) {
+                    cells[i] = String.valueOf(value);
+                } else if (value instanceof Map) {
+                    try {
+                        cells[i] = OBJECT_MAPPER.writeValueAsString(value);
+                    } catch (Exception ex) {
+                        cells[i] = value.toString();
+                    }
+                }
+            }
+            printer.printRecord((Object[]) cells);
+        }
+        printer.flush();
     }
 }
