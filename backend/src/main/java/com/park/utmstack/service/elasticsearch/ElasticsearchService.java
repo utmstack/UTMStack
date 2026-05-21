@@ -341,7 +341,7 @@ public class ElasticsearchService {
         try {
             Assert.hasText(indexPattern, "Parameter indexPattern must not be null or empty");
             SearchRequest query = buildQuery(indexPattern, filters, top, pageable);
-            return client.getClient().search(query, type);
+            return client.execute(c -> c.search(query, type));
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
@@ -400,9 +400,83 @@ public class ElasticsearchService {
     public <T> SearchResponse<T> search(SearchRequest request, Class<T> type) {
         final String ctx = CLASSNAME + ".search";
         try {
-            return client.getClient().search(request, type);
+            return client.execute(c -> c.search(request, type));
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
+        }
+    }
+
+    @FunctionalInterface
+    public interface SearchBatchConsumer<T> {
+        /** Returns false to stop iteration early. */
+        boolean accept(List<T> batch) throws Exception;
+    }
+
+    /**
+     * Streams a result set using search_after pagination, never holding more than {@code pageSize}
+     * documents in memory at a time. Designed for very large exports where loading every hit at
+     * once would OOM the JVM (and take the OpenSearch client's I/O reactor down with it).
+     *
+     * Sort is forced to {@code @timestamp desc} with {@code _id desc} as tiebreaker so that
+     * search_after is stable and deterministic.
+     *
+     * @param filters      filters to apply
+     * @param max          hard upper bound on total documents to emit; null or <=0 means unbounded
+     * @param indexPattern target index pattern
+     * @param pageSize     batch size (capped at 10000 by OpenSearch per request)
+     * @param type         deserialization type
+     * @param consumer     receives each batch; return false to stop early
+     * @return total number of documents emitted
+     */
+    public <T> long searchStream(List<FilterType> filters, Integer max, String indexPattern,
+                                 int pageSize, Class<T> type, SearchBatchConsumer<T> consumer) {
+        final String ctx = CLASSNAME + ".searchStream";
+        try {
+            Assert.hasText(indexPattern, "Parameter indexPattern must not be null or empty");
+            Assert.notNull(consumer, "consumer must not be null");
+            if (pageSize <= 0) pageSize = 500;
+
+            long emitted = 0;
+            List<String> after = null;
+            while (true) {
+                int remaining = (max != null && max > 0) ? (int) (max - emitted) : pageSize;
+                if (remaining <= 0) break;
+                int size = Math.min(pageSize, remaining);
+
+                final List<String> afterFinal = after;
+                final int sizeFinal = size;
+                SearchResponse<T> response = client.execute(c -> {
+                    SearchRequest.Builder srb = new SearchRequest.Builder()
+                            .index(indexPattern)
+                            .query(SearchUtil.toQuery(filters))
+                            .size(sizeFinal)
+                            .sort(s -> s.field(f -> f.field("@timestamp").order(SortOrder.Desc)))
+                            .sort(s -> s.field(f -> f.field("_id").order(SortOrder.Desc)));
+                    if (afterFinal != null && !afterFinal.isEmpty())
+                        srb.searchAfter(afterFinal);
+                    return c.search(srb.build(), type);
+                });
+
+                if (response == null || response.hits() == null) break;
+                List<org.opensearch.client.opensearch.core.search.Hit<T>> hits = response.hits().hits();
+                if (hits == null || hits.isEmpty()) break;
+
+                List<T> batch = new ArrayList<>(hits.size());
+                for (org.opensearch.client.opensearch.core.search.Hit<T> h : hits)
+                    batch.add(h.source());
+
+                boolean keepGoing = consumer.accept(batch);
+                emitted += hits.size();
+
+                if (!keepGoing) break;
+                if (hits.size() < size) break;
+
+                after = hits.get(hits.size() - 1).sort();
+                if (after == null || after.isEmpty()) break;
+            }
+            return emitted;
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage(), e);
         }
     }
 
