@@ -5,6 +5,7 @@ import {UtmModuleGroupConfService} from '../../shared/services/utm-module-group-
 import {UtmModuleGroupConfType} from '../../shared/type/utm-module-group-conf.type';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {ModuleChangeStatusBehavior} from '../../shared/behavior/module-change-status.behavior';
+import { finalize } from 'rxjs/operators';
 
 interface ProviderConfig {
   id: string;
@@ -297,7 +298,12 @@ export class GuideSocAiComponent implements OnInit {
 
   private loadConfig() {
     this.loading = true;
-    this.moduleGroupService.query({moduleId: this.integrationId}).subscribe(response => {
+    this.moduleGroupService.query({moduleId: this.integrationId}).pipe(
+      finalize(()=>{
+        this.loading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe(response => {
       const groups = response.body || [];
       if (groups.length > 0) {
         this.groupId = groups[0].id;
@@ -422,35 +428,35 @@ export class GuideSocAiComponent implements OnInit {
     const changes: UtmModuleGroupConfType[] = [];
 
     // Set provider
-    this.pushChange(changes, 'utmstack.socai.provider', this.activeProvider);
+    this.pushChange(changes, 'utmstack.socai.provider', this.activeProvider, 'text');
 
     // Set model
-    this.pushChange(changes, 'utmstack.socai.model', this.getModelValue());
+    this.pushChange(changes, 'utmstack.socai.model', this.getModelValue(), 'text');
 
     // Set URL for providers that need it (azure, ollama, custom)
     if (this.formValues['url']) {
-      this.pushChange(changes, 'utmstack.socai.url', this.formValues['url']);
+      this.pushChange(changes, 'utmstack.socai.url', this.formValues['url'], 'text');
     }
 
     // Set maxTokens
     if (this.formValues['maxTokens']) {
-      this.pushChange(changes, 'utmstack.socai.maxTokens', this.formValues['maxTokens']);
+      this.pushChange(changes, 'utmstack.socai.maxTokens', this.formValues['maxTokens'], 'text');
     }
 
     // Set behavior toggles
-    this.pushChange(changes, 'utmstack.socai.autoAnalyze', this.formValues['autoAnalyze'] || 'false');
-    this.pushChange(changes, 'utmstack.socai.incidentCreation', this.formValues['incidentCreation'] || 'false');
-    this.pushChange(changes, 'utmstack.socai.changeAlertStatus', this.formValues['changeAlertStatus'] || 'false');
+    this.pushChange(changes, 'utmstack.socai.autoAnalyze', this.formValues['autoAnalyze'] || 'false', 'text');
+    this.pushChange(changes, 'utmstack.socai.incidentCreation', this.formValues['incidentCreation'] || 'false', 'text');
+    this.pushChange(changes, 'utmstack.socai.changeAlertStatus', this.formValues['changeAlertStatus'] || 'false', 'text');
 
     // Build auth headers
     if (this.activeProvider === 'custom') {
       // Custom provider: user manages auth type and headers directly
-      this.pushChange(changes, 'utmstack.socai.authType', this.formValues['authType'] || 'custom-headers');
-      this.pushChange(changes, 'utmstack.socai.customHeaders', this.formValues['customHeaders'] || '{}');
+      this.pushChange(changes, 'utmstack.socai.authType', this.formValues['authType'] || 'custom-headers', 'text');
+      this.pushChange(changes, 'utmstack.socai.customHeaders', this.formValues['customHeaders'] || '{}', 'text');
     } else if (this.activeProvider === 'ollama') {
       // Ollama: no auth needed
-      this.pushChange(changes, 'utmstack.socai.authType', 'none');
-      this.pushChange(changes, 'utmstack.socai.customHeaders', '{}');
+      this.pushChange(changes, 'utmstack.socai.authType', 'none', 'text');
+      this.pushChange(changes, 'utmstack.socai.customHeaders', '{}', 'text');
     } else {
       // Known providers: build auth header from API key
       const authConfig = this.providerAuthHeaders[this.activeProvider];
@@ -458,8 +464,8 @@ export class GuideSocAiComponent implements OnInit {
         // User entered a new API key — build auth headers
         const headers: {[k: string]: string} = {};
         headers[authConfig.headerName] = authConfig.headerValuePrefix + this.formValues['apiKey'];
-        this.pushChange(changes, 'utmstack.socai.authType', 'custom-headers');
-        this.pushChange(changes, 'utmstack.socai.customHeaders', JSON.stringify(headers));
+        this.pushChange(changes, 'utmstack.socai.authType', 'custom-headers', 'text');
+        this.pushChange(changes, 'utmstack.socai.customHeaders', JSON.stringify(headers), 'text');
       }
       // If apiKey is '*****', don't touch customHeaders — keep existing value in DB
     }
@@ -486,7 +492,12 @@ export class GuideSocAiComponent implements OnInit {
     );
   }
 
-  private pushChange(changes: UtmModuleGroupConfType[], confKey: string, value: string) {
+  private pushChange(
+    changes: UtmModuleGroupConfType[],
+    confKey: string,
+    value: string,
+    confDataType: 'list' | 'password' | 'file' | 'bool' | 'select' | 'text' = 'text'
+  ) {
     const existing = this.getConf(confKey);
     if (existing) {
       changes.push({
@@ -494,6 +505,19 @@ export class GuideSocAiComponent implements OnInit {
         confValue: value,
         confOptions: existing.confOptions ? JSON.stringify(existing.confOptions) : existing.confOptions,
         confVisibility: existing.confVisibility ? JSON.stringify(existing.confVisibility) : existing.confVisibility,
+      });
+    } else {
+      changes.push({
+        id: undefined,
+        groupId: this.groupId,
+        confKey,
+        confValue: value,
+        confName: confKey.split('.')[2] || confKey,
+        confDataType,
+        confDescription: '',
+        confRequired: true,
+        confOptions: undefined,
+        confVisibility: undefined,
       });
     }
   }
