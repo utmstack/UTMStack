@@ -1,6 +1,7 @@
 package com.park.utmstack.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.park.utmstack.domain.shared_types.DataColumn;
@@ -52,6 +53,7 @@ public class UtilCsv {
             List<String[]> rows = new ArrayList<>();
 
             data.forEach(d -> {
+                DocumentContext docctx = JsonPath.parse(d);
                 String[] cells = new String[columns.length];
                 for (int i = 0; i < columns.length; i++) {
                     String fieldName = columns[i].getField();
@@ -60,7 +62,7 @@ public class UtilCsv {
 
                     Object value;
                     try {
-                        value = JsonPath.parse(d).read("$." + fieldName);
+                        value = docctx.read("$." + fieldName);
                     } catch (PathNotFoundException e) {
                         continue;
                     }
@@ -82,6 +84,7 @@ public class UtilCsv {
                             cells[i] = value.toString();
                         }
                     }
+                    cells[i] = sanitizeCsvCell(cells[i]);
                 }
                 rows.add(cells);
             });
@@ -143,6 +146,7 @@ public class UtilCsv {
                 .withLocale(Locale.getDefault()).withZone(TimezoneUtil.getAppTimezone());
 
         for (Object d : data) {
+            DocumentContext ctx = JsonPath.parse(d);
             String[] cells = new String[columns.length];
             for (int i = 0; i < columns.length; i++) {
                 String fieldName = columns[i].getField();
@@ -151,7 +155,7 @@ public class UtilCsv {
 
                 Object value;
                 try {
-                    value = JsonPath.parse(d).read("$." + fieldName);
+                    value = ctx.read("$." + fieldName);
                 } catch (PathNotFoundException e) {
                     continue;
                 }
@@ -173,9 +177,22 @@ public class UtilCsv {
                         cells[i] = value.toString();
                     }
                 }
+                cells[i] = sanitizeCsvCell(cells[i]);
             }
             printer.printRecord((Object[]) cells);
         }
         printer.flush();
+    }
+
+    /**
+     * Neutralizes CSV-injection payloads by prefixing a single quote to any cell whose first
+     * character is interpreted as a formula trigger by Excel/LibreOffice/Sheets.
+     */
+    private static String sanitizeCsvCell(String value) {
+        if (value == null || value.isEmpty()) return value;
+        char first = value.charAt(0);
+        if (first == '=' || first == '+' || first == '-' || first == '@' || first == '\t' || first == '\r')
+            return "'" + value;
+        return value;
     }
 }

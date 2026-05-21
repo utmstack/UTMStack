@@ -233,9 +233,10 @@ public class ElasticsearchResource {
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
+            log.error(msg, e);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "An internal error occurred while exporting the CSV. Please check server logs.");
         }
     }
 

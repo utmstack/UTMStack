@@ -69,16 +69,16 @@ public class OpensearchClientBuilder {
         final String ctx = CLASSNAME + ".buildClient";
         try {
             String host = System.getenv(Constants.ENV_ELASTICSEARCH_HOST);
-            Assert.hasText(host, "Environment variable ELASTICSEARCH_HOST is missing or his value is null or empty");
+            Assert.hasText(host, "Environment variable ELASTICSEARCH_HOST is missing or its value is null or empty");
 
             String port = System.getenv(Constants.ENV_ELASTICSEARCH_PORT);
-            Assert.hasText(port, "Environment variable ELASTICSEARCH_PORT is missing or his value is null or empty");
+            Assert.hasText(port, "Environment variable ELASTICSEARCH_PORT is missing or its value is null or empty");
 
             String user = System.getenv(Constants.ENV_ELASTICSEARCH_USER);
-            Assert.hasText(user, "Environment variable ELASTICSEARCH_USER is missing or his value is null or empty");
+            Assert.hasText(user, "Environment variable ELASTICSEARCH_USER is missing or its value is null or empty");
 
             String password = System.getenv(Constants.ENV_ELASTICSEARCH_PASSWORD);
-            Assert.hasText(password, "Environment variable ELASTICSEARCH_PASSWORD is missing or his value is null or empty");
+            Assert.hasText(password, "Environment variable ELASTICSEARCH_PASSWORD is missing or its value is null or empty");
 
             this.client = OpenSearch.builder()
                     .withHost(host, Integer.parseInt(port), HttpScheme.https)
