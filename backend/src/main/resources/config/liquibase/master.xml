@@ -597,4 +597,6 @@
 
   <include file="/config/liquibase/changelog/20260409002_update_socai_config.xml" relativeToChangelogFile="false"/>
 
+  <include file="/config/liquibase/changelog/20260522001_update_socai_custom_headers_password.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
