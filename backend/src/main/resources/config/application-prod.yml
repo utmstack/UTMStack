@@ -64,8 +64,6 @@ jhipster:
         base-url:
 
 application:
-    chart-builder: # Chart builder configuration
-        ip-info-index-name: .utm-geoip
     incident-response:
         asset-verification-interval: 300
 

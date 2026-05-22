@@ -23,6 +23,11 @@ import java.util.stream.Collectors;
 
 public class RequestDsl {
     private static final String CLASSNAME = "RequestDsl";
+    public static final String GEO_HIT_AGG = "_geo_hit";
+    public static final List<String> GEO_SOURCE_INCLUDES = List.of(
+            "origin.geolocation.latitude", "origin.geolocation.longitude",
+            "source.geolocation.latitude", "source.geolocation.longitude",
+            "destination.geolocation.latitude", "destination.geolocation.longitude");
     private final SearchRequest.Builder searchRequestBuilder;
     private final UtmVisualization visualization;
 
@@ -129,6 +134,14 @@ public class RequestDsl {
 
             Map<String, Aggregation.Builder.ContainerBuilder> bucketAggregations = buildBucketAggregation(bucket);
             Map<String, Aggregation> metricAggregations = buildMetricAggregation(metrics);
+
+            if (visualization.getChartType() == ChartType.COORDINATE_MAP_CHART) {
+                Map<String, Aggregation> withGeo = new LinkedHashMap<>(metricAggregations);
+                withGeo.put(GEO_HIT_AGG, Aggregation.of(a -> a.topHits(th -> th
+                        .size(1)
+                        .source(s -> s.filter(f -> f.includes(GEO_SOURCE_INCLUDES))))));
+                metricAggregations = withGeo;
+            }
 
             if (!CollectionUtils.isEmpty(bucketAggregations)) {
                 Map<String, Aggregation> root = new LinkedHashMap<>();
