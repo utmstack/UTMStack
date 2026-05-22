@@ -53,6 +53,10 @@ export class GuideSocAiComponent implements OnInit {
   private rawConfigs: UtmModuleGroupConfType[] = [];
   private groupId: number;
 
+  // Original masked customHeaders value (if backend returned an opaque mask like "*****")
+  private originalMaskedCustomHeaders: string | null = null;
+  private readonly maskedDisplay = '***';
+
   providers: ProviderConfig[] = [
     {
       id: 'openai',
@@ -350,6 +354,7 @@ export class GuideSocAiComponent implements OnInit {
       'changeAlertStatus': changeStatus ? changeStatus.confValue : 'false',
     };
     this.customModelValue = '';
+    this.originalMaskedCustomHeaders = null;
 
     // Only load provider-specific values if viewing the saved provider
     if (isCurrentSavedProvider) {
@@ -379,16 +384,25 @@ export class GuideSocAiComponent implements OnInit {
       // Check if API key exists in custom headers — show masked if so
       const customHeaders = this.getConf('utmstack.socai.customHeaders');
       if (customHeaders && customHeaders.confValue && customHeaders.confValue !== '{}') {
-        try {
-          const headers = JSON.parse(customHeaders.confValue);
-          const authConfig = this.providerAuthHeaders[this.activeProvider];
-          if (authConfig && headers[authConfig.headerName]) {
-            // API key exists — show masked, don't expose the real value
-            this.formValues['apiKey'] = '*****';
-          }
-        } catch (e) {}
-        this.formValues['customHeaders'] = customHeaders.confValue;
-        this.parseHeadersFromJson(customHeaders.confValue);
+        const raw = customHeaders.confValue;
+        if (this.isMaskedValue(raw)) {
+          // Backend returned the whole confValue masked — preserve original for save
+          this.originalMaskedCustomHeaders = raw;
+          this.formValues['customHeaders'] = raw;
+          this.formValues['apiKey'] = this.maskedDisplay;
+          this.headerRows = [{key: this.maskedDisplay, value: this.maskedDisplay}];
+        } else {
+          try {
+            const headers = JSON.parse(raw);
+            const authConfig = this.providerAuthHeaders[this.activeProvider];
+            if (authConfig && headers[authConfig.headerName]) {
+              // API key exists — show masked, don't expose the real value
+              this.formValues['apiKey'] = this.maskedDisplay;
+            }
+          } catch (e) {}
+          this.formValues['customHeaders'] = raw;
+          this.parseHeadersFromJson(raw);
+        }
       }
 
       const maxTokensConf = this.getConf('utmstack.socai.maxTokens');
@@ -452,22 +466,32 @@ export class GuideSocAiComponent implements OnInit {
     if (this.activeProvider === 'custom') {
       // Custom provider: user manages auth type and headers directly
       this.pushChange(changes, 'utmstack.socai.authType', this.formValues['authType'] || 'custom-headers', 'text');
-      this.pushChange(changes, 'utmstack.socai.customHeaders', this.formValues['customHeaders'] || '{}', 'text');
+      if (this.originalMaskedCustomHeaders && this.hasMaskedHeaderRows()) {
+        // User didn't replace the masked rows — preserve original masked value
+        this.pushChange(changes, 'utmstack.socai.customHeaders', this.originalMaskedCustomHeaders, 'password');
+      } else {
+        this.pushChange(changes, 'utmstack.socai.customHeaders', this.formValues['customHeaders'] || '{}', 'password');
+      }
     } else if (this.activeProvider === 'ollama') {
       // Ollama: no auth needed
       this.pushChange(changes, 'utmstack.socai.authType', 'none', 'text');
-      this.pushChange(changes, 'utmstack.socai.customHeaders', '{}', 'text');
+      this.pushChange(changes, 'utmstack.socai.customHeaders', '{}', 'password');
     } else {
       // Known providers: build auth header from API key
       const authConfig = this.providerAuthHeaders[this.activeProvider];
-      if (authConfig && this.formValues['apiKey'] && this.formValues['apiKey'] !== '*****') {
+      const apiKey = this.formValues['apiKey'];
+      if (authConfig && apiKey && !this.isMaskedValue(apiKey)) {
         // User entered a new API key — build auth headers
         const headers: {[k: string]: string} = {};
-        headers[authConfig.headerName] = authConfig.headerValuePrefix + this.formValues['apiKey'];
+        headers[authConfig.headerName] = authConfig.headerValuePrefix + apiKey;
         this.pushChange(changes, 'utmstack.socai.authType', 'custom-headers', 'text');
-        this.pushChange(changes, 'utmstack.socai.customHeaders', JSON.stringify(headers), 'text');
+        this.pushChange(changes, 'utmstack.socai.customHeaders', JSON.stringify(headers), 'password');
+      } else if (this.originalMaskedCustomHeaders && apiKey && this.isMaskedValue(apiKey)) {
+        // User didn't change the masked API key — preserve original masked value
+        this.pushChange(changes, 'utmstack.socai.authType', 'custom-headers', 'text');
+        this.pushChange(changes, 'utmstack.socai.customHeaders', this.originalMaskedCustomHeaders, 'password');
       }
-      // If apiKey is '*****', don't touch customHeaders — keep existing value in DB
+      // Otherwise: don't touch customHeaders — keep existing value in DB
     }
 
     this.moduleGroupConfService.update({
@@ -565,6 +589,14 @@ export class GuideSocAiComponent implements OnInit {
       }
     }
     this.formValues['customHeaders'] = JSON.stringify(obj);
+  }
+
+  private isMaskedValue(value: string): boolean {
+    return !!value && /^\*+$/.test(value);
+  }
+
+  private hasMaskedHeaderRows(): boolean {
+    return this.headerRows.some(r => this.isMaskedValue(r.key) || this.isMaskedValue(r.value));
   }
 
   private parseHeadersFromJson(json: string) {
