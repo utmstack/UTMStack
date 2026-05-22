@@ -538,7 +538,7 @@ export class GuideSocAiComponent implements OnInit {
         confValue: value,
         confName: confKey.split('.')[2] || confKey,
         confDataType,
-        confDescription: '',
+        confDescription: confKey,
         confRequired: true,
         confOptions: undefined,
         confVisibility: undefined,
