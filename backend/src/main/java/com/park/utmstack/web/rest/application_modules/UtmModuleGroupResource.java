@@ -30,6 +30,7 @@ import tech.jhipster.web.util.ResponseUtil;
 import javax.validation.Valid;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,6 +82,15 @@ public class UtmModuleGroupResource {
             List<UtmModuleGroupConfiguration> keys = new ArrayList<>();
             defaultConfigurationKeys.forEach(key -> keys.add(new UtmModuleGroupConfiguration(key)));
             moduleGroupConfigurationService.createConfigurationKeys(keys);
+
+            for (UtmModuleGroupConfiguration conf : keys) {
+                if ((Constants.CONF_TYPE_PASSWORD.equals(conf.getConfDataType())
+                        || Constants.CONF_TYPE_FILE.equals(conf.getConfDataType()))
+                        && conf.getConfValue() != null) {
+                    conf.setConfValue(Constants.MASKED_VALUE);
+                }
+            }
+            result.setModuleGroupConfigurations(new HashSet<>(keys));
 
             return ResponseEntity.ok(result);
         } catch (DataIntegrityViolationException e) {
