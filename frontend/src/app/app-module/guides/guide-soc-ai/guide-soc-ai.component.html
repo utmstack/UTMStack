@@ -155,9 +155,11 @@
                   <i [ngClass]="saving ? 'icon-spinner2 spinner' : 'icon-cog5'" class="mr-1"></i>
                   Save configuration
                 </button>
+
                 <app-app-module-activate-button [module]="module.SOC_AI" [type]="'integration'"
-                                                [disabled]="false"
+                                                [disabled]="!configReady"
                                                 [serverId]="serverId"
+                                                (disableModuleClicked)="disableModule()"
                                                 class="ml-2">
                 </app-app-module-activate-button>
               </div>
