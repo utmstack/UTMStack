@@ -68,6 +68,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
       .subscribe(response => {
         this.loading = false;
         this.configs = response.body;
+        this.configToSave=this.configs
         this.validConfigSection.emit(this.checkConfigValid());
       }, error => {
         this.toastService.showError('Error', 'Error getting application configurations');
