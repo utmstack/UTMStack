@@ -16,6 +16,17 @@ func DownloadFirstDependencies(address string, authKey string, insecure bool) er
 		return fmt.Errorf("error downloading version.json : %v", err)
 	}
 
+	updaterBinary := fmt.Sprintf(config.UpdaterFile, "")
+	if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, address, config.DependenciesPort, updaterBinary), map[string]string{}, updaterBinary, utils.GetMyPath(), insecure); err != nil {
+		return fmt.Errorf("error downloading updater binary %s: %v", updaterBinary, err)
+	}
+
+	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
+		if err := utils.Execute("chmod", utils.GetMyPath(), "755", updaterBinary); err != nil {
+			return fmt.Errorf("error setting permissions on updater: %v", err)
+		}
+	}
+
 	dependFiles := config.DependFiles
 	for _, file := range dependFiles {
 		if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, address, config.DependenciesPort, file), map[string]string{}, file, utils.GetMyPath(), insecure); err != nil {
@@ -36,12 +47,6 @@ func handleDependenciesPostDownload(dependencies []string) error {
 		if strings.HasSuffix(file, ".zip") {
 			if err := utils.Unzip(filepath.Join(utils.GetMyPath(), file), utils.GetMyPath()); err != nil {
 				return fmt.Errorf("error unzipping dependencies: %v", err)
-			}
-
-			if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-				if err := utils.Execute("chmod", utils.GetMyPath(), "-R", "755", fmt.Sprintf(config.UpdaterSelf, "")); err != nil {
-					return fmt.Errorf("error executing chmod on %s: %v", fmt.Sprintf(config.UpdaterSelf, ""), err)
-				}
 			}
 
 			if err := os.Remove(filepath.Join(utils.GetMyPath(), file)); err != nil {
