@@ -95,11 +95,10 @@ export class AppModuleActivateButtonComponent implements OnInit, OnDestroy {
           this.moduleRefreshBehavior.$moduleChange.next(true);
           this.toastService.showSuccessBottom('Module ' + this.moduleDetail.moduleName +
             ' has been ' + (this.moduleDetail.moduleActive ? 'enabled' : 'disabled') + ' successfully');
+          if (!status) {
+            this.disableModuleClicked.emit();
+          }
         });
-    } else {
-      if (fromOnclick && !status) {
-        this.disableModuleClicked.emit();
-      }
     }
   }
 
