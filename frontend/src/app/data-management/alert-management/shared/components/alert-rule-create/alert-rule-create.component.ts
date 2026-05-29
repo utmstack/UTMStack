@@ -32,7 +32,7 @@ import {
   ALERT_STATUS_LABEL_FIELD,
   ALERT_TAGS_FIELD,
   ALERT_TIMESTAMP_FIELD,
-  EVENT_IS_ALERT, FALSE_POSITIVE_OBJECT, LOG_RELATED_ID_EVENT_FIELD
+  EVENT_IS_ALERT, EVENT_TAG_RULE_FIELDS, FALSE_POSITIVE_OBJECT, LOG_RELATED_ID_EVENT_FIELD
 } from '../../../../../shared/constants/alert/alert-field.constant';
 import {AUTOMATIC_REVIEW, CLOSED} from '../../../../../shared/constants/alert/alert-status.constant';
 import {FILTER_OPERATORS} from '../../../../../shared/constants/filter-operators.const';
@@ -84,7 +84,6 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
     ALERT_OBSERVATION_FIELD,
     ALERT_NOTE_FIELD,
     ALERT_REFERENCE_FIELD,
-    LOG_RELATED_ID_EVENT_FIELD,
     EVENT_IS_ALERT,
     ALERT_INCIDENT_USER_FIELD,
     ALERT_INCIDENT_DATE_FIELD,
@@ -147,6 +146,8 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
 
       return acc.concat(field);
     }, []);
+
+    this.fields = [...this.fields, ...EVENT_TAG_RULE_FIELDS];
 
     this.operators = FILTER_OPERATORS.filter(value => !this.excludeOperators.includes(value.operator));
   }
@@ -232,6 +233,11 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
   }
 
   getFieldValue(field: string): any {
+    if(field.startsWith('events') && this.alert.events &&this.alert.events.length>0){
+      let fields = field.split('.')
+      fields.splice(0,1)
+      return getValueFromPropertyPath(this.alert.events[0],fields.join('.'), null);
+    }
     return getValueFromPropertyPath(this.alert, field, null);
   }
 
