@@ -6,8 +6,8 @@ import {TranslateService} from '@ngx-translate/core';
 import {ResizeEvent} from 'angular-resizable-element';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {LocalStorageService} from 'ngx-webstorage';
-import {Observable, Subject} from 'rxjs';
-import {filter, takeUntil, tap} from 'rxjs/operators';
+import {Observable, Subject, throwError, timer, Subscription} from 'rxjs';
+import {concatMap, filter, retryWhen, takeUntil, tap, finalize} from 'rxjs/operators';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {
   ElasticFilterDefaultTime
@@ -64,7 +64,8 @@ import {ElasticDataTypesEnum} from "../../../shared/enums/elastic-data-types.enu
   styleUrls: ['./alert-view.component.scss']
 })
 export class AlertViewComponent implements OnInit, OnDestroy {
-
+  private lastRequest:Subscription|null = null
+  private lastTimeout:any = -1
 
   constructor(private elasticDataService: ElasticDataService,
               private modalService: NgbModal,
@@ -343,10 +344,24 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     this.getAlert('on time filter change');
   }
 
+  get searching(): boolean {
+    return this.lastRequest!=null;
+  }
+
   getAlert(calledFrom?: string, filtersParam?: ElasticFilterType[]) {
-    this.elasticDataService.search(this.page, this.itemsPerPage,
+    if(this.lastTimeout!=-1){
+      clearTimeout(this.lastTimeout)
+      if(this.lastRequest){
+        this.lastRequest.unsubscribe()
+        this.lastRequest=null
+      }
+    }
+    this.lastTimeout= setTimeout(()=>{
+    this.lastRequest=this.elasticDataService.search(this.page, this.itemsPerPage,
       MAX_SEARCH_RESULTS, this.dataNature,
-      sanitizeFilters(this.filters), this.sortBy, true).subscribe(
+      sanitizeFilters(this.filters), this.sortBy, true)
+        .pipe(finalize(()=>this.lastRequest=null))
+        .subscribe(
       (res: HttpResponse<any>) => {
         this.totalItems = Number(res.headers.get('X-Total-Count'));
         this.alerts = res.body;
@@ -355,8 +370,11 @@ export class AlertViewComponent implements OnInit, OnDestroy {
       },
       (res: HttpResponse<any>) => {
         this.utmToastService.showError('Error', 'An error occurred while listing the alerts. Please try again later.');
+        this.loading = false;
+        this.refreshingAlert = false;
       }
     );
+    },100)
   }
 
   saveReport() {
