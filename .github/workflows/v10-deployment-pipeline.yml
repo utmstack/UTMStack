@@ -367,20 +367,6 @@ jobs:
     steps:
       - run: echo "✅ All builds completed successfully"
   
-  deploy_installer_dev:
-    name: Deploy Installer (Dev)
-    needs: [all_builds_complete, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.environment == 'dev' }}
-    uses: ./.github/workflows/installer-release.yml
-    with:
-      version: ${{ needs.setup_deployment.outputs.tag }}
-      version_major: v10
-      environment: dev
-    secrets:
-      API_SECRET: ${{ secrets.API_SECRET }}
-      CM_ENCRYPT_SALT: ${{ secrets.CM_ENCRYPT_SALT }}
-      CM_SIGN_PUBLIC_KEY: ${{ secrets.CM_SIGN_PUBLIC_KEY }}
-
   deploy_installer_rc:
     name: Deploy Installer (RC)
     needs: [all_builds_complete, setup_deployment]
