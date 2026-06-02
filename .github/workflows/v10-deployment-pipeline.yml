@@ -2,10 +2,9 @@ name: V10 - Build & Deploy Pipeline
 
 on:
   push:
-    branches: [ 'v10', 'release/v10**' ]
-    tags: [ 'v10**' ]
-  pull_request:
-    branches: [ 'v10' ]
+    branches: [ 'release/v10**' ]
+  release:
+    types: [ prereleased, released ]
 
 jobs:
   setup_deployment:
@@ -13,19 +12,56 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       tag: ${{ steps.set-env.outputs.tag }}
+      environment: ${{ steps.set-env.outputs.environment }}
+      release_tag: ${{ steps.set-env.outputs.release_tag }}
     steps:
       - name: Determine Build Environment
         id: set-env
         run: |
+          # ===================
+          # DEV Environment
+          # ===================
+          # Triggered by: push to release/v10.x.x branches
           if ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/v10') }}; then
             echo "DEV environment"
             echo "tag=v10-dev" >> $GITHUB_OUTPUT
-          elif ${{ github.event_name == 'push' && github.ref == 'refs/heads/v10' }}; then
+            echo "environment=dev" >> $GITHUB_OUTPUT
+
+          # ===================
+          # RC Environment
+          # ===================
+          # Triggered by: prerelease creation
+          elif ${{ github.event_name == 'release' && github.event.action == 'prereleased' }}; then
+            TAG="${{ github.event.release.tag_name }}"
+
+            # Skip if tag doesn't start with v10 (this pipeline is for v10 only)
+            if [[ ! "$TAG" =~ ^v10\. ]]; then
+              echo "⏭️ Skipping: Tag '$TAG' is not a v10 release. This pipeline handles v10 releases only."
+              exit 0
+            fi
+
             echo "RC environment"
             echo "tag=v10-rc" >> $GITHUB_OUTPUT
-          elif ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v10.') }}; then
-            echo "RELEASE environment"
+            echo "environment=rc" >> $GITHUB_OUTPUT
+            echo "release_tag=$TAG" >> $GITHUB_OUTPUT
+
+          # ===================
+          # PROD Environment
+          # ===================
+          # Triggered by: prerelease promoted to release
+          elif ${{ github.event_name == 'release' && github.event.action == 'released' }}; then
+            TAG="${{ github.event.release.tag_name }}"
+
+            # Skip if tag doesn't start with v10 (this pipeline is for v10 only)
+            if [[ ! "$TAG" =~ ^v10\. ]]; then
+              echo "⏭️ Skipping: Tag '$TAG' is not a v10 release. This pipeline handles v10 releases only."
+              exit 0
+            fi
+
+            echo "PROD environment"
             echo "tag=v10" >> $GITHUB_OUTPUT
+            echo "environment=prod" >> $GITHUB_OUTPUT
+            echo "release_tag=$TAG" >> $GITHUB_OUTPUT
           fi
   
   validations:
@@ -59,10 +95,10 @@ jobs:
           fi
 
   build_agent:
-    name: Build and Sign Agent
+    name: Build Agent Binaries
     needs: [validations,setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
-    runs-on: utmstack-signer
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
@@ -99,44 +135,66 @@ jobs:
 
           cd ${{ github.workspace }}/agent/updater
           go build -o utmstack_updater_service_arm64.exe .
-          
-      - name: Sign Windows Agents
-        run: |
-          cd ${{ github.workspace }}/agent
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service.exe"
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service_arm64.exe"
 
-          cd ${{ github.workspace }}/agent/updater
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_updater_service.exe"
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_updater_service_arm64.exe"
-
-
-      - name: Upload signed binaries as artifacts
+      - name: Upload Linux binaries as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: signed-agents
+          name: agents-linux
           path: |
-            ${{ github.workspace }}/agent/utmstack_agent_service
-            ${{ github.workspace }}/agent/utmstack_agent_service.exe
-            ${{ github.workspace }}/agent/utmstack_agent_service_arm64.exe
-            ${{ github.workspace }}/agent/updater/utmstack_updater_service
-            ${{ github.workspace }}/agent/updater/utmstack_updater_service.exe
-            ${{ github.workspace }}/agent/updater/utmstack_updater_service_arm64.exe
+            agent/utmstack_agent_service
+            agent/updater/utmstack_updater_service
           retention-days: 1
+
+      - name: Upload unsigned Windows binaries as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agents-windows-unsigned
+          path: |
+            agent/utmstack_agent_service.exe
+            agent/utmstack_agent_service_arm64.exe
+            agent/updater/utmstack_updater_service.exe
+            agent/updater/utmstack_updater_service_arm64.exe
+          retention-days: 1
+
+  sign_agent_windows:
+    name: Sign Windows Agent Binaries
+    needs: [build_agent, setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
+    uses: ./.github/workflows/reusable-sign-agent.yml
+    with:
+      os: windows
+      artifact_name: agents-windows-unsigned
+      signed_artifact_name: agents-windows-signed
+      gcp_project_id: ${{ vars.GCP_PROJECT_PROD }}
+      kms_location: ${{ vars.KMS_KEYRING_LOCATION }}
+      kms_keyring: ${{ vars.KMS_KEYRING_NAME }}
+      kms_key: ${{ vars.KMS_KEY_NAME }}
+      binaries: |
+        utmstack_agent_service.exe
+        utmstack_agent_service_arm64.exe
+        updater/utmstack_updater_service.exe
+        updater/utmstack_updater_service_arm64.exe
+    secrets: inherit
 
   build_agent_manager:
     name: Build Agent-Manager Image
-    needs: [build_agent,validations,setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' }}
+    needs: [sign_agent_windows, validations, setup_deployment]
+    if: ${{ always() && needs.sign_agent_windows.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-22.04
     steps:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
 
-      - name: Download signed binaries from artifacts
+      - name: Download Linux agents from artifact
         uses: actions/download-artifact@v4
         with:
-          name: signed-agents
+          name: agents-linux
+          path: ${{ github.workspace }}/agent
+
+      - name: Download signed Windows agents from artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: agents-windows-signed
           path: ${{ github.workspace }}/agent
 
       - name: Prepare dependencies for Agent Manager Image
@@ -161,7 +219,7 @@ jobs:
           cp "${{ github.workspace }}/agent/updater/utmstack_updater_service" ./dependencies/agent/
           cp "${{ github.workspace }}/agent/updater/utmstack_updater_service.exe" ./dependencies/agent/
           cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_arm64.exe" ./dependencies/agent/
-        
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -309,62 +367,31 @@ jobs:
     steps:
       - run: echo "✅ All builds completed successfully"
   
-  deploy_dev:
-    name: Deploy to v10-dev environment
+  deploy_installer_dev:
+    name: Deploy Installer (Dev)
     needs: [all_builds_complete, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag == 'v10-dev' }}
-    runs-on: utmstack-v10-dev
-    steps:
-      - name: Check out code into the right branch
-        uses: actions/checkout@v4
+    if: ${{ needs.setup_deployment.outputs.environment == 'dev' }}
+    uses: ./.github/workflows/installer-release.yml
+    with:
+      version: ${{ needs.setup_deployment.outputs.tag }}
+      version_major: v10
+      environment: dev
+    secrets:
+      API_SECRET: ${{ secrets.API_SECRET }}
+      CM_ENCRYPT_SALT: ${{ secrets.CM_ENCRYPT_SALT }}
+      CM_SIGN_PUBLIC_KEY: ${{ secrets.CM_SIGN_PUBLIC_KEY }}
 
-      - name: Set up Go 1.x
-        uses: actions/setup-go@v5
-        with:
-          go-version: ^1.20
-        id: go
-
-      - name: Build
-        working-directory: ./installer
-        env:
-          GOOS: linux
-          GOARCH: amd64
-        run: |
-          go build -o installer -v .
-          mv installer /home/utmstack/installer
-          chmod +x /home/utmstack/installer
-
-      - name: Run
-        working-directory: /home/utmstack
-        run: |
-          sudo ./installer
-
-  deploy_rc:
-    name: Deploy to v10-rc environment
+  deploy_installer_rc:
+    name: Deploy Installer (RC)
     needs: [all_builds_complete, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag == 'v10-rc' }}
-    runs-on: utmstack-v10-rc
-    steps:
-      - name: Check out code into the right branch
-        uses: actions/checkout@v4
-
-      - name: Set up Go 1.x
-        uses: actions/setup-go@v5
-        with:
-          go-version: ^1.20
-        id: go
-
-      - name: Build
-        working-directory: ./installer
-        env:
-          GOOS: linux
-          GOARCH: amd64
-        run: |
-          go build -o installer -v .
-          mv installer /home/utmstack/installer
-          chmod +x /home/utmstack/installer
-
-      - name: Run
-        working-directory: /home/utmstack
-        run: |
-          sudo ./installer
+    if: ${{ needs.setup_deployment.outputs.environment == 'rc' }}
+    uses: ./.github/workflows/installer-release.yml
+    with:
+      version: ${{ needs.setup_deployment.outputs.release_tag }}
+      version_major: v10
+      environment: rc
+      prerelease: true
+    secrets:
+      API_SECRET: ${{ secrets.API_SECRET }}
+      CM_ENCRYPT_SALT: ${{ secrets.CM_ENCRYPT_SALT }}
+      CM_SIGN_PUBLIC_KEY: ${{ secrets.CM_SIGN_PUBLIC_KEY }}

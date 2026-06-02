@@ -1,42 +1,46 @@
 name: Installer Release
 
 on:
-  release:
-    types: ['released']
+  workflow_call:
+    inputs:
+      version:
+        description: 'Release version (e.g., v11.2.0)'
+        required: true
+        type: string
+      version_major:
+        description: 'Major version (v10 or v11)'
+        required: true
+        type: string
+      environment:
+        description: 'Environment (dev or rc)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Whether this is a prerelease'
+        required: false
+        type: boolean
+        default: false
+      changelog:
+        description: 'Changelog content for the release body'
+        required: false
+        type: string
+        default: ''
+    secrets:
+      API_SECRET:
+        required: false
+      CM_ENCRYPT_SALT:
+        required: false
+      CM_SIGN_PUBLIC_KEY:
+        required: false
 
 jobs:
-  setup_deployment:
-    name: Validate & Setup
-    runs-on: ubuntu-24.04
-    outputs:
-      version_major: ${{ steps.validate.outputs.version_major }}
-      version: ${{ steps.validate.outputs.version }}
-    steps:
-      - name: Validate Release Version
-        id: validate
-        run: |
-          VERSION="${{ github.event.release.tag_name }}"
-          echo "Validating release: $VERSION"
-
-          if [[ "$VERSION" =~ ^v10\.[0-9]+\.[0-9]+ ]]; then
-            echo "✅ V10 release detected: $VERSION"
-            echo "version_major=v10" >> $GITHUB_OUTPUT
-            echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-          elif [[ "$VERSION" =~ ^v11\.[0-9]+\.[0-9]+ ]]; then
-            echo "✅ V11 release detected: $VERSION"
-            echo "version_major=v11" >> $GITHUB_OUTPUT
-            echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-          else
-            echo "⏭️ Skipping: Not a v10 or v11 release (got $VERSION)"
-          fi
-
-  build_v10:
-    name: Build V10 Installer
-    runs-on: ubuntu-24.04
-    needs: setup_deployment
-    if: needs.setup_deployment.outputs.version_major == 'v10'
+  # ============================================
+  # V10 DEV - Deploy to runner only
+  # ============================================
+  deploy_v10_dev:
+    name: Deploy V10 to Dev Runner
+    runs-on: utmstack-v10-dev
+    if: inputs.version_major == 'v10' && inputs.environment == 'dev'
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -45,31 +49,106 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ^1.20
-        id: go
+
+      - name: Build and Deploy
+        working-directory: ./installer
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          echo "Building V10 Installer for dev environment"
+          go build -o installer -v .
+          mv installer /home/utmstack/installer
+          chmod +x /home/utmstack/installer
+
+      - name: Run Installer
+        working-directory: /home/utmstack
+        run: |
+          sudo ./installer
+
+  # ============================================
+  # V10 RC - Deploy to runner
+  # ============================================
+  deploy_v10_rc_runner:
+    name: Deploy V10 to RC Runner
+    runs-on: utmstack-v10-rc
+    if: inputs.version_major == 'v10' && inputs.environment == 'rc'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ^1.20
+
+      - name: Build and Deploy
+        working-directory: ./installer
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          echo "Building V10 Installer for rc environment"
+          go build -o installer -v .
+          mv installer /home/utmstack/installer
+          chmod +x /home/utmstack/installer
+
+      - name: Run Installer
+        working-directory: /home/utmstack
+        run: |
+          sudo ./installer
+
+  # ============================================
+  # V10 RC - Upload to prerelease
+  # ============================================
+  deploy_v10_rc_prerelease:
+    name: Upload V10 Installer to Prerelease
+    runs-on: ubuntu-24.04
+    if: inputs.version_major == 'v10' && inputs.environment == 'rc'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ^1.20
+
+      - name: Prepare changelog
+        id: changelog
+        env:
+          CHANGELOG_CONTENT: ${{ inputs.changelog }}
+        run: |
+          printf '%s' "$CHANGELOG_CONTENT" > /tmp/CHANGELOG.md
 
       - name: Build
         working-directory: ./installer
         env:
           GOOS: linux
           GOARCH: amd64
-        run: go build -o installer -v .
+        run: |
+          echo "Building V10 Installer for prerelease"
+          go build -o installer -v .
 
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          body_path: ./CHANGELOG.md
+          tag_name: ${{ inputs.version }}
+          body_path: /tmp/CHANGELOG.md
           draft: false
-          prerelease: false
+          prerelease: ${{ inputs.prerelease }}
           files: |
             ./installer/installer
 
-  build_v11:
-    name: Build V11 Installer
-    runs-on: ubuntu-24.04
-    needs: setup_deployment
-    if: needs.setup_deployment.outputs.version_major == 'v11'
+  # ============================================
+  # V11 DEV - Deploy to runner with dev branch
+  # ============================================
+  deploy_v11_dev:
+    name: Deploy V11 to Dev Runner
+    runs-on: utmstack-v11-dev
+    if: inputs.version_major == 'v11' && inputs.environment == 'dev'
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -78,7 +157,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ^1.20
-        id: go
 
       - name: Configure git for private modules
         run: |
@@ -86,6 +164,58 @@ jobs:
           echo "GOPRIVATE=github.com/utmstack" >> $GITHUB_ENV
           echo "GONOPROXY=github.com/utmstack" >> $GITHUB_ENV
           echo "GONOSUMDB=github.com/utmstack" >> $GITHUB_ENV
+
+      - name: Build and Deploy
+        working-directory: ./installer
+        env:
+          GOOS: linux
+          GOARCH: amd64
+          GOPRIVATE: github.com/utmstack
+          GONOPROXY: github.com/utmstack
+          GONOSUMDB: github.com/utmstack
+        run: |
+          echo "Building V11 Installer for dev environment (branch=dev)"
+          go build -o installer -v -ldflags "\
+            -X 'github.com/utmstack/UTMStack/installer/config.DEFAULT_BRANCH=dev' \
+            -X 'github.com/utmstack/UTMStack/installer/config.INSTALLER_VERSION=${{ inputs.version }}' \
+            -X 'github.com/utmstack/UTMStack/installer/config.REPLACE=${{ secrets.CM_ENCRYPT_SALT }}' \
+            -X 'github.com/utmstack/UTMStack/installer/config.PUBLIC_KEY=${{ secrets.CM_SIGN_PUBLIC_KEY }}'" .
+          mv installer /usr/local/bin/utmstack_installer
+          chmod +x /usr/local/bin/utmstack_installer
+
+      - name: Run Installer
+        run: |
+          sudo /usr/local/bin/utmstack_installer
+
+  # ============================================
+  # V11 RC - Upload to prerelease only
+  # ============================================
+  build_v11_rc:
+    name: Build V11 Installer for Prerelease
+    runs-on: ubuntu-24.04
+    if: inputs.version_major == 'v11' && inputs.environment == 'rc'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ^1.20
+
+      - name: Configure git for private modules
+        run: |
+          git config --global url."https://${{ secrets.API_SECRET }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+          echo "GOPRIVATE=github.com/utmstack" >> $GITHUB_ENV
+          echo "GONOPROXY=github.com/utmstack" >> $GITHUB_ENV
+          echo "GONOSUMDB=github.com/utmstack" >> $GITHUB_ENV
+
+      - name: Prepare changelog
+        id: changelog
+        env:
+          CHANGELOG_CONTENT: ${{ inputs.changelog }}
+        run: |
+          printf '%s' "$CHANGELOG_CONTENT" > /tmp/CHANGELOG.md
 
       - name: Build
         working-directory: ./installer
@@ -96,10 +226,10 @@ jobs:
           GONOPROXY: github.com/utmstack
           GONOSUMDB: github.com/utmstack
         run: |
-          echo "Building V11 Installer for production release"
+          echo "Building V11 Installer for prerelease (branch=prod)"
           go build -o installer -v -ldflags "\
             -X 'github.com/utmstack/UTMStack/installer/config.DEFAULT_BRANCH=prod' \
-            -X 'github.com/utmstack/UTMStack/installer/config.INSTALLER_VERSION=${{ needs.setup_deployment.outputs.version }}' \
+            -X 'github.com/utmstack/UTMStack/installer/config.INSTALLER_VERSION=${{ inputs.version }}' \
             -X 'github.com/utmstack/UTMStack/installer/config.REPLACE=${{ secrets.CM_ENCRYPT_SALT }}' \
             -X 'github.com/utmstack/UTMStack/installer/config.PUBLIC_KEY=${{ secrets.CM_SIGN_PUBLIC_KEY }}'" .
 
@@ -108,7 +238,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          body_path: ./CHANGELOG.md
+          tag_name: ${{ inputs.version }}
+          body_path: /tmp/CHANGELOG.md
           draft: false
+          prerelease: ${{ inputs.prerelease }}
           files: |
             ./installer/installer
