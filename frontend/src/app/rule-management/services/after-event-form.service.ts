@@ -36,7 +36,7 @@ export class AfterEventFormService {
           : []
       ),
       within: [event.within || ''],
-      count: [event.count ? event.count : null, [Validators.required, Validators.min(1), Validators.max(50)]],
+      count: [event.count ? event.count : null, [Validators.required, Validators.min(1), Validators.max(100)]],
     });
   }
 

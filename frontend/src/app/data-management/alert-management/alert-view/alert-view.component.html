@@ -38,6 +38,12 @@
               &nbsp;The system has detected new alerts, retrieving from the data engine...
             </span>
           </div>
+          <div *ngIf="searching && !loading && !refreshingAlert"
+               class="search-loading-indicator text-blue-800 pt-2 pr-2 pl-2">
+            <span class="span-small-icon"><i class="icon-spinner2 spinner"></i>
+              &nbsp;Searching...
+            </span>
+          </div>
           <div *ngIf="incomingAlert$ | async as openAlert" class="d-flex justify-content-start align-items-center pt-2 pr-2 pl-2">
             <ng-container *ngIf="openAlert > 0 && showRefresh">
             <span class="span-small-icon">
