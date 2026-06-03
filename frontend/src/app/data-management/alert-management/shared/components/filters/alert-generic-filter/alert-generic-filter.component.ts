@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, switchMap, takeUntil} from 'rxjs/operators';
 import {ALERT_TAGS_FIELD} from '../../../../../../shared/constants/alert/alert-field.constant';
 import {ALERT_INDEX_PATTERN} from '../../../../../../shared/constants/main-index-pattern.constant';
 import {ElasticDataTypesEnum} from '../../../../../../shared/enums/elastic-data-types.enum';
@@ -30,6 +30,7 @@ export class AlertGenericFilterComponent implements OnInit, OnDestroy {
   filter: ElasticFilterType;
   sort: { orderByCount: boolean, sortAsc: boolean } = {orderByCount: true, sortAsc: false};
   destroy$: Subject<void> = new Subject<void>();
+  private fetchRequest$ = new Subject<void>();
 
   constructor(private elasticSearchIndexService: ElasticSearchIndexService,
               private alertFiltersBehavior: AlertFiltersBehavior,
@@ -37,10 +38,39 @@ export class AlertGenericFilterComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // this.getFieldValues();
-    /**
-     * If filter is tags subscribe to changes to reload data on add new tag on alert
-     */
+    this.fetchRequest$
+      .pipe(
+        debounceTime(300),
+        switchMap(() => {
+          const field = this.setFieldKeyword();
+          const filters = this.activeFilters
+            .filter(value => !value.field.includes(field));
+          if (this.search !== undefined && this.search !== '') {
+            filters.push({
+              field: this.fieldFilter.field,
+              operator: ElasticOperatorsEnum.CONTAIN,
+              value: this.search
+            });
+          }
+          const req = {
+            field,
+            filters,
+            index: ALERT_INDEX_PATTERN,
+            orderByCount: this.sort.orderByCount,
+            sortAsc: this.sort.sortAsc,
+            top: this.top
+          };
+          return this.elasticSearchIndexService.getValuesWithCount(req);
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(response => {
+        this.fieldValues = response.body;
+        this.loading = false;
+        this.searching = false;
+        this.loadingMore = false;
+      });
+
     if (this.fieldFilter.field === ALERT_TAGS_FIELD) {
       this.alertUpdateTagBehavior.$tagRefresh
         .pipe(takeUntil(this.destroy$))
@@ -50,9 +80,6 @@ export class AlertGenericFilterComponent implements OnInit, OnDestroy {
         }
       });
     }
-    /**
-     * Reset all values of selected filter
-     */
     this.alertFiltersBehavior.$resetFilter
       .pipe(takeUntil(this.destroy$))
       .subscribe(reset => {
@@ -74,7 +101,11 @@ export class AlertGenericFilterComponent implements OnInit, OnDestroy {
       }
     });
     this.alertFiltersBehavior.$filters
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        debounceTime(150),
+        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+        takeUntil(this.destroy$)
+      )
       .subscribe((filters: ElasticFilterType[]) => {
       if (filters) {
         this.activeFilters = filters;
@@ -101,30 +132,7 @@ export class AlertGenericFilterComponent implements OnInit, OnDestroy {
   }
 
   getFieldValues() {
-    const field = this.setFieldKeyword();
-    const filters = this.activeFilters
-      .filter(value => !value.field.includes(field));
-    if (this.search !== undefined && this.search !== '') {
-      filters.push({
-        field: this.fieldFilter.field,
-        operator: ElasticOperatorsEnum.CONTAIN,
-        value: this.search
-      });
-    }
-    const req = {
-      field,
-      filters,
-      index: ALERT_INDEX_PATTERN,
-      orderByCount: this.sort.orderByCount,
-      sortAsc: this.sort.sortAsc,
-      top: this.top
-    };
-    this.elasticSearchIndexService.getValuesWithCount(req).subscribe(response => {
-      this.fieldValues = response.body;
-      this.loading = false;
-      this.searching = false;
-      this.loadingMore = false;
-    });
+    this.fetchRequest$.next();
   }
 
   setFieldKeyword(): string {
