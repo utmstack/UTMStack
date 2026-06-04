@@ -4,6 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/utmstack/utmstack/backend/modules/audit"
+	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
+	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
 )
@@ -25,14 +28,16 @@ func NewIncidentNoteHandler(uc connectors.IncidentNoteUsecase) *IncidentNoteHand
 // @Success     201 {object} domain.UtmIncidentNote
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-incident-notes [post]
+// @Router      /incident-notes [post]
 func (h *IncidentNoteHandler) Create(c *gin.Context) {
 	var req dto.CreateNoteRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	note, err := h.usecase.Create(c.Request.Context(), req)
+	note, err := h.usecase.Create(c.Request.Context(), c.GetString("user_login"), req)
+	audit.Record(c, audit_connectors.Event{Action: "incident.note.create", ResourceType: "incident_note"},
+		audit_domain.INCIDENT_UPDATE_ATTEMPT, audit_domain.INCIDENT_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeIncidentError(c, err)
 		return
@@ -50,7 +55,7 @@ func (h *IncidentNoteHandler) Create(c *gin.Context) {
 // @Success     200 {array} domain.UtmIncidentNote
 // @Header      200 {string} X-Total-Count "Total items"
 // @Failure     500 {object} map[string]string
-// @Router      /utm-incident-notes [get]
+// @Router      /incident-notes [get]
 func (h *IncidentNoteHandler) List(c *gin.Context) {
 	query := dto.IncidentNoteListQuery{
 		IncidentID: queryInt64(c, "incidentId"),

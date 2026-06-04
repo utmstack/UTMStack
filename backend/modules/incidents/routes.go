@@ -2,6 +2,7 @@ package incidents
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
 func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
@@ -10,31 +11,34 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	inh := m.GetIncidentNoteHandler()
 	ihh := m.GetIncidentHistoryHandler()
 
+	read := middleware.RequirePermission("incidents.read")
+	write := middleware.RequirePermission("incidents.write")
+
 	// Incidents
-	ig := api.Group("/utm-incidents", userAuth)
-	ig.POST("", ih.Create)
-	ig.POST("/add-alerts", ih.AddAlerts)
-	ig.PUT("/change-status", ih.ChangeStatus)
-	ig.GET("", ih.List)
-	ig.GET("/users-assigned", ih.GetUsersAssigned)
-	ig.GET("/:id", ih.GetByID)
+	ig := api.Group("/incidents", userAuth)
+	ig.POST("", write, ih.Create)
+	ig.POST("/add-alerts", write, ih.AddAlerts)
+	ig.PUT("/change-status", write, ih.ChangeStatus)
+	ig.GET("", read, ih.List)
+	ig.GET("/users-assigned", read, ih.GetUsersAssigned)
+	ig.GET("/:id", read, ih.GetByID)
 
 	// Incident alerts
-	ag := api.Group("/utm-incident-alerts", userAuth)
-	ag.POST("", iah.Create)
-	ag.POST("/update-status", iah.UpdateStatus)
-	ag.PUT("", iah.Update)
-	ag.GET("", iah.List)
-	ag.DELETE("/:id", iah.Delete)
+	ag := api.Group("/incident-alerts", userAuth)
+	ag.POST("", write, iah.Create)
+	ag.POST("/update-status", write, iah.UpdateStatus)
+	ag.PUT("", write, iah.Update)
+	ag.GET("", read, iah.List)
+	ag.DELETE("/:id", write, iah.Delete)
 
 	// Incident notes
-	ng := api.Group("/utm-incident-notes", userAuth)
-	ng.POST("", inh.Create)
-	ng.GET("", inh.List)
+	ng := api.Group("/incident-notes", userAuth)
+	ng.POST("", write, inh.Create)
+	ng.GET("", read, inh.List)
 
 	// Incident histories
-	hg := api.Group("/utm-incident-histories", userAuth)
-	hg.GET("", ihh.List)
-	hg.GET("/count", ihh.Count)
-	hg.GET("/:id", ihh.GetByID)
+	hg := api.Group("/incident-histories", userAuth)
+	hg.GET("", read, ihh.List)
+	hg.GET("/count", read, ihh.Count)
+	hg.GET("/:id", read, ihh.GetByID)
 }

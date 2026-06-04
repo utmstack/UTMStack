@@ -7,14 +7,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/utmstack/utmstack/backend/modules/audit/auditctx"
+	"github.com/threatwinds/go-sdk/catcher"
 	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
 	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
-	incidenterrors "github.com/utmstack/utmstack/backend/modules/incidents/errors"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 type incidentUsecase struct {
@@ -47,7 +45,7 @@ func NewIncidentUsecase(
 	}
 }
 
-func (u *incidentUsecase) Create(ctx context.Context, req dto.CreateIncidentRequest) (*domain.UtmIncident, error) {
+func (u *incidentUsecase) Create(ctx context.Context, userLogin string, req dto.CreateIncidentRequest) (*domain.UtmIncident, error) {
 	u.audit.Log(ctx, audit_connectors.Event{
 		Action:    "incident.create.attempt",
 		EventType: audit_domain.INCIDENT_CREATION_ATTEMPT,
@@ -67,7 +65,7 @@ func (u *incidentUsecase) Create(ctx context.Context, req dto.CreateIncidentRequ
 		return nil, err
 	}
 	if len(existing) > 0 {
-		return nil, incidenterrors.ErrAlertAlreadyLinked
+		return nil, domain.ErrAlertAlreadyLinked
 	}
 
 	severity := maxSeverity(req.AlertList)
@@ -109,13 +107,10 @@ func (u *incidentUsecase) Create(ctx context.Context, req dto.CreateIncidentRequ
 		}
 	}
 
-	currentUser := auditctx.UserLoginFrom(ctx)
-	if currentUser == "" {
-		currentUser = "system"
-	}
+	currentUser := resolveUser(userLogin)
 	detail := fmt.Sprintf("Incident created with %d alerts", len(req.AlertList))
 	if err := u.saveHistory(ctx, incident.ID, domain.ActionCreated, detail, currentUser); err != nil {
-		logger.Warn("incidents: failed to write history: " + err.Error())
+		catcher.Warn("incidents: failed to write history", map[string]any{"error": err.Error()})
 	}
 
 	u.audit.Log(ctx, audit_connectors.Event{
@@ -126,13 +121,13 @@ func (u *incidentUsecase) Create(ctx context.Context, req dto.CreateIncidentRequ
 	})
 
 	if err := u.mailer.SendIncidentCreated(ctx, *incident); err != nil {
-		logger.Warn("incidents: mail notification failed: " + err.Error())
+		catcher.Warn("incidents: mail notification failed", map[string]any{"error": err.Error()})
 	}
 
 	return incident, nil
 }
 
-func (u *incidentUsecase) AddAlerts(ctx context.Context, req dto.AddAlertsRequest) (*domain.UtmIncident, error) {
+func (u *incidentUsecase) AddAlerts(ctx context.Context, userLogin string, req dto.AddAlertsRequest) (*domain.UtmIncident, error) {
 	u.audit.Log(ctx, audit_connectors.Event{
 		Action:    "incident.alert.add.attempt",
 		EventType: audit_domain.INCIDENT_ALERT_ADD_ATTEMPT,
@@ -144,7 +139,7 @@ func (u *incidentUsecase) AddAlerts(ctx context.Context, req dto.AddAlertsReques
 		return nil, err
 	}
 	if incident == nil {
-		return nil, incidenterrors.ErrNotFound
+		return nil, domain.ErrNotFound
 	}
 
 	addAlertIDs := make([]string, len(req.AlertList))
@@ -156,7 +151,7 @@ func (u *incidentUsecase) AddAlerts(ctx context.Context, req dto.AddAlertsReques
 		return nil, err
 	}
 	if len(existingAlerts) > 0 {
-		return nil, incidenterrors.ErrAlertAlreadyLinked
+		return nil, domain.ErrAlertAlreadyLinked
 	}
 
 	alertStatus := domain.IncidentStatus(incident.IncidentStatus).ToAlertStatus()
@@ -177,13 +172,10 @@ func (u *incidentUsecase) AddAlerts(ctx context.Context, req dto.AddAlertsReques
 		}
 	}
 
-	currentUser := auditctx.UserLoginFrom(ctx)
-	if currentUser == "" {
-		currentUser = "system"
-	}
+	currentUser := resolveUser(userLogin)
 	detail := fmt.Sprintf("New %d alerts added to incident", len(req.AlertList))
 	if err := u.saveHistory(ctx, incident.ID, domain.ActionAlertAdd, detail, currentUser); err != nil {
-		logger.Warn("incidents: failed to write history: " + err.Error())
+		catcher.Warn("incidents: failed to write history", map[string]any{"error": err.Error()})
 	}
 
 	u.audit.Log(ctx, audit_connectors.Event{
@@ -196,7 +188,7 @@ func (u *incidentUsecase) AddAlerts(ctx context.Context, req dto.AddAlertsReques
 	return incident, nil
 }
 
-func (u *incidentUsecase) ChangeStatus(ctx context.Context, req dto.ChangeStatusRequest) (*domain.UtmIncident, error) {
+func (u *incidentUsecase) ChangeStatus(ctx context.Context, userLogin string, req dto.ChangeStatusRequest) (*domain.UtmIncident, error) {
 	u.audit.Log(ctx, audit_connectors.Event{
 		Action:    "incident.status.change.attempt",
 		EventType: audit_domain.INCIDENT_UPDATE_ATTEMPT,
@@ -208,7 +200,7 @@ func (u *incidentUsecase) ChangeStatus(ctx context.Context, req dto.ChangeStatus
 		return nil, err
 	}
 	if incident == nil {
-		return nil, incidenterrors.ErrNotFound
+		return nil, domain.ErrNotFound
 	}
 
 	oldStatus := domain.IncidentStatus(incident.IncidentStatus)
@@ -242,20 +234,17 @@ func (u *incidentUsecase) ChangeStatus(ctx context.Context, req dto.ChangeStatus
 			observation = *req.IncidentSolution
 		}
 		if err := u.alertsGateway.UpdateAlertStatus(ctx, alertIDs, newStatus.ToAlertStatus(), observation); err != nil {
-			logger.Warn("incidents: failed to sync OpenSearch alert status: " + err.Error())
+			catcher.Warn("incidents: failed to sync OpenSearch alert status", map[string]any{"error": err.Error()})
 		}
 	}
 
-	currentUser := auditctx.UserLoginFrom(ctx)
-	if currentUser == "" {
-		currentUser = "system"
-	}
+	currentUser := resolveUser(userLogin)
 	detail := fmt.Sprintf("Incident status changed from %s to %s", oldStatus.Label(), newStatus.Label())
 	if newStatus == domain.StatusCompleted && req.IncidentSolution != nil {
 		detail += fmt.Sprintf(" with solution: %s", *req.IncidentSolution)
 	}
 	if err := u.saveHistory(ctx, incident.ID, domain.ActionStatusChange, detail, currentUser); err != nil {
-		logger.Warn("incidents: failed to write history: " + err.Error())
+		catcher.Warn("incidents: failed to write history", map[string]any{"error": err.Error()})
 	}
 
 	u.audit.Log(ctx, audit_connectors.Event{
@@ -278,7 +267,7 @@ func (u *incidentUsecase) GetByID(ctx context.Context, id int64) (*domain.UtmInc
 		return nil, err
 	}
 	if incident == nil {
-		return nil, incidenterrors.ErrNotFound
+		return nil, domain.ErrNotFound
 	}
 	return incident, nil
 }
@@ -323,6 +312,16 @@ func (u *incidentUsecase) GetUsersAssigned(ctx context.Context) ([]dto.UserAssig
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
+
+// resolveUser falls back to "system" when no authenticated user is present.
+// The login is supplied by the handler from the request context, matching the
+// identity-at-the-boundary convention used across the backend.
+func resolveUser(userLogin string) string {
+	if userLogin == "" {
+		return "system"
+	}
+	return userLogin
+}
 
 func (u *incidentUsecase) saveHistory(
 	ctx context.Context,

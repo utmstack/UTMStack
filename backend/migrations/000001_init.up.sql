@@ -73,6 +73,23 @@ DROP TABLE IF EXISTS utm_incident_action_command;
 DROP TABLE IF EXISTS utm_incident_actions;
 DROP TABLE IF EXISTS utm_incident_variables;
 
+-- utm_incident_history: the Go model renamed the legacy column action_date to
+-- action_created_date. AutoMigrate (which runs before this) adds the new column
+-- but leaves the old action_date (NOT NULL, no default) in place on upgraded
+-- installs, so every history INSERT would violate its NOT NULL constraint.
+-- Copy the legacy timestamps into the new column and drop the obsolete one.
+-- Guarded so it is a no-op on fresh installs where action_date never existed.
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'utm_incident_history' AND column_name = 'action_date'
+    ) THEN
+        UPDATE utm_incident_history SET action_created_date = action_date WHERE action_date IS NOT NULL;
+        ALTER TABLE utm_incident_history DROP COLUMN action_date;
+    END IF;
+END $$;
+
 -- IAM: roles live in jhi_authority (name = the role id). Membership is read
 -- straight from jhi_user_authority (no break on existing installs).
 INSERT INTO jhi_authority (name, name_show, description) VALUES
@@ -91,7 +108,9 @@ INSERT INTO permissions (name, description, resource, action) VALUES
     ('soar.read',        'List and view SOAR response rules',     'soar', 'read'),
     ('soar.write',       'Create and update SOAR response rules', 'soar', 'write'),
     ('alerts.read',      'List and view alerts, tags and tag rules',          'alerts', 'read'),
-    ('alerts.write',     'Update alerts and manage alert tags and tag rules', 'alerts', 'write')
+    ('alerts.write',     'Update alerts and manage alert tags and tag rules', 'alerts', 'write'),
+    ('incidents.read',   'List and view incidents, alerts, notes and history', 'incidents', 'read'),
+    ('incidents.write',  'Create and manage incidents, their alerts and notes', 'incidents', 'write')
 ON CONFLICT (name) DO NOTHING;
 
 -- Bind ROLE_ADMIN to every permission currently in the catalog. Re-run this

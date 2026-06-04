@@ -27,7 +27,7 @@ func NewIncidentHistoryHandler(uc connectors.IncidentHistoryUsecase) *IncidentHi
 // @Success     200 {array} domain.UtmIncidentHistory
 // @Header      200 {string} X-Total-Count "Total items"
 // @Failure     500 {object} map[string]string
-// @Router      /utm-incident-histories [get]
+// @Router      /incident-histories [get]
 func (h *IncidentHistoryHandler) List(c *gin.Context) {
 	query := dto.HistoryListQuery{
 		IncidentID: queryInt64(c, "incidentId"),
@@ -51,7 +51,7 @@ func (h *IncidentHistoryHandler) List(c *gin.Context) {
 // @Param       incidentId query int false "Filter by incident ID"
 // @Success     200 {integer} int64
 // @Failure     500 {object} map[string]string
-// @Router      /utm-incident-histories/count [get]
+// @Router      /incident-histories/count [get]
 func (h *IncidentHistoryHandler) Count(c *gin.Context) {
 	query := dto.HistoryListQuery{
 		IncidentID: queryInt64(c, "incidentId"),
@@ -72,7 +72,7 @@ func (h *IncidentHistoryHandler) Count(c *gin.Context) {
 // @Success     200 {object} domain.UtmIncidentHistory
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-incident-histories/{id} [get]
+// @Router      /incident-histories/{id} [get]
 func (h *IncidentHistoryHandler) GetByID(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {

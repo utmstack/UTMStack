@@ -145,8 +145,8 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		incidents: incidents.NewModule(
 			db,
 			incidents_connectors.NewNoopMailer(),
-			incidents_connectors.NewAlertsGatewayFromUsecase(alertsMod.GetAlertUsecase()),
-			incidents_connectors.NewIAMGatewayFromRepo(userRepo),
+			incidents.NewAlertsGatewayFromUsecase(alertsMod.GetAlertUsecase()),
+			incidents.NewIAMGatewayFromRepo(userRepo),
 			auditMod.Logger(),
 		),
 		notifications: notifications.NewModule(db, auditMod.Logger()),

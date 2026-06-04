@@ -5,7 +5,6 @@ import (
 
 	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
-	incidenterrors "github.com/utmstack/utmstack/backend/modules/incidents/errors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
 )
 
@@ -31,7 +30,7 @@ func (u *incidentHistoryUsecase) GetByID(ctx context.Context, id int64) (*domain
 		return nil, err
 	}
 	if h == nil {
-		return nil, incidenterrors.ErrNotFound
+		return nil, domain.ErrNotFound
 	}
 	return h, nil
 }

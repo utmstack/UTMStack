@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/utmstack/utmstack/backend/modules/audit/auditctx"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 type incidentAlertUsecase struct {
@@ -41,15 +40,12 @@ func (u *incidentAlertUsecase) Create(ctx context.Context, req dto.IncidentAlert
 	return row, nil
 }
 
-func (u *incidentAlertUsecase) UpdateStatus(ctx context.Context, req dto.UpdateAlertStatusRequest) error {
+func (u *incidentAlertUsecase) UpdateStatus(ctx context.Context, userLogin string, req dto.UpdateAlertStatusRequest) error {
 	if err := u.alertRepo.BulkUpdateStatus(ctx, req.AlertIds, req.AlertStatus); err != nil {
 		return err
 	}
 
-	currentUser := auditctx.UserLoginFrom(ctx)
-	if currentUser == "" {
-		currentUser = "system"
-	}
+	currentUser := resolveUser(userLogin)
 
 	statusLabel := domain.AlertStatusLabel(req.AlertStatus)
 	detail := fmt.Sprintf("Alerts changed to %s", statusLabel)
@@ -65,7 +61,7 @@ func (u *incidentAlertUsecase) UpdateStatus(ctx context.Context, req dto.UpdateA
 		ActionCreatedBy:   &by,
 	}
 	if saveErr := u.historyRepo.Save(ctx, h); saveErr != nil {
-		logger.Warn("incidents: failed to write alert-status history: " + saveErr.Error())
+		catcher.Warn("incidents: failed to write alert-status history", map[string]any{"error": saveErr.Error()})
 	}
 
 	return nil

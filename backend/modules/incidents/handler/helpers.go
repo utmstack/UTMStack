@@ -8,18 +8,18 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	incidenterrors "github.com/utmstack/utmstack/backend/modules/incidents/errors"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
 )
 
 func writeIncidentError(c *gin.Context, err error) {
 	switch {
-	case errors.Is(err, incidenterrors.ErrNotFound):
+	case errors.Is(err, domain.ErrNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": "incident not found"})
-	case errors.Is(err, incidenterrors.ErrAlertAlreadyLinked):
+	case errors.Is(err, domain.ErrAlertAlreadyLinked):
 		c.JSON(http.StatusConflict, gin.H{"error": "one or more alerts are already linked to an incident"})
 	default:
-		logger.Error("incident op failed: " + err.Error())
+		_ = catcher.Error("incident op failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "operation failed"})
 	}
 }

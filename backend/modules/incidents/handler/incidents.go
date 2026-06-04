@@ -4,6 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/utmstack/utmstack/backend/modules/audit"
+	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
+	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
 )
@@ -26,14 +29,16 @@ func NewIncidentHandler(uc connectors.IncidentUsecase) *IncidentHandler {
 // @Failure     400 {object} map[string]string
 // @Failure     409 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-incidents [post]
+// @Router      /incidents [post]
 func (h *IncidentHandler) Create(c *gin.Context) {
 	var req dto.CreateIncidentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	incident, err := h.usecase.Create(c.Request.Context(), req)
+	incident, err := h.usecase.Create(c.Request.Context(), c.GetString("user_login"), req)
+	audit.Record(c, audit_connectors.Event{Action: "incident.create", ResourceType: "incident"},
+		audit_domain.INCIDENT_CREATION_ATTEMPT, audit_domain.INCIDENT_CREATION_SUCCESS, err)
 	if err != nil {
 		writeIncidentError(c, err)
 		return
@@ -53,19 +58,21 @@ func (h *IncidentHandler) Create(c *gin.Context) {
 // @Failure     404 {object} map[string]string
 // @Failure     409 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-incidents/add-alerts [post]
+// @Router      /incidents/add-alerts [post]
 func (h *IncidentHandler) AddAlerts(c *gin.Context) {
 	var req dto.AddAlertsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	incident, err := h.usecase.AddAlerts(c.Request.Context(), req)
+	incident, err := h.usecase.AddAlerts(c.Request.Context(), c.GetString("user_login"), req)
+	audit.Record(c, audit_connectors.Event{Action: "incident.add_alerts", ResourceType: "incident"},
+		audit_domain.INCIDENT_ALERT_ADD_ATTEMPT, audit_domain.INCIDENT_ALERT_ADD_SUCCESS, err)
 	if err != nil {
 		writeIncidentError(c, err)
 		return
 	}
-	// Java returns 201 Created for POST /utm-incidents/add-alerts.
+	// Java returns 201 Created for POST /incidents/add-alerts.
 	c.JSON(http.StatusCreated, incident)
 }
 
@@ -79,14 +86,16 @@ func (h *IncidentHandler) AddAlerts(c *gin.Context) {
 // @Failure     400 {object} map[string]string
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-incidents/change-status [put]
+// @Router      /incidents/change-status [put]
 func (h *IncidentHandler) ChangeStatus(c *gin.Context) {
 	var req dto.ChangeStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	incident, err := h.usecase.ChangeStatus(c.Request.Context(), req)
+	incident, err := h.usecase.ChangeStatus(c.Request.Context(), c.GetString("user_login"), req)
+	audit.Record(c, audit_connectors.Event{Action: "incident.change_status", ResourceType: "incident"},
+		audit_domain.INCIDENT_UPDATE_ATTEMPT, audit_domain.INCIDENT_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeIncidentError(c, err)
 		return
@@ -106,7 +115,7 @@ func (h *IncidentHandler) ChangeStatus(c *gin.Context) {
 // @Success     200 {array} domain.UtmIncident
 // @Header      200 {string} X-Total-Count "Total items"
 // @Failure     500 {object} map[string]string
-// @Router      /utm-incidents [get]
+// @Router      /incidents [get]
 func (h *IncidentHandler) List(c *gin.Context) {
 	query := dto.IncidentListQuery{
 		IncidentName:       queryString(c, "incidentName"),
@@ -132,7 +141,7 @@ func (h *IncidentHandler) List(c *gin.Context) {
 // @Produce     json
 // @Success     200 {array} dto.UserAssignedDTO
 // @Failure     500 {object} map[string]string
-// @Router      /utm-incidents/users-assigned [get]
+// @Router      /incidents/users-assigned [get]
 func (h *IncidentHandler) GetUsersAssigned(c *gin.Context) {
 	users, err := h.usecase.GetUsersAssigned(c.Request.Context())
 	if err != nil {
@@ -153,7 +162,7 @@ func (h *IncidentHandler) GetUsersAssigned(c *gin.Context) {
 // @Success     200 {object} domain.UtmIncident
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-incidents/{id} [get]
+// @Router      /incidents/{id} [get]
 func (h *IncidentHandler) GetByID(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {

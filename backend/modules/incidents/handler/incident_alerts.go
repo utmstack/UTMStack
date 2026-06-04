@@ -5,6 +5,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/utmstack/utmstack/backend/modules/audit"
+	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
+	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
 )
@@ -26,7 +29,7 @@ func NewIncidentAlertHandler(uc connectors.IncidentAlertUsecase) *IncidentAlertH
 // @Success     201 {object} domain.UtmIncidentAlert
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-incident-alerts [post]
+// @Router      /incident-alerts [post]
 func (h *IncidentAlertHandler) Create(c *gin.Context) {
 	var req dto.IncidentAlertRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -34,6 +37,8 @@ func (h *IncidentAlertHandler) Create(c *gin.Context) {
 		return
 	}
 	row, err := h.usecase.Create(c.Request.Context(), req)
+	audit.Record(c, audit_connectors.Event{Action: "incident.alert.create", ResourceType: "incident_alert"},
+		audit_domain.INCIDENT_ALERT_ADD_ATTEMPT, audit_domain.INCIDENT_ALERT_ADD_SUCCESS, err)
 	if err != nil {
 		writeIncidentError(c, err)
 		return
@@ -50,14 +55,17 @@ func (h *IncidentAlertHandler) Create(c *gin.Context) {
 // @Success     200 "Updated"
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-incident-alerts/update-status [post]
+// @Router      /incident-alerts/update-status [post]
 func (h *IncidentAlertHandler) UpdateStatus(c *gin.Context) {
 	var req dto.UpdateAlertStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := h.usecase.UpdateStatus(c.Request.Context(), req); err != nil {
+	err := h.usecase.UpdateStatus(c.Request.Context(), c.GetString("user_login"), req)
+	audit.Record(c, audit_connectors.Event{Action: "incident.alert.update_status", ResourceType: "incident_alert"},
+		audit_domain.INCIDENT_UPDATE_ATTEMPT, audit_domain.INCIDENT_UPDATE_SUCCESS, err)
+	if err != nil {
 		writeIncidentError(c, err)
 		return
 	}
@@ -73,7 +81,7 @@ func (h *IncidentAlertHandler) UpdateStatus(c *gin.Context) {
 // @Success     200 {object} domain.UtmIncidentAlert
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-incident-alerts [put]
+// @Router      /incident-alerts [put]
 func (h *IncidentAlertHandler) Update(c *gin.Context) {
 	var req dto.UpdateIncidentAlertRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -81,6 +89,8 @@ func (h *IncidentAlertHandler) Update(c *gin.Context) {
 		return
 	}
 	row, err := h.usecase.Update(c.Request.Context(), req)
+	audit.Record(c, audit_connectors.Event{Action: "incident.alert.update", ResourceType: "incident_alert"},
+		audit_domain.INCIDENT_UPDATE_ATTEMPT, audit_domain.INCIDENT_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeIncidentError(c, err)
 		return
@@ -100,7 +110,7 @@ func (h *IncidentAlertHandler) Update(c *gin.Context) {
 // @Success     200 {array} domain.UtmIncidentAlert
 // @Header      200 {string} X-Total-Count "Total items"
 // @Failure     500 {object} map[string]string
-// @Router      /utm-incident-alerts [get]
+// @Router      /incident-alerts [get]
 func (h *IncidentAlertHandler) List(c *gin.Context) {
 	query := dto.IncidentAlertListQuery{
 		IncidentID:  queryInt64(c, "incidentId"),
@@ -124,13 +134,16 @@ func (h *IncidentAlertHandler) List(c *gin.Context) {
 // @Success     200 "Deleted"
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-incident-alerts/{id} [delete]
+// @Router      /incident-alerts/{id} [delete]
 func (h *IncidentAlertHandler) Delete(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {
 		return
 	}
-	if err := h.usecase.Delete(c.Request.Context(), id); err != nil {
+	err := h.usecase.Delete(c.Request.Context(), id)
+	audit.Record(c, audit_connectors.Event{Action: "incident.alert.delete", ResourceType: "incident_alert", ResourceID: strconv.FormatInt(id, 10)},
+		audit_domain.INCIDENT_UPDATE_ATTEMPT, audit_domain.INCIDENT_UPDATE_SUCCESS, err)
+	if err != nil {
 		writeIncidentError(c, err)
 		return
 	}

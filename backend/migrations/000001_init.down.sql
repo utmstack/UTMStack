@@ -172,9 +172,13 @@ CREATE TABLE IF NOT EXISTS utm_incident_variables
     CONSTRAINT uq_utm_incident_variables_name UNIQUE (variable_name)
 );
 
+-- Re-add the legacy utm_incident_history.action_date column (rollback only;
+-- nullable since the original values are not restored).
+ALTER TABLE IF EXISTS utm_incident_history ADD COLUMN IF NOT EXISTS action_date timestamp without time zone;
+
 -- IAM seed cleanup (leaves the legacy jhi_authority/jhi_user_authority alone).
 DELETE FROM authority_permissions WHERE authority_name IN ('ROLE_ADMIN', 'ROLE_USER');
-DELETE FROM permissions WHERE name IN ('users.read','users.write','users.delete','roles.read','roles.write','roles.delete','config.read','config.write','audit.read','soar.read','soar.write','alerts.read','alerts.write');
+DELETE FROM permissions WHERE name IN ('users.read','users.write','users.delete','roles.read','roles.write','roles.delete','config.read','config.write','audit.read','soar.read','soar.write','alerts.read','alerts.write','incidents.read','incidents.write');
 
 -- Remove the seeded system-owned "False positive" alert tag.
 DELETE FROM utm_alert_tag WHERE tag_name = 'False positive' AND system_owner = true;

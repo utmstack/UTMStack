@@ -4,11 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/utmstack/utmstack/backend/modules/audit/auditctx"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 type incidentNoteUsecase struct {
@@ -26,11 +25,8 @@ func NewIncidentNoteUsecase(
 	}
 }
 
-func (u *incidentNoteUsecase) Create(ctx context.Context, req dto.CreateNoteRequest) (*domain.UtmIncidentNote, error) {
-	currentUser := auditctx.UserLoginFrom(ctx)
-	if currentUser == "" {
-		currentUser = "system"
-	}
+func (u *incidentNoteUsecase) Create(ctx context.Context, userLogin string, req dto.CreateNoteRequest) (*domain.UtmIncidentNote, error) {
+	currentUser := resolveUser(userLogin)
 
 	now := time.Now().UTC()
 	note := &domain.UtmIncidentNote{
@@ -54,7 +50,7 @@ func (u *incidentNoteUsecase) Create(ctx context.Context, req dto.CreateNoteRequ
 		ActionCreatedBy:   &by,
 	}
 	if err := u.historyRepo.Save(ctx, h); err != nil {
-		logger.Warn("incidents: failed to write note history: " + err.Error())
+		catcher.Warn("incidents: failed to write note history", map[string]any{"error": err.Error()})
 	}
 
 	return note, nil
