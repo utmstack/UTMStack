@@ -49,9 +49,13 @@ INSERT INTO permissions (name, description, resource, action) VALUES
     ('users.write',      'Create and update users',       'users',       'write'),
     ('users.delete',     'Deactivate users',              'users',       'delete'),
     ('roles.read',       'List and view roles',           'roles',       'read'),
+    ('config.read',      'Read application config',             'config', 'read'),
+    ('config.write',     'Update or delete application config', 'config', 'write'),
     ('audit.read',       'List and view audit log entries', 'audit',     'read'),
     ('soar.read',        'List and view SOAR response rules',     'soar', 'read'),
-    ('soar.write',       'Create and update SOAR response rules', 'soar', 'write')
+    ('soar.write',       'Create and update SOAR response rules', 'soar', 'write'),
+    ('alerts.read',      'List and view alerts, tags and tag rules',          'alerts', 'read'),
+    ('alerts.write',     'Update alerts and manage alert tags and tag rules', 'alerts', 'write')
 ON CONFLICT (name) DO NOTHING;
 
 -- Bind ROLE_ADMIN to every permission currently in the catalog. Re-run this
@@ -69,3 +73,52 @@ SELECT 'ROLE_USER', p.id
 FROM permissions p
 WHERE p.action = 'read'
 ON CONFLICT DO NOTHING;
+
+-- Seed the system-owned "False positive" alert tag.
+--
+-- The legacy backend seeded this row in data.sql (id=1, system_owner=true). It
+-- is the canonical tag the rules engine applies to auto-complete alerts: the
+-- OpenSearch Painless scripts and the Go usecase reference it by NAME
+-- ("False positive"), so the managed tag must exist for the UI tag picker and
+-- for parity with legacy installs.
+--
+-- On an in-place upgrade the legacy row already exists (utm_alert_tag is not
+-- dropped), so this is a no-op via ON CONFLICT. On a fresh install GORM creates
+-- an empty table and this seeds it.
+--
+-- We intentionally omit an explicit id and let the GORM-created sequence assign
+-- it: forcing id=1 would not advance the sequence and the next auto-insert would
+-- collide. The Go code keys off tag_name, not the id, so the value is irrelevant.
+INSERT INTO utm_alert_tag (tag_name, tag_color, system_owner)
+VALUES ('False positive', '#f44336', true)
+ON CONFLICT (tag_name) DO NOTHING;
+
+-- Seed default mail configuration rows in utm_configuration_parameter so the
+-- settings UI has stable keys to bind to before an admin fills them in. Keys
+-- mirror pkg/constants/mail_configuration.go and the values/metadata mirror the
+-- legacy Liquibase data.sql so the Go appconfig module (which only ever UPDATEs
+-- pre-seeded params, never creates them) and the legacy panel stay at parity.
+--
+-- smtp.auth is the encryption type (TLS/SSL/NONE), not a boolean: toEmailConfig
+-- maps a non-empty/non-"none"/non-"false" value to SMTP auth enabled.
+--
+-- conf_param_short has no unique index, so we guard each row with NOT EXISTS
+-- instead of ON CONFLICT. On an in-place upgrade the legacy rows already exist
+-- (this is a no-op); on a fresh install GORM creates an empty table and this
+-- seeds it.
+INSERT INTO utm_configuration_parameter
+    (conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
+SELECT v.conf_param_short, v.conf_param_large, v.conf_param_description, v.conf_param_value, v.conf_param_required, v.conf_param_datatype, v.conf_param_option
+FROM (VALUES
+    ('utmstack.mail.host',                      'Mail Server Host',         'SMTP server host. For instance, smtp.example.com.', '',    true,  'text',     NULL),
+    ('utmstack.mail.port',                      'Mail Server Port',         'SMTP server port',                                  '587', true,  'number',   NULL),
+    ('utmstack.mail.username',                  'Mail Server Username',     'Login user of the SMTP server',                     '',    true,  'text',     NULL),
+    ('utmstack.mail.password',                  'Mail Server Password',     'Login password of the SMTP server',                 '',    true,  'password', NULL),
+    ('utmstack.mail.from',                      'Utmstack email address',   'Address from which emails are sent',                '',    true,  'email',    NULL),
+    ('utmstack.mail.baseUrl',                   'Utmstack base url',        'Base url of Utmstack',                              '',    true,  'text',     NULL),
+    ('utmstack.mail.organization',              'Organization Name',        'This field helps identify the organization name in incident and alert notification emails.', '', false, 'text', NULL),
+    ('utmstack.mail.properties.mail.smtp.auth', 'Encryption type',          'Select the encryption type used by the SMTP server', 'TLS', true, 'radio',    'TLS,SSL,NONE')
+) AS v(conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
+WHERE NOT EXISTS (
+    SELECT 1 FROM utm_configuration_parameter c WHERE c.conf_param_short = v.conf_param_short
+);

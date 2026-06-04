@@ -9,7 +9,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
-	alerterrors "github.com/utmstack/utmstack/backend/modules/alerts/errors"
 	"gorm.io/gorm"
 )
 
@@ -24,7 +23,7 @@ func NewAlertTagRuleRepository(db *gorm.DB) connectors.AlertTagRuleRepository {
 func (r *pgAlertTagRuleRepository) Create(ctx context.Context, rule domain.UtmAlertTagRule) (*domain.UtmAlertTagRule, error) {
 	if err := r.db.WithContext(ctx).Create(&rule).Error; err != nil {
 		if isUniqueViolation(err) {
-			return nil, alerterrors.ErrRuleNameTaken
+			return nil, domain.ErrRuleNameTaken
 		}
 		return nil, err
 	}
@@ -34,7 +33,7 @@ func (r *pgAlertTagRuleRepository) Create(ctx context.Context, rule domain.UtmAl
 func (r *pgAlertTagRuleRepository) Update(ctx context.Context, rule domain.UtmAlertTagRule) (*domain.UtmAlertTagRule, error) {
 	if err := r.db.WithContext(ctx).Save(&rule).Error; err != nil {
 		if isUniqueViolation(err) {
-			return nil, alerterrors.ErrRuleNameTaken
+			return nil, domain.ErrRuleNameTaken
 		}
 		return nil, err
 	}

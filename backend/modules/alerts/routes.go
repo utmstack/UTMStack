@@ -2,71 +2,43 @@ package alerts
 
 import (
 	"github.com/gin-gonic/gin"
-	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
-	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
-	auditmw "github.com/utmstack/utmstack/backend/modules/audit/middleware"
+	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
-func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, audit audit_connectors.Logger) {
+func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	h := m.GetAlertHandler()
 	th := m.GetAlertTagHandler()
 	rh := m.GetAlertTagRuleHandler()
+	dh := m.GetAdversaryHandler()
 
-	audited := func(
-		attemptType audit_domain.ApplicationEventType, attemptMsg string,
-		successType audit_domain.ApplicationEventType, successMsg string,
-	) gin.HandlerFunc {
-		return auditmw.AuditEvent(audit, attemptType, attemptMsg, successType, successMsg)
-	}
+	read := middleware.RequirePermission("alerts.read")
+	write := middleware.RequirePermission("alerts.write")
 
 	ag := api.Group("/utm-alerts", userAuth)
 
-	ag.POST("/status",
-		audited(
-			audit_domain.ALERT_UPDATE_ATTEMPT, "alert.status.attempt",
-			audit_domain.ALERT_UPDATE_SUCCESS, "alert.status.success",
-		),
-		h.UpdateStatus,
-	)
+	ag.POST("/status", write, h.UpdateStatus)
+	ag.POST("/notes", write, h.UpdateNotes)
+	ag.POST("/tags", write, h.UpdateTags)
+	ag.POST("/convert-to-incident", write, h.ConvertToIncident)
 
-	ag.POST("/notes",
-		audited(
-			audit_domain.ALERT_NOTE_UPDATE_ATTEMPT, "alert.notes.attempt",
-			audit_domain.ALERT_NOTE_UPDATE_SUCCESS, "alert.notes.success",
-		),
-		h.UpdateNotes,
-	)
-
-	ag.POST("/tags",
-		audited(
-			audit_domain.ALERT_TAG_UPDATE_ATTEMPT, "alert.tags.attempt",
-			audit_domain.ALERT_TAG_UPDATE_SUCCESS, "alert.tags.success",
-		),
-		h.UpdateTags,
-	)
-
-	ag.POST("/convert-to-incident",
-		audited(
-			audit_domain.ALERT_CONVERT_TO_INCIDENT_ATTEMPT, "alert.convert_to_incident.attempt",
-			audit_domain.ALERT_CONVERT_TO_INCIDENT_SUCCESS, "alert.convert_to_incident.success",
-		),
-		h.ConvertToIncident,
-	)
-
-	ag.GET("/count-open-alerts", h.CountOpenAlerts)
+	ag.GET("/count-open-alerts", read, h.CountOpenAlerts)
 
 	tg := api.Group("/utm-alert-tags", userAuth)
-	tg.POST("", th.Create)
-	tg.PUT("", th.Update)
-	tg.GET("", th.List)
-	tg.GET("/:id", th.GetByID)
-	tg.DELETE("/:id", th.Delete)
+	tg.POST("", write, th.Create)
+	tg.PUT("", write, th.Update)
+	tg.GET("", read, th.List)
+	tg.GET("/:id", read, th.GetByID)
+	tg.DELETE("/:id", write, th.Delete)
 
 	rg := api.Group("/alert-tag-rules", userAuth)
-	rg.POST("", rh.Create)
-	rg.PUT("", rh.Update)
-	rg.GET("", rh.List)
-	rg.GET("/get-by-ids", rh.GetByIDs)
-	rg.GET("/:id", rh.GetByID)
-	rg.DELETE("/:id", rh.Delete)
+	rg.POST("", write, rh.Create)
+	rg.PUT("", write, rh.Update)
+	rg.GET("", read, rh.List)
+	rg.GET("/get-by-ids", read, rh.GetByIDs)
+	rg.GET("/:id", read, rh.GetByID)
+	rg.DELETE("/:id", write, rh.Delete)
+
+	// Adversary alert aggregation (merged from the former threat_management module).
+	adv := api.Group("/adversary", userAuth)
+	adv.POST("/alerts", read, dh.SearchAdversaryAlerts)
 }

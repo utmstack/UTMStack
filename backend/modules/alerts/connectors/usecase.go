@@ -5,13 +5,18 @@ import (
 
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
+	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
+type AdversaryUsecase interface {
+	FetchAdversaryAlerts(ctx context.Context, filters []common_models.FilterType) ([]dto.AdversaryResponse, error)
+}
+
 type AlertUsecase interface {
-	UpdateStatus(ctx context.Context, req dto.UpdateAlertStatusRequest) error
-	UpdateNotes(ctx context.Context, alertID string, notes string) error
-	UpdateTags(ctx context.Context, req dto.UpdateAlertTagsRequest) error
-	ConvertToIncident(ctx context.Context, req dto.ConvertToIncidentRequest) error
+	UpdateStatus(ctx context.Context, userLogin string, req dto.UpdateAlertStatusRequest) error
+	UpdateNotes(ctx context.Context, userLogin string, alertID string, notes string) error
+	UpdateTags(ctx context.Context, userLogin string, req dto.UpdateAlertTagsRequest) error
+	ConvertToIncident(ctx context.Context, userLogin string, req dto.ConvertToIncidentRequest) error
 	CountOpenAlerts(ctx context.Context) (*dto.CountOpenAlertsResponse, error)
 }
 

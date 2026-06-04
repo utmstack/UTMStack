@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	alerterrors "github.com/utmstack/utmstack/backend/modules/alerts/errors"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
 )
 
 // writePagedArray writes the items as a bare JSON array and sets
@@ -22,8 +22,8 @@ func writePagedArray[T any](c *gin.Context, items []T, total int64) {
 
 // isNotFoundErr returns true for any "not found" sentinel error in the alerts domain.
 func isNotFoundErr(err error) bool {
-	return errors.Is(err, alerterrors.ErrAlertTagNotFound) ||
-		errors.Is(err, alerterrors.ErrAlertTagRuleNotFound)
+	return errors.Is(err, domain.ErrAlertTagNotFound) ||
+		errors.Is(err, domain.ErrAlertTagRuleNotFound)
 }
 
 // queryInt reads a positive integer query param, falling back to defaultVal
@@ -58,20 +58,20 @@ func pathID(c *gin.Context, name string) (uint64, bool) {
 
 func writeAlertError(c *gin.Context, err error) {
 	switch {
-	case errors.Is(err, alerterrors.ErrAlertTagNotFound):
+	case errors.Is(err, domain.ErrAlertTagNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": "alert tag not found"})
-	case errors.Is(err, alerterrors.ErrAlertTagRuleNotFound):
+	case errors.Is(err, domain.ErrAlertTagRuleNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": "alert tag rule not found"})
-	case errors.Is(err, alerterrors.ErrTagNameTaken):
+	case errors.Is(err, domain.ErrTagNameTaken):
 		c.JSON(http.StatusConflict, gin.H{"error": "tag name already in use"})
-	case errors.Is(err, alerterrors.ErrRuleNameTaken):
+	case errors.Is(err, domain.ErrRuleNameTaken):
 		c.JSON(http.StatusConflict, gin.H{"error": "rule name already in use"})
-	case errors.Is(err, alerterrors.ErrInvalidAlertStatus):
+	case errors.Is(err, domain.ErrInvalidAlertStatus):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid alert status"})
-	case errors.Is(err, alerterrors.ErrMissingAlertID):
+	case errors.Is(err, domain.ErrMissingAlertID):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "missing alert id"})
 	default:
-		logger.Error("alert op failed: " + err.Error())
+		_ = catcher.Error("alert op failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "operation failed"})
 	}
 }

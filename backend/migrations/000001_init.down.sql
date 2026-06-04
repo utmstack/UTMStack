@@ -72,4 +72,15 @@ CREATE INDEX IF NOT EXISTS idx_utm_alert_log_alert_id ON utm_alert_log USING btr
 
 -- IAM seed cleanup (leaves the legacy jhi_authority/jhi_user_authority alone).
 DELETE FROM authority_permissions WHERE authority_name IN ('ROLE_ADMIN', 'ROLE_USER');
-DELETE FROM permissions WHERE name IN ('users.read','users.write','users.delete','roles.read','roles.write','roles.delete','audit.read','soar.read','soar.write');
+DELETE FROM permissions WHERE name IN ('users.read','users.write','users.delete','roles.read','roles.write','roles.delete','config.read','config.write','audit.read','soar.read','soar.write','alerts.read','alerts.write');
+
+-- Remove the seeded system-owned "False positive" alert tag.
+DELETE FROM utm_alert_tag WHERE tag_name = 'False positive' AND system_owner = true;
+
+-- Remove the seeded default mail configuration rows.
+DELETE FROM utm_configuration_parameter WHERE conf_param_short IN (
+    'utmstack.mail.host', 'utmstack.mail.port', 'utmstack.mail.username',
+    'utmstack.mail.password', 'utmstack.mail.organization',
+    'utmstack.mail.properties.mail.smtp.auth', 'utmstack.mail.from',
+    'utmstack.mail.baseUrl'
+);

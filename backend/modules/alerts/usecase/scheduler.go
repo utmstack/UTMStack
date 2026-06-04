@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 const (
@@ -40,26 +40,26 @@ func NewScheduler(
 }
 
 func (s *Scheduler) Start(ctx context.Context) {
-	logger.Info("alerts scheduler: starting (initial delay 10s)")
+	catcher.Info("alerts scheduler: starting (initial delay 10s)", nil)
 
 	select {
 	case <-time.After(schedulerInitialDelay):
 	case <-ctx.Done():
-		logger.Info("alerts scheduler: cancelled during initial delay — stopped")
+		catcher.Info("alerts scheduler: cancelled during initial delay — stopped", nil)
 		return
 	}
 
 	ticker := time.NewTicker(schedulerInterval)
 	defer ticker.Stop()
 
-	logger.Info("alerts scheduler: running")
+	catcher.Info("alerts scheduler: running", nil)
 
 	for {
 		select {
 		case <-ticker.C:
 			s.tick(ctx)
 		case <-ctx.Done():
-			logger.Info("alerts scheduler: context cancelled — stopped")
+			catcher.Info("alerts scheduler: context cancelled — stopped", nil)
 			return
 		}
 	}
@@ -68,7 +68,7 @@ func (s *Scheduler) Start(ctx context.Context) {
 func (s *Scheduler) tick(ctx context.Context) {
 	count, err := s.alertRepo.CountByStatus(ctx, int(domain.AlertStatusAutomaticReview))
 	if err != nil {
-		logger.Error("alerts scheduler: CountByStatus error: " + err.Error())
+		_ = catcher.Error("alerts scheduler: CountByStatus error", err, nil)
 		return
 	}
 	if count == 0 {
@@ -77,12 +77,12 @@ func (s *Scheduler) tick(ctx context.Context) {
 
 	// TODO(module-33): wire real mapping when network_scan is ported.
 	if err := s.alertRepo.AssignAssetGroups(ctx, nil); err != nil {
-		logger.Error("alerts scheduler: AssignAssetGroups error: " + err.Error())
+		_ = catcher.Error("alerts scheduler: AssignAssetGroups error", err, nil)
 	}
 
 	rules, err := s.ruleRepo.FindAllActive(ctx)
 	if err != nil {
-		logger.Error("alerts scheduler: FindAllActive error: " + err.Error())
+		_ = catcher.Error("alerts scheduler: FindAllActive error", err, nil)
 		return
 	}
 
@@ -91,18 +91,18 @@ func (s *Scheduler) tick(ctx context.Context) {
 	for _, rule := range rules {
 		tagNames, resolveErr := s.resolveTagNames(ctx, rule.RuleAppliedTags)
 		if resolveErr != nil {
-			logger.Error("alerts scheduler: resolveTagNames error for rule " + rule.RuleName + ": " + resolveErr.Error())
+			_ = catcher.Error("alerts scheduler: resolveTagNames error for rule "+rule.RuleName, resolveErr, nil)
 			continue
 		}
 
 		oldAlerts, searchErr := s.alertRepo.SearchByRuleConditionsAndTimestamp(
 			ctx, rule, evaluationStart, schedulerMaxAlertsPerBatch)
 		if searchErr != nil {
-			logger.Error("alerts scheduler: SearchByRuleConditionsAndTimestamp error: " + searchErr.Error())
+			_ = catcher.Error("alerts scheduler: SearchByRuleConditionsAndTimestamp error", searchErr, nil)
 		}
 
 		if applyErr := s.alertRepo.ApplyTagRule(ctx, rule, tagNames, evaluationStart); applyErr != nil {
-			logger.Error("alerts scheduler: ApplyTagRule error for rule " + rule.RuleName + ": " + applyErr.Error())
+			_ = catcher.Error("alerts scheduler: ApplyTagRule error for rule "+rule.RuleName, applyErr, nil)
 			continue
 		}
 
@@ -114,11 +114,11 @@ func (s *Scheduler) tick(ctx context.Context) {
 	oldBeforeRelease, searchErr := s.alertRepo.SearchByStatusAndTimestamp(
 		ctx, int(domain.AlertStatusAutomaticReview), evaluationStart, schedulerMaxAlertsPerBatch)
 	if searchErr != nil {
-		logger.Error("alerts scheduler: SearchByStatusAndTimestamp (pre-release) error: " + searchErr.Error())
+		_ = catcher.Error("alerts scheduler: SearchByStatusAndTimestamp (pre-release) error", searchErr, nil)
 	}
 
 	if err := s.alertRepo.ReleaseToOpen(ctx, evaluationStart); err != nil {
-		logger.Error("alerts scheduler: ReleaseToOpen error: " + err.Error())
+		_ = catcher.Error("alerts scheduler: ReleaseToOpen error", err, nil)
 	}
 
 	if len(oldBeforeRelease) > 0 && s.histRepo != nil {
@@ -142,7 +142,7 @@ func (s *Scheduler) logAutomaticTagChange(ctx context.Context, alerts []domain.U
 		})
 	}
 	if err := s.histRepo.Record(ctx, entries); err != nil {
-		logger.Error("alerts scheduler: logAutomaticTagChange error: " + err.Error())
+		_ = catcher.Error("alerts scheduler: logAutomaticTagChange error", err, nil)
 	}
 }
 
@@ -152,7 +152,6 @@ func (s *Scheduler) logAutomaticStatusChange(ctx context.Context, alerts []domai
 	obs := "This alert has been evaluated by the tag rules engine"
 	msg := fmt.Sprintf(domain.MsgStatusSystem, oldLabel, newLabel, obs)
 
-	now := time.Now().UTC()
 	entries := make([]connectors.HistoryEntry, 0, len(alerts))
 	for _, a := range alerts {
 		newVal, _ := json.Marshal(map[string]any{
@@ -166,11 +165,11 @@ func (s *Scheduler) logAutomaticStatusChange(ctx context.Context, alerts []domai
 			Action:   domain.ActionUpdateStatus,
 			Message:  msg,
 			NewValue: string(newVal),
-			At:       now,
+			At:       evaluationStart,
 		})
 	}
 	if err := s.histRepo.Record(ctx, entries); err != nil {
-		logger.Error("alerts scheduler: logAutomaticStatusChange error: " + err.Error())
+		_ = catcher.Error("alerts scheduler: logAutomaticStatusChange error", err, nil)
 	}
 }
 

@@ -29,7 +29,6 @@ import (
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
 	"github.com/utmstack/utmstack/backend/modules/socai"
-	threat_management "github.com/utmstack/utmstack/backend/modules/threat_management"
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
@@ -90,7 +89,7 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	iam.RegisterRoutes(api, m.iam, userAuth)
 	audit.RegisterRoutes(api, m.audit, userAuth)
 	appconfig.RegisterRoutes(api, m.appconfig, userAuth)
-	alerts.RegisterRoutes(api, m.alerts, userAuth, m.audit.Logger())
+	alerts.RegisterRoutes(api, m.alerts, userAuth)
 	soar.RegisterRoutes(api, m.soar, userAuth)
 	correlation.RegisterRoutes(api, m.correlation, userAuth, m.audit.Logger())
 	collectors.RegisterRoutes(api, m.collectors, userAuth)
@@ -103,7 +102,6 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	incident_response.RegisterRoutes(api, m.incidentResponse, userAuth)
 	notifications.RegisterRoutes(api, m.notifications, userAuth)
 	socai.RegisterRoutes(api, m.socAI, userAuth)
-	threat_management.RegisterRoutes(api, m.threatManagement, userAuth)
 }
 
 // startServer starts the HTTP server and blocks until appCtx is cancelled

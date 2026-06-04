@@ -9,7 +9,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
-	alerterrors "github.com/utmstack/utmstack/backend/modules/alerts/errors"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
@@ -56,7 +55,7 @@ func (u *alertTagRuleUsecase) Update(ctx context.Context, req dto.UpdateAlertTag
 		return nil, err
 	}
 	if existing == nil {
-		return nil, alerterrors.ErrAlertTagRuleNotFound
+		return nil, domain.ErrAlertTagRuleNotFound
 	}
 
 	condJSON, err := json.Marshal(req.Conditions)
@@ -108,7 +107,7 @@ func (u *alertTagRuleUsecase) GetByID(ctx context.Context, id uint64) (*dto.Aler
 		return nil, err
 	}
 	if row == nil {
-		return nil, alerterrors.ErrAlertTagRuleNotFound
+		return nil, domain.ErrAlertTagRuleNotFound
 	}
 	return u.toResponse(ctx, row)
 }
@@ -136,7 +135,7 @@ func (u *alertTagRuleUsecase) Delete(ctx context.Context, id uint64) error {
 		return err
 	}
 	if existing == nil {
-		return alerterrors.ErrAlertTagRuleNotFound
+		return domain.ErrAlertTagRuleNotFound
 	}
 	return u.ruleRepo.Delete(ctx, id)
 }

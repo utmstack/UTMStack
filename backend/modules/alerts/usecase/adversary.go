@@ -5,30 +5,32 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
-	"github.com/utmstack/utmstack/backend/modules/threat_management/dto"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
-	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
+	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
+	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
 )
 
-const alertIndexPattern = "v11-alert-*"
+// adversaryIndexPattern is the OpenSearch index the adversary aggregation reads.
+const adversaryIndexPattern = "v11-alert-*"
 
-type AdversaryUsecase struct {
+type adversaryUsecase struct {
 	osClient *ospkg.Client
 }
 
-func NewAdversaryUsecase(osClient *ospkg.Client) *AdversaryUsecase {
-	return &AdversaryUsecase{osClient: osClient}
+func NewAdversaryUsecase(osClient *ospkg.Client) connectors.AdversaryUsecase {
+	return &adversaryUsecase{osClient: osClient}
 }
 
-func (u *AdversaryUsecase) FetchAdversaryAlerts(
+func (u *adversaryUsecase) FetchAdversaryAlerts(
 	ctx context.Context,
 	filters []common_models.FilterType,
 ) ([]dto.AdversaryResponse, error) {
-	exists, err := u.osClient.IndexExists(ctx, alertIndexPattern)
+	exists, err := u.osClient.IndexExists(ctx, adversaryIndexPattern)
 	if err != nil {
-		logger.Error("threat_management: IndexExists failed: " + err.Error())
+		_ = catcher.Error("alerts adversary: IndexExists failed", err, nil)
 		return nil, err
 	}
 	if !exists {
@@ -99,13 +101,13 @@ func (u *AdversaryUsecase) FetchAdversaryAlerts(
 		},
 	}
 
-	rawResp, status, err := u.osClient.RawSearch(ctx, alertIndexPattern, body)
+	rawResp, status, err := u.osClient.RawSearch(ctx, adversaryIndexPattern, body)
 	if err != nil {
-		logger.Error("threat_management: OpenSearch search failed: " + err.Error())
+		_ = catcher.Error("alerts adversary: OpenSearch search failed", err, nil)
 		return nil, err
 	}
 	if status < 200 || status >= 300 {
-		logger.Error(fmt.Sprintf("threat_management: unexpected status %d from OpenSearch", status))
+		_ = catcher.Error(fmt.Sprintf("alerts adversary: unexpected status %d from OpenSearch", status), nil, nil)
 		return nil, fmt.Errorf("opensearch returned status %d", status)
 	}
 
@@ -116,7 +118,7 @@ func (u *AdversaryUsecase) FetchAdversaryAlerts(
 // Aggregation response structs
 // ---------------------------------------------------------------------------
 
-type searchResponse struct {
+type adversarySearchResponse struct {
 	Aggregations struct {
 		Adversary struct {
 			Buckets []adversaryBucket `json:"buckets"`
@@ -128,40 +130,40 @@ type adversaryBucket struct {
 	Key          string `json:"key"`
 	AdversaryObj struct {
 		Hits struct {
-			Hits []hitSource `json:"hits"`
+			Hits []adversaryHitSource `json:"hits"`
 		} `json:"hits"`
 	} `json:"adversary_obj"`
 	Alerts struct {
 		AlertsHits struct {
 			Hits struct {
-				Hits []hitSource `json:"hits"`
+				Hits []adversaryHitSource `json:"hits"`
 			} `json:"hits"`
 		} `json:"alerts_hits"`
 	} `json:"alerts"`
 	ChildAlerts struct {
-		Buckets []childBucket `json:"buckets"`
+		Buckets []adversaryChildBucket `json:"buckets"`
 	} `json:"child_alerts"`
 }
 
-type childBucket struct {
+type adversaryChildBucket struct {
 	Key       string `json:"key"`
 	ChildHits struct {
 		Hits struct {
-			Hits []hitSource `json:"hits"`
+			Hits []adversaryHitSource `json:"hits"`
 		} `json:"hits"`
 	} `json:"child_hits"`
 }
 
-type hitSource struct {
+type adversaryHitSource struct {
 	Source json.RawMessage `json:"_source"`
 }
 
 // ---------------------------------------------------------------------------
 
 func parseAdversaryAggs(rawResp []byte) ([]dto.AdversaryResponse, error) {
-	var sr searchResponse
+	var sr adversarySearchResponse
 	if err := json.Unmarshal(rawResp, &sr); err != nil {
-		return nil, fmt.Errorf("threat_management: decode aggregation response: %w", err)
+		return nil, fmt.Errorf("alerts adversary: decode aggregation response: %w", err)
 	}
 
 	groups := make([]dto.AdversaryResponse, 0, len(sr.Aggregations.Adversary.Buckets))
@@ -173,7 +175,7 @@ func parseAdversaryAggs(rawResp []byte) ([]dto.AdversaryResponse, error) {
 		}
 		var wrapper dto.AdversaryWrapper
 		if err := json.Unmarshal(bucket.AdversaryObj.Hits.Hits[0].Source, &wrapper); err != nil {
-			logger.Error("threat_management: decode adversary wrapper: " + err.Error())
+			_ = catcher.Error("alerts adversary: decode adversary wrapper", err, nil)
 			continue
 		}
 
@@ -186,7 +188,7 @@ func parseAdversaryAggs(rawResp []byte) ([]dto.AdversaryResponse, error) {
 			}
 			var alert domain.UtmAlert
 			if err := json.Unmarshal(h.Source, &alert); err != nil {
-				logger.Error("threat_management: decode parent alert: " + err.Error())
+				_ = catcher.Error("alerts adversary: decode parent alert", err, nil)
 				continue
 			}
 			if alert.ParentID == "" {
@@ -203,7 +205,7 @@ func parseAdversaryAggs(rawResp []byte) ([]dto.AdversaryResponse, error) {
 				}
 				var child domain.UtmAlert
 				if err := json.Unmarshal(h.Source, &child); err != nil {
-					logger.Error("threat_management: decode child alert: " + err.Error())
+					_ = catcher.Error("alerts adversary: decode child alert", err, nil)
 					continue
 				}
 				children = append(children, child)

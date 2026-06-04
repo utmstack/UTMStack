@@ -10,35 +10,36 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
-	alerterrors "github.com/utmstack/utmstack/backend/modules/alerts/errors"
-	"github.com/utmstack/utmstack/backend/modules/audit/auditctx"
-	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
-	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 )
 
 type alertUsecase struct {
 	repo    connectors.AlertRepository
 	history connectors.HistoryRecorder
-	audit   audit_connectors.Logger
 }
 
 func NewAlertUsecase(
 	repo connectors.AlertRepository,
 	history connectors.HistoryRecorder,
-	audit audit_connectors.Logger,
 ) connectors.AlertUsecase {
-	return &alertUsecase{repo: repo, history: history, audit: audit}
+	return &alertUsecase{repo: repo, history: history}
 }
 
-func (u *alertUsecase) UpdateStatus(ctx context.Context, req dto.UpdateAlertStatusRequest) error {
+// resolveUser falls back to "system" when no authenticated user is present
+// (e.g. internal callers). The login is supplied by the handler from the
+// request context, matching the audit/identity-at-the-boundary convention.
+func resolveUser(userLogin string) string {
+	if userLogin == "" {
+		return "system"
+	}
+	return userLogin
+}
+
+func (u *alertUsecase) UpdateStatus(ctx context.Context, userLogin string, req dto.UpdateAlertStatusRequest) error {
 	if !domain.IsValid(domain.AlertStatus(req.Status)) {
-		return alerterrors.ErrInvalidAlertStatus
+		return domain.ErrInvalidAlertStatus
 	}
 
-	user := auditctx.UserLoginFrom(ctx)
-	if user == "" {
-		user = "system"
-	}
+	user := resolveUser(userLogin)
 
 	label := domain.StatusName(domain.AlertStatus(req.Status))
 
@@ -70,25 +71,15 @@ func (u *alertUsecase) UpdateStatus(ctx context.Context, req dto.UpdateAlertStat
 		}
 	}
 
-	// BUG-001: emits ALERT_NOTE_UPDATE_SUCCESS (not STATUS) — preserved verbatim from original.
-	u.audit.Log(ctx, audit_connectors.Event{
-		Action:    "alert.status.usecase.success",
-		EventType: audit_domain.ALERT_NOTE_UPDATE_SUCCESS,
-		Status:    audit_domain.StatusSuccess,
-	})
-
 	return nil
 }
 
-func (u *alertUsecase) UpdateNotes(ctx context.Context, alertID string, notes string) error {
+func (u *alertUsecase) UpdateNotes(ctx context.Context, userLogin string, alertID string, notes string) error {
 	if alertID == "" {
-		return alerterrors.ErrMissingAlertID
+		return domain.ErrMissingAlertID
 	}
 
-	user := auditctx.UserLoginFrom(ctx)
-	if user == "" {
-		user = "system"
-	}
+	user := resolveUser(userLogin)
 
 	if err := u.repo.UpdateNotes(ctx, alertID, notes); err != nil {
 		return err
@@ -103,11 +94,8 @@ func (u *alertUsecase) UpdateNotes(ctx context.Context, alertID string, notes st
 	return nil
 }
 
-func (u *alertUsecase) UpdateTags(ctx context.Context, req dto.UpdateAlertTagsRequest) error {
-	user := auditctx.UserLoginFrom(ctx)
-	if user == "" {
-		user = "system"
-	}
+func (u *alertUsecase) UpdateTags(ctx context.Context, userLogin string, req dto.UpdateAlertTagsRequest) error {
+	user := resolveUser(userLogin)
 
 	if err := u.repo.UpdateTags(ctx, req.AlertIDs, req.Tags); err != nil {
 		return err
@@ -122,11 +110,8 @@ func (u *alertUsecase) UpdateTags(ctx context.Context, req dto.UpdateAlertTagsRe
 	return nil
 }
 
-func (u *alertUsecase) ConvertToIncident(ctx context.Context, req dto.ConvertToIncidentRequest) error {
-	createdBy := auditctx.UserLoginFrom(ctx)
-	if createdBy == "" {
-		createdBy = "system"
-	}
+func (u *alertUsecase) ConvertToIncident(ctx context.Context, userLogin string, req dto.ConvertToIncidentRequest) error {
+	createdBy := resolveUser(userLogin)
 	createdAt := time.Now().UTC()
 
 	if err := u.repo.ConvertToIncident(ctx, req.AlertIDs, req.IncidentName, req.IncidentID, createdAt, createdBy, req.IncidentSource); err != nil {

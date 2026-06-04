@@ -24,7 +24,6 @@ import (
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
 	"github.com/utmstack/utmstack/backend/modules/socai"
-	threat_management "github.com/utmstack/utmstack/backend/modules/threat_management"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
 	"github.com/utmstack/utmstack/backend/pkg/env"
 	jwtpkg "github.com/utmstack/utmstack/backend/pkg/jwt"
@@ -63,7 +62,6 @@ type modules struct {
 	incidentResponse  *incident_response.Module
 	notifications     *notifications.Module
 	socAI             *socai.Module
-	threatManagement  *threat_management.Module
 	signer            *jwtpkg.Signer
 }
 
@@ -120,7 +118,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		osClient = nil
 	}
 
-	alertsMod := alerts.NewModule(db, osClient, auditMod.Logger(), env.Bool("ALERTS_SCHEDULER_ENABLED", false))
+	alertsMod := alerts.NewModule(db, osClient, env.Bool("ALERTS_SCHEDULER_ENABLED", false))
 
 	agentClient, agentErr := agentmanager.NewClient()
 	if agentErr != nil {
@@ -155,7 +153,6 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		assetMetrics:      assetMetricsMod,
 		incidentResponse:  incidentResponseMod,
 		socAI:             socai.NewModule(cfg.socAIBaseURL, cfg.internalKey),
-		threatManagement:  threat_management.NewModule(osClient),
 		incidents: incidents.NewModule(
 			db,
 			incidents_connectors.NewNoopMailer(),

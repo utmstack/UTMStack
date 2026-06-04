@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/appconfig/connectors"
 	"github.com/utmstack/utmstack/backend/modules/appconfig/domain"
 	"github.com/utmstack/utmstack/backend/modules/appconfig/dto"
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
 	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 type Handler struct {
@@ -30,7 +30,7 @@ func NewHandler(uc connectors.Usecase) *Handler {
 func (h *Handler) List(c *gin.Context) {
 	resp, err := h.usecase.List(c.Request.Context())
 	if err != nil {
-		logger.Error("config list failed: " + err.Error())
+		_ = catcher.Error("config list failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not list config"})
 		return
 	}
@@ -49,7 +49,7 @@ func (h *Handler) Get(c *gin.Context) {
 	key := c.Param("key")
 	resp, err := h.usecase.Get(c.Request.Context(), key)
 	if err != nil {
-		logger.Error("config get failed: " + err.Error())
+		_ = catcher.Error("config get failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not get config"})
 		return
 	}
@@ -89,7 +89,7 @@ func (h *Handler) Update(c *gin.Context) {
 	audit.Record(c, audit_connectors.Event{Action: "config.updated", ResourceType: "config", ResourceID: key},
 		audit_domain.CONFIG_CHANGED, audit_domain.CONFIG_CHANGED, err)
 	if err != nil {
-		logger.Error("config update failed: " + err.Error())
+		_ = catcher.Error("config update failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not save config"})
 		return
 	}
@@ -119,7 +119,7 @@ func (h *Handler) CheckMail(c *gin.Context) {
 	audit.Record(c, audit_connectors.Event{Action: "config.mail.checked", ResourceType: "config", ResourceID: "mail"},
 		audit_domain.CONFIG_CHANGED, audit_domain.CONFIG_CHANGED, err)
 	if err != nil {
-		logger.Error("config check mail failed: " + err.Error())
+		_ = catcher.Error("config check mail failed", err, nil)
 		c.JSON(http.StatusBadRequest, dto.CheckMailResponse{Success: false, Message: err.Error()})
 		return
 	}

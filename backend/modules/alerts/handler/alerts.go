@@ -6,6 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
+	"github.com/utmstack/utmstack/backend/modules/audit"
+	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
+	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 )
 
 type AlertHandler struct {
@@ -32,7 +35,9 @@ func (h *AlertHandler) UpdateStatus(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := h.usecase.UpdateStatus(c.Request.Context(), req); err != nil {
+	err := h.usecase.UpdateStatus(c.Request.Context(), c.GetString("user_login"), req)
+	audit.Record(c, audit_connectors.Event{Action: "alert.status"}, audit_domain.ALERT_UPDATE_ATTEMPT, audit_domain.ALERT_UPDATE_SUCCESS, err)
+	if err != nil {
 		writeAlertError(c, err)
 		return
 	}
@@ -64,7 +69,9 @@ func (h *AlertHandler) UpdateNotes(c *gin.Context) {
 	}
 	notes := string(bodyBytes)
 
-	if err := h.usecase.UpdateNotes(c.Request.Context(), alertID, notes); err != nil {
+	err = h.usecase.UpdateNotes(c.Request.Context(), c.GetString("user_login"), alertID, notes)
+	audit.Record(c, audit_connectors.Event{Action: "alert.notes"}, audit_domain.ALERT_NOTE_UPDATE_ATTEMPT, audit_domain.ALERT_NOTE_UPDATE_SUCCESS, err)
+	if err != nil {
 		writeAlertError(c, err)
 		return
 	}
@@ -87,7 +94,9 @@ func (h *AlertHandler) UpdateTags(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := h.usecase.UpdateTags(c.Request.Context(), req); err != nil {
+	err := h.usecase.UpdateTags(c.Request.Context(), c.GetString("user_login"), req)
+	audit.Record(c, audit_connectors.Event{Action: "alert.tags"}, audit_domain.ALERT_TAG_UPDATE_ATTEMPT, audit_domain.ALERT_TAG_UPDATE_SUCCESS, err)
+	if err != nil {
 		writeAlertError(c, err)
 		return
 	}
@@ -110,7 +119,9 @@ func (h *AlertHandler) ConvertToIncident(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := h.usecase.ConvertToIncident(c.Request.Context(), req); err != nil {
+	err := h.usecase.ConvertToIncident(c.Request.Context(), c.GetString("user_login"), req)
+	audit.Record(c, audit_connectors.Event{Action: "alert.convert_to_incident"}, audit_domain.ALERT_CONVERT_TO_INCIDENT_ATTEMPT, audit_domain.ALERT_CONVERT_TO_INCIDENT_SUCCESS, err)
+	if err != nil {
 		writeAlertError(c, err)
 		return
 	}

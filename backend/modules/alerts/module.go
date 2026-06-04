@@ -3,12 +3,11 @@ package alerts
 import (
 	"context"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alerts/handler"
 	"github.com/utmstack/utmstack/backend/modules/alerts/repository"
 	"github.com/utmstack/utmstack/backend/modules/alerts/usecase"
-	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
 	"gorm.io/gorm"
 )
@@ -17,9 +16,8 @@ type Module struct {
 	alertHandler        *handler.AlertHandler
 	alertUsecase        connectors.AlertUsecase
 	alertTagHandler     *handler.AlertTagHandler
-	alertTagUsecase     connectors.AlertTagUsecase
 	alertTagRuleHandler *handler.AlertTagRuleHandler
-	alertTagRuleUsecase connectors.AlertTagRuleUsecase
+	adversaryHandler    *handler.AdversaryHandler
 	scheduler           *usecase.Scheduler
 	schedulerEnabled    bool
 }
@@ -27,14 +25,13 @@ type Module struct {
 func NewModule(
 	db *gorm.DB,
 	osClient *ospkg.Client,
-	audit audit_connectors.Logger,
 	schedulerEnabled bool,
 ) *Module {
 	alertRepo := repository.NewOSAlertRepository(osClient)
 
 	historyRecorder := repository.NewHistoryRecorder(osClient)
 
-	alertUC := usecase.NewAlertUsecase(alertRepo, historyRecorder, audit)
+	alertUC := usecase.NewAlertUsecase(alertRepo, historyRecorder)
 	alertH := handler.NewAlertHandler(alertUC)
 
 	alertTagRepo := repository.NewAlertTagRepository(db)
@@ -47,13 +44,15 @@ func NewModule(
 
 	sched := usecase.NewScheduler(alertRepo, alertTagRuleRepo, alertTagRepo, historyRecorder)
 
+	adversaryUC := usecase.NewAdversaryUsecase(osClient)
+	adversaryH := handler.NewAdversaryHandler(adversaryUC)
+
 	return &Module{
 		alertHandler:        alertH,
 		alertUsecase:        alertUC,
 		alertTagHandler:     alertTagH,
-		alertTagUsecase:     alertTagUC,
 		alertTagRuleHandler: alertTagRuleH,
-		alertTagRuleUsecase: alertTagRuleUC,
+		adversaryHandler:    adversaryH,
 		scheduler:           sched,
 		schedulerEnabled:    schedulerEnabled,
 	}
@@ -61,10 +60,10 @@ func NewModule(
 
 func (m *Module) Start(ctx context.Context) {
 	if !m.schedulerEnabled {
-		logger.Info("alerts scheduler: disabled (ALERTS_SCHEDULER_ENABLED=false)")
+		catcher.Info("alerts scheduler: disabled (ALERTS_SCHEDULER_ENABLED=false)", nil)
 		return
 	}
-	logger.Info("alerts scheduler: enabled — launching goroutine")
+	catcher.Info("alerts scheduler: enabled — launching goroutine", nil)
 	go m.scheduler.Start(ctx)
 }
 
@@ -74,14 +73,10 @@ func (m *Module) GetAlertUsecase() connectors.AlertUsecase { return m.alertUseca
 
 func (m *Module) GetAlertTagHandler() *handler.AlertTagHandler { return m.alertTagHandler }
 
-func (m *Module) GetAlertTagUsecase() connectors.AlertTagUsecase { return m.alertTagUsecase }
-
 func (m *Module) GetAlertTagRuleHandler() *handler.AlertTagRuleHandler {
 	return m.alertTagRuleHandler
 }
 
-func (m *Module) GetAlertTagRuleUsecase() connectors.AlertTagRuleUsecase {
-	return m.alertTagRuleUsecase
-}
+func (m *Module) GetAdversaryHandler() *handler.AdversaryHandler { return m.adversaryHandler }
 
 func (m *Module) IsSchedulerEnabled() bool { return m.schedulerEnabled }

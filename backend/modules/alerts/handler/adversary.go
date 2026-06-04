@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/utmstack/utmstack/backend/modules/threat_management/connectors"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
@@ -20,7 +20,7 @@ func NewAdversaryHandler(uc connectors.AdversaryUsecase) *AdversaryHandler {
 // SearchAdversaryAlerts aggregates V11 alerts grouped by adversary host.
 //
 // @Summary     Fetch adversary alerts grouped by adversary host
-// @Tags        Threat Management
+// @Tags        Alerts
 // @Security    BearerAuth
 // @Accept      json
 // @Produce     json
@@ -35,7 +35,7 @@ func (h *AdversaryHandler) SearchAdversaryAlerts(c *gin.Context) {
 
 	results, err := h.usecase.FetchAdversaryAlerts(c.Request.Context(), filters)
 	if err != nil {
-		logger.Error("adversary alerts: " + err.Error())
+		_ = catcher.Error("adversary alerts", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "operation failed"})
 		return
 	}

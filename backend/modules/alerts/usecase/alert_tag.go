@@ -6,7 +6,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
-	alerterrors "github.com/utmstack/utmstack/backend/modules/alerts/errors"
 )
 
 type alertTagUsecase struct {
@@ -32,7 +31,7 @@ func (u *alertTagUsecase) Update(ctx context.Context, req dto.UpdateAlertTagRequ
 		return nil, err
 	}
 	if existing == nil {
-		return nil, alerterrors.ErrAlertTagNotFound
+		return nil, domain.ErrAlertTagNotFound
 	}
 
 	existing.TagName = req.TagName
@@ -64,7 +63,7 @@ func (u *alertTagUsecase) GetByID(ctx context.Context, id uint64) (*domain.UtmAl
 		return nil, err
 	}
 	if row == nil {
-		return nil, alerterrors.ErrAlertTagNotFound
+		return nil, domain.ErrAlertTagNotFound
 	}
 	return row, nil
 }
@@ -75,7 +74,7 @@ func (u *alertTagUsecase) Delete(ctx context.Context, id uint64) error {
 		return err
 	}
 	if existing == nil {
-		return alerterrors.ErrAlertTagNotFound
+		return domain.ErrAlertTagNotFound
 	}
 	return u.repo.Delete(ctx, id)
 }

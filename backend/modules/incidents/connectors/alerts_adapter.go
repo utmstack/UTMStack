@@ -16,7 +16,10 @@ func NewAlertsGatewayFromUsecase(uc alerts_connectors.AlertUsecase) AlertsGatewa
 }
 
 func (a *alertsGatewayAdapter) UpdateAlertStatus(ctx context.Context, alertIDs []string, status int, observation string) error {
-	return a.uc.UpdateStatus(ctx, alerts_dto.UpdateAlertStatusRequest{
+	// TODO(incidents): thread the acting user through AlertsGateway so the alert
+	// history attributes incident-driven status changes to the real user instead
+	// of "system". Empty login → alerts usecase resolves it to "system".
+	return a.uc.UpdateStatus(ctx, "", alerts_dto.UpdateAlertStatusRequest{
 		AlertIDs:          alertIDs,
 		Status:            status,
 		StatusObservation: observation,
