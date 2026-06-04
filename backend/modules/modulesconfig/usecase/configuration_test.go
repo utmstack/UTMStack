@@ -7,7 +7,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/modulesconfig/connectors"
 	"github.com/utmstack/utmstack/backend/modules/modulesconfig/domain"
 	"github.com/utmstack/utmstack/backend/modules/modulesconfig/dto"
-	"github.com/utmstack/utmstack/backend/pkg/eventprocessor"
 	"github.com/utmstack/utmstack/backend/pkg/secret"
 )
 
@@ -45,20 +44,6 @@ func (r *fakeModuleRepo) CountActiveByName(context.Context, string) (int64, erro
 	return 0, nil
 }
 
-type fakeEventProc struct {
-	called  bool
-	payload eventprocessor.ModulePayload
-}
-
-func (e *fakeEventProc) UpdateModule(_ context.Context, _ string, p eventprocessor.ModulePayload) error {
-	e.called = true
-	e.payload = p
-	return nil
-}
-func (e *fakeEventProc) ValidateModule(context.Context, string, eventprocessor.ModulePayload) (*eventprocessor.ValidationResult, error) {
-	return &eventprocessor.ValidationResult{}, nil
-}
-
 func newCipher(t *testing.T) *secret.Cipher {
 	t.Helper()
 	c, err := secret.NewCipher("test-encryption-key")
@@ -68,13 +53,19 @@ func newCipher(t *testing.T) *secret.Cipher {
 	return c
 }
 
+func factoryWith(name string) connectors.ModuleFactory {
+	f := NewModuleFactory()
+	f.Register(stubKind{name: name})
+	return f
+}
+
 // Masked-value passthrough: when the UI re-PUTs a sensitive field whose value
 // is the mask sentinel, the usecase must drop that row from the write set so
 // the stored ciphertext isn't clobbered.
 func TestConfigUpdate_DropsMaskedSensitive(t *testing.T) {
 	configs := &fakeConfigRepo{}
 	modules := &fakeModuleRepo{module: domain.UtmModule{ID: 1, ModuleName: "SOPHOS"}}
-	uc := NewConfigUsecase(configs, modules, NewModuleFactory(), newCipher(t), &fakeEventProc{})
+	uc := NewConfigUsecase(configs, modules, factoryWith("SOPHOS"), newCipher(t))
 
 	err := uc.Update(context.Background(), dto.UpdateGroupConfigurationRequest{
 		ModuleID: 1,
@@ -99,7 +90,7 @@ func TestConfigUpdate_DropsMaskedSensitive(t *testing.T) {
 func TestConfigUpdate_RejectsRequiredEmpty(t *testing.T) {
 	configs := &fakeConfigRepo{}
 	modules := &fakeModuleRepo{module: domain.UtmModule{ID: 1, ModuleName: "SOPHOS"}}
-	uc := NewConfigUsecase(configs, modules, NewModuleFactory(), newCipher(t), &fakeEventProc{})
+	uc := NewConfigUsecase(configs, modules, factoryWith("SOPHOS"), newCipher(t))
 
 	err := uc.Update(context.Background(), dto.UpdateGroupConfigurationRequest{
 		ModuleID: 1,
@@ -121,7 +112,7 @@ func TestConfigUpdate_EncryptsSensitiveValues(t *testing.T) {
 	configs := &fakeConfigRepo{}
 	modules := &fakeModuleRepo{module: domain.UtmModule{ID: 1, ModuleName: "SOPHOS"}}
 	cipher := newCipher(t)
-	uc := NewConfigUsecase(configs, modules, NewModuleFactory(), cipher, &fakeEventProc{})
+	uc := NewConfigUsecase(configs, modules, factoryWith("SOPHOS"), cipher)
 
 	const plain = "super-secret-token"
 	err := uc.Update(context.Background(), dto.UpdateGroupConfigurationRequest{
@@ -153,7 +144,7 @@ func TestConfigUpdate_EncryptsSensitiveValues(t *testing.T) {
 func TestConfigUpdate_FlipsNeedsRestart(t *testing.T) {
 	configs := &fakeConfigRepo{}
 	modules := &fakeModuleRepo{module: domain.UtmModule{ID: 1, ModuleName: "SOPHOS", NeedsRestart: false}}
-	uc := NewConfigUsecase(configs, modules, NewModuleFactory(), newCipher(t), &fakeEventProc{})
+	uc := NewConfigUsecase(configs, modules, factoryWith("SOPHOS"), newCipher(t))
 
 	err := uc.Update(context.Background(), dto.UpdateGroupConfigurationRequest{
 		ModuleID: 1,
@@ -173,7 +164,7 @@ func TestConfigUpdate_FlipsNeedsRestart(t *testing.T) {
 func TestConfigUpdate_DoesNotFlipForNonRestartModule(t *testing.T) {
 	configs := &fakeConfigRepo{}
 	modules := &fakeModuleRepo{module: domain.UtmModule{ID: 1, ModuleName: "LINUX_LOGS", NeedsRestart: false}}
-	uc := NewConfigUsecase(configs, modules, NewModuleFactory(), newCipher(t), &fakeEventProc{})
+	uc := NewConfigUsecase(configs, modules, factoryWith("LINUX_LOGS"), newCipher(t))
 
 	err := uc.Update(context.Background(), dto.UpdateGroupConfigurationRequest{
 		ModuleID: 1,
