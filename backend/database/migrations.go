@@ -13,6 +13,7 @@ import (
 	incidents_domain "github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	indexpattern_domain "github.com/utmstack/utmstack/backend/modules/indexpattern/domain"
 	logstash_domain "github.com/utmstack/utmstack/backend/modules/logstash/domain"
+	modulesconfig_domain "github.com/utmstack/utmstack/backend/modules/modulesconfig/domain"
 	notifications_domain "github.com/utmstack/utmstack/backend/modules/notifications/domain"
 	arr_domain "github.com/utmstack/utmstack/backend/modules/soar/domain"
 	"github.com/utmstack/utmstack/backend/pkg/logger"
@@ -54,6 +55,9 @@ func Models() []any {
 		logstash_domain.UtmLogstashPipeline{},
 		logstash_domain.UtmGroupLogstashPipelineFilters{},
 		indexpattern_domain.UtmIndexPattern{},
+		modulesconfig_domain.UtmModule{},
+		modulesconfig_domain.UtmModuleGroup{},
+		modulesconfig_domain.UtmModuleGroupConfiguration{},
 		collectors_domain.UtmCollector{},
 		incidents_domain.UtmIncident{},
 		incidents_domain.UtmIncidentAlert{},

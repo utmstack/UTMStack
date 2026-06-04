@@ -17,12 +17,17 @@ import (
 	incidents_connectors "github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/indexpattern"
 	"github.com/utmstack/utmstack/backend/modules/logstash"
+	"github.com/utmstack/utmstack/backend/modules/modulesconfig"
+	"github.com/utmstack/utmstack/backend/modules/modulesconfig/modulekinds"
+	mcfg_repository "github.com/utmstack/utmstack/backend/modules/modulesconfig/repository"
+	mcfg_usecase "github.com/utmstack/utmstack/backend/modules/modulesconfig/usecase"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
 	"github.com/utmstack/utmstack/backend/modules/socai"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
 	"github.com/utmstack/utmstack/backend/pkg/env"
+	"github.com/utmstack/utmstack/backend/pkg/eventprocessor"
 	jwtpkg "github.com/utmstack/utmstack/backend/pkg/jwt"
 	"github.com/utmstack/utmstack/backend/pkg/logger"
 	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
@@ -53,6 +58,7 @@ type modules struct {
 	datainput         *datainput.Module
 	logstash          *logstash.Module
 	indexpattern      *indexpattern.Module
+	modulesconfig     *modulesconfig.Module
 	opensearchGateway *opensearchgw.Module
 	incidents         *incidents.Module
 	notifications     *notifications.Module
@@ -128,6 +134,20 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	logstashMod := logstash.NewModule(db, osClient, auditMod.Logger())
 	indexpatternMod := indexpattern.NewModule(db, osCfg)
 
+	eventProcClient := eventprocessor.NewClient(cfg.eventProcessorHost, cfg.eventProcessorPort, cfg.internalKey)
+	mcfgModuleRepo := mcfg_repository.NewModuleRepository(db)
+	mcfgGroupRepo := mcfg_repository.NewGroupRepository(db)
+	mcfgConfigRepo := mcfg_repository.NewConfigRepository(db)
+	mcfgIdxToggler := mcfg_repository.NewIndexPatternToggler(db)
+	mcfgLsToggler := mcfg_repository.NewLogstashFilterToggler(db)
+	mcfgMenuToggler := mcfg_repository.NewNoopMenuToggler()
+	mcfgFactory := mcfg_usecase.NewModuleFactory()
+	modulekinds.RegisterAll(mcfgFactory)
+	mcfgConfigUC := mcfg_usecase.NewConfigUsecase(mcfgConfigRepo, mcfgModuleRepo, mcfgFactory, cipher, eventProcClient)
+	mcfgGroupUC := mcfg_usecase.NewGroupUsecase(mcfgGroupRepo, mcfgConfigRepo, mcfgModuleRepo, mcfgFactory, cipher, eventProcClient)
+	mcfgModuleUC := mcfg_usecase.NewModuleUsecase(mcfgModuleRepo, mcfgFactory, mcfgIdxToggler, mcfgLsToggler, mcfgMenuToggler, eventProcClient)
+	modulesconfigMod := modulesconfig.NewModule(mcfgModuleUC, mcfgGroupUC, mcfgConfigUC, mcfgFactory)
+
 	return &modules{
 		iam:               iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, cfg.uploadDir),
 		audit:             auditMod,
@@ -140,6 +160,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		datainput:         datainputMod,
 		logstash:          logstashMod,
 		indexpattern:      indexpatternMod,
+		modulesconfig:     modulesconfigMod,
 		opensearchGateway: opensearchgw.NewModule(osClient),
 		socAI:             socai.NewModule(cfg.socAIBaseURL, cfg.internalKey),
 		incidents: incidents.NewModule(
