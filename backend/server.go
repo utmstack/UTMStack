@@ -23,6 +23,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/incidents"
 	"github.com/utmstack/utmstack/backend/modules/indexpattern"
 	"github.com/utmstack/utmstack/backend/modules/logstash"
+	"github.com/utmstack/utmstack/backend/modules/modulesconfig"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
@@ -94,6 +95,7 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	datainput.RegisterRoutes(api, m.datainput, userAuth)
 	indexpattern.RegisterRoutes(api, m.indexpattern, userAuth)
 	logstash.RegisterRoutes(api, m.logstash, userAuth)
+	modulesconfig.RegisterRoutes(api, m.modulesconfig, userAuth)
 	opensearchgw.RegisterRoutes(api, m.opensearchGateway, userAuth)
 	incidents.RegisterRoutes(api, m.incidents, userAuth)
 	notifications.RegisterRoutes(api, m.notifications, userAuth)
