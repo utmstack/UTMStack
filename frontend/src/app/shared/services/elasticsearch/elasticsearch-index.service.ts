@@ -1,16 +1,18 @@
 import {HttpClient, HttpResponse} from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, Subscription, Subject} from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
 import {ElasticSearchFieldInfoType} from '../../types/elasticsearch/elastic-search-field-info.type';
 import {ElasticsearchIndexType} from '../../types/elasticsearch/elasticsearch-index.type';
 import {createRequestOption} from '../../util/request-util';
+import { finalize, shareReplay } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ElasticSearchIndexService {
   public resourceUrl = SERVER_API_URL + 'api/elasticsearch/';
+  private inFlightRequests = new Map<string, Observable<any>>();
 
   constructor(private http: HttpClient) {
   }
@@ -40,7 +42,16 @@ export class ElasticSearchIndexService {
   }
 
   getValuesWithCount(rq) {
-    return this.http.post(this.resourceUrl + 'property/values-with-count', rq, {observe: 'response'});
+    const key = JSON.stringify(rq);
+    let req = this.inFlightRequests.get(key);
+    if (!req) {
+      req = this.http.post(this.resourceUrl + 'property/values-with-count', rq, {observe: 'response'}).pipe(
+        finalize(() => this.inFlightRequests.delete(key)),
+        shareReplay(1)
+      );
+      this.inFlightRequests.set(key, req);
+    }
+    return req;
   }
 
   deleteIndexes(indexes: string[]) {
