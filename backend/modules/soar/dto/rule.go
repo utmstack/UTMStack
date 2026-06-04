@@ -21,8 +21,6 @@ type TemplateDigest struct {
 }
 
 type CreateRuleRequest struct {
-	// ID must not be set on create; if a caller supplies it the handler returns 400.
-	// Matches Java: if (dto.getId() != null) return BadRequest.
 	ID             *int64           `json:"id"`
 	Name           string           `json:"name"           binding:"required,max=150"`
 	Description    string           `json:"description"    binding:"omitempty,max=512"`

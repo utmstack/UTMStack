@@ -10,14 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/dto"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/usecase"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
+	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 type sqlUsecase interface {
 	SearchSQL(ctx context.Context, sqlDto dto.SqlSearchDto, page, size int) ([]map[string]any, int64, error)
-	SearchCSV(ctx context.Context, filters []common_models.FilterType, top int, indexPattern string, columns []string) ([]map[string]any, error)
-	ExportCSV(hits []map[string]any, columns []string, w io.Writer) error
+	SearchCSV(ctx context.Context, filters []common_models.FilterType, top int, indexPattern string, columns []dto.DataColumn) ([]map[string]any, error)
+	ExportCSV(hits []map[string]any, columns []dto.DataColumn, w io.Writer) error
 }
 
 type SQLHandler struct {

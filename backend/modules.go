@@ -6,7 +6,6 @@ import (
 	"github.com/utmstack/utmstack/backend/internal/mail"
 	"github.com/utmstack/utmstack/backend/modules/alerts"
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
-	asset_metrics "github.com/utmstack/utmstack/backend/modules/asset_metrics"
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	"github.com/utmstack/utmstack/backend/modules/collectors"
 	"github.com/utmstack/utmstack/backend/modules/correlation"
@@ -14,8 +13,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/iam"
 	iam_repository "github.com/utmstack/utmstack/backend/modules/iam/repository"
 	iam_usecase "github.com/utmstack/utmstack/backend/modules/iam/usecase"
-	incident_response "github.com/utmstack/utmstack/backend/modules/incident_response"
-	ir_connectors "github.com/utmstack/utmstack/backend/modules/incident_response/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents"
 	incidents_connectors "github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/indexpattern"
@@ -57,9 +54,7 @@ type modules struct {
 	logstash          *logstash.Module
 	indexpattern      *indexpattern.Module
 	opensearchGateway *opensearchgw.Module
-	assetMetrics      *asset_metrics.Module
 	incidents         *incidents.Module
-	incidentResponse  *incident_response.Module
 	notifications     *notifications.Module
 	socAI             *socai.Module
 	signer            *jwtpkg.Signer
@@ -126,16 +121,12 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		agentClient = nil
 	}
 
-	soarMod := soar.NewModule(db)
+	soarMod := soar.NewModule(db, agentClient, signer)
 	collectorsMod := collectors.NewModule(db, agentClient)
 	datainputMod := datainput.NewModule(db)
 	correlationMod := correlation.NewModule(db, auditMod.Logger(), datainputMod.GetReader())
 	logstashMod := logstash.NewModule(db, osClient, auditMod.Logger())
 	indexpatternMod := indexpattern.NewModule(db, osCfg)
-	assetMetricsMod := asset_metrics.NewModule(db)
-
-	irCipherAdapter := ir_connectors.NewSecretCipherAdapter(cipher)
-	incidentResponseMod := incident_response.NewModule(db, irCipherAdapter, agentClient, signer)
 
 	return &modules{
 		iam:               iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, cfg.uploadDir),
@@ -150,8 +141,6 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		logstash:          logstashMod,
 		indexpattern:      indexpatternMod,
 		opensearchGateway: opensearchgw.NewModule(osClient),
-		assetMetrics:      assetMetricsMod,
-		incidentResponse:  incidentResponseMod,
 		socAI:             socai.NewModule(cfg.socAIBaseURL, cfg.internalKey),
 		incidents: incidents.NewModule(
 			db,

@@ -15,13 +15,11 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/utmstack/utmstack/backend/modules/alerts"
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
-	asset_metrics "github.com/utmstack/utmstack/backend/modules/asset_metrics"
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	"github.com/utmstack/utmstack/backend/modules/collectors"
 	"github.com/utmstack/utmstack/backend/modules/correlation"
 	"github.com/utmstack/utmstack/backend/modules/datainput"
 	"github.com/utmstack/utmstack/backend/modules/iam"
-	incident_response "github.com/utmstack/utmstack/backend/modules/incident_response"
 	"github.com/utmstack/utmstack/backend/modules/incidents"
 	"github.com/utmstack/utmstack/backend/modules/indexpattern"
 	"github.com/utmstack/utmstack/backend/modules/logstash"
@@ -97,9 +95,7 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	indexpattern.RegisterRoutes(api, m.indexpattern, userAuth)
 	logstash.RegisterRoutes(api, m.logstash, userAuth, m.audit.Logger())
 	opensearchgw.RegisterRoutes(api, m.opensearchGateway, userAuth)
-	asset_metrics.RegisterRoutes(api, m.assetMetrics)
 	incidents.RegisterRoutes(api, m.incidents, userAuth)
-	incident_response.RegisterRoutes(api, m.incidentResponse, userAuth)
 	notifications.RegisterRoutes(api, m.notifications, userAuth)
 	socai.RegisterRoutes(api, m.socAI, userAuth)
 }

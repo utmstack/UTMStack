@@ -5,13 +5,16 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/soar/handler"
 	"github.com/utmstack/utmstack/backend/modules/soar/repository"
 	"github.com/utmstack/utmstack/backend/modules/soar/usecase"
+
+	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
+	jwtpkg "github.com/utmstack/utmstack/backend/pkg/jwt"
 	"gorm.io/gorm"
 )
 
-// Module is the SOAR control-plane: it owns rule/template CRUD and the execution
-// history. Real-time rule evaluation lives in the active-response plugin and
-// command execution in the agent-manager, so this module no longer evaluates,
-// dispatches, or schedules anything.
+// Module is the SOAR plane. It owns:
+//   - the rule/template control-plane (CRUD + execution history); real-time rule
+//     evaluation lives in the active-response plugin.
+//   - the live command WebSocket that runs commands on agents via agent-manager.
 type Module struct {
 	ruleHandler      *handler.RuleHandler
 	templateHandler  *handler.TemplateHandler
@@ -20,9 +23,16 @@ type Module struct {
 	ruleUsecase      connectors.RuleUsecase
 	templateUsecase  connectors.TemplateUsecase
 	executionUsecase connectors.ExecutionUsecase
+
+	commandWSHandler *handler.CommandWSHandler
 }
 
-func NewModule(db *gorm.DB) *Module {
+func NewModule(
+	db *gorm.DB,
+	agentClient *agentmanager.AgentManagerClient,
+	signer *jwtpkg.Signer,
+) *Module {
+	// Rule control-plane.
 	ruleRepo := repository.NewRuleRepository(db)
 	templateRepo := repository.NewTemplateRepository(db)
 	resolveRepo := repository.NewResolveFilterRepository(db)
@@ -39,6 +49,8 @@ func NewModule(db *gorm.DB) *Module {
 		ruleUsecase:      ruleUC,
 		templateUsecase:  templateUC,
 		executionUsecase: executionUC,
+
+		commandWSHandler: handler.NewCommandWSHandler(agentClient, signer),
 	}
 }
 

@@ -33,5 +33,15 @@ type CsvExportingParams struct {
 	Filters      []common_models.FilterType `json:"filters"`
 	Top          int                        `json:"top"`
 	IndexPattern string                     `json:"indexPattern"`
-	Columns      []string                   `json:"columns"`
+	Columns      []DataColumn               `json:"columns"`
+}
+
+// DataColumn describes one CSV column, mirroring the legacy DataColumn shape so
+// the frontend payload stays compatible: Label is the header, Field is the
+// (possibly .keyword-suffixed / dotted) source path, Type drives value formatting.
+type DataColumn struct {
+	Label   string `json:"label"`
+	Field   string `json:"field"`
+	Type    string `json:"type"`
+	Visible bool   `json:"visible"`
 }

@@ -5,13 +5,11 @@ import (
 
 	alerts_domain "github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	appconfig_domain "github.com/utmstack/utmstack/backend/modules/appconfig/domain"
-	asset_metrics_domain "github.com/utmstack/utmstack/backend/modules/asset_metrics/domain"
 	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	collectors_domain "github.com/utmstack/utmstack/backend/modules/collectors/domain"
 	correlation_domain "github.com/utmstack/utmstack/backend/modules/correlation/domain"
 	datainput_domain "github.com/utmstack/utmstack/backend/modules/datainput/domain"
 	iam_domain "github.com/utmstack/utmstack/backend/modules/iam/domain"
-	ir_domain "github.com/utmstack/utmstack/backend/modules/incident_response/domain"
 	incidents_domain "github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	indexpattern_domain "github.com/utmstack/utmstack/backend/modules/indexpattern/domain"
 	logstash_domain "github.com/utmstack/utmstack/backend/modules/logstash/domain"
@@ -57,15 +55,10 @@ func Models() []any {
 		logstash_domain.UtmGroupLogstashPipelineFilters{},
 		indexpattern_domain.UtmIndexPattern{},
 		collectors_domain.UtmCollector{},
-		asset_metrics_domain.UtmAssetMetric{},
 		incidents_domain.UtmIncident{},
 		incidents_domain.UtmIncidentAlert{},
 		incidents_domain.UtmIncidentNote{},
 		incidents_domain.UtmIncidentHistory{},
-		ir_domain.UtmIncidentAction{},
-		ir_domain.UtmIncidentActionCommand{},
-		ir_domain.UtmIncidentJob{},
-		ir_domain.UtmIncidentVariable{},
 		notifications_domain.UtmNotification{},
 	}
 }

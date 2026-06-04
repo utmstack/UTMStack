@@ -9,8 +9,8 @@ import (
 
 	"github.com/utmstack/utmstack/backend/modules/opensearch/connectors"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/dto"
-	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
+	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
 )
 
 type Gateway struct {
@@ -223,7 +223,7 @@ func (g *Gateway) SearchCSV(
 	filters []common_models.FilterType,
 	top int,
 	indexPattern string,
-	columns []string,
+	columns []dto.DataColumn,
 ) ([]map[string]any, error) {
 	hits, _, err := g.Search(ctx, filters, top, indexPattern, false, 1, top, "", "")
 	if err != nil {
@@ -254,7 +254,7 @@ func (g *Gateway) SearchCSV(
 	return hits, nil
 }
 
-func (g *Gateway) ExportCSV(hits []map[string]any, columns []string, w io.Writer) error {
+func (g *Gateway) ExportCSV(hits []map[string]any, columns []dto.DataColumn, w io.Writer) error {
 	return ExportCSV(hits, columns, w)
 }
 
@@ -275,9 +275,9 @@ func (g *Gateway) ClusterStatus(ctx context.Context) (*dto.ClusterStatusResponse
 
 var reTrailingSemicolons = regexp.MustCompile(`;+$`)
 
-func includesColumn(columns []string, target string) bool {
+func includesColumn(columns []dto.DataColumn, target string) bool {
 	for _, c := range columns {
-		if c == target {
+		if stripKeyword(c.Field) == target {
 			return true
 		}
 	}

@@ -10,19 +10,25 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	th := m.GetTemplateHandler()
 	eh := m.GetExecutionHandler()
 
+	read := middleware.RequirePermission("soar.read")
+	write := middleware.RequirePermission("soar.write")
+
 	g := api.Group("/soar", userAuth)
 
 	// Response rules
 	rg := g.Group("/rules")
-	rg.POST("", middleware.RequirePermission("soar.write"), rh.Create)
-	rg.PUT("", middleware.RequirePermission("soar.write"), rh.Update)
-	rg.GET("", middleware.RequirePermission("soar.read"), rh.List)
-	rg.GET("/resolve-filter-values", middleware.RequirePermission("soar.read"), rh.ResolveFilterValues) // BEFORE /:id
-	rg.GET("/:id", middleware.RequirePermission("soar.read"), rh.GetByID)
+	rg.POST("", write, rh.Create)
+	rg.PUT("", write, rh.Update)
+	rg.GET("", read, rh.List)
+	rg.GET("/resolve-filter-values", read, rh.ResolveFilterValues) // BEFORE /:id
+	rg.GET("/:id", read, rh.GetByID)
 
 	// Reusable action templates
-	g.GET("/action-templates", middleware.RequirePermission("soar.read"), th.List)
+	g.GET("/action-templates", read, th.List)
 
 	// Rule executions
-	g.GET("/rule-executions", middleware.RequirePermission("soar.read"), eh.List)
+	g.GET("/rule-executions", read, eh.List)
+
+	// Live command execution (interactive console).
+	api.GET("/soar/ws/command/:hostname", m.commandWSHandler.CommandStream)
 }

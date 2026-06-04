@@ -37,6 +37,42 @@ DROP TABLE IF EXISTS utm_alert_last;
 -- onward. Pre-migration history is intentionally not carried over.
 DROP TABLE IF EXISTS utm_alert_log;
 
+-- Drop the asset-metrics table. Its only producers were the legacy network_scan
+-- services (UtmNetworkScanService / UtmAssetGroupService), which are not ported,
+-- so nothing in the Go stack reads or writes it. When network_scan is ported it
+-- can reintroduce its own metrics storage.
+DROP TABLE IF EXISTS utm_asset_metrics;
+
+-- Drop the agent-manager registry table. It was dead JHipster scaffolding in the
+-- legacy backend: an empty @SuppressWarnings("unused") repository that was never
+-- injected, never seeded, never read or written. Nothing in the Go stack (backend,
+-- agent-manager service or agents) references it.
+DROP TABLE IF EXISTS utm_agent_manager;
+
+-- Drop the SOC AI processing-request table. It was dead code in the legacy backend
+-- (entity/repo/service with zero references) and was deliberately not ported: the
+-- Go socai module is a pure HTTP passthrough to SOC_AI_BASE_URL with no DB.
+DROP TABLE IF EXISTS utm_alert_socai_processing_request;
+
+-- Drop the licensing/client table. The Go backend validates the license against
+-- the LICENSE file directly instead of a DB row, so utm_client is obsolete. It
+-- was created/seeded by the installer (now removed there too) and only consumed
+-- by the legacy Angular license module; the new stack does not reference it.
+DROP TABLE IF EXISTS utm_client;
+
+-- Drop the incident-response action/command/job/variable tables. This was a
+-- designed-but-never-finished feature: the predefined "actions" (BLOCK_IP,
+-- ISOLATE_HOST, RUN_CMD, …), their per-OS commands and automation variables were
+-- seeded and CRUD-able, jobs could be created, but no processor ever dispatched a
+-- job and the CRUD screens were unreachable in the legacy frontend. The only live
+-- command path is the /soar/ws/command WebSocket, which runs raw commands against
+-- the agent-manager — it no longer interpolates variables or masks secrets, so
+-- none of these tables have any consumer left.
+DROP TABLE IF EXISTS utm_incident_jobs;
+DROP TABLE IF EXISTS utm_incident_action_command;
+DROP TABLE IF EXISTS utm_incident_actions;
+DROP TABLE IF EXISTS utm_incident_variables;
+
 -- IAM: roles live in jhi_authority (name = the role id). Membership is read
 -- straight from jhi_user_authority (no break on existing installs).
 INSERT INTO jhi_authority (name, name_show, description) VALUES

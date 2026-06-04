@@ -6,9 +6,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/soar/dto"
 )
 
-// ListResult is the return type for all paginated list operations.
-// The handler writes the items as a bare JSON array and the total as
-// X-Total-Count header (matching Java's Spring Page response contract).
 type ListResult[T any] struct {
 	Items []T
 	Total int64
