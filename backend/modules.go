@@ -144,7 +144,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	modulekinds.RegisterAll(mcfgFactory)
 	mcfgConfigUC := mcfg_usecase.NewConfigUsecase(mcfgConfigRepo, mcfgModuleRepo, mcfgFactory, cipher )
 	mcfgGroupUC := mcfg_usecase.NewGroupUsecase(mcfgGroupRepo, mcfgConfigRepo, mcfgModuleRepo, mcfgFactory, cipher)
-	mcfgModuleUC := mcfg_usecase.NewModuleUsecase(mcfgModuleRepo, mcfgFactory, mcfgIdxToggler, mcfgLsToggler, mcfgMenuToggler)
+	mcfgModuleUC := mcfg_usecase.NewModuleUsecase(mcfgModuleRepo, mcfgGroupRepo, mcfgConfigRepo, mcfgFactory, mcfgIdxToggler, mcfgLsToggler, mcfgMenuToggler)
 	modulesconfigMod := modulesconfig.NewModule(mcfgModuleUC, mcfgGroupUC, mcfgConfigUC, mcfgFactory)
 
 	return &modules{

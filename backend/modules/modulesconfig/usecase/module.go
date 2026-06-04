@@ -65,10 +65,32 @@ func (u *moduleUsecase) ActivateDeactivate(ctx context.Context, req dto.ModuleAc
 		return nil, err
 	}
 
-	if u.eventProc != nil {
-		if perr := u.eventProc.UpdateModule(ctx, fresh.ModuleName, dto.ToEventProcessorPayload(*fresh)); perr != nil {
-			return nil, fmt.Errorf("event-processor publish failed: %w", perr)
+	fact_module,ok := u.factory.Get(module.ModuleName)
+	if !ok {
+		return nil, fmt.Errorf("module %s implementation not found",module.ModuleName)
+	}
+
+	toSave := make([]domain.UtmModuleGroupConfiguration, 0)
+
+	for _,modulegroup := range fresh.ModuleGroups{
+		for _,config := range modulegroup.ModuleGroupConfigurations{
+			toSave = append(toSave, domain.UtmModuleGroupConfiguration{
+					GroupID:		modulegroup.ID,
+					ConfKey: 		config.ConfKey,
+					ConfValue:  	config.ConfValue,
+					ConfName:		config.ConfName,
+					ConfDescription: config.ConfDescription,
+					ConfDataType:   config.ConfDataType,
+					ConfRequired:	config.ConfRequired,
+					ConfOptions:	config.ConfOptions,
+					ConfVisibility: config.ConfVisibility,
+			})
 		}
+	}
+
+
+	if perr := fact_module.UpdateModule(ctx, fresh.ModuleName,toSave ); perr != nil {
+		return nil, fmt.Errorf("event-processor publish failed: %w", perr)
 	}
 
 	resp := dto.FromModule(*fresh, false)

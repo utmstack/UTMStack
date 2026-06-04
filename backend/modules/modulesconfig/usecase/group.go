@@ -131,14 +131,17 @@ func (u *groupUsecase) Delete(ctx context.Context, id int64) error {
 		return err
 	}
 
-	if u.eventProc == nil {
-		return nil
-	}
 	module, err := u.modules.GetByID(ctx, moduleID)
 	if err != nil {
 		return err
 	}
-	if perr := u.eventProc.UpdateModule(ctx, module.ModuleName, dto.ToEventProcessorPayload(*module)); perr != nil {
+
+	fact_module,ok:=u.factory.Get(module.ModuleName)
+	if !ok {
+		return fmt.Errorf("module %s not found",module.ModuleName)
+	}
+
+	if perr := fact_module.UpdateModule(ctx, module.ModuleName,nil ); perr != nil {
 		return fmt.Errorf("event-processor publish failed: %w", perr)
 	}
 	return nil
