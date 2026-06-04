@@ -7,9 +7,49 @@ package baseline
 
 import (
 	"context"
+	"fmt"
+	"net/http"
+	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/modulesconfig/domain"
 )
+
+// ValidateHTTPClient is the shared client used by per-kind validators that
+// reach out to external provider APIs. 10s matches the plugin's legacy timeout.
+var ValidateHTTPClient = &http.Client{Timeout: 10 * time.Second}
+
+// ConfigValue looks up a config row by its ConfKey and returns the value, or
+// the empty string when the key is absent. Per-kind validators use this to pull
+// the handful of keys they care about without writing a switch each time.
+func ConfigValue(configs []domain.UtmModuleGroupConfiguration, key string) string {
+	for _, c := range configs {
+		if c.ConfKey == key {
+			return c.ConfValue
+		}
+	}
+	return ""
+}
+
+// RequireFields returns the first "X is required" error encountered when
+// scanning the supplied configs for the listed keys. The pairs are
+// (confKey, humanLabel) — humanLabel is what appears in the error message and
+// should match the label the panel shows the user.
+//
+// Pass an even number of arguments: "aws_default_region", "Default Region",
+// "aws_access_key_id", "Access Key", … The function panics on an odd count so
+// callers see the bug at compile-cycle test time, not at runtime.
+func RequireFields(configs []domain.UtmModuleGroupConfiguration, moduleLabel string, pairs ...string) error {
+	if len(pairs)%2 != 0 {
+		panic("baseline.RequireFields: pairs must have an even number of elements (key,label,…)")
+	}
+	for i := 0; i < len(pairs); i += 2 {
+		key, label := pairs[i], pairs[i+1]
+		if ConfigValue(configs, key) == "" {
+			return fmt.Errorf("%s is required in %s configuration", label, moduleLabel)
+		}
+	}
+	return nil
+}
 
 // Defaults provides no-op implementations of the optional ModuleKind methods so
 // per-kind packages can embed it and only override what they actually need

@@ -14,23 +14,24 @@ const Name = "SOC_AI"
 const (
 	confDataTypeBool   = "bool"
 	confDataTypeSelect = "select"
+	confDataTypeNumber = "number"
 )
 
-const modelOptions = `[` +
-	`{"value": "gpt-4", "label": "GPT-4"},` +
-	`{"value": "gpt-4-0613", "label": "GPT-4 (0613)"},` +
-	`{"value": "gpt-4-32k", "label": "GPT-4 32K"},` +
-	`{"value": "gpt-4-32k-0613", "label": "GPT-4 32K (0613)"},` +
-	`{"value": "gpt-4-turbo", "label": "GPT-4 Turbo"},` +
-	`{"value": "gpt-4o", "label": "GPT-4 Omni"},` +
-	`{"value": "gpt-4o-mini", "label": "GPT-4 Omni Mini"},` +
-	`{"value": "gpt-4.1", "label": "GPT-4.1"},` +
-	`{"value": "gpt-4.1-mini", "label": "GPT-4.1 Mini"},` +
-	`{"value": "gpt-4.1-nano", "label": "GPT-4.1 Nano"},` +
-	`{"value": "gpt-3.5-turbo", "label": "GPT-3.5 Turbo"},` +
-	`{"value": "gpt-3.5-turbo-0613", "label": "GPT-3.5 Turbo (0613)"},` +
-	`{"value": "gpt-3.5-turbo-16k", "label": "GPT-3.5 Turbo 16K"},` +
-	`{"value": "gpt-3.5-turbo-16k-0613", "label": "GPT-3.5 Turbo 16K (0613)"}` +
+const providerOptions = `[` +
+	`{"value": "openai", "label": "OpenAI"},` +
+	`{"value": "anthropic", "label": "Anthropic"},` +
+	`{"value": "azure", "label": "Azure OpenAI"},` +
+	`{"value": "gemini", "label": "Google Gemini"},` +
+	`{"value": "ollama", "label": "Ollama"},` +
+	`{"value": "mistral", "label": "Mistral AI"},` +
+	`{"value": "deepseek", "label": "DeepSeek"},` +
+	`{"value": "groq", "label": "Groq"},` +
+	`{"value": "custom", "label": "Custom"}` +
+	`]`
+
+const authTypeOptions = `[` +
+	`{"value": "none", "label": "None"},` +
+	`{"value": "custom-headers", "label": "Custom Headers"}` +
 	`]`
 
 type kind struct {
@@ -44,6 +45,12 @@ func New() connectors.ModuleKind {
 func (k *kind) ConfigurationKeys(groupID int64) []domain.ModuleConfigurationKey {
 	return []domain.ModuleConfigurationKey{
 		{
+			GroupID: groupID, ConfKey: "utmstack.socai.autoAnalyze",
+			ConfName:        "Automatic Analysis",
+			ConfDescription: `If set to "true", SOC AI will automatically analyze incoming alerts.`,
+			ConfDataType:    confDataTypeBool, ConfRequired: false,
+		},
+		{
 			GroupID: groupID, ConfKey: "utmstack.socai.incidentCreation",
 			ConfName:        "Automatic Incident creation",
 			ConfDescription: `If set to "true", the system will create incidents based on analysis of alerts.`,
@@ -56,11 +63,43 @@ func (k *kind) ConfigurationKeys(groupID int64) []domain.ModuleConfigurationKey 
 			ConfDataType:    confDataTypeBool, ConfRequired: false,
 		},
 		{
-			GroupID: groupID, ConfKey: "utmstack.socai.model",
-			ConfName:        "Select AI Model",
-			ConfDescription: "Choose the AI model that SOC AI will use to analyze alerts.",
+			GroupID: groupID, ConfKey: "utmstack.socai.provider",
+			ConfName:        "Provider",
+			ConfDescription: "Select the generative AI provider that SOC AI will use.",
 			ConfDataType:    confDataTypeSelect, ConfRequired: true,
-			ConfOptions: modelOptions,
+			ConfOptions: providerOptions,
+		},
+		{
+			GroupID: groupID, ConfKey: "utmstack.socai.url",
+			ConfName:        "Provider URL",
+			ConfDescription: "API endpoint for the selected provider. Required for Azure OpenAI, Ollama, and Custom; ignored otherwise.",
+			ConfDataType:    domain.ConfTypeText, ConfRequired: false,
+		},
+		{
+			GroupID: groupID, ConfKey: "utmstack.socai.model",
+			ConfName:        "Model",
+			ConfDescription: "Model name to use with the selected provider (e.g., gpt-4o, claude-3-5-sonnet-latest).",
+			ConfDataType:    domain.ConfTypeText, ConfRequired: true,
+		},
+		{
+			GroupID: groupID, ConfKey: "utmstack.socai.authType",
+			ConfName:        "Authentication Type",
+			ConfDescription: `Choose "custom-headers" to send credentials in request headers, or "none" for unauthenticated providers (e.g., local Ollama).`,
+			ConfDataType:    confDataTypeSelect, ConfRequired: false,
+			ConfValue:   "none",
+			ConfOptions: authTypeOptions,
+		},
+		{
+			GroupID: groupID, ConfKey: "utmstack.socai.maxTokens",
+			ConfName:        "Max Tokens",
+			ConfDescription: "Maximum tokens to request per completion. Required by Anthropic; optional for others.",
+			ConfDataType:    confDataTypeNumber, ConfRequired: false,
+		},
+		{
+			GroupID: groupID, ConfKey: "utmstack.socai.customHeaders",
+			ConfName:        "Custom Headers (JSON)",
+			ConfDescription: `JSON object of headers to send with each request, e.g., {"Authorization": "Bearer ...", "x-api-key": "..."}. Required when Authentication Type is "custom-headers".`,
+			ConfDataType:    domain.ConfTypePassword, ConfRequired: false,
 		},
 	}
 }
