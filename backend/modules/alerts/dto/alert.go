@@ -1,0 +1,26 @@
+package dto
+
+type UpdateAlertStatusRequest struct {
+	AlertIDs            []string `json:"alertIds" binding:"required"`
+	Status              int      `json:"status" binding:"required"`
+	StatusObservation   string   `json:"statusObservation"`
+	AddFalsePositiveTag bool     `json:"addFalsePositiveTag"`
+}
+
+type UpdateAlertTagsRequest struct {
+	AlertIDs   []string `json:"alertIds" binding:"required"`
+	Tags       []string `json:"tags"`
+	CreateRule bool     `json:"createRule"`
+}
+
+type ConvertToIncidentRequest struct {
+	// AlertIDs maps to Java's ConvertToIncidentRequestBody.eventIds field (not alertIds).
+	AlertIDs       []string `json:"eventIds"       binding:"required"`
+	IncidentName   string   `json:"incidentName"   binding:"required"`
+	IncidentID     int      `json:"incidentId"     binding:"required"`
+	IncidentSource string   `json:"incidentSource"`
+}
+
+type CountOpenAlertsResponse struct {
+	Count int64 `json:"count"`
+}

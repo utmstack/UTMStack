@@ -1,0 +1,65 @@
+package usecase
+
+import (
+	"context"
+	"time"
+
+	"github.com/utmstack/utmstack/backend/modules/audit/auditctx"
+	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
+	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
+	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
+	"github.com/utmstack/utmstack/backend/pkg/logger"
+)
+
+type incidentNoteUsecase struct {
+	noteRepo    connectors.IncidentNoteRepository
+	historyRepo connectors.IncidentHistoryRepository
+}
+
+func NewIncidentNoteUsecase(
+	noteRepo connectors.IncidentNoteRepository,
+	historyRepo connectors.IncidentHistoryRepository,
+) connectors.IncidentNoteUsecase {
+	return &incidentNoteUsecase{
+		noteRepo:    noteRepo,
+		historyRepo: historyRepo,
+	}
+}
+
+func (u *incidentNoteUsecase) Create(ctx context.Context, req dto.CreateNoteRequest) (*domain.UtmIncidentNote, error) {
+	currentUser := auditctx.UserLoginFrom(ctx)
+	if currentUser == "" {
+		currentUser = "system"
+	}
+
+	now := time.Now().UTC()
+	note := &domain.UtmIncidentNote{
+		IncidentID:   req.IncidentID,
+		NoteText:     req.NoteText,
+		NoteSendDate: now,
+		NoteSendBy:   &currentUser,
+	}
+	if err := u.noteRepo.Save(ctx, note); err != nil {
+		return nil, err
+	}
+
+	detail := "New note added to incident"
+	by := currentUser
+	h := &domain.UtmIncidentHistory{
+		IncidentID:        req.IncidentID,
+		Action:            domain.ActionNoteAdd.Label,
+		ActionType:        domain.ActionNoteAdd.Type,
+		ActionDetail:      &detail,
+		ActionCreatedDate: now,
+		ActionCreatedBy:   &by,
+	}
+	if err := u.historyRepo.Save(ctx, h); err != nil {
+		logger.Warn("incidents: failed to write note history: " + err.Error())
+	}
+
+	return note, nil
+}
+
+func (u *incidentNoteUsecase) List(ctx context.Context, query dto.IncidentNoteListQuery) ([]domain.UtmIncidentNote, int64, error) {
+	return u.noteRepo.FindAll(ctx, query)
+}

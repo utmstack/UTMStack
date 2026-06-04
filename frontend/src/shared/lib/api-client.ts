@@ -1,0 +1,145 @@
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios'
+
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
+
+export interface AuthTokens {
+  access_token: string
+  refresh_token: string
+  expires_at?: string
+  refresh_expires_at?: string
+}
+
+const TOKEN_KEY = 'utmstack_tokens'
+
+export function getStoredTokens(): AuthTokens | null {
+  const raw = localStorage.getItem(TOKEN_KEY)
+  if (!raw) return null
+  try {
+    return JSON.parse(raw) as AuthTokens
+  } catch {
+    return null
+  }
+}
+
+export function storeTokens(tokens: AuthTokens): void {
+  localStorage.setItem(TOKEN_KEY, JSON.stringify(tokens))
+}
+
+export function clearTokens(): void {
+  localStorage.removeItem(TOKEN_KEY)
+}
+
+let logoutHandler: ((reason: string) => void) | null = null
+export function setLogoutHandler(handler: (reason: string) => void): void {
+  logoutHandler = handler
+}
+
+const API_URL = import.meta.env.VITE_API_URL || '/api/v1'
+
+let refreshPromise: Promise<string | null> | null = null
+
+async function refreshAccessToken(): Promise<string | null> {
+  const tokens = getStoredTokens()
+  if (!tokens?.refresh_token) return null
+  try {
+    const response = await axios.post<AuthTokens>(`${API_URL}/auth/refresh`, {
+      refresh_token: tokens.refresh_token,
+    })
+    storeTokens(response.data)
+    return response.data.access_token
+  } catch {
+    return null
+  }
+}
+
+export class ApiError extends Error {
+  constructor(message: string, public status: number, public code?: string) {
+    super(message)
+    this.name = 'ApiError'
+  }
+}
+
+interface RequestOptions {
+  body?: unknown
+  headers?: Record<string, string>
+  responseType?: 'json' | 'text' | 'blob'
+}
+
+const instances: Record<string, AxiosInstance> = {}
+
+function getAxiosInstance(baseURL: string): AxiosInstance {
+  if (instances[baseURL]) return instances[baseURL]
+
+  const instance = axios.create({ baseURL })
+
+  instance.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
+    const tokens = getStoredTokens()
+    if (tokens?.access_token) {
+      config.headers.Authorization = `Bearer ${tokens.access_token}`
+    }
+    return config
+  })
+
+  instance.interceptors.response.use(
+    (r) => r,
+    async (error: AxiosError) => {
+      const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
+      const url = originalRequest?.url ?? ''
+      const isAuthEndpoint = url.includes('/auth/login') || url.includes('/auth/refresh')
+
+      if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+        originalRequest._retry = true
+        const newToken = refreshPromise ?? (refreshPromise = refreshAccessToken())
+        const tk = await newToken
+        refreshPromise = null
+        if (tk) {
+          originalRequest.headers.Authorization = `Bearer ${tk}`
+          return instance(originalRequest)
+        }
+        clearTokens()
+        if (logoutHandler) {
+          logoutHandler('Session expired')
+        }
+      }
+
+      const data = error.response?.data as { error?: string } | undefined
+      const message = data?.error ?? error.message ?? 'Request failed'
+      throw new ApiError(message, error.response?.status ?? 0)
+    }
+  )
+
+  instances[baseURL] = instance
+  return instance
+}
+
+export async function apiRequest<T>(
+  baseUrl: string,
+  endpoint: string,
+  method: HttpMethod = 'GET',
+  options: RequestOptions = {}
+): Promise<T> {
+  const instance = getAxiosInstance(baseUrl)
+  const response = await instance.request<T>({
+    url: endpoint,
+    method,
+    data: options.body,
+    headers: options.headers,
+    responseType: options.responseType ?? 'json',
+  })
+  return response.data
+}
+
+export function createApiClient(baseUrl: string = API_URL) {
+  return {
+    get: <T,>(endpoint: string, options?: RequestOptions) =>
+      apiRequest<T>(baseUrl, endpoint, 'GET', options),
+    post: <T,>(endpoint: string, body?: unknown, options?: RequestOptions) =>
+      apiRequest<T>(baseUrl, endpoint, 'POST', { ...options, body }),
+    put: <T,>(endpoint: string, body?: unknown, options?: RequestOptions) =>
+      apiRequest<T>(baseUrl, endpoint, 'PUT', { ...options, body }),
+    patch: <T,>(endpoint: string, body?: unknown, options?: RequestOptions) =>
+      apiRequest<T>(baseUrl, endpoint, 'PATCH', { ...options, body }),
+    delete: <T,>(endpoint: string, options?: RequestOptions) =>
+      apiRequest<T>(baseUrl, endpoint, 'DELETE', options),
+  }
+}

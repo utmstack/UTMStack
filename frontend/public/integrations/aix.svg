@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="34.66mm" height="13.79mm" version="1.1" viewBox="0 0 34.66 13.79" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:xlink="http://www.w3.org/1999/xlink">
+<title>IBM AIX logo</title>
+<desc>A series of proprietary Unix operating systems developed and sold by IBM</desc>
+ <defs>
+  <linearGradient id="vlpb" x1=".1521" x2=".5468" y1="-.5875" y2="-.4003" gradientTransform="matrix(70.15 -70.15 70.15 70.15 31.51 66.85)" gradientUnits="userSpaceOnUse">
+   <stop style="stop-color:#6fdc8c" offset="0"/>
+   <stop style="stop-color:#6fdc8c" offset=".3049"/>
+   <stop style="stop-color:#009d9a" offset=".9279"/>
+   <stop style="stop-color:#009d9a" offset="1"/>
+  </linearGradient>
+ </defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="matrix(.9865 0 0 .9865 -.9241 -.976)">
+  <g transform="scale(.9942 1.006)" style="fill:url(#vlpb);stroke-width:.7367">
+   <path d="m10.91 14.79-0.9823-3.261h-4.578l-0.9823 3.261h-3.025l4.519-13.71h3.693l4.46 13.71zm-3.242-11h-0.09823l-1.513 5.206h3.143z" style="fill:url(#vlpb);stroke-width:.7367"/>
+   <path d="m15.39 14.79v-2.377h1.768v-8.959h-1.768v-2.377h6.522v2.377h-1.768v8.959h1.768v2.377z" style="fill:url(#vlpb);stroke-width:.7367"/>
+   <path d="m35.8 14.79h-3.458l-2.967-5.049h-0.05894l-2.888 5.049h-3.222l4.401-7.092-4.185-6.621h3.477l2.672 4.636h0.05894l2.711-4.636h3.222l-4.224 6.68z" style="fill:url(#vlpb);stroke-width:.7367"/>
+  </g>
+ </g>
+</svg>
