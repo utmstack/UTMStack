@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/soar/domain"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 func writePagedArray[T any](c *gin.Context, items []T, total int64) {
@@ -31,7 +31,7 @@ func writeARRError(c *gin.Context, err error) {
 	case errors.Is(err, domain.ErrIDRequired):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required on update"})
 	default:
-		logger.Error("alert response rule op failed: " + err.Error())
+		_ = catcher.Error("alert response rule op failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "operation failed"})
 	}
 }

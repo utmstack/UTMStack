@@ -14,13 +14,13 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
 	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
 	"github.com/utmstack/utmstack/backend/modules/iam/dto"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 const (
@@ -83,7 +83,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		case errors.Is(err, domain.ErrTfaNoEmail):
 			c.JSON(http.StatusForbidden, gin.H{"error": "tfa is required but no email is set for this user"})
 		default:
-			logger.Error("login failed: " + err.Error())
+			_ = catcher.Error("login failed", err, nil)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "login failed"})
 		}
 		return
@@ -111,7 +111,7 @@ func (h *AuthHandler) Refresh(c *gin.Context) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired refresh token"})
 			return
 		}
-		logger.Error("refresh failed: " + err.Error())
+		_ = catcher.Error("refresh failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not refresh"})
 		return
 	}
@@ -133,7 +133,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	err := h.authUsecase.Logout(c.Request.Context(), input)
 	audit.Record(c, audit_connectors.Event{Action: "auth.logout"}, audit_domain.AUTH_LOGOUT, audit_domain.AUTH_LOGOUT, err)
 	if err != nil {
-		logger.Error("logout failed: " + err.Error())
+		_ = catcher.Error("logout failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not logout"})
 		return
 	}
@@ -211,7 +211,7 @@ func (h *AuthHandler) UpdateMe(c *gin.Context) {
 		case errors.Is(err, domain.ErrEmailTaken):
 			c.JSON(http.StatusConflict, gin.H{"error": "email is already in use"})
 		default:
-			logger.Error("update me failed: " + err.Error())
+			_ = catcher.Error("update me failed", err, nil)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "could not update profile"})
 		}
 		return
@@ -234,7 +234,7 @@ func (h *AuthHandler) ListSessions(c *gin.Context) {
 	}
 	sessions, err := h.authUsecase.ListSessions(c.Request.Context(), id, sessionIDFromCtx(c))
 	if err != nil {
-		logger.Error("list sessions failed: " + err.Error())
+		_ = catcher.Error("list sessions failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not list sessions"})
 		return
 	}
@@ -265,7 +265,7 @@ func (h *AuthHandler) RevokeSession(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "session not found"})
 			return
 		}
-		logger.Error("revoke session failed: " + err.Error())
+		_ = catcher.Error("revoke session failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not revoke session"})
 		return
 	}
@@ -285,7 +285,7 @@ func (h *AuthHandler) RevokeOtherSessions(c *gin.Context) {
 		return
 	}
 	if err := h.authUsecase.RevokeOtherSessions(c.Request.Context(), uid, sessionIDFromCtx(c)); err != nil {
-		logger.Error("revoke other sessions failed: " + err.Error())
+		_ = catcher.Error("revoke other sessions failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not revoke sessions"})
 		return
 	}
@@ -360,20 +360,20 @@ func (h *AuthHandler) UploadAvatar(c *gin.Context) {
 	filename := fmt.Sprintf("u%d-%s%s", uid, hex.EncodeToString(rnd), ext)
 	dir := filepath.Join(h.uploadDir, avatarSubdir)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
-		logger.Error("avatar dir mkdir failed: " + err.Error())
+		_ = catcher.Error("avatar dir mkdir failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not save avatar"})
 		return
 	}
 	dst := filepath.Join(dir, filename)
 	out, err := os.Create(dst)
 	if err != nil {
-		logger.Error("avatar create failed: " + err.Error())
+		_ = catcher.Error("avatar create failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not save avatar"})
 		return
 	}
 	defer out.Close()
 	if _, err := io.Copy(out, src); err != nil {
-		logger.Error("avatar copy failed: " + err.Error())
+		_ = catcher.Error("avatar copy failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not save avatar"})
 		return
 	}
@@ -382,7 +382,7 @@ func (h *AuthHandler) UploadAvatar(c *gin.Context) {
 	resp, err := h.authUsecase.UpdateAvatar(c.Request.Context(), uid, imageURL)
 	if err != nil {
 		_ = os.Remove(dst)
-		logger.Error("update avatar failed: " + err.Error())
+		_ = catcher.Error("update avatar failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not save avatar"})
 		return
 	}
@@ -409,7 +409,7 @@ func (h *AuthHandler) RemoveAvatar(c *gin.Context) {
 	}
 	resp, err := h.authUsecase.UpdateAvatar(c.Request.Context(), uid, "")
 	if err != nil {
-		logger.Error("remove avatar failed: " + err.Error())
+		_ = catcher.Error("remove avatar failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not remove avatar"})
 		return
 	}
@@ -466,7 +466,7 @@ func (h *AuthHandler) ChangePassword(c *gin.Context) {
 	case errors.Is(err, domain.ErrSamePassword):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "new password must differ from current"})
 	default:
-		logger.Error("change password failed: " + err.Error())
+		_ = catcher.Error("change password failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not change password"})
 	}
 }
@@ -488,7 +488,7 @@ func (h *AuthHandler) RequestPasswordReset(c *gin.Context) {
 	err := h.authUsecase.RequestPasswordReset(c.Request.Context(), input)
 	audit.Record(c, audit_connectors.Event{Action: "auth.reset_password.init"}, audit_domain.RESET_USER_PASSWORD_ATTEMPT, audit_domain.RESET_USER_PASSWORD_SUCCESS, err)
 	if err != nil {
-		logger.Error("password reset init failed: " + err.Error())
+		_ = catcher.Error("password reset init failed", err, nil)
 	}
 	c.Status(http.StatusNoContent)
 }
@@ -515,7 +515,7 @@ func (h *AuthHandler) FinishPasswordReset(c *gin.Context) {
 	case errors.Is(err, domain.ErrInvalidResetKey):
 		c.JSON(http.StatusGone, gin.H{"error": "invalid or expired reset key"})
 	default:
-		logger.Error("password reset finish failed: " + err.Error())
+		_ = catcher.Error("password reset finish failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not reset password"})
 	}
 }

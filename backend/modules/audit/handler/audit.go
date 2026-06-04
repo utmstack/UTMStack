@@ -5,9 +5,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/audit/connectors"
 	"github.com/utmstack/utmstack/backend/modules/audit/dto"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 type Handler struct {
@@ -65,7 +65,7 @@ func (h *Handler) Get(c *gin.Context) {
 	}
 	resp, err := h.usecase.Get(c.Request.Context(), id)
 	if err != nil {
-		logger.Error("audit get failed: " + err.Error())
+		_ = catcher.Error("audit get failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not get audit log"})
 		return
 	}

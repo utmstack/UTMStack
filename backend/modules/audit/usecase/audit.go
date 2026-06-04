@@ -11,7 +11,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/audit/dto"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 type service struct {
@@ -49,7 +48,7 @@ func (s *service) Log(ctx context.Context, ev connectors.Event) {
 	emitToStdout(ev, row)
 
 	if err := s.repo.Insert(ctx, row); err != nil {
-		logger.Error("audit insert failed: " + err.Error())
+		_ = catcher.Error("audit insert failed", err, nil)
 	}
 }
 

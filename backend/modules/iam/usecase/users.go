@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
 	"github.com/utmstack/utmstack/backend/modules/iam/dto"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 	"github.com/utmstack/utmstack/backend/pkg/secret"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -135,7 +135,7 @@ func (u *userUsecase) Create(ctx context.Context, actor string, input dto.Create
 	// be re-invited via password-reset if the mail fails, so we don't roll back.
 	if u.invitation != nil {
 		if err := u.invitation.SendInvitation(ctx, user.Email, user.FirstName, resetKey); err != nil {
-			logger.Error("send user invitation failed for " + user.Email + ": " + err.Error())
+			_ = catcher.Error("send user invitation failed for "+user.Email, err, nil)
 		}
 	}
 

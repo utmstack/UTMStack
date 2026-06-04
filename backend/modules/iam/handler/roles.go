@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 type RoleHandler struct {
@@ -30,7 +30,7 @@ func NewRoleHandler(roleUsecase connectors.RoleUsecase) *RoleHandler {
 func (h *RoleHandler) List(c *gin.Context) {
 	resp, err := h.roleUsecase.List(c.Request.Context())
 	if err != nil {
-		logger.Error("list roles failed: " + err.Error())
+		_ = catcher.Error("list roles failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not list roles"})
 		return
 	}
@@ -66,7 +66,7 @@ func writeRoleError(c *gin.Context, err error) {
 	case errors.Is(err, domain.ErrRoleNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": "role not found"})
 	default:
-		logger.Error("role op failed: " + err.Error())
+		_ = catcher.Error("role op failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "operation failed"})
 	}
 }

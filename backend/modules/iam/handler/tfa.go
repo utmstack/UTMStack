@@ -5,13 +5,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
 	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
 	"github.com/utmstack/utmstack/backend/modules/iam/dto"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 type TfaHandler struct {
@@ -205,7 +205,7 @@ func writeTfaError(c *gin.Context, err error, fallbackMsg string) {
 	case errors.Is(err, domain.ErrInvalidCredentials):
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 	default:
-		logger.Error(fallbackMsg + ": " + err.Error())
+		_ = catcher.Error(fallbackMsg, err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fallbackMsg})
 	}
 }

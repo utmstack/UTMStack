@@ -6,13 +6,13 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
 	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
 	"github.com/utmstack/utmstack/backend/modules/iam/dto"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 type UserHandler struct {
@@ -40,7 +40,7 @@ func (h *UserHandler) List(c *gin.Context) {
 	}
 	resp, err := h.userUsecase.List(c.Request.Context(), q)
 	if err != nil {
-		logger.Error("list users failed: " + err.Error())
+		_ = catcher.Error("list users failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not list users"})
 		return
 	}
@@ -176,7 +176,7 @@ func writeUserError(c *gin.Context, err error) {
 	case errors.Is(err, domain.ErrInvalidRoleSubset):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "one or more role names do not exist"})
 	default:
-		logger.Error("user op failed: " + err.Error())
+		_ = catcher.Error("user op failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "operation failed"})
 	}
 }
