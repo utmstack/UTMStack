@@ -9,12 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// indexPatternToggler updates utm_index_pattern.is_active. We touch the
-// sibling module's table directly (a single column update keyed on
-// pattern_module) rather than importing the indexpattern usecase: it keeps
-// modulesconfig free of inward dependencies and avoids inflating the
-// IndexPatternUsecase interface with a method only the activation cascade
-// needs.
 type indexPatternToggler struct {
 	db *gorm.DB
 }
@@ -30,8 +24,6 @@ func (t *indexPatternToggler) SetActiveByModule(ctx context.Context, moduleName 
 		Update("is_active", active).Error
 }
 
-// logstashFilterToggler updates utm_logstash_filter.is_active and stamps
-// updated_at, mirroring the legacy UtmLogstashFilterService.saveAll flow.
 type logstashFilterToggler struct {
 	db *gorm.DB
 }
@@ -51,9 +43,6 @@ func (t *logstashFilterToggler) SetActiveByModule(ctx context.Context, moduleNam
 		}).Error
 }
 
-// noopMenuToggler stands in until a menu module exists in the Go panel. The
-// activation cascade calls it but it's intentionally inert; the legacy menu
-// cascade hid sidebar entries the new panel doesn't render the same way.
 type noopMenuToggler struct{}
 
 func NewNoopMenuToggler() connectors.MenuToggler { return &noopMenuToggler{} }

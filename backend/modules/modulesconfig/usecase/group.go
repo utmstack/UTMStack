@@ -16,7 +16,6 @@ type groupUsecase struct {
 	modules   connectors.ModuleRepository
 	factory   connectors.ModuleFactory
 	cipher    *secret.Cipher
-	eventProc connectors.EventProcessorClient
 }
 
 func NewGroupUsecase(
@@ -25,7 +24,6 @@ func NewGroupUsecase(
 	modules connectors.ModuleRepository,
 	factory connectors.ModuleFactory,
 	cipher *secret.Cipher,
-	eventProc connectors.EventProcessorClient,
 ) connectors.GroupUsecase {
 	return &groupUsecase{
 		groups:    groups,
@@ -33,14 +31,9 @@ func NewGroupUsecase(
 		modules:   modules,
 		factory:   factory,
 		cipher:    cipher,
-		eventProc: eventProc,
 	}
 }
 
-// Create inserts the group row, then asks the registered ModuleKind for its
-// default configuration keys and persists them. If the kind is not yet ported
-// the caller gets ErrModuleKindNotPorted so the panel can surface an
-// actionable message (rather than silently creating an empty group).
 func (u *groupUsecase) Create(ctx context.Context, req dto.CreateModuleGroupRequest) (*dto.ModuleGroupResponse, error) {
 	module, err := u.modules.GetByID(ctx, req.ModuleID)
 	if err != nil {
@@ -89,7 +82,6 @@ func (u *groupUsecase) Create(ctx context.Context, req dto.CreateModuleGroupRequ
 	return &resp, nil
 }
 
-// Update changes group metadata only. Config rows are owned by ConfigUsecase.
 func (u *groupUsecase) Update(ctx context.Context, req dto.UpdateModuleGroupRequest) (*dto.ModuleGroupResponse, error) {
 	existing, err := u.groups.GetByID(ctx, req.ID)
 	if err != nil {
@@ -128,9 +120,6 @@ func (u *groupUsecase) GetByID(ctx context.Context, id int64) (*dto.ModuleGroupR
 	return &resp, nil
 }
 
-// Delete removes a group (cascading into its configurations via the FK) and
-// re-publishes the parent module's now-shrunken state so event-processor stays
-// in sync.
 func (u *groupUsecase) Delete(ctx context.Context, id int64) error {
 	g, err := u.groups.GetByID(ctx, id)
 	if err != nil {

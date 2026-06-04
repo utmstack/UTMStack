@@ -19,6 +19,9 @@ func (s stubKind) CheckRequirements(_ context.Context, _ int64) ([]domain.Module
 func (s stubKind) ValidateConfiguration(_ context.Context, _ *domain.UtmModule, _ []domain.UtmModuleGroupConfiguration) error {
 	return nil
 }
+func (s stubKind) UpdateModule(_ context.Context, _ string, _ []domain.UtmModuleGroupConfiguration) error {
+	return nil
+}
 
 func TestFactoryRegisterAndLookup(t *testing.T) {
 	f := NewModuleFactory()

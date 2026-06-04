@@ -40,8 +40,6 @@ func (r *pgConfigRepository) GetByGroupAndKey(ctx context.Context, groupID int64
 	return &c, nil
 }
 
-// SaveAll upserts in a single transaction so a partial write can't leave half
-// the key set persisted. Save() handles both insert (id=0) and update (id>0).
 func (r *pgConfigRepository) SaveAll(ctx context.Context, configs []domain.UtmModuleGroupConfiguration) error {
 	if len(configs) == 0 {
 		return nil

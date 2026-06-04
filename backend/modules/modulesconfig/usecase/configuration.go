@@ -15,7 +15,6 @@ type configUsecase struct {
 	modules   connectors.ModuleRepository
 	factory   connectors.ModuleFactory
 	cipher    *secret.Cipher
-	eventProc connectors.EventProcessorClient
 }
 
 func NewConfigUsecase(
@@ -23,14 +22,12 @@ func NewConfigUsecase(
 	modules connectors.ModuleRepository,
 	factory connectors.ModuleFactory,
 	cipher *secret.Cipher,
-	eventProc connectors.EventProcessorClient,
 ) connectors.ConfigUsecase {
 	return &configUsecase{
 		configs:   configs,
 		modules:   modules,
 		factory:   factory,
 		cipher:    cipher,
-		eventProc: eventProc,
 	}
 }
 
@@ -55,15 +52,6 @@ func (u *configUsecase) GetByGroupAndKey(ctx context.Context, groupID int64, con
 	return &item, nil
 }
 
-// Update implements the legacy three-pass write the panel relies on:
-//
-//  1. Skip incoming rows whose sensitive value is still the mask sentinel — the
-//     user didn't touch that field, so the stored ciphertext stays put.
-//  2. Reject required rows submitted blank.
-//  3. Encrypt any new sensitive value before persisting.
-//
-// After writing, flip the parent module's needs_restart flag based on the
-// kind-name allow-list, then publish the resulting state to event-processor.
 func (u *configUsecase) Update(ctx context.Context, req dto.UpdateGroupConfigurationRequest) error {
 	if len(req.Keys) == 0 {
 		return fmt.Errorf("no configuration keys provided")
@@ -94,6 +82,16 @@ func (u *configUsecase) Update(ctx context.Context, req dto.UpdateGroupConfigura
 		toSave = append(toSave, row)
 	}
 
+	fact_module,ok:= u.factory.Get(module.ModuleName)
+	if !ok {
+		return fmt.Errorf("module %s not defined",module.ModuleName)
+	}
+
+	if err:=fact_module.ValidateConfiguration(ctx,module,toSave); err!=nil{
+		return fmt.Errorf("invalid module configuration: %v",err)
+	}
+
+
 	if err := u.configs.SaveAll(ctx, toSave); err != nil {
 		return err
 	}
@@ -103,14 +101,12 @@ func (u *configUsecase) Update(ctx context.Context, req dto.UpdateGroupConfigura
 		return err
 	}
 
-	if u.eventProc != nil {
-		fresh, ferr := u.modules.GetByID(ctx, module.ID)
-		if ferr != nil {
-			return ferr
-		}
-		if perr := u.eventProc.UpdateModule(ctx, fresh.ModuleName, dto.ToEventProcessorPayload(*fresh)); perr != nil {
-			return fmt.Errorf("event-processor publish failed: %w", perr)
-		}
+	fresh, ferr := u.modules.GetByID(ctx, module.ID)
+	if ferr != nil {
+		return ferr
+	}
+	if err:=fact_module.UpdateModule(ctx,fresh.ModuleName,toSave);err!=nil{
+		return fmt.Errorf("module publish failed: %w", err)
 	}
 	return nil
 }

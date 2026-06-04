@@ -134,7 +134,6 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	logstashMod := logstash.NewModule(db, osClient, auditMod.Logger())
 	indexpatternMod := indexpattern.NewModule(db, osCfg)
 
-	eventProcClient := eventprocessor.NewClient(cfg.eventProcessorHost, cfg.eventProcessorPort, cfg.internalKey)
 	mcfgModuleRepo := mcfg_repository.NewModuleRepository(db)
 	mcfgGroupRepo := mcfg_repository.NewGroupRepository(db)
 	mcfgConfigRepo := mcfg_repository.NewConfigRepository(db)
@@ -143,9 +142,9 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	mcfgMenuToggler := mcfg_repository.NewNoopMenuToggler()
 	mcfgFactory := mcfg_usecase.NewModuleFactory()
 	modulekinds.RegisterAll(mcfgFactory)
-	mcfgConfigUC := mcfg_usecase.NewConfigUsecase(mcfgConfigRepo, mcfgModuleRepo, mcfgFactory, cipher, eventProcClient)
-	mcfgGroupUC := mcfg_usecase.NewGroupUsecase(mcfgGroupRepo, mcfgConfigRepo, mcfgModuleRepo, mcfgFactory, cipher, eventProcClient)
-	mcfgModuleUC := mcfg_usecase.NewModuleUsecase(mcfgModuleRepo, mcfgFactory, mcfgIdxToggler, mcfgLsToggler, mcfgMenuToggler, eventProcClient)
+	mcfgConfigUC := mcfg_usecase.NewConfigUsecase(mcfgConfigRepo, mcfgModuleRepo, mcfgFactory, cipher )
+	mcfgGroupUC := mcfg_usecase.NewGroupUsecase(mcfgGroupRepo, mcfgConfigRepo, mcfgModuleRepo, mcfgFactory, cipher)
+	mcfgModuleUC := mcfg_usecase.NewModuleUsecase(mcfgModuleRepo, mcfgFactory, mcfgIdxToggler, mcfgLsToggler, mcfgMenuToggler)
 	modulesconfigMod := modulesconfig.NewModule(mcfgModuleUC, mcfgGroupUC, mcfgConfigUC, mcfgFactory)
 
 	return &modules{
