@@ -8,19 +8,18 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/notifications/domain"
-	notiferrors "github.com/utmstack/utmstack/backend/modules/notifications/errors"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 func writeNotificationError(c *gin.Context, err error) {
 	switch {
-	case errors.Is(err, notiferrors.ErrNotFound):
+	case errors.Is(err, domain.ErrNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": "notification not found"})
-	case errors.Is(err, notiferrors.ErrInvalidEnum):
+	case errors.Is(err, domain.ErrInvalidEnum):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid enum value"})
 	default:
-		logger.Error("notification op failed: " + err.Error())
+		_ = catcher.Error("notification op failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "operation failed"})
 	}
 }

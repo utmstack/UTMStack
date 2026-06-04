@@ -10,7 +10,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/notifications/connectors"
 	"github.com/utmstack/utmstack/backend/modules/notifications/domain"
 	"github.com/utmstack/utmstack/backend/modules/notifications/dto"
-	notiferrors "github.com/utmstack/utmstack/backend/modules/notifications/errors"
 )
 
 const evtNotificationMutation audit_domain.ApplicationEventType = "NOTIFICATION_MUTATION"
@@ -58,7 +57,7 @@ func (u *notificationUsecase) GetByID(ctx context.Context, id int64) (*domain.Ut
 		return nil, err
 	}
 	if row == nil {
-		return nil, notiferrors.ErrNotFound
+		return nil, domain.ErrNotFound
 	}
 	return row, nil
 }
@@ -97,7 +96,7 @@ func (u *notificationUsecase) CountUnread(ctx context.Context) (int64, error) {
 
 func (u *notificationUsecase) Delete(ctx context.Context, id int64) error {
 	if err := u.repo.Delete(ctx, id); err != nil {
-		if err == notiferrors.ErrNotFound {
+		if err == domain.ErrNotFound {
 			return err
 		}
 		u.audit.Log(ctx, audit_connectors.Event{

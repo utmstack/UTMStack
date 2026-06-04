@@ -8,7 +8,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/notifications/connectors"
 	"github.com/utmstack/utmstack/backend/modules/notifications/domain"
 	"github.com/utmstack/utmstack/backend/modules/notifications/dto"
-	notiferrors "github.com/utmstack/utmstack/backend/modules/notifications/errors"
 )
 
 type NotificationHandler struct {
@@ -163,7 +162,7 @@ func (h *NotificationHandler) UpdateStatus(c *gin.Context) {
 	}
 	status := domain.NotificationStatus(statusStr)
 	if !status.Valid() {
-		writeNotificationError(c, notiferrors.ErrInvalidEnum)
+		writeNotificationError(c, domain.ErrInvalidEnum)
 		return
 	}
 	n, err := h.usecase.UpdateStatus(c.Request.Context(), id, status)

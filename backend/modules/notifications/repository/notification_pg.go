@@ -9,7 +9,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/notifications/connectors"
 	"github.com/utmstack/utmstack/backend/modules/notifications/domain"
 	"github.com/utmstack/utmstack/backend/modules/notifications/dto"
-	notiferrors "github.com/utmstack/utmstack/backend/modules/notifications/errors"
 	"gorm.io/gorm"
 )
 
@@ -92,7 +91,7 @@ func (r *pgNotificationRepository) UpdateRead(ctx context.Context, id int64, rea
 		return nil, err
 	}
 	if row == nil {
-		return nil, notiferrors.ErrNotFound
+		return nil, domain.ErrNotFound
 	}
 	row.Read = read
 	if err := r.db.WithContext(ctx).Save(row).Error; err != nil {
@@ -107,7 +106,7 @@ func (r *pgNotificationRepository) UpdateStatus(ctx context.Context, id int64, s
 		return nil, err
 	}
 	if row == nil {
-		return nil, notiferrors.ErrNotFound
+		return nil, domain.ErrNotFound
 	}
 	// Legacy side-effect: changing status also marks the notification as read.
 	row.Status = status
@@ -141,7 +140,7 @@ func (r *pgNotificationRepository) Delete(ctx context.Context, id int64) error {
 		return res.Error
 	}
 	if res.RowsAffected == 0 {
-		return notiferrors.ErrNotFound
+		return domain.ErrNotFound
 	}
 	return nil
 }
