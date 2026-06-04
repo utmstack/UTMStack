@@ -8,7 +8,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/alerts/handler"
 	"github.com/utmstack/utmstack/backend/modules/alerts/repository"
 	"github.com/utmstack/utmstack/backend/modules/alerts/usecase"
-	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
 	"gorm.io/gorm"
 )
 
@@ -24,12 +23,11 @@ type Module struct {
 
 func NewModule(
 	db *gorm.DB,
-	osClient *ospkg.Client,
 	schedulerEnabled bool,
 ) *Module {
-	alertRepo := repository.NewOSAlertRepository(osClient)
+	alertRepo := repository.NewOSAlertRepository()
 
-	historyRecorder := repository.NewHistoryRecorder(osClient)
+	historyRecorder := repository.NewHistoryRecorder()
 
 	alertUC := usecase.NewAlertUsecase(alertRepo, historyRecorder)
 	alertH := handler.NewAlertHandler(alertUC)
@@ -44,7 +42,7 @@ func NewModule(
 
 	sched := usecase.NewScheduler(alertRepo, alertTagRuleRepo, alertTagRepo, historyRecorder)
 
-	adversaryUC := usecase.NewAdversaryUsecase(osClient)
+	adversaryUC := usecase.NewAdversaryUsecase()
 	adversaryH := handler.NewAdversaryHandler(adversaryUC)
 
 	return &Module{

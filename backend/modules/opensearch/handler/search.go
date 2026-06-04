@@ -39,7 +39,7 @@ func NewSearchHandler(uc searchUsecase) *SearchHandler {
 // @Success     200 {array}  map[string]interface{}
 // @Header      200 {string} X-Total-Count "Total matching documents (capped at top)"
 // @Failure     500 {object} map[string]string
-// @Router      /elasticsearch/search [post]
+// @Router      /opensearch/search [post]
 func (h *SearchHandler) Search(c *gin.Context) {
 	top := queryIntDefault(c, "top", 500)
 	indexPattern := c.Query("indexPattern")
@@ -75,7 +75,7 @@ func (h *SearchHandler) Search(c *gin.Context) {
 // @Header      200 {string} X-Total-Count "Total matching documents (capped at top)"
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /elasticsearch/generic-search [post]
+// @Router      /opensearch/generic-search [post]
 func (h *SearchHandler) GenericSearch(c *gin.Context) {
 	var req dto.GenericSearchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -106,7 +106,7 @@ func (h *SearchHandler) GenericSearch(c *gin.Context) {
 // @Param       filters      body  []common_models.FilterType false "List of filters"
 // @Success     200 {boolean} bool
 // @Failure     500 {object} map[string]string
-// @Router      /elasticsearch/count [post]
+// @Router      /opensearch/count [post]
 func (h *SearchHandler) Count(c *gin.Context) {
 	indexPattern := c.Query("indexPattern")
 

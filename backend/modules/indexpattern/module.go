@@ -10,7 +10,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/indexpattern/repository"
 	"github.com/utmstack/utmstack/backend/modules/indexpattern/usecase"
 	"github.com/utmstack/utmstack/backend/pkg/logger"
-	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
 	"gorm.io/gorm"
 )
 
@@ -23,7 +22,7 @@ type Module struct {
 	policyUC      connectors.PolicyUsecase // nil when no OpenSearch config
 }
 
-func NewModule(db *gorm.DB, osCfg ospkg.Config) *Module {
+func NewModule(db *gorm.DB, osEnabled bool) *Module {
 	reg := &domain.IndexPatternRegistry{}
 	repo := repository.NewIndexPatternRepository(db)
 	bootstrap := usecase.NewBootstrapService(repo, reg)
@@ -34,8 +33,8 @@ func NewModule(db *gorm.DB, osCfg ospkg.Config) *Module {
 		repo:      repo,
 	}
 
-	if osCfg.Host != "" {
-		ismClient := repository.NewISMClient(osCfg)
+	if osEnabled {
+		ismClient := repository.NewISMClient()
 
 		// Wire ISM repo into bootstrap so InitPolicy can run.
 		bootstrap.SetISMRepo(ismClient)

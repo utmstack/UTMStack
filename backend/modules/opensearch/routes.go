@@ -3,30 +3,34 @@ package opensearch
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/handler"
+	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
 func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
-	es := api.Group("/elasticsearch", userAuth)
-
 	propertyH := handler.NewPropertyHandler(m.gateway)
 	indexH := handler.NewIndexHandler(m.gateway)
 	searchH := handler.NewSearchHandler(m.gateway)
 	sqlH := handler.NewSQLHandler(m.gateway)
 	clusterH := handler.NewClusterHandler(m.gateway)
 
-	es.GET("/property/values", propertyH.Values)
-	es.POST("/property/values-with-count", propertyH.ValuesWithCount)
-	es.GET("/index/properties", indexH.Properties)
+	read := middleware.RequirePermission("opensearch.read")
+	write := middleware.RequirePermission("opensearch.write")
 
-	es.POST("/index/delete-index", indexH.DeleteIndex)
-	es.GET("/index/all", indexH.IndexAll)
+	g := api.Group("/opensearch", userAuth)
 
-	es.POST("/search/sql", sqlH.SearchSQL)
-	es.POST("/search/csv", sqlH.SearchCSV)
+	g.GET("/property/values", read, propertyH.Values)
+	g.POST("/property/values-with-count", read, propertyH.ValuesWithCount)
+	g.GET("/index/properties", read, indexH.Properties)
 
-	es.POST("/search", searchH.Search)
-	es.POST("/generic-search", searchH.GenericSearch)
-	es.POST("/count", searchH.Count)
+	g.POST("/index/delete-index", write, indexH.DeleteIndex)
+	g.GET("/index/all", read, indexH.IndexAll)
 
-	es.GET("/cluster/status", clusterH.Status)
+	g.POST("/search/sql", read, sqlH.SearchSQL)
+	g.POST("/search/csv", read, sqlH.SearchCSV)
+
+	g.POST("/search", read, searchH.Search)
+	g.POST("/generic-search", read, searchH.GenericSearch)
+	g.POST("/count", read, searchH.Count)
+
+	g.GET("/cluster/status", read, clusterH.Status)
 }

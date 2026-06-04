@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
+	sdkos "github.com/threatwinds/go-sdk/os"
 	"github.com/utmstack/utmstack/backend/internal/mail"
 	"github.com/utmstack/utmstack/backend/modules/alerts"
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
@@ -24,8 +27,6 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
 	"github.com/utmstack/utmstack/backend/pkg/env"
 	jwtpkg "github.com/utmstack/utmstack/backend/pkg/jwt"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
-	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
 	"github.com/utmstack/utmstack/backend/pkg/ratelimit"
 	"github.com/utmstack/utmstack/backend/pkg/secret"
 	"gorm.io/gorm"
@@ -62,16 +63,16 @@ type modules struct {
 
 func initModules(db *gorm.DB, cfg *config) *modules {
 	if cfg.jwtSecret == "" {
-		logger.Critical("JWT_SECRET is not set — refusing to start")
+		_ = catcher.Error("JWT_SECRET is not set — refusing to start", nil, nil)
 		panic("JWT_SECRET is required")
 	}
 	if cfg.encryptionKey == "" {
-		logger.Critical("ENCRYPTION_KEY is not set — refusing to start")
+		_ = catcher.Error("ENCRYPTION_KEY is not set — refusing to start", nil, nil)
 		panic("ENCRYPTION_KEY is required")
 	}
 	cipher, err := secret.NewCipher(cfg.encryptionKey)
 	if err != nil {
-		logger.Critical("failed to init cipher: " + err.Error())
+		_ = catcher.Error("failed to init cipher", err, nil)
 		panic(err)
 	}
 
@@ -99,25 +100,17 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	apiKeyRepo := iam_repository.NewAPIKeyRepository(db)
 	apiKeyUsecase := iam_usecase.NewAPIKeyUsecase(apiKeyRepo, userRepo)
 
-	osCfg := ospkg.Config{
-		Host:               cfg.esHost,
-		Port:               cfg.esPort,
-		User:               cfg.esUser,
-		Password:           cfg.esPassword,
-		UseTLS:             true,
-		InsecureSkipVerify: env.Bool("OPENSEARCH_TLS_SKIP_VERIFY", false),
-	}
-	osClient, osErr := ospkg.NewClient(osCfg)
-	if osErr != nil {
-		logger.Error("opensearch client init failed: " + osErr.Error())
-		osClient = nil
+	// Configure the go-sdk OpenSearch global client used by all modules.
+	osURL := fmt.Sprintf("https://%s:%d", cfg.esHost, cfg.esPort)
+	if err := sdkos.Connect([]string{osURL}, cfg.esUser, cfg.esPassword); err != nil {
+		_ = catcher.Error("opensearch SDK connect failed", err, nil)
 	}
 
-	alertsMod := alerts.NewModule(db, osClient, env.Bool("ALERTS_SCHEDULER_ENABLED", false))
+	alertsMod := alerts.NewModule(db, env.Bool("ALERTS_SCHEDULER_ENABLED", false))
 
 	agentClient, agentErr := agentmanager.NewClient()
 	if agentErr != nil {
-		logger.Error("agentmanager client init failed (alert response rules will not dispatch): " + agentErr.Error())
+		_ = catcher.Error("agentmanager client init failed (alert response rules will not dispatch)", agentErr, nil)
 		agentClient = nil
 	}
 
@@ -125,8 +118,8 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	collectorsMod := collectors.NewModule(db, agentClient)
 	datainputMod := datainput.NewModule(db)
 	correlationMod := correlation.NewModule(db, auditMod.Logger(), datainputMod.GetReader())
-	logstashMod := logstash.NewModule(db, osClient, auditMod.Logger())
-	indexpatternMod := indexpattern.NewModule(db, osCfg)
+	logstashMod := logstash.NewModule(db, auditMod.Logger())
+	indexpatternMod := indexpattern.NewModule(db, cfg.esHost != "")
 
 	return &modules{
 		iam:               iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, cfg.uploadDir),
@@ -140,7 +133,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		datainput:         datainputMod,
 		logstash:          logstashMod,
 		indexpattern:      indexpatternMod,
-		opensearchGateway: opensearchgw.NewModule(osClient),
+		opensearchGateway: opensearchgw.NewModule(),
 		socAI:             socai.NewModule(cfg.socAIBaseURL, cfg.internalKey),
 		incidents: incidents.NewModule(
 			db,

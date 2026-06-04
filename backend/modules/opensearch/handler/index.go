@@ -5,14 +5,18 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
-	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
+	"github.com/utmstack/utmstack/backend/modules/audit"
+	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
+	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/dto"
 )
 
 type indexUsecase interface {
-	IndexProperties(ctx context.Context, pattern string) ([]ospkg.IndexPropertyType, error)
-	IndexAll(ctx context.Context, pattern string, includeSystem bool, page, size int) ([]ospkg.IndexInfo, int64, error)
+	IndexProperties(ctx context.Context, pattern string) ([]dto.IndexPropertyType, error)
+	IndexAll(ctx context.Context, pattern string, includeSystem bool, page, size int) ([]dto.IndexInfo, int64, error)
 	DeleteIndex(ctx context.Context, indices []string) error
 }
 
@@ -30,10 +34,10 @@ func NewIndexHandler(uc indexUsecase) *IndexHandler {
 // @Security    BearerAuth
 // @Produce     json
 // @Param       indexPattern query string true "Index pattern"
-// @Success     200 {array}  ospkg.IndexPropertyType
+// @Success     200 {array}  dto.IndexPropertyType
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /elasticsearch/index/properties [get]
+// @Router      /opensearch/index/properties [get]
 func (h *IndexHandler) Properties(c *gin.Context) {
 	pattern := c.Query("indexPattern")
 	if pattern == "" {
@@ -47,7 +51,7 @@ func (h *IndexHandler) Properties(c *gin.Context) {
 		return
 	}
 	if props == nil {
-		props = []ospkg.IndexPropertyType{}
+		props = []dto.IndexPropertyType{}
 	}
 	c.JSON(http.StatusOK, props)
 }
@@ -61,11 +65,11 @@ func (h *IndexHandler) Properties(c *gin.Context) {
 // @Param       pattern            query string false "Filter by index name pattern"
 // @Param       page               query int    false "Page number (1-based)"
 // @Param       size               query int    false "Page size"
-// @Success     200 {array}  ospkg.IndexInfo
+// @Success     200 {array}  dto.IndexInfo
 // @Header      200 {string} X-Total-Count "Total number of matching indices"
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /elasticsearch/index/all [get]
+// @Router      /opensearch/index/all [get]
 func (h *IndexHandler) IndexAll(c *gin.Context) {
 	includeSystem := false
 	if v := c.Query("includeSystemIndex"); v != "" {
@@ -118,7 +122,7 @@ func (h *IndexHandler) IndexAll(c *gin.Context) {
 // @Success     200 "Deleted"
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /elasticsearch/index/delete-index [post]
+// @Router      /opensearch/index/delete-index [post]
 func (h *IndexHandler) DeleteIndex(c *gin.Context) {
 	var indices []string
 	if err := c.ShouldBindJSON(&indices); err != nil {
@@ -126,7 +130,10 @@ func (h *IndexHandler) DeleteIndex(c *gin.Context) {
 		return
 	}
 
-	if err := h.uc.DeleteIndex(c.Request.Context(), indices); err != nil {
+	err := h.uc.DeleteIndex(c.Request.Context(), indices)
+	audit.Record(c, audit_connectors.Event{Action: "opensearch.index.delete", ResourceType: "opensearch_index", ResourceID: strings.Join(indices, ",")},
+		audit_domain.OPENSEARCH_INDEX_DELETE_ATTEMPT, audit_domain.OPENSEARCH_INDEX_DELETE_SUCCESS, err)
+	if err != nil {
 		writeOSError(c, err)
 		return
 	}

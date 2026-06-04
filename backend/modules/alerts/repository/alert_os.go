@@ -7,7 +7,6 @@ import (
 
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
-	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
@@ -86,23 +85,21 @@ if (params.mapping.containsKey(ctx._source.dataSource)) {
 `
 
 // ---------------------------------------------------------------------------
-// osAlertRepo implements connectors.AlertRepository using pkg/opensearch.
+// osAlertRepo implements connectors.AlertRepository against the go-sdk `os` client.
 // ---------------------------------------------------------------------------
 
-type osAlertRepo struct {
-	client *ospkg.Client
-}
+type osAlertRepo struct{}
 
-func NewOSAlertRepository(client *ospkg.Client) connectors.AlertRepository {
-	return &osAlertRepo{client: client}
+func NewOSAlertRepository() connectors.AlertRepository {
+	return &osAlertRepo{}
 }
 
 func idOrParentFilter(alertIDs []string) map[string]any {
 	return map[string]any{
 		"bool": map[string]any{
 			"should": []map[string]any{
-				ospkg.TermsQuery("id.keyword", alertIDs),
-				ospkg.TermsQuery("parentId.keyword", alertIDs),
+				termsQuery("id.keyword", alertIDs),
+				termsQuery("parentId.keyword", alertIDs),
 			},
 			"minimum_should_match": 1,
 		},
@@ -110,11 +107,11 @@ func idOrParentFilter(alertIDs []string) map[string]any {
 }
 
 func idOnlyFilter(alertIDs []string) map[string]any {
-	return ospkg.TermsQuery("id.keyword", alertIDs)
+	return termsQuery("id.keyword", alertIDs)
 }
 
 func (r *osAlertRepo) UpdateStatus(ctx context.Context, alertIDs []string, status int, statusLabel, observation string) error {
-	script := ospkg.Script{
+	script := Script{
 		Source: updateStatusScript,
 		Params: map[string]any{
 			"status":            status,
@@ -122,28 +119,28 @@ func (r *osAlertRepo) UpdateStatus(ctx context.Context, alertIDs []string, statu
 			"statusObservation": observation,
 		},
 	}
-	return r.client.UpdateByQuery(ctx, alertIndex, idOrParentFilter(alertIDs), script)
+	return osUpdateByQuery(ctx, alertIndex, idOrParentFilter(alertIDs), script)
 }
 
 func (r *osAlertRepo) UpdateStatusAndTag(ctx context.Context, alertIDs []string) error {
-	script := ospkg.Script{
+	script := Script{
 		Source: addFalsePositiveScript,
 		Params: map[string]any{
 			"tag": falsePositiveTag,
 		},
 	}
-	return r.client.UpdateByQuery(ctx, alertIndex, idOrParentFilter(alertIDs), script)
+	return osUpdateByQuery(ctx, alertIndex, idOrParentFilter(alertIDs), script)
 }
 
 func (r *osAlertRepo) UpdateNotes(ctx context.Context, alertID, notes string) error {
-	script := ospkg.Script{
+	script := Script{
 		Source: updateNotesScript,
 		Params: map[string]any{
 			"notes": notes,
 		},
 	}
-	filter := ospkg.TermQuery("id.keyword", alertID)
-	return r.client.UpdateByQuery(ctx, alertIndex, filter, script)
+	filter := termQuery("id.keyword", alertID)
+	return osUpdateByQuery(ctx, alertIndex, filter, script)
 }
 
 func (r *osAlertRepo) UpdateTags(ctx context.Context, alertIDs []string, tags []string) error {
@@ -151,13 +148,13 @@ func (r *osAlertRepo) UpdateTags(ctx context.Context, alertIDs []string, tags []
 	if len(tags) > 0 {
 		tagsParam = tags
 	}
-	script := ospkg.Script{
+	script := Script{
 		Source: updateTagsScript,
 		Params: map[string]any{
 			"tags": tagsParam,
 		},
 	}
-	return r.client.UpdateByQuery(ctx, alertIndex, idOnlyFilter(alertIDs), script)
+	return osUpdateByQuery(ctx, alertIndex, idOnlyFilter(alertIDs), script)
 }
 
 func (r *osAlertRepo) ConvertToIncident(ctx context.Context, alertIDs []string, name string, id int, createdAt time.Time, createdBy, source string) error {
@@ -165,11 +162,11 @@ func (r *osAlertRepo) ConvertToIncident(ctx context.Context, alertIDs []string, 
 		"bool": map[string]any{
 			"must": []map[string]any{
 				idOnlyFilter(alertIDs),
-				ospkg.TermQuery("isIncident", false),
+				termQuery("isIncident", false),
 			},
 		},
 	}
-	script := ospkg.Script{
+	script := Script{
 		Source: convertToIncidentScript,
 		Params: map[string]any{
 			"incidentName": name,
@@ -179,14 +176,14 @@ func (r *osAlertRepo) ConvertToIncident(ctx context.Context, alertIDs []string, 
 			"source":       source,
 		},
 	}
-	return r.client.UpdateByQuery(ctx, alertIndex, filter, script)
+	return osUpdateByQuery(ctx, alertIndex, filter, script)
 }
 
 func (r *osAlertRepo) CountOpenAlerts(ctx context.Context) (int64, error) {
 	query := map[string]any{
 		"bool": map[string]any{
 			"must": []map[string]any{
-				ospkg.TermQuery("status", int(domain.AlertStatusOpen)),
+				termQuery("status", int(domain.AlertStatusOpen)),
 			},
 			"must_not": []map[string]any{
 				{
@@ -202,17 +199,17 @@ func (r *osAlertRepo) CountOpenAlerts(ctx context.Context) (int64, error) {
 			},
 		},
 	}
-	return r.client.Count(ctx, alertIndex, query)
+	return osCount(ctx, alertIndex, query)
 }
 
 func (r *osAlertRepo) CountByStatus(ctx context.Context, status int) (int64, error) {
-	query := ospkg.TermQuery("status", status)
-	return r.client.Count(ctx, alertIndex, query)
+	query := termQuery("status", status)
+	return osCount(ctx, alertIndex, query)
 }
 
 func (r *osAlertRepo) SearchByIDs(ctx context.Context, alertIDs []string) ([]domain.UtmAlert, error) {
 	query := idOnlyFilter(alertIDs)
-	raws, err := r.client.Search(ctx, alertIndex, query, 10000)
+	raws, err := osSearchSources(ctx, alertIndex, query, 10000)
 	if err != nil {
 		return nil, err
 	}
@@ -230,11 +227,11 @@ func (r *osAlertRepo) SearchByIDs(ctx context.Context, alertIDs []string) ([]dom
 func filterTypeToQuery(f common_models.FilterType) map[string]any {
 	switch f.Operator {
 	case common_models.OpEquals:
-		return ospkg.TermQuery(f.Field, f.Value)
+		return termQuery(f.Field, f.Value)
 	case common_models.OpNotEquals:
 		return map[string]any{
 			"bool": map[string]any{
-				"must_not": ospkg.TermQuery(f.Field, f.Value),
+				"must_not": termQuery(f.Field, f.Value),
 			},
 		}
 	case common_models.OpIn, common_models.OpInOr:
@@ -259,11 +256,11 @@ func filterTypeToQuery(f common_models.FilterType) map[string]any {
 	case common_models.OpNotContains:
 		return map[string]any{
 			"bool": map[string]any{
-				"must_not": ospkg.MatchQuery(f.Field, f.Value),
+				"must_not": matchQuery(f.Field, f.Value),
 			},
 		}
 	default:
-		return ospkg.MatchQuery(f.Field, f.Value)
+		return matchQuery(f.Field, f.Value)
 	}
 }
 
@@ -288,7 +285,7 @@ func toAnySlice(v any) []any {
 func (r *osAlertRepo) ApplyTagRule(ctx context.Context, rule domain.UtmAlertTagRule, tagsForInsert []string, evaluationStart time.Time) error {
 	// Start with the base must clauses: status + timestamp range.
 	mustClauses := []map[string]any{
-		ospkg.TermQuery("status", int(domain.AlertStatusAutomaticReview)),
+		termQuery("status", int(domain.AlertStatusAutomaticReview)),
 		{
 			"range": map[string]any{
 				"@timestamp": map[string]any{
@@ -314,7 +311,7 @@ func (r *osAlertRepo) ApplyTagRule(ctx context.Context, rule domain.UtmAlertTagR
 		},
 	}
 
-	script := ospkg.Script{
+	script := Script{
 		Source: applyTagRuleScript,
 		Params: map[string]any{
 			"tagsForInsert":        tagsForInsert,
@@ -325,14 +322,14 @@ func (r *osAlertRepo) ApplyTagRule(ctx context.Context, rule domain.UtmAlertTagR
 			"completedObservation": "Status changed to completed because alert was tagged as False positive",
 		},
 	}
-	return r.client.UpdateByQuery(ctx, alertIndex, filter, script)
+	return osUpdateByQuery(ctx, alertIndex, filter, script)
 }
 
 func (r *osAlertRepo) ReleaseToOpen(ctx context.Context, evaluationStart time.Time) error {
 	filter := map[string]any{
 		"bool": map[string]any{
 			"must": []map[string]any{
-				ospkg.TermQuery("status", int(domain.AlertStatusAutomaticReview)),
+				termQuery("status", int(domain.AlertStatusAutomaticReview)),
 				{
 					"range": map[string]any{
 						"@timestamp": map[string]any{
@@ -343,7 +340,7 @@ func (r *osAlertRepo) ReleaseToOpen(ctx context.Context, evaluationStart time.Ti
 			},
 		},
 	}
-	script := ospkg.Script{
+	script := Script{
 		Source: releaseToOpenScript,
 		Params: map[string]any{
 			"openCode":        int(domain.AlertStatusOpen),
@@ -351,14 +348,14 @@ func (r *osAlertRepo) ReleaseToOpen(ctx context.Context, evaluationStart time.Ti
 			"openObservation": "This alert has been evaluated by the tag rules engine",
 		},
 	}
-	return r.client.UpdateByQuery(ctx, alertIndex, filter, script)
+	return osUpdateByQuery(ctx, alertIndex, filter, script)
 }
 
 func (r *osAlertRepo) SearchByStatusAndTimestamp(ctx context.Context, status int, evaluationStart time.Time, size int) ([]domain.UtmAlert, error) {
 	query := map[string]any{
 		"bool": map[string]any{
 			"must": []map[string]any{
-				ospkg.TermQuery("status", status),
+				termQuery("status", status),
 				{
 					"range": map[string]any{
 						"@timestamp": map[string]any{
@@ -369,7 +366,7 @@ func (r *osAlertRepo) SearchByStatusAndTimestamp(ctx context.Context, status int
 			},
 		},
 	}
-	raws, err := r.client.Search(ctx, alertIndex, query, size)
+	raws, err := osSearchSources(ctx, alertIndex, query, size)
 	if err != nil {
 		return nil, err
 	}
@@ -386,7 +383,7 @@ func (r *osAlertRepo) SearchByStatusAndTimestamp(ctx context.Context, status int
 
 func (r *osAlertRepo) SearchByRuleConditionsAndTimestamp(ctx context.Context, rule domain.UtmAlertTagRule, evaluationStart time.Time, size int) ([]domain.UtmAlert, error) {
 	mustClauses := []map[string]any{
-		ospkg.TermQuery("status", int(domain.AlertStatusAutomaticReview)),
+		termQuery("status", int(domain.AlertStatusAutomaticReview)),
 		{
 			"range": map[string]any{
 				"@timestamp": map[string]any{
@@ -405,7 +402,7 @@ func (r *osAlertRepo) SearchByRuleConditionsAndTimestamp(ctx context.Context, ru
 		}
 	}
 	query := map[string]any{"bool": map[string]any{"must": mustClauses}}
-	raws, err := r.client.Search(ctx, alertIndex, query, size)
+	raws, err := osSearchSources(ctx, alertIndex, query, size)
 	if err != nil {
 		return nil, err
 	}
@@ -421,7 +418,7 @@ func (r *osAlertRepo) SearchByRuleConditionsAndTimestamp(ctx context.Context, ru
 }
 
 func (r *osAlertRepo) AssignAssetGroups(ctx context.Context, mapping map[string]connectors.AssetGroupRef) error {
-	filter := ospkg.TermQuery("status", int(domain.AlertStatusAutomaticReview))
+	filter := termQuery("status", int(domain.AlertStatusAutomaticReview))
 
 	// Convert mapping to a plain map[string]any for Painless params.
 	pmapping := make(map[string]any, len(mapping))
@@ -429,11 +426,11 @@ func (r *osAlertRepo) AssignAssetGroups(ctx context.Context, mapping map[string]
 		pmapping[k] = map[string]any{"id": v.ID, "name": v.Name}
 	}
 
-	script := ospkg.Script{
+	script := Script{
 		Source: assignAssetGroupsScript,
 		Params: map[string]any{
 			"mapping": pmapping,
 		},
 	}
-	return r.client.UpdateByQuery(ctx, alertIndex, filter, script)
+	return osUpdateByQuery(ctx, alertIndex, filter, script)
 }

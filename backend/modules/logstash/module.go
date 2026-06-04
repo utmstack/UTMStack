@@ -7,7 +7,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/logstash/handler"
 	"github.com/utmstack/utmstack/backend/modules/logstash/repository"
 	"github.com/utmstack/utmstack/backend/modules/logstash/usecase"
-	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
 	"gorm.io/gorm"
 )
 
@@ -22,7 +21,7 @@ type Module struct {
 	auditLogger audit_connectors.Logger //nolint:unused
 }
 
-func NewModule(db *gorm.DB, osClient *ospkg.Client, auditLogger audit_connectors.Logger) *Module {
+func NewModule(db *gorm.DB, auditLogger audit_connectors.Logger) *Module {
 	fgRepo := repository.NewFilterGroupRepository(db)
 	fgUC := usecase.NewFilterGroupUsecase(fgRepo)
 	fgHandler := handler.NewFilterGroupHandler(fgUC)
@@ -33,7 +32,7 @@ func NewModule(db *gorm.DB, osClient *ospkg.Client, auditLogger audit_connectors
 	filterUC := usecase.NewFilterUsecase(filterRepo, pipelineFilterRepo, pipelineRepo)
 	filterHandler := handler.NewFilterHandler(filterUC)
 
-	statsRepo := repository.NewStatisticsRepository(osClient)
+	statsRepo := repository.NewStatisticsRepository()
 	pipelineUC := usecase.NewPipelineUsecase(db, pipelineRepo, pipelineFilterRepo, filterRepo)
 	pipelineHandler := handler.NewPipelineHandler(pipelineUC)
 	pipelineScheduler := usecase.NewPipelineScheduler(pipelineRepo, filterRepo, statsRepo)

@@ -6,29 +6,27 @@ import (
 	"fmt"
 
 	"github.com/threatwinds/go-sdk/catcher"
+	osdk "github.com/threatwinds/go-sdk/os"
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
-	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
 )
 
 // adversaryIndexPattern is the OpenSearch index the adversary aggregation reads.
 const adversaryIndexPattern = "v11-alert-*"
 
-type adversaryUsecase struct {
-	osClient *ospkg.Client
-}
+type adversaryUsecase struct{}
 
-func NewAdversaryUsecase(osClient *ospkg.Client) connectors.AdversaryUsecase {
-	return &adversaryUsecase{osClient: osClient}
+func NewAdversaryUsecase() connectors.AdversaryUsecase {
+	return &adversaryUsecase{}
 }
 
 func (u *adversaryUsecase) FetchAdversaryAlerts(
 	ctx context.Context,
 	filters []common_models.FilterType,
 ) ([]dto.AdversaryResponse, error) {
-	exists, err := u.osClient.IndexExists(ctx, adversaryIndexPattern)
+	exists, err := osdk.IndexExists(ctx, adversaryIndexPattern)
 	if err != nil {
 		_ = catcher.Error("alerts adversary: IndexExists failed", err, nil)
 		return nil, err
@@ -101,17 +99,18 @@ func (u *adversaryUsecase) FetchAdversaryAlerts(
 		},
 	}
 
-	rawResp, status, err := u.osClient.RawSearch(ctx, adversaryIndexPattern, body)
+	res, err := osdk.RawSearch(ctx, []string{adversaryIndexPattern}, body)
 	if err != nil {
 		_ = catcher.Error("alerts adversary: OpenSearch search failed", err, nil)
 		return nil, err
 	}
-	if status < 200 || status >= 300 {
-		_ = catcher.Error(fmt.Sprintf("alerts adversary: unexpected status %d from OpenSearch", status), nil, nil)
-		return nil, fmt.Errorf("opensearch returned status %d", status)
-	}
 
-	return parseAdversaryAggs(rawResp)
+	// parseAdversaryAggs decodes the full {"aggregations": {...}} envelope.
+	rawAggs, err := json.Marshal(map[string]any{"aggregations": res.Aggregations})
+	if err != nil {
+		return nil, err
+	}
+	return parseAdversaryAggs(rawAggs)
 }
 
 // ---------------------------------------------------------------------------

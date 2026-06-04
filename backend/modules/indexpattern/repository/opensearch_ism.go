@@ -1,44 +1,22 @@
 package repository
 
 import (
-	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 
+	osdk "github.com/threatwinds/go-sdk/os"
 	"github.com/utmstack/utmstack/backend/modules/indexpattern/domain"
 	"github.com/utmstack/utmstack/backend/modules/indexpattern/dto"
-	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
 )
 
-type ISMClient struct {
-	base string // e.g. "https://os:9200"
-	user string
-	pass string
-	hc   *http.Client
-}
+// ISMClient performs Index State Management (and snapshot/mapping) calls against
+// OpenSearch through the go-sdk `os` global client (configured at startup).
+type ISMClient struct{}
 
-func NewISMClient(cfg ospkg.Config) *ISMClient {
-	scheme := "http"
-	if cfg.UseTLS {
-		scheme = "https"
-	}
-	base := fmt.Sprintf("%s://%s:%d", scheme, cfg.Host, cfg.Port)
-
-	transport := &http.Transport{}
-	if cfg.InsecureSkipVerify {
-		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true} //nolint:gosec
-	}
-
-	return &ISMClient{
-		base: base,
-		user: cfg.User,
-		pass: cfg.Password,
-		hc:   &http.Client{Transport: transport},
-	}
+func NewISMClient() *ISMClient {
+	return &ISMClient{}
 }
 
 // ---------------------------------------------------------------------------
@@ -46,34 +24,7 @@ func NewISMClient(cfg ospkg.Config) *ISMClient {
 // ---------------------------------------------------------------------------
 
 func (c *ISMClient) do(ctx context.Context, method, path string, body any) ([]byte, int, error) {
-	var bodyReader io.Reader
-	if body != nil {
-		b, err := json.Marshal(body)
-		if err != nil {
-			return nil, 0, fmt.Errorf("ism: marshal body: %w", err)
-		}
-		bodyReader = bytes.NewReader(b)
-	}
-
-	url := c.base + "/" + path
-	req, err := http.NewRequestWithContext(ctx, method, url, bodyReader)
-	if err != nil {
-		return nil, 0, fmt.Errorf("ism: new request: %w", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.SetBasicAuth(c.user, c.pass)
-
-	resp, err := c.hc.Do(req)
-	if err != nil {
-		return nil, 0, fmt.Errorf("ism: %s %s: %w", method, path, err)
-	}
-	defer resp.Body.Close()
-
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, resp.StatusCode, fmt.Errorf("ism: read body: %w", err)
-	}
-	return data, resp.StatusCode, nil
+	return osdk.DoRequest(ctx, method, path, body)
 }
 
 // ---------------------------------------------------------------------------

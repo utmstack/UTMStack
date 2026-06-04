@@ -10,7 +10,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/opensearch/connectors"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/dto"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
-	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
 )
 
 type Gateway struct {
@@ -39,18 +38,18 @@ func (g *Gateway) PropertyValuesWithCount(ctx context.Context, req dto.PropertyV
 	return g.repo.PropertyValuesWithCount(ctx, req.Index, req.Field, filters, top, req.OrderByCount, req.SortAsc)
 }
 
-func (g *Gateway) IndexProperties(ctx context.Context, pattern string) ([]ospkg.IndexPropertyType, error) {
+func (g *Gateway) IndexProperties(ctx context.Context, pattern string) ([]dto.IndexPropertyType, error) {
 	return g.repo.IndexProperties(ctx, pattern)
 }
 
-func (g *Gateway) IndexAll(ctx context.Context, pattern string, includeSystem bool, page, size int) ([]ospkg.IndexInfo, int64, error) {
+func (g *Gateway) IndexAll(ctx context.Context, pattern string, includeSystem bool, page, size int) ([]dto.IndexInfo, int64, error) {
 	all, err := g.repo.Indices(ctx, pattern)
 	if err != nil {
 		return nil, 0, err
 	}
 
 	// Filter system indices.
-	filtered := make([]ospkg.IndexInfo, 0, len(all))
+	filtered := make([]dto.IndexInfo, 0, len(all))
 	for _, idx := range all {
 		if !includeSystem && strings.HasPrefix(idx.Name, ".") {
 			continue
@@ -68,7 +67,7 @@ func (g *Gateway) IndexAll(ctx context.Context, pattern string, includeSystem bo
 	}
 	start := (page - 1) * size
 	if start >= len(filtered) {
-		return []ospkg.IndexInfo{}, total, nil
+		return []dto.IndexInfo{}, total, nil
 	}
 	end := start + size
 	if end > len(filtered) {

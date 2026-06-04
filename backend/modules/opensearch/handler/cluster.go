@@ -28,7 +28,7 @@ func NewClusterHandler(uc clusterUsecase) *ClusterHandler {
 // @Success     200 {object} dto.ClusterStatusResponse
 // @Success     204 "No cluster information available"
 // @Failure     500 {object} map[string]string
-// @Router      /elasticsearch/cluster/status [get]
+// @Router      /opensearch/cluster/status [get]
 func (h *ClusterHandler) Status(c *gin.Context) {
 	resp, err := h.uc.ClusterStatus(c.Request.Context())
 	if err != nil {

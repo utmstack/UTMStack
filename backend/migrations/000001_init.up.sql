@@ -110,7 +110,9 @@ INSERT INTO permissions (name, description, resource, action) VALUES
     ('alerts.read',      'List and view alerts, tags and tag rules',          'alerts', 'read'),
     ('alerts.write',     'Update alerts and manage alert tags and tag rules', 'alerts', 'write'),
     ('incidents.read',   'List and view incidents, alerts, notes and history', 'incidents', 'read'),
-    ('incidents.write',  'Create and manage incidents, their alerts and notes', 'incidents', 'write')
+    ('incidents.write',  'Create and manage incidents, their alerts and notes', 'incidents', 'write'),
+    ('opensearch.read',  'Query OpenSearch (search, properties, cluster status)', 'opensearch', 'read'),
+    ('opensearch.write', 'Destructive OpenSearch ops (delete index)',            'opensearch', 'write')
 ON CONFLICT (name) DO NOTHING;
 
 -- Bind ROLE_ADMIN to every permission currently in the catalog. Re-run this

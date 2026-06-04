@@ -8,10 +8,10 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/dto"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/usecase"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 type sqlUsecase interface {
@@ -41,7 +41,7 @@ func NewSQLHandler(uc sqlUsecase) *SQLHandler {
 // @Header      200 {string} X-Total-Count "Total rows (capped at 10000)"
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /elasticsearch/search/sql [post]
+// @Router      /opensearch/search/sql [post]
 func (h *SQLHandler) SearchSQL(c *gin.Context) {
 	page := queryIntDefault(c, "page", 1)
 	size := queryIntDefault(c, "size", 10)
@@ -82,7 +82,7 @@ func (h *SQLHandler) SearchSQL(c *gin.Context) {
 // @Success     200 {string} string "CSV file stream"
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /elasticsearch/search/csv [post]
+// @Router      /opensearch/search/csv [post]
 func (h *SQLHandler) SearchCSV(c *gin.Context) {
 	var params dto.CsvExportingParams
 	if err := c.ShouldBindJSON(&params); err != nil {
@@ -101,7 +101,7 @@ func (h *SQLHandler) SearchCSV(c *gin.Context) {
 	c.Status(http.StatusOK)
 
 	if err := h.uc.ExportCSV(hits, params.Columns, c.Writer); err != nil {
-		logger.Error("SearchCSV: ExportCSV failed: " + err.Error())
+		_ = catcher.Error("SearchCSV: ExportCSV failed", err, nil)
 		// Headers already sent; write a plain-text error trailer so callers can detect it.
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 	}

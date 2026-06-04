@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
-	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
 )
 
 // appendHistoryScript appends each alert's pending change-history entries to
@@ -22,12 +21,10 @@ if (aid != null && params.byId.containsKey(aid)) {
 
 // osHistoryRecorder appends change-history entries to the alert documents in
 // OpenSearch, replacing the former Postgres utm_alert_log table.
-type osHistoryRecorder struct {
-	client *ospkg.Client
-}
+type osHistoryRecorder struct{}
 
-func NewHistoryRecorder(client *ospkg.Client) connectors.HistoryRecorder {
-	return &osHistoryRecorder{client: client}
+func NewHistoryRecorder() connectors.HistoryRecorder {
+	return &osHistoryRecorder{}
 }
 
 func (r *osHistoryRecorder) Record(ctx context.Context, entries []connectors.HistoryEntry) error {
@@ -57,9 +54,9 @@ func (r *osHistoryRecorder) Record(ctx context.Context, entries []connectors.His
 		ids = append(ids, id)
 	}
 
-	script := ospkg.Script{
+	script := Script{
 		Source: appendHistoryScript,
 		Params: map[string]any{"byId": byID},
 	}
-	return r.client.UpdateByQuery(ctx, alertIndex, idOnlyFilter(ids), script)
+	return osUpdateByQuery(ctx, alertIndex, idOnlyFilter(ids), script)
 }

@@ -5,6 +5,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/utmstack/utmstack/backend/modules/audit"
+	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
+	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/logstash/connectors"
 	"github.com/utmstack/utmstack/backend/modules/logstash/dto"
 )
@@ -45,6 +48,7 @@ func (h *FilterHandler) Create(c *gin.Context) {
 	}
 
 	resp, err := h.usecase.Create(c.Request.Context(), req, pipelineID)
+	audit.Record(c, audit_connectors.Event{Action: "logstash_filter.create"}, audit_domain.LOGSTASH_FILTER_CREATE_ATTEMPT, audit_domain.LOGSTASH_FILTER_CREATE_SUCCESS, err)
 	if err != nil {
 		writeFilterError(c, err)
 		return
@@ -69,6 +73,7 @@ func (h *FilterHandler) Update(c *gin.Context) {
 	}
 
 	resp, err := h.usecase.Update(c.Request.Context(), req)
+	audit.Record(c, audit_connectors.Event{Action: "logstash_filter.update"}, audit_domain.LOGSTASH_FILTER_UPDATE_ATTEMPT, audit_domain.LOGSTASH_FILTER_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeFilterError(c, err)
 		return
@@ -180,7 +185,9 @@ func (h *FilterHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.usecase.Delete(c.Request.Context(), id); err != nil {
+	err := h.usecase.Delete(c.Request.Context(), id)
+	audit.Record(c, audit_connectors.Event{Action: "logstash_filter.delete"}, audit_domain.LOGSTASH_FILTER_DELETE_ATTEMPT, audit_domain.LOGSTASH_FILTER_DELETE_SUCCESS, err)
+	if err != nil {
 		writeFilterError(c, err)
 		return
 	}

@@ -6,13 +6,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/dto"
-	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
 )
 
 type propertyUsecase interface {
 	PropertyValues(ctx context.Context, req dto.PropertyValuesRequest) ([]string, error)
 	PropertyValuesWithCount(ctx context.Context, req dto.PropertyValuesWithCountRequest) (map[string]int64, error)
-	IndexProperties(ctx context.Context, pattern string) ([]ospkg.IndexPropertyType, error)
+	IndexProperties(ctx context.Context, pattern string) ([]dto.IndexPropertyType, error)
 }
 
 type PropertyHandler struct {
@@ -33,7 +32,7 @@ func NewPropertyHandler(uc propertyUsecase) *PropertyHandler {
 // @Success     200 {array}  string
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /elasticsearch/property/values [get]
+// @Router      /opensearch/property/values [get]
 func (h *PropertyHandler) Values(c *gin.Context) {
 	var req dto.PropertyValuesRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -60,7 +59,7 @@ func (h *PropertyHandler) Values(c *gin.Context) {
 // @Success     200 {object} map[string]int64
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /elasticsearch/property/values-with-count [post]
+// @Router      /opensearch/property/values-with-count [post]
 func (h *PropertyHandler) ValuesWithCount(c *gin.Context) {
 	var req dto.PropertyValuesWithCountRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

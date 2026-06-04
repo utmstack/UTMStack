@@ -4,38 +4,44 @@ import (
 	"context"
 	"encoding/json"
 
+	osdk "github.com/threatwinds/go-sdk/os"
 	"github.com/utmstack/utmstack/backend/modules/logstash/connectors"
 	"github.com/utmstack/utmstack/backend/modules/logstash/dto"
-	ospkg "github.com/utmstack/utmstack/backend/pkg/opensearch"
 )
 
 const statisticsIndexPattern = "v11-statistics-*"
 
-type osStatisticsRepository struct {
-	client *ospkg.Client
-}
+type osStatisticsRepository struct{}
 
-func NewStatisticsRepository(client *ospkg.Client) connectors.StatisticsRepository {
-	return &osStatisticsRepository{client: client}
+func NewStatisticsRepository() connectors.StatisticsRepository {
+	return &osStatisticsRepository{}
 }
 
 func (r *osStatisticsRepository) GetLatestStatistic(ctx context.Context, dataType string) (*dto.StatisticDocument, error) {
-	query := map[string]any{
-		"match": map[string]any{
-			"dataType": dataType,
+	body := map[string]any{
+		"size": 1,
+		"query": map[string]any{
+			"match": map[string]any{"dataType": dataType},
+		},
+		"sort": []map[string]any{
+			{"@timestamp": map[string]any{"order": "desc"}},
 		},
 	}
 
-	hits, err := r.client.SearchWithSort(ctx, statisticsIndexPattern, query, "@timestamp", "desc", 1)
+	res, err := osdk.RawSearch(ctx, []string{statisticsIndexPattern}, body)
 	if err != nil {
 		return nil, err
 	}
-	if len(hits) == 0 {
+	if len(res.Hits.Hits) == 0 {
 		return nil, nil
 	}
 
+	raw, err := json.Marshal(res.Hits.Hits[0].Source)
+	if err != nil {
+		return nil, err
+	}
 	var doc dto.StatisticDocument
-	if err := json.Unmarshal(hits[0], &doc); err != nil {
+	if err := json.Unmarshal(raw, &doc); err != nil {
 		return nil, err
 	}
 	return &doc, nil
