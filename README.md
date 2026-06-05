@@ -17,14 +17,16 @@
   </a>
 </p>
 
-[![Contributors](https://img.shields.io/github/contributors-anon/utmstack/utmstack)](https://github.com/utmstack/UTMStack/graphs/contributors)
-[![Release](https://img.shields.io/github/release/utmstack/utmstack)](https://github.com/utmstack/UTMStack/releases/)
-[![Issues](https://img.shields.io/github/issues-raw/utmstack/utmstack)](https://github.com/utmstack/UTMStack/issues)
-[![Commit Activity](https://img.shields.io/github/commit-activity/m/utmstack/utmstack)](https://github.com/utmstack/UTMStack/commits/main)
-[![License](https://img.shields.io/github/license/utmstack/utmstack?color=blue)](https://github.com/utmstack/UTMStack/blob/master/LICENSE)
-[![Discord](https://img.shields.io/discord/1154016563775672400.svg?logo=discord)](https://discord.gg/ZznvZ8xcHh)
+<p align="center">
+<a href="https://github.com/utmstack/UTMStack/graphs/contributors"><img src="https://img.shields.io/github/contributors-anon/utmstack/utmstack">
+<a href="https://github.com/utmstack/UTMStack/releases/"><img src="https://img.shields.io/github/release/utmstack/utmstack">
+<a href="https://github.com/utmstack/UTMStack/issues"><img src="https://img.shields.io/github/issues-raw/utmstack/utmstack">
+<a href="https://github.com/utmstack/UTMStack/commits/main"><img src="https://img.shields.io/github/commit-activity/m/utmstack/utmstack">
+<a href="https://github.com/utmstack/UTMStack/blob/master/LICENSE"><img src="https://img.shields.io/github/license/ad-aures/castopod?color=blue">
+<a href="https://discord.gg/ZznvZ8xcHh"><img src="https://img.shields.io/discord/1154016563775672400.svg?logo=discord">
+</p>
 
-#### Enterprise-ready SIEM and XDR powered by Real-Time correlation and Threat Intelligence
+<h4 align="center">Enterprise-ready SIEM and XDR powered by Real-Time correlation and Threat Intelligence</h4>
 
 ## Introduction
 
