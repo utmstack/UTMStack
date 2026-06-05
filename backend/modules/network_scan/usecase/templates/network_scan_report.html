@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Network Scan Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 11px; color: #222; }
+        h1 { font-size: 20px; margin-bottom: 0; }
+        h2 { font-size: 14px; margin-top: 24px; border-bottom: 1px solid #888; padding-bottom: 4px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        th, td { border: 1px solid #aaa; padding: 4px 6px; text-align: left; vertical-align: top; }
+        th { background: #eee; }
+        .asset-block { page-break-inside: avoid; margin-bottom: 28px; }
+        .meta-row td { background: #fafafa; }
+        .small { font-size: 10px; color: #555; }
+    </style>
+</head>
+<body>
+<h1>Network Scan Report</h1>
+<p class="small">Total assets: {{len .Assets}}</p>
+
+{{range .Assets}}
+<div class="asset-block">
+    <h2>{{if .Name}}{{.Name}}{{else}}{{.IP}}{{end}}</h2>
+    <table>
+        <tr><th>IP</th><td>{{.IP}}</td><th>MAC</th><td>{{.MAC}}</td></tr>
+        <tr><th>OS</th><td>{{.OS}}</td><th>Type</th><td>{{.Type}}</td></tr>
+        <tr><th>Alive</th><td>{{if .Alive}}Yes{{else}}No{{end}}</td><th>Status</th><td>{{.Status}}</td></tr>
+        <tr><th>Severity</th><td>{{.Severity}}</td><th>Discovered</th><td>{{.DiscoveredAt}}</td></tr>
+        <tr><th>Last modified</th><td colspan="3">{{.ModifiedAt}}</td></tr>
+        {{if .Addresses}}<tr class="meta-row"><th>Addresses</th><td colspan="3">{{.Addresses}}</td></tr>{{end}}
+        {{if .Aliases}}<tr class="meta-row"><th>Aliases</th><td colspan="3">{{.Aliases}}</td></tr>{{end}}
+        {{if .Notes}}<tr class="meta-row"><th>Notes</th><td colspan="3">{{.Notes}}</td></tr>{{end}}
+    </table>
+
+    {{if .Ports}}
+    <table>
+        <tr><th>Port</th><th>TCP</th><th>UDP</th></tr>
+        {{range .Ports}}
+        <tr><td>{{.Port}}</td><td>{{.TCP}}</td><td>{{.UDP}}</td></tr>
+        {{end}}
+    </table>
+    {{end}}
+</div>
+{{end}}
+</body>
+</html>

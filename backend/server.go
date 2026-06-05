@@ -24,6 +24,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/indexpattern"
 	"github.com/utmstack/utmstack/backend/modules/integrations"
 	"github.com/utmstack/utmstack/backend/modules/logstash"
+	"github.com/utmstack/utmstack/backend/modules/network_scan"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
@@ -100,6 +101,7 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	incidents.RegisterRoutes(api, m.incidents, userAuth)
 	notifications.RegisterRoutes(api, m.notifications, userAuth)
 	socai.RegisterRoutes(api, m.socAI, userAuth)
+	network_scan.RegisterRoutes(api, m.networkScan, userAuth)
 }
 
 // startServer starts the HTTP server and blocks until appCtx is cancelled

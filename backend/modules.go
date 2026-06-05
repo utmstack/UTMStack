@@ -21,6 +21,9 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/indexpattern"
 	"github.com/utmstack/utmstack/backend/modules/integrations"
 	"github.com/utmstack/utmstack/backend/modules/logstash"
+	"github.com/utmstack/utmstack/backend/modules/network_scan"
+	ns_repository "github.com/utmstack/utmstack/backend/modules/network_scan/repository"
+	ns_usecase "github.com/utmstack/utmstack/backend/modules/network_scan/usecase"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
@@ -60,6 +63,7 @@ type modules struct {
 	incidents         *incidents.Module
 	notifications     *notifications.Module
 	socAI             *socai.Module
+	networkScan       *network_scan.Module
 	signer            *jwtpkg.Signer
 }
 
@@ -127,6 +131,28 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false),
 	)
 
+	// network_scan: asset inventory + monitoring (the Java network_scan module port).
+	nsRepo := ns_repository.NewNetworkScanRepository(db)
+	nsPortsRepo := ns_repository.NewPortsRepository(db)
+	nsAssetGroupRepo := ns_repository.NewAssetGroupRepository(db)
+	nsAssetTypesRepo := ns_repository.NewAssetTypesRepository(db)
+	nsDataInputs := ns_repository.NewDataInputStatusGateway(db)
+	nsProbe := ns_repository.NewHTTPProbeClient(configMod.Store(), 30*time.Second)
+	nsAgentGW := ns_usecase.NewAgentGateway(agentClient)
+	nsUC := ns_usecase.NewNetworkScanUsecase(nsRepo, nsPortsRepo, nsAgentGW, nsDataInputs)
+	nsGroupUC := ns_usecase.NewAssetGroupUsecase(nsAssetGroupRepo)
+	nsTypesUC := ns_usecase.NewAssetTypesUsecase(nsAssetTypesRepo)
+	nsPortsUC := ns_usecase.NewPortsUsecase(nsPortsRepo)
+	nsProbeUC := ns_usecase.NewProbeUsecase(nsProbe)
+	nsReportUC := ns_usecase.NewReportUsecase(nsRepo)
+	var nsScheduler *ns_usecase.Scheduler
+	if env.Bool("NETWORK_SCAN_SCHEDULER_ENABLED", false) {
+		nsScheduler = ns_usecase.NewScheduler(
+			ns_usecase.NewAssetSync(nsRepo, nsDataInputs, nsAgentGW, ns_usecase.NewSourceActivityProvider()),
+		)
+	}
+	networkScanMod := network_scan.NewModule(nsUC, nsGroupUC, nsTypesUC, nsPortsUC, nsProbeUC, nsReportUC, nsScheduler)
+
 	return &modules{
 		iam:               iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, cfg.uploadDir),
 		audit:             auditMod,
@@ -150,6 +176,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 			auditMod.Logger(),
 		),
 		notifications: notifications.NewModule(db, auditMod.Logger()),
+		networkScan:   networkScanMod,
 		signer:        signer,
 	}
 }
