@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	osdk "github.com/threatwinds/go-sdk/os"
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/domain"
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/dto"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/domain"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/dto"
 )
 
 // ISMClient performs Index State Management (and snapshot/mapping) calls against

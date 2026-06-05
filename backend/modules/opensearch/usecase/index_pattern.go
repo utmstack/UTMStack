@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/connectors"
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/domain"
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/dto"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/connectors"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/domain"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/dto"
 )
 
 var errIDMustBeAbsent = errors.New("id must be absent on create")
@@ -102,7 +102,7 @@ func (u *indexPatternUsecase) Fields(ctx context.Context, f dto.IndexPatternFilt
 		if u.ismRepo != nil {
 			fields, ferr := u.ismRepo.GetIndexProperties(ctx, items[i].Pattern)
 			if ferr != nil {
-				logger.Warn("indexpattern: GetIndexProperties(" + items[i].Pattern + "): " + ferr.Error())
+				catcher.Warn("opensearch: GetIndexProperties("+items[i].Pattern+"): "+ferr.Error(), nil)
 				entry.Fields = nil
 			} else {
 				entry.Fields = fields

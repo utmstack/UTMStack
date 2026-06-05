@@ -3,8 +3,8 @@ package connectors
 import (
 	"context"
 
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/domain"
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/dto"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/domain"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/dto"
 )
 
 type IndexPatternUsecase interface {

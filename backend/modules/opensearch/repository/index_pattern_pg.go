@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/connectors"
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/domain"
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/dto"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/connectors"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/domain"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/dto"
 	"gorm.io/gorm"
 )
 

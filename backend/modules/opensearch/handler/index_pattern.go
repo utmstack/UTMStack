@@ -2,10 +2,14 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/connectors"
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/dto"
+	"github.com/utmstack/utmstack/backend/modules/audit"
+	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
+	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/connectors"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/dto"
 )
 
 type IndexPatternHandler struct {
@@ -33,6 +37,8 @@ func (h *IndexPatternHandler) Create(c *gin.Context) {
 	}
 
 	resp, err := h.usecase.Create(c.Request.Context(), req)
+	audit.Record(c, audit_connectors.Event{Action: "index.pattern.create", ResourceType: "index_pattern", ResourceID: req.Pattern},
+		audit_domain.INDEX_PATTERN_CREATE_ATTEMPT, audit_domain.INDEX_PATTERN_CREATE_SUCCESS, err)
 	if err != nil {
 		writeIPError(c, err)
 		return
@@ -57,6 +63,8 @@ func (h *IndexPatternHandler) Update(c *gin.Context) {
 	}
 
 	resp, err := h.usecase.Update(c.Request.Context(), req)
+	audit.Record(c, audit_connectors.Event{Action: "index.pattern.update", ResourceType: "index_pattern", ResourceID: strconv.FormatInt(req.ID, 10)},
+		audit_domain.INDEX_PATTERN_UPDATE_ATTEMPT, audit_domain.INDEX_PATTERN_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeIPError(c, err)
 		return
@@ -172,7 +180,10 @@ func (h *IndexPatternHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.usecase.Delete(c.Request.Context(), id); err != nil {
+	err := h.usecase.Delete(c.Request.Context(), id)
+	audit.Record(c, audit_connectors.Event{Action: "index.pattern.delete", ResourceType: "index_pattern", ResourceID: strconv.FormatInt(id, 10)},
+		audit_domain.INDEX_PATTERN_DELETE_ATTEMPT, audit_domain.INDEX_PATTERN_DELETE_SUCCESS, err)
+	if err != nil {
 		writeIPError(c, err)
 		return
 	}

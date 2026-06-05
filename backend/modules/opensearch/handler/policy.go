@@ -4,8 +4,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/connectors"
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/domain"
+	"github.com/utmstack/utmstack/backend/modules/audit"
+	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
+	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/connectors"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/domain"
 )
 
 type PolicyHandler struct {
@@ -53,6 +56,8 @@ func (h *PolicyHandler) UpdatePolicy(c *gin.Context) {
 	}
 
 	resp, err := h.usecase.UpdatePolicy(c.Request.Context(), req)
+	audit.Record(c, audit_connectors.Event{Action: "index.policy.update", ResourceType: "index_policy", ResourceID: domain.PolicyID},
+		audit_domain.INDEX_POLICY_UPDATE_ATTEMPT, audit_domain.INDEX_POLICY_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeIPError(c, err)
 		return

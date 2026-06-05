@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/connectors"
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/domain"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/connectors"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/domain"
 )
 
 type BootstrapService struct {
@@ -42,24 +42,24 @@ func (b *BootstrapService) InitPatterns(ctx context.Context) error {
 	b.registry.LogsWindows = byID[8]
 
 	if b.registry.Logs == "" {
-		logger.Warn("indexpattern: system pattern id=1 (LOGS) not found in database")
+		catcher.Warn("opensearch: system pattern id=1 (LOGS) not found in database", nil)
 	}
 	if b.registry.Alerts == "" {
-		logger.Warn("indexpattern: system pattern id=2 (ALERTS) not found in database")
+		catcher.Warn("opensearch: system pattern id=2 (ALERTS) not found in database", nil)
 	}
 	if b.registry.LogsWindows == "" {
-		logger.Warn("indexpattern: system pattern id=8 (LOGS_WINDOWS) not found in database")
+		catcher.Warn("opensearch: system pattern id=8 (LOGS_WINDOWS) not found in database", nil)
 	}
 
-	logger.Info("indexpattern: registry populated — LOGS=" + b.registry.Logs +
-		" ALERTS=" + b.registry.Alerts +
-		" LOGS_WINDOWS=" + b.registry.LogsWindows)
+	catcher.Info("opensearch: registry populated — LOGS="+b.registry.Logs+
+		" ALERTS="+b.registry.Alerts+
+		" LOGS_WINDOWS="+b.registry.LogsWindows, nil)
 	return nil
 }
 
 func (b *BootstrapService) InitPolicy(ctx context.Context) error {
 	if b.ismRepo == nil {
-		logger.Info("indexpattern: ISM repository not configured — skipping policy bootstrap")
+		catcher.Info("opensearch: ISM repository not configured — skipping policy bootstrap", nil)
 		return nil
 	}
 
@@ -82,7 +82,7 @@ func (b *BootstrapService) createPolicy(ctx context.Context) error {
 	if err := b.ismRepo.CreatePolicy(ctx, policy); err != nil {
 		return err
 	}
-	logger.Info("indexpattern: ISM policy created")
+	catcher.Info("opensearch: ISM policy created", nil)
 
 	logsPattern := b.registry.Get(domain.SysPatternLogs)
 	alertsPattern := b.registry.Get(domain.SysPatternAlerts)
@@ -108,7 +108,7 @@ func (b *BootstrapService) registerSnapshotRepo(ctx context.Context) error {
 	if exists {
 		return nil
 	}
-	logger.Info("indexpattern: registering snapshot repository")
+	catcher.Info("opensearch: registering snapshot repository", nil)
 	return b.ismRepo.RegisterSnapshotRepo(ctx)
 }
 

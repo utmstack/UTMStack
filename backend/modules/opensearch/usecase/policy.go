@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/connectors"
-	"github.com/utmstack/utmstack/backend/modules/indexpattern/domain"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/connectors"
+	"github.com/utmstack/utmstack/backend/modules/opensearch/domain"
 )
 
 type policyUsecase struct {
@@ -83,7 +83,7 @@ func (u *policyUsecase) UpdatePolicy(ctx context.Context, settings domain.Policy
 func (u *policyUsecase) IsIndexRemovable(ctx context.Context, indexName string) bool {
 	removable, err := u.ismRepo.IsIndexRemovable(ctx, indexName)
 	if err != nil {
-		logger.Error("policyUsecase.IsIndexRemovable: " + err.Error())
+		_ = catcher.Error("opensearch: policyUsecase.IsIndexRemovable", err, nil)
 		return false
 	}
 	return removable
@@ -198,8 +198,8 @@ func (u *policyUsecase) updateManagedIndexPolicy(ctx context.Context, snapshotAc
 			resp, err := u.ismRepo.ChangePolicyForIndex(ctx, pattern, req)
 			if err != nil {
 				// Log but don't abort — mirror Java's aggregation behaviour.
-				logger.Error(fmt.Sprintf("policyUsecase: ChangePolicyForIndex(%s %s→%s): %v",
-					pattern, tr[0], tr[1], err))
+				_ = catcher.Error(fmt.Sprintf("opensearch: ChangePolicyForIndex(%s %s→%s)",
+					pattern, tr[0], tr[1]), err, nil)
 				continue
 			}
 			if resp != nil {
