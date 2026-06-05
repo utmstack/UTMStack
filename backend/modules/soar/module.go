@@ -8,6 +8,7 @@ import (
 
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
 	jwtpkg "github.com/utmstack/utmstack/backend/pkg/jwt"
+	"github.com/utmstack/utmstack/backend/pkg/secret"
 	"gorm.io/gorm"
 )
 
@@ -20,17 +21,26 @@ type Module struct {
 	templateHandler  *handler.TemplateHandler
 	executionHandler *handler.ExecutionHandler
 
-	ruleUsecase      connectors.RuleUsecase
-	templateUsecase  connectors.TemplateUsecase
-	executionUsecase connectors.ExecutionUsecase
+	ruleUsecase          connectors.RuleUsecase
+	templateUsecase      connectors.TemplateUsecase
+	executionUsecase     connectors.ExecutionUsecase
+	variableUsecase      connectors.VariableUsecase
+	actionUsecase        connectors.ActionUsecase
+	actionCommandUsecase connectors.ActionCommandUsecase
+	jobUsecase           connectors.JobUsecase
 
-	commandWSHandler *handler.CommandWSHandler
+	variableHandler      *handler.VariableHandler
+	actionHandler        *handler.ActionHandler
+	actionCommandHandler *handler.ActionCommandHandler
+	jobHandler           *handler.JobHandler
+	commandWSHandler     *handler.CommandWSHandler
 }
 
 func NewModule(
 	db *gorm.DB,
 	agentClient *agentmanager.AgentManagerClient,
 	signer *jwtpkg.Signer,
+	cipher *secret.Cipher,
 ) *Module {
 	// Rule control-plane.
 	ruleRepo := repository.NewRuleRepository(db)
@@ -42,6 +52,17 @@ func NewModule(
 	templateUC := usecase.NewTemplateUsecase(templateRepo)
 	executionUC := usecase.NewExecutionUsecase(executionRepo)
 
+	// Incident variables: reusable (optionally secret) values interpolated into
+	// commands run on agents through the live command WebSocket.
+	variableRepo := repository.NewVariableRepository(db)
+	variableUC := usecase.NewVariableUsecase(variableRepo, connectors.NewSecretCipherAdapter(cipher))
+
+	// Incident-response automation: predefined actions, their per-OS commands,
+	// and the jobs (responses) run against agents.
+	actionUC := usecase.NewActionUsecase(repository.NewActionRepository(db))
+	actionCommandUC := usecase.NewActionCommandUsecase(repository.NewActionCommandRepository(db))
+	jobUC := usecase.NewJobUsecase(repository.NewJobRepository(db))
+
 	return &Module{
 		ruleHandler:      handler.NewRuleHandler(ruleUC),
 		templateHandler:  handler.NewTemplateHandler(templateUC),
@@ -49,14 +70,29 @@ func NewModule(
 		ruleUsecase:      ruleUC,
 		templateUsecase:  templateUC,
 		executionUsecase: executionUC,
+		variableUsecase:  variableUC,
+		actionUsecase:    actionUC,
 
-		commandWSHandler: handler.NewCommandWSHandler(agentClient, signer),
+		actionCommandUsecase: actionCommandUC,
+		jobUsecase:           jobUC,
+
+		variableHandler:      handler.NewVariableHandler(variableUC),
+		actionHandler:        handler.NewActionHandler(actionUC),
+		actionCommandHandler: handler.NewActionCommandHandler(actionCommandUC),
+		jobHandler:           handler.NewJobHandler(jobUC),
+		commandWSHandler:     handler.NewCommandWSHandler(agentClient, signer, variableUC),
 	}
 }
 
-func (m *Module) GetRuleHandler() *handler.RuleHandler             { return m.ruleHandler }
-func (m *Module) GetTemplateHandler() *handler.TemplateHandler     { return m.templateHandler }
-func (m *Module) GetExecutionHandler() *handler.ExecutionHandler   { return m.executionHandler }
+func (m *Module) GetRuleHandler() *handler.RuleHandler           { return m.ruleHandler }
+func (m *Module) GetTemplateHandler() *handler.TemplateHandler   { return m.templateHandler }
+func (m *Module) GetExecutionHandler() *handler.ExecutionHandler { return m.executionHandler }
+func (m *Module) GetVariableHandler() *handler.VariableHandler   { return m.variableHandler }
+func (m *Module) GetActionHandler() *handler.ActionHandler       { return m.actionHandler }
+func (m *Module) GetActionCommandHandler() *handler.ActionCommandHandler {
+	return m.actionCommandHandler
+}
+func (m *Module) GetJobHandler() *handler.JobHandler               { return m.jobHandler }
 func (m *Module) GetRuleUsecase() connectors.RuleUsecase           { return m.ruleUsecase }
 func (m *Module) GetTemplateUsecase() connectors.TemplateUsecase   { return m.templateUsecase }
 func (m *Module) GetExecutionUsecase() connectors.ExecutionUsecase { return m.executionUsecase }

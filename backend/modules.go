@@ -116,7 +116,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		agentClient = nil
 	}
 
-	soarMod := soar.NewModule(db, agentClient, signer)
+	soarMod := soar.NewModule(db, agentClient, signer, cipher)
 	collectorsMod := collectors.NewModule(db, agentClient)
 	datainputMod := datainput.NewModule(db)
 	correlationMod := correlation.NewModule(db, auditMod.Logger(), datainputMod.GetReader())

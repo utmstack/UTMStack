@@ -30,6 +30,10 @@ func writeARRError(c *gin.Context, err error) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "id must be absent on create"})
 	case errors.Is(err, domain.ErrIDRequired):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required on update"})
+	case errors.Is(err, domain.ErrVariableNotFound):
+		c.JSON(http.StatusNotFound, gin.H{"error": "incident variable not found"})
+	case errors.Is(err, domain.ErrIncidentRecordNotFound):
+		c.JSON(http.StatusNotFound, gin.H{"error": "incident record not found"})
 	default:
 		_ = catcher.Error("alert response rule op failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "operation failed"})
@@ -44,6 +48,48 @@ func pathInt64(c *gin.Context, name string) (int64, bool) {
 		return 0, false
 	}
 	return id, true
+}
+
+func queryInt(c *gin.Context, name string, def int) int {
+	if v := c.Query(name); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			return n
+		}
+	}
+	return def
+}
+
+func queryString(c *gin.Context, name string) *string {
+	if v := c.Query(name); v != "" {
+		return &v
+	}
+	return nil
+}
+
+func queryInt64(c *gin.Context, name string) *int64 {
+	if v := c.Query(name); v != "" {
+		if n, err := strconv.ParseInt(v, 10, 64); err == nil {
+			return &n
+		}
+	}
+	return nil
+}
+
+func queryIntPtr(c *gin.Context, name string) *int {
+	if v := c.Query(name); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			return &n
+		}
+	}
+	return nil
+}
+
+func queryBoolPtr(c *gin.Context, name string) *bool {
+	if v := c.Query(name); v != "" {
+		b := v == "true"
+		return &b
+	}
+	return nil
 }
 
 func loginFromCtx(c *gin.Context) string {

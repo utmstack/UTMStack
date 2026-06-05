@@ -20,4 +20,11 @@ var (
 
 	// ErrNotImplemented is returned when a rule filter operator is not supported.
 	ErrNotImplemented = errors.New("operator not implemented")
+
+	// ErrVariableNotFound is returned when an incident variable ID does not exist.
+	ErrVariableNotFound = errors.New("incident variable not found")
+
+	// ErrIncidentRecordNotFound is returned when an incident action/command/job
+	// ID does not exist in the database.
+	ErrIncidentRecordNotFound = errors.New("incident record not found")
 )

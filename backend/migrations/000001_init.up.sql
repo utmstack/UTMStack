@@ -60,18 +60,39 @@ DROP TABLE IF EXISTS utm_alert_socai_processing_request;
 -- by the legacy Angular license module; the new stack does not reference it.
 DROP TABLE IF EXISTS utm_client;
 
--- Drop the incident-response action/command/job/variable tables. This was a
--- designed-but-never-finished feature: the predefined "actions" (BLOCK_IP,
--- ISOLATE_HOST, RUN_CMD, …), their per-OS commands and automation variables were
--- seeded and CRUD-able, jobs could be created, but no processor ever dispatched a
--- job and the CRUD screens were unreachable in the legacy frontend. The only live
--- command path is the /soar/ws/command WebSocket, which runs raw commands against
--- the agent-manager — it no longer interpolates variables or masks secrets, so
--- none of these tables have any consumer left.
-DROP TABLE IF EXISTS utm_incident_jobs;
-DROP TABLE IF EXISTS utm_incident_action_command;
-DROP TABLE IF EXISTS utm_incident_actions;
-DROP TABLE IF EXISTS utm_incident_variables;
+-- The incident-response automation tables (utm_incident_actions,
+-- utm_incident_action_command, utm_incident_jobs, utm_incident_variables) are
+-- KEPT and migrated to the Go soar module:
+--   - variables   → interpolated into /soar/ws/command commands, secrets masked
+--   - actions     → predefined responses (SHUTDOWN_SERVER, RUN_CMD, …)
+--   - jobs        → responses run against agents, surfaced in incident reports
+-- All four are (re)created/managed by AutoMigrate, so their legacy data must
+-- survive an in-place upgrade — nothing is dropped here.
+
+-- Seed the predefined incident-response actions and their per-OS commands
+-- (ported from the legacy Liquibase data.sql). Idempotent: ON CONFLICT keeps any
+-- existing rows from an upgraded install untouched. AutoMigrate created the
+-- tables before this runs.
+INSERT INTO utm_incident_actions (id, action_command, action_description, action_params, action_type, action_editable, created_date, created_user, modified_date, modified_user) VALUES
+    (1, 'SHUTDOWN_SERVER',   'Shutdown server',                              NULL, 1, false, '2021-07-09 19:06:50.578', 'system', NULL, NULL),
+    (2, 'DISABLE_USER',      'Kick out and disable user',                    NULL, 2, false, '2020-03-19 23:21:23.444', 'system', NULL, NULL),
+    (3, 'BLOCK_IP',          'Block ip and disconnect any traffic from IP',  NULL, 3, false, '2021-07-09 19:06:50.578', 'system', NULL, NULL),
+    (4, 'ISOLATE_HOST',      'Isolate host (disconnect from network)',       NULL, 4, false, '2021-07-09 19:06:50.578', 'system', NULL, NULL),
+    (5, 'RESTART_SERVER',    'Restart server',                               NULL, 5, false, '2021-07-09 19:06:50.578', 'system', NULL, NULL),
+    (6, 'KILL_PROCESS',      'Kill process',                                 NULL, 6, false, '2021-07-09 19:06:50.578', 'system', NULL, NULL),
+    (7, 'UNINSTALL_PROGRAM', 'Uninstall program',                            NULL, 7, false, '2021-07-09 19:06:50.578', 'system', NULL, NULL),
+    (8, 'RUN_CMD',           'Run shell command',                            NULL, 8, false, '2021-07-09 19:06:50.578', 'system', NULL, NULL)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO utm_incident_action_command (id, action_id, os_platform, command) VALUES
+    (9,  1, 'windows', 'cmd.exe /c shutdown -s -t 0 -f'),
+    (10, 1, 'linux',   'init 0')
+ON CONFLICT (id) DO NOTHING;
+
+-- Keep the identity sequences ahead of the explicitly-seeded ids so future
+-- API inserts don't collide with them.
+SELECT setval(pg_get_serial_sequence('utm_incident_actions', 'id'), GREATEST((SELECT MAX(id) FROM utm_incident_actions), 1));
+SELECT setval(pg_get_serial_sequence('utm_incident_action_command', 'id'), GREATEST((SELECT MAX(id) FROM utm_incident_action_command), 1));
 
 -- utm_incident_history: the Go model renamed the legacy column action_date to
 -- action_created_date. AutoMigrate (which runs before this) adds the new column
