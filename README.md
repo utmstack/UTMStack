@@ -7,7 +7,6 @@
 >
 > 👉 **All users must upgrade to v11 as soon as possible** using the upgrade package. Full guide here: [https://utmstack.com](https://utmstack.com)
 
-
 ---
 
 # UTMStack
@@ -31,20 +30,8 @@
 
 Welcome to the UTMStack open-source project! UTMStack is a unified threat management platform that merges SIEM (Security Information and Event Management) and XDR (Extended Detection and Response) technologies. Our unique approach allows real-time correlation of log data, threat intelligence, and malware activity patterns from multiple sources, enabling the identification and halting of complex threats that use stealthy techniques. Visit an [online demo here.](https://utmstack.com/demo)
 
-<table>
-  <tr>
-    <td width="50%" valign="top">
-      <a href="https://utmstack.com">
-        <img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-two.gif?v=2" alt="UTMStack dashboard" width="100%">
-      </a>
-    </td>
-    <td width="50%" valign="top">
-      <a href="https://utmstack.com">
-        <img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-one.gif?v=2" alt="UTMStack dashboard" width="100%">
-      </a>
-    </td>
-  </tr>
-</table>
+<h1 align="center">
+<a href="https://utmstack.com"><img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-two.gif" width="400px" alt="UTMStack"></a>   <a href="https://utmstack.com"><img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-one.gif" width="372px" alt="UTMStack"></a> </h1>
 
 ## Features
 
