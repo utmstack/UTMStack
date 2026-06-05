@@ -46,6 +46,7 @@ func main() {
 	modules.alerts.Start(appCtx)
 	modules.correlation.Start(appCtx)
 	modules.logstash.Start(appCtx)
+	modules.integrations.Start(appCtx)
 
 	engine := initHTTPServer(cfg)
 	registerRoutes(engine, modules, cfg)

@@ -19,11 +19,8 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/incidents"
 	incidents_connectors "github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/indexpattern"
+	"github.com/utmstack/utmstack/backend/modules/integrations"
 	"github.com/utmstack/utmstack/backend/modules/logstash"
-	"github.com/utmstack/utmstack/backend/modules/modulesconfig"
-	"github.com/utmstack/utmstack/backend/modules/modulesconfig/modulekinds"
-	mcfg_repository "github.com/utmstack/utmstack/backend/modules/modulesconfig/repository"
-	mcfg_usecase "github.com/utmstack/utmstack/backend/modules/modulesconfig/usecase"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
@@ -58,7 +55,7 @@ type modules struct {
 	datainput         *datainput.Module
 	logstash          *logstash.Module
 	indexpattern      *indexpattern.Module
-	modulesconfig     *modulesconfig.Module
+	integrations      *integrations.Module
 	opensearchGateway *opensearchgw.Module
 	incidents         *incidents.Module
 	notifications     *notifications.Module
@@ -126,18 +123,9 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	logstashMod := logstash.NewModule(db, auditMod.Logger())
 	indexpatternMod := indexpattern.NewModule(db, cfg.esHost != "")
 
-	mcfgModuleRepo := mcfg_repository.NewModuleRepository(db)
-	mcfgGroupRepo := mcfg_repository.NewGroupRepository(db)
-	mcfgConfigRepo := mcfg_repository.NewConfigRepository(db)
-	mcfgIdxToggler := mcfg_repository.NewIndexPatternToggler(db)
-	mcfgLsToggler := mcfg_repository.NewLogstashFilterToggler(db)
-	mcfgMenuToggler := mcfg_repository.NewNoopMenuToggler()
-	mcfgFactory := mcfg_usecase.NewModuleFactory()
-	modulekinds.RegisterAll(mcfgFactory)
-	mcfgConfigUC := mcfg_usecase.NewConfigUsecase(mcfgConfigRepo, mcfgModuleRepo, mcfgFactory, cipher)
-	mcfgGroupUC := mcfg_usecase.NewGroupUsecase(mcfgGroupRepo, mcfgConfigRepo, mcfgModuleRepo, mcfgFactory, cipher)
-	mcfgModuleUC := mcfg_usecase.NewModuleUsecase(mcfgModuleRepo, mcfgGroupRepo, mcfgConfigRepo, mcfgFactory, mcfgIdxToggler, mcfgLsToggler, mcfgMenuToggler)
-	modulesconfigMod := modulesconfig.NewModule(mcfgModuleUC, mcfgGroupUC, mcfgConfigUC, mcfgFactory)
+	integrationsMod := integrations.NewModule(db, cipher,
+		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false),
+	)
 
 	return &modules{
 		iam:               iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, cfg.uploadDir),
@@ -152,7 +140,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		logstash:          logstashMod,
 		indexpattern:      indexpatternMod,
 		opensearchGateway: opensearchgw.NewModule(),
-		modulesconfig:     modulesconfigMod,
+		integrations:      integrationsMod,
 		socAI:             socai.NewModule(cfg.socAIBaseURL, cfg.internalKey),
 		incidents: incidents.NewModule(
 			db,

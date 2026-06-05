@@ -12,8 +12,8 @@ import (
 	iam_domain "github.com/utmstack/utmstack/backend/modules/iam/domain"
 	incidents_domain "github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	indexpattern_domain "github.com/utmstack/utmstack/backend/modules/indexpattern/domain"
+	integrations_domain "github.com/utmstack/utmstack/backend/modules/integrations/domain"
 	logstash_domain "github.com/utmstack/utmstack/backend/modules/logstash/domain"
-	modulesconfig_domain "github.com/utmstack/utmstack/backend/modules/modulesconfig/domain"
 	notifications_domain "github.com/utmstack/utmstack/backend/modules/notifications/domain"
 	arr_domain "github.com/utmstack/utmstack/backend/modules/soar/domain"
 	"github.com/utmstack/utmstack/backend/pkg/logger"
@@ -55,9 +55,7 @@ func Models() []any {
 		logstash_domain.UtmLogstashPipeline{},
 		logstash_domain.UtmGroupLogstashPipelineFilters{},
 		indexpattern_domain.UtmIndexPattern{},
-		modulesconfig_domain.UtmModule{},
-		modulesconfig_domain.UtmModuleGroup{},
-		modulesconfig_domain.UtmModuleGroupConfiguration{},
+		integrations_domain.UtmModule{},
 		collectors_domain.UtmCollector{},
 		incidents_domain.UtmIncident{},
 		incidents_domain.UtmIncidentAlert{},
@@ -82,6 +80,12 @@ func MigrateDatabase(db *gorm.DB, migrationsURL string) error {
 		logger.Warn("could not create uuid-ossp extension: " + err.Error())
 	}
 
+	if migrationsURL != "" {
+		if err := runSQLMigrations(db, migrationsURL+"/pre", "schema_migrations_pre"); err != nil {
+			return err
+		}
+	}
+
 	models := Models()
 	if len(models) > 0 {
 		logger.Info("running GORM AutoMigrate...")
@@ -93,15 +97,15 @@ func MigrateDatabase(db *gorm.DB, migrationsURL string) error {
 	if migrationsURL == "" {
 		return nil
 	}
-	return runSQLMigrations(db, migrationsURL)
+	return runSQLMigrations(db, migrationsURL, "schema_migrations")
 }
 
-func runSQLMigrations(db *gorm.DB, migrationsURL string) error {
+func runSQLMigrations(db *gorm.DB, migrationsURL, table string) error {
 	sqlDB, err := db.DB()
 	if err != nil {
 		return err
 	}
-	driver, err := migratepg.WithInstance(sqlDB, &migratepg.Config{})
+	driver, err := migratepg.WithInstance(sqlDB, &migratepg.Config{MigrationsTable: table})
 	if err != nil {
 		return err
 	}
