@@ -1,3 +1,14 @@
+> [!IMPORTANT]
+> ## ⚠️ UTMStack v10 End-of-Life Notice
+>
+> **UTMStack v10 will be sunset on December 5, 2026 (6 months from now).**
+>
+> As of today, **v10 is no longer receiving any new features** and will only receive critical fixes until the sunset date. After December 5, 2026, v10 will no longer be supported.
+>
+> 👉 **All users must upgrade to v11 as soon as possible** using the `jupgrade` package. Do not wait until the deadline — plan and complete your migration now to avoid running on an unsupported version.
+
+---
+
 # UTMStack
 
 <p align="center">
@@ -10,7 +21,7 @@
 [![Release](https://img.shields.io/github/release/utmstack/utmstack)](https://github.com/utmstack/UTMStack/releases/)
 [![Issues](https://img.shields.io/github/issues-raw/utmstack/utmstack)](https://github.com/utmstack/UTMStack/issues)
 [![Commit Activity](https://img.shields.io/github/commit-activity/m/utmstack/utmstack)](https://github.com/utmstack/UTMStack/commits/main)
-[![License](https://img.shields.io/github/license/ad-aures/castopod?color=blue)](https://github.com/utmstack/UTMStack/blob/master/LICENSE)
+[![License](https://img.shields.io/github/license/utmstack/utmstack?color=blue)](https://github.com/utmstack/UTMStack/blob/master/LICENSE)
 [![Discord](https://img.shields.io/discord/1154016563775672400.svg?logo=discord)](https://discord.gg/ZznvZ8xcHh)
 
 #### Enterprise-ready SIEM and XDR powered by Real-Time correlation and Threat Intelligence
@@ -19,14 +30,20 @@
 
 Welcome to the UTMStack open-source project! UTMStack is a unified threat management platform that merges SIEM (Security Information and Event Management) and XDR (Extended Detection and Response) technologies. Our unique approach allows real-time correlation of log data, threat intelligence, and malware activity patterns from multiple sources, enabling the identification and halting of complex threats that use stealthy techniques. Visit an [online demo here.](https://utmstack.com/demo)
 
-<p align="center">
-  <a href="https://utmstack.com">
-    <img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-two.gif?v=2" alt="UTMStack" width="45%">
-  </a>
-  <a href="https://utmstack.com">
-    <img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-one.gif?v=2" alt="UTMStack" width="45%">
-  </a>
-</p>
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <a href="https://utmstack.com">
+        <img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-two.gif?v=2" alt="UTMStack dashboard" width="100%">
+      </a>
+    </td>
+    <td width="50%" valign="top">
+      <a href="https://utmstack.com">
+        <img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-one.gif?v=2" alt="UTMStack dashboard" width="100%">
+      </a>
+    </td>
+  </tr>
+</table>
 
 ## Features
 
