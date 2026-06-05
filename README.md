@@ -1,11 +1,12 @@
 > [!IMPORTANT]
-> ## ⚠️ UTMStack v10 End-of-Life Notice
+> ## ⚠️ UPGRADE NOTIFICATION and UTMStack v10 End-of-Life Notice
 >
 > **UTMStack v10 will be sunset on December 5, 2026 (6 months from now).**
 >
 > As of today, **v10 is no longer receiving any new features** and will only receive critical fixes until the sunset date. After December 5, 2026, v10 will no longer be supported.
 >
-> 👉 **All users must upgrade to v11 as soon as possible** using the `jupgrade` package. Do not wait until the deadline — plan and complete your migration now to avoid running on an unsupported version.
+> 👉 **All users must upgrade to v11 as soon as possible** using the upgrade package. Full guide here: [https://utmstack.com](https://utmstack.com)
+
 
 ---
 
