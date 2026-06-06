@@ -67,7 +67,6 @@ func GetStackConfig() *StackConfig {
 			{Name: "event-processor", Priority: 1, MinMemory: 4 * 1024, MaxMemory: 60 * 1024},
 			{Name: "opensearch", Priority: 1, MinMemory: 4350, MaxMemory: 60 * 1024},
 			{Name: "backend", Priority: 2, MinMemory: 700, MaxMemory: 2 * 1024},
-			{Name: "web-pdf", Priority: 2, MinMemory: 1024, MaxMemory: 2 * 1024},
 			{Name: "postgres", Priority: 2, MinMemory: 500, MaxMemory: 2 * 1024},
 			{Name: "user-auditor", Priority: 3, MinMemory: 200, MaxMemory: 1024},
 			{Name: "agentmanager", Priority: 3, MinMemory: 200, MaxMemory: 1024},
@@ -162,7 +161,7 @@ func RemoveServices(services []string) error {
 
 	time.Sleep(60 * time.Second)
 
-	if err := utils.RunCmd("docker", "system", "prune", "-f"); err != nil {
+	if err := utils.RunCmd("docker", "system", "prune", "-a", "-f"); err != nil {
 		return err
 	}
 

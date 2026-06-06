@@ -408,27 +408,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		},
 	}
 
-	webPDFMem := stack.ServiceResources["web-pdf"].AssignedMemory
-	c.Services["web-pdf"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/web-pdf:${UTMSTACK_TAG}"),
-		Volumes: []string{
-			stack.ShmFolder + ":/dev/shm",
-		},
-		DependsOn: []string{
-			"backend",
-			"frontend",
-		},
-		Logging: &dLogging,
-		Deploy: &Deploy{
-			Placement: &pManager,
-			Resources: &Resources{
-				Limits: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", webPDFMem)),
-				},
-			},
-		},
-	}
-
 	c.Volumes["postgres_data"] = Volume{
 		"external": false,
 	}
