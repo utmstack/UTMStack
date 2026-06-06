@@ -7,7 +7,6 @@ COPY ./plugins/alerts/com.utmstack.alerts.plugin /workdir/plugins/utmstack/
 COPY ./plugins/aws/com.utmstack.aws.plugin /workdir/plugins/utmstack/
 COPY ./plugins/azure/com.utmstack.azure.plugin /workdir/plugins/utmstack/
 COPY ./plugins/bitdefender/com.utmstack.bitdefender.plugin /workdir/plugins/utmstack/
-COPY ./plugins/config/com.utmstack.config.plugin /workdir/plugins/utmstack/
 COPY ./plugins/events/com.utmstack.events.plugin /workdir/plugins/utmstack/
 COPY ./plugins/gcp/com.utmstack.gcp.plugin /workdir/plugins/utmstack/
 COPY ./plugins/geolocation/com.utmstack.geolocation.plugin /workdir/plugins/utmstack/

@@ -401,7 +401,6 @@ jobs:
           cd ${{ github.workspace }}/plugins/aws; go build -o com.utmstack.aws.plugin -v .
           cd ${{ github.workspace }}/plugins/azure; go build -o com.utmstack.azure.plugin -v .
           cd ${{ github.workspace }}/plugins/bitdefender; go build -o com.utmstack.bitdefender.plugin -v .
-          cd ${{ github.workspace }}/plugins/config; go build -o com.utmstack.config.plugin -v .
           cd ${{ github.workspace }}/plugins/events; go build -o com.utmstack.events.plugin -v .
           cd ${{ github.workspace }}/plugins/gcp; go build -o com.utmstack.gcp.plugin -v .
           cd ${{ github.workspace }}/plugins/geolocation; go build -o com.utmstack.geolocation.plugin -v .
@@ -475,18 +474,6 @@ jobs:
       use_version_file: false
       maven_goals: 'clean install -U'
 
-  build_web_pdf:
-    name: Build Web-PDF Microservice
-    needs: [validations, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' }}
-    uses: ./.github/workflows/reusable-java.yml
-    with:
-      image_name: web-pdf
-      tag: ${{ needs.setup_deployment.outputs.tag }}
-      java_version: '11'
-      use_version_file: false
-      maven_goals: 'clean install -U'
-
   all_builds_complete:
     name: All Builds Complete
     needs: [
@@ -494,10 +481,9 @@ jobs:
       build_event_processor,
       build_backend,
       build_frontend,
-      build_user_auditor,
-      build_web_pdf
+      build_user_auditor
     ]
-    if: ${{ always() && needs.build_agent_manager.result == 'success' && needs.build_event_processor.result == 'success' && needs.build_backend.result == 'success' && needs.build_frontend.result == 'success' && needs.build_user_auditor.result == 'success' && needs.build_web_pdf.result == 'success' }}
+    if: ${{ always() && needs.build_agent_manager.result == 'success' && needs.build_event_processor.result == 'success' && needs.build_backend.result == 'success' && needs.build_frontend.result == 'success' && needs.build_user_auditor.result == 'success' }}
     runs-on: ubuntu-24.04
     steps:
       - run: echo "✅ All builds completed successfully."
