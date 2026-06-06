@@ -1,50 +1,32 @@
 package dto
 
-import "time"
-
+// CreateFilterRequest creates a new user filter. RelPath is the relative path
+// under the user overlay (e.g. "myorg/custom-fw.yaml"). Content must be a
+// valid pipeline: YAML as the go-sdk Config proto expects.
 type CreateFilterRequest struct {
-	ID             *int64  `json:"id"`
-	FilterName     string  `json:"filterName"`
-	LogstashFilter string  `json:"logstashFilter"`
-	FilterGroupID  *int64  `json:"filterGroupId"`
-	DataTypeID     *int64  `json:"dataTypeId"`
-	SystemOwner    bool    `json:"systemOwner"`
-	IsActive       bool    `json:"isActive"`
-	ModuleName     *string `json:"moduleName"`
-	FilterVersion  *string `json:"filterVersion"`
+	RelPath string `json:"relPath" binding:"required"`
+	Content string `json:"content" binding:"required"`
 }
 
+// UpdateFilterRequest replaces the content of an existing user filter.
 type UpdateFilterRequest struct {
-	ID             int64   `json:"id"`
-	FilterName     string  `json:"filterName"`
-	LogstashFilter string  `json:"logstashFilter"`
-	FilterGroupID  *int64  `json:"filterGroupId"`
-	DataTypeID     *int64  `json:"dataTypeId"`
-	SystemOwner    bool    `json:"systemOwner"`
-	IsActive       bool    `json:"isActive"`
-	ModuleName     *string `json:"moduleName"`
-	FilterVersion  *string `json:"filterVersion"`
+	RelPath string `json:"relPath" binding:"required"`
+	Content string `json:"content" binding:"required"`
 }
 
+// FilterResponse is the API representation of a filter overlay entry.
 type FilterResponse struct {
-	ID             int64      `json:"id"`
-	FilterName     string     `json:"filterName"`
-	LogstashFilter string     `json:"logstashFilter"`
-	FilterGroupID  *int64     `json:"filterGroupId"`
-	SystemOwner    bool       `json:"systemOwner"`
-	IsActive       bool       `json:"isActive"`
-	ModuleName     *string    `json:"moduleName"`
-	FilterVersion  *string    `json:"filterVersion"`
-	UpdatedAt      *time.Time `json:"updatedAt"`
+	RelPath string `json:"relPath"`
+	Content string `json:"content"`
+	System  bool   `json:"system"`
+	Active  bool   `json:"active"`
 }
 
+// FilterFilters are query parameters for the list endpoint.
 type FilterFilters struct {
-	IDEquals           *int64  `form:"id.equals"`
-	FilterNameContains *string `form:"filterName.contains"`
-	FilterGroupIDEq    *int64  `form:"filterGroupId.equals"`
-	FilterGroupIDGte   *int64  `form:"filterGroupId.greaterThanOrEqual"`
-	FilterGroupIDLte   *int64  `form:"filterGroupId.lessThanOrEqual"`
-	IsActiveEq         *bool   `form:"isActive.equals"`
-	Page               int     `form:"page"`
-	Size               int     `form:"size"`
+	RelPathContains *string `form:"relPath.contains"`
+	IsActiveEq      *bool   `form:"isActive.equals"`
+	SystemEq        *bool   `form:"system.equals"`
+	Page            int     `form:"page"`
+	Size            int     `form:"size"`
 }

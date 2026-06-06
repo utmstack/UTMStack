@@ -5,8 +5,11 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/utmstack/utmstack/backend/modules/correlation/connectors"
-	"github.com/utmstack/utmstack/backend/modules/correlation/dto"
+	"github.com/utmstack/utmstack/backend/modules/audit"
+	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
+	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
+	"github.com/utmstack/utmstack/backend/modules/eventprocessing/connectors"
+	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
 )
 
 // TODO(module-33): re-evaluate if network-scan property values are needed here.
@@ -42,7 +45,9 @@ func (h *CorrelationRuleHandler) Create(c *gin.Context) {
 		return
 	}
 
-	if err := h.usecase.Create(c.Request.Context(), req); err != nil {
+	err := h.usecase.Create(c.Request.Context(), req)
+	audit.Record(c, audit_connectors.Event{Action: "correlation_rule.create"}, audit_domain.CORRELATION_RULE_CREATE_ATTEMPT, audit_domain.CORRELATION_RULE_CREATE_SUCCESS, err)
+	if err != nil {
 		writeCorrelationError(c, err)
 		return
 	}
@@ -67,7 +72,9 @@ func (h *CorrelationRuleHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if err := h.usecase.Update(c.Request.Context(), req); err != nil {
+	err := h.usecase.Update(c.Request.Context(), req)
+	audit.Record(c, audit_connectors.Event{Action: "correlation_rule.update"}, audit_domain.CORRELATION_RULE_UPDATE_ATTEMPT, audit_domain.CORRELATION_RULE_UPDATE_SUCCESS, err)
+	if err != nil {
 		if isNotFound(err) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "correlation rule not found"})
 			return
@@ -89,21 +96,21 @@ func (h *CorrelationRuleHandler) Update(c *gin.Context) {
 // @Failure     500 {object} map[string]string
 // @Router      /correlation-rule/activate-deactivate [put]
 func (h *CorrelationRuleHandler) ActivateDeactivate(c *gin.Context) {
-	idStr := c.Query("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil || id <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id parameter"})
+	relPath := c.Query("relPath")
+	if relPath == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "relPath is required"})
 		return
 	}
 
-	activeStr := c.Query("active")
-	active, err := strconv.ParseBool(activeStr)
+	active, err := strconv.ParseBool(c.Query("active"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid active parameter: must be true or false"})
 		return
 	}
 
-	if err := h.usecase.ActivateDeactivate(c.Request.Context(), id, active); err != nil {
+	err = h.usecase.SetActive(c.Request.Context(), relPath, active)
+	audit.Record(c, audit_connectors.Event{Action: "correlation_rule.activate"}, audit_domain.CORRELATION_RULE_UPDATE_ATTEMPT, audit_domain.CORRELATION_RULE_UPDATE_SUCCESS, err)
+	if err != nil {
 		writeCorrelationError(c, err)
 		return
 	}
@@ -188,12 +195,13 @@ func (h *CorrelationRuleHandler) SearchPropertyValues(c *gin.Context) {
 // @Failure     500 {object} map[string]string
 // @Router      /correlation-rule/{id} [get]
 func (h *CorrelationRuleHandler) GetByID(c *gin.Context) {
-	id, ok := pathInt64(c, "id")
-	if !ok {
+	relPath := c.Query("relPath")
+	if relPath == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "relPath is required"})
 		return
 	}
 
-	rule, err := h.usecase.GetByID(c.Request.Context(), id)
+	rule, err := h.usecase.GetByRelPath(c.Request.Context(), relPath)
 	if err != nil {
 		if isNotFound(err) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "correlation rule not found"})
@@ -214,12 +222,15 @@ func (h *CorrelationRuleHandler) GetByID(c *gin.Context) {
 // @Failure     500 {object} map[string]string
 // @Router      /correlation-rule/{id} [delete]
 func (h *CorrelationRuleHandler) Delete(c *gin.Context) {
-	id, ok := pathInt64(c, "id")
-	if !ok {
+	relPath := c.Query("relPath")
+	if relPath == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "relPath is required"})
 		return
 	}
 
-	if err := h.usecase.Delete(c.Request.Context(), id); err != nil {
+	err := h.usecase.Delete(c.Request.Context(), relPath)
+	audit.Record(c, audit_connectors.Event{Action: "correlation_rule.delete"}, audit_domain.CORRELATION_RULE_DELETE_ATTEMPT, audit_domain.CORRELATION_RULE_DELETE_SUCCESS, err)
+	if err != nil {
 		writeCorrelationError(c, err)
 		return
 	}

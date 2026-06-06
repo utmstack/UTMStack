@@ -15,5 +15,6 @@ type ModuleUsecase interface {
 	GetByID(ctx context.Context, id int64) (*dto.ModuleResponse, error)
 	GetByName(ctx context.Context, moduleName string) (*dto.ModuleResponse, error)
 	Categories(ctx context.Context) ([]string, error)
+	DataTypes(ctx context.Context) ([]dto.DataTypeOption, error)
 	IsActive(ctx context.Context, moduleName string) (bool, error)
 }

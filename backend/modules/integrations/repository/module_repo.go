@@ -93,6 +93,22 @@ func (r *pgModuleRepository) Delete(ctx context.Context, id int64) error {
 	return r.db.WithContext(ctx).Delete(&domain.UtmModule{}, id).Error
 }
 
+// DataTypes returns every module ordered by data_type. Each integration carries
+// exactly one data_type, so the module catalog IS the data-type catalog (this
+// replaces the removed utm_data_types table consumed by the rule editor).
+func (r *pgModuleRepository) DataTypes(ctx context.Context) ([]domain.UtmModule, error) {
+	var modules []domain.UtmModule
+	err := r.db.WithContext(ctx).
+		Model(&domain.UtmModule{}).
+		Where("data_type <> ''").
+		Order("data_type ASC").
+		Find(&modules).Error
+	if err != nil {
+		return nil, err
+	}
+	return modules, nil
+}
+
 func (r *pgModuleRepository) Categories(ctx context.Context) ([]string, error) {
 	var categories []string
 	err := r.db.WithContext(ctx).

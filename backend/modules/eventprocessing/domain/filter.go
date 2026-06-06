@@ -6,7 +6,6 @@ type UtmLogstashFilter struct {
 	ID             int64      `gorm:"primaryKey;autoIncrement"                              json:"id"`
 	FilterName     string     `gorm:"column:filter_name"                      json:"filterName"`
 	LogstashFilter string     `gorm:"column:logstash_filter;not null"         json:"logstashFilter"`
-	FilterGroupID  *int64     `gorm:"column:filter_group_id"                  json:"filterGroupId"`
 	DataTypeID     *int64     `gorm:"column:data_type_id"                     json:"-"`
 	SystemOwner    bool       `gorm:"column:system_owner;not null;default:false" json:"systemOwner"`
 	IsActive       bool       `gorm:"column:is_active;not null;default:true"  json:"isActive"`

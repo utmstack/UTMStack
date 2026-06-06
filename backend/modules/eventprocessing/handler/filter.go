@@ -2,14 +2,13 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
 	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
-	"github.com/utmstack/utmstack/backend/modules/logstash/connectors"
-	"github.com/utmstack/utmstack/backend/modules/logstash/dto"
+	"github.com/utmstack/utmstack/backend/modules/eventprocessing/connectors"
+	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
 )
 
 type FilterHandler struct {
@@ -21,34 +20,26 @@ func NewFilterHandler(uc connectors.FilterUsecase) *FilterHandler {
 }
 
 // @Summary     Create filter
-// @Tags        Logstash Filters
+// @Description Creates a new user filter YAML in the user overlay (pipeline: format).
+// @Tags        Filters
 // @Security    BearerAuth
 // @Accept      json
 // @Produce     json
-// @Param       pipelineId query int64                  false "Pipeline ID to associate filter with"
-// @Param       input      body  dto.CreateFilterRequest true  "Request body"
+// @Param       input body dto.CreateFilterRequest true "relPath + pipeline YAML content"
 // @Success     200 {object} dto.FilterResponse
+// @Failure     400 {object} map[string]string
+// @Failure     409 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-filters [post]
+// @Router      /eventprocessing/filters [post]
 func (h *FilterHandler) Create(c *gin.Context) {
 	var req dto.CreateFilterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		writeFilterError(c, err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	var pipelineID *int64
-	if raw := c.Query("pipelineId"); raw != "" {
-		v, err := strconv.ParseInt(raw, 10, 64)
-		if err != nil {
-			writeFilterError(c, err)
-			return
-		}
-		pipelineID = &v
-	}
-
-	resp, err := h.usecase.Create(c.Request.Context(), req, pipelineID)
-	audit.Record(c, audit_connectors.Event{Action: "logstash_filter.create"}, audit_domain.LOGSTASH_FILTER_CREATE_ATTEMPT, audit_domain.LOGSTASH_FILTER_CREATE_SUCCESS, err)
+	resp, err := h.usecase.Create(c.Request.Context(), req)
+	audit.Record(c, audit_connectors.Event{Action: "eventprocessing.filter.create", ResourceType: "filter", ResourceID: req.RelPath},
+		audit_domain.LOGSTASH_FILTER_CREATE_ATTEMPT, audit_domain.LOGSTASH_FILTER_CREATE_SUCCESS, err)
 	if err != nil {
 		writeFilterError(c, err)
 		return
@@ -57,23 +48,27 @@ func (h *FilterHandler) Create(c *gin.Context) {
 }
 
 // @Summary     Update filter
-// @Tags        Logstash Filters
+// @Description Replaces the content of a user filter. System filters are read-only.
+// @Tags        Filters
 // @Security    BearerAuth
 // @Accept      json
 // @Produce     json
-// @Param       input body dto.UpdateFilterRequest true "Request body"
+// @Param       input body dto.UpdateFilterRequest true "relPath + new pipeline YAML content"
 // @Success     200 {object} dto.FilterResponse
+// @Failure     400 {object} map[string]string
+// @Failure     403 {object} map[string]string
+// @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-filters [put]
+// @Router      /eventprocessing/filters [put]
 func (h *FilterHandler) Update(c *gin.Context) {
 	var req dto.UpdateFilterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		writeFilterError(c, err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	resp, err := h.usecase.Update(c.Request.Context(), req)
-	audit.Record(c, audit_connectors.Event{Action: "logstash_filter.update"}, audit_domain.LOGSTASH_FILTER_UPDATE_ATTEMPT, audit_domain.LOGSTASH_FILTER_UPDATE_SUCCESS, err)
+	audit.Record(c, audit_connectors.Event{Action: "eventprocessing.filter.update", ResourceType: "filter", ResourceID: req.RelPath},
+		audit_domain.LOGSTASH_FILTER_UPDATE_ATTEMPT, audit_domain.LOGSTASH_FILTER_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeFilterError(c, err)
 		return
@@ -82,28 +77,25 @@ func (h *FilterHandler) Update(c *gin.Context) {
 }
 
 // @Summary     List filters
-// @Tags        Logstash Filters
+// @Description Returns all filters (system + user) with optional filtering.
+// @Tags        Filters
 // @Security    BearerAuth
 // @Produce     json
-// @Param       id.equals                        query int    false "Filter by ID"
-// @Param       filterName.contains              query string false "Filter by name"
-// @Param       filterGroupId.equals             query int64  false "Filter by group ID (exact)"
-// @Param       filterGroupId.greaterThanOrEqual query int64  false "Filter by group ID (gte)"
-// @Param       filterGroupId.lessThanOrEqual    query int64  false "Filter by group ID (lte)"
-// @Param       isActive.equals                  query bool   false "Filter by active status"
-// @Param       page                             query int    false "Page (0-based)"
-// @Param       size                             query int    false "Page size"
-// @Success     200 {array} dto.FilterResponse
-// @Header      200 {string} X-Total-Count "Total number of items"
+// @Param       relPath.contains query string false "Filter by relPath containing value"
+// @Param       isActive.equals  query bool   false "Filter by active state"
+// @Param       system.equals    query bool   false "true = system only, false = user only"
+// @Param       page             query int    false "Page (1-based)"
+// @Param       size             query int    false "Page size (default 50)"
+// @Success     200 {array}  dto.FilterResponse
+// @Header      200 {string} X-Total-Count "Total records"
 // @Failure     500 {object} map[string]string
-// @Router      /utm-filters [get]
+// @Router      /eventprocessing/filters [get]
 func (h *FilterHandler) List(c *gin.Context) {
 	var f dto.FilterFilters
 	if err := c.ShouldBindQuery(&f); err != nil {
-		writeFilterError(c, err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	items, total, err := h.usecase.List(c.Request.Context(), f)
 	if err != nil {
 		writeFilterError(c, err)
@@ -112,84 +104,79 @@ func (h *FilterHandler) List(c *gin.Context) {
 	writePagedArray(c, items, total)
 }
 
-// @Summary     Get filters by pipeline ID
-// @Tags        Logstash Filters
+// @Summary     Get filter by relPath
+// @Description Returns a single filter entry.
+// @Tags        Filters
 // @Security    BearerAuth
 // @Produce     json
-// @Param       pipelineId query int64 true "Pipeline ID"
-// @Success     200 {array} dto.FilterResponse
-// @Failure     400 {object} map[string]string
-// @Failure     500 {object} map[string]string
-// @Router      /utm-filters/by-pipelineid [get]
-func (h *FilterHandler) FiltersByPipelineID(c *gin.Context) {
-	raw := c.Query("pipelineId")
-	if raw == "" {
-		logHandlerError("getLogstashFiltersByPipelineId", "pipelineId is required")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "pipelineId is required"})
-		return
-	}
-	id, err := strconv.ParseInt(raw, 10, 64)
-	if err != nil {
-		writeFilterError(c, err)
-		return
-	}
-
-	items, err := h.usecase.FiltersByPipelineID(c.Request.Context(), id)
-	if err != nil {
-		writeFilterError(c, err)
-		return
-	}
-	if items == nil {
-		items = []dto.FilterResponse{}
-	}
-	c.JSON(http.StatusOK, items)
-}
-
-// @Summary     Get filter by ID
-// @Tags        Logstash Filters
-// @Security    BearerAuth
-// @Produce     json
-// @Param       id path int true "Filter ID"
+// @Param       relPath query string true "Relative path (e.g. syslog/syslog-generic.yaml)"
 // @Success     200 {object} dto.FilterResponse
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-filters/{id} [get]
-func (h *FilterHandler) GetByID(c *gin.Context) {
-	id, ok := pathInt64(c, "id")
-	if !ok {
+// @Router      /eventprocessing/filters/find [get]
+func (h *FilterHandler) GetByRelPath(c *gin.Context) {
+	relPath := c.Query("relPath")
+	if relPath == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "relPath is required"})
 		return
 	}
-
-	resp, err := h.usecase.GetByID(c.Request.Context(), id)
+	resp, err := h.usecase.GetByRelPath(c.Request.Context(), relPath)
 	if err != nil {
 		writeFilterError(c, err)
-		return
-	}
-	if resp == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "filter not found"})
 		return
 	}
 	c.JSON(http.StatusOK, resp)
 }
 
 // @Summary     Delete filter
-// @Tags        Logstash Filters
+// @Description Deletes a user filter. System filters cannot be deleted.
+// @Tags        Filters
 // @Security    BearerAuth
-// @Param       id path int true "Filter ID"
-// @Success     200 "Deleted"
+// @Produce     json
+// @Param       relPath query string true "Relative path"
+// @Success     200 {object} map[string]string
+// @Failure     403 {object} map[string]string
+// @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-filters/{id} [delete]
+// @Router      /eventprocessing/filters [delete]
 func (h *FilterHandler) Delete(c *gin.Context) {
-	id, ok := pathInt64(c, "id")
-	if !ok {
+	relPath := c.Query("relPath")
+	if relPath == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "relPath is required"})
 		return
 	}
-
-	err := h.usecase.Delete(c.Request.Context(), id)
-	audit.Record(c, audit_connectors.Event{Action: "logstash_filter.delete"}, audit_domain.LOGSTASH_FILTER_DELETE_ATTEMPT, audit_domain.LOGSTASH_FILTER_DELETE_SUCCESS, err)
+	err := h.usecase.Delete(c.Request.Context(), relPath)
+	audit.Record(c, audit_connectors.Event{Action: "eventprocessing.filter.delete", ResourceType: "filter", ResourceID: relPath},
+		audit_domain.LOGSTASH_FILTER_DELETE_ATTEMPT, audit_domain.LOGSTASH_FILTER_DELETE_SUCCESS, err)
 	if err != nil {
 		writeFilterError(c, err)
 		return
 	}
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{"message": "deleted"})
+}
+
+// @Summary     Activate or deactivate a filter
+// @Description Renames .yaml ↔ .yaml.disabled in the user overlay.
+// @Tags        Filters
+// @Security    BearerAuth
+// @Produce     json
+// @Param       relPath query string true  "Relative path"
+// @Param       active  query bool   true  "true to activate, false to deactivate"
+// @Success     200 {object} map[string]string
+// @Failure     403 {object} map[string]string
+// @Failure     404 {object} map[string]string
+// @Failure     500 {object} map[string]string
+// @Router      /eventprocessing/filters/activate [put]
+func (h *FilterHandler) ActivateDeactivate(c *gin.Context) {
+	relPath := c.Query("relPath")
+	if relPath == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "relPath is required"})
+		return
+	}
+	active := c.Query("active") == "true"
+	if err := h.usecase.SetActive(c.Request.Context(), relPath, active); err != nil {
+		writeFilterError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }

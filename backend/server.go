@@ -17,13 +17,12 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	"github.com/utmstack/utmstack/backend/modules/collectors"
-	"github.com/utmstack/utmstack/backend/modules/correlation"
+	"github.com/utmstack/utmstack/backend/modules/compliance"
 	"github.com/utmstack/utmstack/backend/modules/datainput"
+	"github.com/utmstack/utmstack/backend/modules/eventprocessing"
 	"github.com/utmstack/utmstack/backend/modules/iam"
 	"github.com/utmstack/utmstack/backend/modules/incidents"
-	"github.com/utmstack/utmstack/backend/modules/indexpattern"
 	"github.com/utmstack/utmstack/backend/modules/integrations"
-	"github.com/utmstack/utmstack/backend/modules/logstash"
 	"github.com/utmstack/utmstack/backend/modules/network_scan"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
@@ -91,11 +90,10 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	appconfig.RegisterRoutes(api, m.appconfig, userAuth)
 	alerts.RegisterRoutes(api, m.alerts, userAuth)
 	soar.RegisterRoutes(api, m.soar, userAuth)
-	correlation.RegisterRoutes(api, m.correlation, userAuth)
+	eventprocessing.RegisterRoutes(api, m.eventProcessing, userAuth)
+	compliance.RegisterRoutes(api, m.compliance, userAuth)
 	collectors.RegisterRoutes(api, m.collectors, userAuth)
 	datainput.RegisterRoutes(api, m.datainput, userAuth)
-	indexpattern.RegisterRoutes(api, m.indexpattern, userAuth)
-	logstash.RegisterRoutes(api, m.logstash, userAuth)
 	integrations.RegisterRoutes(api, m.integrations, userAuth)
 	opensearchgw.RegisterRoutes(api, m.opensearchGateway, userAuth)
 	incidents.RegisterRoutes(api, m.incidents, userAuth)

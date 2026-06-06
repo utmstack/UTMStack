@@ -131,6 +131,24 @@ func (h *ModuleHandler) Categories(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// @Summary     List the data-type catalog
+// @Description Each integration owns one data_type; this is the catalog the rule
+// @Description editor uses to pick which data types a correlation rule targets.
+// @Tags        Integrations
+// @Security    BearerAuth
+// @Produce     json
+// @Success     200 {array}  dto.DataTypeOption
+// @Failure     500 {object} map[string]string
+// @Router      /integrations/data-types [get]
+func (h *ModuleHandler) DataTypes(c *gin.Context) {
+	resp, err := h.usecase.DataTypes(c.Request.Context())
+	if err != nil {
+		writeModuleError(c, "module.dataTypes", err)
+		return
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
 // @Summary     Report whether an integration module is active
 // @Tags        Integrations
 // @Security    BearerAuth

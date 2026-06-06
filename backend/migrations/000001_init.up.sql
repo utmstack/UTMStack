@@ -60,6 +60,19 @@ DROP TABLE IF EXISTS utm_alert_socai_processing_request;
 -- by the legacy Angular license module; the new stack does not reference it.
 DROP TABLE IF EXISTS utm_client;
 
+-- Drop the logstash pipeline tables (utm_group_logstash_pipeline_filters,
+-- utm_logstash_pipeline): Logstash-era health artifacts. The native event
+-- processor doesn't fail silently; ingestion health is now live via
+-- /eventprocessing/ingestion-stats (v11-statistics-*).
+DROP TABLE IF EXISTS utm_group_logstash_pipeline_filters CASCADE;
+DROP TABLE IF EXISTS utm_logstash_pipeline CASCADE;
+
+-- Drop the filter-group catalog (utm_logstash_filter_group): never populated,
+-- no UI, no YAML references it. utm_logstash_filter is NOT dropped here —
+-- FilterBootstrap reads it first, migrates user filters to YAML, then drops
+-- it. Dropping here (before the bootstrap runs) would lose user filter data.
+DROP TABLE IF EXISTS utm_logstash_filter_group CASCADE;
+
 -- The incident-response automation tables (utm_incident_actions,
 -- utm_incident_action_command, utm_incident_jobs, utm_incident_variables) are
 -- KEPT and migrated to the Go soar module:
@@ -143,10 +156,12 @@ INSERT INTO permissions (name, description, resource, action) VALUES
     ('incidents.write',  'Create and manage incidents, their alerts and notes', 'incidents', 'write'),
     ('opensearch.read',  'Query OpenSearch (search, properties, cluster status)', 'opensearch', 'read'),
     ('opensearch.write', 'Destructive OpenSearch ops (delete index)',            'opensearch', 'write'),
-    ('correlation.read',  'List and view correlation rules, regex patterns, data types and tenant config',      'correlation', 'read'),
-    ('correlation.write', 'Create, update and delete correlation rules, regex patterns, data types and tenant config', 'correlation', 'write'),
+    ('eventprocessing.read',  'List and view correlation rules, regex patterns and tenant config',      'eventprocessing', 'read'),
+    ('eventprocessing.write', 'Create, update and delete correlation rules, regex patterns and tenant config', 'eventprocessing', 'write'),
     ('integrations.read',  'List integrations, their tenants and configuration',          'integrations', 'read'),
-    ('integrations.write', 'Activate integrations and create/update/delete their tenants', 'integrations', 'write')
+    ('integrations.write', 'Activate integrations and create/update/delete their tenants', 'integrations', 'write'),
+    ('compliance.read',  'List and view compliance standards, controls, reports and evaluation history', 'compliance', 'read'),
+    ('compliance.write', 'Create, update and delete compliance standards, controls and report schedules', 'compliance', 'write')
 ON CONFLICT (name) DO NOTHING;
 
 -- Bind ROLE_ADMIN to every permission currently in the catalog. Re-run this
@@ -214,52 +229,10 @@ WHERE NOT EXISTS (
     SELECT 1 FROM utm_configuration_parameter c WHERE c.conf_param_short = v.conf_param_short
 );
 
--- Seed the system-owned regex patterns the correlation engine relies on.
--- Ported from legacy Liquibase changeset 20250616001_insert_utm_regex_pattern.xml.
---
--- These are the canonical named patterns ({{.ipv4}}, {{.syslogDate}}, ...) the
--- parsing filters reference by name; the correlation module exposes them through
--- a CRUD with system_owner protection, so they must pre-exist. All rows are
--- system_owner=true and cannot be modified or deleted via the API.
---
--- On an in-place upgrade the legacy rows already exist (utm_regex_pattern is not
--- dropped), so this is a no-op via ON CONFLICT (id). On a fresh install GORM
--- creates an empty table and this seeds it. We keep the legacy explicit ids so
--- in-place upgrades match on conflict, then advance the GORM-created sequence to
--- MAX(id) so the next user-created pattern does not collide.
-INSERT INTO utm_regex_pattern (id, pattern_id, pattern_description, pattern_definition, system_owner) VALUES
-    (1,  'ciscoMacAddr',   'Matches with CISCO MAC address',                                                                                               '(?:(?:[A-Fa-f0-9]{4}\.){2}[A-Fa-f0-9]{4})',                                                                                                                                                                                                                                                                           true),
-    (2,  'syslogDate',     'Matches with syslog date format. Ex: Jun 16 12:34:56',                                                                         '[A-Z][a-z]{2} \d{1,2} \d{2}:\d{2}:\d{2}',                                                                                                                                                                                                                                                                            true),
-    (3,  'winMacAddr',     'Matches with windows MAC address',                                                                                             '(?:(?:[A-Fa-f0-9]{2}-){5}[A-Fa-f0-9]{2})',                                                                                                                                                                                                                                                                           true),
-    (4,  'commonMacAddr',  'Matches with common MAC address',                                                                                              '(?:(?:[A-Fa-f0-9]{2}:){5}[A-Fa-f0-9]{2})|(?:(?:[A-Fa-f0-9]{2}-){5}[A-Fa-f0-9]{2})',                                                                                                                                                                                                                               true),
-    (5,  'integer',        'Matches with groups of signed or unsigned numbers. Ex: 0, 54, +23, -11.',                                                      '(?:[+-]?(?:[0-9]+))',                                                                                                                                                                                                                                                                                                  true),
-    (6,  'day',            'Matches with any known variant of day name. Ex: Monday, Mon',                                                                  '(?:Mon(?:day)?|Tue(?:sday)?|Wed(?:nesday)?|Thu(?:rsday)?|Fri(?:day)?|Sat(?:urday)?|Sun(?:day)?)',                                                                                                                                                                                                                     true),
-    (7,  'word',           'Matches with complete words without spaces, a word can contain _, -.',                                                          '\b\w+\b',                                                                                                                                                                                                                                                                                                               true),
-    (8,  'greedy',         'Matches with the full string',                                                                                                  '.*',                                                                                                                                                                                                                                                                                                                    true),
-    (9,  'space',          'Matches with one or more spaces',                                                                                              '\s+',                                                                                                                                                                                                                                                                                                                  true),
-    (10, 'notSpace',       'Matches with one or more non spaces',                                                                                          '\S+',                                                                                                                                                                                                                                                                                                                  true),
-    (11, 'monthName',      'Matches with any known variant of month name. Ex: January, Feb, feb',                                                          '\b(?:[Jj]an(?:uary|uar)?|[Ff]eb(?:ruary|ruar)?|[Mm](?:a|ä)?r(?:ch|z)?|[Aa]pr(?:il)?|[Mm]a(?:y|i)?|[Jj]un(?:e|i)?|[Jj]ul(?:y|i)?|[Aa]ug(?:ust)?|[Ss]ep(?:tember)?|[Oo](?:c|k)?t(?:ober)?|[Nn]ov(?:ember)?|[Dd]e(?:c|z)(?:ember)?)\b',                                                                              true),
-    (12, 'ipv4',           'Matches with IPv4 address',                                                                                                    '(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\.)){3}((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)))',                                                                                                                                                                                                                    true),
-    (13, 'email',          'Matches with email address',                                                                                                   '((?P<name>[a-zA-Z0-9.!#$%&''*+/=?^_`{|}~-]+)@(?P<domain>[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*))',                                                                                                                                                    true),
-    (14, 'domain',         'Matches with a domain server',                                                                                                 '((?:[_a-z0-9](?:[_a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?)?)',                                                                                                                                                                                                                          true),
-    (15, 'hostname',       'Matches with a hostname',                                                                                                      '(\b(?:[0-9A-Za-z][0-9A-Za-z-]{0,62})(?:\.(?:[0-9A-Za-z][0-9A-Za-z-]{0,62}))*(\.?|\b))',                                                                                                                                                                                                                          true),
-    (16, 'data',           'Matches with the full string until reaches the next pattern',                                                                  '(.*?)',                                                                                                                                                                                                                                                                                                                 true),
-    (17, 'ipv6',           'Matches with IPv6 address',                                                                                                    '([0-9a-fA-F]{1,4}(:[0-9a-fA-F]{0,4}){1,7}|::[0-1]?)',                                                                                                                                                                                                                                                               true),
-    (18, 'uuid',           'Matches with UUID values. Ex: 550e8400-e29b-41d4-a716-446655440000',                                                           '([A-Fa-f0-9]{8}-(?:[A-Fa-f0-9]{4}-){3}[A-Fa-f0-9]{12})',                                                                                                                                                                                                                                                         true),
-    (19, 'monthNumber',    'Matches with the month number. Ex: 01,10,12',                                                                                  '(?:0[1-9]|1[0-2])',                                                                                                                                                                                                                                                                                                 true),
-    (20, 'monthDay',       'Matches with day number within a month. Ex: 01, 1, 14, 31',                                                                   '(?:(?:0[1-9])|(?:[12][0-9])|(?:3[01])|[1-9])',                                                                                                                                                                                                                                                                    true),
-    (21, 'year',           'Matches with any year value between 1000 and 9999',                                                                            '(([1-9])[0-9]{1,3})',                                                                                                                                                                                                                                                                                               true),
-    (22, 'hour',           'Matches with H24 hour format. Ex: 07, 18, 23.',                                                                               '(([01][0-9])|2[0-4])',                                                                                                                                                                                                                                                                                              true),
-    (23, 'minute',         'Matches with mm minute format. Ex: 02, 10, 59.',                                                                              '(?:[0-5][0-9])',                                                                                                                                                                                                                                                                                                     true),
-    (24, 'seconds',        'Matches with SS; SS.sss; SS:sss; SS,sss seconds with milliseconds (optional). Ex: 00.000, 12.1000000.',                        '(?:(?:[0-5]?[0-9]|60)(?:[:.,][0-9]+)?)',                                                                                                                                                                                                                                                                           true),
-    (25, 'time',           'Matches with full time part of a timestamp as: H24:mm:SS',                                                                    '((([01][0-9])|2[0-4]):(?:[0-5][0-9])(?::(?:(?:[0-5]?[0-9]|60)(?:[:.,][0-9]+)?)))',                                                                                                                                                                                                                                true),
-    (26, 'iso8601Timezone','Matches with ISO8601 timezone standard. Ex: Z or -07:00 or +07:00 or -0700 or +0700',                                         '(Z|([+-](([01][0-9])|2[0-4]):?([0-5][0-9])))',                                                                                                                                                                                                                                                                     true)
-ON CONFLICT (id) DO NOTHING;
-
--- Advance the GORM-created sequence past the seeded ids (COALESCE guards the
--- impossible empty-table case). Uses pg_get_serial_sequence so it works whatever
--- the sequence is named.
-SELECT setval(pg_get_serial_sequence('utm_regex_pattern', 'id'), (SELECT COALESCE(MAX(id), 1) FROM utm_regex_pattern));
+-- utm_regex_pattern and utm_tenant_config are now file-backed (patterns.yaml
+-- utm_regex_pattern and utm_tenant_config are NOT dropped here — PipelineBootstrap
+-- reads them first, migrates to YAML files, then drops them. Dropping here
+-- (before the bootstrap runs) would lose user data.
 
 -- Seed the built-in (system) integrations into utm_module.
 --
@@ -308,3 +281,54 @@ INSERT INTO utm_module (module_name, pretty_name, module_description, module_act
     ('GITHUB',          'GitHub',                        'GitHub source-hosting and version control — audit log ingestion.',                               false, 'github.svg',        'Other',           'github',                     true),
     ('UTMSTACK',        'Utmstack',                      'UTMStack open-source SIEM and XDR self-telemetry.',                                              false, 'utmstack.png',      'Device',          'utmstack',                   true)
 ON CONFLICT (module_name) DO NOTHING;
+
+-- Seed the system index patterns. Uses v11- prefix directly (no UPDATE step).
+-- ON CONFLICT (id) DO NOTHING: on in-place upgrades the existing rows are
+-- preserved as-is; on fresh installs all rows are inserted.
+-- Active rows match the current production set.
+INSERT INTO utm_index_pattern (id, pattern, pattern_module, pattern_system, is_active) VALUES
+    (1,  'v11-log-*',                              NULL,                                                                                    true, true),
+    (2,  'v11-alert-*',                            NULL,                                                                                    true, true),
+    (8,  'v11-log-wineventlog-*',                  'WINDOWS_AGENT',                                                                         true, true),
+    (10, 'v11-log-aws-*',                          'AWS_IAM_USER',                                                                          true, false),
+    (11, 'v11-log-azure-*',                        'AZURE',                                                                                  true, false),
+    (12, 'v11-log-o365-*',                         'O365',                                                                                   true, false),
+    (13, 'v11-log-firewall-meraki-*',              'MERAKI',                                                                                 true, false),
+    (14, 'v11-log-firewall-*',                     'MERAKI,SOPHOS_XG,CISCO,FORTIGATE,FIRE_POWER,MIKROTIK,PALO_ALTO,SONIC_WALL,PFSENSE,FORTIWEB', true, true),
+    (15, 'v11-log-firewall-cisco-asa-*',           'CISCO',                                                                                  true, false),
+    (17, 'v11-log-firewall-sophos-xg-*',           'SOPHOS_XG',                                                                              true, true),
+    (19, 'v11-log-generic-*',                      NULL,                                                                                    true, true),
+    (21, 'v11-log-firewall-fortigate-traffic-*',   'FORTIGATE',                                                                              true, true),
+    (24, 'v11-log-vmware-esxi-*',                  'VMWARE',                                                                                 true, false),
+    (25, 'v11-log-google-*',                       'GCP',                                                                                    true, false),
+    (26, 'v11-log-firewall-cisco-firepower-*',     'FIRE_POWER',                                                                             true, false),
+    (39, 'v11-log-linux-*',                        'LINUX_AGENT',                                                                            true, true),
+    (40, 'v11-log-antivirus-*',                    'ESET,SENTINEL_ONE,KASPERSKY',                                                            true, false),
+    (41, 'v11-log-antivirus-esmc-eset-*',          'ESET',                                                                                   true, false),
+    (42, 'v11-log-antivirus-kaspersky-*',          'KASPERSKY',                                                                              true, false),
+    (43, 'v11-log-antivirus-sentinel-one-*',       'SENTINEL_ONE',                                                                           true, false),
+    (44, 'v11-log-sophos-central-*',               'SOPHOS',                                                                                 true, false),
+    (45, 'v11-log-github-*',                       'GITHUB',                                                                                 true, true),
+    (47, 'v11-log-macos-*',                        'MACOS',                                                                                  true, false),
+    (48, 'v11-log-firewall-mikrotik-*',            'MIKROTIK',                                                                               true, false),
+    (49, 'v11-log-firewall-paloalto-*',            'PALO_ALTO',                                                                              true, false),
+    (50, 'v11-log-cisco-switch-*',                 'CISCO_SWITCH',                                                                           true, false),
+    (51, 'v11-log-firewall-sonicwall-*',           'SONIC_WALL',                                                                             true, false),
+    (52, 'v11-log-deceptive-bytes-*',              'DECEPTIVE_BYTES',                                                                        true, false),
+    (53, 'v11-log-antivirus-bitdefender-gz-*',     'BITDEFENDER',                                                                            true, false),
+    (56, 'v11-soc-ai',                             'SOC_AI',                                                                                 true, true),
+    (60, 'v11-log-json-input-*',                   'JSON',                                                                                   true, true),
+    (62, 'v11-log-syslog-*',                       'SYSLOG',                                                                                 true, true),
+    (63, 'v11-log-firewall-pfsense-*',             'PFSENSE',                                                                                true, false),
+    (64, 'v11-log-netflow-*',                      'NETFLOW',                                                                                true, false),
+    (65, 'v11-log-firewall-fortiweb-*',            'FORTIWEB',                                                                               true, false),
+    (66, 'v11-log-ibm-aix-*',                      'AIX',                                                                                    true, false),
+    (67, 'v11-log-ibm-as400-*',                    'AS_400',                                                                                 true, true),
+    (68, 'v11-log-suricata-*',                     'SURICATA',                                                                               true, false),
+    (69, 'v11-log-utmstack-*',                     'UTMSTACK',                                                                               true, true),
+    (70, 'v11-log-crowdstrike-*',                  'CrowdStrike',                                                                            true, true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Advance the sequence above the highest seeded id so new user-created patterns
+-- don't collide with the system rows.
+SELECT setval(pg_get_serial_sequence('utm_index_pattern', 'id'), GREATEST((SELECT MAX(id) FROM utm_index_pattern), 1000));

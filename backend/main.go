@@ -38,14 +38,14 @@ func main() {
 
 	modules := initModules(db, cfg)
 
-	if err := modules.indexpattern.Start(appCtx); err != nil {
-		logger.Critical("indexpattern module failed to start: " + err.Error())
+	if err := modules.opensearchGateway.Start(appCtx); err != nil {
+		logger.Critical("opensearch module failed to start: " + err.Error())
 		panic(err)
 	}
 
 	modules.alerts.Start(appCtx)
-	modules.correlation.Start(appCtx)
-	modules.logstash.Start(appCtx)
+	modules.eventProcessing.Start(appCtx)
+	modules.compliance.Start(appCtx)
 	modules.integrations.Start(appCtx)
 	if sch := modules.networkScan.Scheduler(); sch != nil {
 		go sch.Start(appCtx)

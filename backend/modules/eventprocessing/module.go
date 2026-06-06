@@ -1,13 +1,15 @@
-package correlation
+package eventprocessing
 
 import (
 	"context"
+	"path/filepath"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
-	"github.com/utmstack/utmstack/backend/modules/correlation/connectors"
-	"github.com/utmstack/utmstack/backend/modules/correlation/handler"
-	"github.com/utmstack/utmstack/backend/modules/correlation/repository"
-	"github.com/utmstack/utmstack/backend/modules/correlation/usecase"
+	"github.com/utmstack/utmstack/backend/modules/eventprocessing/connectors"
+	"github.com/utmstack/utmstack/backend/modules/eventprocessing/handler"
+	"github.com/utmstack/utmstack/backend/modules/eventprocessing/repository"
+	"github.com/utmstack/utmstack/backend/modules/eventprocessing/usecase"
 	"github.com/utmstack/utmstack/backend/pkg/env"
 	"gorm.io/gorm"
 )
@@ -15,79 +17,93 @@ import (
 type Module struct {
 	regexPatternHandler    *handler.RegexPatternHandler
 	tenantConfigHandler    *handler.TenantConfigHandler
-	dataTypeHandler        *handler.DataTypeHandler
 	correlationRuleHandler *handler.CorrelationRuleHandler
 
 	regexPatternUsecase    connectors.RegexPatternUsecase
 	tenantConfigUsecase    connectors.TenantConfigUsecase
-	dataTypeUsecase        connectors.DataTypeUsecase
 	correlationRuleUsecase connectors.CorrelationRuleUsecase
 
-	dataTypeScheduler     *usecase.DataTypeScheduler
-	definitionSyncService *usecase.DefinitionSyncService
+	ruleStore         *usecase.RuleStore
+	ruleBootstrap     *usecase.RuleBootstrap
+	filterStore       *usecase.FilterStore
+	filterBootstrap   *usecase.FilterBootstrap
+	pipelineBootstrap *usecase.PipelineBootstrap
+
+	filterHandler         *handler.FilterHandler
+	ingestionStatsHandler *handler.IngestionStatsHandler
 }
 
-func NewModule(db *gorm.DB, auditLogger audit_connectors.Logger, dataInputReader connectors.DataInputStatusReader) *Module {
-	// assetSyncer: replaced when module #33 is ported.
-	assetSyncer := connectors.NewNoopAssetSyncer()
+func NewModule(db *gorm.DB, auditLogger audit_connectors.Logger) *Module {
+	// Pipeline writer — writes tenants.yaml and patterns.yaml on every mutation
+	// and on bootstrap (migration from DB).
+	pipelineDir := env.String(usecase.PipelineDirEnv, usecase.DefaultPipelineDir, false)
+	pipelineWriter := usecase.NewPipelineWriter(pipelineDir)
+	pipelineBootstrap := usecase.NewPipelineBootstrap(pipelineWriter, db)
 
-	// Repositories
-	regexPatternRepo := repository.NewRegexPatternRepository(db)
-	tenantConfigRepo := repository.NewTenantConfigRepository(db)
-	dataTypeRepo := repository.NewDataTypeRepository(db)
-	correlationRuleRepo := repository.NewCorrelationRuleRepository(db)
+	// Rule store — YAML-direct overlays.
+	rulesRoot := env.String(usecase.RulesDirEnv, usecase.DefaultRulesDir, false)
+	ruleStore := usecase.NewRuleStore(
+		filepath.Join(rulesRoot, usecase.SystemSubdir),
+		filepath.Join(rulesRoot, usecase.UserSubdir),
+	)
+	_ = ruleStore.Load()
+	ruleBootstrap := usecase.NewRuleBootstrap(usecase.SystemRulesSrcDir, ruleStore, db)
 
-	// Usecases
-	regexPatternUC := usecase.NewRegexPatternUsecase(regexPatternRepo)
-	tenantConfigUC := usecase.NewTenantConfigUsecase(tenantConfigRepo)
-	dataTypeUC := usecase.NewDataTypeUsecase(dataTypeRepo, assetSyncer)
-	correlationRuleUC := usecase.NewCorrelationRuleUsecase(correlationRuleRepo)
+	// Filter store — YAML-direct overlays (pipeline: format).
+	filtersRoot := env.String(usecase.FiltersDirEnv, usecase.DefaultFiltersDir, false)
+	filterStore := usecase.NewFilterStore(
+		filepath.Join(filtersRoot, usecase.SystemSubdir),
+		filepath.Join(filtersRoot, usecase.UserSubdir),
+	)
+	_ = filterStore.Load()
+	filterBootstrap := usecase.NewFilterBootstrap(usecase.SystemFiltersSrcDir, filterStore, db)
 
-	// Scheduler
-	dataTypeSched := usecase.NewDataTypeScheduler(dataTypeRepo, dataInputReader)
+	regexPatternUC := usecase.NewRegexPatternUsecase(pipelineWriter)
+	tenantConfigUC := usecase.NewTenantConfigUsecase(pipelineWriter)
+	correlationRuleUC := usecase.NewCorrelationRuleUsecase(ruleStore)
+	filterUC := usecase.NewFilterUsecase(filterStore)
 
-	// DefinitionSyncService — reads YAML rules from disk on startup.
-	// rulesDir defaults to "./utmstack/rules"; override with CORRELATION_RULES_DIR.
-	rulesDir := env.String("CORRELATION_RULES_DIR", "./utmstack/rules", false)
-	defSyncSvc := usecase.NewDefinitionSyncService(correlationRuleRepo, dataTypeRepo, rulesDir)
+	ingestionStatsUC := usecase.NewIngestionStatsUsecase(repository.NewIngestionStatsRepository())
 
-	// Handlers
-	regexPatternH := handler.NewRegexPatternHandler(regexPatternUC)
-	tenantConfigH := handler.NewTenantConfigHandler(tenantConfigUC)
-	dataTypeH := handler.NewDataTypeHandler(dataTypeUC)
-	correlationRuleH := handler.NewCorrelationRuleHandler(correlationRuleUC)
-
-	_ = auditLogger // used by routes.go, stored here for future use
+	_ = auditLogger // used by routes.go
 
 	return &Module{
-		regexPatternHandler:    regexPatternH,
-		tenantConfigHandler:    tenantConfigH,
-		dataTypeHandler:        dataTypeH,
-		correlationRuleHandler: correlationRuleH,
+		regexPatternHandler:    handler.NewRegexPatternHandler(regexPatternUC),
+		tenantConfigHandler:    handler.NewTenantConfigHandler(tenantConfigUC),
+		correlationRuleHandler: handler.NewCorrelationRuleHandler(correlationRuleUC),
 		regexPatternUsecase:    regexPatternUC,
 		tenantConfigUsecase:    tenantConfigUC,
-		dataTypeUsecase:        dataTypeUC,
 		correlationRuleUsecase: correlationRuleUC,
-		dataTypeScheduler:      dataTypeSched,
-		definitionSyncService:  defSyncSvc,
+		ruleStore:              ruleStore,
+		ruleBootstrap:          ruleBootstrap,
+		filterStore:            filterStore,
+		filterBootstrap:        filterBootstrap,
+		pipelineBootstrap:      pipelineBootstrap,
+		filterHandler:          handler.NewFilterHandler(filterUC),
+		ingestionStatsHandler:  handler.NewIngestionStatsHandler(ingestionStatsUC),
 	}
 }
 
 func (m *Module) Start(ctx context.Context) {
-	// Run the definition sync once at startup (non-blocking).
-	go m.definitionSyncService.Sync(ctx)
-
-	// 60s data-type scheduler.
-	go m.dataTypeScheduler.Start(ctx)
+	if err := m.ruleBootstrap.Run(ctx); err != nil {
+		_ = catcher.Error("rule bootstrap failed", err, nil)
+	}
+	if err := m.filterBootstrap.Run(ctx); err != nil {
+		_ = catcher.Error("filter bootstrap failed", err, nil)
+	}
+	if err := m.pipelineBootstrap.Run(ctx); err != nil {
+		_ = catcher.Error("pipeline bootstrap (tenant/patterns) failed", err, nil)
+	}
 }
-
-// Getters
 
 func (m *Module) GetRegexPatternHandler() *handler.RegexPatternHandler { return m.regexPatternHandler }
 func (m *Module) GetTenantConfigHandler() *handler.TenantConfigHandler { return m.tenantConfigHandler }
-func (m *Module) GetDataTypeHandler() *handler.DataTypeHandler         { return m.dataTypeHandler }
 func (m *Module) GetCorrelationRuleHandler() *handler.CorrelationRuleHandler {
 	return m.correlationRuleHandler
+}
+func (m *Module) GetFilterHandler() *handler.FilterHandler { return m.filterHandler }
+func (m *Module) GetIngestionStatsHandler() *handler.IngestionStatsHandler {
+	return m.ingestionStatsHandler
 }
 
 func (m *Module) GetRegexPatternUsecase() connectors.RegexPatternUsecase {
@@ -95,9 +111,6 @@ func (m *Module) GetRegexPatternUsecase() connectors.RegexPatternUsecase {
 }
 func (m *Module) GetTenantConfigUsecase() connectors.TenantConfigUsecase {
 	return m.tenantConfigUsecase
-}
-func (m *Module) GetDataTypeUsecase() connectors.DataTypeUsecase {
-	return m.dataTypeUsecase
 }
 func (m *Module) GetCorrelationRuleUsecase() connectors.CorrelationRuleUsecase {
 	return m.correlationRuleUsecase

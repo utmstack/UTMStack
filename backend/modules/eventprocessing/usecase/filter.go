@@ -2,156 +2,111 @@ package usecase
 
 import (
 	"context"
-	"time"
+	"strings"
 
-	"github.com/utmstack/utmstack/backend/modules/logstash/connectors"
-	"github.com/utmstack/utmstack/backend/modules/logstash/domain"
-	"github.com/utmstack/utmstack/backend/modules/logstash/dto"
-	lsErrors "github.com/utmstack/utmstack/backend/modules/logstash/errors"
+	"github.com/utmstack/utmstack/backend/modules/eventprocessing/connectors"
+	"github.com/utmstack/utmstack/backend/modules/eventprocessing/domain"
+	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
 )
 
 type filterUsecase struct {
-	repo               connectors.FilterRepository
-	pipelineFilterRepo connectors.PipelineFilterRepository
-	pipelineRepo       connectors.PipelineRepository
+	store *FilterStore
 }
 
-func NewFilterUsecase(
-	repo connectors.FilterRepository,
-	pipelineFilterRepo connectors.PipelineFilterRepository,
-	pipelineRepo connectors.PipelineRepository,
-) connectors.FilterUsecase {
-	return &filterUsecase{
-		repo:               repo,
-		pipelineFilterRepo: pipelineFilterRepo,
-		pipelineRepo:       pipelineRepo,
-	}
+func NewFilterUsecase(store *FilterStore) connectors.FilterUsecase {
+	return &filterUsecase{store: store}
 }
 
-func (u *filterUsecase) Create(ctx context.Context, req dto.CreateFilterRequest, pipelineID *int64) (*dto.FilterResponse, error) {
-	if req.ID != nil && *req.ID != 0 {
-		return nil, lsErrors.ErrFilterIDExists
-	}
-
-	now := time.Now().UTC()
-	filter := &domain.UtmLogstashFilter{
-		FilterName:     req.FilterName,
-		LogstashFilter: req.LogstashFilter,
-		FilterGroupID:  req.FilterGroupID,
-		DataTypeID:     req.DataTypeID,
-		SystemOwner:    req.SystemOwner,
-		IsActive:       req.IsActive,
-		ModuleName:     req.ModuleName,
-		FilterVersion:  req.FilterVersion,
-		UpdatedAt:      &now,
-	}
-
-	if err := u.repo.Create(ctx, filter); err != nil {
-		return nil, err
-	}
-
-	if pipelineID != nil {
-		pipeline, err := u.pipelineRepo.GetByID(ctx, *pipelineID)
-		if err != nil {
-			return nil, err
-		}
-		if pipeline == nil {
-			return nil, lsErrors.ErrPipelineNotFound
-		}
-
-		rel := &domain.UtmGroupLogstashPipelineFilters{
-			FilterID:   int32(filter.ID),
-			PipelineID: int32(*pipelineID),
-			Relation:   domain.RelationUserCustomFilter,
-		}
-		if err := u.pipelineFilterRepo.Save(ctx, rel); err != nil {
-			return nil, err
-		}
-	}
-
-	return toFilterResponse(filter), nil
-}
-
-func (u *filterUsecase) Update(ctx context.Context, req dto.UpdateFilterRequest) (*dto.FilterResponse, error) {
-	if req.ID == 0 {
-		return nil, lsErrors.ErrFilterIDNull
-	}
-	if req.SystemOwner {
-		return nil, lsErrors.ErrFilterSystemOwner
-	}
-
-	now := time.Now().UTC()
-	filter := &domain.UtmLogstashFilter{
-		ID:             req.ID,
-		FilterName:     req.FilterName,
-		LogstashFilter: req.LogstashFilter,
-		FilterGroupID:  req.FilterGroupID,
-		DataTypeID:     req.DataTypeID,
-		SystemOwner:    req.SystemOwner,
-		IsActive:       req.IsActive,
-		ModuleName:     req.ModuleName,
-		FilterVersion:  req.FilterVersion,
-		UpdatedAt:      &now,
-	}
-
-	if err := u.repo.Update(ctx, filter); err != nil {
-		return nil, err
-	}
-	return toFilterResponse(filter), nil
-}
-
-func (u *filterUsecase) GetByID(ctx context.Context, id int64) (*dto.FilterResponse, error) {
-	filter, err := u.repo.GetByID(ctx, id)
+func (u *filterUsecase) Create(_ context.Context, req dto.CreateFilterRequest) (*dto.FilterResponse, error) {
+	entry, err := u.store.Create(req.RelPath, []byte(req.Content))
 	if err != nil {
-		return nil, err
+		return nil, mapStoreFilterErr(err)
 	}
-	if filter == nil {
-		return nil, lsErrors.ErrFilterNotFound
-	}
-	return toFilterResponse(filter), nil
+	return toFilterResponse(entry), nil
 }
 
-func (u *filterUsecase) List(ctx context.Context, filters dto.FilterFilters) ([]dto.FilterResponse, int64, error) {
-	items, total, err := u.repo.List(ctx, filters)
+func (u *filterUsecase) Update(_ context.Context, req dto.UpdateFilterRequest) (*dto.FilterResponse, error) {
+	entry, err := u.store.Update(req.RelPath, []byte(req.Content))
 	if err != nil {
-		return nil, 0, err
+		return nil, mapStoreFilterErr(err)
 	}
-	result := make([]dto.FilterResponse, 0, len(items))
-	for i := range items {
-		result = append(result, *toFilterResponse(&items[i]))
-	}
-	return result, total, nil
+	return toFilterResponse(entry), nil
 }
 
-func (u *filterUsecase) FiltersByPipelineID(ctx context.Context, pipelineID int64) ([]dto.FilterResponse, error) {
-	items, err := u.repo.FiltersByPipelineID(ctx, pipelineID)
-	if err != nil {
-		return nil, err
+func (u *filterUsecase) GetByRelPath(_ context.Context, relPath string) (*dto.FilterResponse, error) {
+	entry := u.store.GetByRelPath(relPath)
+	if entry == nil {
+		return nil, domain.ErrFilterNotFound
 	}
-	result := make([]dto.FilterResponse, 0, len(items))
-	for i := range items {
-		result = append(result, *toFilterResponse(&items[i]))
-	}
-	return result, nil
+	return toFilterResponse(entry), nil
 }
 
-func (u *filterUsecase) Delete(ctx context.Context, id int64) error {
-	if err := u.pipelineFilterRepo.DeleteByFilterID(ctx, int32(id)); err != nil {
-		return err
+func (u *filterUsecase) List(_ context.Context, f dto.FilterFilters) ([]dto.FilterResponse, int64, error) {
+	all := u.store.List()
+
+	// Apply in-memory filters.
+	out := make([]dto.FilterResponse, 0, len(all))
+	for i := range all {
+		e := &all[i]
+		if f.IsActiveEq != nil && e.Active != *f.IsActiveEq {
+			continue
+		}
+		if f.SystemEq != nil && e.System != *f.SystemEq {
+			continue
+		}
+		if f.RelPathContains != nil && !strings.Contains(e.RelPath, *f.RelPathContains) {
+			continue
+		}
+		out = append(out, *toFilterResponse(e))
 	}
-	return u.repo.Delete(ctx, id)
+
+	total := int64(len(out))
+
+	// Pagination.
+	page, size := f.Page, f.Size
+	if size <= 0 {
+		size = 50
+	}
+	if page <= 0 {
+		page = 1
+	}
+	start := (page - 1) * size
+	if start >= len(out) {
+		return []dto.FilterResponse{}, total, nil
+	}
+	end := start + size
+	if end > len(out) {
+		end = len(out)
+	}
+	return out[start:end], total, nil
 }
 
-func toFilterResponse(f *domain.UtmLogstashFilter) *dto.FilterResponse {
+func (u *filterUsecase) Delete(_ context.Context, relPath string) error {
+	return mapStoreFilterErr(u.store.Delete(relPath))
+}
+
+func (u *filterUsecase) SetActive(_ context.Context, relPath string, active bool) error {
+	return mapStoreFilterErr(u.store.SetEnabled(relPath, active))
+}
+
+func toFilterResponse(e *FilterEntry) *dto.FilterResponse {
 	return &dto.FilterResponse{
-		ID:             f.ID,
-		FilterName:     f.FilterName,
-		LogstashFilter: f.LogstashFilter,
-		FilterGroupID:  f.FilterGroupID,
-		SystemOwner:    f.SystemOwner,
-		IsActive:       f.IsActive,
-		ModuleName:     f.ModuleName,
-		FilterVersion:  f.FilterVersion,
-		UpdatedAt:      f.UpdatedAt,
+		RelPath: e.RelPath,
+		Content: string(e.Content),
+		System:  e.System,
+		Active:  e.Active,
 	}
+}
+
+func mapStoreFilterErr(err error) error {
+	if err == nil {
+		return nil
+	}
+	switch err.(type) {
+	case errFilterNotFound:
+		return domain.ErrFilterNotFound
+	case errFilterSystemOwner:
+		return domain.ErrFilterSystemOwner
+	}
+	return err
 }

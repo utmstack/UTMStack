@@ -89,6 +89,25 @@ func (u *moduleUsecase) Categories(ctx context.Context) ([]string, error) {
 	return u.repo.Categories(ctx)
 }
 
+func (u *moduleUsecase) DataTypes(ctx context.Context) ([]dto.DataTypeOption, error) {
+	modules, err := u.repo.DataTypes(ctx)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]dto.DataTypeOption, 0, len(modules))
+	for i := range modules {
+		m := &modules[i]
+		out = append(out, dto.DataTypeOption{
+			DataType:   m.DataType,
+			Name:       m.PrettyName,
+			ModuleName: m.ModuleName,
+			Active:     m.ModuleActive,
+			IsSystem:   m.IsSystem,
+		})
+	}
+	return out, nil
+}
+
 func (u *moduleUsecase) IsActive(ctx context.Context, moduleName string) (bool, error) {
 	count, err := u.repo.CountActiveByName(ctx, moduleName)
 	if err != nil {

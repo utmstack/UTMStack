@@ -7,14 +7,13 @@ import (
 	appconfig_domain "github.com/utmstack/utmstack/backend/modules/appconfig/domain"
 	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	collectors_domain "github.com/utmstack/utmstack/backend/modules/collectors/domain"
-	correlation_domain "github.com/utmstack/utmstack/backend/modules/correlation/domain"
+	compliance_domain "github.com/utmstack/utmstack/backend/modules/compliance/domain"
 	datainput_domain "github.com/utmstack/utmstack/backend/modules/datainput/domain"
 	iam_domain "github.com/utmstack/utmstack/backend/modules/iam/domain"
 	incidents_domain "github.com/utmstack/utmstack/backend/modules/incidents/domain"
-	indexpattern_domain "github.com/utmstack/utmstack/backend/modules/indexpattern/domain"
 	integrations_domain "github.com/utmstack/utmstack/backend/modules/integrations/domain"
-	logstash_domain "github.com/utmstack/utmstack/backend/modules/logstash/domain"
 	notifications_domain "github.com/utmstack/utmstack/backend/modules/notifications/domain"
+	opensearch_domain "github.com/utmstack/utmstack/backend/modules/opensearch/domain"
 	arr_domain "github.com/utmstack/utmstack/backend/modules/soar/domain"
 	"github.com/utmstack/utmstack/backend/pkg/logger"
 	"gorm.io/gorm"
@@ -48,17 +47,15 @@ func Models() []any {
 		arr_domain.UtmIncidentAction{},
 		arr_domain.UtmIncidentActionCommand{},
 		arr_domain.UtmIncidentJob{},
-		correlation_domain.UtmRegexPattern{},
-		correlation_domain.UtmTenantConfig{},
-		correlation_domain.UtmDataTypes{},
-		correlation_domain.UtmCorrelationRules{},
 		datainput_domain.UtmDataInputStatus{},
 		datainput_domain.UtmDataInputStatusCheckpoint{},
-		logstash_domain.UtmLogstashFilterGroup{},
-		logstash_domain.UtmLogstashFilter{},
-		logstash_domain.UtmLogstashPipeline{},
-		logstash_domain.UtmGroupLogstashPipelineFilters{},
-		indexpattern_domain.UtmIndexPattern{},
+		compliance_domain.UtmComplianceStandard{},
+		compliance_domain.UtmComplianceStandardSection{},
+		compliance_domain.UtmComplianceControlConfig{},
+		compliance_domain.UtmComplianceQueryConfig{},
+		compliance_domain.UtmComplianceReportConfig{},
+		compliance_domain.UtmComplianceReportSchedule{},
+		opensearch_domain.UtmIndexPattern{},
 		integrations_domain.UtmModule{},
 		collectors_domain.UtmCollector{},
 		incidents_domain.UtmIncident{},

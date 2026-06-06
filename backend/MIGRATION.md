@@ -22,14 +22,16 @@ Tracking document for porting `backend-legacy/` (Java 11 / Spring Boot 2 / JHips
 
 | Metric | Legacy | Go (current) |
 |---|---|---|
-| Functional modules | 35+ | 19 (+ 2 stubs) |
-| REST endpoints | ~75 across 75 resources | ~180 |
-| Domain entities | 150+ | ~53 |
-| Service classes | 40+ packages, 173+ classes | ~56 use cases |
-| Repositories | 25+ JPA + custom | ~43 GORM + 2 OpenSearch |
-| Migration progress | — | **~50%** |
+| Functional modules | 35+ | 14 consolidated modules (+ `internal/mail`) |
+| Migration progress | — | **~75% by feature** |
 
-**Phase 1 (Foundation)** is in flight. **Phase 2 (SIEM core)** partially complete: Alerts ✅ · Alert Response Rules ✅ · Correlation Rules ✅ · Data Input Status ✅ · Logstash ✅ · Index Management ✅ · OpenSearch Gateway ✅ · Collectors & Agents ✅ · Asset Metrics ✅ · rest pending. **Phase 3 (SOAR)** complete: Incidents ✅ · Incident Response ✅ · SOC AI ✅ · Threat Management ✅.
+Current Go modules: `iam` · `audit` · `appconfig` · `alerts` · `soar` · `collectors` · `datainput` · `eventprocessing` · `integrations` · `opensearch` · `incidents` · `notifications` · `socai` · `network_scan` (+ `internal/mail`).
+
+**Phase 1 (Foundation)** ✅ essentially complete (federation client-registry side pending). **Phase 2 (SIEM core)** ✅ complete: Alerts · Correlation+Logstash (→ **eventprocessing**) · Data Input Status · Index Mgmt+ISM (→ **opensearch**) · OpenSearch Gateway · Collectors & Agents. (Asset Metrics 🚫 dropped — dead table.) **Phase 3 (SOAR)** ✅ complete: Incidents · Alert Response + Incident Response (→ **soar**) · SOC AI · Threat/Adversary (→ **alerts**). **Phase 4–5 partial:** Notifications ✅ · Mail sender ✅ · TFA ✅ · API keys ✅ · Integrations ✅ · Network scan ✅.
+
+**Remaining:** Compliance (Reports + PDF land **inside compliance**) · Log analyzer (likely **inside eventprocessing**) · SSO/IdP (**inside iam**) · auditor users · app-info (future **billing**) · images (**inside appconfig**). **🚫 Not migrating:** dashboards/visualizations · menus · federation service · getting-started · schedules (unless needed).
+
+> **Module consolidation (2026-06).** The original per-resource modules were merged into bounded contexts. Many deep-dive sections below still use the old names; the matrix and update log are the source of truth. Mappings: `correlation` + `logstash` + data-types/regex/tenant-config → **`eventprocessing`** (rules now **YAML-direct**, no DB) · `index_pattern` + `index_policy` → **`opensearch`** · `alert_response_rules` + `incident_response` → **`soar`** · `tfa` + `api_keys` → **`iam`** · `threat_management` (adversary) → **`alerts`**.
 
 ---
 
@@ -48,7 +50,7 @@ Tracking document for porting `backend-legacy/` (Java 11 / Spring Boot 2 / JHips
 | 5 | [Audit logging](#5-audit-logging) | `web/rest/AuditResource.java`, `aop/logging/AuditEvent` | `modules/audit/` | ✅ | Read endpoints ✅ · `AuditEvent` decorator + hash chain + IP/UA/session capture ✅ |
 | 6 | [App configuration & secrets](#6-app-configuration--secrets) | `web/rest/UtmConfigurationParameterResource.java` | `modules/appconfig/` | 🟡 | CRUD + AES rotate ✅ · sections grouping pending |
 | 7 | [Health checks](#7-health-checks) | actuator + `LogsResource.java` | `modules/health/` | 🟡 | Liveness only · DB/ES/Kafka deep checks pending |
-| 8 | [Connection key (federation)](#8-connection-key-federation) | `service/federation_service/` | `modules/connectionkey/`, `modules/federationservice/` | 🟡 | Validate, federation login, token issuance + rotation ✅ · cross-instance client registry pending |
+| 8 | [Connection key (federation)](#8-connection-key-federation) | `service/federation_service/` | `modules/iam/` | ⚠️ | Connection-key validate + token issuance/rotation ✅ (internal-service auth, needed) · cross-instance **federation service** client registry 🚫 not migrating |
 
 ### Phase 2 — SIEM core
 
@@ -56,14 +58,14 @@ Tracking document for porting `backend-legacy/` (Java 11 / Spring Boot 2 / JHips
 |---|---|---|---|---|---|
 | 9 | [Alerts](#9-alerts) | `web/rest/UtmAlertResource.java` | `modules/alerts/` | ✅ | 22 endpoints · status/notes/tags/convert/count ✅ · alert logs CRUD ✅ · tags CRUD ✅ · tag rules CRUD ✅ · scheduler ✅ |
 | 10 | [Alert tags & tag rules](#10-alert-tags--tag-rules) | `web/rest/UtmAlertTagResource.java` | `modules/alerts/` | ✅ | Folded into module #9 |
-| 11 | [Alert response rules](#11-alert-response-rules) | `web/rest/alert_response_rule/` | `modules/alert_response_rules/` | ✅ | 8 endpoints · CRUD rules/templates/history/executions ✅ · evaluation engine ✅ · gRPC dispatch scheduler ✅ |
-| 12 | [Correlation rules](#12-correlation-rules) | `web/rest/correlation/` | `modules/correlation/` | ✅ | 18 endpoints · correlation rules CRUD + JSON def columns ✅ · data types + sync scheduler ✅ · tenant config ✅ · regex patterns ✅ · YAML definition seeder ✅ |
-| 13 | [Data input ingestion status](#13-data-input-ingestion-status) | `web/rest/UtmDataInputStatusResource.java` | `modules/datainput/` | ✅ | 6 endpoints · CRUD + findImportantDatasource + JHipster count ✅ · correlation scheduler reader wired ✅ |
-| 14 | [Logstash filters & pipelines](#14-logstash-filters--pipelines) | `web/rest/logstash_filter/`, `web/rest/logstash_pipeline/` | `modules/logstash/` | ✅ | 17 endpoints · filter groups CRUD ✅ · filters CRUD + audit ✅ · pipelines read/validate/delete + stats ✅ · 20s scheduler ✅ · definition sync ✅ |
-| 15 | [Index management (ISM)](#15-index-management-ism) | `web/rest/index_pattern/`, `web/rest/index_policy/` | `modules/indexpattern/` | ✅ | 8 endpoints · index pattern CRUD ✅ · ISM policy GET/PUT ✅ · registry bootstrap ✅ · snapshot repo ✅ |
+| 11 | [Alert response rules](#11-alert-response-rules) | `web/rest/alert_response_rule/` | `modules/soar/` | ✅ | Merged into **soar**. CRUD rules/templates/history/executions ✅ · evaluation engine ✅ · gRPC dispatch scheduler ✅ |
+| 12 | [Correlation rules](#12-correlation-rules) | `web/rest/correlation/` | `modules/eventprocessing/` | ✅ | Merged into **eventprocessing**. Rules **YAML-direct** (no DB) ✅ · data types + sync ✅ · tenant config ✅ · regex patterns ✅ |
+| 13 | [Data input ingestion status](#13-data-input-ingestion-status) | `web/rest/UtmDataInputStatusResource.java` | `modules/datainput/` | ✅ | 6 endpoints · CRUD + findImportantDatasource + count ✅. ⚠️ Liveness sync lives in **network_scan** (poll `v11-statistics-*`); see planned re-design in update log |
+| 14 | [Logstash filters & pipelines](#14-logstash-filters--pipelines) | `web/rest/logstash_filter/`, `web/rest/logstash_pipeline/` | `modules/eventprocessing/` | ✅ | Merged into **eventprocessing**. filter groups CRUD ✅ · filters CRUD + audit ✅ · pipelines read/validate/delete + stats ✅ |
+| 15 | [Index management (ISM)](#15-index-management-ism) | `web/rest/index_pattern/`, `web/rest/index_policy/` | `modules/opensearch/` | ✅ | Merged into **opensearch**. index pattern CRUD ✅ · ISM policy GET/PUT ✅ · registry bootstrap ✅ · snapshot repo ✅ |
 | 16 | [Elasticsearch / OpenSearch gateway](#16-elasticsearch--opensearch-gateway) | `web/rest/elasticsearch/` | `modules/opensearch/` | ✅ | 11 endpoints · search/generic-search/count/CSV/SQL ✅ · property values ✅ · index list/delete ✅ · cluster status ✅ · 22-operator FilterType DSL ✅ |
 | 17 | [Collectors & agents](#17-collectors--agents) | `web/rest/collectors/`, `web/rest/agent_manager/` | `modules/collectors/` | ✅ | 8 endpoints · collectors list+sync+delete ✅ · agents list/commands/by-hostname/can-run-command/update-attrs ✅ |
-| 18 | [Asset metrics](#18-asset-metrics) | `web/rest/UtmAssetMetricsResource.java` | `modules/asset_metrics/` | ✅ | 5 endpoints · CRUD ✅ · reader seam for module #33 exported ✅ |
+| 18 | [Asset metrics](#18-asset-metrics) | `web/rest/UtmAssetMetricsResource.java` | — | 🚫 | Dropped — `utm_asset_metrics` was dead (only the un-ported network_scan services wrote it). Reintroduce with network_scan if needed. |
 
 ### Phase 3 — SOAR & response
 
@@ -72,7 +74,7 @@ Tracking document for porting `backend-legacy/` (Java 11 / Spring Boot 2 / JHips
 | 19 | [Incidents](#19-incidents) | `web/rest/incident/` | `modules/incidents/` | ✅ | 16 endpoints · incident CRUD + add-alerts + change-status ✅ · incident-alerts CRUD + bulk status ✅ · notes CRUD ✅ · history list/count/get ✅ |
 | 20 | [Incident response (playbooks)](#20-incident-response-playbooks) | `web/rest/incident_response/` | `modules/incident_response/` | ✅ | 20 endpoints · actions CRUD ✅ · action-commands CRUD ✅ · jobs CRUD ✅ · variables CRUD + AES-256-GCM encryption ✅ · WebSocket command streaming (coder/websocket + gRPC bidi) ✅ |
 | 21 | [SOC AI / enrichment](#21-soc-ai--enrichment) | `web/rest/soc_ai/` | `modules/socai/` | ✅ | 1 endpoint · POST /soc-ai/analyze → HTTP passthrough to SOC_AI_BASE_URL ✅ |
-| 22 | [Threat management / adversaries](#22-threat-management--adversaries) | `web/rest/threat_management/` | `modules/threat_management/` | ✅ | 1 endpoint · adversary alerts aggregation (3-level OpenSearch agg tree) ✅ |
+| 22 | [Threat management / adversaries](#22-threat-management--adversaries) | `web/rest/threat_management/` | `modules/alerts/` (adversary.go) | ✅ | Merged into **alerts**. Adversary alerts aggregation (3-level OpenSearch agg tree) ✅ |
 
 ### Phase 4 — Compliance, reporting, dashboards
 
@@ -80,29 +82,29 @@ Tracking document for porting `backend-legacy/` (Java 11 / Spring Boot 2 / JHips
 |---|---|---|---|---|---|
 | 23 | [Compliance standards & controls](#23-compliance-standards--controls) | `web/rest/compliance/` | — | ❌ | HIPAA/PCI/SOC2 + custom; control evaluation engine |
 | 24 | [Compliance reports & schedules](#24-compliance-reports--schedules) | `web/rest/compliance/UtmComplianceReportSchedule*` | — | ❌ | Cron-based PDF generation + email delivery |
-| 25 | [Reports (generic)](#25-reports-generic) | `web/rest/reports/`, `util/PdfGeneratorResource.java` | — | ❌ | Section builder + PDF export |
-| 26 | [Dashboards & visualizations](#26-dashboards--visualizations) | `web/rest/chart_builder/` | — | ❌ | Drag-drop boards, role sharing |
+| 25 | [Reports (generic)](#25-reports-generic) | `web/rest/reports/`, `util/PdfGeneratorResource.java` | — | ❌ | **Remaining** — will live **inside `compliance`** when that lands. Section builder + PDF export |
+| 26 | [Dashboards & visualizations](#26-dashboards--visualizations) | `web/rest/chart_builder/` | — | 🚫 | Not migrating (per product decision) |
 
 ### Phase 5 — Integrations & advanced
 
 | # | Module | Legacy entrypoint | Go location | Status | Notes |
 |---|---|---|---|---|---|
-| 27 | [Notifications (in-app + email + SMS)](#27-notifications-in-app--email--sms) | `web/rest/notification/` | — | ❌ | Per-user prefs, delivery tracking |
-| 28 | [Mail sending](#28-mail-sending) | `service/mail_sender/` | — | ❌ | Config stored in appconfig; **no sender yet** |
+| 27 | [Notifications (in-app + email + SMS)](#27-notifications-in-app--email--sms) | `web/rest/notification/` | `modules/notifications/` | ✅ | Migrated |
+| 28 | [Mail sending](#28-mail-sending) | `service/mail_sender/` | `internal/mail/` | ✅ | SMTP sender wired (used by password reset, incidents, notifications) |
 | 29 | [TFA / MFA](#29-tfa--mfa) | `web/rest/tfa/` | `modules/iam/handler/tfa.go` | ✅ | TOTP + email challenges ✅ |
-| 30 | [Identity providers (SAML / OIDC)](#30-identity-providers-saml--oidc) | `web/rest/idp_provider/`, `config/saml/` | — | ❌ | Spring Security SAML2 → Go equivalent (gosaml2) |
-| 31 | [API keys](#31-api-keys) | `web/rest/api_key/` | — | ❌ | Hashed keys + usage logs + scoped perms |
-| 32 | [Integrations (Slack, Jira, …)](#32-integrations-slack-jira-) | `web/rest/UtmIntegrationResource.java` | — | ❌ | Templates + encrypted credentials + webhooks |
-| 33 | [Network scanning & assets](#33-network-scanning--assets) | `web/rest/network_scan/` | — | ❌ | Nessus/Nmap integration |
-| 34 | [Server / module management](#34-server--module-management) | `web/rest/UtmServerResource.java` | — | ❌ | Multi-node deployment registry |
-| 35 | [Schedules / dynamic tasks](#35-schedules--dynamic-tasks) | `web/rest/UtmScheduleResource.java` | — | ❌ | Quartz → Go cron lib |
-| 36 | [Log analyzer / saved queries](#36-log-analyzer--saved-queries) | `web/rest/log_analyzer/` | — | ❌ | Query library |
-| 37 | [Configuration sections / menus](#37-configuration-sections--menus) | `web/rest/UtmMenuResource.java` | — | ❌ | Role-based navigation tree |
-| 38 | [Getting started / onboarding](#38-getting-started--onboarding) | `web/rest/getting_started/` | — | ❌ | Step tracking |
-| 39 | [Auditor users](#39-auditor-users) | `web/rest/user_auditor/` | — | ❌ | Filtered user listing for auditor role |
-| 40 | [App info / version](#40-app-info--version) | `web/rest/app_info/AppInfoResource.java` | — | ❌ | Version + build info |
-| 41 | [Images / media](#41-images--media) | `web/rest/UtmImagesResource.java` | `uploads/` (static only) | 🟡 | Static file serving exists; CRUD pending |
-| 42 | [Client / stack info](#42-client--stack-info) | `web/rest/UtmClientResource.java` | — | ❌ | Tenant/deployment metadata |
+| 30 | [Identity providers (SAML / OIDC)](#30-identity-providers-saml--oidc) | `web/rest/idp_provider/`, `config/saml/` | — | ❌ | **Remaining** — will live **inside `iam`**. Spring SAML2 → gosaml2 / go-oidc |
+| 31 | [API keys](#31-api-keys) | `web/rest/api_key/` | `modules/iam/handler/api_keys.go` | ✅ | Merged into **iam**. Hashed keys + auth middleware ✅ |
+| 32 | [Integrations (Slack, Jira, …)](#32-integrations-slack-jira-) | `web/rest/UtmIntegrationResource.java`, `application_modules/` | `modules/integrations/` | ✅ | Integrations + `utm_module` bounded context ✅ |
+| 33 | [Network scanning & assets](#33-network-scanning--assets) | `web/rest/network_scan/` | `modules/network_scan/` | ✅ | Assets/groups/types/ports + asset-sync scheduler ✅ |
+| 34 | [Server / module management](#34-server--module-management) | `web/rest/UtmServerResource.java`, `application_modules/` | `modules/integrations/` | ✅ | Module mgmt covered by **integrations** (`utm_module`) |
+| 35 | [Schedules / dynamic tasks](#35-schedules--dynamic-tasks) | `web/rest/UtmScheduleResource.java` | — | 🚫 | Not migrating unless a concrete need appears |
+| 36 | [Log analyzer / saved queries](#36-log-analyzer--saved-queries) | `web/rest/log_analyzer/` | — | ❌ | **Remaining** — evaluating fold **into `eventprocessing`** |
+| 37 | [Configuration sections / menus](#37-configuration-sections--menus) | `web/rest/UtmMenuResource.java` | — | 🚫 | Not migrating — navigation lives in the React frontend |
+| 38 | [Getting started / onboarding](#38-getting-started--onboarding) | `web/rest/getting_started/` | — | 🚫 | Not migrating |
+| 39 | [Auditor users](#39-auditor-users) | `web/rest/user_auditor/` | — | ❌ | **Remaining** — likely folds into **iam** users with a `?role=` filter |
+| 40 | [App info / version](#40-app-info--version) | `web/rest/app_info/AppInfoResource.java` | — | ❌ | **Remaining** — planned inside a future **billing** module |
+| 41 | [Images / media](#41-images--media) | `web/rest/UtmImagesResource.java` | `uploads/` (static only) | 🟡 | Static serving exists; CRUD pending — will fold **into `appconfig`** |
+| 42 | [Client / stack info](#42-client--stack-info) | `web/rest/UtmClientResource.java` | — | 🚫 | `utm_client` dropped (license read from file); tenant identity implicit |
 
 ---
 
@@ -784,11 +786,11 @@ Tracking document for porting `backend-legacy/` (Java 11 / Spring Boot 2 / JHips
 
 | Phase | Scope | Rough endpoints | Status |
 |---|---|---|---|
-| **1 — Foundation** | Auth, users, roles, account, audit, appconfig, health, connectionkey | ~30 | 🟡 In progress |
-| **2 — SIEM core** | Alerts, tags, response rules, correlation, ingestion status, logstash, ISM, OS gateway, collectors, asset metrics | ~25 | 🟡 Alerts ✅ · Alert response rules ✅ · Correlation ✅ · Data input ✅ · Logstash ✅ · ISM ✅ · OS Gateway ✅ · Collectors & Agents ✅ · Asset Metrics ✅ · rest pending |
-| **3 — SOAR** | Incidents + incident response (actions/commands/jobs/variables + WebSocket) | ~15 | ✅ Incidents ✅ · Incident Response ✅ · SOC AI ✅ · Threat Management ✅ |
-| **4 — Compliance & reporting** | Compliance standards/controls/reports, generic reports, dashboards | ~25 | ❌ |
-| **5 — Integrations & advanced** | Notifications, mail sender, TFA, IdP, API keys, integrations, network scan, server mgmt, schedules, log analyzer, onboarding, app info, images, client info | ~40 | ❌ |
+| **1 — Foundation** | Auth, users, roles, account, audit, appconfig, health, connectionkey | ~30 | ✅ Essentially complete (federation client-registry pending) |
+| **2 — SIEM core** | Alerts, response rules, correlation, ingestion status, logstash, ISM, OS gateway, collectors | ~25 | ✅ Complete (consolidated into eventprocessing/opensearch/soar; asset metrics 🚫 dropped) |
+| **3 — SOAR** | Incidents + incident response + SOC AI + threat/adversary | ~15 | ✅ Complete |
+| **4 — Compliance & reporting** | Compliance standards/controls/reports, generic reports (+PDF) | ~25 | ❌ Remaining (dashboards 🚫 not migrating) |
+| **5 — Integrations & advanced** | ✅ Notifications · Mail · TFA · API keys · Integrations · Network scan · Server/module mgmt (integrations) — ❌ remaining: IdP/SSO (iam), log analyzer (eventprocessing?), auditor users, app-info (billing), images (appconfig) | ~40 | 🟡 Partial |
 
 ---
 
@@ -796,6 +798,14 @@ Tracking document for porting `backend-legacy/` (Java 11 / Spring Boot 2 / JHips
 
 <!-- Add an entry every time you flip a status or complete a row -->
 
+- _2026-06-06_ — ♻️ **Module consolidation + scope decisions.**
+  - **Consolidated** into bounded contexts: `correlation` + `logstash` (+ data-types/regex/tenant-config) → **`eventprocessing`** (rules **YAML-direct**, no DB — read/written as YAML under a shared volume; legacy `utm_correlation_rules` read once by the bootstrap then dropped); `index_pattern` + `index_policy` → **`opensearch`**; `alert_response_rules` + `incident_response` → **`soar`**; `tfa` + `api_keys` → **`iam`**; `threat_management` (adversary) → **`alerts`**; server/module mgmt → **`integrations`** (`utm_module`).
+  - **Confirmed migrated** since last log: Notifications ✅ · Mail sender (`internal/mail`) ✅ · Integrations ✅ · Network scan ✅ · API keys ✅.
+  - **Dropped 🚫:** Asset Metrics (dead table), `utm_client`.
+  - **Not migrating 🚫:** dashboards/visualizations · menus · **federation service** (cross-instance MSSP client) · **getting-started** · **schedules** (unless a concrete need appears).
+  - **Future placement decisions:** IdP/SSO → inside **iam** · Reports → inside **compliance** (when compliance lands) · App-info → inside a future **billing** module · Images → inside **appconfig** · Log analyzer → likely inside **eventprocessing** (TBD).
+  - **Remaining real work:** Compliance (+ reports + PDF), Log analyzer, SSO/IdP, auditor users.
+  - **Planned next (data-source liveness re-design):** drop `utm_data_input_status` (+ checkpoint); compute source status from OpenSearch `v11-statistics-*`; add a `heartbeat` topic (the **inputs plugin** emits per live agent/collector stream; cloud plugins self-report) routed through the existing **stats plugin** → green/yellow/red semaphore. gRPC keepalive on the inputs plugin makes "connected" a valid liveness signal without agent changes.
 - _2026-06-02_ — ✅ **Phase 1 RBAC (#3) + Audit (#5) flipped to complete** — verified all 7 RBAC endpoints wired in `modules/iam/handler/roles.go` + `RequirePermission` middleware in `pkg/http/middleware/auth.go`. Audit module verified: read endpoints, `AuditEvent` decorator (used across iam/alerts/correlation/federation/logstash), IP/UA/session capture in `auditctx`, SHA256 hash chain with `prev_hash` linking + serialization lock in `repository/audit_log.go`.
 - _2026-06-02_ — ✅ **Phase 1 Federation service issuance complete** — `modules/federationservice/` added with `GET /federation-service/token` + `POST /federation-service/generate-token` (admin-only, audited). Boot-time `EnsureInitialized` mirrors legacy `UtmFederationServiceClientService.init()` — fresh installs auto-seed the token + `fsclient` user. New `iam.UserUsecase.EnsureFederationUser` upserts the user; JWT claims gain `Roles` and `middleware.RequireAdmin()` is wired for admin-only routes. `utm_federation_service_client` added to GORM AutoMigrate.
 - _2026-05-02_ — Initial inventory drafted from `backend-legacy/` analysis (35+ functional modules; ~75 legacy endpoints; ~30 Go endpoints already shipped in Phase 1).

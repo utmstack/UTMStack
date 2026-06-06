@@ -11,16 +11,15 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	"github.com/utmstack/utmstack/backend/modules/collectors"
-	"github.com/utmstack/utmstack/backend/modules/correlation"
+	"github.com/utmstack/utmstack/backend/modules/compliance"
 	"github.com/utmstack/utmstack/backend/modules/datainput"
+	"github.com/utmstack/utmstack/backend/modules/eventprocessing"
 	"github.com/utmstack/utmstack/backend/modules/iam"
 	iam_repository "github.com/utmstack/utmstack/backend/modules/iam/repository"
 	iam_usecase "github.com/utmstack/utmstack/backend/modules/iam/usecase"
 	"github.com/utmstack/utmstack/backend/modules/incidents"
 	incidents_connectors "github.com/utmstack/utmstack/backend/modules/incidents/connectors"
-	"github.com/utmstack/utmstack/backend/modules/indexpattern"
 	"github.com/utmstack/utmstack/backend/modules/integrations"
-	"github.com/utmstack/utmstack/backend/modules/logstash"
 	"github.com/utmstack/utmstack/backend/modules/network_scan"
 	ns_repository "github.com/utmstack/utmstack/backend/modules/network_scan/repository"
 	ns_usecase "github.com/utmstack/utmstack/backend/modules/network_scan/usecase"
@@ -51,13 +50,12 @@ type modules struct {
 	audit             *audit.Module
 	appconfig         *appconfig.Module
 	mail              *mail.Module
+	compliance        *compliance.Module
 	alerts            *alerts.Module
 	soar              *soar.Module
 	collectors        *collectors.Module
-	correlation       *correlation.Module
 	datainput         *datainput.Module
-	logstash          *logstash.Module
-	indexpattern      *indexpattern.Module
+	eventProcessing   *eventprocessing.Module
 	integrations      *integrations.Module
 	opensearchGateway *opensearchgw.Module
 	incidents         *incidents.Module
@@ -90,6 +88,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	configMod := appconfig.NewModule(db, cipher)
 	mailMod := mail.NewModule(configMod.Store())
 	configMod.SetMailer(mailMod.Service())
+	complianceMod := compliance.NewModule(db, mailMod.Service())
 
 	userRepo := iam_repository.NewUserRepository(db)
 	rbacRepo := iam_repository.NewRBACRepository(db)
@@ -123,9 +122,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	soarMod := soar.NewModule(db, agentClient, signer, cipher)
 	collectorsMod := collectors.NewModule(db, agentClient)
 	datainputMod := datainput.NewModule(db)
-	correlationMod := correlation.NewModule(db, auditMod.Logger(), datainputMod.GetReader())
-	logstashMod := logstash.NewModule(db, auditMod.Logger())
-	indexpatternMod := indexpattern.NewModule(db, cfg.esHost != "")
+	eventProcessingMod := eventprocessing.NewModule(db, auditMod.Logger())
 
 	integrationsMod := integrations.NewModule(db, cipher,
 		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false),
@@ -158,14 +155,13 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		audit:             auditMod,
 		appconfig:         configMod,
 		mail:              mailMod,
+		compliance:        complianceMod,
 		alerts:            alertsMod,
 		soar:              soarMod,
 		collectors:        collectorsMod,
-		correlation:       correlationMod,
 		datainput:         datainputMod,
-		logstash:          logstashMod,
-		indexpattern:      indexpatternMod,
-		opensearchGateway: opensearchgw.NewModule(),
+		eventProcessing:   eventProcessingMod,
+		opensearchGateway: opensearchgw.NewModule(db, cfg.esHost != ""),
 		integrations:      integrationsMod,
 		socAI:             socai.NewModule(cfg.socAIBaseURL, cfg.internalKey),
 		incidents: incidents.NewModule(

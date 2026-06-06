@@ -17,6 +17,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 
 	g.GET("", read, mh.List)
 	g.GET("/categories", read, mh.Categories)
+	g.GET("/data-types", read, mh.DataTypes)
 	g.GET("/is-active", read, mh.IsActive)
 	g.PUT("/activate", write, mh.ActivateDeactivate)
 	g.GET("/:id", read, mh.Get)

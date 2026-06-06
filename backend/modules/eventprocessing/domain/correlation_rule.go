@@ -32,7 +32,9 @@ type UtmCorrelationRules struct {
 	RuleGroupByDef   string `gorm:"column:rule_group_by_def"`
 	DeduplicateByDef string `gorm:"column:rule_deduplicate_by_def"`
 
-	// GORM manages the association; use Association("DataTypes").Replace for sync.
+	// Legacy-read-only: the rule bootstrap Preloads this association to recover
+	// each rule's data-type names during the one-time DB->YAML migration. Never
+	// written; the join table is dropped once migration completes.
 	DataTypes []UtmDataTypes `gorm:"many2many:utm_group_rules_data_type;joinForeignKey:rule_id;joinReferences:data_type_id"`
 }
 

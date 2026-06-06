@@ -21,6 +21,7 @@ type ModuleRepository interface {
 	Save(ctx context.Context, module *domain.UtmModule) error
 	Delete(ctx context.Context, id int64) error
 	Categories(ctx context.Context) ([]string, error)
+	DataTypes(ctx context.Context) ([]domain.UtmModule, error)
 	CountActiveByName(ctx context.Context, moduleName string) (int64, error)
 }
 

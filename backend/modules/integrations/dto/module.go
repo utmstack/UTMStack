@@ -35,6 +35,14 @@ type ModuleResponse struct {
 	IsSystem          bool   `json:"isSystem"`
 }
 
+type DataTypeOption struct {
+	DataType   string `json:"dataType"`
+	Name       string `json:"name"`
+	ModuleName string `json:"moduleName"`
+	Active     bool   `json:"active"`
+	IsSystem   bool   `json:"isSystem"`
+}
+
 type ModuleListFilter struct {
 	ModuleCategory *string
 	ModuleActive   *bool
