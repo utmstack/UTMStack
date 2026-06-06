@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"net/http"
+	"strings"
 	"os"
 	"os/signal"
 	"runtime"
@@ -12,7 +14,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/utmstack/UTMStack/plugins/gcp/config"
 	"google.golang.org/api/option"
 )
 
@@ -33,7 +34,7 @@ func main() {
 		return
 	}
 
-	go config.StartConfigurationSystem()
+	go StartConfigurationSystem()
 
 	for i := 0; i < 2*runtime.NumCPU(); i++ {
 		go plugins.SendLogsFromChannel("com.utmstack.gcp")
@@ -110,7 +111,7 @@ func (g *GroupModule) PullLogs() {
 	}
 }
 
-func getModuleConfig(newConf *config.ModuleGroup) GroupModule {
+func getModuleConfig(newConf *ModuleGroup) GroupModule {
 	gcpModule := GroupModule{}
 	gcpModule.GroupName = newConf.GroupName
 	gcpModule.CTX, gcpModule.Cancel = context.WithCancel(context.Background())
@@ -141,9 +142,9 @@ func startGroupModuleManager() {
 func (m *GroupModuleManager) SyncConfigs() {
 	time.Sleep(3 * time.Second)
 
-	m.handleConfigUpdate(config.GetConfig())
+	m.handleConfigUpdate(GetConfig())
 
-	for newConfig := range config.GetConfigUpdateChannel() {
+	for newConfig := range GetConfigUpdateChannel() {
 		catcher.Info("Received config update", map[string]any{
 			"moduleActive": newConfig != nil && newConfig.ModuleActive,
 			"process":      "plugin_com.utmstack.gcp",
@@ -152,7 +153,7 @@ func (m *GroupModuleManager) SyncConfigs() {
 	}
 }
 
-func (m *GroupModuleManager) handleConfigUpdate(moduleConfig *config.ConfigurationSection) {
+func (m *GroupModuleManager) handleConfigUpdate(moduleConfig *ConfigurationSection) {
 	if err := ConnectionChecker(CHECKCON); err != nil {
 		_ = catcher.Error("External connection failure detected", err, map[string]any{"process": "plugin_com.utmstack.gcp"})
 	}
@@ -208,4 +209,71 @@ func configChanged(old, new GroupModule) bool {
 	return old.JsonKey != new.JsonKey ||
 		old.ProjectID != new.ProjectID ||
 		old.SubscriptionID != new.SubscriptionID
+}
+
+func ConnectionChecker(url string) error {
+	checkConn := func() error {
+		ctx, cancel := context.WithTimeout(context.Background(), connectionTimeout)
+		defer cancel()
+
+		if err := checkConnection(url, ctx); err != nil {
+			return fmt.Errorf("connection failed")
+		}
+		return nil
+	}
+
+	if err := infiniteRetryIfXError(checkConn, "connection failed"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func checkConnection(url string, ctx context.Context) error {
+	client := &http.Client{}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			_ = catcher.Error("error closing response body", err, map[string]any{"process": "plugin_com.utmstack.gcp"})
+		}
+	}()
+
+	return nil
+}
+
+func infiniteRetryIfXError(f func() error, exception string) error {
+	var xErrorWasLogged bool
+
+	for {
+		err := f()
+		if err != nil && is(err, exception) {
+			if !xErrorWasLogged {
+				_ = catcher.Error("An error occurred, will keep retrying indefinitely...", err, map[string]any{"process": "plugin_com.utmstack.gcp"})
+				xErrorWasLogged = true
+			}
+			time.Sleep(wait)
+			continue
+		}
+
+		return err
+	}
+}
+
+func is(e error, args ...string) bool {
+	for _, arg := range args {
+		if strings.Contains(e.Error(), arg) {
+			return true
+		}
+	}
+	return false
 }

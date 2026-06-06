@@ -1,4 +1,4 @@
-package config
+package main
 
 import (
 	"crypto/aes"
@@ -19,13 +19,15 @@ import (
 )
 
 const (
-	pluginFile                = "system_plugins_bitdefender.yaml"
-	processName               = "plugin_com.utmstack.bitdefender"
-	pipelineDirDefault        = "/workdir/pipeline"
-	EndpointPush       string = "/v1.0/jsonrpc/push"
-	BitdefenderGZPort  string = "8000"
-	DefaultTenant      string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
-	UrlCheckConnection string = "https://cloud.gravityzone.bitdefender.com"
+	pluginFile         = "system_plugins_azure.yaml"
+	processName        = "plugin_com.utmstack.azure"
+	pipelineDirDefault = "/workdir/pipeline"
+)
+
+var (
+	cnf              *ConfigurationSection
+	mu               sync.Mutex
+	configUpdateChan chan *ConfigurationSection
 )
 
 type ConfigurationSection struct {
@@ -44,12 +46,6 @@ type Configuration struct {
 	ConfValue string
 }
 
-var (
-	cnf              *ConfigurationSection
-	mu               sync.Mutex
-	configUpdateChan chan *ConfigurationSection
-)
-
 func init() {
 	configUpdateChan = make(chan *ConfigurationSection, 1)
 }
@@ -67,6 +63,13 @@ func GetConfig() *ConfigurationSection {
 // GetConfigUpdateChannel returns the channel that receives config updates.
 func GetConfigUpdateChannel() <-chan *ConfigurationSection {
 	return configUpdateChan
+}
+
+// sensitiveKeys lists the fields whose values are stored encrypted by the backend.
+// Azure connection strings embed access keys/secrets so both are password-typed.
+var sensitiveKeys = map[string]bool{
+	"eventHubConnection": true,
+	"storageConnection":  true,
 }
 
 // StartConfigurationSystem starts the file watcher. Blocks until configured,
@@ -166,10 +169,6 @@ type tenantYAML struct {
 	Config map[string]string `yaml:",inline"`
 }
 
-var sensitiveKeys = map[string]bool{
-	"connectionKey": true,
-}
-
 func readConfig(path, encKey string) *ConfigurationSection {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -194,32 +193,31 @@ func readConfig(path, encKey string) *ConfigurationSection {
 			GroupName: t.Name,
 		}
 		for k, v := range t.Config {
-			conf := &Configuration{ConfKey: k, ConfValue: v}
 			if sensitiveKeys[k] && encKey != "" {
-				dec, err := NewCipher(encKey).Decrypt(conf.ConfValue)
-				if err == nil {
-					conf.ConfValue = dec
+				if dec, err := NewCipher(encKey).Decrypt(v); err == nil {
+					v = dec
 				}
 			}
-			grp.ModuleGroupConfigurations = append(grp.ModuleGroupConfigurations, conf)
+			grp.ModuleGroupConfigurations = append(grp.ModuleGroupConfigurations,
+				&Configuration{ConfKey: k, ConfValue: v})
 		}
 		sec.ModuleGroups = append(sec.ModuleGroups, grp)
 	}
 	return sec
 }
 
+// ---------------------------------------------------------------------------
+// Cipher — AES-CBC decryption helpers (merged from cipher.go)
+// ---------------------------------------------------------------------------
+
 const (
 	iterationCount = 65536
 	keyLength      = 16
 )
 
-type Cipher struct {
-	key []byte
-}
+type Cipher struct{ key []byte }
 
-func NewCipher(key string) *Cipher {
-	return &Cipher{key: []byte(key)}
-}
+func NewCipher(key string) *Cipher { return &Cipher{key: []byte(key)} }
 
 func (c *Cipher) setKey() (cipher.Block, []byte, error) {
 	h := sha1.New()
@@ -246,7 +244,7 @@ func (c *Cipher) Decrypt(crypt string) (string, error) {
 		return crypt, err
 	}
 	if len(encryptedData)%aes.BlockSize != 0 {
-		return crypt, nil // not a valid CBC block → already plaintext
+		return crypt, nil // invalid block size → already plaintext
 	}
 	dec := cipher.NewCBCDecrypter(blk, iv)
 	decrypted := make([]byte, len(encryptedData))

@@ -18,8 +18,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
-
-	"github.com/utmstack/UTMStack/plugins/azure/config"
 )
 
 type AzureCloud string
@@ -86,7 +84,7 @@ func main() {
 		return
 	}
 
-	go config.StartConfigurationSystem()
+	go StartConfigurationSystem()
 
 	for t := 0; t < 2*runtime.NumCPU(); t++ {
 		go func() {
@@ -106,7 +104,7 @@ func (pm *ProcessorManager) watchConfigAndSync() {
 
 	pm.syncProcessors()
 
-	for newConfig := range config.GetConfigUpdateChannel() {
+	for newConfig := range GetConfigUpdateChannel() {
 		catcher.Info("Received config update, syncing processors", map[string]any{
 			"moduleActive": newConfig != nil && newConfig.ModuleActive,
 			"process":      "plugin_com.utmstack.azure",
@@ -116,7 +114,7 @@ func (pm *ProcessorManager) watchConfigAndSync() {
 }
 
 func (pm *ProcessorManager) syncProcessors() {
-	moduleConfig := config.GetConfig()
+	moduleConfig := GetConfig()
 	if moduleConfig == nil || !moduleConfig.ModuleActive {
 		pm.stopAll()
 		return
@@ -132,7 +130,7 @@ func (pm *ProcessorManager) syncProcessors() {
 		}
 	}
 
-	currentGroups := make(map[string]*config.ModuleGroup)
+	currentGroups := make(map[string]*ModuleGroup)
 	for _, grp := range moduleConfig.ModuleGroups {
 		valid := true
 		for _, cnf := range grp.ModuleGroupConfigurations {
@@ -220,7 +218,7 @@ func configChanged(old, new AzureConfig) bool {
 		old.StorageConnection != new.StorageConnection
 }
 
-func detectCloudsInUse(moduleConfig *config.ConfigurationSection) map[string]string {
+func detectCloudsInUse(moduleConfig *ConfigurationSection) map[string]string {
 	cloudsMap := make(map[string]string)
 
 	for _, group := range moduleConfig.ModuleGroups {
@@ -445,7 +443,7 @@ type AzureConfig struct {
 	StorageConnection  string
 }
 
-func getAzureProcessor(group *config.ModuleGroup) AzureConfig {
+func getAzureProcessor(group *ModuleGroup) AzureConfig {
 	azurePro := AzureConfig{}
 	azurePro.GroupName = group.GroupName
 	for _, cnf := range group.ModuleGroupConfigurations {

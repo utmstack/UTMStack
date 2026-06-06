@@ -1,4 +1,4 @@
-package config
+package main
 
 import (
 	"crypto/aes"
@@ -19,13 +19,15 @@ import (
 )
 
 const (
-	pluginFile                = "system_plugins_bitdefender.yaml"
-	processName               = "plugin_com.utmstack.bitdefender"
-	pipelineDirDefault        = "/workdir/pipeline"
-	EndpointPush       string = "/v1.0/jsonrpc/push"
-	BitdefenderGZPort  string = "8000"
-	DefaultTenant      string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
-	UrlCheckConnection string = "https://cloud.gravityzone.bitdefender.com"
+	pluginFile         = "system_plugins_aws.yaml"
+	processName        = "plugin_com.utmstack.aws"
+	pipelineDirDefault = "/workdir/pipeline"
+)
+
+var (
+	cnf              *ConfigurationSection
+	mu               sync.Mutex
+	configUpdateChan chan *ConfigurationSection
 )
 
 type ConfigurationSection struct {
@@ -44,17 +46,10 @@ type Configuration struct {
 	ConfValue string
 }
 
-var (
-	cnf              *ConfigurationSection
-	mu               sync.Mutex
-	configUpdateChan chan *ConfigurationSection
-)
-
 func init() {
 	configUpdateChan = make(chan *ConfigurationSection, 1)
 }
 
-// GetConfig returns the current configuration (nil-safe).
 func GetConfig() *ConfigurationSection {
 	mu.Lock()
 	defer mu.Unlock()
@@ -64,13 +59,10 @@ func GetConfig() *ConfigurationSection {
 	return cnf
 }
 
-// GetConfigUpdateChannel returns the channel that receives config updates.
 func GetConfigUpdateChannel() <-chan *ConfigurationSection {
 	return configUpdateChan
 }
 
-// StartConfigurationSystem starts the file watcher. Blocks until configured,
-// then runs indefinitely.
 func StartConfigurationSystem() {
 	pipelineDir := pipelineDirDefault
 	var encKey string
@@ -140,7 +132,6 @@ func StartConfigurationSystem() {
 	}
 }
 
-// pollFallback is used if fsnotify setup fails — polls every 30s instead.
 func pollFallback(filePath, encKey string) {
 	catcher.Warn("falling back to 30s polling", map[string]any{"process": processName})
 	for range time.Tick(30 * time.Second) {
@@ -160,14 +151,13 @@ func push(sec *ConfigurationSection) {
 	}
 }
 
-// tenantYAML matches the flat YAML format the backend writes.
 type tenantYAML struct {
 	Name   string            `yaml:"name"`
 	Config map[string]string `yaml:",inline"`
 }
 
 var sensitiveKeys = map[string]bool{
-	"connectionKey": true,
+	"aws_secret_access_key": true,
 }
 
 func readConfig(path, encKey string) *ConfigurationSection {
@@ -195,7 +185,7 @@ func readConfig(path, encKey string) *ConfigurationSection {
 		}
 		for k, v := range t.Config {
 			conf := &Configuration{ConfKey: k, ConfValue: v}
-			if sensitiveKeys[k] && encKey != "" {
+			if encKey != "" && sensitiveKeys[k] {
 				dec, err := NewCipher(encKey).Decrypt(conf.ConfValue)
 				if err == nil {
 					conf.ConfValue = dec

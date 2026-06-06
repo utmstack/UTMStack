@@ -67,10 +67,6 @@ updates:
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/plugins/modules-config" # Location of package manifests
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "gomod" # See documentation for possible values
     directory: "/plugins/o365" # Location of package manifests
     schedule:
       interval: "weekly"

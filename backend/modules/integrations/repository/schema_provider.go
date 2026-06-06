@@ -15,10 +15,10 @@ var moduleSchemas = map[string]map[string]string{
 		"aws_log_group_name":    "text",
 	},
 	"AZURE": {
-		"eventHubConnection": "text",
+		"eventHubConnection": "password", // connection string contains SharedAccessKey
 		"consumerGroup":      "text",
 		"storageContainer":   "text",
-		"storageConnection":  "text",
+		"storageConnection":  "password", // connection string contains AccountKey
 	},
 	"GCP": {
 		"jsonKey":      "file",

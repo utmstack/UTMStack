@@ -14,7 +14,6 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
-	"github.com/utmstack/UTMStack/plugins/o365/config"
 )
 
 type CloudEnvironment string
@@ -71,7 +70,7 @@ func GetCloudConfig(env CloudEnvironment) CloudConfig {
 
 var (
 	activeGroupsMu sync.RWMutex
-	activeGroups   = make(map[int32]*config.ModuleGroup)
+	activeGroups   = make(map[int32]*ModuleGroup)
 )
 
 func main() {
@@ -80,7 +79,7 @@ func main() {
 		return
 	}
 
-	go config.StartConfigurationSystem()
+	go StartConfigurationSystem()
 
 	for i := 0; i < 2*runtime.NumCPU(); i++ {
 		go plugins.SendLogsFromChannel("com.utmstack.o365")
@@ -89,7 +88,7 @@ func main() {
 	watchConfigAndPull()
 }
 
-func syncActiveGroups(newConfig *config.ConfigurationSection) {
+func syncActiveGroups(newConfig *ConfigurationSection) {
 	activeGroupsMu.Lock()
 	defer activeGroupsMu.Unlock()
 
@@ -97,11 +96,11 @@ func syncActiveGroups(newConfig *config.ConfigurationSection) {
 		catcher.Info("Module deactivated, clearing all groups", map[string]any{
 			"process": "plugin_com.utmstack.o365",
 		})
-		activeGroups = make(map[int32]*config.ModuleGroup)
+		activeGroups = make(map[int32]*ModuleGroup)
 		return
 	}
 
-	newGroups := make(map[int32]*config.ModuleGroup)
+	newGroups := make(map[int32]*ModuleGroup)
 	for _, grp := range newConfig.ModuleGroups {
 		newGroups[grp.Id] = grp
 	}
@@ -125,11 +124,11 @@ func syncActiveGroups(newConfig *config.ConfigurationSection) {
 	activeGroups = newGroups
 }
 
-func getActiveGroups() []*config.ModuleGroup {
+func getActiveGroups() []*ModuleGroup {
 	activeGroupsMu.RLock()
 	defer activeGroupsMu.RUnlock()
 
-	groups := make([]*config.ModuleGroup, 0, len(activeGroups))
+	groups := make([]*ModuleGroup, 0, len(activeGroups))
 	for _, grp := range activeGroups {
 		groups = append(groups, grp)
 	}
@@ -139,7 +138,7 @@ func getActiveGroups() []*config.ModuleGroup {
 func watchConfigAndPull() {
 	time.Sleep(3 * time.Second)
 
-	initialConfig := config.GetConfig()
+	initialConfig := GetConfig()
 	if initialConfig != nil && initialConfig.ModuleActive {
 		syncActiveGroups(initialConfig)
 	}
@@ -152,7 +151,7 @@ func watchConfigAndPull() {
 
 	for {
 		select {
-		case newConfig := <-config.GetConfigUpdateChannel():
+		case newConfig := <-GetConfigUpdateChannel():
 			catcher.Info("Received config update, syncing groups", map[string]any{
 				"moduleActive": newConfig != nil && newConfig.ModuleActive,
 				"process":      "plugin_com.utmstack.o365",
@@ -177,7 +176,7 @@ func watchConfigAndPull() {
 			wg.Add(len(groups))
 
 			for _, grp := range groups {
-				go func(group *config.ModuleGroup) {
+				go func(group *ModuleGroup) {
 					defer wg.Done()
 					pull(startTime, endTime, group)
 				}(grp)
@@ -189,7 +188,7 @@ func watchConfigAndPull() {
 	}
 }
 
-func checkConfiguredEnvironments(groups []*config.ModuleGroup) {
+func checkConfiguredEnvironments(groups []*ModuleGroup) {
 	uniqueAuthorities := make(map[string]CloudEnvironment)
 
 	for _, group := range groups {
@@ -209,7 +208,7 @@ func checkConfiguredEnvironments(groups []*config.ModuleGroup) {
 	}
 }
 
-func getGroupEnvironment(group *config.ModuleGroup) CloudEnvironment {
+func getGroupEnvironment(group *ModuleGroup) CloudEnvironment {
 	for _, cnf := range group.ModuleGroupConfigurations {
 		if cnf.ConfKey == "office365_cloud_environment" && cnf.ConfValue != "" {
 			return CloudEnvironment(cnf.ConfValue)
@@ -218,7 +217,7 @@ func getGroupEnvironment(group *config.ModuleGroup) CloudEnvironment {
 	return CloudCommercial
 }
 
-func pull(startTime time.Time, endTime time.Time, group *config.ModuleGroup) {
+func pull(startTime time.Time, endTime time.Time, group *ModuleGroup) {
 	agent := GetOfficeProcessor(group)
 
 	err := agent.GetAuth()
@@ -283,7 +282,7 @@ type ContentList struct {
 
 type ContentDetailsResponse []map[string]any
 
-func GetOfficeProcessor(group *config.ModuleGroup) OfficeProcessor {
+func GetOfficeProcessor(group *ModuleGroup) OfficeProcessor {
 	offProc := OfficeProcessor{
 		CloudEnvironment: CloudCommercial,
 	}
@@ -539,4 +538,71 @@ func (o *OfficeProcessor) GetLogs(startTime, endTime time.Time) []string {
 		}
 	}
 	return logs
+}
+
+func ConnectionChecker(url string) error {
+	checkConn := func() error {
+		ctx, cancel := context.WithTimeout(context.Background(), connectionTimeout)
+		defer cancel()
+
+		if err := checkConnection(url, ctx); err != nil {
+			return fmt.Errorf("connection failed")
+		}
+		return nil
+	}
+
+	if err := infiniteRetryIfXError(checkConn, "connection failed"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func checkConnection(url string, ctx context.Context) error {
+	client := &http.Client{}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			_ = catcher.Error("error closing response body: %v", err, map[string]any{"process": "plugin_com.utmstack.o365"})
+		}
+	}()
+
+	return nil
+}
+
+func infiniteRetryIfXError(f func() error, exception string) error {
+	var xErrorWasLogged bool
+
+	for {
+		err := f()
+		if err != nil && is(err, exception) {
+			if !xErrorWasLogged {
+				_ = catcher.Error("An error occurred (%s), will keep retrying indefinitely...", err, map[string]any{"process": "plugin_com.utmstack.o365"})
+				xErrorWasLogged = true
+			}
+			time.Sleep(wait)
+			continue
+		}
+
+		return err
+	}
+}
+
+func is(e error, args ...string) bool {
+	for _, arg := range args {
+		if strings.Contains(e.Error(), arg) {
+			return true
+		}
+	}
+	return false
 }

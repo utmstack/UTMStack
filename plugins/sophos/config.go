@@ -1,4 +1,4 @@
-package config
+package main
 
 import (
 	"crypto/aes"
@@ -19,13 +19,9 @@ import (
 )
 
 const (
-	pluginFile                = "system_plugins_bitdefender.yaml"
-	processName               = "plugin_com.utmstack.bitdefender"
-	pipelineDirDefault        = "/workdir/pipeline"
-	EndpointPush       string = "/v1.0/jsonrpc/push"
-	BitdefenderGZPort  string = "8000"
-	DefaultTenant      string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
-	UrlCheckConnection string = "https://cloud.gravityzone.bitdefender.com"
+	pluginFile         = "system_plugins_sophos.yaml"
+	processName        = "plugin_com.utmstack.sophos"
+	pipelineDirDefault = "/workdir/pipeline"
 )
 
 type ConfigurationSection struct {
@@ -167,7 +163,7 @@ type tenantYAML struct {
 }
 
 var sensitiveKeys = map[string]bool{
-	"connectionKey": true,
+	"sophos_x_api_key": true,
 }
 
 func readConfig(path, encKey string) *ConfigurationSection {
@@ -195,9 +191,8 @@ func readConfig(path, encKey string) *ConfigurationSection {
 		}
 		for k, v := range t.Config {
 			conf := &Configuration{ConfKey: k, ConfValue: v}
-			if sensitiveKeys[k] && encKey != "" {
-				dec, err := NewCipher(encKey).Decrypt(conf.ConfValue)
-				if err == nil {
+			if encKey != "" && sensitiveKeys[conf.ConfKey] {
+				if dec, err := NewCipher(encKey).Decrypt(conf.ConfValue); err == nil {
 					conf.ConfValue = dec
 				}
 			}
@@ -207,6 +202,10 @@ func readConfig(path, encKey string) *ConfigurationSection {
 	}
 	return sec
 }
+
+// ---------------------------------------------------------------------------
+// Cipher (merged from cipher.go)
+// ---------------------------------------------------------------------------
 
 const (
 	iterationCount = 65536

@@ -15,6 +15,5 @@ COPY ./plugins/o365/com.utmstack.o365.plugin /workdir/plugins/utmstack/
 COPY ./plugins/sophos/com.utmstack.sophos.plugin /workdir/plugins/utmstack/
 COPY ./plugins/stats/com.utmstack.stats.plugin /workdir/plugins/utmstack/
 COPY ./plugins/soc-ai/com.utmstack.soc-ai.plugin /workdir/plugins/utmstack/
-COPY ./plugins/modules-config/com.utmstack.modules-config.plugin /workdir/plugins/utmstack/
 COPY ./plugins/crowdstrike/com.utmstack.crowdstrike.plugin /workdir/plugins/utmstack/
 COPY ./plugins/feeds/com.utmstack.feeds.plugin /workdir/plugins/utmstack/

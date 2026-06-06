@@ -1,4 +1,4 @@
-package config
+package main
 
 import (
 	"crypto/aes"
@@ -19,13 +19,9 @@ import (
 )
 
 const (
-	pluginFile                = "system_plugins_bitdefender.yaml"
-	processName               = "plugin_com.utmstack.bitdefender"
-	pipelineDirDefault        = "/workdir/pipeline"
-	EndpointPush       string = "/v1.0/jsonrpc/push"
-	BitdefenderGZPort  string = "8000"
-	DefaultTenant      string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
-	UrlCheckConnection string = "https://cloud.gravityzone.bitdefender.com"
+	pluginFile         = "system_plugins_o365.yaml"
+	processName        = "plugin_com.utmstack.o365"
+	pipelineDirDefault = "/workdir/pipeline"
 )
 
 type ConfigurationSection struct {
@@ -167,7 +163,7 @@ type tenantYAML struct {
 }
 
 var sensitiveKeys = map[string]bool{
-	"connectionKey": true,
+	"office365_client_secret": true,
 }
 
 func readConfig(path, encKey string) *ConfigurationSection {
