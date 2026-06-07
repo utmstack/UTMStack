@@ -10,9 +10,10 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/alerts"
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
 	"github.com/utmstack/utmstack/backend/modules/audit"
-	"github.com/utmstack/utmstack/backend/modules/collectors"
 	"github.com/utmstack/utmstack/backend/modules/compliance"
-	"github.com/utmstack/utmstack/backend/modules/datainput"
+	"github.com/utmstack/utmstack/backend/modules/datasources"
+	ns_repository "github.com/utmstack/utmstack/backend/modules/datasources/repository"
+	ns_usecase "github.com/utmstack/utmstack/backend/modules/datasources/usecase"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing"
 	"github.com/utmstack/utmstack/backend/modules/iam"
 	iam_repository "github.com/utmstack/utmstack/backend/modules/iam/repository"
@@ -20,9 +21,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/incidents"
 	incidents_connectors "github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations"
-	"github.com/utmstack/utmstack/backend/modules/network_scan"
-	ns_repository "github.com/utmstack/utmstack/backend/modules/network_scan/repository"
-	ns_usecase "github.com/utmstack/utmstack/backend/modules/network_scan/usecase"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
@@ -53,15 +51,13 @@ type modules struct {
 	compliance        *compliance.Module
 	alerts            *alerts.Module
 	soar              *soar.Module
-	collectors        *collectors.Module
-	datainput         *datainput.Module
+	datasources       *datasources.Module
 	eventProcessing   *eventprocessing.Module
 	integrations      *integrations.Module
 	opensearchGateway *opensearchgw.Module
 	incidents         *incidents.Module
 	notifications     *notifications.Module
 	socAI             *socai.Module
-	networkScan       *network_scan.Module
 	signer            *jwtpkg.Signer
 }
 
@@ -120,35 +116,19 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	}
 
 	soarMod := soar.NewModule(db, agentClient, signer, cipher)
-	collectorsMod := collectors.NewModule(db, agentClient)
-	datainputMod := datainput.NewModule(db)
 	eventProcessingMod := eventprocessing.NewModule(db, auditMod.Logger())
 
 	integrationsMod := integrations.NewModule(db, cipher,
 		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false),
 	)
 
-	// network_scan: asset inventory + monitoring (the Java network_scan module port).
-	nsRepo := ns_repository.NewNetworkScanRepository(db)
-	nsPortsRepo := ns_repository.NewPortsRepository(db)
-	nsAssetGroupRepo := ns_repository.NewAssetGroupRepository(db)
-	nsAssetTypesRepo := ns_repository.NewAssetTypesRepository(db)
-	nsDataInputs := ns_repository.NewDataInputStatusGateway(db)
-	nsProbe := ns_repository.NewHTTPProbeClient(configMod.Store(), 30*time.Second)
-	nsAgentGW := ns_usecase.NewAgentGateway(agentClient)
-	nsUC := ns_usecase.NewNetworkScanUsecase(nsRepo, nsPortsRepo, nsAgentGW, nsDataInputs)
-	nsGroupUC := ns_usecase.NewAssetGroupUsecase(nsAssetGroupRepo)
-	nsTypesUC := ns_usecase.NewAssetTypesUsecase(nsAssetTypesRepo)
-	nsPortsUC := ns_usecase.NewPortsUsecase(nsPortsRepo)
-	nsProbeUC := ns_usecase.NewProbeUsecase(nsProbe)
-	nsReportUC := ns_usecase.NewReportUsecase(nsRepo)
-	var nsScheduler *ns_usecase.Scheduler
-	if env.Bool("NETWORK_SCAN_SCHEDULER_ENABLED", false) {
-		nsScheduler = ns_usecase.NewScheduler(
-			ns_usecase.NewAssetSync(nsRepo, nsDataInputs, nsAgentGW, ns_usecase.NewSourceActivityProvider()),
-		)
-	}
-	networkScanMod := network_scan.NewModule(nsUC, nsGroupUC, nsTypesUC, nsPortsUC, nsProbeUC, nsReportUC, nsScheduler)
+	// datasources: registered log sources (agents, collectors, pullers, direct inputs)
+	// and their groups. Registration + liveness arrive via the ping endpoint.
+	dsRepo := ns_repository.NewDatasourceRepository(db)
+	dsGroupRepo := ns_repository.NewAssetGroupRepository(db)
+	dsUC := ns_usecase.NewDatasourceUsecase(dsRepo)
+	dsGroupUC := ns_usecase.NewAssetGroupUsecase(dsGroupRepo)
+	datasourcesMod := datasources.NewModule(dsUC, dsGroupUC)
 
 	return &modules{
 		iam:               iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, cfg.uploadDir),
@@ -158,8 +138,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		compliance:        complianceMod,
 		alerts:            alertsMod,
 		soar:              soarMod,
-		collectors:        collectorsMod,
-		datainput:         datainputMod,
+		datasources:       datasourcesMod,
 		eventProcessing:   eventProcessingMod,
 		opensearchGateway: opensearchgw.NewModule(db, cfg.esHost != ""),
 		integrations:      integrationsMod,
@@ -172,7 +151,6 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 			auditMod.Logger(),
 		),
 		notifications: notifications.NewModule(db, auditMod.Logger()),
-		networkScan:   networkScanMod,
 		signer:        signer,
 	}
 }

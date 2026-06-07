@@ -6,9 +6,8 @@ import (
 	alerts_domain "github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	appconfig_domain "github.com/utmstack/utmstack/backend/modules/appconfig/domain"
 	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
-	collectors_domain "github.com/utmstack/utmstack/backend/modules/collectors/domain"
 	compliance_domain "github.com/utmstack/utmstack/backend/modules/compliance/domain"
-	datainput_domain "github.com/utmstack/utmstack/backend/modules/datainput/domain"
+	datasources_domain "github.com/utmstack/utmstack/backend/modules/datasources/domain"
 	iam_domain "github.com/utmstack/utmstack/backend/modules/iam/domain"
 	incidents_domain "github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	integrations_domain "github.com/utmstack/utmstack/backend/modules/integrations/domain"
@@ -47,8 +46,6 @@ func Models() []any {
 		arr_domain.UtmIncidentAction{},
 		arr_domain.UtmIncidentActionCommand{},
 		arr_domain.UtmIncidentJob{},
-		datainput_domain.UtmDataInputStatus{},
-		datainput_domain.UtmDataInputStatusCheckpoint{},
 		compliance_domain.UtmComplianceStandard{},
 		compliance_domain.UtmComplianceStandardSection{},
 		compliance_domain.UtmComplianceControlConfig{},
@@ -57,12 +54,13 @@ func Models() []any {
 		compliance_domain.UtmComplianceReportSchedule{},
 		opensearch_domain.UtmIndexPattern{},
 		integrations_domain.UtmModule{},
-		collectors_domain.UtmCollector{},
 		incidents_domain.UtmIncident{},
 		incidents_domain.UtmIncidentAlert{},
 		incidents_domain.UtmIncidentNote{},
 		incidents_domain.UtmIncidentHistory{},
 		notifications_domain.UtmNotification{},
+		datasources_domain.UtmAssetGroup{},
+		datasources_domain.Datasource{},
 	}
 }
 

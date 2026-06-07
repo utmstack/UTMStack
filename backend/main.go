@@ -47,9 +47,6 @@ func main() {
 	modules.eventProcessing.Start(appCtx)
 	modules.compliance.Start(appCtx)
 	modules.integrations.Start(appCtx)
-	if sch := modules.networkScan.Scheduler(); sch != nil {
-		go sch.Start(appCtx)
-	}
 
 	engine := initHTTPServer(cfg)
 	registerRoutes(engine, modules, cfg)

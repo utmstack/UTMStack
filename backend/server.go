@@ -16,14 +16,12 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/alerts"
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
 	"github.com/utmstack/utmstack/backend/modules/audit"
-	"github.com/utmstack/utmstack/backend/modules/collectors"
 	"github.com/utmstack/utmstack/backend/modules/compliance"
-	"github.com/utmstack/utmstack/backend/modules/datainput"
+	datasources "github.com/utmstack/utmstack/backend/modules/datasources"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing"
 	"github.com/utmstack/utmstack/backend/modules/iam"
 	"github.com/utmstack/utmstack/backend/modules/incidents"
 	"github.com/utmstack/utmstack/backend/modules/integrations"
-	"github.com/utmstack/utmstack/backend/modules/network_scan"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
@@ -92,14 +90,12 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	soar.RegisterRoutes(api, m.soar, userAuth)
 	eventprocessing.RegisterRoutes(api, m.eventProcessing, userAuth)
 	compliance.RegisterRoutes(api, m.compliance, userAuth)
-	collectors.RegisterRoutes(api, m.collectors, userAuth)
-	datainput.RegisterRoutes(api, m.datainput, userAuth)
 	integrations.RegisterRoutes(api, m.integrations, userAuth)
 	opensearchgw.RegisterRoutes(api, m.opensearchGateway, userAuth)
 	incidents.RegisterRoutes(api, m.incidents, userAuth)
 	notifications.RegisterRoutes(api, m.notifications, userAuth)
 	socai.RegisterRoutes(api, m.socAI, userAuth)
-	network_scan.RegisterRoutes(api, m.networkScan, userAuth)
+	datasources.RegisterRoutes(api, m.datasources, userAuth)
 }
 
 // startServer starts the HTTP server and blocks until appCtx is cancelled

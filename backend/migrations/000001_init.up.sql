@@ -43,11 +43,68 @@ DROP TABLE IF EXISTS utm_alert_log;
 -- can reintroduce its own metrics storage.
 DROP TABLE IF EXISTS utm_asset_metrics;
 
+-- Drop the data-source ingestion-status tables. utm_data_input_status was a
+-- materialized cache of OpenSearch `v11-statistics-*` (latest event timestamp per
+-- source+data_type) and utm_data_input_status_checkpoint only held the sync poll
+-- cursor. Nothing in the Go stack reads them: no frontend calls the endpoints, no
+-- module depends on them, and the liveness fields (median/isDown) were unused.
+-- Source liveness is derived from OpenSearch directly; the datainput module and
+-- the network_scan sync writer are removed. Drop the checkpoint first.
+DROP TABLE IF EXISTS utm_data_input_status_checkpoint;
+DROP TABLE IF EXISTS utm_data_input_status;
+
+-- Drop the Liquibase bookkeeping tables. The Go backend manages schema versioning
+-- with golang-migrate (schema_migrations / schema_migrations_pre), so Liquibase's
+-- internal changelog tracking is obsolete. These linger on databases upgraded from
+-- the Java backend; nothing in the Go stack reads or writes them.
+DROP TABLE IF EXISTS databasechangelog;
+DROP TABLE IF EXISTS databasechangeloglock;
+
 -- Drop the agent-manager registry table. It was dead JHipster scaffolding in the
 -- legacy backend: an empty @SuppressWarnings("unused") repository that was never
 -- injected, never seeded, never read or written. Nothing in the Go stack (backend,
 -- agent-manager service or agents) references it.
 DROP TABLE IF EXISTS utm_agent_manager;
+
+-- Drop utm_ports and its sequence. The table stored open ports discovered by the
+-- network probe scanner, but the only Angular components that could write to it
+-- (AssetCreateComponent / AssetPortCreateComponent) were dead code — their
+-- selectors were never mounted in any reachable template. No automated job writes
+-- to it either. The Go network_scan module no longer models this table.
+DROP TABLE IF EXISTS public.utm_ports;
+DROP SEQUENCE IF EXISTS public.utm_ports_id_seq;
+
+-- Drop utm_network_scan and utm_asset_types. The datasources module recreates
+-- utm_network_scan from a clean, slimmed schema in 000003 (asset_type_id and the dead
+-- sync/probe columns removed, `label` added, group_id kept). Dropping the dirty table
+-- here — before 000003 — makes the clean CREATE take effect on in-place upgrades too,
+-- where the legacy table would otherwise survive 000003's CREATE ... IF NOT EXISTS.
+-- This is a documented BREAKING CHANGE: per-asset curation (group assignments, notes,
+-- alias) is discarded. Group definitions in utm_asset_group are kept, and alerts already
+-- enriched with their group retain it in OpenSearch. utm_asset_types is removed for good,
+-- replaced by the free-text `label` column on utm_network_scan. CASCADE clears the FK from
+-- the dropped table; utm_network_scan_id_seq is left for 000003 to reuse.
+DROP TABLE IF EXISTS public.utm_network_scan CASCADE;
+DROP TABLE IF EXISTS public.utm_asset_types;
+DROP SEQUENCE IF EXISTS public.utm_asset_types_id_seq;
+
+-- Drop utm_collectors. It was a GORM-AutoMigrated local cache of the agent-manager's
+-- collector registry (synced on demand by the collectors module). Collectors are folding
+-- into datasources (SourceKind=collector, registered via ping), so the cache is redundant.
+-- No data is lost — the agent-manager remains the source of truth. Removed from Models()
+-- so AutoMigrate no longer recreates it.
+DROP TABLE IF EXISTS public.utm_collectors;
+
+-- Drop utm_asset_group.type, the legacy ASSET/COLLECTOR discriminator added by
+-- liquibase 20240506001. It only powered the old split asset-groups vs collector-groups
+-- UI; the Go datasources model never mapped it and the new stack uses a single group
+-- namespace. CASCADE so any unique constraint that still includes the column (the legacy
+-- composite over group_name+type) is removed with it, whatever its name. Single-name
+-- uniqueness is then governed by the GORM uniqueIndex on group_name (UtmAssetGroup model).
+-- NOTE on in-place upgrades: group_name now must be globally unique — if an install has the
+-- same group_name across an ASSET and a COLLECTOR group, those rows must be deduplicated
+-- before this runs.
+ALTER TABLE utm_asset_group DROP COLUMN IF EXISTS type CASCADE;
 
 -- Drop the SOC AI processing-request table. It was dead code in the legacy backend
 -- (entity/repo/service with zero references) and was deliberately not ported: the
@@ -161,7 +218,9 @@ INSERT INTO permissions (name, description, resource, action) VALUES
     ('integrations.read',  'List integrations, their tenants and configuration',          'integrations', 'read'),
     ('integrations.write', 'Activate integrations and create/update/delete their tenants', 'integrations', 'write'),
     ('compliance.read',  'List and view compliance standards, controls, reports and evaluation history', 'compliance', 'read'),
-    ('compliance.write', 'Create, update and delete compliance standards, controls and report schedules', 'compliance', 'write')
+    ('compliance.write', 'Create, update and delete compliance standards, controls and report schedules', 'compliance', 'write'),
+    ('datasources.read',  'List and view datasources and their groups',                 'datasources', 'read'),
+    ('datasources.write', 'Create, update and delete datasources, their groups and group assignments', 'datasources', 'write')
 ON CONFLICT (name) DO NOTHING;
 
 -- Bind ROLE_ADMIN to every permission currently in the catalog. Re-run this

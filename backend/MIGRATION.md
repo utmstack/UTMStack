@@ -23,15 +23,15 @@ Tracking document for porting `backend-legacy/` (Java 11 / Spring Boot 2 / JHips
 | Metric | Legacy | Go (current) |
 |---|---|---|
 | Functional modules | 35+ | 14 consolidated modules (+ `internal/mail`) |
-| Migration progress | — | **~75% by feature** |
+| Migration progress | — | **~85% by feature** |
 
-Current Go modules: `iam` · `audit` · `appconfig` · `alerts` · `soar` · `collectors` · `datainput` · `eventprocessing` · `integrations` · `opensearch` · `incidents` · `notifications` · `socai` · `network_scan` (+ `internal/mail`).
+Current Go modules: `iam` · `audit` · `appconfig` · `compliance` · `alerts` · `soar` · `collectors` · `eventprocessing` · `integrations` · `opensearch` · `incidents` · `notifications` · `socai` · `datasources` (+ `internal/mail`).
 
-**Phase 1 (Foundation)** ✅ essentially complete (federation client-registry side pending). **Phase 2 (SIEM core)** ✅ complete: Alerts · Correlation+Logstash (→ **eventprocessing**) · Data Input Status · Index Mgmt+ISM (→ **opensearch**) · OpenSearch Gateway · Collectors & Agents. (Asset Metrics 🚫 dropped — dead table.) **Phase 3 (SOAR)** ✅ complete: Incidents · Alert Response + Incident Response (→ **soar**) · SOC AI · Threat/Adversary (→ **alerts**). **Phase 4–5 partial:** Notifications ✅ · Mail sender ✅ · TFA ✅ · API keys ✅ · Integrations ✅ · Network scan ✅.
+**Phase 1 (Foundation)** ✅ essentially complete (federation client-registry side pending). **Phase 2 (SIEM core)** ✅ complete: Alerts · Correlation+Logstash (→ **eventprocessing**) · Index Mgmt+ISM (→ **opensearch**) · OpenSearch Gateway · Collectors & Agents. (Asset Metrics 🚫 and Data Input Status 🚫 dropped — dead/derived tables.) **Phase 3 (SOAR)** ✅ complete: Incidents · Alert Response + Incident Response (→ **soar**) · SOC AI · Threat/Adversary (→ **alerts**). **Phase 4 (Compliance)** ✅ standards/sections/controls + OpenSearch evaluation/report-config/schedules (→ **compliance**). **Phase 5 partial:** Notifications ✅ · Mail sender ✅ · TFA ✅ · API keys ✅ · Integrations ✅ · Network scan → **datasources** ✅.
 
-**Remaining:** Compliance (Reports + PDF land **inside compliance**) · Log analyzer (likely **inside eventprocessing**) · SSO/IdP (**inside iam**) · auditor users · app-info (future **billing**) · images (**inside appconfig**). **🚫 Not migrating:** dashboards/visualizations · menus · federation service · getting-started · schedules (unless needed).
+**Remaining:** Generic reports + PDF export · Log analyzer (likely **inside eventprocessing**) · SSO/IdP (**inside iam**) · auditor users · app-info (future **billing**) · images CRUD (**inside appconfig**). **🚫 Not migrating:** dashboards/visualizations · menus · federation service · getting-started · schedules (unless needed).
 
-> **Module consolidation (2026-06).** The original per-resource modules were merged into bounded contexts. Many deep-dive sections below still use the old names; the matrix and update log are the source of truth. Mappings: `correlation` + `logstash` + data-types/regex/tenant-config → **`eventprocessing`** (rules now **YAML-direct**, no DB) · `index_pattern` + `index_policy` → **`opensearch`** · `alert_response_rules` + `incident_response` → **`soar`** · `tfa` + `api_keys` → **`iam`** · `threat_management` (adversary) → **`alerts`**.
+> **Module consolidation (2026-06).** The original per-resource modules were merged into bounded contexts. Many deep-dive sections below still use the old names; the matrix and update log are the source of truth. Mappings: `correlation` + `logstash` + data-types/regex/tenant-config → **`eventprocessing`** (rules now **YAML-direct**, no DB) · `index_pattern` + `index_policy` → **`opensearch`** · `alert_response_rules` + `incident_response` → **`soar`** · `tfa` + `api_keys` → **`iam`** · `threat_management` (adversary) → **`alerts`** · `network_scan` + `datainput` → **`datasources`** (`utm_data_input_status` dropped — liveness derived from OpenSearch; `datainput` module removed).
 
 ---
 
@@ -60,7 +60,7 @@ Current Go modules: `iam` · `audit` · `appconfig` · `alerts` · `soar` · `co
 | 10 | [Alert tags & tag rules](#10-alert-tags--tag-rules) | `web/rest/UtmAlertTagResource.java` | `modules/alerts/` | ✅ | Folded into module #9 |
 | 11 | [Alert response rules](#11-alert-response-rules) | `web/rest/alert_response_rule/` | `modules/soar/` | ✅ | Merged into **soar**. CRUD rules/templates/history/executions ✅ · evaluation engine ✅ · gRPC dispatch scheduler ✅ |
 | 12 | [Correlation rules](#12-correlation-rules) | `web/rest/correlation/` | `modules/eventprocessing/` | ✅ | Merged into **eventprocessing**. Rules **YAML-direct** (no DB) ✅ · data types + sync ✅ · tenant config ✅ · regex patterns ✅ |
-| 13 | [Data input ingestion status](#13-data-input-ingestion-status) | `web/rest/UtmDataInputStatusResource.java` | `modules/datainput/` | ✅ | 6 endpoints · CRUD + findImportantDatasource + count ✅. ⚠️ Liveness sync lives in **network_scan** (poll `v11-statistics-*`); see planned re-design in update log |
+| 13 | [Data input ingestion status](#13-data-input-ingestion-status) | `web/rest/UtmDataInputStatusResource.java` | — | 🚫 | **Dropped.** `datainput` module + `utm_data_input_status`(+checkpoint) removed — was a materialized cache of OpenSearch `v11-statistics-*` with no consumer. Source liveness derived from OpenSearch directly. |
 | 14 | [Logstash filters & pipelines](#14-logstash-filters--pipelines) | `web/rest/logstash_filter/`, `web/rest/logstash_pipeline/` | `modules/eventprocessing/` | ✅ | Merged into **eventprocessing**. filter groups CRUD ✅ · filters CRUD + audit ✅ · pipelines read/validate/delete + stats ✅ |
 | 15 | [Index management (ISM)](#15-index-management-ism) | `web/rest/index_pattern/`, `web/rest/index_policy/` | `modules/opensearch/` | ✅ | Merged into **opensearch**. index pattern CRUD ✅ · ISM policy GET/PUT ✅ · registry bootstrap ✅ · snapshot repo ✅ |
 | 16 | [Elasticsearch / OpenSearch gateway](#16-elasticsearch--opensearch-gateway) | `web/rest/elasticsearch/` | `modules/opensearch/` | ✅ | 11 endpoints · search/generic-search/count/CSV/SQL ✅ · property values ✅ · index list/delete ✅ · cluster status ✅ · 22-operator FilterType DSL ✅ |
@@ -80,9 +80,9 @@ Current Go modules: `iam` · `audit` · `appconfig` · `alerts` · `soar` · `co
 
 | # | Module | Legacy entrypoint | Go location | Status | Notes |
 |---|---|---|---|---|---|
-| 23 | [Compliance standards & controls](#23-compliance-standards--controls) | `web/rest/compliance/` | — | ❌ | HIPAA/PCI/SOC2 + custom; control evaluation engine |
-| 24 | [Compliance reports & schedules](#24-compliance-reports--schedules) | `web/rest/compliance/UtmComplianceReportSchedule*` | — | ❌ | Cron-based PDF generation + email delivery |
-| 25 | [Reports (generic)](#25-reports-generic) | `web/rest/reports/`, `util/PdfGeneratorResource.java` | — | ❌ | **Remaining** — will live **inside `compliance`** when that lands. Section builder + PDF export |
+| 23 | [Compliance standards & controls](#23-compliance-standards--controls) | `web/rest/compliance/` | `modules/compliance/` | ✅ | Standards + sections + control-config CRUD ✅ · OpenSearch control evaluation + history ✅ |
+| 24 | [Compliance reports & schedules](#24-compliance-reports--schedules) | `web/rest/compliance/UtmComplianceReportSchedule*` | `modules/compliance/` | ✅ | report-config CRUD ✅ · schedules CRUD ✅ |
+| 25 | [Reports (generic)](#25-reports-generic) | `web/rest/reports/`, `util/PdfGeneratorResource.java` | `modules/compliance/` (partial) | 🟡 | **Remaining** — generic section builder + PDF export. Compliance report-config/schedules landed; standalone reporting + PDF still pending. |
 | 26 | [Dashboards & visualizations](#26-dashboards--visualizations) | `web/rest/chart_builder/` | — | 🚫 | Not migrating (per product decision) |
 
 ### Phase 5 — Integrations & advanced
@@ -95,7 +95,7 @@ Current Go modules: `iam` · `audit` · `appconfig` · `alerts` · `soar` · `co
 | 30 | [Identity providers (SAML / OIDC)](#30-identity-providers-saml--oidc) | `web/rest/idp_provider/`, `config/saml/` | — | ❌ | **Remaining** — will live **inside `iam`**. Spring SAML2 → gosaml2 / go-oidc |
 | 31 | [API keys](#31-api-keys) | `web/rest/api_key/` | `modules/iam/handler/api_keys.go` | ✅ | Merged into **iam**. Hashed keys + auth middleware ✅ |
 | 32 | [Integrations (Slack, Jira, …)](#32-integrations-slack-jira-) | `web/rest/UtmIntegrationResource.java`, `application_modules/` | `modules/integrations/` | ✅ | Integrations + `utm_module` bounded context ✅ |
-| 33 | [Network scanning & assets](#33-network-scanning--assets) | `web/rest/network_scan/` | `modules/network_scan/` | ✅ | Assets/groups/types/ports + asset-sync scheduler ✅ |
+| 33 | [Network scanning & assets](#33-network-scanning--assets) | `web/rest/network_scan/` | `modules/datasources/` | ⚠️ | Renamed `network_scan` → **datasources** (merge target for assets + data-input). Assets/groups + asset-sync (OpenSearch `v11-statistics-*`, no checkpoint) ✅. ⚠️ WIP: `utm_asset_types` dropped (→ free-text `label`) and `utm_ports` dropped, but Go code + `utm_network_scan` recreate path (000003) not yet reconciled. |
 | 34 | [Server / module management](#34-server--module-management) | `web/rest/UtmServerResource.java`, `application_modules/` | `modules/integrations/` | ✅ | Module mgmt covered by **integrations** (`utm_module`) |
 | 35 | [Schedules / dynamic tasks](#35-schedules--dynamic-tasks) | `web/rest/UtmScheduleResource.java` | — | 🚫 | Not migrating unless a concrete need appears |
 | 36 | [Log analyzer / saved queries](#36-log-analyzer--saved-queries) | `web/rest/log_analyzer/` | — | ❌ | **Remaining** — evaluating fold **into `eventprocessing`** |
@@ -320,19 +320,12 @@ Current Go modules: `iam` · `audit` · `appconfig` · `alerts` · `soar` · `co
 
 ---
 
-#### 13. Data input ingestion status
+#### 13. Data input ingestion status — 🚫 DROPPED
 
 - **Legacy:** `web/rest/UtmDataInputStatusResource.java`, `service/UtmDataInputStatusService.java`
-- **Go:** `modules/datainput/`
-- **Endpoints:**
-  - [x] `POST /api/utm-data-input-statuses` — create (composite PK: dataType-source)
-  - [x] `PUT /api/utm-data-input-statuses` — update
-  - [x] `GET /api/utm-data-input-statuses` — list (findImportantDatasource filtered view)
-  - [x] `GET /api/utm-data-input-statuses/count` — JHipster criteria count
-  - [x] `GET /api/utm-data-input-statuses/{id}` — get one
-  - [x] `DELETE /api/utm-data-input-statuses/{id}` — delete
-- **Notes:** Correlation scheduler reader wired. String composite PK. `timestamp` is epoch seconds.
-- **External deps:** PostgreSQL.
+- **Go:** — (module removed)
+- **Decision:** Not migrated. `utm_data_input_status` was a materialized cache of OpenSearch `v11-statistics-*` (latest event timestamp per source+data_type) and `utm_data_input_status_checkpoint` only held the sync poll cursor. Nothing in the Go stack read them (no frontend, no cross-module consumer; the `median`/`isDown` liveness fields were unused). The `datainput` module, its 6 CRUD endpoints, and the `network_scan` writer were removed; both tables are dropped in `000001_init.up.sql`.
+- **Replacement:** Source liveness is derived from OpenSearch directly. The asset-sync in **datasources** still reads `v11-statistics-*` to reconcile assets (no checkpoint — idempotent upserts over a fixed lookback). The `dataTypes` asset-search filter that joined this table was removed (to be reintroduced against OpenSearch in the liveness redesign).
 
 ---
 
@@ -638,14 +631,19 @@ Current Go modules: `iam` · `audit` · `appconfig` · `alerts` · `soar` · `co
 
 ---
 
-#### 33. Network scanning & assets
+#### 33. Network scanning & assets → datasources
 
 - **Legacy:** `web/rest/network_scan/UtmNetworkScanResource.java`, `UtmAssetGroupResource.java`, `UtmAssetTypesResource.java`, `UtmPortsResource.java`
-- **Endpoints (target):**
-  - [ ] CRUD `/api/utm-network-scans`
-  - [ ] CRUD `/api/utm-asset-groups`
-  - [ ] CRUD `/api/utm-asset-types`
-  - [ ] CRUD `/api/utm-ports`
+- **Go:** `modules/datasources/` (renamed from `network_scan`; the bounded context that absorbs assets + the former data-input concern)
+- **Endpoints:**
+  - [x] `/api/network-scans` — assets CRUD + search/criteria/count + update-type/update-group + report
+  - [x] `/api/asset-groups` — groups CRUD + search
+  - [x] `/api/network-scans/probe` — probe scan/ping/check-interface
+- **Scheduler:** `AssetSync` reconciles assets from OpenSearch `v11-statistics-*` over a fixed 12h lookback (checkpoint removed with `utm_data_input_status`). Feature-flagged via `NETWORK_SCAN_SCHEDULER_ENABLED`.
+- **⚠️ WIP / not reconciled:**
+  - `utm_asset_types` dropped "for good" in `000001_init.up.sql` (→ free-text `label` on `utm_network_scan`), but `datasources/…/asset_types.go` (domain/handler/repo/usecase + `/api/asset-types` route) and the `label` column are not done yet.
+  - `utm_ports` dropped in `000001_init.up.sql`, but `datasources/…/ports.go` still models it.
+  - `000001` drops `utm_network_scan` (CASCADE) expecting a slim recreate in `000003`, but `000003_*.sql` is currently missing and the asset entities aren't in AutoMigrate → no CREATE path right now.
 
 ---
 
@@ -789,7 +787,7 @@ Current Go modules: `iam` · `audit` · `appconfig` · `alerts` · `soar` · `co
 | **1 — Foundation** | Auth, users, roles, account, audit, appconfig, health, connectionkey | ~30 | ✅ Essentially complete (federation client-registry pending) |
 | **2 — SIEM core** | Alerts, response rules, correlation, ingestion status, logstash, ISM, OS gateway, collectors | ~25 | ✅ Complete (consolidated into eventprocessing/opensearch/soar; asset metrics 🚫 dropped) |
 | **3 — SOAR** | Incidents + incident response + SOC AI + threat/adversary | ~15 | ✅ Complete |
-| **4 — Compliance & reporting** | Compliance standards/controls/reports, generic reports (+PDF) | ~25 | ❌ Remaining (dashboards 🚫 not migrating) |
+| **4 — Compliance & reporting** | Compliance standards/controls/reports, generic reports (+PDF) | ~25 | 🟡 Compliance ✅ (standards/sections/controls + evaluation/report-config/schedules → **compliance**); generic reports + PDF ❌ remaining (dashboards 🚫 not migrating) |
 | **5 — Integrations & advanced** | ✅ Notifications · Mail · TFA · API keys · Integrations · Network scan · Server/module mgmt (integrations) — ❌ remaining: IdP/SSO (iam), log analyzer (eventprocessing?), auditor users, app-info (billing), images (appconfig) | ~40 | 🟡 Partial |
 
 ---
@@ -798,6 +796,13 @@ Current Go modules: `iam` · `audit` · `appconfig` · `alerts` · `soar` · `co
 
 <!-- Add an entry every time you flip a status or complete a row -->
 
+- _2026-06-07_ — ♻️ **datainput eliminated · network_scan → datasources · compliance confirmed migrated.**
+  - **🚫 Data Input Status (#13) dropped.** Removed the `datainput` module (6 CRUD endpoints, zero consumers) and the `network_scan` writer/gateway. `utm_data_input_status` + `utm_data_input_status_checkpoint` dropped in `000001_init.up.sql`; AutoMigrate entries removed. Asset-sync now reads OpenSearch `v11-statistics-*` over a fixed 12h lookback (no checkpoint). The `dataTypes` asset-search filter (joined that table) was removed — reintroduce against OpenSearch later.
+  - **♻️ `network_scan` → `datasources`.** Module renamed/merged into the `datasources` bounded context (assets + former data-input). Wiring updated (`modules.go`, `server.go`, `main.go`); build green.
+  - **🚫 `utm_asset_types` dropped "for good"** (→ free-text `label` on `utm_network_scan`) and **`utm_ports` dropped** in `000001_init.up.sql`. ⚠️ WIP: the corresponding Go code (`asset_types.go`, `ports.go`) and the `label` column / `utm_network_scan` recreate path (`000003`) are **not yet reconciled** — see deep-dive #33.
+  - **✅ Compliance (#23/#24) confirmed migrated** (doc was stale): `modules/compliance/` ships standards + sections + control-config CRUD, OpenSearch control evaluation + history, report-config CRUD and report schedules.
+  - **🚫 Liquibase tables** `databasechangelog` / `databasechangeloglock` dropped in `000001_init.up.sql` (Go uses golang-migrate).
+  - **📋 DB tracking sheet** added at repo root `tables.md` (per-table migrated / dropped / YAML / pending status).
 - _2026-06-06_ — ♻️ **Module consolidation + scope decisions.**
   - **Consolidated** into bounded contexts: `correlation` + `logstash` (+ data-types/regex/tenant-config) → **`eventprocessing`** (rules **YAML-direct**, no DB — read/written as YAML under a shared volume; legacy `utm_correlation_rules` read once by the bootstrap then dropped); `index_pattern` + `index_policy` → **`opensearch`**; `alert_response_rules` + `incident_response` → **`soar`**; `tfa` + `api_keys` → **`iam`**; `threat_management` (adversary) → **`alerts`**; server/module mgmt → **`integrations`** (`utm_module`).
   - **Confirmed migrated** since last log: Notifications ✅ · Mail sender (`internal/mail`) ✅ · Integrations ✅ · Network scan ✅ · API keys ✅.
