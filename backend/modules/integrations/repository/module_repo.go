@@ -64,20 +64,11 @@ func (r *pgModuleRepository) List(ctx context.Context, filter connectors.ModuleL
 		return nil, 0, err
 	}
 
-	page := filter.Page
-	if page < 1 {
-		page = 1
-	}
-	size := filter.Size
-	if size <= 0 {
-		size = 20
-	}
-
 	var items []domain.UtmModule
 	err := q.
 		Order("module_name ASC").
-		Limit(size).
-		Offset((page - 1) * size).
+		Limit(filter.Limit()).
+		Offset(filter.Offset()).
 		Find(&items).Error
 	if err != nil {
 		return nil, 0, err

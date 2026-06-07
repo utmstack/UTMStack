@@ -43,14 +43,6 @@ type DataTypeOption struct {
 	IsSystem   bool   `json:"isSystem"`
 }
 
-type ModuleListFilter struct {
-	ModuleCategory *string
-	ModuleActive   *bool
-	NameContains   *string
-	Page           int
-	Size           int
-}
-
 func FromModule(m domain.UtmModule) ModuleResponse {
 	return ModuleResponse{
 		ID:                m.ID,

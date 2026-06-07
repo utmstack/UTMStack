@@ -29,6 +29,4 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	g.GET("/tenants/:module", read, th.List)
 	g.PUT("/tenants/:module", write, th.Save)
 	g.DELETE("/tenants/:module/:name", write, th.Delete)
-
-	g.GET("/tenants/:module/config", th.PluginConfig)
 }

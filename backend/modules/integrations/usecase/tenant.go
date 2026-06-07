@@ -62,16 +62,14 @@ func (u *TenantUsecase) Delete(module, name string) error {
 }
 
 // List returns the tenants with sensitive values masked — for the panel.
+// The puller plugins read the encrypted tenant file directly and decrypt it
+// themselves (shared ENCRYPTION_KEY), so the backend never serves decrypted
+// config over HTTP.
 func (u *TenantUsecase) List(module string) ([]dto.TenantResponse, error) {
-	return u.transform(module, false)
+	return u.transform(module)
 }
 
-// Reveal returns the tenants with sensitive values decrypted — for the plugins.
-func (u *TenantUsecase) Reveal(module string) ([]dto.TenantResponse, error) {
-	return u.transform(module, true)
-}
-
-func (u *TenantUsecase) transform(module string, reveal bool) ([]dto.TenantResponse, error) {
+func (u *TenantUsecase) transform(module string) ([]dto.TenantResponse, error) {
 	tenants, err := u.repo.Load(module)
 	if err != nil {
 		return nil, err
@@ -92,15 +90,7 @@ func (u *TenantUsecase) transform(module string, reveal bool) ([]dto.TenantRespo
 			if !isSensitive(schema[k]) || v == "" {
 				continue
 			}
-			if reveal {
-				dec, derr := u.cipher.Decrypt(v)
-				if derr != nil {
-					return nil, fmt.Errorf("decrypt %s/%s: %w", tenants[i].Name, k, derr)
-				}
-				cfg[k] = dec
-			} else {
-				cfg[k] = maskedValue
-			}
+			cfg[k] = maskedValue
 		}
 		out = append(out, dto.TenantResponse{Name: tenants[i].Name, Config: cfg})
 	}

@@ -86,20 +86,3 @@ func (h *TenantHandler) Delete(c *gin.Context) {
 		c.Status(http.StatusNoContent)
 	}
 }
-
-// @Summary     Get a module's tenants with DECRYPTED config for the puller plugins (internal-key auth)
-// @Tags        Integration Tenants
-// @Security    BearerAuth
-// @Produce     json
-// @Param       module path string true "Module name"
-// @Success     200 {array}  dto.TenantResponse
-// @Failure     500 {object} map[string]string
-// @Router      /integrations/tenants/{module}/config [get]
-func (h *TenantHandler) PluginConfig(c *gin.Context) {
-	tenants, err := h.tenants.Reveal(c.Param("module"))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, tenants)
-}

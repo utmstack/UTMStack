@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/utmstack/utmstack/backend/modules/integrations/domain"
+	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
 type TenantRepository interface {
@@ -29,8 +30,7 @@ type ModuleListFilter struct {
 	ModuleCategory *string
 	ModuleActive   *bool
 	NameContains   *string
-	Page           int
-	Size           int
+	database.Params
 }
 
 type SchemaProvider interface {
