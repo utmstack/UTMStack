@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/soar/domain"
+	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
 type FilterVM struct {
@@ -90,8 +91,5 @@ type RuleFilters struct {
 	LastModifiedDateLTE string `form:"lastModifiedDate.lessThanOrEqual"`
 	// systemOwner.equals — filter by system ownership (JHipster: BooleanFilter)
 	SystemOwner *bool `form:"systemOwner.equals"`
-	// Page is 0-based (matches Java Spring Pageable). Default 0.
-	Page int `form:"page,default=0"`
-	// Size is the page size (matches Java). Default 20.
-	Size int `form:"size,default=20"`
+	database.Params
 }

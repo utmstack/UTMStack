@@ -5,6 +5,7 @@ import (
 
 	"github.com/utmstack/utmstack/backend/modules/soar/domain"
 	"github.com/utmstack/utmstack/backend/modules/soar/dto"
+	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
 type RuleFilters struct {
@@ -19,9 +20,7 @@ type RuleFilters struct {
 	LastModifiedDateGTE string
 	LastModifiedDateLTE string
 	SystemOwner         *bool
-	// Page is 0-based. Size is the page size.
-	Page int
-	Size int
+	database.Params
 }
 
 type TemplateFilters struct {
@@ -30,8 +29,7 @@ type TemplateFilters struct {
 	Description string
 	Command     string
 	SystemOwner *bool
-	Page        int
-	Size        int
+	database.Params
 }
 
 type ExecutionFilters struct {
@@ -45,8 +43,7 @@ type ExecutionFilters struct {
 	NonExecutionCause        domain.NonExecutionCause
 	ExecutionDateGTE         string
 	ExecutionDateLTE         string
-	Page                     int
-	Size                     int
+	database.Params
 }
 
 type RuleRepository interface {

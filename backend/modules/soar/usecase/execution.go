@@ -5,6 +5,7 @@ import (
 
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
 	"github.com/utmstack/utmstack/backend/modules/soar/dto"
+	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
 type executionUsecase struct {
@@ -15,9 +16,7 @@ func NewExecutionUsecase(repo connectors.ExecutionRepository) connectors.Executi
 	return &executionUsecase{repo: repo}
 }
 
-func (u *executionUsecase) List(ctx context.Context, f dto.ExecutionFilters) (*connectors.ListResult[dto.ExecutionResponse], error) {
-	page, size := normPage(f.Page, f.Size)
-
+func (u *executionUsecase) List(ctx context.Context, f dto.ExecutionFilters) (*database.List[dto.ExecutionResponse], error) {
 	executions, total, err := u.repo.List(ctx, connectors.ExecutionFilters{
 		ID:                       f.ID,
 		RuleID:                   f.RuleID,
@@ -29,8 +28,7 @@ func (u *executionUsecase) List(ctx context.Context, f dto.ExecutionFilters) (*c
 		NonExecutionCause:        f.NonExecutionCause,
 		ExecutionDateGTE:         f.ExecutionDateGTE,
 		ExecutionDateLTE:         f.ExecutionDateLTE,
-		Page:                     page,
-		Size:                     size,
+		Params:                   f.Params,
 	})
 	if err != nil {
 		return nil, err
@@ -52,5 +50,5 @@ func (u *executionUsecase) List(ctx context.Context, f dto.ExecutionFilters) (*c
 		}
 	}
 
-	return &connectors.ListResult[dto.ExecutionResponse]{Items: items, Total: total}, nil
+	return &database.List[dto.ExecutionResponse]{Items: items, Total: total}, nil
 }

@@ -1,6 +1,10 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/utmstack/utmstack/backend/pkg/database"
+)
 
 type CreateVariableRequest struct {
 	VariableName        string  `json:"variableName"        binding:"required"`
@@ -29,7 +33,6 @@ type VariableResponse struct {
 }
 
 type VariableFilter struct {
-	Page         int     `form:"page"`
-	Size         int     `form:"size"`
+	database.Params
 	VariableName *string `form:"variableName"`
 }

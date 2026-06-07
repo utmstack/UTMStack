@@ -5,6 +5,7 @@ import (
 
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
 	"github.com/utmstack/utmstack/backend/modules/soar/dto"
+	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
 type templateUsecase struct {
@@ -15,16 +16,14 @@ func NewTemplateUsecase(templates connectors.TemplateRepository) connectors.Temp
 	return &templateUsecase{templates: templates}
 }
 
-func (u *templateUsecase) List(ctx context.Context, f dto.TemplateFilters) (*connectors.ListResult[dto.TemplateResponse], error) {
-	page, size := normPage(f.Page, f.Size)
+func (u *templateUsecase) List(ctx context.Context, f dto.TemplateFilters) (*database.List[dto.TemplateResponse], error) {
 	items, total, err := u.templates.List(ctx, connectors.TemplateFilters{
 		ID:          f.ID,
 		Label:       f.Label,
 		Description: f.Description,
 		Command:     f.Command,
 		SystemOwner: f.SystemOwner,
-		Page:        page,
-		Size:        size,
+		Params:      f.Params,
 	})
 	if err != nil {
 		return nil, err
@@ -41,5 +40,5 @@ func (u *templateUsecase) List(ctx context.Context, f dto.TemplateFilters) (*con
 		}
 	}
 
-	return &connectors.ListResult[dto.TemplateResponse]{Items: responses, Total: total}, nil
+	return &database.List[dto.TemplateResponse]{Items: responses, Total: total}, nil
 }

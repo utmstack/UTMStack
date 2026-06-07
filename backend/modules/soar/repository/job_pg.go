@@ -66,9 +66,8 @@ func (r *jobRepository) FindAll(f dto.JobFilter) ([]domain.UtmIncidentJob, int64
 		return nil, 0, fmt.Errorf("jobRepository.FindAll count: %w", err)
 	}
 
-	page, size := normalizePage(f.Page, f.Size)
 	var items []domain.UtmIncidentJob
-	if err := q.Offset((page - 1) * size).Limit(size).Find(&items).Error; err != nil {
+	if err := q.Offset(f.Offset()).Limit(f.Limit()).Find(&items).Error; err != nil {
 		return nil, 0, fmt.Errorf("jobRepository.FindAll: %w", err)
 	}
 	return items, total, nil

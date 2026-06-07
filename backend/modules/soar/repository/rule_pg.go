@@ -67,7 +67,6 @@ func (r *pgRuleRepository) GetByID(ctx context.Context, id int64) (*domain.Alert
 }
 
 func (r *pgRuleRepository) List(ctx context.Context, f connectors.RuleFilters) ([]domain.AlertResponseRule, int64, error) {
-	page, size := normPage(f.Page, f.Size)
 
 	q := r.db.WithContext(ctx).Model(&domain.AlertResponseRule{}).Preload("Templates")
 
@@ -123,8 +122,8 @@ func (r *pgRuleRepository) List(ctx context.Context, f connectors.RuleFilters) (
 
 	var rules []domain.AlertResponseRule
 	if err := q.Order("id ASC").
-		Offset(page * size).
-		Limit(size).
+		Offset(f.Offset()).
+		Limit(f.Limit()).
 		Find(&rules).Error; err != nil {
 		return nil, 0, err
 	}
@@ -145,14 +144,4 @@ func (r *pgRuleRepository) Delete(ctx context.Context, id int64) error {
 func isUniqueViolation(err error) bool {
 	return strings.Contains(err.Error(), "23505") ||
 		strings.Contains(err.Error(), "duplicate key")
-}
-
-func normPage(page, size int) (int, int) {
-	if page < 0 {
-		page = 0
-	}
-	if size < 1 || size > 200 {
-		size = 20
-	}
-	return page, size
 }

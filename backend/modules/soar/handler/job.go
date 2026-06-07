@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
 	"github.com/utmstack/utmstack/backend/modules/soar/dto"
+	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
 type JobHandler struct {
@@ -28,7 +29,7 @@ func NewJobHandler(uc connectors.JobUsecase) *JobHandler {
 //	@Success     200  {object} domain.UtmIncidentJob
 //	@Failure     400  {object} map[string]string
 //	@Failure     500  {object} map[string]string
-//	@Router      /utm-incident-jobs [post]
+//	@Router      /soar/incident-jobs [post]
 func (h *JobHandler) Create(c *gin.Context) {
 	var req dto.CreateJobRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -60,11 +61,10 @@ func (h *JobHandler) Create(c *gin.Context) {
 //	@Success     200  {array}  domain.UtmIncidentJob
 //	@Header      200  {string} X-Total-Count "Total records"
 //	@Failure     500  {object} map[string]string
-//	@Router      /utm-incident-jobs [get]
+//	@Router      /soar/incident-jobs [get]
 func (h *JobHandler) List(c *gin.Context) {
 	f := dto.JobFilter{
-		Page:       queryInt(c, "page", 1),
-		Size:       queryInt(c, "size", 20),
+		Params:     database.Params{Page: queryInt(c, "page", 0), Size: queryInt(c, "size", 20)},
 		ActionID:   queryInt64(c, "actionId"),
 		Agent:      queryString(c, "agent"),
 		Status:     queryIntPtr(c, "status"),
@@ -93,7 +93,7 @@ func (h *JobHandler) List(c *gin.Context) {
 //	@Param       originType query string false "Filter by origin type"
 //	@Success     200  {integer} int64
 //	@Failure     500  {object}  map[string]string
-//	@Router      /utm-incident-jobs/count [get]
+//	@Router      /soar/incident-jobs/count [get]
 func (h *JobHandler) Count(c *gin.Context) {
 	f := dto.JobFilter{
 		ActionID:   queryInt64(c, "actionId"),
@@ -121,7 +121,7 @@ func (h *JobHandler) Count(c *gin.Context) {
 //	@Success     200 {object} domain.UtmIncidentJob
 //	@Failure     404 {object} map[string]string
 //	@Failure     500 {object} map[string]string
-//	@Router      /utm-incident-jobs/{id} [get]
+//	@Router      /soar/incident-jobs/{id} [get]
 func (h *JobHandler) GetByID(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {
@@ -145,7 +145,7 @@ func (h *JobHandler) GetByID(c *gin.Context) {
 //	@Param       id path int64 true "Job ID"
 //	@Success     200 {object} map[string]string
 //	@Failure     500 {object} map[string]string
-//	@Router      /utm-incident-jobs/{id} [delete]
+//	@Router      /soar/incident-jobs/{id} [delete]
 func (h *JobHandler) Delete(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {

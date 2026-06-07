@@ -1,5 +1,7 @@
 package dto
 
+import "github.com/utmstack/utmstack/backend/pkg/database"
+
 type CreateActionCommandRequest struct {
 	ActionID   int64   `json:"actionId"   binding:"required"`
 	OsPlatform *string `json:"osPlatform"`
@@ -21,8 +23,7 @@ type ActionCommandResponse struct {
 }
 
 type ActionCommandFilter struct {
-	Page       int     `form:"page"`
-	Size       int     `form:"size"`
+	database.Params
 	ActionID   *int64  `form:"actionId"`
 	OsPlatform *string `form:"osPlatform"`
 	Command    *string `form:"command"`

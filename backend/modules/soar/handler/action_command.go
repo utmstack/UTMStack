@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
 	"github.com/utmstack/utmstack/backend/modules/soar/dto"
+	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
 type ActionCommandHandler struct {
@@ -28,7 +29,7 @@ func NewActionCommandHandler(uc connectors.ActionCommandUsecase) *ActionCommandH
 //	@Success     200  {object} domain.UtmIncidentActionCommand
 //	@Failure     400  {object} map[string]string
 //	@Failure     500  {object} map[string]string
-//	@Router      /incident-action-commands [post]
+//	@Router      /soar/incident-action-commands [post]
 func (h *ActionCommandHandler) Create(c *gin.Context) {
 	var req dto.CreateActionCommandRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -56,7 +57,7 @@ func (h *ActionCommandHandler) Create(c *gin.Context) {
 //	@Failure     400  {object} map[string]string
 //	@Failure     404  {object} map[string]string
 //	@Failure     500  {object} map[string]string
-//	@Router      /incident-action-commands [put]
+//	@Router      /soar/incident-action-commands [put]
 func (h *ActionCommandHandler) Update(c *gin.Context) {
 	var req dto.UpdateActionCommandRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -86,11 +87,10 @@ func (h *ActionCommandHandler) Update(c *gin.Context) {
 //	@Success     200  {array}  domain.UtmIncidentActionCommand
 //	@Header      200  {string} X-Total-Count "Total records"
 //	@Failure     500  {object} map[string]string
-//	@Router      /incident-action-commands [get]
+//	@Router      /soar/incident-action-commands [get]
 func (h *ActionCommandHandler) List(c *gin.Context) {
 	f := dto.ActionCommandFilter{
-		Page:       queryInt(c, "page", 1),
-		Size:       queryInt(c, "size", 20),
+		Params:     database.Params{Page: queryInt(c, "page", 0), Size: queryInt(c, "size", 20)},
 		ActionID:   queryInt64(c, "actionId"),
 		OsPlatform: queryString(c, "osPlatform"),
 		Command:    queryString(c, "command"),
@@ -114,7 +114,7 @@ func (h *ActionCommandHandler) List(c *gin.Context) {
 //	@Success     200 {object} domain.UtmIncidentActionCommand
 //	@Failure     404 {object} map[string]string
 //	@Failure     500 {object} map[string]string
-//	@Router      /incident-action-commands/{id} [get]
+//	@Router      /soar/incident-action-commands/{id} [get]
 func (h *ActionCommandHandler) GetByID(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {
@@ -138,7 +138,7 @@ func (h *ActionCommandHandler) GetByID(c *gin.Context) {
 //	@Param       id path int64 true "Action command ID"
 //	@Success     200 {object} map[string]string
 //	@Failure     500 {object} map[string]string
-//	@Router      /incident-action-commands/{id} [delete]
+//	@Router      /soar/incident-action-commands/{id} [delete]
 func (h *ActionCommandHandler) Delete(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {

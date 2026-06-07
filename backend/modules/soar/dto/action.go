@@ -1,6 +1,10 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/utmstack/utmstack/backend/pkg/database"
+)
 
 type CreateActionRequest struct {
 	ActionCommand     *string `json:"actionCommand"`
@@ -33,8 +37,7 @@ type ActionResponse struct {
 }
 
 type ActionFilter struct {
-	Page           int     `form:"page"`
-	Size           int     `form:"size"`
+	database.Params
 	ActionCommand  *string `form:"actionCommand"`
 	ActionType     *int    `form:"actionType"`
 	ActionEditable *bool   `form:"actionEditable"`

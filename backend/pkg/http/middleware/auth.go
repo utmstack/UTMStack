@@ -11,8 +11,6 @@ import (
 	jwtpkg "github.com/utmstack/utmstack/backend/pkg/jwt"
 )
 
-// InternalKeyHeader carries the shared INTERNAL_KEY for service-to-service calls
-// (plugins, agent-manager). Matches the header the SOC-AI / internal clients send.
 const InternalKeyHeader = "X-Internal-Key"
 
 type Actor struct {
@@ -33,18 +31,12 @@ func setActor(c *gin.Context, a Actor) {
 	c.Set("session_id", a.SessionID)
 }
 
-// APIKeyAuthFunc validates an api key against a client IP and returns the
-// resolved actor (the key owner's identity + roles/permissions).
 type APIKeyAuthFunc func(ctx context.Context, apiKey, clientIP string) (*Actor, error)
 
 func UserAuth(signer *jwtpkg.Signer) gin.HandlerFunc {
 	return Authenticate(signer, nil, "")
 }
 
-// Authenticate authenticates a request by, in order: a JWT (Authorization:
-// Bearer), the shared internal key (X-Internal-Key, for service-to-service calls
-// from plugins/agent-manager), or — when apiKeyAuth is set — the Utm-Api-Key
-// header. internalKey is the configured INTERNAL_KEY; pass "" to disable it.
 func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if token, ok := strings.CutPrefix(c.GetHeader("Authorization"), "Bearer "); ok && token != "" {
@@ -72,8 +64,6 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 		if internalKey != "" {
 			if k := c.GetHeader(InternalKeyHeader); k != "" &&
 				subtle.ConstantTimeCompare([]byte(k), []byte(internalKey)) == 1 {
-				// Trusted internal service (plugin / agent-manager). It carries no
-				// user identity, and bypasses permission/role gates.
 				c.Set("internal", true)
 				setActor(c, Actor{Login: "internal"})
 				c.Next()
@@ -120,15 +110,10 @@ func RequirePermission(permission string) gin.HandlerFunc {
 	}
 }
 
-// RequireAdmin gates a route to users whose JWT carries the `admin` role.
-// Used for endpoints we want admin-only without adding a fine-grained
-// permission to the catalog.
 func RequireAdmin() gin.HandlerFunc {
 	return RequireRole("ROLE_ADMIN")
 }
 
-// RequireRole accepts a role name and aborts with 403 if the caller's JWT
-// does not list it. Roles are populated by UserAuth from JWT claims.
 func RequireRole(role string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.GetBool("internal") {
@@ -150,6 +135,16 @@ func RequireRole(role string) gin.HandlerFunc {
 			return
 		}
 		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "missing required role: " + role})
+	}
+}
+
+func RequireInternal() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c.GetBool("internal") {
+			c.Next()
+			return
+		}
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "internal-only endpoint"})
 	}
 }
 

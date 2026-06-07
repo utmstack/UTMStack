@@ -17,7 +17,6 @@ func NewTemplateRepository(db *gorm.DB) connectors.TemplateRepository {
 }
 
 func (r *pgTemplateRepository) List(ctx context.Context, f connectors.TemplateFilters) ([]domain.AlertResponseActionTemplate, int64, error) {
-	page, size := normPage(f.Page, f.Size)
 
 	q := r.db.WithContext(ctx).Model(&domain.AlertResponseActionTemplate{})
 
@@ -49,8 +48,8 @@ func (r *pgTemplateRepository) List(ctx context.Context, f connectors.TemplateFi
 
 	var templates []domain.AlertResponseActionTemplate
 	if err := q.Order("id ASC").
-		Offset(page * size).
-		Limit(size).
+		Offset(f.Offset()).
+		Limit(f.Limit()).
 		Find(&templates).Error; err != nil {
 		return nil, 0, err
 	}

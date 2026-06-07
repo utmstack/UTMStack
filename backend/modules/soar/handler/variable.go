@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
 	"github.com/utmstack/utmstack/backend/modules/soar/dto"
+	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
 type VariableHandler struct {
@@ -28,7 +29,7 @@ func NewVariableHandler(uc connectors.VariableUsecase) *VariableHandler {
 //	@Success     200  {object} dto.VariableResponse
 //	@Failure     400  {object} map[string]string
 //	@Failure     500  {object} map[string]string
-//	@Router      /utm-incident-variables [post]
+//	@Router      /soar/incident-variables [post]
 func (h *VariableHandler) Create(c *gin.Context) {
 	var req dto.CreateVariableRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -56,7 +57,7 @@ func (h *VariableHandler) Create(c *gin.Context) {
 //	@Failure     400  {object} map[string]string
 //	@Failure     404  {object} map[string]string
 //	@Failure     500  {object} map[string]string
-//	@Router      /utm-incident-variables [put]
+//	@Router      /soar/incident-variables [put]
 func (h *VariableHandler) Update(c *gin.Context) {
 	var req dto.UpdateVariableRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -84,11 +85,10 @@ func (h *VariableHandler) Update(c *gin.Context) {
 //	@Success     200  {array}  dto.VariableResponse
 //	@Header      200  {string} X-Total-Count "Total records"
 //	@Failure     500  {object} map[string]string
-//	@Router      /utm-incident-variables [get]
+//	@Router      /soar/incident-variables [get]
 func (h *VariableHandler) List(c *gin.Context) {
 	f := dto.VariableFilter{
-		Page:         queryInt(c, "page", 1),
-		Size:         queryInt(c, "size", 20),
+		Params:       database.Params{Page: queryInt(c, "page", 0), Size: queryInt(c, "size", 20)},
 		VariableName: queryString(c, "variableName"),
 	}
 	items, total, err := h.uc.FindAll(f)
@@ -110,7 +110,7 @@ func (h *VariableHandler) List(c *gin.Context) {
 //	@Success     200 {object} dto.VariableResponse
 //	@Failure     404 {object} map[string]string
 //	@Failure     500 {object} map[string]string
-//	@Router      /utm-incident-variables/{id} [get]
+//	@Router      /soar/incident-variables/{id} [get]
 func (h *VariableHandler) GetByID(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {
@@ -134,7 +134,7 @@ func (h *VariableHandler) GetByID(c *gin.Context) {
 //	@Param       id path int64 true "Variable ID"
 //	@Success     200 {object} map[string]string
 //	@Failure     500 {object} map[string]string
-//	@Router      /utm-incident-variables/{id} [delete]
+//	@Router      /soar/incident-variables/{id} [delete]
 func (h *VariableHandler) Delete(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {

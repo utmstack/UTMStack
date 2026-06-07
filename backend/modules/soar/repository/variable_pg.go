@@ -50,9 +50,8 @@ func (r *variableRepository) FindAll(f dto.VariableFilter) ([]domain.UtmIncident
 		return nil, 0, fmt.Errorf("variableRepository.FindAll count: %w", err)
 	}
 
-	page, size := normalizePage(f.Page, f.Size)
 	var items []domain.UtmIncidentVariable
-	if err := q.Offset((page - 1) * size).Limit(size).Find(&items).Error; err != nil {
+	if err := q.Offset(f.Offset()).Limit(f.Limit()).Find(&items).Error; err != nil {
 		return nil, 0, fmt.Errorf("variableRepository.FindAll: %w", err)
 	}
 	return items, total, nil
@@ -94,14 +93,4 @@ func (r *variableRepository) Delete(id int64) error {
 		return fmt.Errorf("variableRepository.Delete: %w", err)
 	}
 	return nil
-}
-
-func normalizePage(page, size int) (int, int) {
-	if page < 1 {
-		page = 1
-	}
-	if size < 1 {
-		size = 20
-	}
-	return page, size
 }

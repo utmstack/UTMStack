@@ -9,6 +9,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
 	"github.com/utmstack/utmstack/backend/modules/soar/domain"
 	"github.com/utmstack/utmstack/backend/modules/soar/dto"
+	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
 type ruleUsecase struct {
@@ -98,8 +99,7 @@ func (u *ruleUsecase) GetByID(ctx context.Context, id int64) (*dto.RuleResponse,
 	return ruleToResponse(rule), nil
 }
 
-func (u *ruleUsecase) List(ctx context.Context, f dto.RuleFilters) (*connectors.ListResult[dto.RuleResponse], error) {
-	page, size := normPage(f.Page, f.Size)
+func (u *ruleUsecase) List(ctx context.Context, f dto.RuleFilters) (*database.List[dto.RuleResponse], error) {
 	rules, total, err := u.rules.List(ctx, connectors.RuleFilters{
 		ID:                  f.ID,
 		RuleName:            f.RuleName,
@@ -112,8 +112,7 @@ func (u *ruleUsecase) List(ctx context.Context, f dto.RuleFilters) (*connectors.
 		LastModifiedDateGTE: f.LastModifiedDateGTE,
 		LastModifiedDateLTE: f.LastModifiedDateLTE,
 		SystemOwner:         f.SystemOwner,
-		Page:                page,
-		Size:                size,
+		Params:              f.Params,
 	})
 	if err != nil {
 		return nil, err
@@ -123,7 +122,7 @@ func (u *ruleUsecase) List(ctx context.Context, f dto.RuleFilters) (*connectors.
 	for i := range rules {
 		items[i] = *ruleToResponse(&rules[i])
 	}
-	return &connectors.ListResult[dto.RuleResponse]{Items: items, Total: total}, nil
+	return &database.List[dto.RuleResponse]{Items: items, Total: total}, nil
 }
 
 func (u *ruleUsecase) ResolveFilterValues(ctx context.Context) (*dto.ResolveFilterValuesResponse, error) {
@@ -211,14 +210,4 @@ func ruleToResponse(r *domain.AlertResponseRule) *dto.RuleResponse {
 		})
 	}
 	return resp
-}
-
-func normPage(page, size int) (int, int) {
-	if page < 0 {
-		page = 0
-	}
-	if size < 1 || size > 200 {
-		size = 20
-	}
-	return page, size
 }

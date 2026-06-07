@@ -56,9 +56,8 @@ func (r *actionCommandRepository) FindAll(f dto.ActionCommandFilter) ([]domain.U
 		return nil, 0, fmt.Errorf("actionCommandRepository.FindAll count: %w", err)
 	}
 
-	page, size := normalizePage(f.Page, f.Size)
 	var items []domain.UtmIncidentActionCommand
-	if err := q.Offset((page - 1) * size).Limit(size).Find(&items).Error; err != nil {
+	if err := q.Offset(f.Offset()).Limit(f.Limit()).Find(&items).Error; err != nil {
 		return nil, 0, fmt.Errorf("actionCommandRepository.FindAll: %w", err)
 	}
 	return items, total, nil

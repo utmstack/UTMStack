@@ -1,6 +1,10 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/utmstack/utmstack/backend/pkg/database"
+)
 
 type CreateJobRequest struct {
 	ActionID   *int64  `json:"actionId"`
@@ -27,8 +31,7 @@ type JobResponse struct {
 }
 
 type JobFilter struct {
-	Page       int     `form:"page"`
-	Size       int     `form:"size"`
+	database.Params
 	ActionID   *int64  `form:"actionId"`
 	Agent      *string `form:"agent"`
 	Status     *int    `form:"status"`

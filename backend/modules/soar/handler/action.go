@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
 	"github.com/utmstack/utmstack/backend/modules/soar/dto"
+	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
 type ActionHandler struct {
@@ -28,7 +29,7 @@ func NewActionHandler(uc connectors.ActionUsecase) *ActionHandler {
 //	@Param       body body dto.CreateActionRequest true "Action to create"
 //	@Success     200  {object} domain.UtmIncidentAction
 //	@Failure     500  {object} map[string]string
-//	@Router      /utm-incident-actions [post]
+//	@Router      /soar/incident-actions [post]
 func (h *ActionHandler) Create(c *gin.Context) {
 	var req dto.CreateActionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -55,7 +56,7 @@ func (h *ActionHandler) Create(c *gin.Context) {
 //	@Success     200  {object} domain.UtmIncidentAction
 //	@Failure     404  {object} map[string]string
 //	@Failure     500  {object} map[string]string
-//	@Router      /utm-incident-actions [put]
+//	@Router      /soar/incident-actions [put]
 func (h *ActionHandler) Update(c *gin.Context) {
 	var req dto.UpdateActionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -85,11 +86,10 @@ func (h *ActionHandler) Update(c *gin.Context) {
 //	@Success     200  {array}  domain.UtmIncidentAction
 //	@Header      200  {string} X-Total-Count "Total records"
 //	@Failure     500  {object} map[string]string
-//	@Router      /utm-incident-actions [get]
+//	@Router      /soar/incident-actions [get]
 func (h *ActionHandler) List(c *gin.Context) {
 	f := dto.ActionFilter{
-		Page:           queryInt(c, "page", 1),
-		Size:           queryInt(c, "size", 20),
+		Params:         database.Params{Page: queryInt(c, "page", 0), Size: queryInt(c, "size", 20)},
 		ActionCommand:  queryString(c, "actionCommand"),
 		ActionType:     queryIntPtr(c, "actionType"),
 		ActionEditable: queryBoolPtr(c, "actionEditable"),
@@ -128,7 +128,7 @@ func (h *ActionHandler) List(c *gin.Context) {
 //	@Param       actionEditable query bool   false "Filter by editable flag"
 //	@Success     200  {integer} int64
 //	@Failure     500  {object}  map[string]string
-//	@Router      /utm-incident-actions/count [get]
+//	@Router      /soar/incident-actions/count [get]
 func (h *ActionHandler) Count(c *gin.Context) {
 	f := dto.ActionFilter{
 		ActionCommand:  queryString(c, "actionCommand"),
@@ -154,7 +154,7 @@ func (h *ActionHandler) Count(c *gin.Context) {
 //	@Success     200 {object} domain.UtmIncidentAction
 //	@Failure     404 {object} map[string]string
 //	@Failure     500 {object} map[string]string
-//	@Router      /utm-incident-actions/{id} [get]
+//	@Router      /soar/incident-actions/{id} [get]
 func (h *ActionHandler) GetByID(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {
@@ -178,7 +178,7 @@ func (h *ActionHandler) GetByID(c *gin.Context) {
 //	@Param       id path int64 true "Action ID"
 //	@Success     200 {object} map[string]string
 //	@Failure     500 {object} map[string]string
-//	@Router      /utm-incident-actions/{id} [delete]
+//	@Router      /soar/incident-actions/{id} [delete]
 func (h *ActionHandler) Delete(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {

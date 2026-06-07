@@ -24,7 +24,6 @@ func (r *pgExecutionRepository) Create(ctx context.Context, e *domain.AlertRespo
 }
 
 func (r *pgExecutionRepository) List(ctx context.Context, f connectors.ExecutionFilters) ([]domain.AlertResponseRuleExecution, int64, error) {
-	page, size := normPage(f.Page, f.Size)
 
 	q := r.db.WithContext(ctx).Model(&domain.AlertResponseRuleExecution{})
 
@@ -76,8 +75,8 @@ func (r *pgExecutionRepository) List(ctx context.Context, f connectors.Execution
 
 	var executions []domain.AlertResponseRuleExecution
 	if err := q.Order("id DESC").
-		Offset(page * size).
-		Limit(size).
+		Offset(f.Offset()).
+		Limit(f.Limit()).
 		Find(&executions).Error; err != nil {
 		return nil, 0, err
 	}
