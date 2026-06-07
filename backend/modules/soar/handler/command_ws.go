@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -51,12 +50,12 @@ type wsMessage struct {
 //	@Description Upgrades to WebSocket. Client sends one JSON command request,
 //	             server streams output chunks from the agent in real time.
 //	@Tags        Incident Command Stream
-//	@Param       hostname path string true "Target agent hostname"
-//	@Router      /soar/ws/command/{hostname} [get]
+//	@Param       agentId path string true "Target agent id (agent-manager id; from the datasource's metadata.agentId)"
+//	@Router      /soar/ws/command/{agentId} [get]
 func (h *CommandWSHandler) CommandStream(c *gin.Context) {
-	hostname := c.Param("hostname")
-	if hostname == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "hostname is required"})
+	agentID := c.Param("agentId")
+	if agentID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "agentId is required"})
 		return
 	}
 
@@ -103,19 +102,9 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 		_ = conn.Close(websocket.StatusInternalError, "no agent client")
 		return
 	}
-	agents, _, listErr := h.agentClient.ListAgents(ctx, fmt.Sprintf("hostname.Is=%s", hostname))
-	if listErr != nil || len(agents) == 0 {
-		_ = wsjson.Write(ctx, conn, wsMessage{Type: "error", Message: "agent not found"})
-		_ = conn.Close(websocket.StatusNormalClosure, "agent not found")
-		return
-	}
-	ag := agents[0]
-
-	if ag.GetStatus() != agent.Status_ONLINE {
-		_ = wsjson.Write(ctx, conn, wsMessage{Type: "error", Message: "agent is not online"})
-		_ = conn.Close(websocket.StatusNormalClosure, "agent offline")
-		return
-	}
+	// No pre-lookup: the agentId comes from the datasource the user opened, and the
+	// agent-manager validates it on ProcessCommandStream (offline/unknown → stream error,
+	// surfaced over the WS). Liveness for the UI comes from datasources, not from here.
 
 	command := req.Command
 	if h.variableUC != nil {
@@ -127,7 +116,7 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 	}
 
 	cmd := &agent.UtmCommand{
-		AgentId:    fmt.Sprintf("%d", ag.GetId()),
+		AgentId:    agentID,
 		Command:    command,
 		ExecutedBy: loginFromCtx(c),
 		OriginType: req.OriginType,

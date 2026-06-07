@@ -59,5 +59,5 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	jg.GET("/:id", read, jh.GetByID)
 	jg.DELETE("/:id", write, jh.Delete)
 
-	api.GET("/soar/ws/command/:hostname", m.commandWSHandler.CommandStream)
+	api.GET("/soar/ws/command/:agentId", m.commandWSHandler.CommandStream)
 }

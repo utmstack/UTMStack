@@ -11,6 +11,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	"github.com/utmstack/utmstack/backend/modules/compliance"
+	"github.com/utmstack/utmstack/backend/modules/dashboards"
 	"github.com/utmstack/utmstack/backend/modules/datasources"
 	ns_repository "github.com/utmstack/utmstack/backend/modules/datasources/repository"
 	ns_usecase "github.com/utmstack/utmstack/backend/modules/datasources/usecase"
@@ -49,6 +50,7 @@ type modules struct {
 	appconfig         *appconfig.Module
 	mail              *mail.Module
 	compliance        *compliance.Module
+	dashboards        *dashboards.Module
 	alerts            *alerts.Module
 	soar              *soar.Module
 	datasources       *datasources.Module
@@ -85,6 +87,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	mailMod := mail.NewModule(configMod.Store())
 	configMod.SetMailer(mailMod.Service())
 	complianceMod := compliance.NewModule(db, mailMod.Service())
+	dashboardsMod := dashboards.NewModule(db)
 
 	userRepo := iam_repository.NewUserRepository(db)
 	rbacRepo := iam_repository.NewRBACRepository(db)
@@ -136,6 +139,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		appconfig:         configMod,
 		mail:              mailMod,
 		compliance:        complianceMod,
+		dashboards:        dashboardsMod,
 		alerts:            alertsMod,
 		soar:              soarMod,
 		datasources:       datasourcesMod,

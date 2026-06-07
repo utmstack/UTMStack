@@ -7,6 +7,7 @@ import (
 	appconfig_domain "github.com/utmstack/utmstack/backend/modules/appconfig/domain"
 	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	compliance_domain "github.com/utmstack/utmstack/backend/modules/compliance/domain"
+	dashboards_domain "github.com/utmstack/utmstack/backend/modules/dashboards/domain"
 	datasources_domain "github.com/utmstack/utmstack/backend/modules/datasources/domain"
 	iam_domain "github.com/utmstack/utmstack/backend/modules/iam/domain"
 	incidents_domain "github.com/utmstack/utmstack/backend/modules/incidents/domain"
@@ -61,6 +62,9 @@ func Models() []any {
 		notifications_domain.UtmNotification{},
 		datasources_domain.UtmAssetGroup{},
 		datasources_domain.Datasource{},
+		dashboards_domain.UtmDashboard{},
+		dashboards_domain.UtmVisualization{},
+		dashboards_domain.UtmDashboardVisualization{},
 	}
 }
 

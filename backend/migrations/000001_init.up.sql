@@ -60,6 +60,12 @@ DROP TABLE IF EXISTS utm_data_input_status;
 DROP TABLE IF EXISTS databasechangelog;
 DROP TABLE IF EXISTS databasechangeloglock;
 
+-- Drop the dashboard per-role ACL table. The Go dashboards module ports
+-- utm_dashboard / utm_visualization / utm_dashboard_visualization but NOT this
+-- authority table — dashboards are not gated per-role in the new stack (module
+-- permission dashboards.read/write governs access). No Go entity references it.
+DROP TABLE IF EXISTS utm_dashboard_authority;
+
 -- Drop the agent-manager registry table. It was dead JHipster scaffolding in the
 -- legacy backend: an empty @SuppressWarnings("unused") repository that was never
 -- injected, never seeded, never read or written. Nothing in the Go stack (backend,
@@ -220,7 +226,9 @@ INSERT INTO permissions (name, description, resource, action) VALUES
     ('compliance.read',  'List and view compliance standards, controls, reports and evaluation history', 'compliance', 'read'),
     ('compliance.write', 'Create, update and delete compliance standards, controls and report schedules', 'compliance', 'write'),
     ('datasources.read',  'List and view datasources and their groups',                 'datasources', 'read'),
-    ('datasources.write', 'Create, update and delete datasources, their groups and group assignments', 'datasources', 'write')
+    ('datasources.write', 'Create, update and delete datasources, their groups and group assignments', 'datasources', 'write'),
+    ('dashboards.read',  'List and view dashboards, visualizations and their layouts',  'dashboards', 'read'),
+    ('dashboards.write', 'Create, update and delete dashboards, visualizations and layouts', 'dashboards', 'write')
 ON CONFLICT (name) DO NOTHING;
 
 -- Bind ROLE_ADMIN to every permission currently in the catalog. Re-run this
