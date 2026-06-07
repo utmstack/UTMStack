@@ -12,6 +12,7 @@ import (
 	iam_domain "github.com/utmstack/utmstack/backend/modules/iam/domain"
 	incidents_domain "github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	integrations_domain "github.com/utmstack/utmstack/backend/modules/integrations/domain"
+	loganalyzer_domain "github.com/utmstack/utmstack/backend/modules/loganalyzer/domain"
 	notifications_domain "github.com/utmstack/utmstack/backend/modules/notifications/domain"
 	opensearch_domain "github.com/utmstack/utmstack/backend/modules/opensearch/domain"
 	arr_domain "github.com/utmstack/utmstack/backend/modules/soar/domain"
@@ -65,6 +66,7 @@ func Models() []any {
 		dashboards_domain.UtmDashboard{},
 		dashboards_domain.UtmVisualization{},
 		dashboards_domain.UtmDashboardVisualization{},
+		loganalyzer_domain.UtmLogAnalyzerQuery{},
 	}
 }
 

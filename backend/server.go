@@ -18,6 +18,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	"github.com/utmstack/utmstack/backend/modules/compliance"
 	"github.com/utmstack/utmstack/backend/modules/dashboards"
+	"github.com/utmstack/utmstack/backend/modules/loganalyzer"
 	datasources "github.com/utmstack/utmstack/backend/modules/datasources"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing"
 	"github.com/utmstack/utmstack/backend/modules/iam"
@@ -92,6 +93,7 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	eventprocessing.RegisterRoutes(api, m.eventProcessing, userAuth)
 	compliance.RegisterRoutes(api, m.compliance, userAuth)
 	dashboards.RegisterRoutes(api, m.dashboards, userAuth)
+	loganalyzer.RegisterRoutes(api, m.loganalyzer, userAuth)
 	integrations.RegisterRoutes(api, m.integrations, userAuth)
 	opensearchgw.RegisterRoutes(api, m.opensearchGateway, userAuth)
 	incidents.RegisterRoutes(api, m.incidents, userAuth)

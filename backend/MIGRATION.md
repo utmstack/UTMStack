@@ -29,7 +29,7 @@ Current Go modules: `iam` · `audit` · `appconfig` · `compliance` · `alerts` 
 
 **Phase 1 (Foundation)** ✅ essentially complete (federation client-registry side pending). **Phase 2 (SIEM core)** ✅ complete: Alerts · Correlation+Logstash (→ **eventprocessing**) · Index Mgmt+ISM (→ **opensearch**) · OpenSearch Gateway · Collectors & Agents. (Asset Metrics 🚫 and Data Input Status 🚫 dropped — dead/derived tables.) **Phase 3 (SOAR)** ✅ complete: Incidents · Alert Response + Incident Response (→ **soar**) · SOC AI · Threat/Adversary (→ **alerts**). **Phase 4 (Compliance)** ✅ standards/sections/controls + OpenSearch evaluation/report-config/schedules (→ **compliance**). **Phase 5 partial:** Notifications ✅ · Mail sender ✅ · TFA ✅ · API keys ✅ · Integrations ✅ · Network scan → **datasources** ✅.
 
-**Remaining:** Generic reports + PDF export · Log analyzer (likely **inside eventprocessing**) · SSO/IdP (**inside iam**) · auditor users · app-info (future **billing**) · images CRUD (**inside appconfig**). **🚫 Not migrating:** dashboards/visualizations · menus · federation service · getting-started · schedules (unless needed).
+**Remaining:** Generic reports + PDF export · SSO/IdP (**inside iam**) · auditor users (AD audit → plugin) · app-info (future **billing**) · images CRUD (**inside appconfig**). **🚫 Not migrating:** menus · federation service · getting-started · schedules (unless needed). _(Dashboards/visualizations — previously 🚫 — are now ✅ ported to **dashboards** since there is no OpenSearch Dashboards to lean on.)_
 
 > **Module consolidation (2026-06).** The original per-resource modules were merged into bounded contexts. Many deep-dive sections below still use the old names; the matrix and update log are the source of truth. Mappings: `correlation` + `logstash` + data-types/regex/tenant-config → **`eventprocessing`** (rules now **YAML-direct**, no DB) · `index_pattern` + `index_policy` → **`opensearch`** · `alert_response_rules` + `incident_response` → **`soar`** · `tfa` + `api_keys` → **`iam`** · `threat_management` (adversary) → **`alerts`** · `network_scan` + `datainput` → **`datasources`** (`utm_data_input_status` dropped — liveness derived from OpenSearch; `datainput` module removed).
 
@@ -83,7 +83,7 @@ Current Go modules: `iam` · `audit` · `appconfig` · `compliance` · `alerts` 
 | 23 | [Compliance standards & controls](#23-compliance-standards--controls) | `web/rest/compliance/` | `modules/compliance/` | ✅ | Standards + sections + control-config CRUD ✅ · OpenSearch control evaluation + history ✅ |
 | 24 | [Compliance reports & schedules](#24-compliance-reports--schedules) | `web/rest/compliance/UtmComplianceReportSchedule*` | `modules/compliance/` | ✅ | report-config CRUD ✅ · schedules CRUD ✅ |
 | 25 | [Reports (generic)](#25-reports-generic) | `web/rest/reports/`, `util/PdfGeneratorResource.java` | `modules/compliance/` (partial) | 🟡 | **Remaining** — generic section builder + PDF export. Compliance report-config/schedules landed; standalone reporting + PDF still pending. |
-| 26 | [Dashboards & visualizations](#26-dashboards--visualizations) | `web/rest/chart_builder/` | — | 🚫 | Not migrating (per product decision) |
+| 26 | [Dashboards & visualizations](#26-dashboards--visualizations) | `web/rest/chart_builder/` | `modules/dashboards/` | ✅ | Chart-builder ported: dashboards/visualizations/layout CRUD (definitions only) + audit + swagger. `utm_dashboard_authority` 🗑️ dropped. Runtime data + build UX live in the frontend (ECharts + OpenSearch gateway). |
 
 ### Phase 5 — Integrations & advanced
 
@@ -98,10 +98,10 @@ Current Go modules: `iam` · `audit` · `appconfig` · `compliance` · `alerts` 
 | 33 | [Network scanning & assets](#33-network-scanning--assets) | `web/rest/network_scan/` | `modules/datasources/` | ⚠️ | Renamed `network_scan` → **datasources** (merge target for assets + data-input). Assets/groups + asset-sync (OpenSearch `v11-statistics-*`, no checkpoint) ✅. ⚠️ WIP: `utm_asset_types` dropped (→ free-text `label`) and `utm_ports` dropped, but Go code + `utm_network_scan` recreate path (000003) not yet reconciled. |
 | 34 | [Server / module management](#34-server--module-management) | `web/rest/UtmServerResource.java`, `application_modules/` | `modules/integrations/` | ✅ | Module mgmt covered by **integrations** (`utm_module`) |
 | 35 | [Schedules / dynamic tasks](#35-schedules--dynamic-tasks) | `web/rest/UtmScheduleResource.java` | — | 🚫 | Not migrating unless a concrete need appears |
-| 36 | [Log analyzer / saved queries](#36-log-analyzer--saved-queries) | `web/rest/log_analyzer/` | — | ❌ | **Remaining** — evaluating fold **into `eventprocessing`** |
+| 36 | [Log analyzer / saved queries](#36-log-analyzer--saved-queries) | `web/rest/log_analyzer/` | `modules/loganalyzer/` | ✅ | Own module. Saved-query CRUD + `top-x-values` + `chart-view` (aggregations via the OpenSearch client + shared FilterType builder). Log rows served by the `opensearch` search gateway. |
 | 37 | [Configuration sections / menus](#37-configuration-sections--menus) | `web/rest/UtmMenuResource.java` | — | 🚫 | Not migrating — navigation lives in the React frontend |
 | 38 | [Getting started / onboarding](#38-getting-started--onboarding) | `web/rest/getting_started/` | — | 🚫 | Not migrating |
-| 39 | [Auditor users](#39-auditor-users) | `web/rest/user_auditor/` | — | ❌ | **Remaining** — likely folds into **iam** users with a `?role=` filter |
+| 39 | [Auditor users (AD audit)](#39-auditor-users) | `web/rest/user_auditor/` | — | ❌ | **Remaining** — Active Directory user auditing (winlogbeat). Heavy lifting is the standalone **`user-auditor`** microservice → migrate to a **Go plugin**; backend keeps only a thin proxy (2 endpoints). NOT an iam/role feature. |
 | 40 | [App info / version](#40-app-info--version) | `web/rest/app_info/AppInfoResource.java` | — | ❌ | **Remaining** — planned inside a future **billing** module |
 | 41 | [Images / media](#41-images--media) | `web/rest/UtmImagesResource.java` | `uploads/` (static only) | 🟡 | Static serving exists; CRUD pending — will fold **into `appconfig`** |
 | 42 | [Client / stack info](#42-client--stack-info) | `web/rest/UtmClientResource.java` | — | 🚫 | `utm_client` dropped (license read from file); tenant identity implicit |
@@ -551,14 +551,22 @@ Current Go modules: `iam` · `audit` · `appconfig` · `compliance` · `alerts` 
 
 ---
 
-#### 26. Dashboards & visualizations
+#### 26. Dashboards & visualizations → dashboards
 
-- **Legacy:** `web/rest/chart_builder/UtmDashboardResource.java`, `…UtmDashboardVisualizationResource.java`, `…UtmDashboardAuthorityResource.java`, `…UtmVisualizationResource.java`
-- **Endpoints (target):**
-  - [ ] CRUD `/api/utm-dashboards`
-  - [ ] CRUD `/api/utm-visualizations`
-  - [ ] CRUD `/api/utm-dashboard-visualizations`
-  - [ ] CRUD `/api/utm-dashboard-authorities` (sharing)
+- **Legacy:** `web/rest/chart_builder/UtmDashboardResource.java`, `UtmVisualizationResource.java`, `UtmDashboardVisualizationResource.java`, `UtmDashboardAuthorityResource.java`
+- **Go:** `modules/dashboards/` (one file per entity across domain/dto/repository/usecase/handler)
+- **Status:** ✅ chart-builder ported. There is no OpenSearch Dashboards deployed to lean on, so the custom chart-builder is migrated rather than dropped.
+- **Endpoints:**
+  - [x] CRUD `/dashboards` (+ `/:id`)
+  - [x] CRUD `/visualizations` (+ `/:id`)
+  - [x] CRUD `/dashboard-layouts` (viz↔dashboard placement/layout; legacy `utm-dashboard-visualizations`)
+- **Tables:** `utm_dashboard`, `utm_visualization`, `utm_dashboard_visualization` (AutoMigrate). `utm_dashboard_authority` 🗑️ **dropped** — no per-role ACL; access via the `dashboards.read/write` permission.
+- **Definitions only.** Tables store the *recipe* (query/aggregation/filters/chart_config/layout). The chart **data is fetched from OpenSearch at runtime**, not stored.
+- **Deliberately NOT ported (decisions, not gaps):**
+  - The `/run` execute-query subsystem (legacy `RequestDsl` + per-chart-type response parsers) — runtime data should be fetched by the frontend via the existing `/opensearch/search` + `/search/sql` gateway and rendered with ECharts; no need to port the parser engine.
+  - import/batch endpoints; system-owner ID-range generator + prebuilt-content seeding (the "out-of-the-box" dashboards — a data seed, pending).
+  - No `system_owner` edit guard yet (mirrors legacy: system content is editable).
+- **Frontend note:** raw fields (query/aggregation/chart_config) are a power-user model — the new frontend should expose a *guided* builder + ship *prebuilt* content, rendering via `echarts-for-react`.
 
 ---
 
@@ -666,12 +674,17 @@ Current Go modules: `iam` · `audit` · `appconfig` · `compliance` · `alerts` 
 
 ---
 
-#### 36. Log analyzer / saved queries
+#### 36. Log analyzer / saved queries → loganalyzer
 
 - **Legacy:** `web/rest/log_analyzer/LogAnalyzerResource.java`, `service/log_analyzer/`, `domain/log_analyzer/LogAnalyzerQuery.java`
-- **Endpoints (target):**
-  - [ ] CRUD `/api/log-analyzer/queries`
-  - [ ] `POST /api/log-analyzer/queries/{id}/execute`
+- **Go:** `modules/loganalyzer/` (own module — not folded into eventprocessing; it's log *exploration*, not rules)
+- **What it is:** the "Discover"-style log explorer — saved searches + field top-values + a chart/timeline aggregation.
+- **Endpoints:**
+  - [x] CRUD `/log-analyzer/queries` (+ `/:id`) — saved searches (`utm_log_analyzer_query`: index + filters + columns)
+  - [x] `POST /log-analyzer/top-x-values/{indexPattern}/{field}/{top}` — terms + value_count aggregation
+  - [x] `POST /log-analyzer/chart-view` — date_histogram (when `interval` set) or terms aggregation
+- **Implementation:** aggregations run via `osdk.RawSearch` + the shared `pkg/common_models.FiltersToQuery` (22-operator FilterType builder); no parser engine re-implemented. The actual **log rows** come from the `opensearch` search gateway (`/opensearch/search`), not this module. Definitions only in `utm_log_analyzer_query`; data fetched from OpenSearch at runtime.
+- Permissions `loganalyzer.read/write` (seeded), swagger on all handlers, audit on the saved-query writes.
 
 ---
 
@@ -692,10 +705,13 @@ Current Go modules: `iam` · `audit` · `appconfig` · `compliance` · `alerts` 
 
 ---
 
-#### 39. Auditor users
+#### 39. Auditor users (Active Directory audit)
 
-- **Legacy:** `web/rest/user_auditor/UtmAuditorUsersResource.java`
-- **Note:** Specialized list endpoint for the auditor role. May fold into User module with a `?role=auditor` filter.
+- **What it is:** auditing of **Active Directory / Windows users** — an inventory of AD accounts (name, `sid`, source/DC, attributes) built from **winlogbeat** events in OpenSearch. NOT "users with the auditor role" (the earlier note was wrong).
+- **Legacy — two pieces:**
+  - **`user-auditor`** (repo-root microservice, Spring Boot + own Postgres + Liquibase): connects to Elasticsearch, scans winlogbeat, and maintains users/sources/attributes/source-scans. Does the heavy lifting.
+  - **`web/rest/user_auditor/UtmAuditorUsersResource.java`**: a **thin proxy** in the backend that forwards `/winlogbeat-info-by-filter` and `/utm-auditor-users-by-src` to the microservice (`ENV_AD_AUDIT_SERVICE`).
+- **Migration plan (later):** port **`user-auditor` → a Go plugin** (`plugins/user-auditor/`, same pattern as `compliance-orchestrator` / the cloud pullers — standalone, reads OpenSearch, keeps its own state). Backend keeps only the thin proxy (or the frontend calls the plugin directly). So this is mostly a *plugin* migration, not backend.
 
 ---
 
@@ -787,8 +803,8 @@ Current Go modules: `iam` · `audit` · `appconfig` · `compliance` · `alerts` 
 | **1 — Foundation** | Auth, users, roles, account, audit, appconfig, health, connectionkey | ~30 | ✅ Essentially complete (federation client-registry pending) |
 | **2 — SIEM core** | Alerts, response rules, correlation, ingestion status, logstash, ISM, OS gateway, collectors | ~25 | ✅ Complete (consolidated into eventprocessing/opensearch/soar; asset metrics 🚫 dropped) |
 | **3 — SOAR** | Incidents + incident response + SOC AI + threat/adversary | ~15 | ✅ Complete |
-| **4 — Compliance & reporting** | Compliance standards/controls/reports, generic reports (+PDF) | ~25 | 🟡 Compliance ✅ (standards/sections/controls + evaluation/report-config/schedules → **compliance**); generic reports + PDF ❌ remaining (dashboards 🚫 not migrating) |
-| **5 — Integrations & advanced** | ✅ Notifications · Mail · TFA · API keys · Integrations · Network scan · Server/module mgmt (integrations) — ❌ remaining: IdP/SSO (iam), log analyzer (eventprocessing?), auditor users, app-info (billing), images (appconfig) | ~40 | 🟡 Partial |
+| **4 — Compliance & reporting** | Compliance standards/controls/reports, generic reports (+PDF) | ~25 | 🟡 Compliance ✅ (→ **compliance**); Dashboards/visualizations ✅ chart-builder ported (→ **dashboards**); generic reports + PDF ❌ remaining |
+| **5 — Integrations & advanced** | ✅ Notifications · Mail · TFA · API keys · Integrations · Network scan · Server/module mgmt (integrations) — ❌ remaining: IdP/SSO (iam), auditor users (AD audit → plugin), app-info (billing), images (appconfig) | ~40 | 🟡 Partial |
 
 ---
 
@@ -803,6 +819,8 @@ Current Go modules: `iam` · `audit` · `appconfig` · `compliance` · `alerts` 
   - **✅ Compliance (#23/#24) confirmed migrated** (doc was stale): `modules/compliance/` ships standards + sections + control-config CRUD, OpenSearch control evaluation + history, report-config CRUD and report schedules.
   - **🚫 Liquibase tables** `databasechangelog` / `databasechangeloglock` dropped in `000001_init.up.sql` (Go uses golang-migrate).
   - **📋 DB tracking sheet** added at repo root `tables.md` (per-table migrated / dropped / YAML / pending status).
+  - **✅ Log analyzer (#36) ported** to a new `modules/loganalyzer/` (its own bounded context, not eventprocessing). Saved-query CRUD (`utm_log_analyzer_query`) + `top-x-values` + `chart-view` aggregations (via `osdk.RawSearch` + shared `common_models.FiltersToQuery`); log rows still served by the `opensearch` gateway. Permissions `loganalyzer.read/write` seeded; swagger + audit on writes.
+  - **✅ Dashboards/visualizations (#26) ported — reversal of the "🚫 not migrating" decision.** Rationale: there is no OpenSearch Dashboards deployed to lean on, so the legacy chart-builder is migrated. New `modules/dashboards/` ships CRUD for `utm_dashboard` / `utm_visualization` / `utm_dashboard_visualization` (definitions only; one file per entity; swagger + audit; `dashboards.read/write` perms). `utm_dashboard_authority` 🗑️ dropped (no per-role ACL). Runtime chart data + the build UX are frontend concerns (ECharts + the existing OpenSearch search gateway); the legacy `/run` parser engine is intentionally not ported.
 - _2026-06-06_ — ♻️ **Module consolidation + scope decisions.**
   - **Consolidated** into bounded contexts: `correlation` + `logstash` (+ data-types/regex/tenant-config) → **`eventprocessing`** (rules **YAML-direct**, no DB — read/written as YAML under a shared volume; legacy `utm_correlation_rules` read once by the bootstrap then dropped); `index_pattern` + `index_policy` → **`opensearch`**; `alert_response_rules` + `incident_response` → **`soar`**; `tfa` + `api_keys` → **`iam`**; `threat_management` (adversary) → **`alerts`**; server/module mgmt → **`integrations`** (`utm_module`).
   - **Confirmed migrated** since last log: Notifications ✅ · Mail sender (`internal/mail`) ✅ · Integrations ✅ · Network scan ✅ · API keys ✅.
