@@ -28,7 +28,7 @@ func NewIndexPatternHandler(uc connectors.IndexPatternUsecase) *IndexPatternHand
 // @Param       input body dto.CreateIndexPatternRequest true "Index pattern to create (id must be absent)"
 // @Success     200 {object} dto.IndexPatternResponse
 // @Failure     500 {object} map[string]string
-// @Router      /utm-index-patterns [post]
+// @Router      /opensearch/index-patterns [post]
 func (h *IndexPatternHandler) Create(c *gin.Context) {
 	var req dto.CreateIndexPatternRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -54,7 +54,7 @@ func (h *IndexPatternHandler) Create(c *gin.Context) {
 // @Param       input body dto.UpdateIndexPatternRequest true "Index pattern to update (id required)"
 // @Success     200 {object} dto.IndexPatternResponse
 // @Failure     500 {object} map[string]string
-// @Router      /utm-index-patterns [put]
+// @Router      /opensearch/index-patterns [put]
 func (h *IndexPatternHandler) Update(c *gin.Context) {
 	var req dto.UpdateIndexPatternRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -90,7 +90,7 @@ func (h *IndexPatternHandler) Update(c *gin.Context) {
 // @Header      200 {string} X-Total-Count "Total items"
 // @Header      200 {string} Link "RFC-5988 pagination links"
 // @Failure     500 {object} map[string]string
-// @Router      /utm-index-patterns [get]
+// @Router      /opensearch/index-patterns [get]
 func (h *IndexPatternHandler) List(c *gin.Context) {
 	var f dto.IndexPatternFilters
 	if err := c.ShouldBindQuery(&f); err != nil {
@@ -103,7 +103,8 @@ func (h *IndexPatternHandler) List(c *gin.Context) {
 		writeIPError(c, err)
 		return
 	}
-	writePagedArray(c, items, total, f.Page, f.Size)
+	page, size := f.Normalized()
+	writePagedArray(c, items, total, page, size)
 }
 
 // @Summary     List index patterns with fields
@@ -124,7 +125,7 @@ func (h *IndexPatternHandler) List(c *gin.Context) {
 // @Header      200 {string} X-Total-Count "Total items"
 // @Header      200 {string} Link "RFC-5988 pagination links"
 // @Failure     500 {object} map[string]string
-// @Router      /utm-index-patterns/fields [get]
+// @Router      /opensearch/index-patterns/fields [get]
 func (h *IndexPatternHandler) Fields(c *gin.Context) {
 	var f dto.IndexPatternFilters
 	if err := c.ShouldBindQuery(&f); err != nil {
@@ -137,7 +138,8 @@ func (h *IndexPatternHandler) Fields(c *gin.Context) {
 		writeIPError(c, err)
 		return
 	}
-	writePagedArray(c, items, total, f.Page, f.Size)
+	page, size := f.Normalized()
+	writePagedArray(c, items, total, page, size)
 }
 
 // @Summary     Get index pattern by ID
@@ -148,7 +150,7 @@ func (h *IndexPatternHandler) Fields(c *gin.Context) {
 // @Success     200 {object} dto.IndexPatternResponse
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-index-patterns/{id} [get]
+// @Router      /opensearch/index-patterns/{id} [get]
 func (h *IndexPatternHandler) GetByID(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {
@@ -173,7 +175,7 @@ func (h *IndexPatternHandler) GetByID(c *gin.Context) {
 // @Param       id path int true "Index pattern ID"
 // @Success     200 "Deleted"
 // @Failure     500 {object} map[string]string
-// @Router      /utm-index-patterns/{id} [delete]
+// @Router      /opensearch/index-patterns/{id} [delete]
 func (h *IndexPatternHandler) Delete(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {

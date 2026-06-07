@@ -1,5 +1,7 @@
 package dto
 
+import "github.com/utmstack/utmstack/backend/pkg/database"
+
 type CreateIndexPatternRequest struct {
 	ID            *int64  `json:"id"`
 	Pattern       string  `json:"pattern"       binding:"required"`
@@ -34,9 +36,8 @@ type IndexPatternFilters struct {
 	ModuleEquals    *string `form:"patternModule.equals"`
 	PatternSystem   *bool   `form:"patternSystem.equals"`
 	IsActive        *bool   `form:"isActive.equals"`
-	Page            int     `form:"page"`
-	Size            int     `form:"size"`
-	Sort            string  `form:"sort"`
+	database.Params
+	Sort string `form:"sort"`
 }
 
 type IndexField struct {

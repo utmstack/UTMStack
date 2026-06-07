@@ -36,7 +36,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 
 	// --- Index pattern catalog (CRUD over utm_index_pattern) ---
 	ph := m.GetPatternHandler()
-	pg := api.Group("/utm-index-patterns", userAuth)
+	pg := g.Group("/index-patterns")
 	pg.POST("", write, ph.Create)
 	pg.PUT("", write, ph.Update)
 	pg.GET("", read, ph.List)
@@ -46,7 +46,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 
 	// --- Index lifecycle (ISM) policy — only when OpenSearch is configured ---
 	if polH := m.GetPolicyHandler(); polH != nil {
-		ipg := api.Group("/index-policy", userAuth)
+		ipg := g.Group("/index-policy")
 		ipg.GET("/policy", read, polH.GetPolicy)
 		ipg.PUT("/policy", write, polH.UpdatePolicy)
 	}

@@ -77,14 +77,8 @@ func (r *pgIndexPatternRepository) List(ctx context.Context, f dto.IndexPatternF
 		return nil, 0, err
 	}
 
-	size := f.Size
-	if size <= 0 {
-		size = 20
-	}
-	offset := f.Page * size
-
 	var items []domain.UtmIndexPattern
-	if err := q.Order("id ASC").Offset(offset).Limit(size).Find(&items).Error; err != nil {
+	if err := q.Order("id ASC").Offset(f.Offset()).Limit(f.Limit()).Find(&items).Error; err != nil {
 		return nil, 0, err
 	}
 	return items, total, nil
