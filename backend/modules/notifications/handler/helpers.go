@@ -24,21 +24,19 @@ func writeNotificationError(c *gin.Context, err error) {
 	}
 }
 
-func writePagedArray[T any](c *gin.Context, items []T, total int64) {
+func writePagedArray[T any](c *gin.Context, items []T, total int64, page, size int) {
 	c.Header("X-Total-Count", strconv.FormatInt(total, 10))
 
-	page := queryInt(c, "page", 1)
-	size := queryInt(c, "size", 20)
-	if size < 1 {
-		size = 20
+	lastPage := int64(0)
+	if size > 0 && total > 0 {
+		lastPage = (total - 1) / int64(size)
 	}
-	totalPages := int((total + int64(size) - 1) / int64(size))
 	path := c.Request.URL.Path
 	var links []string
-	if page < totalPages {
+	if int64(page) < lastPage {
 		links = append(links, fmt.Sprintf("<%s?page=%d&size=%d>; rel=\"next\"", path, page+1, size))
 	}
-	if page > 1 {
+	if page > 0 {
 		links = append(links, fmt.Sprintf("<%s?page=%d&size=%d>; rel=\"prev\"", path, page-1, size))
 	}
 	if len(links) > 0 {

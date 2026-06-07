@@ -8,6 +8,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/notifications/connectors"
 	"github.com/utmstack/utmstack/backend/modules/notifications/domain"
 	"github.com/utmstack/utmstack/backend/modules/notifications/dto"
+	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
 type NotificationHandler struct {
@@ -27,7 +28,7 @@ func NewNotificationHandler(uc connectors.NotificationUsecase) *NotificationHand
 // @Success     201 {object} dto.NotificationResponse
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-notifications [post]
+// @Router      /notifications [post]
 func (h *NotificationHandler) Create(c *gin.Context) {
 	var req dto.CreateNotificationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -58,7 +59,7 @@ func (h *NotificationHandler) Create(c *gin.Context) {
 // @Success     200 {array} dto.NotificationResponse
 // @Header      200 {string} X-Total-Count "Total items"
 // @Failure     500 {object} map[string]string
-// @Router      /utm-notifications [get]
+// @Router      /notifications [get]
 func (h *NotificationHandler) List(c *gin.Context) {
 	q := dto.NotificationListQuery{
 		Source: querySource(c, "source"),
@@ -67,8 +68,7 @@ func (h *NotificationHandler) List(c *gin.Context) {
 		Read:   queryBool(c, "read"),
 		From:   queryTime(c, "from"),
 		To:     queryTime(c, "to"),
-		Page:   queryInt(c, "page", 1),
-		Size:   queryInt(c, "size", 20),
+		Params: database.Params{Page: queryInt(c, "page", 0), Size: queryInt(c, "size", 20)},
 		Sort:   c.Query("sort"),
 	}
 	rows, total, err := h.usecase.List(c.Request.Context(), q)
@@ -80,7 +80,8 @@ func (h *NotificationHandler) List(c *gin.Context) {
 	for i := range rows {
 		resp[i] = dto.FromEntity(&rows[i])
 	}
-	writePagedArray(c, resp, total)
+	page, size := q.Normalized()
+	writePagedArray(c, resp, total, page, size)
 }
 
 // @Summary     Get notification by ID
@@ -91,7 +92,7 @@ func (h *NotificationHandler) List(c *gin.Context) {
 // @Success     200 {object} dto.NotificationResponse
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-notifications/{id} [get]
+// @Router      /notifications/{id} [get]
 func (h *NotificationHandler) GetByID(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {
@@ -115,7 +116,7 @@ func (h *NotificationHandler) GetByID(c *gin.Context) {
 // @Failure     400 {object} map[string]string
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-notifications/{id}/read [put]
+// @Router      /notifications/{id}/read [put]
 func (h *NotificationHandler) UpdateRead(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {
@@ -149,7 +150,7 @@ func (h *NotificationHandler) UpdateRead(c *gin.Context) {
 // @Failure     400 {object} map[string]string
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-notifications/{id}/status [put]
+// @Router      /notifications/{id}/status [put]
 func (h *NotificationHandler) UpdateStatus(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {
@@ -179,7 +180,7 @@ func (h *NotificationHandler) UpdateStatus(c *gin.Context) {
 // @Produce     json
 // @Success     200 {integer} integer
 // @Failure     500 {object}  map[string]string
-// @Router      /utm-notifications/unread-count [get]
+// @Router      /notifications/unread-count [get]
 func (h *NotificationHandler) UnreadCount(c *gin.Context) {
 	n, err := h.usecase.CountUnread(c.Request.Context())
 	if err != nil {
@@ -194,7 +195,7 @@ func (h *NotificationHandler) UnreadCount(c *gin.Context) {
 // @Security    BearerAuth
 // @Success     204
 // @Failure     500 {object} map[string]string
-// @Router      /utm-notifications/read-all [put]
+// @Router      /notifications/read-all [put]
 func (h *NotificationHandler) MarkAllRead(c *gin.Context) {
 	if err := h.usecase.MarkAllRead(c.Request.Context()); err != nil {
 		writeNotificationError(c, err)
@@ -210,7 +211,7 @@ func (h *NotificationHandler) MarkAllRead(c *gin.Context) {
 // @Success     204
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /utm-notifications/{id} [delete]
+// @Router      /notifications/{id} [delete]
 func (h *NotificationHandler) Delete(c *gin.Context) {
 	id, ok := pathInt64(c, "id")
 	if !ok {

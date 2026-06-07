@@ -16,4 +16,3 @@ type UtmNotification struct {
 }
 
 func (UtmNotification) TableName() string { return "utm_notification" }
-

@@ -2,13 +2,15 @@ package notifications
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
 func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	nh := m.GetNotificationHandler()
 
-	g := api.Group("/utm-notifications", userAuth)
-	g.POST("", nh.Create)
+	g := api.Group("/notifications", userAuth)
+
+	g.POST("", middleware.RequireInternal(), nh.Create)
 	g.GET("", nh.List)
 	g.GET("/unread-count", nh.UnreadCount)
 	g.PUT("/read-all", nh.MarkAllRead)

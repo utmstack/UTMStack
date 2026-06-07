@@ -36,13 +36,6 @@ func (r *pgNotificationRepository) FindByID(ctx context.Context, id int64) (*dom
 }
 
 func (r *pgNotificationRepository) FindAll(ctx context.Context, q dto.NotificationListQuery) ([]domain.UtmNotification, int64, error) {
-	if q.Page < 1 {
-		q.Page = 1
-	}
-	if q.Size < 1 || q.Size > 200 {
-		q.Size = 20
-	}
-
 	db := r.db.WithContext(ctx).Model(&domain.UtmNotification{})
 
 	if q.Source != nil {
@@ -77,8 +70,8 @@ func (r *pgNotificationRepository) FindAll(ctx context.Context, q dto.Notificati
 
 	var rows []domain.UtmNotification
 	if err := db.Order(orderBy).
-		Offset((q.Page - 1) * q.Size).
-		Limit(q.Size).
+		Offset(q.Offset()).
+		Limit(q.Limit()).
 		Find(&rows).Error; err != nil {
 		return nil, 0, err
 	}

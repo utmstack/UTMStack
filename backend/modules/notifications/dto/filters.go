@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/notifications/domain"
+	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
 type NotificationListQuery struct {
@@ -13,7 +14,6 @@ type NotificationListQuery struct {
 	From   *time.Time
 	To     *time.Time
 	Read   *bool
-	Page   int
-	Size   int
-	Sort   string
+	database.Params
+	Sort string
 }
