@@ -10,9 +10,11 @@ import (
 	"time"
 
 	"github.com/kardianos/service"
+	"github.com/threatwinds/go-sdk/plugins"
 
 	pb "github.com/utmstack/UTMStack/agent/agent"
-	"github.com/utmstack/UTMStack/agent/collector"
+	"github.com/utmstack/UTMStack/agent/collector/auditd"
+	"github.com/utmstack/UTMStack/agent/collector/platform"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/database"
 	"github.com/utmstack/UTMStack/agent/dependency"
@@ -45,8 +47,8 @@ func (p *program) Stop(_ service.Service) error {
 		cancel()
 	}
 
-	// Stop all collectors
-	collector.StopAll()
+	// Stop all OS collectors
+	stopOSCollectors()
 
 	// Wait for goroutines with timeout
 	done := make(chan struct{})
@@ -138,13 +140,8 @@ func (p *program) run() {
 		pb.UpdateAgent(cnf, ctx)
 	})
 
-	// Sync collector config with current version's ProtoPorts
-	if err := collector.SyncCollectorConfig(); err != nil {
-		utils.Logger.ErrorF("error syncing collector config: %v", err)
-	}
-
-	// Start collectors (they manage their own goroutines with context)
-	collector.StartAll(ctx)
+	// Start OS-level collectors (platform + auditd only).
+	startOSCollectors(ctx, pb.LogQueue)
 
 	// Wait for shutdown signal
 	signals := make(chan os.Signal, 1)
@@ -156,5 +153,34 @@ func (p *program) run() {
 	case <-ctx.Done():
 		utils.Logger.Info("Context cancelled")
 	}
+}
+
+var activeCollectors []platform.Collector
+
+func startOSCollectors(ctx context.Context, queue chan *plugins.Log) {
+	activeCollectors = nil
+	for _, c := range platform.GetCollectors() {
+		activeCollectors = append(activeCollectors, c)
+		go runCollector(ctx, c, queue)
+	}
+	a := auditd.New()
+	activeCollectors = append(activeCollectors, a)
+	go runCollector(ctx, a, queue)
+}
+
+func stopOSCollectors() {
+	for _, c := range activeCollectors {
+		c.Stop()
+	}
+	activeCollectors = nil
+}
+
+func runCollector(ctx context.Context, c platform.Collector, queue chan *plugins.Log) {
+	defer func() {
+		if r := recover(); r != nil {
+			utils.Logger.ErrorF("panic in collector %s: %v", c.Name(), r)
+		}
+	}()
+	c.Start(ctx, queue)
 }
 
