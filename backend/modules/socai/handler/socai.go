@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
+	"github.com/threatwinds/go-sdk/catcher"
 )
 
 type socAIAnalyzer interface {
@@ -54,7 +54,7 @@ func (h *SocAIHandler) Analyze(c *gin.Context) {
 	// Java validates alert != null && alert.getId() != null → 400.
 	var envelope alertIDEnvelope
 	if err := json.Unmarshal(bodyBytes, &envelope); err != nil || envelope.ID == nil {
-		logger.Error(ctx + ": alert ID is required")
+		_ = catcher.Error(ctx+": alert ID is required", nil, nil)
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Alert ID is required"})
 		return
 	}

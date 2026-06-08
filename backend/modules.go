@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -24,6 +25,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/integrations"
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
+	notifications_domain "github.com/utmstack/utmstack/backend/modules/notifications/domain"
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
 	"github.com/utmstack/utmstack/backend/modules/socai"
@@ -140,6 +142,23 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	dsGroupUC := ns_usecase.NewAssetGroupUsecase(dsGroupRepo)
 	datasourcesMod := datasources.NewModule(dsUC, dsGroupUC)
 
+	opensearchMod := opensearchgw.NewModule(db, cfg.esHost != "")
+	notificationsMod := notifications.NewModule(db, auditMod.Logger())
+
+	if cfg.esHost != "" && cfg.diskGuardEnabled {
+		opensearchMod.SetSpaceGuard(
+			func(ctx context.Context, critical bool, msg string) error {
+				ntype := notifications_domain.TypeWarning
+				if critical {
+					ntype = notifications_domain.TypeError
+				}
+				return notificationsMod.Producer().Notify(ctx, notifications_domain.SourceSystem, ntype, msg)
+			},
+			cfg.diskWarnPercent, cfg.diskDeletePercent,
+			time.Duration(cfg.diskGuardIntervalSec)*time.Second,
+		)
+	}
+
 	return &modules{
 		iam:               iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, samlUsecase, cfg.uploadDir),
 		audit:             auditMod,
@@ -152,7 +171,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		soar:              soarMod,
 		datasources:       datasourcesMod,
 		eventProcessing:   eventProcessingMod,
-		opensearchGateway: opensearchgw.NewModule(db, cfg.esHost != ""),
+		opensearchGateway: opensearchMod,
 		integrations:      integrationsMod,
 		socAI:             socai.NewModule(cfg.socAIBaseURL, cfg.internalKey),
 		incidents: incidents.NewModule(
@@ -162,7 +181,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 			incidents.NewIAMGatewayFromRepo(userRepo),
 			auditMod.Logger(),
 		),
-		notifications: notifications.NewModule(db, auditMod.Logger()),
+		notifications: notificationsMod,
 		signer:        signer,
 	}
 }

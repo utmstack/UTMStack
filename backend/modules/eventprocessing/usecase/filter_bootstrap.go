@@ -90,14 +90,13 @@ func (b *FilterBootstrap) seedSystemOverlay() error {
 		if err != nil || d.IsDir() {
 			return err
 		}
-		if !strings.HasSuffix(path, ".yaml") && !strings.HasSuffix(path, ".yml") {
+		if filepath.Ext(path) != FilterFileExt {
 			return nil
 		}
 		rel, err := filepath.Rel(b.srcDir, path)
 		if err != nil {
 			return nil
 		}
-		rel = strings.TrimSuffix(rel, filepath.Ext(rel)) + FilterFileExt
 		expected[rel] = true
 
 		target := filepath.Join(b.store.systemDir, rel)

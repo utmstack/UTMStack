@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -15,7 +16,7 @@ func writeRuleFile(path string, rule Rule) error {
 		return err
 	}
 
-	data, err := yaml.Marshal(rule)
+	data, err := yaml.Marshal([]Rule{rule})
 	if err != nil {
 		return err
 	}
@@ -31,17 +32,20 @@ func writeRuleFile(path string, rule Rule) error {
 	return nil
 }
 
-// readRuleFile loads and parses a single rule YAML file.
 func readRuleFile(path string) (Rule, error) {
 	var rule Rule
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return rule, err
 	}
-	if err := yaml.Unmarshal(data, &rule); err != nil {
+	var list []Rule
+	if err := yaml.Unmarshal(data, &list); err != nil {
 		return rule, err
 	}
-	return rule, nil
+	if len(list) == 0 {
+		return rule, fmt.Errorf("rule file %s contains no rules", path)
+	}
+	return list[0], nil
 }
 
 // renameRuleFile moves a rule file (used to toggle the .disabled suffix). It is

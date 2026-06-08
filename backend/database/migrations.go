@@ -16,8 +16,9 @@ import (
 	notifications_domain "github.com/utmstack/utmstack/backend/modules/notifications/domain"
 	opensearch_domain "github.com/utmstack/utmstack/backend/modules/opensearch/domain"
 	arr_domain "github.com/utmstack/utmstack/backend/modules/soar/domain"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 	"gorm.io/gorm"
+
+	"github.com/threatwinds/go-sdk/catcher"
 
 	"github.com/golang-migrate/migrate/v4"
 	migratepg "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -49,10 +50,6 @@ func Models() []any {
 		arr_domain.UtmIncidentAction{},
 		arr_domain.UtmIncidentActionCommand{},
 		arr_domain.UtmIncidentJob{},
-		compliance_domain.UtmComplianceStandard{},
-		compliance_domain.UtmComplianceStandardSection{},
-		compliance_domain.UtmComplianceControlConfig{},
-		compliance_domain.UtmComplianceQueryConfig{},
 		compliance_domain.UtmComplianceReportConfig{},
 		compliance_domain.UtmComplianceReportSchedule{},
 		opensearch_domain.UtmIndexPattern{},
@@ -83,7 +80,7 @@ func Models() []any {
 // COPYs the SQL files next to the binary. Pass "" to skip SQL migrations.
 func MigrateDatabase(db *gorm.DB, migrationsURL string) error {
 	if err := db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`).Error; err != nil {
-		logger.Warn("could not create uuid-ossp extension: " + err.Error())
+		catcher.Warn("could not create uuid-ossp extension", map[string]any{"error": err.Error()})
 	}
 
 	if migrationsURL != "" {
@@ -94,7 +91,7 @@ func MigrateDatabase(db *gorm.DB, migrationsURL string) error {
 
 	models := Models()
 	if len(models) > 0 {
-		logger.Info("running GORM AutoMigrate...")
+		catcher.Info("running GORM AutoMigrate...", nil)
 		if err := db.AutoMigrate(models...); err != nil {
 			return err
 		}
@@ -119,10 +116,10 @@ func runSQLMigrations(db *gorm.DB, migrationsURL, table string) error {
 	if err != nil {
 		return err
 	}
-	logger.Info("applying SQL migrations from " + migrationsURL + "...")
+	catcher.Info("applying SQL migrations from "+migrationsURL+"...", nil)
 	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return err
 	}
-	logger.Info("SQL migrations applied")
+	catcher.Info("SQL migrations applied", nil)
 	return nil
 }

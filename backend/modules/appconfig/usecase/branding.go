@@ -94,6 +94,8 @@ func (s *brandingService) Update(ctx context.Context, actor string, req dto.Bran
 		FooterText:         req.FooterText,
 		SupportURL:         req.SupportURL,
 		HidePoweredBy:      req.HidePoweredBy,
+		ReportLogoURL:      req.ReportLogoURL,
+		ReportCoverURL:     req.ReportCoverURL,
 		UpdatedAt:          &now,
 		UpdatedBy:          actor,
 	}

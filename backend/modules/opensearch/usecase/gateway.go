@@ -80,6 +80,14 @@ func (g *Gateway) DeleteIndex(ctx context.Context, indices []string) error {
 	return g.repo.DeleteIndices(ctx, indices)
 }
 
+func (g *Gateway) DiskUsedPercent(ctx context.Context) (float64, error) {
+	return g.repo.DiskUsage(ctx)
+}
+
+func (g *Gateway) OldestIndices(ctx context.Context, pattern string) ([]string, error) {
+	return g.repo.OldestIndices(ctx, pattern)
+}
+
 func (g *Gateway) Search(
 	ctx context.Context,
 	filters []common_models.FilterType,

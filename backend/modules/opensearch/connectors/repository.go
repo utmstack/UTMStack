@@ -19,6 +19,8 @@ type GatewayRepository interface {
 	SearchSQL(ctx context.Context, sql string) ([]map[string]any, error)
 	CountSQL(ctx context.Context, wrappedSQL string) (int64, error)
 	ClusterHealth(ctx context.Context) (*dto.ClusterHealth, error)
+	DiskUsage(ctx context.Context) (float64, error)
+	OldestIndices(ctx context.Context, pattern string) ([]string, error)
 }
 
 type IndexPatternRepository interface {

@@ -53,6 +53,67 @@ DROP TABLE IF EXISTS utm_asset_metrics;
 DROP TABLE IF EXISTS utm_data_input_status_checkpoint;
 DROP TABLE IF EXISTS utm_data_input_status;
 
+-- Drop the legacy data-source/integration catalog tables, all superseded by
+-- utm_module (integrations module: data_type / is_system / module_category).
+--   * utm_data_source_config: catalog of source TYPES + UI include/exclude flag.
+--     Already deprecated in the Java backend (replaced there by utm_data_types,
+--     itself read-once-then-dropped here); its own removal migration was never
+--     wired. Rule data-types now live in the correlation YAMLs; "which types have
+--     data" is derived from OpenSearch.
+--   * utm_integration / utm_integration_conf: per-server integration instances +
+--     their config rows. The Go stack models integrations as utm_module rows with
+--     file-backed per-tenant YAML config, not these DB tables.
+-- No Go entity references any of them. Drop conf first (FK -> utm_integration).
+DROP TABLE IF EXISTS utm_data_source_config CASCADE;
+DROP TABLE IF EXISTS utm_integration_conf CASCADE;
+DROP TABLE IF EXISTS utm_integration CASCADE;
+
+-- Drop two legacy single-purpose tables not carried into the Go stack:
+--   * utm_federation_service_client (id, fs_client_token): held the token the
+--     Federation Service used to authenticate to this instance. The Go backend
+--     authenticates API clients via the api_keys table (iam); the federation
+--     service itself is not migrated.
+--   * utm_getting_started (step_short, step_order, completed): onboarding-wizard
+--     progress. Onboarding lives in the React frontend now, not the backend.
+-- No Go entity references either.
+DROP TABLE IF EXISTS utm_federation_service_client CASCADE;
+DROP TABLE IF EXISTS utm_getting_started CASCADE;
+
+-- Drop utm_images (legacy white-label logos LOGIN/HEADER/REPORT/REPORT_COVER as
+-- base64). Folded into the appconfig branding JSON on utm_configuration_parameter
+-- (logoUrl/logoDarkUrl/faviconUrl/reportLogoUrl/reportCoverUrl). No Go entity.
+DROP TABLE IF EXISTS utm_images CASCADE;
+
+-- Drop the legacy backend-driven navigation menu tables. Navigation now lives in
+-- the React frontend, not the backend.
+--   * utm_menu: menu tree (name, url, parent_id, dashboard_id, icon, position).
+--   * utm_menu_authority: per-role menu visibility (menu_id + authority_name).
+-- No Go entity references either. Drop the authority table first (FK -> utm_menu).
+DROP TABLE IF EXISTS utm_menu_authority CASCADE;
+DROP TABLE IF EXISTS utm_menu CASCADE;
+
+-- Drop the legacy single-node / cluster-scaffolding tables.
+--   * utm_server: server registry. Only ever held one hardcoded row ('master',
+--     'aio') seeded by execute_register_integration_function(); UTMStack always
+--     runs as a single AIO node. Multi-cluster scale is handled by the Federation
+--     Service (separate deployments), not this table.
+--   * utm_server_module: per-server module placement + needs_restart flag. The Go
+--     stack models modules as flat utm_module rows (server_id already dropped).
+--   * utm_space_notification_control: a single-row timestamp throttling low-disk
+--     notifications. The Go disk-space guard keeps that cooldown in memory.
+-- No Go entity references any of them. The utm_server_configurations view
+-- (server⋈module join) goes with them via CASCADE. Drop server_module first (FK).
+DROP VIEW IF EXISTS utm_server_configurations CASCADE;
+DROP TABLE IF EXISTS utm_server_module CASCADE;
+DROP TABLE IF EXISTS utm_server CASCADE;
+DROP TABLE IF EXISTS utm_space_notification_control CASCADE;
+
+-- Drop utm_schedule: generic JHipster "schedule definitions" CRUD table (name +
+-- timing fields). Dead scaffolding — no FK, no frontend caller, no scheduler ever
+-- reads it to execute anything (service is pure CRUD). Real scheduling in the Go
+-- stack is handled elsewhere (compliance report schedules, alerts ticker). No Go ref.
+DROP TABLE IF EXISTS utm_schedule CASCADE;
+
 -- Drop the Liquibase bookkeeping tables. The Go backend manages schema versioning
 -- with golang-migrate (schema_migrations / schema_migrations_pre), so Liquibase's
 -- internal changelog tracking is obsolete. These linger on databases upgraded from
@@ -100,6 +161,20 @@ DROP SEQUENCE IF EXISTS public.utm_asset_types_id_seq;
 -- No data is lost — the agent-manager remains the source of truth. Removed from Models()
 -- so AutoMigrate no longer recreates it.
 DROP TABLE IF EXISTS public.utm_collectors;
+
+-- Drop the compliance framework tables. Standards → sections → controls → queries are
+-- now vendor-shipped YAML (modules/compliance/config), read by the backend and the
+-- orchestrator plugin; no longer user-editable in Postgres. utm_compliance_report_config
+-- and _report_schedule are KEPT (user state). CASCADE clears the legacy FK from
+-- report_config → standard_section. Child-first order.
+DROP TABLE IF EXISTS public.utm_compliance_query_config CASCADE;
+DROP TABLE IF EXISTS public.utm_compliance_control_config CASCADE;
+DROP TABLE IF EXISTS public.utm_compliance_standard_section CASCADE;
+DROP TABLE IF EXISTS public.utm_compliance_standard CASCADE;
+DROP SEQUENCE IF EXISTS public.utm_compliance_query_config_id_seq;
+DROP SEQUENCE IF EXISTS public.utm_compliance_control_config_id_seq;
+DROP SEQUENCE IF EXISTS public.utm_compliance_standard_section_id_seq;
+DROP SEQUENCE IF EXISTS public.utm_compliance_standard_id_seq;
 
 -- Drop utm_asset_group.type, the legacy ASSET/COLLECTOR discriminator added by
 -- liquibase 20240506001. It only powered the old split asset-groups vs collector-groups
@@ -298,6 +373,16 @@ FROM (VALUES
 ) AS v(conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
 WHERE NOT EXISTS (
     SELECT 1 FROM utm_configuration_parameter c WHERE c.conf_param_short = v.conf_param_short
+);
+
+-- White-label branding is stored as a single JSON value on this config row
+-- (the appconfig branding usecase marshals/unmarshals it). Reuses the config
+-- table instead of a dedicated table. Empty value => default UTMStack brand.
+INSERT INTO utm_configuration_parameter
+    (conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
+SELECT 'branding', 'White-label branding', 'White-label branding (logo, product name, colors) as JSON', '', false, 'text', NULL
+WHERE NOT EXISTS (
+    SELECT 1 FROM utm_configuration_parameter c WHERE c.conf_param_short = 'branding'
 );
 
 -- utm_regex_pattern and utm_tenant_config are now file-backed (patterns.yaml

@@ -2,7 +2,11 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"sort"
+	"strconv"
+	"strings"
 
 	osdk "github.com/threatwinds/go-sdk/os"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/connectors"
@@ -215,6 +219,63 @@ func (r *osGatewayRepo) ClusterHealth(ctx context.Context) (*dto.ClusterHealth, 
 		NumberOfDataNodes: h.NumberOfDataNodes,
 		ActiveShards:      h.ActiveShards,
 	}, nil
+}
+
+// DiskUsage returns the highest per-node disk-usage percentage in the cluster
+// (via _cat/allocation). The fullest node is what trips OpenSearch's watermarks,
+// so the max — not the aggregate — is the right signal for crash prevention.
+func (r *osGatewayRepo) DiskUsage(ctx context.Context) (float64, error) {
+	body, status, err := osdk.DoRequest(ctx, "GET", "/_cat/allocation?format=json&bytes=b", nil)
+	if err != nil {
+		return 0, err
+	}
+	if status < 200 || status >= 300 {
+		return 0, fmt.Errorf("_cat/allocation returned status %d", status)
+	}
+	var rows []map[string]string
+	if err := json.Unmarshal(body, &rows); err != nil {
+		return 0, fmt.Errorf("decode _cat/allocation: %w", err)
+	}
+	var maxPct float64
+	for _, row := range rows {
+		p := strings.TrimSpace(row["disk.percent"])
+		if p == "" {
+			continue // the UNASSIGNED row carries no disk stats
+		}
+		v, err := strconv.ParseFloat(p, 64)
+		if err != nil {
+			continue
+		}
+		if v > maxPct {
+			maxPct = v
+		}
+	}
+	return maxPct, nil
+}
+
+// OldestIndices returns the names of indices matching pattern, sorted by
+// creation date ascending (oldest first) — the order the space guard deletes in.
+func (r *osGatewayRepo) OldestIndices(ctx context.Context, pattern string) ([]string, error) {
+	cats, err := osdk.ListIndices(ctx, pattern)
+	if err != nil {
+		return nil, err
+	}
+	sort.Slice(cats, func(i, j int) bool {
+		return creationMillis(cats[i].CreationDate) < creationMillis(cats[j].CreationDate)
+	})
+	names := make([]string, 0, len(cats))
+	for _, c := range cats {
+		names = append(names, c.Index)
+	}
+	return names, nil
+}
+
+func creationMillis(s string) int64 {
+	v, err := strconv.ParseInt(strings.TrimSpace(s), 10, 64)
+	if err != nil {
+		return 0 // unknown creation date sorts oldest
+	}
+	return v
 }
 
 // termsBuckets extracts the buckets array of a named terms aggregation from a

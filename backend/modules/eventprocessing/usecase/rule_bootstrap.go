@@ -108,7 +108,7 @@ func (b *RuleBootstrap) seedSystemOverlay() error {
 		if d.IsDir() {
 			return nil
 		}
-		if !strings.HasSuffix(path, ".yaml") && !strings.HasSuffix(path, ".yml") {
+		if filepath.Ext(path) != RuleFileExt {
 			return nil
 		}
 
@@ -116,8 +116,6 @@ func (b *RuleBootstrap) seedSystemOverlay() error {
 		if err != nil {
 			return nil
 		}
-		// Normalize the extension to the canonical .yaml.
-		rel = strings.TrimSuffix(rel, filepath.Ext(rel)) + RuleFileExt
 		expected[rel] = true
 		target := filepath.Join(b.store.systemDir, rel)
 

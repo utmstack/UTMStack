@@ -4,11 +4,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
+	"github.com/threatwinds/go-sdk/catcher"
 )
 
 func writeError(c *gin.Context, msg string) {
-	logger.Error(msg)
+	_ = catcher.Error(msg, nil, nil)
 	c.JSON(http.StatusInternalServerError, gin.H{
 		"status":  "error",
 		"message": msg,

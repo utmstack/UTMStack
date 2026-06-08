@@ -2,35 +2,66 @@ package main
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/database"
-	"github.com/utmstack/utmstack/backend/pkg/env"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func initDatabase(cfg *config) *gorm.DB {
-	logger.Init(&logger.Config{
-		MinLevel:    env.String("LOG_LEVEL", "INFO", false),
-		ServiceName: "backend",
-	})
+const (
+	dbConnectMaxAttempts = 30
+	dbConnectMaxBackoff  = 30 * time.Second
+)
 
+func initDatabase(cfg *config) *gorm.DB {
 	dsn := fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		cfg.dbHost, cfg.dbPort, cfg.dbUser, cfg.dbPass, cfg.dbName,
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		logger.Critical("failed to connect to database: " + err.Error())
-		panic(err)
-	}
+	db := connectWithRetry(dsn)
 
 	if err := database.MigrateDatabase(db, "file://migrations"); err != nil {
-		logger.Critical("failed to migrate database: " + err.Error())
+		_ = catcher.Error("failed to migrate database", err, nil)
 		panic(err)
 	}
 
 	return db
+}
+
+func connectWithRetry(dsn string) *gorm.DB {
+	backoff := 2 * time.Second
+	for attempt := 1; ; attempt++ {
+		db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err == nil {
+			sqlDB, derr := db.DB()
+			if derr != nil {
+				err = derr
+			} else if perr := sqlDB.Ping(); perr != nil {
+				err = perr
+			} else {
+				if attempt > 1 {
+					catcher.Info(fmt.Sprintf("connected to database after %d attempts", attempt), nil)
+				}
+				return db
+			}
+		}
+
+		if attempt >= dbConnectMaxAttempts {
+			_ = catcher.Error(fmt.Sprintf("failed to connect to database after %d attempts", attempt), err, nil)
+			panic(err)
+		}
+
+		catcher.Warn(fmt.Sprintf("database not ready (attempt %d/%d); retrying in %s",
+			attempt, dbConnectMaxAttempts, backoff), map[string]any{"error": err.Error()})
+		time.Sleep(backoff)
+		if backoff < dbConnectMaxBackoff {
+			backoff *= 2
+			if backoff > dbConnectMaxBackoff {
+				backoff = dbConnectMaxBackoff
+			}
+		}
+	}
 }

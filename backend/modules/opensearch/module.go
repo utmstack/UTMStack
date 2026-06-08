@@ -2,6 +2,7 @@ package opensearch
 
 import (
 	"context"
+	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/connectors"
@@ -26,6 +27,20 @@ type Module struct {
 	bootstrap      *usecase.BootstrapService
 	patternRepo    connectors.IndexPatternRepository
 	policyUC       connectors.PolicyUsecase // nil when no OpenSearch config
+
+	spaceGuardOn bool
+	spaceNotify  usecase.SpaceNotifyFunc
+	spaceOpts    usecase.SpaceGuardOptions
+}
+
+func (m *Module) SetSpaceGuard(notify func(ctx context.Context, critical bool, message string) error, warnPct, deletePct float64, interval time.Duration) {
+	m.spaceGuardOn = true
+	m.spaceNotify = notify
+	m.spaceOpts = usecase.SpaceGuardOptions{
+		WarnPercent:   warnPct,
+		DeletePercent: deletePct,
+		Interval:      interval,
+	}
 }
 
 func NewModule(db *gorm.DB, osEnabled bool) *Module {
@@ -84,6 +99,13 @@ func (m *Module) Start(ctx context.Context) error {
 	if err := m.bootstrap.InitPolicy(ctx); err != nil {
 		return catcher.Error("opensearch: InitPolicy failed", err, nil)
 	}
+
+	if m.spaceGuardOn && m.policyUC != nil {
+		m.spaceOpts.LogsPattern = m.registry.Get(domain.SysPatternLogs)
+		guard := usecase.NewSpaceGuard(m.gateway, m.policyUC, m.spaceNotify, m.spaceOpts)
+		go guard.Run(ctx)
+	}
+
 	catcher.Info("opensearch: module started — index patterns loaded", nil)
 	return nil
 }

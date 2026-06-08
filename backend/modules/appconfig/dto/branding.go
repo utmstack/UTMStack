@@ -14,6 +14,8 @@ type BrandingResponse struct {
 	FooterText         string     `json:"footerText"`
 	SupportURL         string     `json:"supportUrl"`
 	HidePoweredBy      bool       `json:"hidePoweredBy"`
+	ReportLogoURL      string     `json:"reportLogoUrl"`  // logo embedded in report PDFs (legacy REPORT)
+	ReportCoverURL     string     `json:"reportCoverUrl"` // report PDF cover image (legacy REPORT_COVER)
 	UpdatedAt          *time.Time `json:"updatedAt,omitempty"`
 	UpdatedBy          string     `json:"updatedBy,omitempty"`
 }
@@ -30,6 +32,8 @@ type BrandingRequest struct {
 	FooterText         string `json:"footerText"`
 	SupportURL         string `json:"supportUrl"`
 	HidePoweredBy      bool   `json:"hidePoweredBy"`
+	ReportLogoURL      string `json:"reportLogoUrl"`  // logo embedded in report PDFs (legacy REPORT)
+	ReportCoverURL     string `json:"reportCoverUrl"` // report PDF cover image (legacy REPORT_COVER)
 }
 
 type BrandingPublic struct {

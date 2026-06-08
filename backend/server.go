@@ -13,37 +13,36 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/alerts"
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	"github.com/utmstack/utmstack/backend/modules/compliance"
 	"github.com/utmstack/utmstack/backend/modules/dashboards"
-	"github.com/utmstack/utmstack/backend/modules/loganalyzer"
 	datasources "github.com/utmstack/utmstack/backend/modules/datasources"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing"
 	"github.com/utmstack/utmstack/backend/modules/iam"
 	"github.com/utmstack/utmstack/backend/modules/incidents"
 	"github.com/utmstack/utmstack/backend/modules/integrations"
+	"github.com/utmstack/utmstack/backend/modules/loganalyzer"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
 	"github.com/utmstack/utmstack/backend/modules/socai"
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 func initHTTPServer(cfg *config) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
 	engine.Use(gin.Recovery())
-	engine.Use(logger.GinMiddleware())
-	logger.Info(fmt.Sprintf("CORS init: devMode=%t (origins matching http://localhost will be allowed only when devMode=true)", cfg.devMode))
+	engine.Use(requestLogger())
+	catcher.Info(fmt.Sprintf("CORS init: devMode=%t (origins matching http://localhost will be allowed only when devMode=true)", cfg.devMode), nil)
 	engine.Use(cors.New(cors.Config{
 		AllowOriginFunc: func(origin string) bool {
 			allowed := cfg.devMode && strings.HasPrefix(origin, "http://localhost")
-			logger.Debug(fmt.Sprintf("CORS check: origin=%q devMode=%t allowed=%t", origin, cfg.devMode, allowed))
 			if !allowed {
-				logger.Warn(fmt.Sprintf("CORS rejected origin %q (devMode=%t) — request will be aborted with 403", origin, cfg.devMode))
+				catcher.Warn(fmt.Sprintf("CORS rejected origin %q (devMode=%t) — request will be aborted with 403", origin, cfg.devMode), nil)
 			}
 			return allowed
 		},
@@ -56,6 +55,20 @@ func initHTTPServer(cfg *config) *gin.Engine {
 	return engine
 }
 
+func requestLogger() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		c.Next()
+		catcher.Info("http", map[string]any{
+			"method":     c.Request.Method,
+			"path":       c.Request.URL.Path,
+			"status":     c.Writer.Status(),
+			"latency_ms": time.Since(start).Milliseconds(),
+			"client_ip":  c.ClientIP(),
+		})
+	}
+}
+
 func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	api := engine.Group("/api/v1")
 
@@ -66,7 +79,7 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	if err := os.MkdirAll(filepath.Join(cfg.uploadDir, "avatars"), 0o755); err != nil {
-		logger.Error("failed to create upload dir: " + err.Error())
+		_ = catcher.Error("failed to create upload dir", err, nil)
 	}
 	engine.Static("/uploads", cfg.uploadDir)
 
@@ -113,9 +126,9 @@ func startServer(engine *gin.Engine, cfg *config, appCtx context.Context) {
 	}
 
 	go func() {
-		logger.Info(fmt.Sprintf("Backend server starting on port %d", cfg.appPort))
+		catcher.Info(fmt.Sprintf("Backend server starting on port %d", cfg.appPort), nil)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Critical("server error: " + err.Error())
+			_ = catcher.Error("server error", err, nil)
 			panic(err)
 		}
 	}()
@@ -123,11 +136,11 @@ func startServer(engine *gin.Engine, cfg *config, appCtx context.Context) {
 	// Block until the signal-derived context is cancelled.
 	<-appCtx.Done()
 
-	logger.Info("shutting down server...")
+	catcher.Info("shutting down server...", nil)
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(shutdownCtx); err != nil {
-		logger.Error("server forced to shutdown: " + err.Error())
+		_ = catcher.Error("server forced to shutdown", err, nil)
 	}
-	logger.Info("server stopped")
+	catcher.Info("server stopped", nil)
 }

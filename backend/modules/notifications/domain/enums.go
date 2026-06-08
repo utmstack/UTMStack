@@ -12,6 +12,7 @@ const (
 	SourceGoogle       NotificationSource = "GOOGLE"
 	SourceEmailSetting NotificationSource = "EMAIL_SETTING"
 	SourceAlerts       NotificationSource = "ALERTS"
+	SourceSystem       NotificationSource = "SYSTEM"
 )
 
 func (s NotificationSource) Valid() bool {

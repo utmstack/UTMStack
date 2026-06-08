@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	// _ "github.com/utmstack/utmstack/backend/docs"
 	"github.com/utmstack/utmstack/backend/pkg/env"
-	"github.com/utmstack/utmstack/backend/pkg/logger"
 )
 
 // @Title UTMStack Backend Service
@@ -26,10 +26,10 @@ func main() {
 
 	db := initDatabase(cfg)
 
-	logger.Info(fmt.Sprintf(
+	catcher.Info(fmt.Sprintf(
 		"config loaded: appPort=%d devMode=%t serverName=%q jwtIssuer=%q tfaEnabled=%t (NOTE: backend does NOT read .env files; values come from process environment only)",
 		cfg.appPort, cfg.devMode, cfg.serverName, cfg.jwtIssuer, cfg.tfaEnabled,
-	))
+	), nil)
 	sqlDB, _ := db.DB()
 	defer sqlDB.Close()
 
@@ -39,7 +39,7 @@ func main() {
 	modules := initModules(db, cfg)
 
 	if err := modules.opensearchGateway.Start(appCtx); err != nil {
-		logger.Critical("opensearch module failed to start: " + err.Error())
+		_ = catcher.Error("opensearch module failed to start", err, nil)
 		panic(err)
 	}
 
