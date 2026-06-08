@@ -19,7 +19,7 @@ func NewExecutionUsecase(repo connectors.ExecutionRepository) connectors.Executi
 
 func (u *executionUsecase) Create(ctx context.Context, req dto.CreateExecutionRequest) (*dto.ExecutionResponse, error) {
 	e := &domain.AlertResponseRuleExecution{
-		RuleID:          req.RuleID,
+		RulePath:        req.RulePath,
 		AlertID:         req.AlertID,
 		Command:         req.Command,
 		Agent:           req.Agent,
@@ -31,7 +31,7 @@ func (u *executionUsecase) Create(ctx context.Context, req dto.CreateExecutionRe
 	}
 	return &dto.ExecutionResponse{
 		ID:               saved.ID,
-		RuleID:           saved.RuleID,
+		RulePath:         saved.RulePath,
 		AlertID:          saved.AlertID,
 		Command:          saved.Command,
 		Agent:            saved.Agent,
@@ -52,17 +52,15 @@ func (u *executionUsecase) UpdateStatus(ctx context.Context, id int64, req dto.U
 
 func (u *executionUsecase) List(ctx context.Context, f dto.ExecutionFilters) (*database.List[dto.ExecutionResponse], error) {
 	executions, total, err := u.repo.List(ctx, connectors.ExecutionFilters{
-		ID:                       f.ID,
-		RuleID:                   f.RuleID,
-		RuleIDGreaterThanOrEqual: f.RuleIDGreaterThanOrEqual,
-		RuleIDLessThanOrEqual:    f.RuleIDLessThanOrEqual,
-		AlertID:                  f.AlertID,
-		Agent:                    f.Agent,
-		ExecutionStatus:          f.ExecutionStatus,
-		NonExecutionCause:        f.NonExecutionCause,
-		ExecutionDateGTE:         f.ExecutionDateGTE,
-		ExecutionDateLTE:         f.ExecutionDateLTE,
-		Params:                   f.Params,
+		ID:                f.ID,
+		RulePath:          f.RulePath,
+		AlertID:           f.AlertID,
+		Agent:             f.Agent,
+		ExecutionStatus:   f.ExecutionStatus,
+		NonExecutionCause: f.NonExecutionCause,
+		ExecutionDateGTE:  f.ExecutionDateGTE,
+		ExecutionDateLTE:  f.ExecutionDateLTE,
+		Params:            f.Params,
 	})
 	if err != nil {
 		return nil, err
@@ -72,7 +70,7 @@ func (u *executionUsecase) List(ctx context.Context, f dto.ExecutionFilters) (*d
 	for i, e := range executions {
 		items[i] = dto.ExecutionResponse{
 			ID:                e.ID,
-			RuleID:            e.RuleID,
+			RulePath:          e.RulePath,
 			AlertID:           e.AlertID,
 			Command:           e.Command,
 			CommandResult:     e.CommandResult,

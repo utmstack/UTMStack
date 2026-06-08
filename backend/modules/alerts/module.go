@@ -40,7 +40,7 @@ func NewModule(
 	alertTagRuleUC := usecase.NewAlertTagRuleUsecase(alertTagRuleRepo, alertTagRepo)
 	alertTagRuleH := handler.NewAlertTagRuleHandler(alertTagRuleUC)
 
-	sched := usecase.NewScheduler(alertRepo, alertTagRuleRepo, alertTagRepo, historyRecorder)
+	sched := usecase.NewScheduler(alertRepo)
 
 	adversaryUC := usecase.NewAdversaryUsecase()
 	adversaryH := handler.NewAdversaryHandler(adversaryUC)

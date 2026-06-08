@@ -18,16 +18,14 @@ type TemplateFilters struct {
 }
 
 type ExecutionFilters struct {
-	ID                       int64
-	RuleID                   int64
-	RuleIDGreaterThanOrEqual *int64
-	RuleIDLessThanOrEqual    *int64
-	AlertID                  string
-	Agent                    string
-	ExecutionStatus          domain.ExecutionStatus
-	NonExecutionCause        domain.NonExecutionCause
-	ExecutionDateGTE         string
-	ExecutionDateLTE         string
+	ID                int64
+	RulePath          string
+	AlertID           string
+	Agent             string
+	ExecutionStatus   domain.ExecutionStatus
+	NonExecutionCause domain.NonExecutionCause
+	ExecutionDateGTE  string
+	ExecutionDateLTE  string
 	database.Params
 }
 
