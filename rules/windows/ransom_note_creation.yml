@@ -25,7 +25,7 @@ afterEvents:
       - field: log.EventDataFileName.keyword
         operator: filter_term
         value: '{{.log.EventDataFileName}}'
-    within: now-60s
+    within: 60s
     count: 5
 groupBy:
   - origin.ip

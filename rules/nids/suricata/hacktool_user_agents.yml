@@ -79,7 +79,7 @@ afterEvents:
       - field: log.eventType
         operator: filter_term
         value: 'http'
-    within: now-15m
+    within: 15m
     count: 10
 deduplicateBy:
   - adversary.ip

@@ -41,7 +41,7 @@ afterEvents:
       - field: origin.geolocation.countryCode
         operator: must_not_term
         value: '{{.origin.geolocation.countryCode}}'
-    within: now-30m
+    within: 30m
     count: 1
 groupBy:
   - adversary.user

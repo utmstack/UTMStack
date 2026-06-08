@@ -35,7 +35,7 @@ afterEvents:
       - field: log.category
         operator: filter_term
         value: 'AuditEvent'
-    within: now-10m
+    within: 10m
     count: 20
 groupBy:
   - lastEvent.log.resourceId

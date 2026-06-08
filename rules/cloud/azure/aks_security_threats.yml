@@ -41,7 +41,7 @@ afterEvents:
       - field: log.operationName
         operator: filter_match
         value: 'Container'
-    within: now-30m
+    within: 30m
     count: 10
 groupBy:
   - lastEvent.log.operationName

@@ -38,7 +38,7 @@ afterEvents:
       - field: log.headHostname
         operator: filter_term
         value: '{{.log.headHostname}}'
-    within: now-30m
+    within: 30m
     count: 10
 groupBy:
   - lastEvent.log.headHostname

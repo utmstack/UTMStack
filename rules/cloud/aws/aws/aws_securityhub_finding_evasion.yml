@@ -38,7 +38,7 @@ afterEvents:
       - field: log.eventSource
         operator: filter_term
         value: 'securityhub.amazonaws.com'
-    within: now-30m
+    within: 30m
     count: 5
 groupBy:
   - adversary.user

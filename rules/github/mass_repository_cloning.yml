@@ -40,7 +40,7 @@ afterEvents:
       - field: log.action
         operator: filter_match
         value: 'clone fetch'
-    within: now-30m
+    within: 30m
     count: 10
 groupBy:
   - lastEvent.log.senderLogin

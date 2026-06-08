@@ -50,7 +50,7 @@ afterEvents:
       - field: target.ip
         operator: filter_term
         value: '{{.target.ip}}'
-    within: now-5m
+    within: 5m
     count: 50
 groupBy:
   - adversary.ip

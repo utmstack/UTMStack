@@ -39,7 +39,7 @@ afterEvents:
       - field: log.source_ip
         operator: filter_term
         value: '{{.log.source_ip}}'
-    within: now-15m
+    within: 15m
     count: 10
 groupBy:
   - lastEvent.log.hostname

@@ -36,7 +36,7 @@ afterEvents:
       - field: log.Operation
         operator: filter_match
         value: 'AntiPhish'
-    within: now-4h
+    within: 4h
     count: 2
 groupBy:
   - lastEvent.log.Operation

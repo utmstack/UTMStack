@@ -17,7 +17,7 @@ where: >
   exists("origin.ip")
 afterEvents:
   - indexPattern: v11-log-crowdstrike-*
-    within: now-15m
+    within: 15m
     count: 5
     with:
       - field: origin.ip

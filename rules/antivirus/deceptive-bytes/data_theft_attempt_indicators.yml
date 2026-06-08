@@ -38,7 +38,7 @@ afterEvents:
       - field: log.event_type
         operator: filter_term
         value: 'decoy_accessed'
-    within: now-2h
+    within: 2h
     count: 3
 groupBy:
   - lastEvent.log.decoy_file

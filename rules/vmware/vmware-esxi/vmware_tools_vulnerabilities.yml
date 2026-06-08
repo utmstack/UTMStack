@@ -38,7 +38,7 @@ afterEvents:
       - field: origin.hostname
         operator: filter_term
         value: '{{.origin.hostname}}'
-    within: now-15m
+    within: 15m
     count: 5
 groupBy:
   - adversary.hostname

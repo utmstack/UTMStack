@@ -35,7 +35,7 @@ afterEvents:
       - field: action
         operator: filter_term
         value: 'Consent to application'
-    within: now-1h
+    within: 1h
     count: 5
 groupBy:
   - lastEvent.log.appAccessContextClientAppId

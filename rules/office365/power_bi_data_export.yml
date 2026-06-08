@@ -37,7 +37,7 @@ afterEvents:
       - field: action
         operator: filter_match
         value: 'Export'
-    within: now-30m
+    within: 30m
     count: 5
 groupBy:
   - adversary.user

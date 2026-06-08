@@ -34,7 +34,7 @@ afterEvents:
       - field: log.message
         operator: filter_match
         value: 'login failure'
-    within: now-15m
+    within: 15m
     count: 10
 groupBy:
   - adversary.ip

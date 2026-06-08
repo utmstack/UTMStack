@@ -45,7 +45,7 @@ afterEvents:
       - field: log.message
         operator: filter_match
         value: 'SQL error OR syntax error OR UNION SELECT OR DROP'
-    within: now-15m
+    within: 15m
     count: 5
 groupBy:
   - adversary.host

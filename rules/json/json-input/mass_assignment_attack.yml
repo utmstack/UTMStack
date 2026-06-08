@@ -38,7 +38,7 @@ afterEvents:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-    within: now-10m
+    within: 10m
     count: 3
 groupBy:
   - adversary.ip

@@ -48,7 +48,7 @@ afterEvents:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-    within: now-10m
+    within: 10m
     count: 50
   - indexPattern: v11-log-suricata-*
     with:
@@ -58,7 +58,7 @@ afterEvents:
       - field: target.ip
         operator: filter_term
         value: '{{.target.ip}}'
-    within: now-10m
+    within: 10m
     count: 20
 deduplicateBy:
   - adversary.ip

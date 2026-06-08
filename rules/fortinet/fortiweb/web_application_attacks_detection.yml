@@ -50,7 +50,7 @@ afterEvents:
       - field: action
         operator: filter_term
         value: 'deny'
-    within: now-15m
+    within: 15m
     count: 3
 groupBy:
   - adversary.ip

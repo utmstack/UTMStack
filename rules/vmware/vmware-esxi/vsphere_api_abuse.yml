@@ -46,7 +46,7 @@ afterEvents:
       - field: origin.hostname
         operator: filter_term
         value: '{{.origin.hostname}}'
-    within: now-5m
+    within: 5m
     count: 10
 groupBy:
   - lastEvent.log.eventInfo

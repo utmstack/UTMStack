@@ -34,7 +34,7 @@ afterEvents:
       - field: log.userIdentityAccountId
         operator: filter_term
         value: '{{.log.userIdentityAccountId}}'
-    within: now-24h
+    within: 24h
     count: 1
     or:
       - indexPattern: v11-log-aws-*
@@ -42,14 +42,14 @@ afterEvents:
           - field: log.eventName
             operator: filter_term
             value: 'UpdateSAMLProvider'
-        within: now-24h
+        within: 24h
         count: 1
       - indexPattern: v11-log-aws-*
         with:
           - field: log.eventName
             operator: filter_term
             value: 'CreateSAMLProvider'
-        within: now-24h
+        within: 24h
         count: 1
 groupBy:
   - adversary.user

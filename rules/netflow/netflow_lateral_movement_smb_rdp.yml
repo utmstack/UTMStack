@@ -37,7 +37,7 @@ afterEvents:
       - field: target.port
         operator: filter_term
         value: '445'
-    within: now-10m
+    within: 10m
     count: 10
     or:
       - indexPattern: v11-log-netflow-*
@@ -48,7 +48,7 @@ afterEvents:
           - field: target.port
             operator: filter_term
             value: '3389'
-        within: now-10m
+        within: 10m
         count: 10
 groupBy:
   - adversary.ip

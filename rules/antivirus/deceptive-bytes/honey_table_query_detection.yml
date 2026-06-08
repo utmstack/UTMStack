@@ -36,7 +36,7 @@ afterEvents:
       - field: log.eventType
         operator: filter_term
         value: decoy_access
-    within: now-1h
+    within: 1h
     count: 5
 groupBy:
   - lastEvent.log.tableName

@@ -57,7 +57,7 @@ afterEvents:
       - field: origin.host
         operator: filter_term
         value: '{{.origin.host}}'
-    within: now-30m
+    within: 30m
     count: 3
 groupBy:
   - origin.host

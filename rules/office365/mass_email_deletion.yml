@@ -35,7 +35,7 @@ afterEvents:
       - field: action
         operator: filter_term
         value: 'HardDelete'
-    within: now-15m
+    within: 15m
     count: 100
     or:
       - indexPattern: v11-log-o365-*
@@ -46,7 +46,7 @@ afterEvents:
           - field: action
             operator: filter_term
             value: 'SoftDelete'
-        within: now-15m
+        within: 15m
         count: 100
 groupBy:
   - adversary.user

@@ -25,7 +25,7 @@ afterEvents:
         - field: target.user.keyword
           operator: filter_term
           value: "{{.target.user}}"
-      within: now-5m
+      within: 5m
       count: 20
 groupBy:
   - origin.ip
