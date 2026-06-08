@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
@@ -78,4 +79,11 @@ type AlertTagRuleResponse struct {
 	CreatedDate      time.Time                  `json:"createdDate"`
 	LastModifiedBy   string                     `json:"lastModifiedBy"`
 	LastModifiedDate *time.Time                 `json:"lastModifiedDate,omitempty"`
+}
+
+type ActiveAlertTagRule struct {
+	ID              uint64          `json:"id"`
+	Name            string          `json:"name"`
+	Conditions      json.RawMessage `json:"conditions"`
+	AppliedTagNames []string        `json:"appliedTagNames"`
 }

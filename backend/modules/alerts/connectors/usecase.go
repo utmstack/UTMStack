@@ -35,4 +35,5 @@ type AlertTagRuleUsecase interface {
 	GetByID(ctx context.Context, id uint64) (*dto.AlertTagRuleResponse, error)
 	GetByIDs(ctx context.Context, ids []int64) ([]dto.AlertTagRuleResponse, error)
 	Delete(ctx context.Context, id uint64) error
+	ListActiveResolved(ctx context.Context) ([]dto.ActiveAlertTagRule, error)
 }

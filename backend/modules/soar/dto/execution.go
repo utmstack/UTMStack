@@ -9,7 +9,7 @@ import (
 
 type ExecutionResponse struct {
 	ID                int64                     `json:"id"`
-	RuleID            int64                     `json:"ruleId"`
+	RulePath          string                    `json:"rulePath"`
 	AlertID           string                    `json:"alertId"`
 	Command           string                    `json:"command"`
 	CommandResult     string                    `json:"commandResult,omitempty"`
@@ -22,11 +22,12 @@ type ExecutionResponse struct {
 
 // CreateExecutionRequest is the payload internal callers (the SOAR plugin) send
 // to record a freshly-matched rule. Status is forced to PENDING server-side.
+// One request per command — multi-command flows produce one row per command.
 type CreateExecutionRequest struct {
-	RuleID  int64  `json:"ruleId"  binding:"required"`
-	AlertID string `json:"alertId" binding:"required,max=150"`
-	Command string `json:"command" binding:"required"`
-	Agent   string `json:"agent"   binding:"required,max=150"`
+	RulePath string `json:"rulePath" binding:"required,max=512"`
+	AlertID  string `json:"alertId"  binding:"required,max=150"`
+	Command  string `json:"command"  binding:"required"`
+	Agent    string `json:"agent"    binding:"required,max=150"`
 }
 
 // UpdateExecutionRequest is a partial PATCH — only non-nil fields are written.
@@ -42,12 +43,8 @@ type UpdateExecutionRequest struct {
 type ExecutionFilters struct {
 	// id.equals — exact match on execution ID (JHipster: LongFilter)
 	ID int64 `form:"id.equals"`
-	// ruleId.equals — filter by rule ID (JHipster: LongFilter)
-	RuleID int64 `form:"ruleId.equals"`
-	// ruleId.greaterThanOrEqual — inclusive lower bound on rule ID (JHipster: LongFilter)
-	RuleIDGreaterThanOrEqual *int64 `form:"ruleId.greaterThanOrEqual"`
-	// ruleId.lessThanOrEqual — inclusive upper bound on rule ID (JHipster: LongFilter)
-	RuleIDLessThanOrEqual *int64 `form:"ruleId.lessThanOrEqual"`
+	// rulePath.equals — exact match on the flow's RelPath (JHipster: StringFilter)
+	RulePath string `form:"rulePath.equals"`
 	// alertId.contains — substring match on alertId (JHipster: StringFilter)
 	AlertID string `form:"alertId.contains"`
 	// agent.contains — substring match on agent name (JHipster: StringFilter)

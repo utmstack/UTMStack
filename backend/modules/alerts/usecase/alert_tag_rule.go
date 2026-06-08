@@ -140,6 +140,52 @@ func (u *alertTagRuleUsecase) Delete(ctx context.Context, id uint64) error {
 	return u.ruleRepo.Delete(ctx, id)
 }
 
+// ListActiveResolved returns active, non-deleted rules with applied-tag CSV
+// already resolved to tag names. Used by the alerts plugin's rule cache.
+func (u *alertTagRuleUsecase) ListActiveResolved(ctx context.Context) ([]dto.ActiveAlertTagRule, error) {
+	rules, err := u.ruleRepo.FindAllActive(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	out := make([]dto.ActiveAlertTagRule, 0, len(rules))
+	for _, rule := range rules {
+		names, err := u.resolveTagNames(ctx, rule.RuleAppliedTags)
+		if err != nil {
+			return nil, err
+		}
+		var conditions json.RawMessage
+		if rule.RuleConditions != "" {
+			conditions = json.RawMessage(rule.RuleConditions)
+		}
+		out = append(out, dto.ActiveAlertTagRule{
+			ID:              rule.ID,
+			Name:            rule.RuleName,
+			Conditions:      conditions,
+			AppliedTagNames: names,
+		})
+	}
+	return out, nil
+}
+
+func (u *alertTagRuleUsecase) resolveTagNames(ctx context.Context, csv string) ([]string, error) {
+	ids := csvToInt64Slice(csv)
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	tags, err := u.tagRepo.FindByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	names := make([]string, 0, len(tags))
+	for _, t := range tags {
+		if strings.TrimSpace(t.TagName) != "" {
+			names = append(names, t.TagName)
+		}
+	}
+	return names, nil
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------

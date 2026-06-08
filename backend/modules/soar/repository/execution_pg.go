@@ -31,17 +31,9 @@ func (r *pgExecutionRepository) List(ctx context.Context, f connectors.Execution
 	if f.ID != 0 {
 		q = q.Where("id = ?", f.ID)
 	}
-	// ruleId.equals
-	if f.RuleID != 0 {
-		q = q.Where("rule_id = ?", f.RuleID)
-	}
-	// ruleId.greaterThanOrEqual
-	if f.RuleIDGreaterThanOrEqual != nil {
-		q = q.Where("rule_id >= ?", *f.RuleIDGreaterThanOrEqual)
-	}
-	// ruleId.lessThanOrEqual
-	if f.RuleIDLessThanOrEqual != nil {
-		q = q.Where("rule_id <= ?", *f.RuleIDLessThanOrEqual)
+	// rulePath.equals
+	if f.RulePath != "" {
+		q = q.Where("rule_path = ?", f.RulePath)
 	}
 	// alertId.contains
 	if f.AlertID != "" {

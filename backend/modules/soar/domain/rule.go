@@ -19,9 +19,11 @@ type AlertResponseRule struct {
 	LastModifiedBy   string     `gorm:"column:last_modified_by;size:50"                   json:"lastModifiedBy,omitempty"`
 	LastModifiedDate *time.Time `gorm:"column:last_modified_date"                         json:"lastModifiedDate,omitempty"`
 
-	// Associations
-	Executions []AlertResponseRuleExecution  `gorm:"foreignKey:RuleID"                          json:"executions,omitempty"`
-	Templates  []AlertResponseActionTemplate `gorm:"many2many:utm_alert_response_rule_template;joinForeignKey:rule_id;joinReferences:template_id" json:"actions,omitempty"`
+	// Legacy-only: flow_bootstrap.go reads this struct once at boot to migrate
+	// rules into the file-based FlowStore, then drops the table. The Templates
+	// association is still preloaded by the bootstrap; Executions is no longer
+	// joined back (execution rows now reference rules by RulePath, not RuleID).
+	Templates []AlertResponseActionTemplate `gorm:"many2many:utm_alert_response_rule_template;joinForeignKey:rule_id;joinReferences:template_id" json:"actions,omitempty"`
 }
 
 func (AlertResponseRule) TableName() string { return "utm_alert_response_rule" }

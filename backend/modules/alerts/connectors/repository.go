@@ -17,11 +17,7 @@ type AlertRepository interface {
 	CountOpenAlerts(ctx context.Context) (int64, error)
 	CountByStatus(ctx context.Context, status int) (int64, error)
 	SearchByIDs(ctx context.Context, alertIDs []string) ([]domain.UtmAlert, error)
-	ApplyTagRule(ctx context.Context, rule domain.UtmAlertTagRule, tagsForInsert []string, evaluationStart time.Time) error
-	ReleaseToOpen(ctx context.Context, evaluationStart time.Time) error
 	AssignAssetGroups(ctx context.Context, mapping map[string]AssetGroupRef) error
-	SearchByStatusAndTimestamp(ctx context.Context, status int, evaluationStart time.Time, size int) ([]domain.UtmAlert, error)
-	SearchByRuleConditionsAndTimestamp(ctx context.Context, rule domain.UtmAlertTagRule, evaluationStart time.Time, size int) ([]domain.UtmAlert, error)
 }
 
 type AssetGroupRef struct {

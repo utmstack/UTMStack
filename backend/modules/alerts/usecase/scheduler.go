@@ -2,41 +2,27 @@ package usecase
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"strings"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
-	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
 )
 
 const (
-	schedulerInterval          = 30 * time.Second
-	schedulerInitialDelay      = 10 * time.Second
-	schedulerMaxAlertsPerBatch = 1000
+	schedulerInterval     = 30 * time.Second
+	schedulerInitialDelay = 10 * time.Second
 )
 
+// Scheduler periodically assigns asset groups to alerts in AUTOMATIC_REVIEW.
+// Tag-rule evaluation and release-to-Open were moved to the alerts plugin and
+// now happen synchronously at ingest time. The asset-group sweep stays here
+// because its data source (network_scan) is not yet available to the plugin.
 type Scheduler struct {
 	alertRepo connectors.AlertRepository
-	ruleRepo  connectors.AlertTagRuleRepository
-	tagRepo   connectors.AlertTagRepository
-	histRepo  connectors.HistoryRecorder
 }
 
-func NewScheduler(
-	alertRepo connectors.AlertRepository,
-	ruleRepo connectors.AlertTagRuleRepository,
-	tagRepo connectors.AlertTagRepository,
-	histRepo connectors.HistoryRecorder,
-) *Scheduler {
-	return &Scheduler{
-		alertRepo: alertRepo,
-		ruleRepo:  ruleRepo,
-		tagRepo:   tagRepo,
-		histRepo:  histRepo,
-	}
+func NewScheduler(alertRepo connectors.AlertRepository) *Scheduler {
+	return &Scheduler{alertRepo: alertRepo}
 }
 
 func (s *Scheduler) Start(ctx context.Context) {
@@ -66,129 +52,8 @@ func (s *Scheduler) Start(ctx context.Context) {
 }
 
 func (s *Scheduler) tick(ctx context.Context) {
-	count, err := s.alertRepo.CountByStatus(ctx, int(domain.AlertStatusAutomaticReview))
-	if err != nil {
-		_ = catcher.Error("alerts scheduler: CountByStatus error", err, nil)
-		return
-	}
-	if count == 0 {
-		return
-	}
-
 	// TODO(module-33): wire real mapping when network_scan is ported.
 	if err := s.alertRepo.AssignAssetGroups(ctx, nil); err != nil {
 		_ = catcher.Error("alerts scheduler: AssignAssetGroups error", err, nil)
 	}
-
-	rules, err := s.ruleRepo.FindAllActive(ctx)
-	if err != nil {
-		_ = catcher.Error("alerts scheduler: FindAllActive error", err, nil)
-		return
-	}
-
-	evaluationStart := time.Now().UTC().Truncate(time.Second)
-
-	for _, rule := range rules {
-		tagNames, resolveErr := s.resolveTagNames(ctx, rule.RuleAppliedTags)
-		if resolveErr != nil {
-			_ = catcher.Error("alerts scheduler: resolveTagNames error for rule "+rule.RuleName, resolveErr, nil)
-			continue
-		}
-
-		oldAlerts, searchErr := s.alertRepo.SearchByRuleConditionsAndTimestamp(
-			ctx, rule, evaluationStart, schedulerMaxAlertsPerBatch)
-		if searchErr != nil {
-			_ = catcher.Error("alerts scheduler: SearchByRuleConditionsAndTimestamp error", searchErr, nil)
-		}
-
-		if applyErr := s.alertRepo.ApplyTagRule(ctx, rule, tagNames, evaluationStart); applyErr != nil {
-			_ = catcher.Error("alerts scheduler: ApplyTagRule error for rule "+rule.RuleName, applyErr, nil)
-			continue
-		}
-
-		if len(oldAlerts) > 0 && s.histRepo != nil {
-			s.logAutomaticTagChange(ctx, oldAlerts, tagNames, rule.RuleName)
-		}
-	}
-
-	oldBeforeRelease, searchErr := s.alertRepo.SearchByStatusAndTimestamp(
-		ctx, int(domain.AlertStatusAutomaticReview), evaluationStart, schedulerMaxAlertsPerBatch)
-	if searchErr != nil {
-		_ = catcher.Error("alerts scheduler: SearchByStatusAndTimestamp (pre-release) error", searchErr, nil)
-	}
-
-	if err := s.alertRepo.ReleaseToOpen(ctx, evaluationStart); err != nil {
-		_ = catcher.Error("alerts scheduler: ReleaseToOpen error", err, nil)
-	}
-
-	if len(oldBeforeRelease) > 0 && s.histRepo != nil {
-		s.logAutomaticStatusChange(ctx, oldBeforeRelease, evaluationStart)
-	}
-}
-
-func (s *Scheduler) logAutomaticTagChange(ctx context.Context, alerts []domain.UtmAlert, tags []string, ruleName string) {
-	tagsStr := strings.Join(tags, ",") // Java uses "," separator — MINOR-2 fix
-	msg := fmt.Sprintf(domain.MsgTagsAutomatic, tagsStr, ruleName)
-
-	entries := make([]connectors.HistoryEntry, 0, len(alerts))
-	for _, a := range alerts {
-		entries = append(entries, connectors.HistoryEntry{
-			AlertID:  a.ID,
-			User:     "system",
-			Action:   domain.ActionUpdateTags,
-			Message:  msg,
-			NewValue: fmt.Sprintf(`{"tags":%q}`, tagsStr),
-			At:       time.Now().UTC(),
-		})
-	}
-	if err := s.histRepo.Record(ctx, entries); err != nil {
-		_ = catcher.Error("alerts scheduler: logAutomaticTagChange error", err, nil)
-	}
-}
-
-func (s *Scheduler) logAutomaticStatusChange(ctx context.Context, alerts []domain.UtmAlert, evaluationStart time.Time) {
-	oldLabel := domain.StatusName(domain.AlertStatusAutomaticReview)
-	newLabel := domain.StatusName(domain.AlertStatusOpen)
-	obs := "This alert has been evaluated by the tag rules engine"
-	msg := fmt.Sprintf(domain.MsgStatusSystem, oldLabel, newLabel, obs)
-
-	entries := make([]connectors.HistoryEntry, 0, len(alerts))
-	for _, a := range alerts {
-		newVal, _ := json.Marshal(map[string]any{
-			"status":            int(domain.AlertStatusOpen),
-			"statusLabel":       newLabel,
-			"statusObservation": obs,
-		})
-		entries = append(entries, connectors.HistoryEntry{
-			AlertID:  a.ID,
-			User:     "system",
-			Action:   domain.ActionUpdateStatus,
-			Message:  msg,
-			NewValue: string(newVal),
-			At:       evaluationStart,
-		})
-	}
-	if err := s.histRepo.Record(ctx, entries); err != nil {
-		_ = catcher.Error("alerts scheduler: logAutomaticStatusChange error", err, nil)
-	}
-}
-
-func (s *Scheduler) resolveTagNames(ctx context.Context, csv string) ([]string, error) {
-	ids := csvToInt64Slice(csv)
-	if len(ids) == 0 {
-		return nil, nil
-	}
-
-	tags, err := s.tagRepo.FindByIDs(ctx, ids)
-	if err != nil {
-		return nil, err
-	}
-
-	names := make([]string, 0, len(tags))
-	for _, t := range tags {
-		if strings.TrimSpace(t.TagName) != "" {
-			names = append(names, t.TagName)
-		}
-	}
-	return names, nil
 }
