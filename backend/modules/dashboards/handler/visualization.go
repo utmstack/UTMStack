@@ -29,13 +29,13 @@ func NewVisualizationHandler(uc connectors.VisualizationUsecase) *VisualizationH
 //	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
-//	@Param			input	body		domain.UtmVisualization	true	"Visualization to create"
-//	@Success		201		{object}	domain.UtmVisualization
+//	@Param			input	body		domain.Visualization	true	"Visualization to create"
+//	@Success		201		{object}	domain.Visualization
 //	@Failure		400		{object}	map[string]string
 //	@Failure		500		{object}	map[string]string
 //	@Router			/visualizations [post]
 func (h *VisualizationHandler) Create(c *gin.Context) {
-	var v domain.UtmVisualization
+	var v domain.Visualization
 	if err := c.ShouldBindJSON(&v); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -58,14 +58,14 @@ func (h *VisualizationHandler) Create(c *gin.Context) {
 //	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
-//	@Param			input	body		domain.UtmVisualization	true	"Visualization to update"
-//	@Success		200		{object}	domain.UtmVisualization
+//	@Param			input	body		domain.Visualization	true	"Visualization to update"
+//	@Success		200		{object}	domain.Visualization
 //	@Failure		400		{object}	map[string]string
 //	@Failure		404		{object}	map[string]string
 //	@Failure		500		{object}	map[string]string
 //	@Router			/visualizations [put]
 func (h *VisualizationHandler) Update(c *gin.Context) {
-	var v domain.UtmVisualization
+	var v domain.Visualization
 	if err := c.ShouldBindJSON(&v); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -92,7 +92,7 @@ func (h *VisualizationHandler) Update(c *gin.Context) {
 //	@Param			idPattern	query		int		false	"Filter by index pattern id"
 //	@Param			page		query		int		false	"Page (0-based)"
 //	@Param			size		query		int		false	"Page size"
-//	@Success		200			{array}		domain.UtmVisualization
+//	@Success		200			{array}		domain.Visualization
 //	@Header			200			{string}	X-Total-Count	"Total records"
 //	@Failure		500			{object}	map[string]string
 //	@Router			/visualizations [get]
@@ -117,7 +117,7 @@ func (h *VisualizationHandler) List(c *gin.Context) {
 //	@Security		BearerAuth
 //	@Produce		json
 //	@Param			id	path		int	true	"Visualization id"
-//	@Success		200	{object}	domain.UtmVisualization
+//	@Success		200	{object}	domain.Visualization
 //	@Failure		404	{object}	map[string]string
 //	@Failure		500	{object}	map[string]string
 //	@Router			/visualizations/{id} [get]

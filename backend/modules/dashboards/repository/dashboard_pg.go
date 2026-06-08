@@ -16,12 +16,12 @@ func NewDashboardRepository(db *gorm.DB) connectors.DashboardRepository {
 	return &pgDashboardRepository{db: db}
 }
 
-func (r *pgDashboardRepository) Save(ctx context.Context, d *domain.UtmDashboard) error {
+func (r *pgDashboardRepository) Save(ctx context.Context, d *domain.Dashboard) error {
 	return r.db.WithContext(ctx).Save(d).Error
 }
 
-func (r *pgDashboardRepository) FindByID(ctx context.Context, id uint64) (*domain.UtmDashboard, error) {
-	var d domain.UtmDashboard
+func (r *pgDashboardRepository) FindByID(ctx context.Context, id uint64) (*domain.Dashboard, error) {
+	var d domain.Dashboard
 	err := r.db.WithContext(ctx).First(&d, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
@@ -32,8 +32,8 @@ func (r *pgDashboardRepository) FindByID(ctx context.Context, id uint64) (*domai
 	return &d, nil
 }
 
-func (r *pgDashboardRepository) List(ctx context.Context, f dto.DashboardFilter) ([]domain.UtmDashboard, int64, error) {
-	q := r.db.WithContext(ctx).Model(&domain.UtmDashboard{})
+func (r *pgDashboardRepository) List(ctx context.Context, f dto.DashboardFilter) ([]domain.Dashboard, int64, error) {
+	q := r.db.WithContext(ctx).Model(&domain.Dashboard{})
 	if f.Name != "" {
 		q = q.Where("name ILIKE ?", "%"+f.Name+"%")
 	}
@@ -41,7 +41,7 @@ func (r *pgDashboardRepository) List(ctx context.Context, f dto.DashboardFilter)
 	if err := q.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	var items []domain.UtmDashboard
+	var items []domain.Dashboard
 	if err := q.Order("name ASC").Offset(f.Offset()).Limit(f.Limit()).Find(&items).Error; err != nil {
 		return nil, 0, err
 	}
@@ -49,5 +49,5 @@ func (r *pgDashboardRepository) List(ctx context.Context, f dto.DashboardFilter)
 }
 
 func (r *pgDashboardRepository) Delete(ctx context.Context, id uint64) error {
-	return r.db.WithContext(ctx).Delete(&domain.UtmDashboard{}, id).Error
+	return r.db.WithContext(ctx).Delete(&domain.Dashboard{}, id).Error
 }

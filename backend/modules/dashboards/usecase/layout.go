@@ -14,7 +14,7 @@ func NewLayoutUsecase(repo connectors.LayoutRepository) connectors.LayoutUsecase
 	return &layoutUsecase{repo: repo}
 }
 
-func (u *layoutUsecase) Create(ctx context.Context, l *domain.UtmDashboardVisualization) (*domain.UtmDashboardVisualization, error) {
+func (u *layoutUsecase) Create(ctx context.Context, l *domain.DashboardVisualization) (*domain.DashboardVisualization, error) {
 	if l.ID != 0 {
 		return nil, domain.ErrIDForbidden
 	}
@@ -24,7 +24,7 @@ func (u *layoutUsecase) Create(ctx context.Context, l *domain.UtmDashboardVisual
 	return l, nil
 }
 
-func (u *layoutUsecase) Update(ctx context.Context, l *domain.UtmDashboardVisualization) (*domain.UtmDashboardVisualization, error) {
+func (u *layoutUsecase) Update(ctx context.Context, l *domain.DashboardVisualization) (*domain.DashboardVisualization, error) {
 	if l.ID == 0 {
 		return nil, domain.ErrIDRequired
 	}
@@ -41,11 +41,11 @@ func (u *layoutUsecase) Update(ctx context.Context, l *domain.UtmDashboardVisual
 	return l, nil
 }
 
-func (u *layoutUsecase) GetByID(ctx context.Context, id uint64) (*domain.UtmDashboardVisualization, error) {
+func (u *layoutUsecase) GetByID(ctx context.Context, id uint64) (*domain.DashboardVisualization, error) {
 	return u.repo.FindByID(ctx, id)
 }
 
-func (u *layoutUsecase) List(ctx context.Context, f dto.LayoutFilter) ([]domain.UtmDashboardVisualization, int64, error) {
+func (u *layoutUsecase) List(ctx context.Context, f dto.LayoutFilter) ([]domain.DashboardVisualization, int64, error) {
 	return u.repo.List(ctx, f)
 }
 

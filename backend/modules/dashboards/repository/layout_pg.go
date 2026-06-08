@@ -16,12 +16,12 @@ func NewLayoutRepository(db *gorm.DB) connectors.LayoutRepository {
 	return &pgLayoutRepository{db: db}
 }
 
-func (r *pgLayoutRepository) Save(ctx context.Context, l *domain.UtmDashboardVisualization) error {
+func (r *pgLayoutRepository) Save(ctx context.Context, l *domain.DashboardVisualization) error {
 	return r.db.WithContext(ctx).Save(l).Error
 }
 
-func (r *pgLayoutRepository) FindByID(ctx context.Context, id uint64) (*domain.UtmDashboardVisualization, error) {
-	var l domain.UtmDashboardVisualization
+func (r *pgLayoutRepository) FindByID(ctx context.Context, id uint64) (*domain.DashboardVisualization, error) {
+	var l domain.DashboardVisualization
 	err := r.db.WithContext(ctx).First(&l, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
@@ -32,8 +32,8 @@ func (r *pgLayoutRepository) FindByID(ctx context.Context, id uint64) (*domain.U
 	return &l, nil
 }
 
-func (r *pgLayoutRepository) List(ctx context.Context, f dto.LayoutFilter) ([]domain.UtmDashboardVisualization, int64, error) {
-	q := r.db.WithContext(ctx).Model(&domain.UtmDashboardVisualization{})
+func (r *pgLayoutRepository) List(ctx context.Context, f dto.LayoutFilter) ([]domain.DashboardVisualization, int64, error) {
+	q := r.db.WithContext(ctx).Model(&domain.DashboardVisualization{})
 	if f.IDDashboard != nil {
 		q = q.Where("id_dashboard = ?", *f.IDDashboard)
 	}
@@ -44,7 +44,7 @@ func (r *pgLayoutRepository) List(ctx context.Context, f dto.LayoutFilter) ([]do
 	if err := q.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	var items []domain.UtmDashboardVisualization
+	var items []domain.DashboardVisualization
 	if err := q.Order("dv_order ASC").Offset(f.Offset()).Limit(f.Limit()).Find(&items).Error; err != nil {
 		return nil, 0, err
 	}
@@ -52,5 +52,5 @@ func (r *pgLayoutRepository) List(ctx context.Context, f dto.LayoutFilter) ([]do
 }
 
 func (r *pgLayoutRepository) Delete(ctx context.Context, id uint64) error {
-	return r.db.WithContext(ctx).Delete(&domain.UtmDashboardVisualization{}, id).Error
+	return r.db.WithContext(ctx).Delete(&domain.DashboardVisualization{}, id).Error
 }

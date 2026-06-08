@@ -18,24 +18,26 @@ func NewVisualizationUsecase(repo connectors.VisualizationRepository) connectors
 	return &visualizationUsecase{repo: repo}
 }
 
-func (u *visualizationUsecase) Create(ctx context.Context, v *domain.UtmVisualization, user string) (*domain.UtmVisualization, error) {
+func (u *visualizationUsecase) Create(ctx context.Context, v *domain.Visualization, user string) (*domain.Visualization, error) {
 	if v.ID != 0 {
 		return nil, domain.ErrIDForbidden
 	}
 	if strings.TrimSpace(v.Name) == "" {
 		return nil, domain.ErrNameRequired
 	}
+	if strings.TrimSpace(v.SQLQuery) == "" {
+		return nil, domain.ErrSQLQueryRequired
+	}
 	now := time.Now().UTC()
 	v.CreatedDate = now
 	v.ModifiedDate = now
-	v.UserCreated = user
 	if err := u.repo.Save(ctx, v); err != nil {
 		return nil, err
 	}
 	return v, nil
 }
 
-func (u *visualizationUsecase) Update(ctx context.Context, v *domain.UtmVisualization, user string) (*domain.UtmVisualization, error) {
+func (u *visualizationUsecase) Update(ctx context.Context, v *domain.Visualization, user string) (*domain.Visualization, error) {
 	if v.ID == 0 {
 		return nil, domain.ErrIDRequired
 	}
@@ -46,22 +48,23 @@ func (u *visualizationUsecase) Update(ctx context.Context, v *domain.UtmVisualiz
 	if existing == nil {
 		return nil, domain.ErrNotFound
 	}
+	if strings.TrimSpace(v.SQLQuery) == "" {
+		return nil, domain.ErrSQLQueryRequired
+	}
 	v.CreatedDate = existing.CreatedDate
-	v.UserCreated = existing.UserCreated
 	v.SystemOwner = existing.SystemOwner
 	v.ModifiedDate = time.Now().UTC()
-	v.UserModified = user
 	if err := u.repo.Save(ctx, v); err != nil {
 		return nil, err
 	}
 	return v, nil
 }
 
-func (u *visualizationUsecase) GetByID(ctx context.Context, id uint64) (*domain.UtmVisualization, error) {
+func (u *visualizationUsecase) GetByID(ctx context.Context, id uint64) (*domain.Visualization, error) {
 	return u.repo.FindByID(ctx, id)
 }
 
-func (u *visualizationUsecase) List(ctx context.Context, f dto.VisualizationFilter) ([]domain.UtmVisualization, int64, error) {
+func (u *visualizationUsecase) List(ctx context.Context, f dto.VisualizationFilter) ([]domain.Visualization, int64, error) {
 	return u.repo.List(ctx, f)
 }
 
