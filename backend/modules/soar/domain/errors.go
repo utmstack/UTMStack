@@ -12,6 +12,10 @@ var (
 	// ErrRuleNameTaken is returned when a rule with the same name already exists.
 	ErrRuleNameTaken = errors.New("alert response rule name already in use")
 
+	// ErrSystemRuleReadOnly is returned when a write/delete targets a system flow
+	// (system flows ship as read-only files; only their enabled state can toggle).
+	ErrSystemRuleReadOnly = errors.New("system alert response rule is read-only")
+
 	// ErrIDMustBeAbsent is returned on POST when a caller supplies an id field.
 	ErrIDMustBeAbsent = errors.New("id must be absent on create")
 

@@ -1,0 +1,12 @@
+# UTMStack system SOAR flow
+- name: 'Windows Defender: Protection Disabled'
+  description: Re-enable Windows Defender protection to restore security defenses.
+  conditions:
+  - operator: IS
+    field: name
+    value: 'Windows Defender: Protection Disabled'
+  commands:
+  - '"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Enable'
+  - Set-MpPreference -DisableRealtimeMonitoring $false
+  shell: powershell
+  agentPlatform: windows

@@ -30,3 +30,18 @@ BEGIN
         UPDATE utm_module SET is_system = true WHERE is_system = false;
     END IF;
 END $$;
+
+-- Compliance report schedules were reshaped (compliance_id/url_with_params/filters →
+-- framework_key/recipients). The legacy rows referenced now-dropped standards, so they
+-- are meaningless; drop the table here so AutoMigrate recreates it with the new schema.
+DROP TABLE IF EXISTS public.utm_compliance_report_schedule CASCADE;
+DROP SEQUENCE IF EXISTS public.utm_compliance_report_schedule_id_seq;
+
+-- Dashboards were reshaped: visualizations are now SQL-only (sql_query + an opaque
+-- config blob; the legacy query/aggregation/chart_* columns are gone). The existing
+-- rows are meaningless under the new model and we don't need to preserve them, so
+-- drop all three dashboard tables here; AutoMigrate recreates them with the new
+-- schema. CASCADE handles the join's FKs.
+DROP TABLE IF EXISTS public.utm_dashboard_visualization CASCADE;
+DROP TABLE IF EXISTS public.utm_visualization CASCADE;
+DROP TABLE IF EXISTS public.utm_dashboard CASCADE;

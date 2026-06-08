@@ -16,12 +16,12 @@ func NewVisualizationRepository(db *gorm.DB) connectors.VisualizationRepository 
 	return &pgVisualizationRepository{db: db}
 }
 
-func (r *pgVisualizationRepository) Save(ctx context.Context, v *domain.UtmVisualization) error {
+func (r *pgVisualizationRepository) Save(ctx context.Context, v *domain.Visualization) error {
 	return r.db.WithContext(ctx).Save(v).Error
 }
 
-func (r *pgVisualizationRepository) FindByID(ctx context.Context, id uint64) (*domain.UtmVisualization, error) {
-	var v domain.UtmVisualization
+func (r *pgVisualizationRepository) FindByID(ctx context.Context, id uint64) (*domain.Visualization, error) {
+	var v domain.Visualization
 	err := r.db.WithContext(ctx).First(&v, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
@@ -32,22 +32,16 @@ func (r *pgVisualizationRepository) FindByID(ctx context.Context, id uint64) (*d
 	return &v, nil
 }
 
-func (r *pgVisualizationRepository) List(ctx context.Context, f dto.VisualizationFilter) ([]domain.UtmVisualization, int64, error) {
-	q := r.db.WithContext(ctx).Model(&domain.UtmVisualization{})
+func (r *pgVisualizationRepository) List(ctx context.Context, f dto.VisualizationFilter) ([]domain.Visualization, int64, error) {
+	q := r.db.WithContext(ctx).Model(&domain.Visualization{})
 	if f.Name != "" {
 		q = q.Where("name ILIKE ?", "%"+f.Name+"%")
-	}
-	if f.ChartType != "" {
-		q = q.Where("chart_type = ?", f.ChartType)
-	}
-	if f.IDPattern != nil {
-		q = q.Where("id_pattern = ?", *f.IDPattern)
 	}
 	var total int64
 	if err := q.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	var items []domain.UtmVisualization
+	var items []domain.Visualization
 	if err := q.Order("name ASC").Offset(f.Offset()).Limit(f.Limit()).Find(&items).Error; err != nil {
 		return nil, 0, err
 	}
@@ -55,5 +49,5 @@ func (r *pgVisualizationRepository) List(ctx context.Context, f dto.Visualizatio
 }
 
 func (r *pgVisualizationRepository) Delete(ctx context.Context, id uint64) error {
-	return r.db.WithContext(ctx).Delete(&domain.UtmVisualization{}, id).Error
+	return r.db.WithContext(ctx).Delete(&domain.Visualization{}, id).Error
 }

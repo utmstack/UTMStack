@@ -8,22 +8,22 @@ import (
 )
 
 type DashboardRepository interface {
-	Save(ctx context.Context, d *domain.UtmDashboard) error
-	FindByID(ctx context.Context, id uint64) (*domain.UtmDashboard, error)
-	List(ctx context.Context, f dto.DashboardFilter) ([]domain.UtmDashboard, int64, error)
+	Save(ctx context.Context, d *domain.Dashboard) error
+	FindByID(ctx context.Context, id uint64) (*domain.Dashboard, error)
+	List(ctx context.Context, f dto.DashboardFilter) ([]domain.Dashboard, int64, error)
 	Delete(ctx context.Context, id uint64) error
 }
 
 type VisualizationRepository interface {
-	Save(ctx context.Context, v *domain.UtmVisualization) error
-	FindByID(ctx context.Context, id uint64) (*domain.UtmVisualization, error)
-	List(ctx context.Context, f dto.VisualizationFilter) ([]domain.UtmVisualization, int64, error)
+	Save(ctx context.Context, v *domain.Visualization) error
+	FindByID(ctx context.Context, id uint64) (*domain.Visualization, error)
+	List(ctx context.Context, f dto.VisualizationFilter) ([]domain.Visualization, int64, error)
 	Delete(ctx context.Context, id uint64) error
 }
 
 type LayoutRepository interface {
-	Save(ctx context.Context, l *domain.UtmDashboardVisualization) error
-	FindByID(ctx context.Context, id uint64) (*domain.UtmDashboardVisualization, error)
-	List(ctx context.Context, f dto.LayoutFilter) ([]domain.UtmDashboardVisualization, int64, error)
+	Save(ctx context.Context, l *domain.DashboardVisualization) error
+	FindByID(ctx context.Context, id uint64) (*domain.DashboardVisualization, error)
+	List(ctx context.Context, f dto.LayoutFilter) ([]domain.DashboardVisualization, int64, error)
 	Delete(ctx context.Context, id uint64) error
 }

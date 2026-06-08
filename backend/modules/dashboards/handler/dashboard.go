@@ -27,13 +27,13 @@ func NewDashboardHandler(uc connectors.DashboardUsecase) *DashboardHandler {
 //	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
-//	@Param			input	body		domain.UtmDashboard	true	"Dashboard to create"
-//	@Success		201		{object}	domain.UtmDashboard
+//	@Param			input	body		domain.Dashboard	true	"Dashboard to create"
+//	@Success		201		{object}	domain.Dashboard
 //	@Failure		400		{object}	map[string]string
 //	@Failure		500		{object}	map[string]string
 //	@Router			/dashboards [post]
 func (h *DashboardHandler) Create(c *gin.Context) {
-	var d domain.UtmDashboard
+	var d domain.Dashboard
 	if err := c.ShouldBindJSON(&d); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -56,14 +56,14 @@ func (h *DashboardHandler) Create(c *gin.Context) {
 //	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
-//	@Param			input	body		domain.UtmDashboard	true	"Dashboard to update"
-//	@Success		200		{object}	domain.UtmDashboard
+//	@Param			input	body		domain.Dashboard	true	"Dashboard to update"
+//	@Success		200		{object}	domain.Dashboard
 //	@Failure		400		{object}	map[string]string
 //	@Failure		404		{object}	map[string]string
 //	@Failure		500		{object}	map[string]string
 //	@Router			/dashboards [put]
 func (h *DashboardHandler) Update(c *gin.Context) {
-	var d domain.UtmDashboard
+	var d domain.Dashboard
 	if err := c.ShouldBindJSON(&d); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -88,7 +88,7 @@ func (h *DashboardHandler) Update(c *gin.Context) {
 //	@Param			name	query		string	false	"Filter by name (substring)"
 //	@Param			page	query		int		false	"Page (0-based)"
 //	@Param			size	query		int		false	"Page size"
-//	@Success		200		{array}		domain.UtmDashboard
+//	@Success		200		{array}		domain.Dashboard
 //	@Header			200		{string}	X-Total-Count	"Total records"
 //	@Failure		500		{object}	map[string]string
 //	@Router			/dashboards [get]
@@ -113,7 +113,7 @@ func (h *DashboardHandler) List(c *gin.Context) {
 //	@Security		BearerAuth
 //	@Produce		json
 //	@Param			id	path		int	true	"Dashboard id"
-//	@Success		200	{object}	domain.UtmDashboard
+//	@Success		200	{object}	domain.Dashboard
 //	@Failure		404	{object}	map[string]string
 //	@Failure		500	{object}	map[string]string
 //	@Router			/dashboards/{id} [get]

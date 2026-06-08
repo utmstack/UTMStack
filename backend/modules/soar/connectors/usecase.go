@@ -10,8 +10,10 @@ import (
 
 type RuleUsecase interface {
 	Create(ctx context.Context, req dto.CreateRuleRequest, createdBy string) (*dto.RuleResponse, error)
-	Update(ctx context.Context, req dto.UpdateRuleRequest, modifiedBy string) (*dto.RuleResponse, error)
-	GetByID(ctx context.Context, id int64) (*dto.RuleResponse, error)
+	Update(ctx context.Context, relPath string, req dto.UpdateRuleRequest, modifiedBy string) (*dto.RuleResponse, error)
+	Get(ctx context.Context, relPath string) (*dto.RuleResponse, error)
+	Delete(ctx context.Context, relPath string) error
+	SetEnabled(ctx context.Context, relPath string, enabled bool) error
 	List(ctx context.Context, f dto.RuleFilters) (*database.List[dto.RuleResponse], error)
 	ResolveFilterValues(ctx context.Context) (*dto.ResolveFilterValuesResponse, error)
 }
@@ -22,6 +24,8 @@ type TemplateUsecase interface {
 
 type ExecutionUsecase interface {
 	List(ctx context.Context, f dto.ExecutionFilters) (*database.List[dto.ExecutionResponse], error)
+	Create(ctx context.Context, req dto.CreateExecutionRequest) (*dto.ExecutionResponse, error)
+	UpdateStatus(ctx context.Context, id int64, req dto.UpdateExecutionRequest) error
 }
 
 type VariableUsecase interface {
@@ -49,6 +53,10 @@ type ActionCommandUsecase interface {
 	FindByID(id int64) (*domain.UtmIncidentActionCommand, error)
 	FindAll(f dto.ActionCommandFilter) ([]domain.UtmIncidentActionCommand, int64, error)
 	Delete(id int64) error
+}
+
+type AgentUsecase interface {
+	ListByPlatform(ctx context.Context, platform string) ([]string, error)
 }
 
 type JobUsecase interface {

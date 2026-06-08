@@ -68,7 +68,6 @@ func GetStackConfig() *StackConfig {
 			{Name: "opensearch", Priority: 1, MinMemory: 4350, MaxMemory: 60 * 1024},
 			{Name: "backend", Priority: 2, MinMemory: 700, MaxMemory: 2 * 1024},
 			{Name: "postgres", Priority: 2, MinMemory: 500, MaxMemory: 2 * 1024},
-			{Name: "user-auditor", Priority: 3, MinMemory: 200, MaxMemory: 1024},
 			{Name: "agentmanager", Priority: 3, MinMemory: 200, MaxMemory: 1024},
 			{Name: "frontend", Priority: 3, MinMemory: 80, MaxMemory: 1024},
 		}

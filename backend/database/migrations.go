@@ -3,6 +3,7 @@ package database
 import (
 	"errors"
 
+	adaudit_domain "github.com/utmstack/utmstack/backend/modules/adaudit/domain"
 	alerts_domain "github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	appconfig_domain "github.com/utmstack/utmstack/backend/modules/appconfig/domain"
 	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
@@ -25,9 +26,6 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-// Models lists every GORM-managed entity so AutoMigrate keeps the schema in
-// sync with the Go struct tags. Append new domain types as you migrate each
-// module.
 func Models() []any {
 	return []any{
 		iam_domain.User{},
@@ -42,15 +40,12 @@ func Models() []any {
 		appconfig_domain.Config{},
 		alerts_domain.UtmAlertTag{},
 		alerts_domain.UtmAlertTagRule{},
-		arr_domain.AlertResponseRule{},
 		arr_domain.AlertResponseRuleExecution{},
 		arr_domain.AlertResponseActionTemplate{},
-		arr_domain.RuleTemplate{},
 		arr_domain.UtmIncidentVariable{},
 		arr_domain.UtmIncidentAction{},
 		arr_domain.UtmIncidentActionCommand{},
 		arr_domain.UtmIncidentJob{},
-		compliance_domain.UtmComplianceReportConfig{},
 		compliance_domain.UtmComplianceReportSchedule{},
 		opensearch_domain.UtmIndexPattern{},
 		integrations_domain.UtmModule{},
@@ -61,10 +56,11 @@ func Models() []any {
 		notifications_domain.UtmNotification{},
 		datasources_domain.UtmAssetGroup{},
 		datasources_domain.Datasource{},
-		dashboards_domain.UtmDashboard{},
-		dashboards_domain.UtmVisualization{},
-		dashboards_domain.UtmDashboardVisualization{},
+		dashboards_domain.Dashboard{},
+		dashboards_domain.Visualization{},
+		dashboards_domain.DashboardVisualization{},
 		loganalyzer_domain.UtmLogAnalyzerQuery{},
+		adaudit_domain.ADUser{},
 	}
 }
 

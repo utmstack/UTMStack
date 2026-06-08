@@ -77,18 +77,3 @@ func GetAdminEmail() (string, error) {
 
 	return output[0], nil
 }
-
-func InitPgUserAuditor(_ *config.Config) error {
-	containerID, err := getPostgresContainerID()
-	if err != nil {
-		return err
-	}
-
-	// Creating userauditor database
-	err = execPsql(containerID, "", "CREATE DATABASE userauditor")
-	if err != nil && !strings.Contains(err.Error(), "already exists") {
-		return err
-	}
-
-	return nil
-}

@@ -224,26 +224,6 @@ func Apply(version string, updating bool) (string, error) {
 		fmt.Println(" [OK]")
 	}
 
-	if utils.GetLock(202311301747, stack.LocksDir) {
-		fmt.Print("Initializing User Auditor database")
-		for i := 0; i < 10; i++ {
-			if err := services.InitPgUserAuditor(cnf); err != nil {
-				if i > 8 {
-					return "", err
-				}
-				time.Sleep(10 * time.Second)
-			} else {
-				break
-			}
-		}
-
-		if err := utils.SetLock(202311301747, stack.LocksDir); err != nil {
-			return "", err
-		}
-
-		fmt.Println(" [OK]")
-	}
-
 	if utils.GetLock(7, stack.LocksDir) {
 		fmt.Print("Initializing OpenSearch. This may take a while.")
 		if err := services.InitOpenSearch(); err != nil {

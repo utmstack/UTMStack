@@ -27,13 +27,13 @@ func NewLayoutHandler(uc connectors.LayoutUsecase) *LayoutHandler {
 //	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
-//	@Param			input	body		domain.UtmDashboardVisualization	true	"Layout placement to create"
-//	@Success		201		{object}	domain.UtmDashboardVisualization
+//	@Param			input	body		domain.DashboardVisualization	true	"Layout placement to create"
+//	@Success		201		{object}	domain.DashboardVisualization
 //	@Failure		400		{object}	map[string]string
 //	@Failure		500		{object}	map[string]string
 //	@Router			/dashboard-layouts [post]
 func (h *LayoutHandler) Create(c *gin.Context) {
-	var l domain.UtmDashboardVisualization
+	var l domain.DashboardVisualization
 	if err := c.ShouldBindJSON(&l); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -56,14 +56,14 @@ func (h *LayoutHandler) Create(c *gin.Context) {
 //	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
-//	@Param			input	body		domain.UtmDashboardVisualization	true	"Layout placement to update"
-//	@Success		200		{object}	domain.UtmDashboardVisualization
+//	@Param			input	body		domain.DashboardVisualization	true	"Layout placement to update"
+//	@Success		200		{object}	domain.DashboardVisualization
 //	@Failure		400		{object}	map[string]string
 //	@Failure		404		{object}	map[string]string
 //	@Failure		500		{object}	map[string]string
 //	@Router			/dashboard-layouts [put]
 func (h *LayoutHandler) Update(c *gin.Context) {
-	var l domain.UtmDashboardVisualization
+	var l domain.DashboardVisualization
 	if err := c.ShouldBindJSON(&l); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -89,7 +89,7 @@ func (h *LayoutHandler) Update(c *gin.Context) {
 //	@Param			idVisualization	query		int	false	"Filter by visualization id"
 //	@Param			page			query		int	false	"Page (0-based)"
 //	@Param			size			query		int	false	"Page size"
-//	@Success		200				{array}		domain.UtmDashboardVisualization
+//	@Success		200				{array}		domain.DashboardVisualization
 //	@Header			200				{string}	X-Total-Count	"Total records"
 //	@Failure		500				{object}	map[string]string
 //	@Router			/dashboard-layouts [get]
@@ -114,7 +114,7 @@ func (h *LayoutHandler) List(c *gin.Context) {
 //	@Security		BearerAuth
 //	@Produce		json
 //	@Param			id	path		int	true	"Layout placement id"
-//	@Success		200	{object}	domain.UtmDashboardVisualization
+//	@Success		200	{object}	domain.DashboardVisualization
 //	@Failure		404	{object}	map[string]string
 //	@Failure		500	{object}	map[string]string
 //	@Router			/dashboard-layouts/{id} [get]

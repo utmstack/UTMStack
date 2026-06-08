@@ -17,3 +17,4 @@ COPY ./plugins/stats/com.utmstack.stats.plugin /workdir/plugins/utmstack/
 COPY ./plugins/soc-ai/com.utmstack.soc-ai.plugin /workdir/plugins/utmstack/
 COPY ./plugins/crowdstrike/com.utmstack.crowdstrike.plugin /workdir/plugins/utmstack/
 COPY ./plugins/feeds/com.utmstack.feeds.plugin /workdir/plugins/utmstack/
+COPY ./plugins/ad-audit/com.utmstack.ad-audit.plugin /workdir/plugins/utmstack/

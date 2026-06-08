@@ -13,7 +13,7 @@ func writeError(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, domain.ErrNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-	case errors.Is(err, domain.ErrIDForbidden), errors.Is(err, domain.ErrIDRequired), errors.Is(err, domain.ErrNameRequired):
+	case errors.Is(err, domain.ErrIDForbidden), errors.Is(err, domain.ErrIDRequired), errors.Is(err, domain.ErrNameRequired), errors.Is(err, domain.ErrSQLQueryRequired):
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	default:
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

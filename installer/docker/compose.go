@@ -377,37 +377,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		},
 	}
 
-	userAuditorMem := stack.ServiceResources["user-auditor"].AssignedMemory
-	c.Services["user-auditor"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/user-auditor:${UTMSTACK_TAG}"),
-		DependsOn: []string{
-			"postgres",
-			"node1",
-		},
-		Environment: []string{
-			"SERVER_NAME=" + conf.ServerName,
-			"INTERNAL_KEY=" + conf.InternalKey,
-			"DB_USER=postgres",
-			"DB_HOST=postgres",
-			"DB_PORT=5432",
-			"DB_NAME=userauditor",
-			"DB_PASS=" + conf.Password,
-			"ELASTICSEARCH_HOST=node1",
-			"ELASTICSEARCH_PORT=9200",
-			"ELASTICSEARCH_USER=admin",
-			"ELASTICSEARCH_PASSWORD=" + conf.OpenSearchPassword,
-		},
-		Logging: &dLogging,
-		Deploy: &Deploy{
-			Placement: &pManager,
-			Resources: &Resources{
-				Limits: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", userAuditorMem)),
-				},
-			},
-		},
-	}
-
 	c.Volumes["postgres_data"] = Volume{
 		"external": false,
 	}

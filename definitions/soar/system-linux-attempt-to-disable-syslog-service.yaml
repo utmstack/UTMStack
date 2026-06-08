@@ -1,0 +1,14 @@
+# UTMStack system SOAR flow
+- name: 'System Linux: Attempt to Disable Syslog Service'
+  description: Detects attempts to disable the syslog service to disrupt event logging and evade security controls. This playbook
+    responds by logging out and disabling the user account involved.
+  conditions:
+  - operator: IS
+    field: name
+    value: 'System Linux: Attempt to Disable Syslog Service'
+  commands:
+  - sudo pkill -KILL -u $(target.user) ; sudo usermod --expiredate 1 $(target.user)
+  - usermod -s /sbin/nologin $(adversary.user)
+  - pkill -KILL -u $(target.user)
+  shell: sh
+  agentPlatform: ubuntu

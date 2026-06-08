@@ -26,6 +26,8 @@ func writeARRError(c *gin.Context, err error) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "alert response action template not found"})
 	case errors.Is(err, domain.ErrRuleNameTaken):
 		c.JSON(http.StatusConflict, gin.H{"error": "rule name already in use"})
+	case errors.Is(err, domain.ErrSystemRuleReadOnly):
+		c.JSON(http.StatusForbidden, gin.H{"error": "system alert response rule is read-only"})
 	case errors.Is(err, domain.ErrIDMustBeAbsent):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "id must be absent on create"})
 	case errors.Is(err, domain.ErrIDRequired):

@@ -1,0 +1,13 @@
+# UTMStack system SOAR flow
+- name: Windows Server - AdminSDHolder Abuse Detection
+  description: Detects modifications to the AdminSDHolder object, which can be used for persistence by granting elevated privileges.
+    This playbook automates disabling the user account that performed the modification.
+  conditions:
+  - operator: IS
+    field: name
+    value: AdminSDHolder Abuse Detection
+  commands:
+  - net user "$(adversary.user)" /active:no
+  - net user $(adversary.user) /active:no
+  shell: powershell
+  agentPlatform: windows

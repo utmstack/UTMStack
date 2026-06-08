@@ -1,0 +1,14 @@
+# UTMStack system SOAR flow
+- name: 'Windows: A user account was added to administration groups'
+  description: 'Disable the user account that was added to an administrative group to prevent privilege escalation.
+
+    '
+  conditions:
+  - operator: IS
+    field: name
+    value: 'Windows: A user account was added to administration groups'
+  commands:
+  - net user "$(target.user)" /active:no
+  - net user $(adversary.user) /active:no
+  shell: powershell
+  agentPlatform: windows

@@ -17,13 +17,12 @@ updates:
     directory: "/agent-manager" # Location of package manifests
     schedule:
       interval: "weekly"
-  - package-ecosystem: "maven" # Adding support for java
-    directories:
-      - "/user-auditor"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/installer" # Location of package manifests
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/installer" # Location of package manifests
+    directory: "/plugins/ad-audit" # Location of package manifests
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values

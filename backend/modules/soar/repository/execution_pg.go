@@ -82,3 +82,35 @@ func (r *pgExecutionRepository) List(ctx context.Context, f connectors.Execution
 	}
 	return executions, total, nil
 }
+
+// Retry bumps are server-side increments so concurrent dispatcher ticks don't lose counts.
+func (r *pgExecutionRepository) UpdateStatus(ctx context.Context, id int64, u connectors.ExecutionStatusUpdate) error {
+	updates := map[string]any{}
+	if u.ExecutionStatus != nil {
+		updates["execution_status"] = *u.ExecutionStatus
+	}
+	if u.CommandResult != nil {
+		updates["command_result"] = *u.CommandResult
+	}
+	if u.NonExecutionCause != nil {
+		updates["non_execution_cause"] = *u.NonExecutionCause
+	}
+	if u.IncrementRetries {
+		updates["execution_retries"] = gorm.Expr("COALESCE(execution_retries, 0) + 1")
+	}
+	if len(updates) == 0 {
+		return nil
+	}
+
+	res := r.db.WithContext(ctx).
+		Model(&domain.AlertResponseRuleExecution{}).
+		Where("id = ?", id).
+		Updates(updates)
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return domain.ErrIncidentRecordNotFound
+	}
+	return nil
+}

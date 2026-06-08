@@ -14,6 +14,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/utmstack/backend/modules/adaudit"
 	"github.com/utmstack/utmstack/backend/modules/alerts"
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
 	"github.com/utmstack/utmstack/backend/modules/audit"
@@ -113,6 +114,7 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	notifications.RegisterRoutes(api, m.notifications, userAuth)
 	socai.RegisterRoutes(api, m.socAI, userAuth)
 	datasources.RegisterRoutes(api, m.datasources, userAuth)
+	adaudit.RegisterRoutes(api, m.adaudit, userAuth)
 }
 
 // startServer starts the HTTP server and blocks until appCtx is cancelled

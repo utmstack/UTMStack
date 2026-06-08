@@ -141,16 +141,16 @@ DROP TABLE IF EXISTS utm_agent_manager;
 DROP TABLE IF EXISTS public.utm_ports;
 DROP SEQUENCE IF EXISTS public.utm_ports_id_seq;
 
--- Drop utm_network_scan and utm_asset_types. The datasources module recreates
--- utm_network_scan from a clean, slimmed schema in 000003 (asset_type_id and the dead
--- sync/probe columns removed, `label` added, group_id kept). Dropping the dirty table
--- here — before 000003 — makes the clean CREATE take effect on in-place upgrades too,
--- where the legacy table would otherwise survive 000003's CREATE ... IF NOT EXISTS.
+-- Drop the dirty legacy utm_network_scan and utm_asset_types. The datasources module
+-- ships a clean, slimmed replacement table `datasources` created by GORM AutoMigrate
+-- (asset_type_id and the dead sync/probe columns removed, free-text `labels` added,
+-- group_id kept) — NOT a recreated utm_network_scan. Dropping the dirty table here
+-- guarantees the legacy schema doesn't survive into the new model on in-place upgrades.
 -- This is a documented BREAKING CHANGE: per-asset curation (group assignments, notes,
 -- alias) is discarded. Group definitions in utm_asset_group are kept, and alerts already
 -- enriched with their group retain it in OpenSearch. utm_asset_types is removed for good,
--- replaced by the free-text `label` column on utm_network_scan. CASCADE clears the FK from
--- the dropped table; utm_network_scan_id_seq is left for 000003 to reuse.
+-- replaced by the free-text `labels` column on the new `datasources` table. CASCADE clears
+-- the FK from the dropped table.
 DROP TABLE IF EXISTS public.utm_network_scan CASCADE;
 DROP TABLE IF EXISTS public.utm_asset_types;
 DROP SEQUENCE IF EXISTS public.utm_asset_types_id_seq;
@@ -163,14 +163,17 @@ DROP SEQUENCE IF EXISTS public.utm_asset_types_id_seq;
 DROP TABLE IF EXISTS public.utm_collectors;
 
 -- Drop the compliance framework tables. Standards → sections → controls → queries are
--- now vendor-shipped YAML (modules/compliance/config), read by the backend and the
--- orchestrator plugin; no longer user-editable in Postgres. utm_compliance_report_config
--- and _report_schedule are KEPT (user state). CASCADE clears the legacy FK from
--- report_config → standard_section. Child-first order.
+-- now file-backed YAML (control library + frameworks), read by the backend. The
+-- dashboard-driven utm_compliance_report_config is also gone (its role is superseded
+-- by the YAML controls/frameworks). Only utm_compliance_report_schedule is kept (user
+-- state) — and reshaped (the legacy rows referenced the dropped standards, so it is
+-- recreated fresh by AutoMigrate; see migrations/pre). CASCADE clears legacy FKs.
+DROP TABLE IF EXISTS public.utm_compliance_report_config CASCADE;
 DROP TABLE IF EXISTS public.utm_compliance_query_config CASCADE;
 DROP TABLE IF EXISTS public.utm_compliance_control_config CASCADE;
 DROP TABLE IF EXISTS public.utm_compliance_standard_section CASCADE;
 DROP TABLE IF EXISTS public.utm_compliance_standard CASCADE;
+DROP SEQUENCE IF EXISTS public.utm_compliance_report_config_id_seq;
 DROP SEQUENCE IF EXISTS public.utm_compliance_query_config_id_seq;
 DROP SEQUENCE IF EXISTS public.utm_compliance_control_config_id_seq;
 DROP SEQUENCE IF EXISTS public.utm_compliance_standard_section_id_seq;
@@ -307,7 +310,8 @@ INSERT INTO permissions (name, description, resource, action) VALUES
     ('loganalyzer.read',  'Explore logs (top values, chart view) and view saved queries', 'loganalyzer', 'read'),
     ('loganalyzer.write', 'Create, update and delete saved log-analyzer queries',          'loganalyzer', 'write'),
     ('idp.read',  'List and view SAML identity-provider configurations', 'idp', 'read'),
-    ('idp.write', 'Create, update and delete SAML identity-provider configurations', 'idp', 'write')
+    ('idp.write', 'Create, update and delete SAML identity-provider configurations', 'idp', 'write'),
+    ('adaudit.read', 'List and view the audited Active Directory user inventory', 'adaudit', 'read')
 ON CONFLICT (name) DO NOTHING;
 
 -- Bind ROLE_ADMIN to every permission currently in the catalog. Re-run this

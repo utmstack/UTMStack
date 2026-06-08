@@ -8,21 +8,6 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
-type RuleFilters struct {
-	ID                  int64
-	RuleName            string
-	RuleActive          *bool
-	AgentPlatform       string
-	CreatedBy           string
-	LastModifiedBy      string
-	CreatedDateGTE      string
-	CreatedDateLTE      string
-	LastModifiedDateGTE string
-	LastModifiedDateLTE string
-	SystemOwner         *bool
-	database.Params
-}
-
 type TemplateFilters struct {
 	ID          int64
 	Label       string
@@ -46,26 +31,30 @@ type ExecutionFilters struct {
 	database.Params
 }
 
-type RuleRepository interface {
-	Create(ctx context.Context, rule *domain.AlertResponseRule) (*domain.AlertResponseRule, error)
-	Update(ctx context.Context, rule *domain.AlertResponseRule) (*domain.AlertResponseRule, error)
-	GetByID(ctx context.Context, id int64) (*domain.AlertResponseRule, error)
-	List(ctx context.Context, f RuleFilters) ([]domain.AlertResponseRule, int64, error)
-	Delete(ctx context.Context, id int64) error
-}
-
 type TemplateRepository interface {
 	List(ctx context.Context, f TemplateFilters) ([]domain.AlertResponseActionTemplate, int64, error)
+}
+
+type ExecutionStatusUpdate struct {
+	ExecutionStatus   *domain.ExecutionStatus
+	CommandResult     *string
+	NonExecutionCause *domain.NonExecutionCause
+	IncrementRetries  bool
 }
 
 type ExecutionRepository interface {
 	Create(ctx context.Context, e *domain.AlertResponseRuleExecution) (*domain.AlertResponseRuleExecution, error)
 	List(ctx context.Context, f ExecutionFilters) ([]domain.AlertResponseRuleExecution, int64, error)
+	UpdateStatus(ctx context.Context, id int64, u ExecutionStatusUpdate) error
 }
 
 type ResolveFilterRepository interface {
 	GetAgentPlatforms(ctx context.Context) ([]string, error)
 	GetUsers(ctx context.Context) ([]string, error)
+}
+
+type AgentRepository interface {
+	ListNamesByPlatform(ctx context.Context, platform string) ([]string, error)
 }
 
 type VariableRepository interface {
