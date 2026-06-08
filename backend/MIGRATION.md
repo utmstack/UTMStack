@@ -29,7 +29,7 @@ Current Go modules: `iam` · `audit` · `appconfig` · `compliance` · `alerts` 
 
 **Phase 1 (Foundation)** ✅ essentially complete (federation client-registry side pending). **Phase 2 (SIEM core)** ✅ complete: Alerts · Correlation+Logstash (→ **eventprocessing**) · Index Mgmt+ISM (→ **opensearch**) · OpenSearch Gateway · Collectors & Agents. (Asset Metrics 🚫 and Data Input Status 🚫 dropped — dead/derived tables.) **Phase 3 (SOAR)** ✅ complete: Incidents · Alert Response + Incident Response (→ **soar**) · SOC AI · Threat/Adversary (→ **alerts**). **Phase 4 (Compliance)** ✅ standards/sections/controls + OpenSearch evaluation/report-config/schedules (→ **compliance**). **Phase 5 partial:** Notifications ✅ · Mail sender ✅ · TFA ✅ · API keys ✅ · Integrations ✅ · Network scan → **datasources** ✅.
 
-**Remaining:** Generic reports + PDF export · SSO/IdP (**inside iam**) · auditor users (AD audit → plugin) · app-info (future **billing**) · images CRUD (**inside appconfig**). **🚫 Not migrating:** menus · federation service · getting-started · schedules (unless needed). _(Dashboards/visualizations — previously 🚫 — are now ✅ ported to **dashboards** since there is no OpenSearch Dashboards to lean on.)_
+**Remaining:** Generic reports + PDF export · auditor users (AD audit → plugin) · app-info (future **billing**) · images CRUD (**inside appconfig**). **🚫 Not migrating:** menus · federation service · getting-started · schedules (unless needed). _(Dashboards/visualizations — previously 🚫 — are now ✅ ported to **dashboards** since there is no OpenSearch Dashboards to lean on.)_
 
 > **Module consolidation (2026-06).** The original per-resource modules were merged into bounded contexts. Many deep-dive sections below still use the old names; the matrix and update log are the source of truth. Mappings: `correlation` + `logstash` + data-types/regex/tenant-config → **`eventprocessing`** (rules now **YAML-direct**, no DB) · `index_pattern` + `index_policy` → **`opensearch`** · `alert_response_rules` + `incident_response` → **`soar`** · `tfa` + `api_keys` → **`iam`** · `threat_management` (adversary) → **`alerts`** · `network_scan` + `datainput` → **`datasources`** (`utm_data_input_status` dropped — liveness derived from OpenSearch; `datainput` module removed).
 
@@ -92,7 +92,7 @@ Current Go modules: `iam` · `audit` · `appconfig` · `compliance` · `alerts` 
 | 27 | [Notifications (in-app + email + SMS)](#27-notifications-in-app--email--sms) | `web/rest/notification/` | `modules/notifications/` | ✅ | Migrated |
 | 28 | [Mail sending](#28-mail-sending) | `service/mail_sender/` | `internal/mail/` | ✅ | SMTP sender wired (used by password reset, incidents, notifications) |
 | 29 | [TFA / MFA](#29-tfa--mfa) | `web/rest/tfa/` | `modules/iam/handler/tfa.go` | ✅ | TOTP + email challenges ✅ |
-| 30 | [Identity providers (SAML / OIDC)](#30-identity-providers-saml--oidc) | `web/rest/idp_provider/`, `config/saml/` | — | ❌ | **Remaining** — will live **inside `iam`**. Spring SAML2 → gosaml2 / go-oidc |
+| 30 | [Identity providers (SAML)](#30-identity-providers-saml--done-saml2) | `web/rest/idp_provider/`, `config/saml/` | `iam` (idp + saml) | ✅ | Config CRUD + live SP-initiated SAML2 flow (login/ACS) via `crewjam/saml`. No JIT. OIDC not needed (legacy SAML2-only) |
 | 31 | [API keys](#31-api-keys) | `web/rest/api_key/` | `modules/iam/handler/api_keys.go` | ✅ | Merged into **iam**. Hashed keys + auth middleware ✅ |
 | 32 | [Integrations (Slack, Jira, …)](#32-integrations-slack-jira-) | `web/rest/UtmIntegrationResource.java`, `application_modules/` | `modules/integrations/` | ✅ | Integrations + `utm_module` bounded context ✅ |
 | 33 | [Network scanning & assets](#33-network-scanning--assets) | `web/rest/network_scan/` | `modules/datasources/` | ⚠️ | Renamed `network_scan` → **datasources** (merge target for assets + data-input). Assets/groups + asset-sync (OpenSearch `v11-statistics-*`, no checkpoint) ✅. ⚠️ WIP: `utm_asset_types` dropped (→ free-text `label`) and `utm_ports` dropped, but Go code + `utm_network_scan` recreate path (000003) not yet reconciled. |
@@ -606,14 +606,19 @@ Current Go modules: `iam` · `audit` · `appconfig` · `compliance` · `alerts` 
 
 ---
 
-#### 30. Identity providers (SAML / OIDC)
+#### 30. Identity providers (SAML) — ✅ Done (SAML2)
 
 - **Legacy:** `web/rest/idp_provider/IdentityProviderResource.java`, `IdentityProviderConfigResource.java`, `config/saml/OAuth2ClientConfig.java`, `SamlRelyingPartyRegistrationRepository.java`, `SamlMetadataFetcher.java`, `ProviderChangeListener.java`, `security/saml/Saml2LoginSuccessHandler.java`, `Saml2LoginFailureHandler.java`
-- **Endpoints (target):**
-  - [ ] CRUD `/api/idp-providers`
-  - [ ] SAML ACS / IdP metadata endpoints
-  - [ ] OIDC redirect / callback
-- **External deps:** `crewjam/saml` or `russellhaering/gosaml2`, `coreos/go-oidc`. Spring's auto-magic dynamic registration won't port directly — design a registry that re-builds on config change.
+- **Go:** inside `iam` — `domain/idp.go`, `dto/idp.go`, `repository/idp.go`, `usecase/idp.go` (config CRUD, SP key encrypted at rest), `usecase/saml.go` (live flow), `handler/idp.go` + `handler/saml.go`.
+- **Endpoints:**
+  - [x] Admin CRUD `/api/v1/identity-providers` (`idp.read`/`idp.write`)
+  - [x] Public `GET /api/v1/idp-providers` (login-page IdP list, no auth)
+  - [x] `GET /api/v1/sso/saml/:name/login` — SP-initiated AuthnRequest redirect
+  - [x] `POST /api/v1/sso/saml/:name/acs` — assertion consumer (configure as `sp_acs_url`)
+- **Design:** SP built **per request** from DB config (key decrypted via cipher, cert parsed from PEM, IdP metadata fetched live via `samlsp.FetchMetadata`). Response validated with `sp.ParseXMLResponse(raw, nil, sp.AcsURL)` — `currentURL` pinned to the configured public ACS URL so signature/Destination/Recipient checks pass behind nginx. NameID → `userRepo.FindByLogin` (**no JIT provisioning**; user must pre-exist + be activated) → JWT via `IssueTokenPair` → browser redirected to `/?token=…` (or `/?error=saml2`). Audited as `AUTH_*`.
+- **External dep:** `github.com/crewjam/saml v0.5.1` (direct).
+- **OIDC:** not implemented (legacy is SAML2-only). `coreos/go-oidc` left for a future provider type.
+- **Follow-ups (phase 3, optional):** cache built SPs / IdP metadata with TTL + reload-on-config-change (currently fetched each login); `AllowIDPInitiated=true` skips strict `InResponseTo` binding — tighten with a signed request-ID cookie (SameSite=None; Secure) if strict replay protection is required; needs validation against a real IdP (Okta/Azure AD/Keycloak).
 
 ---
 
@@ -773,7 +778,7 @@ Current Go modules: `iam` · `audit` · `appconfig` · `compliance` · `alerts` 
 | **Kafka** | Event streaming (alerts, logs) | `segmentio/kafka-go` or `confluent-kafka-go` |
 | **gRPC** | Agent / collector / incident commands | `google.golang.org/grpc v1.81.1` ✅ integrated via `pkg/agentmanager/` |
 | **SMTP** | Notifications, password reset, reports | `gomail.v2` / `net/smtp` |
-| **SAML 2.0** | IdP login | `russellhaering/gosaml2` |
+| **SAML 2.0** | IdP login | ✅ `crewjam/saml` (in `iam`) |
 | **OIDC / OAuth2** | IdP login | `coreos/go-oidc`, `oauth2` |
 | **TOTP** | TFA | `pquerna/otp` |
 | **PDF generation** | Reports, compliance | External `web-pdf` service (Node/Puppeteer) — keep, call via HTTP |

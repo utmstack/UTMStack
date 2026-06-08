@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
+	"github.com/utmstack/utmstack/backend/modules/iam/dto"
 )
 
 type ListUsersFilter struct {
@@ -70,4 +71,13 @@ type APIKeyRepository interface {
 	FindByNameAndUser(ctx context.Context, name string, userID uint64) (*domain.APIKey, error)
 	FindByKey(ctx context.Context, apiKey string) (*domain.APIKey, error)
 	ListByUser(ctx context.Context, userID uint64, page, pageSize int) ([]domain.APIKey, int64, error)
+}
+
+type IdentityProviderRepository interface {
+	Save(ctx context.Context, c *domain.IdentityProviderConfig) error
+	FindByID(ctx context.Context, id uint64) (*domain.IdentityProviderConfig, error)
+	FindByName(ctx context.Context, name string) (*domain.IdentityProviderConfig, error)
+	List(ctx context.Context, f dto.IdentityProviderFilter) ([]domain.IdentityProviderConfig, int64, error)
+	ListActive(ctx context.Context) ([]domain.IdentityProviderConfig, error)
+	Delete(ctx context.Context, id uint64) error
 }

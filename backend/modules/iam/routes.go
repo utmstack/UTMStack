@@ -58,4 +58,18 @@ func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFu
 	keyGroup.PUT("/:id", apiKeys.Update)
 	keyGroup.DELETE("/:id", apiKeys.Delete)
 	keyGroup.POST("/:id/generate", apiKeys.Generate)
+
+	idp := module.GetIDPHandler()
+	idpGroup := api.Group("/identity-providers", userAuth)
+	idpGroup.POST("", middleware.RequirePermission("idp.write"), idp.Create)
+	idpGroup.PUT("", middleware.RequirePermission("idp.write"), idp.Update)
+	idpGroup.GET("", middleware.RequirePermission("idp.read"), idp.List)
+	idpGroup.GET("/:id", middleware.RequirePermission("idp.read"), idp.GetByID)
+	idpGroup.DELETE("/:id", middleware.RequirePermission("idp.write"), idp.Delete)
+
+	api.GET("/idp-providers", idp.PublicList)
+	saml := module.GetSAMLHandler()
+	ssoGroup := api.Group("/sso/saml/:name")
+	ssoGroup.GET("/login", saml.Initiate)
+	ssoGroup.POST("/acs", saml.ACS)
 }

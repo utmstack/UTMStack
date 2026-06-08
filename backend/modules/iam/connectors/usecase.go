@@ -2,7 +2,9 @@ package connectors
 
 import (
 	"context"
+	"net/http"
 
+	"github.com/utmstack/utmstack/backend/modules/iam/domain"
 	"github.com/utmstack/utmstack/backend/modules/iam/dto"
 )
 
@@ -78,4 +80,22 @@ type APIKeyUsecase interface {
 	List(ctx context.Context, userID uint64, q dto.ListAPIKeysQuery) (*dto.APIKeyListResponse, error)
 	Generate(ctx context.Context, userID, id uint64) (string, error)
 	Authenticate(ctx context.Context, apiKey, clientIP string) (*APIKeyAuthResult, error)
+}
+
+type IdentityProviderUsecase interface {
+	Create(ctx context.Context, req dto.IdentityProviderRequest) (*domain.IdentityProviderConfig, error)
+	Update(ctx context.Context, req dto.IdentityProviderRequest) (*domain.IdentityProviderConfig, error)
+	GetByID(ctx context.Context, id uint64) (*domain.IdentityProviderConfig, error)
+	List(ctx context.Context, f dto.IdentityProviderFilter) ([]domain.IdentityProviderConfig, int64, error)
+	ListActive(ctx context.Context) ([]dto.IdentityProviderPublic, error)
+	Delete(ctx context.Context, id uint64) error
+}
+
+// SAMLUsecase drives the live SP-initiated SAML2 web SSO flow.
+type SAMLUsecase interface {
+	// InitiateURL builds the IdP redirect URL (signed AuthnRequest) for the given provider.
+	InitiateURL(ctx context.Context, providerName string) (string, error)
+	// ConsumeACS validates the SAMLResponse posted to the ACS, maps the NameID to a
+	// local (pre-existing) user and returns a freshly issued access token.
+	ConsumeACS(ctx context.Context, providerName string, r *http.Request, lc LoginContext) (string, error)
 }

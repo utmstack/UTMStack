@@ -106,6 +106,9 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	roleUsecase := iam_usecase.NewRoleUsecase(rbacRepo)
 	apiKeyRepo := iam_repository.NewAPIKeyRepository(db)
 	apiKeyUsecase := iam_usecase.NewAPIKeyUsecase(apiKeyRepo, userRepo)
+	idpRepo := iam_repository.NewIdentityProviderRepository(db)
+	idpUsecase := iam_usecase.NewIdentityProviderUsecase(idpRepo, cipher)
+	samlUsecase := iam_usecase.NewSAMLUsecase(idpRepo, userRepo, refreshRepo, signer, cipher, refreshTokenTTL)
 
 	// Configure the go-sdk OpenSearch global client used by all modules.
 	osURL := fmt.Sprintf("https://%s:%d", cfg.esHost, cfg.esPort)
@@ -137,7 +140,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	datasourcesMod := datasources.NewModule(dsUC, dsGroupUC)
 
 	return &modules{
-		iam:               iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, cfg.uploadDir),
+		iam:               iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, samlUsecase, cfg.uploadDir),
 		audit:             auditMod,
 		appconfig:         configMod,
 		mail:              mailMod,

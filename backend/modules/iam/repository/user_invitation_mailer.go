@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	mail_connectors "github.com/utmstack/utmstack/backend/internal/mail/connectors"
+	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/pkg/constants/templates"
 )
 

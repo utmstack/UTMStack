@@ -230,7 +230,9 @@ INSERT INTO permissions (name, description, resource, action) VALUES
     ('dashboards.read',  'List and view dashboards, visualizations and their layouts',  'dashboards', 'read'),
     ('dashboards.write', 'Create, update and delete dashboards, visualizations and layouts', 'dashboards', 'write'),
     ('loganalyzer.read',  'Explore logs (top values, chart view) and view saved queries', 'loganalyzer', 'read'),
-    ('loganalyzer.write', 'Create, update and delete saved log-analyzer queries',          'loganalyzer', 'write')
+    ('loganalyzer.write', 'Create, update and delete saved log-analyzer queries',          'loganalyzer', 'write'),
+    ('idp.read',  'List and view SAML identity-provider configurations', 'idp', 'read'),
+    ('idp.write', 'Create, update and delete SAML identity-provider configurations', 'idp', 'write')
 ON CONFLICT (name) DO NOTHING;
 
 -- Bind ROLE_ADMIN to every permission currently in the catalog. Re-run this

@@ -36,6 +36,7 @@ func Models() []any {
 		iam_domain.UserAuthority{},
 		iam_domain.APIKey{},
 		iam_domain.RefreshToken{},
+		iam_domain.IdentityProviderConfig{},
 		audit_domain.AuditLog{},
 		appconfig_domain.Config{},
 		alerts_domain.UtmAlertTag{},
