@@ -141,16 +141,16 @@ DROP TABLE IF EXISTS utm_agent_manager;
 DROP TABLE IF EXISTS public.utm_ports;
 DROP SEQUENCE IF EXISTS public.utm_ports_id_seq;
 
--- Drop utm_network_scan and utm_asset_types. The datasources module recreates
--- utm_network_scan from a clean, slimmed schema in 000003 (asset_type_id and the dead
--- sync/probe columns removed, `label` added, group_id kept). Dropping the dirty table
--- here — before 000003 — makes the clean CREATE take effect on in-place upgrades too,
--- where the legacy table would otherwise survive 000003's CREATE ... IF NOT EXISTS.
+-- Drop the dirty legacy utm_network_scan and utm_asset_types. The datasources module
+-- ships a clean, slimmed replacement table `datasources` created by GORM AutoMigrate
+-- (asset_type_id and the dead sync/probe columns removed, free-text `labels` added,
+-- group_id kept) — NOT a recreated utm_network_scan. Dropping the dirty table here
+-- guarantees the legacy schema doesn't survive into the new model on in-place upgrades.
 -- This is a documented BREAKING CHANGE: per-asset curation (group assignments, notes,
 -- alias) is discarded. Group definitions in utm_asset_group are kept, and alerts already
 -- enriched with their group retain it in OpenSearch. utm_asset_types is removed for good,
--- replaced by the free-text `label` column on utm_network_scan. CASCADE clears the FK from
--- the dropped table; utm_network_scan_id_seq is left for 000003 to reuse.
+-- replaced by the free-text `labels` column on the new `datasources` table. CASCADE clears
+-- the FK from the dropped table.
 DROP TABLE IF EXISTS public.utm_network_scan CASCADE;
 DROP TABLE IF EXISTS public.utm_asset_types;
 DROP SEQUENCE IF EXISTS public.utm_asset_types_id_seq;
@@ -310,7 +310,8 @@ INSERT INTO permissions (name, description, resource, action) VALUES
     ('loganalyzer.read',  'Explore logs (top values, chart view) and view saved queries', 'loganalyzer', 'read'),
     ('loganalyzer.write', 'Create, update and delete saved log-analyzer queries',          'loganalyzer', 'write'),
     ('idp.read',  'List and view SAML identity-provider configurations', 'idp', 'read'),
-    ('idp.write', 'Create, update and delete SAML identity-provider configurations', 'idp', 'write')
+    ('idp.write', 'Create, update and delete SAML identity-provider configurations', 'idp', 'write'),
+    ('adaudit.read', 'List and view the audited Active Directory user inventory', 'adaudit', 'read')
 ON CONFLICT (name) DO NOTHING;
 
 -- Bind ROLE_ADMIN to every permission currently in the catalog. Re-run this

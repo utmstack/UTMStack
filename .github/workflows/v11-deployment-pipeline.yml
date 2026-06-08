@@ -411,6 +411,7 @@ jobs:
           cd ${{ github.workspace }}/plugins/soc-ai; go build -o com.utmstack.soc-ai.plugin -v .
           cd ${{ github.workspace }}/plugins/crowdstrike; go build -o com.utmstack.crowdstrike.plugin -v .
           cd ${{ github.workspace }}/plugins/feeds; go build -o com.utmstack.feeds.plugin -v .
+          cd ${{ github.workspace }}/plugins/ad-audit; go build -o com.utmstack.ad-audit.plugin -v .
 
       - name: Prepare Dependencies for Event Processor Image
         run: |
@@ -458,28 +459,15 @@ jobs:
       image_name: frontend
       tag: ${{ needs.setup_deployment.outputs.tag }}
 
-  build_user_auditor:
-    name: Build User-Auditor Microservice
-    needs: [validations, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' }}
-    uses: ./.github/workflows/reusable-java.yml
-    with:
-      image_name: user-auditor
-      tag: ${{ needs.setup_deployment.outputs.tag }}
-      java_version: '11'
-      use_version_file: false
-      maven_goals: 'clean install -U'
-
   all_builds_complete:
     name: All Builds Complete
     needs: [
       build_agent_manager,
       build_event_processor,
       build_backend,
-      build_frontend,
-      build_user_auditor
+      build_frontend
     ]
-    if: ${{ always() && needs.build_agent_manager.result == 'success' && needs.build_event_processor.result == 'success' && needs.build_backend.result == 'success' && needs.build_frontend.result == 'success' && needs.build_user_auditor.result == 'success' }}
+    if: ${{ always() && needs.build_agent_manager.result == 'success' && needs.build_event_processor.result == 'success' && needs.build_backend.result == 'success' && needs.build_frontend.result == 'success' }}
     runs-on: ubuntu-24.04
     steps:
       - run: echo "✅ All builds completed successfully."

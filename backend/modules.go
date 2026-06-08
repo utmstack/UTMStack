@@ -8,6 +8,7 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	sdkos "github.com/threatwinds/go-sdk/os"
 	"github.com/utmstack/utmstack/backend/internal/mail"
+	"github.com/utmstack/utmstack/backend/modules/adaudit"
 	"github.com/utmstack/utmstack/backend/modules/alerts"
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
 	"github.com/utmstack/utmstack/backend/modules/audit"
@@ -64,6 +65,7 @@ type modules struct {
 	incidents         *incidents.Module
 	notifications     *notifications.Module
 	socAI             *socai.Module
+	adaudit           *adaudit.Module
 	signer            *jwtpkg.Signer
 }
 
@@ -182,6 +184,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 			auditMod.Logger(),
 		),
 		notifications: notificationsMod,
+		adaudit:       adaudit.NewModule(db),
 		signer:        signer,
 	}
 }
