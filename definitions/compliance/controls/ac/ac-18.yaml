@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ac-18
+family: ac
+familyName: Access Control
+name: Wireless Access
+scope: data
+statement: |-
+  Establish configuration requirements, connection requirements, and implementation guidance for each type of wireless access; and
+    Authorize each type of wireless access to the system prior to allowing such connections.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

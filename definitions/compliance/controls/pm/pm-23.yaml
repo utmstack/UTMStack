@@ -1,0 +1,8 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-23
+family: pm
+familyName: Program Management
+name: Data Governance Body
+scope: governance
+statement: Establish a Data Governance Body consisting of [roles] with [responsibilities].
+source: NIST SP 800-53 Rev 5 (public domain)

@@ -1,0 +1,15 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: cm-12
+family: cm
+familyName: Configuration Management
+name: Information Location
+scope: data
+statement: |-
+  Identify and document the location of [information] and the specific system components on which the information is processed and stored;
+    Identify and document the users who have access to the system and system components where the information is processed and stored; and
+    Document changes to the location (i.e., system or system components) where the information is processed and stored.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

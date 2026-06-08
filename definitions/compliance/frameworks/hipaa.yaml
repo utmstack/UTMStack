@@ -1,0 +1,115 @@
+# Framework = checklist. References library controls via satisfiedBy. No queries.
+key: hipaa
+name: HIPAA Security Rule
+description: US HIPAA Security Rule safeguards for electronic protected health information (ePHI), 45
+  CFR Part 164 Subpart C.
+source: 45 CFR §164.308/310/312 (public domain). Control mapping per NIST SP 800-66 Rev 2 (public domain).
+sections:
+- key: administrative-safeguards
+  name: Administrative Safeguards (§164.308)
+  requirements:
+  - id: 164.308(a)(1)(ii)(D)
+    name: Information System Activity Review
+    satisfiedBy:
+    - au-6
+    - au-2
+    - au-12
+  - id: 164.308(a)(1)(ii)(A)
+    name: Risk Analysis
+    satisfiedBy:
+    - ra-3
+  - id: 164.308(a)(1)(ii)(C)
+    name: Sanction Policy
+    satisfiedBy:
+    - ps-8
+  - id: 164.308(a)(3)(i)
+    name: Workforce Security
+    satisfiedBy:
+    - ps-3
+    - ps-4
+    - ps-5
+    - ac-2
+  - id: 164.308(a)(4)(i)
+    name: Information Access Management
+    satisfiedBy:
+    - ac-2
+    - ac-3
+    - ac-6
+  - id: 164.308(a)(5)(i)
+    name: Security Awareness and Training
+    satisfiedBy:
+    - at-2
+    - at-3
+  - id: 164.308(a)(6)(i)
+    name: Security Incident Procedures
+    satisfiedBy:
+    - ir-4
+    - ir-5
+    - ir-6
+  - id: 164.308(a)(7)(i)
+    name: Contingency Plan
+    satisfiedBy:
+    - cp-2
+    - cp-9
+    - cp-10
+- key: physical-safeguards
+  name: Physical Safeguards (§164.310)
+  requirements:
+  - id: 164.310(a)(1)
+    name: Facility Access Controls
+    satisfiedBy:
+    - pe-2
+    - pe-3
+  - id: 164.310(c)
+    name: Workstation Security
+    satisfiedBy:
+    - pe-3
+  - id: 164.310(d)(1)
+    name: Device and Media Controls
+    satisfiedBy:
+    - mp-6
+    - mp-2
+- key: technical-safeguards
+  name: Technical Safeguards (§164.312)
+  requirements:
+  - id: 164.312(a)(1)
+    name: Access Control
+    satisfiedBy:
+    - ac-3
+    - ac-2
+    - ac-6
+  - id: 164.312(a)(2)(i)
+    name: Unique User Identification
+    satisfiedBy:
+    - ia-2
+    - ia-4
+  - id: 164.312(a)(2)(iii)
+    name: Automatic Logoff
+    satisfiedBy:
+    - ac-11
+    - ac-12
+  - id: 164.312(a)(2)(iv)
+    name: Encryption and Decryption
+    satisfiedBy:
+    - sc-28
+  - id: 164.312(b)
+    name: Audit Controls
+    satisfiedBy:
+    - au-2
+    - au-3
+    - au-6
+    - au-12
+  - id: 164.312(c)(1)
+    name: Integrity
+    satisfiedBy:
+    - si-7
+    - au-9
+  - id: 164.312(d)
+    name: Person or Entity Authentication
+    satisfiedBy:
+    - ia-2
+  - id: 164.312(e)(1)
+    name: Transmission Security
+    satisfiedBy:
+    - sc-8
+    - sc-13

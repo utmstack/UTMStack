@@ -1,0 +1,11 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sr-2
+family: sr
+familyName: Supply Chain Risk Management
+name: Supply Chain Risk Management Plan
+scope: governance
+statement: |-
+  Develop a plan for managing supply chain risks associated with the research and development, design, manufacturing, acquisition, delivery, integration, operations and maintenance, and disposal of the following systems, system components or system services: [systems, system components, or system services];
+    Review and update the supply chain risk management plan [frequency] or as required, to address threat, organizational or environmental changes; and
+    Protect the supply chain risk management plan from unauthorized disclosure and modification.
+source: NIST SP 800-53 Rev 5 (public domain)

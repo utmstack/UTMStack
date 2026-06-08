@@ -1,0 +1,175 @@
+# PCI DSS v4.0 (checklist). Public IDs/titles, NO normative text (PCI SSC copyright).
+# satisfiedBy = 800-53 controls (best-effort mapping, review).
+key: pci-dss-4.0
+name: PCI DSS v4.0
+description: Payment Card Industry Data Security Standard v4.0. Reference IDs and short titles only;
+  the normative text is PCI SSC copyright and is not reproduced.
+source: PCI SSC (copyright) — public structure. 800-53 mapping best-effort (review).
+sections:
+- key: req-1
+  name: 'Requirement 1: Install and maintain network security controls'
+  requirements:
+  - id: '1'
+    name: Install and maintain network security controls
+    satisfiedBy:
+    - sc-7
+    - ac-4
+    - cm-7
+- key: req-2
+  name: 'Requirement 2: Apply secure configurations to all system components'
+  requirements:
+  - id: '2'
+    name: Apply secure configurations to all system components
+    satisfiedBy:
+    - cm-2
+    - cm-6
+    - cm-7
+- key: req-3
+  name: 'Requirement 3: Protect stored account data'
+  requirements:
+  - id: '3'
+    name: Protect stored account data
+    satisfiedBy:
+    - sc-28
+    - mp-4
+- key: req-4
+  name: 'Requirement 4: Protect cardholder data with strong cryptography during transmission'
+  requirements:
+  - id: '4'
+    name: Protect cardholder data with strong cryptography during transmission
+    satisfiedBy:
+    - sc-8
+    - sc-13
+- key: req-5
+  name: 'Requirement 5: Protect all systems and networks from malicious software'
+  requirements:
+  - id: '5'
+    name: Protect all systems and networks from malicious software
+    satisfiedBy:
+    - si-3
+- key: req-6
+  name: 'Requirement 6: Develop and maintain secure systems and software'
+  requirements:
+  - id: '6'
+    name: Develop and maintain secure systems and software
+    satisfiedBy:
+    - sa-3
+    - sa-11
+    - si-2
+    - ra-5
+- key: req-7
+  name: 'Requirement 7: Restrict access by business need to know'
+  requirements:
+  - id: '7'
+    name: Restrict access by business need to know
+    satisfiedBy:
+    - ac-2
+    - ac-3
+    - ac-6
+  - id: '7.2'
+    name: Access to system components and data is appropriately defined and assigned
+    satisfiedBy:
+    - ac-2
+    - ac-3
+    - ac-6
+  - id: '7.3'
+    name: Access is managed via an access control system(s)
+    satisfiedBy:
+    - ac-3
+- key: req-8
+  name: 'Requirement 8: Identify users and authenticate access'
+  requirements:
+  - id: '8'
+    name: Identify users and authenticate access
+    satisfiedBy:
+    - ia-2
+    - ia-4
+    - ia-5
+    - ac-7
+  - id: '8.2'
+    name: User identification and related accounts are managed throughout lifecycle
+    satisfiedBy:
+    - ia-4
+    - ac-2
+  - id: '8.3'
+    name: Strong authentication for users and administrators is established
+    satisfiedBy:
+    - ia-2
+    - ia-5
+  - id: '8.4'
+    name: Multi-factor authentication is implemented to secure access
+    satisfiedBy:
+    - ia-2
+  - id: '8.6'
+    name: Use of application and system accounts and associated factors is managed
+    satisfiedBy:
+    - ac-2
+    - ia-5
+- key: req-9
+  name: 'Requirement 9: Restrict physical access to cardholder data'
+  requirements:
+  - id: '9'
+    name: Restrict physical access to cardholder data
+    satisfiedBy:
+    - pe-2
+    - pe-3
+- key: req-10
+  name: 'Requirement 10: Log and monitor all access to system components and cardholder data'
+  requirements:
+  - id: '10'
+    name: Log and monitor all access to system components and cardholder data
+    satisfiedBy:
+    - au-2
+    - au-3
+    - au-6
+    - au-8
+    - au-9
+    - au-11
+    - au-12
+    - si-4
+  - id: '10.2'
+    name: Audit logs capture all access to system components
+    satisfiedBy:
+    - au-2
+    - au-3
+    - au-12
+  - id: '10.3'
+    name: Audit logs are protected from destruction and unauthorized modification
+    satisfiedBy:
+    - au-9
+  - id: '10.4'
+    name: Audit logs are reviewed to identify anomalies or suspicious activity
+    satisfiedBy:
+    - au-6
+    - si-4
+  - id: '10.5'
+    name: Audit log history is retained and available for analysis
+    satisfiedBy:
+    - au-11
+  - id: '10.6'
+    name: Time-synchronization mechanisms support consistent time settings
+    satisfiedBy:
+    - au-8
+  - id: '10.7'
+    name: Failures of critical security control systems are detected and addressed
+    satisfiedBy:
+    - si-4
+    - au-5
+- key: req-11
+  name: 'Requirement 11: Test security of systems and networks regularly'
+  requirements:
+  - id: '11'
+    name: Test security of systems and networks regularly
+    satisfiedBy:
+    - ra-5
+    - ca-7
+    - si-4
+- key: req-12
+  name: 'Requirement 12: Support information security with organizational policies and programs'
+  requirements:
+  - id: '12'
+    name: Support information security with organizational policies and programs
+    satisfiedBy:
+    - pl-1
+    - at-2
+    - ir-1

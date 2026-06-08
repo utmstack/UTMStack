@@ -1,0 +1,23 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: si-4
+family: si
+familyName: System and Information Integrity
+name: System Monitoring
+scope: data
+statement: |-
+  Monitor the system to detect:
+      Attacks and indicators of potential attacks in accordance with the following monitoring objectives: [monitoring objectives] ; and
+      Unauthorized local, network, and remote connections;
+    Identify unauthorized use of the system through the following techniques and methods: [techniques and methods];
+    Invoke internal monitoring capabilities or deploy monitoring devices:
+      Strategically within the system to collect organization-determined essential information; and
+      At ad hoc locations within the system to track specific types of transactions of interest to the organization;
+    Analyze detected events and anomalies;
+    Adjust the level of system monitoring activity when there is a change in risk to organizational operations and assets, individuals, other organizations, or the Nation;
+    Obtain legal opinion regarding system monitoring activities; and
+    Provide [system monitoring information] to [personnel or roles] [as needed | {{ insert: param, si-04_odp.06 }} ].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

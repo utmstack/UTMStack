@@ -1,0 +1,8 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pl-10
+family: pl
+familyName: Planning
+name: Baseline Selection
+scope: governance
+statement: Select a control baseline for the system.
+source: NIST SP 800-53 Rev 5 (public domain)

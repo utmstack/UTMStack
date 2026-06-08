@@ -1,0 +1,8 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-5
+family: pm
+familyName: Program Management
+name: System Inventory
+scope: governance
+statement: Develop and update [frequency] an inventory of organizational systems.
+source: NIST SP 800-53 Rev 5 (public domain)

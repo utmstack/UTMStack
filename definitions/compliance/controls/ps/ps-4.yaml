@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: ps-4
+family: ps
+familyName: Personnel Security
+name: Personnel Termination
+scope: governance
+statement: |-
+  Upon termination of individual employment:
+    Disable system access within [time period];
+    Terminate or revoke any authenticators and credentials associated with the individual;
+    Conduct exit interviews that include a discussion of [information security topics];
+    Retrieve all security-related organizational system-related property; and
+    Retain access to organizational information and systems formerly controlled by terminated individual.
+source: NIST SP 800-53 Rev 5 (public domain)

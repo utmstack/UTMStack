@@ -1,0 +1,11 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pe-6
+family: pe
+familyName: Physical and Environmental Protection
+name: Monitoring Physical Access
+scope: governance
+statement: |-
+  Monitor physical access to the facility where the system resides to detect and respond to physical security incidents;
+    Review physical access logs [frequency] and upon occurrence of [events] ; and
+    Coordinate results of reviews and investigations with the organizational incident response capability.
+source: NIST SP 800-53 Rev 5 (public domain)

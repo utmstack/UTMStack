@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-22
+family: pm
+familyName: Program Management
+name: Personally Identifiable Information Quality Management
+scope: governance
+statement: |-
+  Develop and document organization-wide policies and procedures for:
+    Reviewing for the accuracy, relevance, timeliness, and completeness of personally identifiable information across the information life cycle;
+    Correcting or deleting inaccurate or outdated personally identifiable information;
+    Disseminating notice of corrected or deleted personally identifiable information to individuals or other appropriate entities; and
+    Appeals of adverse decisions on correction or deletion requests.
+source: NIST SP 800-53 Rev 5 (public domain)

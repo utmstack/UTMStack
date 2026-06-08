@@ -1,0 +1,11 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-10
+family: pm
+familyName: Program Management
+name: Authorization Process
+scope: governance
+statement: |-
+  Manage the security and privacy state of organizational systems and the environments in which those systems operate through authorization processes;
+    Designate individuals to fulfill specific roles and responsibilities within the organizational risk management process; and
+    Integrate the authorization processes into an organization-wide risk management program.
+source: NIST SP 800-53 Rev 5 (public domain)

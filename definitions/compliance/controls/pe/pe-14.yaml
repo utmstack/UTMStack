@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pe-14
+family: pe
+familyName: Physical and Environmental Protection
+name: Environmental Controls
+scope: governance
+statement: |-
+  Maintain [temperature | humidity | pressure | radiation | {{ insert: param, pe-14_odp.02 }} ] levels within the facility where the system resides at [acceptable levels] ; and
+    Monitor environmental control levels [frequency].
+source: NIST SP 800-53 Rev 5 (public domain)

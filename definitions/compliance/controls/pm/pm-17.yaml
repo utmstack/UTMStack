@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-17
+family: pm
+familyName: Program Management
+name: Protecting Controlled Unclassified Information on External Systems
+scope: governance
+statement: |-
+  Establish policy and procedures to ensure that requirements for the protection of controlled unclassified information that is processed, stored or transmitted on external systems, are implemented in accordance with applicable laws, executive orders, directives, policies, regulations, and standards; and
+    Review and update the policy and procedures [organization-defined frequency].
+source: NIST SP 800-53 Rev 5 (public domain)

@@ -1,0 +1,9 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-6
+family: pm
+familyName: Program Management
+name: Measures of Performance
+scope: governance
+statement: Develop, monitor, and report on the results of information security and privacy measures of
+  performance.
+source: NIST SP 800-53 Rev 5 (public domain)

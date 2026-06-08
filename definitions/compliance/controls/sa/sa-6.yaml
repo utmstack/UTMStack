@@ -1,0 +1,8 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sa-6
+family: sa
+familyName: System and Services Acquisition
+name: Software Usage Restrictions
+scope: governance
+statement: ''
+source: NIST SP 800-53 Rev 5 (public domain)

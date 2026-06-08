@@ -1,0 +1,15 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-1
+family: pm
+familyName: Program Management
+name: Information Security Program Plan
+scope: governance
+statement: |-
+  Develop and disseminate an organization-wide information security program plan that:
+      Provides an overview of the requirements for the security program and a description of the security program management controls and common controls in place or planned for meeting those requirements;
+      Includes the identification and assignment of roles, responsibilities, management commitment, coordination among organizational entities, and compliance;
+      Reflects the coordination among organizational entities responsible for information security; and
+      Is approved by a senior official with responsibility and accountability for the risk being incurred to organizational operations (including mission, functions, image, and reputation), organizational assets, individuals, other organizations, and the Nation;
+    Review and update the organization-wide information security program plan [frequency] and following [events] ; and
+    Protect the information security program plan from unauthorized disclosure and modification.
+source: NIST SP 800-53 Rev 5 (public domain)

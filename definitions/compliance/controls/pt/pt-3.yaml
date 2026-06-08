@@ -1,0 +1,12 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pt-3
+family: pt
+familyName: Personally Identifiable Information Processing and Transparency
+name: Personally Identifiable Information Processing Purposes
+scope: governance
+statement: |-
+  Identify and document the [purpose(s)] for processing personally identifiable information;
+    Describe the purpose(s) in the public privacy notices and policies of the organization;
+    Restrict the [processing] of personally identifiable information to only that which is compatible with the identified purpose(s); and
+    Monitor changes in processing personally identifiable information and implement [mechanisms] to ensure that any changes are made in accordance with [requirements].
+source: NIST SP 800-53 Rev 5 (public domain)

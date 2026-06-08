@@ -1,0 +1,9 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-8
+family: pm
+familyName: Program Management
+name: Critical Infrastructure Plan
+scope: governance
+statement: Address information security and privacy issues in the development, documentation, and updating
+  of a critical infrastructure and key resources protection plan.
+source: NIST SP 800-53 Rev 5 (public domain)

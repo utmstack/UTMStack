@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sa-8
+family: sa
+familyName: System and Services Acquisition
+name: Security and Privacy Engineering Principles
+scope: governance
+statement: 'Apply the following systems security and privacy engineering principles in the specification,
+  design, development, implementation, and modification of the system and system components: [organization-defined
+  systems security and privacy engineering principles].'
+source: NIST SP 800-53 Rev 5 (public domain)

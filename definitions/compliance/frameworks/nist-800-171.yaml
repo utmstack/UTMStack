@@ -1,0 +1,570 @@
+# NIST 800-171 r3 (checklist). satisfiedBy = 800-53 controls (OSCAL references).
+key: nist-800-171
+name: NIST SP 800-171 Rev 3
+description: Protecting Controlled Unclassified Information (CUI) in nonfederal systems.
+source: NIST SP 800-171 Rev 3 (public domain). 800-53 mapping from OSCAL catalog references.
+sections:
+- key: '03.01'
+  name: Access Control
+  requirements:
+  - id: 03.01.01
+    name: Account Management
+    satisfiedBy:
+    - ac-2
+  - id: 03.01.02
+    name: Access Enforcement
+    satisfiedBy:
+    - ac-3
+  - id: 03.01.03
+    name: Information Flow Enforcement
+    satisfiedBy:
+    - ac-4
+  - id: 03.01.04
+    name: Separation of Duties
+    satisfiedBy:
+    - ac-5
+  - id: 03.01.05
+    name: Least Privilege
+    satisfiedBy:
+    - ac-6
+    - au-9
+  - id: 03.01.06
+    name: Least Privilege – Privileged Accounts
+    satisfiedBy:
+    - ac-6
+  - id: 03.01.07
+    name: Least Privilege – Privileged Functions
+    satisfiedBy:
+    - ac-6
+  - id: 03.01.08
+    name: Unsuccessful Logon Attempts
+    satisfiedBy:
+    - ac-7
+  - id: 03.01.09
+    name: System Use Notification
+    satisfiedBy:
+    - ac-8
+  - id: 03.01.10
+    name: Device Lock
+    satisfiedBy:
+    - ac-11
+  - id: 03.01.11
+    name: Session Termination
+    satisfiedBy:
+    - ac-12
+  - id: 03.01.12
+    name: Remote Access
+    satisfiedBy:
+    - ac-17
+  - id: 03.01.13
+    name: 03.01.13
+    satisfiedBy: []
+  - id: 03.01.14
+    name: 03.01.14
+    satisfiedBy: []
+  - id: 03.01.15
+    name: 03.01.15
+    satisfiedBy: []
+  - id: 03.01.16
+    name: Wireless Access
+    satisfiedBy:
+    - ac-18
+  - id: 03.01.17
+    name: 03.01.17
+    satisfiedBy: []
+  - id: 03.01.18
+    name: Access Control for Mobile Devices
+    satisfiedBy:
+    - ac-19
+  - id: 03.01.19
+    name: 03.01.19
+    satisfiedBy: []
+  - id: 03.01.20
+    name: Use of External Systems
+    satisfiedBy:
+    - ac-20
+  - id: 03.01.21
+    name: 03.01.21
+    satisfiedBy: []
+  - id: 03.01.22
+    name: Publicly Accessible Content
+    satisfiedBy:
+    - ac-22
+- key: '03.02'
+  name: Awareness and Training
+  requirements:
+  - id: 03.02.01
+    name: Literacy Training and Awareness
+    satisfiedBy:
+    - at-2
+  - id: 03.02.02
+    name: Role-Based Training
+    satisfiedBy:
+    - at-3
+  - id: 03.02.03
+    name: 03.02.03
+    satisfiedBy: []
+- key: '03.03'
+  name: Audit and Accountability
+  requirements:
+  - id: 03.03.01
+    name: Event Logging
+    satisfiedBy:
+    - au-2
+  - id: 03.03.02
+    name: Audit Record Content
+    satisfiedBy:
+    - au-3
+  - id: 03.03.03
+    name: Audit Record Generation
+    satisfiedBy:
+    - au-11
+    - au-12
+  - id: 03.03.04
+    name: Response to Audit Logging Process Failures
+    satisfiedBy:
+    - au-5
+  - id: 03.03.05
+    name: Audit Record Review, Analysis, and Reporting
+    satisfiedBy:
+    - au-6
+  - id: 03.03.06
+    name: Audit Record Reduction and Report Generation
+    satisfiedBy:
+    - au-7
+  - id: 03.03.07
+    name: Time Stamps
+    satisfiedBy:
+    - au-8
+  - id: 03.03.08
+    name: Protection of Audit Information
+    satisfiedBy:
+    - au-9
+  - id: 03.03.09
+    name: 03.03.09
+    satisfiedBy: []
+- key: '03.04'
+  name: Configuration Management
+  requirements:
+  - id: 03.04.01
+    name: Baseline Configuration
+    satisfiedBy:
+    - cm-2
+  - id: 03.04.02
+    name: Configuration Settings
+    satisfiedBy:
+    - cm-6
+  - id: 03.04.03
+    name: Configuration Change Control
+    satisfiedBy:
+    - cm-3
+  - id: 03.04.04
+    name: Impact Analyses
+    satisfiedBy:
+    - cm-4
+  - id: 03.04.05
+    name: Access Restrictions for Change
+    satisfiedBy:
+    - cm-5
+  - id: 03.04.06
+    name: Least Functionality
+    satisfiedBy:
+    - cm-7
+  - id: 03.04.07
+    name: 03.04.07
+    satisfiedBy: []
+  - id: 03.04.08
+    name: Authorized Software – Allow by Exception
+    satisfiedBy:
+    - cm-7
+  - id: 03.04.09
+    name: 03.04.09
+    satisfiedBy: []
+  - id: 03.04.10
+    name: System Component Inventory
+    satisfiedBy:
+    - cm-8
+  - id: 03.04.11
+    name: Information Location
+    satisfiedBy:
+    - cm-12
+  - id: 03.04.12
+    name: System and Component Configuration for High-Risk Areas
+    satisfiedBy:
+    - cm-2
+- key: '03.05'
+  name: Identification and Authentication
+  requirements:
+  - id: 03.05.01
+    name: User Identification and Authentication
+    satisfiedBy:
+    - ia-2
+    - ia-11
+  - id: 03.05.02
+    name: Device Identification and Authentication
+    satisfiedBy:
+    - ia-3
+  - id: 03.05.03
+    name: Multi-Factor Authentication
+    satisfiedBy:
+    - ia-2
+  - id: 03.05.04
+    name: Replay-Resistant Authentication
+    satisfiedBy:
+    - ia-2
+  - id: 03.05.05
+    name: Identifier Management
+    satisfiedBy:
+    - ia-4
+  - id: 03.05.06
+    name: 03.05.06
+    satisfiedBy: []
+  - id: 03.05.07
+    name: Password Management
+    satisfiedBy:
+    - ia-5
+  - id: 03.05.08
+    name: 03.05.08
+    satisfiedBy: []
+  - id: 03.05.09
+    name: 03.05.09
+    satisfiedBy: []
+  - id: 03.05.10
+    name: 03.05.10
+    satisfiedBy: []
+  - id: 03.05.11
+    name: Authentication Feedback
+    satisfiedBy:
+    - ia-6
+  - id: 03.05.12
+    name: Authenticator Management
+    satisfiedBy:
+    - ia-5
+- key: '03.06'
+  name: Incident Response
+  requirements:
+  - id: 03.06.01
+    name: Incident Handling
+    satisfiedBy:
+    - ir-4
+  - id: 03.06.02
+    name: Incident Monitoring, Reporting, and Response Assistance
+    satisfiedBy:
+    - ir-5
+    - ir-6
+    - ir-7
+  - id: 03.06.03
+    name: Incident Response Testing
+    satisfiedBy:
+    - ir-3
+  - id: 03.06.04
+    name: Incident Response Training
+    satisfiedBy:
+    - ir-2
+  - id: 03.06.05
+    name: Incident Response Plan
+    satisfiedBy:
+    - ir-8
+- key: '03.07'
+  name: Maintenance
+  requirements:
+  - id: 03.07.01
+    name: 03.07.01
+    satisfiedBy: []
+  - id: 03.07.02
+    name: 03.07.02
+    satisfiedBy: []
+  - id: 03.07.03
+    name: 03.07.03
+    satisfiedBy: []
+  - id: 03.07.04
+    name: Maintenance Tools
+    satisfiedBy:
+    - ma-3
+  - id: 03.07.05
+    name: Nonlocal Maintenance
+    satisfiedBy:
+    - ma-4
+  - id: 03.07.06
+    name: Maintenance Personnel
+    satisfiedBy:
+    - ma-5
+- key: '03.08'
+  name: Media Protection
+  requirements:
+  - id: 03.08.01
+    name: Media Storage
+    satisfiedBy:
+    - mp-4
+  - id: 03.08.02
+    name: Media Access
+    satisfiedBy:
+    - mp-2
+  - id: 03.08.03
+    name: Media Sanitization
+    satisfiedBy:
+    - mp-6
+  - id: 03.08.04
+    name: Media Marking
+    satisfiedBy:
+    - mp-3
+  - id: 03.08.05
+    name: Media Transport
+    satisfiedBy:
+    - mp-5
+    - sc-28
+  - id: 03.08.06
+    name: 03.08.06
+    satisfiedBy: []
+  - id: 03.08.07
+    name: Media Use
+    satisfiedBy:
+    - mp-7
+  - id: 03.08.08
+    name: 03.08.08
+    satisfiedBy: []
+  - id: 03.08.09
+    name: System Backup – Cryptographic Protection
+    satisfiedBy:
+    - cp-9
+- key: '03.09'
+  name: Personnel Security
+  requirements:
+  - id: 03.09.01
+    name: Personnel Screening
+    satisfiedBy:
+    - ps-3
+  - id: 03.09.02
+    name: Personnel Termination and Transfer
+    satisfiedBy:
+    - ps-4
+    - ps-5
+- key: '03.10'
+  name: Physical Protection
+  requirements:
+  - id: 03.10.01
+    name: Physical Access Authorizations
+    satisfiedBy:
+    - pe-2
+  - id: 03.10.02
+    name: Monitoring Physical Access
+    satisfiedBy:
+    - pe-6
+  - id: 03.10.03
+    name: 03.10.03
+    satisfiedBy: []
+  - id: 03.10.04
+    name: 03.10.04
+    satisfiedBy: []
+  - id: 03.10.05
+    name: 03.10.05
+    satisfiedBy: []
+  - id: 03.10.06
+    name: Alternate Work Site
+    satisfiedBy:
+    - pe-17
+  - id: 03.10.07
+    name: Physical Access Control
+    satisfiedBy:
+    - pe-3
+    - pe-5
+  - id: 03.10.08
+    name: Access Control for Transmission
+    satisfiedBy:
+    - pe-4
+- key: '03.11'
+  name: Risk Assessment
+  requirements:
+  - id: 03.11.01
+    name: Risk Assessment
+    satisfiedBy:
+    - ra-3
+    - sr-6
+  - id: 03.11.02
+    name: Vulnerability Monitoring and Scanning
+    satisfiedBy:
+    - ra-5
+  - id: 03.11.03
+    name: 03.11.03
+    satisfiedBy: []
+  - id: 03.11.04
+    name: Risk Response
+    satisfiedBy:
+    - ra-7
+- key: '03.12'
+  name: Security Assessment and Monitoring
+  requirements:
+  - id: 03.12.01
+    name: Security Assessment
+    satisfiedBy:
+    - ca-2
+  - id: 03.12.02
+    name: Plan of Action and Milestones
+    satisfiedBy:
+    - ca-5
+  - id: 03.12.03
+    name: Continuous Monitoring
+    satisfiedBy:
+    - ca-7
+  - id: 03.12.04
+    name: 03.12.04
+    satisfiedBy: []
+  - id: 03.12.05
+    name: Information Exchange
+    satisfiedBy:
+    - ca-3
+- key: '03.13'
+  name: System and Communications Protection
+  requirements:
+  - id: 03.13.01
+    name: Boundary Protection
+    satisfiedBy:
+    - sc-7
+  - id: 03.13.02
+    name: 03.13.02
+    satisfiedBy: []
+  - id: 03.13.03
+    name: 03.13.03
+    satisfiedBy: []
+  - id: 03.13.04
+    name: Information in Shared System Resources
+    satisfiedBy:
+    - sc-4
+  - id: 03.13.05
+    name: 03.13.05
+    satisfiedBy: []
+  - id: 03.13.06
+    name: Network Communications – Deny by Default – Allow by Exception
+    satisfiedBy:
+    - sc-7
+  - id: 03.13.07
+    name: 03.13.07
+    satisfiedBy: []
+  - id: 03.13.08
+    name: Transmission and Storage Confidentiality
+    satisfiedBy:
+    - sc-8
+    - sc-28
+  - id: 03.13.09
+    name: Network Disconnect
+    satisfiedBy:
+    - sc-10
+  - id: 03.13.10
+    name: Cryptographic Key Establishment and Management
+    satisfiedBy:
+    - sc-12
+  - id: 03.13.11
+    name: Cryptographic Protection
+    satisfiedBy:
+    - sc-13
+  - id: 03.13.12
+    name: Collaborative Computing Devices and Applications
+    satisfiedBy:
+    - sc-15
+  - id: 03.13.13
+    name: Mobile Code
+    satisfiedBy:
+    - sc-18
+  - id: 03.13.14
+    name: 03.13.14
+    satisfiedBy: []
+  - id: 03.13.15
+    name: Session Authenticity
+    satisfiedBy:
+    - sc-23
+  - id: 03.13.16
+    name: 03.13.16
+    satisfiedBy: []
+- key: '03.14'
+  name: System and Information Integrity
+  requirements:
+  - id: 03.14.01
+    name: Flaw Remediation
+    satisfiedBy:
+    - si-2
+  - id: 03.14.02
+    name: Malicious Code Protection
+    satisfiedBy:
+    - si-3
+  - id: 03.14.03
+    name: Security Alerts, Advisories, and Directives
+    satisfiedBy:
+    - si-5
+  - id: 03.14.04
+    name: 03.14.04
+    satisfiedBy: []
+  - id: 03.14.05
+    name: 03.14.05
+    satisfiedBy: []
+  - id: 03.14.06
+    name: System Monitoring
+    satisfiedBy:
+    - si-4
+  - id: 03.14.07
+    name: 03.14.07
+    satisfiedBy: []
+  - id: 03.14.08
+    name: Information Management and Retention
+    satisfiedBy:
+    - si-12
+- key: '03.15'
+  name: Planning
+  requirements:
+  - id: 03.15.01
+    name: Policy and Procedures
+    satisfiedBy:
+    - ac-1
+    - at-1
+    - au-1
+    - ca-1
+    - cm-1
+    - ia-1
+    - ir-1
+    - ma-1
+    - mp-1
+    - pe-1
+    - pl-1
+    - ps-1
+    - ra-1
+    - sa-1
+    - sc-1
+    - si-1
+    - sr-1
+  - id: 03.15.02
+    name: System Security Plan
+    satisfiedBy:
+    - pl-2
+  - id: 03.15.03
+    name: Rules of Behavior
+    satisfiedBy:
+    - pl-4
+- key: '03.16'
+  name: System and Services Acquisition
+  requirements:
+  - id: 03.16.01
+    name: Security Engineering Principles
+    satisfiedBy:
+    - sa-8
+  - id: 03.16.02
+    name: Unsupported System Components
+    satisfiedBy:
+    - sa-22
+  - id: 03.16.03
+    name: External System Services
+    satisfiedBy:
+    - sa-9
+- key: '03.17'
+  name: Supply Chain Risk Management
+  requirements:
+  - id: 03.17.01
+    name: Supply Chain Risk Management Plan
+    satisfiedBy:
+    - sr-2
+  - id: 03.17.02
+    name: Acquisition Strategies, Tools, and Methods
+    satisfiedBy:
+    - sr-5
+  - id: 03.17.03
+    name: Supply Chain Requirements and Processes
+    satisfiedBy:
+    - sr-3

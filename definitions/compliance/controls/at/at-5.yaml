@@ -1,0 +1,8 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: at-5
+family: at
+familyName: Awareness and Training
+name: Contacts with Security Groups and Associations
+scope: governance
+statement: ''
+source: NIST SP 800-53 Rev 5 (public domain)

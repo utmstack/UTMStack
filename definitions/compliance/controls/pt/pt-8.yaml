@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pt-8
+family: pt
+familyName: Personally Identifiable Information Processing and Transparency
+name: Computer Matching Requirements
+scope: governance
+statement: |-
+  When a system or organization processes information for the purpose of conducting a matching program:
+    Obtain approval from the Data Integrity Board to conduct the matching program;
+    Develop and enter into a computer matching agreement;
+    Publish a matching notice in the Federal Register;
+    Independently verify the information produced by the matching program before taking adverse action against an individual, if required; and
+    Provide individuals with notice and an opportunity to contest the findings before taking adverse action against an individual.
+source: NIST SP 800-53 Rev 5 (public domain)

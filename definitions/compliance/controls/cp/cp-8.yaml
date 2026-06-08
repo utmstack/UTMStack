@@ -1,0 +1,15 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: cp-8
+family: cp
+familyName: Contingency Planning
+name: Telecommunications Services
+scope: data
+statement: Establish alternate telecommunications services, including necessary agreements to permit the
+  resumption of [system operations] for essential mission and business functions within [time period]
+  when the primary telecommunications capabilities are unavailable at either the primary or alternate
+  processing or storage sites.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

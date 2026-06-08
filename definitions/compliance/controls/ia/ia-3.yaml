@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ia-3
+family: ia
+familyName: Identification and Authentication
+name: Device Identification and Authentication
+scope: data
+statement: Uniquely identify and authenticate [devices and/or types of devices] before establishing a
+  [local | remote | network] connection.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

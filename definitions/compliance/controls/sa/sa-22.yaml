@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sa-22
+family: sa
+familyName: System and Services Acquisition
+name: Unsupported System Components
+scope: governance
+statement: |-
+  Replace system components when support for the components is no longer available from the developer, vendor, or manufacturer; or
+    Provide the following options for alternative sources for continued support for unsupported components [in-house support | {{ insert: param, sa-22_odp.02 }} ].
+source: NIST SP 800-53 Rev 5 (public domain)

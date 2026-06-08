@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: ps-6
+family: ps
+familyName: Personnel Security
+name: Access Agreements
+scope: governance
+statement: |-
+  Develop and document access agreements for organizational systems;
+    Review and update the access agreements [frequency] ; and
+    Verify that individuals requiring access to organizational information and systems:
+      Sign appropriate access agreements prior to being granted access; and
+      Re-sign access agreements to maintain access to organizational systems when access agreements have been updated or [frequency].
+source: NIST SP 800-53 Rev 5 (public domain)

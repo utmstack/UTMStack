@@ -1,0 +1,12 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: cp-12
+family: cp
+familyName: Contingency Planning
+name: Safe Mode
+scope: data
+statement: When [conditions] are detected, enter a safe mode of operation with [restrictions].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

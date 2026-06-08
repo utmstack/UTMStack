@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: mp-4
+family: mp
+familyName: Media Protection
+name: Media Storage
+scope: governance
+statement: |-
+  Physically control and securely store [organization-defined types of digital and/or non-digital media] within [organization-defined controlled areas] ; and
+    Protect system media types defined in MP-4a until the media are destroyed or sanitized using approved equipment, techniques, and procedures.
+source: NIST SP 800-53 Rev 5 (public domain)

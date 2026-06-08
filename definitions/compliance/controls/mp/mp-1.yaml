@@ -1,0 +1,17 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: mp-1
+family: mp
+familyName: Media Protection
+name: Policy and Procedures
+scope: governance
+statement: |-
+  Develop, document, and disseminate to [organization-defined personnel or roles]:
+      [organization-level | mission/business process-level | system-level] media protection policy that:
+        Addresses purpose, scope, roles, responsibilities, management commitment, coordination among organizational entities, and compliance; and
+        Is consistent with applicable laws, executive orders, directives, regulations, policies, standards, and guidelines; and
+      Procedures to facilitate the implementation of the media protection policy and the associated media protection controls;
+    Designate an [official] to manage the development, documentation, and dissemination of the media protection policy and procedures; and
+    Review and update the current media protection:
+      Policy [frequency] and following [events] ; and
+      Procedures [frequency] and following [events].
+source: NIST SP 800-53 Rev 5 (public domain)

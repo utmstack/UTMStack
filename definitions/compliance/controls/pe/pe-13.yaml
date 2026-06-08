@@ -1,0 +1,9 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pe-13
+family: pe
+familyName: Physical and Environmental Protection
+name: Fire Protection
+scope: governance
+statement: Employ and maintain fire detection and suppression systems that are supported by an independent
+  energy source.
+source: NIST SP 800-53 Rev 5 (public domain)

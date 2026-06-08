@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: si-16
+family: si
+familyName: System and Information Integrity
+name: Memory Protection
+scope: data
+statement: 'Implement the following controls to protect the system memory from unauthorized code execution:
+  [controls].'
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

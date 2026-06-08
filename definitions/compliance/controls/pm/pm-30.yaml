@@ -1,0 +1,11 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-30
+family: pm
+familyName: Program Management
+name: Supply Chain Risk Management Strategy
+scope: governance
+statement: |-
+  Develop an organization-wide strategy for managing supply chain risks associated with the development, acquisition, maintenance, and disposal of systems, system components, and system services;
+    Implement the supply chain risk management strategy consistently across the organization; and
+    Review and update the supply chain risk management strategy on [frequency] or as required, to address organizational changes.
+source: NIST SP 800-53 Rev 5 (public domain)

@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: ps-7
+family: ps
+familyName: Personnel Security
+name: External Personnel Security
+scope: governance
+statement: |-
+  Establish personnel security requirements, including security roles and responsibilities for external providers;
+    Require external providers to comply with personnel security policies and procedures established by the organization;
+    Document personnel security requirements;
+    Require external providers to notify [personnel or roles] of any personnel transfers or terminations of external personnel who possess organizational credentials and/or badges, or who have system privileges within [time period] ; and
+    Monitor provider compliance with personnel security requirements.
+source: NIST SP 800-53 Rev 5 (public domain)

@@ -1,0 +1,15 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ia-12
+family: ia
+familyName: Identification and Authentication
+name: Identity Proofing
+scope: data
+statement: |-
+  Identity proof users that require accounts for logical access to systems based on appropriate identity assurance level requirements as specified in applicable standards and guidelines;
+    Resolve user identities to a unique individual; and
+    Collect, validate, and verify identity evidence.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

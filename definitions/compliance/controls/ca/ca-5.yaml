@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: ca-5
+family: ca
+familyName: Assessment, Authorization, and Monitoring
+name: Plan of Action and Milestones
+scope: governance
+statement: |-
+  Develop a plan of action and milestones for the system to document the planned remediation actions of the organization to correct weaknesses or deficiencies noted during the assessment of the controls and to reduce or eliminate known vulnerabilities in the system; and
+    Update existing plan of action and milestones [frequency] based on the findings from control assessments, independent audits or reviews, and continuous monitoring activities.
+source: NIST SP 800-53 Rev 5 (public domain)

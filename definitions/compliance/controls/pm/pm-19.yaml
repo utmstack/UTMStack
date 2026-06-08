@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-19
+family: pm
+familyName: Program Management
+name: Privacy Program Leadership Role
+scope: governance
+statement: Appoint a senior agency official for privacy with the authority, mission, accountability, and
+  resources to coordinate, develop, and implement, applicable privacy requirements and manage privacy
+  risks through the organization-wide privacy program.
+source: NIST SP 800-53 Rev 5 (public domain)

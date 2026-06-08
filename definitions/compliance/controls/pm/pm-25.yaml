@@ -1,0 +1,12 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-25
+family: pm
+familyName: Program Management
+name: Minimization of Personally Identifiable Information Used in Testing, Training, and Research
+scope: governance
+statement: |-
+  Develop, document, and implement policies and procedures that address the use of personally identifiable information for internal testing, training, and research;
+    Limit or minimize the amount of personally identifiable information used for internal testing, training, and research purposes;
+    Authorize the use of personally identifiable information when such information is required for internal testing, training, and research; and
+    Review and update policies and procedures [organization-defined frequency].
+source: NIST SP 800-53 Rev 5 (public domain)

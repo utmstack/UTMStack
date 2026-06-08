@@ -1,0 +1,12 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-20
+family: pm
+familyName: Program Management
+name: Dissemination of Privacy Program Information
+scope: governance
+statement: |-
+  Maintain a central resource webpage on the organization’s principal public website that serves as a central source of information about the organization’s privacy program and that:
+    Ensures that the public has access to information about organizational privacy activities and can communicate with its senior agency official for privacy;
+    Ensures that organizational privacy practices and reports are publicly available; and
+    Employs publicly facing email addresses and/or phone lines to enable the public to provide feedback and/or direct questions to privacy offices regarding privacy practices.
+source: NIST SP 800-53 Rev 5 (public domain)

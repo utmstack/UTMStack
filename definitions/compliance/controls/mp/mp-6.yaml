@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: mp-6
+family: mp
+familyName: Media Protection
+name: Media Sanitization
+scope: governance
+statement: |-
+  Sanitize [organization-defined system media] prior to disposal, release out of organizational control, or release for reuse using [organization-defined sanitization techniques and procedures] ; and
+    Employ sanitization mechanisms with the strength and integrity commensurate with the security category or classification of the information.
+source: NIST SP 800-53 Rev 5 (public domain)

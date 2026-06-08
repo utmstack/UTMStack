@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-7
+family: pm
+familyName: Program Management
+name: Enterprise Architecture
+scope: governance
+statement: Develop and maintain an enterprise architecture with consideration for information security,
+  privacy, and the resulting risk to organizational operations and assets, individuals, other organizations,
+  and the Nation.
+source: NIST SP 800-53 Rev 5 (public domain)

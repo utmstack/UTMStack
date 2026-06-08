@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: sc-25
+family: sc
+familyName: System and Communications Protection
+name: Thin Nodes
+scope: data
+statement: 'Employ minimal functionality and information storage on the following system components: [system
+  components].'
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

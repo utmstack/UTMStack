@@ -1,0 +1,15 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: au-7
+family: au
+familyName: Audit and Accountability
+name: Audit Record Reduction and Report Generation
+scope: data
+statement: |-
+  Provide and implement an audit record reduction and report generation capability that:
+    Supports on-demand audit record review, analysis, and reporting requirements and after-the-fact investigations of incidents; and
+    Does not alter the original content or time ordering of audit records.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

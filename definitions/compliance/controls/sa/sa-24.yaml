@@ -1,0 +1,15 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sa-24
+family: sa
+familyName: System and Services Acquisition
+name: Design For Cyber Resiliency
+scope: governance
+statement: |-
+  Design organizational systems, system components, or system services to achieve cyber resiliency by:
+      Defining the following cyber resiliency goals: [cyber resiliency goals].
+      Defining the following cyber resiliency objectives: [cyber resiliency objectives].
+      Defining the following cyber resiliency techniques: [cyber resiliency techniques].
+      Defining the following cyber resiliency implementation approaches: [cyber resiliency implementation approaches].
+      Defining the following cyber resiliency design principles: [cyber resiliency design principles].
+    Implement the selected cyber resiliency goals, objectives, techniques, implementation approaches, and design principles as part of an organizational risk management process or systems security engineering process.
+source: NIST SP 800-53 Rev 5 (public domain)

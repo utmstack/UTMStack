@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: sc-5
+family: sc
+familyName: System and Communications Protection
+name: Denial-of-service Protection
+scope: data
+statement: |-
+  [protect against | limit] the effects of the following types of denial-of-service events: [types of denial-of-service events] ; and
+    Employ the following controls to achieve the denial-of-service objective: [controls by type of denial-of-service event].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

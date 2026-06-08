@@ -1,0 +1,12 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-15
+family: pm
+familyName: Program Management
+name: Security and Privacy Groups and Associations
+scope: governance
+statement: |-
+  Establish and institutionalize contact with selected groups and associations within the security and privacy communities:
+    To facilitate ongoing security and privacy education and training for organizational personnel;
+    To maintain currency with recommended security and privacy practices, techniques, and technologies; and
+    To share current security and privacy information, including threats, vulnerabilities, and incidents.
+source: NIST SP 800-53 Rev 5 (public domain)

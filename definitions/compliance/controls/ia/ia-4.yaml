@@ -1,0 +1,17 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ia-4
+family: ia
+familyName: Identification and Authentication
+name: Identifier Management
+scope: data
+statement: |-
+  Manage system identifiers by:
+    Receiving authorization from [personnel or roles] to assign an individual, group, role, service, or device identifier;
+    Selecting an identifier that identifies an individual, group, role, service, or device;
+    Assigning the identifier to the intended individual, group, role, service, or device; and
+    Preventing reuse of identifiers for [time period].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

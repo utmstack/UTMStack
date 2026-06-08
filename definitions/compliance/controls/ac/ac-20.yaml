@@ -1,0 +1,16 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ac-20
+family: ac
+familyName: Access Control
+name: Use of External Systems
+scope: data
+statement: |-
+  [establish {{ insert: param, ac-20_odp.02 }}  | identify {{ insert: param, ac-20_odp.03 }} ] , consistent with the trust relationships established with other organizations owning, operating, and/or maintaining external systems, allowing authorized individuals to:
+      Access the system from external systems; and
+      Process, store, or transmit organization-controlled information using external systems; or
+    Prohibit the use of [prohibited types of external systems].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

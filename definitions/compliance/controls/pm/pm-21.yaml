@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-21
+family: pm
+familyName: Program Management
+name: Accounting of Disclosures
+scope: governance
+statement: |-
+  Develop and maintain an accurate accounting of disclosures of personally identifiable information, including:
+      Date, nature, and purpose of each disclosure; and
+      Name and address, or other contact information of the individual or organization to which the disclosure was made;
+    Retain the accounting of disclosures for the length of the time the personally identifiable information is maintained or five years after the disclosure is made, whichever is longer; and
+    Make the accounting of disclosures available to the individual to whom the personally identifiable information relates upon request.
+source: NIST SP 800-53 Rev 5 (public domain)

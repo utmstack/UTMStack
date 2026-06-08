@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: si-20
+family: si
+familyName: System and Information Integrity
+name: Tainting
+scope: data
+statement: 'Embed data or capabilities in the following systems or system components to determine if organizational
+  data has been exfiltrated or improperly removed from the organization: [systems or system components].'
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

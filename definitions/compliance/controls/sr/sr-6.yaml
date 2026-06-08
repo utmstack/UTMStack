@@ -1,0 +1,9 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sr-6
+family: sr
+familyName: Supply Chain Risk Management
+name: Supplier Assessments and Reviews
+scope: governance
+statement: Assess and review the supply chain-related risks associated with suppliers or contractors and
+  the system, system component, or system service they provide [frequency].
+source: NIST SP 800-53 Rev 5 (public domain)

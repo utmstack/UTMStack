@@ -1,0 +1,9 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-32
+family: pm
+familyName: Program Management
+name: Purposing
+scope: governance
+statement: Analyze [systems or system components] supporting mission essential services or functions to
+  ensure that the information resources are being used consistent with their intended purpose.
+source: NIST SP 800-53 Rev 5 (public domain)

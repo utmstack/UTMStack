@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: au-14
+family: au
+familyName: Audit and Accountability
+name: Session Audit
+scope: data
+statement: |-
+  Provide and implement the capability for [users or roles] to [record | view | hear | log] the content of a user session under [circumstances] ; and
+    Develop, integrate, and use session auditing activities in consultation with legal counsel and in accordance with applicable laws, executive orders, directives, regulations, policies, standards, and guidelines.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

@@ -1,0 +1,12 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pl-4
+family: pl
+familyName: Planning
+name: Rules of Behavior
+scope: governance
+statement: |-
+  Establish and provide to individuals requiring access to the system, the rules that describe their responsibilities and expected behavior for information and system usage, security, and privacy;
+    Receive a documented acknowledgment from such individuals, indicating that they have read, understand, and agree to abide by the rules of behavior, before authorizing access to information and the system;
+    Review and update the rules of behavior [frequency] ; and
+    Require individuals who have acknowledged a previous version of the rules of behavior to read and re-acknowledge [{{ insert: param, pl-04_odp.03 }}  | when the rules are revised or updated].
+source: NIST SP 800-53 Rev 5 (public domain)

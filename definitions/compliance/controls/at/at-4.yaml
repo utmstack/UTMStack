@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: at-4
+family: at
+familyName: Awareness and Training
+name: Training Records
+scope: governance
+statement: |-
+  Document and monitor information security and privacy training activities, including security and privacy awareness training and specific role-based security and privacy training; and
+    Retain individual training records for [time period].
+source: NIST SP 800-53 Rev 5 (public domain)

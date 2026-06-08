@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: si-15
+family: si
+familyName: System and Information Integrity
+name: Information Output Filtering
+scope: data
+statement: 'Validate information output from the following software programs and/or applications to ensure
+  that the information is consistent with the expected content: [software programs and/or applications].'
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

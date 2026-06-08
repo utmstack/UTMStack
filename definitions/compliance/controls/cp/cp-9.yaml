@@ -1,0 +1,16 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: cp-9
+family: cp
+familyName: Contingency Planning
+name: System Backup
+scope: data
+statement: |-
+  Conduct backups of user-level information contained in [system components] [frequency];
+    Conduct backups of system-level information contained in the system [frequency];
+    Conduct backups of system documentation, including security- and privacy-related documentation [frequency] ; and
+    Protect the confidentiality, integrity, and availability of backup information.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

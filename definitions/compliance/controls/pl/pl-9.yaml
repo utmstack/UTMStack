@@ -1,0 +1,8 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pl-9
+family: pl
+familyName: Planning
+name: Central Management
+scope: governance
+statement: Centrally manage [controls and related processes].
+source: NIST SP 800-53 Rev 5 (public domain)

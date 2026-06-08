@@ -1,0 +1,797 @@
+# CSF 2.0 (checklist). satisfiedBy = 800-53 controls via NIST CPRT crosswalk.
+key: nist-csf-2.0
+name: NIST Cybersecurity Framework 2.0
+description: NIST CSF 2.0 — functions, categories and subcategories.
+source: NIST CSWP 29 (public domain). 800-53 mapping via NIST CPRT informative references (public domain).
+sections:
+- key: gv
+  name: GOVERN (GV)
+  requirements:
+  - id: GV.OC-01
+    name: The organizational mission is understood and informs cybersecurity risk management
+    satisfiedBy:
+    - pm-11
+  - id: GV.OC-02
+    name: Internal and external stakeholders are understood, and their needs and expectations regarding
+      cybersecurity risk managem
+    satisfiedBy:
+    - pm-18
+    - pm-30
+  - id: GV.OC-03
+    name: Legal, regulatory, and contractual requirements regarding cybersecurity - including privacy
+      and civil liberties obligati
+    satisfiedBy:
+    - pm-28
+  - id: GV.OC-04
+    name: Critical objectives, capabilities, and services that external stakeholders depend on or expect
+      from the organization are
+    satisfiedBy:
+    - pm-11
+    - pm-30
+  - id: GV.OC-05
+    name: Outcomes, capabilities, and services that the organization depends on are understood and communicated
+    satisfiedBy:
+    - pm-11
+    - pm-30
+  - id: GV.RM-01
+    name: Risk management objectives are established and agreed to by organizational stakeholders
+    satisfiedBy: []
+  - id: GV.RM-02
+    name: Risk appetite and risk tolerance statements are established, communicated, and maintained
+    satisfiedBy: []
+  - id: GV.RM-03
+    name: Cybersecurity risk management activities and outcomes are included in enterprise risk management
+      processes
+    satisfiedBy:
+    - pm-30
+    - sa-24
+  - id: GV.RM-04
+    name: Strategic direction that describes appropriate risk response options is established and communicated
+    satisfiedBy:
+    - pm-28
+    - pm-30
+  - id: GV.RM-05
+    name: Lines of communication across the organization are established for cybersecurity risks, including
+      risks from suppliers a
+    satisfiedBy:
+    - pm-30
+  - id: GV.RM-06
+    name: A standardized method for calculating, documenting, categorizing, and prioritizing cybersecurity
+      risks is established an
+    satisfiedBy:
+    - pm-18
+    - pm-28
+    - pm-30
+  - id: GV.RM-07
+    name: Strategic opportunities (i.e., positive risks) are characterized and are included in organizational
+      cybersecurity risk d
+    satisfiedBy:
+    - pm-18
+    - pm-28
+    - pm-30
+  - id: GV.RR-01
+    name: Organizational leadership is responsible and accountable for cybersecurity risk and fosters
+      a culture that is risk-aware
+    satisfiedBy:
+    - pm-19
+    - pm-23
+    - pm-24
+    - pm-29
+  - id: GV.RR-02
+    name: Roles, responsibilities, and authorities related to cybersecurity risk management are established,
+      communicated, underst
+    satisfiedBy:
+    - pm-13
+    - pm-19
+    - pm-23
+    - pm-24
+    - pm-29
+  - id: GV.RR-03
+    name: Adequate resources are allocated commensurate with the cybersecurity risk strategy, roles, responsibilities,
+      and policie
+    satisfiedBy: []
+  - id: GV.RR-04
+    name: Cybersecurity is included in human resources practices
+    satisfiedBy:
+    - pm-13
+  - id: GV.PO-01
+    name: Policy for managing cybersecurity risks is established based on organizational context, cybersecurity
+      strategy, and prio
+    satisfiedBy: []
+  - id: GV.PO-02
+    name: Policy for managing cybersecurity risks is reviewed, updated, communicated, and enforced to
+      reflect changes in requireme
+    satisfiedBy: []
+  - id: GV.OV-01
+    name: Cybersecurity risk management strategy outcomes are reviewed to inform and adjust strategy and
+      direction
+    satisfiedBy:
+    - pm-18
+    - pm-30
+    - pm-31
+  - id: GV.OV-02
+    name: The cybersecurity risk management strategy is reviewed and adjusted to ensure coverage of organizational
+      requirements an
+    satisfiedBy:
+    - pm-19
+    - pm-30
+    - pm-31
+  - id: GV.OV-03
+    name: Organizational cybersecurity risk management performance is evaluated and reviewed for adjustments
+      needed
+    satisfiedBy: []
+  - id: GV.SC-01
+    name: 'A cybersecurity supply chain risk management program, strategy, objectives, policies, and processes
+      are established and '
+    satisfiedBy:
+    - pm-30
+  - id: GV.SC-02
+    name: Cybersecurity roles and responsibilities for suppliers, customers, and partners are established,
+      communicated, and coord
+    satisfiedBy: []
+  - id: GV.SC-03
+    name: Cybersecurity supply chain risk management is integrated into cybersecurity and enterprise risk
+      management, risk assessm
+    satisfiedBy:
+    - pm-18
+    - pm-30
+    - pm-31
+  - id: GV.SC-04
+    name: Suppliers are known and prioritized by criticality
+    satisfiedBy: []
+  - id: GV.SC-05
+    name: Requirements to address cybersecurity risks in supply chains are established, prioritized, and
+      integrated into contracts
+    satisfiedBy:
+    - sr-10
+  - id: GV.SC-06
+    name: Planning and due diligence are performed to reduce risks before entering into formal supplier
+      or other third-party relat
+    satisfiedBy: []
+  - id: GV.SC-07
+    name: The risks posed by a supplier, their products and services, and other third parties are understood,
+      recorded, prioritize
+    satisfiedBy: []
+  - id: GV.SC-08
+    name: Relevant suppliers and other third parties are included in incident planning, response, and
+      recovery activities
+    satisfiedBy: []
+  - id: GV.SC-09
+    name: Supply chain security practices are integrated into cybersecurity and enterprise risk management
+      programs, and their per
+    satisfiedBy:
+    - pm-19
+    - pm-28
+    - pm-30
+    - pm-31
+  - id: GV.SC-10
+    name: 'Cybersecurity supply chain risk management plans include provisions for activities that occur
+      after the conclusion of a '
+    satisfiedBy:
+    - pm-31
+- key: id
+  name: IDENTIFY (ID)
+  requirements:
+  - id: ID.AM-01
+    name: Inventories of hardware managed by the organization are maintained
+    satisfiedBy: []
+  - id: ID.AM-02
+    name: Inventories of software, services, and systems managed by the organization are maintained
+    satisfiedBy:
+    - ac-20
+  - id: ID.AM-03
+    name: 'Representations of the organization''s authorized network communication and internal and external
+      network data flows are '
+    satisfiedBy: []
+  - id: ID.AM-04
+    name: Inventories of services provided by suppliers are maintained
+    satisfiedBy:
+    - ac-20
+  - id: ID.AM-05
+    name: Assets are prioritized based on classification, criticality, resources, and impact on the mission
+    satisfiedBy: []
+  - id: ID.AM-06
+    name: '[Withdrawn: Incorporated into GV.RR-02, GV.SC-02]'
+    satisfiedBy: []
+  - id: ID.AM-07
+    name: Inventories of data and corresponding metadata for designated data types are maintained
+    satisfiedBy:
+    - cm-12
+    - cm-13
+    - si-12
+  - id: ID.AM-08
+    name: Systems, hardware, software, services, and data are managed throughout their life cycles
+    satisfiedBy:
+    - cm-13
+    - pm-22
+    - pm-23
+    - sa-22
+    - si-12
+    - si-18
+    - sr-12
+  - id: ID.RA-01
+    name: Vulnerabilities in assets are identified, validated, and recorded
+    satisfiedBy:
+    - sa-11
+    - sa-15
+  - id: ID.RA-02
+    name: Cyber threat intelligence is received from information sharing forums and sources
+    satisfiedBy:
+    - pm-15
+    - pm-16
+  - id: ID.RA-03
+    name: Internal and external threats to the organization are identified and recorded
+    satisfiedBy:
+    - pm-12
+    - pm-16
+  - id: ID.RA-04
+    name: Potential impacts and likelihoods of threats exploiting vulnerabilities are identified and recorded
+    satisfiedBy:
+    - pm-11
+  - id: ID.RA-05
+    name: Threats, vulnerabilities, likelihoods, and impacts are used to understand inherent risk and
+      inform risk response priorit
+    satisfiedBy:
+    - pm-16
+  - id: ID.RA-06
+    name: Risk responses are chosen, prioritized, planned, tracked, and communicated
+    satisfiedBy:
+    - pm-18
+    - pm-30
+  - id: ID.RA-07
+    name: Changes and exceptions are managed, assessed for risk impact, recorded, and tracked
+    satisfiedBy: []
+  - id: ID.RA-08
+    name: Processes for receiving, analyzing, and responding to vulnerability disclosures are established
+    satisfiedBy: []
+  - id: ID.RA-09
+    name: The authenticity and integrity of hardware and software are assessed prior to acquisition and
+      use
+    satisfiedBy:
+    - sa-10
+    - sa-11
+    - sa-15
+    - sa-17
+    - sr-10
+    - sr-11
+  - id: ID.RA-10
+    name: Critical suppliers are assessed prior to acquisition
+    satisfiedBy: []
+  - id: ID.IM-01
+    name: Improvements are identified from evaluations
+    satisfiedBy:
+    - sa-11
+    - sa-17
+  - id: ID.IM-02
+    name: Improvements are identified from security tests and exercises, including those done in coordination
+      with suppliers and r
+    satisfiedBy:
+    - pm-31
+    - sa-11
+  - id: ID.IM-03
+    name: Improvements are identified from execution of operational processes, procedures, and activities
+    satisfiedBy:
+    - pm-31
+    - sa-11
+  - id: ID.IM-04
+    name: 'Incident response plans and other cybersecurity plans that affect operations are established,
+      communicated, maintained, '
+    satisfiedBy: []
+  - id: ID.BE-01
+    name: '[Withdrawn: Incorporated into GV.OC-05]'
+    satisfiedBy: []
+  - id: ID.BE-02
+    name: '[Withdrawn: Incorporated into GV.OC-01]'
+    satisfiedBy: []
+  - id: ID.BE-03
+    name: '[Withdrawn: Incorporated into GV.OC-01]'
+    satisfiedBy: []
+  - id: ID.BE-04
+    name: '[Withdrawn: Incorporated into GV.OC-04, GV.OC-05]'
+    satisfiedBy: []
+  - id: ID.BE-05
+    name: '[Withdrawn: Incorporated into GV.OC-04]'
+    satisfiedBy: []
+  - id: ID.GV-01
+    name: '[Withdrawn: Incorporated into GV.PO, GV.PO-01, GV.PO-02]'
+    satisfiedBy: []
+  - id: ID.GV-02
+    name: '[Withdrawn: Incorporated into GV.OC-02, GV.RR, GV.RR-02]'
+    satisfiedBy: []
+  - id: ID.GV-03
+    name: '[Withdrawn: Moved to GV.OC-03]'
+    satisfiedBy: []
+  - id: ID.GV-04
+    name: '[Withdrawn: Moved to GV.RM-04]'
+    satisfiedBy: []
+  - id: ID.RM-01
+    name: '[Withdrawn: Incorporated into GV.RM-01, GV.RM-06, GV.RR-03]'
+    satisfiedBy: []
+  - id: ID.RM-02
+    name: '[Withdrawn: Incorporated into GV.RM-02, GV.RM-04]'
+    satisfiedBy: []
+  - id: ID.RM-03
+    name: '[Withdrawn: Moved into GV.RM-02]'
+    satisfiedBy: []
+  - id: ID.SC-01
+    name: '[Withdrawn: Incorporated into GV.RM-05, GV.SC-01, GV.SC-06, GV.SC-09, GV.SC-10]'
+    satisfiedBy: []
+  - id: ID.SC-02
+    name: '[Withdrawn: Incorporated into GV.OC-02, GV.SC-03, GV.SC-04, GV.SC-07, ID.RA-10]'
+    satisfiedBy: []
+  - id: ID.SC-03
+    name: '[Withdrawn: Moved to GV.SC-05]'
+    satisfiedBy: []
+  - id: ID.SC-04
+    name: '[Withdrawn: Incorporated into GV.SC-07, ID.RA-10]'
+    satisfiedBy: []
+  - id: ID.SC-05
+    name: '[Withdrawn: Incorporated into GV.SC-08, ID.IM-02]'
+    satisfiedBy: []
+- key: pr
+  name: PROTECT (PR)
+  requirements:
+  - id: PR.AA-01
+    name: Identities and credentials for authorized users, services, and hardware are managed by the organization
+    satisfiedBy:
+    - ac-14
+    - ia-10
+    - ia-11
+  - id: PR.AA-02
+    name: Identities are proofed and bound to credentials based on the context of interactions
+    satisfiedBy:
+    - ia-12
+  - id: PR.AA-03
+    name: Users, services, and hardware are authenticated
+    satisfiedBy:
+    - ac-12
+    - ia-10
+    - ia-11
+  - id: PR.AA-04
+    name: Identity assertions are protected, conveyed, and verified
+    satisfiedBy:
+    - ia-13
+  - id: PR.AA-05
+    name: Access permissions, entitlements, and authorizations are defined in a policy, managed, enforced,
+      and reviewed, and incor
+    satisfiedBy:
+    - ac-10
+    - ac-16
+    - ac-17
+    - ac-18
+    - ac-19
+    - ac-24
+    - ia-13
+  - id: PR.AA-06
+    name: Physical access to assets is managed, monitored, and enforced commensurate with risk
+    satisfiedBy:
+    - pe-18
+    - pe-19
+    - pe-20
+  - id: PR.AT-01
+    name: Personnel are provided with awareness and training so that they possess the knowledge and skills
+      to perform general task
+    satisfiedBy: []
+  - id: PR.AT-02
+    name: 'Individuals in specialized roles are provided with awareness and training so that they possess
+      the knowledge and skills '
+    satisfiedBy: []
+  - id: PR.AT-03
+    name: '[Withdrawn: Incorporated into PR.AT-01, PR.AT-02]'
+    satisfiedBy: []
+  - id: PR.AT-04
+    name: '[Withdrawn: Incorporated into PR.AT-02]'
+    satisfiedBy: []
+  - id: PR.AT-05
+    name: '[Withdrawn: Incorporated into PR.AT-02]'
+    satisfiedBy: []
+  - id: PR.DS-01
+    name: The confidentiality, integrity, and availability of data-at-rest are protected
+    satisfiedBy:
+    - sc-12
+    - sc-13
+    - sc-28
+    - sc-32
+    - sc-39
+    - sc-43
+  - id: PR.DS-02
+    name: The confidentiality, integrity, and availability of data-in-transit are protected
+    satisfiedBy:
+    - au-16
+    - sc-11
+    - sc-12
+    - sc-13
+    - sc-16
+    - sc-40
+    - sc-43
+  - id: PR.DS-03
+    name: '[Withdrawn: Incorporated into ID.AM-08, PR.PS-03]'
+    satisfiedBy: []
+  - id: PR.DS-04
+    name: '[Withdrawn: Moved to PR.IR-04]'
+    satisfiedBy: []
+  - id: PR.DS-05
+    name: '[Withdrawn: Incorporated into PR.DS-01, PR.DS-02, PR.DS-10]'
+    satisfiedBy: []
+  - id: PR.DS-06
+    name: '[Withdrawn: Incorporated into PR.DS-01, DE.CM-09]'
+    satisfiedBy: []
+  - id: PR.DS-07
+    name: '[Withdrawn: Incorporated into PR.IR-01]'
+    satisfiedBy: []
+  - id: PR.DS-08
+    name: '[Withdrawn: Incorporated into ID.RA-09, DE.CM-09]'
+    satisfiedBy: []
+  - id: PR.DS-10
+    name: The confidentiality, integrity, and availability of data-in-use are protected
+    satisfiedBy:
+    - au-13
+    - sc-11
+    - sc-13
+    - sc-24
+    - sc-32
+    - sc-39
+    - sc-40
+    - sc-43
+    - si-10
+    - si-16
+  - id: PR.DS-11
+    name: Backups of data are created, protected, maintained, and tested
+    satisfiedBy: []
+  - id: PR.PS-01
+    name: Configuration management practices are established and applied
+    satisfiedBy:
+    - cm-10
+    - cm-11
+  - id: PR.PS-02
+    name: Software is maintained, replaced, and removed commensurate with risk
+    satisfiedBy:
+    - cm-11
+    - sa-10
+  - id: PR.PS-03
+    name: Hardware is maintained, replaced, and removed commensurate with risk
+    satisfiedBy:
+    - sa-10
+    - sc-39
+    - sc-49
+    - sc-51
+  - id: PR.PS-04
+    name: Log records are generated and made available for continuous monitoring
+    satisfiedBy:
+    - au-11
+    - au-12
+    - sa-15
+  - id: PR.PS-05
+    name: Installation and execution of unauthorized software are prevented
+    satisfiedBy:
+    - sc-34
+  - id: PR.PS-06
+    name: Secure software development practices are integrated, and their performance is monitored throughout
+      the software develop
+    satisfiedBy:
+    - sa-10
+    - sa-11
+    - sa-15
+    - sa-17
+    - sa-24
+  - id: PR.IR-01
+    name: Networks and environments are protected from unauthorized logical access and usage
+    satisfiedBy: []
+  - id: PR.IR-02
+    name: The organization's technology assets are protected from environmental threats
+    satisfiedBy:
+    - pe-10
+    - pe-11
+    - pe-12
+    - pe-13
+    - pe-14
+    - pe-15
+    - pe-18
+    - pe-23
+  - id: PR.IR-03
+    name: Mechanisms are implemented to achieve resilience requirements in normal and adverse situations
+    satisfiedBy:
+    - sc-24
+    - sc-36
+    - sc-39
+    - si-13
+    - sa-24
+  - id: PR.IR-04
+    name: Adequate resource capacity to ensure availability is maintained
+    satisfiedBy: []
+  - id: PR.AC-01
+    name: '[Withdrawn: Incorporated into PR.AA-01, PR.AA-05]'
+    satisfiedBy: []
+  - id: PR.AC-02
+    name: '[Withdrawn: Moved to PR.AA-06]'
+    satisfiedBy: []
+  - id: PR.AC-03
+    name: '[Withdrawn: Incorporated into PR.AA-03, PR.AA-05, PR.IR-01]'
+    satisfiedBy: []
+  - id: PR.AC-04
+    name: '[Withdrawn: Moved to PR.AA-05]'
+    satisfiedBy: []
+  - id: PR.AC-05
+    name: '[Withdrawn: Incorporated into PR.IR-01]'
+    satisfiedBy: []
+  - id: PR.AC-06
+    name: '[Withdrawn: Moved to PR.AA-02]'
+    satisfiedBy: []
+  - id: PR.AC-07
+    name: '[Withdrawn: Moved to PR.AA-03]'
+    satisfiedBy: []
+  - id: PR.IP-01
+    name: '[Withdrawn: Incorporated into PR.PS-01]'
+    satisfiedBy: []
+  - id: PR.IP-02
+    name: '[Withdrawn: Incorporated into ID.AM-08, PR.PS-06]'
+    satisfiedBy: []
+  - id: PR.IP-03
+    name: '[Withdrawn: Incorporated into PR.PS-01, ID.RA-07]'
+    satisfiedBy: []
+  - id: PR.IP-04
+    name: '[Withdrawn: Moved to PR.DS-11]'
+    satisfiedBy: []
+  - id: PR.IP-05
+    name: '[Withdrawn: Moved to PR.IR-02]'
+    satisfiedBy: []
+  - id: PR.IP-06
+    name: '[Withdrawn: Incorporated into ID.AM-08]'
+    satisfiedBy: []
+  - id: PR.IP-07
+    name: '[Withdrawn: Incorporated into ID.IM, ID.IM-03]'
+    satisfiedBy: []
+  - id: PR.IP-08
+    name: '[Withdrawn: Moved to ID.IM-03]'
+    satisfiedBy: []
+  - id: PR.IP-09
+    name: '[Withdrawn: Moved to ID.IM-04]'
+    satisfiedBy: []
+  - id: PR.IP-10
+    name: '[Withdrawn: Incorporated into ID.IM-02, ID.IM-04]'
+    satisfiedBy: []
+  - id: PR.IP-11
+    name: '[Withdrawn: Moved to GV.RR-04]'
+    satisfiedBy: []
+  - id: PR.IP-12
+    name: '[Withdrawn: Incorporated into ID.RA-01, PR.PS-02]'
+    satisfiedBy: []
+  - id: PR.MA-01
+    name: '[Withdrawn: Incorporated into ID.AM-08, PR.PS-03]'
+    satisfiedBy: []
+  - id: PR.MA-02
+    name: '[Withdrawn: Incorporated into ID.AM-08, PR.PS-02]'
+    satisfiedBy: []
+  - id: PR.PT-01
+    name: '[Withdrawn: Incorporated into PR.PS-04]'
+    satisfiedBy: []
+  - id: PR.PT-02
+    name: '[Withdrawn: Incorporated into PR.DS-01, PR.PS-01]'
+    satisfiedBy: []
+  - id: PR.PT-03
+    name: '[Withdrawn: Incorporated into PR.PS-01]'
+    satisfiedBy: []
+  - id: PR.PT-04
+    name: '[Withdrawn: Incorporated into PR.AA-06, PR.IR-01]'
+    satisfiedBy: []
+  - id: PR.PT-05
+    name: '[Withdrawn: Moved to PR.IR-03]'
+    satisfiedBy: []
+- key: de
+  name: DETECT (DE)
+  requirements:
+  - id: DE.CM-01
+    name: Networks and network services are monitored to find potentially adverse events
+    satisfiedBy:
+    - au-12
+  - id: DE.CM-02
+    name: The physical environment is monitored to find potentially adverse events
+    satisfiedBy:
+    - pe-20
+  - id: DE.CM-03
+    name: Personnel activity and technology usage are monitored to find potentially adverse events
+    satisfiedBy:
+    - au-12
+    - au-13
+    - cm-10
+    - cm-11
+  - id: DE.CM-04
+    name: '[Withdrawn: Incorporated into DE.CM-01, DE.CM-09]'
+    satisfiedBy: []
+  - id: DE.CM-05
+    name: '[Withdrawn: Incorporated into DE.CM-01, DE.CM-09]'
+    satisfiedBy: []
+  - id: DE.CM-06
+    name: External service provider activities and services are monitored to find potentially adverse
+      events
+    satisfiedBy: []
+  - id: DE.CM-07
+    name: '[Withdrawn: Incorporated into DE.CM-01, DE.CM-03, DE.CM-06, DE.CM-09]'
+    satisfiedBy: []
+  - id: DE.CM-08
+    name: '[Withdrawn: Incorporated into ID.RA-01]'
+    satisfiedBy: []
+  - id: DE.CM-09
+    name: Computing hardware and software, runtime environments, and their data are monitored to find
+      potentially adverse events
+    satisfiedBy:
+    - au-12
+    - cm-10
+    - cm-11
+    - sc-34
+    - sc-35
+  - id: DE.AE-01
+    name: '[Withdrawn: Incorporated into ID.AM-03]'
+    satisfiedBy: []
+  - id: DE.AE-02
+    name: Potentially adverse events are analyzed to better understand associated activities
+    satisfiedBy: []
+  - id: DE.AE-03
+    name: Information is correlated from multiple sources
+    satisfiedBy:
+    - pm-16
+  - id: DE.AE-04
+    name: The estimated impact and scope of adverse events are understood
+    satisfiedBy:
+    - pm-11
+    - pm-18
+    - pm-28
+    - pm-30
+  - id: DE.AE-05
+    name: '[Withdrawn: Moved to DE.AE-08]'
+    satisfiedBy: []
+  - id: DE.AE-06
+    name: Information on adverse events is provided to authorized staff and tools
+    satisfiedBy:
+    - pm-15
+    - pm-16
+    - ra-10
+  - id: DE.AE-07
+    name: Cyber threat intelligence and other contextual information are integrated into the analysis
+    satisfiedBy:
+    - pm-16
+    - ra-10
+  - id: DE.AE-08
+    name: Incidents are declared when adverse events meet the defined incident criteria
+    satisfiedBy: []
+  - id: DE.DP-01
+    name: '[Withdrawn: Incorporated into GV.RR-02]'
+    satisfiedBy: []
+  - id: DE.DP-02
+    name: '[Withdrawn: Incorporated into DE.AE]'
+    satisfiedBy: []
+  - id: DE.DP-03
+    name: '[Withdrawn: Incorporated into ID.IM-02]'
+    satisfiedBy: []
+  - id: DE.DP-04
+    name: '[Withdrawn: Incorporated into DE.AE-06]'
+    satisfiedBy: []
+  - id: DE.DP-05
+    name: '[Withdrawn: Incorporated into ID.IM, ID.IM-03]'
+    satisfiedBy: []
+- key: rs
+  name: RESPOND (RS)
+  requirements:
+  - id: RS.MA-01
+    name: The incident response plan is executed in coordination with relevant third parties once an incident
+      is declared
+    satisfiedBy: []
+  - id: RS.MA-02
+    name: Incident reports are triaged and validated
+    satisfiedBy: []
+  - id: RS.MA-03
+    name: Incidents are categorized and prioritized
+    satisfiedBy: []
+  - id: RS.MA-04
+    name: Incidents are escalated or elevated as needed
+    satisfiedBy: []
+  - id: RS.MA-05
+    name: The criteria for initiating incident recovery are applied
+    satisfiedBy: []
+  - id: RS.AN-01
+    name: '[Withdrawn: Incorporated into RS.MA-02]'
+    satisfiedBy: []
+  - id: RS.AN-02
+    name: '[Withdrawn: Incorporated into RS.MA-02, RS.MA-03, RS.MA-04]'
+    satisfiedBy: []
+  - id: RS.AN-03
+    name: Analysis is performed to establish what has taken place during an incident and the root cause
+      of the incident
+    satisfiedBy: []
+  - id: RS.AN-04
+    name: '[Withdrawn: Moved to RS.MA-03]'
+    satisfiedBy: []
+  - id: RS.AN-05
+    name: '[Withdrawn: Moved to ID.RA-08]'
+    satisfiedBy: []
+  - id: RS.AN-06
+    name: Actions performed during an investigation are recorded, and the records' integrity and provenance
+      are preserved
+    satisfiedBy: []
+  - id: RS.AN-07
+    name: Incident data and metadata are collected, and their integrity and provenance are preserved
+    satisfiedBy: []
+  - id: RS.AN-08
+    name: An incident's magnitude is estimated and validated
+    satisfiedBy: []
+  - id: RS.CO-01
+    name: '[Withdrawn: Incorporated into PR.AT-01]'
+    satisfiedBy: []
+  - id: RS.CO-02
+    name: Internal and external stakeholders are notified of incidents
+    satisfiedBy: []
+  - id: RS.CO-03
+    name: Information is shared with designated internal and external stakeholders
+    satisfiedBy: []
+  - id: RS.CO-04
+    name: '[Withdrawn: Incorporated into RS.MA-01, RS.MA-04]'
+    satisfiedBy: []
+  - id: RS.CO-05
+    name: '[Withdrawn: Incorporated into RS.CO-03]'
+    satisfiedBy: []
+  - id: RS.MI-01
+    name: Incidents are contained
+    satisfiedBy: []
+  - id: RS.MI-02
+    name: Incidents are eradicated
+    satisfiedBy: []
+  - id: RS.MI-03
+    name: '[Withdrawn: Incorporated into ID.RA-06]'
+    satisfiedBy: []
+  - id: RS.RP-01
+    name: '[Withdrawn: Incorporated into RS.MA-01]'
+    satisfiedBy: []
+  - id: RS.IM-01
+    name: '[Withdrawn: Incorporated into ID.IM-03, ID.IM-04]'
+    satisfiedBy: []
+  - id: RS.IM-02
+    name: '[Withdrawn: Incorporated into ID.IM-03]'
+    satisfiedBy: []
+- key: rc
+  name: RECOVER (RC)
+  requirements:
+  - id: RC.RP-01
+    name: The recovery portion of the incident response plan is executed once initiated from the incident
+      response process
+    satisfiedBy:
+    - cp-10
+  - id: RC.RP-02
+    name: Recovery actions are selected, scoped, prioritized, and performed
+    satisfiedBy:
+    - cp-10
+  - id: RC.RP-03
+    name: The integrity of backups and other restoration assets is verified before using them for restoration
+    satisfiedBy: []
+  - id: RC.RP-04
+    name: Critical mission functions and cybersecurity risk management are considered to establish post-incident
+      operational norms
+    satisfiedBy:
+    - pm-11
+  - id: RC.RP-05
+    name: The integrity of restored assets is verified, systems and services are restored, and normal
+      operating status is confirme
+    satisfiedBy:
+    - cp-10
+  - id: RC.RP-06
+    name: The end of incident recovery is declared based on criteria, and incident-related documentation
+      is completed
+    satisfiedBy: []
+  - id: RC.CO-01
+    name: '[Withdrawn: Incorporated into RC.CO-04]'
+    satisfiedBy: []
+  - id: RC.CO-02
+    name: '[Withdrawn: Incorporated into RC.CO-04]'
+    satisfiedBy: []
+  - id: RC.CO-03
+    name: Recovery activities and progress in restoring operational capabilities are communicated to designated
+      internal and exter
+    satisfiedBy: []
+  - id: RC.CO-04
+    name: Public updates on incident recovery are shared using approved methods and messaging
+    satisfiedBy: []
+  - id: RC.IM-01
+    name: '[Withdrawn: Incorporated into ID.IM-03, ID.IM-04]'
+    satisfiedBy: []
+  - id: RC.IM-02
+    name: '[Withdrawn: Incorporated into ID.IM-03]'
+    satisfiedBy: []

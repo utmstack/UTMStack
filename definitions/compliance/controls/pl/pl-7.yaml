@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pl-7
+family: pl
+familyName: Planning
+name: Concept of Operations
+scope: governance
+statement: |-
+  Develop a Concept of Operations (CONOPS) for the system describing how the organization intends to operate the system from the perspective of information security and privacy; and
+    Review and update the CONOPS [frequency].
+source: NIST SP 800-53 Rev 5 (public domain)

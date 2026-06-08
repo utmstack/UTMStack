@@ -1,0 +1,12 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: ca-9
+family: ca
+familyName: Assessment, Authorization, and Monitoring
+name: Internal System Connections
+scope: governance
+statement: |-
+  Authorize internal connections of [system components] to the system;
+    Document, for each internal connection, the interface characteristics, security and privacy requirements, and the nature of the information communicated;
+    Terminate internal system connections after [conditions] ; and
+    Review [frequency] the continued need for each internal connection.
+source: NIST SP 800-53 Rev 5 (public domain)

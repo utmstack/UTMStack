@@ -1,0 +1,17 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ra-8
+family: ra
+familyName: Risk Assessment
+name: Privacy Impact Assessments
+scope: data
+statement: |-
+  Conduct privacy impact assessments for systems, programs, or other activities before:
+    Developing or procuring information technology that processes personally identifiable information; and
+    Initiating a new collection of personally identifiable information that:
+      Will be processed using information technology; and
+      Includes personally identifiable information permitting the physical or virtual (online) contacting of a specific individual, if identical questions have been posed to, or identical reporting requirements imposed on, ten or more individuals, other than agencies, instrumentalities, or employees of the federal government.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

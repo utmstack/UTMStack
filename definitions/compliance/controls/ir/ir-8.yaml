@@ -1,0 +1,27 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ir-8
+family: ir
+familyName: Incident Response
+name: Incident Response Plan
+scope: data
+statement: |-
+  Develop an incident response plan that:
+      Provides the organization with a roadmap for implementing its incident response capability;
+      Describes the structure and organization of the incident response capability;
+      Provides a high-level approach for how the incident response capability fits into the overall organization;
+      Meets the unique requirements of the organization, which relate to mission, size, structure, and functions;
+      Defines reportable incidents;
+      Provides metrics for measuring the incident response capability within the organization;
+      Defines the resources and management support needed to effectively maintain and mature an incident response capability;
+      Addresses the sharing of incident information;
+      Is reviewed and approved by [personnel or roles] [frequency] ; and
+      Explicitly designates responsibility for incident response to [entities, personnel, or roles].
+    Distribute copies of the incident response plan to [incident response personnel];
+    Update the incident response plan to address system and organizational changes or problems encountered during plan implementation, execution, or testing;
+    Communicate incident response plan changes to [organization-defined incident response personnel (identified by name and/or by role) and organizational elements] ; and
+    Protect the incident response plan from unauthorized disclosure and modification.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

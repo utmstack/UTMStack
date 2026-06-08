@@ -1,0 +1,40 @@
+# Reusable control (NIST 800-53 r5). Check verified against OpenSearch dev data.
+id: ac-2
+family: ac
+familyName: Access Control
+name: Account Management
+scope: data
+statement: |-
+  Define and document the types of accounts allowed and specifically prohibited for use within the system;
+    Assign account managers;
+    Require [prerequisites and criteria] for group and role membership;
+    Specify:
+      Authorized users of the system;
+      Group and role membership; and
+      Access authorizations (i.e., privileges) and [attributes (as required)] for each account;
+    Require approvals by [personnel or roles] for requests to create accounts;
+    Create, enable, modify, disable, and remove accounts in accordance with [policy, procedures, prerequisites, and criteria];
+    Monitor the use of accounts;
+    Notify account managers and [personnel or roles] within:
+      [time period] when accounts are no longer required;
+      [time period] when users are terminated or transferred; and
+      [time period] when system usage or need-to-know changes for an individual;
+    Authorize access to the system based on:
+      A valid access authorization;
+      Intended system usage; and
+      [attributes (as required)];
+    Review accounts for compliance with account management requirements [frequency];
+    Establish and implement a process for changing shared or group account authenticators (if deployed) when individuals are removed from the group; and
+    Align account management processes with personnel termination and transfer processes.
+remediation: |-
+  Enable the Windows "Audit User Account Management" policy on monitored systems so account
+  lifecycle changes are captured. If no events appear, account create/modify/disable/remove
+  activity is not being logged or reviewed.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: account-mgmt-logged
+    name: Account lifecycle events are being captured (create/enable/disable/delete/modify/lockout)
+    indexPattern: v11-log-wineventlog-*
+    sql: 'SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE log.eventCode IN (4720,4722,4723,4724,4725,4726,4738,4740,4767,4781)'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

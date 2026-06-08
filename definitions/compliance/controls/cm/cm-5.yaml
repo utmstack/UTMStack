@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: cm-5
+family: cm
+familyName: Configuration Management
+name: Access Restrictions for Change
+scope: data
+statement: Define, document, approve, and enforce physical and logical access restrictions associated
+  with changes to the system.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

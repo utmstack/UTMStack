@@ -1,0 +1,40 @@
+# GDPR (checklist). Articles (public EU law). 800-53 mapping best-effort.
+key: gdpr
+name: GDPR (EU 2016/679)
+description: General Data Protection Regulation — articles relevant to security and monitoring.
+source: EU Regulation 2016/679 (public law). 800-53 mapping best-effort (review).
+sections:
+- key: security-and-breach
+  name: Security & Breach (Arts. 5, 30, 32-34)
+  requirements:
+  - id: Art.5(1)(f)
+    name: Integrity and confidentiality of personal data
+    satisfiedBy:
+    - sc-28
+    - sc-8
+    - ac-3
+  - id: Art.30
+    name: Records of processing activities
+    satisfiedBy:
+    - au-2
+    - au-3
+    - au-12
+  - id: Art.32
+    name: Security of processing
+    satisfiedBy:
+    - sc-28
+    - sc-13
+    - ac-3
+    - au-2
+    - si-4
+    - ia-2
+  - id: Art.33
+    name: Notification of a personal data breach to authority
+    satisfiedBy:
+    - ir-4
+    - ir-6
+    - au-6
+  - id: Art.34
+    name: Communication of a breach to the data subject
+    satisfiedBy:
+    - ir-6

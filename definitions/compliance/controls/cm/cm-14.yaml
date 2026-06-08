@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: cm-14
+family: cm
+familyName: Configuration Management
+name: Signed Components
+scope: data
+statement: Prevent the installation of [organization-defined software and firmware components] without
+  verification that the component has been digitally signed using a certificate that is recognized and
+  approved by the organization.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

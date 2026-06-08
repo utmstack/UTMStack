@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ra-9
+family: ra
+familyName: Risk Assessment
+name: Criticality Analysis
+scope: data
+statement: Identify critical system components and functions by performing a criticality analysis for
+  [systems, system components, or system services] at [decision points in the system development life
+  cycle].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

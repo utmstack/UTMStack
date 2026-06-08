@@ -1,0 +1,17 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pe-3
+family: pe
+familyName: Physical and Environmental Protection
+name: Physical Access Control
+scope: governance
+statement: |-
+  Enforce physical access authorizations at [entry and exit points] by:
+      Verifying individual access authorizations before granting access to the facility; and
+      Controlling ingress and egress to the facility using [{{ insert: param, pe-03_odp.03 }}  | guards];
+    Maintain physical access audit logs for [entry or exit points];
+    Control access to areas within the facility designated as publicly accessible by implementing the following controls: [physical access controls];
+    Escort visitors and control visitor activity [circumstances];
+    Secure keys, combinations, and other physical access devices;
+    Inventory [physical access devices] every [frequency] ; and
+    Change combinations and keys [organization-defined frequency] and/or when keys are lost, combinations are compromised, or when individuals possessing the keys or combinations are transferred or terminated.
+source: NIST SP 800-53 Rev 5 (public domain)

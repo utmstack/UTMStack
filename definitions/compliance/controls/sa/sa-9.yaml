@@ -1,0 +1,11 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sa-9
+family: sa
+familyName: System and Services Acquisition
+name: External System Services
+scope: governance
+statement: |-
+  Require that providers of external system services comply with organizational security and privacy requirements and employ the following controls: [controls];
+    Define and document organizational oversight and user roles and responsibilities with regard to external system services; and
+    Employ the following processes, methods, and techniques to monitor control compliance by external service providers on an ongoing basis: [processes, methods, and techniques].
+source: NIST SP 800-53 Rev 5 (public domain)

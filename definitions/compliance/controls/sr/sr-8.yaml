@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sr-8
+family: sr
+familyName: Supply Chain Risk Management
+name: Notification Agreements
+scope: governance
+statement: 'Establish agreements and procedures with entities involved in the supply chain for the system,
+  system component, or system service for the [notification of supply chain compromises | {{ insert: param,
+  sr-08_odp.02 }} ].'
+source: NIST SP 800-53 Rev 5 (public domain)

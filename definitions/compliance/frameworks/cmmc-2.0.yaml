@@ -1,0 +1,513 @@
+# CMMC 2.0 (checklist). Practice IDs DOMAIN.L<level>-3.x.y = NIST 800-171 rev2. satisfiedBy = 800-53 controls.
+key: cmmc-2.0
+name: CMMC 2.0 (Level 1 & Level 2)
+description: Cybersecurity Maturity Model Certification 2.0. Level 2 = the 110 practices of NIST SP 800-171
+  Rev 2; Level 1 = the 17 FCI practices (tagged L1 in the practice ID).
+source: CMMC 2.0 / NIST SP 800-171 Rev 2 (public domain). Practice titles authored from the public standard;
+  verify against the official DoD CMMC model. 800-53 mapping best-effort.
+sections:
+- key: ac
+  name: AC — Access Control
+  requirements:
+  - id: AC.L1-3.1.1
+    name: Limit system access to authorized users, processes, and devices
+    satisfiedBy:
+    - ac-2
+    - ac-3
+    - ac-17
+  - id: AC.L1-3.1.2
+    name: Limit system access to permitted transactions and functions
+    satisfiedBy:
+    - ac-2
+    - ac-3
+  - id: AC.L2-3.1.3
+    name: Control the flow of CUI in accordance with approved authorizations
+    satisfiedBy:
+    - ac-4
+  - id: AC.L2-3.1.4
+    name: Separate duties of individuals to reduce risk of malevolent activity
+    satisfiedBy:
+    - ac-5
+  - id: AC.L2-3.1.5
+    name: Employ least privilege, including for privileged accounts
+    satisfiedBy:
+    - ac-6
+  - id: AC.L2-3.1.6
+    name: Use non-privileged accounts for nonsecurity functions
+    satisfiedBy:
+    - ac-6
+  - id: AC.L2-3.1.7
+    name: Prevent non-privileged users from executing privileged functions; capture in audit logs
+    satisfiedBy:
+    - ac-6
+    - au-2
+  - id: AC.L2-3.1.8
+    name: Limit unsuccessful logon attempts
+    satisfiedBy:
+    - ac-7
+  - id: AC.L2-3.1.9
+    name: Provide privacy and security notices consistent with CUI rules
+    satisfiedBy:
+    - ac-8
+  - id: AC.L2-3.1.10
+    name: Use session lock with pattern-hiding displays
+    satisfiedBy:
+    - ac-11
+  - id: AC.L2-3.1.11
+    name: Terminate user sessions after a defined condition
+    satisfiedBy:
+    - ac-12
+  - id: AC.L2-3.1.12
+    name: Monitor and control remote access sessions
+    satisfiedBy:
+    - ac-17
+  - id: AC.L2-3.1.13
+    name: Use cryptographic mechanisms to protect remote access sessions
+    satisfiedBy:
+    - ac-17
+    - sc-8
+  - id: AC.L2-3.1.14
+    name: Route remote access via managed access control points
+    satisfiedBy:
+    - ac-17
+  - id: AC.L2-3.1.15
+    name: Authorize remote execution of privileged commands and remote access to security info
+    satisfiedBy:
+    - ac-17
+    - ac-6
+  - id: AC.L2-3.1.16
+    name: Authorize wireless access prior to allowing connections
+    satisfiedBy:
+    - ac-18
+  - id: AC.L2-3.1.17
+    name: Protect wireless access using authentication and encryption
+    satisfiedBy:
+    - ac-18
+  - id: AC.L2-3.1.18
+    name: Control connection of mobile devices
+    satisfiedBy:
+    - ac-19
+  - id: AC.L2-3.1.19
+    name: Encrypt CUI on mobile devices and mobile computing platforms
+    satisfiedBy:
+    - ac-19
+    - sc-28
+  - id: AC.L1-3.1.20
+    name: Verify and control/limit connections to external systems
+    satisfiedBy:
+    - ac-20
+  - id: AC.L2-3.1.21
+    name: Limit use of portable storage devices on external systems
+    satisfiedBy:
+    - ac-20
+  - id: AC.L1-3.1.22
+    name: Control CUI posted or processed on publicly accessible systems
+    satisfiedBy:
+    - ac-22
+- key: at
+  name: AT — Awareness and Training
+  requirements:
+  - id: AT.L2-3.2.1
+    name: Ensure managers and users are aware of security risks and policies
+    satisfiedBy:
+    - at-2
+  - id: AT.L2-3.2.2
+    name: Ensure personnel are trained to carry out their security duties
+    satisfiedBy:
+    - at-3
+  - id: AT.L2-3.2.3
+    name: Provide security awareness training on recognizing insider threat
+    satisfiedBy:
+    - at-2
+- key: au
+  name: AU — Audit and Accountability
+  requirements:
+  - id: AU.L2-3.3.1
+    name: Create and retain system audit logs enabling monitoring/analysis/investigation
+    satisfiedBy:
+    - au-2
+    - au-3
+    - au-12
+  - id: AU.L2-3.3.2
+    name: Ensure actions of individual users can be uniquely traced (accountability)
+    satisfiedBy:
+    - au-3
+    - ia-2
+  - id: AU.L2-3.3.3
+    name: Review and update logged events
+    satisfiedBy:
+    - au-2
+  - id: AU.L2-3.3.4
+    name: Alert in the event of an audit logging process failure
+    satisfiedBy:
+    - au-5
+  - id: AU.L2-3.3.5
+    name: Correlate audit record review, analysis, and reporting for investigations
+    satisfiedBy:
+    - au-6
+  - id: AU.L2-3.3.6
+    name: Provide audit record reduction and report generation
+    satisfiedBy:
+    - au-7
+  - id: AU.L2-3.3.7
+    name: Provide a system capability that synchronizes to an authoritative time source
+    satisfiedBy:
+    - au-8
+  - id: AU.L2-3.3.8
+    name: Protect audit information and logging tools from unauthorized access/modification
+    satisfiedBy:
+    - au-9
+  - id: AU.L2-3.3.9
+    name: Limit management of audit logging functionality to a subset of privileged users
+    satisfiedBy:
+    - au-9
+    - ac-6
+- key: cm
+  name: CM — Configuration Management
+  requirements:
+  - id: CM.L2-3.4.1
+    name: Establish and maintain baseline configurations and inventories
+    satisfiedBy:
+    - cm-2
+    - cm-8
+  - id: CM.L2-3.4.2
+    name: Establish and enforce security configuration settings
+    satisfiedBy:
+    - cm-6
+  - id: CM.L2-3.4.3
+    name: Track, review, approve/disapprove, and log changes
+    satisfiedBy:
+    - cm-3
+  - id: CM.L2-3.4.4
+    name: Analyze the security impact of changes prior to implementation
+    satisfiedBy:
+    - cm-4
+  - id: CM.L2-3.4.5
+    name: Define, document, approve, and enforce access restrictions for changes
+    satisfiedBy:
+    - cm-5
+  - id: CM.L2-3.4.6
+    name: Employ the principle of least functionality
+    satisfiedBy:
+    - cm-7
+  - id: CM.L2-3.4.7
+    name: Restrict, disable, or prevent use of nonessential programs/ports/services
+    satisfiedBy:
+    - cm-7
+  - id: CM.L2-3.4.8
+    name: Apply deny-by-exception (blacklist) or permit-by-exception (whitelist) policy
+    satisfiedBy:
+    - cm-7
+  - id: CM.L2-3.4.9
+    name: Control and monitor user-installed software
+    satisfiedBy:
+    - cm-11
+- key: ia
+  name: IA — Identification and Authentication
+  requirements:
+  - id: IA.L1-3.5.1
+    name: Identify system users, processes acting on behalf of users, and devices
+    satisfiedBy:
+    - ia-2
+    - ia-3
+  - id: IA.L1-3.5.2
+    name: Authenticate identities as a prerequisite to system access
+    satisfiedBy:
+    - ia-2
+  - id: IA.L2-3.5.3
+    name: Use multifactor authentication for local and network access
+    satisfiedBy:
+    - ia-2
+  - id: IA.L2-3.5.4
+    name: Employ replay-resistant authentication mechanisms
+    satisfiedBy:
+    - ia-2
+  - id: IA.L2-3.5.5
+    name: Prevent reuse of identifiers for a defined period
+    satisfiedBy:
+    - ia-4
+  - id: IA.L2-3.5.6
+    name: Disable identifiers after a defined period of inactivity
+    satisfiedBy:
+    - ia-4
+  - id: IA.L2-3.5.7
+    name: Enforce a minimum password complexity and change of characters
+    satisfiedBy:
+    - ia-5
+  - id: IA.L2-3.5.8
+    name: Prohibit password reuse for a specified number of generations
+    satisfiedBy:
+    - ia-5
+  - id: IA.L2-3.5.9
+    name: Allow temporary password use with immediate change to a permanent password
+    satisfiedBy:
+    - ia-5
+  - id: IA.L2-3.5.10
+    name: Store and transmit only cryptographically-protected passwords
+    satisfiedBy:
+    - ia-5
+  - id: IA.L2-3.5.11
+    name: Obscure feedback of authentication information
+    satisfiedBy:
+    - ia-6
+- key: ir
+  name: IR — Incident Response
+  requirements:
+  - id: IR.L2-3.6.1
+    name: Establish an operational incident-handling capability
+    satisfiedBy:
+    - ir-4
+  - id: IR.L2-3.6.2
+    name: Track, document, and report incidents to designated officials/authorities
+    satisfiedBy:
+    - ir-5
+    - ir-6
+  - id: IR.L2-3.6.3
+    name: Test the organizational incident response capability
+    satisfiedBy:
+    - ir-3
+- key: ma
+  name: MA — Maintenance
+  requirements:
+  - id: MA.L2-3.7.1
+    name: Perform maintenance on organizational systems
+    satisfiedBy:
+    - ma-2
+  - id: MA.L2-3.7.2
+    name: Provide controls on tools, techniques, mechanisms, and personnel for maintenance
+    satisfiedBy:
+    - ma-2
+    - ma-3
+  - id: MA.L2-3.7.3
+    name: Sanitize equipment removed for off-site maintenance of CUI
+    satisfiedBy:
+    - ma-2
+  - id: MA.L2-3.7.4
+    name: Check media containing diagnostic/test programs for malicious code
+    satisfiedBy:
+    - ma-3
+  - id: MA.L2-3.7.5
+    name: Require multifactor authentication for nonlocal maintenance sessions
+    satisfiedBy:
+    - ma-4
+  - id: MA.L2-3.7.6
+    name: Supervise maintenance activities of personnel without required access
+    satisfiedBy:
+    - ma-5
+- key: mp
+  name: MP — Media Protection
+  requirements:
+  - id: MP.L2-3.8.1
+    name: Protect (physically control and securely store) system media containing CUI
+    satisfiedBy:
+    - mp-2
+    - mp-4
+  - id: MP.L2-3.8.2
+    name: Limit access to CUI on system media to authorized users
+    satisfiedBy:
+    - mp-2
+  - id: MP.L1-3.8.3
+    name: Sanitize or destroy media containing CUI before disposal or reuse
+    satisfiedBy:
+    - mp-6
+  - id: MP.L2-3.8.4
+    name: Mark media with necessary CUI markings and distribution limitations
+    satisfiedBy:
+    - mp-3
+  - id: MP.L2-3.8.5
+    name: Control access to media and maintain accountability during transport
+    satisfiedBy:
+    - mp-5
+  - id: MP.L2-3.8.6
+    name: Implement cryptographic mechanisms to protect CUI on media during transport
+    satisfiedBy:
+    - mp-5
+    - sc-28
+  - id: MP.L2-3.8.7
+    name: Control the use of removable media on system components
+    satisfiedBy:
+    - mp-7
+  - id: MP.L2-3.8.8
+    name: Prohibit the use of portable storage devices with no identifiable owner
+    satisfiedBy:
+    - mp-7
+  - id: MP.L2-3.8.9
+    name: Protect the confidentiality of backup CUI at storage locations
+    satisfiedBy:
+    - cp-9
+    - sc-28
+- key: ps
+  name: PS — Personnel Security
+  requirements:
+  - id: PS.L2-3.9.1
+    name: Screen individuals prior to authorizing access to systems containing CUI
+    satisfiedBy:
+    - ps-3
+  - id: PS.L2-3.9.2
+    name: Ensure CUI and systems are protected during/after personnel actions
+    satisfiedBy:
+    - ps-4
+    - ps-5
+- key: pe
+  name: PE — Physical Protection
+  requirements:
+  - id: PE.L1-3.10.1
+    name: Limit physical access to systems, equipment, and operating environments
+    satisfiedBy:
+    - pe-2
+    - pe-3
+  - id: PE.L2-3.10.2
+    name: Protect and monitor the physical facility and support infrastructure
+    satisfiedBy:
+    - pe-6
+  - id: PE.L1-3.10.3
+    name: Escort visitors and monitor visitor activity
+    satisfiedBy:
+    - pe-3
+  - id: PE.L1-3.10.4
+    name: Maintain audit logs of physical access
+    satisfiedBy:
+    - pe-3
+    - pe-6
+  - id: PE.L1-3.10.5
+    name: Control and manage physical access devices
+    satisfiedBy:
+    - pe-3
+  - id: PE.L2-3.10.6
+    name: Enforce safeguarding measures for CUI at alternate work sites
+    satisfiedBy:
+    - pe-17
+- key: ra
+  name: RA — Risk Assessment
+  requirements:
+  - id: RA.L2-3.11.1
+    name: Periodically assess risk to organizational operations and assets
+    satisfiedBy:
+    - ra-3
+  - id: RA.L2-3.11.2
+    name: Scan for vulnerabilities in systems and applications periodically
+    satisfiedBy:
+    - ra-5
+  - id: RA.L2-3.11.3
+    name: Remediate vulnerabilities in accordance with risk assessments
+    satisfiedBy:
+    - ra-5
+- key: ca
+  name: CA — Security Assessment
+  requirements:
+  - id: CA.L2-3.12.1
+    name: Periodically assess security controls for effectiveness
+    satisfiedBy:
+    - ca-2
+  - id: CA.L2-3.12.2
+    name: Develop and implement plans of action to correct deficiencies
+    satisfiedBy:
+    - ca-5
+  - id: CA.L2-3.12.3
+    name: Monitor security controls on an ongoing basis
+    satisfiedBy:
+    - ca-7
+  - id: CA.L2-3.12.4
+    name: Develop, document, and periodically update system security plans
+    satisfiedBy:
+    - pl-2
+- key: sc
+  name: SC — System and Communications Protection
+  requirements:
+  - id: SC.L1-3.13.1
+    name: Monitor, control, and protect communications at external/internal boundaries
+    satisfiedBy:
+    - sc-7
+  - id: SC.L2-3.13.2
+    name: Employ architectural designs and principles that promote effective security
+    satisfiedBy:
+    - sc-7
+    - sa-8
+  - id: SC.L2-3.13.3
+    name: Separate user functionality from system management functionality
+    satisfiedBy:
+    - sc-2
+  - id: SC.L2-3.13.4
+    name: Prevent unauthorized and unintended information transfer via shared resources
+    satisfiedBy:
+    - sc-4
+  - id: SC.L1-3.13.5
+    name: Implement subnetworks for publicly accessible components (separated)
+    satisfiedBy:
+    - sc-7
+  - id: SC.L2-3.13.6
+    name: Deny network communications traffic by default; allow by exception
+    satisfiedBy:
+    - sc-7
+  - id: SC.L2-3.13.7
+    name: Prevent remote devices from simultaneously connecting (no split tunneling)
+    satisfiedBy:
+    - sc-7
+  - id: SC.L2-3.13.8
+    name: Implement cryptographic mechanisms to prevent unauthorized disclosure in transit
+    satisfiedBy:
+    - sc-8
+  - id: SC.L2-3.13.9
+    name: Terminate network connections at end of sessions or after inactivity
+    satisfiedBy:
+    - sc-10
+  - id: SC.L2-3.13.10
+    name: Establish and manage cryptographic keys
+    satisfiedBy:
+    - sc-12
+  - id: SC.L2-3.13.11
+    name: Employ FIPS-validated cryptography to protect CUI
+    satisfiedBy:
+    - sc-13
+  - id: SC.L2-3.13.12
+    name: Prohibit remote activation of collaborative devices; provide indication of use
+    satisfiedBy:
+    - sc-15
+  - id: SC.L2-3.13.13
+    name: Control and monitor the use of mobile code
+    satisfiedBy:
+    - sc-18
+  - id: SC.L2-3.13.14
+    name: Control and monitor the use of Voice over Internet Protocol (VoIP)
+    satisfiedBy:
+    - sc-19
+  - id: SC.L2-3.13.15
+    name: Protect the authenticity of communications sessions
+    satisfiedBy:
+    - sc-23
+  - id: SC.L2-3.13.16
+    name: Protect the confidentiality of CUI at rest
+    satisfiedBy:
+    - sc-28
+- key: si
+  name: SI — System and Information Integrity
+  requirements:
+  - id: SI.L1-3.14.1
+    name: Identify, report, and correct system flaws in a timely manner
+    satisfiedBy:
+    - si-2
+  - id: SI.L1-3.14.2
+    name: Provide protection from malicious code at designated locations
+    satisfiedBy:
+    - si-3
+  - id: SI.L2-3.14.3
+    name: Monitor system security alerts and advisories and take action
+    satisfiedBy:
+    - si-5
+  - id: SI.L1-3.14.4
+    name: Update malicious code protection mechanisms when new releases are available
+    satisfiedBy:
+    - si-3
+  - id: SI.L1-3.14.5
+    name: Perform periodic and real-time scans of the system and files
+    satisfiedBy:
+    - si-3
+  - id: SI.L2-3.14.6
+    name: Monitor the system, including inbound/outbound traffic, for attacks/indicators
+    satisfiedBy:
+    - si-4
+  - id: SI.L2-3.14.7
+    name: Identify unauthorized use of organizational systems
+    satisfiedBy:
+    - si-4
+    - au-6

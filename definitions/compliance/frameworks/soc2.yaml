@@ -1,0 +1,249 @@
+# SOC 2 TSC (checklist). Public IDs/titles, NO normative text (AICPA copyright). satisfiedBy best-effort.
+key: soc2
+name: SOC 2 (Trust Services Criteria 2017)
+description: AICPA Trust Services Criteria — Common Criteria plus Availability, Confidentiality, Processing
+  Integrity and Privacy categories. Reference IDs/titles only; normative text is AICPA copyright.
+source: AICPA TSC (copyright) — public IDs/titles. 800-53 mapping best-effort (review).
+sections:
+- key: cc1
+  name: CC1 — Control Environment
+  requirements:
+  - id: CC1.1
+    name: Demonstrates commitment to integrity and ethical values
+    satisfiedBy: []
+  - id: CC1.2
+    name: Board exercises oversight responsibility
+    satisfiedBy: []
+  - id: CC1.3
+    name: Establishes structure, authority, and responsibility
+    satisfiedBy: []
+  - id: CC1.4
+    name: Demonstrates commitment to competence
+    satisfiedBy:
+    - at-3
+  - id: CC1.5
+    name: Enforces accountability
+    satisfiedBy:
+    - ps-8
+- key: cc2
+  name: CC2 — Communication and Information
+  requirements:
+  - id: CC2.1
+    name: Uses relevant, quality information
+    satisfiedBy: []
+  - id: CC2.2
+    name: Communicates internally
+    satisfiedBy:
+    - at-2
+  - id: CC2.3
+    name: Communicates externally
+    satisfiedBy: []
+- key: cc3
+  name: CC3 — Risk Assessment
+  requirements:
+  - id: CC3.1
+    name: Specifies suitable objectives
+    satisfiedBy: []
+  - id: CC3.2
+    name: Identifies and analyzes risk
+    satisfiedBy:
+    - ra-3
+  - id: CC3.3
+    name: Assesses fraud risk
+    satisfiedBy:
+    - ra-3
+  - id: CC3.4
+    name: Identifies and analyzes significant change
+    satisfiedBy:
+    - ca-7
+- key: cc4
+  name: CC4 — Monitoring Activities
+  requirements:
+  - id: CC4.1
+    name: Selects and develops ongoing/separate evaluations
+    satisfiedBy:
+    - ca-7
+  - id: CC4.2
+    name: Evaluates and communicates deficiencies
+    satisfiedBy:
+    - ca-5
+- key: cc5
+  name: CC5 — Control Activities
+  requirements:
+  - id: CC5.1
+    name: Selects and develops control activities
+    satisfiedBy: []
+  - id: CC5.2
+    name: Selects and develops general controls over technology
+    satisfiedBy:
+    - cm-2
+  - id: CC5.3
+    name: Deploys controls through policies and procedures
+    satisfiedBy: []
+- key: cc6
+  name: CC6 — Logical and Physical Access Controls
+  requirements:
+  - id: CC6.1
+    name: Implements logical access security software and architecture
+    satisfiedBy:
+    - ac-2
+    - ac-3
+    - ac-6
+    - ia-2
+  - id: CC6.2
+    name: Registers and authorizes new users before access
+    satisfiedBy:
+    - ac-2
+    - ia-4
+  - id: CC6.3
+    name: Manages access modification and removal
+    satisfiedBy:
+    - ac-2
+    - ac-6
+  - id: CC6.4
+    name: Restricts physical access
+    satisfiedBy:
+    - pe-2
+    - pe-3
+  - id: CC6.5
+    name: Discontinues logical/physical protections on disposal
+    satisfiedBy:
+    - mp-6
+  - id: CC6.6
+    name: Implements controls against external threats
+    satisfiedBy:
+    - sc-7
+    - ac-17
+  - id: CC6.7
+    name: Restricts movement/transmission of information
+    satisfiedBy:
+    - sc-8
+    - ac-4
+  - id: CC6.8
+    name: Prevents/detects unauthorized software
+    satisfiedBy:
+    - si-3
+    - cm-7
+- key: cc7
+  name: CC7 — System Operations
+  requirements:
+  - id: CC7.1
+    name: Detects configuration changes and vulnerabilities
+    satisfiedBy:
+    - si-4
+    - ra-5
+    - cm-3
+  - id: CC7.2
+    name: Monitors components for anomalies
+    satisfiedBy:
+    - au-6
+    - si-4
+  - id: CC7.3
+    name: Evaluates security events for incidents
+    satisfiedBy:
+    - ir-4
+    - au-6
+  - id: CC7.4
+    name: Responds to security incidents
+    satisfiedBy:
+    - ir-4
+    - ir-5
+    - ir-6
+  - id: CC7.5
+    name: Recovers from identified security incidents
+    satisfiedBy:
+    - ir-4
+    - cp-10
+- key: cc8
+  name: CC8 — Change Management
+  requirements:
+  - id: CC8.1
+    name: Authorizes, designs, tests, approves, and implements changes
+    satisfiedBy:
+    - cm-3
+    - cm-4
+- key: cc9
+  name: CC9 — Risk Mitigation
+  requirements:
+  - id: CC9.1
+    name: Identifies and develops risk mitigation activities
+    satisfiedBy:
+    - ra-3
+  - id: CC9.2
+    name: Manages vendor and business partner risk
+    satisfiedBy:
+    - sa-9
+- key: a1
+  name: Availability
+  requirements:
+  - id: A1.1
+    name: Maintains/monitors capacity
+    satisfiedBy: []
+  - id: A1.2
+    name: Environmental protections, backup, recovery
+    satisfiedBy:
+    - cp-9
+    - cp-10
+  - id: A1.3
+    name: Tests recovery plan
+    satisfiedBy:
+    - cp-4
+- key: c1
+  name: Confidentiality
+  requirements:
+  - id: C1.1
+    name: Identifies and maintains confidential information
+    satisfiedBy:
+    - sc-28
+  - id: C1.2
+    name: Disposes of confidential information
+    satisfiedBy:
+    - mp-6
+- key: pi1
+  name: Processing Integrity
+  requirements:
+  - id: PI1.1
+    name: Obtains/uses relevant quality information over processing
+    satisfiedBy: []
+  - id: PI1.2
+    name: Inputs are complete and accurate
+    satisfiedBy: []
+  - id: PI1.3
+    name: Processing is complete, accurate, timely
+    satisfiedBy: []
+  - id: PI1.4
+    name: Outputs are complete and accurate
+    satisfiedBy: []
+  - id: PI1.5
+    name: Stores inputs/outputs completely and accurately
+    satisfiedBy: []
+- key: p1
+  name: Privacy
+  requirements:
+  - id: P1.1
+    name: Notice of privacy practices
+    satisfiedBy: []
+  - id: P2.1
+    name: Choice and consent
+    satisfiedBy: []
+  - id: P3.1
+    name: Collection of personal information
+    satisfiedBy: []
+  - id: P4.1
+    name: Use, retention, and disposal
+    satisfiedBy:
+    - sc-28
+    - mp-6
+  - id: P5.1
+    name: Access by data subjects
+    satisfiedBy: []
+  - id: P6.1
+    name: Disclosure to third parties
+    satisfiedBy: []
+  - id: P7.1
+    name: Quality of personal information
+    satisfiedBy: []
+  - id: P8.1
+    name: Monitoring and enforcement
+    satisfiedBy:
+    - au-6

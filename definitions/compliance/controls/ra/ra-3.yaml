@@ -1,0 +1,21 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ra-3
+family: ra
+familyName: Risk Assessment
+name: Risk Assessment
+scope: data
+statement: |-
+  Conduct a risk assessment, including:
+      Identifying threats to and vulnerabilities in the system;
+      Determining the likelihood and magnitude of harm from unauthorized access, use, disclosure, disruption, modification, or destruction of the system, the information it processes, stores, or transmits, and any related information; and
+      Determining the likelihood and impact of adverse effects on individuals arising from the processing of personally identifiable information;
+    Integrate risk assessment results and risk management decisions from the organization and mission or business process perspectives with system-level risk assessments;
+    Document risk assessment results in [security and privacy plans | risk assessment report | {{ insert: param, ra-03_odp.02 }} ];
+    Review risk assessment results [frequency];
+    Disseminate risk assessment results to [personnel or roles] ; and
+    Update the risk assessment [frequency] or when there are significant changes to the system, its environment of operation, or other conditions that may impact the security or privacy state of the system.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

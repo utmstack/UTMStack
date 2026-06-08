@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ac-14
+family: ac
+familyName: Access Control
+name: Permitted Actions Without Identification or Authentication
+scope: data
+statement: |-
+  Identify [user actions] that can be performed on the system without identification or authentication consistent with organizational mission and business functions; and
+    Document and provide supporting rationale in the security plan for the system, user actions not requiring identification or authentication.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

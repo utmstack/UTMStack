@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pt-2
+family: pt
+familyName: Personally Identifiable Information Processing and Transparency
+name: Authority to Process Personally Identifiable Information
+scope: governance
+statement: |-
+  Determine and document the [authority] that permits the [processing] of personally identifiable information; and
+    Restrict the [processing] of personally identifiable information to only that which is authorized.
+source: NIST SP 800-53 Rev 5 (public domain)

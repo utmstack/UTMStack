@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sr-11
+family: sr
+familyName: Supply Chain Risk Management
+name: Component Authenticity
+scope: governance
+statement: |-
+  Develop and implement anti-counterfeit policy and procedures that include the means to detect and prevent counterfeit components from entering the system; and
+    Report counterfeit system components to [source of counterfeit component | {{ insert: param, sr-11_odp.02 }}  | {{ insert: param, sr-11_odp.03 }} ].
+source: NIST SP 800-53 Rev 5 (public domain)

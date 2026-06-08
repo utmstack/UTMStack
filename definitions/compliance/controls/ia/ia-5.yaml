@@ -1,0 +1,22 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ia-5
+family: ia
+familyName: Identification and Authentication
+name: Authenticator Management
+scope: data
+statement: |-
+  Manage system authenticators by:
+    Verifying, as part of the initial authenticator distribution, the identity of the individual, group, role, service, or device receiving the authenticator;
+    Establishing initial authenticator content for any authenticators issued by the organization;
+    Ensuring that authenticators have sufficient strength of mechanism for their intended use;
+    Establishing and implementing administrative procedures for initial authenticator distribution, for lost or compromised or damaged authenticators, and for revoking authenticators;
+    Changing default authenticators prior to first use;
+    Changing or refreshing authenticators [time period by authenticator type] or when [events] occur;
+    Protecting authenticator content from unauthorized disclosure and modification;
+    Requiring individuals to take, and having devices implement, specific controls to protect authenticators; and
+    Changing authenticators for group or role accounts when membership to those accounts changes.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

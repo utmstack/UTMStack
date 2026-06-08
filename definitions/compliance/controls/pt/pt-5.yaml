@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pt-5
+family: pt
+familyName: Personally Identifiable Information Processing and Transparency
+name: Privacy Notice
+scope: governance
+statement: |-
+  Provide notice to individuals about the processing of personally identifiable information that:
+    Is available to individuals upon first interacting with an organization, and subsequently at [frequency];
+    Is clear and easy-to-understand, expressing information about personally identifiable information processing in plain language;
+    Identifies the authority that authorizes the processing of personally identifiable information;
+    Identifies the purposes for which personally identifiable information is to be processed; and
+    Includes [information].
+source: NIST SP 800-53 Rev 5 (public domain)

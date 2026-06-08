@@ -1,0 +1,9 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pt-4
+family: pt
+familyName: Personally Identifiable Information Processing and Transparency
+name: Consent
+scope: governance
+statement: Implement [tools or mechanisms] for individuals to consent to the processing of their personally
+  identifiable information prior to its collection that facilitate individuals’ informed decision-making.
+source: NIST SP 800-53 Rev 5 (public domain)

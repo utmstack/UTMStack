@@ -1,0 +1,22 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ac-8
+family: ac
+familyName: Access Control
+name: System Use Notification
+scope: data
+statement: |-
+  Display [system use notification] to users before granting access to the system that provides privacy and security notices consistent with applicable laws, executive orders, directives, regulations, policies, standards, and guidelines and state that:
+      Users are accessing a U.S. Government system;
+      System usage may be monitored, recorded, and subject to audit;
+      Unauthorized use of the system is prohibited and subject to criminal and civil penalties; and
+      Use of the system indicates consent to monitoring and recording;
+    Retain the notification message or banner on the screen until users acknowledge the usage conditions and take explicit actions to log on to or further access the system; and
+    For publicly accessible systems:
+      Display system use information [conditions] , before granting further access to the publicly accessible system;
+      Display references, if any, to monitoring, recording, or auditing that are consistent with privacy accommodations for such systems that generally prohibit those activities; and
+      Include a description of the authorized uses of the system.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
