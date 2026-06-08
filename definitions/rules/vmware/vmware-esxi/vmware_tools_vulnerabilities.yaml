@@ -1,0 +1,44 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - vmware-esxi
+  name: VMware Tools Vulnerability Exploitation
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Initial Access
+  technique: "T1190 - Exploit Public-Facing Application"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1190/
+    - https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-security/GUID-F35D7005-58EB-48AC-99D5-B9942EB2A8EF.html
+  description: |
+    Detects potential exploitation of VMware Tools vulnerabilities by monitoring for suspicious authentication events, command execution patterns, and error messages related to VMware Tools operations. VMware Tools vulnerabilities can be exploited to gain unauthorized access to virtual machines or escalate privileges within the virtualized environment.
+
+    Next Steps:
+    1. Immediately isolate the affected ESXi host or virtual machine
+    2. Check VMware Tools version and compare against known vulnerable versions
+    3. Review authentication logs for signs of unauthorized access attempts
+    4. Examine process execution logs around the time of the alert
+    5. Verify the integrity of VMware Tools installation and configuration
+    6. Update VMware Tools to the latest secure version if vulnerabilities are confirmed
+    7. Review network traffic to and from the affected system for indicators of compromise
+    8. Check for lateral movement attempts from the compromised system
+  where: |
+    (regexMatch("log.message", "(?i)vmware tools") && equals("severity", "error")) ||
+    (regexMatch("log.message", "(?i)authentication of user") && regexMatch("log.message", "(?i)failed")) ||
+    (regexMatch("log.message", "(?i)LW_ERROR_PASSWORD_MISMATCH")) ||
+    (regexMatch("log.message", "(?i)Cannot login") && regexMatch("log.process", "(?i)vmtoolsd")) ||
+    (regexMatch("log.message", "(?i)rejected password for user")) ||
+    (regexMatch("log.message", "(?i)vmtoolsd") && regexMatch("log.message", "(?i)exploit"))
+  afterEvents:
+    - indexPattern: v11-log-vmware-esxi-*
+      with:
+        - field: origin.hostname
+          operator: filter_term
+          value: '{{.origin.hostname}}'
+      within: 15m
+      count: 5
+  groupBy:
+    - adversary.hostname

@@ -1,0 +1,41 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - firewall-pfsense
+  name: pfSense WebGUI Authentication Brute Force
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Credential Access
+  technique: "T1110 - Brute Force"
+  adversary: origin
+  references:
+    - https://docs.netgate.com/pfsense/en/latest/monitoring/logs/index.html
+    - https://attack.mitre.org/techniques/T1110/
+  description: |
+    Detects multiple failed WebGUI authentication attempts on pfSense firewalls, indicating potential brute force attacks against the administrative interface.
+
+    Next Steps:
+    1. Review the source IP and check if it is from an authorized management network
+    2. Check for successful logins from the same IP following the failures
+    3. Verify the targeted admin account exists and review its access level
+    4. Consider blocking the source IP on the management interface
+    5. Restrict WebGUI access to specific management networks
+    6. Enable anti-lockout rules and consider implementing CAPTCHA
+  where: |
+    (regexMatch("raw", "(?i)(webconfigurator.*authentication.*error|login.*failed|authentication.*failure|invalid.*login)") ||
+     regexMatch("log.csvMsg", "(?i)(webconfigurator.*authentication.*error|login.*failed|authentication.*failure|invalid.*login)") ||
+     contains("log.eventType", "sshguard")) &&
+    exists("origin.ip")
+  afterEvents:
+    - indexPattern: v11-log-firewall-pfsense-*
+      with:
+        - field: origin.ip
+          operator: filter_term
+          value: '{{.origin.ip}}'
+      within: 15m
+      count: 10
+  groupBy:
+    - adversary.ip
+    - adversary.user

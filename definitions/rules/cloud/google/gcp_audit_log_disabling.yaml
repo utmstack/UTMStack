@@ -1,0 +1,40 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - google
+  name: GCP Audit Log Disabling or Tampering
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Defense Evasion
+  technique: "T1562.008 - Impair Defenses: Disable Cloud Logs"
+  adversary: origin
+  references:
+    - https://cloud.google.com/logging/docs/audit
+    - https://attack.mitre.org/techniques/T1562/008/
+  description: |
+    Detects attempts to disable GCP audit logging including sink deletion, log exclusion filter creation, and audit configuration changes. Attackers may manipulate logging infrastructure to hide their activities from security monitoring.
+
+    Next Steps:
+    1. Immediately verify if the logging change was authorized
+    2. Review the specific sink or exclusion filter that was modified
+    3. Check the identity making the change and verify authorization
+    4. Assess what log types are no longer being collected
+    5. Restore logging configuration and ensure all critical logs are captured
+    6. Review activities that may have been hidden during the logging gap
+    7. Implement Organization Policy to prevent log sink deletion
+    8. Set up alerting on any changes to logging infrastructure
+  where: |
+    (contains("log.protoPayload.methodName", "DeleteSink") ||
+     contains("log.protoPayload.methodName", "UpdateSink") ||
+     contains("log.protoPayload.methodName", "CreateExclusion") ||
+     contains("log.protoPayload.methodName", "UpdateExclusion") ||
+     contains("log.protoPayload.methodName", "DeleteLog") ||
+     contains("log.protoPayload.methodName", "SetIamPolicy")) &&
+    (contains("log.protoPayload.serviceName", "logging.googleapis.com") ||
+     contains("log.resource.type", "logging_sink") ||
+     contains("log.resource.type", "logging_exclusion"))
+  groupBy:
+    - lastEvent.log.protoPayload.methodName
+    - adversary.user

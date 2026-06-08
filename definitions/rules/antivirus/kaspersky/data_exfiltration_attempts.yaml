@@ -1,0 +1,52 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - antivirus-kaspersky
+  name: Kaspersky Data Exfiltration Attempts Detection
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Exfiltration
+  technique: "T1048 - Exfiltration Over Alternative Protocol"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1048/
+    - https://support.kaspersky.com/KLMS/8.2/en-US/151684.htm
+  description: |
+    Detects potential data exfiltration attempts identified by Kaspersky through suspicious network traffic patterns, large data transfers, or connections to suspicious external destinations. This rule monitors for network threats, trojan/backdoor detections, and suspicious data transfer patterns that may indicate data exfiltration.
+  
+    Next Steps:
+    1. Immediately identify the source host (origin.ip) and any associated user accounts on the affected system
+    2. Check if the destination IP (target.ip) is known malicious using threat intelligence sources
+    3. Review the volume and frequency of data transfers to this destination in the last 24-48 hours
+    4. Search for any other malware detections (especially Trojans/Backdoors) on the same host
+    5. Analyze network traffic logs for unusual patterns or protocols from the source IP
+    6. Check if other hosts in your network have connected to the same destination
+    7. If confirmed malicious:
+       - Block the destination IP at firewall/proxy level
+       - Isolate the affected system from network
+       - Initiate full incident response procedures
+       - Preserve evidence for forensic analysis
+    8. Document all findings and actions taken for compliance and future reference
+  where: |
+    (equals("log.cat", "NetworkThreat") ||
+     regexMatch("log.cs2", "(?i).*(trojan|backdoor).*") ||
+     regexMatch("log.msg", "(?i).*(data.*transfer|exfiltrat|upload.*suspicious|unauthorized.*transfer).*") ||
+     regexMatch("log.msg", "(?i).*(data.*exfiltration|suspicious.*upload|unauthorized.*transfer).*")) &&
+    exists("target.ip") &&
+    greaterOrEqual("log.cefDeviceSeverity", "3")
+  afterEvents:
+    - indexPattern: v11-log-antivirus-kaspersky-*
+      with:
+        - field: origin.ip
+          operator: filter_term
+          value: '{{.origin.ip}}'
+        - field: log.cat
+          operator: filter_term
+          value: NetworkThreat
+      within: 30m
+      count: 5
+  groupBy:
+    - origin.ip
+    - target.ip

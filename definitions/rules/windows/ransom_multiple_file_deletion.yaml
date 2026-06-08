@@ -1,0 +1,40 @@
+# Rule version v1.0.3
+
+- dataTypes:
+    - "wineventlog"
+  name: "Windows: Possible ransomware attack detected. Multiple File Deletion."
+  impact:
+    confidentiality: 1
+    integrity: 3
+    availability: 2
+  category: "Impact"
+  technique: "T1486 - Data Encrypted for Impact"
+  adversary: origin
+  description: "Detects potential ransomware activity by monitoring multiple file write/modification events (Event ID 4663) 
+                with write access masks in user directories within a short timeframe. Modern ransomware typically 
+                encrypts files in-place rather than deleting them, making write access monitoring more effective 
+                than deletion monitoring alone."
+  references:
+    - "https://attack.mitre.org/tactics/TA0040/"
+  where: |
+    equals("log.eventCode", 4663) && 
+    oneOf("log.eventDataAccessMask", ["2", "4", "6"]) &&
+    !(regexMatch("log.eventDataProcessName", "(?i).*(trustedinstaller|svchost|wuauclt|msiexec|windows10upgrade|setuphost|tiworker|dism).*")) &&
+    regexMatch("log.eventDataObjectName", "(?i).*\\\\(users|documents|desktop|downloads|pictures|videos|music)\\\\.*") &&
+    !(regexMatch("log.eventDataObjectName", "(?i).*(\\\\windows\\\\|\\\\program files|\\\\programdata\\\\|\\\\temp\\\\|\\\\appdata\\\\local\\\\temp|\\\\softwaredistribution\\\\|\\\\winsxs\\\\|\\\\logs\\\\|\\\\prefetch\\\\).*")) &&
+    !(regexMatch("log.eventDataObjectName", "(?i).*\\.(tmp|log|etl|dmp|pf|evtx|cache|dat|bak)$")) &&
+    regexMatch("log.eventDataObjectName", "(?i).*\\.(doc[x]?|xls[x]?|ppt[x]?|pdf|txt|jpg|jpeg|png|gif|bmp|mp4|avi|mp3|zip|rar|7z)$")
+  afterEvents:
+      - indexPattern: v11-log-wineventlog-*
+        with:
+          - field: log.eventCode
+            operator: filter_term
+            value: "4663"
+          - field: target.user.keyword
+            operator: filter_term
+            value: "{{.target.user}}"
+        within: 5m
+        count: 50
+  groupBy:
+    - origin.ip
+    - target.user

@@ -1,0 +1,44 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - netflow
+  name: ICMP Tunneling Detection via NetFlow
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Command and Control
+  technique: "T1095 - Non-Application Layer Protocol"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1095/
+    - https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
+  description: |
+    Detects potential ICMP tunneling by identifying ICMP traffic with unusually large packet sizes or high data volumes. Attackers use ICMP tunneling (tools like ptunnel, icmpsh) to exfiltrate data or establish covert C2 channels through protocols that are often allowed by firewalls.
+
+    Next Steps:
+    1. Investigate the internal host generating large ICMP traffic
+    2. Review the ICMP packet sizes - normal ping uses 64 bytes
+    3. Check for ICMP tunneling tools on the host (ptunnel, icmpsh, Hans)
+    4. Review the destination IP for known C2 infrastructure
+    5. Monitor ICMP traffic patterns for regular beaconing intervals
+    6. Consider rate-limiting or blocking ICMP to external destinations
+  where: |
+    exists("origin.ip") &&
+    exists("target.ip") &&
+    equals("protocol", "ICMP") &&
+    greaterThan("log.bytes", 10000)
+  afterEvents:
+    - indexPattern: v11-log-netflow-*
+      with:
+        - field: origin.ip
+          operator: filter_term
+          value: '{{.origin.ip}}'
+        - field: target.ip
+          operator: filter_term
+          value: '{{.target.ip}}'
+      within: 10m
+      count: 20
+  groupBy:
+    - adversary.ip
+    - target.ip

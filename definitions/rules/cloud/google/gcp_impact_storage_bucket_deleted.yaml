@@ -1,0 +1,27 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - google
+  name: "GCP probable Impact, Storage Bucket Deleted"
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: "Impact"
+  technique: "T1485 - Data Destruction"
+  adversary: origin
+  description: "Impact consists of techniques that adversaries use to disrupt availability or compromise integrity by manipulating business 
+                and operational processes. Techniques used for impact can include destroying or tampering with data. In some cases, business 
+                processes can look fine, but may have been altered to benefit the adversaries goals. These techniques might be used by 
+                adversaries to follow through on their end goal or to provide cover for a confidentiality breach.  
+                Identifies when a Google Cloud Platform (GCP) storage bucket is deleted. An adversary may delete a storage bucket in 
+                order to disrupt their target's business operations."
+  references:
+    - "https://cloud.google.com/logging/docs/buckets"
+    - "https://attack.mitre.org/tactics/TA0040/"
+    - "https://attack.mitre.org/techniques/T1485/"
+  where: |
+    regexMatch("log.protoPayload.methodName", "(.+)\\.bucket(s)?\\.delete")
+  groupBy:
+    - adversary.ip
+    - adversary.user

@@ -1,0 +1,49 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - firewall-fortigate-traffic
+  name: Fortinet Antivirus Malware Outbreak Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Initial Access
+  technique: "T1566 - Phishing"
+  adversary: origin
+  references:
+    - https://docs.fortinet.com/document/fortigate/7.4.1/administration-guide/198726/antivirus
+    - https://attack.mitre.org/techniques/T1566/
+  description: |
+    Detects potential malware outbreak when multiple antivirus detections occur from the same source or targeting multiple destinations in a short time period. This could indicate a widespread infection attempt or a compromised system attempting to spread malware.
+
+    Next Steps:
+    1. Identify the specific malware detected by reviewing the virus field in the alert details
+    2. Isolate the affected source IP addresses to prevent further spread
+    3. Check if the blocked malware attempts indicate successful infections on any endpoints
+    4. Review antivirus logs for the specific virus signature to understand the threat
+    5. Scan all systems that communicated with the identified source IPs
+    6. Update antivirus signatures and ensure all endpoints are protected
+    7. Consider blocking the source IP at the perimeter if it's external
+    8. Document all affected systems and remediation actions taken
+  where: |
+    equals("log.type", "utm") && 
+    equals("log.subtype", "virus") && 
+    equals("action", "blocked") &&
+    (exists("origin.ip") || exists("target.ip"))
+  afterEvents:
+    - indexPattern: v11-log-firewall-fortigate-traffic-*
+      with:
+        - field: log.type
+          operator: filter_term
+          value: utm
+        - field: log.subtype
+          operator: filter_term
+          value: virus
+        - field: action
+          operator: filter_term
+          value: blocked
+      within: 1h
+      count: 5
+  groupBy:
+    - adversary.ip
+    - target.ip

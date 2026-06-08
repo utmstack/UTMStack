@@ -1,0 +1,57 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - suricata
+  name: DDoS Attack Patterns
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: Impact
+  technique: "T1498 - Network Denial of Service"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1498/
+    - https://attack.mitre.org/techniques/T1499/
+    - https://docs.suricata.io/en/latest/output/eve/eve-json-format.html
+  description: |
+    Detects various DDoS attack patterns including SYN floods, UDP floods, ICMP floods, HTTP floods, and amplification attacks based on Suricata network intrusion detection system alerts and traffic patterns.
+  
+    Next Steps:
+    1. Analyze traffic volume and patterns to the targeted destination
+    2. Check for similar attacks from multiple source IPs
+    3. Implement rate limiting or blocking rules for attacking sources
+    4. Monitor network bandwidth utilization and performance metrics
+    5. Consider activating DDoS mitigation services if available
+    6. Review firewall and load balancer configurations
+    7. Document the attack timeline and impact for incident response
+  where: |
+    (
+      (equals("log.eventType", "alert") &&
+       (contains("log.alert.signature", "SYN flood") ||
+        contains("log.alert.signature", "DDoS") ||
+        contains("log.alert.signature", "amplification"))) ||
+      (equals("protocol", "TCP") &&
+       equals("log.tcp.flags", "S") &&
+       greaterThan("log.flow.pkts_toserver", 100) &&
+       lessThan("log.flow.duration", 5)) ||
+      (equals("protocol", "UDP") &&
+       greaterThan("log.flow.pkts_toserver", 1000) &&
+       lessThan("log.flow.duration", 10)) ||
+      (equals("protocol", "ICMP") &&
+       greaterThan("log.flow.pkts_toserver", 500) &&
+       lessThan("log.flow.duration", 5)) ||
+      (equals("target.port", 123) &&
+       safe("log.flow.bytes_toclient", 0) > safe("log.flow.bytes_toserver", 0) * 10)
+    )
+  afterEvents:
+    - indexPattern: v11-log-suricata-*
+      with:
+        - field: target.ip
+          operator: filter_term
+          value: '{{.target.ip}}'
+      within: 5m
+      count: 50
+  groupBy:
+    - adversary.ip
+    - target.ip

@@ -1,0 +1,29 @@
+# Rule version v1.0.3
+
+- dataTypes:
+    - google
+  name: "GCP probable Defense Evasion, Logging Sink Deletion"
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: "Defense Evasion"
+  technique: "T1562 - Impair Defenses"
+  adversary: origin
+  description: "Defense Evasion consists of techniques that adversaries use to avoid detection throughout their compromise. 
+                Techniques used for defense evasion include uninstalling/disabling security software or 
+                obfuscating/encrypting data and scripts. Adversaries also leverage and abuse trusted processes 
+                to hide and masquerade their malware. Other tactics are cross-listed here when those techniques 
+                include the added benefit of subverting defenses.  
+                Identifies a Logging sink deletion in Google Cloud Platform (GCP). Every time a log entry arrives, Logging 
+                compares the log entry to the sinks in that resource. Each sink whose filter matches the log entry writes a 
+                copy of the log entry to the sink's export destination. An adversary may delete a Logging sink to evade detection."
+  references:
+    - "https://cloud.google.com/logging/docs/export"
+    - "https://attack.mitre.org/techniques/T1562/"
+    - "https://attack.mitre.org/tactics/TA0005/"
+  where: |
+    regexMatch("log.protoPayload.methodName", "((.+)?sink(s)?\\.delete|(.+)?v(\\w+)\\.ConfigServiceV(\\w+)\\.DeleteSink)")
+  groupBy:
+    - adversary.ip
+    - adversary.user

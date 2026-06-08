@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - google
+  name: Google Workspace MFA Enforcement Disabled
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 1
+  category: Defense Evasion
+  technique: "T1556 - Modify Authentication Process"
+  adversary: origin
+  references:
+    - https://support.google.com/a/answer/9176657
+    - https://attack.mitre.org/techniques/T1556/
+  description: |
+    Detects when MFA enforcement is disabled in Google Workspace. Disabling MFA removes a critical security control and enables credential-based attacks against all users in the organization.
+
+    Next Steps:
+    1. Immediately verify if the MFA policy change was authorized
+    2. Identify the admin who made the change and their authorization
+    3. Check for brute force or credential stuffing attempts following the change
+    4. Re-enable MFA enforcement immediately if unauthorized
+    5. Review all sign-ins that occurred while MFA was disabled
+    6. Check for other security policy changes from the same admin
+    7. Audit admin roles and consider implementing super admin 2SV enforcement
+  where: |
+    contains("log.protoPayload.methodName", "ENFORCE_STRONG_AUTHENTICATION") ||
+    (contains("log.protoPayload.serviceName", "admin.googleapis.com") && contains("log.protoPayload.methodName", "2sv") && contains("log.protoPayload.request", "disable"))
+  groupBy:
+    - lastEvent.log.protoPayload.authenticationInfo.principalEmail
+    - lastEvent.log.protoPayload.methodName

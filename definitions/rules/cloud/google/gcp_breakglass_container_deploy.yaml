@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - google
+  name: GCP Break-Glass Container Workload Deployed
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Defense Evasion
+  technique: "T1548 - Abuse Elevation Control Mechanism"
+  adversary: origin
+  references:
+    - https://cloud.google.com/binary-authorization/docs/using-breakglass
+    - https://attack.mitre.org/techniques/T1548/
+  description: |
+    Detects deployment of container workloads using the break-glass mechanism to bypass Binary Authorization policy. While legitimate in emergency scenarios, this bypasses security controls and can be abused to deploy malicious or untrusted container images.
+
+    Next Steps:
+    1. Verify the break-glass deployment was authorized and documented
+    2. Review the container image that was deployed
+    3. Check the user identity and their authorization level
+    4. Validate the business justification for the emergency bypass
+    5. Ensure Binary Authorization policies are restored after the emergency
+    6. Scan the deployed container for vulnerabilities and malware
+    7. Review cluster activity following the deployment
+  where: |
+    (equals("log.protoPayload.serviceName", "binaryauthorization.googleapis.com") &&
+    contains("log.protoPayload.response", "breakglass")) ||
+    (contains("log.protoPayload.methodName", "container.clusters") &&
+    contains("log.protoPayload.request", "breakglass"))
+  groupBy:
+    - lastEvent.log.protoPayload.authenticationInfo.principalEmail
+    - lastEvent.log.protoPayload.resourceName

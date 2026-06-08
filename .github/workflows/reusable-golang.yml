@@ -12,6 +12,16 @@ on:
       flags:
         required: false
         type: string
+      build_context:
+        required: false
+        type: string
+        default: ""
+        description: "Docker build context (defaults to ./<image_name>)"
+      dockerfile:
+        required: false
+        type: string
+        default: ""
+        description: "Path to the Dockerfile (defaults to ./<image_name>/Dockerfile)"
 jobs:
   build:
     name: Build
@@ -49,6 +59,7 @@ jobs:
       - name: Build and Push the Image
         uses: docker/build-push-action@v6
         with:
-          context: ./${{inputs.image_name}}
+          context: ${{ inputs.build_context != '' && inputs.build_context || format('./{0}', inputs.image_name) }}
+          file: ${{ inputs.dockerfile != '' && inputs.dockerfile || format('./{0}/Dockerfile', inputs.image_name) }}
           push: true
           tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.tag}}

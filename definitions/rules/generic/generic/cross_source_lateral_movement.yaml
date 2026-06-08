@@ -1,0 +1,57 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - generic
+  name: Cross-Source Lateral Movement Detection
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Lateral Movement
+  technique: "T1021 - Remote Services"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1021/
+  description: |
+    Detects patterns of authentication events across multiple log sources that indicate lateral movement. Monitors for remote service access patterns including RDP, SSH, SMB, and WMI connections followed by execution indicators.
+
+    Next Steps:
+    1. Map the authentication chain across systems
+    2. Identify the initial point of compromise
+    3. Verify each hop was from authorized activity
+    4. Check for credential reuse across systems
+    5. Investigate the final destination for post-exploitation activity
+    6. Implement network segmentation to limit lateral movement paths
+  where: |
+    exists("origin.ip") &&
+    exists("origin.user") &&
+    (
+      (exists("log.message") && (
+        (contains("log.message", "remote") && contains("log.message", "login")) ||
+        (contains("log.message", "authenticated") && contains("log.message", "from")) ||
+        (contains("log.message", "session") && contains("log.message", "opened") && contains("log.message", "remote")) ||
+        contains("log.message", "lateral movement") ||
+        (contains("log.message", "RDP") && contains("log.message", "connection")) ||
+        (contains("log.message", "SMB") && contains("log.message", "authenticated")) ||
+        (contains("log.message", "WMI") && contains("log.message", "connection"))
+      )) ||
+      (exists("action") && (
+        equals("action", "remote_login") ||
+        equals("action", "network_logon") ||
+        equals("action", "rdp_connection")
+      ))
+    )
+  afterEvents:
+    - indexPattern: v11-log-generic-*
+      with:
+        - field: origin.user
+          operator: filter_term
+          value: '{{.origin.user}}'
+        - field: log.message
+          operator: filter_match
+          value: 'remote login OR authenticated OR session opened'
+      within: 30m
+      count: 5
+  groupBy:
+    - adversary.ip
+    - adversary.user

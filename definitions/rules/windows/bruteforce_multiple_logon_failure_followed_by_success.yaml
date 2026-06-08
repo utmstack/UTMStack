@@ -1,0 +1,30 @@
+# Rule version v1.0.3
+- dataTypes:
+    - wineventlog
+  name: "Windows: Multiple Logon Failure Followed by Logon Success"
+  impact:
+    confidentiality: 2
+    integrity: 2
+    availability: 3
+  category: "Credential Access"
+  technique: "T1110 - Brute Force"
+  adversary: origin
+  description: "This rule is triggered when a sequence of multiple failed login attempts followed immediately by a successful login from the same IP address or source is detected. This unusual sequence of events may indicate a possible unauthorized access attempt using a brute force or password guessing technique. The purpose of this rule is to identify suspicious patterns of login activity and alert you to potential unauthorized access attempts."
+  references:
+    - "https://attack.mitre.org/tactics/TA0006/"
+    - "https://attack.mitre.org/techniques/T1110/"
+  where: equals("log.eventCode", 4624)
+  afterEvents:
+      - indexPattern: v11-log-wineventlog-*
+        with:
+          - field: log.eventCode
+            operator: filter_term
+            value: 4625
+          - field: target.user.keyword
+            operator: filter_term
+            value: "{{.target.user}}"
+        within: 5m
+        count: 10
+  deduplicateBy:
+    - origin.ip
+    - target.user

@@ -1,0 +1,42 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - aws
+  name: AWS Route 53 DNS Hijacking Attempt
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 3
+  category: Initial Access
+  technique: "T1584.002 - Compromise Infrastructure: DNS Server"
+  adversary: origin
+  references:
+    - https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/logging-using-cloudtrail.html
+    - https://attack.mitre.org/techniques/T1584/002/
+  description: |
+    Detects potential DNS hijacking attempts through unauthorized changes to Route 53 DNS records. This rule monitors for ChangeResourceRecordSets operations that could indicate an attacker modifying DNS entries to redirect traffic.
+  
+    Next Steps:
+    1. Review the CloudTrail logs to identify what DNS records were modified and the specific changes made
+    2. Verify if the user identity making the changes is authorized to modify Route 53 records
+    3. Check if the source IP address is from a known and trusted location
+    4. Review the modified DNS records to ensure they point to legitimate resources
+    5. If unauthorized, immediately revert the DNS changes and rotate the compromised credentials
+    6. Enable MFA for all users with Route 53 permissions
+    7. Consider implementing AWS Config rules to monitor Route 53 changes
+    8. Review and restrict IAM policies for Route 53 access
+  where: equals("log.eventSource", "route53.amazonaws.com") && equals("log.eventName", "ChangeResourceRecordSets") && equals("log.errorCode", "")
+  afterEvents:
+    - indexPattern: v11-log-aws-*
+      with:
+        - field: log.userIdentityArn
+          operator: filter_term
+          value: '{{.log.userIdentityArn}}'
+        - field: log.eventName
+          operator: filter_term
+          value: 'ChangeResourceRecordSets'
+      within: 30m
+      count: 10
+  groupBy:
+    - lastEvent.log.sourceIPAddress
+    - lastEvent.log.userIdentityArn

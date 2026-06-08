@@ -1,0 +1,55 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - netflow
+  name: Internal SMB/RDP Lateral Movement Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Lateral Movement
+  technique: "T1021 - Remote Services"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1021/
+    - https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
+  description: |
+    Detects internal hosts connecting to multiple internal targets on SMB (445) or RDP (3389) ports in a short time window, indicating potential lateral movement or internal reconnaissance.
+
+    Next Steps:
+    1. Identify the source host and verify if the activity is from an authorized admin
+    2. Review the user account associated with the connections
+    3. Check if the source host shows signs of compromise
+    4. Investigate the target hosts for unauthorized access
+    5. Review authentication logs on target systems for the associated user
+    6. If unauthorized, isolate the source host and conduct forensic analysis
+  where: |
+    exists("origin.ip") &&
+    exists("target.ip") &&
+    oneOf("target.port", [445, 3389]) &&
+    (inCIDR("origin.ip", "10.0.0.0/8") || inCIDR("origin.ip", "172.16.0.0/12") || inCIDR("origin.ip", "192.168.0.0/16"))
+  afterEvents:
+    - indexPattern: v11-log-netflow-*
+      with:
+        - field: origin.ip
+          operator: filter_term
+          value: '{{.origin.ip}}'
+        - field: target.port
+          operator: filter_term
+          value: '445'
+      within: 10m
+      count: 10
+      or:
+        - indexPattern: v11-log-netflow-*
+          with:
+            - field: origin.ip
+              operator: filter_term
+              value: '{{.origin.ip}}'
+            - field: target.port
+              operator: filter_term
+              value: '3389'
+          within: 10m
+          count: 10
+  groupBy:
+    - adversary.ip
+    - target.port

@@ -1,0 +1,27 @@
+# Rule version v1.0.1
+
+- dataTypes:
+    - suricata
+  name: High level Suricata alert
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 3
+  category: "Initial Access"
+  technique: "T1190 - Exploit Public-Facing Application"
+  adversary: origin
+  references:
+    - "https://suricata.readthedocs.io/en/latest/"
+  description: "Suricata has detected a high severity alert. This indicates potential malicious activity targeting the network infrastructure, such as exploitation attempts, malware communication, or suspicious network behavior."
+  where: equals("log.eventType", "alert") && equals("severity", "high")
+  afterEvents:
+    - indexPattern: v11-log-suricata-*
+      with:
+        - field: origin.ip
+          operator: filter_term
+          value: '{{.origin.ip}}'
+      within: 15m
+      count: 3
+  groupBy:
+    - adversary.ip
+    - target.ip
