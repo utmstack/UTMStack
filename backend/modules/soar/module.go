@@ -24,10 +24,12 @@ type Module struct {
 	ruleHandler      *handler.RuleHandler
 	templateHandler  *handler.TemplateHandler
 	executionHandler *handler.ExecutionHandler
+	agentHandler     *handler.AgentHandler
 
 	ruleUsecase          connectors.RuleUsecase
 	templateUsecase      connectors.TemplateUsecase
 	executionUsecase     connectors.ExecutionUsecase
+	agentUsecase         connectors.AgentUsecase
 	variableUsecase      connectors.VariableUsecase
 	actionUsecase        connectors.ActionUsecase
 	actionCommandUsecase connectors.ActionCommandUsecase
@@ -61,6 +63,11 @@ func NewModule(
 	templateUC := usecase.NewTemplateUsecase(templateRepo)
 	executionUC := usecase.NewExecutionUsecase(executionRepo)
 
+	// Agent resolution: cross-table query into `datasources` for rule targeting.
+	// Internal-only consumer (SOAR plugin).
+	agentRepo := repository.NewAgentRepository(db)
+	agentUC := usecase.NewAgentUsecase(agentRepo)
+
 	// Incident variables: reusable (optionally secret) values interpolated into
 	// commands run on agents through the live command WebSocket.
 	variableRepo := repository.NewVariableRepository(db)
@@ -76,9 +83,11 @@ func NewModule(
 		ruleHandler:      handler.NewRuleHandler(ruleUC),
 		templateHandler:  handler.NewTemplateHandler(templateUC),
 		executionHandler: handler.NewExecutionHandler(executionUC),
+		agentHandler:     handler.NewAgentHandler(agentUC),
 		ruleUsecase:      ruleUC,
 		templateUsecase:  templateUC,
 		executionUsecase: executionUC,
+		agentUsecase:     agentUC,
 		variableUsecase:  variableUC,
 		actionUsecase:    actionUC,
 
@@ -102,6 +111,7 @@ func (m *Module) Start(ctx context.Context) error {
 func (m *Module) GetRuleHandler() *handler.RuleHandler           { return m.ruleHandler }
 func (m *Module) GetTemplateHandler() *handler.TemplateHandler   { return m.templateHandler }
 func (m *Module) GetExecutionHandler() *handler.ExecutionHandler { return m.executionHandler }
+func (m *Module) GetAgentHandler() *handler.AgentHandler         { return m.agentHandler }
 func (m *Module) GetVariableHandler() *handler.VariableHandler   { return m.variableHandler }
 func (m *Module) GetActionHandler() *handler.ActionHandler       { return m.actionHandler }
 func (m *Module) GetActionCommandHandler() *handler.ActionCommandHandler {
