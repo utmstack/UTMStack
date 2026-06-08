@@ -26,6 +26,8 @@ func (h *IdentityProviderHandler) writeError(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, domain.ErrIDPNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	case errors.Is(err, domain.ErrSSONotEntitled):
+		c.JSON(http.StatusPaymentRequired, gin.H{"error": err.Error()})
 	case errors.Is(err, domain.ErrIDPIDForbidden), errors.Is(err, domain.ErrIDPIDRequired),
 		errors.Is(err, domain.ErrIDPInvalidInput), errors.Is(err, domain.ErrIDPKeyRequired):
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

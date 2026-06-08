@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	mail_connectors "github.com/utmstack/utmstack/backend/internal/mail/connectors"
+	appconfig_connectors "github.com/utmstack/utmstack/backend/modules/appconfig/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/pkg/constants/templates"
 )
@@ -14,13 +15,15 @@ import (
 type userInvitationMailer struct {
 	mail       mail_connectors.MailService
 	configRepo mail_connectors.MailConfigurationRepository
+	brand      appconfig_connectors.BrandNameProvider
 }
 
 func NewUserInvitationMailer(
 	mail mail_connectors.MailService,
 	configRepo mail_connectors.MailConfigurationRepository,
+	brand appconfig_connectors.BrandNameProvider,
 ) connectors.UserInvitationMailer {
-	return &userInvitationMailer{mail: mail, configRepo: configRepo}
+	return &userInvitationMailer{mail: mail, configRepo: configRepo, brand: brand}
 }
 
 func (m *userInvitationMailer) SendInvitation(ctx context.Context, to, firstName, resetKey string) error {
@@ -36,7 +39,8 @@ func (m *userInvitationMailer) SendInvitation(ctx context.Context, to, firstName
 		url.QueryEscape(resetKey),
 	)
 	return m.mail.SendTemplateMail(ctx, []string{to}, templates.UserInvitation, map[string]string{
-		"FirstName": firstName,
-		"InviteURL": inviteURL,
+		"FirstName":   firstName,
+		"InviteURL":   inviteURL,
+		"ProductName": m.brand.ProductName(ctx),
 	}, "")
 }

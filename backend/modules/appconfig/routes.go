@@ -11,4 +11,9 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	g.GET("/:key", middleware.RequirePermission("config.read"), m.Handler().Get)
 	g.PUT("/:key", middleware.RequirePermission("config.write"), m.Handler().Update)
 	g.POST("checkEmailConfiguration", middleware.RequirePermission("config.write"), m.Handler().CheckMail)
+
+	b := api.Group("/branding")
+	b.GET("", userAuth, middleware.RequirePermission("config.read"), m.BrandingHandler().Get)
+	b.PUT("", userAuth, middleware.RequirePermission("config.write"), m.BrandingHandler().Update)
+	b.GET("/public", m.BrandingHandler().Public)
 }

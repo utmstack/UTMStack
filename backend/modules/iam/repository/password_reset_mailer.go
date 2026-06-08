@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	mail_connectors "github.com/utmstack/utmstack/backend/internal/mail/connectors"
+	appconfig_connectors "github.com/utmstack/utmstack/backend/modules/appconfig/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/pkg/constants/templates"
 )
@@ -14,13 +15,15 @@ import (
 type passwordResetMailer struct {
 	mail       mail_connectors.MailService
 	configRepo mail_connectors.MailConfigurationRepository
+	brand      appconfig_connectors.BrandNameProvider
 }
 
 func NewPasswordResetMailer(
 	mail mail_connectors.MailService,
 	configRepo mail_connectors.MailConfigurationRepository,
+	brand appconfig_connectors.BrandNameProvider,
 ) connectors.PasswordResetMailer {
-	return &passwordResetMailer{mail: mail, configRepo: configRepo}
+	return &passwordResetMailer{mail: mail, configRepo: configRepo, brand: brand}
 }
 
 func (m *passwordResetMailer) SendPasswordReset(ctx context.Context, to, firstName, resetKey string) error {
@@ -36,7 +39,8 @@ func (m *passwordResetMailer) SendPasswordReset(ctx context.Context, to, firstNa
 		url.QueryEscape(resetKey),
 	)
 	return m.mail.SendTemplateMail(ctx, []string{to}, templates.ResetPassword, map[string]string{
-		"FirstName": firstName,
-		"ResetURL":  resetURL,
+		"FirstName":   firstName,
+		"ResetURL":    resetURL,
+		"ProductName": m.brand.ProductName(ctx),
 	}, "")
 }

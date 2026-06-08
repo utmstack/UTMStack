@@ -12,7 +12,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	"github.com/utmstack/utmstack/backend/modules/compliance"
 	"github.com/utmstack/utmstack/backend/modules/dashboards"
-	"github.com/utmstack/utmstack/backend/modules/loganalyzer"
 	"github.com/utmstack/utmstack/backend/modules/datasources"
 	ns_repository "github.com/utmstack/utmstack/backend/modules/datasources/repository"
 	ns_usecase "github.com/utmstack/utmstack/backend/modules/datasources/usecase"
@@ -23,6 +22,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/incidents"
 	incidents_connectors "github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations"
+	"github.com/utmstack/utmstack/backend/modules/loganalyzer"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
@@ -88,6 +88,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	configMod := appconfig.NewModule(db, cipher)
 	mailMod := mail.NewModule(configMod.Store())
 	configMod.SetMailer(mailMod.Service())
+	brand := configMod.Branding()
 	complianceMod := compliance.NewModule(db, mailMod.Service())
 	dashboardsMod := dashboards.NewModule(db)
 	loganalyzerMod := loganalyzer.NewModule(db)
@@ -95,12 +96,12 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	userRepo := iam_repository.NewUserRepository(db)
 	rbacRepo := iam_repository.NewRBACRepository(db)
 	refreshRepo := iam_repository.NewRefreshTokenRepository(db)
-	resetMailer := iam_repository.NewPasswordResetMailer(mailMod.Service(), mailMod.ConfigRepo())
-	invitationMailer := iam_repository.NewUserInvitationMailer(mailMod.Service(), mailMod.ConfigRepo())
+	resetMailer := iam_repository.NewPasswordResetMailer(mailMod.Service(), mailMod.ConfigRepo(), brand)
+	invitationMailer := iam_repository.NewUserInvitationMailer(mailMod.Service(), mailMod.ConfigRepo(), brand)
 	tfaStateRepo := iam_repository.NewInMemoryTfaStateRepository(tfaChallengeTTL)
 	tfaMailer := iam_repository.NewTfaMailer(mailMod.Service(), mailMod.ConfigRepo())
 
-	tfaUsecase := iam_usecase.NewTfaUsecase(userRepo, refreshRepo, rbacRepo, tfaStateRepo, tfaMailer, signer, preAuthSigner, refreshTokenTTL, cfg.tfaEnabled)
+	tfaUsecase := iam_usecase.NewTfaUsecase(userRepo, refreshRepo, rbacRepo, tfaStateRepo, tfaMailer, signer, preAuthSigner, refreshTokenTTL, cfg.tfaEnabled, brand)
 	authUsecase := iam_usecase.NewAuthUsecase(userRepo, rbacRepo, refreshRepo, signer, limiter, refreshTokenTTL, resetMailer, tfaUsecase, preAuthSigner, cfg.tfaEnabled)
 	userUsecase := iam_usecase.NewUserUsecase(userRepo, rbacRepo, invitationMailer)
 	roleUsecase := iam_usecase.NewRoleUsecase(rbacRepo)

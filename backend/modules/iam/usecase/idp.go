@@ -25,6 +25,19 @@ func NewIdentityProviderUsecase(repo connectors.IdentityProviderRepository, ciph
 	return &identityProviderUsecase{repo: repo, cipher: cipher}
 }
 
+// isSSOEntitled reports whether the current deploy/tenant may configure & use
+// SAML SSO.
+//
+// TODO(billing): SAML SSO is a PAID feature. Once the billing module exists,
+// gate this on the tenant's plan entitlement (e.g. plan >= Enterprise),
+// resolved from the billing usecase / the request's tenant context. Until then
+// it is always allowed so the feature can be developed and demoed. Mirror this
+// gate in the public ListActive and in the live flow (usecase/saml.go) so a
+// lapsed plan also stops SSO logins, not just new config.
+func (u *identityProviderUsecase) isSSOEntitled(_ context.Context) bool {
+	return true
+}
+
 func validIDP(req dto.IdentityProviderRequest) bool {
 	return strings.TrimSpace(req.Name) != "" &&
 		strings.TrimSpace(req.ProviderType) != "" &&
@@ -35,6 +48,9 @@ func validIDP(req dto.IdentityProviderRequest) bool {
 }
 
 func (u *identityProviderUsecase) Create(ctx context.Context, req dto.IdentityProviderRequest) (*domain.IdentityProviderConfig, error) {
+	if !u.isSSOEntitled(ctx) {
+		return nil, domain.ErrSSONotEntitled
+	}
 	if req.ID != 0 {
 		return nil, domain.ErrIDPIDForbidden
 	}
@@ -68,6 +84,9 @@ func (u *identityProviderUsecase) Create(ctx context.Context, req dto.IdentityPr
 }
 
 func (u *identityProviderUsecase) Update(ctx context.Context, req dto.IdentityProviderRequest) (*domain.IdentityProviderConfig, error) {
+	if !u.isSSOEntitled(ctx) {
+		return nil, domain.ErrSSONotEntitled
+	}
 	if req.ID == 0 {
 		return nil, domain.ErrIDPIDRequired
 	}

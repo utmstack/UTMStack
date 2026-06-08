@@ -15,24 +15,31 @@ type mailerSetter interface {
 }
 
 type Module struct {
-	usecase connectors.Usecase
-	store   connectors.Store
-	handler *handler.Handler
+	usecase         connectors.Usecase
+	store           connectors.Store
+	handler         *handler.Handler
+	branding        connectors.BrandingUsecase
+	brandingHandler *handler.BrandingHandler
 }
 
 func NewModule(db *gorm.DB, cipher *secret.Cipher) *Module {
 	repo := repository.NewRepository(db)
-	svc := usecase.New(repo, cipher)
+	brandingSvc := usecase.NewBranding(repo)
+	svc := usecase.New(repo, cipher, brandingSvc)
 	return &Module{
-		usecase: svc,
-		store:   svc,
-		handler: handler.NewHandler(svc),
+		usecase:         svc,
+		store:           svc,
+		handler:         handler.NewHandler(svc),
+		branding:        brandingSvc,
+		brandingHandler: handler.NewBrandingHandler(brandingSvc),
 	}
 }
 
-func (m *Module) Handler() *handler.Handler   { return m.handler }
-func (m *Module) Store() connectors.Store     { return m.store }
-func (m *Module) Usecase() connectors.Usecase { return m.usecase }
+func (m *Module) Handler() *handler.Handler                 { return m.handler }
+func (m *Module) BrandingHandler() *handler.BrandingHandler { return m.brandingHandler }
+func (m *Module) Branding() connectors.BrandingUsecase      { return m.branding }
+func (m *Module) Store() connectors.Store                   { return m.store }
+func (m *Module) Usecase() connectors.Usecase               { return m.usecase }
 
 func (m *Module) SetMailer(mailer mail_connectors.MailService) {
 	if s, ok := m.usecase.(mailerSetter); ok {

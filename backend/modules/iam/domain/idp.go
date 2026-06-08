@@ -11,6 +11,7 @@ var (
 	ErrIDPIDRequired   = errors.New("id is required for update")
 	ErrIDPInvalidInput = errors.New("name, providerType, metadataUrl, spEntityId, spAcsUrl and certificate are required")
 	ErrIDPKeyRequired  = errors.New("sp private key is required on create")
+	ErrSSONotEntitled  = errors.New("SAML SSO requires a paid plan")
 )
 
 type IdentityProviderConfig struct {

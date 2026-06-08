@@ -14,6 +14,17 @@ type Usecase interface {
 	CheckMail(ctx context.Context, configs []domain.MailConfig) error
 }
 
+type BrandingUsecase interface {
+	Get(ctx context.Context) (*dto.BrandingResponse, error)
+	Update(ctx context.Context, actor string, req dto.BrandingRequest) (*dto.BrandingResponse, error)
+	GetPublic(ctx context.Context) (*dto.BrandingPublic, error)
+	BrandNameProvider
+}
+
+type BrandNameProvider interface {
+	ProductName(ctx context.Context) string
+}
+
 type Store interface {
 	GetString(ctx context.Context, key string) (string, bool, error)
 	SetString(ctx context.Context, key, value string, opts SetOpts) error

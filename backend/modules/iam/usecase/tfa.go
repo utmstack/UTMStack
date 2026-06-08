@@ -14,6 +14,7 @@ import (
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 
+	appconfig_connectors "github.com/utmstack/utmstack/backend/modules/appconfig/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
 	"github.com/utmstack/utmstack/backend/modules/iam/dto"
@@ -21,7 +22,6 @@ import (
 )
 
 const (
-	tfaIssuer            = "UTMStack"
 	tfaEmailResendCool   = 28 * time.Second
 	tfaChallengeTTL      = 10 * time.Minute
 	tfaLoginChallengeTTL = 5 * time.Minute
@@ -37,6 +37,7 @@ type tfaUsecase struct {
 	preAuth     *jwt.PreAuthSigner
 	refreshTTL  time.Duration
 	enabled     bool
+	brand       appconfig_connectors.BrandNameProvider
 }
 
 func NewTfaUsecase(
@@ -49,6 +50,7 @@ func NewTfaUsecase(
 	preAuth *jwt.PreAuthSigner,
 	refreshTTL time.Duration,
 	enabled bool,
+	brand appconfig_connectors.BrandNameProvider,
 ) connectors.TfaUsecase {
 	return &tfaUsecase{
 		userRepo:    userRepo,
@@ -60,6 +62,7 @@ func NewTfaUsecase(
 		preAuth:     preAuth,
 		refreshTTL:  refreshTTL,
 		enabled:     enabled,
+		brand:       brand,
 	}
 }
 
@@ -81,7 +84,7 @@ func (u *tfaUsecase) InitEnrollment(ctx context.Context, userID uint64, method s
 	switch method {
 	case domain.TfaMethodTotp:
 		key, err := totp.Generate(totp.GenerateOpts{
-			Issuer:      tfaIssuer,
+			Issuer:      u.brand.ProductName(ctx),
 			AccountName: tfaAccountName(user),
 		})
 		if err != nil {

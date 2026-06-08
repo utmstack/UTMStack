@@ -19,10 +19,11 @@ type service struct {
 	repo   connectors.Repository
 	cipher *secret.Cipher
 	mailer mail_connectors.MailService
+	brand  connectors.BrandNameProvider
 }
 
-func New(repo connectors.Repository, cipher *secret.Cipher) *service {
-	return &service{repo: repo, cipher: cipher}
+func New(repo connectors.Repository, cipher *secret.Cipher, brand connectors.BrandNameProvider) *service {
+	return &service{repo: repo, cipher: cipher, brand: brand}
 }
 
 func (s *service) SetMailer(m mail_connectors.MailService) { s.mailer = m }
@@ -164,7 +165,7 @@ func (s *service) CheckMail(ctx context.Context, configs []domain.MailConfig) er
 	if len(configs) == 0 {
 		return fmt.Errorf("no mail configurations supplied")
 	}
-	const body = `<html><body><p>UTMStack mail configuration test — if you received this, your SMTP settings work.</p></body></html>`
+	body := fmt.Sprintf(`<html><body><p>%s mail configuration test — if you received this, your SMTP settings work.</p></body></html>`, s.brand.ProductName(ctx))
 	for i, cfg := range configs {
 		if cfg.From == "" {
 			return fmt.Errorf("config[%d]: from address is required to send a test message", i)
