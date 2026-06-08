@@ -5,7 +5,7 @@
 >
 > As of today, **v10 is no longer receiving any new features** and will only receive critical fixes until the sunset date. After December 5, 2026, v10 will no longer be supported.
 >
-> 👉 **All users must upgrade to v11 as soon as possible** using the upgrade package. Full guide here: [https://utmstack.com](https://utmstack.com)
+> 👉 **All users must upgrade to v11 as soon as possible** using the upgrade package. Full guide here: https://docs.utmstack.com/upgrade
 
 ---
 
