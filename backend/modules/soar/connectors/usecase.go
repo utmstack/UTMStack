@@ -24,6 +24,8 @@ type TemplateUsecase interface {
 
 type ExecutionUsecase interface {
 	List(ctx context.Context, f dto.ExecutionFilters) (*database.List[dto.ExecutionResponse], error)
+	Create(ctx context.Context, req dto.CreateExecutionRequest) (*dto.ExecutionResponse, error)
+	UpdateStatus(ctx context.Context, id int64, req dto.UpdateExecutionRequest) error
 }
 
 type VariableUsecase interface {
@@ -51,6 +53,10 @@ type ActionCommandUsecase interface {
 	FindByID(id int64) (*domain.UtmIncidentActionCommand, error)
 	FindAll(f dto.ActionCommandFilter) ([]domain.UtmIncidentActionCommand, int64, error)
 	Delete(id int64) error
+}
+
+type AgentUsecase interface {
+	ListByPlatform(ctx context.Context, platform string) ([]string, error)
 }
 
 type JobUsecase interface {

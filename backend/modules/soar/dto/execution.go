@@ -20,6 +20,25 @@ type ExecutionResponse struct {
 	ExecutionRetries  int                       `json:"executionRetries"`
 }
 
+// CreateExecutionRequest is the payload internal callers (the SOAR plugin) send
+// to record a freshly-matched rule. Status is forced to PENDING server-side.
+type CreateExecutionRequest struct {
+	RuleID  int64  `json:"ruleId"  binding:"required"`
+	AlertID string `json:"alertId" binding:"required,max=150"`
+	Command string `json:"command" binding:"required"`
+	Agent   string `json:"agent"   binding:"required,max=150"`
+}
+
+// UpdateExecutionRequest is a partial PATCH — only non-nil fields are written.
+// IncrementRetries=true does a server-side `retries + 1` to avoid races between
+// concurrent dispatcher ticks.
+type UpdateExecutionRequest struct {
+	ExecutionStatus   *domain.ExecutionStatus    `json:"executionStatus,omitempty"   binding:"omitempty,oneof=PENDING EXECUTED FAILED"`
+	CommandResult     *string                    `json:"commandResult,omitempty"`
+	NonExecutionCause *domain.NonExecutionCause  `json:"nonExecutionCause,omitempty" binding:"omitempty,oneof=AGENT_OFFLINE AGENT_NOT_FOUND UNKNOWN"`
+	IncrementRetries  bool                       `json:"incrementRetries,omitempty"`
+}
+
 type ExecutionFilters struct {
 	// id.equals — exact match on execution ID (JHipster: LongFilter)
 	ID int64 `form:"id.equals"`

@@ -35,14 +35,26 @@ type TemplateRepository interface {
 	List(ctx context.Context, f TemplateFilters) ([]domain.AlertResponseActionTemplate, int64, error)
 }
 
+type ExecutionStatusUpdate struct {
+	ExecutionStatus   *domain.ExecutionStatus
+	CommandResult     *string
+	NonExecutionCause *domain.NonExecutionCause
+	IncrementRetries  bool
+}
+
 type ExecutionRepository interface {
 	Create(ctx context.Context, e *domain.AlertResponseRuleExecution) (*domain.AlertResponseRuleExecution, error)
 	List(ctx context.Context, f ExecutionFilters) ([]domain.AlertResponseRuleExecution, int64, error)
+	UpdateStatus(ctx context.Context, id int64, u ExecutionStatusUpdate) error
 }
 
 type ResolveFilterRepository interface {
 	GetAgentPlatforms(ctx context.Context) ([]string, error)
 	GetUsers(ctx context.Context) ([]string, error)
+}
+
+type AgentRepository interface {
+	ListNamesByPlatform(ctx context.Context, platform string) ([]string, error)
 }
 
 type VariableRepository interface {

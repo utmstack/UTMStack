@@ -9,6 +9,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	rh := m.GetRuleHandler()
 	th := m.GetTemplateHandler()
 	eh := m.GetExecutionHandler()
+	agh := m.GetAgentHandler()
 	vh := m.GetVariableHandler()
 	ah := m.GetActionHandler()
 	ach := m.GetActionCommandHandler()
@@ -31,6 +32,10 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	g.GET("/action-templates", read, th.List)
 
 	g.GET("/rule-executions", read, eh.List)
+	// Internal-only writes for the SOAR plugin runtime.
+	g.POST("/rule-executions", middleware.RequireInternal(), eh.Create)
+	g.PATCH("/rule-executions/:id", middleware.RequireInternal(), eh.UpdateStatus)
+	g.GET("/agents", middleware.RequireInternal(), agh.List)
 
 	vg := g.Group("/incident-variables")
 	vg.POST("", write, vh.Create)
