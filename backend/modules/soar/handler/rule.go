@@ -2,14 +2,12 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
 	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
-	"github.com/utmstack/utmstack/backend/modules/soar/domain"
 	"github.com/utmstack/utmstack/backend/modules/soar/dto"
 )
 
@@ -21,12 +19,14 @@ func NewRuleHandler(uc connectors.RuleUsecase) *RuleHandler {
 	return &RuleHandler{usecase: uc}
 }
 
-// @Summary     Create alert response rule
+// @Summary     Create alert response rule (flow)
+// @Description Writes the flow to the user overlay as a YAML file. Identity is the
+// @Description file relPath; there is no numeric id.
 // @Tags        SOAR Rules
 // @Security    BearerAuth
 // @Accept      json
 // @Produce     json
-// @Param       input body dto.CreateRuleRequest true "Rule to create"
+// @Param       input body dto.CreateRuleRequest true "Flow to create"
 // @Success     200 {object} dto.RuleResponse
 // @Failure     400 {object} map[string]string
 // @Failure     409 {object} map[string]string
@@ -38,49 +38,41 @@ func (h *RuleHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	// Reject if caller supplied an id — matches Java: if (dto.getId() != null) return BadRequest (FIX-6)
-	if req.ID != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": domain.ErrIDMustBeAbsent.Error()})
-		return
-	}
 	resp, err := h.usecase.Create(c.Request.Context(), req, loginFromCtx(c))
 	ev := audit_connectors.Event{Action: "soar.rule.create", ResourceType: "soar_rule"}
 	if resp != nil {
-		ev.ResourceID = strconv.FormatInt(resp.ID, 10)
+		ev.ResourceID = resp.RelPath
 	}
 	audit.Record(c, ev, audit_domain.SOAR_RULE_CREATE_ATTEMPT, audit_domain.SOAR_RULE_CREATE_SUCCESS, err)
 	if err != nil {
 		writeARRError(c, err)
 		return
 	}
-	// Java returns 200 OK on create (ResponseEntity.ok()) — FIX-8
 	c.JSON(http.StatusOK, resp)
 }
 
-// @Summary     Update alert response rule
+// @Summary     Update alert response rule (flow)
 // @Tags        SOAR Rules
 // @Security    BearerAuth
 // @Accept      json
 // @Produce     json
-// @Param       input body dto.UpdateRuleRequest true "Rule to update"
+// @Param       relPath path string true "Flow relPath"
+// @Param       input body dto.UpdateRuleRequest true "Flow to update"
 // @Success     200 {object} dto.RuleResponse
 // @Failure     400 {object} map[string]string
+// @Failure     403 {object} map[string]string
 // @Failure     404 {object} map[string]string
-// @Failure     409 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /soar/rules [put]
+// @Router      /soar/rules/{relPath} [put]
 func (h *RuleHandler) Update(c *gin.Context) {
+	relPath := c.Param("relPath")
 	var req dto.UpdateRuleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if req.ID == nil || *req.ID == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": domain.ErrIDRequired.Error()})
-		return
-	}
-	resp, err := h.usecase.Update(c.Request.Context(), req, loginFromCtx(c))
-	audit.Record(c, audit_connectors.Event{Action: "soar.rule.update", ResourceType: "soar_rule", ResourceID: strconv.FormatInt(*req.ID, 10)},
+	resp, err := h.usecase.Update(c.Request.Context(), relPath, req, loginFromCtx(c))
+	audit.Record(c, audit_connectors.Event{Action: "soar.rule.update", ResourceType: "soar_rule", ResourceID: relPath},
 		audit_domain.SOAR_RULE_UPDATE_ATTEMPT, audit_domain.SOAR_RULE_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeARRError(c, err)
@@ -89,7 +81,7 @@ func (h *RuleHandler) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// @Summary     List alert response rules
+// @Summary     List alert response rules (flows)
 // @Tags        SOAR Rules
 // @Security    BearerAuth
 // @Produce     json
@@ -98,7 +90,7 @@ func (h *RuleHandler) Update(c *gin.Context) {
 // @Param       name.contains        query string false "Filter by name (substring)"
 // @Param       active.equals        query bool   false "Filter by active flag"
 // @Param       agentPlatform.equals query string false "Filter by agent platform"
-// @Param       createdBy.equals     query string false "Filter by creator login"
+// @Param       systemOwner.equals   query bool   false "Filter by system ownership"
 // @Success     200 {array}  dto.RuleResponse
 // @Header      200 {integer} X-Total-Count "Total number of records"
 // @Failure     400 {object} map[string]string
@@ -115,31 +107,76 @@ func (h *RuleHandler) List(c *gin.Context) {
 		writeARRError(c, err)
 		return
 	}
-	// Return bare array + X-Total-Count header (FIX-7)
 	writePagedArray(c, result.Items, result.Total)
 }
 
-// @Summary     Get alert response rule by ID
+// @Summary     Get alert response rule (flow) by relPath
 // @Tags        SOAR Rules
 // @Security    BearerAuth
 // @Produce     json
-// @Param       id path int true "Rule ID"
+// @Param       relPath path string true "Flow relPath"
 // @Success     200 {object} dto.RuleResponse
-// @Failure     400 {object} map[string]string
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /soar/rules/{id} [get]
-func (h *RuleHandler) GetByID(c *gin.Context) {
-	id, ok := pathInt64(c, "id")
-	if !ok {
-		return
-	}
-	resp, err := h.usecase.GetByID(c.Request.Context(), id)
+// @Router      /soar/rules/{relPath} [get]
+func (h *RuleHandler) Get(c *gin.Context) {
+	resp, err := h.usecase.Get(c.Request.Context(), c.Param("relPath"))
 	if err != nil {
 		writeARRError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, resp)
+}
+
+// @Summary     Delete alert response rule (flow) by relPath
+// @Tags        SOAR Rules
+// @Security    BearerAuth
+// @Param       relPath path string true "Flow relPath"
+// @Success     204 "Deleted"
+// @Failure     403 {object} map[string]string
+// @Failure     404 {object} map[string]string
+// @Failure     500 {object} map[string]string
+// @Router      /soar/rules/{relPath} [delete]
+func (h *RuleHandler) Delete(c *gin.Context) {
+	relPath := c.Param("relPath")
+	err := h.usecase.Delete(c.Request.Context(), relPath)
+	audit.Record(c, audit_connectors.Event{Action: "soar.rule.delete", ResourceType: "soar_rule", ResourceID: relPath},
+		audit_domain.SOAR_RULE_UPDATE_ATTEMPT, audit_domain.SOAR_RULE_UPDATE_SUCCESS, err)
+	if err != nil {
+		writeARRError(c, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
+// @Summary     Enable/disable an alert response rule (flow)
+// @Description Toggles the .disabled file suffix. Allowed on system flows too.
+// @Tags        SOAR Rules
+// @Security    BearerAuth
+// @Accept      json
+// @Produce     json
+// @Param       relPath path string true "Flow relPath"
+// @Param       input body dto.ToggleRuleRequest true "Enabled state"
+// @Success     204 "Updated"
+// @Failure     400 {object} map[string]string
+// @Failure     404 {object} map[string]string
+// @Failure     500 {object} map[string]string
+// @Router      /soar/rules/{relPath}/enabled [put]
+func (h *RuleHandler) SetEnabled(c *gin.Context) {
+	relPath := c.Param("relPath")
+	var req dto.ToggleRuleRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err := h.usecase.SetEnabled(c.Request.Context(), relPath, req.Enabled)
+	audit.Record(c, audit_connectors.Event{Action: "soar.rule.toggle", ResourceType: "soar_rule", ResourceID: relPath},
+		audit_domain.SOAR_RULE_UPDATE_ATTEMPT, audit_domain.SOAR_RULE_UPDATE_SUCCESS, err)
+	if err != nil {
+		writeARRError(c, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
 }
 
 // @Summary     Resolve filter values for alert response rules

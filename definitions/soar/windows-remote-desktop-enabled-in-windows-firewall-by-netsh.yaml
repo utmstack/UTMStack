@@ -1,0 +1,16 @@
+# UTMStack system SOAR flow
+- name: 'Windows: Remote Desktop Enabled in Windows Firewall by Netsh'
+  description: Disable inbound Remote Desktop Protocol and remove Firewall rule.
+  conditions:
+  - operator: IS
+    field: name
+    value: 'Windows: Remote Desktop Enabled in Windows Firewall by Netsh'
+  commands:
+  - Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections'
+    -Value 1 -Force;if ("$(log.message)" -match 'name=([^''"\s]+)') { Remove-NetFirewallRule -DisplayName $matches[1] -ErrorAction
+    SilentlyContinue }
+  - Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections'
+    -Value 1 -Force; if ("$(log.message)" -match 'name=\"(.+?)\"') { Remove-NetFirewallRule -DisplayName $matches[1] -ErrorAction
+    SilentlyContinue }
+  shell: powershell
+  agentPlatform: windows

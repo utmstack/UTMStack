@@ -21,10 +21,12 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 
 	rg := g.Group("/rules")
 	rg.POST("", write, rh.Create)
-	rg.PUT("", write, rh.Update)
 	rg.GET("", read, rh.List)
 	rg.GET("/resolve-filter-values", read, rh.ResolveFilterValues)
-	rg.GET("/:id", read, rh.GetByID)
+	rg.GET("/:relPath", read, rh.Get)
+	rg.PUT("/:relPath", write, rh.Update)
+	rg.DELETE("/:relPath", write, rh.Delete)
+	rg.PUT("/:relPath/enabled", write, rh.SetEnabled)
 
 	g.GET("/action-templates", read, th.List)
 

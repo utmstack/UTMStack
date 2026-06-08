@@ -1,0 +1,13 @@
+# UTMStack system SOAR flow
+- name: 'Windows: PowerShell Keylogging Script'
+  description: Detects the use of Win32 API Functions that can be used to capture user keystrokes in PowerShell scripts.  Terminate
+    the process using the detected process name.
+  conditions:
+  - operator: IS
+    field: name
+    value: 'Windows: PowerShell Keylogging Script'
+  commands:
+  - taskkill /F /PID $(log.winlogEventDataProcessId) ; taskkill /F /IM $(log.winlogEventDataProcessName)
+  - taskkill /F /IM (Split-Path -Path "$(adversary.process)" -Leaf)
+  shell: powershell
+  agentPlatform: windows

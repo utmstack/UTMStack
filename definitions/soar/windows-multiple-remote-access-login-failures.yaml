@@ -1,0 +1,14 @@
+# UTMStack system SOAR flow
+- name: 'Windows: Multiple remote access login failures'
+  description: Block the IP that is establishing the connection.
+  conditions:
+  - operator: IS
+    field: name
+    value: 'Windows: Multiple remote access login failures'
+  commands:
+  - New-NetFirewallRule -DisplayName "Blocked_BruteForce_IP" -Direction Inbound -RemoteAddress "$(origin.ip)" -Action
+    Block -Protocol Any -Profile Any -Enabled True
+  - netsh advfirewall firewall add rule name="Block-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)"
+    enable=yes
+  shell: powershell
+  agentPlatform: windows

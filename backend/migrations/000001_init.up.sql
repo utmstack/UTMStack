@@ -163,14 +163,17 @@ DROP SEQUENCE IF EXISTS public.utm_asset_types_id_seq;
 DROP TABLE IF EXISTS public.utm_collectors;
 
 -- Drop the compliance framework tables. Standards → sections → controls → queries are
--- now vendor-shipped YAML (modules/compliance/config), read by the backend and the
--- orchestrator plugin; no longer user-editable in Postgres. utm_compliance_report_config
--- and _report_schedule are KEPT (user state). CASCADE clears the legacy FK from
--- report_config → standard_section. Child-first order.
+-- now file-backed YAML (control library + frameworks), read by the backend. The
+-- dashboard-driven utm_compliance_report_config is also gone (its role is superseded
+-- by the YAML controls/frameworks). Only utm_compliance_report_schedule is kept (user
+-- state) — and reshaped (the legacy rows referenced the dropped standards, so it is
+-- recreated fresh by AutoMigrate; see migrations/pre). CASCADE clears legacy FKs.
+DROP TABLE IF EXISTS public.utm_compliance_report_config CASCADE;
 DROP TABLE IF EXISTS public.utm_compliance_query_config CASCADE;
 DROP TABLE IF EXISTS public.utm_compliance_control_config CASCADE;
 DROP TABLE IF EXISTS public.utm_compliance_standard_section CASCADE;
 DROP TABLE IF EXISTS public.utm_compliance_standard CASCADE;
+DROP SEQUENCE IF EXISTS public.utm_compliance_report_config_id_seq;
 DROP SEQUENCE IF EXISTS public.utm_compliance_query_config_id_seq;
 DROP SEQUENCE IF EXISTS public.utm_compliance_control_config_id_seq;
 DROP SEQUENCE IF EXISTS public.utm_compliance_standard_section_id_seq;

@@ -1,0 +1,16 @@
+# UTMStack system SOAR flow
+- name: 'Windows: Multiple Logon Failure Followed by Logon Success'
+  description: Detects a sequence of multiple failed login attempts immediately followed by a successful login from the same
+    IP address or source. This playbook responds by blocking the adversary's IP and disabling the user account.
+  conditions:
+  - operator: IS
+    field: name
+    value: 'Windows: Multiple Logon Failure Followed by Logon Success'
+  commands:
+  - netsh advfirewall firewall add rule name="Block-Brute-Force-Success-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)"
+    enable=yes ; net user "$(target.user)" /active:no
+  - netsh advfirewall firewall add rule name="Block-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)"
+    enable=yes
+  - net user $(adversary.user) /active:no
+  shell: powershell
+  agentPlatform: windows

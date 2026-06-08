@@ -10,8 +10,10 @@ import (
 
 type RuleUsecase interface {
 	Create(ctx context.Context, req dto.CreateRuleRequest, createdBy string) (*dto.RuleResponse, error)
-	Update(ctx context.Context, req dto.UpdateRuleRequest, modifiedBy string) (*dto.RuleResponse, error)
-	GetByID(ctx context.Context, id int64) (*dto.RuleResponse, error)
+	Update(ctx context.Context, relPath string, req dto.UpdateRuleRequest, modifiedBy string) (*dto.RuleResponse, error)
+	Get(ctx context.Context, relPath string) (*dto.RuleResponse, error)
+	Delete(ctx context.Context, relPath string) error
+	SetEnabled(ctx context.Context, relPath string, enabled bool) error
 	List(ctx context.Context, f dto.RuleFilters) (*database.List[dto.RuleResponse], error)
 	ResolveFilterValues(ctx context.Context) (*dto.ResolveFilterValuesResponse, error)
 }

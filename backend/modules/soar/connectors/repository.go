@@ -8,21 +8,6 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
-type RuleFilters struct {
-	ID                  int64
-	RuleName            string
-	RuleActive          *bool
-	AgentPlatform       string
-	CreatedBy           string
-	LastModifiedBy      string
-	CreatedDateGTE      string
-	CreatedDateLTE      string
-	LastModifiedDateGTE string
-	LastModifiedDateLTE string
-	SystemOwner         *bool
-	database.Params
-}
-
 type TemplateFilters struct {
 	ID          int64
 	Label       string
@@ -44,14 +29,6 @@ type ExecutionFilters struct {
 	ExecutionDateGTE         string
 	ExecutionDateLTE         string
 	database.Params
-}
-
-type RuleRepository interface {
-	Create(ctx context.Context, rule *domain.AlertResponseRule) (*domain.AlertResponseRule, error)
-	Update(ctx context.Context, rule *domain.AlertResponseRule) (*domain.AlertResponseRule, error)
-	GetByID(ctx context.Context, id int64) (*domain.AlertResponseRule, error)
-	List(ctx context.Context, f RuleFilters) ([]domain.AlertResponseRule, int64, error)
-	Delete(ctx context.Context, id int64) error
 }
 
 type TemplateRepository interface {
