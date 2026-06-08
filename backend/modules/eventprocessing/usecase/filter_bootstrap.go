@@ -100,9 +100,6 @@ func (b *FilterBootstrap) seedSystemOverlay() error {
 		expected[rel] = true
 
 		target := filepath.Join(b.store.systemDir, rel)
-		if _, err := os.Stat(target + DisabledSuffix); err == nil {
-			return nil // preserve operator disable
-		}
 		data, err := os.ReadFile(path)
 		if err != nil {
 			return nil
@@ -110,7 +107,14 @@ func (b *FilterBootstrap) seedSystemOverlay() error {
 		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
 			return nil
 		}
-		_ = os.WriteFile(target, data, 0o644)
+		// Preserve the operator's disabled state but refresh the content into
+		// whichever file exists (so updates reach disabled filters too).
+		disabled := target + DisabledSuffix
+		if _, err := os.Stat(disabled); err == nil {
+			_ = os.WriteFile(disabled, data, 0o644)
+		} else {
+			_ = os.WriteFile(target, data, 0o644)
+		}
 		return nil
 	})
 	if err != nil {
