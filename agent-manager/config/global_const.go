@@ -14,7 +14,6 @@ func KeyAuthRoutes() []string {
 
 		"/agent.CollectorService/CollectorStream",
 		"/agent.CollectorService/DeleteCollector",
-		"/agent.CollectorService/GetCollectorConfig",
 
 		"/agent.ModuleConfigService/IsModuleEnabled",
 
@@ -41,7 +40,6 @@ func InternalKeyRoutes() []string {
 		"/agent.PanelService/ProcessCommand",
 		"/agent.PanelService/GetConnectionKey",
 		"/agent.PanelService/RotateConnectionKey",
-		"/agent.PanelCollectorService/RegisterCollectorConfig",
 
 		"/grpc.health.v1.Health/Check",
 	}
@@ -55,7 +53,6 @@ var (
 	UpdatesVersionsPath       = filepath.Join(UpdatesFolder, "version.json")
 	UpdatesDependenciesFolder = "/dependencies"
 	InternalKey               = os.Getenv("INTERNAL_KEY")
-	PanelServiceName          = os.Getenv("PANEL_SERV_NAME")
 	LogLevel                  = os.Getenv("LOG_LEVEL")
 	EncryptionKey             = os.Getenv("ENCRYPTION_KEY")
 	UTMHost                   = os.Getenv("UTM_HOST")

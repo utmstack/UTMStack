@@ -657,50 +657,6 @@ func (x *ConfigKnowledge) GetRequestId() string {
 	return ""
 }
 
-type ConfigRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Module        CollectorModule        `protobuf:"varint,1,opt,name=module,proto3,enum=agent.CollectorModule" json:"module,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ConfigRequest) Reset() {
-	*x = ConfigRequest{}
-	mi := &file_collector_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ConfigRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ConfigRequest) ProtoMessage() {}
-
-func (x *ConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_collector_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ConfigRequest.ProtoReflect.Descriptor instead.
-func (*ConfigRequest) Descriptor() ([]byte, []int) {
-	return file_collector_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *ConfigRequest) GetModule() CollectorModule {
-	if x != nil {
-		return x.Module
-	}
-	return CollectorModule_AS_400
-}
-
 var File_collector_proto protoreflect.FileDescriptor
 
 const file_collector_proto_rawDesc = "" +
@@ -752,21 +708,16 @@ const file_collector_proto_rawDesc = "" +
 	"\x0fConfigKnowledge\x12\x1a\n" +
 	"\baccepted\x18\x01 \x01(\tR\baccepted\x12\x1d\n" +
 	"\n" +
-	"request_id\x18\x02 \x01(\tR\trequestId\"?\n" +
-	"\rConfigRequest\x12.\n" +
-	"\x06module\x18\x01 \x01(\x0e2\x16.agent.CollectorModuleR\x06module*+\n" +
+	"request_id\x18\x02 \x01(\tR\trequestId*+\n" +
 	"\x0fCollectorModule\x12\n" +
 	"\n" +
 	"\x06AS_400\x10\x00\x12\f\n" +
-	"\bUTMSTACK\x10\x012\xee\x02\n" +
+	"\bUTMSTACK\x10\x012\xa8\x02\n" +
 	"\x10CollectorService\x12B\n" +
 	"\x11RegisterCollector\x12\x16.agent.RegisterRequest\x1a\x13.agent.AuthResponse\"\x00\x12>\n" +
 	"\x0fDeleteCollector\x12\x14.agent.DeleteRequest\x1a\x13.agent.AuthResponse\"\x00\x12C\n" +
 	"\rListCollector\x12\x12.agent.ListRequest\x1a\x1c.agent.ListCollectorResponse\"\x00\x12K\n" +
-	"\x0fCollectorStream\x12\x18.agent.CollectorMessages\x1a\x18.agent.CollectorMessages\"\x00(\x010\x01\x12D\n" +
-	"\x12GetCollectorConfig\x12\x14.agent.ConfigRequest\x1a\x16.agent.CollectorConfig\"\x002d\n" +
-	"\x15PanelCollectorService\x12K\n" +
-	"\x17RegisterCollectorConfig\x12\x16.agent.CollectorConfig\x1a\x16.agent.ConfigKnowledge\"\x00B2Z0github.com/utmstack/UTMStack/agent-manager/agentb\x06proto3"
+	"\x0fCollectorStream\x12\x18.agent.CollectorMessages\x1a\x18.agent.CollectorMessages\"\x00(\x010\x01B2Z0github.com/utmstack/UTMStack/agent-manager/agentb\x06proto3"
 
 var (
 	file_collector_proto_rawDescOnce sync.Once
@@ -781,7 +732,7 @@ func file_collector_proto_rawDescGZIP() []byte {
 }
 
 var file_collector_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_collector_proto_goTypes = []any{
 	(CollectorModule)(0),                 // 0: agent.CollectorModule
 	(*RegisterRequest)(nil),              // 1: agent.RegisterRequest
@@ -792,39 +743,33 @@ var file_collector_proto_goTypes = []any{
 	(*CollectorConfigGroup)(nil),         // 6: agent.CollectorConfigGroup
 	(*CollectorGroupConfigurations)(nil), // 7: agent.CollectorGroupConfigurations
 	(*ConfigKnowledge)(nil),              // 8: agent.ConfigKnowledge
-	(*ConfigRequest)(nil),                // 9: agent.ConfigRequest
-	(Status)(0),                          // 10: agent.Status
-	(*DeleteRequest)(nil),                // 11: agent.DeleteRequest
-	(*ListRequest)(nil),                  // 12: agent.ListRequest
-	(*AuthResponse)(nil),                 // 13: agent.AuthResponse
+	(Status)(0),                          // 9: agent.Status
+	(*DeleteRequest)(nil),                // 10: agent.DeleteRequest
+	(*ListRequest)(nil),                  // 11: agent.ListRequest
+	(*AuthResponse)(nil),                 // 12: agent.AuthResponse
 }
 var file_collector_proto_depIdxs = []int32{
 	0,  // 0: agent.RegisterRequest.collector:type_name -> agent.CollectorModule
 	3,  // 1: agent.ListCollectorResponse.rows:type_name -> agent.Collector
-	10, // 2: agent.Collector.status:type_name -> agent.Status
+	9,  // 2: agent.Collector.status:type_name -> agent.Status
 	0,  // 3: agent.Collector.module:type_name -> agent.CollectorModule
 	5,  // 4: agent.CollectorMessages.config:type_name -> agent.CollectorConfig
 	8,  // 5: agent.CollectorMessages.result:type_name -> agent.ConfigKnowledge
 	6,  // 6: agent.CollectorConfig.groups:type_name -> agent.CollectorConfigGroup
 	7,  // 7: agent.CollectorConfigGroup.configurations:type_name -> agent.CollectorGroupConfigurations
-	0,  // 8: agent.ConfigRequest.module:type_name -> agent.CollectorModule
-	1,  // 9: agent.CollectorService.RegisterCollector:input_type -> agent.RegisterRequest
-	11, // 10: agent.CollectorService.DeleteCollector:input_type -> agent.DeleteRequest
-	12, // 11: agent.CollectorService.ListCollector:input_type -> agent.ListRequest
-	4,  // 12: agent.CollectorService.CollectorStream:input_type -> agent.CollectorMessages
-	9,  // 13: agent.CollectorService.GetCollectorConfig:input_type -> agent.ConfigRequest
-	5,  // 14: agent.PanelCollectorService.RegisterCollectorConfig:input_type -> agent.CollectorConfig
-	13, // 15: agent.CollectorService.RegisterCollector:output_type -> agent.AuthResponse
-	13, // 16: agent.CollectorService.DeleteCollector:output_type -> agent.AuthResponse
-	2,  // 17: agent.CollectorService.ListCollector:output_type -> agent.ListCollectorResponse
-	4,  // 18: agent.CollectorService.CollectorStream:output_type -> agent.CollectorMessages
-	5,  // 19: agent.CollectorService.GetCollectorConfig:output_type -> agent.CollectorConfig
-	8,  // 20: agent.PanelCollectorService.RegisterCollectorConfig:output_type -> agent.ConfigKnowledge
-	15, // [15:21] is the sub-list for method output_type
-	9,  // [9:15] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	1,  // 8: agent.CollectorService.RegisterCollector:input_type -> agent.RegisterRequest
+	10, // 9: agent.CollectorService.DeleteCollector:input_type -> agent.DeleteRequest
+	11, // 10: agent.CollectorService.ListCollector:input_type -> agent.ListRequest
+	4,  // 11: agent.CollectorService.CollectorStream:input_type -> agent.CollectorMessages
+	12, // 12: agent.CollectorService.RegisterCollector:output_type -> agent.AuthResponse
+	12, // 13: agent.CollectorService.DeleteCollector:output_type -> agent.AuthResponse
+	2,  // 14: agent.CollectorService.ListCollector:output_type -> agent.ListCollectorResponse
+	4,  // 15: agent.CollectorService.CollectorStream:output_type -> agent.CollectorMessages
+	12, // [12:16] is the sub-list for method output_type
+	8,  // [8:12] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_collector_proto_init() }
@@ -843,9 +788,9 @@ func file_collector_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_collector_proto_rawDesc), len(file_collector_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   9,
+			NumMessages:   8,
 			NumExtensions: 0,
-			NumServices:   2,
+			NumServices:   1,
 		},
 		GoTypes:           file_collector_proto_goTypes,
 		DependencyIndexes: file_collector_proto_depIdxs,
