@@ -22,9 +22,11 @@ type DatasourceRepository interface {
 	FindByID(ctx context.Context, id uint64) (*domain.Datasource, error)
 	FindByName(ctx context.Context, name string) (*domain.Datasource, error)
 	List(ctx context.Context, req common_models.IListRequest) (common_models.ListResponse[domain.Datasource], error)
+	Count(ctx context.Context) (int64, error)
 	UpsertBatch(ctx context.Context, items []domain.Datasource) error
 	RegisterBatch(ctx context.Context, items []domain.Datasource) error
 	UpsertLivenessBatch(ctx context.Context, items []domain.Datasource) error
+	EnrichmentRows(ctx context.Context) ([]domain.Datasource, error)
 	UpdateGroup(ctx context.Context, ids []uint64, groupID *uint64) error
 	UpdateLabels(ctx context.Context, id uint64, labels string) error
 	Delete(ctx context.Context, id uint64) error

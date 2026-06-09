@@ -58,6 +58,10 @@ func (r *pgDatasourceRepository) List(ctx context.Context, req common_models.ILi
 	return r.GetAll(ctx, req, datasourceFilterFields, "id DESC", database.Preload("Group"))
 }
 
+func (r *pgDatasourceRepository) Count(ctx context.Context) (int64, error) {
+	return r.db.Count(ctx, new(domain.Datasource))
+}
+
 func (r *pgDatasourceRepository) UpsertBatch(ctx context.Context, items []domain.Datasource) error {
 	if len(items) == 0 {
 		return nil
@@ -99,6 +103,20 @@ func (r *pgDatasourceRepository) UpsertLivenessBatch(ctx context.Context, items 
 			}},
 		}).
 		Create(&items).Error
+}
+
+// EnrichmentRows returns the datasources that actually carry enrichment (a group
+// or labels), with their Group preloaded — the feed the alerts plugin caches.
+func (r *pgDatasourceRepository) EnrichmentRows(ctx context.Context) ([]domain.Datasource, error) {
+	var rows []domain.Datasource
+	err := r.db.GORM().WithContext(ctx).
+		Preload("Group").
+		Where("group_id IS NOT NULL OR (labels IS NOT NULL AND labels <> '')").
+		Find(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
 }
 
 func (r *pgDatasourceRepository) UpdateGroup(ctx context.Context, ids []uint64, groupID *uint64) error {

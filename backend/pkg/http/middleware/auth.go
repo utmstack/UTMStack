@@ -110,6 +110,34 @@ func RequirePermission(permission string) gin.HandlerFunc {
 	}
 }
 
+func RequireEnterprise(isEnterprise func() bool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c.GetBool("internal") {
+			c.Next()
+			return
+		}
+		if isEnterprise() {
+			c.Next()
+			return
+		}
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "This feature requires an Enterprise license"})
+	}
+}
+
+func RequireMSSP(isMSSP func() bool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c.GetBool("internal") {
+			c.Next()
+			return
+		}
+		if isMSSP() {
+			c.Next()
+			return
+		}
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "This feature requires an MSSP license"})
+	}
+}
+
 func RequireAdmin() gin.HandlerFunc {
 	return RequireRole("ROLE_ADMIN")
 }

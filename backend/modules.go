@@ -12,6 +12,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/alerts"
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
 	"github.com/utmstack/utmstack/backend/modules/audit"
+	"github.com/utmstack/utmstack/backend/modules/billing"
 	"github.com/utmstack/utmstack/backend/modules/compliance"
 	"github.com/utmstack/utmstack/backend/modules/dashboards"
 	"github.com/utmstack/utmstack/backend/modules/datasources"
@@ -52,6 +53,7 @@ type modules struct {
 	iam               *iam.Module
 	audit             *audit.Module
 	appconfig         *appconfig.Module
+	billing           *billing.Module
 	mail              *mail.Module
 	compliance        *compliance.Module
 	dashboards        *dashboards.Module
@@ -89,6 +91,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	limiter := ratelimit.NewLoginLimiter(loginMaxFailures, loginBlockTTL, loginWindowTTL)
 
 	auditMod := audit.NewModule(db)
+	billingMod := billing.NewModule(env.String("UPDATES_DIR", "/updates", false), 25)
 	configMod := appconfig.NewModule(db, cipher)
 	mailMod := mail.NewModule(configMod.Store())
 	configMod.SetMailer(mailMod.Service())
@@ -121,7 +124,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		_ = catcher.Error("opensearch SDK connect failed", err, nil)
 	}
 
-	alertsMod := alerts.NewModule(db, env.Bool("ALERTS_SCHEDULER_ENABLED", false))
+	alertsMod := alerts.NewModule(db)
 
 	agentClient, agentErr := agentmanager.NewClient()
 	if agentErr != nil {
@@ -132,17 +135,20 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	soarMod := soar.NewModule(db, agentClient, signer, cipher)
 	eventProcessingMod := eventprocessing.NewModule(db, auditMod.Logger())
 
-	integrationsMod := integrations.NewModule(db, cipher,
-		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false),
-	)
-
-	// datasources: registered log sources (agents, collectors, pullers, direct inputs)
-	// and their groups. Registration + liveness arrive via the ping endpoint.
 	dsRepo := ns_repository.NewDatasourceRepository(db)
 	dsGroupRepo := ns_repository.NewAssetGroupRepository(db)
 	dsUC := ns_usecase.NewDatasourceUsecase(dsRepo)
 	dsGroupUC := ns_usecase.NewAssetGroupUsecase(dsGroupRepo)
-	datasourcesMod := datasources.NewModule(dsUC, dsGroupUC)
+	var dsReconciler *ns_usecase.StatsReconciler
+	if cfg.esHost != "" {
+		dsReconciler = ns_usecase.NewStatsReconciler(dsRepo, ns_repository.NewStatsReader())
+	}
+	datasourcesMod := datasources.NewModule(dsUC, dsGroupUC, dsReconciler, billingMod.License())
+
+	integrationsMod := integrations.NewModule(db, cipher,
+		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false),
+		dsUC,
+	)
 
 	opensearchMod := opensearchgw.NewModule(db, cfg.esHost != "")
 	notificationsMod := notifications.NewModule(db, auditMod.Logger())
@@ -165,6 +171,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		iam:               iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, samlUsecase, cfg.uploadDir),
 		audit:             auditMod,
 		appconfig:         configMod,
+		billing:           billingMod,
 		mail:              mailMod,
 		compliance:        complianceMod,
 		dashboards:        dashboardsMod,

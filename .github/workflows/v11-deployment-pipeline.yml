@@ -450,6 +450,11 @@ jobs:
       tag: ${{ needs.setup_deployment.outputs.tag }}
       build_context: "."
       dockerfile: "./backend/Dockerfile"
+      flags: >-
+        -X 'github.com/utmstack/utmstack/backend/modules/billing.PublicKey=${{ secrets.CM_SIGN_PUBLIC_KEY }}'
+        -X 'github.com/utmstack/utmstack/backend/modules/billing.EncryptSalt=${{ secrets.CM_ENCRYPT_SALT }}'
+    secrets:
+      API_SECRET: ${{ secrets.API_SECRET }}
   build_frontend:
     name: Build Frontend Microservice
     needs: [validations, setup_deployment]

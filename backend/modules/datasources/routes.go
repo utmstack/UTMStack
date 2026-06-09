@@ -10,6 +10,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	gr := m.GetAssetGroupHandler()
 
 	d := api.Group("/datasources", userAuth)
+	d.GET("/usage", middleware.RequirePermission("datasources.read"), ds.Usage)
 	d.GET("", middleware.RequirePermission("datasources.read"), ds.List)
 	d.GET("/:id", middleware.RequirePermission("datasources.read"), ds.Get)
 	d.PUT("/group", middleware.RequirePermission("datasources.write"), ds.UpdateGroup)
@@ -17,6 +18,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	d.DELETE("/:id", middleware.RequirePermission("datasources.write"), ds.Delete)
 
 	d.POST("/ping", middleware.RequireInternal(), ds.Ping)
+	d.GET("/enrichment", middleware.RequireInternal(), ds.Enrichment) // alerts plugin cache feed
 
 	g := api.Group("/datasource-groups", userAuth)
 	g.GET("", middleware.RequirePermission("datasources.read"), gr.List)

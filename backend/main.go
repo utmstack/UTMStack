@@ -43,10 +43,11 @@ func main() {
 		panic(err)
 	}
 
-	modules.alerts.Start(appCtx)
+	modules.billing.Start(appCtx)
 	modules.eventProcessing.Start(appCtx)
 	modules.compliance.Start(appCtx)
 	modules.integrations.Start(appCtx)
+	modules.datasources.Start(appCtx)
 	if err := modules.soar.Start(appCtx); err != nil {
 		_ = catcher.Error("soar flow bootstrap failed", err, nil)
 	}

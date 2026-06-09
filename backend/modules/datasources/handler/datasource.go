@@ -14,11 +14,36 @@ import (
 )
 
 type DatasourceHandler struct {
-	uc connectors.DatasourceUsecase
+	uc      connectors.DatasourceUsecase
+	license connectors.LicenseCapProvider
 }
 
-func NewDatasourceHandler(uc connectors.DatasourceUsecase) *DatasourceHandler {
-	return &DatasourceHandler{uc: uc}
+func NewDatasourceHandler(uc connectors.DatasourceUsecase, license connectors.LicenseCapProvider) *DatasourceHandler {
+	return &DatasourceHandler{uc: uc, license: license}
+}
+
+// Usage godoc
+//
+//	@Summary     Datasource usage vs license limit (for the usage banner)
+//	@Tags        Datasources
+//	@Security    BearerAuth
+//	@Produce     json
+//	@Success     200 {object} dto.UsageResponse
+//	@Failure     500 {object} map[string]string
+//	@Router      /datasources/usage [get]
+func (h *DatasourceHandler) Usage(c *gin.Context) {
+	count, err := h.uc.Count(c.Request.Context())
+	if err != nil {
+		writeError(c, "count datasources", err)
+		return
+	}
+	limit, unlimited := h.license.DatasourceCap()
+	c.JSON(http.StatusOK, dto.UsageResponse{
+		Count:     count,
+		Limit:     limit,
+		Unlimited: unlimited,
+		OverLimit: !unlimited && count > limit,
+	})
 }
 
 func (h *DatasourceHandler) List(c *gin.Context) {
@@ -58,6 +83,17 @@ func (h *DatasourceHandler) Ping(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusNoContent)
+}
+
+// Enrichment is the internal feed the alerts plugin caches to enrich alerts with
+// their datasource's group/labels. Not audited: internal, high-frequency poll.
+func (h *DatasourceHandler) Enrichment(c *gin.Context) {
+	out, err := h.uc.Enrichment(c.Request.Context())
+	if err != nil {
+		writeError(c, "datasource enrichment", err)
+		return
+	}
+	c.JSON(http.StatusOK, out)
 }
 
 func (h *DatasourceHandler) UpdateGroup(c *gin.Context) {

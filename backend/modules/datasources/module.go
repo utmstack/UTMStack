@@ -14,9 +14,9 @@ type Module struct {
 	reconciler        *usecase.StatsReconciler
 }
 
-func NewModule(dsUC connectors.DatasourceUsecase, groupUC connectors.AssetGroupUsecase, reconciler *usecase.StatsReconciler) *Module {
+func NewModule(dsUC connectors.DatasourceUsecase, groupUC connectors.AssetGroupUsecase, reconciler *usecase.StatsReconciler, license connectors.LicenseCapProvider) *Module {
 	return &Module{
-		datasourceHandler: handler.NewDatasourceHandler(dsUC),
+		datasourceHandler: handler.NewDatasourceHandler(dsUC, license),
 		assetGroupHandler: handler.NewAssetGroupHandler(groupUC),
 		reconciler:        reconciler,
 	}

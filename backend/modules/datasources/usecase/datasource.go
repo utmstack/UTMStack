@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/datasources/connectors"
@@ -40,6 +41,10 @@ func (u *datasourceUsecase) List(ctx context.Context, req common_models.IListReq
 	}), nil
 }
 
+func (u *datasourceUsecase) Count(ctx context.Context) (int64, error) {
+	return u.repo.Count(ctx)
+}
+
 func (u *datasourceUsecase) Ping(ctx context.Context, req dto.PingRequest) error {
 	now := time.Now().UTC()
 	items := make([]domain.Datasource, 0, len(req.Datasources))
@@ -76,6 +81,43 @@ func (u *datasourceUsecase) Register(ctx context.Context, req dto.RegisterReques
 		DiscoveredAt: &now, // only applied on insert; preserved on update
 	}
 	return u.repo.RegisterBatch(ctx, []domain.Datasource{item})
+}
+
+func (u *datasourceUsecase) Enrichment(ctx context.Context) ([]dto.DatasourceEnrichment, error) {
+	rows, err := u.repo.EnrichmentRows(ctx)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]dto.DatasourceEnrichment, 0, len(rows))
+	for i := range rows {
+		d := &rows[i]
+		e := dto.DatasourceEnrichment{
+			Name:     d.Name,
+			DataType: d.DataType,
+			GroupID:  d.GroupID,
+			Labels:   splitLabels(d.Labels),
+		}
+		if d.Group != nil {
+			e.GroupName = d.Group.GroupName
+		}
+		out = append(out, e)
+	}
+	return out, nil
+}
+
+// splitLabels turns the stored comma-separated labels into a trimmed slice.
+func splitLabels(labels string) []string {
+	if strings.TrimSpace(labels) == "" {
+		return nil
+	}
+	parts := strings.Split(labels, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if t := strings.TrimSpace(p); t != "" {
+			out = append(out, t)
+		}
+	}
+	return out
 }
 
 func (u *datasourceUsecase) UpdateGroup(ctx context.Context, req dto.UpdateGroupRequest) error {

@@ -5,7 +5,7 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
-func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFunc) {
+func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFunc, enterprise gin.HandlerFunc) {
 	auth := module.GetAuthHandler()
 	users := module.GetUserHandler()
 	roles := module.GetRoleHandler()
@@ -52,24 +52,24 @@ func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFu
 	api.POST("/enrollment/tfa", userAuth, tfa.UnifiedEnrollment)
 
 	keyGroup := api.Group("/api-keys", userAuth)
-	keyGroup.POST("", apiKeys.Create)
+	keyGroup.POST("", enterprise, apiKeys.Create)
 	keyGroup.GET("", apiKeys.List)
 	keyGroup.GET("/:id", apiKeys.Get)
 	keyGroup.PUT("/:id", apiKeys.Update)
 	keyGroup.DELETE("/:id", apiKeys.Delete)
-	keyGroup.POST("/:id/generate", apiKeys.Generate)
+	keyGroup.POST("/:id/generate", enterprise, apiKeys.Generate)
 
 	idp := module.GetIDPHandler()
 	idpGroup := api.Group("/identity-providers", userAuth)
-	idpGroup.POST("", middleware.RequirePermission("idp.write"), idp.Create)
-	idpGroup.PUT("", middleware.RequirePermission("idp.write"), idp.Update)
+	idpGroup.POST("", enterprise, middleware.RequirePermission("idp.write"), idp.Create)
+	idpGroup.PUT("", enterprise, middleware.RequirePermission("idp.write"), idp.Update)
 	idpGroup.GET("", middleware.RequirePermission("idp.read"), idp.List)
 	idpGroup.GET("/:id", middleware.RequirePermission("idp.read"), idp.GetByID)
 	idpGroup.DELETE("/:id", middleware.RequirePermission("idp.write"), idp.Delete)
 
-	api.GET("/idp-providers", idp.PublicList)
+	api.GET("/idp-providers", enterprise, idp.PublicList)
 	saml := module.GetSAMLHandler()
-	ssoGroup := api.Group("/sso/saml/:name")
+	ssoGroup := api.Group("/sso/saml/:name", enterprise)
 	ssoGroup.GET("/login", saml.Initiate)
 	ssoGroup.POST("/acs", saml.ACS)
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
-func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
+func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, mssp gin.HandlerFunc) {
 	g := api.Group("/config", userAuth)
 	g.GET("", middleware.RequirePermission("config.read"), m.Handler().List)
 	g.GET("/:key", middleware.RequirePermission("config.read"), m.Handler().Get)
@@ -14,6 +14,6 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 
 	b := api.Group("/branding")
 	b.GET("", userAuth, middleware.RequirePermission("config.read"), m.BrandingHandler().Get)
-	b.PUT("", userAuth, middleware.RequirePermission("config.write"), m.BrandingHandler().Update)
+	b.PUT("", userAuth, mssp, middleware.RequirePermission("config.write"), m.BrandingHandler().Update)
 	b.GET("/public", m.BrandingHandler().Public)
 }

@@ -22,6 +22,10 @@ on:
         type: string
         default: ""
         description: "Path to the Dockerfile (defaults to ./<image_name>/Dockerfile)"
+    secrets:
+      API_SECRET:
+        required: false
+        description: "Token to fetch private github.com/utmstack Go modules. Optional; when unset, only public modules are fetchable (backwards-compatible)."
 jobs:
   build:
     name: Build
@@ -35,6 +39,15 @@ jobs:
         with:
           go-version: ^1.20
         id: go
+
+      - name: Configure git for private modules
+        run: |
+          if [ -n "${{ secrets.API_SECRET }}" ]; then
+            git config --global url."https://${{ secrets.API_SECRET }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+            echo "GOPRIVATE=github.com/utmstack" >> $GITHUB_ENV
+            echo "GONOPROXY=github.com/utmstack" >> $GITHUB_ENV
+            echo "GONOSUMDB=github.com/utmstack" >> $GITHUB_ENV
+          fi
 
       - name: Running Tests
         working-directory: ./${{inputs.image_name}}

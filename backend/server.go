@@ -18,6 +18,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/alerts"
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
 	"github.com/utmstack/utmstack/backend/modules/audit"
+	"github.com/utmstack/utmstack/backend/modules/billing"
 	"github.com/utmstack/utmstack/backend/modules/compliance"
 	"github.com/utmstack/utmstack/backend/modules/dashboards"
 	datasources "github.com/utmstack/utmstack/backend/modules/datasources"
@@ -85,6 +86,9 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	engine.Static("/uploads", cfg.uploadDir)
 
 	apiKeyAuth := func(ctx context.Context, key, ip string) (*middleware.Actor, error) {
+		if !m.billing.License().Current().IsEnterprise() {
+			return nil, fmt.Errorf("api key authentication requires an enterprise license")
+		}
 		r, err := m.iam.GetAPIKeyUsecase().Authenticate(ctx, key, ip)
 		if err != nil {
 			return nil, err
@@ -99,9 +103,17 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	}
 	userAuth := middleware.Authenticate(m.signer, apiKeyAuth, cfg.internalKey)
 
-	iam.RegisterRoutes(api, m.iam, userAuth)
+	enterprise := middleware.RequireEnterprise(func() bool {
+		return m.billing.License().Current().IsEnterprise()
+	})
+	mssp := middleware.RequireMSSP(func() bool {
+		return m.billing.License().Current().IsMSSP()
+	})
+
+	iam.RegisterRoutes(api, m.iam, userAuth, enterprise)
 	audit.RegisterRoutes(api, m.audit, userAuth)
-	appconfig.RegisterRoutes(api, m.appconfig, userAuth)
+	appconfig.RegisterRoutes(api, m.appconfig, userAuth, mssp)
+	billing.RegisterRoutes(api, m.billing, userAuth)
 	alerts.RegisterRoutes(api, m.alerts, userAuth)
 	soar.RegisterRoutes(api, m.soar, userAuth)
 	eventprocessing.RegisterRoutes(api, m.eventProcessing, userAuth)

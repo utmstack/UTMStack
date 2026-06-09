@@ -27,6 +27,14 @@ type AssetGroupRef struct {
 	GroupDescription string `json:"groupDescription,omitempty"`
 }
 
+type DatasourceEnrichment struct {
+	Name      string   `json:"name"`
+	DataType  string   `json:"dataType,omitempty"`
+	GroupID   *uint64  `json:"groupId,omitempty"`
+	GroupName string   `json:"groupName,omitempty"`
+	Labels    []string `json:"labels,omitempty"`
+}
+
 type UpdateGroupRequest struct {
 	IDs     []uint64 `json:"ids" binding:"required,min=1"`
 	GroupID *uint64  `json:"groupId"`
