@@ -18,6 +18,9 @@ const (
 	NonExecutionCauseUnknown       NonExecutionCause = "UNKNOWN"
 )
 
+// RulePath references the flow file (relative path under SOAR_FLOWS_DIR). No FK
+// to a SQL table — flows are file-backed (see usecase/flow_store.go). Legacy rows
+// pre-migration carry empty RulePath and have no resolvable rule.
 type AlertResponseRuleExecution struct {
 	ID                int64              `gorm:"column:id;primaryKey;autoIncrement"         json:"id"`
 	RulePath          string             `gorm:"column:rule_path;size:512;not null"         json:"rulePath"`

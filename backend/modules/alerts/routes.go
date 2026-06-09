@@ -38,6 +38,10 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	rg.GET("/:id", read, rh.GetByID)
 	rg.DELETE("/:id", write, rh.Delete)
 
+	// Internal-only: alerts plugin polls this for the active rule set.
+	ig := api.Group("/internal/alert-tag-rules", userAuth, middleware.RequireInternal())
+	ig.GET("/active", rh.ListActive)
+
 	// Adversary alert aggregation (merged from the former threat_management module).
 	adv := api.Group("/adversary", userAuth)
 	adv.POST("/alerts", read, dh.SearchAdversaryAlerts)

@@ -43,6 +43,11 @@ type AlertFields struct {
 	plugins.Alert
 }
 
+// rules holds the active tag-rule snapshot the plugin evaluates against each
+// freshly indexed alert. It is refreshed in the background; a missing or empty
+// snapshot just means no rules fire — release-to-Open still runs.
+var rules *ruleCache
+
 func main() {
 	cfg := plugins.PluginCfg("org.opensearch").Get("opensearch")
 	host := cfg.Get("host").String()
@@ -57,6 +62,15 @@ func main() {
 		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
+
+	rules = newRuleCache()
+	initialCtx, initialCancel := context.WithTimeout(context.Background(), rulesRequestTimeout)
+	if err := rules.Refresh(initialCtx); err != nil {
+		// First-pass failure is non-fatal — the background loop keeps trying.
+		_ = catcher.Error("initial tag-rule cache refresh failed", err, map[string]any{"process": "plugin_com.utmstack.alerts"})
+	}
+	initialCancel()
+	go rules.Run(context.Background())
 
 	err = plugins.InitCorrelationPlugin("com.utmstack.alerts", correlate)
 	if err != nil {
@@ -87,7 +101,17 @@ func correlate(ctx context.Context,
 
 	parentId := getPreviousAlertId(alert)
 
-	return nil, newAlert(alert, parentId)
+	if err := newAlert(alert, parentId); err != nil {
+		return nil, err
+	}
+
+	// Tag-rule evaluation runs detached from the SDK ack so a slow OpenSearch
+	// hop never stalls intake. Errors are logged inside applyTagRulesAndRelease.
+	if rules != nil {
+		go applyTagRulesAndRelease(context.Background(), alert.Id, rules.Snapshot())
+	}
+
+	return nil, nil
 }
 
 func isDuplicate(alert *plugins.Alert) bool {

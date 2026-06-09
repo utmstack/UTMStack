@@ -178,6 +178,25 @@ func (h *AlertTagRuleHandler) Delete(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+// @Summary     List active alert tag rules (internal)
+// @Tags        Alert Tag Rules
+// @Security    InternalKey
+// @Produce     json
+// @Success     200 {array} dto.ActiveAlertTagRule
+// @Failure     500 {object} map[string]string
+// @Router      /internal/alert-tag-rules/active [get]
+func (h *AlertTagRuleHandler) ListActive(c *gin.Context) {
+	rules, err := h.usecase.ListActiveResolved(c.Request.Context())
+	if err != nil {
+		writeAlertError(c, err)
+		return
+	}
+	if rules == nil {
+		rules = []dto.ActiveAlertTagRule{}
+	}
+	c.JSON(http.StatusOK, rules)
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------

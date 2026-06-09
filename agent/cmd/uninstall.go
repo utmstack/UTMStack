@@ -8,7 +8,6 @@ import (
 
 	"github.com/spf13/cobra"
 	pb "github.com/utmstack/UTMStack/agent/agent"
-	"github.com/utmstack/UTMStack/agent/collector"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/dependency"
 	"github.com/utmstack/UTMStack/agent/serv"
@@ -56,10 +55,6 @@ var uninstallCmd = &cobra.Command{
 			fmt.Println("[OK]")
 		}
 
-		if err = collector.UninstallAll(); err != nil {
-			fmt.Printf("error uninstalling collectors: %v\n", err)
-			os.Exit(1)
-		}
 		os.Remove(config.ConfigurationFile)
 
 		serv.UninstallService()
