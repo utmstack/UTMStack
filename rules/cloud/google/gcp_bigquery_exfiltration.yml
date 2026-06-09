@@ -39,7 +39,7 @@ afterEvents:
       - field: log.protoPayload.serviceName
         operator: filter_term
         value: bigquery.googleapis.com
-    within: now-30m
+    within: 30m
     count: 10
 groupBy:
   - lastEvent.log.protoPayload.methodName

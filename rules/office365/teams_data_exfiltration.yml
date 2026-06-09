@@ -35,7 +35,7 @@ afterEvents:
       - field: log.Workload
         operator: filter_term
         value: 'MicrosoftTeams'
-    within: now-1h
+    within: 1h
     count: 20
 groupBy:
   - lastEvent.log.appAccessContextClientAppId

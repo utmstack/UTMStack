@@ -38,7 +38,7 @@ afterEvents:
       - field: log.Workload
         operator: filter_term
         value: 'PowerAutomate'
-    within: now-6h
+    within: 6h
     count: 10
 groupBy:
   - lastEvent.action

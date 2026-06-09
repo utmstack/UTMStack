@@ -34,7 +34,7 @@ afterEvents:
       - field: log.PolicyType
         operator: filter_term
         value: 'InformationBarrier'
-    within: now-12h
+    within: 12h
     count: 3
 groupBy:
   - lastEvent.log.TargetUser

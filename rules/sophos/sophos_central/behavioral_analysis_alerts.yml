@@ -34,7 +34,7 @@ afterEvents:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-    within: now-30m
+    within: 30m
     count: 3
 groupBy:
   - lastEvent.log.processPath

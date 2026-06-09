@@ -42,7 +42,7 @@ afterEvents:
       - field: log.eventName
         operator: filter_match
         value: 'Describe List Get Generate'
-    within: now-10m
+    within: 10m
     count: 50
 groupBy:
   - lastEvent.log.sourceIPAddress

@@ -39,7 +39,7 @@ afterEvents:
       - field: log.protocol
         operator: filter_term
         value: 'ICMP'
-    within: now-10m
+    within: 10m
     count: 100
 groupBy:
   - adversary.ip

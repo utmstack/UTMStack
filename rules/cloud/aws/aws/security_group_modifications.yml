@@ -45,7 +45,7 @@ afterEvents:
       - field: log.eventSource
         operator: filter_term
         value: 'ec2.amazonaws.com'
-    within: now-30m
+    within: 30m
     count: 3
 groupBy:
   - lastEvent.log.sourceIPAddress

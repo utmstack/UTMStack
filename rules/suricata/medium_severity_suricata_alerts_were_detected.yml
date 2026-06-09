@@ -20,7 +20,7 @@ afterEvents:
       - field: target.ip
         operator: filter_term
         value: '{{.target.ip}}'
-    within: now-15m
+    within: 15m
     count: 5
 deduplicateBy:
   - target.ip

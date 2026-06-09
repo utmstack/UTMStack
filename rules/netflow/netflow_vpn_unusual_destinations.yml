@@ -39,7 +39,7 @@ afterEvents:
       - field: target.port
         operator: filter_term
         value: '{{.target.port}}'
-    within: now-1h
+    within: 1h
     count: 3
 groupBy:
   - adversary.ip

@@ -43,7 +43,7 @@ afterEvents:
       - field: log.tacticName
         operator: filter_term
         value: '{{.log.tacticName}}'
-    within: now-15m
+    within: 15m
     count: 3
 groupBy:
   - lastEvent.log.tacticName

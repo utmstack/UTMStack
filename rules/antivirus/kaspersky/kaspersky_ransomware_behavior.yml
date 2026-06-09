@@ -36,5 +36,5 @@ afterEvents:
       - field: log.src
         operator: filter_term
         value: '{{.log.src}}'
-    within: now-10m
+    within: 10m
     count: 3

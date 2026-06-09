@@ -38,7 +38,7 @@ afterEvents:
       - field: log.topics
         operator: filter_term
         value: 'dns'
-    within: now-5m
+    within: 5m
     count: 10
 groupBy:
   - adversary.ip

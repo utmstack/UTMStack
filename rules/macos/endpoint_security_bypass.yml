@@ -41,7 +41,7 @@ afterEvents:
       - field: system.hostname
         operator: filter_term
         value: '{{.system.hostname}}'
-    within: now-15m
+    within: 15m
     count: 2
 groupBy:
   - lastEvent.log.process

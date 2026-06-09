@@ -38,7 +38,7 @@ afterEvents:
       - field: log.senderLogin
         operator: filter_term
         value: '{{.log.senderLogin}}'
-    within: now-24h
+    within: 24h
     count: 2
 groupBy:
   - lastEvent.log.repositoryName

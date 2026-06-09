@@ -39,7 +39,7 @@ afterEvents:
       - field: log.sourceIPAddress
         operator: filter_term
         value: '{{.log.sourceIPAddress}}'
-    within: now-15m
+    within: 15m
     count: 20
 groupBy:
   - lastEvent.log.userIdentityArn

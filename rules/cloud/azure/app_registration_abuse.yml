@@ -39,7 +39,7 @@ afterEvents:
       - field: log.categoryValue
         operator: filter_term
         value: Administrative
-    within: now-1h
+    within: 1h
     count: 3
 groupBy:
   - lastEvent.log.operationName

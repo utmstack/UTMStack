@@ -40,7 +40,7 @@ afterEvents:
       - field: action
         operator: filter_term
         value: 'SiteGeoMoveScheduled'
-    within: now-24h
+    within: 24h
     count: 3
     or:
       - indexPattern: v11-log-o365-*
@@ -51,7 +51,7 @@ afterEvents:
           - field: action
             operator: filter_term
             value: 'AllowedDataLocationAdded'
-        within: now-24h
+        within: 24h
         count: 2
 groupBy:
   - adversary.ip

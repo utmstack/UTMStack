@@ -30,7 +30,7 @@ afterEvents:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-    within: now-5m
+    within: 5m
     count: 10
 groupBy:
   - lastEvent.log.query_name

@@ -43,7 +43,7 @@ afterEvents:
       - field: log.eventName
         operator: filter_term
         value: 'DeleteFlowLogs'
-    within: now-24h
+    within: 24h
     count: 2
 deduplicateBy:
   - lastEvent.log.sourceIPAddress

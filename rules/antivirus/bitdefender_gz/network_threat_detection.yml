@@ -39,7 +39,7 @@ afterEvents:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-    within: now-2h
+    within: 2h
     count: 5
     or:
       - indexPattern: v11-log-antivirus-bitdefender-gz-*
@@ -50,7 +50,7 @@ afterEvents:
           - field: log.eventType
             operator: filter_term
             value: 'network-sandboxing'
-        within: now-4h
+        within: 4h
         count: 3
 groupBy:
   - lastEvent.log.hostId

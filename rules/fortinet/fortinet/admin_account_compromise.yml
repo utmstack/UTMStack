@@ -43,7 +43,7 @@ afterEvents:
       - field: log.user
         operator: filter_term
         value: '{{.log.user}}'
-    within: now-15m
+    within: 15m
     count: 5
 groupBy:
   - adversary.ip

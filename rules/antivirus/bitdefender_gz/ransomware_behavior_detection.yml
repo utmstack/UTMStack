@@ -37,7 +37,7 @@ afterEvents:
       - field: log.hostId
         operator: filter_term
         value: '{{.log.hostId}}'
-    within: now-10m
+    within: 10m
     count: 5
 groupBy:
   - lastEvent.log.hostId
