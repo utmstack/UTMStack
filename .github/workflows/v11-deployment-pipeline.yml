@@ -274,6 +274,10 @@ jobs:
           cd ${{ github.workspace }}/collectors/as400
           GOOS=linux GOARCH=amd64 go build -o utmstack_as400_collector_service -v -ldflags "-X 'github.com/utmstack/UTMStack/collectors/as400/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
+          echo "Building UTMStack Forwarder..."
+          cd ${{ github.workspace }}/collectors/forwarder
+          GOOS=linux GOARCH=amd64 go build -o utmstack_forwarder -v -ldflags "-X 'github.com/utmstack/UTMStack/collectors/forwarder/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+
       - name: Upload collector binary as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -281,6 +285,7 @@ jobs:
           path: |
             ${{ github.workspace }}/collectors/utmstack/utmstack_collector
             ${{ github.workspace }}/collectors/as400/utmstack_as400_collector_service
+            ${{ github.workspace }}/collectors/forwarder/utmstack_forwarder
           retention-days: 1
 
   build_agent_manager:
@@ -330,6 +335,10 @@ jobs:
 
           cp "${{ github.workspace }}/collectors/as400/version.json" ./dependencies/collector/as400/
           cp "${{ github.workspace }}/collector-binaries/as400/utmstack_as400_collector_service" ./dependencies/collector/as400/
+
+          mkdir -p ./dependencies/collector/forwarder
+          cp "${{ github.workspace }}/collector-binaries/forwarder/utmstack_forwarder" ./dependencies/collector/forwarder/
+          cp "${{ github.workspace }}/collectors/forwarder/version.json" ./dependencies/collector/forwarder/
 
           mkdir -p ./dependencies/agent/
 
@@ -405,6 +414,7 @@ jobs:
           cd ${{ github.workspace }}/plugins/crowdstrike; go build -o com.utmstack.crowdstrike.plugin -v .
           cd ${{ github.workspace }}/plugins/feeds; go build -o com.utmstack.feeds.plugin -v .
           cd ${{ github.workspace }}/plugins/ad-audit; go build -o com.utmstack.ad-audit.plugin -v .
+          cd ${{ github.workspace }}/plugins/soar; go build -o com.utmstack.soar.plugin -v .
 
       - name: Prepare Dependencies for Event Processor Image
         run: |
