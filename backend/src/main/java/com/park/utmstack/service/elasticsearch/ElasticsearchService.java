@@ -5,6 +5,7 @@ import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.UtmSpaceNotificationControl;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
+import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.domain.index_pattern.enums.SystemIndexPattern;
 import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.service.MailService;
@@ -445,14 +446,26 @@ public class ElasticsearchService {
     public List<UtmComplianceControlEvaluationHistoryDto> getControlEvaluations(Long controlId) {
         final String ctx = CLASSNAME + ".getControlEvaluations";
         try {
-            Query query = Query.of(q -> q.term(t -> t
-                    .field("control_id")
-                    .value(FieldValue.of(controlId.toString())))
+            final String indexName = "v11-log-compliance-evaluation";
+
+            if (!indexExist(indexName)) {
+                log.warn("{}: Index {} does not exist", ctx, indexName);
+                return Collections.emptyList();
+            }
+
+            long totalDocs = count(Collections.emptyList(), indexName);
+            if (totalDocs == 0) {
+                log.warn("{}: Index {} has no documents", ctx, indexName);
+                return Collections.emptyList();
+            }
+
+            List<FilterType> filters = List.of(
+                    new FilterType("control_id", OperatorType.IS_ONE_OF_TERMS, List.of(controlId.toString()))
             );
 
             SearchRequest request = new SearchRequest.Builder()
-                    .index("v11-log-compliance-evaluation")
-                    .query(query)
+                    .index(indexName)
+                    .query(SearchUtil.toQuery(filters))
                     .size(30)
                     .sort(s -> s.field(f -> f
                             .field("timestamp")
@@ -462,14 +475,13 @@ public class ElasticsearchService {
 
             SearchResponse<Map> response = search(request, Map.class);
 
-            var evaluations = response.hits().hits().stream()
+            return response.hits().hits().stream()
                     .map(hit -> UtmComplianceControlEvaluationHistoryMapper.mapToEvaluationDto(hit.source()))
                     .toList();
 
-          return evaluations;
-
         } catch (Exception e) {
-            throw new RuntimeException(ctx + ": " + e.getMessage(), e);
+            log.error("{}: Error during search: {}", ctx, e.getMessage(), e);
+            return Collections.emptyList();
         }
     }
 
