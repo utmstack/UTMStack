@@ -24,8 +24,7 @@ type TemplateUsecase interface {
 
 type ExecutionUsecase interface {
 	List(ctx context.Context, f dto.ExecutionFilters) (*database.List[dto.ExecutionResponse], error)
-	Create(ctx context.Context, req dto.CreateExecutionRequest) (*dto.ExecutionResponse, error)
-	UpdateStatus(ctx context.Context, id int64, req dto.UpdateExecutionRequest) error
+	HandleMatch(ctx context.Context, req dto.MatchRequest) error
 }
 
 type VariableUsecase interface {

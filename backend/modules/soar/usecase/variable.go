@@ -127,14 +127,16 @@ func (u *variableUsecase) InterpolateCommand(cmd string) (string, error) {
 		if v.VariableName == nil || v.VariableValue == nil {
 			continue
 		}
-		placeholder := "$[variables." + *v.VariableName + "]"
-		var replacement string
+		value := *v.VariableValue
 		if v.IsSecret {
-			replacement = "$[" + *v.VariableName + ":" + *v.VariableValue + "]"
-		} else {
-			replacement = *v.VariableValue
+			plain, decErr := u.cipher.Decrypt(value)
+			if decErr != nil || plain == "" {
+				continue
+			}
+			value = plain
 		}
-		cmd = strings.ReplaceAll(cmd, placeholder, replacement)
+		placeholder := "$[variables." + *v.VariableName + "]"
+		cmd = strings.ReplaceAll(cmd, placeholder, value)
 	}
 	return cmd, nil
 }

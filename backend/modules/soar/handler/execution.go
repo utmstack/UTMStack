@@ -26,7 +26,7 @@ func NewExecutionHandler(uc connectors.ExecutionUsecase) *ExecutionHandler {
 // @Produce     json
 // @Param       page                    query int    false "Page number (0-based)"
 // @Param       size                    query int    false "Page size"
-// @Param       ruleId.equals           query int    false "Filter by rule ID"
+// @Param       rulePath.equals         query string false "Filter by flow path (rule identity)"
 // @Param       alertId.contains        query string false "Filter by alert ID (substring)"
 // @Param       executionStatus.equals  query string false "Filter by execution status"
 // @Success     200 {array}  dto.ExecutionResponse
@@ -48,52 +48,25 @@ func (h *ExecutionHandler) List(c *gin.Context) {
 	writePagedArray(c, result.Items, result.Total)
 }
 
-// @Summary     Create alert response rule execution (internal)
+// @Summary     Report a flow match (internal)
+// @Description The active-response plugin posts {rulePath, alert} when an alert matched a flow's conditions. The backend resolves the target agent, builds the command(s) and enqueues the execution(s) for the dispatcher.
 // @Tags        SOAR Executions
 // @Accept      json
-// @Produce     json
-// @Param       input body dto.CreateExecutionRequest true "Execution to record (status forced to PENDING)"
-// @Success     201 {object} dto.ExecutionResponse
+// @Param       input body dto.MatchRequest true "Matched flow + raw alert"
+// @Success     202
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
 // @Router      /soar/rule-executions [post]
-func (h *ExecutionHandler) Create(c *gin.Context) {
-	var req dto.CreateExecutionRequest
+func (h *ExecutionHandler) Match(c *gin.Context) {
+	var req dto.MatchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	resp, err := h.usecase.Create(c.Request.Context(), req)
-	if err != nil {
+	if err := h.usecase.HandleMatch(c.Request.Context(), req); err != nil {
 		writeARRError(c, err)
 		return
 	}
-	c.JSON(http.StatusCreated, resp)
+	c.Status(http.StatusAccepted)
 }
 
-// @Summary     Patch execution status (internal)
-// @Tags        SOAR Executions
-// @Accept      json
-// @Param       id    path int                        true  "Execution ID"
-// @Param       input body dto.UpdateExecutionRequest true  "Partial update — only non-nil fields are written"
-// @Success     204
-// @Failure     400 {object} map[string]string
-// @Failure     404 {object} map[string]string
-// @Failure     500 {object} map[string]string
-// @Router      /soar/rule-executions/{id} [patch]
-func (h *ExecutionHandler) UpdateStatus(c *gin.Context) {
-	id, ok := pathInt64(c, "id")
-	if !ok {
-		return
-	}
-	var req dto.UpdateExecutionRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	if err := h.usecase.UpdateStatus(c.Request.Context(), id, req); err != nil {
-		writeARRError(c, err)
-		return
-	}
-	c.Status(http.StatusNoContent)
-}

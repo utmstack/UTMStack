@@ -24,7 +24,6 @@ type Module struct {
 	ruleHandler      *handler.RuleHandler
 	templateHandler  *handler.TemplateHandler
 	executionHandler *handler.ExecutionHandler
-	agentHandler     *handler.AgentHandler
 
 	ruleUsecase          connectors.RuleUsecase
 	templateUsecase      connectors.TemplateUsecase
@@ -42,6 +41,7 @@ type Module struct {
 	commandWSHandler     *handler.CommandWSHandler
 
 	flowBootstrap *usecase.FlowBootstrap
+	dispatcher    *usecase.Dispatcher
 }
 
 func NewModule(
@@ -59,19 +59,17 @@ func NewModule(
 	resolveRepo := repository.NewResolveFilterRepository(db)
 	executionRepo := repository.NewExecutionRepository(db)
 
-	ruleUC := usecase.NewRuleUsecase(flowStore, resolveRepo)
-	templateUC := usecase.NewTemplateUsecase(templateRepo)
-	executionUC := usecase.NewExecutionUsecase(executionRepo)
+	variableRepo := repository.NewVariableRepository(db)
+	variableUC := usecase.NewVariableUsecase(variableRepo, connectors.NewSecretCipherAdapter(cipher))
 
-	// Agent resolution: cross-table query into `datasources` for rule targeting.
-	// Internal-only consumer (SOAR plugin).
+	dispatcher := usecase.NewDispatcher(executionRepo, flowStore, agentClient, variableUC)
+
 	agentRepo := repository.NewAgentRepository(db)
 	agentUC := usecase.NewAgentUsecase(agentRepo)
 
-	// Incident variables: reusable (optionally secret) values interpolated into
-	// commands run on agents through the live command WebSocket.
-	variableRepo := repository.NewVariableRepository(db)
-	variableUC := usecase.NewVariableUsecase(variableRepo, connectors.NewSecretCipherAdapter(cipher))
+	ruleUC := usecase.NewRuleUsecase(flowStore, resolveRepo)
+	templateUC := usecase.NewTemplateUsecase(templateRepo)
+	executionUC := usecase.NewExecutionUsecase(executionRepo, flowStore, agentUC, dispatcher.Kick)
 
 	// Incident-response automation: predefined actions, their per-OS commands,
 	// and the jobs (responses) run against agents.
@@ -83,7 +81,6 @@ func NewModule(
 		ruleHandler:      handler.NewRuleHandler(ruleUC),
 		templateHandler:  handler.NewTemplateHandler(templateUC),
 		executionHandler: handler.NewExecutionHandler(executionUC),
-		agentHandler:     handler.NewAgentHandler(agentUC),
 		ruleUsecase:      ruleUC,
 		templateUsecase:  templateUC,
 		executionUsecase: executionUC,
@@ -101,17 +98,21 @@ func NewModule(
 		commandWSHandler:     handler.NewCommandWSHandler(agentClient, signer, variableUC),
 
 		flowBootstrap: flowBootstrap,
+		dispatcher:    dispatcher,
 	}
 }
 
 func (m *Module) Start(ctx context.Context) error {
-	return m.flowBootstrap.Run(ctx)
+	if err := m.flowBootstrap.Run(ctx); err != nil {
+		return err
+	}
+	go m.dispatcher.Start(ctx)
+	return nil
 }
 
 func (m *Module) GetRuleHandler() *handler.RuleHandler           { return m.ruleHandler }
 func (m *Module) GetTemplateHandler() *handler.TemplateHandler   { return m.templateHandler }
 func (m *Module) GetExecutionHandler() *handler.ExecutionHandler { return m.executionHandler }
-func (m *Module) GetAgentHandler() *handler.AgentHandler         { return m.agentHandler }
 func (m *Module) GetVariableHandler() *handler.VariableHandler   { return m.variableHandler }
 func (m *Module) GetActionHandler() *handler.ActionHandler       { return m.actionHandler }
 func (m *Module) GetActionCommandHandler() *handler.ActionCommandHandler {

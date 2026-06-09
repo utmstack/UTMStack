@@ -37,6 +37,15 @@ END $$;
 DROP TABLE IF EXISTS public.utm_compliance_report_schedule CASCADE;
 DROP SEQUENCE IF EXISTS public.utm_compliance_report_schedule_id_seq;
 
+-- SOAR rule executions are now keyed by the flow's file identity (rule_path) instead
+-- of the legacy numeric rule_id FK into utm_alert_response_rule (which the soar flow
+-- bootstrap drops once flows migrate to YAML). The old not-null rule_id column would
+-- block the new path-based inserts, and executions are transient operational records
+-- (no curation to preserve), so drop the table here; AutoMigrate recreates it with the
+-- rule_path schema.
+DROP TABLE IF EXISTS public.utm_alert_response_rule_execution CASCADE;
+DROP SEQUENCE IF EXISTS public.utm_alert_response_rule_execution_id_seq;
+
 -- Dashboards were reshaped: visualizations are now SQL-only (sql_query + an opaque
 -- config blob; the legacy query/aggregation/chart_* columns are gone). The existing
 -- rows are meaningless under the new model and we don't need to preserve them, so
