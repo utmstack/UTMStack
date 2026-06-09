@@ -719,7 +719,7 @@ pipeline:
           params:
             key: actionResult
             value: 'accepted'
-          where: exists("statusCode") && (greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 299)) || (greaterOrEqual("statusCode", 300) && lessOrEqual("statusCode", 399) && greaterThan("origin.bytesReceived", 0))
+          where: exists("statusCode") && ((greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 299)) || (greaterOrEqual("statusCode", 300) && lessOrEqual("statusCode", 399) && greaterThan("origin.bytesReceived", 0)))
 
       # Removing unused fields
       - delete:
