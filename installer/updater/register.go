@@ -71,11 +71,6 @@ func RegisterInstance() error {
 		if err != nil {
 			return fmt.Errorf("error writing instance config file: %v", err)
 		}
-
-		err = updateInstanceInfo(resp.ID)
-		if err != nil {
-			return fmt.Errorf("error updating instance info in backend: %v", err)
-		}
 	}
 
 	return nil
@@ -160,33 +155,4 @@ func PollAndUpdateAdminEmail(instanceConf InstanceConfig) {
 		config.Logger().Info("Successfully updated instance with admin email: %s", email)
 		return
 	}
-}
-
-func updateInstanceInfo(id string) error {
-
-	backConf, err := getConfigFromBackend(6)
-	if err != nil {
-		// If backend is in maintenance, just return without error
-		if IsBackendMaintenanceError(err) {
-			return nil
-		}
-		return fmt.Errorf("error getting instance auth from backend: %v", err)
-	}
-
-	for i, c := range backConf {
-		if c.ConfParamShort == "utmstack.instance.data" {
-			backConf[i].ConfParamValue = id
-		}
-	}
-
-	err = updateConfigInBackend(backConf, 6)
-	if err != nil {
-		// If backend is in maintenance, just return without error
-		if IsBackendMaintenanceError(err) {
-			return nil
-		}
-		return fmt.Errorf("error updating instance info in backend: %v", err)
-	}
-
-	return nil
 }

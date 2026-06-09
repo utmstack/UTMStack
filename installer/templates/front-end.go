@@ -13,8 +13,6 @@ const FrontEnd string = `server {
 
     set $utmstack_backend http://backend:8080;
     set $utmstack_agent_manager http://agentmanager:9001;
-    set $utmstack_backend_auth http://backend:8080/api/authenticate;
-    set $utmstack_ws http://backend:8080/ws;
     set $shared_key {{.SharedKey}};
     set $shared_key_header $http_x_shared_key;
 
@@ -47,6 +45,8 @@ const FrontEnd string = `server {
     }
 
     location /api/ping {
+        # Health probe without the shared-key gate; mapped to the Go backend health.
+        rewrite ^/api/ping$ /api/v1/health break;
         proxy_pass  $utmstack_backend;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

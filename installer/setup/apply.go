@@ -246,18 +246,6 @@ func Apply(version string, updating bool) (string, error) {
 
 	fmt.Println(" [OK]")
 
-	if utils.GetLock(8, stack.LocksDir) {
-		fmt.Print("Generating Connection Key")
-		if err := services.RegenerateKey(cnf.InternalKey); err != nil {
-			return "", err
-		}
-
-		if err := utils.SetLock(8, stack.LocksDir); err != nil {
-			return "", err
-		}
-		fmt.Println(" [OK]")
-	}
-
 	if utils.GetLock(9, stack.LocksDir) {
 		fmt.Print("Generating Base URL")
 		if err := services.SetBaseURL(cnf.ServerName); err != nil {
