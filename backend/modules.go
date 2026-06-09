@@ -75,8 +75,11 @@ type modules struct {
 
 func initModules(db *gorm.DB, cfg *config) *modules {
 	if cfg.jwtSecret == "" {
-		_ = catcher.Error("JWT_SECRET is not set — refusing to start", nil, nil)
-		panic("JWT_SECRET is required")
+		cfg.jwtSecret = cfg.internalKey
+	}
+	if cfg.jwtSecret == "" {
+		_ = catcher.Error("JWT_SECRET (or INTERNAL_KEY) is not set — refusing to start", nil, nil)
+		panic("JWT_SECRET or INTERNAL_KEY is required")
 	}
 	if cfg.encryptionKey == "" {
 		_ = catcher.Error("ENCRYPTION_KEY is not set — refusing to start", nil, nil)

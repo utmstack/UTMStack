@@ -234,6 +234,12 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			stack.DataSources + ":/etc/utmstack",
 			conf.UpdatesFolder + ":/updates",
 			utils.MakeDir(0777, conf.DataDir, "uploads") + ":/uploads",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "soar") + ":/workdir/soar",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "compliance") + ":/workdir/compliance",
+			// Shared with the event-processor: the backend authors the rules and
+			// pipeline (tenants/patterns/filters); the EP reads the same host dirs.
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "rules") + ":/workdir/rules",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
