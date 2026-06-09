@@ -58,6 +58,8 @@ func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFu
 	keyGroup.PUT("/:id", apiKeys.Update)
 	keyGroup.DELETE("/:id", apiKeys.Delete)
 	keyGroup.POST("/:id/generate", enterprise, apiKeys.Generate)
+	// Internal: the inputs gateway validates a pusher's API key here.
+	keyGroup.POST("/authenticate", middleware.RequireInternal(), apiKeys.Authenticate)
 
 	idp := module.GetIDPHandler()
 	idpGroup := api.Group("/identity-providers", userAuth)

@@ -3,7 +3,6 @@ module github.com/utmstack/UTMStack/plugins/feeds
 go 1.25.5
 
 require (
-	github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0
 	github.com/opensearch-project/opensearch-go/v2 v2.3.0
 	github.com/threatwinds/go-sdk v1.1.21
 	golang.org/x/sync v0.20.0

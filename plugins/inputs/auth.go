@@ -24,10 +24,9 @@ const maxMessageSize = 20 * 1024 * 1024 // 20MB
 const missRefreshCooldown = 2 * time.Second
 
 type LogAuthService struct {
-	Mutex              *sync.Mutex
-	CollectorKeyCache  map[uint]string
-	AgentKeyCache      map[uint]string
-	ConnectionKeyCache string
+	Mutex             *sync.Mutex
+	CollectorKeyCache map[uint]string
+	AgentKeyCache     map[uint]string
 
 	refreshMu        sync.Mutex
 	lastAgentRefresh time.Time
@@ -36,13 +35,11 @@ type LogAuthService struct {
 
 func NewLogAuthService() *LogAuthService {
 	authService := &LogAuthService{
-		Mutex:              &sync.Mutex{},
-		CollectorKeyCache:  make(map[uint]string),
-		AgentKeyCache:      make(map[uint]string),
-		ConnectionKeyCache: "",
+		Mutex:             &sync.Mutex{},
+		CollectorKeyCache: make(map[uint]string),
+		AgentKeyCache:     make(map[uint]string),
 	}
 
-	authService.syncConnectionKey()
 	authService.syncKeys(agent.ConnectorType_AGENT)
 	authService.syncKeys(agent.ConnectorType_COLLECTOR)
 
@@ -56,7 +53,6 @@ func (auth *LogAuthService) SyncAuth() {
 	for range ticker.C {
 		auth.syncKeys(agent.ConnectorType_COLLECTOR)
 		auth.syncKeys(agent.ConnectorType_AGENT)
-		auth.syncConnectionKey()
 	}
 }
 
@@ -139,17 +135,6 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 	}
 }
 
-func (auth *LogAuthService) syncConnectionKey() {
-	panelKey, e := GetConnectionKey()
-	if e != nil {
-		return
-	}
-
-	auth.Mutex.Lock()
-	auth.ConnectionKeyCache = string(panelKey)
-	auth.Mutex.Unlock()
-}
-
 func (auth *LogAuthService) IsKeyValid(key string, id uint, typ string) bool {
 	if auth.lookupKey(key, id, typ) {
 		return true
@@ -206,10 +191,3 @@ func (auth *LogAuthService) refreshOnMiss(typ string) bool {
 	return true
 }
 
-func (auth *LogAuthService) IsConnectionKeyValid(connectionKey string) bool {
-	return auth.ConnectionKeyCache == connectionKey
-}
-
-func (auth *LogAuthService) GetConnectionKey() string {
-	return auth.ConnectionKeyCache
-}

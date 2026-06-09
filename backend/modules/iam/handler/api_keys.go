@@ -22,6 +22,23 @@ func NewAPIKeyHandler(uc connectors.APIKeyUsecase) *APIKeyHandler {
 	return &APIKeyHandler{usecase: uc}
 }
 
+// Authenticate is the internal endpoint the inputs gateway calls to validate an
+// API key presented by a direct log pusher. 200 when the key is valid (exists,
+// not expired, IP allowed, user active); 401 otherwise. Internal-only.
+func (h *APIKeyHandler) Authenticate(c *gin.Context) {
+	var req dto.APIKeyAuthRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
+		return
+	}
+	res, err := h.usecase.Authenticate(c.Request.Context(), req.APIKey, req.ClientIP)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid api key"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"userId": res.UserID, "login": res.Login})
+}
+
 func apiKeyID(c *gin.Context) (uint64, bool) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	return id, err == nil

@@ -389,6 +389,22 @@ WHERE NOT EXISTS (
     SELECT 1 FROM utm_configuration_parameter c WHERE c.conf_param_short = 'branding'
 );
 
+-- ThreatWinds (feeds plugin) integration credentials. Seeded as empty so the
+-- appconfig module (which only UPDATEs pre-seeded params) can serve/store them
+-- and the feeds plugin reads them via GET /api/v1/config/<key>. apiSecret is a
+-- secret (encrypted at rest, decrypted on per-key read).
+INSERT INTO utm_configuration_parameter
+    (conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
+SELECT v.conf_param_short, v.conf_param_large, v.conf_param_description, v.conf_param_value, v.conf_param_required, v.conf_param_datatype, v.conf_param_option
+FROM (VALUES
+    ('utmstack.tw.enabled',   'ThreatWinds Enabled',    'Whether the ThreatWinds intelligence integration is enabled', '', false, 'text',     NULL),
+    ('utmstack.tw.apiKey',    'ThreatWinds API Key',    'API Key for ThreatWinds integration.',                        '', true,  'text',     NULL),
+    ('utmstack.tw.apiSecret', 'ThreatWinds API Secret', 'API Secret for ThreatWinds integration.',                     '', true,  'password', NULL)
+) AS v(conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
+WHERE NOT EXISTS (
+    SELECT 1 FROM utm_configuration_parameter c WHERE c.conf_param_short = v.conf_param_short
+);
+
 -- utm_regex_pattern and utm_tenant_config are now file-backed (patterns.yaml
 -- utm_regex_pattern and utm_tenant_config are NOT dropped here — PipelineBootstrap
 -- reads them first, migrates to YAML files, then drops them. Dropping here

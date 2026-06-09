@@ -1,7 +1,5 @@
 cel.dev/expr v0.25.1 h1:1KrZg61W6TWSxuNZ37Xy49ps13NUovb66QLprthtwi4=
 cel.dev/expr v0.25.1/go.mod h1:hrXvqGP6G6gyx8UAHSHJ5RGk//1Oj5nXQ2NI02Nrsg4=
-github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0 h1:TBiBl9KCa4i4epY0/q9WSC4ugavL6+6JUkOXWDnMM6I=
-github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0/go.mod h1:cRhQ3TS/VEfu/z+qaciyuDZdtxgaXgaX8+G6Wa5NzBk=
 github.com/antlr4-go/antlr/v4 v4.13.1 h1:SqQKkuVZ+zWkMMNkjy5FZe5mr5WURWnlpmOuzYWrPrQ=
 github.com/antlr4-go/antlr/v4 v4.13.1/go.mod h1:GKmUxMtwp6ZgGwZSva4eWPC5mS6vUAmOABFgjdkM7Nw=
 github.com/aws/aws-sdk-go v1.44.263/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -18,6 +19,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 )
 
@@ -48,15 +50,14 @@ func (m *Middlewares) GrpcStreamAuth(srv any, ss grpc.ServerStream, _ *grpc.Stre
 
 func (m *Middlewares) HttpAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		connectionKey := c.GetHeader(proxyAPIKeyHeader)
-		if connectionKey == "" {
-			e := catcher.Error("cannot authenticate", errors.New("missing connection key"), map[string]any{"process": "plugin_com.utmstack.inputs", "status": http.StatusUnauthorized})
+		apiKey := c.GetHeader(apiKeyHeader)
+		if apiKey == "" {
+			e := catcher.Error("cannot authenticate", errors.New("missing api key"), map[string]any{"process": "plugin_com.utmstack.inputs", "status": http.StatusUnauthorized})
 			e.GinError(c)
 			return
 		}
-		isValid := m.AuthService.IsConnectionKeyValid(connectionKey)
-		if !isValid {
-			e := catcher.Error("cannot authenticate", errors.New("invalid connection key"), map[string]any{"process": "plugin_com.utmstack.inputs", "status": http.StatusUnauthorized})
+		if !apiKeys.valid(apiKey, c.ClientIP()) {
+			e := catcher.Error("cannot authenticate", errors.New("invalid api key"), map[string]any{"process": "plugin_com.utmstack.inputs", "status": http.StatusUnauthorized})
 			e.GinError(c)
 			return
 		}
@@ -79,7 +80,8 @@ func (m *Middlewares) GitHubAuth() gin.HandlerFunc {
 			return
 		}
 		c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
-		key := m.AuthService.GetConnectionKey()
+		// The GitHub webhook is configured with the internal key as its HMAC secret.
+		key := plugins.PluginCfg("com.utmstack").Get("internalKey").String()
 		err = verifySignature(body, key, sig)
 		if err != nil {
 			e := catcher.Error("failed to verify signature", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
@@ -100,7 +102,7 @@ func (m *Middlewares) authFromContext(ctx context.Context) error {
 	authKey := md.Get("key")
 	authId := md.Get("id")
 	connectorType := md.Get("type")
-	authConnectionKey := md.Get("connection-key")
+	authAPIKey := md.Get(apiKeyHeader)
 	authInternalKey := md.Get("internal-key")
 
 	if len(authKey) > 0 && len(authId) > 0 && len(connectorType) > 0 {
@@ -114,9 +116,9 @@ func (m *Middlewares) authFromContext(ctx context.Context) error {
 		if !m.AuthService.IsKeyValid(key, uint(id), typ) {
 			return status.Error(codes.PermissionDenied, "invalid key")
 		}
-	} else if len(authConnectionKey) > 0 {
-		if !isConnectionKeyValid(authConnectionKey[0]) {
-			return status.Error(codes.PermissionDenied, "invalid connection key")
+	} else if len(authAPIKey) > 0 {
+		if !apiKeys.valid(authAPIKey[0], peerIP(ctx)) {
+			return status.Error(codes.PermissionDenied, "invalid api key")
 		}
 	} else if len(authInternalKey) > 0 {
 		internalKey := plugins.PluginCfg("com.utmstack").Get("internalKey").String()
@@ -146,11 +148,14 @@ func verifySignature(payloadBody []byte, secretToken string, signatureHeader str
 	return nil
 }
 
-func isConnectionKeyValid(token string) bool {
-	panelKey, e := GetConnectionKey()
-	if e != nil {
-		return false
+// peerIP extracts the client IP of a gRPC call (for the API key IP allowlist).
+func peerIP(ctx context.Context) string {
+	p, ok := peer.FromContext(ctx)
+	if !ok || p.Addr == nil {
+		return ""
 	}
-
-	return token == string(panelKey)
+	if host, _, err := net.SplitHostPort(p.Addr.String()); err == nil {
+		return host
+	}
+	return p.Addr.String()
 }

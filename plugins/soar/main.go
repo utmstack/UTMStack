@@ -85,7 +85,7 @@ func reportMatch(ctx context.Context, rulePath string, alert []byte) error {
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, backendURL+"/api/soar/rule-executions", bytes.NewReader(payload))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, backendURL+"/api/v1/soar/rule-executions", bytes.NewReader(payload))
 	if err != nil {
 		return err
 	}

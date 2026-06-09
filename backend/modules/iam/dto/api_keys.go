@@ -8,6 +8,11 @@ type APIKeyUpsertRequest struct {
 	ExpiresAt *time.Time `json:"expires_at"`
 }
 
+type APIKeyAuthRequest struct {
+	APIKey   string `json:"apiKey" binding:"required"`
+	ClientIP string `json:"clientIp"`
+}
+
 type APIKeyResponse struct {
 	ID          uint64     `json:"id"`
 	Name        string     `json:"name"`

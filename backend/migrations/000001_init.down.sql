@@ -190,3 +190,8 @@ DELETE FROM utm_configuration_parameter WHERE conf_param_short IN (
     'utmstack.mail.properties.mail.smtp.auth', 'utmstack.mail.from',
     'utmstack.mail.baseUrl'
 );
+
+-- Remove the seeded ThreatWinds config rows.
+DELETE FROM utm_configuration_parameter WHERE conf_param_short IN (
+    'utmstack.tw.enabled', 'utmstack.tw.apiKey', 'utmstack.tw.apiSecret'
+);
