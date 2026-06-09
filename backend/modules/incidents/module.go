@@ -14,6 +14,11 @@ type Module struct {
 	incidentAlertHandler *handler.IncidentAlertHandler
 	incidentNoteHandler  *handler.IncidentNoteHandler
 	historyHandler       *handler.IncidentHistoryHandler
+
+	incidentUsecase      connectors.IncidentUsecase
+	incidentAlertUsecase connectors.IncidentAlertUsecase
+	incidentNoteUsecase  connectors.IncidentNoteUsecase
+	historyUsecase       connectors.IncidentHistoryUsecase
 }
 
 func NewModule(
@@ -48,6 +53,10 @@ func NewModule(
 		incidentAlertHandler: handler.NewIncidentAlertHandler(incidentAlertUC),
 		incidentNoteHandler:  handler.NewIncidentNoteHandler(incidentNoteUC),
 		historyHandler:       handler.NewIncidentHistoryHandler(historyUC),
+		incidentUsecase:      incidentUC,
+		incidentAlertUsecase: incidentAlertUC,
+		incidentNoteUsecase:  incidentNoteUC,
+		historyUsecase:       historyUC,
 	}
 }
 
@@ -57,3 +66,10 @@ func (m *Module) GetIncidentAlertHandler() *handler.IncidentAlertHandler {
 }
 func (m *Module) GetIncidentNoteHandler() *handler.IncidentNoteHandler       { return m.incidentNoteHandler }
 func (m *Module) GetIncidentHistoryHandler() *handler.IncidentHistoryHandler { return m.historyHandler }
+
+func (m *Module) GetIncidentUsecase() connectors.IncidentUsecase           { return m.incidentUsecase }
+func (m *Module) GetIncidentAlertUsecase() connectors.IncidentAlertUsecase { return m.incidentAlertUsecase }
+func (m *Module) GetIncidentNoteUsecase() connectors.IncidentNoteUsecase   { return m.incidentNoteUsecase }
+func (m *Module) GetIncidentHistoryUsecase() connectors.IncidentHistoryUsecase {
+	return m.historyUsecase
+}

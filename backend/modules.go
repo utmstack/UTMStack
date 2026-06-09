@@ -26,6 +26,7 @@ import (
 	incidents_connectors "github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations"
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer"
+	mcpmod "github.com/utmstack/utmstack/backend/modules/mcp"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
 	notifications_domain "github.com/utmstack/utmstack/backend/modules/notifications/domain"
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
@@ -68,6 +69,7 @@ type modules struct {
 	notifications     *notifications.Module
 	socAI             *socai.Module
 	adaudit           *adaudit.Module
+	mcp               *mcpmod.Module
 	signer            *jwtpkg.Signer
 }
 
@@ -167,8 +169,44 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		)
 	}
 
+	iamMod := iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, samlUsecase, cfg.uploadDir)
+	socAIMod := socai.NewModule(cfg.socAIBaseURL, cfg.internalKey)
+	incidentsMod := incidents.NewModule(
+		db,
+		incidents_connectors.NewNoopMailer(),
+		incidents.NewAlertsGatewayFromUsecase(alertsMod.GetAlertUsecase()),
+		incidents.NewIAMGatewayFromRepo(userRepo),
+		auditMod.Logger(),
+	)
+	adauditMod := adaudit.NewModule(db)
+
+	var mcpModule *mcpmod.Module
+	if cfg.mcpEnabled {
+		mcpModule = mcpmod.NewModule(&mcpmod.Deps{
+			IAM:             iamMod,
+			Alerts:          alertsMod,
+			Incidents:       incidentsMod,
+			SOAR:            soarMod,
+			Compliance:      complianceMod,
+			Audit:           auditMod,
+			Dashboards:      dashboardsMod,
+			LogAnalyzer:     loganalyzerMod,
+			OpenSearch:      opensearchMod,
+			EventProcessing: eventProcessingMod,
+			Datasources:     datasourcesMod,
+			Integrations:    integrationsMod,
+			Notifications:   notificationsMod,
+			ADAudit:         adauditMod,
+			SOCAI:           socAIMod,
+			Billing:         billingMod,
+			AppConfig:       configMod,
+			ServerName:      cfg.serverName,
+			ServerVersion:   cfg.mcpVersion,
+		})
+	}
+
 	return &modules{
-		iam:               iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, samlUsecase, cfg.uploadDir),
+		iam:               iamMod,
 		audit:             auditMod,
 		appconfig:         configMod,
 		billing:           billingMod,
@@ -182,16 +220,11 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		eventProcessing:   eventProcessingMod,
 		opensearchGateway: opensearchMod,
 		integrations:      integrationsMod,
-		socAI:             socai.NewModule(cfg.socAIBaseURL, cfg.internalKey),
-		incidents: incidents.NewModule(
-			db,
-			incidents_connectors.NewNoopMailer(),
-			incidents.NewAlertsGatewayFromUsecase(alertsMod.GetAlertUsecase()),
-			incidents.NewIAMGatewayFromRepo(userRepo),
-			auditMod.Logger(),
-		),
-		notifications: notificationsMod,
-		adaudit:       adaudit.NewModule(db),
-		signer:        signer,
+		socAI:             socAIMod,
+		incidents:         incidentsMod,
+		notifications:     notificationsMod,
+		adaudit:           adauditMod,
+		mcp:               mcpModule,
+		signer:            signer,
 	}
 }

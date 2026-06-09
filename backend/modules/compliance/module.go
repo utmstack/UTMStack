@@ -26,8 +26,13 @@ type Module struct {
 
 	frameworkUC  connectors.FrameworkUsecase
 	evaluatorUC  connectors.EvaluatorUsecase
+	scheduleUC   connectors.ScheduleUsecase
 	evalInterval time.Duration
 }
+
+func (m *Module) GetFrameworkUsecase() connectors.FrameworkUsecase { return m.frameworkUC }
+func (m *Module) GetEvaluatorUsecase() connectors.EvaluatorUsecase { return m.evaluatorUC }
+func (m *Module) GetScheduleUsecase() connectors.ScheduleUsecase   { return m.scheduleUC }
 
 func NewModule(db *gorm.DB, mailSvc mail_connectors.MailService) *Module {
 	scheduleRepo := repository.NewScheduleRepository(db)
@@ -77,6 +82,7 @@ func NewModule(db *gorm.DB, mailSvc mail_connectors.MailService) *Module {
 		coverage:     coverageIdx,
 		frameworkUC:  frameworkUC,
 		evaluatorUC:  evaluatorUC,
+		scheduleUC:   scheduleUC,
 		evalInterval: time.Duration(evalHours) * time.Hour,
 	}
 }

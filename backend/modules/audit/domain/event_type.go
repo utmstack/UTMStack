@@ -165,6 +165,11 @@ const (
 	// Replacing the signed LICENSE envelope (admin-only).
 	LICENSE_UPLOAD_ATTEMPT ApplicationEventType = "LICENSE_UPLOAD_ATTEMPT"
 	LICENSE_UPLOAD_SUCCESS ApplicationEventType = "LICENSE_UPLOAD_SUCCESS"
+
+	// MCP tool calls — every invocation of an MCP-exposed tool is audited
+	// through the same Logger sink used by REST handlers, so /audit covers
+	// both transports uniformly. ResourceType holds the tool name.
+	APP_EVENT_MCP_TOOL_CALL ApplicationEventType = "MCP_TOOL_CALL"
 	// SERVER_MODULE_CREATE_ATTEMPT       ApplicationEventType = "SERVER_MODULE_CREATE_ATTEMPT"
 	// SERVER_MODULE_CREATE_SUCCESS       ApplicationEventType = "SERVER_MODULE_CREATE_SUCCESS"
 	// SERVER_MODULE_UPDATE_ATTEMPT       ApplicationEventType = "SERVER_MODULE_UPDATE_ATTEMPT"
