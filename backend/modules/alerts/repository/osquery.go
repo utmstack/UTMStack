@@ -25,10 +25,6 @@ func termsQuery(field string, values []string) map[string]any {
 	return map[string]any{"terms": map[string]any{field: iValues}}
 }
 
-func matchQuery(field string, value any) map[string]any {
-	return map[string]any{"match": map[string]any{field: value}}
-}
-
 // Script holds a Painless script source and its parameters. Always populate
 // Params — never embed user input directly in Source.
 type Script struct {

@@ -17,12 +17,6 @@ type AlertRepository interface {
 	CountOpenAlerts(ctx context.Context) (int64, error)
 	CountByStatus(ctx context.Context, status int) (int64, error)
 	SearchByIDs(ctx context.Context, alertIDs []string) ([]domain.UtmAlert, error)
-	AssignAssetGroups(ctx context.Context, mapping map[string]AssetGroupRef) error
-}
-
-type AssetGroupRef struct {
-	ID   int64
-	Name string
 }
 
 type HistoryEntry struct {

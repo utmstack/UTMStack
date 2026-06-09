@@ -48,13 +48,6 @@ ctx._source.incidentDetail.createdBy    = params.createdBy;
 ctx._source.incidentDetail.source       = params.source;
 `
 
-const assignAssetGroupsScript = `
-if (params.mapping.containsKey(ctx._source.dataSource)) {
-  ctx._source.assetGroupId = params.mapping[ctx._source.dataSource].id;
-  ctx._source.assetGroupName = params.mapping[ctx._source.dataSource].name;
-}
-`
-
 // ---------------------------------------------------------------------------
 // osAlertRepo implements connectors.AlertRepository against the go-sdk `os` client.
 // ---------------------------------------------------------------------------
@@ -195,20 +188,3 @@ func (r *osAlertRepo) SearchByIDs(ctx context.Context, alertIDs []string) ([]dom
 	return alerts, nil
 }
 
-func (r *osAlertRepo) AssignAssetGroups(ctx context.Context, mapping map[string]connectors.AssetGroupRef) error {
-	filter := termQuery("status", int(domain.AlertStatusAutomaticReview))
-
-	// Convert mapping to a plain map[string]any for Painless params.
-	pmapping := make(map[string]any, len(mapping))
-	for k, v := range mapping {
-		pmapping[k] = map[string]any{"id": v.ID, "name": v.Name}
-	}
-
-	script := Script{
-		Source: assignAssetGroupsScript,
-		Params: map[string]any{
-			"mapping": pmapping,
-		},
-	}
-	return osUpdateByQuery(ctx, alertIndex, filter, script)
-}

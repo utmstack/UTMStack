@@ -18,11 +18,9 @@ const (
 	defaultRefreshSec   = 60
 	rulesRequestTimeout = 10 * time.Second
 	activeRulesPath     = "/api/v1/internal/alert-tag-rules/active"
+	enrichmentPath      = "/api/v1/datasources/enrichment"
 )
 
-// RuleSnapshot is the per-rule view the plugin needs at evaluation time.
-// Conditions is left as raw JSON until used so we don't decode work we won't
-// run (a rule with empty conditions never reaches the evaluator).
 type RuleSnapshot struct {
 	ID         uint64
 	Name       string
@@ -30,7 +28,6 @@ type RuleSnapshot struct {
 	TagNames   []string
 }
 
-// activeRuleWire matches the backend dto.ActiveAlertTagRule payload.
 type activeRuleWire struct {
 	ID              uint64          `json:"id"`
 	Name            string          `json:"name"`
@@ -141,6 +138,131 @@ func (c *ruleCache) Run(ctx context.Context) {
 	defer func() {
 		if r := recover(); r != nil {
 			_ = catcher.Error("rule cache: recovered from panic in Run", nil, map[string]any{
+				"panic":   r,
+				"process": "plugin_com.utmstack.alerts",
+			})
+		}
+	}()
+
+	ticker := time.NewTicker(c.refresh)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			refreshCtx, cancel := context.WithTimeout(context.Background(), rulesRequestTimeout)
+			_ = c.Refresh(refreshCtx)
+			cancel()
+		}
+	}
+}
+
+type datasourceEnrichment struct {
+	GroupID   *uint64
+	GroupName string
+	Labels    []string
+}
+
+type enrichmentWire struct {
+	Name      string   `json:"name"`
+	DataType  string   `json:"dataType"`
+	GroupID   *uint64  `json:"groupId"`
+	GroupName string   `json:"groupName"`
+	Labels    []string `json:"labels"`
+}
+
+type datasourceCache struct {
+	baseURL     string
+	internalKey string
+	httpClient  *http.Client
+	refresh     time.Duration
+
+	mu     sync.RWMutex
+	byName map[string]datasourceEnrichment
+}
+
+func newDatasourceCache() *datasourceCache {
+	cfg := plugins.PluginCfg("com.utmstack")
+	base := cfg.Get("backend").String()
+	if base != "" && !strings.HasPrefix(base, "http://") && !strings.HasPrefix(base, "https://") {
+		base = "http://" + base
+	}
+	refresh := time.Duration(defaultRefreshSec) * time.Second
+	if v := cfg.Get("rulesRefreshSec").Int(); v > 0 {
+		refresh = time.Duration(v) * time.Second
+	}
+	return &datasourceCache{
+		baseURL:     base,
+		internalKey: cfg.Get("internalKey").String(),
+		httpClient:  &http.Client{Timeout: rulesRequestTimeout},
+		refresh:     refresh,
+	}
+}
+
+func (c *datasourceCache) Lookup(name string) (datasourceEnrichment, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	e, ok := c.byName[name]
+	return e, ok
+}
+
+func (c *datasourceCache) Refresh(ctx context.Context) error {
+	if c.baseURL == "" || c.internalKey == "" {
+		return catcher.Error("datasource cache: backend URL or internal key missing", nil, map[string]any{"process": "plugin_com.utmstack.alerts"})
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+enrichmentPath, nil)
+	if err != nil {
+		return catcher.Error("datasource cache: build request failed", err, map[string]any{"process": "plugin_com.utmstack.alerts"})
+	}
+	req.Header.Set(internalKeyHeader, c.internalKey)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return catcher.Error("datasource cache: request failed", err, map[string]any{"process": "plugin_com.utmstack.alerts"})
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return catcher.Error("datasource cache: read body failed", err, map[string]any{"process": "plugin_com.utmstack.alerts"})
+	}
+	if resp.StatusCode >= 400 {
+		return catcher.Error("datasource cache: backend returned error", nil, map[string]any{
+			"status":  resp.StatusCode,
+			"body":    string(body),
+			"process": "plugin_com.utmstack.alerts",
+		})
+	}
+
+	var wire []enrichmentWire
+	if err := json.Unmarshal(body, &wire); err != nil {
+		return catcher.Error("datasource cache: decode failed", err, map[string]any{"process": "plugin_com.utmstack.alerts"})
+	}
+
+	next := make(map[string]datasourceEnrichment, len(wire))
+	for _, w := range wire {
+		// Keyed by name; a host's group is the same across its data types, so a
+		// repeated name just overwrites with equivalent enrichment.
+		next[w.Name] = datasourceEnrichment{
+			GroupID:   w.GroupID,
+			GroupName: w.GroupName,
+			Labels:    w.Labels,
+		}
+	}
+
+	c.mu.Lock()
+	c.byName = next
+	c.mu.Unlock()
+	return nil
+}
+
+func (c *datasourceCache) Run(ctx context.Context) {
+	defer func() {
+		if r := recover(); r != nil {
+			_ = catcher.Error("datasource cache: recovered from panic in Run", nil, map[string]any{
 				"panic":   r,
 				"process": "plugin_com.utmstack.alerts",
 			})
