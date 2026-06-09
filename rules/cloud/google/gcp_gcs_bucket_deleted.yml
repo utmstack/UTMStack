@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - google
+name: GCP Cloud Storage Bucket Deleted
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Impact
+technique: "T1485 - Data Destroyed"
+adversary: origin
+references:
+  - https://cloud.google.com/storage/docs/audit-logging
+  - https://cloud.google.com/logging/docs/audit/cal-categories#cloud_storage
+  - https://attack.mitre.org/techniques/T1485/
+description: |
+  Detects deletion of a Google Cloud Storage (GCS) bucket. Attackers may delete buckets containing evidence, backups, or critical data as part of ransomware or anti-forensics. Unexpected bucket deletion is a strong indicator of data destruction or cover tracks.
+
+  Next Steps:
+  1. Verify if the deletion was part of an authorized maintenance window
+  2. Check if the bucket contained critical data or backups
+  3. Attempt to recover the bucket from versioning or backups if available
+  4. Investigate the user's other actions for signs of data destruction
+  5. Review if other storage resources were deleted in the same window
+  6. Check if the bucket had object versioning enabled for recovery
+where: |
+  equals("log.protoPayloadServiceName", "storage.googleapis.com") &&
+  equals("log.protoPayloadMethodName", "storage.buckets.delete") &&
+  exists("origin.user")
