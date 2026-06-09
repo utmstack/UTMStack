@@ -290,17 +290,17 @@ func Apply(version string, updating bool) (string, error) {
 		fmt.Println(" [OK]")
 	}
 
-	// if utils.GetLock(10, stack.LocksDir) {
+	if utils.GetLock(10, stack.LocksDir) {
 	// 	fmt.Print("Sending sample logs")
 	// 	if err := SendSampleData(); err != nil {
 	// 		fmt.Printf("error sending sample data: %v", err)
 	// 	}
 
-	// 	if err := utils.SetLock(10, stack.LocksDir); err != nil {
-	// 		return err
-	// 	}
-	// 	fmt.Println(" [OK]")
-	// }
+		if err := utils.SetLock(10, stack.LocksDir); err != nil {
+			return "",err
+		}
+		fmt.Println(" [OK]")
+	}
 
 	return cnf.Password, nil
 }
