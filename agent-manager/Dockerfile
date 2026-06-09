@@ -4,6 +4,8 @@ COPY agent-manager /app/
 COPY ./dependencies/agent/ /dependencies/agent/
 COPY ./dependencies/collector/ /dependencies/collector/
 
+COPY ./recoveries/ /app/recoveries/
+
 # Install jq
 RUN apt-get update && \
     apt-get install -y ca-certificates jq wget && \

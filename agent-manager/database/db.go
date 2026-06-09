@@ -22,6 +22,10 @@ type DB struct {
 	locker sync.RWMutex
 }
 
+func (d *DB) GormDB() *gorm.DB {
+	return d.conn
+}
+
 func (d *DB) Migrate(data ...interface{}) error {
 	d.locker.Lock()
 	defer d.locker.Unlock()
