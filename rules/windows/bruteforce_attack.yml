@@ -35,4 +35,3 @@ deduplicateBy:
   - origin.host
   - target.user
   - origin.ip
-  - origin.host
