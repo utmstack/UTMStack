@@ -26,12 +26,25 @@ type Module struct {
 	registry       *domain.IndexPatternRegistry
 	bootstrap      *usecase.BootstrapService
 	patternRepo    connectors.IndexPatternRepository
+	patternUC      connectors.IndexPatternUsecase
 	policyUC       connectors.PolicyUsecase // nil when no OpenSearch config
 
 	spaceGuardOn bool
 	spaceNotify  usecase.SpaceNotifyFunc
 	spaceOpts    usecase.SpaceGuardOptions
 }
+
+// Gateway exposes the OpenSearch query gateway (search/SQL/count/indices). MCP
+// tools call this directly; REST handlers go through the handler layer.
+func (m *Module) Gateway() *usecase.Gateway { return m.gateway }
+
+// GetIndexPatternUsecase returns the IndexPatternUsecase (read-only catalog
+// access; never nil).
+func (m *Module) GetIndexPatternUsecase() connectors.IndexPatternUsecase { return m.patternUC }
+
+// GetPolicyUsecase returns the ISM policy usecase, or nil when OpenSearch is
+// not configured. Callers must nil-check before use.
+func (m *Module) GetPolicyUsecase() connectors.PolicyUsecase { return m.policyUC }
 
 func (m *Module) SetSpaceGuard(notify func(ctx context.Context, critical bool, message string) error, warnPct, deletePct float64, interval time.Duration) {
 	m.spaceGuardOn = true
@@ -65,6 +78,7 @@ func NewModule(db *gorm.DB, osEnabled bool) *Module {
 
 		// Pattern usecase with ISM wired for /fields.
 		patternUC := usecase.NewIndexPatternUsecaseWithISM(patternRepo, ismClient)
+		m.patternUC = patternUC
 		m.patternHandler = handler.NewIndexPatternHandler(patternUC)
 
 		policyUC := usecase.NewPolicyUsecase(ismClient, reg)
@@ -72,7 +86,9 @@ func NewModule(db *gorm.DB, osEnabled bool) *Module {
 		m.policyHandler = handler.NewPolicyHandler(policyUC)
 	} else {
 		// No OpenSearch config — serve pattern CRUD only.
-		m.patternHandler = handler.NewIndexPatternHandler(usecase.NewIndexPatternUsecase(patternRepo))
+		patternUC := usecase.NewIndexPatternUsecase(patternRepo)
+		m.patternUC = patternUC
+		m.patternHandler = handler.NewIndexPatternHandler(patternUC)
 	}
 
 	return m

@@ -28,4 +28,6 @@ func NewModule(db *gorm.DB, audit audit_connectors.Logger) *Module {
 
 func (m *Module) GetNotificationHandler() *handler.NotificationHandler { return m.notificationHandler }
 
+func (m *Module) GetNotificationUsecase() connectors.NotificationUsecase { return m.usecase }
+
 func (m *Module) Producer() connectors.Producer { return m.producer }

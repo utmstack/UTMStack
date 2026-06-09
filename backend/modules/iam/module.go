@@ -61,3 +61,9 @@ func (m *Module) GetSAMLHandler() *handler.SAMLHandler            { return m.sam
 func (m *Module) GetAuthUsecase() connectors.AuthUsecase          { return m.authUsecase }
 func (m *Module) GetTfaUsecase() connectors.TfaUsecase            { return m.tfaUsecase }
 func (m *Module) GetAPIKeyUsecase() connectors.APIKeyUsecase      { return m.apiKeyUsecase }
+func (m *Module) GetUserUsecase() connectors.UserUsecase          { return m.userUsecase }
+func (m *Module) GetRoleUsecase() connectors.RoleUsecase          { return m.roleUsecase }
+func (m *Module) GetIdentityProviderUsecase() connectors.IdentityProviderUsecase {
+	return m.idpUsecase
+}
+func (m *Module) GetSAMLUsecase() connectors.SAMLUsecase { return m.samlUsecase }

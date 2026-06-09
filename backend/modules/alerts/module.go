@@ -12,8 +12,11 @@ type Module struct {
 	alertHandler        *handler.AlertHandler
 	alertUsecase        connectors.AlertUsecase
 	alertTagHandler     *handler.AlertTagHandler
+	alertTagUsecase     connectors.AlertTagUsecase
 	alertTagRuleHandler *handler.AlertTagRuleHandler
+	alertTagRuleUsecase connectors.AlertTagRuleUsecase
 	adversaryHandler    *handler.AdversaryHandler
+	adversaryUsecase    connectors.AdversaryUsecase
 }
 
 func NewModule(db *gorm.DB) *Module {
@@ -39,8 +42,11 @@ func NewModule(db *gorm.DB) *Module {
 		alertHandler:        alertH,
 		alertUsecase:        alertUC,
 		alertTagHandler:     alertTagH,
+		alertTagUsecase:     alertTagUC,
 		alertTagRuleHandler: alertTagRuleH,
+		alertTagRuleUsecase: alertTagRuleUC,
 		adversaryHandler:    adversaryH,
+		adversaryUsecase:    adversaryUC,
 	}
 }
 
@@ -50,8 +56,16 @@ func (m *Module) GetAlertUsecase() connectors.AlertUsecase { return m.alertUseca
 
 func (m *Module) GetAlertTagHandler() *handler.AlertTagHandler { return m.alertTagHandler }
 
+func (m *Module) GetAlertTagUsecase() connectors.AlertTagUsecase { return m.alertTagUsecase }
+
 func (m *Module) GetAlertTagRuleHandler() *handler.AlertTagRuleHandler {
 	return m.alertTagRuleHandler
 }
 
+func (m *Module) GetAlertTagRuleUsecase() connectors.AlertTagRuleUsecase {
+	return m.alertTagRuleUsecase
+}
+
 func (m *Module) GetAdversaryHandler() *handler.AdversaryHandler { return m.adversaryHandler }
+
+func (m *Module) GetAdversaryUsecase() connectors.AdversaryUsecase { return m.adversaryUsecase }

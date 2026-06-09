@@ -27,6 +27,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/incidents"
 	"github.com/utmstack/utmstack/backend/modules/integrations"
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer"
+	mcpmod "github.com/utmstack/utmstack/backend/modules/mcp"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
@@ -127,6 +128,9 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	socai.RegisterRoutes(api, m.socAI, userAuth)
 	datasources.RegisterRoutes(api, m.datasources, userAuth)
 	adaudit.RegisterRoutes(api, m.adaudit, userAuth)
+	if m.mcp != nil {
+		mcpmod.RegisterRoutes(api, m.mcp, userAuth)
+	}
 }
 
 // startServer starts the HTTP server and blocks until appCtx is cancelled

@@ -51,6 +51,11 @@ type config struct {
 
 	// Features
 	tfaEnabled bool
+
+	// MCP (Model Context Protocol) — exposes the backend usecases to MCP-aware
+	// AI clients at /api/v1/mcp. Auth/permissions/audit reuse the REST stack.
+	mcpEnabled bool
+	mcpVersion string
 }
 
 func loadConfig() *config {
@@ -92,5 +97,8 @@ func loadConfig() *config {
 		uploadDir: env.String("UPLOAD_DIR", "./uploads", false),
 
 		tfaEnabled: env.Bool("APP_TFA_ENABLED", true),
+
+		mcpEnabled: env.Bool("MCP_ENABLED", true),
+		mcpVersion: env.String("MCP_SERVER_VERSION", "v1", false),
 	}
 }

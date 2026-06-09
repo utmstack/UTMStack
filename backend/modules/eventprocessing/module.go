@@ -22,6 +22,8 @@ type Module struct {
 	regexPatternUsecase    connectors.RegexPatternUsecase
 	tenantConfigUsecase    connectors.TenantConfigUsecase
 	correlationRuleUsecase connectors.CorrelationRuleUsecase
+	filterUsecase          connectors.FilterUsecase
+	ingestionStatsUsecase  connectors.IngestionStatsUsecase
 
 	ruleStore         *usecase.RuleStore
 	ruleBootstrap     *usecase.RuleBootstrap
@@ -74,6 +76,8 @@ func NewModule(db *gorm.DB, auditLogger audit_connectors.Logger) *Module {
 		regexPatternUsecase:    regexPatternUC,
 		tenantConfigUsecase:    tenantConfigUC,
 		correlationRuleUsecase: correlationRuleUC,
+		filterUsecase:          filterUC,
+		ingestionStatsUsecase:  ingestionStatsUC,
 		ruleStore:              ruleStore,
 		ruleBootstrap:          ruleBootstrap,
 		filterStore:            filterStore,
@@ -114,4 +118,8 @@ func (m *Module) GetTenantConfigUsecase() connectors.TenantConfigUsecase {
 }
 func (m *Module) GetCorrelationRuleUsecase() connectors.CorrelationRuleUsecase {
 	return m.correlationRuleUsecase
+}
+func (m *Module) GetFilterUsecase() connectors.FilterUsecase { return m.filterUsecase }
+func (m *Module) GetIngestionStatsUsecase() connectors.IngestionStatsUsecase {
+	return m.ingestionStatsUsecase
 }

@@ -14,6 +14,9 @@ type Module struct {
 	assetGroupHandler    *handler.AssetGroupHandler
 	connectionKeyHandler *handler.ConnectionKeyHandler
 	reconciler           *usecase.StatsReconciler
+	datasourceUC         connectors.DatasourceUsecase
+	assetGroupUC         connectors.AssetGroupUsecase
+	license              connectors.LicenseCapProvider
 }
 
 func NewModule(dsUC connectors.DatasourceUsecase, groupUC connectors.AssetGroupUsecase, reconciler *usecase.StatsReconciler, license connectors.LicenseCapProvider, agentClient *agentmanager.AgentManagerClient) *Module {
@@ -22,6 +25,9 @@ func NewModule(dsUC connectors.DatasourceUsecase, groupUC connectors.AssetGroupU
 		assetGroupHandler:    handler.NewAssetGroupHandler(groupUC),
 		connectionKeyHandler: handler.NewConnectionKeyHandler(agentClient),
 		reconciler:           reconciler,
+		datasourceUC:         dsUC,
+		assetGroupUC:         groupUC,
+		license:              license,
 	}
 }
 
@@ -36,3 +42,7 @@ func (m *Module) GetAssetGroupHandler() *handler.AssetGroupHandler { return m.as
 func (m *Module) GetConnectionKeyHandler() *handler.ConnectionKeyHandler {
 	return m.connectionKeyHandler
 }
+
+func (m *Module) GetDatasourceUsecase() connectors.DatasourceUsecase { return m.datasourceUC }
+func (m *Module) GetAssetGroupUsecase() connectors.AssetGroupUsecase { return m.assetGroupUC }
+func (m *Module) LicenseCap() connectors.LicenseCapProvider          { return m.license }

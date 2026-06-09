@@ -122,3 +122,10 @@ func (m *Module) GetJobHandler() *handler.JobHandler               { return m.jo
 func (m *Module) GetRuleUsecase() connectors.RuleUsecase           { return m.ruleUsecase }
 func (m *Module) GetTemplateUsecase() connectors.TemplateUsecase   { return m.templateUsecase }
 func (m *Module) GetExecutionUsecase() connectors.ExecutionUsecase { return m.executionUsecase }
+func (m *Module) GetVariableUsecase() connectors.VariableUsecase   { return m.variableUsecase }
+func (m *Module) GetActionUsecase() connectors.ActionUsecase       { return m.actionUsecase }
+func (m *Module) GetActionCommandUsecase() connectors.ActionCommandUsecase {
+	return m.actionCommandUsecase
+}
+func (m *Module) GetJobUsecase() connectors.JobUsecase     { return m.jobUsecase }
+func (m *Module) GetAgentUsecase() connectors.AgentUsecase { return m.agentUsecase }
