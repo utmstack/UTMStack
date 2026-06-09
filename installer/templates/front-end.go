@@ -55,6 +55,17 @@ const FrontEnd string = `server {
         proxy_read_timeout 900;
     }
 
+    location /uploads {
+        # Backend-served static assets (avatars + white-label branding). No
+        # shared-key gate: the login page must load branding while unauthenticated.
+        proxy_pass  $utmstack_backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 900;
+    }
+
     location /ws {
         proxy_pass $utmstack_backend;
         proxy_http_version 1.1;

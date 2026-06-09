@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/utmstack/UTMStack/installer/branding"
 	"github.com/utmstack/UTMStack/installer/config"
 	"github.com/utmstack/UTMStack/installer/docker"
 	"github.com/utmstack/UTMStack/installer/setup"
@@ -12,7 +13,7 @@ import (
 )
 
 func Install() error {
-	fmt.Println("### Installing UTMStack ###")
+	fmt.Printf("### Installing %s ###\n", branding.Name())
 
 	go updater.MonitorConnection(config.GetCMServer(), 30*time.Second, 3, &config.ConnectedToInternet)
 
@@ -22,7 +23,7 @@ func Install() error {
 	}
 
 	if isInstalledAlready {
-		fmt.Println("UTMStack is already installed. If you want to re-install it, please remove the service UTMStackComponentsUpdater first.")
+		fmt.Printf("%s is already installed. If you want to re-install it, please remove the service UTMStackComponentsUpdater first.\n", branding.Name())
 		if err := utils.RestartService("UTMStackComponentsUpdater"); err != nil {
 			return fmt.Errorf("error restarting service: %v", err)
 		}
@@ -55,7 +56,7 @@ func Install() error {
 	fmt.Println("You can also access to your Web-based Administration Interface at https://<your-server-ip>:9090 using your Linux system credentials.")
 	fmt.Println("Detailed installation logs can be found at /var/log/utmstack-installer.log")
 
-	fmt.Println("### Thanks for using UTMStack ###")
+	fmt.Printf("### Thanks for using %s ###\n", branding.Name())
 
 	return nil
 }

@@ -1,10 +1,17 @@
 package templates
 
-const NginxCustomBadGateway string = `<!DOCTYPE html>
+import "strings"
+
+func NginxCustomBadGateway(brandName, logoSrc string) string {
+	out := strings.ReplaceAll(nginxCustomBadGatewayTmpl, "{{BRAND}}", brandName)
+	return strings.ReplaceAll(out, "{{LOGO}}", logoSrc)
+}
+
+const nginxCustomBadGatewayTmpl string = `<!DOCTYPE html>
  <html lang="es">
  <head>
    <meta charset="UTF-8">
-   <title>UTMStack - Maintenance</title>
+   <title>%s - Maintenance</title>
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <style>
      @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
@@ -82,14 +89,14 @@ const NginxCustomBadGateway string = `<!DOCTYPE html>
  <body>
    <div class="container">
      <div class="icon">
-       <img src="https://storage.googleapis.com/utmstack-updates/nginx/logo_UTMStack.svg"
+       <img src="{{LOGO}}" alt="" />
      </div>
      <h1>We're getting things ready</h1>
      <p>
-       <strong>UTMStack</strong> is currently under maintenance.<br>Please check back in a few minutes.
+       <strong>{{BRAND}}</strong> is currently under maintenance.<br>Please check back in a few minutes.
      </p>
      <div class="footer">
-       &copy; UTMStack ©Copyright 2025. All Rights Reserved.
+       &copy; {{BRAND}} ©Copyright 2025. All Rights Reserved.
      </div>
    </div>
  </body>

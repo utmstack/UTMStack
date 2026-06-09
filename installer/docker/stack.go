@@ -6,11 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
 
 	sigar "github.com/cloudfoundry/gosigar"
 	"github.com/shirou/gopsutil/v3/cpu"
-	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/installer/config"
 	"github.com/utmstack/UTMStack/installer/system"
 	"github.com/utmstack/UTMStack/installer/utils"
@@ -139,28 +137,6 @@ func StackUP(tag string) error {
 
 	env := []string{"UTMSTACK_TAG=" + tag}
 	if err := utils.RunEnvCmd(env, "docker", "stack", "deploy", "-c", filepath.Join(utils.GetMyPath(), "compose.yml"), "utmstack"); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func RemoveServices(services []string) error {
-	for _, service := range services {
-		if err := utils.RunCmd("docker", "service", "rm", service); err != nil {
-			if !logger.Is(err, "not found") {
-				return err
-			}
-		}
-	}
-
-	if err := utils.RunCmd("systemctl", "restart", "docker"); err != nil {
-		return err
-	}
-
-	time.Sleep(60 * time.Second)
-
-	if err := utils.RunCmd("docker", "system", "prune", "-a", "-f"); err != nil {
 		return err
 	}
 

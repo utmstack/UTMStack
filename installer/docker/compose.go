@@ -214,6 +214,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		"EVENT_PROCESSOR_HOST=event-processor-manager",
 		"EVENT_PROCESSOR_PORT=9002",
 		"SOC_AI_BASE_URL=http://event-processor-manager:8090",
+		"UPLOAD_DIR=/uploads",
 	}
 
 	// Disable TFA in dev and rc environments
@@ -232,6 +233,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		Volumes: []string{
 			stack.DataSources + ":/etc/utmstack",
 			conf.UpdatesFolder + ":/updates",
+			utils.MakeDir(0777, conf.DataDir, "uploads") + ":/uploads",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{

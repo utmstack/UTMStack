@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/utmstack/UTMStack/installer/branding"
 	"github.com/utmstack/UTMStack/installer/updater"
 )
 
@@ -17,7 +18,7 @@ func main() {
 		case "--install", "-i":
 			err := Install()
 			if err != nil {
-				fmt.Printf("\nerror installing UTMStack: %v", err)
+				fmt.Printf("\nerror installing %s: %v", branding.Name(), err)
 				os.Exit(1)
 			}
 
@@ -27,16 +28,16 @@ func main() {
 		case "--version", "-v":
 			version, err := updater.GetVersion()
 			if err != nil {
-				fmt.Printf("\nerror getting UTMStack version: %v", err)
+				fmt.Printf("\nerror getting %s version: %v", branding.Name(), err)
 				os.Exit(1)
 			}
 
-			fmt.Printf("UTMStack version: %s, edition: %s\n", version.Version, version.Edition)
+			fmt.Printf("%s version: %s, edition: %s\n", branding.Name(), version.Version, version.Edition)
 
 		case "--uninstall", "-u":
 			err := Uninstall()
 			if err != nil {
-				fmt.Printf("\nerror uninstalling UTMStack: %v", err)
+				fmt.Printf("\nerror uninstalling %s: %v", branding.Name(), err)
 				os.Exit(1)
 			}
 
@@ -46,18 +47,19 @@ func main() {
 	} else {
 		err := Install()
 		if err != nil {
-			fmt.Printf("\nerror installing UTMStack: %v", err)
+			fmt.Printf("\nerror installing %s: %v", branding.Name(), err)
 			os.Exit(1)
 		}
 	}
 }
 
 func help() {
-	fmt.Println("### UTMStack ###")
+	name := branding.Name()
+	fmt.Printf("### %s ###\n", name)
 	fmt.Println("Usage: installer <argument>")
 	fmt.Println("Arguments:")
 	fmt.Println("  --help, -h                            Show this help")
-	fmt.Println("  --install, -i                         Install UTMStack")
-	fmt.Println("  --uninstall, -u                       Uninstall UTMStack")
-	fmt.Println("  --version, -v                         Show UTMStack version")
+	fmt.Printf("  --install, -i                         Install %s\n", name)
+	fmt.Printf("  --uninstall, -u                       Uninstall %s\n", name)
+	fmt.Printf("  --version, -v                         Show %s version\n", name)
 }
