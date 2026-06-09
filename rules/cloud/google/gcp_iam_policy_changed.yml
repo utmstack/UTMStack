@@ -27,4 +27,4 @@ description: |
 where: |
   oneof("log.protoPayloadServiceName", ["cloudresourcemanager.googleapis.com", "pubsub.googleapis.com"]) &&
   oneof("log.protoPayloadMethodName", ["SetIamPolicy", "google.iam.v1.IAMPolicy.SetIamPolicy"]) &&
-  exists("log.protoPayload.request.policy.auditConfigs") && contains("log.logName", "activity") && exists("origin.user")
+  exists("log.protoPayload.request.policy.bindings") && contains("log.logName", "activity") && exists("origin.user")
