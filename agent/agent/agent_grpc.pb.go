@@ -306,7 +306,9 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	PanelService_ProcessCommand_FullMethodName = "/agent.PanelService/ProcessCommand"
+	PanelService_ProcessCommand_FullMethodName      = "/agent.PanelService/ProcessCommand"
+	PanelService_GetConnectionKey_FullMethodName    = "/agent.PanelService/GetConnectionKey"
+	PanelService_RotateConnectionKey_FullMethodName = "/agent.PanelService/RotateConnectionKey"
 )
 
 // PanelServiceClient is the client API for PanelService service.
@@ -314,6 +316,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PanelServiceClient interface {
 	ProcessCommand(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[UtmCommand, CommandResult], error)
+	GetConnectionKey(ctx context.Context, in *ConnectionKeyRequest, opts ...grpc.CallOption) (*ConnectionKeyResponse, error)
+	RotateConnectionKey(ctx context.Context, in *ConnectionKeyRequest, opts ...grpc.CallOption) (*ConnectionKeyResponse, error)
 }
 
 type panelServiceClient struct {
@@ -337,11 +341,33 @@ func (c *panelServiceClient) ProcessCommand(ctx context.Context, opts ...grpc.Ca
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type PanelService_ProcessCommandClient = grpc.BidiStreamingClient[UtmCommand, CommandResult]
 
+func (c *panelServiceClient) GetConnectionKey(ctx context.Context, in *ConnectionKeyRequest, opts ...grpc.CallOption) (*ConnectionKeyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConnectionKeyResponse)
+	err := c.cc.Invoke(ctx, PanelService_GetConnectionKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *panelServiceClient) RotateConnectionKey(ctx context.Context, in *ConnectionKeyRequest, opts ...grpc.CallOption) (*ConnectionKeyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConnectionKeyResponse)
+	err := c.cc.Invoke(ctx, PanelService_RotateConnectionKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PanelServiceServer is the server API for PanelService service.
 // All implementations must embed UnimplementedPanelServiceServer
 // for forward compatibility.
 type PanelServiceServer interface {
 	ProcessCommand(grpc.BidiStreamingServer[UtmCommand, CommandResult]) error
+	GetConnectionKey(context.Context, *ConnectionKeyRequest) (*ConnectionKeyResponse, error)
+	RotateConnectionKey(context.Context, *ConnectionKeyRequest) (*ConnectionKeyResponse, error)
 	mustEmbedUnimplementedPanelServiceServer()
 }
 
@@ -354,6 +380,12 @@ type UnimplementedPanelServiceServer struct{}
 
 func (UnimplementedPanelServiceServer) ProcessCommand(grpc.BidiStreamingServer[UtmCommand, CommandResult]) error {
 	return status.Errorf(codes.Unimplemented, "method ProcessCommand not implemented")
+}
+func (UnimplementedPanelServiceServer) GetConnectionKey(context.Context, *ConnectionKeyRequest) (*ConnectionKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetConnectionKey not implemented")
+}
+func (UnimplementedPanelServiceServer) RotateConnectionKey(context.Context, *ConnectionKeyRequest) (*ConnectionKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RotateConnectionKey not implemented")
 }
 func (UnimplementedPanelServiceServer) mustEmbedUnimplementedPanelServiceServer() {}
 func (UnimplementedPanelServiceServer) testEmbeddedByValue()                      {}
@@ -383,13 +415,58 @@ func _PanelService_ProcessCommand_Handler(srv interface{}, stream grpc.ServerStr
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type PanelService_ProcessCommandServer = grpc.BidiStreamingServer[UtmCommand, CommandResult]
 
+func _PanelService_GetConnectionKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConnectionKeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PanelServiceServer).GetConnectionKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PanelService_GetConnectionKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PanelServiceServer).GetConnectionKey(ctx, req.(*ConnectionKeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PanelService_RotateConnectionKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConnectionKeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PanelServiceServer).RotateConnectionKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PanelService_RotateConnectionKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PanelServiceServer).RotateConnectionKey(ctx, req.(*ConnectionKeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PanelService_ServiceDesc is the grpc.ServiceDesc for PanelService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var PanelService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "agent.PanelService",
 	HandlerType: (*PanelServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetConnectionKey",
+			Handler:    _PanelService_GetConnectionKey_Handler,
+		},
+		{
+			MethodName: "RotateConnectionKey",
+			Handler:    _PanelService_RotateConnectionKey_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "ProcessCommand",
