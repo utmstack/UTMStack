@@ -39,7 +39,10 @@ func (r *osIngestionStatsRepository) TotalsByField(ctx context.Context, field, s
 		"aggs": map[string]any{
 			"groups": map[string]any{
 				"terms": map[string]any{"field": field + ".keyword", "size": top},
-				"aggs":  sumCount,
+				"aggs": map[string]any{
+					"events":    map[string]any{"sum": map[string]any{"field": "count"}},
+					"last_seen": map[string]any{"max": map[string]any{"field": "@timestamp"}},
+				},
 			},
 			"total": map[string]any{"sum": map[string]any{"field": "count"}},
 		},
@@ -53,8 +56,9 @@ func (r *osIngestionStatsRepository) TotalsByField(ctx context.Context, field, s
 	out := make([]dto.IngestionStatsBucket, 0)
 	for _, b := range aggBuckets(res.Aggregations, "groups") {
 		out = append(out, dto.IngestionStatsBucket{
-			Key:   asString(b["key"]),
-			Count: subSum(b, "events"),
+			Key:      asString(b["key"]),
+			Count:    subSum(b, "events"),
+			LastSeen: subValueString(b, "last_seen"),
 		})
 	}
 	return out, subSum(res.Aggregations, "total"), nil
@@ -152,6 +156,11 @@ func subSum(parent map[string]any, name string) int64 {
 		return int64(v)
 	}
 	return 0
+}
+
+func subValueString(parent map[string]any, name string) string {
+	agg, _ := parent[name].(map[string]any)
+	return asString(agg["value_as_string"])
 }
 
 func asString(v any) string {

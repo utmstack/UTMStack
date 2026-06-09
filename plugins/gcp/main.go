@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
-	"strings"
 	"os"
 	"os/signal"
 	"runtime"
+	"strings"
 	"syscall"
 	"time"
 
@@ -17,7 +18,12 @@ import (
 	"google.golang.org/api/option"
 )
 
-const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+const (
+	defaultTenant     string        = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+	CHECKCON          string        = "https://pubsub.googleapis.com"
+	connectionTimeout time.Duration = 30 * time.Second
+	wait              time.Duration = 1 * time.Second
+)
 
 type GroupModule struct {
 	GroupName      string

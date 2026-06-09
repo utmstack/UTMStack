@@ -1,23 +1,25 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
+	"github.com/threatwinds/go-sdk/catcher"
+	ds_connectors "github.com/utmstack/utmstack/backend/modules/datasources/connectors"
+	ds_dto "github.com/utmstack/utmstack/backend/modules/datasources/dto"
 	"github.com/utmstack/utmstack/backend/modules/integrations/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations/domain"
 	"github.com/utmstack/utmstack/backend/modules/integrations/dto"
 )
 
-// TenantUsecase orchestrates the lifecycle of an integration's tenants: it
-// verifies credentials against the provider, encrypts sensitive fields, and
-// persists them to the tenant file. Reads mask (for the panel) or decrypt (for
-// the plugins) the sensitive values.
 type TenantUsecase struct {
-	repo     connectors.TenantRepository
-	schema   connectors.SchemaProvider
-	verifier connectors.CredentialVerifier
-	cipher   connectors.Cipher
+	repo        connectors.TenantRepository
+	schema      connectors.SchemaProvider
+	verifier    connectors.CredentialVerifier
+	cipher      connectors.Cipher
+	modules     connectors.ModuleRepository
+	datasources ds_connectors.DatasourceUsecase
 }
 
 func NewTenantUsecase(
@@ -25,16 +27,25 @@ func NewTenantUsecase(
 	schema connectors.SchemaProvider,
 	verifier connectors.CredentialVerifier,
 	cipher connectors.Cipher,
+	modules connectors.ModuleRepository,
+	datasources ds_connectors.DatasourceUsecase,
 ) *TenantUsecase {
-	return &TenantUsecase{repo: repo, schema: schema, verifier: verifier, cipher: cipher}
+	return &TenantUsecase{
+		repo:        repo,
+		schema:      schema,
+		verifier:    verifier,
+		cipher:      cipher,
+		modules:     modules,
+		datasources: datasources,
+	}
 }
 
 // Save validates, verifies and persists a tenant. Incoming Config holds plaintext
 // values from the form (or MaskedValue for a sensitive field the user left
 // unchanged). Flow: resolve masked secrets to the stored plaintext → verify the
 // credentials against the provider (fail fast, nothing written) → encrypt the
-// sensitive fields → upsert the tenant.
-func (u *TenantUsecase) Save(module string, req dto.TenantRequest) error {
+// sensitive fields → upsert the tenant → register its datasource.
+func (u *TenantUsecase) Save(ctx context.Context, module string, req dto.TenantRequest) error {
 	schema, err := u.schema.Schema(module)
 	if err != nil {
 		return err
@@ -53,18 +64,63 @@ func (u *TenantUsecase) Save(module string, req dto.TenantRequest) error {
 	if err != nil {
 		return err
 	}
-	return u.repo.Upsert(module, domain.Tenant{Name: req.Name, Config: enc})
+	if err := u.repo.Upsert(module, domain.Tenant{Name: req.Name, Config: enc}); err != nil {
+		return err
+	}
+
+	if err := u.registerDatasource(ctx, module, req.Name); err != nil {
+		_ = catcher.Error("integrations: failed to register datasource for tenant", err,
+			map[string]any{"module": module, "tenant": req.Name})
+	}
+	return nil
 }
 
-// Delete removes a tenant by name.
-func (u *TenantUsecase) Delete(module, name string) error {
+func (u *TenantUsecase) Delete(_ context.Context, module, name string) error {
 	return u.repo.Delete(module, name)
 }
 
-// List returns the tenants with sensitive values masked — for the panel.
-// The puller plugins read the encrypted tenant file directly and decrypt it
-// themselves (shared ENCRYPTION_KEY), so the backend never serves decrypted
-// config over HTTP.
+func (u *TenantUsecase) SyncDatasources(ctx context.Context) error {
+	mods, err := u.modules.DataTypes(ctx)
+	if err != nil {
+		return err
+	}
+	for _, m := range mods {
+		tenants, err := u.repo.Load(m.ModuleName)
+		if err != nil {
+			_ = catcher.Error("integrations: failed to load tenants for datasource sync", err,
+				map[string]any{"module": m.ModuleName})
+			continue
+		}
+		for _, t := range tenants {
+			if err := u.datasources.Register(ctx, ds_dto.RegisterRequest{
+				SourceRef:  datasourceRef(m.DataType, t.Name),
+				Name:       t.Name,
+				DataType:   m.DataType,
+				SourceKind: "puller",
+			}); err != nil {
+				_ = catcher.Error("integrations: failed to register datasource", err,
+					map[string]any{"module": m.ModuleName, "tenant": t.Name})
+			}
+		}
+	}
+	return nil
+}
+
+func (u *TenantUsecase) registerDatasource(ctx context.Context, module, name string) error {
+	m, err := u.modules.GetByName(ctx, module)
+	if err != nil {
+		return err
+	}
+	return u.datasources.Register(ctx, ds_dto.RegisterRequest{
+		SourceRef:  datasourceRef(m.DataType, name),
+		Name:       name,
+		DataType:   m.DataType,
+		SourceKind: "puller",
+	})
+}
+
+func datasourceRef(dataType, name string) string { return dataType + ":" + name }
+
 func (u *TenantUsecase) List(module string) ([]dto.TenantResponse, error) {
 	return u.transform(module)
 }

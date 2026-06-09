@@ -2,19 +2,29 @@ package connectors
 
 import (
 	"context"
+	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/datasources/domain"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
+type StatSource struct {
+	DataSource string
+	DataType   string
+	LastSeen   time.Time
+}
+
+type StatsReader interface {
+	DistinctSources(ctx context.Context, from, to time.Time) ([]StatSource, error)
+}
+
 type DatasourceRepository interface {
 	FindByID(ctx context.Context, id uint64) (*domain.Datasource, error)
 	FindByName(ctx context.Context, name string) (*domain.Datasource, error)
 	List(ctx context.Context, req common_models.IListRequest) (common_models.ListResponse[domain.Datasource], error)
-	// UpsertBatch registers-or-updates datasources by name in one statement, refreshing
-	// the ping-owned fields and clearing deregistered_at, while preserving user curation
-	// (group_id, labels) and discovered_at on existing rows.
 	UpsertBatch(ctx context.Context, items []domain.Datasource) error
+	RegisterBatch(ctx context.Context, items []domain.Datasource) error
+	UpsertLivenessBatch(ctx context.Context, items []domain.Datasource) error
 	UpdateGroup(ctx context.Context, ids []uint64, groupID *uint64) error
 	UpdateLabels(ctx context.Context, id uint64, labels string) error
 	Delete(ctx context.Context, id uint64) error

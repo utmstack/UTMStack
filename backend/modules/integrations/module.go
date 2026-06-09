@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/threatwinds/go-sdk/catcher"
+	ds_connectors "github.com/utmstack/utmstack/backend/modules/datasources/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations/repository"
 	"github.com/utmstack/utmstack/backend/modules/integrations/usecase"
@@ -18,7 +19,7 @@ type Module struct {
 	bootstrap *usecase.Bootstrap
 }
 
-func NewModule(db *gorm.DB, cipher connectors.Cipher, tenantDir string) *Module {
+func NewModule(db *gorm.DB, cipher connectors.Cipher, tenantDir string, datasources ds_connectors.DatasourceUsecase) *Module {
 	store := repository.NewTenantStore(tenantDir)
 	schema := repository.NewCodeSchemaProvider() // field schema lives in code
 	verif := verifier.NewBackendVerifier()
@@ -29,7 +30,7 @@ func NewModule(db *gorm.DB, cipher connectors.Cipher, tenantDir string) *Module 
 
 	return &Module{
 		db:        db,
-		tenants:   usecase.NewTenantUsecase(store, schema, verif, cipher),
+		tenants:   usecase.NewTenantUsecase(store, schema, verif, cipher, moduleRepo, datasources),
 		modules:   moduleUC,
 		bootstrap: usecase.NewBootstrap(db, store),
 	}
@@ -38,6 +39,10 @@ func NewModule(db *gorm.DB, cipher connectors.Cipher, tenantDir string) *Module 
 func (m *Module) Start(ctx context.Context) {
 	if err := m.bootstrap.Run(ctx); err != nil {
 		_ = catcher.Error("integrations bootstrap failed", err, nil)
+	}
+
+	if err := m.tenants.SyncDatasources(ctx); err != nil {
+		_ = catcher.Error("integrations: datasource sync failed", err, nil)
 	}
 }
 

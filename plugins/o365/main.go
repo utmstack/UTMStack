@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -25,6 +26,8 @@ const (
 	endPointContent                            = "/activity/feed/subscriptions/content"
 	DefaultTenant                              = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 	apiVersion                                 = "api/v1.0/"
+	connectionTimeout         time.Duration    = 30 * time.Second
+	wait                      time.Duration    = 1 * time.Second
 	CloudCommercial           CloudEnvironment = "Commercial"
 	CloudGCC                  CloudEnvironment = "GCC"
 	CloudGCCHigh              CloudEnvironment = "GCCHigh"

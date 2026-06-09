@@ -14,11 +14,8 @@ type DatasourceUsecase interface {
 	UpdateGroup(ctx context.Context, req dto.UpdateGroupRequest) error
 	UpdateLabels(ctx context.Context, req dto.UpdateLabelsRequest) error
 	Delete(ctx context.Context, id uint64) error
-
-	// Ping upserts a batch of datasources (register-or-update) and refreshes their
-	// liveness. NOT user-exposed — internal-only; identity and liveness are immutable
-	// to users and user curation (group, labels) is preserved on update.
 	Ping(ctx context.Context, req dto.PingRequest) error
+	Register(ctx context.Context, req dto.RegisterRequest) error
 }
 
 type AssetGroupUsecase interface {

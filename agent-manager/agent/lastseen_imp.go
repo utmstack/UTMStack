@@ -41,6 +41,7 @@ func InitLastSeenService() *LastSeenService {
 		}
 		LastSeenChannel = make(chan models.LastSeen, 1000)
 		LastSeenServ.InitPingSync()
+		go LastSeenServ.StartDatasourceSync()
 	})
 	return LastSeenServ
 }

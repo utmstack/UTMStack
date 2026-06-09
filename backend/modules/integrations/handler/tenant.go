@@ -58,7 +58,7 @@ func (h *TenantHandler) Save(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "name is required"})
 		return
 	}
-	if err := h.tenants.Save(c.Param("module"), req); err != nil {
+	if err := h.tenants.Save(c.Request.Context(), c.Param("module"), req); err != nil {
 		// Credential-verification and validation failures are the user's to fix.
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -76,7 +76,7 @@ func (h *TenantHandler) Save(c *gin.Context) {
 // @Failure     500 {object} map[string]string
 // @Router      /integrations/tenants/{module}/{name} [delete]
 func (h *TenantHandler) Delete(c *gin.Context) {
-	err := h.tenants.Delete(c.Param("module"), c.Param("name"))
+	err := h.tenants.Delete(c.Request.Context(), c.Param("module"), c.Param("name"))
 	switch {
 	case errors.Is(err, domain.ErrTenantNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": "tenant not found"})

@@ -49,7 +49,9 @@ func (u *datasourceUsecase) Ping(ctx context.Context, req dto.PingRequest) error
 			ts = e.LastPingAt.UTC()
 		}
 		items = append(items, domain.Datasource{
+			SourceRef:    e.SourceRef,
 			Name:         e.Name,
+			DataType:     e.DataType,
 			SourceKind:   e.SourceKind,
 			IP:           e.IP,
 			Metadata:     e.Metadata,
@@ -59,6 +61,21 @@ func (u *datasourceUsecase) Ping(ctx context.Context, req dto.PingRequest) error
 		})
 	}
 	return u.repo.UpsertBatch(ctx, items)
+}
+
+func (u *datasourceUsecase) Register(ctx context.Context, req dto.RegisterRequest) error {
+	now := time.Now().UTC()
+	item := domain.Datasource{
+		SourceRef:    req.SourceRef,
+		Name:         req.Name,
+		DataType:     req.DataType,
+		SourceKind:   req.SourceKind,
+		IP:           req.IP,
+		Metadata:     req.Metadata,
+		ModifiedAt:   &now,
+		DiscoveredAt: &now, // only applied on insert; preserved on update
+	}
+	return u.repo.RegisterBatch(ctx, []domain.Datasource{item})
 }
 
 func (u *datasourceUsecase) UpdateGroup(ctx context.Context, req dto.UpdateGroupRequest) error {

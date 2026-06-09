@@ -1,9 +1,12 @@
 package dto
 
 // IngestionStatsBucket is one (dataSource|dataType) total over the window.
+// LastSeen is the most recent @timestamp of a statistics doc for the key within
+// the window (RFC3339) — i.e. the last time logs were observed for that source.
 type IngestionStatsBucket struct {
-	Key   string `json:"key"`
-	Count int64  `json:"count"`
+	Key      string `json:"key"`
+	Count    int64  `json:"count"`
+	LastSeen string `json:"lastSeen,omitempty"`
 }
 
 // IngestionStatsResponse is the totals-by-bucket view (read live from

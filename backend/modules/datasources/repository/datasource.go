@@ -13,7 +13,7 @@ import (
 )
 
 var datasourceFilterFields = []string{
-	"asset_name", "asset_ip", "source_kind", "labels", "group_id",
+	"asset_name", "data_type", "asset_ip", "source_kind", "labels", "group_id",
 	"discovered_at", "modified_at", "last_ping_at",
 }
 
@@ -64,10 +64,39 @@ func (r *pgDatasourceRepository) UpsertBatch(ctx context.Context, items []domain
 	}
 	return r.db.GORM().WithContext(ctx).
 		Clauses(clause.OnConflict{
-			Columns: []clause.Column{{Name: "asset_name"}},
-			// Update only ping-owned fields; group_id, labels and discovered_at are
-			// preserved on existing rows. A fresh last_ping_at is what revives a source.
-			DoUpdates: clause.AssignmentColumns([]string{"source_kind", "asset_ip", "metadata", "last_ping_at", "modified_at"}),
+			Columns: []clause.Column{{Name: "source_ref"}},
+			DoUpdates: clause.AssignmentColumns([]string{
+				"asset_name", "data_type", "source_kind", "asset_ip", "metadata", "last_ping_at", "modified_at",
+			}),
+		}).
+		Create(&items).Error
+}
+
+func (r *pgDatasourceRepository) RegisterBatch(ctx context.Context, items []domain.Datasource) error {
+	if len(items) == 0 {
+		return nil
+	}
+	return r.db.GORM().WithContext(ctx).
+		Clauses(clause.OnConflict{
+			Columns: []clause.Column{{Name: "source_ref"}},
+			DoUpdates: clause.AssignmentColumns([]string{
+				"asset_name", "data_type", "source_kind", "asset_ip", "metadata", "modified_at",
+			}),
+		}).
+		Create(&items).Error
+}
+
+func (r *pgDatasourceRepository) UpsertLivenessBatch(ctx context.Context, items []domain.Datasource) error {
+	if len(items) == 0 {
+		return nil
+	}
+	return r.db.GORM().WithContext(ctx).
+		Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "source_ref"}},
+			DoUpdates: clause.AssignmentColumns([]string{"last_ping_at", "modified_at"}),
+			Where: clause.Where{Exprs: []clause.Expression{
+				gorm.Expr("datasources.source_kind <> 'agent'"),
+			}},
 		}).
 		Create(&items).Error
 }
