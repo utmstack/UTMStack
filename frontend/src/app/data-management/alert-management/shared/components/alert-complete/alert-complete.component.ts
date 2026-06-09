@@ -58,7 +58,10 @@ export class AlertCompleteComponent implements OnInit {
       this.statusChange.emit('success');
       this.activeModal.close();
       this.creating = false;
-    });
+    },_err=>{
+      this.creating = false;
+      this.statusChange.emit('failed');
+});
   }
 
   createRule() {
