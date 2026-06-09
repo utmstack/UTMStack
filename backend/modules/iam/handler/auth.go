@@ -164,8 +164,8 @@ func (h *AuthHandler) Me(c *gin.Context) {
 // @Summary     Current user
 // @Tags        Auth
 // @Security    BearerAuth
-// @Produce     json
-// @Success     200 string
+// @Produce     plain
+// @Success     200 {string} string "Login of the current user"
 // @Failure     401 {object} map[string]string
 // @Router      /auth/authenticate [get]
 func (h *AuthHandler) Authenticate(c *gin.Context) {

@@ -94,9 +94,13 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 
 	auditMod := audit.NewModule(db)
 	billingMod := billing.NewModule(env.String("UPDATES_DIR", "/updates", false), 25)
-	configMod := appconfig.NewModule(db, cipher)
+	configMod := appconfig.NewModule(db, cipher, cfg.uploadDir)
 	mailMod := mail.NewModule(configMod.Store())
 	configMod.SetMailer(mailMod.Service())
+	// White-labeling renders only under an MSSP license (resolved from billing).
+	configMod.SetWhiteLabelEntitlement(func() bool {
+		return billingMod.License().Current().IsMSSP()
+	})
 	brand := configMod.Branding()
 	complianceMod := compliance.NewModule(db, mailMod.Service())
 	dashboardsMod := dashboards.NewModule(db)

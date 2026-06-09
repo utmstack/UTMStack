@@ -22,7 +22,7 @@ type Module struct {
 	brandingHandler *handler.BrandingHandler
 }
 
-func NewModule(db *gorm.DB, cipher *secret.Cipher) *Module {
+func NewModule(db *gorm.DB, cipher *secret.Cipher, uploadDir string) *Module {
 	repo := repository.NewRepository(db)
 	brandingSvc := usecase.NewBranding(repo)
 	svc := usecase.New(repo, cipher, brandingSvc)
@@ -31,7 +31,17 @@ func NewModule(db *gorm.DB, cipher *secret.Cipher) *Module {
 		store:           svc,
 		handler:         handler.NewHandler(svc),
 		branding:        brandingSvc,
-		brandingHandler: handler.NewBrandingHandler(brandingSvc),
+		brandingHandler: handler.NewBrandingHandler(brandingSvc, uploadDir),
+	}
+}
+
+type entitlementSetter interface {
+	SetEntitlement(func() bool)
+}
+
+func (m *Module) SetWhiteLabelEntitlement(fn func() bool) {
+	if s, ok := m.branding.(entitlementSetter); ok {
+		s.SetEntitlement(fn)
 	}
 }
 

@@ -15,11 +15,12 @@ import (
 )
 
 type BrandingHandler struct {
-	usecase connectors.BrandingUsecase
+	usecase   connectors.BrandingUsecase
+	uploadDir string
 }
 
-func NewBrandingHandler(uc connectors.BrandingUsecase) *BrandingHandler {
-	return &BrandingHandler{usecase: uc}
+func NewBrandingHandler(uc connectors.BrandingUsecase, uploadDir string) *BrandingHandler {
+	return &BrandingHandler{usecase: uc, uploadDir: uploadDir}
 }
 
 // Get godoc

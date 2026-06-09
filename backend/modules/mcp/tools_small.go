@@ -215,19 +215,13 @@ type configCheckMailInput struct {
 }
 
 type brandingUpdateInput struct {
-	Enabled            bool   `json:"enabled"`
-	ProductName        string `json:"product_name,omitempty"`
-	LogoURL            string `json:"logo_url,omitempty"`
-	LogoDarkURL        string `json:"logo_dark_url,omitempty"`
-	FaviconURL         string `json:"favicon_url,omitempty"`
-	PrimaryColor       string `json:"primary_color,omitempty"`
-	AccentColor        string `json:"accent_color,omitempty"`
-	LoginBackgroundURL string `json:"login_background_url,omitempty"`
-	FooterText         string `json:"footer_text,omitempty"`
-	SupportURL         string `json:"support_url,omitempty"`
-	HidePoweredBy      bool   `json:"hide_powered_by,omitempty"`
-	ReportLogoURL      string `json:"report_logo_url,omitempty"`
-	ReportCoverURL     string `json:"report_cover_url,omitempty"`
+	Enabled        bool   `json:"enabled"`
+	ProductName    string `json:"product_name,omitempty"`
+	LogoURL        string `json:"logo_url,omitempty"`
+	LogoDarkURL    string `json:"logo_dark_url,omitempty"`
+	FaviconURL     string `json:"favicon_url,omitempty"`
+	ReportLogoURL  string `json:"report_logo_url,omitempty"`
+	ReportCoverURL string `json:"report_cover_url,omitempty"`
 }
 
 func registerAppConfig(m *Module) {
@@ -285,9 +279,7 @@ func registerAppConfig(m *Module) {
 			return branding.Update(ctx, actor.Login, appconfigdto.BrandingRequest{
 				Enabled: in.Enabled, ProductName: in.ProductName,
 				LogoURL: in.LogoURL, LogoDarkURL: in.LogoDarkURL, FaviconURL: in.FaviconURL,
-				PrimaryColor: in.PrimaryColor, AccentColor: in.AccentColor,
-				LoginBackgroundURL: in.LoginBackgroundURL, FooterText: in.FooterText, SupportURL: in.SupportURL,
-				HidePoweredBy: in.HidePoweredBy, ReportLogoURL: in.ReportLogoURL, ReportCoverURL: in.ReportCoverURL,
+				ReportLogoURL: in.ReportLogoURL, ReportCoverURL: in.ReportCoverURL,
 			})
 		})
 

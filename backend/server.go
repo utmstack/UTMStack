@@ -81,8 +81,10 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	if err := os.MkdirAll(filepath.Join(cfg.uploadDir, "avatars"), 0o755); err != nil {
-		_ = catcher.Error("failed to create upload dir", err, nil)
+	for _, sub := range []string{"avatars", "branding"} {
+		if err := os.MkdirAll(filepath.Join(cfg.uploadDir, sub), 0o755); err != nil {
+			_ = catcher.Error("failed to create upload dir", err, nil)
+		}
 	}
 	engine.Static("/uploads", cfg.uploadDir)
 

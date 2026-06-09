@@ -17,6 +17,8 @@ type Usecase interface {
 type BrandingUsecase interface {
 	Get(ctx context.Context) (*dto.BrandingResponse, error)
 	Update(ctx context.Context, actor string, req dto.BrandingRequest) (*dto.BrandingResponse, error)
+	Seed(ctx context.Context, req dto.BrandingRequest) (*dto.BrandingResponse, error)
+	SetAsset(ctx context.Context, actor, slot, url string) (*dto.BrandingResponse, error)
 	GetPublic(ctx context.Context) (*dto.BrandingPublic, error)
 	BrandNameProvider
 }

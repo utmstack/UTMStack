@@ -12,36 +12,40 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/appconfig/dto"
 )
 
-// ErrWhiteLabelNotEntitled is returned when a deploy/tenant tries to enable
-// white-labeling without the required (paid) plan. Not reachable yet — see the
-// billing TODO in isWhiteLabelEntitled.
-var ErrWhiteLabelNotEntitled = errors.New("white-labeling requires a paid plan")
+var ErrWhiteLabelNotEntitled = errors.New("white-labeling requires an MSSP license")
+var ErrUnknownAssetSlot = errors.New("unknown branding asset slot")
 
 const (
 	defaultProductName = "UTMStack"
-	// brandingConfigKey is the single utm_configuration_parameter row that stores
-	// the whole branding object as JSON. Reuses the existing config table instead
-	// of a dedicated table — the row is seeded in 000001_init.up.sql.
-	brandingConfigKey = "branding"
+	brandingConfigKey  = "branding"
+)
+
+const (
+	AssetLogo        = "logo"
+	AssetLogoDark    = "logoDark"
+	AssetFavicon     = "favicon"
+	AssetReportLogo  = "reportLogo"
+	AssetReportCover = "reportCover"
 )
 
 type brandingService struct {
-	repo connectors.Repository
+	repo     connectors.Repository
+	entitled func() bool
 }
 
 func NewBranding(repo connectors.Repository) *brandingService {
 	return &brandingService{repo: repo}
 }
 
-// isWhiteLabelEntitled reports whether the current deploy/tenant may use
-// white-labeling.
-//
-// TODO(billing): white-labeling is a PAID feature. Once the billing module
-// exists, gate this on the tenant's plan entitlement (e.g. plan >= Enterprise),
-// resolved from the billing usecase / the request's tenant context. Until then
-// it is always allowed so the feature can be developed and demoed.
+func (s *brandingService) SetEntitlement(fn func() bool) {
+	s.entitled = fn
+}
+
 func (s *brandingService) isWhiteLabelEntitled(_ context.Context) bool {
-	return true
+	if s.entitled == nil {
+		return true
+	}
+	return s.entitled()
 }
 
 // read loads the stored branding (JSON in the `branding` config row), falling
@@ -65,6 +69,27 @@ func (s *brandingService) read(ctx context.Context) (dto.BrandingResponse, error
 	return stored, nil
 }
 
+func (s *brandingService) save(ctx context.Context, actor string, resp *dto.BrandingResponse) error {
+	now := time.Now()
+	resp.UpdatedAt = &now
+	resp.UpdatedBy = actor
+	data, err := json.Marshal(resp)
+	if err != nil {
+		return err
+	}
+	row, err := s.repo.GetByKey(ctx, brandingConfigKey)
+	if err != nil {
+		return err
+	}
+	if row == nil {
+		return fmt.Errorf("branding config row %q is not seeded", brandingConfigKey)
+	}
+	row.ConfParamValue = string(data)
+	row.ModificationTime = &now
+	row.ModificationUser = actor
+	return s.repo.Update(ctx, row)
+}
+
 // Get returns the full branding (admin view), falling back to defaults.
 func (s *brandingService) Get(ctx context.Context) (*dto.BrandingResponse, error) {
 	resp, err := s.read(ctx)
@@ -74,49 +99,60 @@ func (s *brandingService) Get(ctx context.Context) (*dto.BrandingResponse, error
 	return &resp, nil
 }
 
-// Update persists the branding overrides as JSON on the `branding` config row.
-// Enabling white-labeling requires entitlement (TODO: billing); editing while
-// disabled is always allowed so the admin can prepare the brand before buying.
+func fromRequest(req dto.BrandingRequest) dto.BrandingResponse {
+	return dto.BrandingResponse{
+		Enabled:        req.Enabled,
+		ProductName:    req.ProductName,
+		LogoURL:        req.LogoURL,
+		LogoDarkURL:    req.LogoDarkURL,
+		FaviconURL:     req.FaviconURL,
+		ReportLogoURL:  req.ReportLogoURL,
+		ReportCoverURL: req.ReportCoverURL,
+	}
+}
+
 func (s *brandingService) Update(ctx context.Context, actor string, req dto.BrandingRequest) (*dto.BrandingResponse, error) {
 	if req.Enabled && !s.isWhiteLabelEntitled(ctx) {
 		return nil, ErrWhiteLabelNotEntitled
 	}
-	now := time.Now()
-	resp := dto.BrandingResponse{
-		Enabled:            req.Enabled,
-		ProductName:        req.ProductName,
-		LogoURL:            req.LogoURL,
-		LogoDarkURL:        req.LogoDarkURL,
-		FaviconURL:         req.FaviconURL,
-		PrimaryColor:       req.PrimaryColor,
-		AccentColor:        req.AccentColor,
-		LoginBackgroundURL: req.LoginBackgroundURL,
-		FooterText:         req.FooterText,
-		SupportURL:         req.SupportURL,
-		HidePoweredBy:      req.HidePoweredBy,
-		ReportLogoURL:      req.ReportLogoURL,
-		ReportCoverURL:     req.ReportCoverURL,
-		UpdatedAt:          &now,
-		UpdatedBy:          actor,
-	}
-	data, err := json.Marshal(resp)
-	if err != nil {
-		return nil, err
-	}
-	row, err := s.repo.GetByKey(ctx, brandingConfigKey)
-	if err != nil {
-		return nil, err
-	}
-	if row == nil {
-		return nil, fmt.Errorf("branding config row %q is not seeded", brandingConfigKey)
-	}
-	row.ConfParamValue = string(data)
-	row.ModificationTime = &now
-	row.ModificationUser = actor
-	if err := s.repo.Update(ctx, row); err != nil {
+	resp := fromRequest(req)
+	if err := s.save(ctx, actor, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
+}
+
+func (s *brandingService) Seed(ctx context.Context, req dto.BrandingRequest) (*dto.BrandingResponse, error) {
+	resp := fromRequest(req)
+	if err := s.save(ctx, "installer", &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+func (s *brandingService) SetAsset(ctx context.Context, actor, slot, url string) (*dto.BrandingResponse, error) {
+	cur, err := s.read(ctx)
+	if err != nil {
+		return nil, err
+	}
+	switch slot {
+	case AssetLogo:
+		cur.LogoURL = url
+	case AssetLogoDark:
+		cur.LogoDarkURL = url
+	case AssetFavicon:
+		cur.FaviconURL = url
+	case AssetReportLogo:
+		cur.ReportLogoURL = url
+	case AssetReportCover:
+		cur.ReportCoverURL = url
+	default:
+		return nil, ErrUnknownAssetSlot
+	}
+	if err := s.save(ctx, actor, &cur); err != nil {
+		return nil, err
+	}
+	return &cur, nil
 }
 
 // GetPublic returns the effective branding for the (unauthenticated) login page.
@@ -127,23 +163,16 @@ func (s *brandingService) GetPublic(ctx context.Context) (*dto.BrandingPublic, e
 	if err != nil {
 		return nil, err
 	}
-	// TODO(billing): a lapsed plan must stop white-labeling from taking effect
-	// even if the stored row says Enabled. isWhiteLabelEntitled covers that here.
+
 	if !b.Enabled || !s.isWhiteLabelEntitled(ctx) {
 		return &dto.BrandingPublic{ProductName: defaultProductName}, nil
 	}
 	return &dto.BrandingPublic{
-		Enabled:            b.Enabled,
-		ProductName:        b.ProductName,
-		LogoURL:            b.LogoURL,
-		LogoDarkURL:        b.LogoDarkURL,
-		FaviconURL:         b.FaviconURL,
-		PrimaryColor:       b.PrimaryColor,
-		AccentColor:        b.AccentColor,
-		LoginBackgroundURL: b.LoginBackgroundURL,
-		FooterText:         b.FooterText,
-		SupportURL:         b.SupportURL,
-		HidePoweredBy:      b.HidePoweredBy,
+		Enabled:     b.Enabled,
+		ProductName: b.ProductName,
+		LogoURL:     b.LogoURL,
+		LogoDarkURL: b.LogoDarkURL,
+		FaviconURL:  b.FaviconURL,
 	}, nil
 }
 

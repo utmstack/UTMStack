@@ -15,5 +15,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, m
 	b := api.Group("/branding")
 	b.GET("", userAuth, middleware.RequirePermission("config.read"), m.BrandingHandler().Get)
 	b.PUT("", userAuth, mssp, middleware.RequirePermission("config.write"), m.BrandingHandler().Update)
+	b.POST("/assets/:slot", userAuth, mssp, middleware.RequirePermission("config.write"), m.BrandingHandler().UploadAsset)
 	b.GET("/public", m.BrandingHandler().Public)
+	b.POST("/seed", userAuth, middleware.RequireInternal(), m.BrandingHandler().Seed)
 }
