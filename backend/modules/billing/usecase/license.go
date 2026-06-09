@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -97,26 +98,32 @@ func (s *LicenseService) evaluate() domain.License {
 	if err != nil {
 		return domain.Community() // no license installed → community
 	}
+	lic, err := s.validateAndParse(envelope)
+	if err != nil {
+		_ = catcher.Error("billing: license invalid", err, nil)
+		return domain.Community()
+	}
+	return lic
+}
 
+func (s *LicenseService) validateAndParse(envelope []byte) (domain.License, error) {
 	instanceID := s.instanceID()
 	if instanceID == "" || s.publicKey == "" || s.salt == "" {
-		return domain.Community()
+		return domain.License{}, fmt.Errorf("license verification not configured")
 	}
 
 	decrypted, err := lm.DecryptAndVerifyFromBase64(strings.TrimSpace(string(envelope)), []string{instanceID, s.salt}, s.publicKey)
 	if err != nil {
-		_ = catcher.Error("billing: license decrypt/verify failed", err, nil)
-		return domain.Community()
+		return domain.License{}, fmt.Errorf("decrypt/verify failed: %w", err)
 	}
 
 	var inner licenseInner
 	if err := json.Unmarshal([]byte(decrypted), &inner); err != nil {
-		_ = catcher.Error("billing: cannot parse license payload", err, nil)
-		return domain.Community()
+		return domain.License{}, fmt.Errorf("cannot parse license payload: %w", err)
 	}
 
 	if time.Now().After(inner.ExpiresAt) {
-		return domain.Community() // expired → community
+		return domain.License{}, fmt.Errorf("license expired at %s", inner.ExpiresAt.Format(time.RFC3339))
 	}
 
 	return domain.License{
@@ -125,7 +132,26 @@ func (s *LicenseService) evaluate() domain.License {
 		Datasources: inner.Datasources,
 		Type:        inner.Type,
 		ExpiresAt:   inner.ExpiresAt,
+	}, nil
+}
+
+func (s *LicenseService) Replace(envelope []byte) (domain.License, error) {
+	if _, err := s.validateAndParse(envelope); err != nil {
+		return domain.License{}, fmt.Errorf("%w: %v", domain.ErrInvalidLicense, err)
 	}
+	if err := s.writeLicenseFile(envelope); err != nil {
+		return domain.License{}, fmt.Errorf("billing: cannot write license file: %w", err)
+	}
+	return s.Refresh(), nil
+}
+
+func (s *LicenseService) writeLicenseFile(envelope []byte) error {
+	data := []byte(strings.TrimSpace(string(envelope)) + "\n")
+	tmp := s.licenseFile + ".tmp"
+	if err := os.WriteFile(tmp, data, 0o600); err != nil {
+		return err
+	}
+	return os.Rename(tmp, s.licenseFile)
 }
 
 func (s *LicenseService) instanceID() string {
