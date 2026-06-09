@@ -9,8 +9,12 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	ds := m.GetDatasourceHandler()
 	gr := m.GetAssetGroupHandler()
 
+	ck := m.GetConnectionKeyHandler()
+
 	d := api.Group("/datasources", userAuth)
 	d.GET("/usage", middleware.RequirePermission("datasources.read"), ds.Usage)
+	d.GET("/connection-key", middleware.RequireAdmin(), ck.Get)
+	d.POST("/connection-key/rotate", middleware.RequireAdmin(), ck.Rotate)
 	d.GET("", middleware.RequirePermission("datasources.read"), ds.List)
 	d.GET("/:id", middleware.RequirePermission("datasources.read"), ds.Get)
 	d.PUT("/group", middleware.RequirePermission("datasources.write"), ds.UpdateGroup)

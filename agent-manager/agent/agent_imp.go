@@ -32,8 +32,10 @@ type AgentService struct {
 	CacheAgentKeyMutex    sync.RWMutex
 	CommandResultChannel  map[string]chan *CommandResult
 	CommandResultChannelM sync.Mutex
-
-	DBConnection *database.DB
+	connKey               string
+	connKeyID             uint
+	connKeyMutex          sync.RWMutex
+	DBConnection          *database.DB
 }
 
 func (s *AgentService) ValidateAgentKey(key string, id uint) bool {
@@ -61,6 +63,11 @@ func InitAgentService() error {
 		}
 		for _, agent := range agents {
 			AgentServ.CacheAgentKey[agent.ID] = agent.AgentKey
+		}
+
+		if e := AgentServ.loadConnectionKey(); e != nil {
+			err = e
+			return
 		}
 	})
 	return err

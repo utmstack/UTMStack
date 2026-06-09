@@ -39,6 +39,8 @@ func InternalKeyRoutes() []string {
 		"/agent.CollectorService/ListCollector",
 
 		"/agent.PanelService/ProcessCommand",
+		"/agent.PanelService/GetConnectionKey",
+		"/agent.PanelService/RotateConnectionKey",
 		"/agent.PanelCollectorService/RegisterCollectorConfig",
 
 		"/grpc.health.v1.Health/Check",
@@ -46,7 +48,6 @@ func InternalKeyRoutes() []string {
 }
 
 var (
-	PanelConnectionKeyUrl     = "%s/api/authenticateFederationServiceManager"
 	CheckEvery                = 5 * time.Minute
 	CertPath                  = "/cert/utm.crt"
 	CertKeyPath               = "/cert/utm.key"

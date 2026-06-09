@@ -140,6 +140,22 @@ func (c *AgentManagerClient) DeleteAgent(ctx context.Context, agentID uint32, ag
 	return resp, nil
 }
 
+func (c *AgentManagerClient) GetConnectionKey(ctx context.Context) (string, error) {
+	resp, err := c.panelService.GetConnectionKey(ctx, &agent.ConnectionKeyRequest{})
+	if err != nil {
+		return "", fmt.Errorf("agentmanager: GetConnectionKey: %w", err)
+	}
+	return resp.GetConnectionKey(), nil
+}
+
+func (c *AgentManagerClient) RotateConnectionKey(ctx context.Context) (string, error) {
+	resp, err := c.panelService.RotateConnectionKey(ctx, &agent.ConnectionKeyRequest{})
+	if err != nil {
+		return "", fmt.Errorf("agentmanager: RotateConnectionKey: %w", err)
+	}
+	return resp.GetConnectionKey(), nil
+}
+
 // ProcessCommandStream opens a bidi gRPC stream to ProcessCommand, sends one
 // UtmCommand (without calling CloseSend so the server keeps streaming), and
 // returns a channel that emits each CommandResult chunk. The caller must

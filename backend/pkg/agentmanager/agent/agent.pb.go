@@ -77,6 +77,86 @@ func (AgentCommandStatus) EnumDescriptor() ([]byte, []int) {
 	return file_agent_proto_rawDescGZIP(), []int{0}
 }
 
+type ConnectionKeyRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConnectionKeyRequest) Reset() {
+	*x = ConnectionKeyRequest{}
+	mi := &file_agent_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectionKeyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectionKeyRequest) ProtoMessage() {}
+
+func (x *ConnectionKeyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_agent_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectionKeyRequest.ProtoReflect.Descriptor instead.
+func (*ConnectionKeyRequest) Descriptor() ([]byte, []int) {
+	return file_agent_proto_rawDescGZIP(), []int{0}
+}
+
+type ConnectionKeyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ConnectionKey string                 `protobuf:"bytes,1,opt,name=connection_key,json=connectionKey,proto3" json:"connection_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConnectionKeyResponse) Reset() {
+	*x = ConnectionKeyResponse{}
+	mi := &file_agent_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectionKeyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectionKeyResponse) ProtoMessage() {}
+
+func (x *ConnectionKeyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_agent_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectionKeyResponse.ProtoReflect.Descriptor instead.
+func (*ConnectionKeyResponse) Descriptor() ([]byte, []int) {
+	return file_agent_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ConnectionKeyResponse) GetConnectionKey() string {
+	if x != nil {
+		return x.ConnectionKey
+	}
+	return ""
+}
+
 type AgentRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Ip             string                 `protobuf:"bytes,1,opt,name=ip,proto3" json:"ip,omitempty"`
@@ -96,7 +176,7 @@ type AgentRequest struct {
 
 func (x *AgentRequest) Reset() {
 	*x = AgentRequest{}
-	mi := &file_agent_proto_msgTypes[0]
+	mi := &file_agent_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -108,7 +188,7 @@ func (x *AgentRequest) String() string {
 func (*AgentRequest) ProtoMessage() {}
 
 func (x *AgentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_proto_msgTypes[0]
+	mi := &file_agent_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -121,7 +201,7 @@ func (x *AgentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentRequest.ProtoReflect.Descriptor instead.
 func (*AgentRequest) Descriptor() ([]byte, []int) {
-	return file_agent_proto_rawDescGZIP(), []int{0}
+	return file_agent_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *AgentRequest) GetIp() string {
@@ -211,7 +291,7 @@ type ListAgentsResponse struct {
 
 func (x *ListAgentsResponse) Reset() {
 	*x = ListAgentsResponse{}
-	mi := &file_agent_proto_msgTypes[1]
+	mi := &file_agent_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -223,7 +303,7 @@ func (x *ListAgentsResponse) String() string {
 func (*ListAgentsResponse) ProtoMessage() {}
 
 func (x *ListAgentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_proto_msgTypes[1]
+	mi := &file_agent_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -236,7 +316,7 @@ func (x *ListAgentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAgentsResponse.ProtoReflect.Descriptor instead.
 func (*ListAgentsResponse) Descriptor() ([]byte, []int) {
-	return file_agent_proto_rawDescGZIP(), []int{1}
+	return file_agent_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ListAgentsResponse) GetRows() []*Agent {
@@ -275,7 +355,7 @@ type Agent struct {
 
 func (x *Agent) Reset() {
 	*x = Agent{}
-	mi := &file_agent_proto_msgTypes[2]
+	mi := &file_agent_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -287,7 +367,7 @@ func (x *Agent) String() string {
 func (*Agent) ProtoMessage() {}
 
 func (x *Agent) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_proto_msgTypes[2]
+	mi := &file_agent_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -300,7 +380,7 @@ func (x *Agent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Agent.ProtoReflect.Descriptor instead.
 func (*Agent) Descriptor() ([]byte, []int) {
-	return file_agent_proto_rawDescGZIP(), []int{2}
+	return file_agent_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Agent) GetIp() string {
@@ -414,7 +494,7 @@ type BidirectionalStream struct {
 
 func (x *BidirectionalStream) Reset() {
 	*x = BidirectionalStream{}
-	mi := &file_agent_proto_msgTypes[3]
+	mi := &file_agent_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -426,7 +506,7 @@ func (x *BidirectionalStream) String() string {
 func (*BidirectionalStream) ProtoMessage() {}
 
 func (x *BidirectionalStream) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_proto_msgTypes[3]
+	mi := &file_agent_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -439,7 +519,7 @@ func (x *BidirectionalStream) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BidirectionalStream.ProtoReflect.Descriptor instead.
 func (*BidirectionalStream) Descriptor() ([]byte, []int) {
-	return file_agent_proto_rawDescGZIP(), []int{3}
+	return file_agent_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *BidirectionalStream) GetStreamMessage() isBidirectionalStream_StreamMessage {
@@ -499,7 +579,7 @@ type UtmCommand struct {
 
 func (x *UtmCommand) Reset() {
 	*x = UtmCommand{}
-	mi := &file_agent_proto_msgTypes[4]
+	mi := &file_agent_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -511,7 +591,7 @@ func (x *UtmCommand) String() string {
 func (*UtmCommand) ProtoMessage() {}
 
 func (x *UtmCommand) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_proto_msgTypes[4]
+	mi := &file_agent_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -524,7 +604,7 @@ func (x *UtmCommand) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UtmCommand.ProtoReflect.Descriptor instead.
 func (*UtmCommand) Descriptor() ([]byte, []int) {
-	return file_agent_proto_rawDescGZIP(), []int{4}
+	return file_agent_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UtmCommand) GetAgentId() string {
@@ -595,7 +675,7 @@ type CommandResult struct {
 
 func (x *CommandResult) Reset() {
 	*x = CommandResult{}
-	mi := &file_agent_proto_msgTypes[5]
+	mi := &file_agent_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -607,7 +687,7 @@ func (x *CommandResult) String() string {
 func (*CommandResult) ProtoMessage() {}
 
 func (x *CommandResult) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_proto_msgTypes[5]
+	mi := &file_agent_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -620,7 +700,7 @@ func (x *CommandResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommandResult.ProtoReflect.Descriptor instead.
 func (*CommandResult) Descriptor() ([]byte, []int) {
-	return file_agent_proto_rawDescGZIP(), []int{5}
+	return file_agent_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CommandResult) GetAgentId() string {
@@ -661,7 +741,7 @@ type ListAgentsCommandsResponse struct {
 
 func (x *ListAgentsCommandsResponse) Reset() {
 	*x = ListAgentsCommandsResponse{}
-	mi := &file_agent_proto_msgTypes[6]
+	mi := &file_agent_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -673,7 +753,7 @@ func (x *ListAgentsCommandsResponse) String() string {
 func (*ListAgentsCommandsResponse) ProtoMessage() {}
 
 func (x *ListAgentsCommandsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_proto_msgTypes[6]
+	mi := &file_agent_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -686,7 +766,7 @@ func (x *ListAgentsCommandsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAgentsCommandsResponse.ProtoReflect.Descriptor instead.
 func (*ListAgentsCommandsResponse) Descriptor() ([]byte, []int) {
-	return file_agent_proto_rawDescGZIP(), []int{6}
+	return file_agent_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListAgentsCommandsResponse) GetRows() []*AgentCommand {
@@ -722,7 +802,7 @@ type AgentCommand struct {
 
 func (x *AgentCommand) Reset() {
 	*x = AgentCommand{}
-	mi := &file_agent_proto_msgTypes[7]
+	mi := &file_agent_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -734,7 +814,7 @@ func (x *AgentCommand) String() string {
 func (*AgentCommand) ProtoMessage() {}
 
 func (x *AgentCommand) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_proto_msgTypes[7]
+	mi := &file_agent_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -747,7 +827,7 @@ func (x *AgentCommand) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentCommand.ProtoReflect.Descriptor instead.
 func (*AgentCommand) Descriptor() ([]byte, []int) {
-	return file_agent_proto_rawDescGZIP(), []int{7}
+	return file_agent_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *AgentCommand) GetCreatedAt() *timestamppb.Timestamp {
@@ -831,7 +911,10 @@ var File_agent_proto protoreflect.FileDescriptor
 
 const file_agent_proto_rawDesc = "" +
 	"\n" +
-	"\vagent.proto\x12\x05agent\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\fcommon.proto\"\xbf\x02\n" +
+	"\vagent.proto\x12\x05agent\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\fcommon.proto\"\x16\n" +
+	"\x14ConnectionKeyRequest\">\n" +
+	"\x15ConnectionKeyResponse\x12%\n" +
+	"\x0econnection_key\x18\x01 \x01(\tR\rconnectionKey\"\xbf\x02\n" +
 	"\fAgentRequest\x12\x0e\n" +
 	"\x02ip\x18\x01 \x01(\tR\x02ip\x12\x1a\n" +
 	"\bhostname\x18\x02 \x01(\tR\bhostname\x12\x0e\n" +
@@ -920,9 +1003,11 @@ const file_agent_proto_rawDesc = "" +
 	"\n" +
 	"ListAgents\x12\x12.agent.ListRequest\x1a\x19.agent.ListAgentsResponse\"\x00\x12K\n" +
 	"\vAgentStream\x12\x1a.agent.BidirectionalStream\x1a\x1a.agent.BidirectionalStream\"\x00(\x010\x01\x12L\n" +
-	"\x11ListAgentCommands\x12\x12.agent.ListRequest\x1a!.agent.ListAgentsCommandsResponse\"\x002O\n" +
+	"\x11ListAgentCommands\x12\x12.agent.ListRequest\x1a!.agent.ListAgentsCommandsResponse\"\x002\xf4\x01\n" +
 	"\fPanelService\x12?\n" +
-	"\x0eProcessCommand\x12\x11.agent.UtmCommand\x1a\x14.agent.CommandResult\"\x00(\x010\x01B2Z0github.com/utmstack/UTMStack/agent-manager/agentb\x06proto3"
+	"\x0eProcessCommand\x12\x11.agent.UtmCommand\x1a\x14.agent.CommandResult\"\x00(\x010\x01\x12O\n" +
+	"\x10GetConnectionKey\x12\x1b.agent.ConnectionKeyRequest\x1a\x1c.agent.ConnectionKeyResponse\"\x00\x12R\n" +
+	"\x13RotateConnectionKey\x12\x1b.agent.ConnectionKeyRequest\x1a\x1c.agent.ConnectionKeyResponse\"\x00B2Z0github.com/utmstack/UTMStack/agent-manager/agentb\x06proto3"
 
 var (
 	file_agent_proto_rawDescOnce sync.Once
@@ -937,49 +1022,55 @@ func file_agent_proto_rawDescGZIP() []byte {
 }
 
 var file_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_agent_proto_goTypes = []any{
 	(AgentCommandStatus)(0),            // 0: agent.AgentCommandStatus
-	(*AgentRequest)(nil),               // 1: agent.AgentRequest
-	(*ListAgentsResponse)(nil),         // 2: agent.ListAgentsResponse
-	(*Agent)(nil),                      // 3: agent.Agent
-	(*BidirectionalStream)(nil),        // 4: agent.BidirectionalStream
-	(*UtmCommand)(nil),                 // 5: agent.UtmCommand
-	(*CommandResult)(nil),              // 6: agent.CommandResult
-	(*ListAgentsCommandsResponse)(nil), // 7: agent.ListAgentsCommandsResponse
-	(*AgentCommand)(nil),               // 8: agent.AgentCommand
-	(Status)(0),                        // 9: agent.Status
-	(*timestamppb.Timestamp)(nil),      // 10: google.protobuf.Timestamp
-	(*DeleteRequest)(nil),              // 11: agent.DeleteRequest
-	(*ListRequest)(nil),                // 12: agent.ListRequest
-	(*AuthResponse)(nil),               // 13: agent.AuthResponse
+	(*ConnectionKeyRequest)(nil),       // 1: agent.ConnectionKeyRequest
+	(*ConnectionKeyResponse)(nil),      // 2: agent.ConnectionKeyResponse
+	(*AgentRequest)(nil),               // 3: agent.AgentRequest
+	(*ListAgentsResponse)(nil),         // 4: agent.ListAgentsResponse
+	(*Agent)(nil),                      // 5: agent.Agent
+	(*BidirectionalStream)(nil),        // 6: agent.BidirectionalStream
+	(*UtmCommand)(nil),                 // 7: agent.UtmCommand
+	(*CommandResult)(nil),              // 8: agent.CommandResult
+	(*ListAgentsCommandsResponse)(nil), // 9: agent.ListAgentsCommandsResponse
+	(*AgentCommand)(nil),               // 10: agent.AgentCommand
+	(Status)(0),                        // 11: agent.Status
+	(*timestamppb.Timestamp)(nil),      // 12: google.protobuf.Timestamp
+	(*DeleteRequest)(nil),              // 13: agent.DeleteRequest
+	(*ListRequest)(nil),                // 14: agent.ListRequest
+	(*AuthResponse)(nil),               // 15: agent.AuthResponse
 }
 var file_agent_proto_depIdxs = []int32{
-	3,  // 0: agent.ListAgentsResponse.rows:type_name -> agent.Agent
-	9,  // 1: agent.Agent.status:type_name -> agent.Status
-	5,  // 2: agent.BidirectionalStream.command:type_name -> agent.UtmCommand
-	6,  // 3: agent.BidirectionalStream.result:type_name -> agent.CommandResult
-	10, // 4: agent.CommandResult.executed_at:type_name -> google.protobuf.Timestamp
-	8,  // 5: agent.ListAgentsCommandsResponse.rows:type_name -> agent.AgentCommand
-	10, // 6: agent.AgentCommand.created_at:type_name -> google.protobuf.Timestamp
-	10, // 7: agent.AgentCommand.updated_at:type_name -> google.protobuf.Timestamp
+	5,  // 0: agent.ListAgentsResponse.rows:type_name -> agent.Agent
+	11, // 1: agent.Agent.status:type_name -> agent.Status
+	7,  // 2: agent.BidirectionalStream.command:type_name -> agent.UtmCommand
+	8,  // 3: agent.BidirectionalStream.result:type_name -> agent.CommandResult
+	12, // 4: agent.CommandResult.executed_at:type_name -> google.protobuf.Timestamp
+	10, // 5: agent.ListAgentsCommandsResponse.rows:type_name -> agent.AgentCommand
+	12, // 6: agent.AgentCommand.created_at:type_name -> google.protobuf.Timestamp
+	12, // 7: agent.AgentCommand.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 8: agent.AgentCommand.command_status:type_name -> agent.AgentCommandStatus
-	1,  // 9: agent.AgentService.RegisterAgent:input_type -> agent.AgentRequest
-	1,  // 10: agent.AgentService.UpdateAgent:input_type -> agent.AgentRequest
-	11, // 11: agent.AgentService.DeleteAgent:input_type -> agent.DeleteRequest
-	12, // 12: agent.AgentService.ListAgents:input_type -> agent.ListRequest
-	4,  // 13: agent.AgentService.AgentStream:input_type -> agent.BidirectionalStream
-	12, // 14: agent.AgentService.ListAgentCommands:input_type -> agent.ListRequest
-	5,  // 15: agent.PanelService.ProcessCommand:input_type -> agent.UtmCommand
-	13, // 16: agent.AgentService.RegisterAgent:output_type -> agent.AuthResponse
-	13, // 17: agent.AgentService.UpdateAgent:output_type -> agent.AuthResponse
-	13, // 18: agent.AgentService.DeleteAgent:output_type -> agent.AuthResponse
-	2,  // 19: agent.AgentService.ListAgents:output_type -> agent.ListAgentsResponse
-	4,  // 20: agent.AgentService.AgentStream:output_type -> agent.BidirectionalStream
-	7,  // 21: agent.AgentService.ListAgentCommands:output_type -> agent.ListAgentsCommandsResponse
-	6,  // 22: agent.PanelService.ProcessCommand:output_type -> agent.CommandResult
-	16, // [16:23] is the sub-list for method output_type
-	9,  // [9:16] is the sub-list for method input_type
+	3,  // 9: agent.AgentService.RegisterAgent:input_type -> agent.AgentRequest
+	3,  // 10: agent.AgentService.UpdateAgent:input_type -> agent.AgentRequest
+	13, // 11: agent.AgentService.DeleteAgent:input_type -> agent.DeleteRequest
+	14, // 12: agent.AgentService.ListAgents:input_type -> agent.ListRequest
+	6,  // 13: agent.AgentService.AgentStream:input_type -> agent.BidirectionalStream
+	14, // 14: agent.AgentService.ListAgentCommands:input_type -> agent.ListRequest
+	7,  // 15: agent.PanelService.ProcessCommand:input_type -> agent.UtmCommand
+	1,  // 16: agent.PanelService.GetConnectionKey:input_type -> agent.ConnectionKeyRequest
+	1,  // 17: agent.PanelService.RotateConnectionKey:input_type -> agent.ConnectionKeyRequest
+	15, // 18: agent.AgentService.RegisterAgent:output_type -> agent.AuthResponse
+	15, // 19: agent.AgentService.UpdateAgent:output_type -> agent.AuthResponse
+	15, // 20: agent.AgentService.DeleteAgent:output_type -> agent.AuthResponse
+	4,  // 21: agent.AgentService.ListAgents:output_type -> agent.ListAgentsResponse
+	6,  // 22: agent.AgentService.AgentStream:output_type -> agent.BidirectionalStream
+	9,  // 23: agent.AgentService.ListAgentCommands:output_type -> agent.ListAgentsCommandsResponse
+	8,  // 24: agent.PanelService.ProcessCommand:output_type -> agent.CommandResult
+	2,  // 25: agent.PanelService.GetConnectionKey:output_type -> agent.ConnectionKeyResponse
+	2,  // 26: agent.PanelService.RotateConnectionKey:output_type -> agent.ConnectionKeyResponse
+	18, // [18:27] is the sub-list for method output_type
+	9,  // [9:18] is the sub-list for method input_type
 	9,  // [9:9] is the sub-list for extension type_name
 	9,  // [9:9] is the sub-list for extension extendee
 	0,  // [0:9] is the sub-list for field type_name
@@ -991,7 +1082,7 @@ func file_agent_proto_init() {
 		return
 	}
 	file_common_proto_init()
-	file_agent_proto_msgTypes[3].OneofWrappers = []any{
+	file_agent_proto_msgTypes[5].OneofWrappers = []any{
 		(*BidirectionalStream_Command)(nil),
 		(*BidirectionalStream_Result)(nil),
 	}
@@ -1001,7 +1092,7 @@ func file_agent_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_agent_proto_rawDesc), len(file_agent_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

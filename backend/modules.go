@@ -143,7 +143,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	if cfg.esHost != "" {
 		dsReconciler = ns_usecase.NewStatsReconciler(dsRepo, ns_repository.NewStatsReader())
 	}
-	datasourcesMod := datasources.NewModule(dsUC, dsGroupUC, dsReconciler, billingMod.License())
+	datasourcesMod := datasources.NewModule(dsUC, dsGroupUC, dsReconciler, billingMod.License(), agentClient)
 
 	integrationsMod := integrations.NewModule(db, cipher,
 		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false),
