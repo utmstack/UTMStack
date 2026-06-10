@@ -15,7 +15,7 @@ const INTEGRATIONS_QUERY_KEYS = {
   module: (id: number) => [...INTEGRATIONS_QUERY_KEYS.modules(), id] as const,
   categories: () => [...INTEGRATIONS_QUERY_KEYS.all, 'categories'] as const,
   dataTypes: () => [...INTEGRATIONS_QUERY_KEYS.all, 'data-types'] as const,
-  isActive: () => [...INTEGRATIONS_QUERY_KEYS.all, 'is-active'] as const,
+  isActive: (moduleName: string) => [...INTEGRATIONS_QUERY_KEYS.all, 'is-active', moduleName] as const,
   tenants: (moduleName: string) => [...INTEGRATIONS_QUERY_KEYS.all, 'tenants', moduleName] as const,
 }
 
@@ -25,7 +25,7 @@ export interface UseIntegrationsResult {
   module: (id: number) => ReturnType<typeof useQuery<ModuleResponse>>
   categories: ReturnType<typeof useQuery<string[]>>
   dataTypes: ReturnType<typeof useQuery<DataTypeOption[]>>
-  isActive: ReturnType<typeof useQuery<{ isActive: boolean }>>
+  isActive: (moduleName: string) => ReturnType<typeof useQuery<{ isActive: boolean }>>
   tenants: (moduleName: string) => ReturnType<typeof useQuery>
 
   // Mutations
@@ -73,10 +73,12 @@ export function useIntegrations(baseUrl?: string): UseIntegrationsResult {
     queryFn: () => service.getDataTypes(),
   })
 
-  const isActive = useQuery({
-    queryKey: INTEGRATIONS_QUERY_KEYS.isActive(),
-    queryFn: () => service.isActive(),
-  })
+  const isActive = (moduleName: string) =>
+    useQuery({
+      queryKey: INTEGRATIONS_QUERY_KEYS.isActive(moduleName),
+      queryFn: () => service.isActive(moduleName),
+      enabled: !!moduleName,
+    })
 
   const tenants = (moduleName: string) =>
     useQuery({
@@ -113,7 +115,6 @@ export function useIntegrations(baseUrl?: string): UseIntegrationsResult {
     mutationFn: (data: ModuleActivationRequest) => service.activateDeactivateModule(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: INTEGRATIONS_QUERY_KEYS.modules() })
-      queryClient.invalidateQueries({ queryKey: INTEGRATIONS_QUERY_KEYS.isActive() })
     },
   })
 
@@ -138,7 +139,6 @@ export function useIntegrations(baseUrl?: string): UseIntegrationsResult {
       modules.isLoading ||
       categories.isLoading ||
       dataTypes.isLoading ||
-      isActive.isLoading ||
       createModule.isPending ||
       updateModule.isPending ||
       deleteModule.isPending ||
@@ -149,7 +149,6 @@ export function useIntegrations(baseUrl?: string): UseIntegrationsResult {
       modules.isLoading,
       categories.isLoading,
       dataTypes.isLoading,
-      isActive.isLoading,
       createModule.isPending,
       updateModule.isPending,
       deleteModule.isPending,

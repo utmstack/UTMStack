@@ -1,4 +1,5 @@
 import { ReactNode, useEffect } from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TooltipProvider } from '@/shared/components/ui/tooltip'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/features/auth'
@@ -8,6 +9,8 @@ import { NotificationsProvider } from '@/features/notifications'
 import { createApiClient } from '@/shared/lib/api-client'
 import { setDateFormatPrefs, type DateFormatPrefs } from '@/shared/lib/datetime'
 import { ThemeProvider, useThemeContext } from './ThemeProvider'
+
+const queryClient = new QueryClient()
 
 // Lives inside ThemeProvider so sonner follows the app's dark/light theme instead
 // of defaulting to light.
@@ -32,6 +35,7 @@ function DateFormatLoader() {
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
+    <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <BrandingProvider>
         <TooltipProvider delayDuration={0}>
@@ -47,6 +51,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
         </TooltipProvider>
       </BrandingProvider>
     </ThemeProvider>
+    </QueryClientProvider>
   )
 }
 

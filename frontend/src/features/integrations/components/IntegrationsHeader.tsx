@@ -1,0 +1,27 @@
+import { useTranslation } from 'react-i18next'
+import { ExternalLink } from 'lucide-react'
+import { Button } from '@/shared/components/ui/button'
+
+interface IntegrationsHeaderProps {
+  configured: number
+  total: number
+}
+
+export function IntegrationsHeader({ configured, total }: IntegrationsHeaderProps) {
+  const { t } = useTranslation()
+
+  return (
+    <header className="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">{t('integrations.title')}</h1>
+        <p className="mt-1 text-xs text-muted-foreground">
+          <span className="font-medium text-foreground">{configured}</span> {t('integrations.subtitle', { count: configured, total })}
+        </p>
+      </div>
+      <Button size="sm" variant="outline">
+        <ExternalLink size={14} className="mr-2" />
+        {t('integrations.browseMarketplace')}
+      </Button>
+    </header>
+  )
+}

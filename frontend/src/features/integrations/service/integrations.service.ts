@@ -19,7 +19,7 @@ export interface IntegrationsService {
   // Module metadata
   getCategories(): Promise<string[]>
   getDataTypes(): Promise<DataTypeOption[]>
-  isActive(): Promise<{ isActive: boolean }>
+  isActive(moduleName: string): Promise<{ isActive: boolean }>
 
   // Tenant operations
   listTenants(moduleName: string): Promise<unknown>
@@ -52,7 +52,8 @@ export function createIntegrationsService(baseUrl?: string): IntegrationsService
 
     getDataTypes: () => api.get<DataTypeOption[]>(`${BASE_INTEGRATIONS_URL}/data-types`),
 
-    isActive: () => api.get<{ isActive: boolean }>(`${BASE_INTEGRATIONS_URL}/is-active`),
+    isActive: (moduleName: string) =>
+      api.get<{ isActive: boolean }>(`${BASE_INTEGRATIONS_URL}/is-active?moduleName=${moduleName}`),
 
     listTenants: (moduleName: string) =>
       api.get(`${BASE_INTEGRATIONS_URL}/tenants/:module`.replace(':module', moduleName)),
