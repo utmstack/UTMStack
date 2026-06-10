@@ -7,6 +7,7 @@ import type {
   UpdateModuleRequest,
   ModuleActivationRequest,
   DataTypeOption,
+  TenantResponse,
 } from '@/features/integrations/types'
 
 const INTEGRATIONS_QUERY_KEYS = {
@@ -26,7 +27,7 @@ export interface UseIntegrationsResult {
   categories: ReturnType<typeof useQuery<string[]>>
   dataTypes: ReturnType<typeof useQuery<DataTypeOption[]>>
   isActive: (moduleName: string) => ReturnType<typeof useQuery<{ isActive: boolean }>>
-  tenants: (moduleName: string) => ReturnType<typeof useQuery>
+  tenants: (moduleName: string) => ReturnType<typeof useQuery<TenantResponse[]>>
 
   // Mutations
   createModule: ReturnType<typeof useMutation<ModuleResponse, Error, CreateModuleRequest>>
@@ -37,7 +38,9 @@ export interface UseIntegrationsResult {
   activateDeactivateModule: ReturnType<
     typeof useMutation<ModuleResponse, Error, ModuleActivationRequest>
   >
-  saveTenant: ReturnType<typeof useMutation<unknown, Error, { moduleName: string; data: unknown }>>
+  saveTenant: ReturnType<
+    typeof useMutation<TenantResponse, Error, { moduleName: string; data: TenantResponse }>
+  >
   deleteTenant: ReturnType<
     typeof useMutation<void, Error, { moduleName: string; name: string }>
   >
@@ -119,7 +122,7 @@ export function useIntegrations(baseUrl?: string): UseIntegrationsResult {
   })
 
   const saveTenant = useMutation({
-    mutationFn: ({ moduleName, data }: { moduleName: string; data: unknown }) =>
+    mutationFn: ({ moduleName, data }: { moduleName: string; data: TenantResponse }) =>
       service.saveTenant(moduleName, data),
     onSuccess: (_, { moduleName }) => {
       queryClient.invalidateQueries({ queryKey: INTEGRATIONS_QUERY_KEYS.tenants(moduleName) })

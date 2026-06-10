@@ -5,7 +5,7 @@ import { LogoTile } from '@/features/integrations/components/ui/LogoTile'
 import { KIND_META } from '@/features/integrations/constants'
 import { AgentSetup } from '@/features/integrations/components/setup/AgentSetup'
 import { CollectorSetup } from '@/features/integrations/components/setup/CollectorSetup'
-import { CloudSetup } from '@/features/integrations/components/setup/CloudSetup'
+import { CloudSetup } from '@/features/integrations/components/setup/cloud/CloudSetup'
 import { CustomSetup } from '@/features/integrations/components/setup/CustomSetup'
 import type { Integration } from '@/features/integrations/types'
 
@@ -17,6 +17,12 @@ interface IntegrationDrawerProps {
 export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawerProps) {
   const { t } = useTranslation()
   const km = KIND_META[i.kind]
+
+  const scrollToCloudTenants = () => {
+    document
+      .getElementById('cloud-tenants-section')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/40 backdrop-blur-sm" onClick={onClose}>
@@ -65,7 +71,10 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
           <div className="mt-4 flex flex-wrap items-center gap-2">
             {i.status === 'configured' ? (
               <>
-                <Button size="sm">
+                <Button
+                  size="sm"
+                  onClick={i.kind === 'cloud' ? scrollToCloudTenants : undefined}
+                >
                   <span className="mr-1.5">⚙️</span>
                   {t('integrations.drawer.manage')}
                 </Button>
@@ -75,7 +84,10 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
                 </Button>
               </>
             ) : (
-              <Button size="sm">
+              <Button
+                size="sm"
+                onClick={i.kind === 'cloud' ? scrollToCloudTenants : undefined}
+              >
                 <span className="mr-1.5">+</span>
                 {i.kind === 'agents & syslog'
                   ? t('integrations.drawer.getInstallCmd')
@@ -95,9 +107,9 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
 
         <div className="flex-1 overflow-y-auto bg-muted/20 p-6">
           {i.kind === 'agents & syslog' && <AgentSetup integration={i} />}
-          {i.kind === 'collector' && <CollectorSetup integration={i} />}
           {i.kind === 'cloud' && <CloudSetup integration={i} />}
           {i.kind === 'custom' && <CustomSetup />}
+          {i.kind === 'collector' && <CollectorSetup integration={i} />}
         </div>
       </div>
     </div>

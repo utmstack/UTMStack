@@ -1268,7 +1268,108 @@
         "afterTitle": "What you'll see after connecting",
         "after1": "UTMStack performs an initial backfill of recent events.",
         "after2": "From then on, events are pulled every 1–5 minutes (depends on the API).",
-        "after3": "The integration appears under Data Sources with current pull status and lag."
+        "after3": "The integration appears under Data Sources with current pull status and lag.",
+        "tenants": {
+          "title": "Configured tenants",
+          "empty": "No tenants configured yet. Add your first one below.",
+          "loading": "Loading tenants…",
+          "nameLabel": "Tenant name",
+          "namePlaceholder": "e.g. acme-prod",
+          "add": "Add tenant",
+          "update": "Update tenant",
+          "delete": "Delete",
+          "edit": "Edit",
+          "cancel": "Cancel",
+          "editing": "Editing: {{name}}",
+          "selectFile": "Select file",
+          "replaceFile": "Replace file",
+          "fileLoaded": "File loaded",
+          "invalidJson": "Could not parse the file as JSON."
+        },
+        "google": {
+          "sections": {
+            "createTopic": {
+              "title": "1 · Create a Pub/Sub topic",
+              "body": "In the Google Cloud console, open Pub/Sub → Topics and create a new topic. UTMStack will receive events through this topic."
+            },
+            "createSubscription": {
+              "title": "2 · Create a subscription",
+              "body": "Inside the topic, create a Pull subscription. UTMStack pulls messages from this subscription."
+            },
+            "configureSubscription": {
+              "title": "3 · Configure the subscription",
+              "body": "Set the message retention duration to a value that fits your tolerance for downtime (default 7 days is fine). Leave acknowledgement deadline at 10 seconds and expiration to Never expire."
+            },
+            "logsRouter": {
+              "title": "4 · Open Logs Router",
+              "body": "Navigate to Logging → Logs Router and create a new sink. This is what forwards your project's logs into the Pub/Sub topic above."
+            },
+            "sinkDestination": {
+              "title": "5 · Point the sink at the topic",
+              "body": "Choose Cloud Pub/Sub topic as the sink destination and select the topic you created. Use the inclusion/exclusion filters to scope what is forwarded."
+            },
+            "serviceAccount": {
+              "title": "6 · Create a service account",
+              "body": "Open IAM & Admin → Service Accounts and create a new service account. Grant it the Pub/Sub Editor role so UTMStack can pull from the subscription."
+            },
+            "serviceAccountKey": {
+              "title": "7 · Generate a key for the service account",
+              "body": "Open the service account, go to the Keys tab, and add a new key. Pick JSON as the key type."
+            },
+            "downloadKey": {
+              "title": "8 · Download and paste the JSON key",
+              "body": "Save the JSON file Google downloads — its contents go in the Service account JSON field below."
+            }
+          },
+          "fields": {
+            "projectId": { "label": "Project ID" },
+            "topic": { "label": "Topic name" },
+            "subscription": { "label": "Subscription name" },
+            "jsonKey": { "label": "Service account JSON key" }
+          }
+        },
+        "azure": {
+          "sections": {
+            "eventHub": {
+              "title": "1 · Create an Event Hub",
+              "body": "In the Azure Portal, create an Event Hubs namespace and an Event Hub inside it. UTMStack will read events from this hub."
+            },
+            "sharedAccessPolicy": {
+              "title": "2 · Add a Shared Access Policy",
+              "body": "Open the Event Hub → Shared access policies and create a new policy with the Listen permission only."
+            },
+            "connectionString": {
+              "title": "3 · Copy the primary connection string",
+              "body": "Open the policy and copy the Connection string–primary key. It looks like: Endpoint=sb://...;SharedAccessKeyName=...;SharedAccessKey=..."
+            },
+            "consumerGroup": {
+              "title": "4 · Create a dedicated consumer group",
+              "body": "Open the Event Hub → Consumer groups and create a new one for UTMStack. Don't reuse $Default — give UTMStack its own group so checkpoints don't collide with other consumers."
+            },
+            "storageAccount": {
+              "title": "5 · Create a Storage Account",
+              "body": "UTMStack needs a Storage Account for checkpointing. Create one in the same region as the Event Hub."
+            },
+            "storageContainer": {
+              "title": "6 · Create a container inside the Storage Account",
+              "body": "Inside the Storage Account → Containers, create a new container. Note the container name and the Storage Account connection string (Access keys → Connection string)."
+            },
+            "eventGrid": {
+              "title": "7 · Register the Event Grid resource provider",
+              "body": "In Subscriptions → Resource providers, register Microsoft.EventGrid if it isn't already. This lets Azure forward subscription-level events to your Event Hub."
+            },
+            "eventSubscription": {
+              "title": "8 · Create an Event Subscription",
+              "body": "Create an Event Subscription that targets your Event Hub. Choose the event types you want to forward to UTMStack."
+            }
+          },
+          "fields": {
+            "eventHubConnection": { "label": "Event Hub connection string" },
+            "consumerGroup": { "label": "Consumer group" },
+            "storageContainer": { "label": "Storage container name" },
+            "storageConnection": { "label": "Storage account connection string" }
+          }
+        }
       },
       "custom": {
         "whenTitle": "When to use this",
