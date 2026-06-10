@@ -15,7 +15,7 @@ export function IntegrationsHeader({ configured, total }: IntegrationsHeaderProp
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">{t('integrations.title')}</h1>
         <p className="mt-1 text-xs text-muted-foreground">
-          <span className="font-medium text-foreground">{configured}</span> {t('integrations.subtitle', { count: configured, total })}
+          {t('integrations.subtitle', { count: configured, total })}
         </p>
       </div>
       <Button size="sm" variant="outline">
