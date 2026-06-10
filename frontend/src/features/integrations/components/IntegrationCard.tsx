@@ -33,9 +33,8 @@ export function IntegrationCard({ integration: i, onOpen }: IntegrationCardProps
 
       <div className="flex flex-1 flex-col p-4">
         <h4 className="text-sm font-semibold leading-tight">{i.name}</h4>
-        <p className="mt-1.5 line-clamp-4 flex-1 text-[11px] leading-relaxed text-muted-foreground">
-          {i.description}
-        </p>
+         <p className="mt-1.5 line-clamp-4 flex-1 text-[11px] leading-relaxed text-muted-foreground min-h-24">
+         </p>
 
         <div className="mt-3 flex items-center justify-between border-t border-border pt-3 text-[11px]">
           {i.status === 'configured' ? (

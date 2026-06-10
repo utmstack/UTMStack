@@ -35,7 +35,6 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
                   <span className={km?.tone}>{t(`integrations.kind.${i.kind}`)}</span>
                 </div>
                 <h2 className="mt-0.5 truncate text-xl font-semibold">{i.name}</h2>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{i.description}</p>
                 <div className="mt-2 flex items-center gap-2">
                   {i.status === 'configured' ? (
                     <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-1.5 py-0.5 text-[11px] font-medium text-emerald-600 ring-1 ring-emerald-500/30 dark:text-emerald-300">

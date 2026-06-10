@@ -33,21 +33,12 @@ const TABS: { id: Tab; predicate: (kind: DeployKind) => boolean }[] = [
 ]
 
 function mapModuleToIntegration(module: any): Integration {
-  const validKinds: DeployKind[] = ['agents & syslog', 'device', 'antivirus', 'other', 'custom', 'cloud', 'utmstack modules']
   const categoryLower = module.moduleCategory?.toLowerCase() || ''
-  const dataTypeLower = module.dataType?.toLowerCase() || ''
-
-  let kind: DeployKind = 'custom'
-  if (validKinds.includes(categoryLower as DeployKind)) {
-    kind = categoryLower as DeployKind
-  } else if (validKinds.includes(dataTypeLower as DeployKind)) {
-    kind = dataTypeLower as DeployKind
-  }
 
   return {
     id: module.id.toString(),
     name: module.prettyName || module.moduleName,
-    kind,
+    kind:categoryLower,
     status: module.moduleActive ? 'configured' : 'available',
     description: module.moduleDescription || '',
     category: module.moduleCategory || '',
