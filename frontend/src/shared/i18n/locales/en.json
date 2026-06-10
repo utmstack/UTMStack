@@ -1205,7 +1205,7 @@
       "agents & syslog": "Agent",
       "device": "Collector",
       "antivirus": "Collector",
-      "other": "Other",
+      "other": "Collector",
       "custom": "Custom",
       "cloud": "Cloud",
       "utmstack modules": "Collector"
