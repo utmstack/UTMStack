@@ -1180,5 +1180,190 @@
     "toast": {
       "exportFailed": "Export failed"
     }
+  },
+  "dataProcessing": {
+    "title": "Data processing",
+    "subtitle": "Ingestion and processing statistics: events received, dropped by stage, and the top sources and types.",
+    "ingestion": {
+      "title": "Ingestion",
+      "last24h": "last 24 hours",
+      "noData": "No data in this window.",
+      "loadError": "Could not load ingestion stats.",
+      "groupBy": {
+        "dataSource": "By data source",
+        "dataType": "By data type"
+      },
+      "status": {
+        "received": "Received",
+        "parsing_dropped": "Dropped (parsing)",
+        "analysis_dropped": "Dropped (analysis)",
+        "correlation_dropped": "Dropped (correlation)",
+        "all": "All events"
+      }
+    },
+    "filters": {
+      "title": "Filters",
+      "new": "New filter",
+      "search": "Search by path…",
+      "refresh": "Refresh",
+      "retry": "Retry",
+      "empty": "No filters match.",
+      "loadError": "Could not load filters.",
+      "toggleError": "Could not change the filter state",
+      "system": "System",
+      "custom": "Custom",
+      "systemReadonly": "System filters are read-only",
+      "view": "View",
+      "edit": "Edit",
+      "ownership": {
+        "all": "All",
+        "system": "System",
+        "custom": "Custom"
+      },
+      "state": {
+        "all": "All",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "col": {
+        "filter": "Filter",
+        "type": "Type",
+        "active": "Active",
+        "actions": "Actions"
+      },
+      "pageInfo": "{{from}}–{{to}} of {{count}}"
+    },
+    "editor": {
+      "createTitle": "New filter",
+      "editTitle": "Edit filter",
+      "viewTitle": "View filter",
+      "relPath": "Path",
+      "relPathHint": "Folder + file, e.g. syslog/my-filter.yaml",
+      "content": "Pipeline (YAML)",
+      "contentHint": "Steps run in order: grok, rename, delete, dynamic plugins, …",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Filter saved",
+      "saveError": "Could not save the filter",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this filter?",
+      "deleted": "Filter deleted",
+      "deleteError": "Could not delete the filter"
+    },
+    "kpi": {
+      "received": "Received",
+      "dropped": "Dropped",
+      "dropRate": "{{rate}}% drop rate"
+    },
+    "section": {
+      "overTime": "Events over time",
+      "top": "Top",
+      "dropReasons": "Drop reasons"
+    }
+  },
+  "datasources": {
+    "title": "Data sources",
+    "total": "{{count}} total",
+    "subtitle": "Agents, integrations and direct sources feeding events. Status is derived from the last time each source was seen.",
+    "connectSource": "Connect a source",
+    "loading": "Loading data sources…",
+    "loadFailed": "Could not load data sources.",
+    "retry": "Retry",
+    "none": "No data sources match this view.",
+    "ingestion": {
+      "title": "Ingestion · last 24 hours",
+      "received": "events received",
+      "none": "No ingestion in the last 24 hours.",
+      "ago24h": "24h ago",
+      "now": "now"
+    },
+    "usage": {
+      "title": "License usage",
+      "ofUnlimited": "of unlimited",
+      "ofLimit": "of {{limit}}",
+      "overLimit": "Over the licensed limit — data beyond the cap is at risk."
+    },
+    "tabs": {
+      "all": "All",
+      "agent": "Agents",
+      "puller": "Integrations",
+      "direct": "Direct",
+      "offline": "Offline"
+    },
+    "toolbar": {
+      "searchPlaceholder": "Search by name…",
+      "allGroups": "All groups",
+      "list": "List",
+      "cards": "Cards",
+      "refresh": "Refresh"
+    },
+    "groups": {
+      "new": "New group",
+      "namePlaceholder": "Group name",
+      "create": "Create"
+    },
+    "labels": {
+      "filteredBy": "Filtered by label",
+      "add": "Add label…",
+      "addFirst": "Add a label…",
+      "hint": "Type a label and press Enter to add it. Changes save automatically."
+    },
+    "status": {
+      "live": "Live",
+      "idle": "Idle",
+      "offline": "Offline"
+    },
+    "kind": {
+      "agent": "Agent",
+      "puller": "Integration",
+      "direct": "Direct"
+    },
+    "cols": {
+      "source": "Source",
+      "type": "Type",
+      "status": "Status",
+      "events24h": "Events 24h",
+      "lastSeen": "Last seen"
+    },
+    "time": {
+      "justNow": "just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
+    },
+    "drawer": {
+      "loading": "Loading…",
+      "loadFailed": "Could not load the data source.",
+      "statsIdentity": "Stats & identity",
+      "metadata": "Metadata",
+      "group": "Group",
+      "labelsSection": "Labels",
+      "dangerZone": "Danger zone",
+      "rows": {
+        "events24h": "Events 24h",
+        "lastSeen": "Last seen",
+        "discovered": "Discovered",
+        "kind": "Kind",
+        "dataType": "Data type",
+        "ip": "IP",
+        "id": "ID"
+      },
+      "noGroup": "No group",
+      "dangerText": "Deleting removes this source from the registry. Historical events stay searchable in the Log Explorer; if the source keeps sending data it will be rediscovered.",
+      "delete": "Delete data source",
+      "confirmDelete": "Confirm delete",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "labelsUpdated": "Labels updated",
+      "labelsFailed": "Failed to update labels",
+      "groupUpdated": "Group updated",
+      "groupFailed": "Failed to update group",
+      "deleted": "Data source deleted",
+      "deleteFailed": "Failed to delete",
+      "groupCreated": "Group created",
+      "groupCreateFailed": "Failed to create group"
+    }
   }
 }

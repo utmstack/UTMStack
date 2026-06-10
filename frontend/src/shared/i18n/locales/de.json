@@ -1180,5 +1180,190 @@
     "toast": {
       "exportFailed": "Export fehlgeschlagen"
     }
+  },
+  "dataProcessing": {
+    "title": "Datenverarbeitung",
+    "subtitle": "Ingestion- und Verarbeitungsstatistiken: empfangene und (nach Stufe) verworfene Ereignisse sowie die wichtigsten Quellen und Typen.",
+    "ingestion": {
+      "title": "Ingestion",
+      "last24h": "letzte 24 Stunden",
+      "noData": "Keine Daten in diesem Zeitraum.",
+      "loadError": "Ingestion-Statistiken konnten nicht geladen werden.",
+      "groupBy": {
+        "dataSource": "Nach Datenquelle",
+        "dataType": "Nach Datentyp"
+      },
+      "status": {
+        "received": "Empfangen",
+        "parsing_dropped": "Verworfen (Parsing)",
+        "analysis_dropped": "Verworfen (Analyse)",
+        "correlation_dropped": "Verworfen (Korrelation)",
+        "all": "Alle Ereignisse"
+      }
+    },
+    "filters": {
+      "title": "Filter",
+      "new": "Neuer Filter",
+      "search": "Nach Pfad suchen…",
+      "refresh": "Aktualisieren",
+      "retry": "Erneut versuchen",
+      "empty": "Keine Filter passen.",
+      "loadError": "Filter konnten nicht geladen werden.",
+      "toggleError": "Filterstatus konnte nicht geändert werden",
+      "system": "System",
+      "custom": "Benutzerdefiniert",
+      "systemReadonly": "Systemfilter sind schreibgeschützt",
+      "view": "Ansehen",
+      "edit": "Bearbeiten",
+      "ownership": {
+        "all": "Alle",
+        "system": "System",
+        "custom": "Benutzerdefiniert"
+      },
+      "state": {
+        "all": "Alle",
+        "active": "Aktiv",
+        "inactive": "Inaktiv"
+      },
+      "col": {
+        "filter": "Filter",
+        "type": "Typ",
+        "active": "Aktiv",
+        "actions": "Aktionen"
+      },
+      "pageInfo": "{{from}}–{{to}} von {{count}}"
+    },
+    "editor": {
+      "createTitle": "Neuer Filter",
+      "editTitle": "Filter bearbeiten",
+      "viewTitle": "Filter ansehen",
+      "relPath": "Pfad",
+      "relPathHint": "Ordner + Datei, z. B. syslog/mein-filter.yaml",
+      "content": "Pipeline (YAML)",
+      "contentHint": "Schritte laufen in Reihenfolge: grok, rename, delete, dynamic-Plugins, …",
+      "save": "Speichern",
+      "saving": "Wird gespeichert…",
+      "saved": "Filter gespeichert",
+      "saveError": "Filter konnte nicht gespeichert werden",
+      "cancel": "Abbrechen",
+      "delete": "Löschen",
+      "deleteConfirm": "Diesen Filter löschen?",
+      "deleted": "Filter gelöscht",
+      "deleteError": "Filter konnte nicht gelöscht werden"
+    },
+    "kpi": {
+      "received": "Empfangen",
+      "dropped": "Verworfen",
+      "dropRate": "{{rate}}% Verwurfsrate"
+    },
+    "section": {
+      "overTime": "Ereignisse im Zeitverlauf",
+      "top": "Top",
+      "dropReasons": "Verwurfsgründe"
+    }
+  },
+  "datasources": {
+    "title": "Datenquellen",
+    "total": "{{count}} insgesamt",
+    "subtitle": "Agenten, Integrationen und direkte Quellen, die Ereignisse einspeisen. Der Status wird aus dem letzten Mal abgeleitet, an dem jede Quelle gesehen wurde.",
+    "connectSource": "Quelle verbinden",
+    "loading": "Datenquellen werden geladen…",
+    "loadFailed": "Datenquellen konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "none": "Keine Quellen entsprechen dieser Ansicht.",
+    "ingestion": {
+      "title": "Ingestion · letzte 24 Stunden",
+      "received": "empfangene Ereignisse",
+      "none": "Keine Ingestion in den letzten 24 Stunden.",
+      "ago24h": "vor 24h",
+      "now": "jetzt"
+    },
+    "usage": {
+      "title": "Lizenznutzung",
+      "ofUnlimited": "von unbegrenzt",
+      "ofLimit": "von {{limit}}",
+      "overLimit": "Über dem lizenzierten Limit — Daten über dem Limit sind gefährdet."
+    },
+    "tabs": {
+      "all": "Alle",
+      "agent": "Agenten",
+      "puller": "Integrationen",
+      "direct": "Direkt",
+      "offline": "Offline"
+    },
+    "toolbar": {
+      "searchPlaceholder": "Nach Name suchen…",
+      "allGroups": "Alle Gruppen",
+      "list": "Liste",
+      "cards": "Karten",
+      "refresh": "Aktualisieren"
+    },
+    "groups": {
+      "new": "Neue Gruppe",
+      "namePlaceholder": "Gruppenname",
+      "create": "Erstellen"
+    },
+    "labels": {
+      "filteredBy": "Gefiltert nach Label",
+      "add": "Label hinzufügen…",
+      "addFirst": "Ein Label hinzufügen…",
+      "hint": "Geben Sie ein Label ein und drücken Sie Enter, um es hinzuzufügen. Änderungen werden automatisch gespeichert."
+    },
+    "status": {
+      "live": "Aktiv",
+      "idle": "Inaktiv",
+      "offline": "Offline"
+    },
+    "kind": {
+      "agent": "Agent",
+      "puller": "Integration",
+      "direct": "Direkt"
+    },
+    "cols": {
+      "source": "Quelle",
+      "type": "Typ",
+      "status": "Status",
+      "events24h": "Ereignisse 24h",
+      "lastSeen": "Zuletzt gesehen"
+    },
+    "time": {
+      "justNow": "gerade eben",
+      "minutesAgo": "vor {{count}}m",
+      "hoursAgo": "vor {{count}}h",
+      "daysAgo": "vor {{count}}T"
+    },
+    "drawer": {
+      "loading": "Lädt…",
+      "loadFailed": "Datenquelle konnte nicht geladen werden.",
+      "statsIdentity": "Statistik & Identität",
+      "metadata": "Metadaten",
+      "group": "Gruppe",
+      "labelsSection": "Labels",
+      "dangerZone": "Gefahrenzone",
+      "rows": {
+        "events24h": "Ereignisse 24h",
+        "lastSeen": "Zuletzt gesehen",
+        "discovered": "Entdeckt",
+        "kind": "Quellart",
+        "dataType": "Datentyp",
+        "ip": "IP",
+        "id": "ID"
+      },
+      "noGroup": "Keine Gruppe",
+      "dangerText": "Das Löschen entfernt diese Quelle aus dem Register. Historische Ereignisse bleiben im Log-Explorer durchsuchbar; sendet die Quelle weiter Daten, wird sie erneut erkannt.",
+      "delete": "Datenquelle löschen",
+      "confirmDelete": "Löschen bestätigen",
+      "cancel": "Abbrechen"
+    },
+    "toast": {
+      "labelsUpdated": "Labels aktualisiert",
+      "labelsFailed": "Labels konnten nicht aktualisiert werden",
+      "groupUpdated": "Gruppe aktualisiert",
+      "groupFailed": "Gruppe konnte nicht aktualisiert werden",
+      "deleted": "Datenquelle gelöscht",
+      "deleteFailed": "Löschen fehlgeschlagen",
+      "groupCreated": "Gruppe erstellt",
+      "groupCreateFailed": "Gruppe konnte nicht erstellt werden"
+    }
   }
 }

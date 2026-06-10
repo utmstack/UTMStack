@@ -1180,5 +1180,190 @@
     "toast": {
       "exportFailed": "Esportazione fallita"
     }
+  },
+  "dataProcessing": {
+    "title": "Elaborazione dati",
+    "subtitle": "Statistiche di ingestione ed elaborazione: eventi ricevuti, scartati per fase, e le principali origini e tipi.",
+    "ingestion": {
+      "title": "Ingestione",
+      "last24h": "ultime 24 ore",
+      "noData": "Nessun dato in questa finestra.",
+      "loadError": "Impossibile caricare le statistiche di ingestione.",
+      "groupBy": {
+        "dataSource": "Per origine dati",
+        "dataType": "Per tipo di dato"
+      },
+      "status": {
+        "received": "Ricevuti",
+        "parsing_dropped": "Scartati (parsing)",
+        "analysis_dropped": "Scartati (analisi)",
+        "correlation_dropped": "Scartati (correlazione)",
+        "all": "Tutti gli eventi"
+      }
+    },
+    "filters": {
+      "title": "Filtri",
+      "new": "Nuovo filtro",
+      "search": "Cerca per percorso…",
+      "refresh": "Aggiorna",
+      "retry": "Riprova",
+      "empty": "Nessun filtro corrisponde.",
+      "loadError": "Impossibile caricare i filtri.",
+      "toggleError": "Impossibile cambiare lo stato del filtro",
+      "system": "Sistema",
+      "custom": "Personalizzato",
+      "systemReadonly": "I filtri di sistema sono di sola lettura",
+      "view": "Visualizza",
+      "edit": "Modifica",
+      "ownership": {
+        "all": "Tutti",
+        "system": "Sistema",
+        "custom": "Personalizzati"
+      },
+      "state": {
+        "all": "Tutti",
+        "active": "Attivi",
+        "inactive": "Inattivi"
+      },
+      "col": {
+        "filter": "Filtro",
+        "type": "Tipo",
+        "active": "Attivo",
+        "actions": "Azioni"
+      },
+      "pageInfo": "{{from}}–{{to}} di {{count}}"
+    },
+    "editor": {
+      "createTitle": "Nuovo filtro",
+      "editTitle": "Modifica filtro",
+      "viewTitle": "Visualizza filtro",
+      "relPath": "Percorso",
+      "relPathHint": "Cartella + file, es. syslog/mio-filtro.yaml",
+      "content": "Pipeline (YAML)",
+      "contentHint": "I passaggi vengono eseguiti in ordine: grok, rename, delete, plugin dynamic, …",
+      "save": "Salva",
+      "saving": "Salvataggio…",
+      "saved": "Filtro salvato",
+      "saveError": "Impossibile salvare il filtro",
+      "cancel": "Annulla",
+      "delete": "Elimina",
+      "deleteConfirm": "Eliminare questo filtro?",
+      "deleted": "Filtro eliminato",
+      "deleteError": "Impossibile eliminare il filtro"
+    },
+    "kpi": {
+      "received": "Ricevuti",
+      "dropped": "Scartati",
+      "dropRate": "{{rate}}% di scarto"
+    },
+    "section": {
+      "overTime": "Eventi nel tempo",
+      "top": "Top",
+      "dropReasons": "Motivi di scarto"
+    }
+  },
+  "datasources": {
+    "title": "Origini dati",
+    "total": "{{count}} in totale",
+    "subtitle": "Agenti, integrazioni e origini dirette che inviano eventi. Lo stato è derivato dall'ultima volta che ogni origine è stata vista.",
+    "connectSource": "Collega un'origine",
+    "loading": "Caricamento origini dati…",
+    "loadFailed": "Impossibile caricare le origini dati.",
+    "retry": "Riprova",
+    "none": "Nessuna origine corrisponde a questa vista.",
+    "ingestion": {
+      "title": "Ingestione · ultime 24 ore",
+      "received": "eventi ricevuti",
+      "none": "Nessuna ingestione nelle ultime 24 ore.",
+      "ago24h": "24h fa",
+      "now": "ora"
+    },
+    "usage": {
+      "title": "Utilizzo licenza",
+      "ofUnlimited": "di illimitato",
+      "ofLimit": "di {{limit}}",
+      "overLimit": "Oltre il limite della licenza — i dati oltre il limite sono a rischio."
+    },
+    "tabs": {
+      "all": "Tutte",
+      "agent": "Agenti",
+      "puller": "Integrazioni",
+      "direct": "Dirette",
+      "offline": "Offline"
+    },
+    "toolbar": {
+      "searchPlaceholder": "Cerca per nome…",
+      "allGroups": "Tutti i gruppi",
+      "list": "Elenco",
+      "cards": "Schede",
+      "refresh": "Aggiorna"
+    },
+    "groups": {
+      "new": "Nuovo gruppo",
+      "namePlaceholder": "Nome del gruppo",
+      "create": "Crea"
+    },
+    "labels": {
+      "filteredBy": "Filtrato per label",
+      "add": "Aggiungi label…",
+      "addFirst": "Aggiungi un label…",
+      "hint": "Scrivi un label e premi Invio per aggiungerlo. Le modifiche vengono salvate automaticamente."
+    },
+    "status": {
+      "live": "Attiva",
+      "idle": "Inattiva",
+      "offline": "Offline"
+    },
+    "kind": {
+      "agent": "Agente",
+      "puller": "Integrazione",
+      "direct": "Diretta"
+    },
+    "cols": {
+      "source": "Origine",
+      "type": "Tipo",
+      "status": "Stato",
+      "events24h": "Eventi 24h",
+      "lastSeen": "Vista l'ultima volta"
+    },
+    "time": {
+      "justNow": "proprio ora",
+      "minutesAgo": "{{count}}m fa",
+      "hoursAgo": "{{count}}h fa",
+      "daysAgo": "{{count}}g fa"
+    },
+    "drawer": {
+      "loading": "Caricamento…",
+      "loadFailed": "Impossibile caricare l'origine dati.",
+      "statsIdentity": "Statistiche e identità",
+      "metadata": "Metadati",
+      "group": "Gruppo",
+      "labelsSection": "Labels",
+      "dangerZone": "Zona pericolosa",
+      "rows": {
+        "events24h": "Eventi 24h",
+        "lastSeen": "Vista l'ultima volta",
+        "discovered": "Scoperta",
+        "kind": "Tipo di origine",
+        "dataType": "Tipo di dato",
+        "ip": "IP",
+        "id": "ID"
+      },
+      "noGroup": "Nessun gruppo",
+      "dangerText": "L'eliminazione rimuove questa origine dal registro. Gli eventi storici restano consultabili nel Log Explorer; se l'origine continua a inviare dati, verrà riscoperta.",
+      "delete": "Elimina origine",
+      "confirmDelete": "Conferma eliminazione",
+      "cancel": "Annulla"
+    },
+    "toast": {
+      "labelsUpdated": "Labels aggiornati",
+      "labelsFailed": "Impossibile aggiornare i labels",
+      "groupUpdated": "Gruppo aggiornato",
+      "groupFailed": "Impossibile aggiornare il gruppo",
+      "deleted": "Origine eliminata",
+      "deleteFailed": "Eliminazione non riuscita",
+      "groupCreated": "Gruppo creato",
+      "groupCreateFailed": "Impossibile creare il gruppo"
+    }
   }
 }

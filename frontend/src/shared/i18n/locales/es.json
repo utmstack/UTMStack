@@ -1180,5 +1180,190 @@
     "toast": {
       "exportFailed": "La exportación falló"
     }
+  },
+  "dataProcessing": {
+    "title": "Procesamiento de datos",
+    "subtitle": "Estadísticas de ingesta y procesamiento: eventos recibidos, descartados por etapa, y las principales fuentes y tipos.",
+    "ingestion": {
+      "title": "Ingesta",
+      "last24h": "últimas 24 horas",
+      "noData": "Sin datos en esta ventana.",
+      "loadError": "No se pudieron cargar las stats de ingesta.",
+      "groupBy": {
+        "dataSource": "Por fuente de datos",
+        "dataType": "Por tipo de dato"
+      },
+      "status": {
+        "received": "Recibidos",
+        "parsing_dropped": "Descartados (parseo)",
+        "analysis_dropped": "Descartados (análisis)",
+        "correlation_dropped": "Descartados (correlación)",
+        "all": "Todos los eventos"
+      }
+    },
+    "filters": {
+      "title": "Filtros",
+      "new": "Nuevo filtro",
+      "search": "Buscar por ruta…",
+      "refresh": "Actualizar",
+      "retry": "Reintentar",
+      "empty": "Ningún filtro coincide.",
+      "loadError": "No se pudieron cargar los filtros.",
+      "toggleError": "No se pudo cambiar el estado del filtro",
+      "system": "Sistema",
+      "custom": "Personalizado",
+      "systemReadonly": "Los filtros del sistema son de solo lectura",
+      "view": "Ver",
+      "edit": "Editar",
+      "ownership": {
+        "all": "Todos",
+        "system": "Sistema",
+        "custom": "Personalizados"
+      },
+      "state": {
+        "all": "Todos",
+        "active": "Activos",
+        "inactive": "Inactivos"
+      },
+      "col": {
+        "filter": "Filtro",
+        "type": "Tipo",
+        "active": "Activo",
+        "actions": "Acciones"
+      },
+      "pageInfo": "{{from}}–{{to}} de {{count}}"
+    },
+    "editor": {
+      "createTitle": "Nuevo filtro",
+      "editTitle": "Editar filtro",
+      "viewTitle": "Ver filtro",
+      "relPath": "Ruta",
+      "relPathHint": "Carpeta + archivo, p.ej. syslog/mi-filtro.yaml",
+      "content": "Pipeline (YAML)",
+      "contentHint": "Los pasos corren en orden: grok, rename, delete, plugins dynamic, …",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "saved": "Filtro guardado",
+      "saveError": "No se pudo guardar el filtro",
+      "cancel": "Cancelar",
+      "delete": "Eliminar",
+      "deleteConfirm": "¿Eliminar este filtro?",
+      "deleted": "Filtro eliminado",
+      "deleteError": "No se pudo eliminar el filtro"
+    },
+    "kpi": {
+      "received": "Recibidos",
+      "dropped": "Descartados",
+      "dropRate": "{{rate}}% de descarte"
+    },
+    "section": {
+      "overTime": "Eventos en el tiempo",
+      "top": "Top",
+      "dropReasons": "Razones de descarte"
+    }
+  },
+  "datasources": {
+    "title": "Fuentes de datos",
+    "total": "{{count}} en total",
+    "subtitle": "Agentes, integraciones y fuentes directas que envían eventos. El estado se deriva de la última vez que se vio cada fuente.",
+    "connectSource": "Conectar una fuente",
+    "loading": "Cargando fuentes de datos…",
+    "loadFailed": "No se pudieron cargar las fuentes de datos.",
+    "retry": "Reintentar",
+    "none": "Ninguna fuente coincide con esta vista.",
+    "ingestion": {
+      "title": "Ingestión · últimas 24 horas",
+      "received": "eventos recibidos",
+      "none": "Sin ingestión en las últimas 24 horas.",
+      "ago24h": "hace 24h",
+      "now": "ahora"
+    },
+    "usage": {
+      "title": "Uso de licencia",
+      "ofUnlimited": "de ilimitado",
+      "ofLimit": "de {{limit}}",
+      "overLimit": "Por encima del límite licenciado — los datos que excedan el tope están en riesgo."
+    },
+    "tabs": {
+      "all": "Todas",
+      "agent": "Agentes",
+      "puller": "Integraciones",
+      "direct": "Directas",
+      "offline": "Sin conexión"
+    },
+    "toolbar": {
+      "searchPlaceholder": "Buscar por nombre…",
+      "allGroups": "Todos los grupos",
+      "list": "Lista",
+      "cards": "Tarjetas",
+      "refresh": "Actualizar"
+    },
+    "groups": {
+      "new": "Nuevo grupo",
+      "namePlaceholder": "Nombre del grupo",
+      "create": "Crear"
+    },
+    "labels": {
+      "filteredBy": "Filtrado por label",
+      "add": "Agregar label…",
+      "addFirst": "Agregar un label…",
+      "hint": "Escribí un label y presioná Enter para agregarlo. Los cambios se guardan solos."
+    },
+    "status": {
+      "live": "Activa",
+      "idle": "Inactiva",
+      "offline": "Sin conexión"
+    },
+    "kind": {
+      "agent": "Agente",
+      "puller": "Integración",
+      "direct": "Directa"
+    },
+    "cols": {
+      "source": "Fuente",
+      "type": "Tipo",
+      "status": "Estado",
+      "events24h": "Eventos 24h",
+      "lastSeen": "Vista por última vez"
+    },
+    "time": {
+      "justNow": "ahora mismo",
+      "minutesAgo": "hace {{count}}m",
+      "hoursAgo": "hace {{count}}h",
+      "daysAgo": "hace {{count}}d"
+    },
+    "drawer": {
+      "loading": "Cargando…",
+      "loadFailed": "No se pudo cargar la fuente de datos.",
+      "statsIdentity": "Stats e identidad",
+      "metadata": "Metadata",
+      "group": "Grupo",
+      "labelsSection": "Labels",
+      "dangerZone": "Zona de peligro",
+      "rows": {
+        "events24h": "Eventos 24h",
+        "lastSeen": "Vista por última vez",
+        "discovered": "Descubierta",
+        "kind": "Tipo de origen",
+        "dataType": "Tipo de dato",
+        "ip": "IP",
+        "id": "ID"
+      },
+      "noGroup": "Sin grupo",
+      "dangerText": "Eliminar quita esta fuente del registro. Los eventos históricos siguen disponibles en el Log Explorer; si la fuente sigue enviando datos, se redescubrirá.",
+      "delete": "Eliminar fuente",
+      "confirmDelete": "Confirmar eliminación",
+      "cancel": "Cancelar"
+    },
+    "toast": {
+      "labelsUpdated": "Labels actualizados",
+      "labelsFailed": "No se pudieron actualizar los labels",
+      "groupUpdated": "Grupo actualizado",
+      "groupFailed": "No se pudo actualizar el grupo",
+      "deleted": "Fuente eliminada",
+      "deleteFailed": "No se pudo eliminar",
+      "groupCreated": "Grupo creado",
+      "groupCreateFailed": "No se pudo crear el grupo"
+    }
   }
 }

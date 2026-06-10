@@ -1180,5 +1180,190 @@
     "toast": {
       "exportFailed": "L'export a échoué"
     }
+  },
+  "dataProcessing": {
+    "title": "Traitement des données",
+    "subtitle": "Statistiques d’ingestion et de traitement : événements reçus, rejetés par étape, et les principales sources et types.",
+    "ingestion": {
+      "title": "Ingestion",
+      "last24h": "dernières 24 heures",
+      "noData": "Aucune donnée sur cette fenêtre.",
+      "loadError": "Impossible de charger les statistiques d’ingestion.",
+      "groupBy": {
+        "dataSource": "Par source de données",
+        "dataType": "Par type de données"
+      },
+      "status": {
+        "received": "Reçus",
+        "parsing_dropped": "Rejetés (analyse syntaxique)",
+        "analysis_dropped": "Rejetés (analyse)",
+        "correlation_dropped": "Rejetés (corrélation)",
+        "all": "Tous les événements"
+      }
+    },
+    "filters": {
+      "title": "Filtres",
+      "new": "Nouveau filtre",
+      "search": "Rechercher par chemin…",
+      "refresh": "Actualiser",
+      "retry": "Réessayer",
+      "empty": "Aucun filtre ne correspond.",
+      "loadError": "Impossible de charger les filtres.",
+      "toggleError": "Impossible de changer l’état du filtre",
+      "system": "Système",
+      "custom": "Personnalisé",
+      "systemReadonly": "Les filtres système sont en lecture seule",
+      "view": "Voir",
+      "edit": "Modifier",
+      "ownership": {
+        "all": "Tous",
+        "system": "Système",
+        "custom": "Personnalisés"
+      },
+      "state": {
+        "all": "Tous",
+        "active": "Actifs",
+        "inactive": "Inactifs"
+      },
+      "col": {
+        "filter": "Filtre",
+        "type": "Type",
+        "active": "Actif",
+        "actions": "Actions"
+      },
+      "pageInfo": "{{from}}–{{to}} sur {{count}}"
+    },
+    "editor": {
+      "createTitle": "Nouveau filtre",
+      "editTitle": "Modifier le filtre",
+      "viewTitle": "Voir le filtre",
+      "relPath": "Chemin",
+      "relPathHint": "Dossier + fichier, p. ex. syslog/mon-filtre.yaml",
+      "content": "Pipeline (YAML)",
+      "contentHint": "Les étapes s’exécutent dans l’ordre : grok, rename, delete, plugins dynamic, …",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "saved": "Filtre enregistré",
+      "saveError": "Impossible d’enregistrer le filtre",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "deleteConfirm": "Supprimer ce filtre ?",
+      "deleted": "Filtre supprimé",
+      "deleteError": "Impossible de supprimer le filtre"
+    },
+    "kpi": {
+      "received": "Reçus",
+      "dropped": "Rejetés",
+      "dropRate": "{{rate}} % de rejet"
+    },
+    "section": {
+      "overTime": "Événements dans le temps",
+      "top": "Top",
+      "dropReasons": "Motifs de rejet"
+    }
+  },
+  "datasources": {
+    "title": "Sources de données",
+    "total": "{{count}} au total",
+    "subtitle": "Agents, intégrations et sources directes qui envoient des événements. Le statut est dérivé de la dernière fois que chaque source a été vue.",
+    "connectSource": "Connecter une source",
+    "loading": "Chargement des sources de données…",
+    "loadFailed": "Impossible de charger les sources de données.",
+    "retry": "Réessayer",
+    "none": "Aucune source ne correspond à cette vue.",
+    "ingestion": {
+      "title": "Ingestion · dernières 24 heures",
+      "received": "événements reçus",
+      "none": "Aucune ingestion ces dernières 24 heures.",
+      "ago24h": "il y a 24h",
+      "now": "maintenant"
+    },
+    "usage": {
+      "title": "Utilisation de la licence",
+      "ofUnlimited": "sur illimité",
+      "ofLimit": "sur {{limit}}",
+      "overLimit": "Au-delà de la limite sous licence — les données au-delà du plafond sont à risque."
+    },
+    "tabs": {
+      "all": "Toutes",
+      "agent": "Agents",
+      "puller": "Intégrations",
+      "direct": "Directes",
+      "offline": "Hors ligne"
+    },
+    "toolbar": {
+      "searchPlaceholder": "Rechercher par nom…",
+      "allGroups": "Tous les groupes",
+      "list": "Liste",
+      "cards": "Cartes",
+      "refresh": "Actualiser"
+    },
+    "groups": {
+      "new": "Nouveau groupe",
+      "namePlaceholder": "Nom du groupe",
+      "create": "Créer"
+    },
+    "labels": {
+      "filteredBy": "Filtré par label",
+      "add": "Ajouter un label…",
+      "addFirst": "Ajouter un label…",
+      "hint": "Saisissez un label et appuyez sur Entrée pour l'ajouter. Les modifications sont enregistrées automatiquement."
+    },
+    "status": {
+      "live": "Actif",
+      "idle": "Inactif",
+      "offline": "Hors ligne"
+    },
+    "kind": {
+      "agent": "Agent",
+      "puller": "Intégration",
+      "direct": "Directe"
+    },
+    "cols": {
+      "source": "Source",
+      "type": "Type",
+      "status": "Statut",
+      "events24h": "Événements 24h",
+      "lastSeen": "Vu pour la dernière fois"
+    },
+    "time": {
+      "justNow": "à l'instant",
+      "minutesAgo": "il y a {{count}}m",
+      "hoursAgo": "il y a {{count}}h",
+      "daysAgo": "il y a {{count}}j"
+    },
+    "drawer": {
+      "loading": "Chargement…",
+      "loadFailed": "Impossible de charger la source de données.",
+      "statsIdentity": "Stats et identité",
+      "metadata": "Métadonnées",
+      "group": "Groupe",
+      "labelsSection": "Labels",
+      "dangerZone": "Zone de danger",
+      "rows": {
+        "events24h": "Événements 24h",
+        "lastSeen": "Vu pour la dernière fois",
+        "discovered": "Découverte",
+        "kind": "Type d'origine",
+        "dataType": "Type de donnée",
+        "ip": "IP",
+        "id": "ID"
+      },
+      "noGroup": "Aucun groupe",
+      "dangerText": "La suppression retire cette source du registre. Les événements historiques restent consultables dans le Log Explorer ; si la source continue d'envoyer des données, elle sera redécouverte.",
+      "delete": "Supprimer la source",
+      "confirmDelete": "Confirmer la suppression",
+      "cancel": "Annuler"
+    },
+    "toast": {
+      "labelsUpdated": "Labels mis à jour",
+      "labelsFailed": "Échec de la mise à jour des labels",
+      "groupUpdated": "Groupe mis à jour",
+      "groupFailed": "Échec de la mise à jour du groupe",
+      "deleted": "Source supprimée",
+      "deleteFailed": "Échec de la suppression",
+      "groupCreated": "Groupe créé",
+      "groupCreateFailed": "Échec de la création du groupe"
+    }
   }
 }
