@@ -1369,6 +1369,52 @@
             "storageContainer": { "label": "Storage container name" },
             "storageConnection": { "label": "Storage account connection string" }
           }
+        },
+        "aws": {
+          "sections": {
+            "prerequisite": {
+              "title": "Prerequisite · IAM user",
+              "body": "Before this integration can work, you need an IAM user for UTMStack with the CloudWatchLogsReadOnlyAccess policy. Capture its access key ID and secret access key — you'll paste them into the tenant form below."
+            },
+            "createTrail": {
+              "title": "1 · Create a trail",
+              "body": "In the CloudTrail panel, select \"Create trail\"."
+            },
+            "trailName": {
+              "title": "2 · Name the trail",
+              "body": "Fill in the \"Trail name\" field."
+            },
+            "s3Buckets": {
+              "title": "3 · Select S3 buckets",
+              "body": "Mark \"Select all S3 buckets in your account\"."
+            },
+            "bucketName": {
+              "title": "4 · Create the S3 bucket",
+              "body": "Fill in the \"S3 bucket\" field. The bucket name must be unique across S3. Then click \"Create\"."
+            },
+            "editTrail": {
+              "title": "5 · Open the trail to edit",
+              "body": "Click on the name of the trail to edit it."
+            },
+            "cloudwatchConfig": {
+              "title": "6 · Configure CloudWatch Logs",
+              "body": "Open the CloudWatch Logs section and enable the integration so the trail forwards events to a log group."
+            },
+            "logGroup": {
+              "title": "7 · Set the log group name",
+              "body": "Fill the log group name (e.g. utmstack) and continue. Use this same name in the \"Log group name\" field below."
+            },
+            "permissions": {
+              "title": "8 · Grant CloudTrail permissions",
+              "body": "Click \"Allow\" to grant CloudTrail permissions to write to the log group."
+            }
+          },
+          "fields": {
+            "accessKeyId": { "label": "AWS access key ID" },
+            "secretAccessKey": { "label": "AWS secret access key" },
+            "region": { "label": "AWS default region" },
+            "logGroupName": { "label": "Log group name" }
+          }
         }
       },
       "custom": {

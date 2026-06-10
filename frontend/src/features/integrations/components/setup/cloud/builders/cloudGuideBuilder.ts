@@ -1,6 +1,7 @@
 import type { TenantResponse } from '@/features/integrations/types'
 import { GOOGLE_SECTIONS, GOOGLE_FIELDS } from './google'
 import { AZURE_SECTIONS, AZURE_FIELDS } from './azure'
+import { AWS_SECTIONS, AWS_FIELDS } from './aws'
 
 export interface CloudGuideSection {
   id: string
@@ -43,6 +44,18 @@ export function buildCloudGuide(name: string, ctx: CloudGuideContext): CloudGuid
     return {
       sections: AZURE_SECTIONS,
       fields: AZURE_FIELDS,
+      tenants: ctx.tenants,
+    }
+  }
+
+  if (
+    normalized.includes('aws') ||
+    normalized.includes('cloudtrail') ||
+    normalized.includes('cloudwatch')
+  ) {
+    return {
+      sections: AWS_SECTIONS,
+      fields: AWS_FIELDS,
       tenants: ctx.tenants,
     }
   }
