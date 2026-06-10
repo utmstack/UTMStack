@@ -1238,7 +1238,14 @@
         "afterTitle": "Cosa vedrai dopo l'installazione",
         "after1": "L'host appare sotto Origini dati entro ~60 secondi dall'avvio dell'agente.",
         "after2": "La telemetria inizia a fluire in Log Explorer, limitata al tuo workspace.",
-        "after3": "L'agente auto-segnala lo stato di CPU/memoria/disco a UTMStack."
+        "after3": "L'agente auto-segnala lo stato di CPU/memoria/disco a UTMStack.",
+        "actionLabel": "Azione",
+        "platformLabel": "Piattaforma",
+        "loadingToken": "Caricamento token…",
+        "actions": {
+          "install": "Installa",
+          "uninstall": "Disinstalla"
+        }
       },
       "collector": {
         "howItWorksTitle": "Come funziona",

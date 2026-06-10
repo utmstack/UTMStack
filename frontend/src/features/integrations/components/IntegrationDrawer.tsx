@@ -94,7 +94,7 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
         </header>
 
         <div className="flex-1 overflow-y-auto bg-muted/20 p-6">
-          {i.kind === 'agent' && <AgentSetup integration={i} />}
+          {i.kind === 'agents & syslog' && <AgentSetup integration={i} />}
           {i.kind === 'collector' && <CollectorSetup integration={i} />}
           {i.kind === 'cloud' && <CloudSetup integration={i} />}
           {i.kind === 'custom' && <CustomSetup />}

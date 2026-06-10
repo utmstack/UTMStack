@@ -1238,7 +1238,14 @@
         "afterTitle": "Ce que vous verrez après l'installation",
         "after1": "L'hôte apparaît sous Sources de données dans environ 60 secondes après le démarrage de l'agent.",
         "after2": "La télémétrie commence à circuler vers Log Explorer, limitée à votre espace de travail.",
-        "after3": "L'agent auto-signale l'état de CPU / mémoire / disque à UTMStack."
+        "after3": "L'agent auto-signale l'état de CPU / mémoire / disque à UTMStack.",
+        "actionLabel": "Action",
+        "platformLabel": "Plateforme",
+        "loadingToken": "Chargement du jeton…",
+        "actions": {
+          "install": "Installer",
+          "uninstall": "Désinstaller"
+        }
       },
       "collector": {
         "howItWorksTitle": "Comment ça marche",

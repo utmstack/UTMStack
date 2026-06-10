@@ -1238,7 +1238,14 @@
         "afterTitle": "What you'll see after install",
         "after1": "The host appears under Data Sources within ~60 seconds of agent start.",
         "after2": "Telemetry begins flowing into Log Explorer, scoped to your workspace.",
-        "after3": "The agent self-reports CPU / memory / disk health back to UTMStack."
+        "after3": "The agent self-reports CPU / memory / disk health back to UTMStack.",
+        "actionLabel": "Action",
+        "platformLabel": "Platform",
+        "loadingToken": "Loading token…",
+        "actions": {
+          "install": "Install",
+          "uninstall": "Uninstall"
+        }
       },
       "collector": {
         "howItWorksTitle": "How it works",

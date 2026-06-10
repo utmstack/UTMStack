@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Section } from '@/features/integrations/components/ui/Section'
-import { CodeBlock } from '@/features/integrations/components/ui/CodeBlock'
+import { AgentInstallSelector } from '@/features/integrations/components/setup/AgentInstallSelector'
 import type { Integration } from '@/features/integrations/types'
 
 interface AgentSetupProps {
@@ -9,19 +9,6 @@ interface AgentSetupProps {
 
 export function AgentSetup({ integration: i }: AgentSetupProps) {
   const { t } = useTranslation()
-
-  const cmd =
-    i.id === 'agent-windows'
-      ? `# PowerShell (Run as Administrator)
-iwr https://install.utmstack.com/agent.ps1 -OutFile install.ps1
-./install.ps1 -Token "eyJ...workspace_id=acme..."`
-      : i.id === 'agent-linux'
-        ? `# Linux — bash
-curl -fsSL https://install.utmstack.com/agent.sh | sudo bash -s -- \\
-  --token=eyJ...workspace_id=acme...`
-        : `# macOS — bash
-curl -fsSL https://install.utmstack.com/agent-macos.sh | sudo bash -s -- \\
-  --token=eyJ...workspace_id=acme...`
 
   return (
     <div className="space-y-4">
@@ -35,7 +22,7 @@ curl -fsSL https://install.utmstack.com/agent-macos.sh | sudo bash -s -- \\
         <p className="mb-2 text-xs text-muted-foreground">
           {t('integrations.setup.agent.installHint', { name: i.name.toLowerCase() })}
         </p>
-        <CodeBlock code={cmd} />
+        <AgentInstallSelector integration={i} />
       </Section>
 
       <Section title={t('integrations.setup.agent.afterTitle')}>

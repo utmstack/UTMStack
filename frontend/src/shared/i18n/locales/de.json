@@ -1238,7 +1238,14 @@
         "afterTitle": "Was Sie nach der Installation sehen",
         "after1": "Der Host wird unter Datenquellen etwa 60 Sekunden nach dem Start des Agenten angezeigt.",
         "after2": "Telemetrie wird in Log Explorer übertragen und auf Ihren Arbeitsbereich beschränkt.",
-        "after3": "Der Agent meldet CPU-/Speicher-/Datenträgerzustand automatisch an UTMStack zurück."
+        "after3": "Der Agent meldet CPU-/Speicher-/Datenträgerzustand automatisch an UTMStack zurück.",
+        "actionLabel": "Aktion",
+        "platformLabel": "Plattform",
+        "loadingToken": "Token wird geladen…",
+        "actions": {
+          "install": "Installieren",
+          "uninstall": "Deinstallieren"
+        }
       },
       "collector": {
         "howItWorksTitle": "Funktionsweise",
