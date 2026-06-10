@@ -16,7 +16,7 @@ references:
   - "https://attack.mitre.org/tactics/TA0001/"
   - "https://attack.mitre.org/techniques/T1190"
 where: |
-  equals("log.protoPayload.methodName", "google.login.LoginService.suspiciousLoginLessSecureApp")
+  equals("log.protoPayloadMethodName", "google.login.LoginService.suspiciousLoginLessSecureApp")
 groupBy:
   - adversary.ip
   - adversary.user

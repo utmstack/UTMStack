@@ -17,7 +17,7 @@ references:
   - "https://attack.mitre.org/tactics/TA0009/"
   - "https://attack.mitre.org/techniques/T1560"
 where: |
-  equals("log.protoPayload.methodName", "google.login.LoginService.accountDisabledHijacked")
+  equals("log.protoPayloadMethodName", "google.login.LoginService.accountDisabledHijacked")
 groupBy:
   - target.ip
   - target.user
