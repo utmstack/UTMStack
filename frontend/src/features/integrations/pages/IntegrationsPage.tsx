@@ -8,10 +8,16 @@ import { IntegrationsHeader } from '@/features/integrations/components/Integrati
 import { IntegrationsTabs } from '@/features/integrations/components/IntegrationsTabs'
 import { IntegrationCard } from '@/features/integrations/components/IntegrationCard'
 import { IntegrationDrawer } from '@/features/integrations/components/IntegrationDrawer'
+import { AddCustomIntegrationCard } from '@/features/integrations/components/AddCustomIntegrationCard'
 import { KIND_META } from '@/features/integrations/constants'
 import type { Integration, Tab, DeployKind } from '@/features/integrations/types'
 
-const LOGO = (slug: string) => `/integrations/${slug}`
+const LOGO = (slug: string) => {
+  if(slug.startsWith('http')){
+    return slug
+  }
+  return `/integrations/${slug}`
+}
 
 const TABS: { id: Tab; predicate: (kind: DeployKind) => boolean }[] = [
   { id: 'all', predicate: () => true },
@@ -40,7 +46,7 @@ function mapModuleToIntegration(module: any): Integration {
     status: module.moduleActive ? 'configured' : 'available',
     description: module.moduleDescription || '',
     category: module.moduleCategory || '',
-    logo: module.moduleIcon || LOGO('placeholder.svg'),
+    logo: LOGO(module.moduleIcon) || LOGO('placeholder.svg'),
     darkInvert: false,
     events24h: undefined,
     rate: undefined,
@@ -125,6 +131,7 @@ export function IntegrationsPage() {
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+        <AddCustomIntegrationCard onClick={() => {}} />
         {filtered.map((i) => (
           <IntegrationCard key={i.id} integration={i} onOpen={() => setOpen(i)} />
         ))}

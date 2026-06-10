@@ -1190,6 +1190,10 @@
     "noMatch": "No integrations match.",
     "browseMarketplace": "Browse marketplace",
     "loading": "Loading integrations…",
+    "addCustom": {
+      "title": "Add custom integration",
+      "description": "Create a new custom source"
+    },
     "tabs": {
       "all": "All",
       "agents": "Agents",
