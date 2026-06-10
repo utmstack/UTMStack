@@ -18,10 +18,6 @@ export function IntegrationsHeader({ configured, total }: IntegrationsHeaderProp
           {t('integrations.subtitle', { count: configured, total })}
         </p>
       </div>
-      <Button size="sm" variant="outline">
-        <ExternalLink size={14} className="mr-2" />
-        {t('integrations.browseMarketplace')}
-      </Button>
     </header>
   )
 }
