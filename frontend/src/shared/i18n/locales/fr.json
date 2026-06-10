@@ -1181,6 +1181,133 @@
       "exportFailed": "L'export a échoué"
     }
   },
+  "integrations": {
+    "title": "Intégrations",
+    "subtitle_one": "{{count}} sur {{total}} intégration configurée.",
+    "subtitle_other": "{{count}} sur {{total}} intégrations configurées.",
+    "searchPlaceholder": "Rechercher des intégrations…",
+    "configuredOnly": "Configurées uniquement",
+    "noMatch": "Aucune intégration ne correspond.",
+    "browseMarketplace": "Parcourir la marketplace",
+    "loading": "Chargement des intégrations…",
+    "addCustom": {
+      "title": "Ajouter une intégration personnalisée",
+      "description": "Créer une nouvelle source personnalisée"
+    },
+    "tabs": {
+      "all": "Toutes",
+      "agents": "Agents",
+      "collectors": "Collecteurs",
+      "cloud": "Cloud",
+      "custom": "Personnalisée"
+    },
+    "kind": {
+      "agents & syslog": "Agent",
+      "device": "Collecteur",
+      "antivirus": "Collecteur",
+      "other": "Collecteur",
+      "custom": "Personnalisée",
+      "cloud": "Cloud",
+      "utmstack modules": "Collecteur"
+    },
+    "status": {
+      "configured": "Configurée",
+      "available": "Disponible"
+    },
+    "card": {
+      "manage": "Gérer →",
+      "setup": "Configurer →",
+      "eventsPerSec": "{{rate}} é/s"
+    },
+    "drawer": {
+      "manage": "Gérer",
+      "viewEvents": "Voir les événements",
+      "documentation": "Documentation",
+      "getInstallCmd": "Obtenir la commande d'installation",
+      "setupCollector": "Configurer le collecteur",
+      "connect": "Connecter",
+      "configureCustom": "Configurer la source personnalisée",
+      "eventsRate": "{{rate}} événements/s · {{count}} en 24h"
+    },
+    "setup": {
+      "agent": {
+        "howItWorksTitle": "Comment ça marche",
+        "howItWorksBody": "L'agent {{name}} est un petit démon qui s'exécute sur l'hôte et transfère les événements locaux à UTMStack via une connexion TLS authentifiée. Il se met à jour automatiquement et signale son état.",
+        "installTitle": "Installer sur {{name}}",
+        "installHint": "Exécutez cette commande sur chaque hôte {{name}} que vous souhaitez surveiller. Le jeton code déjà votre espace de travail actuel.",
+        "afterTitle": "Ce que vous verrez après l'installation",
+        "after1": "L'hôte apparaît sous Sources de données dans environ 60 secondes après le démarrage de l'agent.",
+        "after2": "La télémétrie commence à circuler vers Log Explorer, limitée à votre espace de travail.",
+        "after3": "L'agent auto-signale l'état de CPU / mémoire / disque à UTMStack."
+      },
+      "collector": {
+        "howItWorksTitle": "Comment ça marche",
+        "howItWorksBody": "{{name}} n'exécute pas d'agent UTMStack. À la place, vous installez le collecteur UTMStack quelque part sur le réseau que votre appareil {{name}} et UTMStack peuvent atteindre. {{name}} envoie syslog au collecteur, le collecteur analyse, normalise et transfère les événements à UTMStack.",
+        "step1Title": "1 · Installer le collecteur UTMStack",
+        "step1Hint": "Exécutez sur un hôte Linux avec accès réseau depuis l'appareil {{name}}.",
+        "step2Title": "2 · Configurer {{name}} pour envoyer syslog",
+        "step2Hint": "Sur l'appareil {{name}}, pointez la transmission syslog vers l'adresse du collecteur sur {{port}}.",
+        "vendorDocs": "Voir les instructions spécifiques au fournisseur",
+        "step3Title": "3 · Vérifier",
+        "step3Body": "En quelques minutes, vous devriez voir les événements de {{name}} sous source : {{source}} dans Log Explorer, et une nouvelle entrée dans Sources de données."
+      },
+      "cloud": {
+        "howItWorksTitle": "Comment ça marche",
+        "howItWorksBody": "{{name}} s'exécute entièrement dans UTMStack — pas d'agent ni de collecteur à déployer. Fournissez des identifiants API en lecture seule et UTMStack extraira les événements selon un horaire, les analysera et les ingérera dans Log Explorer.",
+        "connectionTitle": "Connexion",
+        "noFields": "Aucun champ de connexion configuré.",
+        "testConnection": "Tester la connexion",
+        "save": "Enregistrer",
+        "afterTitle": "Ce que vous verrez après la connexion",
+        "after1": "UTMStack effectue un remplissage initial des événements récents.",
+        "after2": "Ensuite, les événements sont extraits toutes les 1–5 minutes (dépend de l'API).",
+        "after3": "L'intégration apparaît sous Sources de données avec l'état d'extraction et le décalage actuels."
+      },
+      "custom": {
+        "whenTitle": "Quand l'utiliser",
+        "whenBody": "Quand votre source n'est pas dans le catalogue. Transférez syslog ou JSON arbitraire à UTMStack et définissez un analyseur pour normaliser les champs.",
+        "endpointsTitle": "Points d'accès",
+        "syslogUdp": "Syslog (UDP)",
+        "syslogTls": "Syslog (TLS)",
+        "httpJson": "HTTP / JSON",
+        "payloadTitle": "Exemple de payload JSON",
+        "parserTitle": "Définir l'analyseur",
+        "parserBody": "UTMStack détectera automatiquement les clés JSON et proposera des mappages de champs. Vous pouvez remplacer les mappages dans l'éditeur d'analyseur et ajouter des modèles Grok gratuitement.",
+        "openEditor": "Ouvrir l'éditeur d'analyseur",
+        "powershellLabel": "PowerShell (Exécuter en tant qu'administrateur)",
+        "linuxLabel": "Linux — bash",
+        "macosLabel": "macOS — bash",
+        "exampleLabel": "Exemple de cible syslog sur {{name}} :"
+      }
+    },
+    "codeBlock": {
+      "copy": "Copier",
+      "copied": "Copié"
+    },
+    "createDrawer": {
+      "title": "Nouvelle intégration personnalisée",
+      "moduleName": "Nom du module",
+      "moduleNameHint": "Identificateur unique. Sans espaces.",
+      "moduleNamePlaceholder": "ma-app-personnalisee",
+      "prettyName": "Nom d'affichage",
+      "prettyNamePlaceholder": "Ma App Personnalisée",
+      "dataType": "Type de données",
+      "dataTypePlaceholder": "Identificateur unique pour ce type de données",
+      "icon": "Icône",
+      "iconHint": "PNG, SVG, JPEG, GIF ou WEBP. Maximum 3 MB. Utilisé comme logo d'intégration.",
+      "iconPreview": "Aperçu de l'icône",
+      "dataTypeExists": "Ce type de données existe déjà",
+      "invalidFileType": "L'icône doit être un fichier image valide (PNG, JPEG, SVG, GIF, WEBP)",
+      "fileTooLarge": "L'icône ne doit pas dépasser 3 MB",
+      "fileReadError": "Échec de la lecture du fichier",
+      "cancel": "Annuler",
+      "create": "Créer l'intégration",
+      "creating": "Création…"
+    },
+    "toast": {
+      "created": "Intégration créée"
+    }
+  },
   "dataProcessing": {
     "title": "Traitement des données",
     "subtitle": "Statistiques d’ingestion et de traitement : événements reçus, rejetés par étape, et les principales sources et types.",

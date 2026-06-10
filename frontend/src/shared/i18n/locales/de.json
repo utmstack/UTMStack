@@ -1181,6 +1181,133 @@
       "exportFailed": "Export fehlgeschlagen"
     }
   },
+  "integrations": {
+    "title": "Integrationen",
+    "subtitle_one": "{{count}} von {{total}} Integration konfiguriert.",
+    "subtitle_other": "{{count}} von {{total}} Integrationen konfiguriert.",
+    "searchPlaceholder": "Integrationen durchsuchen…",
+    "configuredOnly": "Nur konfigurierte",
+    "noMatch": "Keine Integrationen gefunden.",
+    "browseMarketplace": "Marketplace durchsuchen",
+    "loading": "Integrationen werden geladen…",
+    "addCustom": {
+      "title": "Benutzerdefinierte Integration hinzufügen",
+      "description": "Neue benutzerdefinierte Quelle erstellen"
+    },
+    "tabs": {
+      "all": "Alle",
+      "agents": "Agenten",
+      "collectors": "Sammler",
+      "cloud": "Cloud",
+      "custom": "Benutzerdefiniert"
+    },
+    "kind": {
+      "agents & syslog": "Agent",
+      "device": "Sammler",
+      "antivirus": "Sammler",
+      "other": "Sammler",
+      "custom": "Benutzerdefiniert",
+      "cloud": "Cloud",
+      "utmstack modules": "Sammler"
+    },
+    "status": {
+      "configured": "Konfiguriert",
+      "available": "Verfügbar"
+    },
+    "card": {
+      "manage": "Verwalten →",
+      "setup": "Einrichten →",
+      "eventsPerSec": "{{rate}} E/s"
+    },
+    "drawer": {
+      "manage": "Verwalten",
+      "viewEvents": "Ereignisse anzeigen",
+      "documentation": "Dokumentation",
+      "getInstallCmd": "Installationsbefehl abrufen",
+      "setupCollector": "Sammler einrichten",
+      "connect": "Verbinden",
+      "configureCustom": "Benutzerdefinierte Quelle konfigurieren",
+      "eventsRate": "{{rate}} Ereignisse/s · {{count}} in 24h"
+    },
+    "setup": {
+      "agent": {
+        "howItWorksTitle": "Funktionsweise",
+        "howItWorksBody": "Der {{name}}-Agent ist ein kleiner Daemon, der auf dem Host ausgeführt wird und lokale Ereignisse über eine authentifizierte TLS-Verbindung an UTMStack weiterleitet. Er wird automatisch aktualisiert und meldet seinen Gesundheitsstatus.",
+        "installTitle": "Auf {{name}} installieren",
+        "installHint": "Führen Sie diesen Befehl auf jedem {{name}}-Host aus, den Sie überwachen möchten. Das Token codiert bereits Ihren aktuellen Arbeitsbereich.",
+        "afterTitle": "Was Sie nach der Installation sehen",
+        "after1": "Der Host wird unter Datenquellen etwa 60 Sekunden nach dem Start des Agenten angezeigt.",
+        "after2": "Telemetrie wird in Log Explorer übertragen und auf Ihren Arbeitsbereich beschränkt.",
+        "after3": "Der Agent meldet CPU-/Speicher-/Datenträgerzustand automatisch an UTMStack zurück."
+      },
+      "collector": {
+        "howItWorksTitle": "Funktionsweise",
+        "howItWorksBody": "{{name}} führt keinen UTMStack-Agent aus. Stattdessen installieren Sie den UTMStack-Sammler irgendwo im Netzwerk, das sowohl Ihr {{name}}-Gerät als auch UTMStack erreichen können. {{name}} sendet Syslog an den Sammler, der Sammler analysiert, normalisiert und leitet Ereignisse an UTMStack weiter.",
+        "step1Title": "1 · Installieren Sie den UTMStack-Sammler",
+        "step1Hint": "Führen Sie auf einem Linux-Host mit Netzwerkzugriff vom {{name}}-Gerät aus.",
+        "step2Title": "2 · {{name}} zum Senden von Syslog konfigurieren",
+        "step2Hint": "Richten Sie auf dem {{name}}-Gerät die Syslog-Weiterleitung auf die Adresse des Sammlers auf {{port}} aus.",
+        "vendorDocs": "Herstellerspezifische Anweisungen anzeigen",
+        "step3Title": "3 · Überprüfung",
+        "step3Body": "Innerhalb weniger Minuten sollten Sie {{name}}-Ereignisse unter source: {{source}} in Log Explorer und einen neuen Eintrag unter Datenquellen sehen."
+      },
+      "cloud": {
+        "howItWorksTitle": "Funktionsweise",
+        "howItWorksBody": "{{name}} wird vollständig in UTMStack ausgeführt — kein Agent oder Sammler erforderlich. Stellen Sie schreibgeschützte API-Anmeldedaten bereit und UTMStack ruft Ereignisse nach Zeitplan ab, analysiert sie und speichert sie in Log Explorer.",
+        "connectionTitle": "Verbindung",
+        "noFields": "Keine Verbindungsfelder konfiguriert.",
+        "testConnection": "Verbindung testen",
+        "save": "Speichern",
+        "afterTitle": "Was Sie nach dem Herstellen der Verbindung sehen",
+        "after1": "UTMStack führt einen Ausgleichszustand mit aktuellen Ereignissen durch.",
+        "after2": "Danach werden Ereignisse alle 1–5 Minuten abgerufen (abhängig von der API).",
+        "after3": "Die Integration wird unter Datenquellen mit aktuellem Abrufstatus und Verzögerung angezeigt."
+      },
+      "custom": {
+        "whenTitle": "Wann ist dies zu verwenden",
+        "whenBody": "Wenn Ihre Quelle nicht im Katalog vorhanden ist. Leiten Sie beliebiges Syslog oder JSON an UTMStack weiter und definieren Sie einen Parser zum Normalisieren von Feldern.",
+        "endpointsTitle": "Endpunkte",
+        "syslogUdp": "Syslog (UDP)",
+        "syslogTls": "Syslog (TLS)",
+        "httpJson": "HTTP / JSON",
+        "payloadTitle": "JSON-Payload-Beispiel",
+        "parserTitle": "Parser definieren",
+        "parserBody": "UTMStack erkennt automatisch JSON-Schlüssel und schlägt Feldzuordnungen vor. Sie können Zuordnungen im Parser-Editor überschreiben und Grok-Muster kostenlos hinzufügen.",
+        "openEditor": "Parser-Editor öffnen",
+        "powershellLabel": "PowerShell (Als Administrator ausführen)",
+        "linuxLabel": "Linux — bash",
+        "macosLabel": "macOS — bash",
+        "exampleLabel": "Syslog-Zielbeispiel auf {{name}}:"
+      }
+    },
+    "codeBlock": {
+      "copy": "Kopieren",
+      "copied": "Kopiert"
+    },
+    "createDrawer": {
+      "title": "Neue benutzerdefinierte Integration",
+      "moduleName": "Modulname",
+      "moduleNameHint": "Eindeutige Kennung. Keine Leerzeichen.",
+      "moduleNamePlaceholder": "meine-custom-app",
+      "prettyName": "Anzeigename",
+      "prettyNamePlaceholder": "Meine Custom App",
+      "dataType": "Datentyp",
+      "dataTypePlaceholder": "Eindeutige Kennung für diesen Datentyp",
+      "icon": "Symbol",
+      "iconHint": "PNG, SVG, JPEG, GIF oder WEBP. Max. 3 MB. Wird als Integrations-Logo verwendet.",
+      "iconPreview": "Symbolvorschau",
+      "dataTypeExists": "Dieser Datentyp ist bereits vorhanden",
+      "invalidFileType": "Das Symbol muss eine gültige Bilddatei sein (PNG, JPEG, SVG, GIF, WEBP)",
+      "fileTooLarge": "Das Symbol darf 3 MB nicht überschreiten",
+      "fileReadError": "Fehler beim Lesen der Datei",
+      "cancel": "Abbrechen",
+      "create": "Integration erstellen",
+      "creating": "Wird erstellt…"
+    },
+    "toast": {
+      "created": "Integration erstellt"
+    }
+  },
   "dataProcessing": {
     "title": "Datenverarbeitung",
     "subtitle": "Ingestion- und Verarbeitungsstatistiken: empfangene und (nach Stufe) verworfene Ereignisse sowie die wichtigsten Quellen und Typen.",

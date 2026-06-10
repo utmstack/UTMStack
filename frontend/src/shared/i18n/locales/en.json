@@ -1181,6 +1181,133 @@
       "exportFailed": "Export failed"
     }
   },
+  "integrations": {
+    "title": "Integrations",
+    "subtitle_one": "{{count}} of {{total}} integration configured.",
+    "subtitle_other": "{{count}} of {{total}} integrations configured.",
+    "searchPlaceholder": "Search integrations…",
+    "configuredOnly": "Configured only",
+    "noMatch": "No integrations match.",
+    "browseMarketplace": "Browse marketplace",
+    "loading": "Loading integrations…",
+    "addCustom": {
+      "title": "Add custom integration",
+      "description": "Create a new custom source"
+    },
+    "tabs": {
+      "all": "All",
+      "agents": "Agents",
+      "collectors": "Collectors",
+      "cloud": "Cloud",
+      "custom": "Custom"
+    },
+    "kind": {
+      "agents & syslog": "Agent",
+      "device": "Collector",
+      "antivirus": "Collector",
+      "other": "Collector",
+      "custom": "Custom",
+      "cloud": "Cloud",
+      "utmstack modules": "Collector"
+    },
+    "status": {
+      "configured": "Configured",
+      "available": "Available"
+    },
+    "card": {
+      "manage": "Manage →",
+      "setup": "Set up →",
+      "eventsPerSec": "{{rate}} e/s"
+    },
+    "drawer": {
+      "manage": "Manage",
+      "viewEvents": "View events",
+      "documentation": "Documentation",
+      "getInstallCmd": "Get install command",
+      "setupCollector": "Set up collector",
+      "connect": "Connect",
+      "configureCustom": "Configure custom source",
+      "eventsRate": "{{rate}} events/sec · {{count}} in 24h"
+    },
+    "setup": {
+      "agent": {
+        "howItWorksTitle": "How it works",
+        "howItWorksBody": "The {{name}} agent is a small daemon that runs on the host and forwards local events to UTMStack over an authenticated TLS connection. It auto-updates and reports its health.",
+        "installTitle": "Install on {{name}}",
+        "installHint": "Run this command on every {{name}} host you want to monitor. The token already encodes your current workspace.",
+        "afterTitle": "What you'll see after install",
+        "after1": "The host appears under Data Sources within ~60 seconds of agent start.",
+        "after2": "Telemetry begins flowing into Log Explorer, scoped to your workspace.",
+        "after3": "The agent self-reports CPU / memory / disk health back to UTMStack."
+      },
+      "collector": {
+        "howItWorksTitle": "How it works",
+        "howItWorksBody": "{{name}} doesn't run a UTMStack agent. Instead, you install the UTMStack collector somewhere on the network that both your {{name}} device and UTMStack can reach. {{name}} sends syslog to the collector, the collector parses, normalizes, and forwards events into UTMStack.",
+        "step1Title": "1 · Install the UTMStack collector",
+        "step1Hint": "Run on a Linux host with network access from the {{name}} device.",
+        "step2Title": "2 · Configure {{name}} to send syslog",
+        "step2Hint": "On the {{name}} device, point syslog forwarding to the collector's address on {{port}}.",
+        "vendorDocs": "See vendor-specific instructions",
+        "step3Title": "3 · Verify",
+        "step3Body": "Within a few minutes you should see {{name}} events under source: {{source}} in Log Explorer, and a new entry in Data Sources."
+      },
+      "cloud": {
+        "howItWorksTitle": "How it works",
+        "howItWorksBody": "{{name}} runs entirely inside UTMStack — no agent or collector to deploy. Provide read-only API credentials and UTMStack will pull events on a schedule, parse them, and ingest them into Log Explorer.",
+        "connectionTitle": "Connection",
+        "noFields": "No connection fields configured.",
+        "testConnection": "Test connection",
+        "save": "Save",
+        "afterTitle": "What you'll see after connecting",
+        "after1": "UTMStack performs an initial backfill of recent events.",
+        "after2": "From then on, events are pulled every 1–5 minutes (depends on the API).",
+        "after3": "The integration appears under Data Sources with current pull status and lag."
+      },
+      "custom": {
+        "whenTitle": "When to use this",
+        "whenBody": "When your source isn't in the catalog. Forward arbitrary syslog or JSON to UTMStack and define a parser to normalize fields.",
+        "endpointsTitle": "Endpoints",
+        "syslogUdp": "Syslog (UDP)",
+        "syslogTls": "Syslog (TLS)",
+        "httpJson": "HTTP / JSON",
+        "payloadTitle": "JSON payload sample",
+        "parserTitle": "Define the parser",
+        "parserBody": "UTMStack will auto-detect JSON keys and propose field mappings. You can override mappings in the parser editor and add Grok patterns for free-form text.",
+        "openEditor": "Open parser editor",
+        "powershellLabel": "PowerShell (Run as Administrator)",
+        "linuxLabel": "Linux — bash",
+        "macosLabel": "macOS — bash",
+        "exampleLabel": "Example syslog target on {{name}}:"
+      }
+    },
+    "codeBlock": {
+      "copy": "Copy",
+      "copied": "Copied"
+    },
+    "createDrawer": {
+      "title": "New custom integration",
+      "moduleName": "Module name",
+      "moduleNameHint": "Unique identifier. No spaces.",
+      "moduleNamePlaceholder": "my-custom-app",
+      "prettyName": "Display name",
+      "prettyNamePlaceholder": "My Custom App",
+      "dataType": "Data type",
+      "dataTypePlaceholder": "Unique identifier for this data type",
+      "icon": "Icon",
+      "iconHint": "PNG, SVG, JPEG, GIF or WEBP. Max 3MB. Used as the integration logo.",
+      "iconPreview": "Icon preview",
+      "dataTypeExists": "This data type already exists",
+      "invalidFileType": "Icon must be a valid image file (PNG, JPEG, SVG, GIF, WEBP)",
+      "fileTooLarge": "Icon must not exceed 3MB",
+      "fileReadError": "Failed to read file",
+      "cancel": "Cancel",
+      "create": "Create integration",
+      "creating": "Creating…"
+    },
+    "toast": {
+      "created": "Integration created"
+    }
+  },
   "dataProcessing": {
     "title": "Data processing",
     "subtitle": "Ingestion and processing statistics: events received, dropped by stage, and the top sources and types.",

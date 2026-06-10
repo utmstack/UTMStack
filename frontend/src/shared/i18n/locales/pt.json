@@ -1181,6 +1181,133 @@
       "exportFailed": "A exportação falhou"
     }
   },
+  "integrations": {
+    "title": "Integrações",
+    "subtitle_one": "{{count}} de {{total}} integração configurada.",
+    "subtitle_other": "{{count}} de {{total}} integrações configuradas.",
+    "searchPlaceholder": "Pesquisar integrações…",
+    "configuredOnly": "Apenas configuradas",
+    "noMatch": "Nenhuma integração corresponde.",
+    "browseMarketplace": "Explorar marketplace",
+    "loading": "Carregando integrações…",
+    "addCustom": {
+      "title": "Adicionar integração personalizada",
+      "description": "Criar uma nova fonte personalizada"
+    },
+    "tabs": {
+      "all": "Todas",
+      "agents": "Agentes",
+      "collectors": "Coletores",
+      "cloud": "Cloud",
+      "custom": "Personalizada"
+    },
+    "kind": {
+      "agents & syslog": "Agente",
+      "device": "Coletor",
+      "antivirus": "Coletor",
+      "other": "Coletor",
+      "custom": "Personalizada",
+      "cloud": "Cloud",
+      "utmstack modules": "Coletor"
+    },
+    "status": {
+      "configured": "Configurada",
+      "available": "Disponível"
+    },
+    "card": {
+      "manage": "Gerenciar →",
+      "setup": "Configurar →",
+      "eventsPerSec": "{{rate}} e/s"
+    },
+    "drawer": {
+      "manage": "Gerenciar",
+      "viewEvents": "Ver eventos",
+      "documentation": "Documentação",
+      "getInstallCmd": "Obter comando de instalação",
+      "setupCollector": "Configurar coletor",
+      "connect": "Conectar",
+      "configureCustom": "Configurar fonte personalizada",
+      "eventsRate": "{{rate}} eventos/s · {{count}} em 24h"
+    },
+    "setup": {
+      "agent": {
+        "howItWorksTitle": "Como funciona",
+        "howItWorksBody": "O agente {{name}} é um pequeno daemon que executa no host e encaminha eventos locais para o UTMStack através de uma conexão TLS autenticada. Ele se atualiza automaticamente e relata sua saúde.",
+        "installTitle": "Instalar em {{name}}",
+        "installHint": "Execute este comando em cada host {{name}} que deseje monitorar. O token já codifica seu workspace atual.",
+        "afterTitle": "O que você verá após a instalação",
+        "after1": "O host aparece em Fontes de dados dentro de ~60 segundos após o início do agente.",
+        "after2": "A telemetria começa a fluir para o Log Explorer, limitada ao seu workspace.",
+        "after3": "O agente auto-relata CPU / memória / saúde do disco para o UTMStack."
+      },
+      "collector": {
+        "howItWorksTitle": "Como funciona",
+        "howItWorksBody": "{{name}} não executa um agente do UTMStack. Em vez disso, você instala o coletor do UTMStack em algum lugar da rede que tanto seu dispositivo {{name}} quanto o UTMStack possam acessar. {{name}} envia syslog para o coletor, o coletor analisa, normaliza e encaminha eventos para o UTMStack.",
+        "step1Title": "1 · Instalar o coletor do UTMStack",
+        "step1Hint": "Execute em um host Linux com acesso de rede do dispositivo {{name}}.",
+        "step2Title": "2 · Configurar {{name}} para enviar syslog",
+        "step2Hint": "No dispositivo {{name}}, aponte o encaminhamento de syslog para o endereço do coletor em {{port}}.",
+        "vendorDocs": "Ver instruções específicas do fornecedor",
+        "step3Title": "3 · Verificar",
+        "step3Body": "Dentro de alguns minutos você deve ver eventos de {{name}} em source: {{source}} no Log Explorer, e uma nova entrada em Fontes de dados."
+      },
+      "cloud": {
+        "howItWorksTitle": "Como funciona",
+        "howItWorksBody": "{{name}} executa completamente dentro do UTMStack — sem agente ou coletor para implantar. Fornece credenciais de API somente leitura e o UTMStack buscará eventos em um cronograma, analisará-os e os ingerirá no Log Explorer.",
+        "connectionTitle": "Conexão",
+        "noFields": "Nenhum campo de conexão configurado.",
+        "testConnection": "Testar conexão",
+        "save": "Salvar",
+        "afterTitle": "O que você verá após conectar",
+        "after1": "O UTMStack realiza um preenchimento inicial de eventos recentes.",
+        "after2": "A partir de então, os eventos são buscados a cada 1–5 minutos (depende da API).",
+        "after3": "A integração aparece em Fontes de dados com status atual de busca e atraso."
+      },
+      "custom": {
+        "whenTitle": "Quando usar isso",
+        "whenBody": "Quando sua fonte não está no catálogo. Encaminhe syslog ou JSON arbitrário para o UTMStack e defina um analisador para normalizar campos.",
+        "endpointsTitle": "Endpoints",
+        "syslogUdp": "Syslog (UDP)",
+        "syslogTls": "Syslog (TLS)",
+        "httpJson": "HTTP / JSON",
+        "payloadTitle": "Exemplo de payload JSON",
+        "parserTitle": "Defina o analisador",
+        "parserBody": "O UTMStack detectará automaticamente chaves JSON e proporá mapeamentos de campos. Você pode substituir mapeamentos no editor do analisador e adicionar padrões Grok gratuitamente.",
+        "openEditor": "Abrir editor do analisador",
+        "powershellLabel": "PowerShell (Executar como administrador)",
+        "linuxLabel": "Linux — bash",
+        "macosLabel": "macOS — bash",
+        "exampleLabel": "Exemplo de destino syslog em {{name}}:"
+      }
+    },
+    "codeBlock": {
+      "copy": "Copiar",
+      "copied": "Copiado"
+    },
+    "createDrawer": {
+      "title": "Nova integração personalizada",
+      "moduleName": "Nome do módulo",
+      "moduleNameHint": "Identificador único. Sem espaços.",
+      "moduleNamePlaceholder": "minha-app-personalizada",
+      "prettyName": "Nome para exibição",
+      "prettyNamePlaceholder": "Minha App Personalizada",
+      "dataType": "Tipo de dados",
+      "dataTypePlaceholder": "Identificador único para este tipo de dados",
+      "icon": "Ícone",
+      "iconHint": "PNG, SVG, JPEG, GIF ou WEBP. Máximo 3MB. Usado como logo da integração.",
+      "iconPreview": "Visualização do ícone",
+      "dataTypeExists": "Este tipo de dados já existe",
+      "invalidFileType": "O ícone deve ser um arquivo de imagem válido (PNG, JPEG, SVG, GIF, WEBP)",
+      "fileTooLarge": "O ícone não deve exceder 3MB",
+      "fileReadError": "Falha ao ler o arquivo",
+      "cancel": "Cancelar",
+      "create": "Criar integração",
+      "creating": "Criando…"
+    },
+    "toast": {
+      "created": "Integração criada"
+    }
+  },
   "dataProcessing": {
     "title": "Processamento de dados",
     "subtitle": "Estatísticas de ingestão e processamento: eventos recebidos, descartados por etapa, e as principais fontes e tipos.",
