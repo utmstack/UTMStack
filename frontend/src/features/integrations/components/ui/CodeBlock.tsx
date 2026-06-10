@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Copy } from 'lucide-react'
 
 export function CodeBlock({ code }: { code: string }) {
+  const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
 
   const handleCopy = () => {
@@ -16,7 +18,7 @@ export function CodeBlock({ code }: { code: string }) {
         {code}
       </pre>
       <button
-        title={copied ? 'Copied' : 'Copy'}
+        title={copied ? t('integrations.codeBlock.copied') : t('integrations.codeBlock.copy')}
         onClick={handleCopy}
         className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:bg-card hover:text-foreground"
       >

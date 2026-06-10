@@ -116,7 +116,7 @@ export function CreateIntegrationDrawer({
               </label>
               <Input
                 type="text"
-                placeholder="my-custom-app"
+                placeholder={t('integrations.createDrawer.moduleNamePlaceholder')}
                 value={moduleName}
                 onChange={(e) => setModuleName(e.target.value)}
                 disabled={isSubmitting}
@@ -134,7 +134,7 @@ export function CreateIntegrationDrawer({
               </label>
               <Input
                 type="text"
-                placeholder="My Custom App"
+                placeholder={t('integrations.createDrawer.prettyNamePlaceholder')}
                 value={prettyName}
                 onChange={(e) => setPrettyName(e.target.value)}
                 disabled={isSubmitting}
@@ -149,7 +149,7 @@ export function CreateIntegrationDrawer({
               </label>
               <Input
                 type="text"
-                placeholder="custom-app-type"
+                placeholder={t('integrations.createDrawer.dataTypePlaceholder')}
                 value={dataType}
                 onChange={(e) => setDataType(e.target.value)}
                 disabled={isSubmitting}

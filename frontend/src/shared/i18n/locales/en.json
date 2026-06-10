@@ -1273,14 +1273,24 @@
         "payloadTitle": "JSON payload sample",
         "parserTitle": "Define the parser",
         "parserBody": "UTMStack will auto-detect JSON keys and propose field mappings. You can override mappings in the parser editor and add Grok patterns for free-form text.",
-        "openEditor": "Open parser editor"
+        "openEditor": "Open parser editor",
+        "powershellLabel": "PowerShell (Run as Administrator)",
+        "linuxLabel": "Linux — bash",
+        "macosLabel": "macOS — bash",
+        "exampleLabel": "Example syslog target on {{name}}:"
       }
+    },
+    "codeBlock": {
+      "copy": "Copy",
+      "copied": "Copied"
     },
     "createDrawer": {
       "title": "New custom integration",
       "moduleName": "Module name",
       "moduleNameHint": "Unique identifier. No spaces.",
+      "moduleNamePlaceholder": "my-custom-app",
       "prettyName": "Display name",
+      "prettyNamePlaceholder": "My Custom App",
       "dataType": "Data type",
       "dataTypePlaceholder": "Unique identifier for this data type",
       "icon": "Icon",
