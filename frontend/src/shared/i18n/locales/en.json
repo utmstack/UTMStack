@@ -1275,6 +1275,27 @@
         "parserBody": "UTMStack will auto-detect JSON keys and propose field mappings. You can override mappings in the parser editor and add Grok patterns for free-form text.",
         "openEditor": "Open parser editor"
       }
+    },
+    "createDrawer": {
+      "title": "New custom integration",
+      "moduleName": "Module name",
+      "moduleNameHint": "Unique identifier. No spaces.",
+      "prettyName": "Display name",
+      "dataType": "Data type",
+      "dataTypePlaceholder": "Unique identifier for this data type",
+      "icon": "Icon",
+      "iconHint": "PNG, SVG, JPEG, GIF or WEBP. Max 3MB. Used as the integration logo.",
+      "iconPreview": "Icon preview",
+      "dataTypeExists": "This data type already exists",
+      "invalidFileType": "Icon must be a valid image file (PNG, JPEG, SVG, GIF, WEBP)",
+      "fileTooLarge": "Icon must not exceed 3MB",
+      "fileReadError": "Failed to read file",
+      "cancel": "Cancel",
+      "create": "Create integration",
+      "creating": "Creating…"
+    },
+    "toast": {
+      "created": "Integration created"
     }
   }
 

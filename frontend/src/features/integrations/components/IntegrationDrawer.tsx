@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Check, ExternalLink, X } from 'lucide-react'
-import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
+import { LogoTile } from '@/features/integrations/components/ui/LogoTile'
 import { KIND_META } from '@/features/integrations/constants'
 import { AgentSetup } from '@/features/integrations/components/setup/AgentSetup'
 import { CollectorSetup } from '@/features/integrations/components/setup/CollectorSetup'
@@ -12,30 +12,6 @@ import type { Integration } from '@/features/integrations/types'
 interface IntegrationDrawerProps {
   integration: Integration
   onClose: () => void
-}
-
-function LogoTile({
-  src,
-  alt,
-  darkInvert,
-}: {
-  src: string
-  alt: string
-  darkInvert?: boolean
-}) {
-  return (
-    <div className="relative flex shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40 p-2.5" style={{ width: 56, height: 56 }}>
-      <img
-        src={src}
-        alt={alt}
-        className={cn(
-          'max-h-full max-w-full object-contain',
-          darkInvert && 'dark:brightness-0 dark:invert'
-        )}
-        loading="lazy"
-      />
-    </div>
-  )
 }
 
 export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawerProps) {
@@ -51,7 +27,7 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
         <header className="border-b border-border px-6 py-5">
           <div className="flex items-start justify-between gap-4">
             <div className="flex min-w-0 flex-1 items-start gap-3">
-              <LogoTile src={i.logo} alt={i.name} darkInvert={i.darkInvert} />
+              <LogoTile src={i.logo} alt={i.name} darkInvert={i.darkInvert} size="sm" />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                   <span>{i.category}</span>
@@ -102,7 +78,7 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
             ) : (
               <Button size="sm">
                 <span className="mr-1.5">+</span>
-                {i.kind === 'agent'
+                {i.kind === 'agents & syslog'
                   ? t('integrations.drawer.getInstallCmd')
                   : i.kind === 'collector'
                     ? t('integrations.drawer.setupCollector')

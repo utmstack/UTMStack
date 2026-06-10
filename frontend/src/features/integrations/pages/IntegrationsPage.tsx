@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Filter, Loader2, Search } from 'lucide-react'
+import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Input } from '@/shared/components/ui/input'
 import { useIntegrations } from '@/features/integrations/hooks/useIntegrations'
@@ -9,10 +10,14 @@ import { IntegrationsTabs } from '@/features/integrations/components/Integration
 import { IntegrationCard } from '@/features/integrations/components/IntegrationCard'
 import { IntegrationDrawer } from '@/features/integrations/components/IntegrationDrawer'
 import { AddCustomIntegrationCard } from '@/features/integrations/components/AddCustomIntegrationCard'
+import { CreateIntegrationDrawer } from '@/features/integrations/components/CreateIntegrationDrawer'
 import { KIND_META } from '@/features/integrations/constants'
-import type { Integration, Tab, DeployKind } from '@/features/integrations/types'
+import type { Integration, Tab, DeployKind, CreateModuleRequest } from '@/features/integrations/types'
 
 const LOGO = (slug: string) => {
+  if(!slug || slug ==''){
+    return ''
+  }
   if(slug.startsWith('http')){
     return slug
   }
@@ -60,6 +65,7 @@ export function IntegrationsPage() {
   const [search, setSearch] = useState('')
   const [showOnlyConfigured, setShowOnlyConfigured] = useState(false)
   const [open, setOpen] = useState<Integration | null>(null)
+  const [createDrawerOpen, setCreateDrawerOpen] = useState(false)
 
   const modules = integrations.modules.data || []
   const displayList = useMemo(() => modules.map(mapModuleToIntegration), [modules])
@@ -131,7 +137,7 @@ export function IntegrationsPage() {
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-        <AddCustomIntegrationCard onClick={() => {}} />
+        <AddCustomIntegrationCard onClick={() => setCreateDrawerOpen(true)} />
         {filtered.map((i) => (
           <IntegrationCard key={i.id} integration={i} onOpen={() => setOpen(i)} />
         ))}
@@ -143,6 +149,18 @@ export function IntegrationsPage() {
       </div>
 
       {open && <IntegrationDrawer integration={open} onClose={() => setOpen(null)} />}
+
+      <CreateIntegrationDrawer
+        open={createDrawerOpen}
+        onClose={() => setCreateDrawerOpen(false)}
+        dataTypes={integrations.dataTypes.data ?? []}
+        isSubmitting={integrations.createModule.isPending}
+        onSubmit={async (data: CreateModuleRequest) => {
+          await integrations.createModule.mutateAsync(data)
+          setCreateDrawerOpen(false)
+          toast.success(t('integrations.toast.created'))
+        }}
+      />
     </div>
   )
 }
