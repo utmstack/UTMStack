@@ -182,6 +182,33 @@ func (h *TfaHandler) UnifiedEnrollment(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// @Summary     Disable TFA for the current user
+// @Tags        TFA
+// @Accept      json
+// @Produce     json
+// @Param       input body dto.TfaDisableRequest true "Current password"
+// @Success     204 ""
+// @Router      /tfa/disable [post]
+func (h *TfaHandler) Disable(c *gin.Context) {
+	uid, ok := userIDFromCtx(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	var input dto.TfaDisableRequest
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "password is required"})
+		return
+	}
+	err := h.tfa.DisableTfa(c.Request.Context(), uid, input.Password)
+	audit.Record(c, audit_connectors.Event{Action: "tfa.disable"}, audit_domain.TFA_DISABLE_ATTEMPT, audit_domain.TFA_DISABLE_SUCCESS, err)
+	if err != nil {
+		writeTfaError(c, err, "tfa disable failed")
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
 func writeTfaError(c *gin.Context, err error, fallbackMsg string) {
 	switch {
 	case errors.Is(err, domain.ErrTfaDisabled):
@@ -202,6 +229,10 @@ func writeTfaError(c *gin.Context, err error, fallbackMsg string) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "verify the code before completing enrollment"})
 	case errors.Is(err, domain.ErrTfaAlreadyEnabled):
 		c.JSON(http.StatusConflict, gin.H{"error": "tfa is already enabled for this user"})
+	case errors.Is(err, domain.ErrTfaNotEnabled):
+		c.JSON(http.StatusConflict, gin.H{"error": "tfa is not enabled for this user"})
+	case errors.Is(err, domain.ErrCurrentPassword):
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "current password is incorrect"})
 	case errors.Is(err, domain.ErrInvalidCredentials):
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 	default:

@@ -54,3 +54,82 @@ DROP SEQUENCE IF EXISTS public.utm_alert_response_rule_execution_id_seq;
 DROP TABLE IF EXISTS public.utm_dashboard_visualization CASCADE;
 DROP TABLE IF EXISTS public.utm_visualization CASCADE;
 DROP TABLE IF EXISTS public.utm_dashboard CASCADE;
+
+-- Legacy reporting view (joins utm_server/utm_module/utm_module_group/…). It is a
+-- relic of the Java backend — the Go backend never queries it — and it pins the
+-- types of the columns it selects, so AutoMigrate fails to resize utm_module
+-- columns ("cannot alter type of a column used by a view or rule"). Drop it.
+DROP VIEW IF EXISTS public.utm_server_configurations CASCADE;
+
+-- Reconcile legacy (JHipster/liquibase) single-column UNIQUE CONSTRAINTS with the
+-- Go models, which declare these columns as `uniqueIndex` (a unique INDEX, not a
+-- named column constraint). GORM AutoMigrate sees the column-level unique
+-- constraint on the existing table and tries to drop it under the name IT would
+-- have used (uni_<table>_<column>), which fails because the legacy constraint has a
+-- different name (e.g. ux_user_login):
+--   ERROR: constraint "uni_jhi_user_login" of relation "jhi_user" does not exist
+--
+-- Drop the legacy single-column unique constraints here — looked up by table+column
+-- so we don't depend on the (instance-specific) constraint name — and AutoMigrate
+-- then recreates each as the unique index it expects. Uniqueness is preserved (the
+-- data already satisfies it; the index just gets a new name, idx_<table>_<column>).
+-- Idempotent: only acts on constraints that exist, so it's a no-op on a fresh
+-- install or when already reconciled.
+DO $$
+DECLARE
+    r record;
+BEGIN
+    FOR r IN
+        SELECT c.conrelid::regclass::text AS tbl, c.conname
+        FROM pg_constraint c
+        JOIN pg_attribute a
+          ON a.attrelid = c.conrelid AND a.attnum = c.conkey[1]
+        WHERE c.contype = 'u'
+          AND cardinality(c.conkey) = 1            -- single-column constraints only
+          AND (c.conrelid::regclass::text, a.attname) IN (
+                VALUES
+                    ('jhi_user', 'login'),
+                    ('jhi_user', 'email'),
+                    ('utm_alert_tag', 'tag_name'),
+                    ('utm_alert_tag_rule', 'rule_name'),
+                    ('utm_incident', 'incident_name'),
+                    ('utm_incident_alert', 'alert_id'),
+                    ('utm_index_pattern', 'pattern'),
+                    ('utm_incident_variables', 'variable_name')
+          )
+    LOOP
+        EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', r.tbl, r.conname);
+        RAISE NOTICE 'reconcile: dropped legacy unique constraint % on %', r.conname, r.tbl;
+    END LOOP;
+END $$;
+
+-- utm_asset_group: the legacy schema had a `type` discriminator (ASSET/COLLECTOR,
+-- liquibase 20240506001) and a composite unique over (group_name, type). The Go
+-- model (UtmAssetGroup) drops `type` and makes group_name globally unique via a
+-- uniqueIndex. AutoMigrate creates that single-column unique index, and it runs
+-- BEFORE the post-AutoMigrate SQL — so if two rows share a group_name across an
+-- ASSET and a COLLECTOR group, "CREATE UNIQUE INDEX ... (group_name)" fails. The
+-- reconciliation must therefore happen HERE, in pre.
+--
+-- Nothing references utm_asset_group.id at this point: the only FK to it is the new
+-- `datasources.group_id`, and `datasources` is created later by AutoMigrate and
+-- populated at runtime (group linkage resolved by name). So duplicate group_names
+-- can simply be collapsed to the lowest id — no repointing needed.
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'utm_asset_group' AND column_name = 'type'
+    ) THEN
+        DELETE FROM utm_asset_group g
+        USING (
+            SELECT group_name, min(id) AS keep_id
+            FROM utm_asset_group GROUP BY group_name
+        ) k
+        WHERE g.group_name = k.group_name AND g.id <> k.keep_id;
+
+        -- CASCADE removes the legacy composite unique constraint (whatever its name)
+        -- that included `type`; AutoMigrate then builds idx_utm_asset_group_group_name.
+        ALTER TABLE utm_asset_group DROP COLUMN type CASCADE;
+    END IF;
+END $$;

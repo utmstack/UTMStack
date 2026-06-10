@@ -58,10 +58,17 @@ func initHTTPServer(cfg *config) *gin.Engine {
 	return engine
 }
 
+var logSkipPaths = map[string]bool{
+	"/api/v1/health": true,
+}
+
 func requestLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		c.Next()
+		if logSkipPaths[c.Request.URL.Path] {
+			return
+		}
 		catcher.Info("http", map[string]any{
 			"method":     c.Request.Method,
 			"path":       c.Request.URL.Path,

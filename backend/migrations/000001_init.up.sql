@@ -179,16 +179,12 @@ DROP SEQUENCE IF EXISTS public.utm_compliance_control_config_id_seq;
 DROP SEQUENCE IF EXISTS public.utm_compliance_standard_section_id_seq;
 DROP SEQUENCE IF EXISTS public.utm_compliance_standard_id_seq;
 
--- Drop utm_asset_group.type, the legacy ASSET/COLLECTOR discriminator added by
--- liquibase 20240506001. It only powered the old split asset-groups vs collector-groups
--- UI; the Go datasources model never mapped it and the new stack uses a single group
--- namespace. CASCADE so any unique constraint that still includes the column (the legacy
--- composite over group_name+type) is removed with it, whatever its name. Single-name
--- uniqueness is then governed by the GORM uniqueIndex on group_name (UtmAssetGroup model).
--- NOTE on in-place upgrades: group_name now must be globally unique — if an install has the
--- same group_name across an ASSET and a COLLECTOR group, those rows must be deduplicated
--- before this runs.
-ALTER TABLE utm_asset_group DROP COLUMN IF EXISTS type CASCADE;
+-- utm_asset_group.type (the legacy ASSET/COLLECTOR discriminator) and its composite
+-- (group_name, type) unique constraint are dropped, and duplicate group_names are
+-- deduplicated, in the PRE migration (000001_pre_automigrate) — it must run before
+-- AutoMigrate builds the single-column uniqueIndex on group_name, otherwise that index
+-- creation fails on installs with the same group_name across an ASSET and a COLLECTOR
+-- group. Nothing to do here.
 
 -- Drop the SOC AI processing-request table. It was dead code in the legacy backend
 -- (entity/repo/service with zero references) and was deliberately not ported: the

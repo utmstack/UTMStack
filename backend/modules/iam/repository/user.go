@@ -201,3 +201,37 @@ func (r *pgUserRepository) FindRolesByUserID(ctx context.Context, userID uint64)
 	`, userID).Scan(&roles).Error
 	return roles, err
 }
+
+// FindRolesByUserIDs loads the roles for many users in a single query, grouped by
+// user id. Used to enrich the paginated user list without an N+1 per row.
+func (r *pgUserRepository) FindRolesByUserIDs(ctx context.Context, userIDs []uint64) (map[uint64][]domain.Authority, error) {
+	out := make(map[uint64][]domain.Authority, len(userIDs))
+	if len(userIDs) == 0 {
+		return out, nil
+	}
+	type row struct {
+		UserID      uint64
+		Name        string
+		NameShow    string
+		Description string
+	}
+	var rows []row
+	err := r.db.WithContext(ctx).
+		Table("jhi_user_authority ua").
+		Select("ua.user_id AS user_id, a.name AS name, a.name_show AS name_show, a.description AS description").
+		Joins("JOIN jhi_authority a ON a.name = ua.authority_name").
+		Where("ua.user_id IN ?", userIDs).
+		Order("ua.user_id, a.name").
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+	for _, rw := range rows {
+		out[rw.UserID] = append(out[rw.UserID], domain.Authority{
+			Name:        rw.Name,
+			NameShow:    rw.NameShow,
+			Description: rw.Description,
+		})
+	}
+	return out, nil
+}

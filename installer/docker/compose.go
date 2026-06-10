@@ -231,7 +231,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		},
 		Environment: backendEnv,
 		Volumes: []string{
-			stack.DataSources + ":/etc/utmstack",
 			conf.UpdatesFolder + ":/updates",
 			utils.MakeDir(0777, conf.DataDir, "uploads") + ":/uploads",
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "soar") + ":/workdir/soar",

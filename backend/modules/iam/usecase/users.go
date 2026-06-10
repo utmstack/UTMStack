@@ -45,9 +45,27 @@ func (u *userUsecase) List(ctx context.Context, q dto.ListUsersQuery) (*dto.User
 		totalPages = 1
 	}
 
-	data := make([]dto.UserResponse, 0, len(users))
+	ids := make([]uint64, 0, len(users))
 	for _, user := range users {
-		data = append(data, dto.ToUserResponse(user))
+		ids = append(ids, user.ID)
+	}
+	rolesByUser, err := u.userRepo.FindRolesByUserIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	data := make([]dto.UserListItem, 0, len(users))
+	for _, user := range users {
+		roles := rolesByUser[user.ID]
+		digests := make([]dto.RoleDigest, 0, len(roles))
+		for _, r := range roles {
+			digests = append(digests, dto.RoleDigest{Name: r.Name, DisplayName: r.NameShow})
+		}
+		data = append(data, dto.UserListItem{
+			UserResponse:    dto.ToUserResponse(user),
+			DefaultPassword: user.DefaultPassword,
+			Roles:           digests,
+		})
 	}
 	return &dto.UserListResponse{
 		Data: data,

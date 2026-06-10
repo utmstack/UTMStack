@@ -13,6 +13,7 @@ import (
 
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
+	"golang.org/x/crypto/bcrypt"
 
 	appconfig_connectors "github.com/utmstack/utmstack/backend/modules/appconfig/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
@@ -336,6 +337,33 @@ func (u *tfaUsecase) UnifiedEnrollment(ctx context.Context, userID uint64, input
 	default:
 		return nil, domain.ErrTfaMethodUnsupported
 	}
+}
+
+// DisableTfa tears down the user's enrolled 2FA after re-authenticating with
+// their current password. It clears the stored secret/method and drops any
+// pending enrollment state.
+func (u *tfaUsecase) DisableTfa(ctx context.Context, userID uint64, password string) error {
+	if !u.enabled {
+		return domain.ErrTfaDisabled
+	}
+	user, err := u.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return domain.ErrInvalidCredentials
+	}
+	if user.TFAMethod == "" {
+		return domain.ErrTfaNotEnabled
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
+		return domain.ErrCurrentPassword
+	}
+	if err := u.userRepo.ClearTfaConfig(ctx, userID); err != nil {
+		return err
+	}
+	_ = u.stateRepo.Delete(ctx, domain.TfaPurposeEnrollment, userID, user.TFAMethod)
+	return nil
 }
 
 func (u *tfaUsecase) IssueLoginEmailChallenge(ctx context.Context, userID uint64, email, firstName string) error {

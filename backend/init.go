@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/database"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 const (
@@ -15,26 +17,42 @@ const (
 	dbConnectMaxBackoff  = 30 * time.Second
 )
 
+func gormLogLevel(s string) logger.LogLevel {
+	switch strings.ToLower(strings.TrimSpace(s)) {
+	case "silent":
+		return logger.Silent
+	case "error":
+		return logger.Error
+	case "info":
+		return logger.Info
+	default:
+		return logger.Warn
+	}
+}
+
 func initDatabase(cfg *config) *gorm.DB {
 	dsn := fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		cfg.dbHost, cfg.dbPort, cfg.dbUser, cfg.dbPass, cfg.dbName,
 	)
 
-	db := connectWithRetry(dsn)
+	db := connectWithRetry(dsn, gormLogLevel(cfg.dbLogLevel))
 
 	if err := database.MigrateDatabase(db, "file://migrations"); err != nil {
 		_ = catcher.Error("failed to migrate database", err, nil)
 		panic(err)
 	}
+	catcher.Info("✅ database ready — migrations complete, starting backend", nil)
 
 	return db
 }
 
-func connectWithRetry(dsn string) *gorm.DB {
+func connectWithRetry(dsn string, logLevel logger.LogLevel) *gorm.DB {
 	backoff := 2 * time.Second
 	for attempt := 1; ; attempt++ {
-		db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+			Logger: logger.Default.LogMode(logLevel),
+		})
 		if err == nil {
 			sqlDB, derr := db.DB()
 			if derr != nil {

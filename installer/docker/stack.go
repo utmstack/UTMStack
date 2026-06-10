@@ -21,7 +21,6 @@ type StackConfig struct {
 	ESData              string
 	ESBackups           string
 	Cert                string
-	DataSources         string
 	EventsEngineWorkdir string
 	LocksDir            string
 	ShmFolder           string
@@ -54,7 +53,6 @@ func GetStackConfig() *StackConfig {
 		stackConfig.Threads = cores
 		stackConfig.Cert = utils.MakeDir(0777, cnf.DataDir, "cert")
 		stackConfig.FrontEndNginx = utils.MakeDir(0777, cnf.DataDir, "front-end", "nginx")
-		stackConfig.DataSources = utils.MakeDir(0777, cnf.DataDir, "datasources")
 		stackConfig.EventsEngineWorkdir = utils.MakeDir(0777, cnf.DataDir, "events-engine-workdir")
 		stackConfig.ESData = utils.MakeDir(0777, cnf.DataDir, "opensearch", "data")
 		stackConfig.ESBackups = utils.MakeDir(0777, cnf.DataDir, "opensearch", "backups")

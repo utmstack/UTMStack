@@ -64,23 +64,13 @@ func Models() []any {
 	}
 }
 
-// MigrateDatabase runs in two stages:
-//
-//  1. GORM AutoMigrate — creates/alters tables to match the Models() list.
-//  2. golang-migrate over `migrationsURL` — applies SQL files for seed data,
-//     composite indexes, and anything GORM struct tags can't express. Tracked
-//     in schema_migrations and applied once.
-//
-// `migrationsURL` is a URL the file source understands; in dev and inside the
-// container we pass "file://migrations" (cwd-relative) and the Dockerfile
-// COPYs the SQL files next to the binary. Pass "" to skip SQL migrations.
 func MigrateDatabase(db *gorm.DB, migrationsURL string) error {
 	if err := db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`).Error; err != nil {
 		catcher.Warn("could not create uuid-ossp extension", map[string]any{"error": err.Error()})
 	}
 
 	if migrationsURL != "" {
-		if err := runSQLMigrations(db, migrationsURL+"/pre", "schema_migrations_pre"); err != nil {
+		if err := runSQLMigrations(db, migrationsURL+"/pre", "schema_migrations_pre", "pre-AutoMigrate"); err != nil {
 			return err
 		}
 	}
@@ -91,15 +81,16 @@ func MigrateDatabase(db *gorm.DB, migrationsURL string) error {
 		if err := db.AutoMigrate(models...); err != nil {
 			return err
 		}
+		catcher.Info("GORM AutoMigrate complete", nil)
 	}
 
 	if migrationsURL == "" {
 		return nil
 	}
-	return runSQLMigrations(db, migrationsURL, "schema_migrations")
+	return runSQLMigrations(db, migrationsURL, "schema_migrations", "post-AutoMigrate")
 }
 
-func runSQLMigrations(db *gorm.DB, migrationsURL, table string) error {
+func runSQLMigrations(db *gorm.DB, migrationsURL, table, stage string) error {
 	sqlDB, err := db.DB()
 	if err != nil {
 		return err
@@ -112,10 +103,14 @@ func runSQLMigrations(db *gorm.DB, migrationsURL, table string) error {
 	if err != nil {
 		return err
 	}
-	catcher.Info("applying SQL migrations from "+migrationsURL+"...", nil)
-	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+	switch err := m.Up(); {
+	case err == nil:
+		catcher.Info(stage+" SQL migrations applied", nil)
+	case errors.Is(err, migrate.ErrNoChange):
+		// Already at the latest version (tracked in the stage's table) — nothing ran.
+		catcher.Info(stage+" SQL migrations already up to date", nil)
+	default:
 		return err
 	}
-	catcher.Info("SQL migrations applied", nil)
 	return nil
 }

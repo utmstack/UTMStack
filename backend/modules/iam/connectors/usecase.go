@@ -47,6 +47,7 @@ type TfaUsecase interface {
 	RefreshChallenge(ctx context.Context, userID uint64, method string) (*dto.TfaRefreshResponse, error)
 	VerifyLoginCode(ctx context.Context, input dto.TfaVerifyCodeRequest, lc LoginContext) (*dto.LoginResponse, error)
 	UnifiedEnrollment(ctx context.Context, userID uint64, input dto.TfaEnrollmentRequest) (*dto.TfaEnrollmentResponse, error)
+	DisableTfa(ctx context.Context, userID uint64, password string) error
 	IssueLoginEmailChallenge(ctx context.Context, userID uint64, email, firstName string) error
 }
 

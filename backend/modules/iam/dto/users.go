@@ -50,8 +50,14 @@ type RoleDigest struct {
 	DisplayName string `json:"display_name"`
 }
 
+type UserListItem struct {
+	UserResponse
+	DefaultPassword bool         `json:"default_password"`
+	Roles           []RoleDigest `json:"roles,omitempty"`
+}
+
 type UserListResponse struct {
-	Data     []UserResponse `json:"data"`
+	Data     []UserListItem `json:"data"`
 	PageInfo PageInfo       `json:"page_info"`
 }
 

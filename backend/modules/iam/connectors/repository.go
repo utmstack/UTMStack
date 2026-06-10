@@ -32,6 +32,7 @@ type UserRepository interface {
 
 	FindPermissionsByUserID(ctx context.Context, userID uint64) ([]string, error)
 	FindRolesByUserID(ctx context.Context, userID uint64) ([]domain.Authority, error)
+	FindRolesByUserIDs(ctx context.Context, userIDs []uint64) (map[uint64][]domain.Authority, error)
 
 	SetTfaConfig(ctx context.Context, userID uint64, secret, method string) error
 	ClearTfaConfig(ctx context.Context, userID uint64) error

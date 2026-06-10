@@ -50,14 +50,16 @@ type SessionResponse struct {
 }
 
 type UserResponse struct {
-	ID        uint64 `json:"id"`
-	Login     string `json:"login"`
-	Email     string `json:"email,omitempty"`
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name,omitempty"`
-	Activated bool   `json:"activated"`
-	LangKey   string `json:"lang_key,omitempty"`
-	ImageURL  string `json:"image_url,omitempty"`
+	ID         uint64 `json:"id"`
+	Login      string `json:"login"`
+	Email      string `json:"email,omitempty"`
+	FirstName  string `json:"first_name,omitempty"`
+	LastName   string `json:"last_name,omitempty"`
+	Activated  bool   `json:"activated"`
+	LangKey    string `json:"lang_key,omitempty"`
+	ImageURL   string `json:"image_url,omitempty"`
+	TfaEnabled bool   `json:"tfa_enabled"`
+	TfaMethod  string `json:"tfa_method,omitempty"`
 }
 
 type TokenPair struct {
@@ -78,13 +80,15 @@ type LoginResponse struct {
 
 func ToUserResponse(u domain.User) UserResponse {
 	return UserResponse{
-		ID:        u.ID,
-		Login:     u.Login,
-		Email:     u.Email,
-		FirstName: u.FirstName,
-		LastName:  u.LastName,
-		Activated: u.Activated,
-		LangKey:   u.LangKey,
-		ImageURL:  u.ImageURL,
+		ID:         u.ID,
+		Login:      u.Login,
+		Email:      u.Email,
+		FirstName:  u.FirstName,
+		LastName:   u.LastName,
+		Activated:  u.Activated,
+		LangKey:    u.LangKey,
+		ImageURL:   u.ImageURL,
+		TfaEnabled: u.TFAMethod != "",
+		TfaMethod:  u.TFAMethod,
 	}
 }

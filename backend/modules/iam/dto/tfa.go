@@ -50,3 +50,7 @@ type TfaEnrollmentResponse struct {
 	Verified *bool            `json:"verified,omitempty"`
 	Enabled  *bool            `json:"enabled,omitempty"`
 }
+
+type TfaDisableRequest struct {
+	Password string `json:"password" binding:"required"`
+}

@@ -25,6 +25,7 @@ var (
 	ErrTfaNotVerified       = errors.New("tfa challenge has not been verified yet")
 	ErrTfaInvalidPreAuth    = errors.New("invalid or expired pre-auth token")
 	ErrTfaAlreadyEnabled    = errors.New("tfa is already enabled")
+	ErrTfaNotEnabled        = errors.New("tfa is not enabled for this user")
 	ErrTfaMethodMismatch    = errors.New("tfa method does not match pre-auth token")
 	ErrTfaDisabled          = errors.New("tfa is globally disabled")
 	ErrTfaNoEmail           = errors.New("tfa is required but the user has no email on file")

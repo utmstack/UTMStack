@@ -47,6 +47,7 @@ func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFu
 	tfaGroup.POST("/init", tfa.InitEnrollment)
 	tfaGroup.POST("/verify", tfa.VerifyEnrollment)
 	tfaGroup.POST("/complete", tfa.CompleteEnrollment)
+	tfaGroup.POST("/disable", tfa.Disable)
 	tfaGroup.GET("/refresh", tfa.RefreshChallenge)
 
 	api.POST("/enrollment/tfa", userAuth, tfa.UnifiedEnrollment)

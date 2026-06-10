@@ -13,11 +13,12 @@ type config struct {
 	jwtSecret string
 
 	// Postgres
-	dbHost string
-	dbPort int
-	dbName string
-	dbUser string
-	dbPass string
+	dbHost     string
+	dbPort     int
+	dbName     string
+	dbUser     string
+	dbPass     string
+	dbLogLevel string
 
 	// Elasticsearch
 	esHost     string
@@ -67,11 +68,12 @@ func loadConfig() *config {
 
 		jwtSecret: env.String("JWT_SECRET", "", false),
 
-		dbHost: env.String("DB_HOST", "localhost", false),
-		dbPort: env.Int("DB_PORT", 5432, false),
-		dbName: env.String("DB_NAME", "utmstack", false),
-		dbUser: env.String("DB_USER", "postgres", false),
-		dbPass: env.String("DB_PASS", "", false),
+		dbHost:     env.String("DB_HOST", "localhost", false),
+		dbPort:     env.Int("DB_PORT", 5432, false),
+		dbName:     env.String("DB_NAME", "utmstack", false),
+		dbUser:     env.String("DB_USER", "postgres", false),
+		dbPass:     env.String("DB_PASS", "", false),
+		dbLogLevel: env.String("DB_LOG_LEVEL", "warn", false),
 
 		esHost:     env.String("ELASTICSEARCH_HOST", "localhost", false),
 		esPort:     env.Int("ELASTICSEARCH_PORT", 9200, false),
