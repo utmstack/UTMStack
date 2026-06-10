@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   AlertTriangle,
   CheckCircle2,
@@ -6,7 +7,6 @@ import {
   ChevronRight,
   Copy,
   Filter,
-  Hash,
   RefreshCw,
   ScrollText,
   ShieldCheck,
@@ -18,14 +18,17 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { auditHttpService } from '../services/audit-http.service'
+import { humanizeAction } from '../lib'
 import type { AuditListQuery, AuditLog } from '../types/audit.types'
 
-const PAGE_SIZE = 50
+const PAGE_SIZE_OPTIONS = [25, 50, 100, 200]
+const DEFAULT_PAGE_SIZE = 50
 
 /* ─── Page ─────────────────────────────────────────────────────────────── */
 
 export function AuditPage() {
-  const [filters, setFilters] = useState<AuditListQuery>({ page: 1, page_size: PAGE_SIZE })
+  const { t } = useTranslation()
+  const [filters, setFilters] = useState<AuditListQuery>({ page: 1, page_size: DEFAULT_PAGE_SIZE })
   const [data, setData] = useState<AuditLog[]>([])
   const [pageInfo, setPageInfo] = useState<{
     page: number
@@ -37,24 +40,27 @@ export function AuditPage() {
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<AuditLog | null>(null)
 
-  const load = useCallback(async (q: AuditListQuery) => {
-    setLoading(true)
-    try {
-      const resp = await auditHttpService.list(q)
-      setData(resp.data)
-      setPageInfo({
-        page: resp.page_info.page,
-        total_pages: resp.page_info.total_pages,
-        total_items: resp.page_info.total_items,
-        has_next: resp.page_info.has_next,
-        has_prev: resp.page_info.has_prev,
-      })
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Could not load audit log')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const load = useCallback(
+    async (q: AuditListQuery) => {
+      setLoading(true)
+      try {
+        const resp = await auditHttpService.list(q)
+        setData(resp.items)
+        setPageInfo({
+          page: resp.page_number,
+          total_pages: resp.total_pages,
+          total_items: resp.total_items,
+          has_next: resp.page_number < resp.total_pages,
+          has_prev: resp.page_number > 1,
+        })
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : t('audit.loadError'))
+      } finally {
+        setLoading(false)
+      }
+    },
+    [t],
+  )
 
   useEffect(() => {
     load(filters)
@@ -65,7 +71,11 @@ export function AuditPage() {
   }
 
   const clearFilters = () => {
-    setFilters({ page: 1, page_size: PAGE_SIZE })
+    setFilters((f) => ({ page: 1, page_size: f.page_size ?? DEFAULT_PAGE_SIZE }))
+  }
+
+  const setPageSize = (size: number) => {
+    setFilters((f) => ({ ...f, page_size: size, page: 1 }))
   }
 
   const hasActiveFilters = useMemo(
@@ -75,7 +85,7 @@ export function AuditPage() {
           filters.status ||
           filters.resource_type ||
           filters.resource_id ||
-          filters.user_id ||
+          filters.user_login ||
           filters.from ||
           filters.to,
       ),
@@ -114,10 +124,8 @@ export function AuditPage() {
   const isFailuresOnly = filters.status === 'failure'
   const isLast24h = !!filters.from && filters.from === last24h
 
-  const toggleAuth = () =>
-    setFilter('action', isAuthOnly ? '' : 'auth.')
-  const toggleFailures = () =>
-    setFilter('status', isFailuresOnly ? '' : 'failure')
+  const toggleAuth = () => setFilter('action', isAuthOnly ? '' : 'auth.')
+  const toggleFailures = () => setFilter('status', isFailuresOnly ? '' : 'failure')
   const toggleLast24h = () =>
     setFilters((f) => ({
       ...f,
@@ -127,11 +135,7 @@ export function AuditPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1600px] px-6 py-6">
-      <Header
-        loading={loading}
-        total={pageInfo.total_items}
-        onRefresh={() => load(filters)}
-      />
+      <Header loading={loading} total={pageInfo.total_items} onRefresh={() => load(filters)} />
 
       <div className="mt-6">
         <StatsStrip
@@ -160,35 +164,50 @@ export function AuditPage() {
       </div>
 
       <div className="mt-5">
-        <TableCard
-          data={data}
-          loading={loading}
-          onSelect={setSelected}
-        />
+        <TableCard data={data} loading={loading} onSelect={setSelected} />
       </div>
 
-      {pageInfo.total_pages > 1 && (
-        <div className="mt-3 flex items-center justify-end gap-2 text-xs text-muted-foreground">
-          <span>
-            Page <span className="font-mono">{pageInfo.page}</span> of{' '}
-            <span className="font-mono">{pageInfo.total_pages}</span>
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!pageInfo.has_prev || loading}
-            onClick={() => setFilters((f) => ({ ...f, page: (f.page ?? 1) - 1 }))}
-          >
-            <ChevronLeft size={14} />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!pageInfo.has_next || loading}
-            onClick={() => setFilters((f) => ({ ...f, page: (f.page ?? 1) + 1 }))}
-          >
-            <ChevronRight size={14} />
-          </Button>
+      {pageInfo.total_items > 0 && (
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <span>{t('pagination.perPage')}</span>
+            <select
+              value={filters.page_size ?? DEFAULT_PAGE_SIZE}
+              onChange={(e) => setPageSize(Number(e.target.value))}
+              className="cursor-pointer rounded-md border border-border bg-card px-1.5 py-1 text-xs text-foreground outline-none focus:ring-1 focus:ring-ring"
+            >
+              {PAGE_SIZE_OPTIONS.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+            <span className="ml-1">
+              {t('pagination.pageOf', { page: pageInfo.page, total: pageInfo.total_pages })}
+            </span>
+          </div>
+          {pageInfo.total_pages > 1 && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!pageInfo.has_prev || loading}
+                onClick={() => setFilters((f) => ({ ...f, page: (f.page ?? 1) - 1 }))}
+              >
+                <ChevronLeft size={14} className="mr-1" />
+                {t('pagination.previous')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!pageInfo.has_next || loading}
+                onClick={() => setFilters((f) => ({ ...f, page: (f.page ?? 1) + 1 }))}
+              >
+                {t('pagination.next')}
+                <ChevronRight size={14} className="ml-1" />
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
@@ -208,26 +227,22 @@ function Header({
   total: number
   onRefresh: () => void
 }) {
+  const { t } = useTranslation()
   return (
     <header className="flex items-end justify-between gap-3">
       <div>
         <h1 className="flex items-center gap-2 text-xl font-semibold">
           <ScrollText size={18} strokeWidth={1.75} />
-          Audit log
+          {t('audit.title')}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Tamper-evident record of every security-relevant action.
-          {total > 0 && (
-            <>
-              {' '}
-              <span className="font-mono">{total.toLocaleString()}</span> total entries.
-            </>
-          )}
+          {t('audit.subtitle')}
+          {total > 0 && <> {t('audit.totalEntries', { total: total.toLocaleString() })}</>}
         </p>
       </div>
       <Button variant="outline" size="sm" onClick={onRefresh} disabled={loading}>
         <RefreshCw size={14} className={cn('mr-2', loading && 'animate-spin')} />
-        Refresh
+        {t('common.actions.refresh')}
       </Button>
     </header>
   )
@@ -250,33 +265,34 @@ function StatsStrip({
   topAction: string
   topCount: number
 }) {
+  const { t } = useTranslation()
   return (
     <section className="rounded-xl border border-border bg-card">
       <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-4 sm:divide-x sm:divide-y-0">
         <StripStat
-          label="Total entries"
+          label={t('audit.stats.totalEntries')}
           value={<span className="font-mono">{total.toLocaleString()}</span>}
-          sub="Across all time"
+          sub={t('audit.stats.acrossAllTime')}
         />
         <StripStat
-          label="Success rate"
+          label={t('audit.stats.successRate')}
           value={
             <span className="inline-flex items-center gap-1.5 text-emerald-500">
               <CheckCircle2 size={16} strokeWidth={2} />
               {successRate}%
             </span>
           }
-          sub={`${failures} failure${failures === 1 ? '' : 's'} on this page`}
+          sub={t('audit.stats.failuresOnPage', { count: failures })}
         />
         <StripStat
-          label="Top action"
+          label={t('audit.stats.topAction')}
           value={<span className="font-mono text-base">{topAction}</span>}
-          sub={topCount > 0 ? `${topCount} on this page` : '—'}
+          sub={topCount > 0 ? t('audit.stats.onPage', { count: topCount }) : '—'}
         />
         <StripStat
-          label="Unique actors"
+          label={t('audit.stats.uniqueActors')}
           value={<span className="font-mono">{actors}</span>}
-          sub="Including system"
+          sub={t('audit.stats.includingSystem')}
         />
       </div>
     </section>
@@ -326,16 +342,17 @@ function FilterCard({
   onClear: () => void
   hasActive: boolean
 }) {
+  const { t } = useTranslation()
   return (
     <section className="rounded-xl border border-border bg-card p-5">
       <header className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Filter size={14} className="text-muted-foreground" />
-          <h2 className="text-sm font-semibold">Filters</h2>
+          <h2 className="text-sm font-semibold">{t('audit.filters.title')}</h2>
         </div>
         {hasActive && (
           <Button variant="ghost" size="sm" onClick={onClear} className="h-7">
-            <X size={13} className="mr-1" /> Clear
+            <X size={13} className="mr-1" /> {t('audit.filters.clear')}
           </Button>
         )}
       </header>
@@ -343,46 +360,46 @@ function FilterCard({
       {/* Quick filter chips */}
       <div className="mb-4 flex flex-wrap gap-2">
         <Chip active={isLast24h} onClick={onToggleLast24h}>
-          Last 24h
+          {t('audit.filters.last24h')}
         </Chip>
         <Chip active={isFailuresOnly} onClick={onToggleFailures}>
-          Failures only
+          {t('audit.filters.failuresOnly')}
         </Chip>
         <Chip active={isAuthOnly} onClick={onToggleAuth}>
-          Auth events
+          {t('audit.filters.authEvents')}
         </Chip>
       </div>
 
       {/* Filter inputs */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-6">
-        <Field label="Action prefix" className="sm:col-span-2">
+        <Field label={t('audit.filters.actionPrefix')} className="sm:col-span-2">
           <Input
-            placeholder="e.g. auth., user.update"
+            placeholder={t('audit.filters.actionPlaceholder')}
             value={filters.action ?? ''}
             onChange={(e) => onChange('action', e.target.value)}
             className="h-9 font-mono text-xs"
           />
         </Field>
-        <Field label="Status">
+        <Field label={t('audit.filters.status')}>
           <select
             value={filters.status ?? ''}
             onChange={(e) => onChange('status', e.target.value as 'success' | 'failure' | '')}
             className="h-9 w-full rounded-md border border-border bg-background/40 px-2 text-sm focus:bg-card focus:outline-none focus:ring-1 focus:ring-ring"
           >
-            <option value="">Any</option>
-            <option value="success">Success</option>
-            <option value="failure">Failure</option>
+            <option value="">{t('audit.filters.any')}</option>
+            <option value="success">{t('audit.statusValue.success')}</option>
+            <option value="failure">{t('audit.statusValue.failure')}</option>
           </select>
         </Field>
-        <Field label="Resource type">
+        <Field label={t('audit.filters.resourceType')}>
           <Input
-            placeholder="user, alert…"
+            placeholder={t('audit.filters.resourceTypePlaceholder')}
             value={filters.resource_type ?? ''}
             onChange={(e) => onChange('resource_type', e.target.value)}
             className="h-9 text-xs"
           />
         </Field>
-        <Field label="Resource id">
+        <Field label={t('audit.filters.resourceId')}>
           <Input
             placeholder="#"
             value={filters.resource_id ?? ''}
@@ -390,15 +407,12 @@ function FilterCard({
             className="h-9 font-mono text-xs"
           />
         </Field>
-        <Field label="User id">
+        <Field label={t('audit.filters.user')}>
           <Input
-            type="number"
-            placeholder="#"
-            value={filters.user_id ?? ''}
-            onChange={(e) =>
-              onChange('user_id', e.target.value ? Number(e.target.value) : undefined)
-            }
-            className="h-9 font-mono text-xs"
+            placeholder={t('audit.filters.userPlaceholder')}
+            value={filters.user_login ?? ''}
+            onChange={(e) => onChange('user_login', e.target.value)}
+            className="h-9 text-xs"
           />
         </Field>
       </div>
@@ -460,26 +474,27 @@ function TableCard({
   loading: boolean
   onSelect: (log: AuditLog) => void
 }) {
+  const { t } = useTranslation()
   return (
     <section className="overflow-hidden rounded-xl border border-border bg-card">
       <div className="grid grid-cols-[180px_140px_1fr_180px_90px_140px_60px] gap-3 border-b border-border bg-muted/30 px-4 py-2.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-        <div>Timestamp</div>
-        <div>Actor</div>
-        <div>Action</div>
-        <div>Resource</div>
-        <div>Status</div>
-        <div>IP</div>
+        <div>{t('audit.table.timestamp')}</div>
+        <div>{t('audit.table.actor')}</div>
+        <div>{t('audit.table.action')}</div>
+        <div>{t('audit.table.resource')}</div>
+        <div>{t('audit.table.status')}</div>
+        <div>{t('audit.table.ip')}</div>
         <div className="text-right" />
       </div>
       {loading && data.length === 0 ? (
-        <div className="px-4 py-16 text-center text-sm text-muted-foreground">Loading…</div>
+        <div className="px-4 py-16 text-center text-sm text-muted-foreground">
+          {t('audit.table.loading')}
+        </div>
       ) : data.length === 0 ? (
         <div className="px-4 py-16 text-center">
           <ShieldCheck size={28} strokeWidth={1.5} className="mx-auto mb-3 text-muted-foreground/60" />
-          <div className="text-sm font-medium">No audit entries match these filters.</div>
-          <div className="mt-0.5 text-xs text-muted-foreground">
-            Try clearing filters or widening the date range.
-          </div>
+          <div className="text-sm font-medium">{t('audit.table.emptyTitle')}</div>
+          <div className="mt-0.5 text-xs text-muted-foreground">{t('audit.table.emptyHint')}</div>
         </div>
       ) : (
         data.map((log) => (
@@ -495,17 +510,17 @@ function TableCard({
               {log.user_login ? (
                 <span className="font-medium">{log.user_login}</span>
               ) : (
-                <span className="italic text-muted-foreground">system</span>
+                <span className="italic text-muted-foreground">{t('audit.table.system')}</span>
               )}
             </div>
-            <div className="truncate font-mono text-[11px]">{log.action}</div>
+            <div className="truncate text-[11px]" title={log.action}>
+              {humanizeAction(log.action)}
+            </div>
             <div className="truncate text-[11px]">
               {log.resource_type ? (
                 <>
                   <span className="text-muted-foreground">{log.resource_type}</span>
-                  {log.resource_id && (
-                    <span className="font-mono"> #{log.resource_id}</span>
-                  )}
+                  {log.resource_id && <span className="font-mono"> #{log.resource_id}</span>}
                 </>
               ) : (
                 <span className="text-muted-foreground">—</span>
@@ -517,7 +532,7 @@ function TableCard({
             <div className="truncate font-mono text-[11px] text-muted-foreground">
               {log.ip || '—'}
             </div>
-            <div className="text-right text-[11px] text-primary">View</div>
+            <div className="text-right text-[11px] text-primary">{t('audit.table.view')}</div>
           </button>
         ))
       )}
@@ -526,6 +541,7 @@ function TableCard({
 }
 
 function StatusPill({ status }: { status: 'success' | 'failure' }) {
+  const { t } = useTranslation()
   return (
     <span
       className={cn(
@@ -541,7 +557,7 @@ function StatusPill({ status }: { status: 'success' | 'failure' }) {
           status === 'success' ? 'bg-emerald-500' : 'bg-red-500',
         )}
       />
-      {status}
+      {status === 'success' ? t('audit.statusValue.success') : t('audit.statusValue.failure')}
     </span>
   )
 }
@@ -560,9 +576,10 @@ function formatTimestamp(iso: string): string {
 
 /* ─── Detail drawer ────────────────────────────────────────────────────── */
 
-type DrawerTab = 'overview' | 'chain' | 'raw'
+type DrawerTab = 'overview' | 'raw'
 
 function DetailDrawer({ log, onClose }: { log: AuditLog; onClose: () => void }) {
+  const { t } = useTranslation()
   const [tab, setTab] = useState<DrawerTab>('overview')
 
   return (
@@ -579,10 +596,13 @@ function DetailDrawer({ log, onClose }: { log: AuditLog; onClose: () => void }) 
             <div className="flex items-center gap-2">
               <StatusPill status={log.status} />
               <span className="font-mono text-[11px] text-muted-foreground">
-                entry #{log.id}
+                {t('audit.drawer.entry', { id: log.id })}
               </span>
             </div>
-            <div className="mt-2 break-all font-mono text-base font-semibold">{log.action}</div>
+            <div className="mt-2 text-base font-semibold">{humanizeAction(log.action)}</div>
+            <div className="mt-0.5 break-all font-mono text-[11px] text-muted-foreground">
+              {log.action}
+            </div>
             <div className="mt-1 text-[11px] text-muted-foreground">
               {formatTimestamp(log.timestamp)}
             </div>
@@ -596,22 +616,17 @@ function DetailDrawer({ log, onClose }: { log: AuditLog; onClose: () => void }) 
           <nav className="-mb-px flex gap-5 text-xs">
             <TabButton active={tab === 'overview'} onClick={() => setTab('overview')}>
               <User size={12} className="mr-1.5" />
-              Overview
-            </TabButton>
-            <TabButton active={tab === 'chain'} onClick={() => setTab('chain')}>
-              <Hash size={12} className="mr-1.5" />
-              Hash chain
+              {t('audit.drawer.overview')}
             </TabButton>
             <TabButton active={tab === 'raw'} onClick={() => setTab('raw')}>
               <ScrollText size={12} className="mr-1.5" />
-              Raw JSON
+              {t('audit.drawer.raw')}
             </TabButton>
           </nav>
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-5 text-sm">
           {tab === 'overview' && <OverviewTab log={log} />}
-          {tab === 'chain' && <ChainTab log={log} />}
           {tab === 'raw' && <RawTab log={log} />}
         </div>
       </div>
@@ -644,60 +659,50 @@ function TabButton({
 }
 
 function OverviewTab({ log }: { log: AuditLog }) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-1">
       {log.error_message && (
         <div className="mb-4 flex items-start gap-2 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-500 dark:text-red-300">
           <AlertTriangle size={14} className="mt-0.5 shrink-0" />
           <div>
-            <div className="font-medium">Error</div>
+            <div className="font-medium">{t('audit.drawer.error')}</div>
             <div className="mt-0.5 break-words font-mono text-[11px]">{log.error_message}</div>
           </div>
         </div>
       )}
 
-      <DetailRow label="Actor">
+      <DetailRow label={t('audit.drawer.actor')}>
         {log.user_login ? (
-          <span>
-            <span className="font-medium">{log.user_login}</span>
-            {log.user_id && (
-              <span className="ml-2 font-mono text-[11px] text-muted-foreground">
-                #{log.user_id}
-              </span>
-            )}
-          </span>
+          <span className="font-medium">{log.user_login}</span>
         ) : (
-          <span className="italic text-muted-foreground">system</span>
+          <span className="italic text-muted-foreground">{t('audit.table.system')}</span>
         )}
       </DetailRow>
 
       {log.resource_type && (
-        <DetailRow label="Resource">
+        <DetailRow label={t('audit.drawer.resource')}>
           <span className="text-muted-foreground">{log.resource_type}</span>
-          {log.resource_id && (
-            <span className="ml-2 font-mono">#{log.resource_id}</span>
-          )}
+          {log.resource_id && <span className="ml-2 font-mono">#{log.resource_id}</span>}
         </DetailRow>
       )}
 
-      <DetailRow label="IP">
+      <DetailRow label={t('audit.drawer.ip')}>
         <span className="font-mono text-[12px]">{log.ip || '—'}</span>
       </DetailRow>
 
-      <DetailRow label="User agent">
-        <span className="break-all text-[11px] text-muted-foreground">
-          {log.user_agent || '—'}
-        </span>
+      <DetailRow label={t('audit.drawer.userAgent')}>
+        <span className="break-all text-[11px] text-muted-foreground">{log.user_agent || '—'}</span>
       </DetailRow>
 
       {log.session_id && (
-        <DetailRow label="Session">
+        <DetailRow label={t('audit.drawer.session')}>
           <span className="font-mono text-[12px]">#{log.session_id}</span>
         </DetailRow>
       )}
 
       {log.metadata && Object.keys(log.metadata).length > 0 && (
-        <DetailRow label="Metadata">
+        <DetailRow label={t('audit.drawer.metadata')}>
           <pre className="mt-1 max-h-[280px] overflow-auto rounded-md border border-border bg-muted/30 p-2.5 text-[11px] text-foreground/90">
             {JSON.stringify(log.metadata, null, 2)}
           </pre>
@@ -707,53 +712,13 @@ function OverviewTab({ log }: { log: AuditLog }) {
   )
 }
 
-function ChainTab({ log }: { log: AuditLog }) {
-  return (
-    <div className="space-y-4">
-      <div className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2.5 text-xs text-emerald-600 dark:text-emerald-300">
-        <div className="flex items-center gap-1.5 font-medium">
-          <ShieldCheck size={14} />
-          Tamper-evident
-        </div>
-        <p className="mt-1 text-[11px] text-emerald-700/80 dark:text-emerald-300/80">
-          Each entry's hash includes the previous entry's hash. Modifying any past entry would
-          break the chain on every entry after it.
-        </p>
-      </div>
-
-      <div>
-        <div className="mb-1 flex items-center justify-between">
-          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
-            This entry's hash
-          </span>
-          <CopyButton text={log.hash} />
-        </div>
-        <code className="block break-all rounded-md border border-border bg-muted/30 p-2.5 font-mono text-[11px]">
-          {log.hash}
-        </code>
-      </div>
-
-      <div>
-        <div className="mb-1 flex items-center justify-between">
-          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
-            Previous entry's hash
-          </span>
-          {log.prev_hash && <CopyButton text={log.prev_hash} />}
-        </div>
-        <code className="block break-all rounded-md border border-border bg-muted/30 p-2.5 font-mono text-[11px] text-muted-foreground">
-          {log.prev_hash || <span className="italic">— (genesis entry)</span>}
-        </code>
-      </div>
-    </div>
-  )
-}
-
 function RawTab({ log }: { log: AuditLog }) {
+  const { t } = useTranslation()
   const json = JSON.stringify(log, null, 2)
   return (
     <div>
       <div className="mb-2 flex items-center justify-end">
-        <CopyButton text={json} label="Copy JSON" />
+        <CopyButton text={json} label={t('audit.drawer.copyJson')} />
       </div>
       <pre className="overflow-auto rounded-md border border-border bg-muted/30 p-3 text-[11px] leading-relaxed">
         {json}
@@ -763,6 +728,7 @@ function RawTab({ log }: { log: AuditLog }) {
 }
 
 function CopyButton({ text, label }: { text: string; label?: string }) {
+  const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
   const onCopy = () => {
     navigator.clipboard.writeText(text).then(() => {
@@ -775,12 +741,12 @@ function CopyButton({ text, label }: { text: string; label?: string }) {
       {copied ? (
         <>
           <CheckCircle2 size={12} className="text-emerald-500" />
-          Copied
+          {t('audit.drawer.copied')}
         </>
       ) : (
         <>
           <Copy size={12} />
-          {label ?? 'Copy'}
+          {label ?? t('audit.drawer.copy')}
         </>
       )}
     </Button>

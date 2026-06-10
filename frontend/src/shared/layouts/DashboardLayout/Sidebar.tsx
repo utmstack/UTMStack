@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   BadgeCheck,
+  Bell,
   Boxes,
   CalendarClock,
   ChevronDown,
@@ -17,7 +18,6 @@ import {
   Info,
   KeyRound,
   KeySquare,
-  Layers,
   Mail,
   Palette,
   Plug,
@@ -35,6 +35,7 @@ import {
   Workflow,
   type LucideIcon,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 
 type LeafItem = {
@@ -63,68 +64,70 @@ type Section = {
   items: Item[]
 }
 
+// `label` values are i18n keys, resolved with t() at render time.
 const sections: Section[] = [
   {
     id: 'main',
     label: null,
     items: [
-      { to: '/home', label: 'Home', icon: Home },
+      { to: '/home', label: 'nav.home', icon: Home },
       {
         id: 'threat-management',
-        label: 'Threat Management',
+        label: 'nav.threatManagement',
         icon: Shield,
         basePath: '/threat-management',
         children: [
-          { to: '/threat-management/alerts', label: 'Alerts', icon: AlertTriangle },
-          { to: '/threat-management/incidents', label: 'Incidents', icon: Flame },
-          { to: '/threat-management/adversaries', label: 'Adversary View', icon: UserX },
+          { to: '/threat-management/alerts', label: 'nav.alerts', icon: AlertTriangle },
+          { to: '/threat-management/incidents', label: 'nav.incidents', icon: Flame },
+          { to: '/threat-management/adversaries', label: 'nav.adversaryView', icon: UserX },
         ],
       },
       {
         id: 'soar',
-        label: 'SOAR',
+        label: 'nav.soar',
         icon: Workflow,
         basePath: '/soar',
         children: [
-          { to: '/soar/flows', label: 'Flows', icon: GitBranch },
-          { to: '/soar/console', label: 'Interactive Console', icon: Terminal },
+          { to: '/soar/flows', label: 'nav.flows', icon: GitBranch },
+          { to: '/soar/console', label: 'nav.interactiveConsole', icon: Terminal },
         ],
       },
-      { to: '/log-explorer', label: 'Log Explorer', icon: ScrollText },
-      { to: '/user-auditor', label: 'User Auditor', icon: UserCheck },
-      { to: '/threat-intelligence', label: 'Threat Intelligence', icon: Radar },
-      { to: '/compliance', label: 'Compliance', icon: BadgeCheck },
+      { to: '/log-explorer', label: 'nav.logExplorer', icon: ScrollText },
+      { to: '/user-auditor', label: 'nav.userAuditor', icon: UserCheck },
+      { to: '/threat-intelligence', label: 'nav.threatIntelligence', icon: Radar },
+      { to: '/compliance', label: 'nav.compliance', icon: BadgeCheck },
     ],
   },
   {
     id: 'configure',
-    label: 'Configure',
+    label: 'nav.configure',
     items: [
-      { to: '/datasources', label: 'Data Sources', icon: Database },
-      { to: '/integrations', label: 'Integrations', icon: Plug },
-      { to: '/alerting-rules', label: 'Alerting Rules', icon: SlidersHorizontal },
-      { to: '/tagging-rules', label: 'Tagging Rules', icon: Tag },
-      { to: '/data-processing', label: 'Data Processing', icon: Activity },
-      { to: '/team', label: 'Team', icon: Users },
-      { to: '/settings', label: 'Settings', icon: Settings },
+      { to: '/datasources', label: 'nav.dataSources', icon: Database },
+      { to: '/integrations', label: 'nav.integrations', icon: Plug },
+      { to: '/alerting-rules', label: 'nav.alertingRules', icon: SlidersHorizontal },
+      { to: '/tagging-rules', label: 'nav.taggingRules', icon: Tag },
+      { to: '/data-processing', label: 'nav.dataProcessing', icon: Activity },
+      { to: '/team', label: 'nav.team', icon: Users },
+      { to: '/settings', label: 'nav.settings', icon: Settings },
     ],
   },
 ]
 
 // Settings drill-down — when pathname is under /settings the sidebar swaps
-// its content for this list + a Back button.
+// its content for this list + a Back button. `label` values are i18n keys.
 const settingsItems: { to: string; label: string; icon: LucideIcon }[] = [
-  { to: '/settings/workspaces', label: 'Workspaces', icon: Layers },
-  { to: '/settings/connection-key', label: 'Connection Key', icon: KeyRound },
-  { to: '/settings/data-retention', label: 'Data Retention', icon: HardDriveDownload },
-  { to: '/settings/indices', label: 'Indices & data views', icon: Boxes },
-  { to: '/settings/theme', label: 'Theme', icon: Palette },
-  { to: '/settings/api-keys', label: 'API Keys', icon: KeySquare },
-  { to: '/settings/identity-providers', label: 'Identity Providers', icon: ShieldCheck },
-  { to: '/settings/email', label: 'Email Configuration', icon: Mail },
-  { to: '/settings/date-format', label: 'Date Format', icon: CalendarClock },
-  { to: '/settings/audit-logs', label: 'App Audit Logs', icon: History },
-  { to: '/settings/about', label: 'About', icon: Info },
+  { to: '/settings/license', label: 'settings.license', icon: BadgeCheck },
+  { to: '/settings/notifications', label: 'settings.notifications', icon: Bell },
+  { to: '/settings/connection-key', label: 'settings.connectionKey', icon: KeyRound },
+  { to: '/settings/data-retention', label: 'settings.dataRetention', icon: HardDriveDownload },
+  { to: '/settings/indices', label: 'settings.indices', icon: Boxes },
+  { to: '/settings/theme', label: 'settings.theme', icon: Palette },
+  { to: '/settings/api-keys', label: 'settings.apiKeys', icon: KeySquare },
+  { to: '/settings/identity-providers', label: 'settings.identityProviders', icon: ShieldCheck },
+  { to: '/settings/email', label: 'settings.email', icon: Mail },
+  { to: '/settings/date-format', label: 'settings.dateFormat', icon: CalendarClock },
+  { to: '/settings/audit-logs', label: 'settings.auditLogs', icon: History },
+  { to: '/settings/about', label: 'settings.about', icon: Info },
 ]
 
 const SECTIONS_KEY = 'utmstack-sidebar-sections-closed'
@@ -143,6 +146,7 @@ function loadSet(key: string): Set<string> {
 }
 
 export function Sidebar() {
+  const { t } = useTranslation()
   const [closedSections, setClosedSections] = useState<Set<string>>(() => loadSet(SECTIONS_KEY))
   const [closedGroups, setClosedGroups] = useState<Set<string>>(() => loadSet(GROUPS_KEY))
   const { pathname } = useLocation()
@@ -195,7 +199,7 @@ export function Sidebar() {
                   onClick={() => toggleSection(section.id)}
                   className="mb-1 flex w-full items-center justify-between px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50 hover:text-sidebar-foreground"
                 >
-                  <span>{section.label}</span>
+                  <span>{t(section.label)}</span>
                   <ChevronDown
                     size={12}
                     className={cn('transition-transform duration-150', isClosed && '-rotate-90')}
@@ -241,6 +245,7 @@ function SidebarLeaf({
   active: boolean
   nested?: boolean
 }) {
+  const { t } = useTranslation()
   const Icon = item.icon
   return (
     <Link
@@ -254,7 +259,7 @@ function SidebarLeaf({
       )}
     >
       <Icon size={16} strokeWidth={1.75} className="shrink-0" />
-      <span className="whitespace-nowrap">{item.label}</span>
+      <span className="whitespace-nowrap">{t(item.label)}</span>
     </Link>
   )
 }
@@ -272,6 +277,7 @@ function SidebarGroup({
   isPathActive: (to: string) => boolean
   isBaseActive: (base: string) => boolean
 }) {
+  const { t } = useTranslation()
   const Icon = item.icon
   const baseActive = isBaseActive(item.basePath)
 
@@ -287,7 +293,7 @@ function SidebarGroup({
         )}
       >
         <Icon size={16} strokeWidth={1.75} className="shrink-0" />
-        <span className="flex-1 whitespace-nowrap text-left">{item.label}</span>
+        <span className="flex-1 whitespace-nowrap text-left">{t(item.label)}</span>
         <ChevronDown
           size={14}
           className={cn(
@@ -313,6 +319,7 @@ function SidebarGroup({
 }
 
 function SettingsSidebar({ isPathActive }: { isPathActive: (to: string) => boolean }) {
+  const { t } = useTranslation()
   return (
     <aside className="flex h-full w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
       <div className="border-b border-sidebar-border p-2">
@@ -321,11 +328,11 @@ function SettingsSidebar({ isPathActive }: { isPathActive: (to: string) => boole
           className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
         >
           <ArrowLeft size={16} strokeWidth={1.75} className="shrink-0" />
-          <span>Back</span>
+          <span>{t('nav.back')}</span>
         </Link>
       </div>
       <div className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
-        Settings
+        {t('settings.title')}
       </div>
       <nav className="flex-1 space-y-0.5 overflow-y-auto overflow-x-hidden p-2 pt-1">
         {settingsItems.map((item) => {
@@ -342,7 +349,7 @@ function SettingsSidebar({ isPathActive }: { isPathActive: (to: string) => boole
               )}
             >
               <Icon size={16} strokeWidth={1.75} className="shrink-0" />
-              <span className="whitespace-nowrap">{item.label}</span>
+              <span className="whitespace-nowrap">{t(item.label)}</span>
             </Link>
           )
         })}

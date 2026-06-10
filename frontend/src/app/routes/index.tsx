@@ -28,7 +28,8 @@ import { IdentityProvidersPage } from '@/features/settings/pages/IdentityProvide
 import { EmailConfigurationPage } from '@/features/settings/pages/EmailConfigurationPage'
 import { DateFormatPage } from '@/features/settings/pages/DateFormatPage'
 import { AboutPage } from '@/features/settings/pages/AboutPage'
-import { WorkspacesPage } from '@/features/settings/pages/WorkspacesPage'
+import { LicensePage } from '@/features/billing'
+import { NotificationsPage } from '@/features/notifications'
 import { DashboardLayout } from '@/shared/layouts/DashboardLayout'
 
 export function AppRoutes() {
@@ -78,8 +79,11 @@ export function AppRoutes() {
         <Route path="data-processing" element={<DataProcessingPage />} />
         <Route path="team" element={<TeamPage />} />
         {/* Settings — drill-down sub-pages */}
-        <Route path="settings" element={<Navigate to="/settings/workspaces" replace />} />
-        <Route path="settings/workspaces" element={<WorkspacesPage />} />
+        <Route path="settings" element={<Navigate to="/settings/license" replace />} />
+        <Route path="settings/license" element={<LicensePage />} />
+        <Route path="settings/notifications" element={<NotificationsPage />} />
+        {/* Legacy redirect — the workspaces module was removed */}
+        <Route path="settings/workspaces" element={<Navigate to="/settings/license" replace />} />
         <Route path="settings/connection-key" element={<ConnectionKeyPage />} />
         <Route path="settings/data-retention" element={<DataRetentionPage />} />
         <Route path="settings/indices" element={<IndicesPage />} />

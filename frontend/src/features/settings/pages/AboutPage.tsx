@@ -3,6 +3,7 @@ import {
   Activity,
   AlertTriangle,
   Boxes,
+  Building2,
   CheckCircle2,
   Copy,
   Cpu,
@@ -24,6 +25,7 @@ import {
   Workflow,
   type LucideIcon,
 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { APP_INFO } from '@/shared/config/app'
@@ -128,7 +130,6 @@ function Header() {
 /* ─── Instance card (hero) ─────────────────────────────────────────────── */
 
 function InstanceCard() {
-  const isCommunity = APP_INFO.edition === 'community'
   return (
     <section className="overflow-hidden rounded-xl border border-border bg-card">
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px]">
@@ -161,80 +162,34 @@ function InstanceCard() {
           </dl>
         </div>
 
-        {/* Right — license */}
-        <div className="bg-muted/20 p-6">
-          <div className="flex items-center justify-between">
+        {/* Right — license (managed on the License page) */}
+        <div className="flex flex-col justify-between bg-muted/20 p-6">
+          <div>
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground">License</div>
-            <span
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-[10px] font-medium ring-1 ring-inset',
-                APP_INFO.licenseStatus === 'active' && 'bg-emerald-500/15 text-emerald-600 ring-emerald-500/30 dark:text-emerald-300',
-                APP_INFO.licenseStatus === 'trial' && 'bg-sky-500/15 text-sky-600 ring-sky-500/30 dark:text-sky-300',
-                APP_INFO.licenseStatus === 'expiring' && 'bg-amber-500/15 text-amber-600 ring-amber-500/30 dark:text-amber-300',
-                APP_INFO.licenseStatus === 'expired' && 'bg-red-500/15 text-red-600 ring-red-500/30 dark:text-red-300',
-                APP_INFO.licenseStatus === 'none' && 'bg-muted text-muted-foreground ring-border'
+            <div className="mt-3 flex items-center gap-2 text-sm font-medium">
+              {APP_INFO.edition === 'enterprise' ? (
+                <>
+                  <ShieldCheck size={16} className="text-primary" />
+                  {APP_INFO.tier ? `Enterprise · ${APP_INFO.tier}` : 'Enterprise'}
+                </>
+              ) : (
+                <>
+                  <Building2 size={16} className="text-muted-foreground" />
+                  Community
+                </>
               )}
-            >
-              <span
-                className={cn(
-                  'h-1 w-1 rounded-full',
-                  APP_INFO.licenseStatus === 'active' && 'bg-emerald-500',
-                  APP_INFO.licenseStatus === 'trial' && 'bg-sky-500',
-                  APP_INFO.licenseStatus === 'expiring' && 'bg-amber-500',
-                  APP_INFO.licenseStatus === 'expired' && 'bg-red-500',
-                  APP_INFO.licenseStatus === 'none' && 'bg-muted-foreground'
-                )}
-              />
-              {APP_INFO.licenseStatus[0].toUpperCase() + APP_INFO.licenseStatus.slice(1)}
-            </span>
-          </div>
-
-          {isCommunity ? (
-            <div className="mt-3">
-              <div className="text-2xl font-semibold">Community</div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Open-source edition. Free to use under the Apache 2.0 license. Some features
-                (multi-tenancy, SSO per workspace, advanced compliance) require Enterprise.
-              </p>
-              <Button size="sm" className="mt-3 w-full">
-                <Sparkles size={13} className="mr-1.5" />
-                Upgrade to Enterprise
-              </Button>
             </div>
-          ) : (
-            <>
-              <div className="mt-3 text-2xl font-semibold tabular-nums">
-                {APP_INFO.tier ? `Enterprise · ${APP_INFO.tier}` : 'Enterprise'}
-              </div>
-              <dl className="mt-3 space-y-2 text-xs">
-                <KV k="Plan" v={APP_INFO.tier ?? 'Enterprise'} />
-                <KV k="Seats" v="42 / 100 used" />
-                <KV k="Workspaces" v="3 / unlimited" />
-                <KV
-                  k="Valid until"
-                  v={
-                    APP_INFO.expiresAt ? (
-                      <span className="font-mono">
-                        {new Date(APP_INFO.expiresAt).toLocaleDateString()}
-                      </span>
-                    ) : (
-                      'No expiry'
-                    )
-                  }
-                />
-                {APP_INFO.trialDaysLeft != null && (
-                  <KV
-                    k="Trial"
-                    v={<span className="text-amber-500 font-medium">{APP_INFO.trialDaysLeft}d remaining</span>}
-                  />
-                )}
-              </dl>
-              <Button size="sm" variant="outline" className="mt-4 w-full">
-                <KeyRound size={13} className="mr-1.5" />
-                Manage license
-              </Button>
-            </>
-          )}
+            <p className="mt-1.5 text-xs text-muted-foreground">
+              Edition, datasource limits, expiry, and license upload are managed on the License
+              page.
+            </p>
+          </div>
+          <Button asChild size="sm" variant="outline" className="mt-4 w-full">
+            <Link to="/settings/license">
+              <KeyRound size={13} className="mr-1.5" />
+              View license
+            </Link>
+          </Button>
         </div>
       </div>
     </section>
@@ -257,15 +212,6 @@ function CopyableMono({ value }: { value: string }) {
         {copied ? <CheckCircle2 size={11} className="text-emerald-500" /> : <Copy size={11} />}
       </button>
     </span>
-  )
-}
-
-function KV({ k, v }: { k: string; v: React.ReactNode }) {
-  return (
-    <div className="flex items-baseline justify-between gap-3">
-      <span className="text-[11px] text-muted-foreground">{k}</span>
-      <span className="text-right">{v}</span>
-    </div>
   )
 }
 

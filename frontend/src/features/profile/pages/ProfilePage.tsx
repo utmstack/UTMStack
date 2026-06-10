@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Camera, KeyRound, Laptop, Shield, Smartphone, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
@@ -6,18 +7,22 @@ import { Input } from '@/shared/components/ui/input'
 import { useAuth } from '@/features/auth'
 import { authHttpService, AuthHttpError } from '@/features/auth/services/auth-http.service'
 import type { Session } from '@/features/auth/types/auth.types'
+import { SUPPORTED_LANGUAGES } from '@/shared/i18n'
+import { TwoFactorBody } from '../components/TwoFactorBody'
 
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024 // 2 MB
 const AVATAR_ACCEPT = 'image/png,image/jpeg,image/webp,image/gif'
 
 export function ProfilePage() {
-  const { user, updateMe, changePassword, uploadAvatar, removeAvatar } = useAuth()
+  const { t } = useTranslation()
+  const { user, updateMe, changePassword, uploadAvatar, removeAvatar, refreshUser } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
 
   const [firstName, setFirstName] = useState(user?.first_name ?? '')
   const [lastName, setLastName] = useState(user?.last_name ?? '')
   const [email, setEmail] = useState(user?.email ?? '')
+  const [langKey, setLangKey] = useState(user?.lang_key ?? '')
   const [savingProfile, setSavingProfile] = useState(false)
 
   const [currentPassword, setCurrentPassword] = useState('')
@@ -35,20 +40,21 @@ export function ProfilePage() {
     setFirstName(user?.first_name ?? '')
     setLastName(user?.last_name ?? '')
     setEmail(user?.email ?? '')
-  }, [user?.first_name, user?.last_name, user?.email])
+    setLangKey(user?.lang_key ?? '')
+  }, [user?.first_name, user?.last_name, user?.email, user?.lang_key])
 
   const loadSessions = useCallback(async () => {
     setSessionsLoading(true)
     try {
       const list = await authHttpService.listSessions()
       setSessions(list)
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Could not load sessions')
+    } catch {
+      toast.error(t('profile.toast.sessionsLoadFailed'))
       setSessions([])
     } finally {
       setSessionsLoading(false)
     }
-  }, [])
+  }, [t])
 
   useEffect(() => {
     loadSessions()
@@ -68,9 +74,10 @@ export function ProfilePage() {
     return (
       firstName !== (user?.first_name ?? '') ||
       lastName !== (user?.last_name ?? '') ||
-      email !== (user?.email ?? '')
+      email !== (user?.email ?? '') ||
+      langKey !== (user?.lang_key ?? '')
     )
-  }, [firstName, lastName, email, user])
+  }, [firstName, lastName, email, langKey, user])
 
   const handleSavePersonal = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -81,15 +88,14 @@ export function ProfilePage() {
         first_name: firstName.trim(),
         last_name: lastName.trim(),
         email: email.trim(),
+        lang_key: langKey || undefined,
       })
-      toast.success('Profile updated')
+      toast.success(t('profile.toast.profileUpdated'))
     } catch (err) {
       const msg =
         err instanceof AuthHttpError && err.status === 409
-          ? 'That email is already in use'
-          : err instanceof Error
-            ? err.message
-            : 'Could not update profile'
+          ? t('profile.toast.emailInUse')
+          : t('profile.toast.profileUpdateFailed')
       toast.error(msg)
     } finally {
       setSavingProfile(false)
@@ -99,17 +105,17 @@ export function ProfilePage() {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault()
     if (newPassword !== confirmPassword) {
-      toast.error('Passwords do not match')
+      toast.error(t('profile.toast.passwordsNoMatch'))
       return
     }
     if (newPassword.length < 8) {
-      toast.error('Password must be at least 8 characters')
+      toast.error(t('profile.toast.passwordTooShort'))
       return
     }
     setPwSubmitting(true)
     try {
       await changePassword({ current_password: currentPassword, new_password: newPassword })
-      toast.success('Password changed — other sessions were signed out')
+      toast.success(t('profile.toast.passwordChanged'))
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
@@ -117,10 +123,8 @@ export function ProfilePage() {
     } catch (err) {
       const msg =
         err instanceof AuthHttpError && err.status === 401
-          ? 'Current password is incorrect'
-          : err instanceof Error
-            ? err.message
-            : 'Could not change password'
+          ? t('profile.toast.currentPasswordWrong')
+          : t('profile.toast.passwordChangeFailed')
       toast.error(msg)
     } finally {
       setPwSubmitting(false)
@@ -131,10 +135,10 @@ export function ProfilePage() {
     setRevokingId(id)
     try {
       await authHttpService.revokeSession(id)
-      toast.success('Session revoked')
+      toast.success(t('profile.toast.sessionRevoked'))
       setSessions((s) => (s ? s.filter((x) => x.id !== id) : s))
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Could not revoke session')
+    } catch {
+      toast.error(t('profile.toast.sessionRevokeFailed'))
     } finally {
       setRevokingId(null)
     }
@@ -145,19 +149,19 @@ export function ProfilePage() {
     e.target.value = '' // allow re-selecting same file later
     if (!file) return
     if (!AVATAR_ACCEPT.split(',').includes(file.type)) {
-      toast.error('Image type not allowed (use PNG, JPEG, WEBP or GIF)')
+      toast.error(t('profile.toast.avatarTypeNotAllowed'))
       return
     }
     if (file.size > AVATAR_MAX_BYTES) {
-      toast.error('Image is too large (max 2MB)')
+      toast.error(t('profile.toast.avatarTooLarge'))
       return
     }
     setUploadingAvatar(true)
     try {
       await uploadAvatar(file)
-      toast.success('Avatar updated')
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Could not upload avatar')
+      toast.success(t('profile.toast.avatarUpdated'))
+    } catch {
+      toast.error(t('profile.toast.avatarUploadFailed'))
     } finally {
       setUploadingAvatar(false)
     }
@@ -167,9 +171,9 @@ export function ProfilePage() {
     setUploadingAvatar(true)
     try {
       await removeAvatar()
-      toast.success('Avatar removed')
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Could not remove avatar')
+      toast.success(t('profile.toast.avatarRemoved'))
+    } catch {
+      toast.error(t('profile.toast.avatarRemoveFailed'))
     } finally {
       setUploadingAvatar(false)
     }
@@ -179,10 +183,10 @@ export function ProfilePage() {
     setRevokingAll(true)
     try {
       await authHttpService.revokeOtherSessions()
-      toast.success('Other sessions signed out')
+      toast.success(t('profile.toast.othersSignedOut'))
       await loadSessions()
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Could not revoke sessions')
+    } catch {
+      toast.error(t('profile.toast.othersRevokeFailed'))
     } finally {
       setRevokingAll(false)
     }
@@ -213,7 +217,7 @@ export function ProfilePage() {
           />
           <button
             className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm hover:bg-muted hover:text-foreground disabled:opacity-50"
-            aria-label="Change avatar"
+            aria-label={t('profile.hero.changeAvatar')}
             disabled={uploadingAvatar}
             onClick={() => fileInputRef.current?.click()}
           >
@@ -222,7 +226,7 @@ export function ProfilePage() {
           {user?.image_url && !uploadingAvatar && (
             <button
               className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
-              aria-label="Remove avatar"
+              aria-label={t('profile.hero.removeAvatar')}
               onClick={handleRemoveAvatar}
             >
               <X size={10} strokeWidth={2} />
@@ -234,7 +238,7 @@ export function ProfilePage() {
           <p className="text-sm text-muted-foreground">{user?.email}</p>
           <div className="mt-1.5 flex items-center justify-center gap-1.5 sm:justify-start">
             <span className="rounded-md bg-primary/15 px-2 py-0.5 text-[11px] font-medium text-primary ring-1 ring-inset ring-primary/20">
-              Administrator
+              {t('profile.hero.administrator')}
             </span>
             <span className="font-mono text-xs text-muted-foreground">@{user?.login}</span>
           </div>
@@ -242,22 +246,38 @@ export function ProfilePage() {
       </header>
 
       {/* Personal info */}
-      <Section title="Personal information" description="Update your name and contact info.">
+      <Section title={t('profile.personal.title')} description={t('profile.personal.description')}>
         <form onSubmit={handleSavePersonal} className="space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="First name">
+            <Field label={t('profile.personal.firstName')}>
               <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} />
             </Field>
-            <Field label="Last name">
+            <Field label={t('profile.personal.lastName')}>
               <Input value={lastName} onChange={(e) => setLastName(e.target.value)} />
             </Field>
           </div>
-          <Field label="Email">
+          <Field label={t('profile.personal.email')}>
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </Field>
-          <Field label="Username" hint="Username cannot be changed.">
-            <Input value={user?.login ?? ''} disabled className="font-mono" />
-          </Field>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label={t('profile.personal.language')} hint={t('profile.personal.languageHint')}>
+              <select
+                value={langKey}
+                onChange={(e) => setLangKey(e.target.value)}
+                className="flex h-10 w-full cursor-pointer rounded-md border border-input bg-background/40 px-3 py-2 text-sm transition-colors focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value="">{t('profile.personal.systemDefault')}</option>
+                {SUPPORTED_LANGUAGES.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label={t('profile.personal.username')} hint={t('profile.personal.usernameHint')}>
+              <Input value={user?.login ?? ''} disabled className="font-mono" />
+            </Field>
+          </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button
               type="button"
@@ -267,21 +287,26 @@ export function ProfilePage() {
                 setFirstName(user?.first_name ?? '')
                 setLastName(user?.last_name ?? '')
                 setEmail(user?.email ?? '')
+                setLangKey(user?.lang_key ?? '')
               }}
             >
-              Reset
+              {t('profile.personal.reset')}
             </Button>
             <Button type="submit" disabled={!profileDirty || savingProfile}>
-              {savingProfile ? 'Saving…' : 'Save changes'}
+              {savingProfile ? t('profile.personal.saving') : t('profile.personal.save')}
             </Button>
           </div>
         </form>
       </Section>
 
       {/* Password */}
-      <Section title="Password" description="Use a strong password you don't reuse anywhere else." icon={KeyRound}>
+      <Section
+        title={t('profile.password.title')}
+        description={t('profile.password.description')}
+        icon={KeyRound}
+      >
         <form onSubmit={handleChangePassword} className="space-y-4">
-          <Field label="Current password">
+          <Field label={t('profile.password.current')}>
             <Input
               type="password"
               value={currentPassword}
@@ -290,7 +315,7 @@ export function ProfilePage() {
             />
           </Field>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="New password" hint="At least 8 characters.">
+            <Field label={t('profile.password.new')} hint={t('profile.password.newHint')}>
               <Input
                 type="password"
                 value={newPassword}
@@ -298,7 +323,7 @@ export function ProfilePage() {
                 autoComplete="new-password"
               />
             </Field>
-            <Field label="Confirm new password">
+            <Field label={t('profile.password.confirm')}>
               <Input
                 type="password"
                 value={confirmPassword}
@@ -309,37 +334,36 @@ export function ProfilePage() {
           </div>
           <div className="flex justify-end pt-2">
             <Button type="submit" disabled={pwSubmitting}>
-              {pwSubmitting ? 'Updating…' : 'Update password'}
+              {pwSubmitting ? t('profile.password.updating') : t('profile.password.update')}
             </Button>
           </div>
         </form>
       </Section>
 
       {/* Two-factor */}
-      <Section title="Two-factor authentication" description="Add an extra layer of security to your account." icon={Shield}>
-        <div className="flex items-center justify-between rounded-md border border-border bg-muted/40 p-4">
-          <div>
-            <div className="text-sm font-medium">Authenticator app</div>
-            <div className="mt-0.5 text-xs text-muted-foreground">
-              Status:{' '}
-              <span className="text-amber-600 dark:text-amber-300">Not configured</span>
-            </div>
+      <Section
+        title={t('profile.tfa.title')}
+        description={t('profile.tfa.description')}
+        icon={Shield}
+      >
+        {user ? (
+          <TwoFactorBody user={user} onChanged={refreshUser} />
+        ) : (
+          <div className="rounded-md border border-border p-6 text-center text-sm text-muted-foreground">
+            {t('profile.tfa.loading')}
           </div>
-          <Button variant="outline" onClick={() => toast.info('2FA enrollment not wired yet')}>
-            Enable
-          </Button>
-        </div>
+        )}
       </Section>
 
       {/* Sessions */}
-      <Section title="Active sessions" description="Devices currently signed in to your account.">
+      <Section title={t('profile.sessions.title')} description={t('profile.sessions.description')}>
         {sessionsLoading ? (
           <div className="rounded-md border border-border p-6 text-center text-sm text-muted-foreground">
-            Loading sessions…
+            {t('profile.sessions.loading')}
           </div>
         ) : !sessions || sessions.length === 0 ? (
           <div className="rounded-md border border-border p-6 text-center text-sm text-muted-foreground">
-            No active sessions.
+            {t('profile.sessions.empty')}
           </div>
         ) : (
           <>
@@ -356,7 +380,9 @@ export function ProfilePage() {
             {sessions.some((s) => !s.current) && (
               <div className="mt-3 flex justify-end">
                 <Button variant="outline" disabled={revokingAll} onClick={handleRevokeOthers}>
-                  {revokingAll ? 'Signing out…' : 'Sign out of all other sessions'}
+                  {revokingAll
+                    ? t('profile.sessions.signingOut')
+                    : t('profile.sessions.signOutOthers')}
                 </Button>
               </div>
             )}
@@ -376,7 +402,12 @@ function SessionItem({
   revoking: boolean
   onRevoke: () => void
 }) {
+  const { t, i18n } = useTranslation()
   const ua = parseUserAgent(session.user_agent)
+  const deviceLabel =
+    ua.browser && ua.os
+      ? t('profile.sessions.deviceLabel', { browser: ua.browser, os: ua.os })
+      : t('profile.sessions.unknownDevice')
   return (
     <li className="flex items-center justify-between gap-3 px-4 py-3">
       <div className="flex items-center gap-3">
@@ -389,54 +420,72 @@ function SessionItem({
         </div>
         <div>
           <div className="flex items-center gap-2 text-sm font-medium">
-            {ua.label}
+            {deviceLabel}
             {session.current && (
               <span className="rounded-md bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-300">
-                This device
+                {t('profile.sessions.thisDevice')}
               </span>
             )}
           </div>
           <div className="text-xs text-muted-foreground">
-            {session.ip ? <span className="font-mono">{session.ip}</span> : 'Unknown IP'}
+            {session.ip ? (
+              <span className="font-mono">{session.ip}</span>
+            ) : (
+              t('profile.sessions.unknownIp')
+            )}
             {' · '}
-            Signed in {formatRelative(session.created_at)}
+            {t('profile.sessions.signedIn', {
+              time: formatRelative(session.created_at, i18n.language),
+            })}
           </div>
         </div>
       </div>
       {!session.current && (
         <Button variant="outline" size="sm" disabled={revoking} onClick={onRevoke}>
-          {revoking ? 'Revoking…' : 'Revoke'}
+          {revoking ? t('profile.sessions.revoking') : t('profile.sessions.revoke')}
         </Button>
       )}
     </li>
   )
 }
 
-function parseUserAgent(ua: string | undefined): { kind: 'desktop' | 'mobile'; label: string } {
-  if (!ua) return { kind: 'desktop', label: 'Unknown device' }
+function parseUserAgent(ua: string | undefined): {
+  kind: 'desktop' | 'mobile'
+  browser: string | null
+  os: string | null
+} {
+  if (!ua) return { kind: 'desktop', browser: null, os: null }
   const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua)
-  const browser = ua.match(/Firefox|Edg|Chrome|Safari/i)?.[0] ?? 'Browser'
-  const os =
-    /Mac OS X|macOS/i.test(ua) ? 'macOS'
-      : /Windows/i.test(ua) ? 'Windows'
-      : /Android/i.test(ua) ? 'Android'
-      : /iPhone|iPad|iOS/i.test(ua) ? 'iOS'
-      : /Linux/i.test(ua) ? 'Linux'
-      : 'Unknown'
-  return { kind: isMobile ? 'mobile' : 'desktop', label: `${browser === 'Edg' ? 'Edge' : browser} on ${os}` }
+  const raw = ua.match(/Firefox|Edg|Chrome|Safari/i)?.[0]
+  const browser = raw ? (raw === 'Edg' ? 'Edge' : raw) : 'Browser'
+  const os = /Mac OS X|macOS/i.test(ua)
+    ? 'macOS'
+    : /Windows/i.test(ua)
+      ? 'Windows'
+      : /Android/i.test(ua)
+        ? 'Android'
+        : /iPhone|iPad|iOS/i.test(ua)
+          ? 'iOS'
+          : /Linux/i.test(ua)
+            ? 'Linux'
+            : 'Unknown'
+  return { kind: isMobile ? 'mobile' : 'desktop', browser, os }
 }
 
-function formatRelative(iso: string): string {
+/** Localized relative time ("5 minutes ago" / "hace 5 minutos") via Intl. */
+function formatRelative(iso: string, locale: string): string {
   const then = new Date(iso).getTime()
-  const diff = Date.now() - then
-  if (diff < 60_000) return 'just now'
-  const m = Math.floor(diff / 60_000)
-  if (m < 60) return `${m}m ago`
-  const h = Math.floor(m / 60)
-  if (h < 24) return `${h}h ago`
-  const d = Math.floor(h / 24)
-  if (d < 30) return `${d}d ago`
-  return new Date(iso).toLocaleDateString()
+  if (Number.isNaN(then)) return ''
+  const diffSec = Math.round((then - Date.now()) / 1000)
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
+  if (Math.abs(diffSec) < 60) return rtf.format(diffSec, 'second')
+  const min = Math.round(diffSec / 60)
+  if (Math.abs(min) < 60) return rtf.format(min, 'minute')
+  const hr = Math.round(diffSec / 3600)
+  if (Math.abs(hr) < 24) return rtf.format(hr, 'hour')
+  const day = Math.round(diffSec / 86400)
+  if (Math.abs(day) < 30) return rtf.format(day, 'day')
+  return new Date(iso).toLocaleDateString(locale)
 }
 
 interface SectionProps {

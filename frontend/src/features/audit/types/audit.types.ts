@@ -12,32 +12,33 @@ export interface AuditLog {
   resource_type?: string
   resource_id?: string
   metadata?: Record<string, unknown>
-  prev_hash?: string
-  hash: string
 }
 
-export interface AuditPageInfo {
-  page: number
+/** Mirrors the backend common_models.ListResponse[LogResponse]. */
+export interface AuditListResponse {
+  items: AuditLog[]
+  page_number: number
   page_size: number
   total_items: number
   total_pages: number
-  has_next: boolean
-  has_prev: boolean
 }
 
-export interface AuditListResponse {
-  data: AuditLog[]
-  page_info: AuditPageInfo
-}
-
+/**
+ * UI-friendly filters. The service translates these into the backend's
+ * page_number / page_size / search_query (DSL: field.op.value, &-joined) params.
+ */
 export interface AuditListQuery {
   user_id?: number
+  user_login?: string
   action?: string
   status?: 'success' | 'failure' | ''
   resource_type?: string
   resource_id?: string
+  /** RFC3339 timestamp lower bound. */
   from?: string
+  /** RFC3339 timestamp upper bound. */
   to?: string
+  /** 1-based page. */
   page?: number
   page_size?: number
 }
