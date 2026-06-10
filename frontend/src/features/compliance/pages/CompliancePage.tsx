@@ -118,7 +118,7 @@ export function CompliancePage() {
   const [tab, setTab] = useState<Tab>('posture')
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
       <Header />
 
       <div className="mt-5 grid grid-cols-12 gap-4">

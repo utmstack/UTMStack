@@ -43,6 +43,13 @@ export const FALLBACK_LANGUAGE = 'en'
 /** Persisted key for the detected/chosen language (also synced to the user's lang_key). */
 export const LANGUAGE_STORAGE_KEY = 'utmstack_lang'
 
+// Captured BEFORE init: i18next caches the detected language to localStorage on
+// init, which would otherwise make a first visit look like the user already
+// chose a language. This lets bootstrapPlatformLanguage tell "this browser
+// already has a preference" apart from "first visit → apply the platform default".
+const hadStoredLanguage =
+  typeof localStorage !== 'undefined' && localStorage.getItem(LANGUAGE_STORAGE_KEY) != null
+
 void i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -58,5 +65,26 @@ void i18n
       caches: ['localStorage'],
     },
   })
+
+const API_BASE = import.meta.env.VITE_API_URL || '/api/v1'
+
+/**
+ * Apply the platform-default UI language (from GET /branding/public) for browsers
+ * that have no language preference yet. Precedence is: a per-user lang_key (applied
+ * post-login by the auth context) → this platform default → browser → English.
+ * A browser that already has a stored choice is left untouched.
+ */
+export async function bootstrapPlatformLanguage(): Promise<void> {
+  if (hadStoredLanguage) return
+  try {
+    const res = await fetch(`${API_BASE}/branding/public`)
+    if (!res.ok) return
+    const data = (await res.json()) as { language?: string }
+    const lang = data.language
+    if (lang && resources[lang]) await i18n.changeLanguage(lang)
+  } catch {
+    // Backend not reachable yet (offline / boot): keep the detected language.
+  }
+}
 
 export default i18n

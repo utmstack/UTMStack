@@ -193,19 +193,28 @@
     "notifications": "Notificações",
     "connectionKey": "Chave de conexão",
     "dataRetention": "Retenção de dados",
-    "indices": "Índices e visualizações de dados",
+    "indices": "Índices",
     "theme": "Tema",
+    "branding": "Marca",
     "apiKeys": "Chaves de API",
     "identityProviders": "Provedores de identidade",
     "email": "Configuração de e-mail",
     "dateFormat": "Formato de data",
+    "language": "Idioma",
     "auditLogs": "Logs de auditoria",
     "about": "Sobre"
   },
   "topbar": {
-    "theme": { "light": "Modo claro", "dark": "Modo escuro" },
+    "theme": {
+      "light": "Modo claro",
+      "dark": "Modo escuro"
+    },
     "manageLicense": "Gerenciar licença",
-    "profile": { "profile": "Perfil", "license": "Licença", "logout": "Sair" }
+    "profile": {
+      "profile": "Perfil",
+      "license": "Licença",
+      "logout": "Sair"
+    }
   },
   "notifications": {
     "title": "Notificações",
@@ -301,7 +310,10 @@
       "user": "Usuário",
       "userPlaceholder": "login…"
     },
-    "statusValue": { "success": "Sucesso", "failure": "Falha" },
+    "statusValue": {
+      "success": "Sucesso",
+      "failure": "Falha"
+    },
     "table": {
       "timestamp": "Data e hora",
       "actor": "Ator",
@@ -442,6 +454,37 @@
       "minutesAgo": "há {{count}} min",
       "hoursAgo": "há {{count}} h",
       "daysAgo": "há {{count}} d"
+    },
+    "roleNames": {
+      "ROLE_ADMIN": "Administrador",
+      "ROLE_USER": "Usuário"
+    },
+    "roleDescriptions": {
+      "ROLE_ADMIN": "Acesso total a todos os recursos",
+      "ROLE_USER": "Usuário padrão com acesso de leitura a nível de módulo"
+    },
+    "actions": {
+      "read": "Leitura",
+      "write": "Escrita",
+      "delete": "Exclusão"
+    },
+    "resources": {
+      "adaudit": "Auditoria AD",
+      "alerts": "Alertas",
+      "audit": "Registro de auditoria",
+      "compliance": "Conformidade",
+      "config": "Configuração",
+      "dashboards": "Painéis",
+      "datasources": "Datasources",
+      "eventprocessing": "Processamento de eventos",
+      "idp": "Provedores de identidade",
+      "incidents": "Incidentes",
+      "integrations": "Integrações",
+      "loganalyzer": "Analisador de logs",
+      "opensearch": "OpenSearch",
+      "roles": "Funções",
+      "soar": "SOAR",
+      "users": "Usuários"
     }
   },
   "apiKeys": {
@@ -681,5 +724,367 @@
       "daysAgo": "há {{count}}d"
     },
     "none": "—"
+  },
+  "connectionKey": {
+    "title": "Chave de conexão",
+    "subtitle1": "A chave que os agentes apresentam ao se registrar nesta instância.",
+    "subtitleEmphasis": "É usada apenas para a instalação de agentes",
+    "subtitle2": "— não para coletores, integrações ou a API. É gerenciada pelo agent-manager.",
+    "status": {
+      "label": "Status",
+      "loading": "Carregando…",
+      "unavailable": "Agent-manager indisponível",
+      "active": "Ativa",
+      "unavailableHint": "Não foi possível contatar o agent-manager para ler a chave.",
+      "activeHint": "Os agentes podem se registrar com esta chave."
+    },
+    "token": {
+      "title": "Chave de conexão",
+      "subtitle": "Trate este valor como uma credencial. Rotacioná-la emite uma nova chave para futuras instalações de agentes — os agentes já registrados continuam funcionando.",
+      "loadFailedTitle": "Não foi possível carregar a chave de conexão",
+      "unavailableTitle": "Chave de conexão indisponível",
+      "loadFailedHint": "A chave é gerenciada pelo agent-manager, que não respondeu. Tente novamente em instantes.",
+      "retry": "Tentar novamente",
+      "show": "Mostrar chave",
+      "hide": "Ocultar chave",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "regenerate": "Regenerar chave de conexão",
+      "confirmTitle": "Regenerar a chave?",
+      "confirmBody": "As novas instalações de agentes precisarão da nova chave. Os agentes já registrados continuam funcionando. Não há como desfazer.",
+      "regenerating": "Regenerando…",
+      "confirmYes": "Sim, regenerar",
+      "cancel": "Cancelar"
+    },
+    "install": {
+      "title": "Instalar um agente",
+      "subtitle": "Copie o comando de instalação para o SO do agente. A chave de conexão já está incluída.",
+      "linux": "Agente Linux",
+      "windows": "Agente Windows",
+      "macos": "Agente macOS",
+      "copyCommand": "Copiar comando"
+    },
+    "security": {
+      "title": "Recomendações de segurança",
+      "subtitle": "Boas práticas para proteger esta credencial.",
+      "rotateTitle": "Rotacione a cada 90 dias",
+      "rotateBody": "Agende uma rotação recorrente. O UTMStack pode enviar um lembrete por e-mail quando a chave tiver mais de 90 dias.",
+      "rotateAction": "Configurar lembrete",
+      "secretTitle": "Armazene como segredo",
+      "secretBody": "Não faça commit no controle de versão. Use seu gerenciador de segredos (Vault, AWS SM, etc.) e injete-a no momento da instalação.",
+      "auditTitle": "Audite quem a obteve",
+      "auditBody": "Cada obtenção e rotação é registrada no log de auditoria da aplicação.",
+      "auditAction": "Ver log de auditoria"
+    },
+    "toast": {
+      "loadFailed": "Não foi possível carregar a chave de conexão",
+      "rotated": "Chave de conexão rotacionada",
+      "rotateFailed": "Não foi possível rotacionar a chave de conexão",
+      "copyFailed": "Não foi possível copiar"
+    }
+  },
+  "dataRetention": {
+    "title": "Retenção de dados",
+    "subtitle": "Por quanto tempo os dados de eventos são mantidos antes de serem excluídos. Aplicado pelo gerenciamento do ciclo de vida de índices (ISM) do OpenSearch nos índices gerenciados.",
+    "loading": "Carregando política de retenção…",
+    "unavailable": {
+      "title": "O gerenciamento do ciclo de vida de índices não está disponível",
+      "body": "A retenção é gerenciada pelo ISM do OpenSearch. Esta instância não tem OpenSearch configurado, então não há política de retenção para gerenciar aqui."
+    },
+    "loadFailed": "Não foi possível carregar a política de retenção.",
+    "retry": "Tentar novamente",
+    "noPolicyNote": "Ainda não há política de retenção configurada. Defina uma abaixo e salve para aplicá-la.",
+    "deleteAfter": "Excluir dados após",
+    "deleteAfterHint": "Índices mais antigos que isso são removidos. Aplica-se aos índices de eventos gerenciados.",
+    "units": {
+      "days": "dias",
+      "hours": "horas"
+    },
+    "positiveNumber": "Insira um número positivo",
+    "snapshotTitle": "Snapshot antes de excluir",
+    "snapshotHint": "Arquiva cada índice (somente restauração) antes de excluí-lo, para que os dados possam ser recuperados depois. Quando desativado, os índices são excluídos imediatamente.",
+    "save": "Salvar política",
+    "saving": "Salvando…",
+    "toast": {
+      "saved": "Política de retenção salva",
+      "noPermission": "Você não tem permissão para alterar a retenção",
+      "saveFailed": "Não foi possível salvar a política de retenção"
+    }
+  },
+  "indices": {
+    "title": "Índices e index patterns",
+    "subtitle": "Os index patterns agrupam índices para busca; os índices são o armazenamento subjacente do OpenSearch.",
+    "retry": "Tentar novamente",
+    "tabs": {
+      "dataViews": "Index patterns",
+      "indices": "Índices"
+    },
+    "dataViews": {
+      "search": "Buscar index patterns…",
+      "add": "Adicionar index pattern",
+      "colPattern": "Padrão",
+      "colModule": "Integração",
+      "colActive": "Ativa",
+      "colActions": "Ações",
+      "loading": "Carregando index patterns…",
+      "loadFailed": "Não foi possível carregar as index patterns.",
+      "noSearchMatch": "Nenhuma index pattern corresponde à sua busca.",
+      "none": "Ainda não há index patterns.",
+      "system": "sistema",
+      "active": "Ativa",
+      "disabled": "Desativada",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "deleteTitle": "Excluir index pattern",
+      "deleteBody": "Excluir {{pattern}}? Isso remove a definição da index pattern. Os índices subjacentes não são excluídos.",
+      "deleteConfirm": "Excluir",
+      "form": {
+        "addTitle": "Adicionar index pattern",
+        "editTitle": "Editar index pattern",
+        "pattern": "Padrão de índice",
+        "patternHint": "Use * como curinga, ex. logs-windows-*",
+        "module": "Integração",
+        "moduleHint": "Opcional — a integração à qual este pattern pertence (ex.: windows, aws). Deixe vazio para patterns personalizados.",
+        "activeLabel": "Ativa",
+        "systemLabel": "Index pattern do sistema",
+        "saving": "Salvando…",
+        "save": "Salvar alterações",
+        "create": "Criar",
+        "matchChecking": "Verificando índices correspondentes…",
+        "matchNone": "Não corresponde a nenhum índice — o pattern deve corresponder a pelo menos um.",
+        "duplicate": "Já existe um index pattern com este glob.",
+        "matchCount_one": "Corresponde a {{count}} índice",
+        "matchCount_other": "Corresponde a {{count}} índices"
+      },
+      "toast": {
+        "enabled": "Index pattern ativada",
+        "disabled": "Index pattern desativada",
+        "created": "Index pattern criada",
+        "updated": "Index pattern atualizada",
+        "deleted": "Index pattern excluída"
+      },
+      "systemLocked": "Pattern do sistema — gerenciado automaticamente, não editável"
+    },
+    "index": {
+      "filter": "Filtrar por nome do índice…",
+      "systemIndices": "Índices do sistema",
+      "refresh": "Atualizar",
+      "colIndex": "Índice",
+      "colHealth": "Saúde",
+      "colStatus": "Status",
+      "colDocs": "Docs",
+      "colSize": "Tamanho",
+      "colActions": "Ações",
+      "loading": "Carregando índices…",
+      "loadFailed": "Não foi possível carregar os índices (o OpenSearch pode estar indisponível).",
+      "noFilterMatch": "Nenhum índice corresponde ao seu filtro.",
+      "none": "Nenhum índice encontrado.",
+      "page": "Página {{page}}",
+      "deleteTitle": "Excluir índice",
+      "deleteBody": "Excluir permanentemente o índice {{name}}? Todos os {{docs}} documentos que ele contém serão perdidos. Isso não pode ser desfeito.",
+      "deleteConfirm": "Excluir índice",
+      "toast": {
+        "deleted": "Índice excluído"
+      }
+    },
+    "confirm": {
+      "cancel": "Cancelar",
+      "working": "Processando…"
+    },
+    "error": {
+      "noPermission": "Você não tem permissão para fazer isso",
+      "notFound": "Não encontrado",
+      "invalidRequest": "Solicitação inválida",
+      "failed": "A operação falhou"
+    }
+  },
+  "languageSettings": {
+    "title": "Idioma da plataforma",
+    "subtitle": "Idioma padrão para as telas de pré-login, e-mails do sistema e novos usuários. Cada usuário ainda pode escolher o seu no perfil.",
+    "label": "Idioma padrão",
+    "hint": "Usado quando um usuário não escolheu o próprio idioma.",
+    "save": "Salvar",
+    "saving": "Salvando…",
+    "saved": "Idioma da plataforma atualizado",
+    "loadError": "Não foi possível carregar a configuração de idioma",
+    "saveError": "Não foi possível salvar a configuração de idioma"
+  },
+  "branding": {
+    "title": "Marca",
+    "subtitle": "Personalize o UTMStack com a identidade da sua organização — aplicado em tudo: tela de login, menu lateral, e-mails e relatórios.",
+    "msspRequired": "O white-label é um recurso MSSP.",
+    "manageLicense": "Gerenciar licença",
+    "enable": {
+      "title": "White-label",
+      "description": "Substitua a marca UTMStack pela sua em toda a plataforma.",
+      "label": "Ativar white-label"
+    },
+    "identity": {
+      "title": "Identidade",
+      "productName": "Nome do produto",
+      "productNameHint": "Exibido na barra de título, menu lateral e e-mails.",
+      "accent": "Cor de destaque",
+      "accentHint": "Cor primária de botões, links e estados ativos.",
+      "custom": "Cor personalizada"
+    },
+    "logos": {
+      "title": "Logos",
+      "hint": "PNG, SVG, WEBP, JPG ou ICO. Até 5 MB.",
+      "logo": "Logo (claro)",
+      "logoDark": "Logo (escuro)",
+      "favicon": "Favicon"
+    },
+    "reports": {
+      "title": "Recursos de relatório",
+      "hint": "Incorporados nos relatórios PDF gerados.",
+      "reportLogo": "Logo do relatório",
+      "reportCover": "Capa do relatório"
+    },
+    "asset": {
+      "upload": "Enviar",
+      "replace": "Substituir"
+    },
+    "save": "Salvar alterações",
+    "saving": "Salvando…",
+    "saved": "Marca atualizada",
+    "saveError": "Não foi possível salvar a marca",
+    "uploaded": "Imagem enviada",
+    "uploadError": "Não foi possível enviar a imagem",
+    "loadError": "Não foi possível carregar a marca"
+  },
+  "emailConfig": {
+    "title": "Configuração de e-mail",
+    "subtitle": "Servidor SMTP usado para enviar notificações de alertas, relatórios e e-mails de conta.",
+    "server": {
+      "title": "Servidor SMTP",
+      "host": "Host",
+      "hostHint": "Nome do servidor SMTP.",
+      "port": "Porta",
+      "encryption": "Criptografia",
+      "username": "Usuário",
+      "password": "Senha",
+      "passwordSetHint": "Há uma senha salva. Deixe em branco para mantê-la ou digite uma nova para alterá-la."
+    },
+    "encryptionOpt": {
+      "TLS": "TLS",
+      "SSL": "SSL",
+      "NONE": "Nenhuma"
+    },
+    "sender": {
+      "title": "Remetente",
+      "from": "Endereço de origem",
+      "fromHint": "Endereço a partir do qual os e-mails são enviados.",
+      "organization": "Nome da organização",
+      "organizationHint": "Exibido nos e-mails de notificação de alertas e incidentes.",
+      "baseUrl": "URL base",
+      "baseUrlHint": "URL pública desta instância, usada nos links dos e-mails."
+    },
+    "test": {
+      "button": "Enviar teste",
+      "sending": "Enviando…",
+      "sentTo": "Um e-mail de teste será enviado para {{email}}.",
+      "success": "E-mail de teste enviado para {{email}}",
+      "fail": "Não foi possível enviar o e-mail de teste",
+      "fromRequired": "Defina um endereço de origem antes de testar"
+    },
+    "save": "Salvar alterações",
+    "saving": "Salvando…",
+    "saved": "Configuração de e-mail salva",
+    "saveError": "Não foi possível salvar a configuração",
+    "loadError": "Não foi possível carregar a configuração"
+  },
+  "dateFormat": {
+    "title": "Data e hora",
+    "subtitle": "Como os timestamps são exibidos em toda a plataforma. Os logs são sempre armazenados em UTC.",
+    "timezone": {
+      "title": "Fuso horário",
+      "hint": "Os timestamps são exibidos neste fuso horário. Os dados são armazenados em UTC.",
+      "system": "Padrão do navegador",
+      "now": "Agora: {{value}}"
+    },
+    "format": {
+      "title": "Formato de data",
+      "hint": "Estilo usado para datas e horas."
+    },
+    "styles": {
+      "short": "Curto",
+      "medium": "Médio",
+      "long": "Longo",
+      "full": "Completo"
+    },
+    "save": "Salvar alterações",
+    "saving": "Salvando…",
+    "saved": "Configurações de data salvas",
+    "saveError": "Não foi possível salvar as configurações",
+    "loadError": "Não foi possível carregar as configurações"
+  },
+  "about": {
+    "title": "Sobre esta instância",
+    "subtitle": "Versão, licença e saúde do sistema deste deployment do UTMStack.",
+    "loading": "Carregando informações da instância…",
+    "edition": {
+      "enterprise": "Enterprise",
+      "community": "Community"
+    },
+    "fields": {
+      "hostname": "Servidor",
+      "instanceId": "ID da instância",
+      "noInstanceMeta": "Nenhum metadado da instância disponível."
+    },
+    "license": {
+      "title": "Licença",
+      "enterpriseMssp": "Enterprise · MSSP",
+      "datasources": "Datasources",
+      "communityLimited": "Limite Community",
+      "unlimited": "Ilimitado",
+      "expires": "Expira",
+      "managedNote": "Edição, limites de datasources e upload de licença são gerenciados na página de Licença.",
+      "view": "Ver licença"
+    },
+    "services": {
+      "backend": {
+        "name": "Backend API",
+        "desc": "Gateway REST, autenticação e orquestração de módulos."
+      },
+      "opensearch": {
+        "name": "OpenSearch",
+        "desc": "Armazenamento de logs e eventos.",
+        "detail": "{{nodes}} nós · {{shards}} shards"
+      },
+      "unreachable": "Inacessível"
+    },
+    "status": {
+      "up": "Saudável",
+      "degraded": "Degradado",
+      "down": "Fora do ar",
+      "unknown": "Desconhecido"
+    },
+    "health": {
+      "title": "Saúde do sistema",
+      "allHealthy": "Todos os serviços saudáveis. Atualize para verificar.",
+      "issues_one": "{{count}} serviço precisa de atenção.",
+      "issues_other": "{{count}} serviços precisam de atenção.",
+      "refresh": "Atualizar"
+    },
+    "usage": {
+      "title": "Uso de datasources",
+      "subtitle": "Datasources ativos em relação ao limite da sua licença.",
+      "ofUnlimited": "de ilimitado",
+      "ofLimit": "de {{limit}}",
+      "overLimit": "Acima do limite licenciado — os dados além do limite estão em risco."
+    },
+    "support": {
+      "title": "Suporte",
+      "docs": "Documentação",
+      "repo": "Repositório no GitHub",
+      "issues": "Relatar um problema",
+      "website": "utmstack.com"
+    },
+    "legal": {
+      "title": "Legal",
+      "license": "Licença",
+      "security": "Divulgação de segurança",
+      "copyright": "© {{year}} UTMStack. Todos os direitos reservados."
+    }
   }
 }

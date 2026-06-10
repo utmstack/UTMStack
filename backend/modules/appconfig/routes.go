@@ -6,6 +6,10 @@ import (
 )
 
 func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, mssp gin.HandlerFunc) {
+	// Public, read-only display preference (timezone + date format). Non-sensitive,
+	// consumed app-wide (incl. pre-login) to render timestamps consistently.
+	api.GET("/date-format", m.Handler().DateFormat)
+
 	g := api.Group("/config", userAuth)
 	g.GET("", middleware.RequirePermission("config.read"), m.Handler().List)
 	g.GET("/:key", middleware.RequirePermission("config.read"), m.Handler().Get)

@@ -3,12 +3,10 @@ import {
   AlertTriangle,
   Apple,
   Check,
-  Cloud,
   Copy,
   Eye,
   EyeOff,
   KeyRound,
-  Network,
   RefreshCw,
   Server,
   ShieldCheck,
@@ -16,41 +14,49 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/components/ui/button'
 import { cn } from '@/shared/lib/utils'
-import { AuthHttpError } from '@/features/auth/services/auth-http.service'
-import { configHttpService } from '../services/config-http.service'
-
-const CONNECTION_KEY = 'connection_key.token'
+import { connectionKeyHttpService } from '../services/connection-key-http.service'
 
 export function ConnectionKeyPage() {
+  const { t } = useTranslation()
   const [token, setToken] = useState<string>('')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [rotating, setRotating] = useState(false)
   const [showPlaintext, setShowPlaintext] = useState(false)
   const [copied, setCopied] = useState(false)
   const [confirming, setConfirming] = useState(false)
 
-  useEffect(() => {
-    configHttpService
-      .get(CONNECTION_KEY)
-      .then((r) => setToken(r.value ?? ''))
-      .catch((err) => {
-        if (err instanceof AuthHttpError && err.status === 404) return
-        toast.error(err instanceof Error ? err.message : 'Could not load connection key')
+  const load = () => {
+    setLoading(true)
+    setError(false)
+    connectionKeyHttpService
+      .get()
+      .then((r) => setToken(r.connectionKey ?? ''))
+      .catch(() => {
+        setError(true)
+        // Don't surface the raw backend/gRPC error — the status banner already
+        // explains the agent-manager is unreachable.
+        toast.error(t('connectionKey.toast.loadFailed'))
       })
       .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    load()
   }, [])
 
   const rotate = async () => {
     setRotating(true)
     try {
-      const r = await configHttpService.rotate(CONNECTION_KEY)
-      setToken(r.value ?? '')
+      const r = await connectionKeyHttpService.rotate()
+      setToken(r.connectionKey ?? '')
       setShowPlaintext(true)
-      toast.success(token ? 'Connection key regenerated' : 'Connection key generated')
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Could not rotate connection key')
+      toast.success(t('connectionKey.toast.rotated'))
+    } catch {
+      toast.error(t('connectionKey.toast.rotateFailed'))
     } finally {
       setRotating(false)
       setConfirming(false)
@@ -65,37 +71,29 @@ export function ConnectionKeyPage() {
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     } catch {
-      toast.error('Could not copy')
+      toast.error(t('connectionKey.toast.copyFailed'))
     }
   }
 
   const hasToken = token !== ''
-  // Mock-side info — the real values would come from the backend.
-  // Treated as static here to stay non-disruptive.
-  const lastRotated = hasToken ? '14 days ago' : null
-  const connectedClients = hasToken ? 11 : 0
-  const isStale = hasToken // treat as stale only if you'd rotate every 90d; simplified here.
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
       <Header />
 
       <div className="mt-6 space-y-5">
-        <StatusStrip
-          hasToken={hasToken}
-          lastRotated={lastRotated}
-          connectedClients={connectedClients}
-          loading={loading}
-        />
+        <StatusStrip loading={loading} hasToken={hasToken} error={error} />
 
         <TokenSection
           token={token}
           hasToken={hasToken}
           loading={loading}
+          error={error}
           rotating={rotating}
           showPlaintext={showPlaintext}
           copied={copied}
           confirming={confirming}
+          onRetry={load}
           onShowToggle={() => setShowPlaintext((v) => !v)}
           onCopy={() => copy()}
           onConfirm={() => setConfirming(true)}
@@ -105,7 +103,7 @@ export function ConnectionKeyPage() {
 
         {hasToken && <UsageSection token={token} onCopy={copy} />}
 
-        {hasToken && isStale && <RotationReminderSection />}
+        {hasToken && <RotationReminderSection />}
       </div>
     </div>
   )
@@ -114,15 +112,17 @@ export function ConnectionKeyPage() {
 /* ─── Header ───────────────────────────────────────────────────────────── */
 
 function Header() {
+  const { t } = useTranslation()
   return (
     <header>
       <h1 className="flex items-center gap-2 text-xl font-semibold">
         <KeyRound size={18} strokeWidth={1.75} />
-        Connection key
+        {t('connectionKey.title')}
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Token external systems use to connect to this UTMStack instance — agents, collectors,
-        and the custom JSON intake.
+        {t('connectionKey.subtitle1')}{' '}
+        <span className="font-medium text-foreground">{t('connectionKey.subtitleEmphasis')}</span>{' '}
+        {t('connectionKey.subtitle2')}
       </p>
     </header>
   )
@@ -131,80 +131,42 @@ function Header() {
 /* ─── Status strip ─────────────────────────────────────────────────────── */
 
 function StatusStrip({
-  hasToken,
-  lastRotated,
-  connectedClients,
   loading,
+  hasToken,
+  error,
 }: {
-  hasToken: boolean
-  lastRotated: string | null
-  connectedClients: number
   loading: boolean
+  hasToken: boolean
+  error: boolean
 }) {
+  const { t } = useTranslation()
+  const unavailable = error && !hasToken
   return (
-    <section className="rounded-xl border border-border bg-card">
-      <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-        <StripStat
-          label="Status"
-          value={
-            loading ? (
-              <span className="text-muted-foreground">Loading…</span>
-            ) : hasToken ? (
-              <span className="inline-flex items-center gap-1.5 text-emerald-500">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                Active
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
-                Not generated
-              </span>
-            )
-          }
-          sub={hasToken ? 'Accepting connections' : 'Generate a key to start'}
-        />
-        <StripStat
-          label="Last rotated"
-          value={
-            loading ? (
-              <span className="text-muted-foreground">—</span>
-            ) : (
-              <span className="font-mono">{lastRotated ?? '—'}</span>
-            )
-          }
-          sub="Recommended every 90 days"
-        />
-        <StripStat
-          label="Connected clients"
-          value={
-            loading ? (
-              <span className="text-muted-foreground">—</span>
-            ) : (
-              <span className="font-mono tabular-nums">{connectedClients}</span>
-            )
-          }
-          sub="Agents and collectors heartbeating now"
-        />
+    <section className="rounded-xl border border-border bg-card px-5 py-4">
+      <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+        {t('connectionKey.status.label')}
+      </div>
+      <div className="mt-1 text-xl font-semibold">
+        {loading ? (
+          <span className="text-muted-foreground">{t('connectionKey.status.loading')}</span>
+        ) : unavailable ? (
+          <span className="inline-flex items-center gap-1.5 text-amber-500">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+            {t('connectionKey.status.unavailable')}
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 text-emerald-500">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            {t('connectionKey.status.active')}
+          </span>
+        )}
+      </div>
+      <div className="mt-0.5 text-[11px] text-muted-foreground">
+        {unavailable
+          ? t('connectionKey.status.unavailableHint')
+          : t('connectionKey.status.activeHint')}
       </div>
     </section>
-  )
-}
-
-function StripStat({
-  label,
-  value,
-  sub,
-}: {
-  label: string
-  value: React.ReactNode
-  sub: string
-}) {
-  return (
-    <div className="px-5 py-4">
-      <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className="mt-1 text-xl font-semibold">{value}</div>
-      <div className="mt-0.5 text-[11px] text-muted-foreground">{sub}</div>
-    </div>
   )
 }
 
@@ -214,10 +176,12 @@ function TokenSection({
   token,
   hasToken,
   loading,
+  error,
   rotating,
   showPlaintext,
   copied,
   confirming,
+  onRetry,
   onShowToggle,
   onCopy,
   onConfirm,
@@ -227,33 +191,37 @@ function TokenSection({
   token: string
   hasToken: boolean
   loading: boolean
+  error: boolean
   rotating: boolean
   showPlaintext: boolean
   copied: boolean
   confirming: boolean
+  onRetry: () => void
   onShowToggle: () => void
   onCopy: () => void
   onConfirm: () => void
   onCancel: () => void
   onRotate: () => void
 }) {
+  const { t } = useTranslation()
   return (
-    <Section
-      title="Token"
-      subtitle="Treat this value as a credential. If you suspect it's been exposed, regenerate it — existing clients using the old key will lose access until reconfigured."
-    >
+    <Section title={t('connectionKey.token.title')} subtitle={t('connectionKey.token.subtitle')}>
       {loading ? (
-        <div className="text-sm text-muted-foreground">Loading…</div>
+        <div className="text-sm text-muted-foreground">{t('connectionKey.status.loading')}</div>
       ) : !hasToken ? (
         <div className="rounded-md border border-dashed border-border bg-muted/30 p-6 text-center">
-          <KeyRound size={24} strokeWidth={1.5} className="mx-auto text-muted-foreground" />
-          <div className="mt-2 text-sm font-medium">No connection key generated yet</div>
+          <AlertTriangle size={24} strokeWidth={1.5} className="mx-auto text-amber-500" />
+          <div className="mt-2 text-sm font-medium">
+            {error
+              ? t('connectionKey.token.loadFailedTitle')
+              : t('connectionKey.token.unavailableTitle')}
+          </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            Generate a key so agents and collectors can authenticate to this instance.
+            {t('connectionKey.token.loadFailedHint')}
           </p>
-          <Button onClick={onRotate} disabled={rotating} className="mt-4">
-            <RefreshCw size={14} className={cn('mr-1.5', rotating && 'animate-spin')} />
-            {rotating ? 'Generating…' : 'Generate connection key'}
+          <Button variant="outline" onClick={onRetry} disabled={loading} className="mt-4">
+            <RefreshCw size={14} className={cn('mr-1.5', loading && 'animate-spin')} />
+            {t('connectionKey.token.retry')}
           </Button>
         </div>
       ) : (
@@ -272,14 +240,14 @@ function TokenSection({
               <button
                 onClick={onShowToggle}
                 className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-                aria-label={showPlaintext ? 'Hide token' : 'Show token'}
+                aria-label={showPlaintext ? t('connectionKey.token.hide') : t('connectionKey.token.show')}
               >
                 {showPlaintext ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
             </div>
             <Button variant="outline" size="sm" onClick={onCopy}>
               {copied ? <Check size={14} className="mr-1.5 text-emerald-500" /> : <Copy size={14} className="mr-1.5" />}
-              {copied ? 'Copied' : 'Copy'}
+              {copied ? t('connectionKey.token.copied') : t('connectionKey.token.copy')}
             </Button>
           </div>
 
@@ -287,24 +255,23 @@ function TokenSection({
             {!confirming ? (
               <Button variant="outline" onClick={onConfirm} disabled={loading || rotating}>
                 <RefreshCw size={14} className={cn('mr-1.5', rotating && 'animate-spin')} />
-                Regenerate connection key
+                {t('connectionKey.token.regenerate')}
               </Button>
             ) : (
               <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-4">
                 <div className="flex items-center gap-2 text-sm font-medium text-amber-600 dark:text-amber-300">
                   <AlertTriangle size={14} />
-                  Regenerate the key?
+                  {t('connectionKey.token.confirmTitle')}
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Existing clients using the current key will lose access until reconfigured with the
-                  new value. There's no undo.
+                  {t('connectionKey.token.confirmBody')}
                 </p>
                 <div className="mt-3 flex gap-2">
                   <Button size="sm" onClick={onRotate} disabled={rotating}>
-                    {rotating ? 'Regenerating…' : 'Yes, regenerate'}
+                    {rotating ? t('connectionKey.token.regenerating') : t('connectionKey.token.confirmYes')}
                   </Button>
                   <Button variant="ghost" size="sm" onClick={onCancel} disabled={rotating}>
-                    Cancel
+                    {t('connectionKey.token.cancel')}
                   </Button>
                 </div>
               </div>
@@ -327,12 +294,13 @@ interface Usage {
 }
 
 function UsageSection({ token, onCopy }: { token: string; onCopy: (v: string) => void }) {
+  const { t } = useTranslation()
   const [pick, setPick] = useState<string>('linux')
   const tk = token || 'YOUR_TOKEN'
   const usages: Usage[] = [
     {
       id: 'linux',
-      label: 'Linux agent',
+      label: t('connectionKey.install.linux'),
       icon: Terminal,
       iconTone: 'text-amber-500',
       command: `curl -fsSL https://install.utmstack.com/agent.sh | sudo bash -s -- \\
@@ -340,7 +308,7 @@ function UsageSection({ token, onCopy }: { token: string; onCopy: (v: string) =>
     },
     {
       id: 'windows',
-      label: 'Windows agent',
+      label: t('connectionKey.install.windows'),
       icon: Server,
       iconTone: 'text-sky-500',
       command: `# Run in PowerShell as Administrator
@@ -349,29 +317,11 @@ iwr https://install.utmstack.com/agent.ps1 -OutFile install.ps1
     },
     {
       id: 'macos',
-      label: 'macOS agent',
+      label: t('connectionKey.install.macos'),
       icon: Apple,
       iconTone: 'text-violet-500',
       command: `curl -fsSL https://install.utmstack.com/agent-macos.sh | sudo bash -s -- \\
   --token="${tk}"`,
-    },
-    {
-      id: 'collector',
-      label: 'Collector',
-      icon: Network,
-      iconTone: 'text-fuchsia-500',
-      command: `curl -fsSL https://install.utmstack.com/collector.sh | sudo bash -s -- \\
-  --token="${tk}"`,
-    },
-    {
-      id: 'json',
-      label: 'JSON intake',
-      icon: Cloud,
-      iconTone: 'text-emerald-500',
-      command: `curl -X POST https://ingest.utmstack.com/v1/json \\
-  -H "Authorization: Bearer ${tk}" \\
-  -H "Content-Type: application/json" \\
-  -d '{"@timestamp": "2026-05-02T16:42:00Z", "host": "my-app", "message": "hello"}'`,
     },
   ]
   const current = usages.find((u) => u.id === pick) ?? usages[0]
@@ -379,8 +329,8 @@ iwr https://install.utmstack.com/agent.ps1 -OutFile install.ps1
 
   return (
     <Section
-      title="Where you'll use this token"
-      subtitle="Copy the install command for the platform you want to onboard. The token is already embedded."
+      title={t('connectionKey.install.title')}
+      subtitle={t('connectionKey.install.subtitle')}
     >
       <div className="flex flex-wrap items-center gap-1 rounded-md border border-border bg-muted/30 p-1">
         {usages.map((u) => {
@@ -415,7 +365,7 @@ iwr https://install.utmstack.com/agent.ps1 -OutFile install.ps1
             className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-muted-foreground hover:bg-card hover:text-foreground"
           >
             <Copy size={11} />
-            Copy command
+            {t('connectionKey.install.copyCommand')}
           </button>
         </div>
         <pre className="overflow-x-auto p-3 font-mono text-[11px] leading-relaxed">{current.command}</pre>
@@ -427,40 +377,38 @@ iwr https://install.utmstack.com/agent.ps1 -OutFile install.ps1
 /* ─── Rotation reminder ────────────────────────────────────────────────── */
 
 function RotationReminderSection() {
+  const { t } = useTranslation()
   return (
-    <Section
-      title="Security recommendations"
-      subtitle="Best practices for protecting this credential."
-    >
+    <Section title={t('connectionKey.security.title')} subtitle={t('connectionKey.security.subtitle')}>
       <ul className="space-y-2.5 text-sm">
         <li className="flex items-start gap-3">
           <ShieldCheck size={14} className="mt-0.5 shrink-0 text-emerald-500" />
           <div>
-            <div className="font-medium">Rotate every 90 days</div>
+            <div className="font-medium">{t('connectionKey.security.rotateTitle')}</div>
             <div className="text-xs text-muted-foreground">
-              Schedule a recurring rotation. UTMStack can email you a reminder when the key is older
-              than 90 days.{' '}
-              <button className="text-primary hover:underline">Set up reminder</button>
+              {t('connectionKey.security.rotateBody')}{' '}
+              <button className="text-primary hover:underline">
+                {t('connectionKey.security.rotateAction')}
+              </button>
             </div>
           </div>
         </li>
         <li className="flex items-start gap-3">
           <ShieldCheck size={14} className="mt-0.5 shrink-0 text-emerald-500" />
           <div>
-            <div className="font-medium">Store as a secret</div>
-            <div className="text-xs text-muted-foreground">
-              Don't commit the token to source control. Use your secret manager (Vault, AWS SM, etc.)
-              and inject it at install time.
-            </div>
+            <div className="font-medium">{t('connectionKey.security.secretTitle')}</div>
+            <div className="text-xs text-muted-foreground">{t('connectionKey.security.secretBody')}</div>
           </div>
         </li>
         <li className="flex items-start gap-3">
           <ShieldCheck size={14} className="mt-0.5 shrink-0 text-emerald-500" />
           <div>
-            <div className="font-medium">Audit who fetched it</div>
+            <div className="font-medium">{t('connectionKey.security.auditTitle')}</div>
             <div className="text-xs text-muted-foreground">
-              Every fetch and rotation is recorded in the application audit log.{' '}
-              <a href="/settings/audit-logs" className="text-primary hover:underline">View audit log</a>
+              {t('connectionKey.security.auditBody')}{' '}
+              <a href="/settings/audit-logs" className="text-primary hover:underline">
+                {t('connectionKey.security.auditAction')}
+              </a>
             </div>
           </div>
         </li>

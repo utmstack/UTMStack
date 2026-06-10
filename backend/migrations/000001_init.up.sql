@@ -15,6 +15,12 @@ DROP SEQUENCE IF EXISTS jhi_persistent_audit_event_event_id_seq;
 ALTER TABLE jhi_user DROP COLUMN IF EXISTS openvas_user_uuid;
 ALTER TABLE jhi_user DROP COLUMN IF EXISTS openvas_user_id;
 
+-- Drop the legacy utm_module.description column. The Go UtmModule models the
+-- description as module_description; the bare `description` is a leftover from
+-- the Java schema that nothing references (and AutoMigrate never recreates,
+-- since the model has no such field).
+ALTER TABLE utm_module DROP COLUMN IF EXISTS description;
+
 -- Drop the config-parameter section grouping. The Go appconfig module updates
 -- seeded parameters by key (conf_param_short) and never reads the section, which
 -- only existed so the legacy frontend could group settings. Drop the column
@@ -383,6 +389,31 @@ INSERT INTO utm_configuration_parameter
 SELECT 'branding', 'White-label branding', 'White-label branding (logo, product name, colors) as JSON', '', false, 'text', NULL
 WHERE NOT EXISTS (
     SELECT 1 FROM utm_configuration_parameter c WHERE c.conf_param_short = 'branding'
+);
+
+-- Platform-default UI language. Drives the pre-login screens, system emails and
+-- the default for users without a personal lang_key (each user can override it
+-- from their profile). The appconfig module only UPDATEs pre-seeded params, so
+-- it must exist here for GET/PUT /config/utmstack.system.language to work.
+INSERT INTO utm_configuration_parameter
+    (conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
+SELECT 'utmstack.system.language', 'Platform Language', 'Default UI language for the platform (pre-login screens, system emails and new users). Each user can override it in their profile.', 'en', false, 'radio', 'en,es,pt,fr,de'
+WHERE NOT EXISTS (
+    SELECT 1 FROM utm_configuration_parameter c WHERE c.conf_param_short = 'utmstack.system.language'
+);
+
+-- Org-wide timestamp display preference. Data is always stored in UTC; these only
+-- control how timestamps are rendered in the UI (timezone + format). Read app-wide
+-- via the public GET /date-format, edited by an admin via /config.
+INSERT INTO utm_configuration_parameter
+    (conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
+SELECT v.conf_param_short, v.conf_param_large, v.conf_param_description, v.conf_param_value, v.conf_param_required, v.conf_param_datatype, v.conf_param_option
+FROM (VALUES
+    ('utmstack.time.zone',       'Default Time Zone', 'Time zone used to display timestamps. Logs remain stored in UTC.', 'UTC',    false, 'text', NULL),
+    ('utmstack.time.dateformat', 'Date Format',       'Format used to display dates and times.',                          'medium', false, 'radio', 'short,medium,long,full')
+) AS v(conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
+WHERE NOT EXISTS (
+    SELECT 1 FROM utm_configuration_parameter c WHERE c.conf_param_short = v.conf_param_short
 );
 
 -- ThreatWinds (feeds plugin) integration credentials. Seeded as empty so the

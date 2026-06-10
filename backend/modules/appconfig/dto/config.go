@@ -36,3 +36,10 @@ type CheckMailResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
 }
+
+// DateFormatResponse is the org-wide display preference for timestamps. Data is
+// stored in UTC; this only controls how it's rendered in the UI.
+type DateFormatResponse struct {
+	Timezone   string `json:"timezone"`
+	DateFormat string `json:"dateFormat"`
+}

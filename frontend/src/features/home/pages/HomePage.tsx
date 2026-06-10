@@ -21,7 +21,7 @@ import { cn } from '@/shared/lib/utils'
 
 export function HomePage() {
   return (
-    <div className="mx-auto w-full max-w-[1400px] px-6 py-10">
+    <div className="mx-auto w-full max-w-[1100px] px-6 py-10">
       <ChatHero />
 
       <div className="mt-10 grid grid-cols-12 gap-4">

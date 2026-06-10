@@ -338,7 +338,7 @@ export function AdversariesPage() {
   }, [view, search])
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
       <Header total={filtered.length} />
 
       <div className="mt-5">

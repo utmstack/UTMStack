@@ -12,6 +12,7 @@ type Usecase interface {
 	Get(ctx context.Context, key string) (*dto.ConfigResponse, error)
 	Update(ctx context.Context, actor, key string, input dto.UpsertRequest) (*dto.ConfigResponse, error)
 	CheckMail(ctx context.Context, configs []domain.MailConfig) error
+	GetDateFormat(ctx context.Context) dto.DateFormatResponse
 }
 
 type BrandingUsecase interface {

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
+import { useDateFormat } from '@/shared/lib/datetime'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { auditHttpService } from '../services/audit-http.service'
@@ -134,7 +135,7 @@ export function AuditPage() {
     }))
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
       <Header loading={loading} total={pageInfo.total_items} onRefresh={() => load(filters)} />
 
       <div className="mt-6">
@@ -475,6 +476,7 @@ function TableCard({
   onSelect: (log: AuditLog) => void
 }) {
   const { t } = useTranslation()
+  const { formatDateTime } = useDateFormat()
   return (
     <section className="overflow-hidden rounded-xl border border-border bg-card">
       <div className="grid grid-cols-[180px_140px_1fr_180px_90px_140px_60px] gap-3 border-b border-border bg-muted/30 px-4 py-2.5 text-[11px] uppercase tracking-wider text-muted-foreground">
@@ -504,7 +506,7 @@ function TableCard({
             className="grid w-full grid-cols-[180px_140px_1fr_180px_90px_140px_60px] gap-3 border-b border-border px-4 py-2.5 text-left text-xs last:border-b-0 transition-colors hover:bg-muted/40"
           >
             <div className="font-mono text-[11px] text-muted-foreground">
-              {formatTimestamp(log.timestamp)}
+              {formatDateTime(log.timestamp)}
             </div>
             <div className="truncate">
               {log.user_login ? (
@@ -562,17 +564,6 @@ function StatusPill({ status }: { status: 'success' | 'failure' }) {
   )
 }
 
-function formatTimestamp(iso: string): string {
-  const d = new Date(iso)
-  return d.toLocaleString(undefined, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  })
-}
 
 /* ─── Detail drawer ────────────────────────────────────────────────────── */
 
@@ -580,6 +571,7 @@ type DrawerTab = 'overview' | 'raw'
 
 function DetailDrawer({ log, onClose }: { log: AuditLog; onClose: () => void }) {
   const { t } = useTranslation()
+  const { formatDateTime } = useDateFormat()
   const [tab, setTab] = useState<DrawerTab>('overview')
 
   return (
@@ -604,7 +596,7 @@ function DetailDrawer({ log, onClose }: { log: AuditLog; onClose: () => void }) 
               {log.action}
             </div>
             <div className="mt-1 text-[11px] text-muted-foreground">
-              {formatTimestamp(log.timestamp)}
+              {formatDateTime(log.timestamp)}
             </div>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose}>

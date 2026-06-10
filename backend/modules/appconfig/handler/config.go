@@ -21,6 +21,18 @@ func NewHandler(uc connectors.Usecase) *Handler {
 	return &Handler{usecase: uc}
 }
 
+// DateFormat godoc
+//
+//	@Summary		Get the org-wide timestamp display preference
+//	@Description	Public, read-only timezone + date format used to render timestamps. Data is always stored in UTC.
+//	@Tags			Config
+//	@Produce		json
+//	@Success		200	{object}	dto.DateFormatResponse
+//	@Router			/date-format [get]
+func (h *Handler) DateFormat(c *gin.Context) {
+	c.JSON(http.StatusOK, h.usecase.GetDateFormat(c.Request.Context()))
+}
+
 // @Summary List config entries
 // @Tags Config
 // @Security BearerAuth

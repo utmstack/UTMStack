@@ -37,6 +37,22 @@ import type {
 
 const PAGE_SIZE = 20
 
+/* Roles & permissions arrive from the backend as English DB strings. Translate the
+ * stable identifiers (role name, permission resource/action) with a fallback to the
+ * backend value so any custom/unknown role still renders something sensible. */
+function roleLabel(t: TFunction, name: string, fallback?: string): string {
+  return t(`team.roleNames.${name}`, { defaultValue: fallback || name })
+}
+function roleDesc(t: TFunction, name: string, fallback?: string): string {
+  return t(`team.roleDescriptions.${name}`, { defaultValue: fallback || '' })
+}
+function resourceLabel(t: TFunction, resource: string): string {
+  return t(`team.resources.${resource}`, { defaultValue: resource })
+}
+function actionLabel(t: TFunction, action: string): string {
+  return t(`team.actions.${action}`, { defaultValue: action })
+}
+
 /* ─────────────────────────────────────────────────────────────────────────
  * Page
  * ───────────────────────────────────────────────────────────────────────── */
@@ -65,7 +81,7 @@ export function TeamPage() {
   }, [t])
 
   return (
-    <div className="mx-auto w-full max-w-[1400px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
       <header>
         <h1 className="flex items-center gap-2 text-xl font-semibold">
           <UserCheck size={18} strokeWidth={1.75} />
@@ -351,6 +367,7 @@ function StatusBadge({ activated, defaultPassword }: { activated: boolean; defau
 }
 
 function RoleBadge({ name, label }: { name: string; label: string }) {
+  const { t } = useTranslation()
   const isAdmin = name === 'ROLE_ADMIN'
   return (
     <span
@@ -362,7 +379,7 @@ function RoleBadge({ name, label }: { name: string; label: string }) {
       )}
     >
       {isAdmin ? <Crown size={10} /> : <Shield size={10} />}
-      {label}
+      {roleLabel(t, name, label)}
     </span>
   )
 }
@@ -702,8 +719,8 @@ function InviteDialog({
         email: email.trim(),
         first_name: firstName.trim() || undefined,
         last_name: lastName.trim() || undefined,
-        // Default the panel language to English; the user changes it in their profile.
-        lang_key: 'en',
+        // No lang_key: the user inherits the platform-default language until they
+        // pick their own in their profile.
         role_names: roleNames,
       })
       toast.success(t('team.toast.invitationSent'))
@@ -817,10 +834,12 @@ function RolePicker({
             <span className="min-w-0">
               <span className="flex items-center gap-1.5 text-sm font-medium">
                 {isAdmin ? <Crown size={12} className="text-amber-500" /> : <Shield size={12} className="text-sky-500" />}
-                {r.display_name}
+                {roleLabel(t, r.name, r.display_name)}
                 {!compact && <code className="font-mono text-[10px] text-muted-foreground">{r.name}</code>}
               </span>
-              {r.description && <span className="text-[11px] text-muted-foreground">{r.description}</span>}
+              {roleDesc(t, r.name, r.description) && (
+                <span className="text-[11px] text-muted-foreground">{roleDesc(t, r.name, r.description)}</span>
+              )}
             </span>
           </button>
         )
@@ -909,11 +928,13 @@ function RolesView({ roles }: { roles: Role[] }) {
                 <Shield size={18} className="text-sky-500" />
               )}
               <div>
-                <div className="text-sm font-semibold">{d.display_name}</div>
+                <div className="text-sm font-semibold">{roleLabel(t, d.name, d.display_name)}</div>
                 <code className="font-mono text-[10px] text-muted-foreground">{d.name}</code>
               </div>
             </div>
-            {d.description && <p className="mt-2 text-xs text-muted-foreground">{d.description}</p>}
+            {roleDesc(t, d.name, d.description) && (
+              <p className="mt-2 text-xs text-muted-foreground">{roleDesc(t, d.name, d.description)}</p>
+            )}
             <div className="mt-3 flex items-center gap-3 text-[11px] text-muted-foreground">
               <span className="inline-flex items-center gap-1">
                 <KeyRound size={11} />
@@ -940,14 +961,14 @@ function RolesView({ roles }: { roles: Role[] }) {
           <div>{t('team.roles.permission')}</div>
           {details.map((d) => (
             <div key={d.name} className="text-center">
-              {d.display_name}
+              {roleLabel(t, d.name, d.display_name)}
             </div>
           ))}
         </div>
         {byResource.map(({ resource, perms }) => (
           <div key={resource}>
             <div className="bg-muted/20 px-5 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {resource}
+              {resourceLabel(t, resource)}
             </div>
             {perms.map((p) => (
               <div
@@ -957,7 +978,9 @@ function RolesView({ roles }: { roles: Role[] }) {
               >
                 <div>
                   <code className="font-mono text-[11px]">{p.name}</code>
-                  {p.description && <div className="text-[11px] text-muted-foreground">{p.description}</div>}
+                  <div className="text-[11px] text-muted-foreground">
+                    {actionLabel(t, p.name.split('.')[1] ?? '')}
+                  </div>
                 </div>
                 {details.map((d) => (
                   <PermTick key={d.name} on={has(d.name, p.name)} />

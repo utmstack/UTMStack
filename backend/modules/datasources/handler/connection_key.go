@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
 )
 
@@ -38,7 +39,10 @@ func (h *ConnectionKeyHandler) Get(c *gin.Context) {
 	}
 	key, err := h.client.GetConnectionKey(c.Request.Context())
 	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
+		// Don't leak the raw gRPC dial error to the client; log it and return a
+		// clean message. The frontend renders an "agent-manager unavailable" state.
+		_ = catcher.Error("agentmanager: GetConnectionKey failed", err, nil)
+		c.JSON(http.StatusBadGateway, gin.H{"error": "agent-manager unavailable"})
 		return
 	}
 	c.JSON(http.StatusOK, connectionKeyResponse{ConnectionKey: key})
@@ -60,7 +64,8 @@ func (h *ConnectionKeyHandler) Rotate(c *gin.Context) {
 	}
 	key, err := h.client.RotateConnectionKey(c.Request.Context())
 	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
+		_ = catcher.Error("agentmanager: RotateConnectionKey failed", err, nil)
+		c.JSON(http.StatusBadGateway, gin.H{"error": "agent-manager unavailable"})
 		return
 	}
 	c.JSON(http.StatusOK, connectionKeyResponse{ConnectionKey: key})

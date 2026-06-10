@@ -170,12 +170,33 @@ func (s *service) CheckMail(ctx context.Context, configs []domain.MailConfig) er
 		if cfg.From == "" {
 			return fmt.Errorf("config[%d]: from address is required to send a test message", i)
 		}
+		// Let the UI test a previously-saved config without re-entering the secret:
+		// an empty password falls back to the stored (decrypted) one.
+		if cfg.Password == "" {
+			if stored, ok, _ := s.GetString(ctx, "utmstack.mail.password"); ok {
+				cfg.Password = stored
+			}
+		}
 		ec := toEmailConfig(cfg)
 		if err := s.mailer.SendMailWithConfig(ctx, &ec, []string{cfg.From}, body, nil); err != nil {
 			return fmt.Errorf("config[%d] (%s:%d): %w", i, cfg.Host, cfg.Port, err)
 		}
 	}
 	return nil
+}
+
+// GetDateFormat returns the org-wide timestamp display preference (timezone +
+// format), falling back to UTC/medium. Read-only, non-secret — exposed publicly
+// so every client can render timestamps consistently.
+func (s *service) GetDateFormat(ctx context.Context) dto.DateFormatResponse {
+	out := dto.DateFormatResponse{Timezone: "UTC", DateFormat: "medium"}
+	if v, ok, _ := s.GetString(ctx, "utmstack.time.zone"); ok && v != "" {
+		out.Timezone = v
+	}
+	if v, ok, _ := s.GetString(ctx, "utmstack.time.dateformat"); ok && v != "" {
+		out.DateFormat = v
+	}
+	return out
 }
 
 func toEmailConfig(c domain.MailConfig) mail_domain.EmailConfig {
@@ -185,7 +206,7 @@ func toEmailConfig(c domain.MailConfig) mail_domain.EmailConfig {
 	}
 	return mail_domain.EmailConfig{
 		Host:     c.Host,
-		Port:     strconv.Itoa(int(c.Port)),
+		Port:     strconv.Itoa(c.Port),
 		Username: c.Username,
 		Password: c.Password,
 		From:     c.From,

@@ -18,6 +18,8 @@ var ErrUnknownAssetSlot = errors.New("unknown branding asset slot")
 const (
 	defaultProductName = "UTMStack"
 	brandingConfigKey  = "branding"
+	systemLanguageKey  = "utmstack.system.language"
+	defaultLanguage    = "en"
 )
 
 const (
@@ -103,6 +105,7 @@ func fromRequest(req dto.BrandingRequest) dto.BrandingResponse {
 	return dto.BrandingResponse{
 		Enabled:        req.Enabled,
 		ProductName:    req.ProductName,
+		AccentColor:    req.AccentColor,
 		LogoURL:        req.LogoURL,
 		LogoDarkURL:    req.LogoDarkURL,
 		FaviconURL:     req.FaviconURL,
@@ -164,16 +167,29 @@ func (s *brandingService) GetPublic(ctx context.Context) (*dto.BrandingPublic, e
 		return nil, err
 	}
 
+	lang := s.language(ctx)
 	if !b.Enabled || !s.isWhiteLabelEntitled(ctx) {
-		return &dto.BrandingPublic{ProductName: defaultProductName}, nil
+		return &dto.BrandingPublic{ProductName: defaultProductName, Language: lang}, nil
 	}
 	return &dto.BrandingPublic{
 		Enabled:     b.Enabled,
 		ProductName: b.ProductName,
+		AccentColor: b.AccentColor,
 		LogoURL:     b.LogoURL,
 		LogoDarkURL: b.LogoDarkURL,
 		FaviconURL:  b.FaviconURL,
+		Language:    lang,
 	}, nil
+}
+
+// language returns the configured platform-default UI language, falling back to
+// English when unset. Read straight off the config row (not a secret).
+func (s *brandingService) language(ctx context.Context) string {
+	row, err := s.repo.GetByKey(ctx, systemLanguageKey)
+	if err != nil || row == nil || strings.TrimSpace(row.ConfParamValue) == "" {
+		return defaultLanguage
+	}
+	return strings.TrimSpace(row.ConfParamValue)
 }
 
 // ProductName returns the effective product name for branded output: the

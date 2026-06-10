@@ -193,19 +193,28 @@
     "notifications": "Notifications",
     "connectionKey": "Connection Key",
     "dataRetention": "Data Retention",
-    "indices": "Indices & data views",
+    "indices": "Indices",
     "theme": "Theme",
+    "branding": "Branding",
     "apiKeys": "API Keys",
     "identityProviders": "Identity Providers",
     "email": "Email Configuration",
     "dateFormat": "Date Format",
+    "language": "Language",
     "auditLogs": "App Audit Logs",
     "about": "About"
   },
   "topbar": {
-    "theme": { "light": "Light mode", "dark": "Dark mode" },
+    "theme": {
+      "light": "Light mode",
+      "dark": "Dark mode"
+    },
     "manageLicense": "Manage license",
-    "profile": { "profile": "Profile", "license": "License", "logout": "Log out" }
+    "profile": {
+      "profile": "Profile",
+      "license": "License",
+      "logout": "Log out"
+    }
   },
   "notifications": {
     "title": "Notifications",
@@ -301,7 +310,10 @@
       "user": "User",
       "userPlaceholder": "login…"
     },
-    "statusValue": { "success": "Success", "failure": "Failure" },
+    "statusValue": {
+      "success": "Success",
+      "failure": "Failure"
+    },
     "table": {
       "timestamp": "Timestamp",
       "actor": "Actor",
@@ -442,6 +454,37 @@
       "minutesAgo": "{{count}}m ago",
       "hoursAgo": "{{count}}h ago",
       "daysAgo": "{{count}}d ago"
+    },
+    "roleNames": {
+      "ROLE_ADMIN": "Administrator",
+      "ROLE_USER": "User"
+    },
+    "roleDescriptions": {
+      "ROLE_ADMIN": "Full access to all resources",
+      "ROLE_USER": "Standard user with module-level read access"
+    },
+    "actions": {
+      "read": "Read",
+      "write": "Write",
+      "delete": "Delete"
+    },
+    "resources": {
+      "adaudit": "AD Audit",
+      "alerts": "Alerts",
+      "audit": "Audit log",
+      "compliance": "Compliance",
+      "config": "Configuration",
+      "dashboards": "Dashboards",
+      "datasources": "Datasources",
+      "eventprocessing": "Event processing",
+      "idp": "Identity providers",
+      "incidents": "Incidents",
+      "integrations": "Integrations",
+      "loganalyzer": "Log analyzer",
+      "opensearch": "OpenSearch",
+      "roles": "Roles",
+      "soar": "SOAR",
+      "users": "Users"
     }
   },
   "apiKeys": {
@@ -681,5 +724,367 @@
       "daysAgo": "{{count}}d ago"
     },
     "none": "—"
+  },
+  "connectionKey": {
+    "title": "Connection key",
+    "subtitle1": "The key agents present when they register with this instance.",
+    "subtitleEmphasis": "It is only used for agent installation",
+    "subtitle2": "— not for collectors, integrations, or the API. It is managed by the agent-manager.",
+    "status": {
+      "label": "Status",
+      "loading": "Loading…",
+      "unavailable": "Agent-manager unavailable",
+      "active": "Active",
+      "unavailableHint": "Could not reach the agent-manager to read the key.",
+      "activeHint": "Agents can register using this key."
+    },
+    "token": {
+      "title": "Connection key",
+      "subtitle": "Treat this value as a credential. Rotating it issues a new key for future agent installations — agents already registered keep working.",
+      "loadFailedTitle": "Couldn’t load the connection key",
+      "unavailableTitle": "Connection key unavailable",
+      "loadFailedHint": "The key is managed by the agent-manager, which didn’t respond. Try again in a moment.",
+      "retry": "Retry",
+      "show": "Show key",
+      "hide": "Hide key",
+      "copy": "Copy",
+      "copied": "Copied",
+      "regenerate": "Regenerate connection key",
+      "confirmTitle": "Regenerate the key?",
+      "confirmBody": "New agent installations will need the new key. Agents already registered keep working. There's no undo.",
+      "regenerating": "Regenerating…",
+      "confirmYes": "Yes, regenerate",
+      "cancel": "Cancel"
+    },
+    "install": {
+      "title": "Install an agent",
+      "subtitle": "Copy the install command for the agent's OS. The connection key is already embedded.",
+      "linux": "Linux agent",
+      "windows": "Windows agent",
+      "macos": "macOS agent",
+      "copyCommand": "Copy command"
+    },
+    "security": {
+      "title": "Security recommendations",
+      "subtitle": "Best practices for protecting this credential.",
+      "rotateTitle": "Rotate every 90 days",
+      "rotateBody": "Schedule a recurring rotation. UTMStack can email you a reminder when the key is older than 90 days.",
+      "rotateAction": "Set up reminder",
+      "secretTitle": "Store as a secret",
+      "secretBody": "Don't commit the key to source control. Use your secret manager (Vault, AWS SM, etc.) and inject it at install time.",
+      "auditTitle": "Audit who fetched it",
+      "auditBody": "Every fetch and rotation is recorded in the application audit log.",
+      "auditAction": "View audit log"
+    },
+    "toast": {
+      "loadFailed": "Could not load connection key",
+      "rotated": "Connection key rotated",
+      "rotateFailed": "Could not rotate connection key",
+      "copyFailed": "Could not copy"
+    }
+  },
+  "dataRetention": {
+    "title": "Data retention",
+    "subtitle": "How long event data is kept before it is deleted. Enforced by OpenSearch index lifecycle management (ISM) across managed indices.",
+    "loading": "Loading retention policy…",
+    "unavailable": {
+      "title": "Index lifecycle management isn’t available",
+      "body": "Retention is managed through OpenSearch ISM. This instance doesn’t have OpenSearch configured, so there’s no retention policy to manage here."
+    },
+    "loadFailed": "Could not load the retention policy.",
+    "retry": "Retry",
+    "noPolicyNote": "No retention policy is configured yet. Set one below and save to apply it.",
+    "deleteAfter": "Delete data after",
+    "deleteAfterHint": "Indices older than this are removed. Applies to the managed event indices.",
+    "units": {
+      "days": "days",
+      "hours": "hours"
+    },
+    "positiveNumber": "Enter a positive number",
+    "snapshotTitle": "Snapshot before deleting",
+    "snapshotHint": "Archive each index (restore-only) before it is deleted, so data can be recovered later. When off, indices are deleted immediately.",
+    "save": "Save policy",
+    "saving": "Saving…",
+    "toast": {
+      "saved": "Retention policy saved",
+      "noPermission": "You do not have permission to change retention",
+      "saveFailed": "Could not save retention policy"
+    }
+  },
+  "indices": {
+    "title": "Indices & index patterns",
+    "subtitle": "Index patterns group indices for search; indices are the underlying OpenSearch storage.",
+    "retry": "Retry",
+    "tabs": {
+      "dataViews": "Index patterns",
+      "indices": "Indices"
+    },
+    "dataViews": {
+      "search": "Search index patterns…",
+      "add": "Add index pattern",
+      "colPattern": "Pattern",
+      "colModule": "Integration",
+      "colActive": "Active",
+      "colActions": "Actions",
+      "loading": "Loading index patterns…",
+      "loadFailed": "Could not load index patterns.",
+      "noSearchMatch": "No index patterns match your search.",
+      "none": "No index patterns yet.",
+      "system": "system",
+      "active": "Active",
+      "disabled": "Disabled",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteTitle": "Delete index pattern",
+      "deleteBody": "Delete {{pattern}}? This removes the index pattern definition. The underlying indices are not deleted.",
+      "deleteConfirm": "Delete",
+      "form": {
+        "addTitle": "Add index pattern",
+        "editTitle": "Edit index pattern",
+        "pattern": "Index pattern",
+        "patternHint": "Use * as a wildcard, e.g. logs-windows-*",
+        "module": "Integration",
+        "moduleHint": "Optional — the integration this pattern belongs to (e.g. windows, aws). Leave empty for custom patterns.",
+        "activeLabel": "Active",
+        "systemLabel": "System index pattern",
+        "saving": "Saving…",
+        "save": "Save changes",
+        "create": "Create",
+        "matchChecking": "Checking matching indices…",
+        "matchNone": "Matches no indices — the pattern must match at least one.",
+        "duplicate": "An index pattern with this glob already exists.",
+        "matchCount_one": "Matches {{count}} index",
+        "matchCount_other": "Matches {{count}} indices"
+      },
+      "toast": {
+        "enabled": "Index pattern enabled",
+        "disabled": "Index pattern disabled",
+        "created": "Index pattern created",
+        "updated": "Index pattern updated",
+        "deleted": "Index pattern deleted"
+      },
+      "systemLocked": "System pattern — managed automatically, not editable"
+    },
+    "index": {
+      "filter": "Filter by index name…",
+      "systemIndices": "System indices",
+      "refresh": "Refresh",
+      "colIndex": "Index",
+      "colHealth": "Health",
+      "colStatus": "Status",
+      "colDocs": "Docs",
+      "colSize": "Size",
+      "colActions": "Actions",
+      "loading": "Loading indices…",
+      "loadFailed": "Could not load indices (OpenSearch may be unavailable).",
+      "noFilterMatch": "No indices match your filter.",
+      "none": "No indices found.",
+      "page": "Page {{page}}",
+      "deleteTitle": "Delete index",
+      "deleteBody": "Permanently delete the index {{name}}? All {{docs}} documents it holds are lost. This cannot be undone.",
+      "deleteConfirm": "Delete index",
+      "toast": {
+        "deleted": "Index deleted"
+      }
+    },
+    "confirm": {
+      "cancel": "Cancel",
+      "working": "Working…"
+    },
+    "error": {
+      "noPermission": "You do not have permission to do that",
+      "notFound": "Not found",
+      "invalidRequest": "Invalid request",
+      "failed": "Operation failed"
+    }
+  },
+  "languageSettings": {
+    "title": "Platform language",
+    "subtitle": "Default UI language for pre-login screens, system emails and new users. Each user can still pick their own in their profile.",
+    "label": "Default language",
+    "hint": "Used when a user hasn't chosen their own language.",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Platform language updated",
+    "loadError": "Could not load the language setting",
+    "saveError": "Could not save the language setting"
+  },
+  "branding": {
+    "title": "Branding",
+    "subtitle": "White-label UTMStack with your organization’s identity — applied everywhere: the login screen, sidebar, emails and reports.",
+    "msspRequired": "White-labeling is an MSSP feature.",
+    "manageLicense": "Manage license",
+    "enable": {
+      "title": "White-label",
+      "description": "Replace the UTMStack brand with your own across the platform.",
+      "label": "Enable white-labeling"
+    },
+    "identity": {
+      "title": "Identity",
+      "productName": "Product name",
+      "productNameHint": "Shown in the title bar, sidebar and emails.",
+      "accent": "Accent color",
+      "accentHint": "Primary color for buttons, links and active states.",
+      "custom": "Custom color"
+    },
+    "logos": {
+      "title": "Logos",
+      "hint": "PNG, SVG, WEBP, JPG or ICO. Up to 5 MB.",
+      "logo": "Logo (light)",
+      "logoDark": "Logo (dark)",
+      "favicon": "Favicon"
+    },
+    "reports": {
+      "title": "Report assets",
+      "hint": "Embedded in generated PDF reports.",
+      "reportLogo": "Report logo",
+      "reportCover": "Report cover"
+    },
+    "asset": {
+      "upload": "Upload",
+      "replace": "Replace"
+    },
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Branding updated",
+    "saveError": "Could not save branding",
+    "uploaded": "Image uploaded",
+    "uploadError": "Could not upload image",
+    "loadError": "Could not load branding"
+  },
+  "emailConfig": {
+    "title": "Email configuration",
+    "subtitle": "SMTP server used to send alert notifications, reports and account emails.",
+    "server": {
+      "title": "SMTP server",
+      "host": "Host",
+      "hostHint": "Hostname of your SMTP server.",
+      "port": "Port",
+      "encryption": "Encryption",
+      "username": "Username",
+      "password": "Password",
+      "passwordSetHint": "A password is saved. Leave blank to keep it, or type a new one to change it."
+    },
+    "encryptionOpt": {
+      "TLS": "TLS",
+      "SSL": "SSL",
+      "NONE": "None"
+    },
+    "sender": {
+      "title": "Sender",
+      "from": "From address",
+      "fromHint": "Address emails are sent from.",
+      "organization": "Organization name",
+      "organizationHint": "Shown in alert and incident notification emails.",
+      "baseUrl": "Base URL",
+      "baseUrlHint": "Public URL of this instance, used for links in emails."
+    },
+    "test": {
+      "button": "Send test",
+      "sending": "Sending…",
+      "sentTo": "A test email will be sent to {{email}}.",
+      "success": "Test email sent to {{email}}",
+      "fail": "Could not send the test email",
+      "fromRequired": "Set a From address before testing"
+    },
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Email configuration saved",
+    "saveError": "Could not save the configuration",
+    "loadError": "Could not load the configuration"
+  },
+  "dateFormat": {
+    "title": "Date & time",
+    "subtitle": "How timestamps are displayed across the platform. Logs are always stored in UTC.",
+    "timezone": {
+      "title": "Time zone",
+      "hint": "Timestamps are shown in this time zone. Stored data stays in UTC.",
+      "system": "Browser default",
+      "now": "Now: {{value}}"
+    },
+    "format": {
+      "title": "Date format",
+      "hint": "Style used for dates and times."
+    },
+    "styles": {
+      "short": "Short",
+      "medium": "Medium",
+      "long": "Long",
+      "full": "Full"
+    },
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Date settings saved",
+    "saveError": "Could not save the settings",
+    "loadError": "Could not load the settings"
+  },
+  "about": {
+    "title": "About this instance",
+    "subtitle": "Version, license, and system health for this UTMStack deployment.",
+    "loading": "Loading instance information…",
+    "edition": {
+      "enterprise": "Enterprise",
+      "community": "Community"
+    },
+    "fields": {
+      "hostname": "Server",
+      "instanceId": "Instance ID",
+      "noInstanceMeta": "No instance metadata available."
+    },
+    "license": {
+      "title": "License",
+      "enterpriseMssp": "Enterprise · MSSP",
+      "datasources": "Datasources",
+      "communityLimited": "Community limit",
+      "unlimited": "Unlimited",
+      "expires": "Expires",
+      "managedNote": "Edition, datasource limits and license upload are managed on the License page.",
+      "view": "View license"
+    },
+    "services": {
+      "backend": {
+        "name": "Backend API",
+        "desc": "REST gateway, auth and module orchestration."
+      },
+      "opensearch": {
+        "name": "OpenSearch",
+        "desc": "Log and event storage backend.",
+        "detail": "{{nodes}} nodes · {{shards}} shards"
+      },
+      "unreachable": "Unreachable"
+    },
+    "status": {
+      "up": "Healthy",
+      "degraded": "Degraded",
+      "down": "Down",
+      "unknown": "Unknown"
+    },
+    "health": {
+      "title": "System health",
+      "allHealthy": "All services healthy. Refresh to recheck.",
+      "issues_one": "{{count}} service needs attention.",
+      "issues_other": "{{count}} services need attention.",
+      "refresh": "Refresh"
+    },
+    "usage": {
+      "title": "Datasource usage",
+      "subtitle": "Active datasources against your license cap.",
+      "ofUnlimited": "of unlimited",
+      "ofLimit": "of {{limit}}",
+      "overLimit": "Over the licensed limit — data beyond the cap is at risk."
+    },
+    "support": {
+      "title": "Support",
+      "docs": "Documentation",
+      "repo": "GitHub repository",
+      "issues": "Report an issue",
+      "website": "utmstack.com"
+    },
+    "legal": {
+      "title": "Legal",
+      "license": "License",
+      "security": "Security disclosure",
+      "copyright": "© {{year}} UTMStack. All rights reserved."
+    }
   }
 }

@@ -22,10 +22,11 @@ import { TeamPage } from '@/features/team/pages/TeamPage'
 import { ConnectionKeyPage } from '@/features/settings/pages/ConnectionKeyPage'
 import { DataRetentionPage } from '@/features/settings/pages/DataRetentionPage'
 import { IndicesPage } from '@/features/settings/pages/IndicesPage'
-import { ThemePage } from '@/features/settings/pages/ThemePage'
+import { BrandingPage } from '@/features/branding'
 import { IdentityProvidersPage } from '@/features/settings/pages/IdentityProvidersPage'
 import { EmailConfigurationPage } from '@/features/settings/pages/EmailConfigurationPage'
 import { DateFormatPage } from '@/features/settings/pages/DateFormatPage'
+import { LanguagePage } from '@/features/settings/pages/LanguagePage'
 import { AboutPage } from '@/features/settings/pages/AboutPage'
 import { LicensePage } from '@/features/billing'
 import { NotificationsPage } from '@/features/notifications'
@@ -89,13 +90,15 @@ export function AppRoutes() {
         {/* Legacy redirects */}
         <Route path="settings/index-management" element={<Navigate to="/settings/indices" replace />} />
         <Route path="settings/index-patterns" element={<Navigate to="/settings/indices" replace />} />
-        <Route path="settings/theme" element={<ThemePage />} />
+        <Route path="settings/branding" element={<BrandingPage />} />
+        <Route path="settings/theme" element={<Navigate to="/settings/branding" replace />} />
         {/* API keys are per-user (a key authenticates AS its owner), so they live
             embedded in the profile page, not system settings. */}
         <Route path="settings/api-keys" element={<Navigate to="/profile" replace />} />
         <Route path="settings/identity-providers" element={<IdentityProvidersPage />} />
         <Route path="settings/email" element={<EmailConfigurationPage />} />
         <Route path="settings/date-format" element={<DateFormatPage />} />
+        <Route path="settings/language" element={<LanguagePage />} />
         <Route path="settings/audit-logs" element={<AuditPage />} />
         <Route path="settings/about" element={<AboutPage />} />
         <Route path="profile" element={<ProfilePage />} />

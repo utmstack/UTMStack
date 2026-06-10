@@ -152,7 +152,7 @@ export function UserAuditorPage() {
   const to = Math.min((page + 1) * SIZE, total)
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
       <Header total={stats?.total ?? total} t={t} />
 
       <div className="mt-5">
