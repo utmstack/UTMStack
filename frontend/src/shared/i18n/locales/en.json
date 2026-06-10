@@ -344,6 +344,7 @@
       "rolesUpdated": "Roles updated",
       "userReactivated": "User reactivated",
       "userDeactivated": "User deactivated",
+      "tfaReset": "Two-factor authentication reset",
       "invitationSent": "Invitation sent",
       "loginOrEmailInUse": "That login or email is already in use",
       "invalidRequest": "Invalid request",
@@ -390,6 +391,11 @@
       "tfa": "2FA",
       "tfaEnabled": "Enabled ({{method}})",
       "tfaNotConfigured": "Not configured",
+      "resetTfa": "Reset",
+      "resetTfaHint": "Disable this user's 2FA so they can re-enroll at next login",
+      "resetTfaConfirmTitle": "Reset two-factor authentication?",
+      "resetTfaConfirmBody": "This disables 2FA for {{name}}. They'll sign in with just their password and can set it up again from their profile.",
+      "resetTfaConfirm": "Reset 2FA",
       "pendingPasswordNote": "Still using the temporary password (invite not completed).",
       "lastModified": "Last modified {{time}}",
       "rolesTitle": "Roles",
@@ -437,5 +443,243 @@
       "hoursAgo": "{{count}}h ago",
       "daysAgo": "{{count}}d ago"
     }
+  },
+  "apiKeys": {
+    "title": "API keys",
+    "subtitle": "Programmatic access tokens for the UTMStack API.",
+    "new": "New API key",
+    "searchPlaceholder": "Search by name or allowed IP…",
+    "refresh": "Refresh",
+    "loading": "Loading API keys…",
+    "loadFailed": "Could not load API keys.",
+    "retry": "Retry",
+    "noSearchMatch": "No API keys match your search.",
+    "empty": "No API keys yet. Create one to get started.",
+    "anyIp": "Any IP",
+    "never": "Never",
+    "count_one": "{{count}} key · page {{page}} of {{pages}}",
+    "count_other": "{{count}} keys · page {{page}} of {{pages}}",
+    "enterprise": {
+      "title": "API keys are an Enterprise feature",
+      "body": "Issue, scope and rotate API keys for programmatic access to the UTMStack API. This capability is available on the Enterprise edition.",
+      "upgrade": "Upgrade to Enterprise",
+      "manageLicense": "Manage your license"
+    },
+    "col": {
+      "name": "Name",
+      "allowedIps": "Allowed IPs",
+      "created": "Created",
+      "lastRotated": "Last rotated",
+      "expires": "Expires",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "expiring": "Expiring",
+      "expired": "Expired"
+    },
+    "action": {
+      "rotate": "Rotate",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "dialog": {
+      "editTitle": "Edit API key",
+      "newTitle": "New API key",
+      "name": "Name",
+      "namePlaceholder": "ci-pipeline",
+      "allowedIps": "Allowed IPs",
+      "allowedIpsHint": "Comma-separated. Leave empty to allow any IP.",
+      "expires": "Expires",
+      "expiresHint": "Leave empty for a key that never expires.",
+      "secretNote": "The secret token is shown once, right after creation. Copy it then — it can’t be retrieved later (only rotated).",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "saveChanges": "Save changes",
+      "createKey": "Create key"
+    },
+    "confirm": {
+      "deleteTitle": "Delete API key",
+      "rotateTitle": "Rotate API key",
+      "deleteBody": "Delete {{name}}? Any client using it will immediately lose access. This cannot be undone.",
+      "rotateBody": "Rotate {{name}}? A new secret is issued and the current one stops working immediately. The new token is shown once.",
+      "cancel": "Cancel",
+      "working": "Working…",
+      "delete": "Delete",
+      "rotate": "Rotate"
+    },
+    "reveal": {
+      "title": "API key created",
+      "note": "Copy this secret now — for {{name}}. It won’t be shown again. If you lose it, rotate the key.",
+      "copied": "Copied",
+      "copy": "Copy",
+      "done": "Done"
+    },
+    "toast": {
+      "updated": "API key updated",
+      "secretIssueFailed": "Key created, but the secret could not be issued. Use Rotate to get one.",
+      "deleted": "API key deleted"
+    },
+    "error": {
+      "nameTaken": "An API key with that name already exists",
+      "enterpriseRequired": "API keys require the Enterprise edition",
+      "notFound": "API key not found",
+      "invalidRequest": "Invalid request",
+      "failed": "Operation failed"
+    }
+  },
+  "idp": {
+    "title": "Identity Providers",
+    "subtitle": "SAML 2.0 single sign-on for your organization.",
+    "add": "Add provider",
+    "enterprise": {
+      "title": "SSO is an Enterprise feature",
+      "body": "Connect a SAML 2.0 identity provider (Entra ID, Okta, Google Workspace…) so your team signs in with your IdP. Single sign-on is available on the Enterprise edition.",
+      "upgrade": "Upgrade to Enterprise"
+    },
+    "loading": "Loading identity providers…",
+    "loadFailed": "Could not load identity providers.",
+    "retry": "Retry",
+    "empty": {
+      "title": "No identity providers configured",
+      "body": "Add a SAML 2.0 provider to let your team sign in with your corporate IdP."
+    },
+    "card": {
+      "enable": "Enable",
+      "disable": "Disable",
+      "active": "Active",
+      "disabled": "Disabled",
+      "metadataUrl": "Metadata URL",
+      "spEntityId": "SP Entity ID",
+      "spAcsUrl": "SP ACS URL",
+      "loginUrl": "Login URL",
+      "copy": "Copy",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "form": {
+      "addTitle": "Add identity provider",
+      "editTitle": "Edit identity provider",
+      "name": "Name",
+      "nameHint": "Unique. Used in the SSO URL.",
+      "providerType": "Provider type",
+      "providerTypeHint": "A label, e.g. azure, okta, google.",
+      "metadataUrl": "IdP metadata URL",
+      "spEntityId": "SP Entity ID",
+      "spAcsUrl": "SP ACS URL",
+      "certificate": "SP certificate (PEM)",
+      "privateKey": "SP private key (PEM)",
+      "privateKeyHintEdit": "Leave empty to keep the stored key.",
+      "privateKeyHintCreate": "Required. Stored encrypted; never shown again.",
+      "privateKeyUnchanged": "•••••••• (unchanged)",
+      "active": "Active (show on the login page)",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "save": "Save changes",
+      "create": "Create provider"
+    },
+    "delete": {
+      "title": "Delete identity provider",
+      "body": "Delete {{name}}? Users will no longer be able to sign in through it. This cannot be undone.",
+      "cancel": "Cancel",
+      "deleting": "Deleting…",
+      "confirm": "Delete"
+    },
+    "toast": {
+      "enabled": "Provider enabled",
+      "disabled": "Provider disabled",
+      "created": "Identity provider created",
+      "updated": "Identity provider updated",
+      "deleted": "Identity provider deleted",
+      "paidPlan": "SAML SSO requires a paid plan",
+      "enterpriseRequired": "SSO requires the Enterprise edition",
+      "notFound": "Identity provider not found",
+      "invalid": "Invalid configuration",
+      "failed": "Operation failed"
+    }
+  },
+  "userAuditor": {
+    "title": "User auditor",
+    "subtitle": "Active Directory accounts observed in your Windows security logs — discovered from create, logon and delete events.",
+    "export": "Export",
+    "accountsChip": "{{count}} accounts",
+    "overview": {
+      "title": "Account inventory",
+      "active": "active",
+      "disabled": "disabled",
+      "deleted": "deleted",
+      "seen24h": "{{count}} seen in the last 24 hours",
+      "byDomain": "By domain"
+    },
+    "views": {
+      "all": "All accounts",
+      "active": "Active",
+      "disabled": "Disabled",
+      "deleted": "Deleted",
+      "service": "Service accounts",
+      "stale": "Stale (30d+)"
+    },
+    "searchPlaceholder": "Search by account name or SID…",
+    "allTenants": "All tenants",
+    "filters": "Filters",
+    "refresh": "Refresh",
+    "layout": {
+      "list": "List",
+      "cards": "Cards"
+    },
+    "list": {
+      "account": "Account",
+      "sid": "SID",
+      "status": "Status",
+      "lastLogon": "Last logon",
+      "lastSeen": "Last seen",
+      "tenant": "Tenant"
+    },
+    "status": {
+      "active": "Active",
+      "disabled": "Disabled",
+      "deleted": "Deleted"
+    },
+    "badge": {
+      "service": "service",
+      "stale": "stale"
+    },
+    "empty": "No accounts match this view.",
+    "loadError": "Could not load AD accounts.",
+    "retry": "Retry",
+    "card": {
+      "lastLogon": "Last logon"
+    },
+    "pageInfo": "{{from}}–{{to}} of {{count}}",
+    "drawer": {
+      "tenantInline": "tenant {{id}}",
+      "serviceAccount": "service account",
+      "stale": "stale 30d+",
+      "viewInLogs": "View events in Log Explorer",
+      "copySid": "Copy SID",
+      "copied": "Copied",
+      "identity": "Identity",
+      "accountName": "Account name",
+      "domain": "Domain",
+      "sid": "SID",
+      "tenant": "Tenant",
+      "adStatus": "AD status",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "lifecycle": "Lifecycle",
+      "created": "Account created",
+      "lastLogon": "Last logon",
+      "lastSeen": "Last seen in logs",
+      "deleted": "Account deleted",
+      "noLifecycle": "No lifecycle events recorded."
+    },
+    "relative": {
+      "justNow": "just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
+    },
+    "none": "—"
   }
 }

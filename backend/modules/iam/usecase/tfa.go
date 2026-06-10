@@ -343,9 +343,9 @@ func (u *tfaUsecase) UnifiedEnrollment(ctx context.Context, userID uint64, input
 // their current password. It clears the stored secret/method and drops any
 // pending enrollment state.
 func (u *tfaUsecase) DisableTfa(ctx context.Context, userID uint64, password string) error {
-	if !u.enabled {
-		return domain.ErrTfaDisabled
-	}
+	// Intentionally NOT gated on u.enabled: a user who already has 2FA configured
+	// must always be able to remove it, even if the global TFA feature was turned
+	// off afterwards (otherwise they'd be locked into a factor they can't drop).
 	user, err := u.userRepo.FindByID(ctx, userID)
 	if err != nil {
 		return err

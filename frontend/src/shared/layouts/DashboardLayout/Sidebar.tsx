@@ -17,7 +17,6 @@ import {
   Home,
   Info,
   KeyRound,
-  KeySquare,
   Mail,
   Palette,
   Plug,
@@ -37,6 +36,7 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
+import { useAuth } from '@/features/auth'
 
 type LeafItem = {
   to: string
@@ -62,6 +62,8 @@ type Section = {
   id: string
   label: string | null
   items: Item[]
+  // Hidden from non-admins (ROLE_USER). System configuration is admin-only.
+  adminOnly?: boolean
 }
 
 // `label` values are i18n keys, resolved with t() at render time.
@@ -101,6 +103,7 @@ const sections: Section[] = [
   {
     id: 'configure',
     label: 'nav.configure',
+    adminOnly: true,
     items: [
       { to: '/datasources', label: 'nav.dataSources', icon: Database },
       { to: '/integrations', label: 'nav.integrations', icon: Plug },
@@ -122,7 +125,6 @@ const settingsItems: { to: string; label: string; icon: LucideIcon }[] = [
   { to: '/settings/data-retention', label: 'settings.dataRetention', icon: HardDriveDownload },
   { to: '/settings/indices', label: 'settings.indices', icon: Boxes },
   { to: '/settings/theme', label: 'settings.theme', icon: Palette },
-  { to: '/settings/api-keys', label: 'settings.apiKeys', icon: KeySquare },
   { to: '/settings/identity-providers', label: 'settings.identityProviders', icon: ShieldCheck },
   { to: '/settings/email', label: 'settings.email', icon: Mail },
   { to: '/settings/date-format', label: 'settings.dateFormat', icon: CalendarClock },
@@ -147,6 +149,7 @@ function loadSet(key: string): Set<string> {
 
 export function Sidebar() {
   const { t } = useTranslation()
+  const { isAdmin } = useAuth()
   const [closedSections, setClosedSections] = useState<Set<string>>(() => loadSet(SECTIONS_KEY))
   const [closedGroups, setClosedGroups] = useState<Set<string>>(() => loadSet(GROUPS_KEY))
   const { pathname } = useLocation()
@@ -187,7 +190,9 @@ export function Sidebar() {
   return (
     <aside className="flex h-full w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
       <nav className="flex-1 overflow-y-auto overflow-x-hidden p-2">
-        {sections.map((section, idx) => {
+        {sections
+          .filter((section) => !section.adminOnly || isAdmin)
+          .map((section, idx) => {
           const isClosed = closedSections.has(section.id)
           return (
             <div

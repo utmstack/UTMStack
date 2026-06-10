@@ -6,7 +6,6 @@ import {
   CheckCheck,
   ChevronDown,
   ChevronLeft,
-  KeyRound,
   Languages,
   Loader2,
   LogOut,
@@ -33,7 +32,7 @@ export function Topbar() {
   const [profileOpen, setProfileOpen] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
   const { theme, toggleTheme } = useThemeContext()
-  const { user, logout, updateMe } = useAuth()
+  const { user, logout, updateMe, isAdmin } = useAuth()
   const { license, version } = useBilling()
   const { unreadCount, markRead, remove, markAllRead, refreshUnread } = useNotifications()
   const {
@@ -136,8 +135,8 @@ export function Topbar() {
           <span className="text-lg font-normal tracking-tight">UTMStack</span>
         </Link>
 
-        {/* Version + edition badge. Community links to the License page (upgrade path);
-            Enterprise is a static label. */}
+        {/* Version + edition badge. The Community badge links to the License page
+            (upgrade path) only for admins; everyone else sees a static label. */}
         {license && version &&
           (license.edition === 'enterprise' ? (
             <span className="hidden items-center gap-1.5 rounded-full border border-border bg-muted/40 px-2.5 py-1 text-[11px] sm:inline-flex">
@@ -145,7 +144,7 @@ export function Topbar() {
               <span className="h-3 w-px bg-border" />
               <span className="font-medium text-primary">Enterprise</span>
             </span>
-          ) : (
+          ) : isAdmin ? (
             <Link
               to="/settings/license"
               title={t('topbar.manageLicense')}
@@ -155,6 +154,12 @@ export function Topbar() {
               <span className="h-3 w-px bg-border" />
               <span className="font-medium">Community</span>
             </Link>
+          ) : (
+            <span className="hidden items-center gap-1.5 rounded-full border border-border bg-muted/40 px-2.5 py-1 text-[11px] sm:inline-flex">
+              <span className="font-mono text-muted-foreground">{version.version}</span>
+              <span className="h-3 w-px bg-border" />
+              <span className="font-medium">Community</span>
+            </span>
           ))}
       </div>
 
@@ -272,13 +277,6 @@ export function Topbar() {
                 className="flex items-center gap-2 px-3 py-2 text-sm text-popover-foreground/70 hover:bg-muted hover:text-popover-foreground"
               >
                 <UserCircle size={16} strokeWidth={1.75} /> {t('topbar.profile.profile')}
-              </Link>
-              <Link
-                to="/settings/license"
-                onClick={() => setProfileOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-popover-foreground/70 hover:bg-muted hover:text-popover-foreground"
-              >
-                <KeyRound size={16} strokeWidth={1.75} /> {t('topbar.profile.license')}
               </Link>
               <div className="relative">
                 <button

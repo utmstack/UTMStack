@@ -408,6 +408,7 @@ function MemberDrawer({
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [roleNames, setRoleNames] = useState<string[]>([])
+  const [confirmResetTfa, setConfirmResetTfa] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -451,6 +452,22 @@ function MemberDrawer({
     try {
       await usersHttpService.assignRoles(user.id, roleNames)
       toast.success(t('team.toast.rolesUpdated'))
+      onChanged()
+      onClose()
+    } catch (err) {
+      toast.error(userError(err, t))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const resetTfa = async () => {
+    if (!user) return
+    setBusy(true)
+    try {
+      await usersHttpService.resetTfa(user.id)
+      toast.success(t('team.toast.tfaReset'))
+      setConfirmResetTfa(false)
       onChanged()
       onClose()
     } catch (err) {
@@ -541,14 +558,28 @@ function MemberDrawer({
                       <span>{t('team.drawer.statusInactive')}</span>
                     )}
                   </li>
-                  <li>
-                    {t('team.drawer.tfa')}:{' '}
-                    {user.tfa_enabled ? (
-                      <span className="text-emerald-600 dark:text-emerald-400">
-                        {t('team.drawer.tfaEnabled', { method: user.tfa_method })}
-                      </span>
-                    ) : (
-                      t('team.drawer.tfaNotConfigured')
+                  <li className="flex items-center gap-2">
+                    <span>
+                      {t('team.drawer.tfa')}:{' '}
+                      {user.tfa_enabled ? (
+                        <span className="text-emerald-600 dark:text-emerald-400">
+                          {t('team.drawer.tfaEnabled', { method: user.tfa_method })}
+                        </span>
+                      ) : (
+                        t('team.drawer.tfaNotConfigured')
+                      )}
+                    </span>
+                    {user.tfa_enabled && (
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => setConfirmResetTfa(true)}
+                        className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-red-500 hover:bg-red-500/10 disabled:opacity-50"
+                        title={t('team.drawer.resetTfaHint')}
+                      >
+                        <ShieldOff size={11} />
+                        {t('team.drawer.resetTfa')}
+                      </button>
                     )}
                   </li>
                   {user.default_password && (
@@ -601,6 +632,34 @@ function MemberDrawer({
                 </Button>
               </div>
             </footer>
+
+            {confirmResetTfa && (
+              <div
+                className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+                onClick={() => !busy && setConfirmResetTfa(false)}
+              >
+                <div
+                  className="flex w-full max-w-md flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <header className="flex items-center gap-2 border-b border-border px-6 py-4">
+                    <ShieldOff size={17} className="text-red-500" />
+                    <h2 className="text-base font-semibold">{t('team.drawer.resetTfaConfirmTitle')}</h2>
+                  </header>
+                  <div className="px-6 py-5 text-sm text-muted-foreground">
+                    {t('team.drawer.resetTfaConfirmBody', { name: fullName(user) })}
+                  </div>
+                  <footer className="flex items-center justify-end gap-2 border-t border-border px-6 py-3">
+                    <Button variant="outline" size="sm" disabled={busy} onClick={() => setConfirmResetTfa(false)}>
+                      {t('team.drawer.cancel')}
+                    </Button>
+                    <Button variant="destructive" size="sm" disabled={busy} onClick={() => void resetTfa()}>
+                      {busy ? t('team.drawer.saving') : t('team.drawer.resetTfaConfirm')}
+                    </Button>
+                  </footer>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>

@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -15,6 +16,12 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/billing/domain"
 	"gopkg.in/yaml.v3"
 )
+
+// errVerifyNotConfigured means the build has no signing key/salt injected (dev
+// builds; prod injects them via ldflags). It is not a license problem, so we fall
+// back to Community without log spam — the refresh ticker would otherwise log an
+// ERROR every interval.
+var errVerifyNotConfigured = errors.New("license verification not configured")
 
 const (
 	licenseFileName = "LICENSE"
@@ -100,7 +107,11 @@ func (s *LicenseService) evaluate() domain.License {
 	}
 	lic, err := s.validateAndParse(envelope)
 	if err != nil {
-		_ = catcher.Error("billing: license invalid", err, nil)
+		// A dev build (no injected key/salt) can't verify a LICENSE that happens to
+		// be mounted — that's expected, not a license problem, so don't log it.
+		if !errors.Is(err, errVerifyNotConfigured) {
+			_ = catcher.Error("billing: license invalid", err, nil)
+		}
 		return domain.Community()
 	}
 	return lic
@@ -109,7 +120,7 @@ func (s *LicenseService) evaluate() domain.License {
 func (s *LicenseService) validateAndParse(envelope []byte) (domain.License, error) {
 	instanceID := s.instanceID()
 	if instanceID == "" || s.publicKey == "" || s.salt == "" {
-		return domain.License{}, fmt.Errorf("license verification not configured")
+		return domain.License{}, errVerifyNotConfigured
 	}
 
 	decrypted, err := lm.DecryptAndVerifyFromBase64(strings.TrimSpace(string(envelope)), []string{instanceID, s.salt}, s.publicKey)

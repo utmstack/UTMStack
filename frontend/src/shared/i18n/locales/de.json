@@ -344,6 +344,7 @@
       "rolesUpdated": "Rollen aktualisiert",
       "userReactivated": "Benutzer reaktiviert",
       "userDeactivated": "Benutzer deaktiviert",
+      "tfaReset": "Zwei-Faktor-Authentifizierung zurückgesetzt",
       "invitationSent": "Einladung gesendet",
       "loginOrEmailInUse": "Dieser Login oder diese E-Mail wird bereits verwendet",
       "invalidRequest": "Ungültige Anfrage",
@@ -390,6 +391,11 @@
       "tfa": "2FA",
       "tfaEnabled": "Aktiviert ({{method}})",
       "tfaNotConfigured": "Nicht konfiguriert",
+      "resetTfa": "Zurücksetzen",
+      "resetTfaHint": "Deaktiviert die 2FA dieses Benutzers, damit er sich bei der nächsten Anmeldung neu registrieren kann",
+      "resetTfaConfirmTitle": "Zwei-Faktor-Authentifizierung zurücksetzen?",
+      "resetTfaConfirmBody": "Damit wird die 2FA für {{name}} deaktiviert. Die Anmeldung erfolgt nur mit dem Passwort und kann im Profil neu eingerichtet werden.",
+      "resetTfaConfirm": "2FA zurücksetzen",
       "pendingPasswordNote": "Verwendet noch das temporäre Passwort (Einladung nicht abgeschlossen).",
       "lastModified": "Geändert {{time}}",
       "rolesTitle": "Rollen",
@@ -437,5 +443,243 @@
       "hoursAgo": "vor {{count}} Std.",
       "daysAgo": "vor {{count}} T."
     }
+  },
+  "apiKeys": {
+    "title": "API-Schlüssel",
+    "subtitle": "Programmatische Zugriffstoken für die UTMStack-API.",
+    "new": "Neuer API-Schlüssel",
+    "searchPlaceholder": "Nach Name oder erlaubter IP suchen…",
+    "refresh": "Aktualisieren",
+    "loading": "API-Schlüssel werden geladen…",
+    "loadFailed": "API-Schlüssel konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "noSearchMatch": "Keine API-Schlüssel entsprechen deiner Suche.",
+    "empty": "Noch keine API-Schlüssel. Erstelle einen, um zu beginnen.",
+    "anyIp": "Beliebige IP",
+    "never": "Nie",
+    "count_one": "{{count}} Schlüssel · Seite {{page}} von {{pages}}",
+    "count_other": "{{count}} Schlüssel · Seite {{page}} von {{pages}}",
+    "enterprise": {
+      "title": "API-Schlüssel sind eine Enterprise-Funktion",
+      "body": "Erstelle, beschränke und rotiere API-Schlüssel für den programmatischen Zugriff auf die UTMStack-API. Diese Funktion ist in der Enterprise-Edition verfügbar.",
+      "upgrade": "Auf Enterprise upgraden",
+      "manageLicense": "Lizenz verwalten"
+    },
+    "col": {
+      "name": "Name",
+      "allowedIps": "Erlaubte IPs",
+      "created": "Erstellt",
+      "lastRotated": "Zuletzt rotiert",
+      "expires": "Läuft ab",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "status": {
+      "active": "Aktiv",
+      "expiring": "Läuft bald ab",
+      "expired": "Abgelaufen"
+    },
+    "action": {
+      "rotate": "Rotieren",
+      "edit": "Bearbeiten",
+      "delete": "Löschen"
+    },
+    "dialog": {
+      "editTitle": "API-Schlüssel bearbeiten",
+      "newTitle": "Neuer API-Schlüssel",
+      "name": "Name",
+      "namePlaceholder": "ci-pipeline",
+      "allowedIps": "Erlaubte IPs",
+      "allowedIpsHint": "Durch Kommas getrennt. Leer lassen, um jede IP zu erlauben.",
+      "expires": "Läuft ab",
+      "expiresHint": "Leer lassen für einen Schlüssel, der nie abläuft.",
+      "secretNote": "Das geheime Token wird nur einmal angezeigt, direkt nach der Erstellung. Kopiere es dann — es kann später nicht abgerufen (nur rotiert) werden.",
+      "cancel": "Abbrechen",
+      "saving": "Wird gespeichert…",
+      "saveChanges": "Änderungen speichern",
+      "createKey": "Schlüssel erstellen"
+    },
+    "confirm": {
+      "deleteTitle": "API-Schlüssel löschen",
+      "rotateTitle": "API-Schlüssel rotieren",
+      "deleteBody": "{{name}} löschen? Jeder Client, der ihn verwendet, verliert sofort den Zugriff. Dies kann nicht rückgängig gemacht werden.",
+      "rotateBody": "{{name}} rotieren? Ein neues Geheimnis wird ausgestellt und das aktuelle funktioniert sofort nicht mehr. Das neue Token wird nur einmal angezeigt.",
+      "cancel": "Abbrechen",
+      "working": "Wird verarbeitet…",
+      "delete": "Löschen",
+      "rotate": "Rotieren"
+    },
+    "reveal": {
+      "title": "API-Schlüssel erstellt",
+      "note": "Kopiere dieses Geheimnis jetzt — für {{name}}. Es wird nicht erneut angezeigt. Wenn du es verlierst, rotiere den Schlüssel.",
+      "copied": "Kopiert",
+      "copy": "Kopieren",
+      "done": "Fertig"
+    },
+    "toast": {
+      "updated": "API-Schlüssel aktualisiert",
+      "secretIssueFailed": "Schlüssel erstellt, aber das Geheimnis konnte nicht ausgestellt werden. Verwende Rotieren, um eines zu erhalten.",
+      "deleted": "API-Schlüssel gelöscht"
+    },
+    "error": {
+      "nameTaken": "Ein API-Schlüssel mit diesem Namen existiert bereits",
+      "enterpriseRequired": "API-Schlüssel erfordern die Enterprise-Edition",
+      "notFound": "API-Schlüssel nicht gefunden",
+      "invalidRequest": "Ungültige Anfrage",
+      "failed": "Vorgang fehlgeschlagen"
+    }
+  },
+  "idp": {
+    "title": "Identitätsanbieter",
+    "subtitle": "SAML 2.0 Single Sign-On für Ihre Organisation.",
+    "add": "Anbieter hinzufügen",
+    "enterprise": {
+      "title": "SSO ist eine Enterprise-Funktion",
+      "body": "Verbinden Sie einen SAML-2.0-Identitätsanbieter (Entra ID, Okta, Google Workspace…), damit sich Ihr Team mit Ihrem IdP anmeldet. Single Sign-On ist in der Enterprise-Edition verfügbar.",
+      "upgrade": "Auf Enterprise upgraden"
+    },
+    "loading": "Identitätsanbieter werden geladen…",
+    "loadFailed": "Identitätsanbieter konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "empty": {
+      "title": "Keine Identitätsanbieter konfiguriert",
+      "body": "Fügen Sie einen SAML-2.0-Anbieter hinzu, damit sich Ihr Team mit Ihrem Unternehmens-IdP anmeldet."
+    },
+    "card": {
+      "enable": "Aktivieren",
+      "disable": "Deaktivieren",
+      "active": "Aktiv",
+      "disabled": "Deaktiviert",
+      "metadataUrl": "Metadaten-URL",
+      "spEntityId": "SP Entity ID",
+      "spAcsUrl": "SP ACS URL",
+      "loginUrl": "Anmelde-URL",
+      "copy": "Kopieren",
+      "edit": "Bearbeiten",
+      "delete": "Löschen"
+    },
+    "form": {
+      "addTitle": "Identitätsanbieter hinzufügen",
+      "editTitle": "Identitätsanbieter bearbeiten",
+      "name": "Name",
+      "nameHint": "Eindeutig. Wird in der SSO-URL verwendet.",
+      "providerType": "Anbietertyp",
+      "providerTypeHint": "Eine Bezeichnung, z. B. azure, okta, google.",
+      "metadataUrl": "IdP-Metadaten-URL",
+      "spEntityId": "SP Entity ID",
+      "spAcsUrl": "SP ACS URL",
+      "certificate": "SP-Zertifikat (PEM)",
+      "privateKey": "Privater SP-Schlüssel (PEM)",
+      "privateKeyHintEdit": "Leer lassen, um den gespeicherten Schlüssel zu behalten.",
+      "privateKeyHintCreate": "Erforderlich. Verschlüsselt gespeichert; wird nicht erneut angezeigt.",
+      "privateKeyUnchanged": "•••••••• (unverändert)",
+      "active": "Aktiv (auf der Anmeldeseite anzeigen)",
+      "cancel": "Abbrechen",
+      "saving": "Wird gespeichert…",
+      "save": "Änderungen speichern",
+      "create": "Anbieter erstellen"
+    },
+    "delete": {
+      "title": "Identitätsanbieter löschen",
+      "body": "{{name}} löschen? Benutzer können sich darüber nicht mehr anmelden. Dies kann nicht rückgängig gemacht werden.",
+      "cancel": "Abbrechen",
+      "deleting": "Wird gelöscht…",
+      "confirm": "Löschen"
+    },
+    "toast": {
+      "enabled": "Anbieter aktiviert",
+      "disabled": "Anbieter deaktiviert",
+      "created": "Identitätsanbieter erstellt",
+      "updated": "Identitätsanbieter aktualisiert",
+      "deleted": "Identitätsanbieter gelöscht",
+      "paidPlan": "SAML SSO erfordert einen kostenpflichtigen Plan",
+      "enterpriseRequired": "SSO erfordert die Enterprise-Edition",
+      "notFound": "Identitätsanbieter nicht gefunden",
+      "invalid": "Ungültige Konfiguration",
+      "failed": "Vorgang fehlgeschlagen"
+    }
+  },
+  "userAuditor": {
+    "title": "Benutzer-Auditor",
+    "subtitle": "Active-Directory-Konten, die in deinen Windows-Sicherheitsprotokollen beobachtet wurden — erkannt aus Erstellungs-, Anmelde- und Löschereignissen.",
+    "export": "Exportieren",
+    "accountsChip": "{{count}} Konten",
+    "overview": {
+      "title": "Konteninventar",
+      "active": "aktiv",
+      "disabled": "deaktiviert",
+      "deleted": "gelöscht",
+      "seen24h": "{{count}} in den letzten 24 Stunden gesehen",
+      "byDomain": "Nach Domäne"
+    },
+    "views": {
+      "all": "Alle Konten",
+      "active": "Aktiv",
+      "disabled": "Deaktiviert",
+      "deleted": "Gelöscht",
+      "service": "Dienstkonten",
+      "stale": "Inaktiv (30T+)"
+    },
+    "searchPlaceholder": "Nach Kontoname oder SID suchen…",
+    "allTenants": "Alle Mandanten",
+    "filters": "Filter",
+    "refresh": "Aktualisieren",
+    "layout": {
+      "list": "Liste",
+      "cards": "Karten"
+    },
+    "list": {
+      "account": "Konto",
+      "sid": "SID",
+      "status": "Status",
+      "lastLogon": "Letzte Anmeldung",
+      "lastSeen": "Zuletzt gesehen",
+      "tenant": "Mandant"
+    },
+    "status": {
+      "active": "Aktiv",
+      "disabled": "Deaktiviert",
+      "deleted": "Gelöscht"
+    },
+    "badge": {
+      "service": "Dienst",
+      "stale": "inaktiv"
+    },
+    "empty": "Keine Konten entsprechen dieser Ansicht.",
+    "loadError": "AD-Konten konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "card": {
+      "lastLogon": "Letzte Anmeldung"
+    },
+    "pageInfo": "{{from}}–{{to}} von {{count}}",
+    "drawer": {
+      "tenantInline": "Mandant {{id}}",
+      "serviceAccount": "Dienstkonto",
+      "stale": "inaktiv 30T+",
+      "viewInLogs": "Ereignisse im Log Explorer ansehen",
+      "copySid": "SID kopieren",
+      "copied": "Kopiert",
+      "identity": "Identität",
+      "accountName": "Kontoname",
+      "domain": "Domäne",
+      "sid": "SID",
+      "tenant": "Mandant",
+      "adStatus": "AD-Status",
+      "enabled": "Aktiviert",
+      "disabled": "Deaktiviert",
+      "lifecycle": "Lebenszyklus",
+      "created": "Konto erstellt",
+      "lastLogon": "Letzte Anmeldung",
+      "lastSeen": "Zuletzt in Logs gesehen",
+      "deleted": "Konto gelöscht",
+      "noLifecycle": "Keine Lebenszyklus-Ereignisse aufgezeichnet."
+    },
+    "relative": {
+      "justNow": "gerade eben",
+      "minutesAgo": "vor {{count}}m",
+      "hoursAgo": "vor {{count}}h",
+      "daysAgo": "vor {{count}}T"
+    },
+    "none": "—"
   }
 }

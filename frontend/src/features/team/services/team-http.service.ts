@@ -31,6 +31,9 @@ export const usersHttpService = {
   deactivate: (id: number) => api.delete<void>(`/users/${id}`),
   assignRoles: (id: number, role_names: string[]) =>
     api.put<void>(`/users/${id}/roles`, { role_names } satisfies AssignRolesRequest),
+  // Admin reset of a user's 2FA (e.g. lost authenticator). The user re-enrolls at
+  // next login. No password required — guarded by the users.write permission.
+  resetTfa: (id: number) => api.post<void>(`/users/${id}/tfa/disable`, {}),
 }
 
 export const rolesHttpService = {

@@ -13,7 +13,10 @@ import {
   setLogoutHandler,
   storeTokens,
 } from '@/shared/lib/api-client'
+import { decodeAccessToken } from '@/shared/lib/jwt'
 import i18n from '@/shared/i18n'
+
+const ROLE_ADMIN = 'ROLE_ADMIN'
 import { AuthHttpError, authHttpService } from './auth-http.service'
 import type {
   ChangePasswordRequest,
@@ -37,6 +40,12 @@ interface AuthContextValue {
   user: User | null
   isAuthenticated: boolean
   isLoading: boolean
+  // Authorization, read from the access-token claims. UX gating only — the
+  // backend enforces every permission server-side.
+  roles: string[]
+  permissions: string[]
+  isAdmin: boolean
+  hasPermission: (perm: string) => boolean
   login: (input: LoginRequest) => Promise<LoginOutcome>
   verifyTfaCode: (preAuthToken: string, code: string) => Promise<void>
   logout: () => Promise<void>
@@ -187,11 +196,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user?.lang_key])
 
+  // Roles/permissions live in the access-token claims (set at login). Re-derive
+  // whenever the user changes (login / hydrate / logout).
+  const authz = useMemo(() => {
+    if (!user) return { roles: [] as string[], permissions: [] as string[] }
+    const claims = decodeAccessToken(getStoredTokens()?.access_token)
+    return { roles: claims.roles ?? [], permissions: claims.permissions ?? [] }
+  }, [user])
+  const isAdmin = authz.roles.includes(ROLE_ADMIN)
+  const hasPermission = useCallback(
+    (perm: string) => authz.permissions.includes(perm),
+    [authz.permissions],
+  )
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
       isAuthenticated: user !== null,
       isLoading,
+      roles: authz.roles,
+      permissions: authz.permissions,
+      isAdmin,
+      hasPermission,
       login,
       verifyTfaCode,
       logout,
@@ -206,6 +232,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [
       user,
       isLoading,
+      authz.roles,
+      authz.permissions,
+      isAdmin,
+      hasPermission,
       login,
       verifyTfaCode,
       logout,

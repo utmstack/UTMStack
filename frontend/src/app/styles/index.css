@@ -37,6 +37,8 @@
 
 :root,
 :root.light {
+  /* Make native controls (date picker, calendar icon, scrollbars) match the theme. */
+  color-scheme: light;
   --background: hsl(0 0% 100%);
   --foreground: hsl(222 47% 11%);
   --card: hsl(0 0% 100%);
@@ -65,6 +67,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: hsl(220 10% 4%);
   --foreground: hsl(220 10% 96%);
   --card: hsl(220 10% 6%);

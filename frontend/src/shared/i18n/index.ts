@@ -26,6 +26,7 @@ const LANGUAGE_LABELS: Record<string, string> = {
   fr: 'Français',
   de: 'Deutsch',
   it: 'Italiano',
+  ru: 'Русский',
 }
 
 export interface SupportedLanguage {

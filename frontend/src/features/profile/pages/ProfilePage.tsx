@@ -4,11 +4,13 @@ import { Camera, KeyRound, Laptop, Shield, Smartphone, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { PasswordInput } from '@/shared/components/ui/password-input'
 import { useAuth } from '@/features/auth'
 import { authHttpService, AuthHttpError } from '@/features/auth/services/auth-http.service'
 import type { Session } from '@/features/auth/types/auth.types'
 import { SUPPORTED_LANGUAGES } from '@/shared/i18n'
 import { TwoFactorBody } from '../components/TwoFactorBody'
+import { ApiKeysSection } from '@/features/settings/pages/ApiKeysPage'
 
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024 // 2 MB
 const AVATAR_ACCEPT = 'image/png,image/jpeg,image/webp,image/gif'
@@ -307,8 +309,7 @@ export function ProfilePage() {
       >
         <form onSubmit={handleChangePassword} className="space-y-4">
           <Field label={t('profile.password.current')}>
-            <Input
-              type="password"
+            <PasswordInput
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               autoComplete="current-password"
@@ -316,16 +317,14 @@ export function ProfilePage() {
           </Field>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label={t('profile.password.new')} hint={t('profile.password.newHint')}>
-              <Input
-                type="password"
+              <PasswordInput
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 autoComplete="new-password"
               />
             </Field>
             <Field label={t('profile.password.confirm')}>
-              <Input
-                type="password"
+              <PasswordInput
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 autoComplete="new-password"
@@ -354,6 +353,9 @@ export function ProfilePage() {
           </div>
         )}
       </Section>
+
+      {/* API keys (per-user → embedded here, not in system settings) */}
+      <ApiKeysSection />
 
       {/* Sessions */}
       <Section title={t('profile.sessions.title')} description={t('profile.sessions.description')}>
@@ -527,3 +529,4 @@ function Field({
     </div>
   )
 }
+

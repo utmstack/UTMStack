@@ -234,6 +234,22 @@ func (u *userUsecase) AssignRoles(ctx context.Context, actor string, id uint64, 
 	return nil
 }
 
+func (u *userUsecase) ResetTfa(ctx context.Context, id uint64) error {
+	user, err := u.userRepo.FindByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return domain.ErrUserNotFound
+	}
+	// Idempotent on purpose: clearing an already-disabled config is a no-op, so an
+	// admin can always reset a stuck account without first checking its 2FA state.
+	if err := u.userRepo.ClearTfaConfig(ctx, id); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (u *userUsecase) assertRolesExist(ctx context.Context, names []string) error {
 	if len(names) == 0 {
 		return nil

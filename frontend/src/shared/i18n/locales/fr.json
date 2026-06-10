@@ -344,6 +344,7 @@
       "rolesUpdated": "Rôles mis à jour",
       "userReactivated": "Utilisateur réactivé",
       "userDeactivated": "Utilisateur désactivé",
+      "tfaReset": "Authentification à deux facteurs réinitialisée",
       "invitationSent": "Invitation envoyée",
       "loginOrEmailInUse": "Cet identifiant ou cet e-mail est déjà utilisé",
       "invalidRequest": "Requête invalide",
@@ -390,6 +391,11 @@
       "tfa": "2FA",
       "tfaEnabled": "Activé ({{method}})",
       "tfaNotConfigured": "Non configuré",
+      "resetTfa": "Réinitialiser",
+      "resetTfaHint": "Désactive la 2FA de cet utilisateur pour qu'il la reconfigure à la prochaine connexion",
+      "resetTfaConfirmTitle": "Réinitialiser l'authentification à deux facteurs ?",
+      "resetTfaConfirmBody": "Cela désactive la 2FA de {{name}}. Il se connectera uniquement avec son mot de passe et pourra la reconfigurer depuis son profil.",
+      "resetTfaConfirm": "Réinitialiser la 2FA",
       "pendingPasswordNote": "Utilise encore le mot de passe temporaire (invitation non terminée).",
       "lastModified": "Modifié {{time}}",
       "rolesTitle": "Rôles",
@@ -437,5 +443,243 @@
       "hoursAgo": "il y a {{count}} h",
       "daysAgo": "il y a {{count}} j"
     }
+  },
+  "apiKeys": {
+    "title": "Clés API",
+    "subtitle": "Jetons d’accès programmatique pour l’API UTMStack.",
+    "new": "Nouvelle clé API",
+    "searchPlaceholder": "Rechercher par nom ou IP autorisée…",
+    "refresh": "Actualiser",
+    "loading": "Chargement des clés API…",
+    "loadFailed": "Impossible de charger les clés API.",
+    "retry": "Réessayer",
+    "noSearchMatch": "Aucune clé API ne correspond à votre recherche.",
+    "empty": "Aucune clé API pour l’instant. Créez-en une pour commencer.",
+    "anyIp": "Toute IP",
+    "never": "Jamais",
+    "count_one": "{{count}} clé · page {{page}} sur {{pages}}",
+    "count_other": "{{count}} clés · page {{page}} sur {{pages}}",
+    "enterprise": {
+      "title": "Les clés API sont une fonctionnalité Enterprise",
+      "body": "Émettez, restreignez et faites tourner des clés API pour l’accès programmatique à l’API UTMStack. Cette fonctionnalité est disponible dans l’édition Enterprise.",
+      "upgrade": "Passer à Enterprise",
+      "manageLicense": "Gérer votre licence"
+    },
+    "col": {
+      "name": "Nom",
+      "allowedIps": "IP autorisées",
+      "created": "Créée",
+      "lastRotated": "Dernière rotation",
+      "expires": "Expire",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "expiring": "Bientôt expirée",
+      "expired": "Expirée"
+    },
+    "action": {
+      "rotate": "Faire tourner",
+      "edit": "Modifier",
+      "delete": "Supprimer"
+    },
+    "dialog": {
+      "editTitle": "Modifier la clé API",
+      "newTitle": "Nouvelle clé API",
+      "name": "Nom",
+      "namePlaceholder": "ci-pipeline",
+      "allowedIps": "IP autorisées",
+      "allowedIpsHint": "Séparées par des virgules. Laissez vide pour autoriser toute IP.",
+      "expires": "Expire",
+      "expiresHint": "Laissez vide pour une clé qui n’expire jamais.",
+      "secretNote": "Le jeton secret est affiché une seule fois, juste après la création. Copiez-le alors — il ne peut pas être récupéré ensuite (seulement renouvelé).",
+      "cancel": "Annuler",
+      "saving": "Enregistrement…",
+      "saveChanges": "Enregistrer les modifications",
+      "createKey": "Créer la clé"
+    },
+    "confirm": {
+      "deleteTitle": "Supprimer la clé API",
+      "rotateTitle": "Faire tourner la clé API",
+      "deleteBody": "Supprimer {{name}} ? Tout client qui l’utilise perdra immédiatement l’accès. Cette action est irréversible.",
+      "rotateBody": "Faire tourner {{name}} ? Un nouveau secret est émis et l’actuel cesse de fonctionner immédiatement. Le nouveau jeton est affiché une seule fois.",
+      "cancel": "Annuler",
+      "working": "En cours…",
+      "delete": "Supprimer",
+      "rotate": "Faire tourner"
+    },
+    "reveal": {
+      "title": "Clé API créée",
+      "note": "Copiez ce secret maintenant — pour {{name}}. Il ne sera plus affiché. Si vous le perdez, faites tourner la clé.",
+      "copied": "Copié",
+      "copy": "Copier",
+      "done": "Terminé"
+    },
+    "toast": {
+      "updated": "Clé API mise à jour",
+      "secretIssueFailed": "Clé créée, mais le secret n’a pas pu être émis. Utilisez Faire tourner pour en obtenir un.",
+      "deleted": "Clé API supprimée"
+    },
+    "error": {
+      "nameTaken": "Une clé API portant ce nom existe déjà",
+      "enterpriseRequired": "Les clés API nécessitent l’édition Enterprise",
+      "notFound": "Clé API introuvable",
+      "invalidRequest": "Requête invalide",
+      "failed": "Échec de l’opération"
+    }
+  },
+  "idp": {
+    "title": "Fournisseurs d'identité",
+    "subtitle": "Authentification unique SAML 2.0 pour votre organisation.",
+    "add": "Ajouter un fournisseur",
+    "enterprise": {
+      "title": "Le SSO est une fonctionnalité Enterprise",
+      "body": "Connectez un fournisseur d'identité SAML 2.0 (Entra ID, Okta, Google Workspace…) pour que votre équipe se connecte avec votre IdP. L'authentification unique est disponible dans l'édition Enterprise.",
+      "upgrade": "Passer à Enterprise"
+    },
+    "loading": "Chargement des fournisseurs d'identité…",
+    "loadFailed": "Impossible de charger les fournisseurs d'identité.",
+    "retry": "Réessayer",
+    "empty": {
+      "title": "Aucun fournisseur d'identité configuré",
+      "body": "Ajoutez un fournisseur SAML 2.0 pour que votre équipe se connecte avec votre IdP d'entreprise."
+    },
+    "card": {
+      "enable": "Activer",
+      "disable": "Désactiver",
+      "active": "Actif",
+      "disabled": "Désactivé",
+      "metadataUrl": "URL des métadonnées",
+      "spEntityId": "SP Entity ID",
+      "spAcsUrl": "SP ACS URL",
+      "loginUrl": "URL de connexion",
+      "copy": "Copier",
+      "edit": "Modifier",
+      "delete": "Supprimer"
+    },
+    "form": {
+      "addTitle": "Ajouter un fournisseur d'identité",
+      "editTitle": "Modifier le fournisseur d'identité",
+      "name": "Nom",
+      "nameHint": "Unique. Utilisé dans l'URL SSO.",
+      "providerType": "Type de fournisseur",
+      "providerTypeHint": "Une étiquette, p. ex. azure, okta, google.",
+      "metadataUrl": "URL des métadonnées de l'IdP",
+      "spEntityId": "SP Entity ID",
+      "spAcsUrl": "SP ACS URL",
+      "certificate": "Certificat SP (PEM)",
+      "privateKey": "Clé privée SP (PEM)",
+      "privateKeyHintEdit": "Laissez vide pour conserver la clé enregistrée.",
+      "privateKeyHintCreate": "Requise. Stockée chiffrée ; jamais affichée à nouveau.",
+      "privateKeyUnchanged": "•••••••• (inchangée)",
+      "active": "Actif (afficher sur la page de connexion)",
+      "cancel": "Annuler",
+      "saving": "Enregistrement…",
+      "save": "Enregistrer les modifications",
+      "create": "Créer le fournisseur"
+    },
+    "delete": {
+      "title": "Supprimer le fournisseur d'identité",
+      "body": "Supprimer {{name}} ? Les utilisateurs ne pourront plus se connecter via celui-ci. Cette action est irréversible.",
+      "cancel": "Annuler",
+      "deleting": "Suppression…",
+      "confirm": "Supprimer"
+    },
+    "toast": {
+      "enabled": "Fournisseur activé",
+      "disabled": "Fournisseur désactivé",
+      "created": "Fournisseur d'identité créé",
+      "updated": "Fournisseur d'identité mis à jour",
+      "deleted": "Fournisseur d'identité supprimé",
+      "paidPlan": "Le SSO SAML nécessite un forfait payant",
+      "enterpriseRequired": "Le SSO nécessite l'édition Enterprise",
+      "notFound": "Fournisseur d'identité introuvable",
+      "invalid": "Configuration invalide",
+      "failed": "L'opération a échoué"
+    }
+  },
+  "userAuditor": {
+    "title": "Auditeur d’utilisateurs",
+    "subtitle": "Comptes Active Directory observés dans vos journaux de sécurité Windows — découverts à partir d’événements de création, de connexion et de suppression.",
+    "export": "Exporter",
+    "accountsChip": "{{count}} comptes",
+    "overview": {
+      "title": "Inventaire des comptes",
+      "active": "actifs",
+      "disabled": "désactivés",
+      "deleted": "supprimés",
+      "seen24h": "{{count}} vus au cours des dernières 24 heures",
+      "byDomain": "Par domaine"
+    },
+    "views": {
+      "all": "Tous les comptes",
+      "active": "Actifs",
+      "disabled": "Désactivés",
+      "deleted": "Supprimés",
+      "service": "Comptes de service",
+      "stale": "Inactifs (30j+)"
+    },
+    "searchPlaceholder": "Rechercher par nom de compte ou SID…",
+    "allTenants": "Tous les locataires",
+    "filters": "Filtres",
+    "refresh": "Actualiser",
+    "layout": {
+      "list": "Liste",
+      "cards": "Cartes"
+    },
+    "list": {
+      "account": "Compte",
+      "sid": "SID",
+      "status": "Statut",
+      "lastLogon": "Dernière connexion",
+      "lastSeen": "Vu pour la dernière fois",
+      "tenant": "Locataire"
+    },
+    "status": {
+      "active": "Actif",
+      "disabled": "Désactivé",
+      "deleted": "Supprimé"
+    },
+    "badge": {
+      "service": "service",
+      "stale": "inactif"
+    },
+    "empty": "Aucun compte ne correspond à cette vue.",
+    "loadError": "Impossible de charger les comptes AD.",
+    "retry": "Réessayer",
+    "card": {
+      "lastLogon": "Dernière connexion"
+    },
+    "pageInfo": "{{from}}–{{to}} sur {{count}}",
+    "drawer": {
+      "tenantInline": "locataire {{id}}",
+      "serviceAccount": "compte de service",
+      "stale": "inactif 30j+",
+      "viewInLogs": "Voir les événements dans le Log Explorer",
+      "copySid": "Copier le SID",
+      "copied": "Copié",
+      "identity": "Identité",
+      "accountName": "Nom du compte",
+      "domain": "Domaine",
+      "sid": "SID",
+      "tenant": "Locataire",
+      "adStatus": "Statut AD",
+      "enabled": "Activé",
+      "disabled": "Désactivé",
+      "lifecycle": "Cycle de vie",
+      "created": "Compte créé",
+      "lastLogon": "Dernière connexion",
+      "lastSeen": "Vu pour la dernière fois dans les journaux",
+      "deleted": "Compte supprimé",
+      "noLifecycle": "Aucun événement de cycle de vie enregistré."
+    },
+    "relative": {
+      "justNow": "à l’instant",
+      "minutesAgo": "il y a {{count}}m",
+      "hoursAgo": "il y a {{count}}h",
+      "daysAgo": "il y a {{count}}j"
+    },
+    "none": "—"
   }
 }

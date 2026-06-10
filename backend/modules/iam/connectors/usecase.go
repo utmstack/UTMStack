@@ -58,6 +58,10 @@ type UserUsecase interface {
 	Update(ctx context.Context, actor string, id uint64, input dto.UpdateUserRequest) (*dto.UserDetailResponse, error)
 	Deactivate(ctx context.Context, id uint64) error
 	AssignRoles(ctx context.Context, actor string, id uint64, input dto.AssignRolesRequest) error
+	// ResetTfa lets an administrator clear another user's enrolled 2FA so a user
+	// who lost their authenticator can re-enroll on their next login. Unlike the
+	// self-service disable, it does not require the target user's password.
+	ResetTfa(ctx context.Context, id uint64) error
 }
 
 type RoleUsecase interface {

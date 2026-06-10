@@ -5,6 +5,7 @@ import { ArrowLeft, Loader2, Lock, Mail, ShieldCheck, User as UserIcon } from 'l
 import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { PasswordInput } from '@/shared/components/ui/password-input'
 import { LanguageSwitcher } from '@/shared/components/LanguageSwitcher'
 import { AuthHttpError } from '../services/auth-http.service'
 import { useAuth } from '../services/auth.context'
@@ -215,9 +216,8 @@ export function LoginPage() {
                       aria-hidden
                       className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                     />
-                    <Input
+                    <PasswordInput
                       id="password"
-                      type="password"
                       placeholder="••••••••"
                       autoComplete="current-password"
                       required

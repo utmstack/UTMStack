@@ -344,6 +344,7 @@
       "rolesUpdated": "Ruoli aggiornati",
       "userReactivated": "Utente riattivato",
       "userDeactivated": "Utente disattivato",
+      "tfaReset": "Autenticazione a due fattori reimpostata",
       "invitationSent": "Invito inviato",
       "loginOrEmailInUse": "Questo nome utente o email è già in uso",
       "invalidRequest": "Richiesta non valida",
@@ -390,6 +391,11 @@
       "tfa": "2FA",
       "tfaEnabled": "Attivato ({{method}})",
       "tfaNotConfigured": "Non configurato",
+      "resetTfa": "Reimposta",
+      "resetTfaHint": "Disattiva il 2FA di questo utente così potrà riconfigurarlo al prossimo accesso",
+      "resetTfaConfirmTitle": "Reimpostare l'autenticazione a due fattori?",
+      "resetTfaConfirmBody": "Questo disattiva il 2FA di {{name}}. Accederà solo con la password e potrà riconfigurarlo dal proprio profilo.",
+      "resetTfaConfirm": "Reimposta 2FA",
       "pendingPasswordNote": "Usa ancora la password temporanea (invito non completato).",
       "lastModified": "Modificato {{time}}",
       "rolesTitle": "Ruoli",
@@ -437,5 +443,243 @@
       "hoursAgo": "{{count}} h fa",
       "daysAgo": "{{count}} g fa"
     }
+  },
+  "apiKeys": {
+    "title": "Chiavi API",
+    "subtitle": "Token di accesso programmatico per l’API di UTMStack.",
+    "new": "Nuova chiave API",
+    "searchPlaceholder": "Cerca per nome o IP consentito…",
+    "refresh": "Aggiorna",
+    "loading": "Caricamento chiavi API…",
+    "loadFailed": "Impossibile caricare le chiavi API.",
+    "retry": "Riprova",
+    "noSearchMatch": "Nessuna chiave API corrisponde alla ricerca.",
+    "empty": "Ancora nessuna chiave API. Creane una per iniziare.",
+    "anyIp": "Qualsiasi IP",
+    "never": "Mai",
+    "count_one": "{{count}} chiave · pagina {{page}} di {{pages}}",
+    "count_other": "{{count}} chiavi · pagina {{page}} di {{pages}}",
+    "enterprise": {
+      "title": "Le chiavi API sono una funzione Enterprise",
+      "body": "Emetti, limita e ruota le chiavi API per l’accesso programmatico all’API di UTMStack. Questa funzionalità è disponibile nell’edizione Enterprise.",
+      "upgrade": "Passa a Enterprise",
+      "manageLicense": "Gestisci la tua licenza"
+    },
+    "col": {
+      "name": "Nome",
+      "allowedIps": "IP consentiti",
+      "created": "Creata",
+      "lastRotated": "Ultima rotazione",
+      "expires": "Scade",
+      "status": "Stato",
+      "actions": "Azioni"
+    },
+    "status": {
+      "active": "Attiva",
+      "expiring": "In scadenza",
+      "expired": "Scaduta"
+    },
+    "action": {
+      "rotate": "Ruota",
+      "edit": "Modifica",
+      "delete": "Elimina"
+    },
+    "dialog": {
+      "editTitle": "Modifica chiave API",
+      "newTitle": "Nuova chiave API",
+      "name": "Nome",
+      "namePlaceholder": "ci-pipeline",
+      "allowedIps": "IP consentiti",
+      "allowedIpsHint": "Separati da virgola. Lascia vuoto per consentire qualsiasi IP.",
+      "expires": "Scade",
+      "expiresHint": "Lascia vuoto per una chiave che non scade mai.",
+      "secretNote": "Il token segreto viene mostrato una sola volta, subito dopo la creazione. Copialo allora — non può essere recuperato in seguito (solo ruotato).",
+      "cancel": "Annulla",
+      "saving": "Salvataggio…",
+      "saveChanges": "Salva modifiche",
+      "createKey": "Crea chiave"
+    },
+    "confirm": {
+      "deleteTitle": "Elimina chiave API",
+      "rotateTitle": "Ruota chiave API",
+      "deleteBody": "Eliminare {{name}}? Qualsiasi client che la utilizza perderà immediatamente l’accesso. Questa azione non può essere annullata.",
+      "rotateBody": "Ruotare {{name}}? Viene emesso un nuovo segreto e quello attuale smette di funzionare immediatamente. Il nuovo token viene mostrato una sola volta.",
+      "cancel": "Annulla",
+      "working": "In corso…",
+      "delete": "Elimina",
+      "rotate": "Ruota"
+    },
+    "reveal": {
+      "title": "Chiave API creata",
+      "note": "Copia questo segreto ora — per {{name}}. Non verrà più mostrato. Se lo perdi, ruota la chiave.",
+      "copied": "Copiato",
+      "copy": "Copia",
+      "done": "Fatto"
+    },
+    "toast": {
+      "updated": "Chiave API aggiornata",
+      "secretIssueFailed": "Chiave creata, ma non è stato possibile emettere il segreto. Usa Ruota per ottenerne uno.",
+      "deleted": "Chiave API eliminata"
+    },
+    "error": {
+      "nameTaken": "Esiste già una chiave API con quel nome",
+      "enterpriseRequired": "Le chiavi API richiedono l’edizione Enterprise",
+      "notFound": "Chiave API non trovata",
+      "invalidRequest": "Richiesta non valida",
+      "failed": "Operazione non riuscita"
+    }
+  },
+  "idp": {
+    "title": "Provider di identità",
+    "subtitle": "Single sign-on SAML 2.0 per la tua organizzazione.",
+    "add": "Aggiungi provider",
+    "enterprise": {
+      "title": "L'SSO è una funzione Enterprise",
+      "body": "Collega un provider di identità SAML 2.0 (Entra ID, Okta, Google Workspace…) per far accedere il tuo team con il tuo IdP. Il single sign-on è disponibile nell'edizione Enterprise.",
+      "upgrade": "Passa a Enterprise"
+    },
+    "loading": "Caricamento provider di identità…",
+    "loadFailed": "Impossibile caricare i provider di identità.",
+    "retry": "Riprova",
+    "empty": {
+      "title": "Nessun provider di identità configurato",
+      "body": "Aggiungi un provider SAML 2.0 per far accedere il tuo team con il tuo IdP aziendale."
+    },
+    "card": {
+      "enable": "Abilita",
+      "disable": "Disabilita",
+      "active": "Attivo",
+      "disabled": "Disabilitato",
+      "metadataUrl": "URL metadati",
+      "spEntityId": "SP Entity ID",
+      "spAcsUrl": "SP ACS URL",
+      "loginUrl": "URL di accesso",
+      "copy": "Copia",
+      "edit": "Modifica",
+      "delete": "Elimina"
+    },
+    "form": {
+      "addTitle": "Aggiungi provider di identità",
+      "editTitle": "Modifica provider di identità",
+      "name": "Nome",
+      "nameHint": "Univoco. Usato nell'URL SSO.",
+      "providerType": "Tipo di provider",
+      "providerTypeHint": "Un'etichetta, es. azure, okta, google.",
+      "metadataUrl": "URL metadati dell'IdP",
+      "spEntityId": "SP Entity ID",
+      "spAcsUrl": "SP ACS URL",
+      "certificate": "Certificato SP (PEM)",
+      "privateKey": "Chiave privata SP (PEM)",
+      "privateKeyHintEdit": "Lascia vuoto per mantenere la chiave salvata.",
+      "privateKeyHintCreate": "Obbligatoria. Salvata cifrata; non verrà più mostrata.",
+      "privateKeyUnchanged": "•••••••• (invariata)",
+      "active": "Attivo (mostra nella pagina di accesso)",
+      "cancel": "Annulla",
+      "saving": "Salvataggio…",
+      "save": "Salva modifiche",
+      "create": "Crea provider"
+    },
+    "delete": {
+      "title": "Elimina provider di identità",
+      "body": "Eliminare {{name}}? Gli utenti non potranno più accedere tramite esso. L'operazione non può essere annullata.",
+      "cancel": "Annulla",
+      "deleting": "Eliminazione…",
+      "confirm": "Elimina"
+    },
+    "toast": {
+      "enabled": "Provider abilitato",
+      "disabled": "Provider disabilitato",
+      "created": "Provider di identità creato",
+      "updated": "Provider di identità aggiornato",
+      "deleted": "Provider di identità eliminato",
+      "paidPlan": "L'SSO SAML richiede un piano a pagamento",
+      "enterpriseRequired": "L'SSO richiede l'edizione Enterprise",
+      "notFound": "Provider di identità non trovato",
+      "invalid": "Configurazione non valida",
+      "failed": "Operazione non riuscita"
+    }
+  },
+  "userAuditor": {
+    "title": "Auditor utenti",
+    "subtitle": "Account di Active Directory osservati nei tuoi log di sicurezza di Windows — rilevati da eventi di creazione, accesso ed eliminazione.",
+    "export": "Esporta",
+    "accountsChip": "{{count}} account",
+    "overview": {
+      "title": "Inventario account",
+      "active": "attivi",
+      "disabled": "disabilitati",
+      "deleted": "eliminati",
+      "seen24h": "{{count}} visti nelle ultime 24 ore",
+      "byDomain": "Per dominio"
+    },
+    "views": {
+      "all": "Tutti gli account",
+      "active": "Attivi",
+      "disabled": "Disabilitati",
+      "deleted": "Eliminati",
+      "service": "Account di servizio",
+      "stale": "Inattivi (30g+)"
+    },
+    "searchPlaceholder": "Cerca per nome account o SID…",
+    "allTenants": "Tutti i tenant",
+    "filters": "Filtri",
+    "refresh": "Aggiorna",
+    "layout": {
+      "list": "Elenco",
+      "cards": "Schede"
+    },
+    "list": {
+      "account": "Account",
+      "sid": "SID",
+      "status": "Stato",
+      "lastLogon": "Ultimo accesso",
+      "lastSeen": "Visto l’ultima volta",
+      "tenant": "Tenant"
+    },
+    "status": {
+      "active": "Attivo",
+      "disabled": "Disabilitato",
+      "deleted": "Eliminato"
+    },
+    "badge": {
+      "service": "servizio",
+      "stale": "inattivo"
+    },
+    "empty": "Nessun account corrisponde a questa vista.",
+    "loadError": "Impossibile caricare gli account AD.",
+    "retry": "Riprova",
+    "card": {
+      "lastLogon": "Ultimo accesso"
+    },
+    "pageInfo": "{{from}}–{{to}} di {{count}}",
+    "drawer": {
+      "tenantInline": "tenant {{id}}",
+      "serviceAccount": "account di servizio",
+      "stale": "inattivo 30g+",
+      "viewInLogs": "Vedi eventi nel Log Explorer",
+      "copySid": "Copia SID",
+      "copied": "Copiato",
+      "identity": "Identità",
+      "accountName": "Nome account",
+      "domain": "Dominio",
+      "sid": "SID",
+      "tenant": "Tenant",
+      "adStatus": "Stato AD",
+      "enabled": "Abilitato",
+      "disabled": "Disabilitato",
+      "lifecycle": "Ciclo di vita",
+      "created": "Account creato",
+      "lastLogon": "Ultimo accesso",
+      "lastSeen": "Visto l’ultima volta nei log",
+      "deleted": "Account eliminato",
+      "noLifecycle": "Nessun evento del ciclo di vita registrato."
+    },
+    "relative": {
+      "justNow": "proprio ora",
+      "minutesAgo": "{{count}}m fa",
+      "hoursAgo": "{{count}}h fa",
+      "daysAgo": "{{count}}g fa"
+    },
+    "none": "—"
   }
 }

@@ -54,6 +54,8 @@ func (h *ADUserHandler) Ingest(c *gin.Context) {
 //	@Param			search		query		string	false	"Substring on samAccountName/sid"
 //	@Param			tenantId	query		string	false	"Filter by tenant"
 //	@Param			active		query		bool	false	"Filter by active"
+//	@Param			status		query		string	false	"Lifecycle bucket: active|disabled|deleted|stale|service (overrides active)"
+//	@Param			sort		query		string	false	"Sort: recent (last seen) or name (default)"
 //	@Param			page		query		int		false	"Page (0-based)"
 //	@Param			size		query		int		false	"Page size"
 //	@Success		200			{array}		domain.ADUser
@@ -74,6 +76,32 @@ func (h *ADUserHandler) List(c *gin.Context) {
 	}
 	c.Header("X-Total-Count", strconv.FormatInt(res.Total, 10))
 	c.JSON(http.StatusOK, res.Items)
+}
+
+// Stats godoc
+//
+//	@Summary		AD user inventory stats
+//	@Description	Roll-up for the User Auditor overview: lifecycle counts, by-domain breakdown and the distinct tenant list.
+//	@Tags			AD Audit
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Param			tenantId	query		string	false	"Scope the counts to a tenant"
+//	@Success		200			{object}	dto.ADUserStats
+//	@Failure		500			{object}	map[string]string
+//	@Router			/ad-audit/stats [get]
+func (h *ADUserHandler) Stats(c *gin.Context) {
+	var q dto.ADUserStatsQuery
+	if err := c.ShouldBindQuery(&q); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	res, err := h.uc.Stats(c.Request.Context(), q.TenantID)
+	if err != nil {
+		_ = catcher.Error("adaudit: stats failed", err, nil)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not load stats"})
+		return
+	}
+	c.JSON(http.StatusOK, res)
 }
 
 // Sync godoc

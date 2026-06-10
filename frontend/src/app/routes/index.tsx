@@ -23,7 +23,6 @@ import { ConnectionKeyPage } from '@/features/settings/pages/ConnectionKeyPage'
 import { DataRetentionPage } from '@/features/settings/pages/DataRetentionPage'
 import { IndicesPage } from '@/features/settings/pages/IndicesPage'
 import { ThemePage } from '@/features/settings/pages/ThemePage'
-import { ApiKeysPage } from '@/features/settings/pages/ApiKeysPage'
 import { IdentityProvidersPage } from '@/features/settings/pages/IdentityProvidersPage'
 import { EmailConfigurationPage } from '@/features/settings/pages/EmailConfigurationPage'
 import { DateFormatPage } from '@/features/settings/pages/DateFormatPage'
@@ -91,7 +90,9 @@ export function AppRoutes() {
         <Route path="settings/index-management" element={<Navigate to="/settings/indices" replace />} />
         <Route path="settings/index-patterns" element={<Navigate to="/settings/indices" replace />} />
         <Route path="settings/theme" element={<ThemePage />} />
-        <Route path="settings/api-keys" element={<ApiKeysPage />} />
+        {/* API keys are per-user (a key authenticates AS its owner), so they live
+            embedded in the profile page, not system settings. */}
+        <Route path="settings/api-keys" element={<Navigate to="/profile" replace />} />
         <Route path="settings/identity-providers" element={<IdentityProvidersPage />} />
         <Route path="settings/email" element={<EmailConfigurationPage />} />
         <Route path="settings/date-format" element={<DateFormatPage />} />

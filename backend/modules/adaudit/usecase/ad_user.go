@@ -57,3 +57,7 @@ func (u *adUserUsecase) List(ctx context.Context, f dto.ADUserFilter) (*database
 func (u *adUserUsecase) All(ctx context.Context) ([]domain.ADUser, error) {
 	return u.repo.All(ctx)
 }
+
+func (u *adUserUsecase) Stats(ctx context.Context, tenantID string) (*dto.ADUserStats, error) {
+	return u.repo.Stats(ctx, tenantID)
+}

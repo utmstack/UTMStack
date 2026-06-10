@@ -4,7 +4,14 @@ import { Toaster } from 'sonner'
 import { AuthProvider } from '@/features/auth'
 import { BillingProvider } from '@/features/billing'
 import { NotificationsProvider } from '@/features/notifications'
-import { ThemeProvider } from './ThemeProvider'
+import { ThemeProvider, useThemeContext } from './ThemeProvider'
+
+// Lives inside ThemeProvider so sonner follows the app's dark/light theme instead
+// of defaulting to light.
+function ThemedToaster() {
+  const { theme } = useThemeContext()
+  return <Toaster richColors position="top-right" closeButton theme={theme} />
+}
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
@@ -14,7 +21,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
           <BillingProvider>
             <NotificationsProvider>
               {children}
-              <Toaster richColors position="top-right" closeButton />
+              <ThemedToaster />
             </NotificationsProvider>
           </BillingProvider>
         </AuthProvider>

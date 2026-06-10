@@ -4,6 +4,7 @@ import { Mail, ShieldCheck, ShieldOff, Smartphone } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { PasswordInput } from '@/shared/components/ui/password-input'
 import { authHttpService, AuthHttpError } from '@/features/auth/services/auth-http.service'
 import type { TfaInitResponse, TfaMethod, User } from '@/features/auth/types/auth.types'
 
@@ -157,8 +158,7 @@ export function TwoFactorBody({ user, onChanged }: { user: User; onChanged: () =
         </div>
         <p className="mt-1 text-xs text-muted-foreground">{t('profile.tfa.disableDescription')}</p>
         <div className="mt-3 max-w-xs">
-          <Input
-            type="password"
+          <PasswordInput
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={t('profile.tfa.currentPasswordPlaceholder')}

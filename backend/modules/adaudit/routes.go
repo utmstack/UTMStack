@@ -13,6 +13,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	g.POST("/users", middleware.RequireInternal(), h.Ingest)
 	g.GET("/users/sync", middleware.RequireInternal(), h.Sync)
 
-	// UI: list the AD user inventory.
+	// UI: list the AD user inventory + inventory stats for the overview.
 	g.GET("/users", middleware.RequirePermission("adaudit.read"), h.List)
+	g.GET("/stats", middleware.RequirePermission("adaudit.read"), h.Stats)
 }

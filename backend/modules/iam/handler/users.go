@@ -167,6 +167,28 @@ func (h *UserHandler) AssignRoles(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// @Summary     Reset (disable) a user's TFA
+// @Description Administrative reset of another user's two-factor enrollment so a
+// @Description user who lost their authenticator can re-enroll at next login.
+// @Tags        Users
+// @Security    BearerAuth
+// @Param       id path int true "User ID"
+// @Success     204 "TFA reset"
+// @Router      /users/{id}/tfa/disable [post]
+func (h *UserHandler) ResetTfa(c *gin.Context) {
+	id, ok := pathID(c, "id")
+	if !ok {
+		return
+	}
+	err := h.userUsecase.ResetTfa(c.Request.Context(), id)
+	audit.Record(c, audit_connectors.Event{Action: "user.tfa_reset", ResourceType: "user", ResourceID: strconv.FormatUint(id, 10)}, audit_domain.TFA_ADMIN_DISABLE_ATTEMPT, audit_domain.TFA_ADMIN_DISABLE_SUCCESS, err)
+	if err != nil {
+		writeUserError(c, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
 func writeUserError(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, domain.ErrUserNotFound):

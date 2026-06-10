@@ -344,6 +344,7 @@
       "rolesUpdated": "Roles actualizados",
       "userReactivated": "Usuario reactivado",
       "userDeactivated": "Usuario desactivado",
+      "tfaReset": "Autenticación en dos pasos restablecida",
       "invitationSent": "Invitación enviada",
       "loginOrEmailInUse": "Ese usuario o correo ya está en uso",
       "invalidRequest": "Solicitud inválida",
@@ -390,6 +391,11 @@
       "tfa": "2FA",
       "tfaEnabled": "Activado ({{method}})",
       "tfaNotConfigured": "No configurado",
+      "resetTfa": "Restablecer",
+      "resetTfaHint": "Desactiva el 2FA de este usuario para que lo reconfigure en su próximo inicio de sesión",
+      "resetTfaConfirmTitle": "¿Restablecer la autenticación en dos pasos?",
+      "resetTfaConfirmBody": "Esto desactiva el 2FA de {{name}}. Iniciará sesión solo con su contraseña y podrá configurarlo de nuevo desde su perfil.",
+      "resetTfaConfirm": "Restablecer 2FA",
       "pendingPasswordNote": "Aún usa la contraseña temporal (invitación no completada).",
       "lastModified": "Modificado {{time}}",
       "rolesTitle": "Roles",
@@ -437,5 +443,243 @@
       "hoursAgo": "hace {{count}} h",
       "daysAgo": "hace {{count}} d"
     }
+  },
+  "apiKeys": {
+    "title": "Claves API",
+    "subtitle": "Tokens de acceso programático para la API de UTMStack.",
+    "new": "Nueva clave API",
+    "searchPlaceholder": "Buscar por nombre o IP permitida…",
+    "refresh": "Actualizar",
+    "loading": "Cargando claves API…",
+    "loadFailed": "No se pudieron cargar las claves API.",
+    "retry": "Reintentar",
+    "noSearchMatch": "Ninguna clave API coincide con tu búsqueda.",
+    "empty": "Aún no hay claves API. Crea una para empezar.",
+    "anyIp": "Cualquier IP",
+    "never": "Nunca",
+    "count_one": "{{count}} clave · página {{page}} de {{pages}}",
+    "count_other": "{{count}} claves · página {{page}} de {{pages}}",
+    "enterprise": {
+      "title": "Las claves API son una función Enterprise",
+      "body": "Emite, restringe y rota claves API para acceso programático a la API de UTMStack. Esta capacidad está disponible en la edición Enterprise.",
+      "upgrade": "Actualizar a Enterprise",
+      "manageLicense": "Gestionar tu licencia"
+    },
+    "col": {
+      "name": "Nombre",
+      "allowedIps": "IPs permitidas",
+      "created": "Creada",
+      "lastRotated": "Última rotación",
+      "expires": "Expira",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "status": {
+      "active": "Activa",
+      "expiring": "Por expirar",
+      "expired": "Expirada"
+    },
+    "action": {
+      "rotate": "Rotar",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "dialog": {
+      "editTitle": "Editar clave API",
+      "newTitle": "Nueva clave API",
+      "name": "Nombre",
+      "namePlaceholder": "ci-pipeline",
+      "allowedIps": "IPs permitidas",
+      "allowedIpsHint": "Separadas por comas. Deja vacío para permitir cualquier IP.",
+      "expires": "Expira",
+      "expiresHint": "Deja vacío para una clave que nunca expira.",
+      "secretNote": "El token secreto se muestra una sola vez, justo tras la creación. Cópialo entonces — no se puede recuperar después (solo rotar).",
+      "cancel": "Cancelar",
+      "saving": "Guardando…",
+      "saveChanges": "Guardar cambios",
+      "createKey": "Crear clave"
+    },
+    "confirm": {
+      "deleteTitle": "Eliminar clave API",
+      "rotateTitle": "Rotar clave API",
+      "deleteBody": "¿Eliminar {{name}}? Cualquier cliente que la use perderá el acceso de inmediato. Esto no se puede deshacer.",
+      "rotateBody": "¿Rotar {{name}}? Se emite un nuevo secreto y el actual deja de funcionar de inmediato. El nuevo token se muestra una sola vez.",
+      "cancel": "Cancelar",
+      "working": "Procesando…",
+      "delete": "Eliminar",
+      "rotate": "Rotar"
+    },
+    "reveal": {
+      "title": "Clave API creada",
+      "note": "Copia este secreto ahora — para {{name}}. No se volverá a mostrar. Si lo pierdes, rota la clave.",
+      "copied": "Copiado",
+      "copy": "Copiar",
+      "done": "Listo"
+    },
+    "toast": {
+      "updated": "Clave API actualizada",
+      "secretIssueFailed": "Clave creada, pero no se pudo emitir el secreto. Usa Rotar para obtener uno.",
+      "deleted": "Clave API eliminada"
+    },
+    "error": {
+      "nameTaken": "Ya existe una clave API con ese nombre",
+      "enterpriseRequired": "Las claves API requieren la edición Enterprise",
+      "notFound": "Clave API no encontrada",
+      "invalidRequest": "Solicitud inválida",
+      "failed": "Operación fallida"
+    }
+  },
+  "idp": {
+    "title": "Proveedores de identidad",
+    "subtitle": "Inicio de sesión único SAML 2.0 para tu organización.",
+    "add": "Agregar proveedor",
+    "enterprise": {
+      "title": "El SSO es una función Enterprise",
+      "body": "Conecta un proveedor de identidad SAML 2.0 (Entra ID, Okta, Google Workspace…) para que tu equipo inicie sesión con tu IdP. El inicio de sesión único está disponible en la edición Enterprise.",
+      "upgrade": "Actualizar a Enterprise"
+    },
+    "loading": "Cargando proveedores de identidad…",
+    "loadFailed": "No se pudieron cargar los proveedores de identidad.",
+    "retry": "Reintentar",
+    "empty": {
+      "title": "No hay proveedores de identidad configurados",
+      "body": "Agrega un proveedor SAML 2.0 para que tu equipo inicie sesión con tu IdP corporativo."
+    },
+    "card": {
+      "enable": "Habilitar",
+      "disable": "Deshabilitar",
+      "active": "Activo",
+      "disabled": "Deshabilitado",
+      "metadataUrl": "URL de metadatos",
+      "spEntityId": "SP Entity ID",
+      "spAcsUrl": "SP ACS URL",
+      "loginUrl": "URL de inicio de sesión",
+      "copy": "Copiar",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "form": {
+      "addTitle": "Agregar proveedor de identidad",
+      "editTitle": "Editar proveedor de identidad",
+      "name": "Nombre",
+      "nameHint": "Único. Se usa en la URL de SSO.",
+      "providerType": "Tipo de proveedor",
+      "providerTypeHint": "Una etiqueta, p. ej. azure, okta, google.",
+      "metadataUrl": "URL de metadatos del IdP",
+      "spEntityId": "SP Entity ID",
+      "spAcsUrl": "SP ACS URL",
+      "certificate": "Certificado SP (PEM)",
+      "privateKey": "Llave privada SP (PEM)",
+      "privateKeyHintEdit": "Déjalo vacío para conservar la llave guardada.",
+      "privateKeyHintCreate": "Requerida. Se guarda cifrada; no se vuelve a mostrar.",
+      "privateKeyUnchanged": "•••••••• (sin cambios)",
+      "active": "Activo (mostrar en la página de inicio de sesión)",
+      "cancel": "Cancelar",
+      "saving": "Guardando…",
+      "save": "Guardar cambios",
+      "create": "Crear proveedor"
+    },
+    "delete": {
+      "title": "Eliminar proveedor de identidad",
+      "body": "¿Eliminar {{name}}? Los usuarios ya no podrán iniciar sesión a través de él. Esto no se puede deshacer.",
+      "cancel": "Cancelar",
+      "deleting": "Eliminando…",
+      "confirm": "Eliminar"
+    },
+    "toast": {
+      "enabled": "Proveedor habilitado",
+      "disabled": "Proveedor deshabilitado",
+      "created": "Proveedor de identidad creado",
+      "updated": "Proveedor de identidad actualizado",
+      "deleted": "Proveedor de identidad eliminado",
+      "paidPlan": "El SSO SAML requiere un plan de pago",
+      "enterpriseRequired": "El SSO requiere la edición Enterprise",
+      "notFound": "Proveedor de identidad no encontrado",
+      "invalid": "Configuración inválida",
+      "failed": "La operación falló"
+    }
+  },
+  "userAuditor": {
+    "title": "Auditor de usuarios",
+    "subtitle": "Cuentas de Active Directory observadas en tus logs de seguridad de Windows — descubiertas a partir de eventos de creación, inicio de sesión y borrado.",
+    "export": "Exportar",
+    "accountsChip": "{{count}} cuentas",
+    "overview": {
+      "title": "Inventario de cuentas",
+      "active": "activas",
+      "disabled": "deshabilitadas",
+      "deleted": "borradas",
+      "seen24h": "{{count}} vistas en las últimas 24 horas",
+      "byDomain": "Por dominio"
+    },
+    "views": {
+      "all": "Todas las cuentas",
+      "active": "Activas",
+      "disabled": "Deshabilitadas",
+      "deleted": "Borradas",
+      "service": "Cuentas de servicio",
+      "stale": "Inactivas (30d+)"
+    },
+    "searchPlaceholder": "Buscar por nombre de cuenta o SID…",
+    "allTenants": "Todos los tenants",
+    "filters": "Filtros",
+    "refresh": "Actualizar",
+    "layout": {
+      "list": "Lista",
+      "cards": "Tarjetas"
+    },
+    "list": {
+      "account": "Cuenta",
+      "sid": "SID",
+      "status": "Estado",
+      "lastLogon": "Último inicio",
+      "lastSeen": "Última vez vista",
+      "tenant": "Tenant"
+    },
+    "status": {
+      "active": "Activa",
+      "disabled": "Deshabilitada",
+      "deleted": "Borrada"
+    },
+    "badge": {
+      "service": "servicio",
+      "stale": "inactiva"
+    },
+    "empty": "Ninguna cuenta coincide con esta vista.",
+    "loadError": "No se pudieron cargar las cuentas de AD.",
+    "retry": "Reintentar",
+    "card": {
+      "lastLogon": "Último inicio"
+    },
+    "pageInfo": "{{from}}–{{to}} de {{count}}",
+    "drawer": {
+      "tenantInline": "tenant {{id}}",
+      "serviceAccount": "cuenta de servicio",
+      "stale": "inactiva 30d+",
+      "viewInLogs": "Ver eventos en el Log Explorer",
+      "copySid": "Copiar SID",
+      "copied": "Copiado",
+      "identity": "Identidad",
+      "accountName": "Nombre de cuenta",
+      "domain": "Dominio",
+      "sid": "SID",
+      "tenant": "Tenant",
+      "adStatus": "Estado en AD",
+      "enabled": "Habilitada",
+      "disabled": "Deshabilitada",
+      "lifecycle": "Ciclo de vida",
+      "created": "Cuenta creada",
+      "lastLogon": "Último inicio de sesión",
+      "lastSeen": "Última vez vista en logs",
+      "deleted": "Cuenta borrada",
+      "noLifecycle": "Sin eventos de ciclo de vida."
+    },
+    "relative": {
+      "justNow": "ahora mismo",
+      "minutesAgo": "hace {{count}}m",
+      "hoursAgo": "hace {{count}}h",
+      "daysAgo": "hace {{count}}d"
+    },
+    "none": "—"
   }
 }
