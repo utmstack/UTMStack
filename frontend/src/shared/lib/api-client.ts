@@ -153,12 +153,34 @@ export async function apiRequestPaged<T>(
   return { data: response.data, total: Number.isFinite(total) ? total : 0 }
 }
 
+/** POST that also surfaces the X-Total-Count header for classic pagination. */
+export async function apiRequestPagedPost<T>(
+  baseUrl: string,
+  endpoint: string,
+  body?: unknown,
+  options: RequestOptions = {}
+): Promise<Paged<T>> {
+  const instance = getAxiosInstance(baseUrl)
+  const response = await instance.request<T>({
+    url: endpoint,
+    method: 'POST',
+    data: body,
+    headers: options.headers,
+    responseType: options.responseType ?? 'json',
+  })
+  const raw = response.headers['x-total-count']
+  const total = raw != null ? Number(raw) : Array.isArray(response.data) ? response.data.length : 0
+  return { data: response.data, total: Number.isFinite(total) ? total : 0 }
+}
+
 export function createApiClient(baseUrl: string = API_URL) {
   return {
     get: <T,>(endpoint: string, options?: RequestOptions) =>
       apiRequest<T>(baseUrl, endpoint, 'GET', options),
     getPaged: <T,>(endpoint: string, options?: RequestOptions) =>
       apiRequestPaged<T>(baseUrl, endpoint, options),
+    postPaged: <T,>(endpoint: string, body?: unknown, options?: RequestOptions) =>
+      apiRequestPagedPost<T>(baseUrl, endpoint, body, options),
     post: <T,>(endpoint: string, body?: unknown, options?: RequestOptions) =>
       apiRequest<T>(baseUrl, endpoint, 'POST', { ...options, body }),
     put: <T,>(endpoint: string, body?: unknown, options?: RequestOptions) =>

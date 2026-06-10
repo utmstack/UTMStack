@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { cn } from '@/shared/lib/utils'
 import { Button } from './button'
 
 const DEFAULT_PAGE_SIZES = [10, 20, 50, 100]
@@ -16,6 +17,7 @@ export function Pagination({
   onPageChange,
   onPageSizeChange,
   pageSizeOptions = DEFAULT_PAGE_SIZES,
+  align = 'between',
 }: {
   page: number
   pageSize: number
@@ -24,13 +26,20 @@ export function Pagination({
   onPageChange: (page: number) => void
   onPageSizeChange: (size: number) => void
   pageSizeOptions?: number[]
+  /** 'between' spreads controls across the row; 'right' groups them all to the right. */
+  align?: 'between' | 'right'
 }) {
   const { t } = useTranslation()
   if (total <= 0) return null
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
 
   return (
-    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+    <div
+      className={cn(
+        'mt-4 flex flex-wrap items-center gap-3',
+        align === 'right' ? 'justify-end' : 'justify-between'
+      )}
+    >
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <span>{t('pagination.perPage')}</span>
         <select

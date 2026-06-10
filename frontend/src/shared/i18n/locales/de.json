@@ -1086,5 +1086,99 @@
       "security": "Sicherheitsmeldung",
       "copyright": "© {{year}} UTMStack. Alle Rechte vorbehalten."
     }
+  },
+  "logExplorer": {
+    "title": "Log-Explorer",
+    "eventsIn": "Ereignisse in",
+    "searching": "Suche…",
+    "query": {
+      "indexPatterns": "Index patterns",
+      "noPatterns": "Keine Patterns",
+      "searchPlaceholder": "In allen Feldern suchen…",
+      "refresh": "Aktualisieren",
+      "exportCsv": "CSV exportieren",
+      "run": "Ausführen"
+    },
+    "time": {
+      "15m": "Letzte 15 Minuten",
+      "1h": "Letzte Stunde",
+      "6h": "Letzte 6 Stunden",
+      "24h": "Letzte 24 Stunden",
+      "7d": "Letzte 7 Tage",
+      "30d": "Letzte 30 Tage"
+    },
+    "ops": {
+      "is": "ist",
+      "isNot": "ist nicht",
+      "contains": "enthält",
+      "exists": "existiert",
+      "between": "zwischen",
+      "search": "sucht"
+    },
+    "filters": {
+      "label": "Filter",
+      "clearAll": "Alle löschen"
+    },
+    "fields": {
+      "title": "Felder",
+      "filterPlaceholder": "Felder filtern…",
+      "none": "Keine Felder",
+      "selected": "Ausgewählte Felder",
+      "available": "Verfügbare Felder",
+      "topValues_one": "Top {{count}} Wert",
+      "topValues_other": "Top {{count}} Werte",
+      "loading": "Lädt…",
+      "noValues": "Keine Werte",
+      "addColumn": "Als Spalte hinzufügen",
+      "removeColumn": "Spalte aus Tabelle entfernen",
+      "filterFor": "Nach Wert filtern",
+      "filterOut": "Wert ausschließen",
+      "empty": "(leer)"
+    },
+    "results": {
+      "time": "Zeit",
+      "source": "Quelle",
+      "message": "Nachricht",
+      "removeColumn": "{{field}} entfernen",
+      "searching": "Suche…",
+      "patternsFailed": "Index patterns konnten nicht geladen werden.",
+      "searchFailed": "Suche fehlgeschlagen.",
+      "retry": "Erneut versuchen",
+      "none": "Keine Logs entsprechen dieser Abfrage."
+    },
+    "detail": {
+      "fieldsCount_one": "{{count}} Feld",
+      "fieldsCount_other": "{{count}} Felder",
+      "copyJson": "JSON kopieren",
+      "copied": "Dokument kopiert",
+      "parsedFields": "Geparste Felder",
+      "json": "JSON",
+      "filterFor": "Filtern nach",
+      "filterOut": "Ausschließen"
+    },
+    "view": {
+      "table": "Tabelle",
+      "chart": "Diagramm"
+    },
+    "chart": {
+      "aggregateOn": "Aggregieren nach",
+      "per": "pro",
+      "topValues": "— Top 20 Werte",
+      "building": "Diagramm wird erstellt…",
+      "failed": "Diagramm für dieses Feld konnte nicht erstellt werden.",
+      "noData": "Keine Daten für das Diagramm."
+    },
+    "intervals": {
+      "minute": "Minute",
+      "hour": "Stunde",
+      "day": "Tag",
+      "week": "Woche",
+      "month": "Monat",
+      "quarter": "Quartal",
+      "year": "Jahr"
+    },
+    "toast": {
+      "exportFailed": "Export fehlgeschlagen"
+    }
   }
 }

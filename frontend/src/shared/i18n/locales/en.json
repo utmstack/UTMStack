@@ -1086,5 +1086,99 @@
       "security": "Security disclosure",
       "copyright": "© {{year}} UTMStack. All rights reserved."
     }
+  },
+  "logExplorer": {
+    "title": "Log explorer",
+    "eventsIn": "events in",
+    "searching": "Searching…",
+    "query": {
+      "indexPatterns": "Index patterns",
+      "noPatterns": "No patterns",
+      "searchPlaceholder": "Search across all fields…",
+      "refresh": "Refresh",
+      "exportCsv": "Export CSV",
+      "run": "Run"
+    },
+    "time": {
+      "15m": "Last 15 minutes",
+      "1h": "Last 1 hour",
+      "6h": "Last 6 hours",
+      "24h": "Last 24 hours",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days"
+    },
+    "ops": {
+      "is": "is",
+      "isNot": "is not",
+      "contains": "contains",
+      "exists": "exists",
+      "between": "between",
+      "search": "search"
+    },
+    "filters": {
+      "label": "Filters",
+      "clearAll": "Clear all"
+    },
+    "fields": {
+      "title": "Fields",
+      "filterPlaceholder": "Filter fields…",
+      "none": "No fields",
+      "selected": "Selected fields",
+      "available": "Available fields",
+      "topValues_one": "Top {{count}} value",
+      "topValues_other": "Top {{count}} values",
+      "loading": "Loading…",
+      "noValues": "No values",
+      "addColumn": "Add as column",
+      "removeColumn": "Remove column from table",
+      "filterFor": "Filter for value",
+      "filterOut": "Filter out value",
+      "empty": "(empty)"
+    },
+    "results": {
+      "time": "Time",
+      "source": "Source",
+      "message": "Message",
+      "removeColumn": "Remove {{field}}",
+      "searching": "Searching…",
+      "patternsFailed": "Could not load index patterns.",
+      "searchFailed": "Search failed.",
+      "retry": "Retry",
+      "none": "No logs match this query."
+    },
+    "detail": {
+      "fieldsCount_one": "{{count}} field",
+      "fieldsCount_other": "{{count}} fields",
+      "copyJson": "Copy JSON",
+      "copied": "Document copied",
+      "parsedFields": "Parsed fields",
+      "json": "JSON",
+      "filterFor": "Filter for",
+      "filterOut": "Filter out"
+    },
+    "view": {
+      "table": "Table",
+      "chart": "Chart"
+    },
+    "chart": {
+      "aggregateOn": "Aggregate on",
+      "per": "per",
+      "topValues": "— top 20 values",
+      "building": "Building chart…",
+      "failed": "Could not build the chart for this field.",
+      "noData": "No data to chart."
+    },
+    "intervals": {
+      "minute": "Minute",
+      "hour": "Hour",
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "quarter": "Quarter",
+      "year": "Year"
+    },
+    "toast": {
+      "exportFailed": "Export failed"
+    }
   }
 }

@@ -978,5 +978,103 @@
       "security": "Сообщение об уязвимости",
       "copyright": "© {{year}} UTMStack. Все права защищены."
     }
+  },
+  "logExplorer": {
+    "title": "Просмотр логов",
+    "eventsIn": "событий в",
+    "searching": "Поиск…",
+    "query": {
+      "indexPatterns": "Index patterns",
+      "noPatterns": "Нет patterns",
+      "searchPlaceholder": "Поиск по всем полям…",
+      "refresh": "Обновить",
+      "exportCsv": "Экспорт CSV",
+      "run": "Выполнить"
+    },
+    "time": {
+      "15m": "Последние 15 минут",
+      "1h": "Последний час",
+      "6h": "Последние 6 часов",
+      "24h": "Последние 24 часа",
+      "7d": "Последние 7 дней",
+      "30d": "Последние 30 дней"
+    },
+    "ops": {
+      "is": "равно",
+      "isNot": "не равно",
+      "contains": "содержит",
+      "exists": "существует",
+      "between": "между",
+      "search": "поиск"
+    },
+    "filters": {
+      "label": "Фильтры",
+      "clearAll": "Очистить всё"
+    },
+    "fields": {
+      "title": "Поля",
+      "filterPlaceholder": "Фильтр полей…",
+      "none": "Нет полей",
+      "selected": "Выбранные поля",
+      "available": "Доступные поля",
+      "topValues_one": "Топ {{count}} значение",
+      "topValues_few": "Топ {{count}} значения",
+      "topValues_many": "Топ {{count}} значений",
+      "topValues_other": "Топ {{count}} значений",
+      "loading": "Загрузка…",
+      "noValues": "Нет значений",
+      "addColumn": "Добавить как столбец",
+      "removeColumn": "Убрать столбец из таблицы",
+      "filterFor": "Фильтровать по значению",
+      "filterOut": "Исключить значение",
+      "empty": "(пусто)"
+    },
+    "results": {
+      "time": "Время",
+      "source": "Источник",
+      "message": "Сообщение",
+      "removeColumn": "Убрать {{field}}",
+      "searching": "Поиск…",
+      "patternsFailed": "Не удалось загрузить index patterns.",
+      "searchFailed": "Поиск не удался.",
+      "retry": "Повторить",
+      "none": "Нет логов по этому запросу."
+    },
+    "detail": {
+      "fieldsCount_one": "{{count}} поле",
+      "fieldsCount_few": "{{count}} поля",
+      "fieldsCount_many": "{{count}} полей",
+      "fieldsCount_other": "{{count}} полей",
+      "copyJson": "Копировать JSON",
+      "copied": "Документ скопирован",
+      "parsedFields": "Разобранные поля",
+      "json": "JSON",
+      "filterFor": "Фильтровать по",
+      "filterOut": "Исключить"
+    },
+    "view": {
+      "table": "Таблица",
+      "chart": "График"
+    },
+    "chart": {
+      "aggregateOn": "Агрегировать по",
+      "per": "по",
+      "topValues": "— топ 20 значений",
+      "building": "Построение графика…",
+      "failed": "Не удалось построить график для этого поля.",
+      "noData": "Нет данных для графика."
+    },
+    "intervals": {
+      "minute": "Минута",
+      "hour": "Час",
+      "day": "День",
+      "week": "Неделя",
+      "month": "Месяц",
+      "quarter": "Квартал",
+      "year": "Год"
+    },
+    "toast": {
+      "exportFailed": "Экспорт не удался"
+    }
   }
 }

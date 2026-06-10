@@ -6,3 +6,4 @@ dist-ssr/
 *.log
 .vite/
 .DS_Store
+*.tsbuildinfo

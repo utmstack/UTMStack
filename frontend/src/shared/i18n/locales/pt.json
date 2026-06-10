@@ -1086,5 +1086,99 @@
       "security": "Divulgação de segurança",
       "copyright": "© {{year}} UTMStack. Todos os direitos reservados."
     }
+  },
+  "logExplorer": {
+    "title": "Explorador de logs",
+    "eventsIn": "eventos em",
+    "searching": "Buscando…",
+    "query": {
+      "indexPatterns": "Index patterns",
+      "noPatterns": "Sem patterns",
+      "searchPlaceholder": "Buscar em todos os campos…",
+      "refresh": "Atualizar",
+      "exportCsv": "Exportar CSV",
+      "run": "Executar"
+    },
+    "time": {
+      "15m": "Últimos 15 minutos",
+      "1h": "Última hora",
+      "6h": "Últimas 6 horas",
+      "24h": "Últimas 24 horas",
+      "7d": "Últimos 7 dias",
+      "30d": "Últimos 30 dias"
+    },
+    "ops": {
+      "is": "é",
+      "isNot": "não é",
+      "contains": "contém",
+      "exists": "existe",
+      "between": "entre",
+      "search": "busca"
+    },
+    "filters": {
+      "label": "Filtros",
+      "clearAll": "Limpar tudo"
+    },
+    "fields": {
+      "title": "Campos",
+      "filterPlaceholder": "Filtrar campos…",
+      "none": "Sem campos",
+      "selected": "Campos selecionados",
+      "available": "Campos disponíveis",
+      "topValues_one": "Top {{count}} valor",
+      "topValues_other": "Top {{count}} valores",
+      "loading": "Carregando…",
+      "noValues": "Sem valores",
+      "addColumn": "Adicionar como coluna",
+      "removeColumn": "Remover coluna da tabela",
+      "filterFor": "Filtrar pelo valor",
+      "filterOut": "Excluir o valor",
+      "empty": "(vazio)"
+    },
+    "results": {
+      "time": "Hora",
+      "source": "Origem",
+      "message": "Mensagem",
+      "removeColumn": "Remover {{field}}",
+      "searching": "Buscando…",
+      "patternsFailed": "Não foi possível carregar os index patterns.",
+      "searchFailed": "A busca falhou.",
+      "retry": "Tentar novamente",
+      "none": "Nenhum log corresponde a esta consulta."
+    },
+    "detail": {
+      "fieldsCount_one": "{{count}} campo",
+      "fieldsCount_other": "{{count}} campos",
+      "copyJson": "Copiar JSON",
+      "copied": "Documento copiado",
+      "parsedFields": "Campos analisados",
+      "json": "JSON",
+      "filterFor": "Filtrar por",
+      "filterOut": "Excluir"
+    },
+    "view": {
+      "table": "Tabela",
+      "chart": "Gráfico"
+    },
+    "chart": {
+      "aggregateOn": "Agregar por",
+      "per": "a cada",
+      "topValues": "— top 20 valores",
+      "building": "Construindo gráfico…",
+      "failed": "Não foi possível construir o gráfico para este campo.",
+      "noData": "Sem dados para o gráfico."
+    },
+    "intervals": {
+      "minute": "Minuto",
+      "hour": "Hora",
+      "day": "Dia",
+      "week": "Semana",
+      "month": "Mês",
+      "quarter": "Trimestre",
+      "year": "Ano"
+    },
+    "toast": {
+      "exportFailed": "A exportação falhou"
+    }
   }
 }
