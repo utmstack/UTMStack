@@ -1268,7 +1268,156 @@
         "afterTitle": "Was Sie nach dem Herstellen der Verbindung sehen",
         "after1": "UTMStack führt einen Ausgleichszustand mit aktuellen Ereignissen durch.",
         "after2": "Danach werden Ereignisse alle 1–5 Minuten abgerufen (abhängig von der API).",
-        "after3": "Die Integration wird unter Datenquellen mit aktuellem Abrufstatus und Verzögerung angezeigt."
+        "after3": "Die Integration wird unter Datenquellen mit aktuellem Abrufstatus und Verzögerung angezeigt.",
+        "tenants": {
+          "title": "Konfigurierte Mandanten",
+          "empty": "Noch keine Mandanten konfiguriert. Fügen Sie unten Ihren ersten hinzu.",
+          "loading": "Mandanten werden geladen…",
+          "nameLabel": "Mandantenname",
+          "namePlaceholder": "z. B. acme-prod",
+          "add": "Mandant hinzufügen",
+          "update": "Mandant aktualisieren",
+          "delete": "Löschen",
+          "edit": "Bearbeiten",
+          "cancel": "Abbrechen",
+          "editing": "Bearbeiten: {{name}}",
+          "selectFile": "Datei auswählen",
+          "replaceFile": "Datei ersetzen",
+          "fileLoaded": "Datei geladen",
+          "invalidJson": "Die Datei konnte nicht als JSON gelesen werden.",
+          "createError": "Der Mandant konnte nicht erstellt werden. Bitte erneut versuchen.",
+          "updateError": "Der Mandant konnte nicht aktualisiert werden. Bitte erneut versuchen."
+        },
+        "google": {
+          "sections": {
+            "createTopic": {
+              "title": "1 · Pub/Sub-Thema erstellen",
+              "body": "Öffnen Sie in der Google Cloud Console Pub/Sub → Themen und erstellen Sie ein neues Thema. UTMStack empfängt Ereignisse über dieses Thema."
+            },
+            "createSubscription": {
+              "title": "2 · Abonnement erstellen",
+              "body": "Erstellen Sie innerhalb des Themas ein Pull-Abonnement. UTMStack ruft Nachrichten aus diesem Abonnement ab."
+            },
+            "configureSubscription": {
+              "title": "3 · Abonnement konfigurieren",
+              "body": "Stellen Sie die Aufbewahrungsdauer der Nachrichten auf einen Wert ein, der Ihrer Toleranz gegenüber Ausfallzeiten entspricht (Standard von 7 Tagen ist in Ordnung). Belassen Sie die Bestätigungsfrist bei 10 Sekunden und das Ablaufverhalten auf \"Nie ablaufen\"."
+            },
+            "logsRouter": {
+              "title": "4 · Logs Router öffnen",
+              "body": "Navigieren Sie zu Logging → Logs Router und erstellen Sie eine neue Senke. Diese leitet die Logs Ihres Projekts an das oben erstellte Pub/Sub-Thema weiter."
+            },
+            "sinkDestination": {
+              "title": "5 · Senke auf das Thema verweisen",
+              "body": "Wählen Sie Cloud Pub/Sub-Thema als Senkenziel und das von Ihnen erstellte Thema aus. Verwenden Sie Inklusions-/Exklusionsfilter, um den Umfang einzuschränken."
+            },
+            "serviceAccount": {
+              "title": "6 · Dienstkonto erstellen",
+              "body": "Öffnen Sie IAM & Verwaltung → Dienstkonten und erstellen Sie ein neues Dienstkonto. Weisen Sie ihm die Rolle \"Pub/Sub-Editor\" zu, damit UTMStack vom Abonnement abrufen kann."
+            },
+            "serviceAccountKey": {
+              "title": "7 · Schlüssel für das Dienstkonto generieren",
+              "body": "Öffnen Sie das Dienstkonto, gehen Sie zur Registerkarte \"Schlüssel\" und fügen Sie einen neuen Schlüssel hinzu. Wählen Sie JSON als Schlüsseltyp."
+            },
+            "downloadKey": {
+              "title": "8 · JSON-Schlüssel herunterladen und einfügen",
+              "body": "Speichern Sie die JSON-Datei, die Google herunterlädt — ihr Inhalt gehört in das unten stehende Feld \"Dienstkonto-JSON-Schlüssel\"."
+            }
+          },
+          "fields": {
+            "projectId": { "label": "Projekt-ID" },
+            "topic": { "label": "Themenname" },
+            "subscription": { "label": "Abonnementname" },
+            "jsonKey": { "label": "Dienstkonto-JSON-Schlüssel" }
+          }
+        },
+        "azure": {
+          "sections": {
+            "eventHub": {
+              "title": "1 · Event Hub erstellen",
+              "body": "Erstellen Sie im Azure-Portal einen Event-Hubs-Namespace und darin einen Event Hub. UTMStack liest Ereignisse aus diesem Hub."
+            },
+            "sharedAccessPolicy": {
+              "title": "2 · Shared-Access-Richtlinie hinzufügen",
+              "body": "Öffnen Sie den Event Hub → Shared-Access-Richtlinien und erstellen Sie eine neue Richtlinie mit ausschließlich der Berechtigung \"Listen\"."
+            },
+            "connectionString": {
+              "title": "3 · Primären Verbindungsstring kopieren",
+              "body": "Öffnen Sie die Richtlinie und kopieren Sie den primären Verbindungsstring. Er sieht so aus: Endpoint=sb://...;SharedAccessKeyName=...;SharedAccessKey=..."
+            },
+            "consumerGroup": {
+              "title": "4 · Dedizierte Consumer Group erstellen",
+              "body": "Öffnen Sie den Event Hub → Consumer Groups und erstellen Sie eine neue für UTMStack. Verwenden Sie nicht $Default — geben Sie UTMStack eine eigene Gruppe, damit Checkpoints nicht mit anderen Consumern kollidieren."
+            },
+            "storageAccount": {
+              "title": "5 · Speicherkonto erstellen",
+              "body": "UTMStack benötigt ein Speicherkonto für Checkpoints. Erstellen Sie eines in derselben Region wie der Event Hub."
+            },
+            "storageContainer": {
+              "title": "6 · Container im Speicherkonto erstellen",
+              "body": "Erstellen Sie im Speicherkonto → Container einen neuen Container. Notieren Sie sich Containernamen und Verbindungsstring des Speicherkontos (Zugriffsschlüssel → Verbindungsstring)."
+            },
+            "eventGrid": {
+              "title": "7 · Event-Grid-Ressourcenanbieter registrieren",
+              "body": "Registrieren Sie unter Abonnements → Ressourcenanbieter Microsoft.EventGrid, falls noch nicht geschehen. So kann Azure Ereignisse auf Abonnementebene an Ihren Event Hub weiterleiten."
+            },
+            "eventSubscription": {
+              "title": "8 · Ereignisabonnement erstellen",
+              "body": "Erstellen Sie ein Ereignisabonnement, das auf Ihren Event Hub zielt. Wählen Sie die Ereignistypen, die an UTMStack weitergeleitet werden sollen."
+            }
+          },
+          "fields": {
+            "eventHubConnection": { "label": "Event-Hub-Verbindungsstring" },
+            "consumerGroup": { "label": "Consumer Group" },
+            "storageContainer": { "label": "Speichercontainer-Name" },
+            "storageConnection": { "label": "Verbindungsstring des Speicherkontos" }
+          }
+        },
+        "aws": {
+          "sections": {
+            "prerequisite": {
+              "title": "Voraussetzung · IAM-Benutzer",
+              "body": "Damit diese Integration funktioniert, benötigen Sie einen IAM-Benutzer für UTMStack mit der Richtlinie CloudWatchLogsReadOnlyAccess. Notieren Sie sich Zugriffsschlüssel-ID und geheimen Zugriffsschlüssel — Sie fügen sie unten in das Mandantenformular ein."
+            },
+            "createTrail": {
+              "title": "1 · Trail erstellen",
+              "body": "Wählen Sie im CloudTrail-Panel \"Create trail\"."
+            },
+            "trailName": {
+              "title": "2 · Trail benennen",
+              "body": "Füllen Sie das Feld \"Trail name\" aus."
+            },
+            "s3Buckets": {
+              "title": "3 · S3-Buckets auswählen",
+              "body": "Markieren Sie \"Select all S3 buckets in your account\"."
+            },
+            "bucketName": {
+              "title": "4 · S3-Bucket erstellen",
+              "body": "Füllen Sie das Feld \"S3 bucket\" aus. Der Bucket-Name muss in S3 eindeutig sein. Klicken Sie dann auf \"Create\"."
+            },
+            "editTrail": {
+              "title": "5 · Trail zum Bearbeiten öffnen",
+              "body": "Klicken Sie auf den Namen des Trails, um ihn zu bearbeiten."
+            },
+            "cloudwatchConfig": {
+              "title": "6 · CloudWatch Logs konfigurieren",
+              "body": "Öffnen Sie den Abschnitt CloudWatch Logs und aktivieren Sie die Integration, damit der Trail Ereignisse an eine Log Group weiterleitet."
+            },
+            "logGroup": {
+              "title": "7 · Namen der Log Group festlegen",
+              "body": "Füllen Sie den Namen der Log Group aus (z. B. utmstack) und fahren Sie fort. Verwenden Sie denselben Namen unten im Feld \"Log group name\"."
+            },
+            "permissions": {
+              "title": "8 · CloudTrail-Berechtigungen erteilen",
+              "body": "Klicken Sie auf \"Allow\", um CloudTrail die Berechtigung zum Schreiben in die Log Group zu erteilen."
+            }
+          },
+          "fields": {
+            "accessKeyId": { "label": "AWS-Zugriffsschlüssel-ID" },
+            "secretAccessKey": { "label": "Geheimer AWS-Zugriffsschlüssel" },
+            "region": { "label": "AWS-Standardregion" },
+            "logGroupName": { "label": "Name der Log Group" }
+          }
+        }
       },
       "custom": {
         "whenTitle": "Wann ist dies zu verwenden",

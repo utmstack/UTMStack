@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { Upload, FileCheck2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
@@ -63,6 +64,12 @@ export function CloudTenantForm({
           setName('')
           setConfig(emptyConfig(fields))
           onSaved()
+        },
+        onError: (err) => {
+          const fallback = isEditing
+            ? t('integrations.setup.cloud.tenants.updateError')
+            : t('integrations.setup.cloud.tenants.createError')
+          toast.error(err instanceof Error && err.message ? err.message : fallback)
         },
       },
     )

@@ -1284,7 +1284,9 @@
           "selectFile": "Select file",
           "replaceFile": "Replace file",
           "fileLoaded": "File loaded",
-          "invalidJson": "Could not parse the file as JSON."
+          "invalidJson": "Could not parse the file as JSON.",
+          "createError": "Could not create the tenant. Please try again.",
+          "updateError": "Could not update the tenant. Please try again."
         },
         "google": {
           "sections": {
