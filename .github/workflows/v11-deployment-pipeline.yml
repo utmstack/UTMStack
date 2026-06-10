@@ -15,6 +15,7 @@ jobs:
       environment: ${{ steps.set-env.outputs.environment }}
       cm_url: ${{ steps.set-env.outputs.cm_url }}
       event_processor_tag: ${{ steps.set-env.outputs.event_processor_tag }}
+      enterprise_version: ${{ steps.set-env.outputs.enterprise_version }}
     steps:
       - name: Determine Build Environment
         id: set-env
@@ -64,6 +65,7 @@ jobs:
             echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
             echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
             echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_DEV }}" >> $GITHUB_OUTPUT
+            echo "enterprise_version=${{ vars.ENTERPRISE_ARTIFACTS_VERSION_DEV }}" >> $GITHUB_OUTPUT
 
           # ===================
           # RC Environment
@@ -89,6 +91,7 @@ jobs:
             echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
             echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
             echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_PROD }}" >> $GITHUB_OUTPUT
+            echo "enterprise_version=${{ vars.ENTERPRISE_ARTIFACTS_VERSION_PROD }}" >> $GITHUB_OUTPUT
           fi
 
   validations:
@@ -322,6 +325,9 @@ jobs:
           path: ${{ github.workspace }}/agent-darwin
 
       - name: Prepare dependencies for Agent Manager Image
+        env:
+          GH_TOKEN: ${{ secrets.READ_PRIVATE_REPO }}
+          ENTERPRISE_VERSION: ${{ needs.setup_deployment.outputs.enterprise_version }}
         run: |
           cd ${{ github.workspace }}/agent-manager
           GOOS=linux GOARCH=amd64  go build -o agent-manager -v .
@@ -331,7 +337,11 @@ jobs:
           cp "${{ github.workspace }}/collectors/utmstack/version.json" ./dependencies/collector/
 
           mkdir -p ./dependencies/collector/as400
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/collector/as400-collector.jar" -o ./dependencies/collector/as400/as400-collector.jar
+          gh release download "$ENTERPRISE_VERSION" \
+            --repo utmstack/UTMStackEnterprise \
+            --pattern as400-collector.jar \
+            --output ./dependencies/collector/as400/as400-collector.jar \
+            --clobber
 
           cp "${{ github.workspace }}/collectors/as400/version.json" ./dependencies/collector/as400/
           cp "${{ github.workspace }}/collector-binaries/as400/utmstack_as400_collector_service" ./dependencies/collector/as400/
@@ -357,7 +367,11 @@ jobs:
           # macOS agents (signed and notarized)
           cp "${{ github.workspace }}/agent-darwin/utmstack_agent_service_darwin_arm64" ./dependencies/agent/
           cp "${{ github.workspace }}/agent-darwin/updater/utmstack_updater_service_darwin_arm64" ./dependencies/agent/
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/agent_updates/release/macos-agent/latest/utmstack-collector-mac" -o ./dependencies/agent/utmstack-collector-mac
+          gh release download "$ENTERPRISE_VERSION" \
+            --repo utmstack/UTMStackEnterprise \
+            --pattern utmstack-collector-mac \
+            --output ./dependencies/agent/utmstack-collector-mac \
+            --clobber
 
           # TODO: Remove legacy binary names after all agents have migrated to new naming convention
           # Legacy names for backwards compatibility with existing agents
@@ -417,6 +431,9 @@ jobs:
           cd ${{ github.workspace }}/plugins/soar; go build -o com.utmstack.soar.plugin -v .
 
       - name: Prepare Dependencies for Event Processor Image
+        env:
+          GH_TOKEN: ${{ secrets.READ_PRIVATE_REPO }}
+          ENTERPRISE_VERSION: ${{ needs.setup_deployment.outputs.enterprise_version }}
         run: |
           mkdir -p ./geolocation
           curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/geolocation/asn-blocks-v4.csv" -o ./geolocation/asn-blocks-v4.csv
@@ -424,6 +441,15 @@ jobs:
           curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/geolocation/blocks-v4.csv" -o ./geolocation/blocks-v4.csv
           curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/geolocation/blocks-v6.csv" -o ./geolocation/blocks-v6.csv
           curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/geolocation/locations-en.csv" -o ./geolocation/locations-en.csv
+
+          # Enterprise entitlements plugin (prebuilt, from private UTMStackEnterprise release)
+          mkdir -p ./plugins/entitlements
+          gh release download "$ENTERPRISE_VERSION" \
+            --repo utmstack/UTMStackEnterprise \
+            --pattern entitlements \
+            --output ./plugins/entitlements/com.utmstack.entitlements.plugin \
+            --clobber
+          chmod +x ./plugins/entitlements/com.utmstack.entitlements.plugin
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3

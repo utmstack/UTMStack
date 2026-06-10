@@ -19,3 +19,4 @@ COPY ./plugins/crowdstrike/com.utmstack.crowdstrike.plugin /workdir/plugins/utms
 COPY ./plugins/feeds/com.utmstack.feeds.plugin /workdir/plugins/utmstack/
 COPY ./plugins/ad-audit/com.utmstack.ad-audit.plugin /workdir/plugins/utmstack/
 COPY ./plugins/soar/com.utmstack.soar.plugin /workdir/plugins/utmstack/
+COPY ./plugins/entitlements/com.utmstack.entitlements.plugin /workdir/plugins/utmstack/
