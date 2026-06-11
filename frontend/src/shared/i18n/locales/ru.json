@@ -1005,7 +1005,8 @@
       "contains": "содержит",
       "exists": "существует",
       "between": "между",
-      "search": "поиск"
+      "search": "поиск",
+      "isOneOf": "один из"
     },
     "filters": {
       "label": "Фильтры",
@@ -1075,6 +1076,19 @@
     },
     "toast": {
       "exportFailed": "Экспорт не удался"
+    },
+    "builder": {
+      "add": "Добавить фильтр",
+      "filterValues": "Фильтр значений…",
+      "loadingValues": "Загрузка значений…",
+      "noValues": "Значения не найдены.",
+      "cancel": "Отмена",
+      "confirm": "Добавить"
+    },
+    "related": {
+      "nLogs_one": "{{count}} лог",
+      "nLogs_other": "{{count}} логов",
+      "truncated": "Показаны первые {{count}} связанных логов (полный набор больше)."
     }
   },
   "integrations": {
@@ -1306,6 +1320,311 @@
       "deleteFailed": "Не удалось удалить",
       "groupCreated": "Группа создана",
       "groupCreateFailed": "Не удалось создать группу"
+    }
+  },
+  "timeRange": {
+    "quick": "Быстрые диапазоны",
+    "relative": "Относительный",
+    "absolute": "Абсолютный",
+    "last": "Последние",
+    "apply": "Применить",
+    "allTime": "Всё время",
+    "from": "С",
+    "to": "По",
+    "now": "сейчас",
+    "units": {
+      "minutes": "минут",
+      "hours": "часов",
+      "days": "дней",
+      "weeks": "недель",
+      "months": "месяцев"
+    },
+    "presets": {
+      "15m": "Последние 15 минут",
+      "1h": "Последний час",
+      "6h": "Последние 6 часов",
+      "24h": "Последние 24 часа",
+      "7d": "Последние 7 дней",
+      "30d": "Последние 30 дней"
+    }
+  },
+  "alerts": {
+    "title": "Оповещения",
+    "matching": "{{count}} совпадений",
+    "subtitle": "Расставьте приоритеты по важному.",
+    "openNow": "открыто прямо сейчас.",
+    "view": {
+      "alerts": "Оповещения",
+      "overview": "Обзор"
+    },
+    "toolbar": {
+      "searchPlaceholder": "Поиск по имени оповещения…",
+      "allSeverities": "Все уровни серьёзности",
+      "export": "Экспорт в CSV",
+      "refresh": "Обновить"
+    },
+    "severity": {
+      "high": "Высокий",
+      "medium": "Средний",
+      "low": "Низкий"
+    },
+    "status": {
+      "open": "Открыто",
+      "in_review": "На проверке",
+      "completed": "Завершено",
+      "auto": "Автоматическая проверка"
+    },
+    "statusTabs": {
+      "all": "Все"
+    },
+    "overview": {
+      "overTime": "Оповещения по времени",
+      "matchingAlerts": "совпадающих оповещений",
+      "noData": "Нет данных.",
+      "bySeverity": "По серьёзности",
+      "byStatus": "По статусу"
+    },
+    "filters": {
+      "add": "Добавить фильтр",
+      "clearAll": "Очистить всё",
+      "filterValues": "Фильтровать значения…",
+      "loadingValues": "Загрузка значений…",
+      "noValues": "Значения не найдены.",
+      "pickValue": "Выберите значение, чтобы добавить фильтр.",
+      "empty": "(пусто)",
+      "cancel": "Отмена",
+      "addBtn": "Добавить"
+    },
+    "ops": {
+      "CONTAIN": "содержит",
+      "IS": "равно",
+      "IS_NOT": "не равно",
+      "EXIST": "существует",
+      "DOES_NOT_EXIST": "не существует"
+    },
+    "fields": {
+      "assetGroupName": "Группа источника данных",
+      "category": "Категория",
+      "dataSource": "Сенсор",
+      "tags": "Теги",
+      "incidentDetail_incidentName": "Название инцидента",
+      "impact_availability": "Доступность",
+      "impact_confidentiality": "Конфиденциальность",
+      "impact_integrity": "Целостность",
+      "protocol": "Протокол",
+      "adversary_ip": "IP противника",
+      "adversary_domain": "Домен противника",
+      "adversary_url": "URL противника",
+      "adversary_geolocation_asn": "ASN противника",
+      "adversary_geolocation_aso": "ASO противника",
+      "target_ip": "IP цели",
+      "target_domain": "Домен цели",
+      "target_url": "URL цели",
+      "target_geolocation_asn": "ASN цели",
+      "target_geolocation_aso": "ASO цели"
+    },
+    "tagFilter": {
+      "tags": "Теги",
+      "tag_one": "{{count}} тег",
+      "tag_few": "{{count}} тега",
+      "tag_many": "{{count}} тегов",
+      "tag_other": "{{count}} тега",
+      "clearSelection": "Очистить выбор",
+      "noTags": "Нет тегов"
+    },
+    "bulk": {
+      "selected": "Выбрано: {{count}}",
+      "setStatus": "Задать статус",
+      "addTag": "Добавить тег",
+      "noTags": "Нет тегов",
+      "addToIncident": "Добавить в инцидент",
+      "clear": "Очистить"
+    },
+    "tagEditor": {
+      "tag": "Тег",
+      "noTagsYet": "Тегов пока нет",
+      "createTag": "Создать тег",
+      "newTagName": "Имя нового тега…",
+      "createApply": "Создать и применить тег",
+      "save": "Сохранить",
+      "cancel": "Отмена",
+      "edit": "Изменить тег",
+      "delete": "Удалить тег",
+      "systemLocked": "Системный тег (заблокирован)",
+      "alreadyExists": "Такой тег уже существует.",
+      "color": "Цвет {{color}}"
+    },
+    "table": {
+      "alert": "Оповещение",
+      "status": "Статус",
+      "technique": "Техника",
+      "sourceAdversary": "Источник → Противник",
+      "risk": "Риск",
+      "time": "Время"
+    },
+    "list": {
+      "loading": "Загрузка оповещений…",
+      "loadError": "Не удалось загрузить оповещения.",
+      "retry": "Повторить",
+      "empty": "Нет оповещений, соответствующих этому виду."
+    },
+    "badge": {
+      "incident": "Инцидент",
+      "aiAssessed": "Оценено ИИ"
+    },
+    "drawer": {
+      "setStatus": "Задать статус",
+      "completeFalsePositive": "Завершить + ложное срабатывание",
+      "addToIncident": "Добавить в инцидент",
+      "partOfIncident": "Часть инцидента",
+      "tabs": {
+        "summary": "Сводка",
+        "parties": "Стороны",
+        "events": "События",
+        "history": "История"
+      },
+      "section": {
+        "description": "Описание",
+        "solution": "Решение",
+        "references": "Ссылки",
+        "details": "Подробности",
+        "yourNotes": "Ваши заметки",
+        "notes": "Заметки"
+      },
+      "details": {
+        "risk": "Риск",
+        "category": "Категория",
+        "technique": "Техника",
+        "sensor": "Сенсор",
+        "dataType": "Тип данных",
+        "alertId": "ID оповещения",
+        "statusNote": "Примечание к статусу"
+      },
+      "incidentDetail": {
+        "incident": "Инцидент",
+        "id": "ID",
+        "createdBy": "Создал",
+        "created": "Создано"
+      },
+      "notesPlaceholder": "Добавьте заметки по расследованию…",
+      "saveNotes": "Сохранить заметки"
+    },
+    "related": {
+      "sample": "Выборка до ~11 событий, которые движок сохранил для этого оповещения. Используйте «Показать все связанные журналы» для полного набора без ограничений.",
+      "empty": "Для этого оповещения нет сохранённых событий-образцов. Загрузите полный коррелированный набор в Обозревателе журналов.",
+      "viewAll": "Показать все связанные журналы"
+    },
+    "party": {
+      "source": "Источник / цель",
+      "adversary": "Противник",
+      "noData": "Нет данных.",
+      "ip": "IP",
+      "host": "Хост",
+      "user": "Пользователь",
+      "domain": "Домен",
+      "country": "Страна"
+    },
+    "history": {
+      "empty": "История не записана.",
+      "by": "пользователь {{user}}",
+      "actions": {
+        "UPDATE_STATUS": "Статус обновлён",
+        "UPDATE_TAGS": "Теги обновлены",
+        "UPDATE_NOTES": "Заметки обновлены",
+        "UPDATE_SOLUTION": "Решение обновлено",
+        "MARK_AS_INCIDENT": "Отмечено как инцидент"
+      },
+      "detail": {
+        "statusTo": "Статус → {{status}}",
+        "tags": "Теги: {{tags}}",
+        "aiAdded": "Добавлена оценка ИИ",
+        "observationAdded": "Добавлено наблюдение",
+        "notesUpdated": "Заметки обновлены"
+      }
+    },
+    "ai": {
+      "title": "Оценка ИИ SOC",
+      "risk": "риск: {{risk}}",
+      "score": "{{score}}/100"
+    },
+    "incident": {
+      "titleAdd_one": "Добавить {{count}} оповещение в инцидент",
+      "titleAdd_few": "Добавить {{count}} оповещения в инцидент",
+      "titleAdd_many": "Добавить {{count}} оповещений в инцидент",
+      "titleAdd_other": "Добавить {{count}} оповещений в инцидент",
+      "new": "Новый инцидент",
+      "existing": "Существующий инцидент",
+      "nameLabel": "Название инцидента",
+      "namePlaceholder": "напр. Предполагаемое вторжение Scattered Spider",
+      "descriptionLabel": "Описание",
+      "descriptionPlaceholder": "Необязательное краткое описание…",
+      "pickLabel": "Выберите инцидент",
+      "loading": "Загрузка…",
+      "selectPlaceholder": "Выберите инцидент…",
+      "willLink_one": "Будет связано {{count}} оповещение.",
+      "willLink_few": "Будут связаны {{count}} оповещения.",
+      "willLink_many": "Будут связаны {{count}} оповещений.",
+      "willLink_other": "Будут связаны {{count}} оповещений.",
+      "cancel": "Отмена",
+      "create": "Создать инцидент",
+      "add": "Добавить в инцидент"
+    },
+    "toast": {
+      "statusUpdated": "Статус обновлён",
+      "statusFailed": "Не удалось обновить статус",
+      "tagsUpdated": "Теги обновлены",
+      "tagsFailed": "Не удалось обновить теги",
+      "tagCreateFailed": "Не удалось создать тег",
+      "tagUpdated": "Тег обновлён",
+      "tagUpdateFailed": "Не удалось обновить тег",
+      "tagDeleted": "Тег удалён",
+      "tagDeleteFailed": "Не удалось удалить тег",
+      "notesSaved": "Заметки сохранены",
+      "notesFailed": "Не удалось сохранить заметки",
+      "exportFailed": "Не удалось экспортировать CSV",
+      "noRelatedLogs": "Связанные журналы для этого оповещения не найдены",
+      "relatedLogsFailed": "Не удалось загрузить связанные журналы",
+      "incidentCreated": "Инцидент создан",
+      "alertsAdded": "Оповещения добавлены в инцидент",
+      "incidentFailed": "Не удалось сохранить инцидент"
+    }
+  },
+  "dataProcessing": {
+    "live": {
+      "auto": "Авто"
+    },
+    "pipeline": {
+      "title": "Конвейер приёма",
+      "stages": {
+        "received": "Получено",
+        "parsed": "Разобрано",
+        "analyzed": "Проанализировано",
+        "stored": "Сохранено"
+      }
+    },
+    "kpi": {
+      "stored": "Сохранено",
+      "throughput": "Пропускная способность",
+      "perMin": "{{value}}/мин",
+      "survival": "{{rate}}% сохранено"
+    },
+    "chart": {
+      "title": "Пропускная способность во времени",
+      "received": "Получено",
+      "dropped": "Отброшено"
+    },
+    "donut": {
+      "title": "Состав отбрасывания",
+      "dropped": "отброшено"
+    },
+    "breakdown": {
+      "title": "Топ источников и типов",
+      "bars": "Столбцы",
+      "treemap": "Treemap",
+      "showAll": "Показать все {{count}}",
+      "showLess": "Показать меньше",
+      "lastSeen": "Последний раз",
+      "ago": "{{time}} назад"
     }
   }
 }

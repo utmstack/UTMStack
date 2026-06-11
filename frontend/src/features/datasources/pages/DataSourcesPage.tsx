@@ -126,7 +126,10 @@ const TABS = [
 ] as const
 type TabId = (typeof TABS)[number]['id']
 
-const PAGE_SIZE_DEFAULT = 25
+// Must be one of the Pagination component's page-size options ([10, 20, 50, 100]),
+// otherwise the <select> shows the first option (10) while a different number of
+// rows actually renders.
+const PAGE_SIZE_DEFAULT = 20
 
 /* ─── Page ─────────────────────────────────────────────────────────────── */
 

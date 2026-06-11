@@ -7,10 +7,8 @@ import {
   Check,
   ChevronDown,
   ChevronRight,
-  Clock,
   Columns3,
   Code2,
-  Copy,
   Database,
   Download,
   Filter,
@@ -31,16 +29,20 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { Pagination } from '@/shared/components/ui/pagination'
+import { TimeRangePicker, presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
+import { ResultsHeader, ResultRow } from '../components/log-results'
 import {
   logExplorerHttpService as svc,
   LogExplorerHttpError,
 } from '../services/log-explorer-http.service'
 import type {
   ChartView,
+  FilterOperator,
   FilterType,
   IndexField,
   IndexPattern,
@@ -52,123 +54,11 @@ import type {
 
 const TS = '@timestamp'
 
-// `interval` must be a valid OpenSearch calendar_interval token (lowercase, singular):
-// minute / hour / day / week / month. The backend passes it through verbatim.
-const TIME_PRESETS = [
-  { id: '15m', label: 'Last 15 minutes', from: 'now-15m', interval: 'minute' },
-  { id: '1h', label: 'Last 1 hour', from: 'now-1h', interval: 'minute' },
-  { id: '6h', label: 'Last 6 hours', from: 'now-6h', interval: 'hour' },
-  { id: '24h', label: 'Last 24 hours', from: 'now-24h', interval: 'hour' },
-  { id: '7d', label: 'Last 7 days', from: 'now-7d', interval: 'day' },
-  { id: '30d', label: 'Last 30 days', from: 'now-30d', interval: 'day' },
-] as const
 
 // Field-name candidates for the compact result columns (read from the flattened doc).
 const MSG_FIELDS = ['log.message', 'logx.message', 'message', 'event.original', 'rule.name', 'logx.raw']
-// "Source" = where the log came from (the host/origin, which varies row to row).
-const SRC_FIELDS = ['dataSource', 'host.name', 'agent.name', 'log.computer', 'source', 'origin']
-const LEVEL_FIELDS = ['log.level', 'severity', 'level', 'event.severity', 'logx.severity']
-
-// Metadata/noise fields excluded from the inline document preview (same on every row).
-const NOISE_KEYS = new Set(['@timestamp', '@version', 'dataType', 'deviceTime', 'id', 'isAnomaly', 'timestamp'])
-const NOISE_PREFIXES = [
-  'tenant',
-  'globalaccount',
-  'log.activityid',
-  'log.correlation',
-  'log.version',
-  'log.opcode',
-  'log.task',
-  'log.keywords',
-  'log.processid',
-  'log.threadid',
-  'log.recordid',
-  'log.providerguid',
-  'log.level',
-]
-
-function isNoise(k: string): boolean {
-  if (NOISE_KEYS.has(k)) return true
-  const lower = k.toLowerCase()
-  return NOISE_PREFIXES.some((p) => lower.startsWith(p))
-}
-
-// Rank fields so the event-specific content (log.data.*) leads the preview.
-function fieldRank(k: string): number {
-  if (k.startsWith('log.data.')) return 0
-  if (k.startsWith('event.')) return 1
-  if (k.startsWith('log.') || k.startsWith('logx.') || k.startsWith('alert.')) return 2
-  return 3
-}
-
-const LEVEL_TONE: Record<string, { dot: string; tone: string }> = {
-  critical: { dot: 'bg-red-500', tone: 'text-red-500' },
-  high: { dot: 'bg-red-500', tone: 'text-red-500' },
-  error: { dot: 'bg-orange-500', tone: 'text-orange-500' },
-  warn: { dot: 'bg-amber-500', tone: 'text-amber-500' },
-  warning: { dot: 'bg-amber-500', tone: 'text-amber-500' },
-  medium: { dot: 'bg-amber-500', tone: 'text-amber-500' },
-  info: { dot: 'bg-sky-500', tone: 'text-sky-500' },
-  low: { dot: 'bg-sky-500', tone: 'text-sky-500' },
-  debug: { dot: 'bg-muted-foreground', tone: 'text-muted-foreground' },
-}
 
 /* ─── Helpers ──────────────────────────────────────────────────────────── */
-
-function flattenDoc(obj: unknown, prefix = '', out: Record<string, unknown> = {}): Record<string, unknown> {
-  if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
-    for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
-      const key = prefix ? `${prefix}.${k}` : k
-      if (v && typeof v === 'object' && !Array.isArray(v)) flattenDoc(v, key, out)
-      else out[key] = Array.isArray(v) ? v.join(', ') : v
-    }
-  }
-  return out
-}
-
-function pick(flat: Record<string, unknown>, fields: string[]): string | undefined {
-  for (const f of fields) {
-    const v = flat[f]
-    if (v != null && v !== '') return String(v)
-  }
-  return undefined
-}
-
-// Ordered, signal-carrying key/value pairs for the inline document preview shown
-// when there's no single "message" field (the common case for raw event logs).
-function docPreview(flat: Record<string, unknown>): [string, string][] {
-  return Object.entries(flat)
-    .filter(([k, v]) => v != null && v !== '' && k !== 'dataSource' && !isNoise(k))
-    .sort((a, b) => fieldRank(a[0]) - fieldRank(b[0]))
-    .slice(0, 8)
-    .map(([k, v]) => [k.split('.').pop() ?? k, String(v)])
-}
-
-function shortTime(iso: string) {
-  const d = new Date(iso)
-  return Number.isNaN(d.getTime())
-    ? iso
-    : d.toLocaleString(undefined, {
-        month: 'short',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      })
-}
-
-function absTimestamp(iso: string) {
-  const d = new Date(iso)
-  return Number.isNaN(d.getTime())
-    ? iso
-    : d.toLocaleString(undefined, {
-        month: 'short',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      })
-}
 
 // Free-text "search all" maps to a wildcard field by data nature (logx.* / alert.*).
 function textPrefix(pattern: string): string {
@@ -179,13 +69,25 @@ function textPrefix(pattern: string): string {
 
 const PAGE_SIZE_DEFAULT = 25
 
+/** Router state passed by an alert's "view all related logs" action. */
+interface RelatedLogsSeed {
+  ids: string[]
+  indexPattern: string
+  timeFrom: string
+  timeTo: string
+  alertName?: string
+  truncated?: boolean
+}
+
 export function LogExplorerPage() {
   const { t } = useTranslation()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const seededRef = useRef(false)
   const [patterns, setPatterns] = useState<IndexPattern[]>([])
   const [pattern, setPattern] = useState<IndexPattern | null>(null)
 
-  const [presetId, setPresetId] = useState<(typeof TIME_PRESETS)[number]['id']>('24h')
-  const preset = TIME_PRESETS.find((p) => p.id === presetId) ?? TIME_PRESETS[3]
+  const [range, setRange] = useState<TimeRange>(() => presetRange('24h'))
 
   const [searchInput, setSearchInput] = useState('')
   const [appliedQuery, setAppliedQuery] = useState('')
@@ -216,7 +118,9 @@ export function LogExplorerPage() {
     []
   )
 
-  /* Load active index patterns once; default to v11-log-* (or first). */
+  /* Load active index patterns once; default to v11-log-* (or first).
+     When arriving from an alert's "view all related logs" deep-link, seed the
+     pattern, the _id filter and the time window from router state instead. */
   useEffect(() => {
     let cancelled = false
     svc
@@ -224,6 +128,33 @@ export function LogExplorerPage() {
       .then((ps) => {
         if (cancelled) return
         setPatterns(ps)
+        const state = location.state as {
+          relatedLogs?: RelatedLogsSeed
+          socaiFilters?: FilterType[]
+          socaiTime?: string
+        } | null
+        const seed = state?.relatedLogs
+        if (seed?.ids?.length && !seededRef.current) {
+          seededRef.current = true
+          setPattern(ps.find((p) => p.pattern === seed.indexPattern) ?? ps.find((p) => p.pattern === 'v11-log-*') ?? ps[0] ?? null)
+          setFilters([{ field: '_id', operator: 'IS_ONE_OF_TERMS', value: seed.ids }])
+          setRange({ from: seed.timeFrom, to: seed.timeTo, interval: 'hour' })
+          if (seed.truncated) {
+            toast.info(t('logExplorer.related.truncated', { count: seed.ids.length }))
+          }
+          // Drop the router state so a refresh doesn't re-seed over the user's edits.
+          navigate(location.pathname, { replace: true })
+          return
+        }
+        // SOC-AI chat navigation: apply the agent's filters + time window.
+        if (state?.socaiFilters?.length && !seededRef.current) {
+          seededRef.current = true
+          setPattern(ps.find((p) => p.pattern === 'v11-log-*') ?? ps[0] ?? null)
+          setFilters(state.socaiFilters)
+          if (state.socaiTime) setRange(presetRange(state.socaiTime))
+          navigate(location.pathname, { replace: true })
+          return
+        }
         setPattern(ps.find((p) => p.pattern === 'v11-log-*') ?? ps[0] ?? null)
       })
       .catch(() => {
@@ -232,6 +163,7 @@ export function LogExplorerPage() {
     return () => {
       cancelled = true
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   /* Field list for the sidebar follows the selected pattern. */
@@ -249,13 +181,14 @@ export function LogExplorerPage() {
 
   /* The filter array sent to the backend: time + free-text + chips. */
   const buildFilters = useCallback((): FilterType[] => {
-    const out: FilterType[] = [{ field: TS, operator: 'IS_BETWEEN', value: [preset.from, 'now'] }]
+    const out: FilterType[] = []
+    if (range.from) out.push({ field: TS, operator: 'IS_BETWEEN', value: [range.from, range.to] })
     if (appliedQuery.trim() && pattern) {
       out.push({ field: textPrefix(pattern.pattern), operator: 'IS_IN_FIELDS', value: appliedQuery.trim() })
     }
     out.push(...filters)
     return out
-  }, [preset.from, appliedQuery, pattern, filters])
+  }, [range.from, range.to, appliedQuery, pattern, filters])
 
   const activeFilterList = useMemo(() => buildFilters(), [buildFilters])
 
@@ -296,7 +229,7 @@ export function LogExplorerPage() {
   useEffect(() => {
     void run()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pattern, presetId, appliedQuery, appliedSql, sqlMode, filters, page, pageSize, nonce])
+  }, [pattern, range.from, range.to, appliedQuery, appliedSql, sqlMode, filters, page, pageSize, nonce])
 
   /* Commit the input box and run (Enter / Run button). */
   const submit = () => {
@@ -345,9 +278,9 @@ export function LogExplorerPage() {
           }}
           sqlInput={sqlInput}
           onSqlInput={setSqlInput}
-          presetId={presetId}
-          onPreset={(id) => {
-            setPresetId(id)
+          range={range}
+          onRange={(r) => {
+            setRange(r)
             setPage(0)
           }}
           onRun={submit}
@@ -370,11 +303,12 @@ export function LogExplorerPage() {
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-2">
-        {filters.length > 0 ? (
-          <FilterChips filters={filters} onRemove={removeFilter} onClear={() => setFilters([])} />
-        ) : (
-          <span />
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {filters.length > 0 && <FilterChips filters={filters} onRemove={removeFilter} onClear={() => setFilters([])} />}
+          {!sqlMode && pattern && (
+            <AddFilterButton pattern={pattern} fields={fields} filters={activeFilterList} onAdd={addFilter} />
+          )}
+        </div>
         {!sqlMode && <ViewToggle mode={viewMode} onChange={setViewMode} />}
       </div>
 
@@ -492,8 +426,8 @@ function QueryBar({
   onSqlMode,
   sqlInput,
   onSqlInput,
-  presetId,
-  onPreset,
+  range,
+  onRange,
   onRun,
   onRefresh,
   loading,
@@ -508,8 +442,8 @@ function QueryBar({
   onSqlMode: (b: boolean) => void
   sqlInput: string
   onSqlInput: (q: string) => void
-  presetId: string
-  onPreset: (id: (typeof TIME_PRESETS)[number]['id']) => void
+  range: TimeRange
+  onRange: (r: TimeRange) => void
   onRun: () => void
   onRefresh: () => void
   loading: boolean
@@ -517,8 +451,6 @@ function QueryBar({
 }) {
   const { t } = useTranslation()
   const [patternOpen, setPatternOpen] = useState(false)
-  const [timeOpen, setTimeOpen] = useState(false)
-  const preset = TIME_PRESETS.find((p) => p.id === presetId) ?? TIME_PRESETS[3]
 
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-2">
@@ -586,34 +518,7 @@ function QueryBar({
       <div className="h-5 w-px bg-border" />
 
       {/* Time range */}
-      <Dropdown
-        open={timeOpen}
-        onOpenChange={setTimeOpen}
-        align="right"
-        trigger={
-          <>
-            <Clock size={13} className="text-muted-foreground" />
-            {t(`logExplorer.time.${preset.id}`)}
-            <ChevronDown size={11} className="opacity-60" />
-          </>
-        }
-      >
-        {TIME_PRESETS.map((p) => (
-          <button
-            key={p.id}
-            onClick={() => {
-              onPreset(p.id)
-              setTimeOpen(false)
-            }}
-            className={cn(
-              'flex w-full items-center px-3 py-2 text-left text-sm transition-colors',
-              p.id === presetId ? 'bg-muted/60' : 'hover:bg-muted/60'
-            )}
-          >
-            {t(`logExplorer.time.${p.id}`)}
-          </button>
-        ))}
-      </Dropdown>
+      <TimeRangePicker value={range} onChange={onRange} align="right" />
 
       <button
         onClick={() => onSqlMode(!sqlMode)}
@@ -702,6 +607,130 @@ const OP_KEY: Record<string, string> = {
   EXIST: 'exists',
   IS_BETWEEN: 'between',
   IS_IN_FIELDS: 'search',
+  IS_ONE_OF_TERMS: 'isOneOf',
+}
+
+/* Explicit field/operator/value filter builder — pick a field, an operator, and
+ * a value from the field's real existing values (fetched via top-x-values). */
+const BUILDER_OPS: { id: FilterOperator; label: string; needsValue: boolean }[] = [
+  { id: 'IS', label: 'is', needsValue: true },
+  { id: 'IS_NOT', label: 'is not', needsValue: true },
+  { id: 'CONTAIN', label: 'contains', needsValue: true },
+  { id: 'EXIST', label: 'exists', needsValue: false },
+]
+
+function AddFilterButton({
+  pattern,
+  fields,
+  filters,
+  onAdd,
+}: {
+  pattern: IndexPattern
+  fields: IndexField[]
+  filters: FilterType[]
+  onAdd: (f: FilterType) => void
+}) {
+  const { t } = useTranslation()
+  const selectable = useMemo(
+    () => fields.filter((f) => !f.name.endsWith('.keyword')).sort((a, b) => a.name.localeCompare(b.name)),
+    [fields]
+  )
+  const [open, setOpen] = useState(false)
+  const [field, setField] = useState('')
+  const [operator, setOperator] = useState<FilterOperator>('IS')
+  const [values, setValues] = useState<TopValues['top']>([])
+  const [loadingValues, setLoadingValues] = useState(false)
+  const [vq, setVq] = useState('')
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (open && !field && selectable.length) setField(selectable[0].name)
+  }, [open, field, selectable])
+
+  useEffect(() => {
+    if (!open) return
+    const onDoc = (e: MouseEvent) => ref.current && !ref.current.contains(e.target as Node) && setOpen(false)
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [open])
+
+  const op = BUILDER_OPS.find((o) => o.id === operator)
+  const needsValue = op?.needsValue ?? true
+  const fieldDef = selectable.find((f) => f.name === field)
+  const aggField = fieldDef?.type === 'text' && !field.endsWith('.keyword') ? `${field}.keyword` : field
+
+  useEffect(() => {
+    if (!open || !needsValue || !field) return
+    setLoadingValues(true)
+    setValues([])
+    svc
+      .topValues(pattern.pattern, aggField, filters, 100)
+      .then((r) => setValues(r.top ?? []))
+      .catch(() => setValues([]))
+      .finally(() => setLoadingValues(false))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, field, needsValue])
+
+  const add = (value: string) => {
+    onAdd({ field, operator, value: needsValue ? value : undefined })
+    setOpen(false)
+    setVq('')
+  }
+  const filtered = values.filter((v) => (vq ? String(v.value).toLowerCase().includes(vq.toLowerCase()) : true))
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      >
+        <Filter size={12} /> {t('logExplorer.builder.add')}
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full z-30 mt-1 w-80 rounded-md border border-border bg-popover p-3 shadow-lg">
+          <div className="space-y-2">
+            <select value={field} onChange={(e) => setField(e.target.value)} className={cn(SELECT_CLS, 'w-full font-mono')}>
+              {selectable.map((f) => (
+                <option key={f.name} value={f.name}>{f.name}</option>
+              ))}
+            </select>
+            <select value={operator} onChange={(e) => setOperator(e.target.value as FilterOperator)} className={cn(SELECT_CLS, 'w-full')}>
+              {BUILDER_OPS.map((o) => (
+                <option key={o.id} value={o.id}>{t(`logExplorer.ops.${OP_KEY[o.id] ?? o.id}`)}</option>
+              ))}
+            </select>
+            {needsValue ? (
+              <>
+                <div className="relative">
+                  <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input value={vq} onChange={(e) => setVq(e.target.value)} placeholder={t('logExplorer.builder.filterValues')} className="h-8 pl-8 text-xs" autoFocus />
+                </div>
+                <div className="max-h-48 overflow-y-auto rounded-md border border-border">
+                  {loadingValues ? (
+                    <div className="flex items-center gap-1.5 px-3 py-3 text-xs text-muted-foreground"><Loader2 className="h-3.5 w-3.5 animate-spin" /> {t('logExplorer.builder.loadingValues')}</div>
+                  ) : filtered.length === 0 ? (
+                    <div className="px-3 py-3 text-xs text-muted-foreground">{t('logExplorer.builder.noValues')}</div>
+                  ) : (
+                    filtered.map((v) => (
+                      <button key={v.value} onClick={() => add(v.value)} className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-xs hover:bg-muted">
+                        <span className="truncate font-mono">{v.value || t('logExplorer.fields.empty')}</span>
+                        <span className="shrink-0 font-mono text-[10px] text-muted-foreground">{v.count.toLocaleString()}</span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-end gap-2 pt-1">
+                <Button variant="outline" size="sm" onClick={() => setOpen(false)}>{t('logExplorer.builder.cancel')}</Button>
+                <Button size="sm" onClick={() => add('')}>{t('logExplorer.builder.confirm')}</Button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }
 
 function FilterChips({
@@ -734,7 +763,9 @@ function FilterChips({
               {OP_KEY[f.operator] ? t(`logExplorer.ops.${OP_KEY[f.operator]}`) : f.operator}
             </span>
             {f.value != null && f.operator !== 'EXIST' && (
-              <span className="max-w-[220px] truncate font-mono font-medium">{String(f.value)}</span>
+              <span className="max-w-[220px] truncate font-mono font-medium">
+                {Array.isArray(f.value) ? t('logExplorer.related.nLogs', { count: f.value.length }) : String(f.value)}
+              </span>
             )}
             <button
               onClick={() => onRemove(i)}
@@ -993,232 +1024,6 @@ function FieldItem({
         </div>
       )}
     </div>
-  )
-}
-
-/* ─── Results table ────────────────────────────────────────────────────── */
-
-function gridTemplate(columns: string[]): string {
-  if (columns.length === 0) return '24px 4px 195px 150px minmax(0, 1fr)'
-  return `24px 4px 195px ${columns.map(() => 'minmax(140px, 1fr)').join(' ')}`
-}
-
-function colValue(flat: Record<string, unknown>, c: string): string {
-  const v = flat[c]
-  if (v == null || v === '') return '—'
-  if (c === TS) return shortTime(String(v))
-  return String(v)
-}
-
-function ResultsHeader({ columns, onRemoveColumn }: { columns: string[]; onRemoveColumn: (c: string) => void }) {
-  const { t } = useTranslation()
-  return (
-    <div
-      className="grid items-center gap-4 border-b border-border/70 bg-muted/20 px-5 py-2.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
-      style={{ gridTemplateColumns: gridTemplate(columns) }}
-    >
-      <div />
-      <div />
-      <div>{t('logExplorer.results.time')}</div>
-      {columns.length === 0 ? (
-        <>
-          <div>{t('logExplorer.results.source')}</div>
-          <div>{t('logExplorer.results.message')}</div>
-        </>
-      ) : (
-        columns.map((c) => (
-          <div key={c} className="group flex min-w-0 items-center gap-1">
-            <span className="truncate" title={c}>
-              {c.split('.').pop()}
-            </span>
-            <button
-              onClick={() => onRemoveColumn(c)}
-              title={t('logExplorer.results.removeColumn', { field: c })}
-              className="shrink-0 opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
-            >
-              <X size={11} />
-            </button>
-          </div>
-        ))
-      )}
-    </div>
-  )
-}
-
-function ResultRow({
-  doc,
-  columns,
-  expanded,
-  onToggle,
-  onAdd,
-}: {
-  doc: LogDocument
-  columns: string[]
-  expanded: boolean
-  onToggle: () => void
-  onAdd: (f: FilterType) => void
-}) {
-  const flat = useMemo(() => flattenDoc(doc), [doc])
-  const ts = (flat[TS] as string) ?? ''
-  const source = pick(flat, SRC_FIELDS) ?? '—'
-  const level = (pick(flat, LEVEL_FIELDS) ?? '').toLowerCase()
-  const tone = LEVEL_TONE[level] ?? { dot: 'bg-muted-foreground/50', tone: 'text-muted-foreground' }
-  const message = pick(flat, MSG_FIELDS)
-  const preview = useMemo(
-    () => (columns.length > 0 || message ? null : docPreview(flat)),
-    [columns.length, message, flat]
-  )
-
-  return (
-    <>
-      <div
-        onClick={onToggle}
-        className={cn(
-          'grid cursor-pointer items-center gap-4 border-b border-border/40 px-5 py-3 text-[13px] leading-relaxed transition-colors last:border-b-0',
-          expanded ? 'bg-muted/30' : 'hover:bg-muted/20'
-        )}
-        style={{ gridTemplateColumns: gridTemplate(columns) }}
-      >
-        <ChevronRight size={14} className={cn('text-muted-foreground/60 transition-transform', expanded && 'rotate-90 text-foreground')} />
-        <span className={cn('h-4 w-1 rounded-full', tone.dot)} />
-        <div className="font-mono tabular-nums text-muted-foreground">{ts ? shortTime(ts) : '—'}</div>
-        {columns.length > 0 ? (
-          columns.map((c) => (
-            <div key={c} className="truncate font-mono text-foreground/85" title={colValue(flat, c)}>
-              {colValue(flat, c)}
-            </div>
-          ))
-        ) : (
-          <>
-            <div className="truncate font-mono text-foreground/70">{source}</div>
-            {message ? (
-              <div className="truncate text-foreground">{message}</div>
-            ) : (
-              <div className="flex items-center overflow-hidden whitespace-nowrap">
-                {preview!.map(([k, v], idx) => (
-                  <span key={k} className="flex shrink-0 items-center">
-                    {idx > 0 && <span className="px-2.5 text-border">·</span>}
-                    <span className="text-muted-foreground">{k}</span>
-                    <span className="ml-1.5 font-mono text-foreground">{v}</span>
-                  </span>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-      </div>
-      {expanded && <ExpandedPanel flat={flat} doc={doc} onAdd={onAdd} />}
-    </>
-  )
-}
-
-type DetailTab = 'fields' | 'json'
-
-function ExpandedPanel({
-  flat,
-  doc,
-  onAdd,
-}: {
-  flat: Record<string, unknown>
-  doc: LogDocument
-  onAdd: (f: FilterType) => void
-}) {
-  const { t } = useTranslation()
-  const [tab, setTab] = useState<DetailTab>('fields')
-  const ts = (flat[TS] as string) ?? ''
-  const entries = Object.entries(flat).sort(([a], [b]) => a.localeCompare(b))
-
-  return (
-    <div className="border-b border-l-2 border-border/50 border-l-sky-500/50 bg-muted/15 last:border-b-0">
-      <div className="flex items-center justify-between gap-4 border-b border-border/40 px-5 py-2.5">
-        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-          {ts && <span className="font-mono">{absTimestamp(ts)}</span>}
-          <span className="font-mono">{t('logExplorer.detail.fieldsCount', { count: entries.length })}</span>
-        </div>
-        <button
-          onClick={() => {
-            void navigator.clipboard.writeText(JSON.stringify(doc, null, 2))
-            toast.success(t('logExplorer.detail.copied'))
-          }}
-          className="flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"
-        >
-          <Copy size={12} /> {t('logExplorer.detail.copyJson')}
-        </button>
-      </div>
-
-      <div className="flex items-center gap-4 border-b border-border/60 px-5">
-        <DetailTabBtn id="fields" current={tab} onChange={setTab}>
-          {t('logExplorer.detail.parsedFields')}
-        </DetailTabBtn>
-        <DetailTabBtn id="json" current={tab} onChange={setTab}>
-          {t('logExplorer.detail.json')}
-        </DetailTabBtn>
-      </div>
-
-      <div className="p-5">
-        {tab === 'fields' ? (
-          <div className="overflow-hidden rounded-md border border-border bg-card">
-            {entries.map(([k, v], i) => (
-              <div
-                key={k}
-                className={cn(
-                  'group grid grid-cols-[260px_1fr_60px] items-center gap-4 px-4 py-2 text-[13px] leading-relaxed hover:bg-muted/30',
-                  i < entries.length - 1 && 'border-b border-border/60'
-                )}
-              >
-                <div className="truncate font-mono text-xs text-muted-foreground">{k}</div>
-                <div className="break-all font-mono text-xs">{String(v)}</div>
-                <div className="flex justify-end gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                  <button
-                    title={t('logExplorer.detail.filterFor')}
-                    onClick={() => onAdd({ field: k, operator: 'IS', value: String(v) })}
-                    className="flex h-5 w-5 items-center justify-center rounded text-emerald-500 hover:bg-emerald-500/15"
-                  >
-                    <Plus size={10} />
-                  </button>
-                  <button
-                    title={t('logExplorer.detail.filterOut')}
-                    onClick={() => onAdd({ field: k, operator: 'IS_NOT', value: String(v) })}
-                    className="flex h-5 w-5 items-center justify-center rounded text-red-500 hover:bg-red-500/15"
-                  >
-                    <Minus size={10} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <pre className="overflow-x-auto rounded-md border border-border bg-card p-3 font-mono text-[11px] leading-relaxed">
-            {JSON.stringify(doc, null, 2)}
-          </pre>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function DetailTabBtn({
-  id,
-  current,
-  onChange,
-  children,
-}: {
-  id: DetailTab
-  current: DetailTab
-  onChange: (t: DetailTab) => void
-  children: React.ReactNode
-}) {
-  const active = id === current
-  return (
-    <button
-      onClick={() => onChange(id)}
-      className={cn(
-        'relative -mb-px border-b-2 py-2 text-xs transition-colors',
-        active ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'
-      )}
-    >
-      {children}
-    </button>
   )
 }
 

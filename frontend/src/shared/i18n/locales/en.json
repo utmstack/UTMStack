@@ -202,7 +202,8 @@
     "dateFormat": "Date Format",
     "language": "Language",
     "auditLogs": "App Audit Logs",
-    "about": "About"
+    "about": "About",
+    "socAi": "SOC-AI"
   },
   "topbar": {
     "theme": {
@@ -1113,7 +1114,8 @@
       "contains": "contains",
       "exists": "exists",
       "between": "between",
-      "search": "search"
+      "search": "search",
+      "isOneOf": "is one of"
     },
     "filters": {
       "label": "Filters",
@@ -1179,6 +1181,19 @@
     },
     "toast": {
       "exportFailed": "Export failed"
+    },
+    "builder": {
+      "add": "Add filter",
+      "filterValues": "Filter values…",
+      "loadingValues": "Loading values…",
+      "noValues": "No values found.",
+      "cancel": "Cancel",
+      "confirm": "Add"
+    },
+    "related": {
+      "nLogs_one": "{{count}} log",
+      "nLogs_other": "{{count}} logs",
+      "truncated": "Showing the first {{count}} related logs (the full set is larger)."
     }
   },
   "integrations": {
@@ -1381,15 +1396,54 @@
     "kpi": {
       "received": "Received",
       "dropped": "Dropped",
-      "dropRate": "{{rate}}% drop rate"
+      "dropRate": "{{rate}}% drop rate",
+      "stored": "Stored",
+      "throughput": "Throughput",
+      "perMin": "{{value}}/min",
+      "survival": "{{rate}}% kept"
     },
     "section": {
       "overTime": "Events over time",
       "top": "Top",
       "dropReasons": "Drop reasons"
+    },
+    "live": {
+      "auto": "Auto"
+    },
+    "pipeline": {
+      "title": "Ingestion pipeline",
+      "stages": {
+        "received": "Received",
+        "parsed": "Parsed",
+        "analyzed": "Analyzed",
+        "stored": "Stored"
+      }
+    },
+    "chart": {
+      "title": "Throughput over time",
+      "received": "Received",
+      "dropped": "Dropped"
+    },
+    "donut": {
+      "title": "Drop composition",
+      "dropped": "dropped"
+    },
+    "breakdown": {
+      "title": "Top sources & types",
+      "bars": "Bars",
+      "treemap": "Treemap",
+      "showAll": "Show all {{count}}",
+      "showLess": "Show less",
+      "lastSeen": "Last seen",
+      "ago": "{{time}} ago"
     }
   },
   "datasources": {
+    "limitBanner": {
+      "title": "Datasource limit exceeded.",
+      "message": "You have {{count}} datasources but your license covers {{limit}}. Logs from datasources beyond the limit are being dropped.",
+      "cta": "Manage license"
+    },
     "title": "Data sources",
     "total": "{{count}} total",
     "subtitle": "Agents, integrations and direct sources feeding events. Status is derived from the last time each source was seen.",
@@ -1491,6 +1545,476 @@
       "deleteFailed": "Failed to delete",
       "groupCreated": "Group created",
       "groupCreateFailed": "Failed to create group"
+    }
+  },
+  "adversaries": {
+    "title": "Adversary view",
+    "subtitle": "Every IP, host or user seen attacking your environment, with their techniques and targets.",
+    "countChip": "{{count}} adversaries",
+    "refresh": "Refresh",
+    "search": "Search by IP, host, user, country, ASO…",
+    "empty": "No adversaries match.",
+    "loadError": "Could not load adversaries.",
+    "retry": "Retry",
+    "views": {
+      "all": "All",
+      "high": "High severity",
+      "ip": "IPs",
+      "host": "Hosts",
+      "user": "Users"
+    },
+    "threat": {
+      "critical": "Critical",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "kind": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "User"
+    },
+    "layout": {
+      "list": "List",
+      "cards": "Cards"
+    },
+    "overview": {
+      "title": "Adversary activity · last 24 hours",
+      "high": "high severity",
+      "countries": "countries",
+      "alerts": "alerts",
+      "ago24": "24h ago",
+      "ago12": "12h ago",
+      "now": "now"
+    },
+    "col": {
+      "adversary": "Adversary",
+      "threat": "Threat",
+      "alerts": "Alerts",
+      "targets": "Targets",
+      "lastSeen": "Last seen"
+    },
+    "card": {
+      "alerts": "Alerts",
+      "techniques": "Techniques",
+      "targets": "Targets"
+    },
+    "tabs": {
+      "profile": "Profile",
+      "techniques": "Techniques",
+      "targets": "Targets",
+      "alerts": "Alerts"
+    },
+    "drawer": {
+      "activity": "Activity over 24 hours",
+      "identification": "Identification",
+      "kindLabel": "Type",
+      "identifier": "Identifier",
+      "firstSeen": "First seen",
+      "lastSeen": "Last seen",
+      "geolocation": "Geolocation",
+      "country": "Country",
+      "city": "City",
+      "topTechniques": "Top techniques",
+      "noTechniques": "No techniques recorded.",
+      "targets": "Targets",
+      "noTargets": "No targets recorded.",
+      "recentAlerts": "Recent alerts",
+      "noAlerts": "No alerts.",
+      "echoes": "{{count}} echoes"
+    },
+    "relative": {
+      "justNow": "just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
+    }
+  },
+  "timeRange": {
+    "quick": "Quick ranges",
+    "relative": "Relative",
+    "absolute": "Absolute",
+    "last": "Last",
+    "apply": "Apply",
+    "allTime": "All time",
+    "from": "From",
+    "to": "To",
+    "now": "now",
+    "units": {
+      "minutes": "minutes",
+      "hours": "hours",
+      "days": "days",
+      "weeks": "weeks",
+      "months": "months"
+    },
+    "presets": {
+      "15m": "Last 15 minutes",
+      "1h": "Last 1 hour",
+      "6h": "Last 6 hours",
+      "24h": "Last 24 hours",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days"
+    }
+  },
+  "socAi": {
+    "title": "SOC-AI Configuration",
+    "subtitle": "Configure the AI agent that triages alerts and powers the operations assistant.",
+    "section": {
+      "connection": "Model & connection",
+      "auth": "Authentication",
+      "behavior": "Alert triage behavior",
+      "advanced": "Advanced",
+      "capabilities": "Capabilities"
+    },
+    "provider": {
+      "label": "Provider",
+      "hint": "Selects the wire format. Anything other than Anthropic uses the OpenAI-compatible API."
+    },
+    "model": {
+      "label": "Model",
+      "hint": "Model identifier exposed by the provider.",
+      "customOption": "Custom model…",
+      "customPlaceholder": "Enter a model ID"
+    },
+    "url": {
+      "label": "API URL",
+      "hint": "Leave empty to use the provider's default endpoint."
+    },
+    "apiKey": {
+      "label": "API key",
+      "hint": "Credential sent to the provider.",
+      "setHint": "A key is stored. Leave blank to keep it."
+    },
+    "authType": {
+      "label": "Auth type",
+      "hint": "How the API key is sent (bearer header, a custom header, or none)."
+    },
+    "authHeaderName": {
+      "label": "Auth header name",
+      "hint": "Header carrying the key (e.g. api-key for Azure)."
+    },
+    "customHeaders": {
+      "label": "Custom headers (JSON)",
+      "hint": "Extra headers merged into every request. Values are encrypted; \"*****\" keeps the stored one."
+    },
+    "maxTokens": {
+      "label": "Max tokens",
+      "hint": "Maximum tokens per LLM response."
+    },
+    "maxToolIterations": {
+      "label": "Max tool iterations",
+      "hint": "Cap on the agent's plan -> tool -> observe loop."
+    },
+    "autoAnalyze": {
+      "label": "Auto-analyze alerts",
+      "hint": "Triage incoming alerts in real time."
+    },
+    "changeAlertStatus": {
+      "label": "Change alert status",
+      "hint": "Let the agent set an alert's status during triage."
+    },
+    "automaticIncidentCreation": {
+      "label": "Create incidents",
+      "hint": "Let the agent open incidents from triaged alerts."
+    },
+    "allowedWriteTools": {
+      "label": "Allowed write tools",
+      "hint": "One MCP tool name per line the triage agent may use (e.g. alerts.update_status). Notes are always allowed."
+    },
+    "save": "Save configuration",
+    "saving": "Verifying & saving...",
+    "saved": "SOC-AI configuration saved",
+    "saveError": "Failed to save configuration",
+    "loadError": "Failed to load configuration",
+    "modelRequired": "Model is required",
+    "invalidHeaders": "Custom headers must be a valid JSON object",
+    "applyTags": {
+      "label": "Apply tags",
+      "hint": "Let the agent tag alerts during triage."
+    },
+    "capsCaption": "Read access is always on. Choose what the agent may change — during triage and in chat. Anything left off, the agent will decline and point the user back here.",
+    "note": {
+      "azure": "Paste your full Azure deployment endpoint as the URL; the model is your deployment name. Auth uses the api-key header.",
+      "ollama": "Point the URL at your Ollama host. No API key is needed for a local instance.",
+      "custom": "Any OpenAI-compatible endpoint. Set the URL, auth and any extra headers your gateway needs."
+    },
+    "cap": {
+      "alerts": {
+        "label": "Manage alerts",
+        "hint": "Change status, apply tags, add notes, manage tag rules."
+      },
+      "incidents": {
+        "label": "Manage incidents",
+        "hint": "Create incidents, add alerts, change status, add notes."
+      },
+      "dashboards": {
+        "label": "Manage dashboards",
+        "hint": "Create and edit dashboards."
+      },
+      "compliance": {
+        "label": "Manage compliance",
+        "hint": "Manage frameworks and generate reports."
+      },
+      "correlation": {
+        "label": "Manage correlation rules",
+        "hint": "Create and edit correlation & event-processing rules."
+      },
+      "datasources": {
+        "label": "Manage data sources",
+        "hint": "Edit data source groups and labels."
+      }
+    },
+    "chat": {
+      "title": "SOC Assistant",
+      "empty": "Ask anything about your alerts, detections or the console — I can investigate and act on the SIEM.",
+      "tryPrefix": "Try",
+      "suggestion": "how many open alerts, grouped by adversary?",
+      "placeholder": "Ask a question…",
+      "floatingPlaceholder": "Ask the SOC assistant…",
+      "send": "Send",
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "clear": "Clear conversation",
+      "close": "Close",
+      "copy": "Copy",
+      "copied": "Copied",
+      "errorGeneric": "Something went wrong.",
+      "errorUnreachable": "Failed to reach the assistant."
+    }
+  },
+  "alerts": {
+    "title": "Alerts",
+    "matching": "{{count}} matching",
+    "subtitle": "Triage what matters.",
+    "openNow": "open right now.",
+    "view": {
+      "alerts": "Alerts",
+      "overview": "Overview"
+    },
+    "toolbar": {
+      "searchPlaceholder": "Search by alert name…",
+      "allSeverities": "All severities",
+      "export": "Export CSV",
+      "refresh": "Refresh"
+    },
+    "severity": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "status": {
+      "open": "Open",
+      "in_review": "In review",
+      "completed": "Completed",
+      "auto": "Automatic review"
+    },
+    "statusTabs": {
+      "all": "All"
+    },
+    "overview": {
+      "overTime": "Alerts over time",
+      "matchingAlerts": "matching alerts",
+      "noData": "No data.",
+      "bySeverity": "By severity",
+      "byStatus": "By status"
+    },
+    "filters": {
+      "add": "Add filter",
+      "clearAll": "Clear all",
+      "filterValues": "Filter values…",
+      "loadingValues": "Loading values…",
+      "noValues": "No values found.",
+      "pickValue": "Pick a value to add the filter.",
+      "empty": "(empty)",
+      "cancel": "Cancel",
+      "addBtn": "Add"
+    },
+    "ops": {
+      "CONTAIN": "contains",
+      "IS": "is",
+      "IS_NOT": "is not",
+      "EXIST": "exists",
+      "DOES_NOT_EXIST": "does not exist"
+    },
+    "fields": {
+      "assetGroupName": "Datasource group",
+      "category": "Category",
+      "dataSource": "Sensor",
+      "tags": "Tags",
+      "incidentDetail_incidentName": "Incident name",
+      "impact_availability": "Availability",
+      "impact_confidentiality": "Confidentiality",
+      "impact_integrity": "Integrity",
+      "protocol": "Protocol",
+      "adversary_ip": "Adversary IP",
+      "adversary_domain": "Adversary domain",
+      "adversary_url": "Adversary URL",
+      "adversary_geolocation_asn": "Adversary ASN",
+      "adversary_geolocation_aso": "Adversary ASO",
+      "target_ip": "Target IP",
+      "target_domain": "Target domain",
+      "target_url": "Target URL",
+      "target_geolocation_asn": "Target ASN",
+      "target_geolocation_aso": "Target ASO"
+    },
+    "tagFilter": {
+      "tags": "Tags",
+      "tag_one": "{{count}} tag",
+      "tag_other": "{{count}} tags",
+      "clearSelection": "Clear selection",
+      "noTags": "No tags"
+    },
+    "bulk": {
+      "selected": "{{count}} selected",
+      "setStatus": "Set status",
+      "addTag": "Add tag",
+      "noTags": "No tags",
+      "addToIncident": "Add to incident",
+      "clear": "Clear"
+    },
+    "tagEditor": {
+      "tag": "Tag",
+      "noTagsYet": "No tags yet",
+      "createTag": "Create tag",
+      "newTagName": "New tag name…",
+      "createApply": "Create and apply tag",
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit tag",
+      "delete": "Delete tag",
+      "systemLocked": "System tag (locked)",
+      "alreadyExists": "That tag already exists.",
+      "color": "Color {{color}}"
+    },
+    "table": {
+      "alert": "Alert",
+      "status": "Status",
+      "technique": "Technique",
+      "sourceAdversary": "Source → Adversary",
+      "risk": "Risk",
+      "time": "Time"
+    },
+    "list": {
+      "loading": "Loading alerts…",
+      "loadError": "Could not load alerts.",
+      "retry": "Retry",
+      "empty": "No alerts match this view."
+    },
+    "badge": {
+      "incident": "Incident",
+      "aiAssessed": "AI assessed"
+    },
+    "drawer": {
+      "setStatus": "Set status",
+      "completeFalsePositive": "Complete + false positive",
+      "addToIncident": "Add to incident",
+      "partOfIncident": "Part of an incident",
+      "tabs": {
+        "summary": "Summary",
+        "parties": "Parties",
+        "events": "Events",
+        "history": "History"
+      },
+      "section": {
+        "description": "Description",
+        "solution": "Solution",
+        "references": "References",
+        "details": "Details",
+        "yourNotes": "Your notes",
+        "notes": "Notes"
+      },
+      "details": {
+        "risk": "Risk",
+        "category": "Category",
+        "technique": "Technique",
+        "sensor": "Sensor",
+        "dataType": "Data type",
+        "alertId": "Alert ID",
+        "statusNote": "Status note"
+      },
+      "incidentDetail": {
+        "incident": "Incident",
+        "id": "ID",
+        "createdBy": "Created by",
+        "created": "Created"
+      },
+      "notesPlaceholder": "Add investigation notes…",
+      "saveNotes": "Save notes"
+    },
+    "related": {
+      "sample": "A sample of up to ~11 events the engine stored on this alert. Use “View all related logs” for the full, uncapped set.",
+      "empty": "No sampled events stored on this alert. Load the full correlated set in the Log Explorer.",
+      "viewAll": "View all related logs"
+    },
+    "party": {
+      "source": "Source / target",
+      "adversary": "Adversary",
+      "noData": "No data.",
+      "ip": "IP",
+      "host": "Host",
+      "user": "User",
+      "domain": "Domain",
+      "country": "Country"
+    },
+    "history": {
+      "empty": "No history recorded.",
+      "by": "by {{user}}",
+      "actions": {
+        "UPDATE_STATUS": "Status updated",
+        "UPDATE_TAGS": "Tags updated",
+        "UPDATE_NOTES": "Notes updated",
+        "UPDATE_SOLUTION": "Solution updated",
+        "MARK_AS_INCIDENT": "Marked as incident"
+      },
+      "detail": {
+        "statusTo": "Status → {{status}}",
+        "tags": "Tags: {{tags}}",
+        "aiAdded": "AI assessment added",
+        "observationAdded": "Observation added",
+        "notesUpdated": "Notes updated"
+      }
+    },
+    "ai": {
+      "title": "SOC AI assessment",
+      "risk": "{{risk}} risk",
+      "score": "{{score}}/100"
+    },
+    "incident": {
+      "titleAdd_one": "Add {{count}} alert to an incident",
+      "titleAdd_other": "Add {{count}} alerts to an incident",
+      "new": "New incident",
+      "existing": "Existing incident",
+      "nameLabel": "Incident name",
+      "namePlaceholder": "e.g. Suspected Scattered Spider intrusion",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Optional summary…",
+      "pickLabel": "Pick an incident",
+      "loading": "Loading…",
+      "selectPlaceholder": "Select an incident…",
+      "willLink_one": "{{count}} alert will be linked.",
+      "willLink_other": "{{count}} alerts will be linked.",
+      "cancel": "Cancel",
+      "create": "Create incident",
+      "add": "Add to incident"
+    },
+    "toast": {
+      "statusUpdated": "Status updated",
+      "statusFailed": "Failed to update status",
+      "tagsUpdated": "Tags updated",
+      "tagsFailed": "Failed to update tags",
+      "tagCreateFailed": "Failed to create tag",
+      "tagUpdated": "Tag updated",
+      "tagUpdateFailed": "Failed to update tag",
+      "tagDeleted": "Tag deleted",
+      "tagDeleteFailed": "Failed to delete tag",
+      "notesSaved": "Notes saved",
+      "notesFailed": "Failed to save notes",
+      "exportFailed": "Failed to export CSV",
+      "noRelatedLogs": "No related logs found for this alert",
+      "relatedLogsFailed": "Failed to load related logs",
+      "incidentCreated": "Incident created",
+      "alertsAdded": "Alerts added to incident",
+      "incidentFailed": "Failed to save incident"
     }
   }
 }

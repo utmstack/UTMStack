@@ -25,6 +25,7 @@ import { IndicesPage } from '@/features/settings/pages/IndicesPage'
 import { BrandingPage } from '@/features/branding'
 import { IdentityProvidersPage } from '@/features/settings/pages/IdentityProvidersPage'
 import { EmailConfigurationPage } from '@/features/settings/pages/EmailConfigurationPage'
+import { SocAiSettingsPage } from '@/features/settings/pages/SocAiSettingsPage'
 import { DateFormatPage } from '@/features/settings/pages/DateFormatPage'
 import { LanguagePage } from '@/features/settings/pages/LanguagePage'
 import { AboutPage } from '@/features/settings/pages/AboutPage'
@@ -97,6 +98,7 @@ export function AppRoutes() {
         <Route path="settings/api-keys" element={<Navigate to="/profile" replace />} />
         <Route path="settings/identity-providers" element={<IdentityProvidersPage />} />
         <Route path="settings/email" element={<EmailConfigurationPage />} />
+        <Route path="settings/soc-ai" element={<SocAiSettingsPage />} />
         <Route path="settings/date-format" element={<DateFormatPage />} />
         <Route path="settings/language" element={<LanguagePage />} />
         <Route path="settings/audit-logs" element={<AuditPage />} />

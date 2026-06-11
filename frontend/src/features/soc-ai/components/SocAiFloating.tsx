@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ArrowUp, Sparkles } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useSocAi } from '../SocAiProvider'
 
 /** Always-visible chat pill, centered at the bottom. Submitting opens the panel. */
 export function SocAiFloating() {
+  const { t } = useTranslation()
   const { open, submit } = useSocAi()
   const [value, setValue] = useState('')
 
@@ -30,13 +32,13 @@ export function SocAiFloating() {
         <input
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="Ask the SOC assistant…"
-          aria-label="Ask the SOC assistant"
+          placeholder={t('socAi.chat.floatingPlaceholder')}
+          aria-label={t('socAi.chat.floatingPlaceholder')}
           className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
         />
         <button
           type="submit"
-          aria-label="Send"
+          aria-label={t('socAi.chat.send')}
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity hover:opacity-90 active:scale-95"
         >
           <ArrowUp size={15} strokeWidth={2.5} />

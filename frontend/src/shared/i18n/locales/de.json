@@ -1113,7 +1113,8 @@
       "contains": "enthält",
       "exists": "existiert",
       "between": "zwischen",
-      "search": "sucht"
+      "search": "sucht",
+      "isOneOf": "ist eines von"
     },
     "filters": {
       "label": "Filter",
@@ -1179,6 +1180,19 @@
     },
     "toast": {
       "exportFailed": "Export fehlgeschlagen"
+    },
+    "builder": {
+      "add": "Filter hinzufügen",
+      "filterValues": "Werte filtern…",
+      "loadingValues": "Werte werden geladen…",
+      "noValues": "Keine Werte gefunden.",
+      "cancel": "Abbrechen",
+      "confirm": "Hinzufügen"
+    },
+    "related": {
+      "nLogs_one": "{{count}} Log",
+      "nLogs_other": "{{count}} Logs",
+      "truncated": "Zeige die ersten {{count}} zugehörigen Logs (die vollständige Menge ist größer)."
     }
   },
   "integrations": {
@@ -1381,15 +1395,54 @@
     "kpi": {
       "received": "Empfangen",
       "dropped": "Verworfen",
-      "dropRate": "{{rate}}% Verwurfsrate"
+      "dropRate": "{{rate}}% Verwurfsrate",
+      "stored": "Gespeichert",
+      "throughput": "Durchsatz",
+      "perMin": "{{value}}/min",
+      "survival": "{{rate}}% behalten"
     },
     "section": {
       "overTime": "Ereignisse im Zeitverlauf",
       "top": "Top",
       "dropReasons": "Verwurfsgründe"
+    },
+    "live": {
+      "auto": "Auto"
+    },
+    "pipeline": {
+      "title": "Ingestion-Pipeline",
+      "stages": {
+        "received": "Empfangen",
+        "parsed": "Geparst",
+        "analyzed": "Analysiert",
+        "stored": "Gespeichert"
+      }
+    },
+    "chart": {
+      "title": "Durchsatz über Zeit",
+      "received": "Empfangen",
+      "dropped": "Verworfen"
+    },
+    "donut": {
+      "title": "Verwurf-Zusammensetzung",
+      "dropped": "verworfen"
+    },
+    "breakdown": {
+      "title": "Top-Quellen & -Typen",
+      "bars": "Balken",
+      "treemap": "Treemap",
+      "showAll": "Alle {{count}} anzeigen",
+      "showLess": "Weniger anzeigen",
+      "lastSeen": "Zuletzt gesehen",
+      "ago": "vor {{time}}"
     }
   },
   "datasources": {
+    "limitBanner": {
+      "title": "Datenquellen-Limit überschritten.",
+      "message": "Sie haben {{count}} Datenquellen, aber Ihre Lizenz deckt {{limit}} ab. Logs von Datenquellen über dem Limit werden verworfen.",
+      "cta": "Lizenz verwalten"
+    },
     "title": "Datenquellen",
     "total": "{{count}} insgesamt",
     "subtitle": "Agenten, Integrationen und direkte Quellen, die Ereignisse einspeisen. Der Status wird aus dem letzten Mal abgeleitet, an dem jede Quelle gesehen wurde.",
@@ -1491,6 +1544,350 @@
       "deleteFailed": "Löschen fehlgeschlagen",
       "groupCreated": "Gruppe erstellt",
       "groupCreateFailed": "Gruppe konnte nicht erstellt werden"
+    }
+  },
+  "adversaries": {
+    "title": "Angreifer-Ansicht",
+    "subtitle": "Jede IP, jeder Host oder Benutzer, der Ihre Umgebung angreift, mit Techniken und Zielen.",
+    "countChip": "{{count}} Angreifer",
+    "refresh": "Aktualisieren",
+    "search": "Nach IP, Host, Benutzer, Land, ASO suchen…",
+    "empty": "Keine Angreifer gefunden.",
+    "loadError": "Angreifer konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "views": {
+      "all": "Alle",
+      "high": "Hohe Schwere",
+      "ip": "IPs",
+      "host": "Hosts",
+      "user": "Benutzer"
+    },
+    "threat": {
+      "critical": "Kritisch",
+      "high": "Hoch",
+      "medium": "Mittel",
+      "low": "Niedrig"
+    },
+    "kind": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "Benutzer"
+    },
+    "layout": {
+      "list": "Liste",
+      "cards": "Karten"
+    },
+    "overview": {
+      "title": "Angreifer-Aktivität · letzte 24 Stunden",
+      "high": "hohe Schwere",
+      "countries": "Länder",
+      "alerts": "Alarme",
+      "ago24": "vor 24h",
+      "ago12": "vor 12h",
+      "now": "jetzt"
+    },
+    "col": {
+      "adversary": "Angreifer",
+      "threat": "Bedrohung",
+      "alerts": "Alarme",
+      "targets": "Ziele",
+      "lastSeen": "Zuletzt gesehen"
+    },
+    "card": {
+      "alerts": "Alarme",
+      "techniques": "Techniken",
+      "targets": "Ziele"
+    },
+    "tabs": {
+      "profile": "Profil",
+      "techniques": "Techniken",
+      "targets": "Ziele",
+      "alerts": "Alarme"
+    },
+    "drawer": {
+      "activity": "Aktivität in 24 Stunden",
+      "identification": "Identifikation",
+      "kindLabel": "Typ",
+      "identifier": "Bezeichner",
+      "firstSeen": "Zuerst gesehen",
+      "lastSeen": "Zuletzt gesehen",
+      "geolocation": "Geolokalisierung",
+      "country": "Land",
+      "city": "Stadt",
+      "topTechniques": "Top-Techniken",
+      "noTechniques": "Keine Techniken erfasst.",
+      "targets": "Ziele",
+      "noTargets": "Keine Ziele erfasst.",
+      "recentAlerts": "Aktuelle Alarme",
+      "noAlerts": "Keine Alarme.",
+      "echoes": "{{count}} Wiederholungen"
+    },
+    "relative": {
+      "justNow": "gerade eben",
+      "minutesAgo": "vor {{count}}m",
+      "hoursAgo": "vor {{count}}h",
+      "daysAgo": "vor {{count}}T"
+    }
+  },
+  "timeRange": {
+    "quick": "Schnellbereiche",
+    "relative": "Relativ",
+    "absolute": "Absolut",
+    "last": "Letzte",
+    "apply": "Anwenden",
+    "allTime": "Gesamter Zeitraum",
+    "from": "Von",
+    "to": "Bis",
+    "now": "jetzt",
+    "units": {
+      "minutes": "Minuten",
+      "hours": "Stunden",
+      "days": "Tage",
+      "weeks": "Wochen",
+      "months": "Monate"
+    },
+    "presets": {
+      "15m": "Letzte 15 Minuten",
+      "1h": "Letzte Stunde",
+      "6h": "Letzte 6 Stunden",
+      "24h": "Letzte 24 Stunden",
+      "7d": "Letzte 7 Tage",
+      "30d": "Letzte 30 Tage"
+    }
+  },
+  "alerts": {
+    "title": "Warnungen",
+    "matching": "{{count}} Treffer",
+    "subtitle": "Priorisiere, was zählt.",
+    "openNow": "derzeit offen.",
+    "view": {
+      "alerts": "Warnungen",
+      "overview": "Übersicht"
+    },
+    "toolbar": {
+      "searchPlaceholder": "Nach Warnungsnamen suchen…",
+      "allSeverities": "Alle Schweregrade",
+      "export": "CSV exportieren",
+      "refresh": "Aktualisieren"
+    },
+    "severity": {
+      "high": "Hoch",
+      "medium": "Mittel",
+      "low": "Niedrig"
+    },
+    "status": {
+      "open": "Offen",
+      "in_review": "In Prüfung",
+      "completed": "Abgeschlossen",
+      "auto": "Automatische Prüfung"
+    },
+    "statusTabs": {
+      "all": "Alle"
+    },
+    "overview": {
+      "overTime": "Warnungen im Zeitverlauf",
+      "matchingAlerts": "passende Warnungen",
+      "noData": "Keine Daten.",
+      "bySeverity": "Nach Schweregrad",
+      "byStatus": "Nach Status"
+    },
+    "filters": {
+      "add": "Filter hinzufügen",
+      "clearAll": "Alle löschen",
+      "filterValues": "Werte filtern…",
+      "loadingValues": "Werte werden geladen…",
+      "noValues": "Keine Werte gefunden.",
+      "pickValue": "Wähle einen Wert, um den Filter hinzuzufügen.",
+      "empty": "(leer)",
+      "cancel": "Abbrechen",
+      "addBtn": "Hinzufügen"
+    },
+    "ops": {
+      "CONTAIN": "enthält",
+      "IS": "ist",
+      "IS_NOT": "ist nicht",
+      "EXIST": "existiert",
+      "DOES_NOT_EXIST": "existiert nicht"
+    },
+    "fields": {
+      "assetGroupName": "Datenquellengruppe",
+      "category": "Kategorie",
+      "dataSource": "Sensor",
+      "tags": "Tags",
+      "incidentDetail_incidentName": "Vorfallsname",
+      "impact_availability": "Verfügbarkeit",
+      "impact_confidentiality": "Vertraulichkeit",
+      "impact_integrity": "Integrität",
+      "protocol": "Protokoll",
+      "adversary_ip": "Angreifer-IP",
+      "adversary_domain": "Angreifer-Domain",
+      "adversary_url": "Angreifer-URL",
+      "adversary_geolocation_asn": "Angreifer-ASN",
+      "adversary_geolocation_aso": "Angreifer-ASO",
+      "target_ip": "Ziel-IP",
+      "target_domain": "Ziel-Domain",
+      "target_url": "Ziel-URL",
+      "target_geolocation_asn": "Ziel-ASN",
+      "target_geolocation_aso": "Ziel-ASO"
+    },
+    "tagFilter": {
+      "tags": "Tags",
+      "tag_one": "{{count}} Tag",
+      "tag_other": "{{count}} Tags",
+      "clearSelection": "Auswahl löschen",
+      "noTags": "Keine Tags"
+    },
+    "bulk": {
+      "selected": "{{count}} ausgewählt",
+      "setStatus": "Status setzen",
+      "addTag": "Tag hinzufügen",
+      "noTags": "Keine Tags",
+      "addToIncident": "Zu Vorfall hinzufügen",
+      "clear": "Löschen"
+    },
+    "tagEditor": {
+      "tag": "Tag",
+      "noTagsYet": "Noch keine Tags",
+      "createTag": "Tag erstellen",
+      "newTagName": "Neuer Tag-Name…",
+      "createApply": "Tag erstellen und anwenden",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "edit": "Tag bearbeiten",
+      "delete": "Tag löschen",
+      "systemLocked": "System-Tag (gesperrt)",
+      "alreadyExists": "Dieses Tag existiert bereits.",
+      "color": "Farbe {{color}}"
+    },
+    "table": {
+      "alert": "Warnung",
+      "status": "Status",
+      "technique": "Technik",
+      "sourceAdversary": "Quelle → Angreifer",
+      "risk": "Risiko",
+      "time": "Zeit"
+    },
+    "list": {
+      "loading": "Warnungen werden geladen…",
+      "loadError": "Warnungen konnten nicht geladen werden.",
+      "retry": "Erneut versuchen",
+      "empty": "Keine Warnung entspricht dieser Ansicht."
+    },
+    "badge": {
+      "incident": "Vorfall",
+      "aiAssessed": "KI-bewertet"
+    },
+    "drawer": {
+      "setStatus": "Status setzen",
+      "completeFalsePositive": "Abschließen + Fehlalarm",
+      "addToIncident": "Zu Vorfall hinzufügen",
+      "partOfIncident": "Teil eines Vorfalls",
+      "tabs": {
+        "summary": "Zusammenfassung",
+        "parties": "Beteiligte",
+        "events": "Ereignisse",
+        "history": "Verlauf"
+      },
+      "section": {
+        "description": "Beschreibung",
+        "solution": "Lösung",
+        "references": "Referenzen",
+        "details": "Details",
+        "yourNotes": "Deine Notizen",
+        "notes": "Notizen"
+      },
+      "details": {
+        "risk": "Risiko",
+        "category": "Kategorie",
+        "technique": "Technik",
+        "sensor": "Sensor",
+        "dataType": "Datentyp",
+        "alertId": "Warnungs-ID",
+        "statusNote": "Statusnotiz"
+      },
+      "incidentDetail": {
+        "incident": "Vorfall",
+        "id": "ID",
+        "createdBy": "Erstellt von",
+        "created": "Erstellt"
+      },
+      "notesPlaceholder": "Untersuchungsnotizen hinzufügen…",
+      "saveNotes": "Notizen speichern"
+    },
+    "related": {
+      "sample": "Eine Stichprobe von bis zu ~11 Ereignissen, die die Engine zu dieser Warnung gespeichert hat. Verwende „Alle zugehörigen Logs anzeigen“ für den vollständigen, unbegrenzten Satz.",
+      "empty": "Keine Beispielereignisse zu dieser Warnung gespeichert. Lade den vollständigen korrelierten Satz im Log-Explorer.",
+      "viewAll": "Alle zugehörigen Logs anzeigen"
+    },
+    "party": {
+      "source": "Quelle / Ziel",
+      "adversary": "Angreifer",
+      "noData": "Keine Daten.",
+      "ip": "IP",
+      "host": "Host",
+      "user": "Benutzer",
+      "domain": "Domain",
+      "country": "Land"
+    },
+    "history": {
+      "empty": "Kein Verlauf aufgezeichnet.",
+      "by": "von {{user}}",
+      "actions": {
+        "UPDATE_STATUS": "Status aktualisiert",
+        "UPDATE_TAGS": "Tags aktualisiert",
+        "UPDATE_NOTES": "Notizen aktualisiert",
+        "UPDATE_SOLUTION": "Lösung aktualisiert",
+        "MARK_AS_INCIDENT": "Als Vorfall markiert"
+      },
+      "detail": {
+        "statusTo": "Status → {{status}}",
+        "tags": "Tags: {{tags}}",
+        "aiAdded": "KI-Bewertung hinzugefügt",
+        "observationAdded": "Beobachtung hinzugefügt",
+        "notesUpdated": "Notizen aktualisiert"
+      }
+    },
+    "ai": {
+      "title": "SOC-KI-Bewertung",
+      "risk": "{{risk}} Risiko",
+      "score": "{{score}}/100"
+    },
+    "incident": {
+      "titleAdd_one": "{{count}} Warnung zu einem Vorfall hinzufügen",
+      "titleAdd_other": "{{count}} Warnungen zu einem Vorfall hinzufügen",
+      "new": "Neuer Vorfall",
+      "existing": "Vorhandener Vorfall",
+      "nameLabel": "Vorfallsname",
+      "namePlaceholder": "z. B. Vermuteter Scattered-Spider-Einbruch",
+      "descriptionLabel": "Beschreibung",
+      "descriptionPlaceholder": "Optionale Zusammenfassung…",
+      "pickLabel": "Vorfall auswählen",
+      "loading": "Wird geladen…",
+      "selectPlaceholder": "Vorfall auswählen…",
+      "willLink_one": "{{count}} Warnung wird verknüpft.",
+      "willLink_other": "{{count}} Warnungen werden verknüpft.",
+      "cancel": "Abbrechen",
+      "create": "Vorfall erstellen",
+      "add": "Zu Vorfall hinzufügen"
+    },
+    "toast": {
+      "statusUpdated": "Status aktualisiert",
+      "statusFailed": "Status konnte nicht aktualisiert werden",
+      "tagsUpdated": "Tags aktualisiert",
+      "tagsFailed": "Tags konnten nicht aktualisiert werden",
+      "tagCreateFailed": "Tag konnte nicht erstellt werden",
+      "tagUpdated": "Tag aktualisiert",
+      "tagUpdateFailed": "Tag konnte nicht aktualisiert werden",
+      "tagDeleted": "Tag gelöscht",
+      "tagDeleteFailed": "Tag konnte nicht gelöscht werden",
+      "notesSaved": "Notizen gespeichert",
+      "notesFailed": "Notizen konnten nicht gespeichert werden",
+      "exportFailed": "CSV-Export fehlgeschlagen",
+      "noRelatedLogs": "Keine zugehörigen Logs für diese Warnung gefunden",
+      "relatedLogsFailed": "Zugehörige Logs konnten nicht geladen werden",
+      "incidentCreated": "Vorfall erstellt",
+      "alertsAdded": "Warnungen zum Vorfall hinzugefügt",
+      "incidentFailed": "Vorfall konnte nicht gespeichert werden"
     }
   }
 }

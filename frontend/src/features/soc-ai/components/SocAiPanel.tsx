@@ -1,10 +1,26 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowUp, Check, Copy, Maximize2, Minimize2, Sparkles, Trash2, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { AlertCircle, ArrowUp, ArrowUpRight, Check, Copy, Loader2, Maximize2, Minimize2, Sparkles, Trash2, Wrench, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
-import { useSocAi, type SocAiMessage } from '../SocAiProvider'
+import { useSocAi, type SocAiMessage, type ToolStep } from '../SocAiProvider'
+import type { NavAction } from '../lib/chat-stream'
 import { MarkdownMessage } from './MarkdownMessage'
 
+// Logical navigation destinations the agent may emit → app routes. Filters/time
+// travel in router state for the target page to apply (where supported).
+const DEST_ROUTE: Record<string, string> = {
+  'log-explorer': '/log-explorer',
+  alerts: '/threat-management/alerts',
+  incidents: '/threat-management/incidents',
+  adversaries: '/threat-management/adversaries',
+  compliance: '/compliance',
+  datasources: '/datasources',
+  dashboards: '/home',
+}
+
 export function SocAiPanel() {
+  const { t } = useTranslation()
   const { open, expanded, messages, closePanel, toggleExpand, clear, submit } = useSocAi()
   const [draft, setDraft] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -33,19 +49,16 @@ export function SocAiPanel() {
       <header className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2 text-[15px] font-semibold">
           <Sparkles size={18} className="text-primary" />
-          <span>SOC Assistant</span>
-          <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-            mock
-          </span>
+          <span>{t('socAi.chat.title')}</span>
         </div>
         <div className="flex items-center gap-0.5">
-          <IconBtn label={expanded ? 'Collapse' : 'Expand'} onClick={toggleExpand}>
+          <IconBtn label={expanded ? t('socAi.chat.collapse') : t('socAi.chat.expand')} onClick={toggleExpand}>
             {expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
           </IconBtn>
-          <IconBtn label="Clear conversation" onClick={clear}>
+          <IconBtn label={t('socAi.chat.clear')} onClick={clear}>
             <Trash2 size={16} />
           </IconBtn>
-          <IconBtn label="Close" onClick={closePanel}>
+          <IconBtn label={t('socAi.chat.close')} onClick={closePanel}>
             <X size={18} />
           </IconBtn>
         </div>
@@ -55,9 +68,9 @@ export function SocAiPanel() {
         {messages.length === 0 ? (
           <div className="m-auto max-w-[260px] text-center text-sm text-muted-foreground">
             <Sparkles size={22} className="mx-auto mb-3 text-primary/70" />
-            <p>Ask anything about your alerts, detections or the console.</p>
+            <p>{t('socAi.chat.empty')}</p>
             <p className="mt-3 text-xs">
-              Try <span className="text-foreground">“how does an alert become an incident?”</span>
+              {t('socAi.chat.tryPrefix')} <span className="text-foreground">“{t('socAi.chat.suggestion')}”</span>
             </p>
           </div>
         ) : (
@@ -77,13 +90,13 @@ export function SocAiPanel() {
               }
             }}
             rows={1}
-            placeholder="Ask a question…"
+            placeholder={t('socAi.chat.placeholder')}
             className="max-h-40 w-full resize-none bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
           <button
             type="button"
             onClick={send}
-            aria-label="Send"
+            aria-label={t('socAi.chat.send')}
             className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground transition-opacity hover:opacity-90 active:scale-95"
           >
             <ArrowUp size={16} strokeWidth={2.5} />
@@ -102,16 +115,75 @@ function MessageRow({ message }: { message: SocAiMessage }) {
       </div>
     )
   }
+
+  const hasSteps = (message.steps?.length ?? 0) > 0
   return (
     <div className="self-stretch">
-      {message.pending ? (
+      {hasSteps && <Steps steps={message.steps!} />}
+      {message.pending && !message.text ? (
         <TypingDots />
+      ) : message.error ? (
+        <div className="flex items-start gap-2 rounded-md border border-red-500/30 bg-red-500/5 px-3 py-2 text-xs text-red-600 dark:text-red-300">
+          <AlertCircle size={14} className="mt-0.5 shrink-0" />
+          <span>{message.text}</span>
+        </div>
       ) : (
         <>
           <MarkdownMessage text={message.text} />
+          {message.actions && message.actions.length > 0 && <Actions actions={message.actions} />}
           <CopyButton text={message.text} />
         </>
       )}
+    </div>
+  )
+}
+
+function Steps({ steps }: { steps: ToolStep[] }) {
+  return (
+    <div className="mb-2 space-y-1 rounded-md border border-border bg-muted/30 px-2.5 py-2">
+      {steps.map((s, i) => (
+        <div key={i} className="flex items-center gap-2 text-[11px] text-muted-foreground">
+          {s.status === 'running' ? (
+            <Loader2 size={12} className="shrink-0 animate-spin" />
+          ) : s.status === 'error' ? (
+            <X size={12} className="shrink-0 text-red-500" />
+          ) : (
+            <Check size={12} className="shrink-0 text-emerald-500" />
+          )}
+          <Wrench size={11} className="shrink-0 opacity-60" />
+          <span className="truncate font-mono">{s.tool}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function Actions({ actions }: { actions: NavAction[] }) {
+  const navigate = useNavigate()
+  const { closePanel } = useSocAi()
+
+  const go = (a: NavAction) => {
+    const route = DEST_ROUTE[a.destination]
+    if (!route) return
+    closePanel()
+    navigate(route, { state: { socaiFilters: a.filters ?? [], socaiTime: a.time } })
+  }
+
+  return (
+    <div className="mt-3 flex flex-wrap gap-2">
+      {actions
+        .filter((a) => DEST_ROUTE[a.destination])
+        .map((a, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => go(a)}
+            className="inline-flex items-center gap-1.5 rounded-md border border-primary/40 bg-primary/5 px-2.5 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
+          >
+            {a.label || 'Open'}
+            <ArrowUpRight size={13} />
+          </button>
+        ))}
     </div>
   )
 }
@@ -131,6 +203,7 @@ function TypingDots() {
 }
 
 function CopyButton({ text }: { text: string }) {
+  const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
   const copy = () => {
     void navigator.clipboard?.writeText(text)
@@ -147,7 +220,7 @@ function CopyButton({ text }: { text: string }) {
       )}
     >
       {copied ? <Check size={13} /> : <Copy size={13} />}
-      {copied ? 'Copied' : 'Copy'}
+      {copied ? t('socAi.chat.copied') : t('socAi.chat.copy')}
     </button>
   )
 }

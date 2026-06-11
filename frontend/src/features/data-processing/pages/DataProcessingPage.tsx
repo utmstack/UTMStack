@@ -1,21 +1,38 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { Activity, AlertTriangle, Loader2, RefreshCw } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { ingestionHttpService } from '../services/data-processing-http.service'
-import type { GroupBy, IngestionStats, IngestionStatus, IngestionTimeline } from '../types/data-processing.types'
+import type { GroupBy, IngestionBucket, IngestionStatus } from '../types/data-processing.types'
+import { AreaChart, Donut, Sparkline, Treemap, compact, relTime, useCountUp, useMounted, type TreemapItem } from '../components/viz'
 
-type DropReason = 'parsing_dropped' | 'analysis_dropped' | 'correlation_dropped'
-const DROP_REASONS: DropReason[] = ['parsing_dropped', 'analysis_dropped', 'correlation_dropped']
-const EXPLORER_STATUSES: IngestionStatus[] = ['received', 'parsing_dropped', 'analysis_dropped', 'correlation_dropped', 'all']
+/* ─── Status palette ───────────────────────────────────────────────────── */
 
-function compact(n: number): string {
-  if (n >= 1e9) return (n / 1e9).toFixed(1).replace(/\.0$/, '') + 'B'
-  if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'M'
-  if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, '') + 'k'
-  return String(n)
+const DROP_STATUSES = ['parsing_dropped', 'analysis_dropped', 'correlation_dropped'] as const
+type DropStatus = (typeof DROP_STATUSES)[number]
+
+const COLORS = {
+  received: 'rgb(16 185 129)', // emerald
+  dropped: 'rgb(245 158 11)', // amber
+  parsing_dropped: 'rgb(245 158 11)', // amber
+  analysis_dropped: 'rgb(249 115 22)', // orange
+  correlation_dropped: 'rgb(244 63 94)', // rose
+  stored: 'rgb(14 165 233)', // sky
 }
+// Cycling palette for the breakdown / treemap.
+const PALETTE = [
+  'rgb(14 165 233)',
+  'rgb(99 102 241)',
+  'rgb(168 85 247)',
+  'rgb(236 72 153)',
+  'rgb(244 63 94)',
+  'rgb(249 115 22)',
+  'rgb(234 179 8)',
+  'rgb(16 185 129)',
+  'rgb(20 184 166)',
+  'rgb(6 182 212)',
+]
 
 const RANGES = [
   { id: '1h', hours: 1 },
@@ -25,11 +42,45 @@ const RANGES = [
 ] as const
 type RangeId = (typeof RANGES)[number]['id']
 
-/** Compute the from/to window (RFC3339) for the selected range, at call time. */
-function rangeWindow(id: RangeId): { from: string; to: string } {
+function rangeWindow(id: RangeId): { from: string; to: string; minutes: number } {
   const hours = RANGES.find((r) => r.id === id)?.hours ?? 24
   const now = Date.now()
-  return { from: new Date(now - hours * 3_600_000).toISOString(), to: new Date(now).toISOString() }
+  return { from: new Date(now - hours * 3_600_000).toISOString(), to: new Date(now).toISOString(), minutes: hours * 60 }
+}
+
+/* ─── Page ─────────────────────────────────────────────────────────────── */
+
+export function DataProcessingPage() {
+  const { t } = useTranslation()
+  const [range, setRange] = useState<RangeId>('24h')
+  const [nonce, setNonce] = useState(0)
+
+  return (
+    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="flex items-center gap-2 text-xl font-semibold">
+            <Activity size={18} strokeWidth={1.75} />
+            {t('dataProcessing.title')}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t('dataProcessing.subtitle')}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setNonce((n) => n + 1)}
+            title={t('dataProcessing.filters.refresh')}
+            className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <RefreshCw size={14} />
+          </button>
+          <RangeSelector value={range} onChange={setRange} />
+        </div>
+      </header>
+
+      <Overview t={t} range={range} nonce={nonce} />
+      <Breakdown t={t} range={range} nonce={nonce} />
+    </div>
+  )
 }
 
 function RangeSelector({ value, onChange }: { value: RangeId; onChange: (id: RangeId) => void }) {
@@ -51,153 +102,220 @@ function RangeSelector({ value, onChange }: { value: RangeId; onChange: (id: Ran
   )
 }
 
-export function DataProcessingPage() {
-  const { t } = useTranslation()
-  const [range, setRange] = useState<RangeId>('24h')
-  return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-xl font-semibold">
-            <Activity size={18} strokeWidth={1.75} />
-            {t('dataProcessing.title')}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t('dataProcessing.subtitle')}</p>
-        </div>
-        <RangeSelector value={range} onChange={setRange} />
-      </header>
+/* ─── Overview: pipeline funnel + KPIs + timeline + drop donut ─────────── */
 
-      <Headline t={t} range={range} />
-      <Explorer t={t} range={range} />
-    </div>
-  )
+interface OverviewData {
+  totals: Record<'received' | DropStatus, number>
+  series: { received: { t: string; v: number }[]; dropped: { t: string; v: number }[] }
 }
 
-/* ─── Headline KPIs + drop reasons (fixed 24h totals) ──────────────────── */
-
-interface Totals {
-  received: number
-  parsing_dropped: number
-  analysis_dropped: number
-  correlation_dropped: number
-}
-
-function Headline({ t, range }: { t: TFunction; range: RangeId }) {
-  const [totals, setTotals] = useState<Totals | null>(null)
+function useOverview(range: RangeId, nonce: number) {
+  const [data, setData] = useState<OverviewData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  const load = useCallback(async () => {
+  useEffect(() => {
+    let cancelled = false
     setLoading(true)
     setError(false)
-    try {
-      const w = rangeWindow(range)
-      const [rec, par, ana, cor] = await Promise.all([
-        ingestionHttpService.stats({ groupBy: 'dataType', status: 'received', top: 1, ...w }),
-        ingestionHttpService.stats({ groupBy: 'dataType', status: 'parsing_dropped', top: 1, ...w }),
-        ingestionHttpService.stats({ groupBy: 'dataType', status: 'analysis_dropped', top: 1, ...w }),
-        ingestionHttpService.stats({ groupBy: 'dataType', status: 'correlation_dropped', top: 1, ...w }),
-      ])
-      setTotals({
-        received: rec.total,
-        parsing_dropped: par.total,
-        analysis_dropped: ana.total,
-        correlation_dropped: cor.total,
+    const w = rangeWindow(range)
+    Promise.all([
+      ingestionHttpService.timeline({ status: 'received', from: w.from, to: w.to }),
+      ingestionHttpService.timeline({ status: 'parsing_dropped', from: w.from, to: w.to }),
+      ingestionHttpService.timeline({ status: 'analysis_dropped', from: w.from, to: w.to }),
+      ingestionHttpService.timeline({ status: 'correlation_dropped', from: w.from, to: w.to }),
+    ])
+      .then(([rec, par, ana, cor]) => {
+        if (cancelled) return
+        const sum = (pts?: { count: number }[]) => (pts ?? []).reduce((a, p) => a + p.count, 0)
+        const recPts = rec.points ?? []
+        // Align drop series to the received timeline's timestamps.
+        const dropMap = new Map<string, number>()
+        for (const tl of [par, ana, cor]) for (const p of tl.points ?? []) dropMap.set(p.timestamp, (dropMap.get(p.timestamp) ?? 0) + p.count)
+        setData({
+          totals: {
+            received: sum(recPts),
+            parsing_dropped: sum(par.points),
+            analysis_dropped: sum(ana.points),
+            correlation_dropped: sum(cor.points),
+          },
+          series: {
+            received: recPts.map((p) => ({ t: p.timestamp, v: p.count })),
+            dropped: recPts.map((p) => ({ t: p.timestamp, v: dropMap.get(p.timestamp) ?? 0 })),
+          },
+        })
       })
-    } catch {
-      setError(true)
-    } finally {
-      setLoading(false)
+      .catch(() => !cancelled && setError(true))
+      .finally(() => !cancelled && setLoading(false))
+    return () => {
+      cancelled = true
     }
-  }, [range])
+  }, [range, nonce])
 
-  useEffect(() => {
-    void load()
-  }, [load])
+  return { data, loading, error }
+}
 
-  const droppedTotal = totals
-    ? totals.parsing_dropped + totals.analysis_dropped + totals.correlation_dropped
-    : 0
-  const denom = (totals?.received ?? 0) + droppedTotal
-  const dropRate = denom > 0 ? (droppedTotal / denom) * 100 : 0
-  const maxReason = Math.max(
-    totals?.parsing_dropped ?? 0,
-    totals?.analysis_dropped ?? 0,
-    totals?.correlation_dropped ?? 0,
-    1,
-  )
+function Overview({ t, range, nonce }: { t: TFunction; range: RangeId; nonce: number }) {
+  const { data, loading, error } = useOverview(range, nonce)
 
   if (error) {
     return (
       <div className="mt-5 flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-5 text-sm text-muted-foreground">
         <AlertTriangle size={15} className="text-amber-500" />
         {t('dataProcessing.ingestion.loadError')}
-        <button onClick={() => void load()} className="ml-2 text-primary hover:underline">
-          {t('dataProcessing.filters.retry')}
-        </button>
       </div>
     )
   }
 
+  const totals = data?.totals ?? { received: 0, parsing_dropped: 0, analysis_dropped: 0, correlation_dropped: 0 }
+  const dropped = totals.parsing_dropped + totals.analysis_dropped + totals.correlation_dropped
+  const stored = Math.max(0, totals.received - dropped)
+  const denom = totals.received || 1
+  const dropRate = (dropped / (totals.received || 1)) * 100
+  const survival = 100 - dropRate
+  const minutes = rangeWindow(range).minutes
+  const perMin = minutes > 0 ? totals.received / minutes : 0
+
   return (
-    <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_1.3fr]">
-      <Kpi label={t('dataProcessing.kpi.received')} value={compact(totals?.received ?? 0)} loading={loading} tone="text-emerald-600 dark:text-emerald-400" />
-      <Kpi
-        label={t('dataProcessing.kpi.dropped')}
-        value={compact(droppedTotal)}
-        loading={loading}
-        tone="text-amber-600 dark:text-amber-400"
-        sub={t('dataProcessing.kpi.dropRate', { rate: dropRate.toFixed(dropRate < 10 ? 1 : 0) })}
-      />
-      <div className="rounded-xl border border-border bg-card p-5">
-        <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{t('dataProcessing.section.dropReasons')}</div>
-        <ul className="mt-3 space-y-2">
-          {DROP_REASONS.map((r) => (
-            <li key={r} className="flex items-center gap-3 text-xs">
-              <span className="w-32 shrink-0 truncate text-muted-foreground">{t(`dataProcessing.ingestion.status.${r}`)}</span>
-              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                <div className="h-full rounded-full bg-amber-500/70" style={{ width: `${((totals?.[r] ?? 0) / maxReason) * 100}%` }} />
+    <div className="mt-5 space-y-5">
+      {/* Pipeline funnel */}
+      <PipelineFunnel t={t} totals={totals} stored={stored} denom={denom} loading={loading} />
+
+      {/* KPIs */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Kpi label={t('dataProcessing.kpi.received')} value={totals.received} tone={COLORS.received} spark={data?.series.received.map((p) => p.v)} loading={loading} />
+        <Kpi label={t('dataProcessing.kpi.stored')} value={stored} tone={COLORS.stored} sub={t('dataProcessing.kpi.survival', { rate: survival.toFixed(survival < 99.95 ? 1 : 0) })} loading={loading} />
+        <Kpi label={t('dataProcessing.kpi.dropped')} value={dropped} tone={COLORS.dropped} sub={t('dataProcessing.kpi.dropRate', { rate: dropRate.toFixed(dropRate < 10 ? 1 : 0) })} spark={data?.series.dropped.map((p) => p.v)} loading={loading} />
+        <Kpi label={t('dataProcessing.kpi.throughput')} value={perMin} fmt={(n) => t('dataProcessing.kpi.perMin', { value: compact(n) })} tone="rgb(168 85 247)" loading={loading} />
+      </div>
+
+      {/* Timeline + donut */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.7fr_1fr]">
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="mb-1 flex items-center justify-between">
+            <div className="text-sm font-semibold">{t('dataProcessing.chart.title')}</div>
+            <Legend items={[{ color: COLORS.received, label: t('dataProcessing.chart.received') }, { color: COLORS.dropped, label: t('dataProcessing.chart.dropped') }]} />
+          </div>
+          {loading && !data ? (
+            <Center><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></Center>
+          ) : (data?.series.received.length ?? 0) < 2 ? (
+            <Center>{t('dataProcessing.ingestion.noData')}</Center>
+          ) : (
+            <AreaChart
+              series={[
+                { key: 'received', label: t('dataProcessing.chart.received'), color: COLORS.received, points: data!.series.received },
+                { key: 'dropped', label: t('dataProcessing.chart.dropped'), color: COLORS.dropped, points: data!.series.dropped },
+              ]}
+            />
+          )}
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="text-sm font-semibold">{t('dataProcessing.donut.title')}</div>
+          <div className="mt-2 flex items-center gap-5">
+            <div className="relative shrink-0">
+              <Donut segments={DROP_STATUSES.map((s) => ({ value: totals[s], color: COLORS[s], label: s }))} />
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-xl font-semibold tabular-nums">{compact(dropped)}</span>
+                <span className="text-[10px] text-muted-foreground">{t('dataProcessing.donut.dropped')}</span>
               </div>
-              <span className="w-12 text-right font-mono tabular-nums text-muted-foreground">{compact(totals?.[r] ?? 0)}</span>
-            </li>
-          ))}
-        </ul>
+            </div>
+            <ul className="flex-1 space-y-2">
+              {DROP_STATUSES.map((s) => (
+                <li key={s} className="flex items-center gap-2 text-xs">
+                  <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: COLORS[s] }} />
+                  <span className="min-w-0 truncate text-muted-foreground">{t(`dataProcessing.ingestion.status.${s}`)}</span>
+                  <span className="ml-auto font-mono tabular-nums">{compact(totals[s])}</span>
+                  <span className="w-9 text-right font-mono text-[10px] text-muted-foreground">{dropped > 0 ? Math.round((totals[s] / dropped) * 100) : 0}%</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
-function Kpi({
-  label,
-  value,
-  sub,
-  tone,
-  loading,
-}: {
-  label: string
-  value: string
-  sub?: string
-  tone?: string
-  loading: boolean
-}) {
+/* ─── Pipeline funnel ──────────────────────────────────────────────────── */
+
+function PipelineFunnel({ t, totals, stored, denom, loading }: { t: TFunction; totals: Record<'received' | DropStatus, number>; stored: number; denom: number; loading: boolean }) {
+  const mounted = useMounted()
+  const afterParsing = Math.max(0, totals.received - totals.parsing_dropped)
+  const afterAnalysis = Math.max(0, afterParsing - totals.analysis_dropped)
+  const stages: { key: string; label: string; value: number; drop?: number; dropLabel?: string; color: string }[] = [
+    { key: 'received', label: t('dataProcessing.pipeline.stages.received'), value: totals.received, color: COLORS.received },
+    { key: 'parsed', label: t('dataProcessing.pipeline.stages.parsed'), value: afterParsing, drop: totals.parsing_dropped, dropLabel: t('dataProcessing.ingestion.status.parsing_dropped'), color: COLORS.received },
+    { key: 'analyzed', label: t('dataProcessing.pipeline.stages.analyzed'), value: afterAnalysis, drop: totals.analysis_dropped, dropLabel: t('dataProcessing.ingestion.status.analysis_dropped'), color: COLORS.stored },
+    { key: 'stored', label: t('dataProcessing.pipeline.stages.stored'), value: stored, drop: totals.correlation_dropped, dropLabel: t('dataProcessing.ingestion.status.correlation_dropped'), color: COLORS.stored },
+  ]
   return (
     <div className="rounded-xl border border-border bg-card p-5">
-      <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className={cn('mt-1 text-3xl font-semibold tabular-nums', tone)}>
-        {loading ? <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /> : value}
+      <div className="mb-4 text-sm font-semibold">{t('dataProcessing.pipeline.title')}</div>
+      <div className="space-y-1">
+        {stages.map((s, i) => {
+          const pct = (s.value / denom) * 100
+          return (
+            <div key={s.key}>
+              {s.drop != null && s.drop > 0 && (
+                <div className="flex items-center gap-2 py-1 pl-[136px] text-[11px] text-amber-600/90 dark:text-amber-400/90">
+                  <span className="font-mono">↓ −{compact(s.drop)}</span>
+                  <span className="text-muted-foreground">{s.dropLabel}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-3">
+                <span className="w-[124px] shrink-0 text-xs text-muted-foreground">{s.label}</span>
+                <div className="relative h-9 flex-1 overflow-hidden rounded-md bg-muted/40">
+                  <div
+                    className="flex h-full items-center rounded-md px-3 text-xs font-medium text-white"
+                    style={{
+                      width: mounted ? `${Math.max(pct, 3)}%` : '0%',
+                      background: `linear-gradient(90deg, ${s.color}, ${s.color}cc)`,
+                      transition: `width 800ms cubic-bezier(0.22,1,0.36,1) ${i * 90}ms`,
+                    }}
+                  >
+                    <span className="tabular-nums drop-shadow">{loading ? '' : compact(s.value)}</span>
+                  </div>
+                </div>
+                <span className="w-12 shrink-0 text-right font-mono text-xs tabular-nums text-muted-foreground">{pct.toFixed(pct < 99.95 ? 1 : 0)}%</span>
+              </div>
+            </div>
+          )
+        })}
       </div>
-      {sub && <div className="mt-0.5 text-xs text-muted-foreground">{sub}</div>}
     </div>
   )
 }
 
-/* ─── Explorer: timeline + breakdown driven by status + groupBy ────────── */
+/* ─── KPI card ─────────────────────────────────────────────────────────── */
 
-function Explorer({ t, range }: { t: TFunction; range: RangeId }) {
+function Kpi({ label, value, sub, tone, spark, fmt, loading }: { label: string; value: number; sub?: string; tone?: string; spark?: number[]; fmt?: (n: number) => string; loading: boolean }) {
+  const animated = useCountUp(value)
+  const display = fmt ? fmt(animated) : compact(animated)
+  return (
+    <div className="relative overflow-hidden rounded-xl border border-border bg-card p-5">
+      <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="mt-1 text-3xl font-semibold tabular-nums" style={{ color: tone }}>
+        {loading ? <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /> : display}
+      </div>
+      {sub && <div className="mt-0.5 text-xs text-muted-foreground">{sub}</div>}
+      {spark && spark.length > 1 && <Sparkline points={spark} color={tone} className="mt-2 h-7 w-full" />}
+    </div>
+  )
+}
+
+/* ─── Breakdown: bars / treemap, top-N, share + last seen ──────────────── */
+
+const INITIAL_N = 12
+const MAX_N = 60
+
+function Breakdown({ t, range, nonce }: { t: TFunction; range: RangeId; nonce: number }) {
   const [groupBy, setGroupBy] = useState<GroupBy>('dataSource')
   const [status, setStatus] = useState<IngestionStatus>('received')
-  const [stats, setStats] = useState<IngestionStats | null>(null)
-  const [timeline, setTimeline] = useState<IngestionTimeline | null>(null)
+  const [view, setView] = useState<'bars' | 'treemap'>('bars')
+  const [showAll, setShowAll] = useState(false)
+  const [buckets, setBuckets] = useState<IngestionBucket[]>([])
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
@@ -206,131 +324,123 @@ function Explorer({ t, range }: { t: TFunction; range: RangeId }) {
     setError(false)
     try {
       const w = rangeWindow(range)
-      const [s, tl] = await Promise.all([
-        ingestionHttpService.stats({ groupBy, status, top: 10, ...w }),
-        ingestionHttpService.timeline({ status, ...w }),
-      ])
-      setStats(s)
-      setTimeline(tl)
+      const s = await ingestionHttpService.stats({ groupBy, status, top: MAX_N, from: w.from, to: w.to })
+      setBuckets(s.buckets ?? [])
+      setTotal(s.total ?? 0)
     } catch {
       setError(true)
     } finally {
       setLoading(false)
     }
-  }, [groupBy, status, range])
+  }, [groupBy, status, range, nonce])
 
   useEffect(() => {
     void load()
   }, [load])
 
-  const points = timeline?.points ?? []
-  const buckets = stats?.buckets ?? []
-  const maxBucket = Math.max(...buckets.map((b) => b.count), 1)
+  const shown = showAll ? buckets : buckets.slice(0, INITIAL_N)
+  const max = Math.max(...buckets.map((b) => b.count), 1)
+  const treemapItems: TreemapItem[] = useMemo(
+    () => buckets.slice(0, 24).map((b, i) => ({ key: b.key || '—', value: b.count, color: PALETTE[i % PALETTE.length] })),
+    [buckets],
+  )
 
   return (
-    <div className="mt-6 rounded-xl border border-border bg-card p-6">
+    <div className="mt-5 rounded-xl border border-border bg-card p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="text-sm font-semibold">{t('dataProcessing.section.overTime')}</div>
-        <div className="flex items-center gap-2">
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as IngestionStatus)}
-            className="h-8 rounded-md border border-border bg-background px-2 text-xs"
-          >
-            {EXPLORER_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {t(`dataProcessing.ingestion.status.${s}`)}
-              </option>
+        <div className="text-sm font-semibold">{t('dataProcessing.breakdown.title')}</div>
+        <div className="flex flex-wrap items-center gap-2">
+          <select value={status} onChange={(e) => setStatus(e.target.value as IngestionStatus)} className="h-8 rounded-md border border-border bg-background px-2 text-xs">
+            {(['received', 'parsing_dropped', 'analysis_dropped', 'correlation_dropped', 'all'] as IngestionStatus[]).map((s) => (
+              <option key={s} value={s}>{t(`dataProcessing.ingestion.status.${s}`)}</option>
             ))}
           </select>
-          <button
-            onClick={() => void load()}
-            title={t('dataProcessing.filters.refresh')}
-            className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-foreground"
-          >
-            <RefreshCw size={14} className={cn(loading && 'animate-spin')} />
-          </button>
+          <Segmented value={groupBy} onChange={(v) => setGroupBy(v as GroupBy)} options={(['dataSource', 'dataType'] as GroupBy[]).map((g) => ({ id: g, label: t(`dataProcessing.ingestion.groupBy.${g}`) }))} />
+          <Segmented value={view} onChange={(v) => setView(v as 'bars' | 'treemap')} options={[{ id: 'bars', label: t('dataProcessing.breakdown.bars') }, { id: 'treemap', label: t('dataProcessing.breakdown.treemap') }]} />
         </div>
       </div>
 
       {error ? (
         <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-          <AlertTriangle size={15} className="text-amber-500" />
-          {t('dataProcessing.ingestion.loadError')}
+          <AlertTriangle size={15} className="text-amber-500" /> {t('dataProcessing.ingestion.loadError')}
+        </div>
+      ) : loading && buckets.length === 0 ? (
+        <Center><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></Center>
+      ) : buckets.length === 0 ? (
+        <Center>{t('dataProcessing.ingestion.noData')}</Center>
+      ) : view === 'treemap' ? (
+        <div className="mt-4">
+          <Treemap items={treemapItems} />
         </div>
       ) : (
         <>
-          <div className="mt-1 flex items-baseline gap-3">
-            <span className="text-2xl font-semibold tabular-nums">{compact(stats?.total ?? 0)}</span>
-            <span className="font-mono text-xs text-muted-foreground">· {range}</span>
-          </div>
-
-          <TimelineChart points={points} />
-
-          <div className="mt-5 flex items-center justify-between">
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{t('dataProcessing.section.top')}</div>
-            <div className="inline-flex rounded-md border border-border p-0.5">
-              {(['dataSource', 'dataType'] as GroupBy[]).map((g) => (
-                <button
-                  key={g}
-                  onClick={() => setGroupBy(g)}
-                  className={cn(
-                    'rounded px-2.5 py-1 text-xs transition-colors',
-                    groupBy === g ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground',
-                  )}
-                >
-                  {t(`dataProcessing.ingestion.groupBy.${g}`)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <ul className="mt-3 space-y-1.5">
-            {buckets.map((b) => (
-              <li key={b.key} className="flex items-center gap-3 text-xs">
-                <span className="w-44 shrink-0 truncate font-mono text-muted-foreground" title={b.key}>
-                  {b.key || '—'}
-                </span>
-                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                  <div className="h-full rounded-full bg-sky-500/70" style={{ width: `${(b.count / maxBucket) * 100}%` }} />
-                </div>
-                <span className="w-14 text-right font-mono tabular-nums text-muted-foreground">{compact(b.count)}</span>
-              </li>
+          <ul className="mt-4 space-y-2.5">
+            {shown.map((b, i) => (
+              <BreakdownRow key={b.key || i} rank={i + 1} bucket={b} max={max} total={total} color={PALETTE[i % PALETTE.length]} delay={i * 35} t={t} />
             ))}
-            {!loading && buckets.length === 0 && (
-              <li className="text-xs text-muted-foreground">{t('dataProcessing.ingestion.noData')}</li>
-            )}
           </ul>
+          {buckets.length > INITIAL_N && (
+            <button onClick={() => setShowAll((v) => !v)} className="mt-3 text-xs text-primary hover:underline">
+              {showAll ? t('dataProcessing.breakdown.showLess') : t('dataProcessing.breakdown.showAll', { count: buckets.length })}
+            </button>
+          )}
         </>
       )}
     </div>
   )
 }
 
-function TimelineChart({ points }: { points: { timestamp: string; count: number }[] }) {
-  if (points.length < 2) return <div className="mt-4 h-24" />
-  const w = 1000
-  const h = 100
-  const max = Math.max(...points.map((p) => p.count), 1) * 1.15
-  const xs = points.map((_, i) => (i * w) / (points.length - 1))
-  const ys = points.map((p) => h - (p.count / max) * h)
-  const line = points.reduce((acc, _, i) => {
-    if (i === 0) return `M ${xs[i]} ${ys[i]}`
-    const cx1 = xs[i - 1] + (xs[i] - xs[i - 1]) / 2
-    const cx2 = xs[i] - (xs[i] - xs[i - 1]) / 2
-    return `${acc} C ${cx1} ${ys[i - 1]}, ${cx2} ${ys[i]}, ${xs[i]} ${ys[i]}`
-  }, '')
-  const area = `${line} L ${xs[xs.length - 1]} ${h} L ${xs[0]} ${h} Z`
+function BreakdownRow({ rank, bucket, max, total, color, delay, t }: { rank: number; bucket: IngestionBucket; max: number; total: number; color: string; delay: number; t: TFunction }) {
+  const mounted = useMounted()
+  const share = total > 0 ? (bucket.count / total) * 100 : 0
+  const seen = relTime(bucket.lastSeen)
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="mt-4 h-24 w-full" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="dpGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgb(14 165 233)" stopOpacity="0.28" />
-          <stop offset="100%" stopColor="rgb(14 165 233)" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={area} fill="url(#dpGrad)" />
-      <path d={line} fill="none" stroke="rgb(14 165 233)" strokeOpacity="0.85" strokeWidth="1.75" strokeLinejoin="round" strokeLinecap="round" />
-    </svg>
+    <li className="flex items-center gap-3 text-xs">
+      <span className="w-5 shrink-0 text-right font-mono text-[10px] text-muted-foreground">{rank}</span>
+      <span className="w-48 shrink-0 truncate font-mono text-foreground/80" title={bucket.key}>{bucket.key || '—'}</span>
+      <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-muted">
+        <div className="h-full rounded-full" style={{ width: mounted ? `${(bucket.count / max) * 100}%` : '0%', backgroundColor: color, transition: `width 700ms cubic-bezier(0.22,1,0.36,1) ${delay}ms` }} />
+      </div>
+      <span className="w-14 shrink-0 text-right font-mono tabular-nums">{compact(bucket.count)}</span>
+      <span className="w-10 shrink-0 text-right font-mono text-[10px] text-muted-foreground">{share.toFixed(share < 10 ? 1 : 0)}%</span>
+      <span className="hidden w-14 shrink-0 text-right font-mono text-[10px] text-muted-foreground sm:inline" title={t('dataProcessing.breakdown.lastSeen')}>
+        {seen ? t('dataProcessing.breakdown.ago', { time: seen }) : '—'}
+      </span>
+    </li>
   )
+}
+
+/* ─── Small UI bits ────────────────────────────────────────────────────── */
+
+function Segmented({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: { id: string; label: string }[] }) {
+  return (
+    <div className="inline-flex rounded-md border border-border p-0.5">
+      {options.map((o) => (
+        <button
+          key={o.id}
+          onClick={() => onChange(o.id)}
+          className={cn('rounded px-2.5 py-1 text-xs transition-colors', value === o.id ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground')}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function Legend({ items }: { items: { color: string; label: string }[] }) {
+  return (
+    <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+      {items.map((i) => (
+        <span key={i.label} className="flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full" style={{ backgroundColor: i.color }} />
+          {i.label}
+        </span>
+      ))}
+    </div>
+  )
+}
+
+function Center({ children }: { children: React.ReactNode }) {
+  return <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">{children}</div>
 }

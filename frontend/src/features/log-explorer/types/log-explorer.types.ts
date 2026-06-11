@@ -6,6 +6,7 @@ export type FilterOperator =
   | 'IS_NOT'
   | 'IS_BETWEEN'
   | 'IS_IN_FIELDS'
+  | 'IS_ONE_OF_TERMS' // terms query — used by the "related logs" deep-link (_id in [...])
   | 'CONTAIN'
   | 'EXIST'
 

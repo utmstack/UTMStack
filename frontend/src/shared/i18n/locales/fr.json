@@ -1113,7 +1113,8 @@
       "contains": "contient",
       "exists": "existe",
       "between": "entre",
-      "search": "recherche"
+      "search": "recherche",
+      "isOneOf": "est parmi"
     },
     "filters": {
       "label": "Filtres",
@@ -1179,6 +1180,19 @@
     },
     "toast": {
       "exportFailed": "L'export a échoué"
+    },
+    "builder": {
+      "add": "Ajouter un filtre",
+      "filterValues": "Filtrer les valeurs…",
+      "loadingValues": "Chargement des valeurs…",
+      "noValues": "Aucune valeur.",
+      "cancel": "Annuler",
+      "confirm": "Ajouter"
+    },
+    "related": {
+      "nLogs_one": "{{count}} journal",
+      "nLogs_other": "{{count}} journaux",
+      "truncated": "Affichage des {{count}} premiers journaux liés (ensemble complet plus grand)."
     }
   },
   "integrations": {
@@ -1381,15 +1395,54 @@
     "kpi": {
       "received": "Reçus",
       "dropped": "Rejetés",
-      "dropRate": "{{rate}} % de rejet"
+      "dropRate": "{{rate}} % de rejet",
+      "stored": "Stockés",
+      "throughput": "Débit",
+      "perMin": "{{value}}/min",
+      "survival": "{{rate}}% conservés"
     },
     "section": {
       "overTime": "Événements dans le temps",
       "top": "Top",
       "dropReasons": "Motifs de rejet"
+    },
+    "live": {
+      "auto": "Auto"
+    },
+    "pipeline": {
+      "title": "Pipeline d’ingestion",
+      "stages": {
+        "received": "Reçus",
+        "parsed": "Analysés (parse)",
+        "analyzed": "Analysés",
+        "stored": "Stockés"
+      }
+    },
+    "chart": {
+      "title": "Débit dans le temps",
+      "received": "Reçus",
+      "dropped": "Rejetés"
+    },
+    "donut": {
+      "title": "Composition des rejets",
+      "dropped": "rejetés"
+    },
+    "breakdown": {
+      "title": "Top sources et types",
+      "bars": "Barres",
+      "treemap": "Treemap",
+      "showAll": "Afficher les {{count}}",
+      "showLess": "Afficher moins",
+      "lastSeen": "Vu pour la dernière fois",
+      "ago": "il y a {{time}}"
     }
   },
   "datasources": {
+    "limitBanner": {
+      "title": "Limite de sources de données dépassée.",
+      "message": "Vous avez {{count}} sources de données mais votre licence en couvre {{limit}}. Les journaux des sources au-delà de la limite sont rejetés.",
+      "cta": "Gérer la licence"
+    },
     "title": "Sources de données",
     "total": "{{count}} au total",
     "subtitle": "Agents, intégrations et sources directes qui envoient des événements. Le statut est dérivé de la dernière fois que chaque source a été vue.",
@@ -1491,6 +1544,350 @@
       "deleteFailed": "Échec de la suppression",
       "groupCreated": "Groupe créé",
       "groupCreateFailed": "Échec de la création du groupe"
+    }
+  },
+  "adversaries": {
+    "title": "Vue des adversaires",
+    "subtitle": "Chaque IP, hôte ou utilisateur vu attaquer votre environnement, avec leurs techniques et cibles.",
+    "countChip": "{{count}} adversaires",
+    "refresh": "Actualiser",
+    "search": "Rechercher par IP, hôte, utilisateur, pays, ASO…",
+    "empty": "Aucun adversaire ne correspond.",
+    "loadError": "Impossible de charger les adversaires.",
+    "retry": "Réessayer",
+    "views": {
+      "all": "Tous",
+      "high": "Sévérité élevée",
+      "ip": "IP",
+      "host": "Hôtes",
+      "user": "Utilisateurs"
+    },
+    "threat": {
+      "critical": "Critique",
+      "high": "Élevé",
+      "medium": "Moyen",
+      "low": "Faible"
+    },
+    "kind": {
+      "ip": "IP",
+      "host": "Hôte",
+      "user": "Utilisateur"
+    },
+    "layout": {
+      "list": "Liste",
+      "cards": "Cartes"
+    },
+    "overview": {
+      "title": "Activité des adversaires · dernières 24 heures",
+      "high": "sévérité élevée",
+      "countries": "pays",
+      "alerts": "alertes",
+      "ago24": "il y a 24h",
+      "ago12": "il y a 12h",
+      "now": "maintenant"
+    },
+    "col": {
+      "adversary": "Adversaire",
+      "threat": "Menace",
+      "alerts": "Alertes",
+      "targets": "Cibles",
+      "lastSeen": "Vu pour la dernière fois"
+    },
+    "card": {
+      "alerts": "Alertes",
+      "techniques": "Techniques",
+      "targets": "Cibles"
+    },
+    "tabs": {
+      "profile": "Profil",
+      "techniques": "Techniques",
+      "targets": "Cibles",
+      "alerts": "Alertes"
+    },
+    "drawer": {
+      "activity": "Activité sur 24 heures",
+      "identification": "Identification",
+      "kindLabel": "Type",
+      "identifier": "Identifiant",
+      "firstSeen": "Vu pour la première fois",
+      "lastSeen": "Vu pour la dernière fois",
+      "geolocation": "Géolocalisation",
+      "country": "Pays",
+      "city": "Ville",
+      "topTechniques": "Principales techniques",
+      "noTechniques": "Aucune technique enregistrée.",
+      "targets": "Cibles",
+      "noTargets": "Aucune cible enregistrée.",
+      "recentAlerts": "Alertes récentes",
+      "noAlerts": "Aucune alerte.",
+      "echoes": "{{count}} répétitions"
+    },
+    "relative": {
+      "justNow": "à l’instant",
+      "minutesAgo": "il y a {{count}}m",
+      "hoursAgo": "il y a {{count}}h",
+      "daysAgo": "il y a {{count}}j"
+    }
+  },
+  "timeRange": {
+    "quick": "Plages rapides",
+    "relative": "Relatif",
+    "absolute": "Absolu",
+    "last": "Derniers",
+    "apply": "Appliquer",
+    "allTime": "Toute la période",
+    "from": "De",
+    "to": "À",
+    "now": "maintenant",
+    "units": {
+      "minutes": "minutes",
+      "hours": "heures",
+      "days": "jours",
+      "weeks": "semaines",
+      "months": "mois"
+    },
+    "presets": {
+      "15m": "15 dernières minutes",
+      "1h": "Dernière heure",
+      "6h": "6 dernières heures",
+      "24h": "24 dernières heures",
+      "7d": "7 derniers jours",
+      "30d": "30 derniers jours"
+    }
+  },
+  "alerts": {
+    "title": "Alertes",
+    "matching": "{{count}} correspondances",
+    "subtitle": "Triez ce qui compte.",
+    "openNow": "ouvertes actuellement.",
+    "view": {
+      "alerts": "Alertes",
+      "overview": "Aperçu"
+    },
+    "toolbar": {
+      "searchPlaceholder": "Rechercher par nom d'alerte…",
+      "allSeverities": "Toutes les sévérités",
+      "export": "Exporter en CSV",
+      "refresh": "Actualiser"
+    },
+    "severity": {
+      "high": "Élevée",
+      "medium": "Moyenne",
+      "low": "Faible"
+    },
+    "status": {
+      "open": "Ouverte",
+      "in_review": "En cours de revue",
+      "completed": "Terminée",
+      "auto": "Revue automatique"
+    },
+    "statusTabs": {
+      "all": "Toutes"
+    },
+    "overview": {
+      "overTime": "Alertes dans le temps",
+      "matchingAlerts": "alertes correspondantes",
+      "noData": "Aucune donnée.",
+      "bySeverity": "Par sévérité",
+      "byStatus": "Par statut"
+    },
+    "filters": {
+      "add": "Ajouter un filtre",
+      "clearAll": "Tout effacer",
+      "filterValues": "Filtrer les valeurs…",
+      "loadingValues": "Chargement des valeurs…",
+      "noValues": "Aucune valeur trouvée.",
+      "pickValue": "Choisissez une valeur pour ajouter le filtre.",
+      "empty": "(vide)",
+      "cancel": "Annuler",
+      "addBtn": "Ajouter"
+    },
+    "ops": {
+      "CONTAIN": "contient",
+      "IS": "est",
+      "IS_NOT": "n'est pas",
+      "EXIST": "existe",
+      "DOES_NOT_EXIST": "n'existe pas"
+    },
+    "fields": {
+      "assetGroupName": "Groupe de source de données",
+      "category": "Catégorie",
+      "dataSource": "Capteur",
+      "tags": "Étiquettes",
+      "incidentDetail_incidentName": "Nom de l'incident",
+      "impact_availability": "Disponibilité",
+      "impact_confidentiality": "Confidentialité",
+      "impact_integrity": "Intégrité",
+      "protocol": "Protocole",
+      "adversary_ip": "IP de l'adversaire",
+      "adversary_domain": "Domaine de l'adversaire",
+      "adversary_url": "URL de l'adversaire",
+      "adversary_geolocation_asn": "ASN de l'adversaire",
+      "adversary_geolocation_aso": "ASO de l'adversaire",
+      "target_ip": "IP de la cible",
+      "target_domain": "Domaine de la cible",
+      "target_url": "URL de la cible",
+      "target_geolocation_asn": "ASN de la cible",
+      "target_geolocation_aso": "ASO de la cible"
+    },
+    "tagFilter": {
+      "tags": "Étiquettes",
+      "tag_one": "{{count}} étiquette",
+      "tag_other": "{{count}} étiquettes",
+      "clearSelection": "Effacer la sélection",
+      "noTags": "Pas d'étiquettes"
+    },
+    "bulk": {
+      "selected": "{{count}} sélectionnées",
+      "setStatus": "Définir le statut",
+      "addTag": "Ajouter une étiquette",
+      "noTags": "Pas d'étiquettes",
+      "addToIncident": "Ajouter à un incident",
+      "clear": "Effacer"
+    },
+    "tagEditor": {
+      "tag": "Étiquette",
+      "noTagsYet": "Pas encore d'étiquettes",
+      "createTag": "Créer une étiquette",
+      "newTagName": "Nom de la nouvelle étiquette…",
+      "createApply": "Créer et appliquer l’étiquette",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "edit": "Modifier l'étiquette",
+      "delete": "Supprimer l'étiquette",
+      "systemLocked": "Étiquette système (verrouillée)",
+      "alreadyExists": "Cette étiquette existe déjà.",
+      "color": "Couleur {{color}}"
+    },
+    "table": {
+      "alert": "Alerte",
+      "status": "Statut",
+      "technique": "Technique",
+      "sourceAdversary": "Source → Adversaire",
+      "risk": "Risque",
+      "time": "Heure"
+    },
+    "list": {
+      "loading": "Chargement des alertes…",
+      "loadError": "Impossible de charger les alertes.",
+      "retry": "Réessayer",
+      "empty": "Aucune alerte ne correspond à cette vue."
+    },
+    "badge": {
+      "incident": "Incident",
+      "aiAssessed": "Évalué par IA"
+    },
+    "drawer": {
+      "setStatus": "Définir le statut",
+      "completeFalsePositive": "Terminer + faux positif",
+      "addToIncident": "Ajouter à un incident",
+      "partOfIncident": "Partie d'un incident",
+      "tabs": {
+        "summary": "Résumé",
+        "parties": "Parties",
+        "events": "Événements",
+        "history": "Historique"
+      },
+      "section": {
+        "description": "Description",
+        "solution": "Solution",
+        "references": "Références",
+        "details": "Détails",
+        "yourNotes": "Vos notes",
+        "notes": "Notes"
+      },
+      "details": {
+        "risk": "Risque",
+        "category": "Catégorie",
+        "technique": "Technique",
+        "sensor": "Capteur",
+        "dataType": "Type de donnée",
+        "alertId": "ID d'alerte",
+        "statusNote": "Note de statut"
+      },
+      "incidentDetail": {
+        "incident": "Incident",
+        "id": "ID",
+        "createdBy": "Créé par",
+        "created": "Créé"
+      },
+      "notesPlaceholder": "Ajouter des notes d'investigation…",
+      "saveNotes": "Enregistrer les notes"
+    },
+    "related": {
+      "sample": "Un échantillon de jusqu’à ~11 événements que le moteur a stockés sur cette alerte. Utilisez « Voir tous les journaux associés » pour l’ensemble complet et non plafonné.",
+      "empty": "Aucun événement d’échantillon stocké sur cette alerte. Chargez l’ensemble corrélé complet dans l’Explorateur de journaux.",
+      "viewAll": "Voir tous les journaux associés"
+    },
+    "party": {
+      "source": "Source / cible",
+      "adversary": "Adversaire",
+      "noData": "Aucune donnée.",
+      "ip": "IP",
+      "host": "Hôte",
+      "user": "Utilisateur",
+      "domain": "Domaine",
+      "country": "Pays"
+    },
+    "history": {
+      "empty": "Aucun historique enregistré.",
+      "by": "par {{user}}",
+      "actions": {
+        "UPDATE_STATUS": "Statut mis à jour",
+        "UPDATE_TAGS": "Étiquettes mises à jour",
+        "UPDATE_NOTES": "Notes mises à jour",
+        "UPDATE_SOLUTION": "Solution mise à jour",
+        "MARK_AS_INCIDENT": "Marquée comme incident"
+      },
+      "detail": {
+        "statusTo": "Statut → {{status}}",
+        "tags": "Étiquettes : {{tags}}",
+        "aiAdded": "Évaluation IA ajoutée",
+        "observationAdded": "Observation ajoutée",
+        "notesUpdated": "Notes mises à jour"
+      }
+    },
+    "ai": {
+      "title": "Évaluation IA du SOC",
+      "risk": "risque {{risk}}",
+      "score": "{{score}}/100"
+    },
+    "incident": {
+      "titleAdd_one": "Ajouter {{count}} alerte à un incident",
+      "titleAdd_other": "Ajouter {{count}} alertes à un incident",
+      "new": "Nouvel incident",
+      "existing": "Incident existant",
+      "nameLabel": "Nom de l'incident",
+      "namePlaceholder": "p. ex. Intrusion présumée de Scattered Spider",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Résumé facultatif…",
+      "pickLabel": "Choisir un incident",
+      "loading": "Chargement…",
+      "selectPlaceholder": "Sélectionner un incident…",
+      "willLink_one": "{{count}} alerte sera liée.",
+      "willLink_other": "{{count}} alertes seront liées.",
+      "cancel": "Annuler",
+      "create": "Créer l'incident",
+      "add": "Ajouter à un incident"
+    },
+    "toast": {
+      "statusUpdated": "Statut mis à jour",
+      "statusFailed": "Échec de la mise à jour du statut",
+      "tagsUpdated": "Étiquettes mises à jour",
+      "tagsFailed": "Échec de la mise à jour des étiquettes",
+      "tagCreateFailed": "Échec de la création de l'étiquette",
+      "tagUpdated": "Étiquette mise à jour",
+      "tagUpdateFailed": "Échec de la mise à jour de l'étiquette",
+      "tagDeleted": "Étiquette supprimée",
+      "tagDeleteFailed": "Échec de la suppression de l'étiquette",
+      "notesSaved": "Notes enregistrées",
+      "notesFailed": "Échec de l'enregistrement des notes",
+      "exportFailed": "Échec de l'export CSV",
+      "noRelatedLogs": "Aucun journal associé trouvé pour cette alerte",
+      "relatedLogsFailed": "Échec du chargement des journaux associés",
+      "incidentCreated": "Incident créé",
+      "alertsAdded": "Alertes ajoutées à l'incident",
+      "incidentFailed": "Échec de l'enregistrement de l'incident"
     }
   }
 }

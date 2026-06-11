@@ -202,7 +202,8 @@
     "dateFormat": "Formato de data",
     "language": "Idioma",
     "auditLogs": "Logs de auditoria",
-    "about": "Sobre"
+    "about": "Sobre",
+    "socAi": "SOC-AI"
   },
   "topbar": {
     "theme": {
@@ -1113,7 +1114,8 @@
       "contains": "contém",
       "exists": "existe",
       "between": "entre",
-      "search": "busca"
+      "search": "busca",
+      "isOneOf": "é um de"
     },
     "filters": {
       "label": "Filtros",
@@ -1179,6 +1181,19 @@
     },
     "toast": {
       "exportFailed": "A exportação falhou"
+    },
+    "builder": {
+      "add": "Adicionar filtro",
+      "filterValues": "Filtrar valores…",
+      "loadingValues": "Carregando valores…",
+      "noValues": "Sem valores.",
+      "cancel": "Cancelar",
+      "confirm": "Adicionar"
+    },
+    "related": {
+      "nLogs_one": "{{count}} log",
+      "nLogs_other": "{{count}} logs",
+      "truncated": "Mostrando os primeiros {{count}} logs relacionados (o conjunto completo é maior)."
     }
   },
   "integrations": {
@@ -1381,15 +1396,54 @@
     "kpi": {
       "received": "Recebidos",
       "dropped": "Descartados",
-      "dropRate": "{{rate}}% de descarte"
+      "dropRate": "{{rate}}% de descarte",
+      "stored": "Armazenados",
+      "throughput": "Vazão",
+      "perMin": "{{value}}/min",
+      "survival": "{{rate}}% mantidos"
     },
     "section": {
       "overTime": "Eventos ao longo do tempo",
       "top": "Top",
       "dropReasons": "Motivos de descarte"
+    },
+    "live": {
+      "auto": "Auto"
+    },
+    "pipeline": {
+      "title": "Pipeline de ingestão",
+      "stages": {
+        "received": "Recebidos",
+        "parsed": "Analisados (parse)",
+        "analyzed": "Analisados",
+        "stored": "Armazenados"
+      }
+    },
+    "chart": {
+      "title": "Vazão ao longo do tempo",
+      "received": "Recebidos",
+      "dropped": "Descartados"
+    },
+    "donut": {
+      "title": "Composição de descartes",
+      "dropped": "descartados"
+    },
+    "breakdown": {
+      "title": "Top fontes e tipos",
+      "bars": "Barras",
+      "treemap": "Treemap",
+      "showAll": "Ver todos os {{count}}",
+      "showLess": "Ver menos",
+      "lastSeen": "Visto por último",
+      "ago": "há {{time}}"
     }
   },
   "datasources": {
+    "limitBanner": {
+      "title": "Limite de datasources excedido.",
+      "message": "Você tem {{count}} datasources, mas sua licença cobre {{limit}}. Os logs dos datasources além do limite estão sendo descartados.",
+      "cta": "Gerenciar licença"
+    },
     "title": "Fontes de dados",
     "total": "{{count}} no total",
     "subtitle": "Agentes, integrações e fontes diretas que enviam eventos. O status é derivado da última vez que cada fonte foi vista.",
@@ -1491,6 +1545,476 @@
       "deleteFailed": "Falha ao excluir",
       "groupCreated": "Grupo criado",
       "groupCreateFailed": "Falha ao criar o grupo"
+    }
+  },
+  "adversaries": {
+    "title": "Visão de adversários",
+    "subtitle": "Cada IP, host ou usuário visto atacando seu ambiente, com suas técnicas e alvos.",
+    "countChip": "{{count}} adversários",
+    "refresh": "Atualizar",
+    "search": "Pesquisar por IP, host, usuário, país, ASO…",
+    "empty": "Nenhum adversário corresponde.",
+    "loadError": "Não foi possível carregar os adversários.",
+    "retry": "Tentar novamente",
+    "views": {
+      "all": "Todos",
+      "high": "Severidade alta",
+      "ip": "IPs",
+      "host": "Hosts",
+      "user": "Usuários"
+    },
+    "threat": {
+      "critical": "Crítico",
+      "high": "Alto",
+      "medium": "Médio",
+      "low": "Baixo"
+    },
+    "kind": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "Usuário"
+    },
+    "layout": {
+      "list": "Lista",
+      "cards": "Cartões"
+    },
+    "overview": {
+      "title": "Atividade de adversários · últimas 24 horas",
+      "high": "severidade alta",
+      "countries": "países",
+      "alerts": "alertas",
+      "ago24": "há 24h",
+      "ago12": "há 12h",
+      "now": "agora"
+    },
+    "col": {
+      "adversary": "Adversário",
+      "threat": "Ameaça",
+      "alerts": "Alertas",
+      "targets": "Alvos",
+      "lastSeen": "Visto por último"
+    },
+    "card": {
+      "alerts": "Alertas",
+      "techniques": "Técnicas",
+      "targets": "Alvos"
+    },
+    "tabs": {
+      "profile": "Perfil",
+      "techniques": "Técnicas",
+      "targets": "Alvos",
+      "alerts": "Alertas"
+    },
+    "drawer": {
+      "activity": "Atividade em 24 horas",
+      "identification": "Identificação",
+      "kindLabel": "Tipo",
+      "identifier": "Identificador",
+      "firstSeen": "Visto pela primeira vez",
+      "lastSeen": "Visto por último",
+      "geolocation": "Geolocalização",
+      "country": "País",
+      "city": "Cidade",
+      "topTechniques": "Principais técnicas",
+      "noTechniques": "Nenhuma técnica registrada.",
+      "targets": "Alvos",
+      "noTargets": "Nenhum alvo registrado.",
+      "recentAlerts": "Alertas recentes",
+      "noAlerts": "Sem alertas.",
+      "echoes": "{{count}} repetições"
+    },
+    "relative": {
+      "justNow": "agora mesmo",
+      "minutesAgo": "há {{count}}m",
+      "hoursAgo": "há {{count}}h",
+      "daysAgo": "há {{count}}d"
+    }
+  },
+  "timeRange": {
+    "quick": "Intervalos rápidos",
+    "relative": "Relativo",
+    "absolute": "Absoluto",
+    "last": "Últimos",
+    "apply": "Aplicar",
+    "allTime": "Todo o tempo",
+    "from": "De",
+    "to": "Até",
+    "now": "agora",
+    "units": {
+      "minutes": "minutos",
+      "hours": "horas",
+      "days": "dias",
+      "weeks": "semanas",
+      "months": "meses"
+    },
+    "presets": {
+      "15m": "Últimos 15 minutos",
+      "1h": "Última hora",
+      "6h": "Últimas 6 horas",
+      "24h": "Últimas 24 horas",
+      "7d": "Últimos 7 dias",
+      "30d": "Últimos 30 dias"
+    }
+  },
+  "socAi": {
+    "title": "Configuração do SOC-AI",
+    "subtitle": "Configure o agente de IA que faz triagem de alertas e alimenta o assistente de operações.",
+    "section": {
+      "connection": "Modelo e conexão",
+      "auth": "Autenticação",
+      "behavior": "Comportamento da triagem",
+      "advanced": "Avançado",
+      "capabilities": "Capacidades"
+    },
+    "provider": {
+      "label": "Provedor",
+      "hint": "Define o formato. Qualquer um além do Anthropic usa a API compatível com OpenAI."
+    },
+    "model": {
+      "label": "Modelo",
+      "hint": "Identificador do modelo do provedor.",
+      "customOption": "Modelo personalizado…",
+      "customPlaceholder": "Digite um ID de modelo"
+    },
+    "url": {
+      "label": "URL da API",
+      "hint": "Deixe vazio para usar o endpoint padrão do provedor."
+    },
+    "apiKey": {
+      "label": "Chave de API",
+      "hint": "Credencial enviada ao provedor.",
+      "setHint": "Há uma chave salva. Deixe em branco para mantê-la."
+    },
+    "authType": {
+      "label": "Tipo de auth",
+      "hint": "Como a chave é enviada (bearer, cabeçalho personalizado ou nenhum)."
+    },
+    "authHeaderName": {
+      "label": "Nome do cabeçalho de auth",
+      "hint": "Cabeçalho que carrega a chave (ex.: api-key para Azure)."
+    },
+    "customHeaders": {
+      "label": "Cabeçalhos personalizados (JSON)",
+      "hint": "Cabeçalhos extras em cada requisição. Os valores são criptografados; \"*****\" mantém o salvo."
+    },
+    "maxTokens": {
+      "label": "Máx. tokens",
+      "hint": "Tokens máximos por resposta do LLM."
+    },
+    "maxToolIterations": {
+      "label": "Máx. iterações de tools",
+      "hint": "Limite do loop planejar → tool → observar do agente."
+    },
+    "autoAnalyze": {
+      "label": "Analisar alertas automaticamente",
+      "hint": "Faz triagem dos alertas recebidos em tempo real."
+    },
+    "changeAlertStatus": {
+      "label": "Alterar status do alerta",
+      "hint": "Permite ao agente definir o status de um alerta na triagem."
+    },
+    "automaticIncidentCreation": {
+      "label": "Criar incidentes",
+      "hint": "Permite ao agente abrir incidentes a partir de alertas triados."
+    },
+    "allowedWriteTools": {
+      "label": "Tools de escrita permitidas",
+      "hint": "Um nome de tool MCP por linha que o agente pode usar (ex.: alerts.update_status). Notas são sempre permitidas."
+    },
+    "save": "Salvar configuração",
+    "saving": "Verificando e salvando…",
+    "saved": "Configuração do SOC-AI salva",
+    "saveError": "Falha ao salvar a configuração",
+    "loadError": "Falha ao carregar a configuração",
+    "modelRequired": "O modelo é obrigatório",
+    "invalidHeaders": "Os cabeçalhos personalizados devem ser um objeto JSON válido",
+    "applyTags": {
+      "label": "Aplicar tags",
+      "hint": "Permite ao agente marcar alertas com tags durante a triagem."
+    },
+    "capsCaption": "A leitura está sempre ativa. Escolha o que o agente pode alterar — na triagem e no chat. O que deixar desligado, o agente recusará e direcionará o usuário aqui.",
+    "note": {
+      "azure": "Cole o endpoint completo do seu deployment do Azure como URL; o modelo é o nome do deployment. A auth usa o cabeçalho api-key.",
+      "ollama": "Aponte a URL para o seu host do Ollama. Não é necessária API key para uma instância local.",
+      "custom": "Qualquer endpoint compatível com OpenAI. Defina a URL, a auth e os cabeçalhos extras que seu gateway precisar."
+    },
+    "cap": {
+      "alerts": {
+        "label": "Gerenciar alertas",
+        "hint": "Alterar status, aplicar tags, adicionar notas, regras de tags."
+      },
+      "incidents": {
+        "label": "Gerenciar incidentes",
+        "hint": "Criar incidentes, adicionar alertas, alterar status, notas."
+      },
+      "dashboards": {
+        "label": "Gerenciar dashboards",
+        "hint": "Criar e editar dashboards."
+      },
+      "compliance": {
+        "label": "Gerenciar compliance",
+        "hint": "Gerenciar frameworks e gerar relatórios."
+      },
+      "correlation": {
+        "label": "Gerenciar regras de correlação",
+        "hint": "Criar e editar regras de correlação e processamento."
+      },
+      "datasources": {
+        "label": "Gerenciar fontes de dados",
+        "hint": "Editar grupos e labels das fontes de dados."
+      }
+    },
+    "chat": {
+      "title": "Assistente SOC",
+      "empty": "Pergunte o que quiser sobre seus alertas, detecções ou o console — posso investigar e agir no SIEM.",
+      "tryPrefix": "Tente",
+      "suggestion": "quantos alertas abertos há, agrupados por adversário?",
+      "placeholder": "Digite uma pergunta…",
+      "floatingPlaceholder": "Pergunte ao assistente SOC…",
+      "send": "Enviar",
+      "collapse": "Recolher",
+      "expand": "Expandir",
+      "clear": "Limpar conversa",
+      "close": "Fechar",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "errorGeneric": "Algo deu errado.",
+      "errorUnreachable": "Não foi possível contatar o assistente."
+    }
+  },
+  "alerts": {
+    "title": "Alertas",
+    "matching": "{{count}} correspondentes",
+    "subtitle": "Priorize o que importa.",
+    "openNow": "abertos agora.",
+    "view": {
+      "alerts": "Alertas",
+      "overview": "Visão geral"
+    },
+    "toolbar": {
+      "searchPlaceholder": "Buscar por nome do alerta…",
+      "allSeverities": "Todas as severidades",
+      "export": "Exportar CSV",
+      "refresh": "Atualizar"
+    },
+    "severity": {
+      "high": "Alta",
+      "medium": "Média",
+      "low": "Baixa"
+    },
+    "status": {
+      "open": "Aberto",
+      "in_review": "Em revisão",
+      "completed": "Concluído",
+      "auto": "Revisão automática"
+    },
+    "statusTabs": {
+      "all": "Todos"
+    },
+    "overview": {
+      "overTime": "Alertas ao longo do tempo",
+      "matchingAlerts": "alertas correspondentes",
+      "noData": "Sem dados.",
+      "bySeverity": "Por severidade",
+      "byStatus": "Por estado"
+    },
+    "filters": {
+      "add": "Adicionar filtro",
+      "clearAll": "Limpar tudo",
+      "filterValues": "Filtrar valores…",
+      "loadingValues": "Carregando valores…",
+      "noValues": "Nenhum valor encontrado.",
+      "pickValue": "Escolha um valor para adicionar o filtro.",
+      "empty": "(vazio)",
+      "cancel": "Cancelar",
+      "addBtn": "Adicionar"
+    },
+    "ops": {
+      "CONTAIN": "contém",
+      "IS": "é",
+      "IS_NOT": "não é",
+      "EXIST": "existe",
+      "DOES_NOT_EXIST": "não existe"
+    },
+    "fields": {
+      "assetGroupName": "Grupo de fonte de dados",
+      "category": "Categoria",
+      "dataSource": "Sensor",
+      "tags": "Etiquetas",
+      "incidentDetail_incidentName": "Nome do incidente",
+      "impact_availability": "Disponibilidade",
+      "impact_confidentiality": "Confidencialidade",
+      "impact_integrity": "Integridade",
+      "protocol": "Protocolo",
+      "adversary_ip": "IP do adversário",
+      "adversary_domain": "Domínio do adversário",
+      "adversary_url": "URL do adversário",
+      "adversary_geolocation_asn": "ASN do adversário",
+      "adversary_geolocation_aso": "ASO do adversário",
+      "target_ip": "IP do alvo",
+      "target_domain": "Domínio do alvo",
+      "target_url": "URL do alvo",
+      "target_geolocation_asn": "ASN do alvo",
+      "target_geolocation_aso": "ASO do alvo"
+    },
+    "tagFilter": {
+      "tags": "Etiquetas",
+      "tag_one": "{{count}} etiqueta",
+      "tag_other": "{{count}} etiquetas",
+      "clearSelection": "Limpar seleção",
+      "noTags": "Sem etiquetas"
+    },
+    "bulk": {
+      "selected": "{{count}} selecionados",
+      "setStatus": "Definir estado",
+      "addTag": "Adicionar etiqueta",
+      "noTags": "Sem etiquetas",
+      "addToIncident": "Adicionar a incidente",
+      "clear": "Limpar"
+    },
+    "tagEditor": {
+      "tag": "Etiqueta",
+      "noTagsYet": "Ainda não há etiquetas",
+      "createTag": "Criar etiqueta",
+      "newTagName": "Nome da nova etiqueta…",
+      "createApply": "Criar e aplicar etiqueta",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "edit": "Editar etiqueta",
+      "delete": "Excluir etiqueta",
+      "systemLocked": "Etiqueta do sistema (bloqueada)",
+      "alreadyExists": "Essa etiqueta já existe.",
+      "color": "Cor {{color}}"
+    },
+    "table": {
+      "alert": "Alerta",
+      "status": "Estado",
+      "technique": "Técnica",
+      "sourceAdversary": "Origem → Adversário",
+      "risk": "Risco",
+      "time": "Hora"
+    },
+    "list": {
+      "loading": "Carregando alertas…",
+      "loadError": "Não foi possível carregar os alertas.",
+      "retry": "Tentar novamente",
+      "empty": "Nenhum alerta corresponde a esta visão."
+    },
+    "badge": {
+      "incident": "Incidente",
+      "aiAssessed": "Avaliado por IA"
+    },
+    "drawer": {
+      "setStatus": "Definir estado",
+      "completeFalsePositive": "Concluir + falso positivo",
+      "addToIncident": "Adicionar a incidente",
+      "partOfIncident": "Parte de um incidente",
+      "tabs": {
+        "summary": "Resumo",
+        "parties": "Partes",
+        "events": "Eventos",
+        "history": "Histórico"
+      },
+      "section": {
+        "description": "Descrição",
+        "solution": "Solução",
+        "references": "Referências",
+        "details": "Detalhes",
+        "yourNotes": "Suas notas",
+        "notes": "Notas"
+      },
+      "details": {
+        "risk": "Risco",
+        "category": "Categoria",
+        "technique": "Técnica",
+        "sensor": "Sensor",
+        "dataType": "Tipo de dado",
+        "alertId": "ID do alerta",
+        "statusNote": "Nota de estado"
+      },
+      "incidentDetail": {
+        "incident": "Incidente",
+        "id": "ID",
+        "createdBy": "Criado por",
+        "created": "Criado"
+      },
+      "notesPlaceholder": "Adicione notas de investigação…",
+      "saveNotes": "Salvar notas"
+    },
+    "related": {
+      "sample": "Uma amostra de até ~11 eventos que o mecanismo armazenou neste alerta. Use «Ver todos os registros relacionados» para o conjunto completo e sem limite.",
+      "empty": "Nenhum evento de amostra armazenado neste alerta. Carregue o conjunto correlacionado completo no Explorador de registros.",
+      "viewAll": "Ver todos os registros relacionados"
+    },
+    "party": {
+      "source": "Origem / alvo",
+      "adversary": "Adversário",
+      "noData": "Sem dados.",
+      "ip": "IP",
+      "host": "Host",
+      "user": "Usuário",
+      "domain": "Domínio",
+      "country": "País"
+    },
+    "history": {
+      "empty": "Nenhum histórico registrado.",
+      "by": "por {{user}}",
+      "actions": {
+        "UPDATE_STATUS": "Estado atualizado",
+        "UPDATE_TAGS": "Etiquetas atualizadas",
+        "UPDATE_NOTES": "Notas atualizadas",
+        "UPDATE_SOLUTION": "Solução atualizada",
+        "MARK_AS_INCIDENT": "Marcado como incidente"
+      },
+      "detail": {
+        "statusTo": "Estado → {{status}}",
+        "tags": "Etiquetas: {{tags}}",
+        "aiAdded": "Avaliação de IA adicionada",
+        "observationAdded": "Observação adicionada",
+        "notesUpdated": "Notas atualizadas"
+      }
+    },
+    "ai": {
+      "title": "Avaliação de IA do SOC",
+      "risk": "risco {{risk}}",
+      "score": "{{score}}/100"
+    },
+    "incident": {
+      "titleAdd_one": "Adicionar {{count}} alerta a um incidente",
+      "titleAdd_other": "Adicionar {{count}} alertas a um incidente",
+      "new": "Novo incidente",
+      "existing": "Incidente existente",
+      "nameLabel": "Nome do incidente",
+      "namePlaceholder": "ex.: Suspeita de intrusão de Scattered Spider",
+      "descriptionLabel": "Descrição",
+      "descriptionPlaceholder": "Resumo opcional…",
+      "pickLabel": "Escolha um incidente",
+      "loading": "Carregando…",
+      "selectPlaceholder": "Selecione um incidente…",
+      "willLink_one": "{{count}} alerta será vinculado.",
+      "willLink_other": "{{count}} alertas serão vinculados.",
+      "cancel": "Cancelar",
+      "create": "Criar incidente",
+      "add": "Adicionar a incidente"
+    },
+    "toast": {
+      "statusUpdated": "Estado atualizado",
+      "statusFailed": "Falha ao atualizar o estado",
+      "tagsUpdated": "Etiquetas atualizadas",
+      "tagsFailed": "Falha ao atualizar as etiquetas",
+      "tagCreateFailed": "Falha ao criar a etiqueta",
+      "tagUpdated": "Etiqueta atualizada",
+      "tagUpdateFailed": "Falha ao atualizar a etiqueta",
+      "tagDeleted": "Etiqueta excluída",
+      "tagDeleteFailed": "Falha ao excluir a etiqueta",
+      "notesSaved": "Notas salvas",
+      "notesFailed": "Falha ao salvar as notas",
+      "exportFailed": "Falha ao exportar o CSV",
+      "noRelatedLogs": "Nenhum registro relacionado encontrado para este alerta",
+      "relatedLogsFailed": "Falha ao carregar os registros relacionados",
+      "incidentCreated": "Incidente criado",
+      "alertsAdded": "Alertas adicionados ao incidente",
+      "incidentFailed": "Falha ao salvar o incidente"
     }
   }
 }
