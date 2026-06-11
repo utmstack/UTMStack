@@ -93,6 +93,8 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
     if (this.mode === 'edit') {
       this.visualizationService.find(this.visualizationId).subscribe(vis => {
         this.visualization = vis.body;
+        this.pattern = this.visualization.pattern.pattern;
+        this.getFields();
         const defaultFilterTime = this.getDefaultFilterTimeFromVisualization(this.visualization.filterType);
         this.defaultTime = defaultFilterTime ? defaultFilterTime : new ElasticFilterDefaultTime('now-24h', 'now');
       });
@@ -121,6 +123,7 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
   }
 
   getFields() {
+    if(!this.pattern){return}
     this.fieldDataBehavior.getFields(this.pattern)
       .subscribe(fields => {
         this.fieldDataBehavior.$fields.next(fields);
