@@ -220,7 +220,11 @@
       "unknownVisualization": "Visualization"
     },
     "widget": {
-      "renderError": "Could not render this widget."
+      "renderError": "Could not render this widget.",
+      "loading": "Loading data…",
+      "queryError": "Could not load widget data.",
+      "noData": "No data for the selected time range.",
+      "noTimePlaceholderHint": "Tip: add a time placeholder to the SQL so it filters by the picker range."
     },
     "form": {
       "createTitle": "New dashboard",
@@ -273,8 +277,9 @@
       "subtitle": "Define a reusable chart from a SQL query and an ECharts option config.",
       "sqlQuery": "SQL query",
       "sqlQueryPlaceholder": "SELECT bucket, count(*) FROM logs GROUP BY bucket",
+      "sqlQueryHint": "Use the placeholders timeFilter, from, and to (in double curly braces) so the time picker is applied at render time.",
       "config": "Chart config (ECharts option, JSON)",
-      "configHint": "Must be valid JSON.",
+      "configHint": "Must be valid JSON. Rows from the SQL are exposed as `dataset.source` — wire your series with `encode`.",
       "configError": "Invalid JSON: {{error}}"
     },
     "visualizationList": {

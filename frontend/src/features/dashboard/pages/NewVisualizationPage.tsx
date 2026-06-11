@@ -8,19 +8,25 @@ import { Input } from '@/shared/components/ui/input'
 import { useVisualizationMutations } from '@/features/dashboard/hooks/useVisualizations'
 
 const DEFAULT_CONFIG = `{
-  "title": { "text": "New visualization" },
   "tooltip": {},
-  "xAxis": { "type": "category", "data": [] },
+  "xAxis": { "type": "category" },
   "yAxis": { "type": "value" },
-  "series": [{ "type": "bar", "data": [] }]
+  "series": [{ "type": "bar", "encode": { "x": 0, "y": 1 } }]
 }`
+
+const DEFAULT_SQL = `SELECT host, COUNT(*) AS cnt
+FROM logs-*
+WHERE {{timeFilter}}
+GROUP BY host
+ORDER BY cnt DESC
+LIMIT 10`
 
 export function NewVisualizationPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [sqlQuery, setSqlQuery] = useState('')
+  const [sqlQuery, setSqlQuery] = useState(DEFAULT_SQL)
   const [config, setConfig] = useState(DEFAULT_CONFIG)
   const [configError, setConfigError] = useState<string | null>(null)
 
@@ -108,9 +114,12 @@ export function NewVisualizationPage() {
             onChange={(e) => setSqlQuery(e.target.value)}
             placeholder={t('dashboards.newVisualization.sqlQueryPlaceholder') ?? ''}
             spellCheck={false}
-            rows={5}
+            rows={6}
             className="w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs leading-relaxed shadow-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
           />
+          <p className="mt-1 text-[10px] text-muted-foreground">
+            {t('dashboards.newVisualization.sqlQueryHint')}
+          </p>
         </div>
 
         <div>

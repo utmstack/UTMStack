@@ -1,8 +1,10 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Loader2 } from 'lucide-react'
 import { EChartsRenderer } from '@/features/dashboard/components/EChartsRenderer'
-import { parseChartConfig } from '@/features/dashboard/utils/echarts'
+import { useVisualizationData } from '@/features/dashboard/hooks/useVisualizationData'
+import { mergeRowsIntoOption, parseChartConfig } from '@/features/dashboard/utils/echarts'
+import { hasTimePlaceholder } from '@/features/dashboard/utils/sql-template'
 import type { Visualization } from '@/features/dashboard/types'
 import type { TimeRange } from '@/shared/components/ui/time-range-picker'
 
@@ -14,20 +16,63 @@ export function WidgetRenderer({
   time: TimeRange
 }) {
   const { t } = useTranslation()
-  const { option, error } = useMemo(
-    () => parseChartConfig(visualization.config, time),
-    [visualization.config, time]
-  )
 
-  if (error || !option) {
+  const parsed = useMemo(() => parseChartConfig(visualization.config), [visualization.config])
+  const hasSql = !!visualization.sqlQuery?.trim()
+  const query = useVisualizationData(hasSql ? visualization : null, time)
+
+  if (parsed.error || !parsed.option) {
     return (
-      <div className="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center text-xs text-muted-foreground">
-        <AlertTriangle size={18} className="text-amber-500" />
-        <span>{t('dashboards.widget.renderError')}</span>
-        {error && <span className="text-[10px] text-muted-foreground/70">{error}</span>}
+      <ErrorPanel
+        message={t('dashboards.widget.renderError')}
+        detail={parsed.error ?? undefined}
+      />
+    )
+  }
+
+  if (hasSql && query.isLoading) {
+    return (
+      <div className="flex h-full w-full items-center justify-center gap-2 text-xs text-muted-foreground">
+        <Loader2 size={14} className="animate-spin" />
+        {t('dashboards.widget.loading')}
+      </div>
+    )
+  }
+
+  if (hasSql && query.isError) {
+    return (
+      <ErrorPanel
+        message={t('dashboards.widget.queryError')}
+        detail={query.error instanceof Error ? query.error.message : undefined}
+      />
+    )
+  }
+
+  const rows = query.data?.rows ?? []
+  const option = hasSql ? mergeRowsIntoOption(parsed.option, rows) : parsed.option
+
+  if (hasSql && rows.length === 0 && !query.isLoading) {
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
+        <span>{t('dashboards.widget.noData')}</span>
+        {!hasTimePlaceholder(visualization.sqlQuery) && (
+          <span className="text-[10px] text-muted-foreground/70">
+            {t('dashboards.widget.noTimePlaceholderHint')}
+          </span>
+        )}
       </div>
     )
   }
 
   return <EChartsRenderer option={option} />
+}
+
+function ErrorPanel({ message, detail }: { message: string; detail?: string }) {
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center text-xs text-muted-foreground">
+      <AlertTriangle size={18} className="text-amber-500" />
+      <span>{message}</span>
+      {detail && <span className="text-[10px] text-muted-foreground/70">{detail}</span>}
+    </div>
+  )
 }
