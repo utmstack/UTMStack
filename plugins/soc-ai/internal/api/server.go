@@ -201,15 +201,17 @@ func handleAgentTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	maxIters := 0
+	var capabilities []string
 	if cfg := config.GetConfig(); cfg != nil {
 		maxIters = cfg.MaxToolIterations
+		capabilities = cfg.Capabilities
 	}
 
 	_, _ = ag.Run(r.Context(), agent.RunTask{
-		System:       agent.OpsPrompt(req.Page, req.Lang),
-		Input:        req.Task,
-		Unrestricted: true,
-		MaxIters:     maxIters,
+		System:        agent.OpsPrompt(req.Page, req.Lang, capabilities),
+		Input:         req.Task,
+		EnabledGroups: capabilities,
+		MaxIters:      maxIters,
 	}, sink)
 }
 

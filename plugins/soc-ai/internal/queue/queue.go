@@ -166,12 +166,13 @@ func (aq *AlertQueue) processAlert(workerID int, item *Item) {
 		content = content[:maxAlertContentSize] + "...[TRUNCATED]"
 	}
 
-	allowWrite := triageWriteTools(cfg)
 	task := agent.RunTask{
-		System:     agent.TriagePrompt(allowWrite),
-		Input:      "Triage this alert and record your assessment as a note.\n\nALERT:\n" + content,
-		AllowWrite: allowWrite,
-		MaxIters:   cfg.MaxToolIterations,
+		System:        agent.TriagePrompt(),
+		Input:         "Triage this alert and record your assessment as a note.\n\nALERT:\n" + content,
+		EnabledGroups: cfg.Capabilities,
+		// The assessment note is the triage output channel — always permitted.
+		AlwaysAllow: []string{"alerts.update_notes"},
+		MaxIters:    cfg.MaxToolIterations,
 	}
 
 	if _, err := ag.Run(aq.ctx, task, nil); err != nil {
@@ -181,27 +182,6 @@ func (aq *AlertQueue) processAlert(workerID int, item *Item) {
 	}
 
 	atomic.AddInt64(&aq.processedCount, 1)
-}
-
-func triageWriteTools(cfg *config.Config) []string {
-	set := map[string]bool{"alerts.update_notes": true}
-	for _, t := range cfg.AllowedWriteTools {
-		if t != "" {
-			set[t] = true
-		}
-	}
-	if cfg.ChangeAlertStatus {
-		set["alerts.update_status"] = true
-	}
-	if cfg.AutomaticIncidentCreation {
-		set["incidents.create"] = true
-		set["incidents.add_alerts"] = true
-	}
-	out := make([]string, 0, len(set))
-	for k := range set {
-		out = append(out, k)
-	}
-	return out
 }
 
 func (aq *AlertQueue) metricsLogger() {

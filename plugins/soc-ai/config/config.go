@@ -36,30 +36,26 @@ type Config struct {
 	MaxTokens      int
 
 	// Agent behavior (from YAML)
-	MaxToolIterations         int
-	AutoAnalyze               bool
-	ChangeAlertStatus         bool
-	AutomaticIncidentCreation bool
-	AllowedWriteTools         []string
+	MaxToolIterations int
+	AutoAnalyze       bool
+	Capabilities      []string
 
 	// Derived: true when the plugin is configured enough to run.
 	ModuleActive bool
 }
 
 type fileConfig struct {
-	Provider                  string            `yaml:"provider"`
-	Model                     string            `yaml:"model"`
-	URL                       string            `yaml:"url"`
-	APIKey                    string            `yaml:"api_key"`
-	AuthType                  string            `yaml:"auth_type"`
-	AuthHeaderName            string            `yaml:"auth_header_name"`
-	CustomHeaders             map[string]string `yaml:"custom_headers"`
-	MaxTokens                 int               `yaml:"max_tokens"`
-	MaxToolIterations         int               `yaml:"max_tool_iterations"`
-	AutoAnalyze               bool              `yaml:"auto_analyze"`
-	ChangeAlertStatus         bool              `yaml:"change_alert_status"`
-	AutomaticIncidentCreation bool              `yaml:"automatic_incident_creation"`
-	AllowedWriteTools         []string          `yaml:"allowed_write_tools"`
+	Provider          string            `yaml:"provider"`
+	Model             string            `yaml:"model"`
+	URL               string            `yaml:"url"`
+	APIKey            string            `yaml:"api_key"`
+	AuthType          string            `yaml:"auth_type"`
+	AuthHeaderName    string            `yaml:"auth_header_name"`
+	CustomHeaders     map[string]string `yaml:"custom_headers"`
+	MaxTokens         int               `yaml:"max_tokens"`
+	MaxToolIterations int               `yaml:"max_tool_iterations"`
+	AutoAnalyze       bool              `yaml:"auto_analyze"`
+	Capabilities      []string          `yaml:"capabilities"`
 }
 
 var providerDefaultURLs = map[string]string{
@@ -237,9 +233,7 @@ func readConfig(path, encKey, backend, internalKey string) *Config {
 	c.MaxTokens = maxTokens
 	c.MaxToolIterations = maxIters
 	c.AutoAnalyze = fc.AutoAnalyze
-	c.ChangeAlertStatus = fc.ChangeAlertStatus
-	c.AutomaticIncidentCreation = fc.AutomaticIncidentCreation
-	c.AllowedWriteTools = fc.AllowedWriteTools
+	c.Capabilities = fc.Capabilities
 	c.ModuleActive = fc.Provider != "" && fc.Model != "" && url != ""
 
 	return c

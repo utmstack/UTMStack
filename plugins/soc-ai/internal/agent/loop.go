@@ -37,11 +37,11 @@ func (s EventSink) emit(e Event) {
 }
 
 type RunTask struct {
-	System       string // system prompt
-	Input        string // the user turn (alert JSON for triage, free task for ops)
-	AllowWrite   []string
-	Unrestricted bool
-	MaxIters     int
+	System        string // system prompt
+	Input         string // the user turn (alert JSON for triage, free task for ops)
+	EnabledGroups []string
+	AlwaysAllow   []string
+	MaxIters      int
 }
 
 type RunResult struct {
@@ -133,16 +133,21 @@ func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResul
 }
 
 func filterTools(specs []ToolSpec, task RunTask) []ToolSpec {
-	if task.Unrestricted {
-		return specs
+	enabled := make(map[string]bool, len(task.EnabledGroups))
+	for _, g := range task.EnabledGroups {
+		enabled[g] = true
 	}
-	allow := make(map[string]bool, len(task.AllowWrite))
-	for _, n := range task.AllowWrite {
-		allow[n] = true
+	always := make(map[string]bool, len(task.AlwaysAllow))
+	for _, n := range task.AlwaysAllow {
+		always[n] = true
 	}
 	out := make([]ToolSpec, 0, len(specs))
 	for _, s := range specs {
-		if s.ReadOnly || allow[s.Name] {
+		if s.ReadOnly || always[s.Name] {
+			out = append(out, s)
+			continue
+		}
+		if g := groupOf(s.Name); g != "" && enabled[g] {
 			out = append(out, s)
 		}
 	}

@@ -2,11 +2,7 @@ package agent
 
 import "strings"
 
-func TriagePrompt(allowWrite []string) string {
-	writeLine := "You may NOT change alert status, tags or create incidents — only record your assessment as a note."
-	if len(allowWrite) > 0 {
-		writeLine = "You are permitted to use ONLY these write tools when warranted: " + strings.Join(allowWrite, ", ") + "."
-	}
+func TriagePrompt() string {
 	return `You are an autonomous SOC (Security Operations Center) analyst working inside UTMStack, a SIEM.
 
 You are given ONE security alert as JSON. Investigate it end to end using the available tools, then record a concise, decision-ready assessment.
@@ -25,12 +21,13 @@ When done, call the note tool to write your assessment to the alert (use the ale
 
 [AI SOC Agent] Score: <0-100>/100 - <Completed|Open> - <Low|Medium|High> Risk | Threat Assessment: <one sentence> | Affected Asset: <asset or N/A> | Context: <what correlation/history shows> | LLM Analysis: <your reasoning> | Action: <recommended next step>
 
-` + writeLine + `
+## Actions
+Recording the assessment note is always allowed. You may ALSO have tools to change the alert's status, apply tags or create incidents — but only when they are present in your tool list (the administrator controls this). Use them only when clearly warranted; never assume a tool you don't have.
 
-After recording the note (and any permitted status/incident action), reply with a one-line summary of what you concluded and did. Be efficient: don't call more tools than necessary.`
+After recording the note (and any permitted action), reply with a one-line summary of what you concluded and did. Be efficient: don't call more tools than necessary.`
 }
 
-func OpsPrompt(page, lang string) string {
+func OpsPrompt(page, lang string, enabledGroups []string) string {
 	loc := "The user did not share which page they are on."
 	if strings.TrimSpace(page) != "" {
 		loc = "The user is currently on: " + strings.TrimSpace(page)
@@ -47,6 +44,9 @@ Use this to choose the most relevant tools and to craft navigation. For example,
 
 ## Language
 ` + langLine + `
+
+## Permissions
+` + permissionsBlock(enabledGroups) + `
 
 ## How to work
 - Plan briefly, then act. Carry the task end to end.
@@ -73,11 +73,6 @@ The UI renders your reply as rich markdown. Default to plain prose with light ma
 > [!WARNING]
 > This host shows signs of active compromise — isolate it before further triage.
   Types: [!TIP] [!NOTE] [!INFO] [!WARNING] [!DANGER].
-- Cards for a featured finding or an internal link:
-  <Card title="Incident #482" icon="pi pi-flag" href="/incidents/482">
-  Two failed-login bursts correlated to the same adversary.
-  </Card>
-  Icons must be one of: pi pi-… (PrimeIcons), fa fa-… (Font Awesome), mi-… (Material), hi-… (Heroicons). Never invent icon names.
 - GFM tables to compare a few structured values (top adversaries, alert counts by severity, etc.).
 - Triple-backtick fenced code blocks (tagged with a language) for queries, commands or config.
 - A triple-backtick block tagged "mermaid" for a flow or attack path that is clearer shown than told. Wrap labels containing special characters in double quotes; write "and" instead of "&".
@@ -85,4 +80,20 @@ The UI renders your reply as rich markdown. Default to plain prose with light ma
 Never fabricate image, link or video URLs — only use ones returned by tools.
 
 When finished, give a clear, concise summary of what you found and what you did.`
+}
+
+func permissionsBlock(enabledGroups []string) string {
+	allowed, locked := splitGroups(enabledGroups)
+	var b strings.Builder
+	b.WriteString("You can always read and search the entire SIEM (alerts, logs, incidents, dashboards, compliance, datasources, etc.).\n")
+	if len(allowed) > 0 {
+		b.WriteString("You are permitted to perform these changes when asked: " + strings.Join(allowed, "; ") + ".\n")
+	} else {
+		b.WriteString("You are currently read-only — no changes are permitted.\n")
+	}
+	if len(locked) > 0 {
+		b.WriteString("You are NOT permitted to: " + strings.Join(locked, "; ") + ".\n")
+	}
+	b.WriteString("If the user asks for an action you are not permitted to do (or one you have no tool for), do NOT attempt it. Briefly tell them you don't currently have permission for that, and that an administrator can enable it in Settings -> SOC-AI.")
+	return b.String()
 }
