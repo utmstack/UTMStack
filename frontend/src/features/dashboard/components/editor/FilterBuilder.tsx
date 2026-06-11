@@ -2,15 +2,17 @@ import { useTranslation } from 'react-i18next'
 import { Plus } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { FilterRowEditor } from '@/features/dashboard/components/editor/FilterRowEditor'
-import type { FilterRow, IndexPatternField } from '@/features/dashboard/types'
+import type { FilterRow, IndexProperty } from '@/features/dashboard/types'
 
 export function FilterBuilder({
   filters,
   fields,
+  loading,
   onChange,
 }: {
   filters: FilterRow[]
-  fields: IndexPatternField[]
+  fields: IndexProperty[]
+  loading?: boolean
   onChange: (next: FilterRow[]) => void
 }) {
   const { t } = useTranslation()
@@ -44,6 +46,7 @@ export function FilterBuilder({
             key={row.id}
             row={row}
             fields={fields}
+            loading={loading}
             onChange={(next) => updateRow(row.id, next)}
             onRemove={() => removeRow(row.id)}
           />

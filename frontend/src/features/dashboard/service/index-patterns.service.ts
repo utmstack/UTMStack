@@ -1,7 +1,6 @@
 import { createApiClient, type Paged } from '@/shared/lib/api-client'
 import type {
   IndexPattern,
-  IndexPatternFieldsResponse,
   IndexPatternListParams,
 } from '@/features/dashboard/types'
 
@@ -19,7 +18,6 @@ function buildQuery(params: IndexPatternListParams): string {
 
 export interface IndexPatternsService {
   listIndexPatterns(params?: IndexPatternListParams): Promise<Paged<IndexPattern[]>>
-  getIndexPatternFields(patternId: number): Promise<IndexPatternFieldsResponse>
 }
 
 export function createIndexPatternsService(baseUrl?: string): IndexPatternsService {
@@ -28,8 +26,5 @@ export function createIndexPatternsService(baseUrl?: string): IndexPatternsServi
   return {
     listIndexPatterns: (params = {}) =>
       api.getPaged<IndexPattern[]>(`${BASE_URL}${buildQuery(params)}`),
-
-    getIndexPatternFields: (patternId: number) =>
-      api.get<IndexPatternFieldsResponse>(`${BASE_URL}/fields?id=${patternId}`),
   }
 }

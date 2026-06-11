@@ -102,7 +102,26 @@ export interface WidgetLayout {
   order?: number
 }
 
-export type ChartTypeId = 'bar' | 'line' | 'area' | 'pie' | 'metric' | 'table'
+export type ChartTypeId =
+  | 'bar'
+  | 'horizontal_bar'
+  | 'line'
+  | 'area'
+  | 'pie'
+  | 'gauge'
+  | 'goal'
+  | 'heatmap'
+  | 'tag_cloud'
+  | 'metric'
+  | 'table'
+  | 'list'
+  | 'region_map'
+  | 'text'
+
+export interface IndexProperty {
+  name: string
+  type: string
+}
 
 export type AggregationId = 'count' | 'count_distinct' | 'sum' | 'avg' | 'min' | 'max'
 
@@ -150,16 +169,6 @@ export interface IndexPattern {
   patternModule?: string | null
   patternSystem?: boolean | null
   isActive?: boolean | null
-}
-
-export interface IndexPatternField {
-  name: string
-  type: string
-}
-
-export interface IndexPatternFieldsResponse {
-  indexPattern: IndexPattern
-  fields: IndexPatternField[]
 }
 
 export interface IndexPatternListParams {

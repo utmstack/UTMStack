@@ -4,6 +4,9 @@ import { AlertTriangle, Loader2 } from 'lucide-react'
 import { EChartsRenderer } from '@/features/dashboard/components/EChartsRenderer'
 import { MetricRenderer } from '@/features/dashboard/components/renderers/MetricRenderer'
 import { TableRenderer } from '@/features/dashboard/components/renderers/TableRenderer'
+import { TagCloudRenderer } from '@/features/dashboard/components/renderers/TagCloudRenderer'
+import { RegionMapRenderer } from '@/features/dashboard/components/renderers/RegionMapRenderer'
+import { TextRenderer } from '@/features/dashboard/components/renderers/TextRenderer'
 import { useVisualizationData } from '@/features/dashboard/hooks/useVisualizationData'
 import { mergeRowsIntoOption, parseChartConfig } from '@/features/dashboard/utils/echarts'
 import { hasTimePlaceholder } from '@/features/dashboard/utils/sql-template'
@@ -80,6 +83,15 @@ export function WidgetRenderer({
   }
   if (renderer === 'metric') {
     return <MetricRenderer rows={rows} label={visualization.name} />
+  }
+  if (renderer === 'tag_cloud') {
+    return <TagCloudRenderer rows={rows} />
+  }
+  if (renderer === 'region_map') {
+    return <RegionMapRenderer rows={rows} />
+  }
+  if (renderer === 'text') {
+    return <TextRenderer rows={rows} />
   }
 
   const option = hasSql && parsed.option ? mergeRowsIntoOption(parsed.option, rows) : parsed.option!

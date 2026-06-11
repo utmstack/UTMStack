@@ -1,18 +1,20 @@
 import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
 import { Input } from '@/shared/components/ui/input'
-import { FieldCombobox } from '@/features/dashboard/components/editor/FieldCombobox'
+import { FieldSelect } from '@/features/dashboard/components/editor/FieldSelect'
 import { OPERATORS, getOperatorMeta } from '@/features/dashboard/constants'
-import type { FilterOperatorId, FilterRow, IndexPatternField } from '@/features/dashboard/types'
+import type { FilterOperatorId, FilterRow, IndexProperty } from '@/features/dashboard/types'
 
 export function FilterRowEditor({
   row,
   fields,
+  loading,
   onChange,
   onRemove,
 }: {
   row: FilterRow
-  fields: IndexPatternField[]
+  fields: IndexProperty[]
+  loading?: boolean
   onChange: (next: FilterRow) => void
   onRemove: () => void
 }) {
@@ -34,11 +36,12 @@ export function FilterRowEditor({
         <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
           {t('dashboards.editor.filters.field')}
         </label>
-        <FieldCombobox
+        <FieldSelect
           value={row.field}
           onChange={(v) => onChange({ ...row, field: v })}
           fields={fields}
-          placeholder={t('dashboards.editor.filters.fieldPlaceholder') ?? ''}
+          loading={loading}
+          placeholder={t('dashboards.editor.filters.fieldPlaceholder') ?? undefined}
         />
       </div>
       <div className="md:w-44">

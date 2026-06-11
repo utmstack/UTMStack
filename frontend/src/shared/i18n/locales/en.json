@@ -228,6 +228,10 @@
           "label": "Bar",
           "description": "Compare values across categories."
         },
+        "horizontal_bar": {
+          "label": "Bar (horizontal)",
+          "description": "Like a bar chart with the axes swapped."
+        },
         "line": {
           "label": "Line",
           "description": "Trends over an ordered axis."
@@ -240,13 +244,41 @@
           "label": "Pie",
           "description": "Share of a whole by category."
         },
+        "gauge": {
+          "label": "Gauge",
+          "description": "A single value against a reference dial."
+        },
+        "goal": {
+          "label": "Goal",
+          "description": "Progress towards a target percentage."
+        },
+        "heatmap": {
+          "label": "Heat map",
+          "description": "Two categorical axes, value shown by colour."
+        },
+        "tag_cloud": {
+          "label": "Tag cloud",
+          "description": "Words sized by frequency."
+        },
         "metric": {
           "label": "Metric",
           "description": "A single scalar value."
         },
         "table": {
           "label": "Table",
-          "description": "Raw rows, paginated locally."
+          "description": "Aggregated rows."
+        },
+        "list": {
+          "label": "List",
+          "description": "Raw, non-aggregated rows."
+        },
+        "region_map": {
+          "label": "Region map",
+          "description": "Plot values by region (data table for now — map rendering coming later)."
+        },
+        "text": {
+          "label": "Text",
+          "description": "Free-form text or plain row output."
         }
       },
       "dataSource": {
@@ -325,6 +357,33 @@
       },
       "rawMode": {
         "label": "Advanced (raw SQL)"
+      },
+      "tabs": {
+        "visual": "Visual",
+        "sql": "SQL"
+      },
+      "chartTypeChip": {
+        "label": "Chart:"
+      },
+      "chartTypeModal": {
+        "title": "Pick a chart type",
+        "subtitle": "Choose how to visualize the data. You can change this later.",
+        "confirm": "Continue",
+        "swapTitle": "Change chart type",
+        "swapConfirm": "Apply"
+      },
+      "saveDialog": {
+        "createTitle": "Save new visualization",
+        "updateTitle": "Save changes",
+        "subtitle": "Give it a name so you can find it in the list."
+      },
+      "saveVisualization": "Save visualization",
+      "fieldSelect": {
+        "loading": "Loading fields…",
+        "choose": "Choose a field…"
+      },
+      "toast": {
+        "notReady": "Pick an index pattern (and add a metric or SQL) before saving."
       }
     },
     "grid": {
@@ -338,7 +397,8 @@
       "loading": "Loading data…",
       "queryError": "Could not load widget data.",
       "noData": "No data for the selected time range.",
-      "noTimePlaceholderHint": "Tip: add a time placeholder to the SQL so it filters by the picker range."
+      "noTimePlaceholderHint": "Tip: add a time placeholder to the SQL so it filters by the picker range.",
+      "regionMapPending": "{{count}} regions — map rendering coming later."
     },
     "form": {
       "createTitle": "New dashboard",

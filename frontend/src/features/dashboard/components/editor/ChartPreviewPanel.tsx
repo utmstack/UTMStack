@@ -4,6 +4,9 @@ import { AlertTriangle, Loader2 } from 'lucide-react'
 import { EChartsRenderer } from '@/features/dashboard/components/EChartsRenderer'
 import { MetricRenderer } from '@/features/dashboard/components/renderers/MetricRenderer'
 import { TableRenderer } from '@/features/dashboard/components/renderers/TableRenderer'
+import { TagCloudRenderer } from '@/features/dashboard/components/renderers/TagCloudRenderer'
+import { RegionMapRenderer } from '@/features/dashboard/components/renderers/RegionMapRenderer'
+import { TextRenderer } from '@/features/dashboard/components/renderers/TextRenderer'
 import { useStagedVisualizationData } from '@/features/dashboard/hooks/useStagedVisualizationData'
 import { mergeRowsIntoOption } from '@/features/dashboard/utils/echarts'
 import { presetRange, TimeRangePicker, type TimeRange } from '@/shared/components/ui/time-range-picker'
@@ -123,5 +126,8 @@ function Body({
 
   if (renderer === 'table') return <TableRenderer rows={rows} />
   if (renderer === 'metric') return <MetricRenderer rows={rows} label={label} />
+  if (renderer === 'tag_cloud') return <TagCloudRenderer rows={rows} />
+  if (renderer === 'region_map') return <RegionMapRenderer rows={rows} />
+  if (renderer === 'text') return <TextRenderer rows={rows} />
   return <EChartsRenderer option={option} />
 }

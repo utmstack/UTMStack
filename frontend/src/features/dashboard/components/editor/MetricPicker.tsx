@@ -1,19 +1,21 @@
 import { useTranslation } from 'react-i18next'
-import { FieldCombobox } from '@/features/dashboard/components/editor/FieldCombobox'
+import { FieldSelect } from '@/features/dashboard/components/editor/FieldSelect'
 import { AGGREGATIONS } from '@/features/dashboard/constants'
 import type {
   AggregationId,
   BuilderMetric,
-  IndexPatternField,
+  IndexProperty,
 } from '@/features/dashboard/types'
 
 export function MetricPicker({
   value,
   fields,
+  loading,
   onChange,
 }: {
   value: BuilderMetric
-  fields: IndexPatternField[]
+  fields: IndexProperty[]
+  loading?: boolean
   onChange: (next: BuilderMetric) => void
 }) {
   const { t } = useTranslation()
@@ -44,16 +46,17 @@ export function MetricPicker({
         <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
           {t('dashboards.editor.metric.field')}
         </label>
-        <FieldCombobox
-          value={value.field ?? ''}
+        <FieldSelect
+          value={value.field}
           onChange={(v) => onChange({ ...value, field: v || null })}
           fields={fields}
+          loading={loading}
+          disabled={!needsField}
           placeholder={
             needsField
-              ? t('dashboards.editor.metric.fieldPlaceholder') ?? ''
-              : t('dashboards.editor.metric.fieldNotRequired') ?? ''
+              ? t('dashboards.editor.metric.fieldPlaceholder') ?? undefined
+              : t('dashboards.editor.metric.fieldNotRequired') ?? undefined
           }
-          disabled={!needsField}
         />
       </div>
     </div>

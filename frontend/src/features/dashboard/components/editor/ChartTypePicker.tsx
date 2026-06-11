@@ -1,10 +1,18 @@
 import { useTranslation } from 'react-i18next'
 import {
   BarChart3,
+  BarChartHorizontal,
   LineChart,
   AreaChart,
   PieChart,
+  Gauge,
+  Target,
+  Grid3x3,
+  Cloud,
   Hash,
+  List as ListIcon,
+  Map,
+  Type,
   Table as TableIcon,
   type LucideIcon,
 } from 'lucide-react'
@@ -14,11 +22,19 @@ import type { ChartTypeId } from '@/features/dashboard/types'
 
 const ICONS: Record<string, LucideIcon> = {
   bar: BarChart3,
+  horizontal_bar: BarChartHorizontal,
   line: LineChart,
   area: AreaChart,
   pie: PieChart,
+  gauge: Gauge,
+  goal: Target,
+  heatmap: Grid3x3,
+  tag_cloud: Cloud,
   metric: Hash,
   table: TableIcon,
+  list: ListIcon,
+  region_map: Map,
+  text: Type,
 }
 
 export function ChartTypePicker({

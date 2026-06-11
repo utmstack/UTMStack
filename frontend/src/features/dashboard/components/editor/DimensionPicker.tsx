@@ -1,14 +1,16 @@
 import { useTranslation } from 'react-i18next'
-import { FieldCombobox } from '@/features/dashboard/components/editor/FieldCombobox'
-import type { IndexPatternField } from '@/features/dashboard/types'
+import { FieldSelect } from '@/features/dashboard/components/editor/FieldSelect'
+import type { IndexProperty } from '@/features/dashboard/types'
 
 export function DimensionPicker({
   value,
   fields,
+  loading,
   onChange,
 }: {
   value: string | null
-  fields: IndexPatternField[]
+  fields: IndexProperty[]
+  loading?: boolean
   onChange: (next: string | null) => void
 }) {
   const { t } = useTranslation()
@@ -17,11 +19,12 @@ export function DimensionPicker({
       <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
         {t('dashboards.editor.dimension.field')}
       </label>
-      <FieldCombobox
-        value={value ?? ''}
+      <FieldSelect
+        value={value}
         onChange={(v) => onChange(v || null)}
         fields={fields}
-        placeholder={t('dashboards.editor.dimension.placeholder') ?? ''}
+        loading={loading}
+        placeholder={t('dashboards.editor.dimension.placeholder') ?? undefined}
       />
     </div>
   )
