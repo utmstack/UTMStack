@@ -417,11 +417,15 @@
     },
     "addWidget": {
       "title": "Add visualization",
-      "subtitle": "Pick an existing visualization to drop on the grid.",
+      "subtitle": "Pick one or more existing visualizations to drop on the grid.",
       "searchPlaceholder": "Search visualizations…",
       "loading": "Loading visualizations…",
       "empty": "No visualizations found.",
-      "alreadyAdded": "Already on this dashboard"
+      "alreadyAdded": "Already on this dashboard",
+      "newWidget": "New widget",
+      "noneSelected": "No widgets selected",
+      "selectedCount": "{{count}} selected",
+      "addSelected": "Add ({{count}})"
     },
     "confirm": {
       "deleteTitle": "Delete dashboard",
@@ -439,6 +443,7 @@
       "deleted": "Dashboard deleted.",
       "deleteFailed": "Could not delete dashboard.",
       "widgetAdded": "Widget added.",
+      "widgetsAdded": "{{count}} widgets added.",
       "widgetAddFailed": "Could not add widget.",
       "layoutSaved": "Layout saved.",
       "layoutSaveFailed": "Could not save layout.",

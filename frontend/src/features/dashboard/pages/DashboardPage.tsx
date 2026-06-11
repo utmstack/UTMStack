@@ -137,22 +137,25 @@ export function DashboardPage() {
     })
   }
 
-  const handleAddVisualization = (viz: Visualization) => {
-    if (selectedId == null) return
-    layouts.createLayout.mutate(
-      {
-        idDashboard: selectedId,
-        idVisualization: viz.id,
-        layout: serializeLayout({ ...DEFAULT_WIDGET_LAYOUT }),
-      },
-      {
-        onSuccess: () => {
-          toast.success(t('dashboards.toast.widgetAdded'))
-          setAddOpen(false)
-        },
-        onError: (err) => toast.error(err.message ?? t('dashboards.toast.widgetAddFailed')),
+  const handleAddVisualizations = async (vizs: Visualization[]) => {
+    if (selectedId == null || vizs.length === 0) return
+    try {
+      for (const viz of vizs) {
+        await layouts.createLayout.mutateAsync({
+          idDashboard: selectedId,
+          idVisualization: viz.id,
+          layout: serializeLayout({ ...DEFAULT_WIDGET_LAYOUT }),
+        })
       }
-    )
+      toast.success(
+        vizs.length === 1
+          ? t('dashboards.toast.widgetAdded')
+          : t('dashboards.toast.widgetsAdded', { count: vizs.length })
+      )
+      setAddOpen(false)
+    } catch (err) {
+      toast.error((err as Error)?.message ?? t('dashboards.toast.widgetAddFailed'))
+    }
   }
 
   const handleSave = async () => {
@@ -285,8 +288,9 @@ export function DashboardPage() {
       <AddVisualizationDrawer
         open={addOpen}
         excludedIds={excludedVizIds}
+        busy={layouts.createLayout.isPending}
         onClose={() => setAddOpen(false)}
-        onPick={handleAddVisualization}
+        onAdd={handleAddVisualizations}
       />
 
       <ConfirmDialog
