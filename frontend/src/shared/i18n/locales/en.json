@@ -475,16 +475,31 @@
     "visualizationList": {
       "title": "Visualizations",
       "subtitle": "{{count}} visualization(s) available.",
+      "subtitleFiltered": "Showing {{shown}} of {{total}}.",
       "create": "New",
       "searchPlaceholder": "Search visualizations…",
       "loading": "Loading visualizations…",
       "empty": "No visualizations yet.",
+      "emptyFiltered": "No visualizations match the current filters.",
       "delete": "Delete",
       "deleteTitle": "Delete visualization",
       "confirmDelete": "Delete visualization \"{{name}}\"? This cannot be undone.",
+      "filters": {
+        "search": "Search",
+        "chartType": "Chart type",
+        "allChartTypes": "All chart types",
+        "source": "Source",
+        "allSources": "All sources",
+        "createdFrom": "Created from",
+        "createdTo": "Created to",
+        "clear": "Clear filters"
+      },
       "col": {
         "name": "Name",
+        "chartType": "Chart type",
+        "source": "Source",
         "description": "Description",
+        "created": "Created",
         "modified": "Modified"
       }
     }
