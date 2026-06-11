@@ -12,6 +12,48 @@
     },
     "basePath": "/api/v1",
     "paths": {
+        "/ad-audit/stats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Roll-up for the User Auditor overview: lifecycle counts, by-domain breakdown and the distinct tenant list.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AD Audit"
+                ],
+                "summary": "AD user inventory stats",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Scope the counts to a tenant",
+                        "name": "tenantId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ADUserStats"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/ad-audit/users": {
             "get": {
                 "security": [
@@ -43,6 +85,18 @@
                         "type": "boolean",
                         "description": "Filter by active",
                         "name": "active",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lifecycle bucket: active|disabled|deleted|stale|service (overrides active)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort: recent (last seen) or name (default)",
+                        "name": "sort",
                         "in": "query"
                     },
                     {
@@ -1965,6 +2019,77 @@
                 }
             }
         },
+        "/branding/assets/{slot}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Stores a branding image (logo/logoDark/favicon/loginBackground/reportLogo/reportCover) and points the matching branding URL at it. MSSP feature.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Branding"
+                ],
+                "summary": "Upload a white-label branding image",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Asset slot: logo|logoDark|favicon|loginBackground|reportLogo|reportCover",
+                        "name": "slot",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Image file (png/jpg/webp/gif/svg/ico, ≤5MB)",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BrandingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/branding/public": {
             "get": {
                 "description": "Unauthenticated branding for the login page. Returns the default brand when white-labeling is disabled or not entitled.",
@@ -1980,6 +2105,47 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.BrandingPublic"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/branding/seed": {
+            "post": {
+                "description": "Internal-only. The installer posts the customer's brand fields and image files; the brand is persisted (enabled) and rendered once the MSSP license is present.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Branding"
+                ],
+                "summary": "Seed white-label branding at install time",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BrandingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
@@ -3000,7 +3166,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/dto.ConfigResponse"
+                                "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_appconfig_dto.ConfigResponse"
                             }
                         }
                     }
@@ -3082,7 +3248,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.ConfigResponse"
+                            "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_appconfig_dto.ConfigResponse"
                         }
                     },
                     "404": {
@@ -3135,7 +3301,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.ConfigResponse"
+                            "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_appconfig_dto.ConfigResponse"
                         }
                     },
                     "400": {
@@ -4277,6 +4443,26 @@
                             "additionalProperties": {
                                 "type": "string"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/date-format": {
+            "get": {
+                "description": "Public, read-only timezone + date format used to render timestamps. Data is always stored in UTC.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Config"
+                ],
+                "summary": "Get the org-wide timestamp display preference",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DateFormatResponse"
                         }
                     }
                 }
@@ -11386,6 +11572,152 @@
                 }
             }
         },
+        "/soc-ai/chat": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Proxies a free-form operations task to the soc-ai plugin agent and\nstreams its steps back as Server-Sent Events (tool_call, tool_result,\nfinal, error). Chat-style: give the agent a task, watch it execute.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "SOC AI"
+                ],
+                "summary": "Run a SOC AI agent task (streaming)",
+                "parameters": [
+                    {
+                        "description": "Task to execute",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.chatRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "SSE stream",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/soc-ai/config": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the current soc-ai plugin configuration with secrets masked.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SOC AI"
+                ],
+                "summary": "Get SOC AI configuration",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_socai_dto.ConfigResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Persists the soc-ai plugin configuration (writing the encrypted YAML\nthe plugin consumes). Secrets sent as \"*****\" keep their stored value.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SOC AI"
+                ],
+                "summary": "Update SOC AI configuration",
+                "parameters": [
+                    {
+                        "description": "SOC AI configuration",
+                        "name": "config",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ConfigRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_socai_dto.ConfigResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/sso/saml/{name}/acs": {
             "post": {
                 "description": "Receives the IdP SAMLResponse, validates it, maps the NameID to a local user and redirects to the app with a session token.",
@@ -11462,6 +11794,36 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/dto.TfaCompleteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/tfa/disable": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TFA"
+                ],
+                "summary": "Disable TFA for the current user",
+                "parameters": [
+                    {
+                        "description": "Current password",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.TfaDisableRequest"
                         }
                     }
                 ],
@@ -11791,6 +12153,34 @@
                 "responses": {
                     "204": {
                         "description": "Roles assigned"
+                    }
+                }
+            }
+        },
+        "/users/{id}/tfa/disable": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Administrative reset of another user's two-factor enrollment so a\nuser who lost their authenticator can re-enroll at next login.",
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Reset (disable) a user's TFA",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "TFA reset"
                     }
                 }
             }
@@ -12192,6 +12582,58 @@
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/utm-alerts/related-logs": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Reproduces the Event Processor's correlation search (without the\nengine's 10-hit cap) and returns the matching log ids so the UI can\nload every related log in the Log Explorer.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alerts"
+                ],
+                "summary": "Related logs for an alert",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Alert ID",
+                        "name": "alertId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RelatedLogsResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -13090,6 +13532,7 @@
                     "type": "string"
                 },
                 "port": {
+                    "description": "SMTP submission ports (587/465/25) exceed uint8",
                     "type": "integer"
                 },
                 "username": {
@@ -13992,6 +14435,44 @@
                 }
             }
         },
+        "dto.ADUserStats": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "integer"
+                },
+                "by_domain": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.DomainCount"
+                    }
+                },
+                "deleted": {
+                    "type": "integer"
+                },
+                "disabled": {
+                    "type": "integer"
+                },
+                "seen_24h": {
+                    "type": "integer"
+                },
+                "service": {
+                    "type": "integer"
+                },
+                "stale": {
+                    "type": "integer"
+                },
+                "tenants": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.APIKeyListResponse": {
             "type": "object",
             "properties": {
@@ -14245,13 +14726,7 @@
                 "faviconUrl": {
                     "type": "string"
                 },
-                "footerText": {
-                    "type": "string"
-                },
-                "hidePoweredBy": {
-                    "type": "boolean"
-                },
-                "loginBackgroundUrl": {
+                "language": {
                     "type": "string"
                 },
                 "logoDarkUrl": {
@@ -14260,13 +14735,7 @@
                 "logoUrl": {
                     "type": "string"
                 },
-                "primaryColor": {
-                    "type": "string"
-                },
                 "productName": {
-                    "type": "string"
-                },
-                "supportUrl": {
                     "type": "string"
                 }
             }
@@ -14283,22 +14752,10 @@
                 "faviconUrl": {
                     "type": "string"
                 },
-                "footerText": {
-                    "type": "string"
-                },
-                "hidePoweredBy": {
-                    "type": "boolean"
-                },
-                "loginBackgroundUrl": {
-                    "type": "string"
-                },
                 "logoDarkUrl": {
                     "type": "string"
                 },
                 "logoUrl": {
-                    "type": "string"
-                },
-                "primaryColor": {
                     "type": "string"
                 },
                 "productName": {
@@ -14310,9 +14767,6 @@
                 },
                 "reportLogoUrl": {
                     "description": "logo embedded in report PDFs (legacy REPORT)",
-                    "type": "string"
-                },
-                "supportUrl": {
                     "type": "string"
                 }
             }
@@ -14321,6 +14775,7 @@
             "type": "object",
             "properties": {
                 "accentColor": {
+                    "description": "brand primary color (CSS color, e.g. #8b5cf6); drives --primary",
                     "type": "string"
                 },
                 "enabled": {
@@ -14329,22 +14784,10 @@
                 "faviconUrl": {
                     "type": "string"
                 },
-                "footerText": {
-                    "type": "string"
-                },
-                "hidePoweredBy": {
-                    "type": "boolean"
-                },
-                "loginBackgroundUrl": {
-                    "type": "string"
-                },
                 "logoDarkUrl": {
                     "type": "string"
                 },
                 "logoUrl": {
-                    "type": "string"
-                },
-                "primaryColor": {
                     "type": "string"
                 },
                 "productName": {
@@ -14356,9 +14799,6 @@
                 },
                 "reportLogoUrl": {
                     "description": "logo embedded in report PDFs (legacy REPORT)",
-                    "type": "string"
-                },
-                "supportUrl": {
                     "type": "string"
                 },
                 "updatedAt": {
@@ -14498,31 +14938,56 @@
                 }
             }
         },
-        "dto.ConfigResponse": {
+        "dto.ConfigRequest": {
             "type": "object",
+            "required": [
+                "model",
+                "provider"
+            ],
             "properties": {
-                "description": {
+                "allowedWriteTools": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "apiKey": {
                     "type": "string"
                 },
-                "is_secret": {
+                "authHeaderName": {
+                    "type": "string"
+                },
+                "authType": {
+                    "type": "string"
+                },
+                "autoAnalyze": {
                     "type": "boolean"
                 },
-                "is_set": {
+                "automaticIncidentCreation": {
                     "type": "boolean"
                 },
-                "key": {
+                "changeAlertStatus": {
+                    "type": "boolean"
+                },
+                "customHeaders": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "maxTokens": {
+                    "type": "integer"
+                },
+                "maxToolIterations": {
+                    "type": "integer"
+                },
+                "model": {
                     "type": "string"
                 },
-                "label": {
+                "provider": {
                     "type": "string"
                 },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "type": "string"
-                },
-                "value": {
+                "url": {
                     "type": "string"
                 }
             }
@@ -15214,6 +15679,28 @@
                 }
             }
         },
+        "dto.DateFormatResponse": {
+            "type": "object",
+            "properties": {
+                "dateFormat": {
+                    "type": "string"
+                },
+                "timezone": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.DomainCount": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "domain": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.EnabledRequest": {
             "type": "object",
             "properties": {
@@ -15888,6 +16375,35 @@
                 }
             }
         },
+        "dto.RelatedLogsResponse": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "indexPattern": {
+                    "type": "string"
+                },
+                "ruleMatched": {
+                    "type": "boolean"
+                },
+                "timeFrom": {
+                    "type": "string"
+                },
+                "timeTo": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "truncated": {
+                    "type": "boolean"
+                }
+            }
+        },
         "dto.ResetPasswordFinishRequest": {
             "type": "object",
             "required": [
@@ -16202,6 +16718,17 @@
                         "EMAIL",
                         "TOTP"
                     ]
+                }
+            }
+        },
+        "dto.TfaDisableRequest": {
+            "type": "object",
+            "required": [
+                "password"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
                 }
             }
         },
@@ -16980,6 +17507,56 @@
                     "items": {
                         "$ref": "#/definitions/dto.RoleDigest"
                     }
+                },
+                "tfa_enabled": {
+                    "type": "boolean"
+                },
+                "tfa_method": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UserListItem": {
+            "type": "object",
+            "properties": {
+                "activated": {
+                    "type": "boolean"
+                },
+                "default_password": {
+                    "type": "boolean"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "lang_key": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.RoleDigest"
+                    }
+                },
+                "tfa_enabled": {
+                    "type": "boolean"
+                },
+                "tfa_method": {
+                    "type": "string"
                 }
             }
         },
@@ -16989,7 +17566,7 @@
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.UserResponse"
+                        "$ref": "#/definitions/dto.UserListItem"
                     }
                 },
                 "page_info": {
@@ -17022,6 +17599,12 @@
                     "type": "string"
                 },
                 "login": {
+                    "type": "string"
+                },
+                "tfa_enabled": {
+                    "type": "boolean"
+                },
+                "tfa_method": {
                     "type": "string"
                 }
             }
@@ -17099,6 +17682,35 @@
                 }
             }
         },
+        "github_com_utmstack_utmstack_backend_modules_appconfig_dto.ConfigResponse": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "is_secret": {
+                    "type": "boolean"
+                },
+                "is_set": {
+                    "type": "boolean"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_utmstack_utmstack_backend_modules_incidents_dto.UpdateAlertStatusRequest": {
             "type": "object",
             "required": [
@@ -17119,6 +17731,76 @@
                 },
                 "status": {
                     "type": "integer"
+                }
+            }
+        },
+        "github_com_utmstack_utmstack_backend_modules_socai_dto.ConfigResponse": {
+            "type": "object",
+            "properties": {
+                "allowedWriteTools": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "apiKeySet": {
+                    "type": "boolean"
+                },
+                "authHeaderName": {
+                    "type": "string"
+                },
+                "authType": {
+                    "type": "string"
+                },
+                "autoAnalyze": {
+                    "type": "boolean"
+                },
+                "automaticIncidentCreation": {
+                    "type": "boolean"
+                },
+                "changeAlertStatus": {
+                    "type": "boolean"
+                },
+                "configured": {
+                    "type": "boolean"
+                },
+                "customHeaders": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "maxTokens": {
+                    "type": "integer"
+                },
+                "maxToolIterations": {
+                    "type": "integer"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.chatRequest": {
+            "type": "object",
+            "required": [
+                "task"
+            ],
+            "properties": {
+                "lang": {
+                    "type": "string"
+                },
+                "page": {
+                    "type": "string"
+                },
+                "task": {
+                    "type": "string"
                 }
             }
         },

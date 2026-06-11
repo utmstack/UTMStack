@@ -2,6 +2,7 @@ package eventprocessing
 
 import (
 	"context"
+	"encoding/json"
 	"path/filepath"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -122,4 +123,8 @@ func (m *Module) GetCorrelationRuleUsecase() connectors.CorrelationRuleUsecase {
 func (m *Module) GetFilterUsecase() connectors.FilterUsecase { return m.filterUsecase }
 func (m *Module) GetIngestionStatsUsecase() connectors.IngestionStatsUsecase {
 	return m.ingestionStatsUsecase
+}
+
+func (m *Module) AfterEventsByRuleName(name string) (json.RawMessage, bool) {
+	return m.ruleStore.AfterEventsByName(name)
 }

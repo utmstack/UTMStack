@@ -33,10 +33,12 @@ func (u *alertTagUsecase) Update(ctx context.Context, req dto.UpdateAlertTagRequ
 	if existing == nil {
 		return nil, domain.ErrAlertTagNotFound
 	}
+	if existing.SystemOwner {
+		return nil, domain.ErrAlertTagSystemOwned
+	}
 
 	existing.TagName = req.TagName
 	existing.TagColor = req.TagColor
-	existing.SystemOwner = req.SystemOwner
 
 	return u.repo.Update(ctx, *existing)
 }
@@ -75,6 +77,9 @@ func (u *alertTagUsecase) Delete(ctx context.Context, id uint64) error {
 	}
 	if existing == nil {
 		return domain.ErrAlertTagNotFound
+	}
+	if existing.SystemOwner {
+		return domain.ErrAlertTagSystemOwned
 	}
 	return u.repo.Delete(ctx, id)
 }

@@ -54,6 +54,10 @@ func (m *Module) GetAlertHandler() *handler.AlertHandler { return m.alertHandler
 
 func (m *Module) GetAlertUsecase() connectors.AlertUsecase { return m.alertUsecase }
 
+func (m *Module) SetCorrelationResolver(r connectors.CorrelationResolver) {
+	m.alertUsecase.SetCorrelationResolver(r)
+}
+
 func (m *Module) GetAlertTagHandler() *handler.AlertTagHandler { return m.alertTagHandler }
 
 func (m *Module) GetAlertTagUsecase() connectors.AlertTagUsecase { return m.alertTagUsecase }

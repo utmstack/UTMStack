@@ -66,7 +66,30 @@ func (b *BootstrapService) InitPolicy(ctx context.Context) error {
 	if err := b.createPolicy(ctx); err != nil {
 		return err
 	}
+
+	b.ensureFieldLimits(ctx)
 	return b.registerSnapshotRepo(ctx)
+}
+
+func (b *BootstrapService) ensureFieldLimits(ctx context.Context) {
+	logsPattern := b.registry.Get(domain.SysPatternLogs)
+	if logsPattern == "" {
+		logsPattern = "v11-log-*"
+	}
+	alertsPattern := b.registry.Get(domain.SysPatternAlerts)
+	if alertsPattern == "" {
+		alertsPattern = "v11-alert-*"
+	}
+	patterns := []string{logsPattern, alertsPattern}
+
+	if err := b.ismRepo.EnsureFieldLimitTemplate(ctx, patterns); err != nil {
+		catcher.Warn("opensearch: ensure field-limit template failed: "+err.Error(), nil)
+	}
+	for _, p := range patterns {
+		if err := b.ismRepo.RaiseFieldLimit(ctx, p); err != nil {
+			catcher.Warn("opensearch: raise field limit on "+p+" failed: "+err.Error(), nil)
+		}
+	}
 }
 
 func (b *BootstrapService) createPolicy(ctx context.Context) error {

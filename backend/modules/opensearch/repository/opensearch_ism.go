@@ -78,6 +78,50 @@ func (c *ISMClient) UpdatePolicy(ctx context.Context, policy domain.IndexPolicy,
 	return nil
 }
 
+const fieldLimit = 50000
+
+func (c *ISMClient) EnsureFieldLimitTemplate(ctx context.Context, patterns []string) error {
+	if len(patterns) == 0 {
+		return nil
+	}
+	path := "_index_template/utmstack-field-limit"
+	body := map[string]any{
+		"index_patterns": patterns,
+		"priority":       0,
+		"template": map[string]any{
+			"settings": map[string]any{
+				"index.mapping.total_fields.limit": fieldLimit,
+				"number_of_shards":                 3,
+				"number_of_replicas":               0,
+			},
+		},
+	}
+	data, status, err := c.do(ctx, http.MethodPut, path, body)
+	if err != nil {
+		return err
+	}
+	if status < 200 || status >= 300 {
+		return fmt.Errorf("ism: EnsureFieldLimitTemplate: status %d: %s", status, string(data))
+	}
+	return nil
+}
+
+func (c *ISMClient) RaiseFieldLimit(ctx context.Context, pattern string) error {
+	path := fmt.Sprintf("%s/_settings", pattern)
+	body := map[string]any{"index.mapping.total_fields.limit": fieldLimit}
+	data, status, err := c.do(ctx, http.MethodPut, path, body)
+	if err != nil {
+		return err
+	}
+	if status == http.StatusNotFound {
+		return nil
+	}
+	if status < 200 || status >= 300 {
+		return fmt.Errorf("ism: RaiseFieldLimit(%s): status %d: %s", pattern, status, string(data))
+	}
+	return nil
+}
+
 func (c *ISMClient) AddPolicyToIndex(ctx context.Context, indexPattern string) error {
 	path := fmt.Sprintf("_plugins/_ism/add/%s", indexPattern)
 	body := domain.AddPolicyRequest{PolicyID: domain.PolicyID}

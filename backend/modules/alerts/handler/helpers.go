@@ -58,8 +58,12 @@ func pathID(c *gin.Context, name string) (uint64, bool) {
 
 func writeAlertError(c *gin.Context, err error) {
 	switch {
+	case errors.Is(err, domain.ErrAlertNotFound):
+		c.JSON(http.StatusNotFound, gin.H{"error": "alert not found"})
 	case errors.Is(err, domain.ErrAlertTagNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": "alert tag not found"})
+	case errors.Is(err, domain.ErrAlertTagSystemOwned):
+		c.JSON(http.StatusForbidden, gin.H{"error": "system-owned tag cannot be modified or deleted"})
 	case errors.Is(err, domain.ErrAlertTagRuleNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": "alert tag rule not found"})
 	case errors.Is(err, domain.ErrTagNameTaken):

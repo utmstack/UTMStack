@@ -343,6 +343,7 @@ definitions:
       password:
         type: string
       port:
+        description: SMTP submission ports (587/465/25) exceed uint8
         type: integer
       username:
         type: string
@@ -955,6 +956,31 @@ definitions:
       systemOwner:
         type: boolean
     type: object
+  dto.ADUserStats:
+    properties:
+      active:
+        type: integer
+      by_domain:
+        items:
+          $ref: '#/definitions/dto.DomainCount'
+        type: array
+      deleted:
+        type: integer
+      disabled:
+        type: integer
+      seen_24h:
+        type: integer
+      service:
+        type: integer
+      stale:
+        type: integer
+      tenants:
+        items:
+          type: string
+        type: array
+      total:
+        type: integer
+    type: object
   dto.APIKeyListResponse:
     properties:
       data:
@@ -1121,21 +1147,13 @@ definitions:
         type: boolean
       faviconUrl:
         type: string
-      footerText:
-        type: string
-      hidePoweredBy:
-        type: boolean
-      loginBackgroundUrl:
+      language:
         type: string
       logoDarkUrl:
         type: string
       logoUrl:
         type: string
-      primaryColor:
-        type: string
       productName:
-        type: string
-      supportUrl:
         type: string
     type: object
   dto.BrandingRequest:
@@ -1146,17 +1164,9 @@ definitions:
         type: boolean
       faviconUrl:
         type: string
-      footerText:
-        type: string
-      hidePoweredBy:
-        type: boolean
-      loginBackgroundUrl:
-        type: string
       logoDarkUrl:
         type: string
       logoUrl:
-        type: string
-      primaryColor:
         type: string
       productName:
         type: string
@@ -1165,29 +1175,20 @@ definitions:
         type: string
       reportLogoUrl:
         description: logo embedded in report PDFs (legacy REPORT)
-        type: string
-      supportUrl:
         type: string
     type: object
   dto.BrandingResponse:
     properties:
       accentColor:
+        description: 'brand primary color (CSS color, e.g. #8b5cf6); drives --primary'
         type: string
       enabled:
         type: boolean
       faviconUrl:
         type: string
-      footerText:
-        type: string
-      hidePoweredBy:
-        type: boolean
-      loginBackgroundUrl:
-        type: string
       logoDarkUrl:
         type: string
       logoUrl:
-        type: string
-      primaryColor:
         type: string
       productName:
         type: string
@@ -1196,8 +1197,6 @@ definitions:
         type: string
       reportLogoUrl:
         description: logo embedded in report PDFs (legacy REPORT)
-        type: string
-      supportUrl:
         type: string
       updatedAt:
         type: string
@@ -1289,24 +1288,41 @@ definitions:
       health:
         $ref: '#/definitions/dto.ClusterHealth'
     type: object
-  dto.ConfigResponse:
+  dto.ConfigRequest:
     properties:
-      description:
+      allowedWriteTools:
+        items:
+          type: string
+        type: array
+      apiKey:
         type: string
-      is_secret:
+      authHeaderName:
+        type: string
+      authType:
+        type: string
+      autoAnalyze:
         type: boolean
-      is_set:
+      automaticIncidentCreation:
         type: boolean
-      key:
+      changeAlertStatus:
+        type: boolean
+      customHeaders:
+        additionalProperties:
+          type: string
+        type: object
+      maxTokens:
+        type: integer
+      maxToolIterations:
+        type: integer
+      model:
         type: string
-      label:
+      provider:
         type: string
-      updated_at:
+      url:
         type: string
-      updated_by:
-        type: string
-      value:
-        type: string
+    required:
+    - model
+    - provider
     type: object
   dto.ConvertToIncidentRequest:
     properties:
@@ -1771,6 +1787,20 @@ definitions:
       included:
         type: boolean
     type: object
+  dto.DateFormatResponse:
+    properties:
+      dateFormat:
+        type: string
+      timezone:
+        type: string
+    type: object
+  dto.DomainCount:
+    properties:
+      count:
+        type: integer
+      domain:
+        type: string
+    type: object
   dto.EnabledRequest:
     properties:
       enabled:
@@ -2214,6 +2244,25 @@ definitions:
       systemOwner:
         type: boolean
     type: object
+  dto.RelatedLogsResponse:
+    properties:
+      ids:
+        items:
+          type: string
+        type: array
+      indexPattern:
+        type: string
+      ruleMatched:
+        type: boolean
+      timeFrom:
+        type: string
+      timeTo:
+        type: string
+      total:
+        type: integer
+      truncated:
+        type: boolean
+    type: object
   dto.ResetPasswordFinishRequest:
     properties:
       key:
@@ -2420,6 +2469,13 @@ definitions:
         type: string
     required:
     - method
+    type: object
+  dto.TfaDisableRequest:
+    properties:
+      password:
+        type: string
+    required:
+    - password
     type: object
   dto.TfaEnrollmentRequest:
     properties:
@@ -2940,12 +2996,45 @@ definitions:
         items:
           $ref: '#/definitions/dto.RoleDigest'
         type: array
+      tfa_enabled:
+        type: boolean
+      tfa_method:
+        type: string
+    type: object
+  dto.UserListItem:
+    properties:
+      activated:
+        type: boolean
+      default_password:
+        type: boolean
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      lang_key:
+        type: string
+      last_name:
+        type: string
+      login:
+        type: string
+      roles:
+        items:
+          $ref: '#/definitions/dto.RoleDigest'
+        type: array
+      tfa_enabled:
+        type: boolean
+      tfa_method:
+        type: string
     type: object
   dto.UserListResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/dto.UserResponse'
+          $ref: '#/definitions/dto.UserListItem'
         type: array
       page_info:
         $ref: '#/definitions/dto.PageInfo'
@@ -2967,6 +3056,10 @@ definitions:
       last_name:
         type: string
       login:
+        type: string
+      tfa_enabled:
+        type: boolean
+      tfa_method:
         type: string
     type: object
   dto.VariableResponse:
@@ -3017,6 +3110,25 @@ definitions:
     - alertIds
     - status
     type: object
+  github_com_utmstack_utmstack_backend_modules_appconfig_dto.ConfigResponse:
+    properties:
+      description:
+        type: string
+      is_secret:
+        type: boolean
+      is_set:
+        type: boolean
+      key:
+        type: string
+      label:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      value:
+        type: string
+    type: object
   github_com_utmstack_utmstack_backend_modules_incidents_dto.UpdateAlertStatusRequest:
     properties:
       alertIds:
@@ -3033,6 +3145,52 @@ definitions:
     - incidentId
     - status
     type: object
+  github_com_utmstack_utmstack_backend_modules_socai_dto.ConfigResponse:
+    properties:
+      allowedWriteTools:
+        items:
+          type: string
+        type: array
+      apiKeySet:
+        type: boolean
+      authHeaderName:
+        type: string
+      authType:
+        type: string
+      autoAnalyze:
+        type: boolean
+      automaticIncidentCreation:
+        type: boolean
+      changeAlertStatus:
+        type: boolean
+      configured:
+        type: boolean
+      customHeaders:
+        additionalProperties:
+          type: string
+        type: object
+      maxTokens:
+        type: integer
+      maxToolIterations:
+        type: integer
+      model:
+        type: string
+      provider:
+        type: string
+      url:
+        type: string
+    type: object
+  handler.chatRequest:
+    properties:
+      lang:
+        type: string
+      page:
+        type: string
+      task:
+        type: string
+    required:
+    - task
+    type: object
   handler.connectionKeyResponse:
     properties:
       connectionKey:
@@ -3045,6 +3203,33 @@ info:
   title: UTMStack Backend Service
   version: "1.0"
 paths:
+  /ad-audit/stats:
+    get:
+      description: 'Roll-up for the User Auditor overview: lifecycle counts, by-domain
+        breakdown and the distinct tenant list.'
+      parameters:
+      - description: Scope the counts to a tenant
+        in: query
+        name: tenantId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ADUserStats'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: AD user inventory stats
+      tags:
+      - AD Audit
   /ad-audit/users:
     get:
       parameters:
@@ -3060,6 +3245,15 @@ paths:
         in: query
         name: active
         type: boolean
+      - description: 'Lifecycle bucket: active|disabled|deleted|stale|service (overrides
+          active)'
+        in: query
+        name: status
+        type: string
+      - description: 'Sort: recent (last seen) or name (default)'
+        in: query
+        name: sort
+        type: string
       - description: Page (0-based)
         in: query
         name: page
@@ -4296,6 +4490,53 @@ paths:
       summary: Update white-label branding
       tags:
       - Branding
+  /branding/assets/{slot}:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Stores a branding image (logo/logoDark/favicon/loginBackground/reportLogo/reportCover)
+        and points the matching branding URL at it. MSSP feature.
+      parameters:
+      - description: 'Asset slot: logo|logoDark|favicon|loginBackground|reportLogo|reportCover'
+        in: path
+        name: slot
+        required: true
+        type: string
+      - description: Image file (png/jpg/webp/gif/svg/ico, ≤5MB)
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BrandingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "415":
+          description: Unsupported Media Type
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload a white-label branding image
+      tags:
+      - Branding
   /branding/public:
     get:
       description: Unauthenticated branding for the login page. Returns the default
@@ -4314,6 +4555,35 @@ paths:
               type: string
             type: object
       summary: Get effective branding (public)
+      tags:
+      - Branding
+  /branding/seed:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Internal-only. The installer posts the customer's brand fields
+        and image files; the brand is persisted (enabled) and rendered once the MSSP
+        license is present.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BrandingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Seed white-label branding at install time
       tags:
       - Branding
   /compliance-report-schedules:
@@ -4963,7 +5233,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/dto.ConfigResponse'
+              $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_appconfig_dto.ConfigResponse'
             type: array
       security:
       - BearerAuth: []
@@ -4984,7 +5254,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.ConfigResponse'
+            $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_appconfig_dto.ConfigResponse'
         "404":
           description: Not Found
           schema:
@@ -5021,7 +5291,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.ConfigResponse'
+            $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_appconfig_dto.ConfigResponse'
         "400":
           description: Bad Request
           schema:
@@ -5792,6 +6062,20 @@ paths:
       summary: Datasource usage vs license limit (for the usage banner)
       tags:
       - Datasources
+  /date-format:
+    get:
+      description: Public, read-only timezone + date format used to render timestamps.
+        Data is always stored in UTC.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DateFormatResponse'
+      summary: Get the org-wide timestamp display preference
+      tags:
+      - Config
   /enrollment/tfa:
     post:
       consumes:
@@ -10334,6 +10618,103 @@ paths:
       summary: Submit an alert for SOC AI analysis
       tags:
       - SOC AI
+  /soc-ai/chat:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Proxies a free-form operations task to the soc-ai plugin agent and
+        streams its steps back as Server-Sent Events (tool_call, tool_result,
+        final, error). Chat-style: give the agent a task, watch it execute.
+      parameters:
+      - description: Task to execute
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.chatRequest'
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: SSE stream
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "502":
+          description: Bad Gateway
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Run a SOC AI agent task (streaming)
+      tags:
+      - SOC AI
+  /soc-ai/config:
+    get:
+      description: Returns the current soc-ai plugin configuration with secrets masked.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_socai_dto.ConfigResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get SOC AI configuration
+      tags:
+      - SOC AI
+    put:
+      consumes:
+      - application/json
+      description: |-
+        Persists the soc-ai plugin configuration (writing the encrypted YAML
+        the plugin consumes). Secrets sent as "*****" keep their stored value.
+      parameters:
+      - description: SOC AI configuration
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ConfigRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_socai_dto.ConfigResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update SOC AI configuration
+      tags:
+      - SOC AI
   /sso/saml/{name}/acs:
     post:
       consumes:
@@ -10390,6 +10771,25 @@ paths:
         "204":
           description: ""
       summary: Complete TFA enrollment and persist the secret
+      tags:
+      - TFA
+  /tfa/disable:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Current password
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TfaDisableRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+      summary: Disable TFA for the current user
       tags:
       - TFA
   /tfa/init:
@@ -10591,6 +10991,25 @@ paths:
       security:
       - BearerAuth: []
       summary: Assign roles to user
+      tags:
+      - Users
+  /users/{id}/tfa/disable:
+    post:
+      description: |-
+        Administrative reset of another user's two-factor enrollment so a
+        user who lost their authenticator can re-enroll at next login.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: TFA reset
+      security:
+      - BearerAuth: []
+      summary: Reset (disable) a user's TFA
       tags:
       - Users
   /utm-alert-tags:
@@ -10852,6 +11271,42 @@ paths:
       security:
       - BearerAuth: []
       summary: Update alert notes
+      tags:
+      - Alerts
+  /utm-alerts/related-logs:
+    get:
+      description: |-
+        Reproduces the Event Processor's correlation search (without the
+        engine's 10-hit cap) and returns the matching log ids so the UI can
+        load every related log in the Log Explorer.
+      parameters:
+      - description: Alert ID
+        in: query
+        name: alertId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RelatedLogsResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Related logs for an alert
       tags:
       - Alerts
   /utm-alerts/status:

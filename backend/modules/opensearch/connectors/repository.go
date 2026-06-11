@@ -43,4 +43,6 @@ type ISMRepository interface {
 	RegisterSnapshotRepo(ctx context.Context) error
 	IsIndexRemovable(ctx context.Context, indexName string) (bool, error)
 	GetIndexProperties(ctx context.Context, pattern string) ([]dto.IndexField, error)
+	EnsureFieldLimitTemplate(ctx context.Context, patterns []string) error
+	RaiseFieldLimit(ctx context.Context, pattern string) error
 }

@@ -2,6 +2,7 @@ package connectors
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
@@ -17,6 +18,8 @@ type AlertRepository interface {
 	CountOpenAlerts(ctx context.Context) (int64, error)
 	CountByStatus(ctx context.Context, status int) (int64, error)
 	SearchByIDs(ctx context.Context, alertIDs []string) ([]domain.UtmAlert, error)
+	GetRawByID(ctx context.Context, alertID string) (json.RawMessage, error)
+	RelatedLogRefs(ctx context.Context, steps []domain.CorrelationStep, anchorTS time.Time, maxSize int) (refs []domain.LogRef, truncated bool, err error)
 }
 
 type HistoryEntry struct {

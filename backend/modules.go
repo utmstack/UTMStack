@@ -144,6 +144,8 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	soarMod := soar.NewModule(db, agentClient, signer, cipher)
 	eventProcessingMod := eventprocessing.NewModule(db, auditMod.Logger())
 
+	alertsMod.SetCorrelationResolver(eventProcessingMod)
+
 	dsRepo := ns_repository.NewDatasourceRepository(db)
 	dsGroupRepo := ns_repository.NewAssetGroupRepository(db)
 	dsUC := ns_usecase.NewDatasourceUsecase(dsRepo)
@@ -177,7 +179,8 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	}
 
 	iamMod := iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, samlUsecase, cfg.uploadDir)
-	socAIMod := socai.NewModule(cfg.socAIBaseURL, cfg.internalKey)
+	socAIMod := socai.NewModule(cfg.socAIBaseURL, cfg.internalKey, cipher,
+		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false))
 	incidentsMod := incidents.NewModule(
 		db,
 		incidents_connectors.NewNoopMailer(),

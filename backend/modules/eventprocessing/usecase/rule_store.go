@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -10,8 +11,6 @@ import (
 	"time"
 )
 
-// RuleListFilter is the in-memory query the store applies to List. All fields
-// are optional; zero values mean "no constraint".
 type RuleListFilter struct {
 	Page int // 0-based
 	Size int
@@ -35,11 +34,6 @@ type RuleListFilter struct {
 	EndDate  time.Time // Modified <= EndDate (when non-zero)
 }
 
-// RuleStore is the file-backed, in-memory source of truth for correlation rules
-// (YAML-direct). Rules live in two overlays under a shared volume: a read-only
-// system overlay (seeded from the image) and a writable user overlay. Identity
-// is the path relative to the overlay root (relPath); the enabled state is
-// encoded in the filename via the .disabled suffix.
 type RuleStore struct {
 	systemDir string
 	userDir   string
@@ -154,6 +148,26 @@ func (s *RuleStore) findByRelPath(relPath string) *StoredRule {
 		return &cp
 	}
 	return nil
+}
+
+func (s *RuleStore) FindByName(name string) *StoredRule {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	for _, sr := range s.rules {
+		if strings.EqualFold(sr.Name, name) {
+			cp := *sr
+			return &cp
+		}
+	}
+	return nil
+}
+
+func (s *RuleStore) AfterEventsByName(name string) (json.RawMessage, bool) {
+	sr := s.FindByName(name)
+	if sr == nil {
+		return nil, false
+	}
+	return anyToRaw(sr.AfterEvents), true
 }
 
 // List applies the filter, sorts by name and paginates. It returns the page

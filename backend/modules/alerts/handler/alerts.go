@@ -78,6 +78,32 @@ func (h *AlertHandler) UpdateNotes(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{})
 }
 
+// @Summary     Related logs for an alert
+// @Description Reproduces the Event Processor's correlation search (without the
+// @Description engine's 10-hit cap) and returns the matching log ids so the UI can
+// @Description load every related log in the Log Explorer.
+// @Tags        Alerts
+// @Security    BearerAuth
+// @Produce     json
+// @Param       alertId query string true "Alert ID"
+// @Success     200 {object} dto.RelatedLogsResponse
+// @Failure     404 {object} map[string]string
+// @Failure     500 {object} map[string]string
+// @Router      /utm-alerts/related-logs [get]
+func (h *AlertHandler) RelatedLogs(c *gin.Context) {
+	alertID := c.Query("alertId")
+	if alertID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing alert id"})
+		return
+	}
+	resp, err := h.usecase.RelatedLogs(c.Request.Context(), alertID)
+	if err != nil {
+		writeAlertError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
 // @Summary     Update alert tags
 // @Tags        Alerts
 // @Security    BearerAuth

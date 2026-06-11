@@ -13,8 +13,9 @@ import (
 )
 
 type alertUsecase struct {
-	repo    connectors.AlertRepository
-	history connectors.HistoryRecorder
+	repo     connectors.AlertRepository
+	history  connectors.HistoryRecorder
+	resolver connectors.CorrelationResolver // injected post-construction; may be nil
 }
 
 func NewAlertUsecase(
@@ -22,6 +23,10 @@ func NewAlertUsecase(
 	history connectors.HistoryRecorder,
 ) connectors.AlertUsecase {
 	return &alertUsecase{repo: repo, history: history}
+}
+
+func (u *alertUsecase) SetCorrelationResolver(r connectors.CorrelationResolver) {
+	u.resolver = r
 }
 
 // resolveUser falls back to "system" when no authenticated user is present

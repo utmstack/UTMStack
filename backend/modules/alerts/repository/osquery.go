@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"strings"
+	"time"
 
 	osdk "github.com/threatwinds/go-sdk/os"
 )
@@ -50,8 +52,32 @@ func osUpdateByQuery(ctx context.Context, index string, query map[string]any, sc
 		"query":  query,
 		"script": script.Render(),
 	}
-	_, err := osdk.UpdateByQuery(ctx, []string{index}, body)
-	return err
+	const maxAttempts = 5
+	var lastErr error
+	for attempt := 0; attempt < maxAttempts; attempt++ {
+		_, err := osdk.UpdateByQuery(ctx, []string{index}, body)
+		if err == nil {
+			return nil
+		}
+		lastErr = err
+		if !isVersionConflict(err) {
+			return err
+		}
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(time.Duration(60*(attempt+1)) * time.Millisecond):
+		}
+	}
+	return lastErr
+}
+
+func isVersionConflict(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "version_conflict") || strings.Contains(msg, "version conflict")
 }
 
 func osSearchSources(ctx context.Context, index string, query map[string]any, size int) ([]json.RawMessage, error) {

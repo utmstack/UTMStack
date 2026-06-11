@@ -2,11 +2,16 @@ package connectors
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
+
+type CorrelationResolver interface {
+	AfterEventsByRuleName(name string) (json.RawMessage, bool)
+}
 
 type AdversaryUsecase interface {
 	FetchAdversaryAlerts(ctx context.Context, filters []common_models.FilterType) ([]dto.AdversaryResponse, error)
@@ -18,6 +23,8 @@ type AlertUsecase interface {
 	UpdateTags(ctx context.Context, userLogin string, req dto.UpdateAlertTagsRequest) error
 	ConvertToIncident(ctx context.Context, userLogin string, req dto.ConvertToIncidentRequest) error
 	CountOpenAlerts(ctx context.Context) (*dto.CountOpenAlertsResponse, error)
+	RelatedLogs(ctx context.Context, alertID string) (*dto.RelatedLogsResponse, error)
+	SetCorrelationResolver(r CorrelationResolver)
 }
 
 type AlertTagUsecase interface {

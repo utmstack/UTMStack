@@ -22,6 +22,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	ag.POST("/convert-to-incident", write, h.ConvertToIncident)
 
 	ag.GET("/count-open-alerts", read, h.CountOpenAlerts)
+	ag.GET("/related-logs", read, h.RelatedLogs)
 
 	tg := api.Group("/utm-alert-tags", userAuth)
 	tg.POST("", write, th.Create)
