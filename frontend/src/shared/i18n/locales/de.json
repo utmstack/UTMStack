@@ -166,6 +166,11 @@
   },
   "nav": {
     "home": "Startseite",
+    "dashboards": "Dashboards",
+    "dashboardList": "Dashboard-Liste",
+    "visualizationList": "Visualisierungen",
+    "newDashboard": "Neues Dashboard",
+    "newVisualization": "Neue Visualisierung",
     "threatManagement": "Bedrohungsmanagement",
     "alerts": "Warnungen",
     "incidents": "Vorfälle",

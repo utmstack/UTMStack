@@ -166,6 +166,11 @@
   },
   "nav": {
     "home": "Главная",
+    "dashboards": "Панели",
+    "dashboardList": "Список панелей",
+    "visualizationList": "Визуализации",
+    "newDashboard": "Новая панель",
+    "newVisualization": "Новая визуализация",
     "threatManagement": "Управление угрозами",
     "alerts": "Оповещения",
     "incidents": "Инциденты",
