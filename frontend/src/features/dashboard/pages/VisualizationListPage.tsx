@@ -5,6 +5,7 @@ import { Loader2, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
 import {
   useVisualizationMutations,
   useVisualizations,
@@ -15,6 +16,7 @@ import type { Visualization } from '@/features/dashboard/types'
 export function VisualizationListPage() {
   const { t } = useTranslation()
   const [search, setSearch] = useState('')
+  const [pendingDelete, setPendingDelete] = useState<Visualization | null>(null)
 
   const query = useVisualizations({
     name: search || undefined,
@@ -26,10 +28,14 @@ export function VisualizationListPage() {
 
   const { deleteVisualization } = useVisualizationMutations()
 
-  const handleDelete = (v: Visualization) => {
-    if (!window.confirm(t('dashboards.visualizationList.confirmDelete', { name: v.name }))) return
-    deleteVisualization.mutate(v.id, {
-      onSuccess: () => toast.success(t('dashboards.toast.visualizationDeleted')),
+  const confirmDelete = () => {
+    if (!pendingDelete) return
+    const target = pendingDelete
+    deleteVisualization.mutate(target.id, {
+      onSuccess: () => {
+        toast.success(t('dashboards.toast.visualizationDeleted'))
+        setPendingDelete(null)
+      },
       onError: (err) =>
         toast.error(err.message ?? t('dashboards.toast.visualizationDeleteFailed')),
     })
@@ -110,8 +116,7 @@ export function VisualizationListPage() {
                       {!v.systemOwner && (
                         <button
                           type="button"
-                          onClick={() => handleDelete(v)}
-                          disabled={deleteVisualization.isPending}
+                          onClick={() => setPendingDelete(v)}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
                           aria-label={t('dashboards.visualizationList.delete') ?? 'Delete'}
                         >
@@ -126,6 +131,19 @@ export function VisualizationListPage() {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={pendingDelete != null}
+        title={t('dashboards.visualizationList.deleteTitle')}
+        body={t('dashboards.visualizationList.confirmDelete', {
+          name: pendingDelete?.name ?? '',
+        })}
+        confirmLabel={t('dashboards.visualizationList.delete') ?? undefined}
+        danger
+        busy={deleteVisualization.isPending}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }

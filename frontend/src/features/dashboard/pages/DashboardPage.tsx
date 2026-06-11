@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Loader2, Pencil } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
+import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
 import { presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import { useDashboard, useDashboards } from '@/features/dashboard/hooks/useDashboards'
 import { useDashboardLayouts } from '@/features/dashboard/hooks/useDashboardLayouts'
@@ -32,6 +33,7 @@ export function DashboardPage() {
     null
   )
   const [addOpen, setAddOpen] = useState(false)
+  const [pendingDelete, setPendingDelete] = useState<Dashboard | null>(null)
 
   const dashboards = useDashboards({ name: search || undefined, page: 0, size: DEFAULT_PAGE_SIZE })
   const dashboardItems = dashboards.list.data?.data ?? []
@@ -122,12 +124,14 @@ export function DashboardPage() {
     )
   }
 
-  const handleDeleteDashboard = (d: Dashboard) => {
-    if (!window.confirm(t('dashboards.confirm.delete', { name: d.name }))) return
-    dashboards.deleteDashboard.mutate(d.id, {
+  const confirmDeleteDashboard = () => {
+    if (!pendingDelete) return
+    const target = pendingDelete
+    dashboards.deleteDashboard.mutate(target.id, {
       onSuccess: () => {
         toast.success(t('dashboards.toast.deleted'))
-        if (selectedId === d.id) setSelectedId(null)
+        if (selectedId === target.id) setSelectedId(null)
+        setPendingDelete(null)
       },
       onError: (err) => toast.error(err.message ?? t('dashboards.toast.deleteFailed')),
     })
@@ -219,7 +223,7 @@ export function DashboardPage() {
           onSelect={setSelectedId}
           onCreate={() => setFormOpen({ mode: 'create', target: null })}
           onRename={(d) => setFormOpen({ mode: 'rename', target: d })}
-          onDelete={handleDeleteDashboard}
+          onDelete={(d) => setPendingDelete(d)}
         />
 
         <div className="flex min-w-0 flex-1 flex-col gap-3">
@@ -283,6 +287,17 @@ export function DashboardPage() {
         excludedIds={excludedVizIds}
         onClose={() => setAddOpen(false)}
         onPick={handleAddVisualization}
+      />
+
+      <ConfirmDialog
+        open={pendingDelete != null}
+        title={t('dashboards.confirm.deleteTitle')}
+        body={t('dashboards.confirm.delete', { name: pendingDelete?.name ?? '' })}
+        confirmLabel={t('dashboards.list.delete') ?? undefined}
+        danger
+        busy={dashboards.deleteDashboard.isPending}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={confirmDeleteDashboard}
       />
     </div>
   )

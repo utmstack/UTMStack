@@ -7,6 +7,10 @@
       "cancel": "Cancel",
       "retry": "Retry",
       "refresh": "Refresh"
+    },
+    "confirm": {
+      "delete": "Delete",
+      "working": "Working…"
     }
   },
   "auth": {
@@ -420,6 +424,7 @@
       "alreadyAdded": "Already on this dashboard"
     },
     "confirm": {
+      "deleteTitle": "Delete dashboard",
       "delete": "Delete dashboard \"{{name}}\"? This cannot be undone."
     },
     "page": {
@@ -466,6 +471,7 @@
       "loading": "Loading visualizations…",
       "empty": "No visualizations yet.",
       "delete": "Delete",
+      "deleteTitle": "Delete visualization",
       "confirmDelete": "Delete visualization \"{{name}}\"? This cannot be undone.",
       "col": {
         "name": "Name",
