@@ -181,11 +181,11 @@
     "dataSources": "Sources de données",
     "integrations": "Intégrations",
     "alertingRules": "Règles d'alerte",
-    "taggingRules": "Règles d'étiquetage",
     "dataProcessing": "Traitement des données",
     "team": "Équipe",
     "settings": "Paramètres",
-    "back": "Retour"
+    "back": "Retour",
+    "regexPatterns": "Expressions régulières"
   },
   "settings": {
     "title": "Paramètres",
@@ -1724,6 +1724,22 @@
       "deleteFailed": "Échec de la suppression",
       "groupCreated": "Groupe créé",
       "groupCreateFailed": "Échec de la création du groupe"
+    },
+    "sensitivity": {
+      "section": "Sensibilité de l'actif",
+      "hint": "Criticité métier (CIA, 0–3) de cet actif. Les alertes ciblant son hôte/IP sont pondérées par ces valeurs.",
+      "saved": "Sensibilité mise à jour",
+      "failed": "Échec de la mise à jour de la sensibilité",
+      "save": "Enregistrer",
+      "confidentiality": "Confidentialité",
+      "integrity": "Intégrité",
+      "availability": "Disponibilité",
+      "levels": {
+        "0": "Aucune",
+        "1": "Faible",
+        "2": "Moyenne",
+        "3": "Élevée"
+      }
     }
   },
   "adversaries": {
@@ -2164,6 +2180,210 @@
       "assigned": "Assigné à {{user}}",
       "unassigned": "Incident désassigné",
       "error": "Impossible de changer l’assigné"
+    }
+  },
+  "alertingRules": {
+    "title": "Règles d’alerte",
+    "subtitle": "Règles de corrélation qui transforment les événements en alertes. Activez, ajustez ou créez les vôtres.",
+    "new": "Nouvelle règle",
+    "refresh": "Actualiser",
+    "empty": "Aucune règle correspondante.",
+    "loadError": "Impossible de charger les règles.",
+    "retry": "Réessayer",
+    "deleteConfirm": "Supprimer la règle « {{name}} » ?",
+    "adversary": {
+      "origin": "Origine",
+      "target": "Cible"
+    },
+    "state": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "owner": {
+      "system": "Système",
+      "custom": "Personnalisée"
+    },
+    "toolbar": {
+      "search": "Rechercher des règles…",
+      "allCategories": "Toutes les catégories",
+      "allAdversaries": "Tous les adversaires",
+      "allStates": "Tous les états",
+      "allOwners": "Toutes les origines",
+      "allDataTypes": "Tous les types"
+    },
+    "table": {
+      "name": "Règle",
+      "category": "Catégorie",
+      "technique": "Technique",
+      "adversary": "Adversaire",
+      "impact": "Impact",
+      "active": "Active",
+      "dataTypes": "Types de données"
+    },
+    "view": {
+      "description": "Description",
+      "details": "Détails",
+      "impact": "Impact (C·I·D)",
+      "dataTypes": "Types de données",
+      "updated": "Mise à jour",
+      "relPath": "Chemin",
+      "definition": "Condition (CEL)",
+      "afterEvents": "Étapes de corrélation",
+      "correlation": "Corrélation",
+      "groupBy": "Grouper par",
+      "deduplicateBy": "Dédupliquer par",
+      "references": "Références"
+    },
+    "editor": {
+      "createTitle": "Nouvelle règle",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "metadata": "Métadonnées",
+      "name": "Nom",
+      "confidentiality": "Confidentialité",
+      "integrity": "Intégrité",
+      "availability": "Disponibilité",
+      "dataTypes": "Types de données",
+      "dataTypesHint": "séparés par des virgules",
+      "activeOnSave": "Active",
+      "definitionSection": "Définition",
+      "where": "Condition (CEL)",
+      "whereHint": "Expression CEL évaluée par événement",
+      "afterEvents": "Étapes de corrélation (afterEvents)",
+      "afterEventsHint": "tableau JSON",
+      "jsonArray": "tableau JSON",
+      "nameRequired": "Le nom est requis",
+      "definitionRequired": "La condition est requise",
+      "invalidJson": "Un champ de la définition contient du JSON invalide",
+      "addStep": "Ajouter une étape de corrélation",
+      "step": "Étape {{n}}",
+      "removeStep": "Supprimer l’étape",
+      "indexPattern": "Modèle d’index",
+      "within": "Fenêtre",
+      "count": "Nombre",
+      "conditions": "Conditions",
+      "field": "Champ",
+      "value": "Valeur",
+      "addCondition": "Ajouter une condition",
+      "orGroup": "Groupe Or {{n}}",
+      "addOr": "Ajouter un groupe Or",
+      "removeOr": "Supprimer",
+      "fieldsHint": "noms de champs",
+      "referencesHint": "URLs",
+      "visual": "Visuel",
+      "code": "Code",
+      "dataTypesPick": "Sélectionner…",
+      "dataTypesSearch": "Rechercher des types…",
+      "dataTypesNone": "Aucun type de données"
+    },
+    "toast": {
+      "activated": "Règle activée",
+      "deactivated": "Règle désactivée",
+      "toggleError": "Impossible de changer l’état de la règle",
+      "deleted": "Règle supprimée",
+      "deleteError": "Impossible de supprimer la règle",
+      "created": "Règle créée",
+      "saved": "Règle enregistrée",
+      "saveError": "Impossible d’enregistrer la règle"
+    },
+    "operator": {
+      "filter_term": "égal (term)",
+      "must_not_term": "différent (term)",
+      "filter_match": "correspond (texte)",
+      "must_not_match": "ne correspond pas (texte)"
+    },
+    "where": {
+      "matchPrefix": "Correspond à",
+      "all": "toutes",
+      "any": "au moins une",
+      "matchSuffix": "de ces conditions :",
+      "negate": "Nier",
+      "listHint": "séparés par des virgules",
+      "advanced": "Cette condition utilise du CEL avancé — modifiez-la en Code ou reconstruisez-la visuellement."
+    },
+    "celOp": {
+      "exists": "existe",
+      "equals": "égal à",
+      "equalsIgnoreCase": "égal (sans casse)",
+      "contains": "contient",
+      "oneOf": "est l’un de",
+      "containsAll": "contient tous",
+      "startsWith": "commence par",
+      "endsWith": "finit par",
+      "regexMatch": "regex",
+      "lessThan": "<",
+      "lessOrEqual": "≤",
+      "greaterThan": ">",
+      "greaterOrEqual": "≥",
+      "inCIDR": "dans CIDR",
+      "isHour": "l’heure est",
+      "isMinute": "la minute est",
+      "isDayOfWeek": "le jour est",
+      "isWeekend": "est le week-end",
+      "isWorkDay": "est un jour ouvré",
+      "isBetweenTime": "heure entre"
+    }
+  },
+  "regexPatterns": {
+    "title": "Expressions régulières",
+    "subtitle": "Expressions régulières réutilisables référencées par les filtres d'analyse.",
+    "new": "Nouveau motif",
+    "search": "Rechercher des motifs…",
+    "refresh": "Actualiser",
+    "view": "Voir",
+    "system": "Système",
+    "user": "Personnalisé",
+    "loading": "Chargement des motifs…",
+    "loadError": "Impossible de charger les motifs.",
+    "retry": "Réessayer",
+    "empty": "Aucun motif ne correspond à cette vue.",
+    "tabs": {
+      "all": "Tous",
+      "system": "Système",
+      "user": "Personnalisés"
+    },
+    "cols": {
+      "pattern": "Motif",
+      "definition": "Définition",
+      "type": "Type"
+    },
+    "editor": {
+      "titleNew": "Nouveau motif",
+      "patternId": "ID du motif",
+      "patternIdHint": "Nom unique référencé depuis les filtres.",
+      "description": "Description",
+      "descriptionPlaceholder": "Ce que ce motif reconnaît (facultatif)",
+      "definition": "Définition (regex)",
+      "definitionHint": "Une expression régulière. Peut référencer d'autres motifs.",
+      "readOnly": "Motif système — en lecture seule.",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "delete": "Supprimer",
+      "confirmDelete": "Confirmer la suppression",
+      "cancel": "Annuler"
+    },
+    "toast": {
+      "saved": "Motif enregistré",
+      "saveError": "Échec de l'enregistrement du motif",
+      "deleted": "Motif supprimé",
+      "deleteError": "Échec de la suppression du motif",
+      "patternIdRequired": "L'ID du motif est requis",
+      "definitionRequired": "La définition est requise"
+    }
+  },
+  "parsingFilters": {
+    "visual": {
+      "insertPattern": "Insérer un motif regex",
+      "patternSearch": "Rechercher des motifs…",
+      "patternNone": "Aucun motif",
+      "newPattern": "Nouveau motif…",
+      "createInsert": "Créer et insérer",
+      "patternCreated": "Motif « {{name}} » créé",
+      "patternCreateError": "Échec de la création du motif",
+      "patternIdInvalid": "L'ID doit commencer par une lettre ou _ et n'utiliser que des lettres, chiffres ou _",
+      "patternDefRequired": "La définition est requise"
     }
   }
 }

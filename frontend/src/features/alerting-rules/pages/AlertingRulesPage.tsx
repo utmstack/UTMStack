@@ -1,1095 +1,691 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import {
-  Activity,
   AlertTriangle,
-  ChevronDown,
-  Clock,
-  Copy,
+  CheckCircle2,
+  Code2,
   Crosshair,
-  Database,
-  Download,
-  ExternalLink,
-  History,
-  ListFilter,
-  MoreHorizontal,
-  Play,
+  LayoutList,
+  Loader2,
+  Lock,
+  Pencil,
   Plus,
+  RefreshCw,
   Search,
-  Sparkles,
+  ShieldAlert,
+  Trash2,
   Upload,
   X,
-  type LucideIcon,
+  XCircle,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { Pagination } from '@/shared/components/ui/pagination'
+import { YamlCodeEditor } from '@/shared/components/YamlCodeEditor'
+import { useDateFormat } from '@/shared/lib/datetime'
+import {
+  alertingRulesHttpService as svc,
+  AlertingRulesHttpError,
+  type CorrelationRule,
+  type DataTypeOption,
+  type ImportRulesResponse,
+} from '../services/alerting-rules-http.service'
+import { RuleForm, ruleToForm, formToInput, DataTypeChip, type RuleFormState } from '../components/rule-form'
+import { ruleFormToYaml, yamlToRuleForm } from '../lib/rule-yaml'
+import { parseCelTree, type CelNode } from '../lib/cel-tree'
 
-/* ─── Types ────────────────────────────────────────────────────────────── */
+const SELECT_CLS = 'h-9 rounded-md border border-border bg-background px-2 text-sm'
+const COLS = '1.4fr 1fr 110px 100px 80px 48px 50px'
 
-type Severity = 'critical' | 'high' | 'medium' | 'low'
-type DetectionKind = 'signature' | 'threshold' | 'correlation' | 'anomaly' | 'ml'
-type Author = 'built-in' | 'custom'
-
-interface Rule {
-  id: string
-  name: string
-  description: string
-  severity: Severity
-  enabled: boolean
-  kind: DetectionKind
-  author: Author
-  category: string
-  technique?: { id: string; name: string }
-  sources: string[]
-  fires24h: number
-  firesTotal: number
-  lastTriggered?: string
-  createdAt: string
-  modifiedAt: string
-  modifiedBy: string
-  query: string
-  threshold?: { count: number; window: string; groupBy?: string }
-  tags: string[]
+function maxImpact(r: { confidentiality: number; integrity: number; availability: number }): number {
+  return Math.max(r.confidentiality, r.integrity, r.availability)
 }
-
-/* ─── Mock data ────────────────────────────────────────────────────────── */
-
-const NOW = new Date('2026-05-01T16:42:00Z').getTime()
-const min = (m: number) => new Date(NOW - m * 60_000).toISOString()
-const hr = (h: number) => new Date(NOW - h * 3_600_000).toISOString()
-const days = (d: number) => new Date(NOW - d * 86_400_000).toISOString()
-
-const RULES: Rule[] = [
-  {
-    id: 'r-kerberoasting',
-    name: 'Kerberoasting burst against domain controller',
-    description: 'Detects unusually many TGS-REQ ticket requests with RC4 encryption from a single source — a strong signal of Kerberoasting credential extraction.',
-    severity: 'critical',
-    enabled: true,
-    kind: 'threshold',
-    author: 'built-in',
-    category: 'Credential Access',
-    technique: { id: 'T1558.003', name: 'Kerberoasting' },
-    sources: ['Windows', 'AD'],
-    fires24h: 12,
-    firesTotal: 184,
-    lastTriggered: min(4),
-    createdAt: days(180),
-    modifiedAt: hr(48),
-    modifiedBy: 'system',
-    query: `event.code: 4769
-AND kerberos.ticket.encryption_type: "RC4-HMAC"
-AND NOT user.name: ("krbtgt" OR "MSOL_*")`,
-    threshold: { count: 10, window: '2 minutes', groupBy: 'source.user.name' },
-    tags: ['credential-access', 'mitre', 'kerberos'],
-  },
-  {
-    id: 'r-bruteforce',
-    name: 'Multiple failed logins followed by success',
-    description: 'Identifies brute-force attempts: more than 50 failed logins within 5 minutes followed by a successful authentication from the same source.',
-    severity: 'high',
-    enabled: true,
-    kind: 'correlation',
-    author: 'built-in',
-    category: 'Credential Access',
-    technique: { id: 'T1110', name: 'Brute Force' },
-    sources: ['AD', 'M365', 'Okta'],
-    fires24h: 8,
-    firesTotal: 1240,
-    lastTriggered: min(23),
-    createdAt: days(220),
-    modifiedAt: days(7),
-    modifiedBy: 'jsmith',
-    query: `sequence by source.ip
-[ event.outcome: "failure" ] count >= 50
-[ event.outcome: "success" ]
-within 5 minutes`,
-    tags: ['credential-access', 'mitre'],
-  },
-  {
-    id: 'r-c2-ioc',
-    name: 'Outbound connection to known C2 IP',
-    description: 'Triggers when a host inside the network connects to an IP address present in any active threat-intel feed tagged as C2 infrastructure.',
-    severity: 'critical',
-    enabled: true,
-    kind: 'signature',
-    author: 'built-in',
-    category: 'Command and Control',
-    technique: { id: 'T1071.001', name: 'Web Protocols' },
-    sources: ['Firewall', 'NetFlow', 'Sysmon'],
-    fires24h: 5,
-    firesTotal: 142,
-    lastTriggered: min(46),
-    createdAt: days(360),
-    modifiedAt: days(2),
-    modifiedBy: 'system',
-    query: `destination.ip: IN(threat_intel.c2_feed)
-AND NOT destination.ip: IN(allowlist.cdn)`,
-    tags: ['c2', 'mitre', 'threat-intel'],
-  },
-  {
-    id: 'r-mimikatz',
-    name: 'Mimikatz signature match',
-    description: 'AV / EDR signature match for Mimikatz family. Indicates credential dumping tooling on the host.',
-    severity: 'critical',
-    enabled: true,
-    kind: 'signature',
-    author: 'built-in',
-    category: 'Credential Access',
-    technique: { id: 'T1003', name: 'OS Credential Dumping' },
-    sources: ['Windows Defender', 'CrowdStrike', 'SentinelOne'],
-    fires24h: 1,
-    firesTotal: 18,
-    lastTriggered: min(62),
-    createdAt: days(420),
-    modifiedAt: days(30),
-    modifiedBy: 'system',
-    query: `threat.indicator.name: ("HackTool:Win32/Mimikatz*" OR "Mimikatz*")`,
-    tags: ['malware', 'mitre'],
-  },
-  {
-    id: 'r-impossible-travel',
-    name: 'Impossible travel between authentications',
-    description: 'A user authenticates from two geographically distant locations within a time window that makes physical travel implausible.',
-    severity: 'high',
-    enabled: true,
-    kind: 'anomaly',
-    author: 'built-in',
-    category: 'Initial Access',
-    technique: { id: 'T1078', name: 'Valid Accounts' },
-    sources: ['M365', 'Azure AD', 'Okta'],
-    fires24h: 3,
-    firesTotal: 88,
-    lastTriggered: min(8),
-    createdAt: days(180),
-    modifiedAt: days(12),
-    modifiedBy: 'mthomas',
-    query: `from auth.success
-calc travel_distance(prev.geo, curr.geo) / time_delta
-where speed > 800 km/h`,
-    tags: ['identity', 'anomaly', 'mitre'],
-  },
-  {
-    id: 'r-encoded-powershell',
-    name: 'Encoded PowerShell execution',
-    description: 'PowerShell execution with -EncodedCommand or -e flag. Common technique for living-off-the-land payloads.',
-    severity: 'medium',
-    enabled: true,
-    kind: 'signature',
-    author: 'built-in',
-    category: 'Execution',
-    technique: { id: 'T1059.001', name: 'PowerShell' },
-    sources: ['Sysmon', 'Windows'],
-    fires24h: 47,
-    firesTotal: 4_412,
-    lastTriggered: min(11),
-    createdAt: days(540),
-    modifiedAt: hr(8),
-    modifiedBy: 'jsmith',
-    query: `process.name: "powershell.exe"
-AND process.command_line: (-enc OR -encodedcommand OR -e)
-AND NOT process.parent.name: ("ScheduledTasks.exe")`,
-    tags: ['execution', 'mitre', 'tuned'],
-  },
-  {
-    id: 'r-smb-enum',
-    name: 'Suspicious SMB share enumeration',
-    description: 'A non-administrator account enumerates SMB shares across multiple hosts in a short time window.',
-    severity: 'medium',
-    enabled: true,
-    kind: 'threshold',
-    author: 'built-in',
-    category: 'Discovery',
-    technique: { id: 'T1135', name: 'Network Share Discovery' },
-    sources: ['Windows', 'AD'],
-    fires24h: 2,
-    firesTotal: 34,
-    lastTriggered: min(38),
-    createdAt: days(120),
-    modifiedAt: days(45),
-    modifiedBy: 'system',
-    query: `event.code: 5145
-AND NOT user.is_administrator
-AND share.name NOT IN allowlist`,
-    threshold: { count: 5, window: '10 minutes', groupBy: 'user.name' },
-    tags: ['discovery', 'mitre'],
-  },
-  {
-    id: 'r-data-exfil-volume',
-    name: 'Unusual data transfer volume',
-    description: 'Outbound network traffic from a host exceeds 5× its 30-day baseline. ML-driven, learns each host\'s normal behavior.',
-    severity: 'high',
-    enabled: true,
-    kind: 'ml',
-    author: 'built-in',
-    category: 'Exfiltration',
-    technique: { id: 'T1041', name: 'C2 Exfiltration' },
-    sources: ['NetFlow', 'Firewall'],
-    fires24h: 1,
-    firesTotal: 22,
-    lastTriggered: min(74),
-    createdAt: days(120),
-    modifiedAt: days(7),
-    modifiedBy: 'mthomas',
-    query: `model: outbound_volume_baseline
-where current.bytes / baseline.p99 > 5.0
-and time_window = "1 hour"`,
-    tags: ['exfiltration', 'ml', 'mitre'],
-  },
-  {
-    id: 'r-gpo-mod',
-    name: 'GPO modification by non-administrator',
-    description: 'A user without explicit Group Policy edit rights modifies a Group Policy Object.',
-    severity: 'high',
-    enabled: true,
-    kind: 'signature',
-    author: 'built-in',
-    category: 'Persistence',
-    technique: { id: 'T1484', name: 'Domain Policy Modification' },
-    sources: ['AD'],
-    fires24h: 1,
-    firesTotal: 6,
-    lastTriggered: hr(2),
-    createdAt: days(540),
-    modifiedAt: days(180),
-    modifiedBy: 'system',
-    query: `event.code: 5136
-AND object.class: "groupPolicyContainer"
-AND NOT user.name: IN(domain_admins, gpo_editors)`,
-    tags: ['persistence', 'mitre'],
-  },
-  {
-    id: 'r-scheduled-task',
-    name: 'New scheduled task on critical asset',
-    description: 'A new scheduled task is created on a host tagged as critical-asset. Triggers regardless of who creates it.',
-    severity: 'medium',
-    enabled: true,
-    kind: 'signature',
-    author: 'custom',
-    category: 'Persistence',
-    technique: { id: 'T1053.005', name: 'Scheduled Task' },
-    sources: ['Sysmon'],
-    fires24h: 3,
-    firesTotal: 84,
-    lastTriggered: min(58),
-    createdAt: days(45),
-    modifiedAt: days(10),
-    modifiedBy: 'jsmith',
-    query: `event.code: 4698
-AND host.tags: "critical-asset"`,
-    tags: ['persistence', 'custom'],
-  },
-  {
-    id: 'r-tor-exit',
-    name: 'Authentication from Tor exit node',
-    description: 'A successful authentication occurs from an IP listed as a Tor exit node. Disabled by default until you decide whether to allow Tor.',
-    severity: 'medium',
-    enabled: false,
-    kind: 'signature',
-    author: 'built-in',
-    category: 'Initial Access',
-    technique: { id: 'T1078', name: 'Valid Accounts' },
-    sources: ['M365', 'Azure AD', 'Okta'],
-    fires24h: 0,
-    firesTotal: 142,
-    createdAt: days(720),
-    modifiedAt: days(360),
-    modifiedBy: 'system',
-    query: `event.outcome: "success"
-AND source.ip: IN(threat_intel.tor_exit_nodes)`,
-    tags: ['identity', 'mitre', 'disabled-by-default'],
-  },
-  {
-    id: 'r-stale-pw-svc',
-    name: 'Service account with stale password (>180d)',
-    description: 'Service account whose password has not rotated in over 180 days. Long-lived passwords on service accounts increase Kerberoasting risk.',
-    severity: 'low',
-    enabled: true,
-    kind: 'threshold',
-    author: 'custom',
-    category: 'Hygiene',
-    sources: ['AD'],
-    fires24h: 0,
-    firesTotal: 12,
-    lastTriggered: days(2),
-    createdAt: days(60),
-    modifiedAt: days(15),
-    modifiedBy: 'mthomas',
-    query: `user.kind: "service"
-AND time_since(pwd_last_set) > 180d`,
-    tags: ['hygiene', 'custom'],
-  },
-]
-
-/* ─── Style maps ───────────────────────────────────────────────────────── */
-
-const SEV_STYLE: Record<Severity, { bar: string; pill: string; tone: string; label: string }> = {
-  critical: { bar: 'bg-red-500', pill: 'bg-red-500/15 text-red-600 ring-red-500/30 dark:text-red-300', tone: 'text-red-500', label: 'Critical' },
-  high: { bar: 'bg-orange-500', pill: 'bg-orange-500/15 text-orange-600 ring-orange-500/30 dark:text-orange-300', tone: 'text-orange-500', label: 'High' },
-  medium: { bar: 'bg-amber-500', pill: 'bg-amber-500/15 text-amber-600 ring-amber-500/30 dark:text-amber-300', tone: 'text-amber-500', label: 'Medium' },
-  low: { bar: 'bg-sky-500', pill: 'bg-sky-500/15 text-sky-600 ring-sky-500/30 dark:text-sky-300', tone: 'text-sky-500', label: 'Low' },
+function impactKey(n: number): 'high' | 'medium' | 'low' | 'none' {
+  if (n >= 3) return 'high'
+  if (n === 2) return 'medium'
+  if (n === 1) return 'low'
+  return 'none'
 }
-
-const KIND_META: Record<DetectionKind, { label: string; tone: string }> = {
-  signature: { label: 'Signature', tone: 'text-sky-500' },
-  threshold: { label: 'Threshold', tone: 'text-amber-500' },
-  correlation: { label: 'Correlation', tone: 'text-violet-500' },
-  anomaly: { label: 'Anomaly', tone: 'text-fuchsia-500' },
-  ml: { label: 'ML', tone: 'text-emerald-500' },
-}
-
-/* ─── Saved views ──────────────────────────────────────────────────────── */
-
-interface SavedView {
-  id: string
-  label: string
-  count: number
-  predicate: (r: Rule) => boolean
-}
-
-const SAVED_VIEWS: SavedView[] = [
-  { id: 'all', label: 'All rules', count: RULES.length, predicate: () => true },
-  { id: 'enabled', label: 'Enabled', count: RULES.filter((r) => r.enabled).length, predicate: (r) => r.enabled },
-  { id: 'disabled', label: 'Disabled', count: RULES.filter((r) => !r.enabled).length, predicate: (r) => !r.enabled },
-  { id: 'critical', label: 'Critical & High', count: RULES.filter((r) => r.severity === 'critical' || r.severity === 'high').length, predicate: (r) => r.severity === 'critical' || r.severity === 'high' },
-  { id: 'custom', label: 'Custom', count: RULES.filter((r) => r.author === 'custom').length, predicate: (r) => r.author === 'custom' },
-  { id: 'firing', label: 'Firing today', count: RULES.filter((r) => r.fires24h > 0).length, predicate: (r) => r.fires24h > 0 },
-]
+const IMPACT_TONE: Record<string, string> = { high: 'text-red-500', medium: 'text-amber-500', low: 'text-sky-500', none: 'text-muted-foreground' }
 
 /* ─── Page ─────────────────────────────────────────────────────────────── */
 
 export function AlertingRulesPage() {
-  const [view, setView] = useState<string>('all')
+  const { t } = useTranslation()
+  const [rules, setRules] = useState<CorrelationRule[]>([])
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+
   const [search, setSearch] = useState('')
-  const [openRule, setOpenRule] = useState<Rule | null>(null)
-  // Local optimistic toggle state (so you can see the UI react)
-  const [enabledOverrides, setEnabledOverrides] = useState<Record<string, boolean>>({})
+  const [debounced, setDebounced] = useState('')
+  const [category, setCategory] = useState('all')
+  const [adversary, setAdversary] = useState('all')
+  const [active, setActive] = useState<'all' | 'active' | 'inactive'>('all')
+  const [ownership, setOwnership] = useState<'all' | 'system' | 'custom'>('all')
+  const [dataType, setDataType] = useState('all')
 
-  const isEnabled = (r: Rule) => enabledOverrides[r.id] ?? r.enabled
+  const [page, setPage] = useState(0)
+  const [pageSize, setPageSize] = useState(20)
+  const [nonce, setNonce] = useState(0)
 
-  const filtered = useMemo(() => {
-    const v = SAVED_VIEWS.find((s) => s.id === view) ?? SAVED_VIEWS[0]
-    return RULES.filter(v.predicate).filter((r) =>
-      search
-        ? (r.name + r.description + r.category + r.tags.join(' ') + (r.technique?.id ?? ''))
-            .toLowerCase()
-            .includes(search.toLowerCase())
-        : true
-    )
-  }, [view, search])
+  const [categories, setCategories] = useState<string[]>([])
+  const [dataTypeOptions, setDataTypeOptions] = useState<DataTypeOption[]>([])
+  const [open, setOpen] = useState<CorrelationRule | null>(null)
+  const [creating, setCreating] = useState(false)
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [importBusy, setImportBusy] = useState(false)
+  const [importResults, setImportResults] = useState<ImportRulesResponse | null>(null)
+
+  const onImportFiles = async (fileList: FileList | null) => {
+    if (!fileList || fileList.length === 0) return
+    setImportBusy(true)
+    try {
+      const files = await Promise.all(
+        Array.from(fileList).map(async (f) => ({ filename: f.name, content: await f.text() })),
+      )
+      const res = await svc.importRules(files)
+      setImportResults(res)
+      if (res.approved > 0) refresh()
+    } catch (e) {
+      toast.error(e instanceof AlertingRulesHttpError ? e.message : t('alertingRules.import.error'))
+    } finally {
+      setImportBusy(false)
+      if (fileInputRef.current) fileInputRef.current.value = '' // re-allow same selection
+    }
+  }
+
+  useEffect(() => {
+    const h = setTimeout(() => { setDebounced(search.trim()); setPage(0) }, 300)
+    return () => clearTimeout(h)
+  }, [search])
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setError(false)
+    svc
+      .list({
+        ruleName: debounced || undefined,
+        ruleCategory: category === 'all' ? undefined : [category],
+        ruleAdversary: adversary === 'all' ? undefined : [adversary],
+        ruleActive: active === 'all' ? undefined : active === 'active',
+        systemOwner: ownership === 'all' ? undefined : ownership === 'system',
+        dataTypes: dataType === 'all' ? undefined : [dataType],
+        page,
+        size: pageSize,
+      })
+      .then(({ data, total }) => {
+        if (cancelled) return
+        setRules(data ?? [])
+        setTotal(total)
+      })
+      .catch(() => !cancelled && setError(true))
+      .finally(() => !cancelled && setLoading(false))
+    return () => { cancelled = true }
+  }, [debounced, category, adversary, active, ownership, dataType, page, pageSize, nonce])
+
+  // Filter dropdown sources: distinct categories + the data-type catalog.
+  useEffect(() => {
+    svc.propertyValues('rule_category').then(setCategories).catch(() => {})
+    svc.dataTypes().then((d) => setDataTypeOptions(d ?? [])).catch(() => {})
+  }, [nonce])
+
+  const refresh = useCallback(() => setNonce((n) => n + 1), [])
+
+  const toggleActive = async (r: CorrelationRule, next: boolean) => {
+    try {
+      await svc.setActive(r.relPath, next)
+      setRules((cur) => cur.map((x) => (x.relPath === r.relPath ? { ...x, ruleActive: next } : x)))
+      setOpen((prev) => (prev && prev.relPath === r.relPath ? { ...prev, ruleActive: next } : prev))
+      toast.success(next ? t('alertingRules.toast.activated') : t('alertingRules.toast.deactivated'))
+    } catch (e) {
+      toast.error(e instanceof AlertingRulesHttpError ? e.message : t('alertingRules.toast.toggleError'))
+    }
+  }
+
+  const remove = async (r: CorrelationRule) => {
+    if (!confirm(t('alertingRules.deleteConfirm', { name: r.name }))) return
+    try {
+      await svc.remove(r.relPath)
+      toast.success(t('alertingRules.toast.deleted'))
+      setOpen(null)
+      refresh()
+    } catch (e) {
+      toast.error(e instanceof AlertingRulesHttpError ? e.message : t('alertingRules.toast.deleteError'))
+    }
+  }
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
-      <Header total={filtered.length} />
-
-      <div className="mt-5 grid grid-cols-12 gap-4">
-        <div className="col-span-12 lg:col-span-8">
-          <FiringOverviewCard />
+    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 py-6">
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="flex items-center gap-2 text-xl font-semibold">
+            <ShieldAlert size={18} strokeWidth={1.75} />
+            {t('alertingRules.title')}
+            <span className="text-sm font-normal text-muted-foreground">· {total}</span>
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t('alertingRules.subtitle')}</p>
         </div>
-        <div className="col-span-12 lg:col-span-4">
-          <RuleInsightsCard />
-        </div>
-      </div>
-
-      <div className="mt-5">
-        <SavedViewTabs current={view} onChange={setView} />
-      </div>
-
-      <Toolbar search={search} onSearch={setSearch} />
-
-      <div className="mt-3 overflow-hidden rounded-xl border border-border bg-card">
-        <ListHeader />
-        {filtered.map((r) => (
-          <RuleRow
-            key={r.id}
-            rule={r}
-            enabled={isEnabled(r)}
-            onToggle={() =>
-              setEnabledOverrides((prev) => ({ ...prev, [r.id]: !isEnabled(r) }))
-            }
-            onOpen={() => setOpenRule(r)}
+        <div className="flex items-center gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".yaml,.yml"
+            multiple
+            className="hidden"
+            onChange={(e) => void onImportFiles(e.target.files)}
           />
-        ))}
-        {filtered.length === 0 && (
-          <div className="px-6 py-16 text-center text-sm text-muted-foreground">
-            No rules match this view.
-          </div>
-        )}
+          <Button size="sm" variant="outline" disabled={importBusy} onClick={() => fileInputRef.current?.click()}>
+            {importBusy ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <Upload size={14} className="mr-1.5" />}
+            {t('alertingRules.import.button')}
+          </Button>
+          <Button size="sm" onClick={() => setCreating(true)}>
+            <Plus size={14} className="mr-1.5" /> {t('alertingRules.new')}
+          </Button>
+          <button onClick={refresh} title={t('alertingRules.refresh')} className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-foreground">
+            <RefreshCw size={14} className={cn(loading && 'animate-spin')} />
+          </button>
+        </div>
+      </header>
+
+      {/* Toolbar */}
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="relative min-w-[220px] flex-1">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input placeholder={t('alertingRules.toolbar.search')} value={search} onChange={(e) => setSearch(e.target.value)} className="h-9 pl-9" />
+        </div>
+        <select value={dataType} onChange={(e) => { setDataType(e.target.value); setPage(0) }} className={SELECT_CLS}>
+          <option value="all">{t('alertingRules.toolbar.allDataTypes')}</option>
+          {dataTypeOptions.map((d) => <option key={d.dataType} value={d.dataType}>{d.dataType}</option>)}
+        </select>
+        <select value={category} onChange={(e) => { setCategory(e.target.value); setPage(0) }} className={SELECT_CLS}>
+          <option value="all">{t('alertingRules.toolbar.allCategories')}</option>
+          {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <select value={adversary} onChange={(e) => { setAdversary(e.target.value); setPage(0) }} className={SELECT_CLS}>
+          <option value="all">{t('alertingRules.toolbar.allAdversaries')}</option>
+          <option value="origin">{t('alertingRules.adversary.origin')}</option>
+          <option value="target">{t('alertingRules.adversary.target')}</option>
+        </select>
+        <select value={active} onChange={(e) => { setActive(e.target.value as 'all' | 'active' | 'inactive'); setPage(0) }} className={SELECT_CLS}>
+          <option value="all">{t('alertingRules.toolbar.allStates')}</option>
+          <option value="active">{t('alertingRules.state.active')}</option>
+          <option value="inactive">{t('alertingRules.state.inactive')}</option>
+        </select>
+        <select value={ownership} onChange={(e) => { setOwnership(e.target.value as 'all' | 'system' | 'custom'); setPage(0) }} className={SELECT_CLS}>
+          <option value="all">{t('alertingRules.toolbar.allOwners')}</option>
+          <option value="system">{t('alertingRules.owner.system')}</option>
+          <option value="custom">{t('alertingRules.owner.custom')}</option>
+        </select>
       </div>
 
-      {openRule && <RuleDrawer rule={openRule} enabled={isEnabled(openRule)} onClose={() => setOpenRule(null)} />}
+      {/* Content */}
+      {error ? (
+        <Center>
+          <AlertTriangle size={16} className="text-amber-500" /> {t('alertingRules.loadError')}
+          <button onClick={refresh} className="ml-2 text-primary hover:underline">{t('alertingRules.retry')}</button>
+        </Center>
+      ) : loading && rules.length === 0 ? (
+        <Center><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></Center>
+      ) : rules.length === 0 ? (
+        <Center>{t('alertingRules.empty')}</Center>
+      ) : (
+        <>
+          <Table rules={rules} onOpen={setOpen} onToggle={toggleActive} t={t} />
+          <div className="mt-3 shrink-0">
+            <Pagination page={page} pageSize={pageSize} total={total} onPageChange={setPage} onPageSizeChange={(s) => { setPageSize(s); setPage(0) }} />
+          </div>
+        </>
+      )}
+
+      {open && <RuleDrawer rule={open} dataTypeOptions={dataTypeOptions} onClose={() => setOpen(null)} onToggle={toggleActive} onDelete={remove} onSaved={() => { setOpen(null); refresh() }} t={t} />}
+      {creating && <RuleDrawer create dataTypeOptions={dataTypeOptions} onClose={() => setCreating(false)} onSaved={() => { setCreating(false); refresh() }} t={t} />}
+      {importResults && <ImportResultsDialog res={importResults} onClose={() => setImportResults(null)} t={t} />}
     </div>
   )
 }
 
-/* ─── Header ───────────────────────────────────────────────────────────── */
+/* ─── Import results dialog ─────────────────────────────────────────────── */
 
-function Header({ total }: { total: number }) {
+function ImportResultsDialog({ res, onClose, t }: { res: ImportRulesResponse; onClose: () => void; t: TFunction }) {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight">Alerting rules</h1>
-          <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-[11px] tabular-nums text-muted-foreground">
-            {total.toLocaleString()} rules
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm" onClick={onClose}>
+      <div className="flex max-h-[80vh] w-full max-w-[560px] flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <header className="flex items-center justify-between border-b border-border px-5 py-3.5">
+          <h2 className="flex items-center gap-2 text-base font-semibold">
+            <Upload size={16} /> {t('alertingRules.import.resultTitle')}
+          </h2>
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground">
+            <X size={16} />
+          </button>
+        </header>
+
+        <div className="flex shrink-0 items-center gap-4 border-b border-border bg-muted/20 px-5 py-2.5 text-xs">
+          <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 size={14} /> {t('alertingRules.import.approved')}: <b>{res.approved}</b>
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-red-600 dark:text-red-400">
+            <XCircle size={14} /> {t('alertingRules.import.rejected')}: <b>{res.rejected}</b>
           </span>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Detection logic that runs continuously against your event stream.
-        </p>
-      </div>
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm">
-          <Upload size={14} className="mr-2" />
-          Import
-        </Button>
-        <Button size="sm">
-          <Plus size={14} className="mr-2" />
-          New rule
-        </Button>
-      </div>
-    </header>
-  )
-}
 
-/* ─── Firing overview ──────────────────────────────────────────────────── */
-
-function FiringOverviewCard() {
-  const buckets = 60
-  const data = useMemo(
-    () =>
-      Array.from({ length: buckets }, (_, i) =>
-        Math.max(0, Math.round(Math.abs(Math.sin(i / 6)) * 22 + Math.abs(Math.sin(i / 11)) * 8 + (i > 50 ? 14 : 0) + 4))
-      ),
-    []
-  )
-  const totalFires = RULES.reduce((s, r) => s + r.fires24h, 0)
-  const enabled = RULES.filter((r) => r.enabled).length
-
-  const w = 1000
-  const h = 100
-  const max = Math.max(...data) * 1.15
-  const xs = data.map((_, i) => (i * w) / (data.length - 1))
-  const ys = data.map((v) => h - (v / max) * h)
-  const linePath = data.reduce((acc, _, i) => {
-    if (i === 0) return `M ${xs[i]} ${ys[i]}`
-    const prevX = xs[i - 1]
-    const prevY = ys[i - 1]
-    const cx1 = prevX + (xs[i] - prevX) / 2
-    const cx2 = xs[i] - (xs[i] - prevX) / 2
-    return `${acc} C ${cx1} ${prevY}, ${cx2} ${ys[i]}, ${xs[i]} ${ys[i]}`
-  }, '')
-  const areaPath = `${linePath} L ${xs[xs.length - 1]} ${h} L ${xs[0]} ${h} Z`
-
-  return (
-    <div className="rounded-xl border border-border bg-card p-6">
-      <div className="flex items-baseline justify-between">
-        <div>
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-            Detections fired · last 24 hours
-          </div>
-          <div className="mt-1 flex items-baseline gap-3">
-            <span className="text-3xl font-semibold tabular-nums">{totalFires}</span>
-            <span className="text-sm text-muted-foreground">
-              from <span className="text-foreground">{enabled}</span> enabled rules
-            </span>
+        <div className="min-h-0 flex-1 overflow-y-auto p-3">
+          <div className="space-y-1.5">
+            {res.results.map((r, i) => (
+              <div key={i} className="flex items-start gap-2 rounded-md border border-border px-3 py-2 text-xs">
+                {r.approved ? (
+                  <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-emerald-500" />
+                ) : (
+                  <XCircle size={15} className="mt-0.5 shrink-0 text-red-500" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-2">
+                    <span className="font-mono text-[11px] text-muted-foreground">{r.filename}</span>
+                    {r.name && <span className="font-medium">{r.name}</span>}
+                  </div>
+                  {!r.approved && r.error && <p className="mt-0.5 text-[11px] text-red-600 dark:text-red-400">{r.error}</p>}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
 
-      <svg viewBox={`0 0 ${w} ${h}`} className="mt-4 h-24 w-full" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="rulesGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgb(244 63 94)" stopOpacity="0.28" />
-            <stop offset="100%" stopColor="rgb(244 63 94)" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path d={areaPath} fill="url(#rulesGrad)" />
-        <path
-          d={linePath}
-          fill="none"
-          stroke="rgb(244 63 94)"
-          strokeOpacity="0.85"
-          strokeWidth="1.75"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-        />
-      </svg>
-
-      <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
-        <span>24h ago</span>
-        <span>12h ago</span>
-        <span>now</span>
+        <footer className="flex justify-end border-t border-border px-5 py-3">
+          <Button size="sm" onClick={onClose}>{t('alertingRules.import.done')}</Button>
+        </footer>
       </div>
     </div>
   )
 }
 
-/* ─── Insights ─────────────────────────────────────────────────────────── */
+/* ─── Table ────────────────────────────────────────────────────────────── */
 
-function RuleInsightsCard() {
+function Table({ rules, onOpen, onToggle, t }: { rules: CorrelationRule[]; onOpen: (r: CorrelationRule) => void; onToggle: (r: CorrelationRule, next: boolean) => void; t: TFunction }) {
   return (
-    <div className="flex h-full flex-col gap-3 rounded-xl border border-border bg-card p-5">
-      <div className="flex items-center gap-2">
-        <Sparkles size={14} className="text-fuchsia-500" />
-        <h3 className="text-sm font-semibold">SOC AI insights</h3>
+    <div className="mt-4 min-h-0 flex-1 overflow-y-auto rounded-xl border border-border">
+      <div className="grid items-center gap-3 border-b border-border bg-muted/30 px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground" style={{ gridTemplateColumns: COLS }}>
+        <div>{t('alertingRules.table.name')}</div>
+        <div>{t('alertingRules.table.dataTypes')}</div>
+        <div>{t('alertingRules.table.category')}</div>
+        <div>{t('alertingRules.table.technique')}</div>
+        <div>{t('alertingRules.table.adversary')}</div>
+        <div className="text-center">{t('alertingRules.table.impact')}</div>
+        <div className="text-center">{t('alertingRules.table.active')}</div>
       </div>
-
-      <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs leading-relaxed">
-        <span className="font-medium text-foreground">Encoded PowerShell</span> rule fired 47× in 24h —{' '}
-        <span className="text-foreground">93% benign</span>.{' '}
-        <button className="text-primary hover:underline">Tune threshold</button>
-      </div>
-
-      <div className="rounded-lg border border-fuchsia-500/30 bg-gradient-to-br from-fuchsia-500/10 via-violet-500/5 to-transparent p-3 text-xs leading-relaxed">
-        <span className="font-medium text-foreground">14 MITRE techniques</span> uncovered — most-common
-        gap is <span className="font-medium">Defense Evasion</span>.{' '}
-        <button className="text-primary hover:underline">Add coverage</button>
-      </div>
-
-      <div className="rounded-lg border border-border bg-background/40 p-3 text-xs leading-relaxed">
-        <span className="font-medium text-foreground">3 rules</span> haven't fired in 90 days.{' '}
-        <button className="text-primary hover:underline">Review</button>
-      </div>
-    </div>
-  )
-}
-
-/* ─── Saved view tabs ──────────────────────────────────────────────────── */
-
-function SavedViewTabs({ current, onChange }: { current: string; onChange: (id: string) => void }) {
-  return (
-    <div className="flex flex-wrap items-center gap-1 border-b border-border">
-      {SAVED_VIEWS.map((v) => {
-        const active = current === v.id
+      {rules.map((r) => {
+        const dts = (r.dataTypes ?? []).filter((d) => d.included).map((d) => d.dataType)
         return (
-          <button
-            key={v.id}
-            onClick={() => onChange(v.id)}
-            className={cn(
-              'group relative flex items-center gap-2 px-3 py-2 text-xs transition-colors',
-              active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-            )}
-          >
-            <span>{v.label}</span>
-            <span
-              className={cn(
-                'rounded-md px-1.5 py-0.5 font-mono text-[10px] tabular-nums',
-                active ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground'
-              )}
-            >
-              {v.count}
-            </span>
-            {active && <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-primary" />}
+        <div key={r.relPath} className="grid items-center gap-3 border-b border-border/60 px-4 py-3 text-sm last:border-b-0 hover:bg-muted/30" style={{ gridTemplateColumns: COLS }}>
+          <button onClick={() => onOpen(r)} className="min-w-0 text-left">
+            <div className="flex items-center gap-1.5">
+              <span className="truncate font-medium">{r.name}</span>
+              {r.systemOwner && <Lock size={11} className="shrink-0 text-muted-foreground/50" />}
+            </div>
+            {r.description && <div className="truncate text-xs text-muted-foreground">{r.description}</div>}
           </button>
+          <button onClick={() => onOpen(r)} className="flex min-w-0 flex-wrap items-center gap-1 text-left">
+            {dts.slice(0, 2).map((dt) => <DataTypeChip key={dt} dataType={dt} />)}
+            {dts.length > 2 && <span className="text-[10px] text-muted-foreground">+{dts.length - 2}</span>}
+            {dts.length === 0 && <span className="text-xs text-muted-foreground/60">—</span>}
+          </button>
+          <button onClick={() => onOpen(r)} className="truncate text-left text-xs text-muted-foreground">{r.category || '—'}</button>
+          <button onClick={() => onOpen(r)} className="truncate text-left font-mono text-xs text-muted-foreground" title={r.technique}>{r.technique || '—'}</button>
+          <div className="flex items-center gap-1 text-xs text-muted-foreground"><Crosshair size={11} /> {r.adversary ? t(`alertingRules.adversary.${r.adversary}`) : '—'}</div>
+          <div className="text-center"><span className={cn('font-mono text-xs font-semibold', IMPACT_TONE[impactKey(maxImpact(r))])}>{maxImpact(r)}</span></div>
+          <div className="flex justify-center"><Toggle on={r.ruleActive} onChange={(v) => onToggle(r, v)} /></div>
+        </div>
         )
       })}
     </div>
   )
 }
 
-/* ─── Toolbar ──────────────────────────────────────────────────────────── */
-
-function Toolbar({ search, onSearch }: { search: string; onSearch: (s: string) => void }) {
-  return (
-    <div className="mt-3 flex flex-wrap items-center gap-2">
-      <div className="relative min-w-[280px] flex-1">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={search}
-          onChange={(e) => onSearch(e.target.value)}
-          placeholder="Search by name, description, MITRE, source, tag…"
-          className="h-9 pl-9"
-        />
-      </div>
-      <Button variant="outline" size="sm">
-        <ListFilter size={14} className="mr-2" />
-        Filters
-      </Button>
-    </div>
-  )
-}
-
-/* ─── List ─────────────────────────────────────────────────────────────── */
-
-const COLS = '4px 44px 1fr 110px 130px 80px 110px 110px 36px'
-
-function ListHeader() {
-  return (
-    <div
-      className="grid items-center gap-3 border-b border-border bg-muted/40 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground"
-      style={{ gridTemplateColumns: COLS }}
-    >
-      <div />
-      <div />
-      <div>Rule</div>
-      <div>Severity</div>
-      <div>Type</div>
-      <div className="text-right">24h</div>
-      <div>Last fired</div>
-      <div>Modified</div>
-      <div />
-    </div>
-  )
-}
-
-function RuleRow({
-  rule: r,
-  enabled,
-  onToggle,
-  onOpen,
-}: {
-  rule: Rule
-  enabled: boolean
-  onToggle: () => void
-  onOpen: () => void
-}) {
-  const sev = SEV_STYLE[r.severity]
-  const km = KIND_META[r.kind]
-  return (
-    <div
-      onClick={onOpen}
-      className={cn(
-        'group grid cursor-pointer items-center gap-3 border-b border-border px-4 py-3 text-xs transition-colors hover:bg-muted/40 last:border-b-0',
-        !enabled && 'opacity-60'
-      )}
-      style={{ gridTemplateColumns: COLS }}
-    >
-      <span className={cn('h-7 w-1 rounded-full', enabled ? sev.bar : 'bg-muted')} />
-      <Toggle
-        enabled={enabled}
-        onChange={(e) => {
-          e.stopPropagation()
-          onToggle()
-        }}
-      />
-      <div className="min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium">{r.name}</span>
-          {r.author === 'custom' && (
-            <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-medium uppercase text-emerald-600 ring-1 ring-emerald-500/30 dark:text-emerald-300">
-              custom
-            </span>
-          )}
-        </div>
-        <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
-          {r.technique && (
-            <>
-              <span className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
-                {r.technique.id}
-              </span>
-              <span>{r.technique.name}</span>
-              <span>·</span>
-            </>
-          )}
-          <span>{r.category}</span>
-          <span>·</span>
-          <span className="font-mono">{r.sources.slice(0, 2).join(', ')}</span>
-          {r.sources.length > 2 && <span className="text-[10px]">+{r.sources.length - 2}</span>}
-        </div>
-      </div>
-      <div>
-        <span className={cn('text-[11px] font-medium', sev.tone)}>{sev.label}</span>
-      </div>
-      <div className="text-[11px]">
-        <span className={km.tone}>{km.label}</span>
-      </div>
-      <div className={cn('text-right tabular-nums', r.fires24h > 0 ? 'text-foreground' : 'text-muted-foreground')}>
-        {r.fires24h > 0 ? r.fires24h.toLocaleString() : '—'}
-      </div>
-      <div className="font-mono text-[11px] text-muted-foreground">
-        {r.lastTriggered ? relativeTime(r.lastTriggered) : '—'}
-      </div>
-      <div className="font-mono text-[11px] text-muted-foreground">
-        {relativeTime(r.modifiedAt)}
-        <div className="text-[10px] text-muted-foreground/70">{r.modifiedBy}</div>
-      </div>
-      <div className="flex justify-end opacity-0 group-hover:opacity-100">
-        <button
-          onClick={(e) => e.stopPropagation()}
-          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-background hover:text-foreground"
-        >
-          <MoreHorizontal size={14} />
-        </button>
-      </div>
-    </div>
-  )
-}
-
-function Toggle({
-  enabled,
-  onChange,
-}: {
-  enabled: boolean
-  onChange: (e: React.MouseEvent) => void
-}) {
+function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
   return (
     <button
-      onClick={onChange}
-      className={cn(
-        'relative h-4 w-7 shrink-0 rounded-full transition-colors',
-        enabled ? 'bg-primary' : 'bg-muted'
-      )}
+      onClick={(e) => { e.stopPropagation(); onChange(!on) }}
+      className={cn('relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors', on ? 'bg-emerald-500' : 'bg-muted-foreground/30')}
+      role="switch"
+      aria-checked={on}
     >
-      <span
-        className={cn(
-          'absolute top-0.5 h-3 w-3 rounded-full bg-white shadow transition-all',
-          enabled ? 'left-3.5' : 'left-0.5'
-        )}
-      />
+      <span className={cn('inline-block h-4 w-4 transform rounded-full bg-white transition-transform', on ? 'translate-x-4' : 'translate-x-0.5')} />
     </button>
   )
 }
 
-/* ─── Drawer ───────────────────────────────────────────────────────────── */
-
-type Tab = 'overview' | 'logic' | 'history'
+/* ─── Drawer (view / edit / create) ────────────────────────────────────── */
 
 function RuleDrawer({
-  rule: r,
-  enabled,
+  rule,
+  create,
+  dataTypeOptions,
   onClose,
+  onToggle,
+  onDelete,
+  onSaved,
+  t,
 }: {
-  rule: Rule
-  enabled: boolean
+  rule?: CorrelationRule
+  create?: boolean
+  dataTypeOptions: DataTypeOption[]
   onClose: () => void
+  onToggle?: (r: CorrelationRule, next: boolean) => void
+  onDelete?: (r: CorrelationRule) => void
+  onSaved: () => void
+  t: TFunction
 }) {
-  const [tab, setTab] = useState<Tab>('overview')
-  const sev = SEV_STYLE[r.severity]
-  const km = KIND_META[r.kind]
+  const df = useDateFormat()
+  const readOnly = !!rule?.systemOwner
+  const [editing, setEditing] = useState(!!create)
+  const [form, setForm] = useState<RuleFormState>(() => ruleToForm(rule))
+  const [busy, setBusy] = useState(false)
+
+  // Visual ↔ Code. The structured form stays canonical; Code shows/edits the
+  // whole rule as YAML and syncs back into the form on toggle / save.
+  const [mode, setMode] = useState<'visual' | 'code'>('visual')
+  const [yaml, setYaml] = useState('')
+
+  const toCode = () => {
+    setYaml(ruleFormToYaml(form))
+    setMode('code')
+  }
+  const toVisual = () => {
+    // Only sync YAML → form when actually editing; in view mode (incl. system
+    // rules) the YAML is read-only, so there's nothing to apply back.
+    if (showForm) {
+      const r = yamlToRuleForm(yaml)
+      if (!r.ok) {
+        toast.error(t('alertingRules.editor.yamlError', { error: r.error }))
+        return
+      }
+      // active isn't part of the YAML — keep the current value.
+      setForm({ ...r.form, ruleActive: form.ruleActive })
+    }
+    setMode('visual')
+  }
+
+  const cancelEdit = () => {
+    setEditing(false)
+    setForm(ruleToForm(rule))
+    setMode('visual')
+  }
+
+  const save = async () => {
+    if (busy) return
+    // In code mode the YAML is the source of truth — parse it first.
+    let f = form
+    if (mode === 'code') {
+      const r = yamlToRuleForm(yaml)
+      if (!r.ok) { toast.error(t('alertingRules.editor.yamlError', { error: r.error })); return }
+      f = { ...r.form, ruleActive: form.ruleActive } // active isn't in the YAML
+      setForm(f)
+    }
+    if (!f.name.trim()) { toast.error(t('alertingRules.editor.nameRequired')); return }
+    if (!f.definition.trim()) { toast.error(t('alertingRules.editor.definitionRequired')); return }
+    const input = formToInput(f, create ? undefined : rule?.relPath)
+    setBusy(true)
+    try {
+      if (create) await svc.create(input)
+      else await svc.update(input)
+      toast.success(create ? t('alertingRules.toast.created') : t('alertingRules.toast.saved'))
+      onSaved()
+    } catch (e) {
+      toast.error(e instanceof AlertingRulesHttpError ? e.message : t('alertingRules.toast.saveError'))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const showForm = editing || !!create
 
   return (
     <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/40 backdrop-blur-sm" onClick={onClose}>
-      <div
-        className="flex w-full max-w-[920px] flex-col overflow-hidden border-l border-border bg-card shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <header className="border-b border-border px-6 py-4">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                <span className="font-mono">{r.id}</span>
-                <span>·</span>
-                <span className="capitalize">{r.author}</span>
-                <span>·</span>
-                <span>{r.category}</span>
-              </div>
-              <div className="mt-1 flex items-center gap-2">
-                <span className={cn('h-5 w-1.5 rounded-full', enabled ? sev.bar : 'bg-muted')} />
-                <h2 className="truncate text-lg font-semibold">{r.name}</h2>
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px]">
-                <span className={cn('rounded-md px-1.5 py-0.5 font-medium ring-1 ring-inset', sev.pill)}>
-                  {sev.label}
-                </span>
-                <span className={cn('inline-flex items-center gap-1 rounded-md border border-border bg-background/40 px-1.5 py-0.5 font-medium', km.tone)}>
-                  {km.label}
-                </span>
-                {r.technique && (
-                  <span className="inline-flex items-center gap-1 rounded-md border border-border bg-background/40 px-1.5 py-0.5 font-mono">
-                    <Crosshair size={10} className="text-rose-500" />
-                    {r.technique.id} {r.technique.name}
-                  </span>
-                )}
-                {r.tags.map((t) => (
-                  <span key={t} className="rounded-md bg-muted px-1.5 py-0.5">
-                    {t}
-                  </span>
-                ))}
-              </div>
+      <div className="flex w-full max-w-[780px] flex-col overflow-hidden border-l border-border bg-card shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <header className="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+              {create ? t('alertingRules.editor.createTitle') : rule?.category || t('alertingRules.title')}
+              {readOnly && <span className="inline-flex items-center gap-1"><Lock size={11} /> {t('alertingRules.owner.system')}</span>}
             </div>
-            <button
-              onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              <X size={16} />
-            </button>
+            <h2 className="mt-1 truncate text-xl font-semibold">{create ? t('alertingRules.editor.createTitle') : rule?.name}</h2>
           </div>
-
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <Button size="sm">
-              <Play size={13} className="mr-1.5" />
-              Test against last 24h
-            </Button>
-            <Button size="sm" variant="outline">
-              <Copy size={13} className="mr-1.5" />
-              Duplicate
-            </Button>
-            <Button size="sm" variant="outline">
-              <ExternalLink size={13} className="mr-1.5" />
-              View matched alerts
-            </Button>
-            <span className="ml-auto inline-flex items-center gap-2 text-[11px] text-muted-foreground">
-              <Toggle enabled={enabled} onChange={(e) => e.stopPropagation()} />
-              {enabled ? 'Enabled' : 'Disabled'}
-            </span>
+          <div className="flex shrink-0 items-center gap-2">
+            {rule && !readOnly && !showForm && <Button size="sm" variant="outline" onClick={() => setEditing(true)}><Pencil size={13} className="mr-1.5" /> {t('alertingRules.editor.edit')}</Button>}
+            {rule && !readOnly && onDelete && <button onClick={() => onDelete(rule)} title={t('alertingRules.editor.delete')} className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-red-500/10 hover:text-red-500"><Trash2 size={15} /></button>}
+            {rule && onToggle && <Toggle on={rule.ruleActive} onChange={(v) => onToggle(rule, v)} />}
+            <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"><X size={16} /></button>
           </div>
         </header>
 
-        <nav className="flex items-center gap-1 border-b border-border px-6">
-          <DrawerTab id="overview" current={tab} onChange={setTab} icon={Sparkles}>
-            Overview
-          </DrawerTab>
-          <DrawerTab id="logic" current={tab} onChange={setTab} icon={Crosshair}>
-            Logic
-          </DrawerTab>
-          <DrawerTab id="history" current={tab} onChange={setTab} icon={History}>
-            Firing history
-          </DrawerTab>
-        </nav>
-
-        <div className="flex-1 overflow-y-auto bg-muted/20">
-          {tab === 'overview' && <OverviewTab rule={r} />}
-          {tab === 'logic' && <LogicTab rule={r} />}
-          {tab === 'history' && <HistoryTab rule={r} />}
+        <div className="flex min-h-0 flex-1 flex-col bg-muted/10">
+          {(showForm || rule) && (
+            <div className="flex shrink-0 items-center justify-end border-b border-border px-6 py-2">
+              <div className="inline-flex rounded-md border border-border p-0.5">
+                <button
+                  type="button"
+                  onClick={() => mode !== 'visual' && toVisual()}
+                  className={cn(
+                    'inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs transition-colors',
+                    mode === 'visual' ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  <LayoutList size={13} /> {t('alertingRules.editor.visualTab')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => mode !== 'code' && toCode()}
+                  className={cn(
+                    'inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs transition-colors',
+                    mode === 'code' ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  <Code2 size={13} /> {t('alertingRules.editor.codeTab')}
+                </button>
+              </div>
+            </div>
+          )}
+          {mode === 'code' ? (
+            // Editable only while editing/creating; system rules (and plain view)
+            // are read-only.
+            <div className="flex min-h-0 flex-1 flex-col p-6">
+              <YamlCodeEditor value={yaml} onChange={setYaml} readOnly={!showForm} />
+            </div>
+          ) : (
+            <div className="min-h-0 flex-1 overflow-y-auto p-6">
+              {showForm ? <RuleForm form={form} setForm={setForm} dataTypeOptions={dataTypeOptions} t={t} /> : rule ? <RuleView rule={rule} df={df} t={t} /> : null}
+            </div>
+          )}
         </div>
+
+        {showForm && (
+          <footer className="flex items-center justify-end gap-2 border-t border-border px-6 py-3">
+            {!create && <Button size="sm" variant="outline" onClick={cancelEdit} disabled={busy}>{t('alertingRules.editor.cancel')}</Button>}
+            <Button size="sm" onClick={() => void save()} disabled={busy}>
+              {busy ? <Loader2 size={13} className="mr-1.5 animate-spin" /> : null} {t('alertingRules.editor.save')}
+            </Button>
+          </footer>
+        )}
       </div>
     </div>
   )
 }
 
-function DrawerTab({
-  id,
-  current,
-  onChange,
-  icon: Icon,
-  children,
-}: {
-  id: Tab
-  current: Tab
-  onChange: (t: Tab) => void
-  icon: LucideIcon
-  children: React.ReactNode
-}) {
-  const active = id === current
+function RuleView({ rule, df, t }: { rule: CorrelationRule; df: ReturnType<typeof useDateFormat>; t: TFunction }) {
+  const steps = ruleToForm(rule).afterEvents
   return (
-    <button
-      onClick={() => onChange(id)}
-      className={cn(
-        'relative flex items-center gap-1.5 px-3 py-2.5 text-xs transition-colors',
-        active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-      )}
-    >
-      <Icon size={13} />
-      {children}
-      {active && <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-primary" />}
-    </button>
-  )
-}
-
-/* ─── Drawer: Overview ─────────────────────────────────────────────────── */
-
-function OverviewTab({ rule: r }: { rule: Rule }) {
-  return (
-    <div className="grid grid-cols-3 gap-4 p-6">
-      <div className="col-span-2 space-y-4">
-        <Section title="What this rule detects">
-          <p className="text-sm leading-relaxed">{r.description}</p>
-        </Section>
-
-        <Section title="Required data sources">
-          <div className="flex flex-wrap gap-2">
-            {r.sources.map((s) => (
-              <span
-                key={s}
-                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background/40 px-2 py-1 text-xs"
-              >
-                <Database size={11} className="text-muted-foreground" />
-                {s}
-              </span>
-            ))}
-          </div>
-          <p className="mt-2 text-[11px] text-muted-foreground">
-            Rule will only evaluate when at least one of these sources is connected.
-          </p>
-        </Section>
-
-        <Section title="Fire trend · 14 days">
-          <SparkCalendar />
-        </Section>
-      </div>
-
-      <aside className="col-span-1 space-y-4">
-        <KeyValueCard
-          title="Stats"
-          rows={[
-            ['24h fires', r.fires24h.toLocaleString()],
-            ['Total fires', r.firesTotal.toLocaleString()],
-            ['Last fired', r.lastTriggered ? relativeTime(r.lastTriggered) : '—'],
-          ]}
-        />
-
-        <KeyValueCard
-          title="Lifecycle"
-          rows={[
-            ['Created', relativeTime(r.createdAt)],
-            ['Modified', relativeTime(r.modifiedAt)],
-            ['Modified by', <span className="font-mono">{r.modifiedBy}</span>],
-            ['Author', <span className="capitalize">{r.author}</span>],
-          ]}
-        />
-      </aside>
-    </div>
-  )
-}
-
-function SparkCalendar() {
-  // 14-day mini cells
-  const days14 = Array.from({ length: 14 }, (_, i) =>
-    Math.max(0, Math.round(Math.abs(Math.sin((i + 3) / 1.7)) * 10 + (i === 13 ? 6 : 0)))
-  )
-  const max = Math.max(...days14, 1)
-  return (
-    <div className="flex items-end gap-1.5">
-      {days14.map((v, i) => {
-        const intensity = v / max
-        return (
-          <div key={i} className="flex flex-1 flex-col items-center gap-1">
-            <div
-              className={cn(
-                'w-full rounded-sm',
-                v === 0 ? 'bg-muted' : intensity > 0.7 ? 'bg-red-500/80' : intensity > 0.4 ? 'bg-orange-500/70' : 'bg-amber-500/60'
-              )}
-              style={{ height: `${4 + intensity * 36}px` }}
-              title={`${v} fires`}
-            />
-            <span className="text-[9px] tabular-nums text-muted-foreground">{i === 13 ? 'now' : `-${13 - i}d`}</span>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
-/* ─── Drawer: Logic ────────────────────────────────────────────────────── */
-
-function LogicTab({ rule: r }: { rule: Rule }) {
-  return (
-    <div className="space-y-4 p-6">
-      <Section title="Detection query">
-        <pre className="overflow-x-auto rounded-md bg-muted/40 p-3 font-mono text-[11px] leading-relaxed">
-          {r.query}
-        </pre>
-        <div className="mt-2 flex items-center gap-3">
-          <button className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline">
-            <Copy size={11} /> Copy
-          </button>
-          <button className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline">
-            <ExternalLink size={11} /> Open in editor
-          </button>
-        </div>
+    <div className="space-y-4">
+      {rule.description && <Section title={t('alertingRules.view.description')}><RuleDescription text={rule.description} /></Section>}
+      <Section title={t('alertingRules.view.details')}>
+        <dl className="grid grid-cols-[150px_1fr] gap-y-2 text-xs">
+          <Row k={t('alertingRules.table.category')}>{rule.category || '—'}</Row>
+          <Row k={t('alertingRules.table.technique')}><span className="font-mono">{rule.technique || '—'}</span></Row>
+          <Row k={t('alertingRules.table.adversary')}>{rule.adversary ? t(`alertingRules.adversary.${rule.adversary}`) : '—'}</Row>
+          <Row k={t('alertingRules.view.impact')}><span className="font-mono">C{rule.confidentiality} · I{rule.integrity} · A{rule.availability}</span></Row>
+          <Row k={t('alertingRules.view.dataTypes')}><span className="font-mono">{(rule.dataTypes ?? []).filter((d) => d.included).map((d) => d.dataType).join(', ') || '—'}</span></Row>
+          {rule.ruleLastUpdate && <Row k={t('alertingRules.view.updated')}>{df.formatDateTime(rule.ruleLastUpdate)}</Row>}
+        </dl>
       </Section>
-
-      {r.threshold && (
-        <Section title="Threshold">
-          <dl className="grid grid-cols-[140px_1fr] gap-y-2 text-xs">
-            <Row k="Count">
-              <span className="font-mono">{r.threshold.count}</span>
-            </Row>
-            <Row k="Window">
-              <span className="font-mono">{r.threshold.window}</span>
-            </Row>
-            {r.threshold.groupBy && (
-              <Row k="Group by">
-                <span className="font-mono">{r.threshold.groupBy}</span>
-              </Row>
-            )}
+      <Section title={t('alertingRules.view.definition')}>
+        <DefinitionView definition={rule.definition} t={t} />
+      </Section>
+      {steps.length > 0 && (
+        <Section title={t('alertingRules.view.afterEvents')}>
+          <AfterEventsView steps={steps} t={t} />
+        </Section>
+      )}
+      {(hasItems(rule.groupBy) || hasItems(rule.deduplicateBy)) && (
+        <Section title={t('alertingRules.view.correlation')}>
+          <dl className="grid grid-cols-[150px_1fr] gap-y-2 text-xs">
+            <Row k={t('alertingRules.view.groupBy')}><span className="font-mono">{asList(rule.groupBy)}</span></Row>
+            <Row k={t('alertingRules.view.deduplicateBy')}><span className="font-mono">{asList(rule.deduplicateBy)}</span></Row>
           </dl>
         </Section>
       )}
-
-      <Section title="What happens when this rule matches">
-        <ol className="list-decimal pl-5 text-sm leading-relaxed">
-          <li>An alert is generated with severity <strong>{SEV_STYLE[r.severity].label}</strong>.</li>
-          <li>The alert is auto-tagged with <span className="font-mono text-xs">{r.tags.join(', ')}</span>.</li>
-          {r.fires24h >= 8 && (
-            <li>If more than 5 alerts fire from this rule within 1 hour, they are auto-grouped into an incident.</li>
-          )}
-        </ol>
-      </Section>
     </div>
   )
 }
 
-/* ─── Drawer: History ──────────────────────────────────────────────────── */
+/* ─── Read-only visual renderers (CEL condition, correlation steps, markdown) ── */
 
-function HistoryTab({ rule: r }: { rule: Rule }) {
-  // Build mock fire events
-  const events = [
-    { ts: r.lastTriggered ?? min(60), alert: 'Alert a-9f04c2', host: 'WIN-7F3K2L9Q8X' },
-    { ts: hr(2), alert: 'Alert a-c014f0', host: 'fin-app-01' },
-    { ts: hr(7), alert: 'Alert a-44a811', host: 'WIN-7F3K2L9Q8X' },
-    { ts: hr(14), alert: 'Alert a-3e88a1', host: 'WIN-7F3K2L9Q8X' },
-    { ts: hr(20), alert: 'Alert a-1ab32e', host: 'fin-app-01' },
-  ].filter(() => r.fires24h > 0)
-  if (events.length === 0) {
+/** Friendly read-only view of the CEL `where` condition; falls back to raw CEL. */
+function DefinitionView({ definition, t }: { definition: string; t: TFunction }) {
+  const tree = parseCelTree(definition)
+  if (!tree) {
+    return <pre className="overflow-x-auto rounded-md border border-border bg-card p-3 font-mono text-[11px] leading-relaxed">{definition || '—'}</pre>
+  }
+  return <CelNodeView node={tree} t={t} depth={0} />
+}
+
+/** Recursively renders a CEL boolean tree as nested AND/OR groups. */
+function CelNodeView({ node, t, depth }: { node: CelNode; t: TFunction; depth: number }) {
+  if (node.type === 'cond') {
     return (
-      <div className="p-6">
-        <div className="rounded-lg border border-dashed border-border bg-card px-6 py-12 text-center text-sm text-muted-foreground">
-          This rule has not fired in the selected time range.
-        </div>
+      <div className="flex flex-wrap items-center gap-1.5 text-xs">
+        {node.negate && <span className="rounded bg-red-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-red-500">not</span>}
+        <span className="rounded bg-background px-1.5 py-0.5 font-mono text-[11px]">{node.field}</span>
+        <span className="text-[11px] text-muted-foreground">{t(`alertingRules.celOp.${node.fn}`)}</span>
+        {node.values.filter(Boolean).map((v, i) => (
+          <span key={i} className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-[11px] text-primary">{v}</span>
+        ))}
       </div>
     )
   }
+  const connector = node.type === 'and' ? t('alertingRules.where.and') : t('alertingRules.where.or')
   return (
-    <div className="p-6">
-      <div className="overflow-hidden rounded-lg border border-border bg-card">
-        <div
-          className="grid grid-cols-[140px_1fr_180px_36px] gap-3 border-b border-border bg-muted/40 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground"
-        >
-          <div>When</div>
-          <div>Alert</div>
-          <div>Host</div>
-          <div />
+    <div className={cn('space-y-1.5', depth > 0 && 'rounded-md border border-border/60 bg-background/30 p-2')}>
+      {node.negate && (
+        <span className="inline-block rounded bg-red-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-red-500">not</span>
+      )}
+      {node.children.map((child, i) => (
+        <div key={i}>
+          {i > 0 && (
+            <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70">{connector}</div>
+          )}
+          <CelNodeView node={child} t={t} depth={depth + 1} />
         </div>
-        {events.map((e, i) => (
-          <div
-            key={i}
-            className="grid cursor-pointer grid-cols-[140px_1fr_180px_36px] gap-3 border-b border-border/60 px-4 py-2 text-xs hover:bg-muted/30 last:border-b-0"
-          >
-            <div className="font-mono text-[11px] text-muted-foreground">
-              {relativeTime(e.ts)}
-            </div>
-            <div className="truncate font-mono text-[11px]">{e.alert}</div>
-            <div className="truncate font-mono text-[11px]">{e.host}</div>
-            <div className="flex justify-end">
-              <ExternalLink size={11} className="text-muted-foreground" />
-            </div>
-          </div>
-        ))}
-      </div>
+      ))}
     </div>
   )
 }
 
-/* ─── Small parts ──────────────────────────────────────────────────────── */
+/** Read-only cards for the correlation (after-events) steps. */
+function AfterEventsView({ steps, t }: { steps: ReturnType<typeof ruleToForm>['afterEvents']; t: TFunction }) {
+  return (
+    <div className="space-y-2">
+      {steps.map((s, i) => (
+        <div key={i} className="rounded-md border border-border bg-card p-3">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
+            <span>{t('alertingRules.editor.indexPattern')}: <span className="font-mono text-foreground">{s.indexPattern || '—'}</span></span>
+            <span>{t('alertingRules.editor.within')}: <span className="font-mono text-foreground">{s.within || '—'}</span></span>
+            <span>{t('alertingRules.editor.count')} ≥ <span className="font-mono text-foreground">{s.count}</span></span>
+          </div>
+          {s.with.length > 0 && <ConditionList conds={s.with} t={t} />}
+          {s.or.map((g, gi) => (
+            <div key={gi} className="mt-1.5 border-t border-border/60 pt-1.5">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{t('alertingRules.where.or')}</span>
+              <ConditionList conds={g.with} t={t} />
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function ConditionList({ conds, t }: { conds: { field: string; operator: string; value: string }[]; t: TFunction }) {
+  return (
+    <div className="mt-1.5 space-y-1">
+      {conds.map((c, i) => (
+        <div key={i} className="flex flex-wrap items-center gap-1.5 text-xs">
+          <span className="rounded bg-background px-1.5 py-0.5 font-mono text-[11px]">{c.field}</span>
+          <span className="text-[11px] text-muted-foreground">{t(`alertingRules.operator.${c.operator}`)}</span>
+          {c.value && <span className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-[11px] text-primary">{c.value}</span>}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/** Lightweight markdown for rule descriptions: **bold**, `code`, lists, paragraphs. */
+function RuleDescription({ text }: { text: string }) {
+  const lines = text.split('\n')
+  const blocks: React.ReactNode[] = []
+  let i = 0
+  let key = 0
+  const isOl = (l: string) => /^\d+[.)]\s+/.test(l.trim())
+  const isUl = (l: string) => /^[-*]\s+/.test(l.trim())
+
+  while (i < lines.length) {
+    if (lines[i].trim() === '') {
+      i++
+      continue
+    }
+    if (isOl(lines[i])) {
+      const items: string[] = []
+      while (i < lines.length && isOl(lines[i])) items.push(lines[i++].trim().replace(/^\d+[.)]\s+/, ''))
+      blocks.push(<ol key={key++} className="ml-5 list-decimal space-y-1">{items.map((it, j) => <li key={j}>{inlineFmt(it)}</li>)}</ol>)
+      continue
+    }
+    if (isUl(lines[i])) {
+      const items: string[] = []
+      while (i < lines.length && isUl(lines[i])) items.push(lines[i++].trim().replace(/^[-*]\s+/, ''))
+      blocks.push(<ul key={key++} className="ml-5 list-disc space-y-1">{items.map((it, j) => <li key={j}>{inlineFmt(it)}</li>)}</ul>)
+      continue
+    }
+    const para: string[] = []
+    while (i < lines.length && lines[i].trim() !== '' && !isOl(lines[i]) && !isUl(lines[i])) para.push(lines[i++].trim())
+    blocks.push(<p key={key++}>{inlineFmt(para.join(' '))}</p>)
+  }
+  return <div className="space-y-2 text-xs leading-relaxed text-muted-foreground">{blocks}</div>
+}
+
+/** Inline markdown: **bold** and `code`. */
+function inlineFmt(text: string): React.ReactNode[] {
+  const out: React.ReactNode[] = []
+  const re = /\*\*([^*]+)\*\*|`([^`]+)`/g
+  let last = 0
+  let key = 0
+  let m: RegExpExecArray | null
+  while ((m = re.exec(text))) {
+    if (m.index > last) out.push(text.slice(last, m.index))
+    if (m[1] != null) out.push(<strong key={key++} className="font-semibold text-foreground">{m[1]}</strong>)
+    else if (m[2] != null) out.push(<code key={key++} className="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">{m[2]}</code>)
+    last = m.index + m[0].length
+  }
+  if (last < text.length) out.push(text.slice(last))
+  return out
+}
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-lg border border-border bg-card p-4">
-      <h4 className="mb-3 text-sm font-semibold">{title}</h4>
-      {children}
-    </div>
-  )
-}
-
-function KeyValueCard({
-  title,
-  rows,
-}: {
-  title: string
-  rows: [string, React.ReactNode][]
-}) {
-  return (
-    <div className="rounded-lg border border-border bg-card p-4">
       <div className="mb-2 text-[11px] uppercase tracking-wider text-muted-foreground">{title}</div>
-      <dl className="grid grid-cols-[100px_1fr] gap-y-2 text-xs">
-        {rows.map(([k, v]) => (
-          <Row key={k} k={k}>
-            {v}
-          </Row>
-        ))}
-      </dl>
+      {children}
     </div>
   )
 }
@@ -1098,27 +694,18 @@ function Row({ k, children }: { k: string; children: React.ReactNode }) {
   return (
     <>
       <dt className="text-muted-foreground">{k}</dt>
-      <dd className="break-words">{children}</dd>
+      <dd className="min-w-0">{children}</dd>
     </>
   )
 }
 
-/* ─── Helpers ──────────────────────────────────────────────────────────── */
-
-function relativeTime(iso: string) {
-  if (!iso) return '—'
-  const diff = NOW - new Date(iso).getTime()
-  const m = Math.round(diff / 60_000)
-  if (m < 1) return 'just now'
-  if (m < 60) return `${m}m ago`
-  const h = Math.round(m / 60)
-  if (h < 24) return `${h}h ago`
-  return `${Math.round(h / 24)}d ago`
+function Center({ children }: { children: React.ReactNode }) {
+  return <div className="mt-4 flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-card text-sm text-muted-foreground">{children}</div>
 }
 
-// Suppress unused-import warnings
-void Activity
-void AlertTriangle
-void ChevronDown
-void Clock
-void Download
+function hasItems(v: unknown): boolean {
+  return Array.isArray(v) ? v.length > 0 : v != null && typeof v === 'object' && Object.keys(v).length > 0
+}
+function asList(v: unknown): string {
+  return Array.isArray(v) ? v.join(', ') || '—' : '—'
+}

@@ -181,11 +181,11 @@
     "dataSources": "Origini dati",
     "integrations": "Integrazioni",
     "alertingRules": "Regole di avviso",
-    "taggingRules": "Regole di etichettatura",
     "dataProcessing": "Elaborazione dati",
     "team": "Team",
     "settings": "Impostazioni",
-    "back": "Indietro"
+    "back": "Indietro",
+    "regexPatterns": "Espressioni regolari"
   },
   "settings": {
     "title": "Impostazioni",
@@ -1724,6 +1724,22 @@
       "deleteFailed": "Eliminazione non riuscita",
       "groupCreated": "Gruppo creato",
       "groupCreateFailed": "Impossibile creare il gruppo"
+    },
+    "sensitivity": {
+      "section": "Sensibilità dell'asset",
+      "hint": "Criticità di business (CIA, 0–3) di questo asset. Gli alert diretti al suo host/IP sono pesati con questi valori.",
+      "saved": "Sensibilità aggiornata",
+      "failed": "Aggiornamento della sensibilità non riuscito",
+      "save": "Salva",
+      "confidentiality": "Riservatezza",
+      "integrity": "Integrità",
+      "availability": "Disponibilità",
+      "levels": {
+        "0": "Nessuna",
+        "1": "Bassa",
+        "2": "Media",
+        "3": "Alta"
+      }
     }
   },
   "adversaries": {
@@ -2164,6 +2180,210 @@
       "assigned": "Assegnato a {{user}}",
       "unassigned": "Incidente non assegnato",
       "error": "Impossibile cambiare l’assegnatario"
+    }
+  },
+  "alertingRules": {
+    "title": "Regole di allerta",
+    "subtitle": "Regole di correlazione che trasformano gli eventi in allarmi. Attiva, regola o crea le tue.",
+    "new": "Nuova regola",
+    "refresh": "Aggiorna",
+    "empty": "Nessuna regola corrispondente.",
+    "loadError": "Impossibile caricare le regole.",
+    "retry": "Riprova",
+    "deleteConfirm": "Eliminare la regola “{{name}}”?",
+    "adversary": {
+      "origin": "Origine",
+      "target": "Destinazione"
+    },
+    "state": {
+      "active": "Attiva",
+      "inactive": "Inattiva"
+    },
+    "owner": {
+      "system": "Sistema",
+      "custom": "Personalizzata"
+    },
+    "toolbar": {
+      "search": "Cerca regole…",
+      "allCategories": "Tutte le categorie",
+      "allAdversaries": "Tutti gli avversari",
+      "allStates": "Tutti gli stati",
+      "allOwners": "Tutte le origini",
+      "allDataTypes": "Tutti i tipi"
+    },
+    "table": {
+      "name": "Regola",
+      "category": "Categoria",
+      "technique": "Tecnica",
+      "adversary": "Avversario",
+      "impact": "Impatto",
+      "active": "Attiva",
+      "dataTypes": "Tipi di dato"
+    },
+    "view": {
+      "description": "Descrizione",
+      "details": "Dettagli",
+      "impact": "Impatto (C·I·D)",
+      "dataTypes": "Tipi di dato",
+      "updated": "Aggiornata",
+      "relPath": "Percorso",
+      "definition": "Condizione (CEL)",
+      "afterEvents": "Passi di correlazione",
+      "correlation": "Correlazione",
+      "groupBy": "Raggruppa per",
+      "deduplicateBy": "Deduplica per",
+      "references": "Riferimenti"
+    },
+    "editor": {
+      "createTitle": "Nuova regola",
+      "edit": "Modifica",
+      "delete": "Elimina",
+      "cancel": "Annulla",
+      "save": "Salva",
+      "metadata": "Metadati",
+      "name": "Nome",
+      "confidentiality": "Riservatezza",
+      "integrity": "Integrità",
+      "availability": "Disponibilità",
+      "dataTypes": "Tipi di dato",
+      "dataTypesHint": "separati da virgola",
+      "activeOnSave": "Attiva",
+      "definitionSection": "Definizione",
+      "where": "Condizione (CEL)",
+      "whereHint": "Espressione CEL valutata per evento",
+      "afterEvents": "Passi di correlazione (afterEvents)",
+      "afterEventsHint": "array JSON",
+      "jsonArray": "array JSON",
+      "nameRequired": "Il nome è obbligatorio",
+      "definitionRequired": "La condizione è obbligatoria",
+      "invalidJson": "Un campo della definizione ha JSON non valido",
+      "addStep": "Aggiungi passo di correlazione",
+      "step": "Passo {{n}}",
+      "removeStep": "Rimuovi passo",
+      "indexPattern": "Pattern indice",
+      "within": "Finestra",
+      "count": "Conteggio",
+      "conditions": "Condizioni",
+      "field": "Campo",
+      "value": "Valore",
+      "addCondition": "Aggiungi condizione",
+      "orGroup": "Gruppo Or {{n}}",
+      "addOr": "Aggiungi gruppo Or",
+      "removeOr": "Rimuovi",
+      "fieldsHint": "nomi dei campi",
+      "referencesHint": "URL",
+      "visual": "Visuale",
+      "code": "Codice",
+      "dataTypesPick": "Seleziona…",
+      "dataTypesSearch": "Cerca tipi di dato…",
+      "dataTypesNone": "Nessun tipo di dato"
+    },
+    "toast": {
+      "activated": "Regola attivata",
+      "deactivated": "Regola disattivata",
+      "toggleError": "Impossibile cambiare lo stato della regola",
+      "deleted": "Regola eliminata",
+      "deleteError": "Impossibile eliminare la regola",
+      "created": "Regola creata",
+      "saved": "Regola salvata",
+      "saveError": "Impossibile salvare la regola"
+    },
+    "operator": {
+      "filter_term": "uguale (term)",
+      "must_not_term": "diverso (term)",
+      "filter_match": "corrisponde (testo)",
+      "must_not_match": "non corrisponde (testo)"
+    },
+    "where": {
+      "matchPrefix": "Soddisfa",
+      "all": "tutte",
+      "any": "almeno una",
+      "matchSuffix": "di queste condizioni:",
+      "negate": "Nega",
+      "listHint": "separati da virgole",
+      "advanced": "Questa condizione usa CEL avanzato — modificala in Codice o ricostruiscila visivamente."
+    },
+    "celOp": {
+      "exists": "esiste",
+      "equals": "uguale a",
+      "equalsIgnoreCase": "uguale (senza maiusc.)",
+      "contains": "contiene",
+      "oneOf": "è uno di",
+      "containsAll": "contiene tutti",
+      "startsWith": "inizia con",
+      "endsWith": "finisce con",
+      "regexMatch": "regex",
+      "lessThan": "<",
+      "lessOrEqual": "≤",
+      "greaterThan": ">",
+      "greaterOrEqual": "≥",
+      "inCIDR": "in CIDR",
+      "isHour": "l’ora è",
+      "isMinute": "il minuto è",
+      "isDayOfWeek": "il giorno è",
+      "isWeekend": "è weekend",
+      "isWorkDay": "è giorno feriale",
+      "isBetweenTime": "ora tra"
+    }
+  },
+  "regexPatterns": {
+    "title": "Espressioni regolari",
+    "subtitle": "Espressioni regolari riutilizzabili referenziate dai filtri di parsing.",
+    "new": "Nuovo pattern",
+    "search": "Cerca pattern…",
+    "refresh": "Aggiorna",
+    "view": "Visualizza",
+    "system": "Sistema",
+    "user": "Personalizzato",
+    "loading": "Caricamento pattern…",
+    "loadError": "Impossibile caricare i pattern.",
+    "retry": "Riprova",
+    "empty": "Nessun pattern corrisponde a questa vista.",
+    "tabs": {
+      "all": "Tutti",
+      "system": "Sistema",
+      "user": "Personalizzati"
+    },
+    "cols": {
+      "pattern": "Pattern",
+      "definition": "Definizione",
+      "type": "Tipo"
+    },
+    "editor": {
+      "titleNew": "Nuovo pattern",
+      "patternId": "ID pattern",
+      "patternIdHint": "Nome univoco referenziato dai filtri.",
+      "description": "Descrizione",
+      "descriptionPlaceholder": "Cosa riconosce questo pattern (opzionale)",
+      "definition": "Definizione (regex)",
+      "definitionHint": "Un'espressione regolare. Può referenziare altri pattern.",
+      "readOnly": "Pattern di sistema — sola lettura.",
+      "save": "Salva",
+      "saving": "Salvataggio…",
+      "delete": "Elimina",
+      "confirmDelete": "Conferma eliminazione",
+      "cancel": "Annulla"
+    },
+    "toast": {
+      "saved": "Pattern salvato",
+      "saveError": "Salvataggio del pattern non riuscito",
+      "deleted": "Pattern eliminato",
+      "deleteError": "Eliminazione del pattern non riuscita",
+      "patternIdRequired": "L'ID pattern è obbligatorio",
+      "definitionRequired": "La definizione è obbligatoria"
+    }
+  },
+  "parsingFilters": {
+    "visual": {
+      "insertPattern": "Inserisci pattern regex",
+      "patternSearch": "Cerca pattern…",
+      "patternNone": "Nessun pattern",
+      "newPattern": "Nuovo pattern…",
+      "createInsert": "Crea e inserisci",
+      "patternCreated": "Pattern \"{{name}}\" creato",
+      "patternCreateError": "Creazione del pattern non riuscita",
+      "patternIdInvalid": "L'ID deve iniziare con una lettera o _ e usare solo lettere, cifre o _",
+      "patternDefRequired": "La definizione è obbligatoria"
     }
   }
 }

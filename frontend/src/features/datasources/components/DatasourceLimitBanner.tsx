@@ -32,13 +32,16 @@ export function DatasourceLimitBanner() {
   if (!usage?.overLimit) return null
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 border-b border-amber-500/40 bg-amber-500/10 px-6 py-2 text-center text-sm text-amber-700 dark:text-amber-300">
-      <AlertTriangle size={16} className="shrink-0" />
+    <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 border-b border-amber-400 bg-amber-100 px-6 py-2 text-center text-sm text-slate-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
+      <AlertTriangle size={16} className="shrink-0 text-amber-600 dark:text-amber-400" />
       <span>
-        <span className="font-semibold">{t('datasources.limitBanner.title')}</span>{' '}
+        <span className="font-bold">{t('datasources.limitBanner.title')}</span>{' '}
         {t('datasources.limitBanner.message', { count: usage.count, limit: usage.limit })}
       </span>
-      <Link to="/settings/license" className="font-medium underline-offset-2 hover:underline">
+      <Link
+        to="/settings/license"
+        className="font-bold text-slate-900 underline underline-offset-2 hover:opacity-80 dark:text-amber-200 dark:hover:text-amber-100"
+      >
         {t('datasources.limitBanner.cta')}
       </Link>
     </div>

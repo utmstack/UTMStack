@@ -181,11 +181,11 @@
     "dataSources": "Источники данных",
     "integrations": "Интеграции",
     "alertingRules": "Правила оповещений",
-    "taggingRules": "Правила тегирования",
     "dataProcessing": "Обработка данных",
     "team": "Команда",
     "settings": "Настройки",
-    "back": "Назад"
+    "back": "Назад",
+    "regexPatterns": "Регулярные выражения"
   },
   "settings": {
     "title": "Настройки",
@@ -1500,6 +1500,22 @@
       "deleteFailed": "Не удалось удалить",
       "groupCreated": "Группа создана",
       "groupCreateFailed": "Не удалось создать группу"
+    },
+    "sensitivity": {
+      "section": "Чувствительность актива",
+      "hint": "Бизнес-критичность (CIA, 0–3) этого актива. Алерты по его хосту/IP взвешиваются этими значениями.",
+      "saved": "Чувствительность обновлена",
+      "failed": "Не удалось обновить чувствительность",
+      "save": "Сохранить",
+      "confidentiality": "Конфиденциальность",
+      "integrity": "Целостность",
+      "availability": "Доступность",
+      "levels": {
+        "0": "Нет",
+        "1": "Низкая",
+        "2": "Средняя",
+        "3": "Высокая"
+      }
     }
   },
   "timeRange": {
@@ -1901,6 +1917,210 @@
       "assigned": "Назначено {{user}}",
       "unassigned": "Назначение снято",
       "error": "Не удалось изменить ответственного"
+    }
+  },
+  "alertingRules": {
+    "title": "Правила оповещений",
+    "subtitle": "Правила корреляции, превращающие события в оповещения. Включайте, настраивайте или создавайте свои.",
+    "new": "Новое правило",
+    "refresh": "Обновить",
+    "empty": "Нет подходящих правил.",
+    "loadError": "Не удалось загрузить правила.",
+    "retry": "Повторить",
+    "deleteConfirm": "Удалить правило «{{name}}»?",
+    "adversary": {
+      "origin": "Источник",
+      "target": "Цель"
+    },
+    "state": {
+      "active": "Активно",
+      "inactive": "Неактивно"
+    },
+    "owner": {
+      "system": "Системное",
+      "custom": "Пользовательское"
+    },
+    "toolbar": {
+      "search": "Поиск правил…",
+      "allCategories": "Все категории",
+      "allAdversaries": "Все стороны",
+      "allStates": "Все состояния",
+      "allOwners": "Все источники",
+      "allDataTypes": "Все типы"
+    },
+    "table": {
+      "name": "Правило",
+      "category": "Категория",
+      "technique": "Техника",
+      "adversary": "Сторона",
+      "impact": "Влияние",
+      "active": "Активно",
+      "dataTypes": "Типы данных"
+    },
+    "view": {
+      "description": "Описание",
+      "details": "Детали",
+      "impact": "Влияние (К·Ц·Д)",
+      "dataTypes": "Типы данных",
+      "updated": "Обновлено",
+      "relPath": "Путь",
+      "definition": "Условие (CEL)",
+      "afterEvents": "Шаги корреляции",
+      "correlation": "Корреляция",
+      "groupBy": "Группировать по",
+      "deduplicateBy": "Дедупликация по",
+      "references": "Ссылки"
+    },
+    "editor": {
+      "createTitle": "Новое правило",
+      "edit": "Изменить",
+      "delete": "Удалить",
+      "cancel": "Отмена",
+      "save": "Сохранить",
+      "metadata": "Метаданные",
+      "name": "Название",
+      "confidentiality": "Конфиденциальность",
+      "integrity": "Целостность",
+      "availability": "Доступность",
+      "dataTypes": "Типы данных",
+      "dataTypesHint": "через запятую",
+      "activeOnSave": "Активно",
+      "definitionSection": "Определение",
+      "where": "Условие (CEL)",
+      "whereHint": "Выражение CEL, вычисляемое для каждого события",
+      "afterEvents": "Шаги корреляции (afterEvents)",
+      "afterEventsHint": "JSON-массив",
+      "jsonArray": "JSON-массив",
+      "nameRequired": "Название обязательно",
+      "definitionRequired": "Условие обязательно",
+      "invalidJson": "В поле определения некорректный JSON",
+      "addStep": "Добавить шаг корреляции",
+      "step": "Шаг {{n}}",
+      "removeStep": "Удалить шаг",
+      "indexPattern": "Шаблон индекса",
+      "within": "Окно",
+      "count": "Количество",
+      "conditions": "Условия",
+      "field": "Поле",
+      "value": "Значение",
+      "addCondition": "Добавить условие",
+      "orGroup": "Группа Or {{n}}",
+      "addOr": "Добавить группу Or",
+      "removeOr": "Удалить",
+      "fieldsHint": "имена полей",
+      "referencesHint": "URL",
+      "visual": "Визуально",
+      "code": "Код",
+      "dataTypesPick": "Выбрать…",
+      "dataTypesSearch": "Поиск типов данных…",
+      "dataTypesNone": "Нет типов данных"
+    },
+    "toast": {
+      "activated": "Правило включено",
+      "deactivated": "Правило выключено",
+      "toggleError": "Не удалось изменить состояние правила",
+      "deleted": "Правило удалено",
+      "deleteError": "Не удалось удалить правило",
+      "created": "Правило создано",
+      "saved": "Правило сохранено",
+      "saveError": "Не удалось сохранить правило"
+    },
+    "operator": {
+      "filter_term": "равно (term)",
+      "must_not_term": "не равно (term)",
+      "filter_match": "совпадает (текст)",
+      "must_not_match": "не совпадает (текст)"
+    },
+    "where": {
+      "matchPrefix": "Соответствует",
+      "all": "всем",
+      "any": "любому",
+      "matchSuffix": "из этих условий:",
+      "negate": "Отрицать",
+      "listHint": "через запятую",
+      "advanced": "Это условие использует сложный CEL — измените его в режиме «Код» или соберите заново визуально."
+    },
+    "celOp": {
+      "exists": "существует",
+      "equals": "равно",
+      "equalsIgnoreCase": "равно (без регистра)",
+      "contains": "содержит",
+      "oneOf": "одно из",
+      "containsAll": "содержит все",
+      "startsWith": "начинается с",
+      "endsWith": "заканчивается на",
+      "regexMatch": "regex",
+      "lessThan": "<",
+      "lessOrEqual": "≤",
+      "greaterThan": ">",
+      "greaterOrEqual": "≥",
+      "inCIDR": "в CIDR",
+      "isHour": "час равен",
+      "isMinute": "минута равна",
+      "isDayOfWeek": "день недели",
+      "isWeekend": "выходной",
+      "isWorkDay": "рабочий день",
+      "isBetweenTime": "время между"
+    }
+  },
+  "regexPatterns": {
+    "title": "Регулярные выражения",
+    "subtitle": "Многоразовые регулярные выражения, на которые ссылаются фильтры разбора.",
+    "new": "Новый шаблон",
+    "search": "Поиск шаблонов…",
+    "refresh": "Обновить",
+    "view": "Просмотр",
+    "system": "Системный",
+    "user": "Пользовательский",
+    "loading": "Загрузка шаблонов…",
+    "loadError": "Не удалось загрузить шаблоны.",
+    "retry": "Повторить",
+    "empty": "Нет шаблонов для этого представления.",
+    "tabs": {
+      "all": "Все",
+      "system": "Системные",
+      "user": "Пользовательские"
+    },
+    "cols": {
+      "pattern": "Шаблон",
+      "definition": "Определение",
+      "type": "Тип"
+    },
+    "editor": {
+      "titleNew": "Новый шаблон",
+      "patternId": "ID шаблона",
+      "patternIdHint": "Уникальное имя, на которое ссылаются фильтры.",
+      "description": "Описание",
+      "descriptionPlaceholder": "Что распознаёт этот шаблон (необязательно)",
+      "definition": "Определение (regex)",
+      "definitionHint": "Регулярное выражение. Может ссылаться на другие шаблоны.",
+      "readOnly": "Системный шаблон — только чтение.",
+      "save": "Сохранить",
+      "saving": "Сохранение…",
+      "delete": "Удалить",
+      "confirmDelete": "Подтвердить удаление",
+      "cancel": "Отмена"
+    },
+    "toast": {
+      "saved": "Шаблон сохранён",
+      "saveError": "Не удалось сохранить шаблон",
+      "deleted": "Шаблон удалён",
+      "deleteError": "Не удалось удалить шаблон",
+      "patternIdRequired": "ID шаблона обязателен",
+      "definitionRequired": "Определение обязательно"
+    }
+  },
+  "parsingFilters": {
+    "visual": {
+      "insertPattern": "Вставить regex-шаблон",
+      "patternSearch": "Поиск шаблонов…",
+      "patternNone": "Нет шаблонов",
+      "newPattern": "Новый шаблон…",
+      "createInsert": "Создать и вставить",
+      "patternCreated": "Шаблон «{{name}}» создан",
+      "patternCreateError": "Не удалось создать шаблон",
+      "patternIdInvalid": "ID должен начинаться с буквы или _ и содержать только буквы, цифры или _",
+      "patternDefRequired": "Определение обязательно"
     }
   }
 }

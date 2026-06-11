@@ -1,5 +1,6 @@
 import { ApiError, createApiClient } from '@/shared/lib/api-client'
 import type {
+  DataTypeOption,
   Filter,
   FilterListQuery,
   IngestionQuery,
@@ -17,6 +18,7 @@ function filterQuery(q: FilterListQuery): string {
   if (q.relPathContains) p.set('relPath.contains', q.relPathContains)
   if (q.isActive != null) p.set('isActive.equals', String(q.isActive))
   if (q.system != null) p.set('system.equals', String(q.system))
+  if (q.dataType) p.set('dataType.equals', q.dataType)
   p.set('page', String(q.page ?? 1))
   p.set('size', String(q.size ?? 50))
   return `?${p.toString()}`
@@ -37,6 +39,9 @@ function ingestionQuery(q: IngestionQuery): string {
 export const filtersHttpService = {
   // Returns { data: Filter[], total } — total comes from X-Total-Count.
   list: (q: FilterListQuery = {}) => api.getPaged<Filter[]>(`/eventprocessing/filters${filterQuery(q)}`),
+  dataTypes: () => api.get<string[]>('/eventprocessing/filters/data-types'),
+  // Catalog of known dataTypes (from integrations) to pick from while authoring.
+  dataTypeCatalog: () => api.get<DataTypeOption[]>('/integrations/data-types'),
   find: (relPath: string) =>
     api.get<Filter>(`/eventprocessing/filters/find?relPath=${encodeURIComponent(relPath)}`),
   create: (input: SaveFilterRequest) => api.post<Filter>('/eventprocessing/filters', input),

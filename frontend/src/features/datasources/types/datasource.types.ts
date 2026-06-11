@@ -17,6 +17,10 @@ export interface Datasource {
   sourceKind?: SourceKind
   metadata?: Record<string, unknown>
   labels?: string // comma-separated
+  /** Asset sensitivity (CIA, 0–3) — weights alert impact in the correlation engine. */
+  assetConfidentiality?: number
+  assetIntegrity?: number
+  assetAvailability?: number
   group?: AssetGroupRef
   discoveredAt?: string
   modifiedAt?: string

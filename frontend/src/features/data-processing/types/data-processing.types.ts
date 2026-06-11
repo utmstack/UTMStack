@@ -6,14 +6,26 @@ export interface Filter {
   content: string
   system: boolean
   active: boolean
+  /** Distinct dataTypes the filter declares (derived from content by the backend). */
+  dataTypes?: string[]
 }
 
 export interface FilterListQuery {
   relPathContains?: string
   isActive?: boolean
   system?: boolean
+  dataType?: string
   page?: number // 1-based
   size?: number
+}
+
+/** Catalog item from GET /integrations/data-types — known dataTypes to pick from. */
+export interface DataTypeOption {
+  dataType: string
+  name: string
+  moduleName: string
+  active: boolean
+  isSystem: boolean
 }
 
 export interface SaveFilterRequest {
