@@ -1338,10 +1338,18 @@
             }
           },
           "fields": {
-            "projectId": { "label": "ID progetto" },
-            "topic": { "label": "Nome argomento" },
-            "subscription": { "label": "Nome sottoscrizione" },
-            "jsonKey": { "label": "Chiave JSON del service account" }
+            "projectId": {
+              "label": "ID progetto"
+            },
+            "topic": {
+              "label": "Nome argomento"
+            },
+            "subscription": {
+              "label": "Nome sottoscrizione"
+            },
+            "jsonKey": {
+              "label": "Chiave JSON del service account"
+            }
           }
         },
         "azure": {
@@ -1380,10 +1388,18 @@
             }
           },
           "fields": {
-            "eventHubConnection": { "label": "Stringa di connessione Event Hub" },
-            "consumerGroup": { "label": "Consumer group" },
-            "storageContainer": { "label": "Nome del container di archiviazione" },
-            "storageConnection": { "label": "Stringa di connessione dell'account di archiviazione" }
+            "eventHubConnection": {
+              "label": "Stringa di connessione Event Hub"
+            },
+            "consumerGroup": {
+              "label": "Consumer group"
+            },
+            "storageContainer": {
+              "label": "Nome del container di archiviazione"
+            },
+            "storageConnection": {
+              "label": "Stringa di connessione dell'account di archiviazione"
+            }
           }
         },
         "aws": {
@@ -1426,10 +1442,18 @@
             }
           },
           "fields": {
-            "accessKeyId": { "label": "ID chiave di accesso AWS" },
-            "secretAccessKey": { "label": "Chiave di accesso segreta AWS" },
-            "region": { "label": "Regione AWS predefinita" },
-            "logGroupName": { "label": "Nome del log group" }
+            "accessKeyId": {
+              "label": "ID chiave di accesso AWS"
+            },
+            "secretAccessKey": {
+              "label": "Chiave di accesso segreta AWS"
+            },
+            "region": {
+              "label": "Regione AWS predefinita"
+            },
+            "logGroupName": {
+              "label": "Nome del log group"
+            }
           }
         }
       },
@@ -2044,6 +2068,102 @@
       "incidentCreated": "Incidente creato",
       "alertsAdded": "Avvisi aggiunti all’incidente",
       "incidentFailed": "Impossibile salvare l’incidente"
+    }
+  },
+  "incidents": {
+    "title": "Incidenti",
+    "subtitle": "Raggruppa, valuta e risolvi gli alert correlati come incidenti.",
+    "refresh": "Aggiorna",
+    "empty": "Nessun incidente corrispondente.",
+    "loadError": "Impossibile caricare gli incidenti.",
+    "retry": "Riprova",
+    "unassigned": "Non assegnato",
+    "unknownUser": "Sconosciuto",
+    "status": {
+      "OPEN": "Aperto",
+      "IN_REVIEW": "In revisione",
+      "COMPLETED": "Completato",
+      "MERGED": "Unito"
+    },
+    "sev": {
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Bassa",
+      "unknown": "Non valutata"
+    },
+    "toolbar": {
+      "search": "Cerca incidenti…",
+      "allStatuses": "Tutti gli stati",
+      "allAssignees": "Tutti gli assegnatari",
+      "from": "Da",
+      "to": "A",
+      "clear": "Cancella"
+    },
+    "layout": {
+      "table": "Tabella",
+      "board": "Bacheca"
+    },
+    "table": {
+      "name": "Incidente",
+      "status": "Stato",
+      "severity": "Severità",
+      "assignee": "Assegnato",
+      "alerts": "Alert",
+      "created": "Creato"
+    },
+    "drawer": {
+      "created": "Creato {{date}}",
+      "alertsCount": "{{count}} alert",
+      "solutionPlaceholder": "Risoluzione / note di rimedio…",
+      "solutionHint": "Salvato quando l’incidente passa a Completato.",
+      "tabs": {
+        "overview": "Panoramica",
+        "alerts": "Alert",
+        "notes": "Note",
+        "history": "Cronologia"
+      },
+      "section": {
+        "description": "Descrizione",
+        "solution": "Soluzione",
+        "details": "Dettagli"
+      },
+      "details": {
+        "id": "ID",
+        "status": "Stato",
+        "severity": "Severità",
+        "assignee": "Assegnato",
+        "created": "Creato",
+        "alerts": "Alert collegati"
+      }
+    },
+    "alerts": {
+      "empty": "Nessun alert collegato a questo incidente.",
+      "remove": "Scollega alert",
+      "removeConfirm": "Scollegare “{{name}}” da questo incidente?",
+      "removed": "Alert scollegato",
+      "removeError": "Impossibile scollegare l’alert"
+    },
+    "notes": {
+      "empty": "Ancora nessuna nota.",
+      "add": "Aggiungi nota",
+      "addError": "Impossibile aggiungere la nota",
+      "placeholder": "Scrivi una nota…"
+    },
+    "history": {
+      "empty": "Ancora nessuna cronologia."
+    },
+    "toast": {
+      "statusChanged": "Stato incidente aggiornato",
+      "statusError": "Impossibile cambiare lo stato"
+    },
+    "assign": {
+      "assign": "Assegna",
+      "search": "Cerca utenti…",
+      "unassign": "Rimuovi assegnazione",
+      "noUsers": "Nessun utente",
+      "assigned": "Assegnato a {{user}}",
+      "unassigned": "Incidente non assegnato",
+      "error": "Impossibile cambiare l’assegnatario"
     }
   }
 }

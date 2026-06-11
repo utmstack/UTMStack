@@ -8,7 +8,6 @@ import { AlertsPage } from '@/features/threats/pages/AlertsPage'
 import { IncidentsPage } from '@/features/threats/pages/IncidentsPage'
 import { AdversariesPage } from '@/features/threats/pages/AdversariesPage'
 import { FlowsPage } from '@/features/soar/pages/FlowsPage'
-import { InteractiveConsolePage } from '@/features/soar/pages/InteractiveConsolePage'
 import { LogExplorerPage } from '@/features/log-explorer/pages/LogExplorerPage'
 import { UserAuditorPage } from '@/features/user-auditor/pages/UserAuditorPage'
 import { ThreatIntelPage } from '@/features/threat-intel/pages/ThreatIntelPage'
@@ -56,9 +55,10 @@ export function AppRoutes() {
         <Route path="threat-management/adversaries" element={<AdversariesPage />} />
 
         {/* SOAR */}
-        <Route path="soar" element={<Navigate to="/soar/flows" replace />} />
-        <Route path="soar/flows" element={<FlowsPage />} />
-        <Route path="soar/console" element={<InteractiveConsolePage />} />
+        <Route path="soar" element={<FlowsPage />} />
+        {/* Legacy redirects — flows moved to /soar; the interactive console was removed. */}
+        <Route path="soar/flows" element={<Navigate to="/soar" replace />} />
+        <Route path="soar/console" element={<Navigate to="/soar" replace />} />
         <Route path="soar/audit" element={<Navigate to="/settings/audit-logs" replace />} />
 
         <Route path="log-explorer" element={<LogExplorerPage />} />

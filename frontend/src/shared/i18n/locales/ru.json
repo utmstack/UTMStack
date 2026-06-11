@@ -1234,10 +1234,18 @@
             }
           },
           "fields": {
-            "projectId": { "label": "ID проекта" },
-            "topic": { "label": "Имя темы" },
-            "subscription": { "label": "Имя подписки" },
-            "jsonKey": { "label": "JSON-ключ сервисного аккаунта" }
+            "projectId": {
+              "label": "ID проекта"
+            },
+            "topic": {
+              "label": "Имя темы"
+            },
+            "subscription": {
+              "label": "Имя подписки"
+            },
+            "jsonKey": {
+              "label": "JSON-ключ сервисного аккаунта"
+            }
           }
         },
         "azure": {
@@ -1276,10 +1284,18 @@
             }
           },
           "fields": {
-            "eventHubConnection": { "label": "Строка подключения Event Hub" },
-            "consumerGroup": { "label": "Consumer group" },
-            "storageContainer": { "label": "Имя контейнера хранения" },
-            "storageConnection": { "label": "Строка подключения учётной записи хранения" }
+            "eventHubConnection": {
+              "label": "Строка подключения Event Hub"
+            },
+            "consumerGroup": {
+              "label": "Consumer group"
+            },
+            "storageContainer": {
+              "label": "Имя контейнера хранения"
+            },
+            "storageConnection": {
+              "label": "Строка подключения учётной записи хранения"
+            }
           }
         },
         "aws": {
@@ -1322,10 +1338,18 @@
             }
           },
           "fields": {
-            "accessKeyId": { "label": "ID ключа доступа AWS" },
-            "secretAccessKey": { "label": "Секретный ключ доступа AWS" },
-            "region": { "label": "Регион AWS по умолчанию" },
-            "logGroupName": { "label": "Имя log group" }
+            "accessKeyId": {
+              "label": "ID ключа доступа AWS"
+            },
+            "secretAccessKey": {
+              "label": "Секретный ключ доступа AWS"
+            },
+            "region": {
+              "label": "Регион AWS по умолчанию"
+            },
+            "logGroupName": {
+              "label": "Имя log group"
+            }
           }
         }
       },
@@ -1781,6 +1805,102 @@
       "showLess": "Показать меньше",
       "lastSeen": "Последний раз",
       "ago": "{{time}} назад"
+    }
+  },
+  "incidents": {
+    "title": "Инциденты",
+    "subtitle": "Группируйте, сортируйте и закрывайте связанные оповещения как инциденты.",
+    "refresh": "Обновить",
+    "empty": "Нет подходящих инцидентов.",
+    "loadError": "Не удалось загрузить инциденты.",
+    "retry": "Повторить",
+    "unassigned": "Не назначен",
+    "unknownUser": "Неизвестно",
+    "status": {
+      "OPEN": "Открыт",
+      "IN_REVIEW": "На проверке",
+      "COMPLETED": "Завершён",
+      "MERGED": "Объединён"
+    },
+    "sev": {
+      "high": "Высокая",
+      "medium": "Средняя",
+      "low": "Низкая",
+      "unknown": "Без оценки"
+    },
+    "toolbar": {
+      "search": "Поиск инцидентов…",
+      "allStatuses": "Все статусы",
+      "allAssignees": "Все ответственные",
+      "from": "С",
+      "to": "По",
+      "clear": "Очистить"
+    },
+    "layout": {
+      "table": "Таблица",
+      "board": "Доска"
+    },
+    "table": {
+      "name": "Инцидент",
+      "status": "Статус",
+      "severity": "Важность",
+      "assignee": "Ответственный",
+      "alerts": "Оповещения",
+      "created": "Создан"
+    },
+    "drawer": {
+      "created": "Создан {{date}}",
+      "alertsCount": "{{count}} оповещений",
+      "solutionPlaceholder": "Решение / заметки по устранению…",
+      "solutionHint": "Сохраняется при переводе инцидента в «Завершён».",
+      "tabs": {
+        "overview": "Обзор",
+        "alerts": "Оповещения",
+        "notes": "Заметки",
+        "history": "История"
+      },
+      "section": {
+        "description": "Описание",
+        "solution": "Решение",
+        "details": "Детали"
+      },
+      "details": {
+        "id": "ID",
+        "status": "Статус",
+        "severity": "Важность",
+        "assignee": "Ответственный",
+        "created": "Создан",
+        "alerts": "Связанные оповещения"
+      }
+    },
+    "alerts": {
+      "empty": "К этому инциденту не привязаны оповещения.",
+      "remove": "Отвязать оповещение",
+      "removeConfirm": "Отвязать «{{name}}» от этого инцидента?",
+      "removed": "Оповещение отвязано",
+      "removeError": "Не удалось отвязать оповещение"
+    },
+    "notes": {
+      "empty": "Заметок пока нет.",
+      "add": "Добавить заметку",
+      "addError": "Не удалось добавить заметку",
+      "placeholder": "Напишите заметку…"
+    },
+    "history": {
+      "empty": "Истории пока нет."
+    },
+    "toast": {
+      "statusChanged": "Статус инцидента обновлён",
+      "statusError": "Не удалось изменить статус"
+    },
+    "assign": {
+      "assign": "Назначить",
+      "search": "Поиск пользователей…",
+      "unassign": "Снять назначение",
+      "noUsers": "Нет пользователей",
+      "assigned": "Назначено {{user}}",
+      "unassigned": "Назначение снято",
+      "error": "Не удалось изменить ответственного"
     }
   }
 }

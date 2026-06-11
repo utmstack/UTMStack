@@ -34,6 +34,7 @@ import {
   datasourcesHttpService as svc,
   DatasourcesHttpError,
 } from '../services/datasources-http.service'
+import { AgentConsole } from '../components/AgentConsole'
 import type {
   AssetGroup,
   Datasource,
@@ -730,6 +731,7 @@ function SourceDrawer({
   const [src, setSrc] = useState<Datasource | null>(null)
   const [loading, setLoading] = useState(true)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [consoleOpen, setConsoleOpen] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -793,6 +795,7 @@ function SourceDrawer({
   const metaEntries = src?.metadata ? Object.entries(src.metadata) : []
 
   return (
+    <>
     <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/40 backdrop-blur-sm" onClick={onClose}>
       <div className="flex w-full max-w-[680px] flex-col overflow-hidden border-l border-border bg-card shadow-xl" onClick={(e) => e.stopPropagation()}>
         <header className="border-b border-border px-6 py-4">
@@ -890,6 +893,15 @@ function SourceDrawer({
                 <p className="mt-2 text-[11px] text-muted-foreground">{t('datasources.labels.hint')}</p>
               </Section>
 
+              {src.sourceKind === 'agent' && src.metadata?.agentId != null && (
+                <Section title={t('datasources.console.section')}>
+                  <p className="text-xs text-muted-foreground">{t('datasources.console.sectionHint')}</p>
+                  <Button size="sm" variant="outline" className="mt-3" onClick={() => setConsoleOpen(true)}>
+                    <Terminal size={13} className="mr-1.5" /> {t('datasources.console.open')}
+                  </Button>
+                </Section>
+              )}
+
               <Section title={t('datasources.drawer.dangerZone')}>
                 <p className="text-xs text-muted-foreground">{t('datasources.drawer.dangerText')}</p>
                 {confirmDelete ? (
@@ -910,6 +922,16 @@ function SourceDrawer({
         </div>
       </div>
     </div>
+    {consoleOpen && src && src.metadata?.agentId != null && (
+      <AgentConsole
+        agentId={String(src.metadata.agentId)}
+        hostname={src.name}
+        osPlatform={typeof src.metadata.osPlatform === 'string' ? src.metadata.osPlatform : undefined}
+        offline={deriveStatus(src.lastPingAt) === 'offline'}
+        onClose={() => setConsoleOpen(false)}
+      />
+    )}
+    </>
   )
 }
 

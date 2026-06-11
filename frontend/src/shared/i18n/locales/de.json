@@ -1338,10 +1338,18 @@
             }
           },
           "fields": {
-            "projectId": { "label": "Projekt-ID" },
-            "topic": { "label": "Themenname" },
-            "subscription": { "label": "Abonnementname" },
-            "jsonKey": { "label": "Dienstkonto-JSON-Schlüssel" }
+            "projectId": {
+              "label": "Projekt-ID"
+            },
+            "topic": {
+              "label": "Themenname"
+            },
+            "subscription": {
+              "label": "Abonnementname"
+            },
+            "jsonKey": {
+              "label": "Dienstkonto-JSON-Schlüssel"
+            }
           }
         },
         "azure": {
@@ -1380,10 +1388,18 @@
             }
           },
           "fields": {
-            "eventHubConnection": { "label": "Event-Hub-Verbindungsstring" },
-            "consumerGroup": { "label": "Consumer Group" },
-            "storageContainer": { "label": "Speichercontainer-Name" },
-            "storageConnection": { "label": "Verbindungsstring des Speicherkontos" }
+            "eventHubConnection": {
+              "label": "Event-Hub-Verbindungsstring"
+            },
+            "consumerGroup": {
+              "label": "Consumer Group"
+            },
+            "storageContainer": {
+              "label": "Speichercontainer-Name"
+            },
+            "storageConnection": {
+              "label": "Verbindungsstring des Speicherkontos"
+            }
           }
         },
         "aws": {
@@ -1426,10 +1442,18 @@
             }
           },
           "fields": {
-            "accessKeyId": { "label": "AWS-Zugriffsschlüssel-ID" },
-            "secretAccessKey": { "label": "Geheimer AWS-Zugriffsschlüssel" },
-            "region": { "label": "AWS-Standardregion" },
-            "logGroupName": { "label": "Name der Log Group" }
+            "accessKeyId": {
+              "label": "AWS-Zugriffsschlüssel-ID"
+            },
+            "secretAccessKey": {
+              "label": "Geheimer AWS-Zugriffsschlüssel"
+            },
+            "region": {
+              "label": "AWS-Standardregion"
+            },
+            "logGroupName": {
+              "label": "Name der Log Group"
+            }
           }
         }
       },
@@ -2044,6 +2068,102 @@
       "incidentCreated": "Vorfall erstellt",
       "alertsAdded": "Warnungen zum Vorfall hinzugefügt",
       "incidentFailed": "Vorfall konnte nicht gespeichert werden"
+    }
+  },
+  "incidents": {
+    "title": "Vorfälle",
+    "subtitle": "Verwandte Alarme als Vorfälle gruppieren, triagieren und lösen.",
+    "refresh": "Aktualisieren",
+    "empty": "Keine passenden Vorfälle.",
+    "loadError": "Vorfälle konnten nicht geladen werden.",
+    "retry": "Erneut",
+    "unassigned": "Nicht zugewiesen",
+    "unknownUser": "Unbekannt",
+    "status": {
+      "OPEN": "Offen",
+      "IN_REVIEW": "In Prüfung",
+      "COMPLETED": "Abgeschlossen",
+      "MERGED": "Zusammengeführt"
+    },
+    "sev": {
+      "high": "Hoch",
+      "medium": "Mittel",
+      "low": "Niedrig",
+      "unknown": "Unbewertet"
+    },
+    "toolbar": {
+      "search": "Vorfälle suchen…",
+      "allStatuses": "Alle Status",
+      "allAssignees": "Alle Zugewiesenen",
+      "from": "Von",
+      "to": "Bis",
+      "clear": "Zurücksetzen"
+    },
+    "layout": {
+      "table": "Tabelle",
+      "board": "Board"
+    },
+    "table": {
+      "name": "Vorfall",
+      "status": "Status",
+      "severity": "Schweregrad",
+      "assignee": "Zugewiesen",
+      "alerts": "Alarme",
+      "created": "Erstellt"
+    },
+    "drawer": {
+      "created": "Erstellt {{date}}",
+      "alertsCount": "{{count}} Alarme",
+      "solutionPlaceholder": "Lösung / Behebungsnotizen…",
+      "solutionHint": "Wird gespeichert, wenn der Vorfall auf Abgeschlossen gesetzt wird.",
+      "tabs": {
+        "overview": "Übersicht",
+        "alerts": "Alarme",
+        "notes": "Notizen",
+        "history": "Verlauf"
+      },
+      "section": {
+        "description": "Beschreibung",
+        "solution": "Lösung",
+        "details": "Details"
+      },
+      "details": {
+        "id": "ID",
+        "status": "Status",
+        "severity": "Schweregrad",
+        "assignee": "Zugewiesen",
+        "created": "Erstellt",
+        "alerts": "Verknüpfte Alarme"
+      }
+    },
+    "alerts": {
+      "empty": "Keine Alarme mit diesem Vorfall verknüpft.",
+      "remove": "Alarm trennen",
+      "removeConfirm": "„{{name}}“ von diesem Vorfall trennen?",
+      "removed": "Alarm getrennt",
+      "removeError": "Alarm konnte nicht getrennt werden"
+    },
+    "notes": {
+      "empty": "Noch keine Notizen.",
+      "add": "Notiz hinzufügen",
+      "addError": "Notiz konnte nicht hinzugefügt werden",
+      "placeholder": "Notiz schreiben…"
+    },
+    "history": {
+      "empty": "Noch kein Verlauf."
+    },
+    "toast": {
+      "statusChanged": "Vorfallstatus aktualisiert",
+      "statusError": "Status konnte nicht geändert werden"
+    },
+    "assign": {
+      "assign": "Zuweisen",
+      "search": "Benutzer suchen…",
+      "unassign": "Zuweisung aufheben",
+      "noUsers": "Keine Benutzer",
+      "assigned": "Zugewiesen an {{user}}",
+      "unassigned": "Zuweisung aufgehoben",
+      "error": "Zuweisung konnte nicht geändert werden"
     }
   }
 }

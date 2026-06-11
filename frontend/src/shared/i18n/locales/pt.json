@@ -1339,10 +1339,18 @@
             }
           },
           "fields": {
-            "projectId": { "label": "ID do projeto" },
-            "topic": { "label": "Nome do tópico" },
-            "subscription": { "label": "Nome da assinatura" },
-            "jsonKey": { "label": "Chave JSON da conta de serviço" }
+            "projectId": {
+              "label": "ID do projeto"
+            },
+            "topic": {
+              "label": "Nome do tópico"
+            },
+            "subscription": {
+              "label": "Nome da assinatura"
+            },
+            "jsonKey": {
+              "label": "Chave JSON da conta de serviço"
+            }
           }
         },
         "azure": {
@@ -1381,10 +1389,18 @@
             }
           },
           "fields": {
-            "eventHubConnection": { "label": "String de conexão do Event Hub" },
-            "consumerGroup": { "label": "Consumer group" },
-            "storageContainer": { "label": "Nome do container de armazenamento" },
-            "storageConnection": { "label": "String de conexão da conta de armazenamento" }
+            "eventHubConnection": {
+              "label": "String de conexão do Event Hub"
+            },
+            "consumerGroup": {
+              "label": "Consumer group"
+            },
+            "storageContainer": {
+              "label": "Nome do container de armazenamento"
+            },
+            "storageConnection": {
+              "label": "String de conexão da conta de armazenamento"
+            }
           }
         },
         "aws": {
@@ -1427,10 +1443,18 @@
             }
           },
           "fields": {
-            "accessKeyId": { "label": "ID da chave de acesso da AWS" },
-            "secretAccessKey": { "label": "Chave de acesso secreta da AWS" },
-            "region": { "label": "Região padrão da AWS" },
-            "logGroupName": { "label": "Nome do log group" }
+            "accessKeyId": {
+              "label": "ID da chave de acesso da AWS"
+            },
+            "secretAccessKey": {
+              "label": "Chave de acesso secreta da AWS"
+            },
+            "region": {
+              "label": "Região padrão da AWS"
+            },
+            "logGroupName": {
+              "label": "Nome do log group"
+            }
           }
         }
       },
@@ -1701,6 +1725,44 @@
       "deleteFailed": "Falha ao excluir",
       "groupCreated": "Grupo criado",
       "groupCreateFailed": "Falha ao criar o grupo"
+    },
+    "console": {
+      "section": "Console",
+      "sectionHint": "Execute comandos neste host através do seu agente (resposta ao vivo).",
+      "open": "Abrir console",
+      "close": "Fechar",
+      "hint": "Digite um comando e pressione Enter para executá-lo no agente.",
+      "running": "Executando…",
+      "placeholder": "Digite um comando…",
+      "offline": "Este agente parece estar offline — pode não responder aos comandos.",
+      "vars": {
+        "button": "Variáveis",
+        "title": "Variáveis de comandos",
+        "subtitle": "Use-as nos comandos como",
+        "add": "Nova variável",
+        "name": "Nome",
+        "value": "Valor",
+        "description": "Descrição",
+        "isSecret": "Secreto (criptografado, mascarado na saída)",
+        "secret": "secreto",
+        "secretHint": "Deixe em branco para manter o valor salvo.",
+        "save": "Salvar",
+        "cancel": "Cancelar",
+        "edit": "Editar",
+        "delete": "Excluir",
+        "loading": "Carregando…",
+        "empty": "Ainda não há variáveis.",
+        "saved": "Variável salva",
+        "deleted": "Variável excluída",
+        "nameRequired": "O nome é obrigatório",
+        "loadError": "Falha ao carregar as variáveis",
+        "saveError": "Falha ao salvar a variável",
+        "deleteError": "Falha ao excluir a variável",
+        "insert": "Inserir"
+      },
+      "disabled": "Agente offline — os comandos estão desabilitados",
+      "connError": "Erro de conexão",
+      "cmdError": "Erro de comando"
     }
   },
   "adversaries": {
@@ -2171,6 +2233,102 @@
       "incidentCreated": "Incidente criado",
       "alertsAdded": "Alertas adicionados ao incidente",
       "incidentFailed": "Falha ao salvar o incidente"
+    }
+  },
+  "incidents": {
+    "title": "Incidentes",
+    "subtitle": "Agrupe, triagem e resolva alertas relacionados como incidentes.",
+    "refresh": "Atualizar",
+    "empty": "Nenhum incidente corresponde.",
+    "loadError": "Não foi possível carregar os incidentes.",
+    "retry": "Tentar novamente",
+    "unassigned": "Não atribuído",
+    "unknownUser": "Desconhecido",
+    "status": {
+      "OPEN": "Aberto",
+      "IN_REVIEW": "Em revisão",
+      "COMPLETED": "Concluído",
+      "MERGED": "Mesclado"
+    },
+    "sev": {
+      "high": "Alta",
+      "medium": "Média",
+      "low": "Baixa",
+      "unknown": "Sem classificação"
+    },
+    "toolbar": {
+      "search": "Buscar incidentes…",
+      "allStatuses": "Todos os status",
+      "allAssignees": "Todos os responsáveis",
+      "from": "De",
+      "to": "Até",
+      "clear": "Limpar"
+    },
+    "layout": {
+      "table": "Tabela",
+      "board": "Quadro"
+    },
+    "table": {
+      "name": "Incidente",
+      "status": "Status",
+      "severity": "Severidade",
+      "assignee": "Responsável",
+      "alerts": "Alertas",
+      "created": "Criado"
+    },
+    "drawer": {
+      "created": "Criado {{date}}",
+      "alertsCount": "{{count}} alertas",
+      "solutionPlaceholder": "Resolução / notas de remediação…",
+      "solutionHint": "Salvo ao mover o incidente para Concluído.",
+      "tabs": {
+        "overview": "Resumo",
+        "alerts": "Alertas",
+        "notes": "Notas",
+        "history": "Histórico"
+      },
+      "section": {
+        "description": "Descrição",
+        "solution": "Solução",
+        "details": "Detalhes"
+      },
+      "details": {
+        "id": "ID",
+        "status": "Status",
+        "severity": "Severidade",
+        "assignee": "Responsável",
+        "created": "Criado",
+        "alerts": "Alertas vinculados"
+      }
+    },
+    "alerts": {
+      "empty": "Nenhum alerta vinculado a este incidente.",
+      "remove": "Desvincular alerta",
+      "removeConfirm": "Desvincular “{{name}}” deste incidente?",
+      "removed": "Alerta desvinculado",
+      "removeError": "Não foi possível desvincular o alerta"
+    },
+    "notes": {
+      "empty": "Ainda sem notas.",
+      "add": "Adicionar nota",
+      "addError": "Não foi possível adicionar a nota",
+      "placeholder": "Escreva uma nota…"
+    },
+    "history": {
+      "empty": "Ainda sem histórico."
+    },
+    "toast": {
+      "statusChanged": "Status do incidente atualizado",
+      "statusError": "Não foi possível alterar o status"
+    },
+    "assign": {
+      "assign": "Atribuir",
+      "search": "Buscar usuários…",
+      "unassign": "Remover atribuição",
+      "noUsers": "Sem usuários",
+      "assigned": "Atribuído a {{user}}",
+      "unassigned": "Incidente sem atribuição",
+      "error": "Não foi possível alterar o responsável"
     }
   }
 }
