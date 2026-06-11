@@ -211,7 +211,121 @@
       "editing": "Editing",
       "addWidget": "Add widget",
       "save": "Save",
-      "discard": "Discard"
+      "discard": "Discard",
+      "newTitle": "New visualization",
+      "newSubtitle": "Pick a chart type, choose a data source, and shape it visually. SQL is generated for you.",
+      "editTitle": "Edit visualization",
+      "editSubtitle": "Tweak the chart definition. Changes apply everywhere this visualization is used.",
+      "loading": "Loading visualization…",
+      "notFoundTitle": "Visualization not found",
+      "notFoundSubtitle": "It may have been deleted or you may not have access.",
+      "backToList": "Back to visualizations",
+      "chartType": {
+        "title": "Chart type"
+      },
+      "chartTypes": {
+        "bar": {
+          "label": "Bar",
+          "description": "Compare values across categories."
+        },
+        "line": {
+          "label": "Line",
+          "description": "Trends over an ordered axis."
+        },
+        "area": {
+          "label": "Area",
+          "description": "Filled line — emphasises volume."
+        },
+        "pie": {
+          "label": "Pie",
+          "description": "Share of a whole by category."
+        },
+        "metric": {
+          "label": "Metric",
+          "description": "A single scalar value."
+        },
+        "table": {
+          "label": "Table",
+          "description": "Raw rows, paginated locally."
+        }
+      },
+      "dataSource": {
+        "title": "Data source",
+        "indexPattern": "Index pattern",
+        "noPatternHint": "Choose an index pattern to enable filters, metric and dimension."
+      },
+      "indexPattern": {
+        "placeholder": "Select an index pattern…",
+        "loading": "Loading index patterns…"
+      },
+      "filters": {
+        "title": "Filters",
+        "empty": "No filters — all documents in range will be included.",
+        "add": "Add filter",
+        "remove": "Remove",
+        "field": "Field",
+        "fieldPlaceholder": "e.g. host.name",
+        "operator": "Operator",
+        "value": "Value",
+        "valuePlaceholder": "Value",
+        "from": "From",
+        "to": "To",
+        "noValue": "No value needed",
+        "listPlaceholder": "Comma-separated values"
+      },
+      "operators": {
+        "IS": "is",
+        "IS_NOT": "is not",
+        "IS_ONE_OF_TERMS": "is one of",
+        "IS_GREATER_THAN": "is greater than",
+        "IS_LESS_THAN_OR_EQUALS": "is less than or equals",
+        "IS_BETWEEN": "is between",
+        "CONTAIN": "contains",
+        "DOES_NOT_CONTAIN": "does not contain",
+        "START_WITH": "starts with",
+        "ENDS_WITH": "ends with",
+        "EXIST": "exists",
+        "DOES_NOT_EXIST": "does not exist"
+      },
+      "aggregations": {
+        "count": "Count",
+        "count_distinct": "Count distinct",
+        "sum": "Sum",
+        "avg": "Average",
+        "min": "Min",
+        "max": "Max"
+      },
+      "metric": {
+        "title": "Metric (Y-axis)",
+        "aggregation": "Aggregation",
+        "field": "Field",
+        "fieldPlaceholder": "Pick a field…",
+        "fieldNotRequired": "Not needed for COUNT(*)"
+      },
+      "dimension": {
+        "title": "Dimension (X-axis / group by)",
+        "field": "Field",
+        "placeholder": "Pick a field to group by…"
+      },
+      "table": {
+        "title": "Custom SELECT (optional)",
+        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status"
+      },
+      "sqlPreview": {
+        "title": "SQL preview",
+        "empty": "Pick an index pattern to see the generated SQL.",
+        "toggleRaw": "Switch to advanced (raw SQL)",
+        "rawPlaceholder": "SELECT … FROM … WHERE {{timeFilter}}",
+        "hint": "{{timeFilter}}, {{from}} and {{to}} are substituted from the time picker at render time."
+      },
+      "chartPreview": {
+        "title": "Chart preview",
+        "noQuery": "Fill in the data source to see a preview.",
+        "error": "Preview query failed."
+      },
+      "rawMode": {
+        "label": "Advanced (raw SQL)"
+      }
     },
     "grid": {
       "empty": "This dashboard has no widgets yet.",
@@ -265,6 +379,8 @@
       "layoutSaveFailed": "Could not save layout.",
       "visualizationCreated": "Visualization created.",
       "visualizationCreateFailed": "Could not create visualization.",
+      "visualizationUpdated": "Visualization updated.",
+      "visualizationUpdateFailed": "Could not update visualization.",
       "visualizationDeleted": "Visualization deleted.",
       "visualizationDeleteFailed": "Could not delete visualization."
     },

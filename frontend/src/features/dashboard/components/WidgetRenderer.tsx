@@ -2,9 +2,13 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Loader2 } from 'lucide-react'
 import { EChartsRenderer } from '@/features/dashboard/components/EChartsRenderer'
+import { MetricRenderer } from '@/features/dashboard/components/renderers/MetricRenderer'
+import { TableRenderer } from '@/features/dashboard/components/renderers/TableRenderer'
 import { useVisualizationData } from '@/features/dashboard/hooks/useVisualizationData'
 import { mergeRowsIntoOption, parseChartConfig } from '@/features/dashboard/utils/echarts'
 import { hasTimePlaceholder } from '@/features/dashboard/utils/sql-template'
+import { parseBuilderConfig } from '@/features/dashboard/utils/builder-config'
+import { getChartTypeMeta, type ChartRenderer } from '@/features/dashboard/constants'
 import type { Visualization } from '@/features/dashboard/types'
 import type { TimeRange } from '@/shared/components/ui/time-range-picker'
 
@@ -18,10 +22,18 @@ export function WidgetRenderer({
   const { t } = useTranslation()
 
   const parsed = useMemo(() => parseChartConfig(visualization.config), [visualization.config])
+  const builderParsed = useMemo(
+    () => parseBuilderConfig(visualization.config),
+    [visualization.config]
+  )
+  const renderer: ChartRenderer = builderParsed.builder
+    ? getChartTypeMeta(builderParsed.builder.chartType).renderer
+    : 'echarts'
+
   const hasSql = !!visualization.sqlQuery?.trim()
   const query = useVisualizationData(hasSql ? visualization : null, time)
 
-  if (parsed.error || !parsed.option) {
+  if (renderer === 'echarts' && (parsed.error || !parsed.option)) {
     return (
       <ErrorPanel
         message={t('dashboards.widget.renderError')}
@@ -49,7 +61,6 @@ export function WidgetRenderer({
   }
 
   const rows = query.data?.rows ?? []
-  const option = hasSql ? mergeRowsIntoOption(parsed.option, rows) : parsed.option
 
   if (hasSql && rows.length === 0 && !query.isLoading) {
     return (
@@ -64,6 +75,14 @@ export function WidgetRenderer({
     )
   }
 
+  if (renderer === 'table') {
+    return <TableRenderer rows={rows} />
+  }
+  if (renderer === 'metric') {
+    return <MetricRenderer rows={rows} label={visualization.name} />
+  }
+
+  const option = hasSql && parsed.option ? mergeRowsIntoOption(parsed.option, rows) : parsed.option!
   return <EChartsRenderer option={option} />
 }
 

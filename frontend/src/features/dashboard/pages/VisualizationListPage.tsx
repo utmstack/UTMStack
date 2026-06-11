@@ -94,7 +94,14 @@ export function VisualizationListPage() {
                     key={v.id}
                     className="border-b border-border/60 last:border-0 hover:bg-muted/40"
                   >
-                    <td className="px-3 py-2 font-medium">{v.name}</td>
+                    <td className="px-3 py-2 font-medium">
+                      <Link
+                        to={`/dashboards/visualizations/${v.id}`}
+                        className="text-foreground hover:text-primary hover:underline"
+                      >
+                        {v.name}
+                      </Link>
+                    </td>
                     <td className="px-3 py-2 text-muted-foreground">{v.description || '—'}</td>
                     <td className="px-3 py-2 text-xs text-muted-foreground">
                       {v.modifiedDate ? new Date(v.modifiedDate).toLocaleString() : '—'}

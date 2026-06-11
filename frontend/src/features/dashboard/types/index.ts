@@ -101,3 +101,70 @@ export interface WidgetLayout {
   h: number
   order?: number
 }
+
+export type ChartTypeId = 'bar' | 'line' | 'area' | 'pie' | 'metric' | 'table'
+
+export type AggregationId = 'count' | 'count_distinct' | 'sum' | 'avg' | 'min' | 'max'
+
+export type FilterOperatorId =
+  | 'IS'
+  | 'IS_NOT'
+  | 'IS_ONE_OF_TERMS'
+  | 'IS_GREATER_THAN'
+  | 'IS_LESS_THAN_OR_EQUALS'
+  | 'IS_BETWEEN'
+  | 'CONTAIN'
+  | 'DOES_NOT_CONTAIN'
+  | 'START_WITH'
+  | 'ENDS_WITH'
+  | 'EXIST'
+  | 'DOES_NOT_EXIST'
+
+export interface FilterRow {
+  id: string
+  field: string
+  operator: FilterOperatorId
+  value: string | string[] | [string, string] | null
+}
+
+export interface BuilderMetric {
+  agg: AggregationId
+  field: string | null
+}
+
+export interface BuilderState {
+  chartType: ChartTypeId
+  indexPattern: string
+  rawMode: boolean
+  filters: FilterRow[]
+  metric: BuilderMetric
+  dimension: string | null
+  advancedSelect: string | null
+  rawSql: string | null
+  configTouched: boolean
+}
+
+export interface IndexPattern {
+  id: number
+  pattern: string
+  patternModule?: string | null
+  patternSystem?: boolean | null
+  isActive?: boolean | null
+}
+
+export interface IndexPatternField {
+  name: string
+  type: string
+}
+
+export interface IndexPatternFieldsResponse {
+  indexPattern: IndexPattern
+  fields: IndexPatternField[]
+}
+
+export interface IndexPatternListParams {
+  isActive?: boolean
+  page?: number
+  size?: number
+  sort?: string
+}

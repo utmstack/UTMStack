@@ -6,6 +6,7 @@ import {
   DashboardPage,
   NewDashboardPage,
   NewVisualizationPage,
+  EditVisualizationPage,
   VisualizationListPage,
 } from '@/features/dashboard'
 import { ProfilePage } from '@/features/profile/pages/ProfilePage'
@@ -59,6 +60,7 @@ export function AppRoutes() {
         <Route path="dashboards/new" element={<NewDashboardPage />} />
         <Route path="dashboards/visualizations" element={<VisualizationListPage />} />
         <Route path="dashboards/visualizations/new" element={<NewVisualizationPage />} />
+        <Route path="dashboards/visualizations/:id" element={<EditVisualizationPage />} />
 
         {/* Threat Management */}
         <Route path="threat-management" element={<Navigate to="/threat-management/alerts" replace />} />
