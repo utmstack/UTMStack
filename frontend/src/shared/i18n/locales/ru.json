@@ -11,6 +11,12 @@
     "confirm": {
       "delete": "Удалить",
       "working": "Выполняется…"
+    },
+    "dateRange": {
+      "pick": "Выбрать диапазон",
+      "clear": "Очистить",
+      "done": "Готово",
+      "apply": "Применить"
     }
   },
   "auth": {
@@ -490,8 +496,19 @@
         "allChartTypes": "Все типы диаграмм",
         "source": "Источник",
         "allSources": "Все источники",
-        "createdFrom": "Создана с",
-        "createdTo": "Создана по",
+        "createdAt": "Создана",
+        "modifiedAt": "Изменена",
+        "createdRangeTitle": "Произвольный диапазон — Создание",
+        "modifiedRangeTitle": "Произвольный диапазон — Изменение",
+        "pickRange": "Выбрать диапазон",
+        "datePresets": {
+          "all": "Всё время",
+          "today": "Сегодня",
+          "last7": "За 7 дней",
+          "last30": "За 30 дней",
+          "lastYear": "За год",
+          "custom": "Произвольный"
+        },
         "clear": "Сбросить фильтры"
       },
       "col": {

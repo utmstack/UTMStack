@@ -11,6 +11,12 @@
     "confirm": {
       "delete": "Delete",
       "working": "Working…"
+    },
+    "dateRange": {
+      "pick": "Pick a range",
+      "clear": "Clear",
+      "done": "Done",
+      "apply": "Apply"
     }
   },
   "auth": {
@@ -491,8 +497,19 @@
         "allChartTypes": "All chart types",
         "source": "Source",
         "allSources": "All sources",
-        "createdFrom": "Created from",
-        "createdTo": "Created to",
+        "createdAt": "Created",
+        "modifiedAt": "Modified",
+        "createdRangeTitle": "Custom range — Created",
+        "modifiedRangeTitle": "Custom range — Modified",
+        "pickRange": "Pick a range",
+        "datePresets": {
+          "all": "All time",
+          "today": "Today",
+          "last7": "Last 7 days",
+          "last30": "Last 30 days",
+          "lastYear": "Last year",
+          "custom": "Custom range"
+        },
         "clear": "Clear filters"
       },
       "col": {

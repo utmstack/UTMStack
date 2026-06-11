@@ -11,6 +11,12 @@
     "confirm": {
       "delete": "Löschen",
       "working": "Wird ausgeführt…"
+    },
+    "dateRange": {
+      "pick": "Zeitraum wählen",
+      "clear": "Löschen",
+      "done": "Fertig",
+      "apply": "Übernehmen"
     }
   },
   "auth": {
@@ -490,8 +496,19 @@
         "allChartTypes": "Alle Diagrammtypen",
         "source": "Quelle",
         "allSources": "Alle Quellen",
-        "createdFrom": "Erstellt ab",
-        "createdTo": "Erstellt bis",
+        "createdAt": "Erstellt",
+        "modifiedAt": "Geändert",
+        "createdRangeTitle": "Eigener Zeitraum — Erstellt",
+        "modifiedRangeTitle": "Eigener Zeitraum — Geändert",
+        "pickRange": "Zeitraum wählen",
+        "datePresets": {
+          "all": "Gesamte Zeit",
+          "today": "Heute",
+          "last7": "Letzte 7 Tage",
+          "last30": "Letzte 30 Tage",
+          "lastYear": "Letztes Jahr",
+          "custom": "Eigener Zeitraum"
+        },
         "clear": "Filter zurücksetzen"
       },
       "col": {

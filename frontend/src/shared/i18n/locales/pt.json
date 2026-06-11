@@ -11,6 +11,12 @@
     "confirm": {
       "delete": "Excluir",
       "working": "Processando…"
+    },
+    "dateRange": {
+      "pick": "Escolher um intervalo",
+      "clear": "Limpar",
+      "done": "Concluir",
+      "apply": "Aplicar"
     }
   },
   "auth": {
@@ -491,8 +497,19 @@
         "allChartTypes": "Todos os tipos de gráfico",
         "source": "Fonte",
         "allSources": "Todas as fontes",
-        "createdFrom": "Criada a partir de",
-        "createdTo": "Criada até",
+        "createdAt": "Criada",
+        "modifiedAt": "Modificada",
+        "createdRangeTitle": "Intervalo personalizado — Criação",
+        "modifiedRangeTitle": "Intervalo personalizado — Modificação",
+        "pickRange": "Escolher um intervalo",
+        "datePresets": {
+          "all": "Todo o período",
+          "today": "Hoje",
+          "last7": "Últimos 7 dias",
+          "last30": "Últimos 30 dias",
+          "lastYear": "Último ano",
+          "custom": "Intervalo personalizado"
+        },
         "clear": "Limpar filtros"
       },
       "col": {
