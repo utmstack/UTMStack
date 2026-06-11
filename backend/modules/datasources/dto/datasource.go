@@ -15,8 +15,12 @@ type DatasourceDTO struct {
 	SourceKind   string         `json:"sourceKind,omitempty"`
 	Metadata     datatypes.JSON `json:"metadata,omitempty"` // free-form host info
 	Labels       string         `json:"labels,omitempty"`   // comma-separated; frontend splits
-	Group        *AssetGroupRef `json:"group,omitempty"`
-	DiscoveredAt *time.Time     `json:"discoveredAt,omitempty"`
+	// Asset sensitivity (CIA, 0–3) — weights alert impact in the correlation engine.
+	AssetConfidentiality int            `json:"assetConfidentiality"`
+	AssetIntegrity       int            `json:"assetIntegrity"`
+	AssetAvailability    int            `json:"assetAvailability"`
+	Group                *AssetGroupRef `json:"group,omitempty"`
+	DiscoveredAt         *time.Time     `json:"discoveredAt,omitempty"`
 	ModifiedAt   *time.Time     `json:"modifiedAt,omitempty"`
 	LastPingAt   *time.Time     `json:"lastPingAt,omitempty"`
 }
@@ -43,6 +47,13 @@ type UpdateGroupRequest struct {
 type UpdateLabelsRequest struct {
 	ID     uint64 `json:"id" binding:"required"`
 	Labels string `json:"labels"`
+}
+
+type UpdateSensitivityRequest struct {
+	ID                   uint64 `json:"id" binding:"required"`
+	AssetConfidentiality int    `json:"assetConfidentiality"`
+	AssetIntegrity       int    `json:"assetIntegrity"`
+	AssetAvailability    int    `json:"assetAvailability"`
 }
 
 type PingRequest struct {
@@ -77,6 +88,9 @@ func ToDatasourceDTO(e *domain.Datasource) DatasourceDTO {
 		SourceKind:   e.SourceKind,
 		Metadata:     e.Metadata,
 		Labels:       e.Labels,
+		AssetConfidentiality: e.AssetConfidentiality,
+		AssetIntegrity:       e.AssetIntegrity,
+		AssetAvailability:    e.AssetAvailability,
 		DiscoveredAt: e.DiscoveredAt,
 		ModifiedAt:   e.ModifiedAt,
 		LastPingAt:   e.LastPingAt,

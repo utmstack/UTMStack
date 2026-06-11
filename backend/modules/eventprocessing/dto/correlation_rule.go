@@ -120,3 +120,32 @@ type CorrelationRuleFilters struct {
 	EndDate             string   `form:"endDate"`
 	Search              string   `form:"search"` // general text against the name
 }
+
+// ── Bulk YAML import ──────────────────────────────────────────────────────
+
+// ImportRuleFile is one uploaded rule YAML file (raw text + its filename).
+type ImportRuleFile struct {
+	Filename string `json:"filename"`
+	Content  string `json:"content"`
+}
+
+// ImportCorrelationRulesRequest carries one or more rule YAML files to import.
+type ImportCorrelationRulesRequest struct {
+	Files []ImportRuleFile `json:"files" binding:"required,min=1"`
+}
+
+// ImportRuleResult is the per-file verdict returned by the import endpoint.
+type ImportRuleResult struct {
+	Filename string `json:"filename"`
+	Approved bool   `json:"approved"`
+	Name     string `json:"name,omitempty"`    // rule name when parsed
+	RelPath  string `json:"relPath,omitempty"` // created identity when approved
+	Error    string `json:"error,omitempty"`   // reason when rejected
+}
+
+// ImportCorrelationRulesResponse reports which files were approved vs rejected.
+type ImportCorrelationRulesResponse struct {
+	Results  []ImportRuleResult `json:"results"`
+	Approved int                `json:"approved"`
+	Rejected int                `json:"rejected"`
+}

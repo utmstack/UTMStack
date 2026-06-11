@@ -4,13 +4,16 @@ import { KeyRound, Loader2, TerminalSquare, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { runAgentCommand } from '../services/agent-console'
 import { VariablesManager } from './VariablesManager'
+import { ShellCommandInput } from './ShellCommandInput'
 
 const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n))
 
-/** Pick the shell the agent should run the command with, from its OS platform. */
-function shellForOs(osPlatform?: string): string {
-  return (osPlatform ?? '').toLowerCase().includes('win') ? 'powershell' : 'bash'
+/** Windows agents let the analyst choose between cmd/powershell; the rest use bash. */
+function isWindowsOs(osPlatform?: string): boolean {
+  return (osPlatform ?? '').toLowerCase().includes('win')
 }
+
+type WinShell = 'cmd' | 'powershell'
 
 interface Line {
   kind: 'cmd' | 'out' | 'err'
@@ -36,7 +39,10 @@ export function AgentConsole({
   onClose: () => void
 }) {
   const { t } = useTranslation()
-  const shell = shellForOs(osPlatform)
+  // Windows → analyst picks cmd/powershell (default cmd); Linux/other → bash fixed.
+  const windows = isWindowsOs(osPlatform)
+  const [winShell, setWinShell] = useState<WinShell>('cmd')
+  const shell = windows ? winShell : 'bash'
   const [lines, setLines] = useState<Line[]>([])
   const [input, setInput] = useState('')
   const [running, setRunning] = useState(false)
@@ -157,7 +163,19 @@ export function AgentConsole({
         <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-zinc-200">
           <TerminalSquare size={16} className="shrink-0 text-emerald-400" />
           <span className="truncate">{hostname}</span>
-          <span className="shrink-0 rounded bg-white/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-zinc-400">{shell}</span>
+          {windows ? (
+            <select
+              value={winShell}
+              onChange={(e) => setWinShell(e.target.value as WinShell)}
+              title={t('datasources.console.shellSelect')}
+              className="shrink-0 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[11px] text-zinc-300 outline-none focus:border-primary"
+            >
+              <option value="cmd">cmd</option>
+              <option value="powershell">powershell</option>
+            </select>
+          ) : (
+            <span className="shrink-0 rounded bg-white/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-zinc-400">{shell}</span>
+          )}
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <button
@@ -209,16 +227,14 @@ export function AgentConsole({
             // like a real terminal — not in a separate bar. Offline → disabled.
             <div className={cn('mt-1 flex items-center gap-2', offline && 'opacity-50')}>
               <span className="shrink-0 text-emerald-400">{shell}&gt;</span>
-              <input
+              <ShellCommandInput
                 ref={inputRef}
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                shell={shell}
+                onChange={setInput}
                 onKeyDown={onKey}
                 disabled={offline}
                 placeholder={offline ? t('datasources.console.disabled') : t('datasources.console.placeholder')}
-                spellCheck={false}
-                autoComplete="off"
-                className="flex-1 bg-transparent text-zinc-100 outline-none placeholder:text-zinc-600 disabled:cursor-not-allowed"
               />
             </div>
           )}

@@ -148,7 +148,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 
 	dsRepo := ns_repository.NewDatasourceRepository(db)
 	dsGroupRepo := ns_repository.NewAssetGroupRepository(db)
-	dsUC := ns_usecase.NewDatasourceUsecase(dsRepo)
+	dsUC := ns_usecase.NewDatasourceUsecase(dsRepo, eventProcessingMod.GetTenantConfigUsecase())
 	dsGroupUC := ns_usecase.NewAssetGroupUsecase(dsGroupRepo)
 	var dsReconciler *ns_usecase.StatsReconciler
 	if cfg.esHost != "" {

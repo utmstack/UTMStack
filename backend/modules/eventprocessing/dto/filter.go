@@ -16,10 +16,11 @@ type UpdateFilterRequest struct {
 
 // FilterResponse is the API representation of a filter overlay entry.
 type FilterResponse struct {
-	RelPath string `json:"relPath"`
-	Content string `json:"content"`
-	System  bool   `json:"system"`
-	Active  bool   `json:"active"`
+	RelPath   string   `json:"relPath"`
+	Content   string   `json:"content"`
+	System    bool     `json:"system"`
+	Active    bool     `json:"active"`
+	DataTypes []string `json:"dataTypes"`
 }
 
 // FilterFilters are query parameters for the list endpoint.
@@ -27,6 +28,7 @@ type FilterFilters struct {
 	RelPathContains *string `form:"relPath.contains"`
 	IsActiveEq      *bool   `form:"isActive.equals"`
 	SystemEq        *bool   `form:"system.equals"`
+	DataTypeEq      *string `form:"dataType.equals"`
 	Page            int     `form:"page"`
 	Size            int     `form:"size"`
 }

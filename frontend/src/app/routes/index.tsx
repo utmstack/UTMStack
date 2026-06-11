@@ -22,7 +22,8 @@ import { CompliancePage } from '@/features/compliance/pages/CompliancePage'
 import { DataSourcesPage } from '@/features/datasources/pages/DataSourcesPage'
 import { IntegrationsPage } from '@/features/integrations/pages/IntegrationsPage'
 import { AlertingRulesPage } from '@/features/alerting-rules/pages/AlertingRulesPage'
-import { TaggingRulesPage } from '@/features/tagging-rules/pages/TaggingRulesPage'
+import { ParsingFiltersPage } from '@/features/parsing-filters/pages/ParsingFiltersPage'
+import { RegexPatternsPage } from '@/features/regex-patterns/pages/RegexPatternsPage'
 import { DataProcessingPage } from '@/features/data-processing/pages/DataProcessingPage'
 import { TeamPage } from '@/features/team/pages/TeamPage'
 import { ConnectionKeyPage } from '@/features/settings/pages/ConnectionKeyPage'
@@ -90,7 +91,10 @@ export function AppRoutes() {
         <Route path="datasources" element={<DataSourcesPage />} />
         <Route path="integrations" element={<IntegrationsPage />} />
         <Route path="alerting-rules" element={<AlertingRulesPage />} />
-        <Route path="tagging-rules" element={<TaggingRulesPage />} />
+        <Route path="parsing-filters" element={<ParsingFiltersPage />} />
+        <Route path="regex-patterns" element={<RegexPatternsPage />} />
+        {/* Legacy redirect — Tagging Rules was replaced by Parsing Filters. */}
+        <Route path="tagging-rules" element={<Navigate to="/parsing-filters" replace />} />
         <Route path="data-processing" element={<DataProcessingPage />} />
         <Route path="team" element={<TeamPage />} />
         {/* Settings — drill-down sub-pages */}

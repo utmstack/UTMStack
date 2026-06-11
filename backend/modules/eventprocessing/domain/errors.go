@@ -9,6 +9,7 @@ var (
 	ErrCorrelationRuleNotFound       = errors.New("correlation rule not found")
 	ErrCorrelationRuleSystemOwner    = errors.New("system's rules can't be updated")
 	ErrCorrelationRuleNullDefinition = errors.New("correlation rule definition must not be null")
+	ErrCorrelationRuleInvalidContent = errors.New("invalid correlation rule")
 	ErrIDMustBeAbsent                = errors.New("id must be absent on create")
 	ErrIDRequired                    = errors.New("id is required on update")
 	ErrDataTypesRequired             = errors.New("rule must have at least one data type")
@@ -16,4 +17,5 @@ var (
 	ErrFilterIDNull                  = errors.New("filter ID must be set for update")
 	ErrFilterNotFound                = errors.New("filter not found")
 	ErrFilterSystemOwner             = errors.New("cannot update system-owned filter")
+	ErrFilterInvalidContent          = errors.New("invalid filter")
 )

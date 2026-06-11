@@ -763,6 +763,24 @@ function SourceDrawer({
     }
   }
 
+  const saveSensitivity = async (cia: {
+    assetConfidentiality: number
+    assetIntegrity: number
+    assetAvailability: number
+  }): Promise<boolean> => {
+    if (!src) return false
+    try {
+      await svc.updateSensitivity(src.id, cia)
+      setSrc({ ...src, ...cia })
+      toast.success(t('datasources.sensitivity.saved'))
+      onChanged()
+      return true
+    } catch (e) {
+      toast.error(e instanceof DatasourcesHttpError ? e.message : t('datasources.sensitivity.failed'))
+      return false
+    }
+  }
+
   const assignGroup = async (gid: number | null) => {
     if (!src) return
     try {
@@ -848,7 +866,6 @@ function SourceDrawer({
                   <Row k={t('datasources.drawer.rows.kind')}>{kindLabel(t, src.sourceKind)}</Row>
                   {src.dataType && <Row k={t('datasources.drawer.rows.dataType')}><span className="font-mono">{src.dataType}</span></Row>}
                   {src.ip && <Row k={t('datasources.drawer.rows.ip')}><span className="font-mono">{src.ip}</span></Row>}
-                  <Row k={t('datasources.drawer.rows.id')}><span className="font-mono">{src.id}</span></Row>
                 </dl>
               </Section>
 
@@ -891,6 +908,18 @@ function SourceDrawer({
               <Section title={t('datasources.drawer.labelsSection')}>
                 <LabelsEditor value={src.labels} onSave={saveLabels} />
                 <p className="mt-2 text-[11px] text-muted-foreground">{t('datasources.labels.hint')}</p>
+              </Section>
+
+              <Section title={t('datasources.sensitivity.section')}>
+                <SensitivityEditor
+                  value={{
+                    assetConfidentiality: src.assetConfidentiality ?? 0,
+                    assetIntegrity: src.assetIntegrity ?? 0,
+                    assetAvailability: src.assetAvailability ?? 0,
+                  }}
+                  onSave={saveSensitivity}
+                />
+                <p className="mt-2 text-[11px] text-muted-foreground">{t('datasources.sensitivity.hint')}</p>
               </Section>
 
               {src.sourceKind === 'agent' && src.metadata?.agentId != null && (
@@ -942,6 +971,81 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     <div className="rounded-lg border border-border bg-card p-4">
       <h4 className="mb-3 text-sm font-semibold">{title}</h4>
       {children}
+    </div>
+  )
+}
+
+type CIA = { assetConfidentiality: number; assetIntegrity: number; assetAvailability: number }
+
+const CIA_AXES: { key: keyof CIA; label: string }[] = [
+  { key: 'assetConfidentiality', label: 'datasources.sensitivity.confidentiality' },
+  { key: 'assetIntegrity', label: 'datasources.sensitivity.integrity' },
+  { key: 'assetAvailability', label: 'datasources.sensitivity.availability' },
+]
+
+// Severity tone per level (0 None → 3 High), mirroring the alert severity palette.
+const CIA_LEVEL_TONE: Record<number, string> = {
+  0: 'border-border bg-muted text-muted-foreground',
+  1: 'border-sky-500/40 bg-sky-500/15 text-sky-600 dark:text-sky-400',
+  2: 'border-amber-500/40 bg-amber-500/15 text-amber-600 dark:text-amber-400',
+  3: 'border-red-500/40 bg-red-500/15 text-red-600 dark:text-red-400',
+}
+
+function SensitivityEditor({ value, onSave }: { value: CIA; onSave: (cia: CIA) => Promise<boolean> }) {
+  const { t } = useTranslation()
+  const [draft, setDraft] = useState<CIA>(value)
+  const [saving, setSaving] = useState(false)
+
+  // Re-sync when the persisted value changes (drawer reload / after save).
+  useEffect(() => {
+    setDraft(value)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value.assetConfidentiality, value.assetIntegrity, value.assetAvailability])
+
+  const dirty =
+    draft.assetConfidentiality !== value.assetConfidentiality ||
+    draft.assetIntegrity !== value.assetIntegrity ||
+    draft.assetAvailability !== value.assetAvailability
+
+  const save = async () => {
+    setSaving(true)
+    await onSave(draft)
+    setSaving(false)
+  }
+
+  return (
+    <div className="space-y-3">
+      {CIA_AXES.map((axis) => (
+        <div key={axis.key} className="flex items-center justify-between gap-3">
+          <span className="text-xs text-foreground/80">{t(axis.label)}</span>
+          <div className="inline-flex gap-1">
+            {[0, 1, 2, 3].map((lvl) => (
+              <button
+                key={lvl}
+                type="button"
+                onClick={() => setDraft((d) => ({ ...d, [axis.key]: lvl }))}
+                title={t(`datasources.sensitivity.levels.${lvl}`)}
+                className={cn(
+                  'h-7 w-7 rounded-md border text-xs font-semibold transition-colors',
+                  draft[axis.key] === lvl
+                    ? CIA_LEVEL_TONE[lvl]
+                    : 'border-border bg-background/40 text-muted-foreground hover:bg-muted',
+                )}
+              >
+                {lvl}
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+      {dirty && (
+        <div className="flex justify-end pt-1">
+          <Button size="sm" className="h-7" disabled={saving} onClick={() => void save()}>
+            {saving && <Loader2 size={12} className="mr-1.5 animate-spin" />}
+            {t('datasources.sensitivity.save')}
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

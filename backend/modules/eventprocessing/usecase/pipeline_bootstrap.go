@@ -61,10 +61,30 @@ func (b *PipelineBootstrap) migrateTenantConfig(ctx context.Context) error {
 		return err
 	}
 
+	if b.db.Migrator().HasTable("datasources") {
+		for i := range rows {
+			r := &rows[i]
+			names := append(deserializeStringList(r.AssetHostnameListDef), r.AssetName)
+			ips := deserializeStringList(r.AssetIpListDef)
+			match := b.db.Where("asset_name IN ?", names)
+			if len(ips) > 0 {
+				match = match.Or("asset_ip IN ?", ips)
+			}
+			if err := b.db.WithContext(ctx).Table("datasources").Where(match).
+				Updates(map[string]any{
+					"asset_confidentiality": r.AssetConfidentiality,
+					"asset_integrity":       r.AssetIntegrity,
+					"asset_availability":    r.AssetAvailability,
+				}).Error; err != nil {
+				_ = catcher.Error("eventprocessing: carrying legacy asset CIA to datasource failed", err, map[string]any{"asset": r.AssetName})
+			}
+		}
+	}
+
 	if err := b.db.Exec("DROP TABLE IF EXISTS utm_tenant_config CASCADE").Error; err != nil {
 		return err
 	}
-	catcher.Info("eventprocessing: utm_tenant_config migrated to tenants.yaml and dropped", nil)
+	catcher.Info("eventprocessing: utm_tenant_config migrated to datasource CIA + tenants.yaml and dropped", nil)
 	return nil
 }
 

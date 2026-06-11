@@ -12,11 +12,12 @@ import (
 )
 
 type datasourceUsecase struct {
-	repo connectors.DatasourceRepository
+	repo      connectors.DatasourceRepository
+	projector connectors.AssetProjector // may be nil (projection disabled)
 }
 
-func NewDatasourceUsecase(repo connectors.DatasourceRepository) connectors.DatasourceUsecase {
-	return &datasourceUsecase{repo: repo}
+func NewDatasourceUsecase(repo connectors.DatasourceRepository, projector connectors.AssetProjector) connectors.DatasourceUsecase {
+	return &datasourceUsecase{repo: repo, projector: projector}
 }
 
 func (u *datasourceUsecase) GetByID(ctx context.Context, id uint64) (*dto.DatasourceDTO, error) {
@@ -128,6 +129,56 @@ func (u *datasourceUsecase) UpdateLabels(ctx context.Context, req dto.UpdateLabe
 	return u.repo.UpdateLabels(ctx, req.ID, req.Labels)
 }
 
+func (u *datasourceUsecase) UpdateSensitivity(ctx context.Context, req dto.UpdateSensitivityRequest) error {
+	if err := u.repo.UpdateSensitivity(ctx, req.ID,
+		clampCIA(req.AssetConfidentiality), clampCIA(req.AssetIntegrity), clampCIA(req.AssetAvailability)); err != nil {
+		return err
+	}
+	return u.ProjectAssets(ctx)
+}
+
 func (u *datasourceUsecase) Delete(ctx context.Context, id uint64) error {
-	return u.repo.Delete(ctx, id)
+	if err := u.repo.Delete(ctx, id); err != nil {
+		return err
+	}
+	// The deleted datasource may have carried CIA — rebuild the asset set.
+	return u.ProjectAssets(ctx)
+}
+
+// ProjectAssets rebuilds tenants.yaml from every datasource with non-zero CIA.
+func (u *datasourceUsecase) ProjectAssets(ctx context.Context) error {
+	if u.projector == nil {
+		return nil
+	}
+	rows, err := u.repo.ListSensitive(ctx)
+	if err != nil {
+		return err
+	}
+	assets := make([]common_models.AssetSensitivity, 0, len(rows))
+	for i := range rows {
+		d := &rows[i]
+		a := common_models.AssetSensitivity{
+			Name:            d.Name,
+			Hostnames:       []string{d.Name},
+			Confidentiality: d.AssetConfidentiality,
+			Integrity:       d.AssetIntegrity,
+			Availability:    d.AssetAvailability,
+		}
+		if strings.TrimSpace(d.IP) != "" {
+			a.Ips = []string{d.IP}
+		}
+		assets = append(assets, a)
+	}
+	return u.projector.ProjectAssets(assets)
+}
+
+// clampCIA bounds a sensitivity axis to the valid 0–3 range.
+func clampCIA(v int) int {
+	if v < 0 {
+		return 0
+	}
+	if v > 3 {
+		return 3
+	}
+	return v
 }

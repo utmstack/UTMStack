@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
+	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
 type ListResult[T any] struct {
@@ -25,10 +26,14 @@ type TenantConfigUsecase interface {
 	GetByID(ctx context.Context, assetName string) (*dto.TenantConfigResponse, error)
 	List(ctx context.Context, f dto.TenantConfigFilters) (*ListResult[dto.TenantConfigResponse], error)
 	Delete(ctx context.Context, assetName string) error
+	// ProjectAssets rewrites tenants.yaml from an externally-owned asset set
+	// (the datasources module). This is the source of truth post-migration.
+	ProjectAssets(assets []common_models.AssetSensitivity) error
 }
 
 type CorrelationRuleUsecase interface {
 	Create(ctx context.Context, req dto.CreateCorrelationRuleRequest) error
+	ImportRules(ctx context.Context, files []dto.ImportRuleFile) []dto.ImportRuleResult
 	Update(ctx context.Context, req dto.UpdateCorrelationRuleRequest) error
 	GetByRelPath(ctx context.Context, relPath string) (*dto.CorrelationRuleResponse, error)
 	List(ctx context.Context, filters dto.CorrelationRuleFilters) (*ListResult[dto.CorrelationRuleResponse], error)
@@ -42,6 +47,7 @@ type FilterUsecase interface {
 	Update(ctx context.Context, req dto.UpdateFilterRequest) (*dto.FilterResponse, error)
 	GetByRelPath(ctx context.Context, relPath string) (*dto.FilterResponse, error)
 	List(ctx context.Context, f dto.FilterFilters) ([]dto.FilterResponse, int64, error)
+	DataTypes(ctx context.Context) []string
 	Delete(ctx context.Context, relPath string) error
 	SetActive(ctx context.Context, relPath string, active bool) error
 }

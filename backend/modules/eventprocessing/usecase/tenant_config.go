@@ -7,6 +7,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/connectors"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/domain"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
+	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
 type tenantConfigUsecase struct {
@@ -80,6 +81,21 @@ func (u *tenantConfigUsecase) Delete(_ context.Context, assetName string) error 
 // AddAsset is called by PipelineBootstrap to seed assets from the legacy DB.
 func (u *tenantConfigUsecase) AddAsset(name string, hostnames, ips []string, conf, integ, avail int) {
 	u.store.set(name, hostnames, ips, conf, integ, avail)
+}
+
+func (u *tenantConfigUsecase) ProjectAssets(assets []common_models.AssetSensitivity) error {
+	out := make([]assetFileYAML, 0, len(assets))
+	for _, a := range assets {
+		out = append(out, assetFileYAML{
+			Name:            a.Name,
+			Hostnames:       a.Hostnames,
+			Ips:             a.Ips,
+			Confidentiality: uint32(a.Confidentiality),
+			Integrity:       uint32(a.Integrity),
+			Availability:    uint32(a.Availability),
+		})
+	}
+	return u.writer.WriteTenants(out)
 }
 
 func (u *tenantConfigUsecase) syncFile() {

@@ -3496,6 +3496,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/correlation-rule/import": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Validates each uploaded rule YAML and creates the valid ones as user rules. Always 200 with a per-file verdict.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Correlation Rules"
+                ],
+                "summary": "Import correlation rules from YAML",
+                "parameters": [
+                    {
+                        "description": "Rule YAML files",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ImportCorrelationRulesRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ImportCorrelationRulesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/correlation-rule/search-by-filters": {
             "get": {
                 "security": [
@@ -4842,6 +4890,34 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/eventprocessing/filters/data-types": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the sorted, distinct dataTypes declared across all filters.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Filters"
+                ],
+                "summary": "List filter data types",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
                                 "type": "string"
                             }
                         }
@@ -15821,6 +15897,12 @@ const docTemplate = `{
                 "content": {
                     "type": "string"
                 },
+                "dataTypes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "relPath": {
                     "type": "string"
                 },
@@ -15903,6 +15985,72 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "spPrivateKeyPem": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ImportCorrelationRulesRequest": {
+            "type": "object",
+            "required": [
+                "files"
+            ],
+            "properties": {
+                "files": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/dto.ImportRuleFile"
+                    }
+                }
+            }
+        },
+        "dto.ImportCorrelationRulesResponse": {
+            "type": "object",
+            "properties": {
+                "approved": {
+                    "type": "integer"
+                },
+                "rejected": {
+                    "type": "integer"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ImportRuleResult"
+                    }
+                }
+            }
+        },
+        "dto.ImportRuleFile": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "filename": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ImportRuleResult": {
+            "type": "object",
+            "properties": {
+                "approved": {
+                    "type": "boolean"
+                },
+                "error": {
+                    "description": "reason when rejected",
+                    "type": "string"
+                },
+                "filename": {
+                    "type": "string"
+                },
+                "name": {
+                    "description": "rule name when parsed",
+                    "type": "string"
+                },
+                "relPath": {
+                    "description": "created identity when approved",
                     "type": "string"
                 }
             }

@@ -27,7 +27,7 @@ type CreateRuleRequest struct {
 }
 
 type UpdateRuleRequest struct {
-	ID             *int64     `json:"id"             binding:"required"`
+	ID             *int64     `json:"id"`
 	Name           string     `json:"name"           binding:"required,max=150"`
 	Description    string     `json:"description"    binding:"omitempty,max=512"`
 	Conditions     []FilterVM `json:"conditions"     binding:"required,min=1"`

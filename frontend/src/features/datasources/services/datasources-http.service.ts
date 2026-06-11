@@ -53,6 +53,10 @@ export const datasourcesHttpService = {
     api.put<void>('/datasources/labels', { id, labels }),
   updateGroup: (ids: number[], groupId: number | null) =>
     api.put<void>('/datasources/group', { ids, groupId }),
+  updateSensitivity: (
+    id: number,
+    cia: { assetConfidentiality: number; assetIntegrity: number; assetAvailability: number },
+  ) => api.put<void>('/datasources/sensitivity', { id, ...cia }),
   usage: () => api.get<Usage>('/datasources/usage'),
 
   groups: () =>

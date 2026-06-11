@@ -128,6 +128,22 @@ func (h *DatasourceHandler) UpdateLabels(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+func (h *DatasourceHandler) UpdateSensitivity(c *gin.Context) {
+	var req dto.UpdateSensitivityRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
+		return
+	}
+	err := h.uc.UpdateSensitivity(c.Request.Context(), req)
+	audit.Record(c, audit_connectors.Event{Action: "datasource.sensitivity.update", ResourceType: "datasource", ResourceID: strconv.FormatUint(req.ID, 10)},
+		audit_domain.DATASOURCE_SENSITIVITY_UPDATE_ATTEMPT, audit_domain.DATASOURCE_SENSITIVITY_UPDATE_SUCCESS, err)
+	if err != nil {
+		writeError(c, "update sensitivity", err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
 func (h *DatasourceHandler) Delete(c *gin.Context) {
 	id, ok := pathID(c, "id")
 	if !ok {

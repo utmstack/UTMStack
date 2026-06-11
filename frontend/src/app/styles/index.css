@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/*
+ * Drive the `dark:` variant from our `.dark` class (set by useTheme on <html>),
+ * NOT the OS `prefers-color-scheme`. Without this, Tailwind v4 defaults `dark:`
+ * to the media query, so when the app is toggled to light while the OS is in
+ * dark mode, `dark:*` utilities still fire over a light background (unreadable).
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
