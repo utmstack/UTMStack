@@ -7,6 +7,10 @@
       "cancel": "Отмена",
       "retry": "Повторить",
       "refresh": "Обновить"
+    },
+    "confirm": {
+      "delete": "Удалить",
+      "working": "Выполняется…"
     }
   },
   "auth": {
@@ -191,6 +195,314 @@
     "settings": "Настройки",
     "back": "Назад",
     "regexPatterns": "Регулярные выражения"
+  },
+  "dashboards": {
+    "title": "Панели",
+    "subtitle": "Просмотр и редактирование интерактивных панелей.",
+    "list": {
+      "title": "Панели",
+      "create": "Создать",
+      "searchPlaceholder": "Поиск панелей…",
+      "loading": "Загрузка панелей…",
+      "empty": "Панелей пока нет.",
+      "rename": "Переименовать",
+      "delete": "Удалить"
+    },
+    "actions": {
+      "edit": "Редактировать"
+    },
+    "editor": {
+      "editing": "Редактирование",
+      "addWidget": "Добавить виджет",
+      "save": "Сохранить",
+      "discard": "Отменить",
+      "newTitle": "Новая визуализация",
+      "newSubtitle": "Выберите тип диаграммы и источник данных, настройте её визуально. SQL-запрос будет создан автоматически.",
+      "editTitle": "Редактирование визуализации",
+      "editSubtitle": "Настройте определение диаграммы. Изменения будут применены везде, где используется эта визуализация.",
+      "loading": "Загрузка визуализации…",
+      "notFoundTitle": "Визуализация не найдена",
+      "notFoundSubtitle": "Возможно, она была удалена или у вас нет к ней доступа.",
+      "backToList": "Вернуться к визуализациям",
+      "chartType": {
+        "title": "Тип диаграммы"
+      },
+      "chartTypes": {
+        "bar": {
+          "label": "Столбцы",
+          "description": "Сравнение значений по категориям."
+        },
+        "horizontal_bar": {
+          "label": "Столбцы (горизонтально)",
+          "description": "Как столбчатая диаграмма с переставленными осями."
+        },
+        "line": {
+          "label": "Линия",
+          "description": "Тренды по упорядоченной оси."
+        },
+        "area": {
+          "label": "Область",
+          "description": "Заполненная линия — подчёркивает объём."
+        },
+        "pie": {
+          "label": "Круговая",
+          "description": "Доля от целого по категориям."
+        },
+        "gauge": {
+          "label": "Шкала",
+          "description": "Одно значение на эталонном циферблате."
+        },
+        "goal": {
+          "label": "Цель",
+          "description": "Прогресс к целевому проценту."
+        },
+        "heatmap": {
+          "label": "Тепловая карта",
+          "description": "Две категориальные оси, значение отображается цветом."
+        },
+        "tag_cloud": {
+          "label": "Облако тегов",
+          "description": "Слова, размер которых зависит от частоты."
+        },
+        "metric": {
+          "label": "Метрика",
+          "description": "Одиночное скалярное значение."
+        },
+        "table": {
+          "label": "Таблица",
+          "description": "Агрегированные строки."
+        },
+        "list": {
+          "label": "Список",
+          "description": "Исходные строки без агрегации."
+        },
+        "region_map": {
+          "label": "Карта координат",
+          "description": "Размещение меток на карте мира по координатам широты и долготы."
+        },
+        "text": {
+          "label": "Текст",
+          "description": "Свободный текст или построчный вывод."
+        }
+      },
+      "dataSource": {
+        "title": "Источник данных",
+        "indexPattern": "Шаблон индекса",
+        "noPatternHint": "Выберите шаблон индекса, чтобы включить фильтры, метрику и измерение."
+      },
+      "indexPattern": {
+        "placeholder": "Выберите шаблон индекса…",
+        "loading": "Загрузка шаблонов индекса…"
+      },
+      "filters": {
+        "title": "Фильтры",
+        "empty": "Фильтров нет — будут включены все документы из диапазона.",
+        "add": "Добавить фильтр",
+        "remove": "Удалить",
+        "field": "Поле",
+        "fieldPlaceholder": "напр. host.name",
+        "operator": "Оператор",
+        "value": "Значение",
+        "valuePlaceholder": "Значение",
+        "from": "От",
+        "to": "До",
+        "noValue": "Значение не требуется",
+        "listPlaceholder": "Значения через запятую"
+      },
+      "operators": {
+        "IS": "равно",
+        "IS_NOT": "не равно",
+        "IS_ONE_OF_TERMS": "одно из",
+        "IS_GREATER_THAN": "больше чем",
+        "IS_LESS_THAN_OR_EQUALS": "меньше или равно",
+        "IS_BETWEEN": "в диапазоне",
+        "CONTAIN": "содержит",
+        "DOES_NOT_CONTAIN": "не содержит",
+        "START_WITH": "начинается с",
+        "ENDS_WITH": "заканчивается на",
+        "EXIST": "существует",
+        "DOES_NOT_EXIST": "не существует"
+      },
+      "aggregations": {
+        "count": "Количество",
+        "count_distinct": "Уникальных",
+        "sum": "Сумма",
+        "avg": "Среднее",
+        "min": "Мин",
+        "max": "Макс"
+      },
+      "metric": {
+        "title": "Метрика (ось Y)",
+        "aggregation": "Агрегация",
+        "field": "Поле",
+        "fieldPlaceholder": "Выберите поле…",
+        "fieldNotRequired": "Не требуется для COUNT(*)"
+      },
+      "dimension": {
+        "title": "Измерение (ось X / группировка)",
+        "field": "Поле",
+        "placeholder": "Выберите поле для группировки…"
+      },
+      "table": {
+        "title": "Свой SELECT (необязательно)",
+        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status"
+      },
+      "sqlPreview": {
+        "title": "Предпросмотр SQL",
+        "empty": "Выберите шаблон индекса, чтобы увидеть сгенерированный SQL.",
+        "toggleRaw": "Переключить в расширенный режим (исходный SQL)",
+        "rawPlaceholder": "SELECT … FROM … WHERE {{timeFilter}}",
+        "hint": "{{timeFilter}}, {{from}} и {{to}} подставляются из выбора времени во время рендеринга."
+      },
+      "chartPreview": {
+        "title": "Предпросмотр диаграммы",
+        "noQuery": "Заполните источник данных, чтобы увидеть предпросмотр.",
+        "error": "Запрос предпросмотра завершился ошибкой."
+      },
+      "rawMode": {
+        "label": "Расширенный (исходный SQL)"
+      },
+      "tabs": {
+        "visual": "Визуально",
+        "sql": "SQL"
+      },
+      "chartTypeChip": {
+        "label": "Диаграмма:"
+      },
+      "chartTypeModal": {
+        "title": "Выберите тип диаграммы",
+        "subtitle": "Выберите способ визуализации данных. Это можно изменить позже.",
+        "confirm": "Продолжить",
+        "swapTitle": "Изменить тип диаграммы",
+        "swapConfirm": "Применить"
+      },
+      "saveDialog": {
+        "createTitle": "Сохранить новую визуализацию",
+        "updateTitle": "Сохранить изменения",
+        "subtitle": "Дайте имя, чтобы найти её в списке."
+      },
+      "saveVisualization": "Сохранить визуализацию",
+      "fieldSelect": {
+        "loading": "Загрузка полей…",
+        "choose": "Выберите поле…"
+      },
+      "toast": {
+        "notReady": "Перед сохранением выберите шаблон индекса (и добавьте метрику или SQL)."
+      }
+    },
+    "grid": {
+      "empty": "В этой панели пока нет виджетов.",
+      "emptyEditing": "Нажмите «Добавить виджет», чтобы поместить визуализацию на сетку.",
+      "missingVisualization": "Визуализация недоступна",
+      "unknownVisualization": "Визуализация"
+    },
+    "widget": {
+      "renderError": "Не удалось отобразить этот виджет.",
+      "loading": "Загрузка данных…",
+      "queryError": "Не удалось загрузить данные виджета.",
+      "noData": "Нет данных за выбранный диапазон времени.",
+      "noTimePlaceholderHint": "Совет: добавьте в SQL метку времени, чтобы фильтрация шла по диапазону из выбора времени.",
+      "regionMapEmpty": "Нет точек с корректными широтой/долготой.",
+      "regionMapShapeHint": "SQL должен возвращать столбцы широты и долготы (или массив value [lat, lon, count]).",
+      "regionMapUnnamed": "(без названия)",
+      "regionMapValue": "значение: {{value}}",
+      "removeAriaLabel": "Удалить виджет"
+    },
+    "form": {
+      "createTitle": "Новая панель",
+      "renameTitle": "Редактировать панель",
+      "name": "Название",
+      "namePlaceholder": "напр. Обзор сети",
+      "description": "Описание",
+      "descriptionPlaceholder": "Необязательно",
+      "cancel": "Отмена",
+      "create": "Создать",
+      "save": "Сохранить"
+    },
+    "addWidget": {
+      "title": "Добавить визуализацию",
+      "subtitle": "Выберите одну или несколько существующих визуализаций для размещения на сетке.",
+      "searchPlaceholder": "Поиск визуализаций…",
+      "loading": "Загрузка визуализаций…",
+      "empty": "Визуализации не найдены.",
+      "alreadyAdded": "Уже на этой панели",
+      "newWidget": "Новый виджет",
+      "noneSelected": "Виджеты не выбраны",
+      "selectedCount": "Выбрано: {{count}}",
+      "addSelected": "Добавить ({{count}})"
+    },
+    "confirm": {
+      "deleteTitle": "Удалить панель",
+      "delete": "Удалить панель «{{name}}»? Это действие нельзя отменить."
+    },
+    "page": {
+      "noSelection": "Выберите панель из списка или создайте новую, чтобы начать.",
+      "loading": "Загрузка виджетов…"
+    },
+    "toast": {
+      "created": "Панель создана.",
+      "createFailed": "Не удалось создать панель.",
+      "updated": "Панель обновлена.",
+      "updateFailed": "Не удалось обновить панель.",
+      "deleted": "Панель удалена.",
+      "deleteFailed": "Не удалось удалить панель.",
+      "widgetAdded": "Виджет добавлен.",
+      "widgetsAdded": "Добавлено виджетов: {{count}}.",
+      "widgetAddFailed": "Не удалось добавить виджет.",
+      "layoutSaved": "Макет сохранён.",
+      "layoutSaveFailed": "Не удалось сохранить макет.",
+      "visualizationCreated": "Визуализация создана.",
+      "visualizationCreateFailed": "Не удалось создать визуализацию.",
+      "visualizationUpdated": "Визуализация обновлена.",
+      "visualizationUpdateFailed": "Не удалось обновить визуализацию.",
+      "visualizationDeleted": "Визуализация удалена.",
+      "visualizationDeleteFailed": "Не удалось удалить визуализацию."
+    },
+    "newDashboard": {
+      "title": "Новая панель",
+      "subtitle": "Создайте пустую панель. Виджеты можно добавить после сохранения."
+    },
+    "newVisualization": {
+      "title": "Новая визуализация",
+      "subtitle": "Определите переиспользуемую диаграмму из SQL-запроса и конфигурации ECharts.",
+      "sqlQuery": "SQL-запрос",
+      "sqlQueryPlaceholder": "SELECT bucket, count(*) FROM logs GROUP BY bucket",
+      "sqlQueryHint": "Используйте плейсхолдеры timeFilter, from и to (в двойных фигурных скобках), чтобы выбор времени применялся при рендеринге.",
+      "config": "Конфигурация диаграммы (опция ECharts, JSON)",
+      "configHint": "Должен быть корректный JSON. Строки SQL доступны как `dataset.source` — свяжите серии через `encode`.",
+      "configError": "Некорректный JSON: {{error}}"
+    },
+    "visualizationList": {
+      "title": "Визуализации",
+      "subtitle": "Доступно визуализаций: {{count}}.",
+      "subtitleFiltered": "Показано {{shown}} из {{total}}.",
+      "create": "Создать",
+      "searchPlaceholder": "Поиск визуализаций…",
+      "loading": "Загрузка визуализаций…",
+      "empty": "Визуализаций пока нет.",
+      "emptyFiltered": "Нет визуализаций, соответствующих текущим фильтрам.",
+      "delete": "Удалить",
+      "deleteTitle": "Удалить визуализацию",
+      "confirmDelete": "Удалить визуализацию «{{name}}»? Это действие нельзя отменить.",
+      "filters": {
+        "search": "Поиск",
+        "chartType": "Тип диаграммы",
+        "allChartTypes": "Все типы диаграмм",
+        "source": "Источник",
+        "allSources": "Все источники",
+        "createdFrom": "Создана с",
+        "createdTo": "Создана по",
+        "clear": "Сбросить фильтры"
+      },
+      "col": {
+        "name": "Название",
+        "chartType": "Тип диаграммы",
+        "source": "Источник",
+        "description": "Описание",
+        "created": "Создана",
+        "modified": "Изменена"
+      }
+    }
   },
   "settings": {
     "title": "Настройки",

@@ -1,4 +1,5 @@
 import { type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 
@@ -13,6 +14,7 @@ export function WidgetCard({
   onRemove?: () => void
   children: ReactNode
 }) {
+  const { t } = useTranslation()
   return (
     <div className="flex h-full w-full flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       <div
@@ -33,7 +35,7 @@ export function WidgetCard({
               onRemove()
             }}
             className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-            aria-label="Remove widget"
+            aria-label={t('dashboards.widget.removeAriaLabel') ?? 'Remove widget'}
           >
             <X size={14} />
           </button>

@@ -7,6 +7,10 @@
       "cancel": "Abbrechen",
       "retry": "Wiederholen",
       "refresh": "Aktualisieren"
+    },
+    "confirm": {
+      "delete": "Löschen",
+      "working": "Wird ausgeführt…"
     }
   },
   "auth": {
@@ -191,6 +195,314 @@
     "settings": "Einstellungen",
     "back": "Zurück",
     "regexPatterns": "Reguläre Ausdrücke"
+  },
+  "dashboards": {
+    "title": "Dashboards",
+    "subtitle": "Interaktive Dashboards durchsuchen und bearbeiten.",
+    "list": {
+      "title": "Dashboards",
+      "create": "Neu",
+      "searchPlaceholder": "Dashboards durchsuchen…",
+      "loading": "Dashboards werden geladen…",
+      "empty": "Noch keine Dashboards vorhanden.",
+      "rename": "Umbenennen",
+      "delete": "Löschen"
+    },
+    "actions": {
+      "edit": "Bearbeiten"
+    },
+    "editor": {
+      "editing": "Bearbeitung",
+      "addWidget": "Widget hinzufügen",
+      "save": "Speichern",
+      "discard": "Verwerfen",
+      "newTitle": "Neue Visualisierung",
+      "newSubtitle": "Wählen Sie einen Diagrammtyp und eine Datenquelle und gestalten Sie das Diagramm visuell. Die SQL-Abfrage wird automatisch generiert.",
+      "editTitle": "Visualisierung bearbeiten",
+      "editSubtitle": "Passen Sie die Diagrammdefinition an. Änderungen wirken sich überall aus, wo diese Visualisierung verwendet wird.",
+      "loading": "Visualisierung wird geladen…",
+      "notFoundTitle": "Visualisierung nicht gefunden",
+      "notFoundSubtitle": "Sie wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf.",
+      "backToList": "Zurück zu den Visualisierungen",
+      "chartType": {
+        "title": "Diagrammtyp"
+      },
+      "chartTypes": {
+        "bar": {
+          "label": "Balken",
+          "description": "Werte zwischen Kategorien vergleichen."
+        },
+        "horizontal_bar": {
+          "label": "Balken (horizontal)",
+          "description": "Wie ein Balkendiagramm mit vertauschten Achsen."
+        },
+        "line": {
+          "label": "Linie",
+          "description": "Trends entlang einer geordneten Achse."
+        },
+        "area": {
+          "label": "Fläche",
+          "description": "Gefüllte Linie – betont das Volumen."
+        },
+        "pie": {
+          "label": "Kreis",
+          "description": "Anteil am Ganzen nach Kategorie."
+        },
+        "gauge": {
+          "label": "Tachometer",
+          "description": "Ein einzelner Wert auf einer Referenzskala."
+        },
+        "goal": {
+          "label": "Ziel",
+          "description": "Fortschritt in Richtung eines prozentualen Ziels."
+        },
+        "heatmap": {
+          "label": "Heatmap",
+          "description": "Zwei kategoriale Achsen, Werte über Farben dargestellt."
+        },
+        "tag_cloud": {
+          "label": "Schlagwortwolke",
+          "description": "Wörter nach Häufigkeit skaliert."
+        },
+        "metric": {
+          "label": "Metrik",
+          "description": "Ein einzelner Skalarwert."
+        },
+        "table": {
+          "label": "Tabelle",
+          "description": "Aggregierte Zeilen."
+        },
+        "list": {
+          "label": "Liste",
+          "description": "Rohe, nicht aggregierte Zeilen."
+        },
+        "region_map": {
+          "label": "Koordinatenkarte",
+          "description": "Markierungen anhand von Breiten- und Längengrad auf einer Weltkarte platzieren."
+        },
+        "text": {
+          "label": "Text",
+          "description": "Frei formulierter Text oder einfache Zeilenausgabe."
+        }
+      },
+      "dataSource": {
+        "title": "Datenquelle",
+        "indexPattern": "Indexmuster",
+        "noPatternHint": "Wählen Sie ein Indexmuster, um Filter, Metrik und Dimension zu aktivieren."
+      },
+      "indexPattern": {
+        "placeholder": "Indexmuster auswählen…",
+        "loading": "Indexmuster werden geladen…"
+      },
+      "filters": {
+        "title": "Filter",
+        "empty": "Keine Filter – alle Dokumente im Zeitraum werden einbezogen.",
+        "add": "Filter hinzufügen",
+        "remove": "Entfernen",
+        "field": "Feld",
+        "fieldPlaceholder": "z. B. host.name",
+        "operator": "Operator",
+        "value": "Wert",
+        "valuePlaceholder": "Wert",
+        "from": "Von",
+        "to": "Bis",
+        "noValue": "Kein Wert erforderlich",
+        "listPlaceholder": "Durch Komma getrennte Werte"
+      },
+      "operators": {
+        "IS": "ist",
+        "IS_NOT": "ist nicht",
+        "IS_ONE_OF_TERMS": "ist eines von",
+        "IS_GREATER_THAN": "ist größer als",
+        "IS_LESS_THAN_OR_EQUALS": "ist kleiner oder gleich",
+        "IS_BETWEEN": "liegt zwischen",
+        "CONTAIN": "enthält",
+        "DOES_NOT_CONTAIN": "enthält nicht",
+        "START_WITH": "beginnt mit",
+        "ENDS_WITH": "endet mit",
+        "EXIST": "ist vorhanden",
+        "DOES_NOT_EXIST": "ist nicht vorhanden"
+      },
+      "aggregations": {
+        "count": "Anzahl",
+        "count_distinct": "Eindeutige Anzahl",
+        "sum": "Summe",
+        "avg": "Mittelwert",
+        "min": "Minimum",
+        "max": "Maximum"
+      },
+      "metric": {
+        "title": "Metrik (Y-Achse)",
+        "aggregation": "Aggregation",
+        "field": "Feld",
+        "fieldPlaceholder": "Feld auswählen…",
+        "fieldNotRequired": "Nicht erforderlich für COUNT(*)"
+      },
+      "dimension": {
+        "title": "Dimension (X-Achse / Gruppierung)",
+        "field": "Feld",
+        "placeholder": "Feld zum Gruppieren auswählen…"
+      },
+      "table": {
+        "title": "Eigenes SELECT (optional)",
+        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status"
+      },
+      "sqlPreview": {
+        "title": "SQL-Vorschau",
+        "empty": "Wählen Sie ein Indexmuster, um das generierte SQL zu sehen.",
+        "toggleRaw": "Zu erweitert (Roh-SQL) wechseln",
+        "rawPlaceholder": "SELECT … FROM … WHERE {{timeFilter}}",
+        "hint": "{{timeFilter}}, {{from}} und {{to}} werden zur Laufzeit aus dem Zeitfilter ersetzt."
+      },
+      "chartPreview": {
+        "title": "Diagrammvorschau",
+        "noQuery": "Geben Sie die Datenquelle ein, um eine Vorschau anzuzeigen.",
+        "error": "Vorschauabfrage fehlgeschlagen."
+      },
+      "rawMode": {
+        "label": "Erweitert (Roh-SQL)"
+      },
+      "tabs": {
+        "visual": "Visuell",
+        "sql": "SQL"
+      },
+      "chartTypeChip": {
+        "label": "Diagramm:"
+      },
+      "chartTypeModal": {
+        "title": "Diagrammtyp auswählen",
+        "subtitle": "Wählen Sie aus, wie die Daten visualisiert werden sollen. Sie können dies später ändern.",
+        "confirm": "Weiter",
+        "swapTitle": "Diagrammtyp ändern",
+        "swapConfirm": "Anwenden"
+      },
+      "saveDialog": {
+        "createTitle": "Neue Visualisierung speichern",
+        "updateTitle": "Änderungen speichern",
+        "subtitle": "Vergeben Sie einen Namen, damit Sie die Visualisierung in der Liste wiederfinden."
+      },
+      "saveVisualization": "Visualisierung speichern",
+      "fieldSelect": {
+        "loading": "Felder werden geladen…",
+        "choose": "Feld auswählen…"
+      },
+      "toast": {
+        "notReady": "Wählen Sie ein Indexmuster (und fügen Sie eine Metrik oder SQL hinzu), bevor Sie speichern."
+      }
+    },
+    "grid": {
+      "empty": "Dieses Dashboard enthält noch keine Widgets.",
+      "emptyEditing": "Klicken Sie auf „Widget hinzufügen“, um eine Visualisierung in das Raster zu ziehen.",
+      "missingVisualization": "Visualisierung nicht verfügbar",
+      "unknownVisualization": "Visualisierung"
+    },
+    "widget": {
+      "renderError": "Dieses Widget konnte nicht gerendert werden.",
+      "loading": "Daten werden geladen…",
+      "queryError": "Widget-Daten konnten nicht geladen werden.",
+      "noData": "Keine Daten für den ausgewählten Zeitraum.",
+      "noTimePlaceholderHint": "Tipp: Fügen Sie der SQL einen Zeit-Platzhalter hinzu, damit sie nach dem Zeitfilter eingeschränkt wird.",
+      "regionMapEmpty": "Keine Punkte mit gültigen Lat/Lon-Werten.",
+      "regionMapShapeHint": "Die SQL muss Spalten für Breiten- und Längengrad zurückgeben (oder ein Wert-Array [lat, lon, count]).",
+      "regionMapUnnamed": "(ohne Namen)",
+      "regionMapValue": "Wert: {{value}}",
+      "removeAriaLabel": "Widget entfernen"
+    },
+    "form": {
+      "createTitle": "Neues Dashboard",
+      "renameTitle": "Dashboard bearbeiten",
+      "name": "Name",
+      "namePlaceholder": "z. B. Netzwerkübersicht",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Optional",
+      "cancel": "Abbrechen",
+      "create": "Erstellen",
+      "save": "Speichern"
+    },
+    "addWidget": {
+      "title": "Visualisierung hinzufügen",
+      "subtitle": "Wählen Sie eine oder mehrere vorhandene Visualisierungen aus, um sie auf das Raster zu legen.",
+      "searchPlaceholder": "Visualisierungen durchsuchen…",
+      "loading": "Visualisierungen werden geladen…",
+      "empty": "Keine Visualisierungen gefunden.",
+      "alreadyAdded": "Bereits auf diesem Dashboard",
+      "newWidget": "Neues Widget",
+      "noneSelected": "Keine Widgets ausgewählt",
+      "selectedCount": "{{count}} ausgewählt",
+      "addSelected": "Hinzufügen ({{count}})"
+    },
+    "confirm": {
+      "deleteTitle": "Dashboard löschen",
+      "delete": "Dashboard „{{name}}“ löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+    },
+    "page": {
+      "noSelection": "Wählen Sie ein Dashboard aus der Liste aus oder legen Sie eines an, um zu beginnen.",
+      "loading": "Widgets werden geladen…"
+    },
+    "toast": {
+      "created": "Dashboard erstellt.",
+      "createFailed": "Dashboard konnte nicht erstellt werden.",
+      "updated": "Dashboard aktualisiert.",
+      "updateFailed": "Dashboard konnte nicht aktualisiert werden.",
+      "deleted": "Dashboard gelöscht.",
+      "deleteFailed": "Dashboard konnte nicht gelöscht werden.",
+      "widgetAdded": "Widget hinzugefügt.",
+      "widgetsAdded": "{{count}} Widgets hinzugefügt.",
+      "widgetAddFailed": "Widget konnte nicht hinzugefügt werden.",
+      "layoutSaved": "Layout gespeichert.",
+      "layoutSaveFailed": "Layout konnte nicht gespeichert werden.",
+      "visualizationCreated": "Visualisierung erstellt.",
+      "visualizationCreateFailed": "Visualisierung konnte nicht erstellt werden.",
+      "visualizationUpdated": "Visualisierung aktualisiert.",
+      "visualizationUpdateFailed": "Visualisierung konnte nicht aktualisiert werden.",
+      "visualizationDeleted": "Visualisierung gelöscht.",
+      "visualizationDeleteFailed": "Visualisierung konnte nicht gelöscht werden."
+    },
+    "newDashboard": {
+      "title": "Neues Dashboard",
+      "subtitle": "Legen Sie ein leeres Dashboard an. Widgets können Sie nach dem Speichern hinzufügen."
+    },
+    "newVisualization": {
+      "title": "Neue Visualisierung",
+      "subtitle": "Definieren Sie ein wiederverwendbares Diagramm aus einer SQL-Abfrage und einer ECharts-Option.",
+      "sqlQuery": "SQL-Abfrage",
+      "sqlQueryPlaceholder": "SELECT bucket, count(*) FROM logs GROUP BY bucket",
+      "sqlQueryHint": "Verwenden Sie die Platzhalter timeFilter, from und to (in doppelten geschweiften Klammern), damit der Zeitfilter zur Laufzeit angewendet wird.",
+      "config": "Diagrammkonfiguration (ECharts-Option, JSON)",
+      "configHint": "Muss gültiges JSON sein. Zeilen aus der SQL sind als `dataset.source` verfügbar – verknüpfen Sie Ihre Serien mit `encode`.",
+      "configError": "Ungültiges JSON: {{error}}"
+    },
+    "visualizationList": {
+      "title": "Visualisierungen",
+      "subtitle": "{{count}} Visualisierung(en) verfügbar.",
+      "subtitleFiltered": "{{shown}} von {{total}} angezeigt.",
+      "create": "Neu",
+      "searchPlaceholder": "Visualisierungen durchsuchen…",
+      "loading": "Visualisierungen werden geladen…",
+      "empty": "Noch keine Visualisierungen vorhanden.",
+      "emptyFiltered": "Keine Visualisierungen entsprechen den aktuellen Filtern.",
+      "delete": "Löschen",
+      "deleteTitle": "Visualisierung löschen",
+      "confirmDelete": "Visualisierung „{{name}}“ löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "filters": {
+        "search": "Suche",
+        "chartType": "Diagrammtyp",
+        "allChartTypes": "Alle Diagrammtypen",
+        "source": "Quelle",
+        "allSources": "Alle Quellen",
+        "createdFrom": "Erstellt ab",
+        "createdTo": "Erstellt bis",
+        "clear": "Filter zurücksetzen"
+      },
+      "col": {
+        "name": "Name",
+        "chartType": "Diagrammtyp",
+        "source": "Quelle",
+        "description": "Beschreibung",
+        "created": "Erstellt",
+        "modified": "Geändert"
+      }
+    }
   },
   "settings": {
     "title": "Einstellungen",

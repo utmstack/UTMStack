@@ -406,7 +406,8 @@
       "regionMapEmpty": "No points with valid lat/lon.",
       "regionMapShapeHint": "The SQL must return latitude and longitude columns (or a value array [lat, lon, count]).",
       "regionMapUnnamed": "(unnamed)",
-      "regionMapValue": "value: {{value}}"
+      "regionMapValue": "value: {{value}}",
+      "removeAriaLabel": "Remove widget"
     },
     "form": {
       "createTitle": "New dashboard",
