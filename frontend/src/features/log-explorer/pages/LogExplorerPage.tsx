@@ -155,6 +155,17 @@ export function LogExplorerPage() {
           navigate(location.pathname, { replace: true })
           return
         }
+        // Integration "View events" deep-link: ?dataType=<value> → filter + 30d + column.
+        const dataType = new URLSearchParams(location.search).get('dataType')
+        if (dataType && !seededRef.current) {
+          seededRef.current = true
+          setPattern(ps.find((p) => p.pattern === 'v11-log-*') ?? ps[0] ?? null)
+          setFilters([{ field: 'dataType', operator: 'IS', value: dataType }])
+          setRange(presetRange('30d'))
+          setColumns(['dataType'])
+          navigate(location.pathname, { replace: true })
+          return
+        }
         setPattern(ps.find((p) => p.pattern === 'v11-log-*') ?? ps[0] ?? null)
       })
       .catch(() => {
