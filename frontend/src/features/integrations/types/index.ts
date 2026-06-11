@@ -46,6 +46,7 @@ export type Tab = 'all' | 'agents' | 'collectors' | 'cloud' |'custom'
 export interface Integration {
   id: string;
   name: string;
+  moduleName?: string;
   kind: DeployKind;
   status: Status;
   description: string;
@@ -56,4 +57,9 @@ export interface Integration {
   cloudFields?: { label: string; placeholder: string; secret?: boolean }[];
   events24h?: number;
   rate?: number;
+}
+
+export interface TenantResponse {
+  name: string;
+  config: Record<string, string>;
 }

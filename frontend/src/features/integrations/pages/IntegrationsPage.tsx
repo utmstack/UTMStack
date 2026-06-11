@@ -38,6 +38,7 @@ function mapModuleToIntegration(module: any): Integration {
   return {
     id: module.id.toString(),
     name: module.prettyName || module.moduleName,
+    moduleName: module.moduleName,
     kind:categoryLower,
     status: module.moduleActive ? 'configured' : 'available',
     description: module.moduleDescription || '',

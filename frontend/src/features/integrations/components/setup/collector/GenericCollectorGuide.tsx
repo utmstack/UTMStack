@@ -4,11 +4,11 @@ import { Section } from '@/features/integrations/components/ui/Section'
 import { CodeBlock } from '@/features/integrations/components/ui/CodeBlock'
 import type { Integration } from '@/features/integrations/types'
 
-interface CollectorSetupProps {
+interface GenericCollectorGuideProps {
   integration: Integration
 }
 
-export function CollectorSetup({ integration: i }: CollectorSetupProps) {
+export function GenericCollectorGuide({ integration: i }: GenericCollectorGuideProps) {
   const { t } = useTranslation()
 
   return (

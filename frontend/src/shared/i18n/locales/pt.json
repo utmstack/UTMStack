@@ -1253,7 +1253,14 @@
         "afterTitle": "O que você verá após a instalação",
         "after1": "O host aparece em Fontes de dados dentro de ~60 segundos após o início do agente.",
         "after2": "A telemetria começa a fluir para o Log Explorer, limitada ao seu workspace.",
-        "after3": "O agente auto-relata CPU / memória / saúde do disco para o UTMStack."
+        "after3": "O agente auto-relata CPU / memória / saúde do disco para o UTMStack.",
+        "actionLabel": "Ação",
+        "platformLabel": "Plataforma",
+        "loadingToken": "Carregando token…",
+        "actions": {
+          "install": "Instalar",
+          "uninstall": "Desinstalar"
+        }
       },
       "collector": {
         "howItWorksTitle": "Como funciona",
@@ -1276,7 +1283,156 @@
         "afterTitle": "O que você verá após conectar",
         "after1": "O UTMStack realiza um preenchimento inicial de eventos recentes.",
         "after2": "A partir de então, os eventos são buscados a cada 1–5 minutos (depende da API).",
-        "after3": "A integração aparece em Fontes de dados com status atual de busca e atraso."
+        "after3": "A integração aparece em Fontes de dados com status atual de busca e atraso.",
+        "tenants": {
+          "title": "Tenants configurados",
+          "empty": "Ainda não há tenants configurados. Adicione o primeiro abaixo.",
+          "loading": "Carregando tenants…",
+          "nameLabel": "Nome do tenant",
+          "namePlaceholder": "p. ex. acme-prod",
+          "add": "Adicionar tenant",
+          "update": "Atualizar tenant",
+          "delete": "Excluir",
+          "edit": "Editar",
+          "cancel": "Cancelar",
+          "editing": "Editando: {{name}}",
+          "selectFile": "Selecionar arquivo",
+          "replaceFile": "Substituir arquivo",
+          "fileLoaded": "Arquivo carregado",
+          "invalidJson": "Não foi possível ler o arquivo como JSON.",
+          "createError": "Não foi possível criar o tenant. Tente novamente.",
+          "updateError": "Não foi possível atualizar o tenant. Tente novamente."
+        },
+        "google": {
+          "sections": {
+            "createTopic": {
+              "title": "1 · Crie um tópico Pub/Sub",
+              "body": "No console do Google Cloud, abra Pub/Sub → Tópicos e crie um novo tópico. UTMStack receberá eventos por este tópico."
+            },
+            "createSubscription": {
+              "title": "2 · Crie uma assinatura",
+              "body": "Dentro do tópico, crie uma assinatura do tipo Pull. UTMStack obtém mensagens desta assinatura."
+            },
+            "configureSubscription": {
+              "title": "3 · Configure a assinatura",
+              "body": "Defina a duração de retenção de mensagens conforme sua tolerância a indisponibilidades (7 dias padrão é suficiente). Mantenha o prazo de confirmação em 10 segundos e expiração em «Nunca expirar»."
+            },
+            "logsRouter": {
+              "title": "4 · Abra o Logs Router",
+              "body": "Navegue até Logging → Logs Router e crie um novo sink. Ele encaminha os logs do projeto para o tópico Pub/Sub criado acima."
+            },
+            "sinkDestination": {
+              "title": "5 · Aponte o sink para o tópico",
+              "body": "Escolha Tópico Cloud Pub/Sub como destino do sink e selecione o tópico criado. Use filtros de inclusão/exclusão para delimitar o que é encaminhado."
+            },
+            "serviceAccount": {
+              "title": "6 · Crie uma conta de serviço",
+              "body": "Abra IAM e administração → Contas de serviço e crie uma nova conta de serviço. Atribua a ela o papel Editor do Pub/Sub para que UTMStack possa ler da assinatura."
+            },
+            "serviceAccountKey": {
+              "title": "7 · Gere uma chave para a conta de serviço",
+              "body": "Abra a conta de serviço, vá na aba Chaves e adicione uma nova chave. Escolha JSON como tipo de chave."
+            },
+            "downloadKey": {
+              "title": "8 · Baixe e carregue a chave JSON",
+              "body": "Salve o arquivo JSON que o Google baixa: seu conteúdo vai no campo «Chave JSON da conta de serviço» abaixo."
+            }
+          },
+          "fields": {
+            "projectId": { "label": "ID do projeto" },
+            "topic": { "label": "Nome do tópico" },
+            "subscription": { "label": "Nome da assinatura" },
+            "jsonKey": { "label": "Chave JSON da conta de serviço" }
+          }
+        },
+        "azure": {
+          "sections": {
+            "eventHub": {
+              "title": "1 · Crie um Event Hub",
+              "body": "No Portal do Azure, crie um namespace de Event Hubs e um Event Hub dentro dele. UTMStack lerá eventos deste hub."
+            },
+            "sharedAccessPolicy": {
+              "title": "2 · Adicione uma política de acesso compartilhado",
+              "body": "Abra o Event Hub → Políticas de acesso compartilhado e crie uma nova política apenas com a permissão Listen."
+            },
+            "connectionString": {
+              "title": "3 · Copie a string de conexão primária",
+              "body": "Abra a política e copie a string de conexão primária. Tem o formato: Endpoint=sb://...;SharedAccessKeyName=...;SharedAccessKey=..."
+            },
+            "consumerGroup": {
+              "title": "4 · Crie um consumer group dedicado",
+              "body": "Abra o Event Hub → Consumer groups e crie um novo para UTMStack. Não reutilize $Default — dê ao UTMStack seu próprio grupo para que os checkpoints não colidam com outros consumers."
+            },
+            "storageAccount": {
+              "title": "5 · Crie uma conta de armazenamento",
+              "body": "UTMStack precisa de uma conta de armazenamento para checkpointing. Crie uma na mesma região do Event Hub."
+            },
+            "storageContainer": {
+              "title": "6 · Crie um container na conta de armazenamento",
+              "body": "Dentro da conta de armazenamento → Containers, crie um novo container. Anote o nome do container e a string de conexão da conta (Chaves de acesso → String de conexão)."
+            },
+            "eventGrid": {
+              "title": "7 · Registre o provedor de recursos Event Grid",
+              "body": "Em Assinaturas → Provedores de recursos, registre Microsoft.EventGrid se ainda não estiver. Isso permite que o Azure encaminhe eventos de nível de assinatura para o seu Event Hub."
+            },
+            "eventSubscription": {
+              "title": "8 · Crie uma assinatura de eventos",
+              "body": "Crie uma assinatura de eventos apontando para o seu Event Hub. Escolha os tipos de evento a encaminhar para UTMStack."
+            }
+          },
+          "fields": {
+            "eventHubConnection": { "label": "String de conexão do Event Hub" },
+            "consumerGroup": { "label": "Consumer group" },
+            "storageContainer": { "label": "Nome do container de armazenamento" },
+            "storageConnection": { "label": "String de conexão da conta de armazenamento" }
+          }
+        },
+        "aws": {
+          "sections": {
+            "prerequisite": {
+              "title": "Pré-requisito · Usuário IAM",
+              "body": "Para esta integração funcionar, é necessário um usuário IAM para UTMStack com a política CloudWatchLogsReadOnlyAccess. Anote o ID da chave de acesso e a chave de acesso secreta — você as colará no formulário do tenant abaixo."
+            },
+            "createTrail": {
+              "title": "1 · Crie um trail",
+              "body": "No painel do CloudTrail, selecione «Create trail»."
+            },
+            "trailName": {
+              "title": "2 · Nomeie o trail",
+              "body": "Preencha o campo «Trail name»."
+            },
+            "s3Buckets": {
+              "title": "3 · Selecione os buckets S3",
+              "body": "Marque «Select all S3 buckets in your account»."
+            },
+            "bucketName": {
+              "title": "4 · Crie o bucket S3",
+              "body": "Preencha o campo «S3 bucket». O nome do bucket deve ser único no S3. Em seguida, clique em «Create»."
+            },
+            "editTrail": {
+              "title": "5 · Abra o trail para editar",
+              "body": "Clique no nome do trail para editá-lo."
+            },
+            "cloudwatchConfig": {
+              "title": "6 · Configure o CloudWatch Logs",
+              "body": "Abra a seção CloudWatch Logs e habilite a integração para que o trail encaminhe eventos a um log group."
+            },
+            "logGroup": {
+              "title": "7 · Defina o nome do log group",
+              "body": "Preencha o nome do log group (p. ex. utmstack) e continue. Use o mesmo nome no campo «Nome do log group» abaixo."
+            },
+            "permissions": {
+              "title": "8 · Conceda permissões ao CloudTrail",
+              "body": "Clique em «Allow» para conceder ao CloudTrail permissões de escrita no log group."
+            }
+          },
+          "fields": {
+            "accessKeyId": { "label": "ID da chave de acesso da AWS" },
+            "secretAccessKey": { "label": "Chave de acesso secreta da AWS" },
+            "region": { "label": "Região padrão da AWS" },
+            "logGroupName": { "label": "Nome do log group" }
+          }
+        }
       },
       "custom": {
         "whenTitle": "Quando usar isso",

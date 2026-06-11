@@ -5,6 +5,7 @@ import type {
   UpdateModuleRequest,
   ModuleResponse,
   DataTypeOption,
+  TenantResponse,
 } from '@/features/integrations/types'
 
 export interface IntegrationsService {
@@ -22,8 +23,8 @@ export interface IntegrationsService {
   isActive(moduleName: string): Promise<{ isActive: boolean }>
 
   // Tenant operations
-  listTenants(moduleName: string): Promise<unknown>
-  saveTenant(moduleName: string, data: unknown): Promise<unknown>
+  listTenants(moduleName: string): Promise<TenantResponse[]>
+  saveTenant(moduleName: string, data: TenantResponse): Promise<TenantResponse>
   deleteTenant(moduleName: string, name: string): Promise<void>
 }
 
@@ -56,10 +57,15 @@ export function createIntegrationsService(baseUrl?: string): IntegrationsService
       api.get<{ isActive: boolean }>(`${BASE_INTEGRATIONS_URL}/is-active?moduleName=${moduleName}`),
 
     listTenants: (moduleName: string) =>
-      api.get(`${BASE_INTEGRATIONS_URL}/tenants/:module`.replace(':module', moduleName)),
+      api.get<TenantResponse[]>(
+        `${BASE_INTEGRATIONS_URL}/tenants/:module`.replace(':module', moduleName),
+      ),
 
-    saveTenant: (moduleName: string, data: unknown) =>
-      api.put(`${BASE_INTEGRATIONS_URL}/tenants/:module`.replace(':module', moduleName), data),
+    saveTenant: (moduleName: string, data: TenantResponse) =>
+      api.put<TenantResponse>(
+        `${BASE_INTEGRATIONS_URL}/tenants/:module`.replace(':module', moduleName),
+        data,
+      ),
 
     deleteTenant: (moduleName: string, name: string) =>
       api.delete<void>(
