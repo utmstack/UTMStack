@@ -278,8 +278,8 @@
           "description": "Raw, non-aggregated rows."
         },
         "region_map": {
-          "label": "Region map",
-          "description": "Plot values by region (data table for now — map rendering coming later)."
+          "label": "Coordinate map",
+          "description": "Plot markers on a world map using lat/lon coordinates."
         },
         "text": {
           "label": "Text",
@@ -403,7 +403,10 @@
       "queryError": "Could not load widget data.",
       "noData": "No data for the selected time range.",
       "noTimePlaceholderHint": "Tip: add a time placeholder to the SQL so it filters by the picker range.",
-      "regionMapPending": "{{count}} regions — map rendering coming later."
+      "regionMapEmpty": "No points with valid lat/lon.",
+      "regionMapShapeHint": "The SQL must return latitude and longitude columns (or a value array [lat, lon, count]).",
+      "regionMapUnnamed": "(unnamed)",
+      "regionMapValue": "value: {{value}}"
     },
     "form": {
       "createTitle": "New dashboard",
