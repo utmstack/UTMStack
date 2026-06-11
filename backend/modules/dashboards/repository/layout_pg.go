@@ -45,7 +45,7 @@ func (r *pgLayoutRepository) List(ctx context.Context, f dto.LayoutFilter) ([]do
 		return nil, 0, err
 	}
 	var items []domain.DashboardVisualization
-	if err := q.Order("dv_order ASC").Offset(f.Offset()).Limit(f.Limit()).Find(&items).Error; err != nil {
+	if err := q.Offset(f.Offset()).Limit(f.Limit()).Find(&items).Error; err != nil {
 		return nil, 0, err
 	}
 	return items, total, nil
