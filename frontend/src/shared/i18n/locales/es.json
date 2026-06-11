@@ -2640,5 +2640,121 @@
       "patternIdRequired": "El ID del patrón es obligatorio",
       "definitionRequired": "La definición es obligatoria"
     }
+  },
+  "soar": {
+    "title": "SOAR",
+    "subtitle": "Flujos de respuesta automática: las condiciones matchean una alerta y los comandos corren en el agente.",
+    "search": "Buscar flujos…",
+    "refresh": "Refrescar",
+    "new": "Nuevo flujo",
+    "view": "Ver",
+    "system": "Sistema",
+    "loading": "Cargando flujos…",
+    "loadError": "No se pudieron cargar los flujos.",
+    "retry": "Reintentar",
+    "empty": "Ningún flujo coincide con esta vista.",
+    "tabs": {
+      "flows": "Flujos",
+      "executions": "Historial de ejecuciones",
+      "all": "Todos",
+      "active": "Activos",
+      "inactive": "Inactivos",
+      "system": "Sistema",
+      "user": "Propios"
+    },
+    "cols": {
+      "flow": "Flujo",
+      "platform": "Plataforma",
+      "conditions": "Condiciones",
+      "commands": "Comandos",
+      "active": "Activo"
+    },
+    "operator": {
+      "IS": "es",
+      "IS_ONE_OF": "es uno de",
+      "IS_NOT_ONE_OF": "no es uno de"
+    },
+    "toast": {
+      "created": "Flujo creado",
+      "saved": "Flujo guardado",
+      "saveError": "No se pudo guardar el flujo",
+      "deleted": "Flujo eliminado",
+      "deleteError": "No se pudo eliminar el flujo",
+      "activateError": "No se pudo cambiar el estado del flujo"
+    },
+    "editor": {
+      "createTitle": "Nuevo flujo",
+      "visualTab": "Visual",
+      "codeTab": "Código",
+      "name": "Nombre",
+      "description": "Descripción",
+      "conditions": "Condiciones",
+      "conditionsHint": "El flujo corre cuando una alerta cumple TODAS estas condiciones.",
+      "field": "campo",
+      "value": "valor",
+      "valueList": "valores separados por coma",
+      "addCondition": "Agregar condición",
+      "commands": "Comandos",
+      "commandsHint": "Se ejecutan en orden en el agente. Usa $(field.path) para valores de la alerta y $[variables.NAME] para variables guardadas.",
+      "addCommand": "Agregar comando",
+      "agentPlatform": "Plataforma del agente",
+      "shell": "Shell",
+      "shellAuto": "auto",
+      "defaultAgent": "Agente por defecto",
+      "defaultAgentHint": "hostname (opcional)",
+      "excludedAgents": "Agentes excluidos",
+      "excludedAgentsHint": "escribe un hostname y presiona Enter",
+      "save": "Guardar",
+      "delete": "Eliminar",
+      "confirmDelete": "Confirmar eliminación",
+      "cancel": "Cancelar",
+      "yamlError": "No se puede aplicar el YAML: {{error}}",
+      "nameRequired": "El nombre es obligatorio",
+      "conditionsRequired": "Se requiere al menos una condición con campo",
+      "commandsRequired": "Se requiere al menos un comando",
+      "platformRequired": "La plataforma del agente es obligatoria",
+      "namePlaceholder": "Nombre del flujo",
+      "descriptionHint": "¿Qué hace este flujo? (opcional)",
+      "when": "Cuando",
+      "whenTitle": "Una alerta cumple todas estas condiciones",
+      "on": "En",
+      "onTitle": "El agente que coincide",
+      "thenRun": "Entonces ejecuta",
+      "thenTitle": "Estos comandos, en orden",
+      "selectField": "Elegir un campo…",
+      "selectPlatform": "Elegir una plataforma…",
+      "anyAgent": "Cualquier agente que coincida",
+      "searchAgents": "Buscar agentes…",
+      "noAgents": "Sin agentes",
+      "insertInto": "Insertar en el comando {{n}}:",
+      "insertField": "Campo de alerta",
+      "variables": "Variables"
+    },
+    "executions": {
+      "search": "Buscar por ID de alerta…",
+      "all": "Todas",
+      "loading": "Cargando ejecuciones…",
+      "loadError": "No se pudieron cargar las ejecuciones.",
+      "retry": "Reintentar",
+      "empty": "Aún no hay ejecuciones.",
+      "cols": {
+        "status": "Estado",
+        "flow": "Flujo",
+        "command": "Comando",
+        "agent": "Agente",
+        "date": "Fecha",
+        "retries": "Reintentos"
+      }
+    },
+    "executionStatus": {
+      "EXECUTED": "Ejecutado",
+      "PENDING": "Pendiente",
+      "FAILED": "Fallido"
+    },
+    "nonExecutionCause": {
+      "AGENT_OFFLINE": "Agente offline",
+      "AGENT_NOT_FOUND": "Agente no encontrado",
+      "UNKNOWN": "Desconocido"
+    }
   }
 }

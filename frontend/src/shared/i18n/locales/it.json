@@ -2276,7 +2276,10 @@
       "code": "Codice",
       "dataTypesPick": "Seleziona…",
       "dataTypesSearch": "Cerca tipi di dato…",
-      "dataTypesNone": "Nessun tipo di dato"
+      "dataTypesNone": "Nessun tipo di dato",
+      "visualTab": "Visuale",
+      "codeTab": "Codice",
+      "yamlError": "Impossibile applicare lo YAML: {{error}}"
     },
     "toast": {
       "activated": "Regola attivata",
@@ -2301,7 +2304,9 @@
       "matchSuffix": "di queste condizioni:",
       "negate": "Nega",
       "listHint": "separati da virgole",
-      "advanced": "Questa condizione usa CEL avanzato — modificala in Codice o ricostruiscila visivamente."
+      "advanced": "Questa condizione usa CEL avanzato — modificala in Codice o ricostruiscila visivamente.",
+      "and": "E",
+      "or": "O"
     },
     "celOp": {
       "exists": "esiste",
@@ -2324,6 +2329,14 @@
       "isWeekend": "è weekend",
       "isWorkDay": "è giorno feriale",
       "isBetweenTime": "ora tra"
+    },
+    "import": {
+      "button": "Importa",
+      "error": "Importazione non riuscita",
+      "resultTitle": "Risultati dell'importazione",
+      "approved": "Approvate",
+      "rejected": "Rifiutate",
+      "done": "Fatto"
     }
   },
   "regexPatterns": {
@@ -2374,7 +2387,81 @@
     }
   },
   "parsingFilters": {
+    "title": "Filtri di parsing",
+    "subtitle": "Filtri YAML applicati ai log mentre vengono analizzati nella pipeline di ingestione.",
+    "new": "Nuovo filtro",
+    "search": "Cerca filtri…",
+    "refresh": "Aggiorna",
+    "view": "Vedi",
+    "system": "Sistema",
+    "user": "Personalizzato",
+    "loading": "Caricamento filtri…",
+    "loadError": "Impossibile caricare i filtri.",
+    "retry": "Riprova",
+    "empty": "Nessun filtro corrisponde a questa vista.",
+    "tabs": {
+      "all": "Tutti",
+      "active": "Attivi",
+      "inactive": "Inattivi",
+      "system": "Sistema",
+      "user": "Personalizzati"
+    },
+    "cols": {
+      "filter": "Filtro",
+      "type": "Tipo",
+      "active": "Attivo",
+      "dataTypes": "Tipi di dati"
+    },
+    "editor": {
+      "titleNew": "Nuovo filtro",
+      "titleEdit": "Modifica filtro",
+      "titleSystem": "Filtro (sistema)",
+      "relPath": "Percorso",
+      "relPathHint": "Percorso relativo nel tuo overlay, che termina con .yaml.",
+      "content": "Contenuto (YAML pipeline)",
+      "contentHint": "Una definizione di filtro YAML pipeline: valida.",
+      "readOnly": "Filtro di sistema — in sola lettura. Puoi solo abilitarlo o disabilitarlo.",
+      "save": "Salva",
+      "saving": "Salvataggio…",
+      "delete": "Elimina",
+      "confirmDelete": "Conferma eliminazione",
+      "cancel": "Annulla"
+    },
+    "toast": {
+      "saved": "Filtro salvato",
+      "saveError": "Salvataggio del filtro non riuscito",
+      "deleted": "Filtro eliminato",
+      "deleteError": "Eliminazione del filtro non riuscita",
+      "activateError": "Modifica dello stato del filtro non riuscita",
+      "relPathRequired": "Il percorso è obbligatorio",
+      "contentRequired": "Il contenuto è obbligatorio"
+    },
     "visual": {
+      "visualTab": "Visuale",
+      "codeTab": "Codice",
+      "codeOnly": "Passa al Codice — questo contenuto non può essere mostrato visivamente.",
+      "cantParse": "Impossibile aprire l'editor visuale: {{error}}",
+      "emptyPipeline": "Ancora nessun blocco di pipeline. Aggiungine uno per iniziare.",
+      "addBlock": "Aggiungi blocco di pipeline",
+      "block": "Blocco",
+      "removeBlock": "Rimuovi blocco",
+      "dataTypes": "Tipi di dati",
+      "dataTypesPlaceholder": "digita un tipo di dato e premi Invio",
+      "steps": "Passaggi",
+      "noSteps": "Ancora nessun passaggio.",
+      "addStep": "Aggiungi passaggio:",
+      "removeStep": "Rimuovi passaggio",
+      "moveUp": "Su",
+      "moveDown": "Giù",
+      "whereHint": "condizione opzionale (CEL)",
+      "addValue": "Aggiungi valore",
+      "addPattern": "Aggiungi pattern",
+      "rawHint": "Questo processore si modifica come YAML grezzo.",
+      "rawNotMap": "Deve essere un insieme di campi chiave: valore.",
+      "dataTypesPick": "Scegli tipi di dati",
+      "dataTypesSearch": "Cerca tipi di dati…",
+      "dataTypesNone": "Nessun tipo di dato",
+      "dataTypesAdd": "Aggiungi \"{{value}}\"",
       "insertPattern": "Inserisci pattern regex",
       "patternSearch": "Cerca pattern…",
       "patternNone": "Nessun pattern",
@@ -2382,8 +2469,125 @@
       "createInsert": "Crea e inserisci",
       "patternCreated": "Pattern \"{{name}}\" creato",
       "patternCreateError": "Creazione del pattern non riuscita",
-      "patternIdInvalid": "L'ID deve iniziare con una lettera o _ e usare solo lettere, cifre o _",
+      "patternIdInvalid": "L'ID del pattern deve iniziare con una lettera o _ e usare solo lettere, cifre o _",
       "patternDefRequired": "La definizione è obbligatoria"
+    },
+    "allDataTypes": "Tutti i tipi di dati"
+  },
+  "soar": {
+    "title": "SOAR",
+    "subtitle": "Flussi di risposta automatica: le condizioni corrispondono a un alert, i comandi vengono eseguiti sull'agente.",
+    "search": "Cerca flussi…",
+    "refresh": "Aggiorna",
+    "new": "Nuovo flusso",
+    "view": "Vedi",
+    "system": "Sistema",
+    "loading": "Caricamento flussi…",
+    "loadError": "Impossibile caricare i flussi.",
+    "retry": "Riprova",
+    "empty": "Nessun flusso corrisponde a questa vista.",
+    "tabs": {
+      "flows": "Flussi",
+      "executions": "Cronologia esecuzioni",
+      "all": "Tutti",
+      "active": "Attivi",
+      "inactive": "Inattivi",
+      "system": "Sistema",
+      "user": "Personalizzati"
+    },
+    "cols": {
+      "flow": "Flusso",
+      "platform": "Piattaforma",
+      "conditions": "Condizioni",
+      "commands": "Comandi",
+      "active": "Attivo"
+    },
+    "operator": {
+      "IS": "è",
+      "IS_ONE_OF": "è uno di",
+      "IS_NOT_ONE_OF": "non è uno di"
+    },
+    "toast": {
+      "created": "Flusso creato",
+      "saved": "Flusso salvato",
+      "saveError": "Salvataggio del flusso non riuscito",
+      "deleted": "Flusso eliminato",
+      "deleteError": "Eliminazione del flusso non riuscita",
+      "activateError": "Modifica dello stato del flusso non riuscita"
+    },
+    "editor": {
+      "createTitle": "Nuovo flusso",
+      "visualTab": "Visuale",
+      "codeTab": "Codice",
+      "name": "Nome",
+      "description": "Descrizione",
+      "conditions": "Condizioni",
+      "conditionsHint": "Il flusso viene eseguito quando un alert soddisfa TUTTE queste condizioni.",
+      "field": "campo",
+      "value": "valore",
+      "valueList": "valori separati da virgola",
+      "addCondition": "Aggiungi condizione",
+      "commands": "Comandi",
+      "commandsHint": "Eseguiti in ordine sull'agente. Usa $(field.path) per i valori dell'alert e $[variables.NAME] per le variabili salvate.",
+      "addCommand": "Aggiungi comando",
+      "agentPlatform": "Piattaforma dell'agente",
+      "shell": "Shell",
+      "shellAuto": "auto",
+      "defaultAgent": "Agente predefinito",
+      "defaultAgentHint": "hostname (opzionale)",
+      "excludedAgents": "Agenti esclusi",
+      "excludedAgentsHint": "digita un hostname e premi Invio",
+      "save": "Salva",
+      "delete": "Elimina",
+      "confirmDelete": "Conferma eliminazione",
+      "cancel": "Annulla",
+      "yamlError": "Impossibile applicare lo YAML: {{error}}",
+      "nameRequired": "Il nome è obbligatorio",
+      "conditionsRequired": "È richiesta almeno una condizione con un campo",
+      "commandsRequired": "È richiesto almeno un comando",
+      "platformRequired": "La piattaforma dell'agente è obbligatoria",
+      "namePlaceholder": "Nome del flusso",
+      "descriptionHint": "Cosa fa questo flusso? (opzionale)",
+      "when": "Quando",
+      "whenTitle": "Un alert soddisfa tutte queste condizioni",
+      "on": "Su",
+      "onTitle": "L'agente corrispondente",
+      "thenRun": "Allora esegui",
+      "thenTitle": "Questi comandi, in ordine",
+      "selectField": "Scegli un campo…",
+      "selectPlatform": "Scegli una piattaforma…",
+      "anyAgent": "Qualsiasi agente corrispondente",
+      "searchAgents": "Cerca agenti…",
+      "noAgents": "Nessun agente",
+      "insertInto": "Inserisci nel comando {{n}}:",
+      "insertField": "Campo dell'alert",
+      "variables": "Variabili"
+    },
+    "executions": {
+      "search": "Cerca per ID alert…",
+      "all": "Tutte",
+      "loading": "Caricamento esecuzioni…",
+      "loadError": "Impossibile caricare le esecuzioni.",
+      "retry": "Riprova",
+      "empty": "Ancora nessuna esecuzione.",
+      "cols": {
+        "status": "Stato",
+        "flow": "Flusso",
+        "command": "Comando",
+        "agent": "Agente",
+        "date": "Data",
+        "retries": "Tentativi"
+      }
+    },
+    "executionStatus": {
+      "EXECUTED": "Eseguito",
+      "PENDING": "In attesa",
+      "FAILED": "Fallito"
+    },
+    "nonExecutionCause": {
+      "AGENT_OFFLINE": "Agente offline",
+      "AGENT_NOT_FOUND": "Agente non trovato",
+      "UNKNOWN": "Sconosciuto"
     }
   }
 }

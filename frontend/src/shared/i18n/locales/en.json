@@ -3428,5 +3428,121 @@
       "patternIdRequired": "Pattern ID is required",
       "definitionRequired": "Definition is required"
     }
+  },
+  "soar": {
+    "title": "SOAR",
+    "subtitle": "Automated alert-response flows: conditions match an alert, commands run on the agent.",
+    "search": "Search flows…",
+    "refresh": "Refresh",
+    "new": "New flow",
+    "view": "View",
+    "system": "System",
+    "loading": "Loading flows…",
+    "loadError": "Could not load flows.",
+    "retry": "Retry",
+    "empty": "No flows match this view.",
+    "tabs": {
+      "flows": "Flows",
+      "executions": "Execution history",
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive",
+      "system": "System",
+      "user": "Custom"
+    },
+    "cols": {
+      "flow": "Flow",
+      "platform": "Platform",
+      "conditions": "Conditions",
+      "commands": "Commands",
+      "active": "Active"
+    },
+    "operator": {
+      "IS": "is",
+      "IS_ONE_OF": "is one of",
+      "IS_NOT_ONE_OF": "is not one of"
+    },
+    "toast": {
+      "created": "Flow created",
+      "saved": "Flow saved",
+      "saveError": "Failed to save flow",
+      "deleted": "Flow deleted",
+      "deleteError": "Failed to delete flow",
+      "activateError": "Failed to change flow state"
+    },
+    "editor": {
+      "createTitle": "New flow",
+      "visualTab": "Visual",
+      "codeTab": "Code",
+      "name": "Name",
+      "description": "Description",
+      "conditions": "Conditions",
+      "conditionsHint": "The flow runs when an alert matches ALL of these conditions.",
+      "field": "field",
+      "value": "value",
+      "valueList": "comma-separated values",
+      "addCondition": "Add condition",
+      "commands": "Commands",
+      "commandsHint": "Run in order on the agent. Use $(field.path) for alert values and $[variables.NAME] for stored variables.",
+      "addCommand": "Add command",
+      "agentPlatform": "Agent platform",
+      "shell": "Shell",
+      "shellAuto": "auto",
+      "defaultAgent": "Default agent",
+      "defaultAgentHint": "hostname (optional)",
+      "excludedAgents": "Excluded agents",
+      "excludedAgentsHint": "type a hostname and press Enter",
+      "save": "Save",
+      "delete": "Delete",
+      "confirmDelete": "Confirm delete",
+      "cancel": "Cancel",
+      "yamlError": "Can't apply the YAML: {{error}}",
+      "nameRequired": "Name is required",
+      "conditionsRequired": "At least one condition with a field is required",
+      "commandsRequired": "At least one command is required",
+      "platformRequired": "Agent platform is required",
+      "namePlaceholder": "Flow name",
+      "descriptionHint": "What does this flow do? (optional)",
+      "when": "When",
+      "whenTitle": "An alert matches all of these conditions",
+      "on": "On",
+      "onTitle": "The matching agent",
+      "thenRun": "Then run",
+      "thenTitle": "These commands, in order",
+      "selectField": "Select a field…",
+      "selectPlatform": "Select a platform…",
+      "anyAgent": "Any matching agent",
+      "searchAgents": "Search agents…",
+      "noAgents": "No agents",
+      "insertInto": "Insert into command {{n}}:",
+      "insertField": "Alert field",
+      "variables": "Variables"
+    },
+    "executions": {
+      "search": "Search by alert ID…",
+      "all": "All",
+      "loading": "Loading executions…",
+      "loadError": "Could not load executions.",
+      "retry": "Retry",
+      "empty": "No executions yet.",
+      "cols": {
+        "status": "Status",
+        "flow": "Flow",
+        "command": "Command",
+        "agent": "Agent",
+        "date": "Date",
+        "retries": "Retries"
+      }
+    },
+    "executionStatus": {
+      "EXECUTED": "Executed",
+      "PENDING": "Pending",
+      "FAILED": "Failed"
+    },
+    "nonExecutionCause": {
+      "AGENT_OFFLINE": "Agent offline",
+      "AGENT_NOT_FOUND": "Agent not found",
+      "UNKNOWN": "Unknown"
+    }
   }
 }

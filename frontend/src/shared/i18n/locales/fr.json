@@ -2276,7 +2276,10 @@
       "code": "Code",
       "dataTypesPick": "Sélectionner…",
       "dataTypesSearch": "Rechercher des types…",
-      "dataTypesNone": "Aucun type de données"
+      "dataTypesNone": "Aucun type de données",
+      "visualTab": "Visuel",
+      "codeTab": "Code",
+      "yamlError": "Impossible d'appliquer le YAML : {{error}}"
     },
     "toast": {
       "activated": "Règle activée",
@@ -2301,7 +2304,9 @@
       "matchSuffix": "de ces conditions :",
       "negate": "Nier",
       "listHint": "séparés par des virgules",
-      "advanced": "Cette condition utilise du CEL avancé — modifiez-la en Code ou reconstruisez-la visuellement."
+      "advanced": "Cette condition utilise du CEL avancé — modifiez-la en Code ou reconstruisez-la visuellement.",
+      "and": "ET",
+      "or": "OU"
     },
     "celOp": {
       "exists": "existe",
@@ -2324,6 +2329,14 @@
       "isWeekend": "est le week-end",
       "isWorkDay": "est un jour ouvré",
       "isBetweenTime": "heure entre"
+    },
+    "import": {
+      "button": "Importer",
+      "error": "Échec de l'importation",
+      "resultTitle": "Résultats de l'import",
+      "approved": "Approuvés",
+      "rejected": "Rejetés",
+      "done": "Terminé"
     }
   },
   "regexPatterns": {
@@ -2374,7 +2387,81 @@
     }
   },
   "parsingFilters": {
+    "title": "Filtres de parsing",
+    "subtitle": "Filtres YAML appliqués aux logs lors de leur analyse dans le pipeline d'ingestion.",
+    "new": "Nouveau filtre",
+    "search": "Rechercher des filtres…",
+    "refresh": "Actualiser",
+    "view": "Voir",
+    "system": "Système",
+    "user": "Personnalisé",
+    "loading": "Chargement des filtres…",
+    "loadError": "Impossible de charger les filtres.",
+    "retry": "Réessayer",
+    "empty": "Aucun filtre ne correspond à cette vue.",
+    "tabs": {
+      "all": "Tous",
+      "active": "Actifs",
+      "inactive": "Inactifs",
+      "system": "Système",
+      "user": "Personnalisés"
+    },
+    "cols": {
+      "filter": "Filtre",
+      "type": "Type",
+      "active": "Actif",
+      "dataTypes": "Types de données"
+    },
+    "editor": {
+      "titleNew": "Nouveau filtre",
+      "titleEdit": "Modifier le filtre",
+      "titleSystem": "Filtre (système)",
+      "relPath": "Chemin",
+      "relPathHint": "Chemin relatif sous votre overlay, se terminant par .yaml.",
+      "content": "Contenu (YAML pipeline)",
+      "contentHint": "Une définition de filtre YAML pipeline: valide.",
+      "readOnly": "Filtre système — en lecture seule. Vous pouvez seulement l'activer ou le désactiver.",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "delete": "Supprimer",
+      "confirmDelete": "Confirmer la suppression",
+      "cancel": "Annuler"
+    },
+    "toast": {
+      "saved": "Filtre enregistré",
+      "saveError": "Échec de l'enregistrement du filtre",
+      "deleted": "Filtre supprimé",
+      "deleteError": "Échec de la suppression du filtre",
+      "activateError": "Échec du changement d'état du filtre",
+      "relPathRequired": "Le chemin est requis",
+      "contentRequired": "Le contenu est requis"
+    },
     "visual": {
+      "visualTab": "Visuel",
+      "codeTab": "Code",
+      "codeOnly": "Passez au Code — ce contenu ne peut pas être affiché visuellement.",
+      "cantParse": "Impossible d'ouvrir l'éditeur visuel : {{error}}",
+      "emptyPipeline": "Aucun bloc de pipeline. Ajoutez-en un pour commencer.",
+      "addBlock": "Ajouter un bloc de pipeline",
+      "block": "Bloc",
+      "removeBlock": "Supprimer le bloc",
+      "dataTypes": "Types de données",
+      "dataTypesPlaceholder": "saisissez un type de données et appuyez sur Entrée",
+      "steps": "Étapes",
+      "noSteps": "Aucune étape.",
+      "addStep": "Ajouter une étape :",
+      "removeStep": "Supprimer l'étape",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "whereHint": "condition optionnelle (CEL)",
+      "addValue": "Ajouter une valeur",
+      "addPattern": "Ajouter un motif",
+      "rawHint": "Ce processeur s'édite en YAML brut.",
+      "rawNotMap": "Doit être un ensemble de champs clé : valeur.",
+      "dataTypesPick": "Choisir des types de données",
+      "dataTypesSearch": "Rechercher des types de données…",
+      "dataTypesNone": "Aucun type de données",
+      "dataTypesAdd": "Ajouter « {{value}} »",
       "insertPattern": "Insérer un motif regex",
       "patternSearch": "Rechercher des motifs…",
       "patternNone": "Aucun motif",
@@ -2382,8 +2469,125 @@
       "createInsert": "Créer et insérer",
       "patternCreated": "Motif « {{name}} » créé",
       "patternCreateError": "Échec de la création du motif",
-      "patternIdInvalid": "L'ID doit commencer par une lettre ou _ et n'utiliser que des lettres, chiffres ou _",
+      "patternIdInvalid": "L'ID du motif doit commencer par une lettre ou _ et n'utiliser que des lettres, chiffres ou _",
       "patternDefRequired": "La définition est requise"
+    },
+    "allDataTypes": "Tous les types de données"
+  },
+  "soar": {
+    "title": "SOAR",
+    "subtitle": "Flux de réponse automatique : les conditions correspondent à une alerte, les commandes s'exécutent sur l'agent.",
+    "search": "Rechercher des flux…",
+    "refresh": "Actualiser",
+    "new": "Nouveau flux",
+    "view": "Voir",
+    "system": "Système",
+    "loading": "Chargement des flux…",
+    "loadError": "Impossible de charger les flux.",
+    "retry": "Réessayer",
+    "empty": "Aucun flux ne correspond à cette vue.",
+    "tabs": {
+      "flows": "Flux",
+      "executions": "Historique d'exécutions",
+      "all": "Tous",
+      "active": "Actifs",
+      "inactive": "Inactifs",
+      "system": "Système",
+      "user": "Personnalisés"
+    },
+    "cols": {
+      "flow": "Flux",
+      "platform": "Plateforme",
+      "conditions": "Conditions",
+      "commands": "Commandes",
+      "active": "Actif"
+    },
+    "operator": {
+      "IS": "est",
+      "IS_ONE_OF": "est l'un de",
+      "IS_NOT_ONE_OF": "n'est pas l'un de"
+    },
+    "toast": {
+      "created": "Flux créé",
+      "saved": "Flux enregistré",
+      "saveError": "Échec de l'enregistrement du flux",
+      "deleted": "Flux supprimé",
+      "deleteError": "Échec de la suppression du flux",
+      "activateError": "Échec du changement d'état du flux"
+    },
+    "editor": {
+      "createTitle": "Nouveau flux",
+      "visualTab": "Visuel",
+      "codeTab": "Code",
+      "name": "Nom",
+      "description": "Description",
+      "conditions": "Conditions",
+      "conditionsHint": "Le flux s'exécute quand une alerte remplit TOUTES ces conditions.",
+      "field": "champ",
+      "value": "valeur",
+      "valueList": "valeurs séparées par des virgules",
+      "addCondition": "Ajouter une condition",
+      "commands": "Commandes",
+      "commandsHint": "Exécutées dans l'ordre sur l'agent. Utilisez $(field.path) pour les valeurs de l'alerte et $[variables.NAME] pour les variables enregistrées.",
+      "addCommand": "Ajouter une commande",
+      "agentPlatform": "Plateforme de l'agent",
+      "shell": "Shell",
+      "shellAuto": "auto",
+      "defaultAgent": "Agent par défaut",
+      "defaultAgentHint": "nom d'hôte (optionnel)",
+      "excludedAgents": "Agents exclus",
+      "excludedAgentsHint": "saisissez un nom d'hôte et appuyez sur Entrée",
+      "save": "Enregistrer",
+      "delete": "Supprimer",
+      "confirmDelete": "Confirmer la suppression",
+      "cancel": "Annuler",
+      "yamlError": "Impossible d'appliquer le YAML : {{error}}",
+      "nameRequired": "Le nom est requis",
+      "conditionsRequired": "Au moins une condition avec un champ est requise",
+      "commandsRequired": "Au moins une commande est requise",
+      "platformRequired": "La plateforme de l'agent est requise",
+      "namePlaceholder": "Nom du flux",
+      "descriptionHint": "Que fait ce flux ? (optionnel)",
+      "when": "Quand",
+      "whenTitle": "Une alerte remplit toutes ces conditions",
+      "on": "Sur",
+      "onTitle": "L'agent correspondant",
+      "thenRun": "Alors exécuter",
+      "thenTitle": "Ces commandes, dans l'ordre",
+      "selectField": "Choisir un champ…",
+      "selectPlatform": "Choisir une plateforme…",
+      "anyAgent": "N'importe quel agent correspondant",
+      "searchAgents": "Rechercher des agents…",
+      "noAgents": "Aucun agent",
+      "insertInto": "Insérer dans la commande {{n}} :",
+      "insertField": "Champ d'alerte",
+      "variables": "Variables"
+    },
+    "executions": {
+      "search": "Rechercher par ID d'alerte…",
+      "all": "Toutes",
+      "loading": "Chargement des exécutions…",
+      "loadError": "Impossible de charger les exécutions.",
+      "retry": "Réessayer",
+      "empty": "Aucune exécution pour l'instant.",
+      "cols": {
+        "status": "Statut",
+        "flow": "Flux",
+        "command": "Commande",
+        "agent": "Agent",
+        "date": "Date",
+        "retries": "Tentatives"
+      }
+    },
+    "executionStatus": {
+      "EXECUTED": "Exécuté",
+      "PENDING": "En attente",
+      "FAILED": "Échoué"
+    },
+    "nonExecutionCause": {
+      "AGENT_OFFLINE": "Agent hors ligne",
+      "AGENT_NOT_FOUND": "Agent introuvable",
+      "UNKNOWN": "Inconnu"
     }
   }
 }
