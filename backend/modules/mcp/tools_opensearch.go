@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
-	"github.com/utmstack/utmstack/backend/modules/opensearch/domain"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/dto"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
@@ -217,6 +216,7 @@ func registerOSGateway(m *Module) {
 			return map[string]any{"items": items, "total": total}, nil
 		})
 
+	/* temporarily disabled — index/retention management not exposed to the agent for now
 	Add(m, &mcp.Tool{
 		Name: "opensearch.index.delete", Title: "Delete indices",
 		Description: "Permanently delete one or more indices. Destructive.",
@@ -230,6 +230,7 @@ func registerOSGateway(m *Module) {
 			}
 			return map[string]any{"deleted": len(in.Indices)}, nil
 		})
+	*/
 
 	Add(m, &mcp.Tool{
 		Name: "opensearch.cluster_status", Title: "Cluster status",
@@ -273,6 +274,7 @@ type osPatternIDInput struct {
 func registerOSIndexPatterns(m *Module) {
 	uc := m.deps.OpenSearch.GetIndexPatternUsecase()
 
+	/* temporarily disabled — index/retention management not exposed to the agent for now
 	Add(m, &mcp.Tool{
 		Name: "opensearch.index_pattern.create", Title: "Create index pattern",
 	}, Gate{Permission: "opensearch.write"},
@@ -292,6 +294,7 @@ func registerOSIndexPatterns(m *Module) {
 				PatternSystem: in.PatternSystem, IsActive: in.IsActive,
 			})
 		})
+	*/
 
 	Add(m, &mcp.Tool{
 		Name: "opensearch.index_pattern.list", Title: "List index patterns",
@@ -330,6 +333,7 @@ func registerOSIndexPatterns(m *Module) {
 			return map[string]any{"items": items, "total": total}, nil
 		})
 
+	/* temporarily disabled — index/retention management not exposed to the agent for now
 	Add(m, &mcp.Tool{
 		Name: "opensearch.index_pattern.delete", Title: "Delete index pattern",
 	}, Gate{Permission: "opensearch.write"},
@@ -339,6 +343,7 @@ func registerOSIndexPatterns(m *Module) {
 			}
 			return map[string]any{"id": in.ID, "deleted": true}, nil
 		})
+	*/
 }
 
 // ---- opensearch.policy.* ---------------------------------------------------
@@ -364,6 +369,7 @@ func registerOSPolicy(m *Module) {
 			return uc.GetPolicy(ctx)
 		})
 
+	/* temporarily disabled — index/retention management not exposed to the agent for now
 	Add(m, &mcp.Tool{
 		Name: "opensearch.policy.update", Title: "Update ISM policy",
 	}, Gate{Permission: "opensearch.write"},
@@ -372,4 +378,5 @@ func registerOSPolicy(m *Module) {
 				SnapshotActive: in.SnapshotActive, DeleteAfter: in.DeleteAfter,
 			})
 		})
+	*/
 }

@@ -69,10 +69,7 @@ func (r *osIngestionStatsRepository) Timeline(ctx context.Context, statusType, i
 		"size":  0,
 		"query": timeRangeFilter(statusType, from, to),
 		"aggs": map[string]any{
-			"timeline": map[string]any{
-				"date_histogram": map[string]any{"field": "@timestamp", "fixed_interval": interval},
-				"aggs":           sumCount,
-			},
+			"timeline": dateHistogram(interval, from, to),
 		},
 	}
 
@@ -83,6 +80,18 @@ func (r *osIngestionStatsRepository) Timeline(ctx context.Context, statusType, i
 	return timelinePoints(aggBuckets(res.Aggregations, "timeline")), nil
 }
 
+func dateHistogram(interval, from, to string) map[string]any {
+	return map[string]any{
+		"date_histogram": map[string]any{
+			"field":           "@timestamp",
+			"fixed_interval":  interval,
+			"min_doc_count":   0,
+			"extended_bounds": map[string]any{"min": from, "max": to},
+		},
+		"aggs": sumCount,
+	}
+}
+
 func (r *osIngestionStatsRepository) TimelineByField(ctx context.Context, field, statusType, interval, from, to string, top int) ([]dto.TimelineSeries, error) {
 	body := map[string]any{
 		"size":  0,
@@ -91,10 +100,7 @@ func (r *osIngestionStatsRepository) TimelineByField(ctx context.Context, field,
 			"groups": map[string]any{
 				"terms": map[string]any{"field": field + ".keyword", "size": top},
 				"aggs": map[string]any{
-					"timeline": map[string]any{
-						"date_histogram": map[string]any{"field": "@timestamp", "fixed_interval": interval},
-						"aggs":           sumCount,
-					},
+					"timeline": dateHistogram(interval, from, to),
 				},
 			},
 		},

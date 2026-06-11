@@ -31,17 +31,17 @@ func (m *Module) buildServer() *mcp.Server {
 	registerAlerts(m)
 	registerIncidents(m)
 	registerOpenSearch(m)
-	registerSOAR(m)
+	// registerSOAR(m) // temporarily disabled — SOAR response actions not exposed to the agent for now
 	registerCompliance(m)
 	registerLogAnalyzer(m)
 	registerDashboards(m)
 	registerEventProcessing(m)
 	registerDatasources(m)
-	registerIntegrations(m)
-	registerIAM(m)
+	// registerIntegrations(m) // temporarily disabled — integration management not exposed for now
+	// registerIAM(m) // temporarily disabled — user/role management not exposed for now
 	registerAudit(m)
 	registerADAudit(m)
-	registerNotifications(m)
+	// registerNotifications(m) // temporarily disabled — notification management not exposed for now
 	registerAppConfig(m)
 	registerBilling(m)
 	registerSOCAI(m)

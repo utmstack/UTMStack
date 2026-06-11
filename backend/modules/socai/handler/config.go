@@ -36,7 +36,7 @@ func NewConfigHandler(svc configService) *ConfigHandler {
 func (h *ConfigHandler) Get(c *gin.Context) {
 	resp, err := h.svc.Get(c.Request.Context())
 	if err != nil {
-		writeError(c, "SocAIConfig.Get: "+err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, resp)
@@ -59,17 +59,17 @@ func (h *ConfigHandler) Get(c *gin.Context) {
 func (h *ConfigHandler) Update(c *gin.Context) {
 	var req dto.ConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	resp, err := h.svc.Update(c.Request.Context(), req)
 	if err != nil {
 		// A failed connection check is a bad-config (400), not a server error.
 		if errors.Is(err, usecase.ErrVerificationFailed) {
-			c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		writeError(c, "SocAIConfig.Update: "+err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, resp)

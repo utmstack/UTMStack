@@ -44,20 +44,18 @@ func (s *ConfigService) Get(_ context.Context) (*dto.ConfigResponse, error) {
 	}
 
 	return &dto.ConfigResponse{
-		Configured:                true,
-		Provider:                  fc.Provider,
-		Model:                     fc.Model,
-		URL:                       fc.URL,
-		APIKeySet:                 fc.APIKey != "",
-		AuthType:                  fc.AuthType,
-		AuthHeaderName:            fc.AuthHeaderName,
-		CustomHeaders:             maskedHeaders,
-		MaxTokens:                 fc.MaxTokens,
-		MaxToolIterations:         fc.MaxToolIterations,
-		AutoAnalyze:               fc.AutoAnalyze,
-		ChangeAlertStatus:         fc.ChangeAlertStatus,
-		AutomaticIncidentCreation: fc.AutomaticIncidentCreation,
-		AllowedWriteTools:         fc.AllowedWriteTools,
+		Configured:        true,
+		Provider:          fc.Provider,
+		Model:             fc.Model,
+		URL:               fc.URL,
+		APIKeySet:         fc.APIKey != "",
+		AuthType:          fc.AuthType,
+		AuthHeaderName:    fc.AuthHeaderName,
+		CustomHeaders:     maskedHeaders,
+		MaxTokens:         fc.MaxTokens,
+		MaxToolIterations: fc.MaxToolIterations,
+		AutoAnalyze:       fc.AutoAnalyze,
+		Capabilities:      fc.Capabilities,
 	}, nil
 }
 
@@ -136,19 +134,17 @@ func (s *ConfigService) Update(ctx context.Context, req dto.ConfigRequest) (*dto
 	}
 
 	fc := &repository.FileConfig{
-		Provider:                  req.Provider,
-		Model:                     req.Model,
-		URL:                       req.URL,
-		APIKey:                    apiKeyEnc,
-		AuthType:                  authType,
-		AuthHeaderName:            req.AuthHeaderName,
-		CustomHeaders:             headersEnc,
-		MaxTokens:                 maxTokens,
-		MaxToolIterations:         maxIters,
-		AutoAnalyze:               req.AutoAnalyze,
-		ChangeAlertStatus:         req.ChangeAlertStatus,
-		AutomaticIncidentCreation: req.AutomaticIncidentCreation,
-		AllowedWriteTools:         req.AllowedWriteTools,
+		Provider:          req.Provider,
+		Model:             req.Model,
+		URL:               req.URL,
+		APIKey:            apiKeyEnc,
+		AuthType:          authType,
+		AuthHeaderName:    req.AuthHeaderName,
+		CustomHeaders:     headersEnc,
+		MaxTokens:         maxTokens,
+		MaxToolIterations: maxIters,
+		AutoAnalyze:       req.AutoAnalyze,
+		Capabilities:      req.Capabilities,
 	}
 
 	if err := s.store.Save(fc); err != nil {

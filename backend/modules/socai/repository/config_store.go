@@ -12,19 +12,17 @@ import (
 const configFileName = "system_plugins_soc_ai.yaml"
 
 type FileConfig struct {
-	Provider                  string            `yaml:"provider"`
-	Model                     string            `yaml:"model"`
-	URL                       string            `yaml:"url"`
-	APIKey                    string            `yaml:"api_key"`
-	AuthType                  string            `yaml:"auth_type"`
-	AuthHeaderName            string            `yaml:"auth_header_name"`
-	CustomHeaders             map[string]string `yaml:"custom_headers,omitempty"`
-	MaxTokens                 int               `yaml:"max_tokens"`
-	MaxToolIterations         int               `yaml:"max_tool_iterations"`
-	AutoAnalyze               bool              `yaml:"auto_analyze"`
-	ChangeAlertStatus         bool              `yaml:"change_alert_status"`
-	AutomaticIncidentCreation bool              `yaml:"automatic_incident_creation"`
-	AllowedWriteTools         []string          `yaml:"allowed_write_tools,omitempty"`
+	Provider          string            `yaml:"provider"`
+	Model             string            `yaml:"model"`
+	URL               string            `yaml:"url"`
+	APIKey            string            `yaml:"api_key"`
+	AuthType          string            `yaml:"auth_type"`
+	AuthHeaderName    string            `yaml:"auth_header_name"`
+	CustomHeaders     map[string]string `yaml:"custom_headers,omitempty"`
+	MaxTokens         int               `yaml:"max_tokens"`
+	MaxToolIterations int               `yaml:"max_tool_iterations"`
+	AutoAnalyze       bool              `yaml:"auto_analyze"`
+	Capabilities      []string          `yaml:"capabilities,omitempty"`
 }
 
 type ConfigStore struct {
