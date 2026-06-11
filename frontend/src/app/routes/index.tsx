@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from '@/features/auth'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { HomePage } from '@/features/home/pages/HomePage'
+import { DashboardPage } from '@/features/dashboard'
 import { ProfilePage } from '@/features/profile/pages/ProfilePage'
 import { AuditPage } from '@/features/audit/pages/AuditPage'
 import { AlertsPage } from '@/features/threats/pages/AlertsPage'
@@ -47,6 +48,7 @@ export function AppRoutes() {
       >
         <Route index element={<Navigate to="/home" replace />} />
         <Route path="home" element={<HomePage />} />
+        <Route path="dashboards" element={<DashboardPage />} />
 
         {/* Threat Management */}
         <Route path="threat-management" element={<Navigate to="/threat-management/alerts" replace />} />
