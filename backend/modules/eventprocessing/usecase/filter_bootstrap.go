@@ -163,14 +163,20 @@ func (b *FilterBootstrap) migrateLegacyFilters(ctx context.Context) error {
 		return b.dropLegacyFilterTable()
 	}
 
+	dataTypeByID := b.loadDataTypeNames(ctx)
+
 	failed := 0
 	for i := range legacy {
 		row := &legacy[i]
-		if !row.IsActive {
-			continue // skip inactive; they had no effect
+		if !row.IsActive || row.SystemOwner {
+			continue
 		}
 		relPath := fmt.Sprintf("legacy/%d.yaml", row.ID)
-		content := wrapInPipelineYAML(row.LogstashFilter)
+		var dataType string
+		if row.DataTypeID != nil {
+			dataType = dataTypeByID[*row.DataTypeID]
+		}
+		content := wrapInPipelineYAML(row.LogstashFilter, dataType)
 
 		if _, err := b.store.Create(relPath, content); err != nil {
 			if os.IsExist(err) {
@@ -194,24 +200,46 @@ func (b *FilterBootstrap) dropLegacyFilterTable() error {
 		return err
 	}
 	catcher.Info("eventprocessing: legacy utm_logstash_filter migrated to YAML and dropped", nil)
+
+	if !b.db.Migrator().HasTable("utm_correlation_rules") {
+		if err := b.db.Exec("DROP TABLE IF EXISTS utm_data_types CASCADE").Error; err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
-// wrapInPipelineYAML wraps a raw Logstash DSL filter string into the
-// pipeline: YAML envelope that the go-sdk loadCfg expects.
-func wrapInPipelineYAML(rawDSL string) []byte {
-	// Indent each line of the raw DSL so it nests correctly under the steps key.
+func (b *FilterBootstrap) loadDataTypeNames(ctx context.Context) map[int64]string {
+	out := map[int64]string{}
+	if !b.db.Migrator().HasTable(&domain.UtmDataTypes{}) {
+		return out
+	}
+	var rows []domain.UtmDataTypes
+	if err := b.db.WithContext(ctx).Find(&rows).Error; err != nil {
+		_ = catcher.Error("eventprocessing: reading utm_data_types for filter migration failed", err, nil)
+		return out
+	}
+	for i := range rows {
+		if rows[i].DataType != "" {
+			out[rows[i].ID] = rows[i].DataType
+		}
+	}
+	return out
+}
+
+func wrapInPipelineYAML(rawDSL, dataType string) []byte {
+
 	lines := strings.Split(rawDSL, "\n")
 	for i, l := range lines {
-		lines[i] = "          " + l
+		lines[i] = "            " + l
 	}
 	indented := strings.Join(lines, "\n")
 
-	return []byte(fmt.Sprintf(`# migrated from legacy utm_logstash_filter
-pipeline:
-  - steps:
-      - logstash:
-          filter: |
-%s
-`, indented))
+	const header = "# migrated from legacy utm_logstash_filter\npipeline:\n"
+	const stepsBlock = "    steps:\n      - logstash:\n          filter: |\n%s\n"
+
+	if dataType != "" {
+		return []byte(fmt.Sprintf(header+"  - dataTypes:\n      - %s\n"+stepsBlock, dataType, indented))
+	}
+	return []byte(fmt.Sprintf(header+"  - steps:\n      - logstash:\n          filter: |\n%s\n", indented))
 }

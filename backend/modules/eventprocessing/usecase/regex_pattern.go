@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"sort"
 	"strings"
 
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/connectors"
@@ -79,8 +80,18 @@ func (u *regexPatternUsecase) List(_ context.Context, f dto.RegexPatternFilters)
 		if search != "" && !strings.Contains(strings.ToLower(e.PatternID), search) {
 			continue
 		}
+		if f.System != nil && e.SystemOwner != *f.System {
+			continue
+		}
 		out = append(out, e)
 	}
+	// Stable order: system first, then alphabetical by patternId.
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].SystemOwner != out[j].SystemOwner {
+			return out[i].SystemOwner
+		}
+		return out[i].PatternID < out[j].PatternID
+	})
 	total := int64(len(out))
 	page, size := normPage(f.Page, f.Size)
 	start := page * size

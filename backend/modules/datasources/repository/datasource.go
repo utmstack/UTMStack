@@ -136,6 +136,28 @@ func (r *pgDatasourceRepository) UpdateLabels(ctx context.Context, id uint64, la
 		Update("labels", labels).Error
 }
 
+func (r *pgDatasourceRepository) UpdateSensitivity(ctx context.Context, id uint64, conf, integ, avail int) error {
+	return r.db.GORM().WithContext(ctx).
+		Model(&domain.Datasource{}).
+		Where("id = ?", id).
+		Updates(map[string]any{
+			"asset_confidentiality": conf,
+			"asset_integrity":       integ,
+			"asset_availability":    avail,
+		}).Error
+}
+
+func (r *pgDatasourceRepository) ListSensitive(ctx context.Context) ([]domain.Datasource, error) {
+	var rows []domain.Datasource
+	err := r.db.GORM().WithContext(ctx).
+		Where("asset_confidentiality > 0 OR asset_integrity > 0 OR asset_availability > 0").
+		Find(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
+}
+
 func (r *pgDatasourceRepository) Delete(ctx context.Context, id uint64) error {
 	return r.Remove(ctx, id)
 }

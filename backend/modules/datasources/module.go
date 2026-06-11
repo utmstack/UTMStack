@@ -3,6 +3,7 @@ package datasources
 import (
 	"context"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/datasources/connectors"
 	"github.com/utmstack/utmstack/backend/modules/datasources/handler"
 	"github.com/utmstack/utmstack/backend/modules/datasources/usecase"
@@ -34,6 +35,10 @@ func NewModule(dsUC connectors.DatasourceUsecase, groupUC connectors.AssetGroupU
 func (m *Module) Start(ctx context.Context) {
 	if m.reconciler != nil {
 		go m.reconciler.Start(ctx)
+	}
+
+	if err := m.datasourceUC.ProjectAssets(ctx); err != nil {
+		_ = catcher.Error("datasources: initial asset projection failed", err, nil)
 	}
 }
 

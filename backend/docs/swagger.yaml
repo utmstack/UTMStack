@@ -1840,6 +1840,10 @@ definitions:
         type: boolean
       content:
         type: string
+      dataTypes:
+        items:
+          type: string
+        type: array
       relPath:
         type: string
       system:
@@ -1894,6 +1898,50 @@ definitions:
       spEntityId:
         type: string
       spPrivateKeyPem:
+        type: string
+    type: object
+  dto.ImportCorrelationRulesRequest:
+    properties:
+      files:
+        items:
+          $ref: '#/definitions/dto.ImportRuleFile'
+        minItems: 1
+        type: array
+    required:
+    - files
+    type: object
+  dto.ImportCorrelationRulesResponse:
+    properties:
+      approved:
+        type: integer
+      rejected:
+        type: integer
+      results:
+        items:
+          $ref: '#/definitions/dto.ImportRuleResult'
+        type: array
+    type: object
+  dto.ImportRuleFile:
+    properties:
+      content:
+        type: string
+      filename:
+        type: string
+    type: object
+  dto.ImportRuleResult:
+    properties:
+      approved:
+        type: boolean
+      error:
+        description: reason when rejected
+        type: string
+      filename:
+        type: string
+      name:
+        description: rule name when parsed
+        type: string
+      relPath:
+        description: created identity when approved
         type: string
     type: object
   dto.IncidentAlertRequest:
@@ -5509,6 +5557,37 @@ paths:
       summary: Activate or deactivate a correlation rule
       tags:
       - Correlation Rules
+  /correlation-rule/import:
+    post:
+      consumes:
+      - application/json
+      description: Validates each uploaded rule YAML and creates the valid ones as
+        user rules. Always 200 with a per-file verdict.
+      parameters:
+      - description: Rule YAML files
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ImportCorrelationRulesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ImportCorrelationRulesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Import correlation rules from YAML
+      tags:
+      - Correlation Rules
   /correlation-rule/search-by-filters:
     get:
       parameters:
@@ -6319,6 +6398,23 @@ paths:
       security:
       - BearerAuth: []
       summary: Activate or deactivate a filter
+      tags:
+      - Filters
+  /eventprocessing/filters/data-types:
+    get:
+      description: Returns the sorted, distinct dataTypes declared across all filters.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List filter data types
       tags:
       - Filters
   /eventprocessing/filters/find:

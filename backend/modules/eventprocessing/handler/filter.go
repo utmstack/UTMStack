@@ -104,6 +104,21 @@ func (h *FilterHandler) List(c *gin.Context) {
 	writePagedArray(c, items, total)
 }
 
+// @Summary     List filter data types
+// @Description Returns the sorted, distinct dataTypes declared across all filters.
+// @Tags        Filters
+// @Security    BearerAuth
+// @Produce     json
+// @Success     200 {array} string
+// @Router      /eventprocessing/filters/data-types [get]
+func (h *FilterHandler) DataTypes(c *gin.Context) {
+	dts := h.usecase.DataTypes(c.Request.Context())
+	if dts == nil {
+		dts = []string{}
+	}
+	c.JSON(http.StatusOK, dts)
+}
+
 // @Summary     Get filter by relPath
 // @Description Returns a single filter entry.
 // @Tags        Filters

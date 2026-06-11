@@ -54,6 +54,38 @@ func (h *CorrelationRuleHandler) Create(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// @Summary     Import correlation rules from YAML
+// @Description Validates each uploaded rule YAML and creates the valid ones as user rules. Always 200 with a per-file verdict.
+// @Tags        Correlation Rules
+// @Security    BearerAuth
+// @Accept      json
+// @Produce     json
+// @Param       input body dto.ImportCorrelationRulesRequest true "Rule YAML files"
+// @Success     200 {object} dto.ImportCorrelationRulesResponse
+// @Failure     400 {object} map[string]string
+// @Router      /correlation-rule/import [post]
+func (h *CorrelationRuleHandler) Import(c *gin.Context) {
+	var req dto.ImportCorrelationRulesRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	results := h.usecase.ImportRules(c.Request.Context(), req.Files)
+	approved := 0
+	for _, r := range results {
+		if r.Approved {
+			approved++
+		}
+	}
+	audit.Record(c, audit_connectors.Event{Action: "correlation_rule.import"}, audit_domain.CORRELATION_RULE_CREATE_ATTEMPT, audit_domain.CORRELATION_RULE_CREATE_SUCCESS, nil)
+	c.JSON(http.StatusOK, dto.ImportCorrelationRulesResponse{
+		Results:  results,
+		Approved: approved,
+		Rejected: len(results) - approved,
+	})
+}
+
 // @Summary     Update correlation rule
 // @Tags        Correlation Rules
 // @Security    BearerAuth

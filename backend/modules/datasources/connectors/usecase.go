@@ -8,11 +8,12 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
-// LicenseCapProvider reports the effective datasource limit for the current
-// license, used only to surface the usage banner. Satisfied by the billing
-// module's license service.
 type LicenseCapProvider interface {
 	DatasourceCap() (limit int64, unlimited bool)
+}
+
+type AssetProjector interface {
+	ProjectAssets(assets []common_models.AssetSensitivity) error
 }
 
 type DatasourceUsecase interface {
@@ -21,10 +22,12 @@ type DatasourceUsecase interface {
 	Count(ctx context.Context) (int64, error)
 	UpdateGroup(ctx context.Context, req dto.UpdateGroupRequest) error
 	UpdateLabels(ctx context.Context, req dto.UpdateLabelsRequest) error
+	UpdateSensitivity(ctx context.Context, req dto.UpdateSensitivityRequest) error
 	Delete(ctx context.Context, id uint64) error
 	Ping(ctx context.Context, req dto.PingRequest) error
 	Register(ctx context.Context, req dto.RegisterRequest) error
 	Enrichment(ctx context.Context) ([]dto.DatasourceEnrichment, error)
+	ProjectAssets(ctx context.Context) error
 }
 
 type AssetGroupUsecase interface {

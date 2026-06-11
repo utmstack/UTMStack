@@ -24,6 +24,7 @@ type RegexPatternResponse struct {
 
 type RegexPatternFilters struct {
 	Search string `form:"search"`
+	System *bool  `form:"system"` // nil = both; true = system only; false = user only
 	Page   int    `form:"page"`
 	Size   int    `form:"size"`
 }

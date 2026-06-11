@@ -246,12 +246,6 @@ func (b *RuleBootstrap) migrateLegacyRules(ctx context.Context) error {
 	return b.dropLegacyRuleTables()
 }
 
-// dropLegacyRuleTables removes the migrated-away DB tables once every rule has
-// been carried over to the YAML overlay. Idempotent (IF EXISTS) and safe to
-// re-run. The join table is dropped first as it FK-references the rules table.
-// utm_data_types is dropped too: it was read here (for rule data-type names) and
-// by the integrations pre-migration (to backfill utm_module.data_type); after
-// both consume it, data types live as utm_module.data_type and the table is dead.
 func (b *RuleBootstrap) dropLegacyRuleTables() error {
 	if err := b.db.Exec("DROP TABLE IF EXISTS utm_group_rules_data_type CASCADE").Error; err != nil {
 		return err
@@ -259,10 +253,7 @@ func (b *RuleBootstrap) dropLegacyRuleTables() error {
 	if err := b.db.Exec("DROP TABLE IF EXISTS utm_correlation_rules CASCADE").Error; err != nil {
 		return err
 	}
-	if err := b.db.Exec("DROP TABLE IF EXISTS utm_data_types CASCADE").Error; err != nil {
-		return err
-	}
-	catcher.Info("eventprocessing: legacy correlation-rule and data-type tables migrated and dropped", nil)
+	catcher.Info("eventprocessing: legacy correlation-rule tables migrated and dropped", nil)
 	return nil
 }
 

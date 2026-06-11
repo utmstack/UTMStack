@@ -19,6 +19,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	d.GET("/:id", middleware.RequirePermission("datasources.read"), ds.Get)
 	d.PUT("/group", middleware.RequirePermission("datasources.write"), ds.UpdateGroup)
 	d.PUT("/labels", middleware.RequirePermission("datasources.write"), ds.UpdateLabels)
+	d.PUT("/sensitivity", middleware.RequirePermission("datasources.write"), ds.UpdateSensitivity)
 	d.DELETE("/:id", middleware.RequirePermission("datasources.write"), ds.Delete)
 
 	d.POST("/ping", middleware.RequireInternal(), ds.Ping)

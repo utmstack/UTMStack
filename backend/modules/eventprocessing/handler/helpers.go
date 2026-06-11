@@ -36,6 +36,8 @@ func writeCorrelationError(c *gin.Context, err error) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "system's rules can't be updated"})
 	case errors.Is(err, domain.ErrCorrelationRuleNullDefinition):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "correlation rule definition must not be null"})
+	case errors.Is(err, domain.ErrCorrelationRuleInvalidContent):
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	case errors.Is(err, domain.ErrDataTypesRequired):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "rule must have at least one data type"})
 	default:
@@ -70,6 +72,14 @@ func writeFilterError(c *gin.Context, err error) {
 	if errors.Is(err, domain.ErrFilterNotFound) {
 		logHandlerError("logstash filter", err.Error())
 		c.JSON(http.StatusNotFound, gin.H{"error": "filter not found"})
+		return
+	}
+	if errors.Is(err, domain.ErrFilterInvalidContent) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if errors.Is(err, domain.ErrFilterSystemOwner) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "system filter is read-only"})
 		return
 	}
 	logHandlerError("logstash filter", err.Error())

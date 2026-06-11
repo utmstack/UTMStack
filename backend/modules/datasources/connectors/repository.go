@@ -29,6 +29,8 @@ type DatasourceRepository interface {
 	EnrichmentRows(ctx context.Context) ([]domain.Datasource, error)
 	UpdateGroup(ctx context.Context, ids []uint64, groupID *uint64) error
 	UpdateLabels(ctx context.Context, id uint64, labels string) error
+	UpdateSensitivity(ctx context.Context, id uint64, conf, integ, avail int) error
+	ListSensitive(ctx context.Context) ([]domain.Datasource, error)
 	Delete(ctx context.Context, id uint64) error
 }
 
