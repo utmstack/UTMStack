@@ -2,7 +2,7 @@ package queue
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -10,23 +10,20 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/config"
-	"github.com/utmstack/UTMStack/plugins/soc-ai/elastic"
+	"github.com/utmstack/UTMStack/plugins/soc-ai/internal/agent"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/internal/alert"
-	"github.com/utmstack/UTMStack/plugins/soc-ai/internal/llm"
-	"github.com/utmstack/UTMStack/plugins/soc-ai/internal/processor"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/schema"
-	"github.com/utmstack/UTMStack/plugins/soc-ai/utils"
 )
 
-// Item represents an item in the processing queue
+const maxAlertContentSize = 100000
+
 type Item struct {
 	Alert       *plugins.Alert
-	AlertFields *schema.AlertFields // For manual submissions (already converted)
+	AlertFields *schema.AlertFields // for manual submissions (already converted)
 	Timestamp   time.Time
-	IsManual    bool // True if submitted via HTTP API
+	IsManual    bool
 }
 
-// AlertQueue manages the alert processing queue with workers
 type AlertQueue struct {
 	queue   chan *Item
 	workers int
@@ -34,13 +31,11 @@ type AlertQueue struct {
 	cancel  context.CancelFunc
 	wg      sync.WaitGroup
 
-	// Metrics
 	processedCount int64
 	droppedCount   int64
 	errorCount     int64
 	queueSize      int64
 
-	// Track consecutive drops for critical alerts
 	consecutiveDrops int64
 	lastDropAlert    time.Time
 }
@@ -53,7 +48,7 @@ const (
 
 var instance *AlertQueue
 
-// Initialize creates and starts the alert processing queue
+// Initialize creates and starts the alert processing queue.
 func Initialize() {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -72,37 +67,22 @@ func Initialize() {
 	go instance.metricsLogger()
 }
 
-// Enqueue adds an alert to the processing queue (from gRPC)
+// Enqueue adds an alert to the processing queue (from gRPC).
 func Enqueue(pluginAlert *plugins.Alert) bool {
 	if instance == nil {
 		return false
 	}
-
-	item := &Item{
-		Alert:     pluginAlert,
-		Timestamp: time.Now(),
-		IsManual:  false,
-	}
-
-	return enqueueItem(item, pluginAlert.Id)
+	return enqueueItem(&Item{Alert: pluginAlert, Timestamp: time.Now()}, pluginAlert.Id)
 }
 
-// EnqueueManual adds an alert to the processing queue (from HTTP API)
+// EnqueueManual adds an alert to the processing queue (from the HTTP API).
 func EnqueueManual(alertFields *schema.AlertFields) bool {
 	if instance == nil {
 		return false
 	}
-
-	item := &Item{
-		AlertFields: alertFields,
-		Timestamp:   time.Now(),
-		IsManual:    true,
-	}
-
-	return enqueueItem(item, alertFields.Id)
+	return enqueueItem(&Item{AlertFields: alertFields, Timestamp: time.Now(), IsManual: true}, alertFields.Id)
 }
 
-// enqueueItem is the internal function to add items to the queue
 func enqueueItem(item *Item, alertID string) bool {
 	select {
 	case instance.queue <- item:
@@ -112,19 +92,12 @@ func enqueueItem(item *Item, alertID string) bool {
 	case <-time.After(QueueFullTimeout):
 		atomic.AddInt64(&instance.droppedCount, 1)
 		atomic.AddInt64(&instance.consecutiveDrops, 1)
-
-		currentQueueSize := atomic.LoadInt64(&instance.queueSize)
-		totalDropped := atomic.LoadInt64(&instance.droppedCount)
-		consecutiveDrops := atomic.LoadInt64(&instance.consecutiveDrops)
-
-		_ = catcher.Error("Alert Dropped due to queue full", nil, map[string]any{
+		_ = catcher.Error("Alert dropped due to full queue", nil, map[string]any{
 			"process":           "plugin_com.utmstack.soc-ai",
 			"id":                alertID,
-			"total_dropped":     totalDropped,
-			"consecutive_drops": consecutiveDrops,
+			"total_dropped":     atomic.LoadInt64(&instance.droppedCount),
+			"consecutive_drops": atomic.LoadInt64(&instance.consecutiveDrops),
 		})
-
-		elastic.RegisterError(fmt.Sprintf("Alert dropped - Queue FULL (%d/%d)", currentQueueSize, DefaultQueueSize), alertID)
 		instance.lastDropAlert = time.Now()
 		return false
 	}
@@ -132,7 +105,6 @@ func enqueueItem(item *Item, alertID string) bool {
 
 func (aq *AlertQueue) worker(workerID int) {
 	defer aq.wg.Done()
-
 	for {
 		select {
 		case <-aq.ctx.Done():
@@ -141,7 +113,6 @@ func (aq *AlertQueue) worker(workerID int) {
 			if item == nil {
 				continue
 			}
-
 			atomic.AddInt64(&aq.queueSize, -1)
 			aq.processAlert(workerID, item)
 		}
@@ -150,16 +121,12 @@ func (aq *AlertQueue) worker(workerID int) {
 
 func (aq *AlertQueue) processAlert(workerID int, item *Item) {
 	var alertFields schema.AlertFields
-
-	// Handle both gRPC and manual (HTTP) submissions
-	if item.IsManual && item.AlertFields != nil {
-		// Manual submission: already has AlertFields, just clean it
+	switch {
+	case item.IsManual && item.AlertFields != nil:
 		alertFields = alert.Clean(*item.AlertFields)
-	} else if item.Alert != nil {
-		// gRPC submission: convert and clean
+	case item.Alert != nil:
 		alertFields = alert.Clean(alert.ToAlertFields(item.Alert))
-	} else {
-		// Invalid item
+	default:
 		atomic.AddInt64(&aq.errorCount, 1)
 		return
 	}
@@ -172,64 +139,85 @@ func (aq *AlertQueue) processAlert(workerID int, item *Item) {
 				"panic":    r,
 				"alert":    alertFields.Name,
 				"workerID": workerID,
-				"isManual": item.IsManual,
 			})
-			elastic.RegisterError(fmt.Sprintf("Panic in worker %d: %v", workerID, r), alertFields.Id)
 		}
 	}()
 
-	if config.GetConfig() == nil || !config.GetConfig().ModuleActive {
+	cfg := config.GetConfig()
+	if cfg == nil || !cfg.ModuleActive {
 		atomic.AddInt64(&aq.processedCount, 1)
 		return
 	}
 
-	// Check connection to LLM endpoint
-	if config.GetConfig().URL != "" {
-		if err := utils.ConnectionChecker(config.GetConfig().URL); err != nil {
-			atomic.AddInt64(&aq.errorCount, 1)
-			_ = catcher.Error("Failed to establish connection to LLM", err, map[string]any{"process": "plugin_com.utmstack.soc-ai"})
-			elastic.RegisterError("Failed to establish connection to LLM", alertFields.Id)
-			return
-		}
-	}
-
-	err := llm.SendRequest(&alertFields)
-	if err != nil {
-		atomic.AddInt64(&aq.errorCount, 1)
-		elastic.RegisterError(err.Error(), alertFields.Id)
+	ag := agent.Current()
+	if ag == nil {
+		atomic.AddInt64(&aq.processedCount, 1)
 		return
 	}
 
-	err = processor.SaveToElastic(&alertFields)
+	alertJSON, err := json.Marshal(&alertFields)
 	if err != nil {
 		atomic.AddInt64(&aq.errorCount, 1)
-		elastic.RegisterError(err.Error(), alertFields.Id)
+		_ = catcher.Error("failed to marshal alert", err, map[string]any{"process": "plugin_com.utmstack.soc-ai", "id": alertFields.Id})
+		return
+	}
+	content := string(alertJSON)
+	if len(content) > maxAlertContentSize {
+		content = content[:maxAlertContentSize] + "...[TRUNCATED]"
+	}
+
+	allowWrite := triageWriteTools(cfg)
+	task := agent.RunTask{
+		System:     agent.TriagePrompt(allowWrite),
+		Input:      "Triage this alert and record your assessment as a note.\n\nALERT:\n" + content,
+		AllowWrite: allowWrite,
+		MaxIters:   cfg.MaxToolIterations,
+	}
+
+	if _, err := ag.Run(aq.ctx, task, nil); err != nil {
+		atomic.AddInt64(&aq.errorCount, 1)
+		_ = catcher.Error("agent triage failed", err, map[string]any{"process": "plugin_com.utmstack.soc-ai", "id": alertFields.Id})
 		return
 	}
 
 	atomic.AddInt64(&aq.processedCount, 1)
 }
 
+func triageWriteTools(cfg *config.Config) []string {
+	set := map[string]bool{"alerts.update_notes": true}
+	for _, t := range cfg.AllowedWriteTools {
+		if t != "" {
+			set[t] = true
+		}
+	}
+	if cfg.ChangeAlertStatus {
+		set["alerts.update_status"] = true
+	}
+	if cfg.AutomaticIncidentCreation {
+		set["incidents.create"] = true
+		set["incidents.add_alerts"] = true
+	}
+	out := make([]string, 0, len(set))
+	for k := range set {
+		out = append(out, k)
+	}
+	return out
+}
+
 func (aq *AlertQueue) metricsLogger() {
 	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()
-
 	for {
 		select {
 		case <-aq.ctx.Done():
 			return
 		case <-ticker.C:
-			processed := atomic.LoadInt64(&aq.processedCount)
-			dropped := atomic.LoadInt64(&aq.droppedCount)
-			errors := atomic.LoadInt64(&aq.errorCount)
-			queueSize := atomic.LoadInt64(&aq.queueSize)
-
 			catcher.Info("SOC-AI queue metrics", map[string]any{
 				"process":   "plugin_com.utmstack.soc-ai",
-				"processed": processed,
-				"dropped":   dropped,
-				"errors":    errors,
-				"queueSize": queueSize,
+				"processed": atomic.LoadInt64(&aq.processedCount),
+				"dropped":   atomic.LoadInt64(&aq.droppedCount),
+				"errors":    atomic.LoadInt64(&aq.errorCount),
+				"queueSize": atomic.LoadInt64(&aq.queueSize),
 			})
 		}
 	}
