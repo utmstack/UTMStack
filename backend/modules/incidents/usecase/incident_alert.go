@@ -12,17 +12,20 @@ import (
 )
 
 type incidentAlertUsecase struct {
-	alertRepo   connectors.IncidentAlertRepository
-	historyRepo connectors.IncidentHistoryRepository
+	alertRepo    connectors.IncidentAlertRepository
+	historyRepo  connectors.IncidentHistoryRepository
+	incidentRepo connectors.IncidentRepository
 }
 
 func NewIncidentAlertUsecase(
 	alertRepo connectors.IncidentAlertRepository,
 	historyRepo connectors.IncidentHistoryRepository,
+	incidentRepo connectors.IncidentRepository,
 ) connectors.IncidentAlertUsecase {
 	return &incidentAlertUsecase{
-		alertRepo:   alertRepo,
-		historyRepo: historyRepo,
+		alertRepo:    alertRepo,
+		historyRepo:  historyRepo,
+		incidentRepo: incidentRepo,
 	}
 }
 
@@ -87,5 +90,50 @@ func (u *incidentAlertUsecase) List(ctx context.Context, query dto.IncidentAlert
 }
 
 func (u *incidentAlertUsecase) Delete(ctx context.Context, id int64) error {
-	return u.alertRepo.Delete(ctx, id)
+	row, err := u.alertRepo.FindByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if err := u.alertRepo.Delete(ctx, id); err != nil {
+		return err
+	}
+	if row != nil {
+		u.recomputeSeverity(ctx, row.IncidentID)
+	}
+	return nil
+}
+
+func (u *incidentAlertUsecase) recomputeSeverity(ctx context.Context, incidentID int64) {
+	if u.incidentRepo == nil {
+		return
+	}
+	incident, err := u.incidentRepo.FindByID(ctx, incidentID)
+	if err != nil || incident == nil {
+		return
+	}
+	remaining, err := u.alertRepo.FindByIncidentID(ctx, incidentID)
+	if err != nil {
+		return
+	}
+	max := 0
+	for _, a := range remaining {
+		if a.AlertSeverity > max {
+			max = a.AlertSeverity
+		}
+	}
+	cur := 0
+	if incident.IncidentSeverity != nil {
+		cur = *incident.IncidentSeverity
+	}
+	if max == cur {
+		return
+	}
+	if max > 0 {
+		incident.IncidentSeverity = &max
+	} else {
+		incident.IncidentSeverity = nil
+	}
+	if err := u.incidentRepo.Update(ctx, incident); err != nil {
+		catcher.Warn("incidents: failed to recompute severity", map[string]any{"error": err.Error()})
+	}
 }

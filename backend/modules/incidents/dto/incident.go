@@ -32,6 +32,11 @@ type ChangeStatusRequest struct {
 	IncidentSolution    *string `json:"incidentSolution"`
 }
 
+type AssignRequest struct {
+	IncidentID int64   `json:"incidentId" binding:"required"`
+	AssignedTo *string `json:"assignedTo"`
+}
+
 type IncidentResponse struct {
 	ID                  int64     `json:"id"`
 	IncidentName        string    `json:"incidentName"`

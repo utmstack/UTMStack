@@ -11,6 +11,7 @@ type IncidentUsecase interface {
 	Create(ctx context.Context, userLogin string, req dto.CreateIncidentRequest) (*domain.UtmIncident, error)
 	AddAlerts(ctx context.Context, userLogin string, req dto.AddAlertsRequest) (*domain.UtmIncident, error)
 	ChangeStatus(ctx context.Context, userLogin string, req dto.ChangeStatusRequest) (*domain.UtmIncident, error)
+	Assign(ctx context.Context, userLogin string, req dto.AssignRequest) (*domain.UtmIncident, error)
 	List(ctx context.Context, query dto.IncidentListQuery) ([]domain.UtmIncident, int64, error)
 	GetByID(ctx context.Context, id int64) (*domain.UtmIncident, error)
 	GetUsersAssigned(ctx context.Context) ([]dto.UserAssignedDTO, error)

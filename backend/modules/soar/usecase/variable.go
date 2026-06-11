@@ -61,12 +61,14 @@ func (u *variableUsecase) Update(req dto.UpdateVariableRequest, user string) (*d
 	v.LastModifiedDate = &now
 	v.LastModifiedBy = &user
 
-	if req.IsSecret && req.VariableValue != nil && *req.VariableValue != "" {
-		encrypted, encErr := u.cipher.Encrypt(*req.VariableValue)
-		if encErr != nil {
-			return nil, fmt.Errorf("variableUsecase.Update: encrypt: %w", encErr)
+	if req.IsSecret {
+		if req.VariableValue != nil && *req.VariableValue != "" && *req.VariableValue != "****" {
+			encrypted, encErr := u.cipher.Encrypt(*req.VariableValue)
+			if encErr != nil {
+				return nil, fmt.Errorf("variableUsecase.Update: encrypt: %w", encErr)
+			}
+			v.VariableValue = &encrypted
 		}
-		v.VariableValue = &encrypted
 	} else {
 		v.VariableValue = req.VariableValue
 	}

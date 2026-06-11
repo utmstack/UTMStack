@@ -1132,6 +1132,15 @@ definitions:
           $ref: '#/definitions/domain.UtmAlert'
         type: array
     type: object
+  dto.AssignRequest:
+    properties:
+      assignedTo:
+        type: string
+      incidentId:
+        type: integer
+    required:
+    - incidentId
+    type: object
   dto.AssignRolesRequest:
     properties:
       role_names:
@@ -1290,10 +1299,6 @@ definitions:
     type: object
   dto.ConfigRequest:
     properties:
-      allowedWriteTools:
-        items:
-          type: string
-        type: array
       apiKey:
         type: string
       authHeaderName:
@@ -1302,10 +1307,10 @@ definitions:
         type: string
       autoAnalyze:
         type: boolean
-      automaticIncidentCreation:
-        type: boolean
-      changeAlertStatus:
-        type: boolean
+      capabilities:
+        items:
+          type: string
+        type: array
       customHeaders:
         additionalProperties:
           type: string
@@ -3147,10 +3152,6 @@ definitions:
     type: object
   github_com_utmstack_utmstack_backend_modules_socai_dto.ConfigResponse:
     properties:
-      allowedWriteTools:
-        items:
-          type: string
-        type: array
       apiKeySet:
         type: boolean
       authHeaderName:
@@ -3159,10 +3160,10 @@ definitions:
         type: string
       autoAnalyze:
         type: boolean
-      automaticIncidentCreation:
-        type: boolean
-      changeAlertStatus:
-        type: boolean
+      capabilities:
+        items:
+          type: string
+        type: array
       configured:
         type: boolean
       customHeaders:
@@ -7520,6 +7521,42 @@ paths:
       security:
       - BearerAuth: []
       summary: Add alerts to incident
+      tags:
+      - Incidents
+  /incidents/assign:
+    put:
+      consumes:
+      - application/json
+      description: Assigns or (with a null/empty assignedTo) unassigns an incident.
+      parameters:
+      - description: Assignment
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AssignRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.UtmIncident'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Assign incident
       tags:
       - Incidents
   /incidents/change-status:

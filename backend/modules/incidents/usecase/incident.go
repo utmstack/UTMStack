@@ -172,6 +172,13 @@ func (u *incidentUsecase) AddAlerts(ctx context.Context, userLogin string, req d
 		}
 	}
 
+	if newMax := maxSeverity(req.AlertList); incident.IncidentSeverity == nil || newMax > *incident.IncidentSeverity {
+		incident.IncidentSeverity = &newMax
+		if err := u.incidentRepo.Update(ctx, incident); err != nil {
+			return nil, err
+		}
+	}
+
 	currentUser := resolveUser(userLogin)
 	detail := fmt.Sprintf("New %d alerts added to incident", len(req.AlertList))
 	if err := u.saveHistory(ctx, incident.ID, domain.ActionAlertAdd, detail, currentUser); err != nil {
@@ -249,6 +256,61 @@ func (u *incidentUsecase) ChangeStatus(ctx context.Context, userLogin string, re
 
 	u.audit.Log(ctx, audit_connectors.Event{
 		Action:     "incident.status.change.success",
+		EventType:  audit_domain.INCIDENT_UPDATE_SUCCESS,
+		Status:     audit_domain.StatusSuccess,
+		ResourceID: strconv.FormatInt(incident.ID, 10),
+	})
+
+	return incident, nil
+}
+
+func (u *incidentUsecase) Assign(ctx context.Context, userLogin string, req dto.AssignRequest) (*domain.UtmIncident, error) {
+	u.audit.Log(ctx, audit_connectors.Event{
+		Action:    "incident.assign.attempt",
+		EventType: audit_domain.INCIDENT_UPDATE_ATTEMPT,
+		Status:    audit_domain.StatusSuccess,
+	})
+
+	incident, err := u.incidentRepo.FindByID(ctx, req.IncidentID)
+	if err != nil {
+		return nil, err
+	}
+	if incident == nil {
+		return nil, domain.ErrNotFound
+	}
+
+	old := ""
+	if incident.IncidentAssignedTo != nil {
+		old = *incident.IncidentAssignedTo
+	}
+	// A nil/blank AssignedTo unassigns the incident.
+	var newAssignee *string
+	if req.AssignedTo != nil {
+		if v := strings.TrimSpace(*req.AssignedTo); v != "" {
+			newAssignee = &v
+		}
+	}
+	incident.IncidentAssignedTo = newAssignee
+
+	if err := u.incidentRepo.Update(ctx, incident); err != nil {
+		return nil, err
+	}
+
+	currentUser := resolveUser(userLogin)
+	newLabel := "Unassigned"
+	if newAssignee != nil {
+		newLabel = *newAssignee
+	}
+	detail := fmt.Sprintf("Incident assigned to %s", newLabel)
+	if old != "" {
+		detail = fmt.Sprintf("Incident reassigned from %s to %s", old, newLabel)
+	}
+	if err := u.saveHistory(ctx, incident.ID, domain.ActionAssigned, detail, currentUser); err != nil {
+		catcher.Warn("incidents: failed to write history", map[string]any{"error": err.Error()})
+	}
+
+	u.audit.Log(ctx, audit_connectors.Event{
+		Action:     "incident.assign.success",
 		EventType:  audit_domain.INCIDENT_UPDATE_SUCCESS,
 		Status:     audit_domain.StatusSuccess,
 		ResourceID: strconv.FormatInt(incident.ID, 10),

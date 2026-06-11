@@ -19,6 +19,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	ig.POST("", write, ih.Create)
 	ig.POST("/add-alerts", write, ih.AddAlerts)
 	ig.PUT("/change-status", write, ih.ChangeStatus)
+	ig.PUT("/assign", write, ih.Assign)
 	ig.GET("", read, ih.List)
 	ig.GET("/users-assigned", read, ih.GetUsersAssigned)
 	ig.GET("/:id", read, ih.GetByID)

@@ -12,4 +12,5 @@ var (
 	ActionStatusChange       = HistoryAction{"INCIDENT_STATUS_CHANGE", "Alert change status"}
 	ActionNoteAdd            = HistoryAction{"INCIDENT_NOTE_ADD", "Note added"}
 	ActionNoteChange         = HistoryAction{"INCIDENT_NOTE_CHANGE", "Note changed"}
+	ActionAssigned           = HistoryAction{"INCIDENT_ASSIGNED", "Incident assigned"}
 )

@@ -44,7 +44,7 @@ func NewModule(
 	historyRepo := repository.NewIncidentHistoryRepository(db)
 
 	incidentUC := usecase.NewIncidentUsecase(incidentRepo, alertRepo, historyRepo, mailer, alertsGateway, iamGateway, audit)
-	incidentAlertUC := usecase.NewIncidentAlertUsecase(alertRepo, historyRepo)
+	incidentAlertUC := usecase.NewIncidentAlertUsecase(alertRepo, historyRepo, incidentRepo)
 	incidentNoteUC := usecase.NewIncidentNoteUsecase(noteRepo, historyRepo)
 	historyUC := usecase.NewIncidentHistoryUsecase(historyRepo)
 

@@ -103,6 +103,33 @@ func (h *IncidentHandler) ChangeStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, incident)
 }
 
+// @Summary     Assign incident
+// @Description Assigns or (with a null/empty assignedTo) unassigns an incident.
+// @Tags        Incidents
+// @Security    BearerAuth
+// @Accept      json
+// @Produce     json
+// @Param       input body dto.AssignRequest true "Assignment"
+// @Success     200 {object} domain.UtmIncident
+// @Failure     400 {object} map[string]string
+// @Failure     404 {object} map[string]string
+// @Router      /incidents/assign [put]
+func (h *IncidentHandler) Assign(c *gin.Context) {
+	var req dto.AssignRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	incident, err := h.usecase.Assign(c.Request.Context(), c.GetString("user_login"), req)
+	audit.Record(c, audit_connectors.Event{Action: "incident.assign", ResourceType: "incident"},
+		audit_domain.INCIDENT_UPDATE_ATTEMPT, audit_domain.INCIDENT_UPDATE_SUCCESS, err)
+	if err != nil {
+		writeIncidentError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, incident)
+}
+
 // @Summary     List incidents
 // @Tags        Incidents
 // @Security    BearerAuth

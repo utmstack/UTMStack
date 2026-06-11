@@ -6693,6 +6693,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/incidents/assign": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Assigns or (with a null/empty assignedTo) unassigns an incident.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Incidents"
+                ],
+                "summary": "Assign incident",
+                "parameters": [
+                    {
+                        "description": "Assignment",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.AssignRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.UtmIncident"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/incidents/change-status": {
             "put": {
                 "security": [
@@ -14706,6 +14763,20 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.AssignRequest": {
+            "type": "object",
+            "required": [
+                "incidentId"
+            ],
+            "properties": {
+                "assignedTo": {
+                    "type": "string"
+                },
+                "incidentId": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.AssignRolesRequest": {
             "type": "object",
             "properties": {
@@ -14948,12 +15019,6 @@ const docTemplate = `{
                 "provider"
             ],
             "properties": {
-                "allowedWriteTools": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
                 "apiKey": {
                     "type": "string"
                 },
@@ -14966,11 +15031,11 @@ const docTemplate = `{
                 "autoAnalyze": {
                     "type": "boolean"
                 },
-                "automaticIncidentCreation": {
-                    "type": "boolean"
-                },
-                "changeAlertStatus": {
-                    "type": "boolean"
+                "capabilities": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "customHeaders": {
                     "type": "object",
@@ -17740,12 +17805,6 @@ const docTemplate = `{
         "github_com_utmstack_utmstack_backend_modules_socai_dto.ConfigResponse": {
             "type": "object",
             "properties": {
-                "allowedWriteTools": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
                 "apiKeySet": {
                     "type": "boolean"
                 },
@@ -17758,11 +17817,11 @@ const docTemplate = `{
                 "autoAnalyze": {
                     "type": "boolean"
                 },
-                "automaticIncidentCreation": {
-                    "type": "boolean"
-                },
-                "changeAlertStatus": {
-                    "type": "boolean"
+                "capabilities": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "configured": {
                     "type": "boolean"
