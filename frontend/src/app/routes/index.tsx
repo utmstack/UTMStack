@@ -11,7 +11,7 @@ import {
 } from '@/features/dashboard'
 import { ProfilePage } from '@/features/profile/pages/ProfilePage'
 import { AuditPage } from '@/features/audit/pages/AuditPage'
-import { AlertsPage } from '@/features/threats/pages/AlertsPage'
+import { AlertsPage } from '@/features/alerts/pages/AlertsPage'
 import { IncidentsPage } from '@/features/threats/pages/IncidentsPage'
 import { AdversariesPage } from '@/features/threats/pages/AdversariesPage'
 import { FlowsPage } from '@/features/soar/pages/FlowsPage'
