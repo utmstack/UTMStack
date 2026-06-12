@@ -1,7 +1,7 @@
 import { ArrowRight, Sparkles, Tag } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
-import { SEV_META, ST_META, TABLE_COLS, TS, flagEmoji, relativeTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
+import { ST_META, TABLE_COLS, TS, flagEmoji, relativeTime, riskOf, statusKey } from '../lib/alert-meta'
 import { isAiNote } from '../lib/ai-note'
 import type { Alert, AlertTag, Side } from '../types/alert.types'
 import { TagChip } from './ui-primitives'
@@ -44,7 +44,6 @@ export function AlertRow({
   onCreateRule: (alert: Alert) => void
 }) {
   const { t } = useTranslation()
-  const sm = SEV_META[sevKey(a)]
   const stm = ST_META[statusKey(a)]
   const stmLabel = t(`alerts.status.${statusKey(a)}`)
   return (
@@ -65,7 +64,17 @@ export function AlertRow({
       >
         {checked && <span className="h-2 w-2 rounded-sm bg-primary-foreground" />}
       </button>
-      <span className={cn('h-7 w-1 rounded-full', sm.bar)} />
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          onCreateRule(a)
+        }}
+        title={t('alerts.row.createRuleFromAlert')}
+        aria-label={t('alerts.row.createRuleFromAlert')}
+        className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground/60  transition group-hover:opacity-100 hover:bg-background hover:text-primary mr-4"
+      >
+        <Tag size={13} />
+      </button>
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <span className="truncate font-medium">{a.name || '—'}</span>
@@ -107,17 +116,6 @@ export function AlertRow({
       <FlowCell source={a.target} adversary={a.adversary} />
       <div className="text-center font-mono tabular-nums">{riskOf(a)}</div>
       <div className="text-center font-mono text-[11px] text-muted-foreground">{relativeTime(a[TS])}</div>
-      <button
-        onClick={(e) => {
-          e.stopPropagation()
-          onCreateRule(a)
-        }}
-        title={t('alerts.row.createRuleFromAlert')}
-        aria-label={t('alerts.row.createRuleFromAlert')}
-        className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground/60 opacity-0 transition group-hover:opacity-100 hover:bg-background hover:text-primary"
-      >
-        <Tag size={13} />
-      </button>
     </div>
   )
 }

@@ -29,6 +29,10 @@ export function TaggingRulesPage() {
   const [creating, setCreating] = useState(false)
   const [creatingWith, setCreatingWith] = useState<AlertTag[]>([])
   const [creatingConditions, setCreatingConditions] = useState<FilterType[]>([])
+  // Set when the drawer was opened via a deep-link from another view (alerts
+  // list / tag editor). On a successful save we hop back to that view; on a
+  // plain close we just clear the marker.
+  const [redirectAfter, setRedirectAfter] = useState<string | null>(null)
 
   // Deep-links into this page:
   //   - createWithTag: if a rule already references this tag, open the first
@@ -51,6 +55,8 @@ export function TaggingRulesPage() {
     const tag = state.createWithTag
     const conds = state.createWithConditions
     navigate(location.pathname, { replace: true })
+    // Anything we got here from is the alerts view — bounce back on save.
+    setRedirectAfter('/threat-management/alerts')
     if (conds?.length) {
       setCreatingConditions(conds)
       setCreating(true)
@@ -113,6 +119,11 @@ export function TaggingRulesPage() {
       setCreatingConditions([])
       setOpen(null)
       setOpenInEdit(false)
+      if (redirectAfter) {
+        const dest = redirectAfter
+        setRedirectAfter(null)
+        navigate(dest)
+      }
     }
   }
 
@@ -217,6 +228,7 @@ export function TaggingRulesPage() {
           onClose={() => {
             setOpen(null)
             setOpenInEdit(false)
+            setRedirectAfter(null)
           }}
           onSubmit={(input, id) => submit(input, id ?? open.id)}
           onDelete={remove}
@@ -233,6 +245,7 @@ export function TaggingRulesPage() {
             setCreating(false)
             setCreatingWith([])
             setCreatingConditions([])
+            setRedirectAfter(null)
           }}
           onSubmit={(input) => submit(input)}
           onCreateTag={createTag}
