@@ -301,6 +301,21 @@ func (h *FrameworkHandler) DeleteFramework(c *gin.Context) {
 //	@Success     204
 //	@Failure     404 {object} map[string]string
 //	@Router      /compliance/frameworks/{key}/enabled [put]
+// ApplyEntitlement is the internal endpoint the entitlements plugin calls to push
+// the license-allowed framework/control set (and disable anything no longer allowed).
+func (h *FrameworkHandler) ApplyEntitlement(c *gin.Context) {
+	var req dto.EntitlementRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := h.uc.ApplyEntitlement(c.Request.Context(), req.Enterprise, req.Frameworks, req.Controls); err != nil {
+		writeError(c, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
 func (h *FrameworkHandler) SetFrameworkEnabled(c *gin.Context) {
 	key := c.Param("key")
 	var req dto.EnabledRequest

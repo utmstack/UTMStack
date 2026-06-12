@@ -34,7 +34,7 @@ func (m *Module) GetFrameworkUsecase() connectors.FrameworkUsecase { return m.fr
 func (m *Module) GetEvaluatorUsecase() connectors.EvaluatorUsecase { return m.evaluatorUC }
 func (m *Module) GetScheduleUsecase() connectors.ScheduleUsecase   { return m.scheduleUC }
 
-func NewModule(db *gorm.DB, mailSvc mail_connectors.MailService) *Module {
+func NewModule(db *gorm.DB, mailSvc mail_connectors.MailService, brand connectors.BrandingProvider, isEnterprise func() bool) *Module {
 	scheduleRepo := repository.NewScheduleRepository(db)
 
 	root := env.String("COMPLIANCE_DIR", "/workdir/compliance", false)
@@ -60,9 +60,10 @@ func NewModule(db *gorm.DB, mailSvc mail_connectors.MailService) *Module {
 		_ = catcher.Error("compliance: loading rule coverage index failed", err, nil)
 	}
 
-	frameworkUC := usecase.NewFrameworkUsecase(controlStore, frameworkStore)
-	evaluatorUC := usecase.NewEvaluator(controlStore, frameworkStore, repository.NewOpenSearchSQL(), coverageIdx, repository.NewOpenSearchAlerts(), repository.NewReportStore())
-	scheduleUC := usecase.NewScheduleUsecase(scheduleRepo)
+	entitlement := usecase.NewEntitlement(isEnterprise)
+	frameworkUC := usecase.NewFrameworkUsecase(controlStore, frameworkStore, entitlement)
+	evaluatorUC := usecase.NewEvaluator(controlStore, frameworkStore, repository.NewOpenSearchSQL(), coverageIdx, repository.NewOpenSearchAlerts(), repository.NewReportStore(), brand, entitlement)
+	scheduleUC := usecase.NewScheduleUsecase(scheduleRepo, frameworkStore, entitlement)
 
 	mailSender := &mailSender{svc: mailSvc}
 	scheduler := usecase.NewReportScheduler(scheduleRepo, evaluatorUC, mailSender)
@@ -120,7 +121,7 @@ func (m *Module) evaluateAll(ctx context.Context) {
 		if ctx.Err() != nil {
 			return
 		}
-		if !fw.Enabled {
+		if !fw.Enabled || fw.Locked {
 			continue
 		}
 		if _, err := m.evaluatorUC.GenerateReport(ctx, fw.Key); err != nil {

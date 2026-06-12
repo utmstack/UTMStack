@@ -10,6 +10,7 @@ type Framework struct {
 	RelPath string `yaml:"-" json:"relPath,omitempty"`
 	System  bool   `yaml:"-" json:"system"`
 	Enabled bool   `yaml:"-" json:"enabled"`
+	Locked  bool   `yaml:"-" json:"locked"`
 }
 
 type FrameworkSection struct {

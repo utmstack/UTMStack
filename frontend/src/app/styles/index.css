@@ -148,3 +148,29 @@ body {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklab, var(--foreground) 18%, transparent) transparent;
 }
+
+/* Compliance report: print only the document (#report-doc), full-bleed. */
+@media print {
+  body {
+    background: #fff;
+  }
+  body * {
+    visibility: hidden !important;
+  }
+  #report-doc,
+  #report-doc * {
+    visibility: visible !important;
+  }
+  #report-doc {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    box-shadow: none !important;
+  }
+  @page {
+    margin: 14mm;
+  }
+}

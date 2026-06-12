@@ -92,3 +92,17 @@ func (r *osReportStore) Get(ctx context.Context, id string) (*domain.ReportSnaps
 	}
 	return &resp.Source, nil
 }
+
+func (r *osReportStore) Delete(ctx context.Context, id string) error {
+	data, status, err := sdkos.DoRequest(ctx, "DELETE", "/"+reportIndex+"/_doc/"+id, nil)
+	if err != nil {
+		return err
+	}
+	if status == 404 {
+		return domain.ErrReportNotFound
+	}
+	if status < 200 || status >= 300 {
+		return fmt.Errorf("delete report snapshot returned %d: %s", status, string(data))
+	}
+	return nil
+}

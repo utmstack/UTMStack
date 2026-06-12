@@ -16,7 +16,9 @@ func writeError(c *gin.Context, err error) {
 		errors.Is(err, domain.ErrReportNotFound),
 		errors.Is(err, domain.ErrScheduleNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-	case errors.Is(err, domain.ErrSystemOwner):
+	case errors.Is(err, domain.ErrSystemOwner),
+		errors.Is(err, domain.ErrFrameworkLocked),
+		errors.Is(err, domain.ErrControlLocked):
 		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 	case errors.Is(err, domain.ErrControlExists), errors.Is(err, domain.ErrFrameworkExists):
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})

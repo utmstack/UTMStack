@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -11,9 +13,11 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/adaudit"
 	"github.com/utmstack/utmstack/backend/modules/alerts"
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
+	appconfig_connectors "github.com/utmstack/utmstack/backend/modules/appconfig/connectors"
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	"github.com/utmstack/utmstack/backend/modules/billing"
 	"github.com/utmstack/utmstack/backend/modules/compliance"
+	compliance_connectors "github.com/utmstack/utmstack/backend/modules/compliance/connectors"
 	"github.com/utmstack/utmstack/backend/modules/dashboards"
 	"github.com/utmstack/utmstack/backend/modules/datasources"
 	ns_repository "github.com/utmstack/utmstack/backend/modules/datasources/repository"
@@ -105,7 +109,8 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		return billingMod.License().Current().IsMSSP()
 	})
 	brand := configMod.Branding()
-	complianceMod := compliance.NewModule(db, mailMod.Service())
+	complianceMod := compliance.NewModule(db, mailMod.Service(), complianceBranding{uc: brand, uploadDir: cfg.uploadDir},
+		func() bool { return billingMod.License().Current().IsEnterprise() })
 	dashboardsMod := dashboards.NewModule(db)
 	loganalyzerMod := loganalyzer.NewModule(db)
 
@@ -237,4 +242,34 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		mcp:               mcpModule,
 		signer:            signer,
 	}
+}
+
+type complianceBranding struct {
+	uc        appconfig_connectors.BrandingUsecase
+	uploadDir string
+}
+
+func (a complianceBranding) ReportBrand(ctx context.Context) compliance_connectors.ReportBrand {
+	b, err := a.uc.Get(ctx)
+	if err != nil || b == nil || !b.Enabled {
+		return compliance_connectors.ReportBrand{}
+	}
+	logoURL := b.ReportLogoURL
+	if logoURL == "" {
+		logoURL = b.LogoURL
+	}
+	return compliance_connectors.ReportBrand{
+		Name:      b.ProductName,
+		LogoPath:  uploadFilePath(a.uploadDir, logoURL),
+		AccentHex: b.AccentColor,
+	}
+}
+
+func uploadFilePath(dir, url string) string {
+	if url == "" || dir == "" {
+		return ""
+	}
+	u := strings.TrimPrefix(url, "/")
+	u = strings.TrimPrefix(u, "uploads/")
+	return filepath.Join(dir, u)
 }

@@ -23,6 +23,17 @@ type FrameworkUsecase interface {
 	UpdateFramework(ctx context.Context, f domain.Framework) (*domain.Framework, error)
 	DeleteFramework(ctx context.Context, key string) error
 	SetFrameworkEnabled(ctx context.Context, key string, enabled bool) error
+	ApplyEntitlement(ctx context.Context, enterprise bool, frameworks, controls []string) error
+}
+
+type ReportBrand struct {
+	Name      string // product/company name (defaults to "UTMStack")
+	LogoPath  string // absolute path to a PNG/JPG report logo on disk ("" → none)
+	AccentHex string // accent color, CSS hex (e.g. "#6366f1"); "" → default
+}
+
+type BrandingProvider interface {
+	ReportBrand(ctx context.Context) ReportBrand
 }
 
 type EvaluatorUsecase interface {
@@ -30,6 +41,9 @@ type EvaluatorUsecase interface {
 	GenerateReport(ctx context.Context, frameworkKey string) (*domain.Report, error) // evaluate + store snapshot
 	ListReports(ctx context.Context, frameworkKey string, limit int) ([]domain.ReportSnapshotMeta, error)
 	GetReport(ctx context.Context, id string) (*domain.ReportSnapshot, error)
+	DeleteReport(ctx context.Context, id string) error
+	FrameworkReportPDF(ctx context.Context, frameworkKey string) ([]byte, string, error) // live eval → PDF + framework name
+	SnapshotPDF(ctx context.Context, id string) ([]byte, string, error)                  // stored snapshot → PDF + framework name
 }
 
 type ScheduleUsecase interface {

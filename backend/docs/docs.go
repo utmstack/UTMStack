@@ -3055,6 +3055,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/compliance/frameworks/{key}/report.pdf": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/pdf"
+                ],
+                "tags": [
+                    "Compliance Reports"
+                ],
+                "summary": "Download a framework compliance report as PDF (live evaluation)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Framework key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    }
+                }
+            }
+        },
         "/compliance/reports": {
             "get": {
                 "security": [
@@ -3144,6 +3177,39 @@ const docTemplate = `{
                             "additionalProperties": {
                                 "type": "string"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/compliance/reports/{id}/pdf": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/pdf"
+                ],
+                "tags": [
+                    "Compliance Reports"
+                ],
+                "summary": "Download a stored report snapshot as PDF",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Snapshot id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
                         }
                     }
                 }
@@ -13365,6 +13431,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "locked": {
+                    "type": "boolean"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -13499,6 +13568,9 @@ const docTemplate = `{
                 },
                 "key": {
                     "type": "string"
+                },
+                "locked": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"
@@ -17479,7 +17551,6 @@ const docTemplate = `{
                 "agentPlatform",
                 "commands",
                 "conditions",
-                "id",
                 "name"
             ],
             "properties": {

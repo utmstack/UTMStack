@@ -12,4 +12,6 @@ var (
 	ErrControlExists     = errors.New("a control with this id already exists")
 	ErrFrameworkExists   = errors.New("a framework with this key already exists")
 	ErrInvalidID         = errors.New("invalid id/key (must be non-empty and contain no path separators)")
+	ErrFrameworkLocked   = errors.New("this framework requires an Enterprise license")
+	ErrControlLocked     = errors.New("this control requires an Enterprise license")
 )

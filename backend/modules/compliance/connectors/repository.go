@@ -28,4 +28,5 @@ type ReportStore interface {
 	Save(ctx context.Context, snap *domain.ReportSnapshot) error
 	List(ctx context.Context, frameworkKey string, limit int) ([]domain.ReportSnapshotMeta, error)
 	Get(ctx context.Context, id string) (*domain.ReportSnapshot, error)
+	Delete(ctx context.Context, id string) error
 }

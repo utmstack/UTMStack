@@ -19,15 +19,19 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 
 	fw.GET("/frameworks", read, m.frameworkH.ListFrameworks)
 	fw.GET("/frameworks/:key", read, m.frameworkH.GetFramework)
-	fw.GET("/frameworks/:key/report", read, m.reportH.GetFrameworkReport) // evaluate now → report JSON (live)
-	fw.POST("/frameworks/:key/report", write, m.reportH.GenerateReport)   // evaluate + store snapshot
+	fw.GET("/frameworks/:key/report", read, m.reportH.GetFrameworkReport)        // evaluate now → report JSON (live)
+	fw.GET("/frameworks/:key/report.pdf", read, m.reportH.GetFrameworkReportPDF) // live eval → PDF download
+	fw.POST("/frameworks/:key/report", write, m.reportH.GenerateReport)          // evaluate + store snapshot
 	// Stored report snapshots (history for the frontend).
 	fw.GET("/reports", read, m.reportH.ListReports)
 	fw.GET("/reports/:id", read, m.reportH.GetReport)
+	fw.DELETE("/reports/:id", write, m.reportH.DeleteReport)
+	fw.GET("/reports/:id/pdf", read, m.reportH.GetSnapshotPDF) // snapshot → PDF download
 	fw.POST("/frameworks", write, m.frameworkH.CreateFramework)
 	fw.PUT("/frameworks/:key", write, m.frameworkH.UpdateFramework)
 	fw.DELETE("/frameworks/:key", write, m.frameworkH.DeleteFramework)
 	fw.PUT("/frameworks/:key/enabled", write, m.frameworkH.SetFrameworkEnabled)
+	fw.POST("/entitlement", middleware.RequireInternal(), m.frameworkH.ApplyEntitlement)
 
 	sched := api.Group("/compliance-report-schedules", userAuth)
 	sched.POST("", write, m.scheduleH.Create)

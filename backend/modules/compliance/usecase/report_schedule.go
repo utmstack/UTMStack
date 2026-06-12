@@ -12,15 +12,27 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/compliance/dto"
 )
 
-type scheduleUsecase struct{ repo connectors.ScheduleRepository }
+type scheduleUsecase struct {
+	repo       connectors.ScheduleRepository
+	frameworks *FrameworkStore
+	ent        *Entitlement
+}
 
-func NewScheduleUsecase(repo connectors.ScheduleRepository) connectors.ScheduleUsecase {
-	return &scheduleUsecase{repo: repo}
+func NewScheduleUsecase(repo connectors.ScheduleRepository, frameworks *FrameworkStore, ent *Entitlement) connectors.ScheduleUsecase {
+	return &scheduleUsecase{repo: repo, frameworks: frameworks, ent: ent}
+}
+
+func (u *scheduleUsecase) frameworkLocked(key string) bool {
+	fw, ok := u.frameworks.Get(key)
+	return ok && u.ent.FrameworkLocked(fw)
 }
 
 func (u *scheduleUsecase) Create(ctx context.Context, userID int64, req dto.CreateScheduleRequest) (*dto.ScheduleResponse, error) {
 	if err := validateCron(req.ScheduleString); err != nil {
 		return nil, domain.ErrInvalidCron
+	}
+	if u.frameworkLocked(req.FrameworkKey) {
+		return nil, domain.ErrFrameworkLocked
 	}
 	s := &domain.UtmComplianceReportSchedule{
 		UserID:            userID,
@@ -38,6 +50,9 @@ func (u *scheduleUsecase) Create(ctx context.Context, userID int64, req dto.Crea
 func (u *scheduleUsecase) Update(ctx context.Context, userID int64, req dto.UpdateScheduleRequest) (*dto.ScheduleResponse, error) {
 	if err := validateCron(req.ScheduleString); err != nil {
 		return nil, domain.ErrInvalidCron
+	}
+	if u.frameworkLocked(req.FrameworkKey) {
+		return nil, domain.ErrFrameworkLocked
 	}
 	existing, err := u.repo.GetByID(ctx, req.ID)
 	if err != nil {
@@ -153,14 +168,9 @@ func (s *ReportScheduler) run(ctx context.Context) {
 }
 
 func (s *ReportScheduler) deliver(ctx context.Context, sched *domain.UtmComplianceReportSchedule, next time.Time) {
-	report, err := s.evaluator.EvaluateFramework(ctx, sched.FrameworkKey)
+	pdf, _, err := s.evaluator.FrameworkReportPDF(ctx, sched.FrameworkKey)
 	if err != nil {
-		_ = catcher.Error("compliance: framework evaluation failed", err, map[string]any{"scheduleId": sched.ID, "framework": sched.FrameworkKey})
-		return
-	}
-	pdf, err := renderReportPDF(*report)
-	if err != nil {
-		_ = catcher.Error("compliance: PDF generation failed", err, map[string]any{"scheduleId": sched.ID})
+		_ = catcher.Error("compliance: PDF generation failed", err, map[string]any{"scheduleId": sched.ID, "framework": sched.FrameworkKey})
 		return
 	}
 	subject := fmt.Sprintf("UTMStack Compliance Report - %s - %s", sched.FrameworkKey, time.Now().UTC().Format("2006-01-02"))

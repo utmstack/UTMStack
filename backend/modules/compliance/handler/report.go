@@ -5,6 +5,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/utmstack/utmstack/backend/modules/audit"
+	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
+	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/compliance/connectors"
 	"github.com/utmstack/utmstack/backend/modules/compliance/domain"
 )
@@ -101,4 +104,73 @@ func (h *ReportHandler) GetReport(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, snap)
+}
+
+func (h *ReportHandler) DeleteReport(c *gin.Context) {
+	id := c.Param("id")
+	err := h.uc.DeleteReport(c.Request.Context(), id)
+	audit.Record(c, audit_connectors.Event{Action: "compliance.report.delete", ResourceType: "compliance_report", ResourceID: id},
+		audit_domain.COMPLIANCE_REPORT_DELETE_ATTEMPT, audit_domain.COMPLIANCE_REPORT_DELETE_SUCCESS, err)
+	if err != nil {
+		writeError(c, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
+func writePDF(c *gin.Context, pdf []byte, name string) {
+	filename := "Compliance_Report"
+	if name != "" {
+		filename = sanitizeFilename(name)
+	}
+	c.Header("Content-Disposition", `attachment; filename="`+filename+`.pdf"`)
+	c.Data(http.StatusOK, "application/pdf", pdf)
+}
+
+func sanitizeFilename(s string) string {
+	out := make([]rune, 0, len(s))
+	for _, r := range s {
+		switch {
+		case r >= 'a' && r <= 'z', r >= 'A' && r <= 'Z', r >= '0' && r <= '9':
+			out = append(out, r)
+		case r == ' ', r == '-', r == '_':
+			out = append(out, '_')
+		}
+	}
+	if len(out) == 0 {
+		return "Compliance_Report"
+	}
+	return string(out)
+}
+
+// @Summary     Download a framework compliance report as PDF (live evaluation)
+// @Tags        Compliance Reports
+// @Security    BearerAuth
+// @Produce     application/pdf
+// @Param       key path string true "Framework key"
+// @Success     200 {file} binary
+// @Router      /compliance/frameworks/{key}/report.pdf [get]
+func (h *ReportHandler) GetFrameworkReportPDF(c *gin.Context) {
+	pdf, name, err := h.uc.FrameworkReportPDF(c.Request.Context(), c.Param("key"))
+	if err != nil {
+		writeError(c, err)
+		return
+	}
+	writePDF(c, pdf, name)
+}
+
+// @Summary     Download a stored report snapshot as PDF
+// @Tags        Compliance Reports
+// @Security    BearerAuth
+// @Produce     application/pdf
+// @Param       id path string true "Snapshot id"
+// @Success     200 {file} binary
+// @Router      /compliance/reports/{id}/pdf [get]
+func (h *ReportHandler) GetSnapshotPDF(c *gin.Context) {
+	pdf, name, err := h.uc.SnapshotPDF(c.Request.Context(), c.Param("id"))
+	if err != nil {
+		writeError(c, err)
+		return
+	}
+	writePDF(c, pdf, name)
 }

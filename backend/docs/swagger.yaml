@@ -141,6 +141,8 @@ definitions:
         type: string
       id:
         type: string
+      locked:
+        type: boolean
       name:
         type: string
       relPath:
@@ -232,6 +234,8 @@ definitions:
         type: boolean
       key:
         type: string
+      locked:
+        type: boolean
       name:
         type: string
       relPath:
@@ -2917,7 +2921,6 @@ definitions:
     - agentPlatform
     - commands
     - conditions
-    - id
     - name
     type: object
   dto.UpdateScheduleRequest:
@@ -5213,6 +5216,26 @@ paths:
       summary: Generate + store a report
       tags:
       - Compliance Reports
+  /compliance/frameworks/{key}/report.pdf:
+    get:
+      parameters:
+      - description: Framework key
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      security:
+      - BearerAuth: []
+      summary: Download a framework compliance report as PDF (live evaluation)
+      tags:
+      - Compliance Reports
   /compliance/reports:
     get:
       description: Returns report snapshot metadata (newest first), optionally filtered
@@ -5271,6 +5294,26 @@ paths:
       security:
       - BearerAuth: []
       summary: Get a stored report snapshot
+      tags:
+      - Compliance Reports
+  /compliance/reports/{id}/pdf:
+    get:
+      parameters:
+      - description: Snapshot id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      security:
+      - BearerAuth: []
+      summary: Download a stored report snapshot as PDF
       tags:
       - Compliance Reports
   /config:

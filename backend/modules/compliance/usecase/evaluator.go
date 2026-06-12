@@ -18,10 +18,19 @@ type evaluator struct {
 	coverage   *CoverageIndex
 	alerts     connectors.OpenSearchAlerts
 	store      connectors.ReportStore
+	brand      connectors.BrandingProvider // optional; nil → default UTMStack branding
+	ent        *Entitlement
 }
 
-func NewEvaluator(controls *ControlStore, frameworks *FrameworkStore, sql connectors.OpenSearchSQL, coverage *CoverageIndex, alerts connectors.OpenSearchAlerts, store connectors.ReportStore) connectors.EvaluatorUsecase {
-	return &evaluator{controls: controls, frameworks: frameworks, sql: sql, coverage: coverage, alerts: alerts, store: store}
+func NewEvaluator(controls *ControlStore, frameworks *FrameworkStore, sql connectors.OpenSearchSQL, coverage *CoverageIndex, alerts connectors.OpenSearchAlerts, store connectors.ReportStore, brand connectors.BrandingProvider, ent *Entitlement) connectors.EvaluatorUsecase {
+	return &evaluator{controls: controls, frameworks: frameworks, sql: sql, coverage: coverage, alerts: alerts, store: store, brand: brand, ent: ent}
+}
+
+func (e *evaluator) reportBrand(ctx context.Context) connectors.ReportBrand {
+	if e.brand == nil {
+		return connectors.ReportBrand{}
+	}
+	return e.brand.ReportBrand(ctx)
 }
 
 // GenerateReport evaluates the framework and persists a snapshot (history). The
@@ -48,11 +57,58 @@ func (e *evaluator) GenerateReport(ctx context.Context, key string) (*domain.Rep
 }
 
 func (e *evaluator) ListReports(ctx context.Context, frameworkKey string, limit int) ([]domain.ReportSnapshotMeta, error) {
-	return e.store.List(ctx, frameworkKey, limit)
+	metas, err := e.store.List(ctx, frameworkKey, limit)
+	if err != nil {
+		return nil, err
+	}
+	out := metas[:0]
+	for _, m := range metas {
+		if !e.frameworkKeyLocked(m.FrameworkKey) {
+			out = append(out, m)
+		}
+	}
+	return out, nil
 }
 
 func (e *evaluator) GetReport(ctx context.Context, id string) (*domain.ReportSnapshot, error) {
-	return e.store.Get(ctx, id)
+	snap, err := e.store.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if snap != nil && e.frameworkKeyLocked(snap.FrameworkKey) {
+		return nil, domain.ErrFrameworkLocked
+	}
+	return snap, nil
+}
+
+func (e *evaluator) DeleteReport(ctx context.Context, id string) error {
+	return e.store.Delete(ctx, id)
+}
+
+func (e *evaluator) frameworkKeyLocked(key string) bool {
+	fw, ok := e.frameworks.Get(key)
+	return ok && e.ent.FrameworkLocked(fw)
+}
+
+func (e *evaluator) FrameworkReportPDF(ctx context.Context, key string) ([]byte, string, error) {
+	rep, err := e.EvaluateFramework(ctx, key)
+	if err != nil {
+		return nil, "", err
+	}
+	pdf, err := renderReportPDF(*rep, e.reportBrand(ctx))
+	return pdf, rep.FrameworkName, err
+}
+
+func (e *evaluator) SnapshotPDF(ctx context.Context, id string) ([]byte, string, error) {
+	snap, err := e.GetReport(ctx, id)
+	if err != nil {
+		return nil, "", err
+	}
+	if snap == nil {
+		return nil, "", domain.ErrReportNotFound
+	}
+	pdf, err := renderReportPDF(snap.Report, e.reportBrand(ctx))
+	return pdf, snap.FrameworkName, err
 }
 
 // activityWindow is how far back the activity dimension counts alerts.
@@ -64,6 +120,9 @@ func (e *evaluator) EvaluateFramework(ctx context.Context, key string) (*domain.
 	fw, ok := e.frameworks.Get(key)
 	if !ok {
 		return nil, domain.ErrFrameworkNotFound
+	}
+	if e.ent.FrameworkLocked(fw) {
+		return nil, domain.ErrFrameworkLocked
 	}
 
 	now := time.Now().UTC()
