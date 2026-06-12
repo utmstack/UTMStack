@@ -34,6 +34,7 @@ import {
   SlidersHorizontal,
   Filter,
   Regex,
+  Tags,
   UserCheck,
   UserX,
   Users,
@@ -98,6 +99,7 @@ const sections: Section[] = [
         basePath: '/threat-management',
         children: [
           { to: '/threat-management/alerts', label: 'nav.alerts', icon: AlertTriangle },
+          { to: '/threat-management/alerts/tagging-rules', label: 'nav.taggingRules', icon: Tags },
           { to: '/threat-management/incidents', label: 'nav.incidents', icon: Flame },
           { to: '/threat-management/adversaries', label: 'nav.adversaryView', icon: UserX },
         ],
@@ -190,7 +192,7 @@ export function Sidebar() {
     })
   }
 
-  const isPathActive = (to: string) => pathname === to || pathname.startsWith(to + '/')
+  const isPathActive = (to: string) => pathname === to
   const isBaseActive = (basePath: string) =>
     pathname === basePath || pathname.startsWith(basePath + '/')
 
