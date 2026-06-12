@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, ChevronDown, Lock, Pencil, Plus, Tag as TagIcon, Trash2, X } from 'lucide-react'
+import { Check, ChevronDown, ListPlus, Lock, Pencil, Plus, Tag as TagIcon, Trash2, X } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { TAG_COLORS } from '../lib/alert-meta'
@@ -26,6 +27,7 @@ export function AlertTagEditor({
   onDeleteTag: (id: number, tagName: string) => void
 }) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
   const [color, setColor] = useState(TAG_COLORS[5])
@@ -34,6 +36,12 @@ export function AlertTagEditor({
   const [editName, setEditName] = useState('')
   const [editColor, setEditColor] = useState(TAG_COLORS[5])
   const ref = useRef<HTMLDivElement>(null)
+
+  // Jump to the tagging rules page in create mode with this tag pre-selected.
+  // Route state survives the navigation; the destination clears it on read so
+  // a refresh doesn't re-seed.
+  const goToCreateRule = (tg: AlertTag) =>
+    navigate('/threat-management/alerts/tagging-rules', { state: { createWithTag: tg } })
   useEffect(() => {
     if (!open) return
     const onDoc = (e: MouseEvent) => ref.current && !ref.current.contains(e.target as Node) && setOpen(false)
@@ -137,25 +145,35 @@ export function AlertTagEditor({
                     <span className="truncate">{tg.tagName}</span>
                     {has && <Check size={14} className="ml-auto shrink-0 text-primary" />}
                   </button>
-                  {tg.systemOwner ? (
+                  <span className="flex shrink-0 items-center gap-0.5 opacity-0 transition group-hover:opacity-100">
+                    <button
+                      onClick={() => goToCreateRule(tg)}
+                      title={t('alerts.tagEditor.createRule')}
+                      className="rounded p-1 text-muted-foreground hover:bg-background hover:text-primary"
+                    >
+                      <ListPlus size={12} />
+                    </button>
+                    {!tg.systemOwner && (
+                      <>
+                        <button
+                          onClick={() => startEdit(tg)}
+                          title={t('alerts.tagEditor.edit')}
+                          className="rounded p-1 text-muted-foreground hover:bg-background hover:text-foreground"
+                        >
+                          <Pencil size={12} />
+                        </button>
+                        <button
+                          onClick={() => onDeleteTag(tg.id, tg.tagName)}
+                          title={t('alerts.tagEditor.delete')}
+                          className="rounded p-1 text-muted-foreground hover:bg-background hover:text-red-500"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </>
+                    )}
+                  </span>
+                  {tg.systemOwner && (
                     <Lock size={11} className="shrink-0 text-muted-foreground/50" aria-label={t('alerts.tagEditor.systemLocked')} />
-                  ) : (
-                    <span className="flex shrink-0 items-center gap-0.5 opacity-0 transition group-hover:opacity-100">
-                      <button
-                        onClick={() => startEdit(tg)}
-                        title={t('alerts.tagEditor.edit')}
-                        className="rounded p-1 text-muted-foreground hover:bg-background hover:text-foreground"
-                      >
-                        <Pencil size={12} />
-                      </button>
-                      <button
-                        onClick={() => onDeleteTag(tg.id, tg.tagName)}
-                        title={t('alerts.tagEditor.delete')}
-                        className="rounded p-1 text-muted-foreground hover:bg-background hover:text-red-500"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </span>
                   )}
                 </div>
               )

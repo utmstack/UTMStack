@@ -12,6 +12,7 @@ import {
 import { ProfilePage } from '@/features/profile/pages/ProfilePage'
 import { AuditPage } from '@/features/audit/pages/AuditPage'
 import { AlertsPage } from '@/features/alerts/pages/AlertsPage'
+import { TaggingRulesPage } from '@/features/alerts/pages/TaggingRulesPage'
 import { IncidentsPage } from '@/features/incidents/pages/IncidentsPage'
 import { AdversariesPage } from '@/features/adversaries/pages/AdversariesPage'
 import { FlowsPage } from '@/features/soar/pages/FlowsPage'
@@ -66,6 +67,7 @@ export function AppRoutes() {
         {/* Threat Management */}
         <Route path="threat-management" element={<Navigate to="/threat-management/alerts" replace />} />
         <Route path="threat-management/alerts" element={<AlertsPage />} />
+        <Route path="threat-management/alerts/tagging-rules" element={<TaggingRulesPage />} />
         <Route path="threat-management/incidents" element={<IncidentsPage />} />
         <Route path="threat-management/adversaries" element={<AdversariesPage />} />
 

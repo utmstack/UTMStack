@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, ChevronDown, Download, Lock, Pencil, Plus, RefreshCw, Search, Tag as TagIcon, Trash2, X } from 'lucide-react'
+import { Check, ChevronDown, Download, ListPlus, Lock, Pencil, Plus, RefreshCw, Search, Tag as TagIcon, Trash2, X } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
@@ -102,6 +103,10 @@ function TagFilter({
   onDeleteTag: (id: number, tagName: string) => void
 }) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
+  // Deep-link to the tagging-rules page in create mode with this tag pre-selected.
+  const goToCreateRule = (tg: AlertTag) =>
+    navigate('/threat-management/alerts/tagging-rules', { state: { createWithTag: tg } })
   const [open, setOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editName, setEditName] = useState('')
@@ -225,25 +230,35 @@ function TagFilter({
                     <span className="truncate">{tg.tagName}</span>
                     {on && <Check size={14} className="ml-auto shrink-0 text-primary" />}
                   </button>
-                  {tg.systemOwner ? (
+                  <span className="flex shrink-0 items-center gap-0.5 opacity-0 transition group-hover:opacity-100">
+                    <button
+                      onClick={() => goToCreateRule(tg)}
+                      title={t('alerts.tagEditor.createRule')}
+                      className="rounded p-1 text-muted-foreground hover:bg-background hover:text-primary"
+                    >
+                      <ListPlus size={12} />
+                    </button>
+                    {!tg.systemOwner && (
+                      <>
+                        <button
+                          onClick={() => startEdit(tg)}
+                          title={t('alerts.tagEditor.edit')}
+                          className="rounded p-1 text-muted-foreground hover:bg-background hover:text-foreground"
+                        >
+                          <Pencil size={12} />
+                        </button>
+                        <button
+                          onClick={() => onDeleteTag(tg.id, tg.tagName)}
+                          title={t('alerts.tagEditor.delete')}
+                          className="rounded p-1 text-muted-foreground hover:bg-background hover:text-red-500"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </>
+                    )}
+                  </span>
+                  {tg.systemOwner && (
                     <Lock size={11} className="shrink-0 text-muted-foreground/50" aria-label={t('alerts.tagEditor.systemLocked')} />
-                  ) : (
-                    <span className="flex shrink-0 items-center gap-0.5 opacity-0 transition group-hover:opacity-100">
-                      <button
-                        onClick={() => startEdit(tg)}
-                        title={t('alerts.tagEditor.edit')}
-                        className="rounded p-1 text-muted-foreground hover:bg-background hover:text-foreground"
-                      >
-                        <Pencil size={12} />
-                      </button>
-                      <button
-                        onClick={() => onDeleteTag(tg.id, tg.tagName)}
-                        title={t('alerts.tagEditor.delete')}
-                        className="rounded p-1 text-muted-foreground hover:bg-background hover:text-red-500"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </span>
                   )}
                 </div>
               )
