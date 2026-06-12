@@ -213,9 +213,16 @@ export function AlertsPage() {
             />
           )}
 
-          <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
+          <div className={`mt-3 flex min-h-0 flex-1 flex-col overflow-hidden  rounded-xl border border-border bg-card  ${loading && '[&_*]:cursor-wait'}`}
+          onClickCapture={(ev)=>{
+            if(loading){
+              ev.stopPropagation();
+              ev.preventDefault();
+            }
+          }}
+          >
             <AlertsTableHeader allChecked={allChecked} onTogglePage={togglePage} />
-            <div className="min-h-0 flex-1 overflow-y-auto">
+            <div className="min-h-0 flex-1 overflow-y-auto ">
               {loading && alerts.length === 0 ? (
                 <Center>
                   <Loader2 className="h-4 w-4 animate-spin" /> {t('alerts.list.loading')}
@@ -244,8 +251,15 @@ export function AlertsPage() {
             </div>
           </div>
 
-          {!loading && !error && total > 0 && (
-            <div className="shrink-0">
+          { total > 0 && (
+            <div className={`shrink-0 ${loading && '[&_*]:cursor-wait'}`}
+            onClickCapture={(ev)=>{
+              if(loading){
+                ev.stopPropagation();
+                ev.preventDefault();
+              }
+            }}
+            >
               <Pagination
                 page={page}
                 pageSize={pageSize}
