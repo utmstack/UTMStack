@@ -6,6 +6,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Pagination } from '@/shared/components/ui/pagination'
 import { presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import { FILTER_OPS, PAGE_SIZE_DEFAULT, TS } from '../lib/alert-meta'
+import { alertToRuleConditions } from '../lib/tagging-rule-meta'
 import {
   STATUS_INT,
   SEVERITY_INT,
@@ -245,6 +246,11 @@ export function AlertsPage() {
                     checked={selected.has(a.id)}
                     onToggle={() => toggleSel(a.id)}
                     onOpen={() => setOpenAlert(a)}
+                    onCreateRule={(alert) =>
+                      navigate('/threat-management/alerts/tagging-rules', {
+                        state: { createWithConditions: alertToRuleConditions(alert) },
+                      })
+                    }
                   />
                 ))
               )}

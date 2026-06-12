@@ -24,13 +24,20 @@ interface FormState {
   tags: AlertTag[]
 }
 
-function ruleToForm(rule?: TaggingRule | null, initialTags?: AlertTag[]): FormState {
+function ruleToForm(
+  rule?: TaggingRule | null,
+  initialTags?: AlertTag[],
+  initialConditions?: FilterType[]
+): FormState {
+  const conds = rule?.conditions?.length
+    ? rule.conditions.map((c) => ({ ...c }))
+    : initialConditions?.length
+      ? initialConditions.map((c) => ({ ...c }))
+      : [{ field: RULE_FIELDS[0].field, operator: 'IS', value: '' }]
   return {
     name: rule?.name ?? '',
     description: rule?.description ?? '',
-    conditions: rule?.conditions?.length
-      ? rule.conditions.map((c) => ({ ...c }))
-      : [{ field: RULE_FIELDS[0].field, operator: 'IS', value: '' }],
+    conditions: conds,
     tags: rule?.tags ? [...rule.tags] : initialTags ? [...initialTags] : [],
   }
 }
@@ -69,6 +76,7 @@ export function TaggingRuleDrawer({
   rule,
   create,
   initialTags,
+  initialConditions,
   startInEdit,
   tagCatalog,
   onClose,
@@ -83,6 +91,9 @@ export function TaggingRuleDrawer({
   /** Pre-select these tags when creating a fresh rule (e.g. arriving from the
    *  tag editor's "create rule with this tag" deep-link). Ignored when editing. */
   initialTags?: AlertTag[]
+  /** Pre-fill conditions when creating a fresh rule (e.g. arriving from the
+   *  alerts list's "create rule from this alert" deep-link). Ignored when editing. */
+  initialConditions?: FilterType[]
   /** Open an existing rule directly in edit mode (no view-then-edit step). */
   startInEdit?: boolean
   tagCatalog: AlertTag[]
@@ -95,8 +106,8 @@ export function TaggingRuleDrawer({
   const df = useDateFormat()
   const [editing, setEditing] = useState(!!create || !!startInEdit)
   const [form, setForm] = useState<FormState>(() => ({
-    ...ruleToForm(rule, initialTags),
-    conditions: deserializeConditions(ruleToForm(rule, initialTags).conditions),
+    ...ruleToForm(rule, initialTags, initialConditions),
+    conditions: deserializeConditions(ruleToForm(rule, initialTags, initialConditions).conditions),
   }))
   const [busy, setBusy] = useState(false)
 
@@ -132,7 +143,8 @@ export function TaggingRuleDrawer({
 
   const cancelEdit = () => {
     setEditing(false)
-    setForm({ ...ruleToForm(rule), conditions: deserializeConditions(ruleToForm(rule).conditions) })
+    const fresh = ruleToForm(rule, initialTags, initialConditions)
+    setForm({ ...fresh, conditions: deserializeConditions(fresh.conditions) })
   }
 
   const showForm = editing || !!create

@@ -3254,6 +3254,9 @@
       "risk": "Risk",
       "time": "Time"
     },
+    "row": {
+      "createRuleFromAlert": "Create a tag from this alert"
+    },
     "list": {
       "loading": "Loading alerts…",
       "loadError": "Could not load alerts.",

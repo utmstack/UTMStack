@@ -66,5 +66,28 @@ export const RULE_FIELDS: { label: string; field: string }[] = [
 
 export const TAGGING_RULES_PAGE_SIZE = 20
 
+/** Walk a dotted path on a plain object (handles undefined nodes safely). */
+function readPath(obj: unknown, path: string): unknown {
+  return path.split('.').reduce<unknown>(
+    (acc, key) => (acc && typeof acc === 'object' ? (acc as Record<string, unknown>)[key] : undefined),
+    obj
+  )
+}
+
+/** Build a FilterType[] from an alert's fields — one IS-equals condition per
+ *  RULE_FIELDS entry that has a non-empty value on the alert. Used by the
+ *  "create rule from this alert" deep-link on the alerts list. */
+export function alertToRuleConditions(alert: unknown): { field: string; operator: string; value: string }[] {
+  const out: { field: string; operator: string; value: string }[] = []
+  for (const f of RULE_FIELDS) {
+    const v = readPath(alert, f.field)
+    if (v == null) continue
+    const s = typeof v === 'number' || typeof v === 'boolean' ? String(v) : typeof v === 'string' ? v : ''
+    if (!s.trim()) continue
+    out.push({ field: f.field, operator: 'IS', value: s })
+  }
+  return out
+}
+
 export const SELECT_CLS =
   'h-9 cursor-pointer rounded-md border border-input bg-background px-2 text-sm transition-colors focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'

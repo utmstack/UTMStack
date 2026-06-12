@@ -1,4 +1,4 @@
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { ArrowRight, Sparkles, Tag } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { SEV_META, ST_META, TABLE_COLS, TS, flagEmoji, relativeTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
@@ -23,6 +23,7 @@ export function AlertsTableHeader({ allChecked, onTogglePage }: { allChecked: bo
       <div>{t('alerts.table.sourceAdversary')}</div>
       <div className="text-center">{t('alerts.table.risk')}</div>
       <div className="text-center">{t('alerts.table.time')}</div>
+      <div />
     </div>
   )
 }
@@ -33,12 +34,14 @@ export function AlertRow({
   checked,
   onToggle,
   onOpen,
+  onCreateRule,
 }: {
   alert: Alert
   tagCatalog: AlertTag[]
   checked: boolean
   onToggle: () => void
   onOpen: () => void
+  onCreateRule: (alert: Alert) => void
 }) {
   const { t } = useTranslation()
   const sm = SEV_META[sevKey(a)]
@@ -46,7 +49,7 @@ export function AlertRow({
   const stmLabel = t(`alerts.status.${statusKey(a)}`)
   return (
     <div
-      className="grid cursor-pointer items-center gap-3 border-b border-border/50 px-4 py-2.5 text-[13px] last:border-b-0 hover:bg-muted/20"
+      className="group grid cursor-pointer items-center gap-3 border-b border-border/50 px-4 py-2.5 text-[13px] last:border-b-0 hover:bg-muted/20"
       style={{ gridTemplateColumns: TABLE_COLS }}
       onClick={onOpen}
     >
@@ -104,6 +107,17 @@ export function AlertRow({
       <FlowCell source={a.target} adversary={a.adversary} />
       <div className="text-center font-mono tabular-nums">{riskOf(a)}</div>
       <div className="text-center font-mono text-[11px] text-muted-foreground">{relativeTime(a[TS])}</div>
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          onCreateRule(a)
+        }}
+        title={t('alerts.row.createRuleFromAlert')}
+        aria-label={t('alerts.row.createRuleFromAlert')}
+        className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground/60 opacity-0 transition group-hover:opacity-100 hover:bg-background hover:text-primary"
+      >
+        <Tag size={13} />
+      </button>
     </div>
   )
 }

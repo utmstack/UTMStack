@@ -2297,6 +2297,9 @@
       "risk": "Rischio",
       "time": "Ora"
     },
+    "row": {
+      "createRuleFromAlert": "Crea un'etichetta da questo avviso"
+    },
     "list": {
       "loading": "Caricamento avvisi…",
       "loadError": "Impossibile caricare gli avvisi.",

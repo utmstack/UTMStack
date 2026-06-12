@@ -13,7 +13,7 @@ import { TaggingRulesTable } from '../components/tagging-rules-table'
 import { TaggingRuleDrawer } from '../components/tagging-rule-drawer'
 import { TAGGING_RULES_PAGE_SIZE } from '../lib/tagging-rule-meta'
 import { taggingRulesHttpService } from '../services/tagging-rules-http.service'
-import type { AlertTag, TaggingRule, TaggingRuleListParams } from '../types/tagging-rule.types'
+import type { AlertTag, FilterType, TaggingRule, TaggingRuleListParams } from '../types/tagging-rule.types'
 
 export function TaggingRulesPage() {
   const { t } = useTranslation()
@@ -28,20 +28,35 @@ export function TaggingRulesPage() {
   const [openInEdit, setOpenInEdit] = useState(false)
   const [creating, setCreating] = useState(false)
   const [creatingWith, setCreatingWith] = useState<AlertTag[]>([])
+  const [creatingConditions, setCreatingConditions] = useState<FilterType[]>([])
 
-  // Deep-link from the alert tag editor: if a rule already references this tag,
-  // open the first match in edit mode; otherwise open the create drawer with
-  // the tag pre-selected. Clear the router state on read so a refresh doesn't
-  // re-seed over the user's edits.
+  // Deep-links into this page:
+  //   - createWithTag: if a rule already references this tag, open the first
+  //     match in edit mode; otherwise open the create drawer with the tag
+  //     pre-selected.
+  //   - createWithConditions: open the create drawer with these conditions
+  //     pre-filled (sent from the alerts list's "create rule from alert"
+  //     glyph). Tags stay empty so the user picks them.
+  // The router state is cleared on read so a refresh doesn't re-seed.
   const location = useLocation()
   const navigate = useNavigate()
   const seededRef = useRef(false)
   useEffect(() => {
-    const state = location.state as { createWithTag?: AlertTag } | null
-    if (!state?.createWithTag || seededRef.current) return
+    const state = location.state as
+      | { createWithTag?: AlertTag; createWithConditions?: FilterType[] }
+      | null
+    if (seededRef.current) return
+    if (!state?.createWithTag && !state?.createWithConditions?.length) return
     seededRef.current = true
     const tag = state.createWithTag
+    const conds = state.createWithConditions
     navigate(location.pathname, { replace: true })
+    if (conds?.length) {
+      setCreatingConditions(conds)
+      setCreating(true)
+      return
+    }
+    if (!tag) return
     void (async () => {
       try {
         const { data } = await taggingRulesHttpService.list({
@@ -95,6 +110,7 @@ export function TaggingRulesPage() {
     if (ok) {
       setCreating(false)
       setCreatingWith([])
+      setCreatingConditions([])
       setOpen(null)
       setOpenInEdit(false)
     }
@@ -211,10 +227,12 @@ export function TaggingRulesPage() {
         <TaggingRuleDrawer
           create
           initialTags={creatingWith}
+          initialConditions={creatingConditions}
           tagCatalog={tagCatalog}
           onClose={() => {
             setCreating(false)
             setCreatingWith([])
+            setCreatingConditions([])
           }}
           onSubmit={(input) => submit(input)}
           onCreateTag={createTag}
