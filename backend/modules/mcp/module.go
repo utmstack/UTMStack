@@ -1,17 +1,10 @@
-// Package mcp exposes the UTMStack backend's full usecase surface as an MCP
-// (Model Context Protocol) server, so any MCP-aware AI tool can drive the
-// same operations a user would over REST — search alerts, run SOAR rules,
-// generate compliance reports — under the same auth, permissions, license
-// gates, and audit log.
-//
-// The module is a thin protocol adapter: every tool delegates to an existing
-// connectors.*Usecase. No business logic lives here.
 package mcp
 
 import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/utmstack/utmstack/backend/modules/adaudit"
 	"github.com/utmstack/utmstack/backend/modules/alerts"
+	"github.com/utmstack/utmstack/backend/modules/alertscoring"
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	"github.com/utmstack/utmstack/backend/modules/billing"
@@ -34,6 +27,7 @@ import (
 type Deps struct {
 	IAM             *iam.Module
 	Alerts          *alerts.Module
+	AlertScoring    *alertscoring.Module
 	Incidents       *incidents.Module
 	SOAR            *soar.Module
 	Compliance      *compliance.Module

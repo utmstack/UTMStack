@@ -12,6 +12,7 @@ import (
 	"github.com/utmstack/utmstack/backend/internal/mail"
 	"github.com/utmstack/utmstack/backend/modules/adaudit"
 	"github.com/utmstack/utmstack/backend/modules/alerts"
+	"github.com/utmstack/utmstack/backend/modules/alertscoring"
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
 	appconfig_connectors "github.com/utmstack/utmstack/backend/modules/appconfig/connectors"
 	"github.com/utmstack/utmstack/backend/modules/audit"
@@ -200,6 +201,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		mcpModule = mcpmod.NewModule(&mcpmod.Deps{
 			IAM:             iamMod,
 			Alerts:          alertsMod,
+			AlertScoring:    alertscoring.NewModule(opensearchMod.Gateway(), agentClient, datasourcesMod.GetDatasourceUsecase()),
 			Incidents:       incidentsMod,
 			SOAR:            soarMod,
 			Compliance:      complianceMod,
