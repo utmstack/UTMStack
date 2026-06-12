@@ -27,13 +27,20 @@ type DataTypeEntry struct {
 	UDP    string
 	TCP    string
 	Origin string
+	// HTTP-only fields (Kind == http|https), from the built-in HTTPPorts registry.
+	Port            string
+	Path            string
+	Bind            string
+	Auth            string
+	SignatureHeader string
 }
 
 func IsBuiltin(name string) bool {
 	dt := DataType(name)
 	_, inProto := ProtoPorts[dt]
 	_, inFile := FilePaths[dt]
-	return inProto || inFile
+	_, inHTTP := HTTPPorts[dt]
+	return inProto || inFile || inHTTP
 }
 
 func ResolveDataType(name string) (DataTypeEntry, bool) {
@@ -58,6 +65,19 @@ func ResolveDataType(name string) (DataTypeEntry, bool) {
 			Name:   name,
 			Kind:   "file",
 			Origin: "built-in",
+		}, true
+	}
+
+	if hp, ok := HTTPPorts[dt]; ok {
+		return DataTypeEntry{
+			Name:            name,
+			Kind:            hp.Proto, // "http" | "https"
+			Origin:          "built-in",
+			Port:            hp.Port,
+			Path:            hp.Path,
+			Bind:            hp.Bind,
+			Auth:            hp.Auth,
+			SignatureHeader: hp.SignatureHeader,
 		}, true
 	}
 
@@ -179,6 +199,19 @@ func ListAllDataTypes() []DataTypeEntry {
 	for _, name := range fileNames {
 		entries = append(entries, DataTypeEntry{
 			Name: name, Kind: "file", Origin: "built-in",
+		})
+	}
+
+	httpNames := make([]string, 0, len(HTTPPorts))
+	for dt := range HTTPPorts {
+		httpNames = append(httpNames, string(dt))
+	}
+	sort.Strings(httpNames)
+	for _, name := range httpNames {
+		hp := HTTPPorts[DataType(name)]
+		entries = append(entries, DataTypeEntry{
+			Name: name, Kind: hp.Proto, Origin: "built-in",
+			Port: hp.Port, Path: hp.Path, Bind: hp.Bind, Auth: hp.Auth, SignatureHeader: hp.SignatureHeader,
 		})
 	}
 

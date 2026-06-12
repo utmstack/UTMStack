@@ -11,26 +11,33 @@ import (
 )
 
 var enableIntegrationCmd = &cobra.Command{
-	Use:   "enable-integration <name> <port> <protocol>",
+	Use:   "enable-integration <name> [port] <protocol>",
 	Short: "Enable a log integration",
-	Long: `Enable a log integration by name, port and protocol.
+	Long: `Enable a log integration by name and protocol.
+
+The port is optional for known integrations — the Forwarder uses the built-in
+default port for that data type. For a new/custom data type you must pass a port
+so it can be created.
 
 Protocol: tcp | udp | tls | http | https
 
-If the DataType does not exist it will be created automatically.
-
 Examples:
-  utmstack_forwarder enable-integration firewall-cisco-asa 514 udp
-  utmstack_forwarder enable-integration firewall-cisco-asa 1470 tcp
-  utmstack_forwarder enable-integration firewall-cisco-asa 1470 tls
+  utmstack_forwarder enable-integration firewall-cisco-asa udp
+  utmstack_forwarder enable-integration firewall-cisco-asa tcp
+  utmstack_forwarder enable-integration firewall-cisco-asa tls
   utmstack_forwarder enable-integration my-app 8080 http
-  utmstack_forwarder enable-integration my-app 8443 https`,
-	Args:    cobra.ExactArgs(3),
+  utmstack_forwarder enable-integration my-app 9000 udp`,
+	Args:    cobra.RangeArgs(2, 3),
 	PreRunE: requireInstalled,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
-		port := args[1]
-		proto := strings.ToLower(args[2])
+		var port, proto string
+		if len(args) == 3 {
+			port = args[1]
+			proto = strings.ToLower(args[2])
+		} else {
+			proto = strings.ToLower(args[1])
+		}
 
 		// Validate protocol
 		switch proto {
@@ -39,8 +46,29 @@ Examples:
 			return fmt.Errorf("invalid protocol %q: must be tcp, udp, tls, http or https", proto)
 		}
 
+		entry, known := config.ResolveDataType(name)
+
+		// Resolve the port from the catalog when omitted. Known integrations carry
+		// their built-in default; a new/custom data type must provide one.
+		if port == "" {
+			switch proto {
+			case "udp":
+				port = entry.UDP
+			case "tcp", "tls":
+				port = entry.TCP
+			case "http", "https":
+				port = entry.Port
+			}
+			if port == "" {
+				if !known {
+					return fmt.Errorf("port is required for new integration %q: it has no built-in default", name)
+				}
+				return fmt.Errorf("integration %q has no default %s port; pass one explicitly", name, proto)
+			}
+		}
+
 		// If the DataType doesn't exist, create it automatically
-		if _, ok := config.ResolveDataType(name); !ok {
+		if !known {
 			kind := "syslog"
 			switch proto {
 			case "http", "https":
@@ -74,13 +102,28 @@ Examples:
 func enableHTTPIntegration(name, port, proto string) error {
 	fmt.Printf("Enabling %s integration %q on port %s...\n", proto, name, port)
 
+	// Defaults for a generic HTTP integration.
+	path, bind, auth, sigHeader := "/logs", "127.0.0.1", enableAuth, enableSigHeader
+
+	// Built-in HTTP integrations (e.g. github) ship their own path/bind/auth so the
+	// user doesn't have to pass them; an explicit --auth still wins.
+	if spec, ok := config.HTTPPorts[config.DataType(name)]; ok {
+		path, bind = spec.Path, spec.Bind
+		if auth == "" {
+			auth = spec.Auth
+		}
+		if spec.SignatureHeader != "" {
+			sigHeader = spec.SignatureHeader
+		}
+	}
+
 	opts := collectorpkg.HTTPIntegrationOptions{
 		Proto:           proto,
 		Port:            port,
-		Path:            "/logs",
-		Bind:            "127.0.0.1",
-		Auth:            enableAuth,
-		SignatureHeader: enableSigHeader,
+		Path:            path,
+		Bind:            bind,
+		Auth:            auth,
+		SignatureHeader: sigHeader,
 	}
 	if err := collectorpkg.EnableHTTPIntegration(name, opts); err != nil {
 		return fmt.Errorf("error enabling %s integration: %w", proto, err)

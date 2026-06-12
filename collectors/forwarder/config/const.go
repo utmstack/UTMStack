@@ -61,6 +61,8 @@ const (
 	DataTypeNetflow          DataType = "netflow"
 	DataTypeNginxModule      DataType = "nginx"
 	DataTypePostgresqlModule DataType = "postgresql"
+	DataTypeGithub           DataType = "github"
+	DataTypeOracle           DataType = "oracle"
 )
 
 type ProtoPort struct {
@@ -89,6 +91,7 @@ var ProtoPorts = map[DataType]ProtoPort{
 	DataTypeFortiweb:       {UDP: "7018", TCP: "7018"},
 	DataTypeSuricata:       {UDP: "7019", TCP: "7019"},
 	DataTypeNetflow:        {UDP: "2055", TCP: ""},
+	DataTypeOracle:         {UDP: "7021", TCP: "7021"},
 }
 
 var FilePaths = map[DataType]string{
@@ -96,4 +99,22 @@ var FilePaths = map[DataType]string{
 	DataTypePostgresqlModule: "/var/log/postgresql/",
 }
 
+type HTTPSpec struct {
+	Proto           string // "http" | "https"
+	Port            string
+	Path            string // URL path the sender posts to
+	Bind            string // "0.0.0.0" for externally-reachable webhooks
+	Auth            string // "" | "bearer" | "hmac"
+	SignatureHeader string // header carrying the HMAC signature (hmac auth)
+}
 
+var HTTPPorts = map[DataType]HTTPSpec{
+	DataTypeGithub: {
+		Proto:           "https",
+		Port:            "7020",
+		Path:            "/github",
+		Bind:            "0.0.0.0",
+		Auth:            "hmac",
+		SignatureHeader: "X-Hub-Signature-256",
+	},
+}
