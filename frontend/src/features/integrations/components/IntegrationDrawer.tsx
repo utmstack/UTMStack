@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { Check, ExternalLink, X } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { LogoTile } from '@/features/integrations/components/ui/LogoTile'
@@ -16,6 +17,7 @@ interface IntegrationDrawerProps {
 
 export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawerProps) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const km = KIND_META[i.kind]
   const isCollectorGroup = km?.group === 'collectors'
 
@@ -23,6 +25,11 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
     document
       .getElementById('cloud-tenants-section')
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const viewEvents = () => {
+    if (!i.dataType) return
+    navigate(`/log-explorer?dataType=${encodeURIComponent(i.dataType)}`)
   }
 
   return (
@@ -79,7 +86,7 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
                   <span className="mr-1.5">⚙️</span>
                   {t('integrations.drawer.manage')}
                 </Button>
-                <Button size="sm" variant="outline">
+                <Button size="sm" variant="outline" onClick={viewEvents} disabled={!i.dataType}>
                   <ExternalLink size={13} className="mr-1.5" />
                   {t('integrations.drawer.viewEvents')}
                 </Button>

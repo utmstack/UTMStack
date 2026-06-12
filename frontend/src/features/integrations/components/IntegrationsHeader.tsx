@@ -1,6 +1,4 @@
 import { useTranslation } from 'react-i18next'
-import { ExternalLink } from 'lucide-react'
-import { Button } from '@/shared/components/ui/button'
 
 interface IntegrationsHeaderProps {
   configured: number

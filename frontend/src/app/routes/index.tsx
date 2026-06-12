@@ -2,6 +2,13 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from '@/features/auth'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { HomePage } from '@/features/home/pages/HomePage'
+import {
+  DashboardPage,
+  NewDashboardPage,
+  NewVisualizationPage,
+  EditVisualizationPage,
+  VisualizationListPage,
+} from '@/features/dashboard'
 import { ProfilePage } from '@/features/profile/pages/ProfilePage'
 import { AuditPage } from '@/features/audit/pages/AuditPage'
 import { AlertsPage } from '@/features/threats/pages/AlertsPage'
@@ -48,6 +55,13 @@ export function AppRoutes() {
       >
         <Route index element={<Navigate to="/home" replace />} />
         <Route path="home" element={<HomePage />} />
+        {/* Dashboards */}
+        <Route path="dashboards" element={<Navigate to="/dashboards/list" replace />} />
+        <Route path="dashboards/list" element={<DashboardPage />} />
+        <Route path="dashboards/new" element={<NewDashboardPage />} />
+        <Route path="dashboards/visualizations" element={<VisualizationListPage />} />
+        <Route path="dashboards/visualizations/new" element={<NewVisualizationPage />} />
+        <Route path="dashboards/visualizations/:id" element={<EditVisualizationPage />} />
 
         {/* Threat Management */}
         <Route path="threat-management" element={<Navigate to="/threat-management/alerts" replace />} />

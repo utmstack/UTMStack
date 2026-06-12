@@ -7,6 +7,16 @@
       "cancel": "Annulla",
       "retry": "Riprova",
       "refresh": "Aggiorna"
+    },
+    "confirm": {
+      "delete": "Elimina",
+      "working": "Operazione in corso…"
+    },
+    "dateRange": {
+      "pick": "Scegli un intervallo",
+      "clear": "Cancella",
+      "done": "Fine",
+      "apply": "Applica"
     }
   },
   "auth": {
@@ -166,6 +176,11 @@
   },
   "nav": {
     "home": "Home",
+    "dashboards": "Dashboard",
+    "dashboardList": "Elenco dashboard",
+    "visualizationList": "Visualizzazioni",
+    "newDashboard": "Nuova dashboard",
+    "newVisualization": "Nuova visualizzazione",
     "threatManagement": "Gestione minacce",
     "alerts": "Avvisi",
     "incidents": "Incidenti",
@@ -186,6 +201,325 @@
     "settings": "Impostazioni",
     "back": "Indietro",
     "regexPatterns": "Espressioni regolari"
+  },
+  "dashboards": {
+    "title": "Dashboard",
+    "subtitle": "Sfoglia e modifica dashboard interattive.",
+    "list": {
+      "title": "Dashboard",
+      "create": "Nuova",
+      "searchPlaceholder": "Cerca dashboard…",
+      "loading": "Caricamento delle dashboard…",
+      "empty": "Nessuna dashboard ancora.",
+      "rename": "Rinomina",
+      "delete": "Elimina"
+    },
+    "actions": {
+      "edit": "Modifica"
+    },
+    "editor": {
+      "editing": "In modifica",
+      "addWidget": "Aggiungi widget",
+      "save": "Salva",
+      "discard": "Annulla",
+      "newTitle": "Nuova visualizzazione",
+      "newSubtitle": "Scegli un tipo di grafico, una fonte di dati e modellalo visivamente. L'SQL viene generato automaticamente.",
+      "editTitle": "Modifica visualizzazione",
+      "editSubtitle": "Modifica la definizione del grafico. Le modifiche si applicano ovunque questa visualizzazione sia usata.",
+      "loading": "Caricamento della visualizzazione…",
+      "notFoundTitle": "Visualizzazione non trovata",
+      "notFoundSubtitle": "Potrebbe essere stata eliminata oppure non hai i permessi per accedervi.",
+      "backToList": "Torna alle visualizzazioni",
+      "chartType": {
+        "title": "Tipo di grafico"
+      },
+      "chartTypes": {
+        "bar": {
+          "label": "Barre",
+          "description": "Confronta valori tra categorie."
+        },
+        "horizontal_bar": {
+          "label": "Barre (orizzontale)",
+          "description": "Come un grafico a barre con gli assi invertiti."
+        },
+        "line": {
+          "label": "Linea",
+          "description": "Tendenze lungo un asse ordinato."
+        },
+        "area": {
+          "label": "Area",
+          "description": "Linea riempita — enfatizza il volume."
+        },
+        "pie": {
+          "label": "Torta",
+          "description": "Quota sul totale per categoria."
+        },
+        "gauge": {
+          "label": "Indicatore",
+          "description": "Un singolo valore su un quadrante di riferimento."
+        },
+        "goal": {
+          "label": "Obiettivo",
+          "description": "Avanzamento verso una percentuale obiettivo."
+        },
+        "heatmap": {
+          "label": "Mappa di calore",
+          "description": "Due assi categorici, valore rappresentato dal colore."
+        },
+        "tag_cloud": {
+          "label": "Nuvola di tag",
+          "description": "Parole dimensionate per frequenza."
+        },
+        "metric": {
+          "label": "Metrica",
+          "description": "Un singolo valore scalare."
+        },
+        "table": {
+          "label": "Tabella",
+          "description": "Righe aggregate."
+        },
+        "list": {
+          "label": "Elenco",
+          "description": "Righe grezze, non aggregate."
+        },
+        "region_map": {
+          "label": "Mappa di coordinate",
+          "description": "Posiziona indicatori su un planisfero usando coordinate lat/lon."
+        },
+        "text": {
+          "label": "Testo",
+          "description": "Testo libero o semplice output per riga."
+        }
+      },
+      "dataSource": {
+        "title": "Fonte dati",
+        "indexPattern": "Pattern di indice",
+        "noPatternHint": "Scegli un pattern di indice per abilitare filtri, metrica e dimensione."
+      },
+      "indexPattern": {
+        "placeholder": "Seleziona un pattern di indice…",
+        "loading": "Caricamento dei pattern di indice…"
+      },
+      "filters": {
+        "title": "Filtri",
+        "empty": "Nessun filtro — saranno inclusi tutti i documenti dell'intervallo.",
+        "add": "Aggiungi filtro",
+        "remove": "Rimuovi",
+        "field": "Campo",
+        "fieldPlaceholder": "es. host.name",
+        "operator": "Operatore",
+        "value": "Valore",
+        "valuePlaceholder": "Valore",
+        "from": "Da",
+        "to": "A",
+        "noValue": "Nessun valore richiesto",
+        "listPlaceholder": "Valori separati da virgola"
+      },
+      "operators": {
+        "IS": "è",
+        "IS_NOT": "non è",
+        "IS_ONE_OF_TERMS": "è uno tra",
+        "IS_GREATER_THAN": "è maggiore di",
+        "IS_LESS_THAN_OR_EQUALS": "è minore o uguale a",
+        "IS_BETWEEN": "è compreso tra",
+        "CONTAIN": "contiene",
+        "DOES_NOT_CONTAIN": "non contiene",
+        "START_WITH": "inizia con",
+        "ENDS_WITH": "termina con",
+        "EXIST": "esiste",
+        "DOES_NOT_EXIST": "non esiste"
+      },
+      "aggregations": {
+        "count": "Conteggio",
+        "count_distinct": "Conteggio distinto",
+        "sum": "Somma",
+        "avg": "Media",
+        "min": "Min",
+        "max": "Max"
+      },
+      "metric": {
+        "title": "Metrica (asse Y)",
+        "aggregation": "Aggregazione",
+        "field": "Campo",
+        "fieldPlaceholder": "Scegli un campo…",
+        "fieldNotRequired": "Non richiesto per COUNT(*)"
+      },
+      "dimension": {
+        "title": "Dimensione (asse X / raggruppa per)",
+        "field": "Campo",
+        "placeholder": "Scegli un campo per cui raggruppare…"
+      },
+      "table": {
+        "title": "SELECT personalizzato (facoltativo)",
+        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status"
+      },
+      "sqlPreview": {
+        "title": "Anteprima SQL",
+        "empty": "Scegli un pattern di indice per vedere l'SQL generato.",
+        "toggleRaw": "Passa ad avanzato (SQL grezzo)",
+        "rawPlaceholder": "SELECT … FROM … WHERE {{timeFilter}}",
+        "hint": "{{timeFilter}}, {{from}} e {{to}} vengono sostituiti dal selettore temporale al rendering."
+      },
+      "chartPreview": {
+        "title": "Anteprima del grafico",
+        "noQuery": "Compila la fonte dati per vedere un'anteprima.",
+        "error": "La query di anteprima non è andata a buon fine."
+      },
+      "rawMode": {
+        "label": "Avanzato (SQL grezzo)"
+      },
+      "tabs": {
+        "visual": "Visivo",
+        "sql": "SQL"
+      },
+      "chartTypeChip": {
+        "label": "Grafico:"
+      },
+      "chartTypeModal": {
+        "title": "Scegli un tipo di grafico",
+        "subtitle": "Scegli come visualizzare i dati. Potrai cambiarlo in seguito.",
+        "confirm": "Continua",
+        "swapTitle": "Cambia tipo di grafico",
+        "swapConfirm": "Applica"
+      },
+      "saveDialog": {
+        "createTitle": "Salva nuova visualizzazione",
+        "updateTitle": "Salva modifiche",
+        "subtitle": "Dalle un nome per ritrovarla nell'elenco."
+      },
+      "saveVisualization": "Salva visualizzazione",
+      "fieldSelect": {
+        "loading": "Caricamento dei campi…",
+        "choose": "Scegli un campo…"
+      },
+      "toast": {
+        "notReady": "Scegli un pattern di indice (e aggiungi una metrica o l'SQL) prima di salvare."
+      }
+    },
+    "grid": {
+      "empty": "Questa dashboard non ha ancora widget.",
+      "emptyEditing": "Clicca su «Aggiungi widget» per inserire una visualizzazione nella griglia.",
+      "missingVisualization": "Visualizzazione non disponibile",
+      "unknownVisualization": "Visualizzazione"
+    },
+    "widget": {
+      "renderError": "Impossibile renderizzare questo widget.",
+      "loading": "Caricamento dei dati…",
+      "queryError": "Impossibile caricare i dati del widget.",
+      "noData": "Nessun dato per l'intervallo di tempo selezionato.",
+      "noTimePlaceholderHint": "Suggerimento: aggiungi un segnaposto temporale all'SQL affinché filtri secondo l'intervallo del selettore.",
+      "regionMapEmpty": "Nessun punto con lat/lon validi.",
+      "regionMapShapeHint": "L'SQL deve restituire le colonne di latitudine e longitudine (oppure un array value [lat, lon, count]).",
+      "regionMapUnnamed": "(senza nome)",
+      "regionMapValue": "valore: {{value}}",
+      "removeAriaLabel": "Rimuovi widget"
+    },
+    "form": {
+      "createTitle": "Nuova dashboard",
+      "renameTitle": "Modifica dashboard",
+      "name": "Nome",
+      "namePlaceholder": "es. Panoramica di rete",
+      "description": "Descrizione",
+      "descriptionPlaceholder": "Facoltativo",
+      "cancel": "Annulla",
+      "create": "Crea",
+      "save": "Salva"
+    },
+    "addWidget": {
+      "title": "Aggiungi visualizzazione",
+      "subtitle": "Scegli una o più visualizzazioni esistenti da inserire nella griglia.",
+      "searchPlaceholder": "Cerca visualizzazioni…",
+      "loading": "Caricamento delle visualizzazioni…",
+      "empty": "Nessuna visualizzazione trovata.",
+      "alreadyAdded": "Già su questa dashboard",
+      "newWidget": "Nuovo widget",
+      "noneSelected": "Nessun widget selezionato",
+      "selectedCount": "{{count}} selezionati",
+      "addSelected": "Aggiungi ({{count}})"
+    },
+    "confirm": {
+      "deleteTitle": "Elimina dashboard",
+      "delete": "Eliminare la dashboard «{{name}}»? Questa azione è irreversibile."
+    },
+    "page": {
+      "noSelection": "Scegli una dashboard dall'elenco, oppure creane una per iniziare.",
+      "loading": "Caricamento dei widget…"
+    },
+    "toast": {
+      "created": "Dashboard creata.",
+      "createFailed": "Impossibile creare la dashboard.",
+      "updated": "Dashboard aggiornata.",
+      "updateFailed": "Impossibile aggiornare la dashboard.",
+      "deleted": "Dashboard eliminata.",
+      "deleteFailed": "Impossibile eliminare la dashboard.",
+      "widgetAdded": "Widget aggiunto.",
+      "widgetsAdded": "{{count}} widget aggiunti.",
+      "widgetAddFailed": "Impossibile aggiungere il widget.",
+      "layoutSaved": "Layout salvato.",
+      "layoutSaveFailed": "Impossibile salvare il layout.",
+      "visualizationCreated": "Visualizzazione creata.",
+      "visualizationCreateFailed": "Impossibile creare la visualizzazione.",
+      "visualizationUpdated": "Visualizzazione aggiornata.",
+      "visualizationUpdateFailed": "Impossibile aggiornare la visualizzazione.",
+      "visualizationDeleted": "Visualizzazione eliminata.",
+      "visualizationDeleteFailed": "Impossibile eliminare la visualizzazione."
+    },
+    "newDashboard": {
+      "title": "Nuova dashboard",
+      "subtitle": "Crea una dashboard vuota. Potrai aggiungere widget dopo averla salvata."
+    },
+    "newVisualization": {
+      "title": "Nuova visualizzazione",
+      "subtitle": "Definisci un grafico riutilizzabile partendo da una query SQL e da una configurazione ECharts.",
+      "sqlQuery": "Query SQL",
+      "sqlQueryPlaceholder": "SELECT bucket, count(*) FROM logs GROUP BY bucket",
+      "sqlQueryHint": "Usa i segnaposto timeFilter, from e to (tra doppie parentesi graffe) per applicare il selettore temporale al rendering.",
+      "config": "Configurazione del grafico (opzione ECharts, JSON)",
+      "configHint": "Deve essere un JSON valido. Le righe dell'SQL sono esposte come `dataset.source` — collega le tue serie con `encode`.",
+      "configError": "JSON non valido: {{error}}"
+    },
+    "visualizationList": {
+      "title": "Visualizzazioni",
+      "subtitle": "{{count}} visualizzazione/i disponibile/i.",
+      "subtitleFiltered": "Visualizzate {{shown}} su {{total}}.",
+      "create": "Nuova",
+      "searchPlaceholder": "Cerca visualizzazioni…",
+      "loading": "Caricamento delle visualizzazioni…",
+      "empty": "Nessuna visualizzazione ancora.",
+      "emptyFiltered": "Nessuna visualizzazione corrisponde ai filtri attuali.",
+      "delete": "Elimina",
+      "deleteTitle": "Elimina visualizzazione",
+      "confirmDelete": "Eliminare la visualizzazione «{{name}}»? Questa azione è irreversibile.",
+      "filters": {
+        "search": "Cerca",
+        "chartType": "Tipo di grafico",
+        "allChartTypes": "Tutti i tipi di grafico",
+        "source": "Fonte",
+        "allSources": "Tutte le fonti",
+        "createdAt": "Creata",
+        "modifiedAt": "Modificata",
+        "createdRangeTitle": "Intervallo personalizzato — Creazione",
+        "modifiedRangeTitle": "Intervallo personalizzato — Modifica",
+        "pickRange": "Scegli un intervallo",
+        "datePresets": {
+          "all": "Tutti i periodi",
+          "today": "Oggi",
+          "last7": "Ultimi 7 giorni",
+          "last30": "Ultimi 30 giorni",
+          "lastYear": "Ultimo anno",
+          "custom": "Intervallo personalizzato"
+        },
+        "clear": "Cancella filtri"
+      },
+      "col": {
+        "name": "Nome",
+        "chartType": "Tipo di grafico",
+        "source": "Fonte",
+        "description": "Descrizione",
+        "created": "Creata",
+        "modified": "Modificata"
+      }
+    }
   },
   "settings": {
     "title": "Impostazioni",

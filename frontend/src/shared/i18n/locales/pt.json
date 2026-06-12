@@ -7,6 +7,16 @@
       "cancel": "Cancelar",
       "retry": "Tentar novamente",
       "refresh": "Atualizar"
+    },
+    "confirm": {
+      "delete": "Excluir",
+      "working": "Processando…"
+    },
+    "dateRange": {
+      "pick": "Escolher um intervalo",
+      "clear": "Limpar",
+      "done": "Concluir",
+      "apply": "Aplicar"
     }
   },
   "auth": {
@@ -166,6 +176,11 @@
   },
   "nav": {
     "home": "Início",
+    "dashboards": "Painéis",
+    "dashboardList": "Lista de painéis",
+    "visualizationList": "Visualizações",
+    "newDashboard": "Novo painel",
+    "newVisualization": "Nova visualização",
     "threatManagement": "Gestão de ameaças",
     "alerts": "Alertas",
     "incidents": "Incidentes",
@@ -187,6 +202,325 @@
     "back": "Voltar",
     "parsingFilters": "Filtros de Parsing",
     "regexPatterns": "Expressões regulares"
+  },
+  "dashboards": {
+    "title": "Painéis",
+    "subtitle": "Navegue e edite painéis interativos.",
+    "list": {
+      "title": "Painéis",
+      "create": "Novo",
+      "searchPlaceholder": "Pesquisar painéis…",
+      "loading": "Carregando painéis…",
+      "empty": "Ainda não há painéis.",
+      "rename": "Renomear",
+      "delete": "Excluir"
+    },
+    "actions": {
+      "edit": "Editar"
+    },
+    "editor": {
+      "editing": "Edição",
+      "addWidget": "Adicionar widget",
+      "save": "Salvar",
+      "discard": "Descartar",
+      "newTitle": "Nova visualização",
+      "newSubtitle": "Escolha um tipo de gráfico, selecione uma fonte de dados e modele-o visualmente. O SQL é gerado automaticamente.",
+      "editTitle": "Editar visualização",
+      "editSubtitle": "Ajuste a definição do gráfico. As alterações são aplicadas em todos os lugares em que esta visualização é usada.",
+      "loading": "Carregando visualização…",
+      "notFoundTitle": "Visualização não encontrada",
+      "notFoundSubtitle": "Pode ter sido excluída ou você não tem acesso a ela.",
+      "backToList": "Voltar para visualizações",
+      "chartType": {
+        "title": "Tipo de gráfico"
+      },
+      "chartTypes": {
+        "bar": {
+          "label": "Barras",
+          "description": "Compare valores entre categorias."
+        },
+        "horizontal_bar": {
+          "label": "Barras (horizontal)",
+          "description": "Como um gráfico de barras com os eixos invertidos."
+        },
+        "line": {
+          "label": "Linha",
+          "description": "Tendências sobre um eixo ordenado."
+        },
+        "area": {
+          "label": "Área",
+          "description": "Linha preenchida — destaca o volume."
+        },
+        "pie": {
+          "label": "Pizza",
+          "description": "Proporção do total por categoria."
+        },
+        "gauge": {
+          "label": "Indicador",
+          "description": "Um único valor em um mostrador de referência."
+        },
+        "goal": {
+          "label": "Meta",
+          "description": "Progresso em direção a uma porcentagem-alvo."
+        },
+        "heatmap": {
+          "label": "Mapa de calor",
+          "description": "Dois eixos categóricos, valor representado pela cor."
+        },
+        "tag_cloud": {
+          "label": "Nuvem de tags",
+          "description": "Palavras dimensionadas pela frequência."
+        },
+        "metric": {
+          "label": "Métrica",
+          "description": "Um único valor escalar."
+        },
+        "table": {
+          "label": "Tabela",
+          "description": "Linhas agregadas."
+        },
+        "list": {
+          "label": "Lista",
+          "description": "Linhas brutas, sem agregação."
+        },
+        "region_map": {
+          "label": "Mapa de coordenadas",
+          "description": "Posicione marcadores em um mapa-múndi usando coordenadas lat/lon."
+        },
+        "text": {
+          "label": "Texto",
+          "description": "Texto livre ou saída simples por linha."
+        }
+      },
+      "dataSource": {
+        "title": "Fonte de dados",
+        "indexPattern": "Padrão de índice",
+        "noPatternHint": "Escolha um padrão de índice para habilitar filtros, métrica e dimensão."
+      },
+      "indexPattern": {
+        "placeholder": "Selecione um padrão de índice…",
+        "loading": "Carregando padrões de índice…"
+      },
+      "filters": {
+        "title": "Filtros",
+        "empty": "Sem filtros — todos os documentos do intervalo serão incluídos.",
+        "add": "Adicionar filtro",
+        "remove": "Remover",
+        "field": "Campo",
+        "fieldPlaceholder": "ex.: host.name",
+        "operator": "Operador",
+        "value": "Valor",
+        "valuePlaceholder": "Valor",
+        "from": "De",
+        "to": "Até",
+        "noValue": "Nenhum valor necessário",
+        "listPlaceholder": "Valores separados por vírgula"
+      },
+      "operators": {
+        "IS": "é",
+        "IS_NOT": "não é",
+        "IS_ONE_OF_TERMS": "é um de",
+        "IS_GREATER_THAN": "é maior que",
+        "IS_LESS_THAN_OR_EQUALS": "é menor ou igual a",
+        "IS_BETWEEN": "está entre",
+        "CONTAIN": "contém",
+        "DOES_NOT_CONTAIN": "não contém",
+        "START_WITH": "começa com",
+        "ENDS_WITH": "termina com",
+        "EXIST": "existe",
+        "DOES_NOT_EXIST": "não existe"
+      },
+      "aggregations": {
+        "count": "Contagem",
+        "count_distinct": "Contagem distinta",
+        "sum": "Soma",
+        "avg": "Média",
+        "min": "Mín",
+        "max": "Máx"
+      },
+      "metric": {
+        "title": "Métrica (eixo Y)",
+        "aggregation": "Agregação",
+        "field": "Campo",
+        "fieldPlaceholder": "Escolha um campo…",
+        "fieldNotRequired": "Não necessário para COUNT(*)"
+      },
+      "dimension": {
+        "title": "Dimensão (eixo X / agrupar por)",
+        "field": "Campo",
+        "placeholder": "Escolha um campo para agrupar…"
+      },
+      "table": {
+        "title": "SELECT personalizado (opcional)",
+        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status"
+      },
+      "sqlPreview": {
+        "title": "Pré-visualização do SQL",
+        "empty": "Escolha um padrão de índice para ver o SQL gerado.",
+        "toggleRaw": "Alternar para avançado (SQL bruto)",
+        "rawPlaceholder": "SELECT … FROM … WHERE {{timeFilter}}",
+        "hint": "{{timeFilter}}, {{from}} e {{to}} são substituídos pelo seletor de tempo no momento da renderização."
+      },
+      "chartPreview": {
+        "title": "Pré-visualização do gráfico",
+        "noQuery": "Preencha a fonte de dados para ver uma pré-visualização.",
+        "error": "A consulta de pré-visualização falhou."
+      },
+      "rawMode": {
+        "label": "Avançado (SQL bruto)"
+      },
+      "tabs": {
+        "visual": "Visual",
+        "sql": "SQL"
+      },
+      "chartTypeChip": {
+        "label": "Gráfico:"
+      },
+      "chartTypeModal": {
+        "title": "Escolha um tipo de gráfico",
+        "subtitle": "Escolha como visualizar os dados. Você pode alterar isso depois.",
+        "confirm": "Continuar",
+        "swapTitle": "Alterar tipo de gráfico",
+        "swapConfirm": "Aplicar"
+      },
+      "saveDialog": {
+        "createTitle": "Salvar nova visualização",
+        "updateTitle": "Salvar alterações",
+        "subtitle": "Dê um nome para encontrá-la na lista."
+      },
+      "saveVisualization": "Salvar visualização",
+      "fieldSelect": {
+        "loading": "Carregando campos…",
+        "choose": "Escolha um campo…"
+      },
+      "toast": {
+        "notReady": "Escolha um padrão de índice (e adicione uma métrica ou SQL) antes de salvar."
+      }
+    },
+    "grid": {
+      "empty": "Este painel ainda não tem widgets.",
+      "emptyEditing": "Clique em \"Adicionar widget\" para soltar uma visualização na grade.",
+      "missingVisualization": "Visualização indisponível",
+      "unknownVisualization": "Visualização"
+    },
+    "widget": {
+      "renderError": "Não foi possível renderizar este widget.",
+      "loading": "Carregando dados…",
+      "queryError": "Não foi possível carregar os dados do widget.",
+      "noData": "Sem dados para o intervalo de tempo selecionado.",
+      "noTimePlaceholderHint": "Dica: adicione um marcador de tempo ao SQL para que ele filtre pelo intervalo do seletor.",
+      "regionMapEmpty": "Nenhum ponto com lat/lon válidos.",
+      "regionMapShapeHint": "O SQL deve retornar colunas de latitude e longitude (ou um array value [lat, lon, count]).",
+      "regionMapUnnamed": "(sem nome)",
+      "regionMapValue": "valor: {{value}}",
+      "removeAriaLabel": "Remover widget"
+    },
+    "form": {
+      "createTitle": "Novo painel",
+      "renameTitle": "Editar painel",
+      "name": "Nome",
+      "namePlaceholder": "ex.: Visão geral da rede",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Opcional",
+      "cancel": "Cancelar",
+      "create": "Criar",
+      "save": "Salvar"
+    },
+    "addWidget": {
+      "title": "Adicionar visualização",
+      "subtitle": "Escolha uma ou mais visualizações existentes para soltar na grade.",
+      "searchPlaceholder": "Pesquisar visualizações…",
+      "loading": "Carregando visualizações…",
+      "empty": "Nenhuma visualização encontrada.",
+      "alreadyAdded": "Já está neste painel",
+      "newWidget": "Novo widget",
+      "noneSelected": "Nenhum widget selecionado",
+      "selectedCount": "{{count}} selecionado(s)",
+      "addSelected": "Adicionar ({{count}})"
+    },
+    "confirm": {
+      "deleteTitle": "Excluir painel",
+      "delete": "Excluir o painel \"{{name}}\"? Esta ação não pode ser desfeita."
+    },
+    "page": {
+      "noSelection": "Escolha um painel na lista ou crie um para começar.",
+      "loading": "Carregando widgets…"
+    },
+    "toast": {
+      "created": "Painel criado.",
+      "createFailed": "Não foi possível criar o painel.",
+      "updated": "Painel atualizado.",
+      "updateFailed": "Não foi possível atualizar o painel.",
+      "deleted": "Painel excluído.",
+      "deleteFailed": "Não foi possível excluir o painel.",
+      "widgetAdded": "Widget adicionado.",
+      "widgetsAdded": "{{count}} widgets adicionados.",
+      "widgetAddFailed": "Não foi possível adicionar o widget.",
+      "layoutSaved": "Layout salvo.",
+      "layoutSaveFailed": "Não foi possível salvar o layout.",
+      "visualizationCreated": "Visualização criada.",
+      "visualizationCreateFailed": "Não foi possível criar a visualização.",
+      "visualizationUpdated": "Visualização atualizada.",
+      "visualizationUpdateFailed": "Não foi possível atualizar a visualização.",
+      "visualizationDeleted": "Visualização excluída.",
+      "visualizationDeleteFailed": "Não foi possível excluir a visualização."
+    },
+    "newDashboard": {
+      "title": "Novo painel",
+      "subtitle": "Crie um painel em branco. Você pode adicionar widgets depois de salvá-lo."
+    },
+    "newVisualization": {
+      "title": "Nova visualização",
+      "subtitle": "Defina um gráfico reutilizável a partir de uma consulta SQL e de uma configuração de ECharts.",
+      "sqlQuery": "Consulta SQL",
+      "sqlQueryPlaceholder": "SELECT bucket, count(*) FROM logs GROUP BY bucket",
+      "sqlQueryHint": "Use os marcadores timeFilter, from e to (entre chaves duplas) para que o seletor de tempo seja aplicado na renderização.",
+      "config": "Configuração do gráfico (opção do ECharts, JSON)",
+      "configHint": "Deve ser um JSON válido. As linhas do SQL ficam expostas como `dataset.source` — conecte suas séries com `encode`.",
+      "configError": "JSON inválido: {{error}}"
+    },
+    "visualizationList": {
+      "title": "Visualizações",
+      "subtitle": "{{count}} visualização(ões) disponível(eis).",
+      "subtitleFiltered": "Exibindo {{shown}} de {{total}}.",
+      "create": "Nova",
+      "searchPlaceholder": "Pesquisar visualizações…",
+      "loading": "Carregando visualizações…",
+      "empty": "Ainda não há visualizações.",
+      "emptyFiltered": "Nenhuma visualização corresponde aos filtros atuais.",
+      "delete": "Excluir",
+      "deleteTitle": "Excluir visualização",
+      "confirmDelete": "Excluir a visualização \"{{name}}\"? Esta ação não pode ser desfeita.",
+      "filters": {
+        "search": "Pesquisar",
+        "chartType": "Tipo de gráfico",
+        "allChartTypes": "Todos os tipos de gráfico",
+        "source": "Fonte",
+        "allSources": "Todas as fontes",
+        "createdAt": "Criada",
+        "modifiedAt": "Modificada",
+        "createdRangeTitle": "Intervalo personalizado — Criação",
+        "modifiedRangeTitle": "Intervalo personalizado — Modificação",
+        "pickRange": "Escolher um intervalo",
+        "datePresets": {
+          "all": "Todo o período",
+          "today": "Hoje",
+          "last7": "Últimos 7 dias",
+          "last30": "Últimos 30 dias",
+          "lastYear": "Último ano",
+          "custom": "Intervalo personalizado"
+        },
+        "clear": "Limpar filtros"
+      },
+      "col": {
+        "name": "Nome",
+        "chartType": "Tipo de gráfico",
+        "source": "Fonte",
+        "description": "Descrição",
+        "created": "Criada",
+        "modified": "Modificada"
+      }
+    }
   },
   "settings": {
     "title": "Configurações",

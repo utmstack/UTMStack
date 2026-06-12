@@ -46,3 +46,19 @@ export interface TopValues {
   total: number
   top: { value: string; count: number; percent: number }[]
 }
+
+/** Persisted-per-tab Log Explorer configuration. Plain-JSON-serializable. */
+export interface LogExplorerTabConfig {
+  id: string
+  name: string
+  patternStr: string | null
+  range: { from: string | null; to: string; interval: string }
+  filters: FilterType[]
+  columns: string[]
+  searchInput: string
+  appliedQuery: string
+  sqlMode: boolean
+  sqlInput: string
+  appliedSql: string
+  viewMode: 'table' | 'chart'
+}

@@ -47,6 +47,7 @@ export interface Integration {
   id: string;
   name: string;
   moduleName?: string;
+  dataType?: string;
   kind: DeployKind;
   status: Status;
   description: string;
