@@ -164,7 +164,6 @@ export class AlertActionSelectComponent implements OnInit, OnDestroy {
     const alert = this.alert;
     this.changing = true;
     if (status === AlertStatusEnum.COMPLETED || status === AlertStatusEnum.COMPLETED_AS_FALSE_POSITIVE) {
-        console.log('status', status);
         const modalRef = this.modalService.open(AlertCompleteComponent, {centered: true});
         modalRef.componentInstance.alertsIDs = [alert.id];
         modalRef.componentInstance.canCreateRule = true;
@@ -184,6 +183,7 @@ export class AlertActionSelectComponent implements OnInit, OnDestroy {
             this.syncIncidentAlertStatus([this.alert.id], status);
           } else {
             this.changing = false;
+            this.utmToastService.showError('Error', 'An error occurred while changing the alert status. Please try again later.');
           }
         });
     } else {
@@ -192,6 +192,9 @@ export class AlertActionSelectComponent implements OnInit, OnDestroy {
         this.changing = false;
         this.alertUpdateHistoryBehavior.$refreshHistory.next(true);
         this.syncIncidentAlertStatus([this.alert.id], status);
+      }, () => {
+        this.changing = false;
+        this.utmToastService.showError('Error', 'An error occurred while changing the alert status. Please try again later.');
       });
     }
   }
