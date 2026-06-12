@@ -1,20 +1,11 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"crypto/hmac"
-	"crypto/sha256"
-	"errors"
-	"fmt"
-	"io"
 	"net"
-	"net/http"
 	"strconv"
 	"strings"
 
-	"github.com/gin-gonic/gin"
-	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -46,51 +37,6 @@ func (m *Middlewares) GrpcStreamAuth(srv any, ss grpc.ServerStream, _ *grpc.Stre
 		return err
 	}
 	return handler(srv, ss)
-}
-
-func (m *Middlewares) HttpAuth() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		apiKey := c.GetHeader(apiKeyHeader)
-		if apiKey == "" {
-			e := catcher.Error("cannot authenticate", errors.New("missing api key"), map[string]any{"process": "plugin_com.utmstack.inputs", "status": http.StatusUnauthorized})
-			e.GinError(c)
-			return
-		}
-		if !apiKeys.valid(apiKey, c.ClientIP()) {
-			e := catcher.Error("cannot authenticate", errors.New("invalid api key"), map[string]any{"process": "plugin_com.utmstack.inputs", "status": http.StatusUnauthorized})
-			e.GinError(c)
-			return
-		}
-		c.Next()
-	}
-}
-
-func (m *Middlewares) GitHubAuth() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		body, err := io.ReadAll(c.Request.Body)
-		if err != nil {
-			e := catcher.Error("failed to read request body", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
-			e.GinError(c)
-			return
-		}
-		sig := c.GetHeader("X-Hub-Signature-256")
-		if len(sig) == 0 {
-			e := catcher.Error("missing X-Hub-Signature-256 header", nil, map[string]any{"process": "plugin_com.utmstack.inputs"})
-			e.GinError(c)
-			return
-		}
-		c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
-		// The GitHub webhook is configured with the internal key as its HMAC secret.
-		key := plugins.PluginCfg("com.utmstack").Get("internalKey").String()
-		err = verifySignature(body, key, sig)
-		if err != nil {
-			e := catcher.Error("failed to verify signature", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
-			e.GinError(c)
-			return
-		}
-
-		c.Next()
-	}
 }
 
 func (m *Middlewares) authFromContext(ctx context.Context) error {
@@ -127,22 +73,6 @@ func (m *Middlewares) authFromContext(ctx context.Context) error {
 		}
 	} else {
 		return status.Error(codes.Unauthenticated, "auth is not provided")
-	}
-
-	return nil
-}
-
-func verifySignature(payloadBody []byte, secretToken string, signatureHeader string) error {
-	if signatureHeader == "" {
-		return errors.New("x-hub-signature-256 header is missing")
-	}
-
-	mac := hmac.New(sha256.New, []byte(secretToken))
-	mac.Write(payloadBody)
-	expectedSignature := "sha256=" + fmt.Sprintf("%x", mac.Sum(nil))
-
-	if signatureHeader != expectedSignature {
-		return errors.New("request signatures didn't match")
 	}
 
 	return nil

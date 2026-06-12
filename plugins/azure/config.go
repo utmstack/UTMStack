@@ -126,7 +126,8 @@ func StartConfigurationSystem() {
 			if event.Name != filePath {
 				continue
 			}
-			if event.Has(fsnotify.Write) || event.Has(fsnotify.Create) || event.Has(fsnotify.Rename) {
+			if event.Has(fsnotify.Write) || event.Has(fsnotify.Create) ||
+				event.Has(fsnotify.Rename) || event.Has(fsnotify.Remove) {
 				if sec := readConfig(filePath, encKey); sec != nil {
 					mu.Lock()
 					cnf = sec
@@ -172,9 +173,12 @@ type tenantYAML struct {
 func readConfig(path, encKey string) *ConfigurationSection {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		if !os.IsNotExist(err) {
-			_ = catcher.Error("failed to read config file", err, map[string]any{"process": processName, "file": path})
+		if os.IsNotExist(err) {
+			// File removed → module disabled / no configuration. Report an empty,
+			// inactive section so syncProcessors() stops every running processor.
+			return &ConfigurationSection{ModuleActive: false}
 		}
+		_ = catcher.Error("failed to read config file", err, map[string]any{"process": processName, "file": path})
 		return nil
 	}
 

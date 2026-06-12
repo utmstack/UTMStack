@@ -272,7 +272,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		}).([]string),
 		Ports: []string{
 			"50051:50051",
-			"8080:8080",
 		},
 		Volumes: []string{
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
