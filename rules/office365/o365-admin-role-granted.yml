@@ -1,0 +1,25 @@
+# Rule version v1.0.0
+
+name: O365 Admin Role/Permission Granted
+description: |
+  Detects when an admin role or elevated permission is granted to a user in Office 365 /
+  Azure Active Directory. This is detected via "Update user." operations in the Azure
+  Active Directory workload that include user type modifications in the raw log data.
+  Note: This rule uses a proxy signal ("Update user." with raw-text probe) as the
+  canonical "Add member to role." events are not available in the current data.
+category: "Persistence"
+technique: "T1136 - Create Account"
+references:
+  - "https://attack.mitre.org/techniques/T1136/"
+dataTypes:
+  - o365
+adversary: origin
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 0
+where: equals("action", "Update user.") &&
+      equals("log.Workload", "AzureActiveDirectory") &&
+      contains("log.ModifiedProperties", "TargetId.UserType")
+groupBy:
+  - adversary.user
