@@ -34,6 +34,7 @@ public final class Constants {
     public static final String PROP_TWILIO_NUMBER = "utmstack.twilio.number";
     public static final String PROP_ALERT_ADDRESS_TO_NOTIFY_ALERTS = "utmstack.alert.addressToNotifyAlerts";
     public static final String PROP_ALERT_ADDRESS_TO_NOTIFY_INCIDENTS = "utmstack.alert.addressToNotifyIncidents";
+    public static final String PROP_ALERT_ADDRESS_TO_NOTIFY_SPACE = "utmstack.alert.addressToNotifySpace";
     public static final String PROP_DATE_SETTINGS_TIMEZONE = "utmstack.time.zone";
     public static final String PROP_NETWORK_SCAN_API_URL = "utmstack.networkScan.apiUrl";
     public static final String PROP_TFA_ENABLE = "utmstack.tfa.enable";

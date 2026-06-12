@@ -599,4 +599,6 @@
 
   <include file="/config/liquibase/changelog/20260522001_update_socai_custom_headers_password.xml" relativeToChangelogFile="false"/>
 
+  <include file="/config/liquibase/changelog/20260612001_add_space_notification_email_param.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>

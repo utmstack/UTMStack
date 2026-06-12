@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260612001" author="Alex Sánchez">
+
+        <insert tableName="utm_configuration_parameter">
+            <column name="id" valueNumeric="42"/>
+            <column name="section_id" valueNumeric="4"/>
+            <column name="conf_param_short" value="utmstack.alert.addressToNotifySpace"/>
+            <column name="conf_param_large" value="Emails to notify low disk space"/>
+            <column name="conf_param_description" value="Configure all email addresses to notify when system disk space is low, separated by commas. If empty, the alert notification addresses are used."/>
+            <column name="conf_param_value" value=""/>
+            <column name="conf_param_required" valueBoolean="false"/>
+            <column name="conf_param_datatype" value="email_list"/>
+            <column name="conf_param_regexp" value="^(\s*|\s*[\w.-]+@[\w.-]+\.\w+(\s*,\s*[\w.-]+@[\w.-]+\.\w+)*\s*)$"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

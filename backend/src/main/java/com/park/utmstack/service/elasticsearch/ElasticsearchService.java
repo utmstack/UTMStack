@@ -41,6 +41,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -247,8 +248,8 @@ public class ElasticsearchService {
             if (diskPercent >= 85) {
                 deleteOldestIndices();
             } else if (diskPercent >= 70) {
-                List<User> admins = userRepository.findAllAdmins();
-                if (CollectionUtils.isEmpty(admins))
+                List<String> emailsTo = resolveLowSpaceRecipients();
+                if (CollectionUtils.isEmpty(emailsTo))
                     return;
 
                 UtmSpaceNotificationControl notificationControl = spaceNotificationControlService.findById(1L)
@@ -260,7 +261,7 @@ public class ElasticsearchService {
 
                 if (Objects.isNull(notificationControl.getNextNotification()) ||
                         now.isAfter(notificationControl.getNextNotification())) {
-                    mailService.sendLowSpaceEmail(admins, clusterStatus);
+                    mailService.sendLowSpaceEmail(emailsTo, clusterStatus);
                     notificationControl.setNextNotification(now.plus(24, ChronoUnit.HOURS));
                     spaceNotificationControlService.save(notificationControl);
                 }
@@ -270,6 +271,18 @@ public class ElasticsearchService {
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
         }
+    }
+
+    private List<String> resolveLowSpaceRecipients() {
+        String emails = Constants.CFG.get(Constants.PROP_ALERT_ADDRESS_TO_NOTIFY_SPACE);
+
+        if (!StringUtils.hasText(emails))
+            emails = Constants.CFG.get(Constants.PROP_ALERT_ADDRESS_TO_NOTIFY_ALERTS);
+
+        if (StringUtils.hasText(emails))
+            return Arrays.asList(emails.replace(" ", "").split(","));
+
+        return userRepository.findAllAdmins().stream().map(User::getEmail).collect(Collectors.toList());
     }
 
     /**

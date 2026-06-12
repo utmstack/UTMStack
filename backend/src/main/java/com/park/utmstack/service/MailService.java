@@ -228,14 +228,14 @@ public class MailService {
     }
 
     @Async
-    public void sendLowSpaceEmail(List<User> users, ElasticCluster cluster) {
+    public void sendLowSpaceEmail(List<String> emailsTo, ElasticCluster cluster) {
         Locale locale = Locale.forLanguageTag("en");
         Context context = new Context(locale);
         context.setVariable("cluster", cluster);
         context.setVariable("server", System.getenv(Constants.ENV_SERVER_NAME));
         String content = templateEngine.process("mail/elasticClusterStatusEmail", context);
         String subject = "Low space warning";
-        sendEmail(users.stream().map(User::getEmail).collect(Collectors.toList()), subject, content, false, true);
+        sendEmail(emailsTo, subject, content, false, true);
     }
 
     @Async
