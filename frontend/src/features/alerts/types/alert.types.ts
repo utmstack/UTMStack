@@ -121,3 +121,14 @@ export const SEVERITY_INT: Record<SeverityKey, number> = { high: 3, medium: 2, l
 
 export const STATUS_BY_INT: Record<number, StatusKey> = { 1: 'auto', 2: 'open', 3: 'in_review', 5: 'completed' }
 export const STATUS_INT: Record<StatusKey, number> = { auto: 1, open: 2, in_review: 3, completed: 5 }
+
+export const STATUS_TABS = ['all', 'open', 'in_review', 'completed', 'auto'] as const
+export type StatusTab = (typeof STATUS_TABS)[number]
+
+/** A user-defined filter row in the page filter bar. */
+export interface CustomFilter {
+  field: string
+  label: string
+  operator: string
+  value: string
+}

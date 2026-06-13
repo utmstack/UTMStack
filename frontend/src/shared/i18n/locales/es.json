@@ -3831,6 +3831,9 @@
       "risk": "Riesgo",
       "time": "Hora"
     },
+    "row": {
+      "createRuleFromAlert": "Crear una etiqueta a partir de esta alerta"
+    },
     "list": {
       "loading": "Cargando alertas…",
       "loadError": "No se pudieron cargar las alertas.",

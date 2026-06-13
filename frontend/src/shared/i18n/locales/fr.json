@@ -3702,6 +3702,9 @@
       "risk": "Risque",
       "time": "Heure"
     },
+    "row": {
+      "createRuleFromAlert": "Créer une étiquette à partir de cette alerte"
+    },
     "list": {
       "loading": "Chargement des alertes…",
       "loadError": "Impossible de charger les alertes.",

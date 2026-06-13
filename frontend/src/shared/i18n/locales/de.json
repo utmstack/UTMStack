@@ -3702,6 +3702,9 @@
       "risk": "Risiko",
       "time": "Zeit"
     },
+    "row": {
+      "createRuleFromAlert": "Tag aus dieser Warnung erstellen"
+    },
     "list": {
       "loading": "Warnungen werden geladen…",
       "loadError": "Warnungen konnten nicht geladen werden.",
