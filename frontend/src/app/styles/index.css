@@ -47,60 +47,72 @@
 :root.light {
   /* Make native controls (date picker, calendar icon, scrollbars) match the theme. */
   color-scheme: light;
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(222 47% 11%);
+  /* ── Light palette ──────────────────────────────────────────────────────────
+   * Cool blue-gray background so white cards visually "float" above the page.
+   * Sidebar gets a very slight blue tint to distinguish it from main content.
+   * Primary: sky-blue (#1a8cff family) — high contrast, trustworthy, modern.
+   * ─────────────────────────────────────────────────────────────────────────*/
+  --background: hsl(216 30% 95%);
+  --foreground: hsl(222 42% 10%);
   --card: hsl(0 0% 100%);
-  --card-foreground: hsl(222 47% 11%);
+  --card-foreground: hsl(222 42% 10%);
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(222 47% 11%);
-  --primary: hsl(221 83% 53%);
+  --popover-foreground: hsl(222 42% 10%);
+  --primary: hsl(211 100% 47%);
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(210 40% 96%);
-  --secondary-foreground: hsl(222 47% 11%);
-  --muted: hsl(210 40% 96%);
-  --muted-foreground: hsl(215 16% 47%);
-  --accent: hsl(210 40% 96%);
-  --accent-foreground: hsl(222 47% 11%);
-  --destructive: hsl(0 84% 60%);
+  --secondary: hsl(216 25% 91%);
+  --secondary-foreground: hsl(222 42% 10%);
+  --muted: hsl(216 22% 92%);
+  --muted-foreground: hsl(218 16% 44%);
+  --accent: hsl(211 80% 94%);
+  --accent-foreground: hsl(211 100% 35%);
+  --destructive: hsl(0 82% 57%);
   --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(214 32% 91%);
-  --input: hsl(214 32% 91%);
-  --ring: hsl(221 83% 53%);
+  --border: hsl(216 22% 86%);
+  --input: hsl(216 22% 88%);
+  --ring: hsl(211 100% 47%);
 
-  --sidebar: hsl(0 0% 99%);
-  --sidebar-foreground: hsl(222 47% 11%);
-  --sidebar-border: hsl(214 32% 91%);
-  --sidebar-accent: hsl(210 40% 94%);
-  --sidebar-accent-foreground: hsl(222 47% 11%);
+  /* Sidebar is slightly cooler/lighter than bg — creates visual separation */
+  --sidebar: hsl(222 28% 98%);
+  --sidebar-foreground: hsl(222 42% 10%);
+  --sidebar-border: hsl(216 22% 88%);
+  --sidebar-accent: hsl(211 80% 93%);
+  --sidebar-accent-foreground: hsl(211 100% 30%);
 }
 
 .dark {
   color-scheme: dark;
-  --background: hsl(220 10% 4%);
-  --foreground: hsl(220 10% 96%);
-  --card: hsl(220 10% 6%);
-  --card-foreground: hsl(220 10% 96%);
-  --popover: hsl(220 10% 6%);
-  --popover-foreground: hsl(220 10% 96%);
-  --primary: hsl(232 56% 60%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(220 10% 10%);
-  --secondary-foreground: hsl(220 10% 96%);
-  --muted: hsl(220 10% 8%);
-  --muted-foreground: hsl(220 5% 55%);
-  --accent: hsl(220 10% 12%);
-  --accent-foreground: hsl(220 10% 96%);
-  --destructive: hsl(0 70% 60%);
+  /* ── Dark palette ───────────────────────────────────────────────────────────
+   * 5-layer depth system: sidebar (6%) → bg (10%) → card (14%) → popover (18%)
+   * Each layer is +4% lightness and slightly less saturated — readable depth.
+   * Primary: electric sky blue — same family as light mode, adjusted for dark.
+   * ─────────────────────────────────────────────────────────────────────────*/
+  --background: hsl(222 25% 10%);
+  --foreground: hsl(220 15% 93%);
+  --card: hsl(222 22% 14%);
+  --card-foreground: hsl(220 15% 93%);
+  --popover: hsl(222 20% 17%);
+  --popover-foreground: hsl(220 15% 93%);
+  --primary: hsl(211 95% 60%);
+  --primary-foreground: hsl(222 42% 6%);
+  --secondary: hsl(222 22% 18%);
+  --secondary-foreground: hsl(220 15% 93%);
+  --muted: hsl(222 22% 12%);
+  --muted-foreground: hsl(220 10% 58%);
+  --accent: hsl(222 22% 20%);
+  --accent-foreground: hsl(220 15% 93%);
+  --destructive: hsl(0 72% 58%);
   --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(220 10% 14%);
-  --input: hsl(220 10% 14%);
-  --ring: hsl(232 56% 60%);
+  --border: hsl(222 20% 20%);
+  --input: hsl(222 20% 20%);
+  --ring: hsl(211 95% 60%);
 
-  --sidebar: hsl(220 10% 5%);
-  --sidebar-foreground: hsl(220 10% 96%);
-  --sidebar-border: hsl(220 10% 14%);
-  --sidebar-accent: hsl(220 10% 12%);
-  --sidebar-accent-foreground: hsl(220 10% 96%);
+  /* Sidebar: darkest layer, more saturated navy — anchors the left panel */
+  --sidebar: hsl(222 30% 7%);
+  --sidebar-foreground: hsl(220 15% 88%);
+  --sidebar-border: hsl(222 22% 15%);
+  --sidebar-accent: hsl(222 25% 16%);
+  --sidebar-accent-foreground: hsl(220 15% 93%);
 }
 
 body {

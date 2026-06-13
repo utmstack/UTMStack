@@ -26,16 +26,16 @@ func NewModuleHandler(uc connectors.ModuleUsecase) *ModuleHandler {
 // @Summary     Activate or deactivate an integration module
 // @Tags        Integrations
 // @Security    BearerAuth
+// @Accept      json
 // @Produce     json
-// @Param       moduleName       query string true "Module name"
-// @Param       activationStatus query bool   true "true to activate, false to deactivate"
+// @Param       body body dto.ModuleActivationRequest true "Module name and activation status"
 // @Success     200 {object} dto.ModuleResponse
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
 // @Router      /integrations/activate [put]
 func (h *ModuleHandler) ActivateDeactivate(c *gin.Context) {
 	var req dto.ModuleActivationRequest
-	if err := c.ShouldBindQuery(&req); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

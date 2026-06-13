@@ -78,7 +78,7 @@ function ChatHero() {
       <div className="relative w-full max-w-3xl">
         <div
           aria-hidden
-          className="absolute -inset-px rounded-xl bg-[conic-gradient(from_180deg_at_50%_50%,#a855f7_0deg,#ec4899_120deg,#3b82f6_240deg,#a855f7_360deg)] opacity-60 blur-[1px]"
+          className="absolute -inset-px rounded-xl bg-[conic-gradient(from_180deg_at_50%_50%,#1a8cff_0deg,#0ea5e9_120deg,#2563eb_240deg,#1a8cff_360deg)] opacity-50 blur-[1px]"
         />
         <div className="relative rounded-xl bg-card p-4">
           <textarea
@@ -92,7 +92,7 @@ function ChatHero() {
               <IconBtn label="Attach"><Paperclip size={16} strokeWidth={1.75} /></IconBtn>
             </div>
             <button
-              className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-fuchsia-500 to-purple-600 text-white shadow-sm hover:opacity-90"
+              className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm hover:opacity-90"
               aria-label="Send"
             >
               <Sparkles size={14} strokeWidth={2} />
@@ -250,7 +250,7 @@ function EventsChart() {
         </pattern>
         <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0" stopColor="#22d3ee" />
-          <stop offset="1" stopColor="#a855f7" />
+          <stop offset="1" stopColor="#1a8cff" />
         </linearGradient>
       </defs>
       <rect x={pl} y={pt} width={innerW} height={innerH} fill="url(#hatch)" />
@@ -388,7 +388,7 @@ function MitreTechniquesCard() {
               <div className="mt-1 text-[11px] text-muted-foreground">{m.tactic}</div>
               <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-fuchsia-500 to-rose-500"
+                  className="h-full rounded-full bg-gradient-to-r from-sky-400 to-blue-600"
                   style={{ width: `${(m.count / max) * 100}%` }}
                 />
               </div>

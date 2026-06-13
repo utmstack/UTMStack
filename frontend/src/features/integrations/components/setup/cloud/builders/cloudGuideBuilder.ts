@@ -1,6 +1,4 @@
 import type { TenantResponse } from '@/features/integrations/types'
-import { GOOGLE_SECTIONS, GOOGLE_FIELDS } from './google'
-import { AZURE_SECTIONS, AZURE_FIELDS } from './azure'
 import { AWS_SECTIONS, AWS_FIELDS } from './aws'
 
 export interface CloudGuideSection {
@@ -32,21 +30,9 @@ export interface CloudGuideConfig {
 export function buildCloudGuide(name: string, ctx: CloudGuideContext): CloudGuideConfig {
   const normalized = (name ?? '').toLowerCase()
 
-  if (normalized.includes('google') || normalized.includes('gcp') || normalized.includes('pubsub')) {
-    return {
-      sections: GOOGLE_SECTIONS,
-      fields: GOOGLE_FIELDS,
-      tenants: ctx.tenants,
-    }
-  }
-
-  if (normalized.includes('azure')) {
-    return {
-      sections: AZURE_SECTIONS,
-      fields: AZURE_FIELDS,
-      tenants: ctx.tenants,
-    }
-  }
+  // Azure and GCP are rendered by dedicated guide components (AzureGuide / GcpGuide)
+  // with a richer flow diagram + step-by-step doc, so they never fall through to the
+  // generic builder here.
 
   if (
     normalized.includes('aws') ||

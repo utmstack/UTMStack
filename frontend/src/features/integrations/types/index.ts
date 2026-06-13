@@ -28,6 +28,7 @@ export interface ModuleResponse {
   moduleActive: boolean;
   moduleIcon?: string;
   moduleCategory?: string;
+  ingestType?: string;
   isSystem: boolean;
 }
 
@@ -48,11 +49,14 @@ export interface Integration {
   name: string;
   moduleName?: string;
   dataType?: string;
+  ingestType?: string;
   kind: DeployKind;
   status: Status;
   description: string;
   category: string;
   logo: string;
+  logoDark?: string;      // per-theme icon for system modules (falls back to logo)
+  isSystem?: boolean;     // false → custom (uses the catalog row's icon/description)
   darkInvert?: boolean;
   defaultPort?: string;
   cloudFields?: { label: string; placeholder: string; secret?: boolean }[];

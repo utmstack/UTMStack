@@ -1,84 +1,51 @@
-import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { cn } from '@/shared/lib/utils'
 import { CodeBlock } from '@/features/integrations/components/ui/CodeBlock'
-import { useConectionKey } from '@/features/integrations/hooks/useConnectionKey'
-import { buildAgentInstall, type AgentAction } from '@/features/integrations/utils/agentInstallBuilder'
-import type { Integration } from '@/features/integrations/types'
+import type { AgentInstallConfig } from '@/features/integrations/utils/agentInstallBuilder'
 
 interface AgentInstallSelectorProps {
-  integration: Integration
+  config: AgentInstallConfig
+  activePlatformId: string
+  onSelect: (id: string) => void
+  /** Resolved install command for the active platform (or a loading placeholder). */
+  command: string
+  /** Shell the command runs in — drives syntax highlighting (Windows = powershell). */
+  lang?: 'bash' | 'powershell'
 }
 
-export function AgentInstallSelector({ integration }: AgentInstallSelectorProps) {
+export function AgentInstallSelector({ config, activePlatformId, onSelect, command, lang = 'bash' }: AgentInstallSelectorProps) {
   const { t } = useTranslation()
-  const { key, isLoading } = useConectionKey()
-
-  const host = window.location.host.includes(':')
-    ? window.location.host.split(':')[0]
-    : window.location.host
-
-
-  const config = useMemo(
-     () => buildAgentInstall(integration.name, { host, token: key.data?.connectionKey ?? '' }),
-    [integration.id, host, key.data],
-  )
-
-  const [action, setAction] = useState<AgentAction>('install')
-  const [platformId, setPlatformId] = useState<string>(config.platforms[0]?.id ?? '')
 
   if (config.platforms.length === 0) {
     return null
   }
 
-
-
-  const activePlatformId = config.platforms.some(p => p.id === platformId)
-    ? platformId
-    : config.platforms[0].id
-
-  const command = isLoading || !key.data
-    ? t('integrations.setup.agent.loadingToken')
-    : config.getCommand(action, activePlatformId)
-
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <label className="block">
-          <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
-            {t('integrations.setup.agent.actionLabel')}
-          </span>
-          <select
-            value={action}
-            onChange={(e) => setAction(e.target.value as AgentAction)}
-            className="h-9 w-full appearance-none rounded-md border border-border bg-background px-3 text-sm"
-          >
-            {config.actions.map((a) => (
-              <option key={a.id} value={a.id}>
-                {t(a.labelKey)}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="block">
-          <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
-            {t('integrations.setup.agent.platformLabel')}
-          </span>
-          <select
-            value={activePlatformId}
-            onChange={(e) => setPlatformId(e.target.value)}
-            className="h-9 w-full appearance-none rounded-md border border-border bg-background px-3 text-sm"
-          >
-            {config.platforms.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-        </label>
+      <div>
+        <span className="mb-1.5 block text-[11px] font-medium text-muted-foreground">
+          {t('integrations.setup.agent.platformLabel')}
+        </span>
+        <div className="flex flex-wrap gap-1.5">
+          {config.platforms.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => onSelect(p.id)}
+              className={cn(
+                'rounded-md px-3 py-1.5 text-xs font-medium transition-colors',
+                p.id === activePlatformId
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/70 hover:text-foreground',
+              )}
+            >
+              {p.name}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <CodeBlock code={command} />
+      <CodeBlock code={command} lang={lang} />
     </div>
   )
 }

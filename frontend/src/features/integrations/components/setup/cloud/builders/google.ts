@@ -1,69 +1,18 @@
-import type { CloudGuideSection, CloudConfigField } from './cloudGuideBuilder'
+import type { CloudConfigField } from './cloudGuideBuilder'
 
 const ROOT = 'integrations.setup.cloud.google'
-const IMG = '/integrations/guides/google'
 
-export const GOOGLE_SECTIONS: CloudGuideSection[] = [
-  {
-    id: 'create-topic',
-    titleKey: `${ROOT}.sections.createTopic.title`,
-    bodyKey: `${ROOT}.sections.createTopic.body`,
-    image: `${IMG}/console-topic.png`,
-  },
-  {
-    id: 'create-subscription',
-    titleKey: `${ROOT}.sections.createSubscription.title`,
-    bodyKey: `${ROOT}.sections.createSubscription.body`,
-    image: `${IMG}/console-newsub.png`,
-  },
-  {
-    id: 'configure-subscription',
-    titleKey: `${ROOT}.sections.configureSubscription.title`,
-    bodyKey: `${ROOT}.sections.configureSubscription.body`,
-    image: `${IMG}/console-editsub.png`,
-  },
-  {
-    id: 'logs-router',
-    titleKey: `${ROOT}.sections.logsRouter.title`,
-    bodyKey: `${ROOT}.sections.logsRouter.body`,
-    image: `${IMG}/log-router.png`,
-  },
-  {
-    id: 'sink-destination',
-    titleKey: `${ROOT}.sections.sinkDestination.title`,
-    bodyKey: `${ROOT}.sections.sinkDestination.body`,
-    image: `${IMG}/sink-destination.png`,
-  },
-  {
-    id: 'service-account',
-    titleKey: `${ROOT}.sections.serviceAccount.title`,
-    bodyKey: `${ROOT}.sections.serviceAccount.body`,
-    image: `${IMG}/create-service-account.png`,
-  },
-  {
-    id: 'service-account-key',
-    titleKey: `${ROOT}.sections.serviceAccountKey.title`,
-    bodyKey: `${ROOT}.sections.serviceAccountKey.body`,
-    image: `${IMG}/newkey.png`,
-  },
-  {
-    id: 'download-key',
-    titleKey: `${ROOT}.sections.downloadKey.title`,
-    bodyKey: `${ROOT}.sections.downloadKey.body`,
-    image: `${IMG}/downloadkey.png`,
-  },
-]
-
+// The GCP step-by-step guide lives in GcpGuide.tsx (dedicated component). Only the
+// tenant config fields are shared here — they drive the CloudTenantForm. The keys
+// match what the gcp plugin reads (plugins/gcp/main.go getModuleConfig) and the
+// backend verifier (verifier_gcp.go): jsonKey, projectId, subscription. The Pub/Sub
+// topic is created in the GCP console but is NOT stored — UTMStack pulls from the
+// subscription only.
 export const GOOGLE_FIELDS: CloudConfigField[] = [
   {
     key: 'projectId',
     labelKey: `${ROOT}.fields.projectId.label`,
     placeholder: 'my-gcp-project',
-  },
-  {
-    key: 'topic',
-    labelKey: `${ROOT}.fields.topic.label`,
-    placeholder: 'utmstack-topic',
   },
   {
     key: 'subscription',

@@ -1,28 +1,47 @@
+import { useTranslation, Trans } from 'react-i18next'
 import { registerCollector } from '../registry'
-import { CollectorEndpointInfo } from '../CollectorEndpointInfo'
+import { ForwarderGuide, forwarderHost } from '../ForwarderGuide'
+import { Section } from '@/features/integrations/components/ui/Section'
+import { CodeBlock } from '@/features/integrations/components/ui/CodeBlock'
+import type { Integration } from '@/features/integrations/types'
 
 const ROOT = 'integrations.setup.collector.netflow'
-const IMG = '/integrations/guides/collector/netflow'
+const PORT = '2055'
+
+function NetflowGuide({ module: _module }: { module: Integration }) {
+  const { t } = useTranslation()
+  const host = forwarderHost()
+
+  return (
+    <ForwarderGuide source={t(`${ROOT}.source`)} port={PORT} sourceType="netflow" hideTLS>
+      <Section title={t(`${ROOT}.step1.title`)} step={2}>
+        <p className="mb-2 text-sm text-foreground/90">{t(`${ROOT}.step1.body`)}</p>
+        <CodeBlock code="/opt/utmstack-forwarder/utmstack_forwarder enable-integration netflow udp" />
+        <p className="mt-2 text-[11px] text-muted-foreground">{t(`${ROOT}.step1.note`)}</p>
+      </Section>
+      <Section title={t(`${ROOT}.step2.title`)} step={3}>
+        <p className="mb-2 text-sm text-foreground/90">
+          <Trans
+            i18nKey={`${ROOT}.step2.body`}
+            values={{ port: PORT }}
+            components={{ hl: <strong className="font-semibold text-primary" /> }}
+          />
+        </p>
+        <CodeBlock lang="config" code={`ip flow-export version 9
+ip flow-export destination ${host} ${PORT}
+ip flow-export source <interface>
+
+interface <interface>
+ ip flow ingress
+ ip flow egress`} />
+        <p className="mt-2 text-[11px] text-muted-foreground">{t(`${ROOT}.step2.note`)}</p>
+      </Section>
+    </ForwarderGuide>
+  )
+}
 
 registerCollector({
   getName: () => 'NETFLOW',
-  sections: [
-    {
-      id: 'send-logs',
-      titleKey: `${ROOT}.sections.sendLogs.title`,
-      bodyKey: `${ROOT}.sections.sendLogs.body`,
-    },
-    {
-      id: 'enable-collector',
-      titleKey: `${ROOT}.sections.enableCollector.title`,
-      bodyKey: `${ROOT}.sections.enableCollector.body`,
-      image: `${IMG}/netflow.png`,
-    },
-    {
-      id: 'activate',
-      titleKey: `${ROOT}.sections.activate.title`,
-      bodyKey: `${ROOT}.sections.activate.body`,
-    },
-  ],
-  render: (m) => <CollectorEndpointInfo module={m} port="2055/udp" sourceType="netflow" />,
+  sections: [],
+  render: (m) => <NetflowGuide module={m} />,
 })

@@ -34,7 +34,10 @@ export function createIntegrationsService(baseUrl?: string): IntegrationsService
   const api = createApiClient(baseUrl)
 
   return {
-    listModules: () => api.get<ModuleResponse[]>(BASE_INTEGRATIONS_URL),
+    // The integrations page is a full catalog (cards/tabs), not a paginated table.
+    // GET /integrations defaults to page size 20 (database.Params), so request the
+    // backend max (MaxPageSize=200) to bring every module in one call.
+    listModules: () => api.get<ModuleResponse[]>(`${BASE_INTEGRATIONS_URL}?size=200`),
 
     getModule: (id: number) => api.get<ModuleResponse>(`${BASE_INTEGRATIONS_URL}${id}`),
 

@@ -32,6 +32,7 @@ type ModuleResponse struct {
 	ModuleActive      bool   `json:"moduleActive"`
 	ModuleIcon        string `json:"moduleIcon,omitempty"`
 	ModuleCategory    string `json:"moduleCategory,omitempty"`
+	IngestType        string `json:"ingestType,omitempty"`
 	IsSystem          bool   `json:"isSystem"`
 }
 
@@ -53,6 +54,7 @@ func FromModule(m domain.UtmModule) ModuleResponse {
 		ModuleActive:      m.ModuleActive,
 		ModuleIcon:        m.ModuleIcon,
 		ModuleCategory:    m.ModuleCategory,
+		IngestType:        m.IngestType,
 		IsSystem:          m.IsSystem,
 	}
 }

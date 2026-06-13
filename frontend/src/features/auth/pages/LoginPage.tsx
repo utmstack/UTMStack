@@ -126,7 +126,7 @@ export function LoginPage() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'radial-gradient(70% 55% at 50% -10%, hsl(232 56% 60% / 0.22) 0%, transparent 65%), radial-gradient(50% 40% at 100% 110%, hsl(280 60% 55% / 0.12) 0%, transparent 60%)',
+            'radial-gradient(70% 55% at 50% -10%, hsl(211 95% 60% / 0.20) 0%, transparent 65%), radial-gradient(50% 40% at 100% 110%, hsl(211 80% 45% / 0.10) 0%, transparent 60%)',
         }}
       />
 

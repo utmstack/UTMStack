@@ -29,6 +29,7 @@ export function CollectorEndpointInfo({
         {t('integrations.setup.collector.endpoint.hint', { name: module.name })}
       </p>
       <CodeBlock
+        lang="config"
         code={`host:        ${host}
 port:        ${port}
 source_type: ${source}`}

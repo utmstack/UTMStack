@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import {
@@ -66,7 +67,9 @@ export function AlertingRulesPage() {
   const [adversary, setAdversary] = useState('all')
   const [active, setActive] = useState<'all' | 'active' | 'inactive'>('all')
   const [ownership, setOwnership] = useState<'all' | 'system' | 'custom'>('all')
-  const [dataType, setDataType] = useState('all')
+  // Seed from ?dataType on first render so the initial fetch is already filtered
+  // (avoids a race where the unfiltered request resolves last and wins).
+  const [dataType, setDataType] = useState(() => new URLSearchParams(window.location.search).get('dataType') ?? 'all')
 
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(20)
@@ -98,6 +101,17 @@ export function AlertingRulesPage() {
       if (fileInputRef.current) fileInputRef.current.value = '' // re-allow same selection
     }
   }
+
+  // Deep-link: ?dataType=<value> pre-filters the list to that data type
+  // (e.g. opened from an integration's "Rules" button).
+  const [searchParams] = useSearchParams()
+  useEffect(() => {
+    const dt = searchParams.get('dataType')
+    if (dt) {
+      setDataType(dt)
+      setPage(0)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     const h = setTimeout(() => { setDebounced(search.trim()); setPage(0) }, 300)

@@ -13,8 +13,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const disabledSuffix = ".disabled"
-
 var _ connectors.TenantRepository = (*TenantStore)(nil)
 
 type TenantStore struct {
@@ -47,44 +45,19 @@ func tenantFileName(module string) string {
 	return "system_plugins_" + name + ".yaml"
 }
 
-func (s *TenantStore) enabledPath(module string) string {
+func (s *TenantStore) path(module string) string {
 	return filepath.Join(s.dir, tenantFileName(module))
 }
 
-func (s *TenantStore) disabledPath(module string) string {
-	return s.enabledPath(module) + disabledSuffix
-}
-
-func (s *TenantStore) path(module string) string {
-	en := s.enabledPath(module)
-	if _, err := os.Stat(en); err == nil {
-		return en
-	}
-	if dis := s.disabledPath(module); fileExists(dis) {
-		return dis
-	}
-	return en
-}
-
-func fileExists(p string) bool {
-	_, err := os.Stat(p)
-	return err == nil
-}
-
 func (s *TenantStore) SetActiveByModule(_ context.Context, module string, active bool) error {
+	if active {
+		return nil
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	en := s.enabledPath(module)
-	dis := s.disabledPath(module)
-	if active {
-		if fileExists(dis) {
-			return os.Rename(dis, en)
-		}
-		return nil
-	}
-	if fileExists(en) {
-		return os.Rename(en, dis)
+	if err := os.Remove(s.path(module)); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
 	}
 	return nil
 }

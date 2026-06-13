@@ -1542,7 +1542,8 @@
     "loading": "Loading integrations…",
     "addCustom": {
       "title": "Add custom integration",
-      "description": "Create a new custom source"
+      "description": "Create a new custom source",
+      "cta": "Create"
     },
     "tabs": {
       "all": "All",
@@ -1567,7 +1568,9 @@
     "card": {
       "manage": "Manage →",
       "setup": "Set up →",
-      "eventsPerSec": "{{rate}} e/s"
+      "eventsPerSec": "{{rate}} e/s",
+      "enabled": "Enabled",
+      "setupShort": "Set up"
     },
     "drawer": {
       "manage": "Manage",
@@ -1577,7 +1580,12 @@
       "setupCollector": "Set up collector",
       "connect": "Connect",
       "configureCustom": "Configure custom source",
-      "eventsRate": "{{rate}} events/sec · {{count}} in 24h"
+      "eventsRate": "{{rate}} events/sec · {{count}} in 24h",
+      "enable": "Enable",
+      "disable": "Disable",
+      "manageRules": "Rules",
+      "manageFilters": "Filters",
+      "enableToSetup": "Enable this integration first — the setup guide will appear here once it is active."
     },
     "setup": {
       "agent": {
@@ -1595,7 +1603,15 @@
         "actions": {
           "install": "Install",
           "uninstall": "Uninstall"
-        }
+        },
+        "prereqTitle": "Pre-installation requirements",
+        "prereqBody": "The UTMStack agent communicates with the server over the following ports. Make sure they are open between the host and UTMStack before installing:",
+        "sensitiveWarning": "The command below contains a sensitive enrollment token — do not share it.",
+        "uninstall": {
+          "title": "Uninstall the agent",
+          "body": "Run this on the host to stop and remove the UTMStack agent and its services. It uses the platform selected above."
+        },
+        "macCompat": "Requires macOS 11 (Big Sur) or later on Apple Silicon (M1/M2/M3 or newer). Intel-based Macs are not supported."
       },
       "collector": {
         "howItWorksTitle": "How it works",
@@ -1608,8 +1624,8 @@
         "step3Title": "3 · Verify",
         "step3Body": "Within a few minutes you should see {{name}} events under source: {{source}} in Log Explorer, and a new entry in Data Sources.",
         "endpoint": {
-          "title": "Where to send {{name}} events",
-          "hint": "Point {{name}} at the UTMStack collector listener using the values below."
+          "title": "Connection details",
+          "hint": "Configure {{name}} to forward its logs to the Forwarder using the host and port below."
         },
         "syslog": {
           "sections": {
@@ -1628,174 +1644,263 @@
           }
         },
         "netflow": {
-          "sections": {
-            "sendLogs": {
-              "title": "1 · Send NetFlow to UTMStack",
-              "body": "Configure your device to send NetFlow records to the UTMStack agent on port 2055/UDP."
-            },
-            "enableCollector": {
-              "title": "2 · Enable the NetFlow collector",
-              "body": "Enable the log collector and the NetFlow integration in the configuration file where your UTMStack agent is installed."
-            },
-            "activate": {
-              "title": "3 · Activate",
-              "body": "Activate the UTMStack module so NetFlow records start flowing."
-            }
+          "source": "Network device",
+          "step1": {
+            "title": "Enable the NetFlow listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the NetFlow collector on port 2055:",
+            "note": "NetFlow uses UDP only — TCP and TLS are not supported for this protocol."
+          },
+          "step2": {
+            "title": "Configure your device to export NetFlow",
+            "body": "Point NetFlow export on your router or firewall at the Forwarder host on port <hl>{{port}} UDP</hl>. The example below is for Cisco IOS — consult your vendor's documentation for other platforms:",
+            "note": "Replace <interface> with the interface name where traffic should be monitored (e.g. GigabitEthernet0/0). Apply ingress/egress on each relevant interface."
           }
         },
         "cisco": {
-          "sections": {
-            "sendLogs": {
-              "title": "1 · Send logs to UTMStack",
-              "body": "Configure your Cisco device to forward syslog to the UTMStack agent (UDP 514 or TCP 514)."
-            },
-            "enableCollector": {
-              "title": "2 · Enable the Cisco collector",
-              "body": "Enable the log collector and the Cisco integration in the configuration file where your UTMStack agent is installed."
-            },
-            "activate": {
-              "title": "3 · Activate",
-              "body": "Activate the UTMStack module so Cisco events start flowing."
-            }
+          "source": "Cisco ASA",
+          "step1": {
+            "title": "Enable the Cisco ASA listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the Cisco ASA log listener:",
+            "note": "To use TCP instead of UDP, replace udp with tcp in the command above."
+          },
+          "step2": {
+            "title": "Configure Cisco ASA to forward logs",
+            "body": "On your Cisco ASA, enable <hl>syslog</hl> and point it at the Forwarder host on port {{port}}. Run these commands in privileged EXEC mode (replace <interface> with your inside or management interface name):"
+          }
+        },
+        "ciscoSwitch": {
+          "source": "Cisco Switch",
+          "step1": {
+            "title": "Enable the Cisco Switch listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the Cisco Switch log listener:",
+            "note": "To use TCP instead of UDP, replace udp with tcp in the command above."
+          },
+          "step2": {
+            "title": "Configure the switch to forward logs",
+            "body": "In privileged EXEC mode on your Cisco switch, enable <hl>syslog</hl> and point it at the Forwarder host on port {{port}}:"
+          }
+        },
+        "ciscoMeraki": {
+          "source": "Cisco Meraki",
+          "step1": {
+            "title": "Enable the Cisco Meraki listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the Cisco Meraki log listener:",
+            "note": "To use TCP instead of UDP, replace udp with tcp in the command above."
+          },
+          "step2": {
+            "title": "Configure Meraki to forward logs",
+            "body": "In the Meraki Dashboard, go to <hl>Network-wide → Configure → General</hl>, scroll to the Reporting section and add a syslog server with the Forwarder IP and port {{port}}. Select all roles you want to forward."
+          }
+        },
+        "ciscoFirepower": {
+          "source": "Cisco Firepower",
+          "step1": {
+            "title": "Enable the Cisco Firepower listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the Cisco Firepower log listener:",
+            "note": "To use TCP instead of UDP, replace udp with tcp in the command above."
+          },
+          "step2": {
+            "title": "Configure Firepower to forward logs",
+            "body": "In Firepower Management Center (FMC), go to <hl>Devices → Platform Settings</hl>, edit or create a policy and navigate to <hl>Syslog → Syslog Servers</hl>. Add the Forwarder IP with port {{port}} (UDP), then assign the policy to your devices and deploy."
           }
         },
         "vmware": {
-          "sections": {
-            "sendLogs": {
-              "title": "1 · Configure ESXi to forward syslog",
-              "body": "On each ESXi host, set Syslog.global.logHost to point at the UTMStack agent (e.g. tcp://<collector>:514) and open the syslog firewall ruleset."
-            },
-            "enableCollector": {
-              "title": "2 · Enable the VMware collector",
-              "body": "Enable the log collector and the VMware integration in the configuration file where your UTMStack agent is installed."
-            },
-            "activate": {
-              "title": "3 · Activate",
-              "body": "Activate the UTMStack module so ESXi events start flowing."
-            }
+          "source": "VMware ESXi",
+          "step1": {
+            "title": "Enable the VMware listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the VMware ESXi syslog listener. ESXi streams over TCP:",
+            "note": "For an encrypted channel use tls instead of tcp (load certificates on the Forwarder first)."
+          },
+          "step2": {
+            "title": "Point ESXi syslog at the Forwarder",
+            "body": "Open an SSH/ESXi Shell session on the host (or use the vSphere Client: Host → Configure → Advanced System Settings → Syslog.global.logHost). Set the remote loghost to <hl>{{host}}:{{port}}</hl> and reload the configuration:",
+            "note": "On vSphere you can instead set Syslog.global.logHost to the same tcp://host:port value rather than running esxcli."
+          },
+          "step3": {
+            "title": "Open the ESXi firewall for syslog",
+            "body": "Allow outbound syslog through the ESXi firewall so the host can reach the Forwarder:"
           }
         },
         "as400": {
-          "sections": {
-            "requirements": {
-              "title": "1 · Requirements",
-              "body": "Ensure the AS/400 (IBM i) can reach the UTMStack collector and that QAUDJRN journaling is enabled."
-            },
-            "installCollector": {
-              "title": "2 · Install the log collector",
-              "body": "Install the UTMStack collector on a host that can reach the AS/400 and configure the AS/400 module."
-            },
-            "configure": {
-              "title": "3 · Configure the AS/400 integration",
-              "body": "Provide the AS/400 host, credentials, and journal name in the collector's configuration file."
-            },
-            "activate": {
-              "title": "4 · Activate",
-              "body": "Activate the UTMStack module so AS/400 events start flowing."
+          "intro": {
+            "title": "How it works",
+            "body": "The AS/400 Collector is a Linux service that connects directly to your AS/400 (IBM i) systems and pulls security journal entries, then streams them securely to UTMStack for correlation and alerting.",
+            "note": "Nothing is installed on the AS/400 itself — the Collector runs on a Linux host that has network access to your AS/400 systems.",
+            "diagram": {
+              "source": "your journals",
+              "edge1": "journals",
+              "collector": "AS/400 Collector",
+              "collectorSub": "pulls from AS/400",
+              "edge2": "secure",
+              "utmstackSub": "alerts & correlation"
             }
+          },
+          "install": {
+            "title": "Install the AS/400 Collector",
+            "body": "Run this command on a Linux host that can reach both UTMStack and your AS/400 systems over the network.",
+            "reuse": "Already have the AS/400 Collector installed? Skip this step — just add your servers to the configuration file in the next step."
+          },
+          "configure": {
+            "title": "Add your AS/400 servers",
+            "body": "Edit as400-config.yaml in the collector's installation directory and add each AS/400 system you want to monitor:",
+            "note": "You can list multiple servers. The collector watches this file and reloads automatically on save — no restart needed."
+          },
+          "journal": {
+            "title": "Enable audit journaling on AS/400",
+            "body": "On each AS/400 system, make sure the <hl>QAUDJRN</hl> security audit journal is active. Refer to IBM's documentation for the exact steps — the procedure varies between IBM i versions."
+          },
+          "uninstall": {
+            "title": "Optional — Uninstall the Collector",
+            "body": "Run this command on the host where the AS/400 Collector is installed to stop the service and remove all files."
           }
         },
         "bitdefender": {
-          "sections": {
+          "intro": {
+            "title": "How it works",
+            "body": "UTMStack connects to Bitdefender GravityZone using your API key to configure the Event Push Service. GravityZone then sends security events directly to UTMStack for correlation and alerting.",
+            "diagram": {
+              "source": "endpoint events",
+              "edge": "Event Push Service",
+              "utmstackSub": "alerts & correlation"
+            },
+            "note": "No agent is installed on GravityZone — UTMStack registers itself as the push destination using read-only API credentials."
+          },
+          "whitelist": {
+            "title": "Whitelist Bitdefender IPs",
+            "body": "The following Bitdefender GravityZone IP addresses must be allowed through your firewall on port 8000 so that the Event Push Service can reach UTMStack:",
+            "note": "Add these IPs to your firewall or security group before completing the setup."
+          },
+          "apiSection": "Get API credentials",
+          "api": {
             "myAccount": {
-              "title": "1 · Open My Account",
-              "body": "In the Bitdefender GravityZone console, click on \"My Account\"."
+              "title": "Open My Account",
+              "body": "In the Bitdefender GravityZone console, click on <strong>My Account</strong>."
             },
             "accessUrl": {
-              "title": "2 · Note the Access URL",
-              "body": "Scroll down to the Control Center API section and save the Access URL — you'll need it in later steps. Then open the API key section and click Add at the top of the table."
+              "title": "Note the Access URL",
+              "body": "Scroll down to the <strong>Control Center API</strong> section and save the Access URL — you will enter it in the credentials form below. Then open the API key section and click <strong>Add</strong> at the top of the table."
             },
-            "createApiKey": {
-              "title": "3 · Create an API key",
-              "body": "Write a description for the API key and select the Event Push Service API option. Click Save."
-            },
+            "createKey": {
+              "title": "Create an API key",
+              "body": "Write a description for the API key, select the <strong>Event Push Service API</strong> option, and click <strong>Save</strong>. Copy the generated key."
+            }
+          },
+          "companySection": "Get Company IDs",
+          "company": {
             "myCompany": {
-              "title": "4 · Open My Company",
-              "body": "Click on \"My Company\"."
+              "title": "Open My Company",
+              "body": "In the GravityZone console, click on <strong>My Company</strong>."
             },
             "licensing": {
-              "title": "5 · Note the Company IDs",
-              "body": "Open the Licensing section and save the Company IDs you want to monitor."
+              "title": "Note the Company IDs",
+              "body": "Open the <strong>Licensing</strong> section and save the Company IDs you want to monitor — enter them comma-separated in the credentials form below."
+            }
+          },
+          "credentials": {
+            "title": "Enter credentials",
+            "body": "Fill in the Access URL, API key, your UTMStack public IP (where GravityZone will push events), and the Company IDs to monitor. UTMStack verifies the credentials before saving."
+          },
+          "fields": {
+            "accessUrl": {
+              "label": "GravityZone Access URL"
             },
-            "addInstances": {
-              "title": "6 · Add your GravityZone instances",
-              "body": "Add the Bitdefender GravityZone instances using the Access URL, API key, and Company IDs you collected."
+            "connectionKey": {
+              "label": "API key"
             },
-            "activate": {
-              "title": "7 · Activate",
-              "body": "Activate the UTMStack module so Bitdefender events start flowing."
+            "utmPublicIP": {
+              "label": "UTMStack public IP"
+            },
+            "companyIds": {
+              "label": "Company IDs (comma-separated)"
             }
           }
         },
         "eset": {
-          "sections": {
-            "openMenu": {
-              "title": "1 · Open the More menu",
-              "body": "In the ESET Protect sidebar, click on the \"More\" menu."
+          "source": "ESET Protect",
+          "step1": {
+            "title": "Enable the ESET listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the ESET syslog listener:",
+            "note": "To use TCP instead of UDP, replace udp with tcp in the command above."
+          },
+          "console": {
+            "moreMenu": {
+              "title": "Open the More menu",
+              "body": "In the ESET Protect console sidebar, click the <hl>More</hl> menu."
             },
             "serverConfig": {
-              "title": "2 · Server configuration",
-              "body": "Click on the \"Server configuration\" submenu in the ESET Protect sidebar."
+              "title": "Open Server settings",
+              "body": "Under More, open the <hl>Server settings</hl> (Server configuration) section."
             },
-            "advancedSettings": {
-              "title": "3 · Advanced settings",
-              "body": "Click on \"Advanced settings\" to expand the list of configurations."
+            "advanced": {
+              "title": "Expand Advanced settings",
+              "body": "Click <hl>Advanced settings</hl> to expand the full list of configuration options."
             },
-            "syslogServer": {
-              "title": "4 · Configure Syslog server",
-              "body": "Scroll down to \"Syslog server\", enable \"Export logs to Syslog\", and point it at the UTMStack agent on 514/udp or 514/tcp."
-            },
-            "enableCollector": {
-              "title": "5 · Enable the ESET collector",
-              "body": "Enable the log collector and the ESET integration in the configuration file where your UTMStack agent is installed."
-            },
-            "activate": {
-              "title": "6 · Activate",
-              "body": "Activate the UTMStack module so ESET events start flowing."
+            "syslog": {
+              "title": "Configure the Syslog server",
+              "body": "Scroll to <hl>Syslog server</hl>, enable <hl>Export logs to Syslog</hl>, and set the destination to the Forwarder host on port {{port}} (UDP). ESET sends LEEF/syslog, which the Forwarder ingests as the antivirus-esmc-eset data type."
             }
           }
         },
         "kaspersky": {
-          "sections": {
+          "source": "Kaspersky Security",
+          "step1": {
+            "title": "Enable the Kaspersky listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the Kaspersky syslog listener:",
+            "note": "To use TCP instead of UDP, replace udp with tcp in the command above."
+          },
+          "console": {
             "consoleSettings": {
-              "title": "1 · Open Console Settings",
-              "body": "In the Kaspersky Security sidebar, click \"Console Settings\" → \"Integration\"."
+              "title": "Open Console settings → Integration",
+              "body": "In the Kaspersky Security Center sidebar, open <hl>Console settings</hl> and click the <hl>Integration</hl> submenu."
             },
             "siem": {
-              "title": "2 · Open the SIEM integration",
-              "body": "Within Integration, open the SIEM section and click on the \"Settings\" link."
+              "title": "Open the SIEM integration settings",
+              "body": "Under Integration, select <hl>SIEM</hl> and click the <hl>Settings</hl> link to open the export configuration."
             },
             "configure": {
-              "title": "3 · Configure Splunk(CEF) forwarding",
-              "body": "Configure Kaspersky Security to send logs in Splunk(CEF) format to the UTMStack agent on 514/udp or 514/tcp."
-            },
-            "enableCollector": {
-              "title": "4 · Enable the Kaspersky collector",
-              "body": "Enable the log collector and the Kaspersky integration in the configuration file where your UTMStack agent is installed."
-            },
-            "activate": {
-              "title": "5 · Activate",
-              "body": "Activate the UTMStack module so Kaspersky events start flowing."
+              "title": "Configure the SIEM export",
+              "body": "Enable export and set Kaspersky to send events in <hl>Splunk (CEF)</hl> format to the Forwarder host on port {{port}} (UDP). The Forwarder ingests them as the antivirus-kaspersky data type."
             }
           }
         },
         "sophos": {
-          "sections": {
-            "createApiCredentials": {
-              "title": "1 · Create API credentials",
-              "body": "In Sophos Central, go to Global Settings → API Credentials and create a new API credential with read access."
+          "intro": {
+            "title": "Sophos Central — API Plugin",
+            "body": "Sophos Central provides secure APIs to retrieve event and alert data. UTMStack connects to those APIs to centralize monitoring and enhance your security visibility — no agent or forwarder required.",
+            "diagram": {
+              "source": "Sophos Central API",
+              "edge": "HTTPS API",
+              "utmstackSub": "Ingests & correlates"
             },
-            "tenantId": {
-              "title": "2 · Note your tenant ID",
-              "body": "Open the credential and copy the Client ID, Client Secret, and tenant ID — you'll paste them into the form below."
+            "note": "UTMStack polls the Sophos Central API on a schedule. Ensure the API credentials you create below have read access to events and alerts."
+          },
+          "apiSection": "Generate API Credentials in Sophos Central",
+          "steps": {
+            "apiCredentials": {
+              "title": "Open API Credentials Management",
+              "body": "In <hl>Sophos Central Admin</hl>, navigate to <hl>Global Settings → API Credentials Management</hl>."
             },
-            "fillForm": {
-              "title": "3 · Fill the form",
-              "body": "Provide the credential values to UTMStack."
+            "addCredential": {
+              "title": "Create a new credential",
+              "body": "Click <hl>Add Credential</hl>. Provide a <hl>Name</hl> and <hl>Description</hl>, select the appropriate <hl>Role</hl>, then click <hl>Add</hl>."
             },
-            "activate": {
-              "title": "4 · Activate",
-              "body": "Activate the UTMStack module so Sophos events start flowing."
+            "copyIds": {
+              "title": "Copy Client ID and Client Secret",
+              "body": "Copy the <hl>Client ID</hl> and <hl>Client Secret</hl> and store them securely.",
+              "secretNote": "The Client Secret is shown only once. Save it somewhere safe before closing this dialog."
+            }
+          },
+          "credentialsSection": "Connect to UTMStack",
+          "credentials": {
+            "title": "Add Sophos Central credentials",
+            "body": "Enter the credentials you just created. You can add more than one Sophos account by clicking Add tenant."
+          },
+          "fields": {
+            "clientId": {
+              "label": "Client ID"
+            },
+            "apiKey": {
+              "label": "Client Secret / API Key"
             }
           }
         },
@@ -1832,115 +1937,119 @@
           }
         },
         "sentinelOne": {
-          "sections": {
-            "createApiToken": {
-              "title": "1 · Create an API token",
-              "body": "In SentinelOne, go to Settings → Users → Create User of type Service User and generate an API token with read access."
+          "source": "SentinelOne",
+          "step1": {
+            "title": "Enable the SentinelOne listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the SentinelOne syslog listener. SentinelOne streams CEF over TCP:",
+            "note": "For an encrypted channel use tls instead of tcp (load certificates on the Forwarder first)."
+          },
+          "console": {
+            "settings": {
+              "title": "Open the SentinelOne Settings",
+              "body": "In the SentinelOne management console sidebar, click the <hl>Settings</hl> menu."
             },
-            "consoleUrl": {
-              "title": "2 · Note your console URL",
-              "body": "Copy the console URL (e.g. https://my-org.sentinelone.net) — UTMStack uses it to call the API."
-            },
-            "fillForm": {
-              "title": "3 · Fill the form",
-              "body": "Provide the console URL and API token to UTMStack."
-            },
-            "activate": {
-              "title": "4 · Activate",
-              "body": "Activate the UTMStack module so SentinelOne events start flowing."
-            }
-          }
-        },
-        "crowdstrike": {
-          "sections": {
-            "createApiClient": {
-              "title": "1 · Create an API client",
-              "body": "In CrowdStrike Falcon, go to Support → API Clients and Keys, and create a new API client."
-            },
-            "setScopes": {
-              "title": "2 · Grant the required scopes",
-              "body": "Grant read access to the events and detections scopes you want UTMStack to ingest."
-            },
-            "copyCredentials": {
-              "title": "3 · Copy the credentials",
-              "body": "Copy the Client ID and Client Secret — the secret is shown only once."
-            },
-            "fillForm": {
-              "title": "4 · Fill the form",
-              "body": "Provide the credentials and the CrowdStrike cloud region to UTMStack."
-            },
-            "activate": {
-              "title": "5 · Activate",
-              "body": "Activate the UTMStack module so CrowdStrike events start flowing."
+            "syslog": {
+              "title": "Configure the Syslog integration",
+              "body": "Go to <hl>Integrations → Syslog</hl> and enable it. Set the host to <hl>{{host}}</hl> and port to <hl>{{port}}</hl>, keep the format as <hl>CEF</hl>, click <hl>Test</hl> to verify the connection, then <hl>Save</hl>."
             }
           }
         },
         "office365": {
-          "sections": {
+          "intro": {
+            "title": "How it works",
+            "body": "UTMStack connects to Microsoft 365 using a registered Azure AD app and polls the Office 365 Management Activity API for audit and security events. No agent is installed in your tenant.",
+            "diagram": {
+              "source": "audit & security events",
+              "edge": "Management API",
+              "utmstackSub": "correlation & alerts"
+            },
+            "note": "UTMStack requires read-only API access — no write permissions are requested."
+          },
+          "appSection": "Azure App Registration",
+          "steps": {
             "azurePortal": {
-              "title": "1 · Open the Azure Portal",
-              "body": "Open the Azure Portal and click on Microsoft Entra ID."
+              "title": "Open Microsoft Entra ID",
+              "body": "Open the <hl>Azure Portal</hl> (portal.azure.com) and click on <hl>Microsoft Entra ID</hl>."
             },
             "appRegistrations": {
-              "title": "2 · Open App registrations",
-              "body": "Go to App registrations."
+              "title": "Go to App registrations",
+              "body": "In the left menu, click <hl>App registrations</hl>."
             },
             "registerApp": {
-              "title": "3 · Register a new app",
-              "body": "Click \"New registration\" and fill the form: name it \"UTMStack O365 Agent\" and select \"Accounts in this organizational directory only (Single-tenant)\". Click Register."
+              "title": "Register a new app",
+              "body": "Click <hl>New registration</hl>. Name it <hl>UTMStack O365 Agent</hl>, select <hl>Accounts in this organizational directory only (Single-tenant)</hl>, and click <hl>Register</hl>."
             },
             "clientSecret": {
-              "title": "4 · Create a client secret",
-              "body": "In the new App registration, go to Certificates & Secrets → New client secret. Add a description, set expiry to 730 days, and click Add. Copy the value somewhere safe."
+              "title": "Create a client secret",
+              "body": "Go to <hl>Certificates & Secrets → New client secret</hl>. Add a description, set expiry to <hl>730 days (24 months)</hl>, and click <hl>Add</hl>.",
+              "copyNote": "Copy the secret Value immediately — it is only shown once and cannot be retrieved later."
             },
             "apiPermissions": {
-              "title": "5 · Add Office 365 Management API permissions",
-              "body": "Open API Permissions → Add Permissions → look for \"Office 365 Management API\"."
+              "title": "Add Office 365 Management API permissions",
+              "body": "Go to <hl>API Permissions → Add a permission</hl> and search for <hl>Office 365 Management APIs</hl>."
             },
             "activityFeed": {
-              "title": "6 · Grant Application permissions",
-              "body": "Select \"Application Permissions\" and add ActivityFeed.Read and ActivityFeed.ReadDlp. Click \"Grant admin consent\" and confirm."
+              "title": "Grant ActivityFeed permissions",
+              "body": "Select <hl>Application Permissions</hl> and add <hl>ActivityFeed.Read</hl> and <hl>ActivityFeed.ReadDlp</hl>. Click <hl>Grant admin consent</hl> and confirm."
             },
             "graphPermissions": {
-              "title": "7 · Add Microsoft Graph permissions",
-              "body": "From the \"Request API Permissions\" dialog, click \"Microsoft Graph\"."
+              "title": "Add Microsoft Graph permissions",
+              "body": "Back in <hl>Add a permission</hl>, click <hl>Microsoft Graph</hl>."
             },
             "delegatedPermissions": {
-              "title": "8 · Add delegated SecurityAlert permissions",
-              "body": "Select \"Delegated Permissions\" and add SecurityAlert.Read.All and SecurityAlert.ReadWrite.All. Click \"Grant admin consent\" and confirm."
+              "title": "Add delegated SecurityAlert permissions",
+              "body": "Select <hl>Delegated Permissions</hl> and add <hl>SecurityAlert.Read.All</hl> and <hl>SecurityAlert.ReadWrite.All</hl>. Click <hl>Grant admin consent</hl> and confirm."
             },
             "appPermissions": {
-              "title": "9 · Add application SecurityAlert permissions",
-              "body": "Select \"Application Permissions\" and add SecurityAlert.Read.All and SecurityAlert.ReadWrite.All. Click \"Grant admin consent\" and confirm."
+              "title": "Add application SecurityAlert permissions",
+              "body": "Select <hl>Application Permissions</hl> and add <hl>SecurityAlert.Read.All</hl> and <hl>SecurityAlert.ReadWrite.All</hl>. Click <hl>Grant admin consent</hl> and confirm."
             },
             "noteIds": {
-              "title": "10 · Note the IDs",
-              "body": "Go to the Overview section of the App registration and copy the Client ID, Tenant ID, and the secret value."
+              "title": "Copy the app IDs",
+              "body": "Go to the app <hl>Overview</hl> and copy the <hl>Application (client) ID</hl> and <hl>Directory (tenant) ID</hl>. You also need the secret value copied in step 4."
+            }
+          },
+          "credentialsSection": "Credentials",
+          "credentials": {
+            "title": "Connect your Microsoft 365 tenant",
+            "body": "Enter the details from the steps above. UTMStack verifies the credentials before saving. You can add multiple tenants."
+          },
+          "fields": {
+            "tenantId": {
+              "label": "Tenant ID (Directory ID)"
             },
-            "fillForm": {
-              "title": "11 · Fill the form",
-              "body": "Provide the values to UTMStack. You can add more than one Office 365 tenant."
+            "clientId": {
+              "label": "Client ID (Application ID)"
             },
-            "activate": {
-              "title": "12 · Activate",
-              "body": "Activate the UTMStack module so Office 365 events start flowing."
+            "clientSecret": {
+              "label": "Client Secret"
+            },
+            "cloudEnv": {
+              "label": "Cloud Environment (optional)",
+              "hint": "Commercial (default), GCC, GCCHigh, or DoD"
             }
           }
         },
         "github": {
-          "sections": {
-            "openSettings": {
-              "title": "1 · Open repository/organization settings",
-              "body": "Open the Settings page of your GitHub repository or organization."
-            },
-            "addWebhook": {
-              "title": "2 · Add the webhook",
-              "body": "Click Webhooks → Add webhook. Point the Payload URL at the UTMStack ingestion endpoint, set Content type to application/json, and set a secret you'll paste into UTMStack as well."
-            },
-            "activate": {
-              "title": "3 · Activate",
-              "body": "Activate the UTMStack module so GitHub events start flowing."
-            }
+          "source": "GitHub",
+          "step1": {
+            "title": "Enable the GitHub webhook listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the HTTPS webhook listener for GitHub:",
+            "tokenNote": "The terminal will print a secret token — copy it immediately. It will not be shown again."
+          },
+          "certWarning": {
+            "title": "GitHub requires a CA-signed TLS certificate",
+            "body": "GitHub only delivers webhooks to HTTPS endpoints with a certificate issued by a public CA (self-signed certificates are rejected). Make sure the Forwarder host has a valid domain certificate before registering the webhook."
+          },
+          "step2": {
+            "title": "Register the webhook in GitHub",
+            "body": "In your repository or organization, go to Settings → Webhooks → Add webhook and fill in the form:",
+            "payloadUrl": "Payload URL",
+            "contentType": "Content type",
+            "secret": "Secret",
+            "secretHint": "Paste the <hl>token</hl> printed by the Forwarder in the previous step.",
+            "events": "Which events",
+            "eventsHint": "Send me everything — or select specific event types."
           }
         },
         "salesforce": {
@@ -2084,27 +2193,26 @@
           }
         },
         "oracle": {
-          "sections": {
-            "enableAudit": {
-              "title": "1 · Enable auditing",
-              "body": "On the Oracle Database instance, enable standard auditing or Unified Auditing depending on your version."
-            },
-            "configureTrail": {
-              "title": "2 · Configure the audit trail",
-              "body": "Set audit_trail=OS or audit_trail=XML,EXTENDED so audit records are written to files Filebeat can collect."
-            },
-            "exportTrail": {
-              "title": "3 · Make audit files readable",
-              "body": "Ensure the audit_file_dest directory is readable by the UTMStack agent's user."
-            },
-            "enableCollector": {
-              "title": "4 · Enable the Oracle collector",
-              "body": "Enable the log collector and the Oracle integration in the configuration file where your UTMStack agent is installed."
-            },
-            "activate": {
-              "title": "5 · Activate",
-              "body": "Activate the UTMStack module so Oracle audit events start flowing."
-            }
+          "source": "Oracle DB server",
+          "step1": {
+            "title": "Enable the Oracle integration on the Forwarder",
+            "body": "On the server where the Forwarder is installed, run the following command to start listening for Oracle logs:",
+            "note": "The Forwarder will begin receiving syslog events from Oracle on port 7021."
+          },
+          "step2": {
+            "title": "Configure rsyslog on the Oracle server",
+            "body": "Create the rsyslog configuration file:",
+            "editBody": "Open the file with your preferred editor and add the following configuration. Replace BASEDIR with your Oracle installation path (e.g., /u01/app/oracle) and <forwarder-ip> with the Forwarder's IP address or hostname:",
+            "note": "Use @@<forwarder-ip>:7021 instead of @ if you prefer TCP delivery."
+          },
+          "step3": {
+            "title": "Restart rsyslog",
+            "body": "Apply the new configuration by restarting the rsyslog service:"
+          },
+          "step4": {
+            "title": "Validate the configuration",
+            "body": "Send test log messages to verify that UTMStack is receiving events from all three Oracle log sources:",
+            "note": "Open Log Explorer and search for the test message text above to confirm they arrived."
           }
         },
         "vulnerabilities": {
@@ -2180,19 +2288,37 @@
           }
         },
         "utmstack": {
-          "sections": {
-            "requirements": {
-              "title": "1 · Requirements",
-              "body": "Self-monitoring runs on an UTMStack agent installed on the UTMStack host itself. Ubuntu and Red Hat-family distributions are supported."
-            },
-            "installAgent": {
-              "title": "2 · Install the agent",
-              "body": "Install the UTMStack agent on the UTMStack host using the architecture-specific installer."
-            },
-            "activate": {
-              "title": "3 · Activate",
-              "body": "Activate the UTMStack module so self-monitoring telemetry starts flowing."
+          "intro": {
+            "title": "How it works",
+            "body": "This integration self-monitors your UTMStack deployment. A lightweight collector installed on the UTMStack host tails the platform's own Docker container logs and ships them back into UTMStack for correlation and alerting.",
+            "diagram": {
+              "source": "Docker logs",
+              "sourceSub": "UTMStack containers",
+              "edge1": "tail",
+              "collector": "Collector",
+              "collectorSub": "on the host",
+              "edge2": "ingest",
+              "utmstackSub": "Correlates & alerts"
             }
+          },
+          "requirements": {
+            "title": "Runs on the UTMStack host only",
+            "body": "This integration can only be installed on a UTMStack instance running Ubuntu or a Red Hat-family distribution. Install the collector directly on the UTMStack server."
+          },
+          "install": {
+            "title": "Install the collector",
+            "body": "On the UTMStack host, pick your operating system and run the command below to download and install the self-monitoring collector:",
+            "sensitiveWarning": "This command contains a sensitive connection token. Treat it like a password and don't share it."
+          },
+          "after": {
+            "title": "What you'll see after installing",
+            "item1": "The collector registers itself and appears under Data sources.",
+            "item2": "UTMStack container logs start flowing within a minute.",
+            "item3": "Events become searchable in Log Explorer under the utmstack data type."
+          },
+          "uninstall": {
+            "title": "Uninstall the collector",
+            "body": "To remove the self-monitoring collector from the UTMStack host, run:"
           }
         },
         "windowsFaa": {
@@ -2394,6 +2520,171 @@
               "body": "Activate the UTMStack module so mirrored traffic starts being parsed."
             }
           }
+        },
+        "forwarder": {
+          "intro": {
+            "title": "How it works",
+            "body": "Logs flow from {{source}} to the UTMStack Forwarder, which streams them securely into UTMStack for correlation and alerting. Nothing is installed on {{source}} — only the Forwarder needs to run on a host in your network."
+          },
+          "diagram": {
+            "sourceSub": "your logs",
+            "forwarder": "Forwarder",
+            "forwarderSub": "listens on {{port}}",
+            "utmstack": "UTMStack",
+            "utmstackSub": "alerts & correlation",
+            "flow1": "logs",
+            "flow2": "secure"
+          },
+          "noInstall": "Nothing is installed on {{source}} — you only redirect its logs to the Forwarder.",
+          "install": {
+            "title": "Install the UTMStack Forwarder",
+            "body": "The Forwarder is a Linux service that receives logs from your devices and sends them to UTMStack. A single Forwarder handles multiple integrations at the same time.",
+            "reuse": "Already have a Forwarder running? Skip this step — point {{source}} at the existing one using the host and port shown below."
+          },
+          "tls": {
+            "title": "Optional — Enable TLS encryption",
+            "intro": "By default the listener accepts plain TCP/UDP. To encrypt syslog traffic in transit, load your certificate files first, then re-enable the listener with the tls protocol.",
+            "step1": "1 · Load your certificate and key (once per Forwarder)",
+            "step1Note": "An optional CA certificate can be added as a third argument. Omit it to use the leaf certificate as CA.",
+            "step2": "2 · Re-enable the listener using TLS"
+          },
+          "uninstall": {
+            "title": "Optional — Uninstall the Forwarder",
+            "body": "Run this command on the host where the Forwarder is installed to stop the service and remove all its files."
+          }
+        },
+        "aix": {
+          "source": "AIX server",
+          "step1": {
+            "title": "Enable the AIX listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the AIX log listener:",
+            "note": "To use TCP instead of UDP, replace udp with tcp in the command above."
+          },
+          "step2": {
+            "title": "Configure AIX to forward logs",
+            "body": "On your AIX system, configure the <hl>syslog</hl> service to redirect its logs to the Forwarder host on port {{port}}. Refer to IBM’s documentation for the exact syntax — it varies between AIX versions."
+          }
+        },
+        "deceptivebytes": {
+          "source": "Deceptive Bytes",
+          "step1": {
+            "title": "Enable the Deceptive Bytes listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the Deceptive Bytes syslog listener:",
+            "note": "To use TCP instead of UDP, replace udp with tcp in the command above."
+          },
+          "step2": {
+            "title": "Configure Deceptive Bytes to forward logs",
+            "body": "In the Deceptive Bytes management console, configure <hl>syslog</hl> forwarding to send events to the Forwarder host on port {{port}} (UDP). Deceptive Bytes emits CEF-formatted syslog, which the Forwarder ingests as the <hl>deceptive-bytes</hl> data type."
+          }
+        },
+        "mikrotik": {
+          "source": "MikroTik router",
+          "step1": {
+            "title": "Enable the MikroTik listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the MikroTik syslog listener:",
+            "note": "To use TCP instead of UDP, replace udp with tcp in the command above."
+          },
+          "step2": {
+            "title": "Configure MikroTik to forward logs",
+            "body": "On the MikroTik router, create a remote <hl>logging action</hl> pointing at the Forwarder host on port {{port}} and attach it to the relevant log topics. Run the following from the RouterOS CLI (Terminal in Winbox):",
+            "note": "You can also configure this via Winbox: System → Logging → Actions tab (add a Remote action) → then the Rules tab (add rules pointing to the new action)."
+          }
+        },
+        "fortigate": {
+          "source": "FortiGate firewall",
+          "step1": {
+            "title": "Enable the FortiGate listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the FortiGate syslog listener:",
+            "note": "To use TCP instead of UDP, replace udp with tcp in the command above."
+          },
+          "step2": {
+            "title": "Configure FortiGate to forward logs",
+            "body": "On the FortiGate, point syslog at the Forwarder host on port {{port}}. Run the following from the FortiOS CLI (or use Log & Report → Log Settings → Syslog in the GUI):",
+            "note": "Replace the server address if the Forwarder runs on a different host. For multiple syslog collectors use syslogd2/syslogd3/syslogd4."
+          }
+        },
+        "fortiweb": {
+          "source": "FortiWeb WAF",
+          "step1": {
+            "title": "Enable the FortiWeb listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the FortiWeb syslog listener:",
+            "note": "To use TCP instead of UDP, replace udp with tcp in the command above."
+          },
+          "step2": {
+            "title": "Configure FortiWeb to forward logs",
+            "body": "On the FortiWeb, create a syslog policy pointing at the Forwarder host on port {{port}} and enable syslog logging. Run the following from the FortiWeb CLI (or use Log & Report → Log Policy → Syslog Policy in the GUI):",
+            "note": "Make sure the relevant log types (Attack, Event, Traffic) are enabled to be sent to syslog under Log & Report settings."
+          }
+        },
+        "paloalto": {
+          "source": "Palo Alto firewall",
+          "step1": {
+            "title": "Enable the Palo Alto listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the Palo Alto syslog listener:",
+            "note": "To use TCP instead of UDP, replace udp with tcp in the command above."
+          },
+          "step2": {
+            "title": "Create a Syslog Server Profile",
+            "body": "In PAN-OS, go to <hl>Device → Server Profiles → Syslog</hl> and add a profile. Set the server address to <hl>{{host}}</hl>, transport <hl>UDP</hl>, port <hl>{{port}}</hl> and format <hl>BSD</hl>."
+          },
+          "step3": {
+            "title": "Forward logs and commit",
+            "body": "Create a <hl>Log Forwarding</hl> profile (Objects → Log Forwarding) that sends Traffic, Threat and other log types to the syslog profile above, attach it to your <hl>Security policy</hl> rules (Policies → Security → rule → Actions → Log Forwarding), then <hl>Commit</hl>."
+          }
+        },
+        "pfsense": {
+          "source": "pfSense firewall",
+          "step1": {
+            "title": "Enable the pfSense listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the pfSense syslog listener:",
+            "note": "To use TCP instead of UDP, replace udp with tcp in the command above."
+          },
+          "step2": {
+            "title": "Enable Remote Logging in pfSense",
+            "body": "In the pfSense web UI, go to <hl>Status → System Logs → Settings</hl>. Under <hl>Remote Logging Options</hl>, check <hl>Enable Remote Logging</hl>, set a Remote log server to <hl>{{host}}:{{port}}</hl>, choose which logs to send (or <hl>Everything</hl>), and click <hl>Save</hl>."
+          }
+        },
+        "sonicwall": {
+          "source": "SonicWall firewall",
+          "step1": {
+            "title": "Enable the SonicWall listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the SonicWall syslog listener:",
+            "note": "To use TCP instead of UDP, replace udp with tcp in the command above."
+          },
+          "step2": {
+            "title": "Add a Syslog Server in SonicOS",
+            "body": "In SonicOS, go to <hl>Device → Log → Syslog</hl> (Manage → Log → Syslog on older firmware) and add a Syslog Server with address <hl>{{host}}</hl> and port <hl>{{port}}</hl>. Set the <hl>Syslog Format</hl> to <hl>ArcSight (CEF)</hl> — UTMStack parses SonicWall in CEF — then Apply."
+          }
+        },
+        "sophosxg": {
+          "source": "Sophos Firewall",
+          "step1": {
+            "title": "Enable the Sophos Firewall listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the Sophos Firewall syslog listener:",
+            "note": "To use TCP instead of UDP, replace udp with tcp in the command above."
+          },
+          "step2": {
+            "title": "Add a Syslog Server in Sophos Firewall",
+            "body": "In the Sophos Firewall (SFOS) console, go to <hl>System → System services → Log settings</hl> and add a Syslog Server with address <hl>{{host}}</hl> and port <hl>{{port}}</hl>. Choose the log types you want to forward (firewall, IPS, ATP, web, etc.) and click <hl>Apply</hl>."
+          }
+        },
+        "suricata": {
+          "source": "Suricata IDS",
+          "step1": {
+            "title": "Enable the Suricata listener on the Forwarder",
+            "body": "On the host where the Forwarder is installed, run this command to open the Suricata listener:",
+            "note": "To use TCP instead of UDP, replace udp with tcp in the command above."
+          },
+          "step2": {
+            "title": "Send Suricata EVE logs to syslog",
+            "body": "Suricata is ingested as JSON (EVE). On the Suricata host, edit <hl>suricata.yaml</hl> and configure the <hl>eve-log</hl> output to write to syslog:",
+            "note": "Then restart Suricata: sudo systemctl restart suricata"
+          },
+          "step3": {
+            "title": "Forward syslog to the Forwarder",
+            "body": "Point the <hl>local5</hl> facility (where Suricata now writes) at the Forwarder. Add this rule to <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> on the Suricata host:",
+            "note": "Use @@ instead of @ for TCP. Then restart rsyslog: sudo systemctl restart rsyslog"
+          }
         }
       },
       "cloud": {
@@ -2427,46 +2718,68 @@
           "updateError": "Could not update the tenant. Please try again."
         },
         "google": {
+          "intro": {
+            "title": "How it works",
+            "body": "UTMStack reads audit activity directly from Google Cloud via Pub/Sub. A Logs Router sink streams your project logs into a Pub/Sub topic; UTMStack runs an internal puller that reads a Pull subscription on that topic using a service-account key. Nothing is installed in your GCP project.",
+            "diagram": {
+              "source": "Cloud Logging",
+              "edge1": "Logs Router",
+              "pubsub": "Pub/Sub",
+              "pubsubSub": "topic + subscription",
+              "edge2": "pulls",
+              "utmstackSub": "alerts & correlation"
+            },
+            "note": "No agent runs in GCP — UTMStack pulls messages from the Pub/Sub subscription using the service-account JSON key you provide below."
+          },
           "sections": {
             "createTopic": {
-              "title": "1 · Create a Pub/Sub topic",
-              "body": "In the Google Cloud console, open Pub/Sub → Topics and create a new topic. UTMStack will receive events through this topic."
+              "title": "Create a Pub/Sub topic",
+              "body": "In the Google Cloud console, open Pub/Sub → Topics and create a new topic. The Logs Router sink will publish your project logs to it.",
+              "docLabel": "Open the Pub/Sub topics page"
             },
             "createSubscription": {
-              "title": "2 · Create a subscription",
-              "body": "Inside the topic, create a Pull subscription. UTMStack pulls messages from this subscription."
+              "title": "Create a subscription",
+              "body": "From the topic menu, create a subscription. UTMStack pulls messages from this subscription."
             },
             "configureSubscription": {
-              "title": "3 · Configure the subscription",
-              "body": "Set the message retention duration to a value that fits your tolerance for downtime (default 7 days is fine). Leave acknowledgement deadline at 10 seconds and expiration to Never expire."
+              "title": "Configure the subscription",
+              "body": "Leave the Delivery type as Pull and the Expiration as Never expire. The default acknowledgement deadline (10s) and message retention are fine."
             },
             "logsRouter": {
-              "title": "4 · Open Logs Router",
-              "body": "Navigate to Logging → Logs Router and create a new sink. This is what forwards your project's logs into the Pub/Sub topic above."
+              "title": "Open Logs Router and create a sink",
+              "body": "Navigate to Logging → Logs Router and create a new sink. This is what forwards your project logs into the Pub/Sub topic above."
             },
             "sinkDestination": {
-              "title": "5 · Point the sink at the topic",
-              "body": "Choose Cloud Pub/Sub topic as the sink destination and select the topic you created. Use the inclusion/exclusion filters to scope what is forwarded."
+              "title": "Point the sink at the topic",
+              "body": "Choose Cloud Pub/Sub topic as the sink destination and select the topic you created. Optionally use inclusion/exclusion filters to scope which logs are forwarded, then create the sink."
             },
             "serviceAccount": {
-              "title": "6 · Create a service account",
-              "body": "Open IAM & Admin → Service Accounts and create a new service account. Grant it the Pub/Sub Editor role so UTMStack can pull from the subscription."
+              "title": "Create a service account",
+              "body": "Open IAM & Admin → Service Accounts in the project that holds your topic and sink, and create a new service account. Grant it the Pub/Sub Editor role so UTMStack can pull from the subscription.",
+              "docLabel": "Open the service accounts page"
             },
             "serviceAccountKey": {
-              "title": "7 · Generate a key for the service account",
-              "body": "Open the service account, go to the Keys tab, and add a new key. Pick JSON as the key type."
+              "title": "Generate a key for the service account",
+              "body": "Open the service account, go to the Keys tab, and add a new key. Choose JSON as the key type."
             },
             "downloadKey": {
-              "title": "8 · Download and paste the JSON key",
-              "body": "Save the JSON file Google downloads — its contents go in the Service account JSON field below."
+              "title": "Download the JSON key",
+              "body": "Save the JSON file Google downloads — its contents go in the Service account JSON key field below. The key is shown only once."
+            }
+          },
+          "credentials": {
+            "title": "Pub/Sub configuration",
+            "body": "Use the values collected above to configure UTMStack. You can monitor more than one project by saving additional configurations.",
+            "mapping": {
+              "intro": "Field reference",
+              "projectId": "Project ID — the GCP project that holds your topic, subscription and sink",
+              "subscription": "Subscription name — the Pull subscription created in step 2",
+              "jsonKey": "Service account JSON key — the file downloaded in step 8"
             }
           },
           "fields": {
             "projectId": {
               "label": "Project ID"
-            },
-            "topic": {
-              "label": "Topic name"
             },
             "subscription": {
               "label": "Subscription name"
@@ -2477,38 +2790,74 @@
           }
         },
         "azure": {
+          "intro": {
+            "title": "How it works",
+            "body": "UTMStack reads audit activity directly from an Azure Event Hub. You configure your Azure subscription to stream events into an Event Hub; UTMStack runs an internal puller that reads that hub and checkpoints its progress in a Storage Account. Nothing is installed in your Azure tenant.",
+            "diagram": {
+              "source": "subscription events",
+              "edge1": "streams to",
+              "eventHub": "Event Hub",
+              "eventHubSub": "event stream",
+              "edge2": "pulls",
+              "utmstackSub": "alerts & correlation"
+            },
+            "note": "No agent runs in Azure — UTMStack pulls events from the Event Hub using the connection strings you provide below."
+          },
           "sections": {
-            "eventHub": {
-              "title": "1 · Create an Event Hub",
-              "body": "In the Azure Portal, create an Event Hubs namespace and an Event Hub inside it. UTMStack will read events from this hub."
+            "createEventHub": {
+              "title": "Create an Event Hub",
+              "body": "In the Azure Portal, create an Event Hubs namespace and an Event Hub inside it. UTMStack will read events from this hub.",
+              "docLabel": "Quickstart: Create an event hub using the Azure portal"
             },
             "sharedAccessPolicy": {
-              "title": "2 · Add a Shared Access Policy",
-              "body": "Open the Event Hub → Shared access policies and create a new policy with the Listen permission only."
+              "title": "Add a Shared Access Policy",
+              "body": "Open the Event Hub → Shared access policies and create a new policy. Make sure you select the Listen permission."
             },
             "connectionString": {
-              "title": "3 · Copy the primary connection string",
-              "body": "Open the policy and copy the Connection string–primary key. It looks like: Endpoint=sb://...;SharedAccessKeyName=...;SharedAccessKey=..."
+              "title": "Copy the primary connection string",
+              "body": "Open the Shared access policy you just created and copy the Connection string–primary key. You will use it to configure your tenant below."
             },
             "consumerGroup": {
-              "title": "4 · Create a dedicated consumer group",
-              "body": "Open the Event Hub → Consumer groups and create a new one for UTMStack. Don't reuse $Default — give UTMStack its own group so checkpoints don't collide with other consumers."
+              "title": "Create a dedicated consumer group",
+              "body": "Get the Consumer Group name in: All services → Event Hubs → your namespace → Event Hubs → your instance → Consumer groups. You will use it to configure your tenant below.",
+              "warn": "Create a consumer group specifically for UTMStack. Do not use $Default or any other group already in use — reusing a consumer group across unrelated consumers can cause unexpected behavior and lost events. All UTMStack instances should share the same consumer group so they can process events together."
             },
-            "storageAccount": {
-              "title": "5 · Create a Storage Account",
-              "body": "UTMStack needs a Storage Account for checkpointing. Create one in the same region as the Event Hub."
+            "createStorageAccount": {
+              "title": "Create a Storage Account",
+              "body": "UTMStack needs a Storage Account to checkpoint its read position. Create one in the same region as the Event Hub.",
+              "docLabel": "Quickstart: Create a storage account"
             },
             "storageContainer": {
-              "title": "6 · Create a container inside the Storage Account",
-              "body": "Inside the Storage Account → Containers, create a new container. Note the container name and the Storage Account connection string (Access keys → Connection string)."
+              "title": "Get the Storage Container name",
+              "body": "Get the Storage Container name in: All services → Storage accounts → your account → Containers. You will use it to configure your tenant below."
+            },
+            "storageConnection": {
+              "title": "Copy the Storage Account connection string",
+              "body": "Get the Storage Account connection string with key in: All services → Storage accounts → your account → Access keys. UTMStack uses it to store Event Hub checkpoints."
             },
             "eventGrid": {
-              "title": "7 · Register the Event Grid resource provider",
-              "body": "In Subscriptions → Resource providers, register Microsoft.EventGrid if it isn't already. This lets Azure forward subscription-level events to your Event Hub."
+              "title": "Register the Event Grid resource provider",
+              "body": "Configure your subscription to send logs to the Event Hub. Go to Subscriptions → Resource providers, search for Event Grid (Microsoft.EventGrid) and make sure it is registered."
             },
-            "eventSubscription": {
-              "title": "8 · Create an Event Subscription",
-              "body": "Create an Event Subscription that targets your Event Hub. Choose the event types you want to forward to UTMStack."
+            "createEventSubscription": {
+              "title": "Create an Event Subscription",
+              "body": "In the subscription Events panel, create a new event by clicking Events → Event Subscription."
+            },
+            "configureEventSubscription": {
+              "title": "Point the Event Subscription at your Event Hub",
+              "body": "Configure the Event Subscription to send logs to the Event Hub you created in step 1."
+            }
+          },
+          "sampleLabel": "Sample connection string:",
+          "credentials": {
+            "title": "Event Hub configuration",
+            "body": "Use the data collected in the steps above to configure UTMStack. You can add more than one Event Hub by saving additional configurations.",
+            "mapping": {
+              "intro": "Field reference",
+              "eventHubConnection": "Event Hub connection string — value obtained in step 3",
+              "consumerGroup": "Consumer group — value obtained in step 4",
+              "storageContainer": "Storage container name — value obtained in step 6",
+              "storageConnection": "Storage account connection string — value obtained in step 7"
             }
           },
           "fields": {
@@ -2527,42 +2876,106 @@
           }
         },
         "aws": {
-          "sections": {
-            "prerequisite": {
-              "title": "Prerequisite · IAM user",
-              "body": "Before this integration can work, you need an IAM user for UTMStack with the CloudWatchLogsReadOnlyAccess policy. Capture its access key ID and secret access key — you'll paste them into the tenant form below."
+          "intro": {
+            "title": "How it works",
+            "body": "UTMStack reads audit activity directly from AWS CloudWatch Logs. CloudTrail captures API calls and management events across your AWS account, forwards them to a CloudWatch log group, and UTMStack polls that group to ingest and correlate events.",
+            "diagram": {
+              "source": "API events",
+              "edge1": "CloudTrail",
+              "cloudwatchSub": "log groups",
+              "edge2": "polls",
+              "utmstackSub": "alerts & correlation"
             },
-            "createTrail": {
-              "title": "1 · Create a trail",
-              "body": "In the CloudTrail panel, select \"Create trail\"."
+            "note": "No agent is installed on AWS — UTMStack pulls log events using read-only IAM credentials you provide below."
+          },
+          "iamSection": "Configure IAM User",
+          "iam": {
+            "dashboard": {
+              "title": "Open the IAM dashboard",
+              "body": "Open the AWS console, navigate to the IAM dashboard and select <strong>Users</strong>."
             },
-            "trailName": {
-              "title": "2 · Name the trail",
-              "body": "Fill in the \"Trail name\" field."
+            "addUser": {
+              "title": "Add a user",
+              "body": "Click <strong>Add user</strong>, enter a descriptive user name, and proceed to the next step."
             },
-            "s3Buckets": {
-              "title": "3 · Select S3 buckets",
-              "body": "Mark \"Select all S3 buckets in your account\"."
+            "attachPolicy": {
+              "title": "Attach the read-only policy",
+              "body": "Under <strong>Permissions</strong>, attach the required policy. Select <strong>CloudWatchLogsReadOnlyAccess</strong> for read-only CloudWatch access."
             },
-            "bucketName": {
-              "title": "4 · Create the S3 bucket",
-              "body": "Fill in the \"S3 bucket\" field. The bucket name must be unique across S3. Then click \"Create\"."
+            "createUser": {
+              "title": "Create the user",
+              "body": "Review the configuration and click <strong>Create user</strong> to provision the account."
             },
-            "editTrail": {
-              "title": "5 · Open the trail to edit",
-              "body": "Click on the name of the trail to edit it."
+            "openUser": {
+              "title": "Open the new user",
+              "body": "Open the newly created user by clicking its name to view details and manage credentials."
             },
-            "cloudwatchConfig": {
-              "title": "6 · Configure CloudWatch Logs",
-              "body": "Open the CloudWatch Logs section and enable the integration so the trail forwards events to a log group."
+            "securityTab": {
+              "title": "Go to Security credentials",
+              "body": "Select the <strong>Security credentials</strong> tab to create programmatic access keys."
             },
-            "logGroup": {
-              "title": "7 · Set the log group name",
-              "body": "Fill the log group name (e.g. utmstack) and continue. Use this same name in the \"Log group name\" field below."
+            "createKey": {
+              "title": "Create an access key",
+              "body": "Click <strong>Create access key</strong> and choose the option for an application running outside AWS (programmatic access)."
             },
-            "permissions": {
-              "title": "8 · Grant CloudTrail permissions",
-              "body": "Click \"Allow\" to grant CloudTrail permissions to write to the log group."
+            "confirmKey": {
+              "title": "Confirm creation",
+              "body": "Confirm creation of the access key. AWS will generate an Access Key ID and Secret Access Key."
+            },
+            "downloadKey": {
+              "title": "Save your credentials",
+              "body": "Download the credentials file or copy the Access Key ID and Secret Access Key to a secure location — the Secret Access Key is only shown once."
+            }
+          },
+          "credentials": {
+            "title": "Enter credentials",
+            "body": "Paste the Access Key ID and Secret Access Key obtained in the previous steps. UTMStack verifies the credentials against AWS before saving."
+          },
+          "cloudwatchSection": "Configure AWS CloudWatch",
+          "cloudwatch": {
+            "createGroup": {
+              "title": "Create a CloudWatch Log Group",
+              "body": "Open the CloudWatch console, choose <strong>Log management</strong> and click <strong>Create log group</strong>."
+            },
+            "nameGroup": {
+              "title": "Name the log group and set retention",
+              "body": "Enter the log group name <code>utmstack</code> and set retention to <strong>1 day</strong>. Click <strong>Create log group</strong>."
+            },
+            "openTrail": {
+              "title": "Open CloudTrail and create a trail",
+              "body": "In the CloudTrail console click <strong>Create trail</strong> to begin configuring a new trail."
+            },
+            "configureTrail": {
+              "title": "Configure delivery, validation and CloudWatch integration",
+              "body": "On the CloudTrail creation form set the following options:",
+              "items": [
+                "<strong>Trail name and scope:</strong> enter a descriptive name; enable <em>Apply trail to all accounts in my organization</em> if you need org-wide collection.",
+                "<strong>S3 destination:</strong> choose <em>Create new S3 bucket</em> (or select an existing bucket) for raw log delivery.",
+                "<strong>Encryption:</strong> enable <em>Log file SSE-KMS</em> and select the appropriate KMS key.",
+                "<strong>Log file validation:</strong> enable to ensure integrity of delivered logs (recommended).",
+                "<strong>CloudWatch Logs:</strong> enable delivery to CloudWatch, select <em>Use existing log group</em> and enter the exact name <code>utmstack</code>.",
+                "<strong>IAM role:</strong> provide or create the role CloudTrail will assume to write to S3 and publish to CloudWatch."
+              ]
+            },
+            "eventTypes": {
+              "title": "Select event types",
+              "body": "Enable the event categories required for monitoring and auditing.",
+              "management": {
+                "label": "1 · Management events",
+                "body": "Enable <strong>Management events</strong> and select <strong>All</strong> to record all API activity that manages AWS resources (create, update, delete)."
+              },
+              "data": {
+                "label": "2 · Data events",
+                "body": "Add a <strong>Data event</strong>. Choose <strong>S3</strong> and select <strong>Log all events</strong> to capture object-level operations such as GetObject and PutObject."
+              },
+              "network": {
+                "label": "3 · Network activity events",
+                "body": "In the <strong>Network Activities</strong> section add at least one service (e.g. <code>ec2.amazonaws.com</code>) and enable <strong>Log all events</strong>."
+              }
+            },
+            "review": {
+              "title": "Review and create the trail",
+              "body": "On the <strong>Configure event aggregation</strong> screen accept the defaults (or adjust if required). Review all settings and click <strong>Create trail</strong>."
             }
           },
           "fields": {
@@ -2579,23 +2992,95 @@
               "label": "Log group name"
             }
           }
+        },
+        "crowdstrike": {
+          "intro": {
+            "title": "How it works",
+            "body": "UTMStack reads detections and audit activity directly from the CrowdStrike Falcon Event Streams API. You create an API client in Falcon with Event Streams scope; UTMStack runs an internal puller that streams events using those credentials. Nothing is installed on your endpoints or in Falcon.",
+            "diagram": {
+              "source": "detections & events",
+              "edge1": "Event Streams API",
+              "api": "Falcon API",
+              "apiSub": "event stream",
+              "edge2": "pulls",
+              "utmstackSub": "alerts & correlation"
+            },
+            "note": "No agent is deployed by UTMStack — it pulls events from Falcon using the read-only API client credentials you provide below."
+          },
+          "sections": {
+            "apiClients": {
+              "title": "Open API Clients and Keys",
+              "body": "In the Falcon console, open the menu (hamburger icon, top-left) and go to Support and resources → API Clients and Keys."
+            },
+            "createClient": {
+              "title": "Create a new API client",
+              "body": "Click Create API Client to start a new client definition."
+            },
+            "scopes": {
+              "title": "Name the client and grant Event Streams scope",
+              "body": "Give the client a descriptive name (UTMStack uses it to identify the event source) and select the API scopes required for Event Streams. Click Create to generate the credentials."
+            },
+            "recordCredentials": {
+              "title": "Record the credentials",
+              "body": "Copy the Client ID, Client Secret and the Base URL for your CrowdStrike region. The secret is shown only once — store it securely. You will paste all three into the form below."
+            }
+          },
+          "credentials": {
+            "title": "API client configuration",
+            "body": "Use the credentials from the steps above to configure UTMStack. You can add more than one CrowdStrike client by saving additional configurations.",
+            "mapping": {
+              "intro": "Field reference",
+              "appName": "App name — the descriptive client name from step 3 (identifies the event source)",
+              "clientId": "Client ID — value recorded in step 4",
+              "clientSecret": "Client Secret — value recorded in step 4 (shown only once)",
+              "cloudRegionUrl": "Base URL — your region endpoint, e.g. https://api.crowdstrike.com (us-1), https://api.us-2.crowdstrike.com (us-2), https://api.eu-1.crowdstrike.com (eu-1)"
+            }
+          },
+          "fields": {
+            "appName": {
+              "label": "App name"
+            },
+            "clientId": {
+              "label": "Client ID"
+            },
+            "clientSecret": {
+              "label": "Client Secret"
+            },
+            "cloudRegionUrl": {
+              "label": "Base URL (cloud region)"
+            }
+          }
         }
       },
       "custom": {
-        "whenTitle": "When to use this",
-        "whenBody": "When your source isn't in the catalog. Forward arbitrary syslog or JSON to UTMStack and define a parser to normalize fields.",
-        "endpointsTitle": "Endpoints",
-        "syslogUdp": "Syslog (UDP)",
-        "syslogTls": "Syslog (TLS)",
-        "httpJson": "HTTP / JSON",
-        "payloadTitle": "JSON payload sample",
-        "parserTitle": "Define the parser",
-        "parserBody": "UTMStack will auto-detect JSON keys and propose field mappings. You can override mappings in the parser editor and add Grok patterns for free-form text.",
-        "openEditor": "Open parser editor",
-        "powershellLabel": "PowerShell (Run as Administrator)",
-        "linuxLabel": "Linux — bash",
-        "macosLabel": "macOS — bash",
-        "exampleLabel": "Example syslog target on {{name}}:"
+        "intro": {
+          "title": "How it works",
+          "body": "A custom integration ingests logs from any source the built-in modules do not cover. You install the UTMStack Forwarder, register a listener for your data with the protocol of your choice, and point your source at it.",
+          "note": "Pick the protocol your source can send (syslog UDP/TCP/TLS, or HTTP/HTTPS for JSON) below — the Forwarder creates the data type automatically."
+        },
+        "diagram": {
+          "source": "Your source",
+          "sourceSub": "any app or device",
+          "forwarder": "Forwarder",
+          "ingests": "ingests",
+          "utmstackSub": "alerts & correlation"
+        },
+        "choose": {
+          "title": "Choose protocol and port",
+          "body": "Select how your source sends data and the port the Forwarder should listen on, then run the activation command on the Forwarder host.",
+          "portLabel": "Listener port",
+          "tlsFirst": "First load your TLS certificate and key on the Forwarder:",
+          "enableLabel": "Then enable the integration:",
+          "authNote": "To require authentication, append <code>--auth bearer</code> (token) or <code>--auth hmac</code> — the Forwarder prints a token to use in the Authorization header."
+        },
+        "send": {
+          "title": "Point your source at the Forwarder",
+          "bodyNetwork": "Configure your source to send <hl>{{proto}}</hl> syslog to <hl>{{host}}:{{port}}</hl>. Most devices have a remote-syslog or log-forwarding setting for this.",
+          "bodyHttp": "Send your events as JSON via HTTP POST to <hl>{{endpoint}}</hl>. Each request body is one JSON event:",
+          "httpBindNote": "The HTTP/HTTPS listener binds to 127.0.0.1 (the Forwarder host) by default, so post from an app running on that host — or front it with a reverse proxy. For remote sources, use syslog (UDP/TCP/TLS)."
+        },
+        "parserTitle": "Parsing",
+        "parserBody": "Incoming events are stored under the {{dataType}} data type. Add a parsing filter for it so the raw payload is mapped into structured fields, then build alert rules on top."
       }
     },
     "codeBlock": {
@@ -2620,11 +3105,78 @@
       "fileReadError": "Failed to read file",
       "cancel": "Cancel",
       "create": "Create integration",
-      "creating": "Creating…"
+      "creating": "Creating…",
+      "editTitle": "Edit integration",
+      "save": "Save",
+      "saving": "Saving…",
+      "currentIcon": "Current icon — upload a file to replace it",
+      "name": "Integration name",
+      "namePlaceholder": "e.g. Acme Firewall",
+      "description": "Description",
+      "descriptionPlaceholder": "What this integration ingests and why (optional)",
+      "category": "Category",
+      "identifierHint": "Stored as “{{id}}” (derived from the name)",
+      "nameTaken": "That integration name can’t be used — an integration with that identifier already exists.",
+      "removeIcon": "Remove icon",
+      "defaultIconNote": "Default icon — upload a file to use your own.",
+      "categoryPlaceholder": "Select a category…"
     },
     "toast": {
-      "created": "Integration created"
-    }
+      "created": "Integration created",
+      "updated": "Integration updated",
+      "updateError": "Failed to update integration",
+      "enabled": "Integration enabled",
+      "disabled": "Integration disabled",
+      "toggleError": "Failed to change integration state"
+    },
+    "delete": {
+      "title": "Delete integration",
+      "confirm": "Delete this integration?",
+      "yes": "Delete",
+      "no": "Cancel",
+      "deleted": "Integration deleted",
+      "error": "Failed to delete integration"
+    },
+    "modules": {
+      "WINDOWS_AGENT": "Collect Windows system, security and event-log activity through the lightweight UTMStack agent installed on each host.",
+      "LINUX_AGENT": "Collect Linux system, authentication and audit logs through the lightweight UTMStack agent installed on each host.",
+      "MACOS": "Collect macOS system and security log activity from Apple Mac endpoints through the lightweight UTMStack agent.",
+      "VMWARE": "Ingest VMware ESXi hypervisor syslog so virtualization-host activity and events are monitored within UTMStack.",
+      "NETFLOW": "Ingest NetFlow records from routers and switches to monitor network-traffic patterns and detect traffic anomalies.",
+      "AWS_IAM_USER": "Ingest AWS account activity and API calls via CloudTrail and CloudWatch to audit cloud usage, access and changes.",
+      "AZURE": "Ingest Microsoft Azure platform and activity logs to monitor cloud workloads, identity and resource changes.",
+      "O365": "Ingest Microsoft 365 audit logs across Exchange, Teams, SharePoint and OneDrive to monitor user and admin activity.",
+      "GCP": "Ingest Google Cloud Platform audit and activity logs to monitor compute, storage and identity across projects.",
+      "KASPERSKY": "Ingest Kaspersky Security Center detections and endpoint telemetry to correlate malware activity across the network.",
+      "ESET": "Ingest ESET PROTECT endpoint detections and telemetry to correlate multilayered malware defense across your estate.",
+      "BITDEFENDER": "Ingest Bitdefender GravityZone detections and endpoint telemetry to correlate threats across business devices.",
+      "SENTINEL_ONE": "Ingest SentinelOne endpoint detections and behavioral telemetry to correlate and investigate threats at scale.",
+      "SOPHOS": "Ingest Sophos Central detections across endpoint, server, firewall and email to correlate threats in one place.",
+      "CROWDSTRIKE": "Ingest CrowdStrike Falcon endpoint and workload detections to correlate cloud-native threat activity in UTMStack.",
+      "CISCO": "Ingest Cisco ASA firewall traffic, VPN and threat logs to monitor perimeter security and access within UTMStack.",
+      "MERAKI": "Ingest Cisco Meraki firewall and security-appliance syslog to monitor cloud-managed network traffic and threats.",
+      "FIRE_POWER": "Ingest Cisco Firepower NGFW and IPS logs to monitor intrusion attempts and threat activity at the perimeter.",
+      "CISCO_SWITCH": "Ingest Cisco switch syslog and telemetry to monitor network performance, configuration changes and security.",
+      "FORTIGATE": "Ingest Fortinet FortiGate NGFW traffic and threat logs to monitor perimeter security and network activity.",
+      "FORTIWEB": "Ingest Fortinet FortiWeb WAF logs to monitor web-application attacks and protect exposed services and APIs.",
+      "SOPHOS_XG": "Ingest Sophos XG firewall logs covering web filtering, IPS and VPN to monitor network traffic and threats.",
+      "PALO_ALTO": "Ingest Palo Alto Networks NGFW traffic and threat logs to monitor application usage and perimeter security.",
+      "SONIC_WALL": "Ingest SonicWall NGFW traffic and threat logs to monitor perimeter security and network activity in UTMStack.",
+      "PFSENSE": "Ingest pfSense firewall and router logs with unified threat management to monitor network traffic and threats.",
+      "MIKROTIK": "Ingest MikroTik RouterOS firewall, routing and wireless logs to monitor network activity and configuration.",
+      "AIX": "Collect IBM AIX Unix system, security and audit logs to monitor activity on IBM Power platforms within UTMStack.",
+      "AS_400": "Collect IBM AS/400 (IBM i) system and audit journals to monitor user activity on midrange OS/400 platforms.",
+      "ORACLE": "Ingest Oracle Database audit logs to monitor queries, access and privileged activity across your databases.",
+      "SURICATA": "Ingest Suricata IDS/IPS alerts and network events to detect intrusions and malicious traffic across the network.",
+      "DECEPTIVE_BYTES": "Ingest Deceptive Bytes alerts from its active endpoint-deception platform to surface attacker activity early.",
+      "GITHUB": "Ingest GitHub audit logs to monitor repository access, code changes and organization activity for source security.",
+      "UTMSTACK": "Ingest UTMStack's own SIEM and XDR telemetry to monitor platform health, internal activity and self-audit events."
+    },
+    "edit": {
+      "title": "Edit integration"
+    },
+    "allCategories": "All categories",
+    "customOnly": "Custom"
   },
   "dataProcessing": {
     "title": "Data processing",

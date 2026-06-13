@@ -70,12 +70,11 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 	}
 
 	for module, tenants := range byModule {
-		if err := b.store.Save(module, tenants); err != nil {
-			return err
-		}
-		// Mirror the module's active state onto the file: an inactive module's
-		// file is .disabled so the file-reading plugins do not run it.
-		if err := b.store.SetActiveByModule(ctx, module, active[module]); err != nil {
+		if active[module] {
+			if err := b.store.Save(module, tenants); err != nil {
+				return err
+			}
+		} else if err := b.store.SetActiveByModule(ctx, module, false); err != nil {
 			return err
 		}
 	}

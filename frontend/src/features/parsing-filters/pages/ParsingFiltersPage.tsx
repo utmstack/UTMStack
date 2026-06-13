@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Code2, FileCode, LayoutList, Loader2, Lock, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
@@ -35,7 +36,9 @@ export function ParsingFiltersPage() {
   const [tab, setTab] = useState<Tab>('all')
   const [search, setSearch] = useState('')
   const [debounced, setDebounced] = useState('')
-  const [dataType, setDataType] = useState('')
+  // Seed from ?dataType on first render so the initial fetch is already filtered
+  // (avoids a race where the unfiltered request resolves last and wins).
+  const [dataType, setDataType] = useState(() => new URLSearchParams(window.location.search).get('dataType') ?? '')
   const [dataTypeOptions, setDataTypeOptions] = useState<string[]>([])
   const [items, setItems] = useState<Filter[]>([])
   const [total, setTotal] = useState(0)
@@ -44,6 +47,17 @@ export function ParsingFiltersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [editing, setEditing] = useState<{ filter: Filter; creating: boolean } | null>(null)
+
+  // Deep-link: ?dataType=<value> pre-filters the list to that data type
+  // (e.g. opened from an integration's "Filters" button).
+  const [searchParams] = useSearchParams()
+  useEffect(() => {
+    const dt = searchParams.get('dataType')
+    if (dt) {
+      setDataType(dt)
+      setPage(0)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     const h = setTimeout(() => {

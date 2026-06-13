@@ -1436,7 +1436,8 @@
     "loading": "Загрузка интеграций…",
     "addCustom": {
       "title": "Добавить пользовательскую интеграцию",
-      "description": "Создать новый пользовательский источник"
+      "description": "Создать новый пользовательский источник",
+      "cta": "Создать"
     },
     "tabs": {
       "all": "Все",
@@ -1461,7 +1462,9 @@
     "card": {
       "manage": "Управлять →",
       "setup": "Настроить →",
-      "eventsPerSec": "{{rate}} с/с"
+      "eventsPerSec": "{{rate}} с/с",
+      "enabled": "Включено",
+      "setupShort": "Настроить"
     },
     "drawer": {
       "manage": "Управлять",
@@ -1471,7 +1474,12 @@
       "setupCollector": "Настроить коллектор",
       "connect": "Подключить",
       "configureCustom": "Настроить пользовательский источник",
-      "eventsRate": "{{rate}} событий/с · {{count}} за 24ч"
+      "eventsRate": "{{rate}} событий/с · {{count}} за 24ч",
+      "enable": "Включить",
+      "disable": "Отключить",
+      "manageRules": "Правила",
+      "manageFilters": "Фильтры",
+      "enableToSetup": "Сначала включите эту интеграцию — руководство по настройке появится здесь после её активации."
     },
     "setup": {
       "agent": {
@@ -1489,7 +1497,15 @@
         "actions": {
           "install": "Установить",
           "uninstall": "Удалить"
-        }
+        },
+        "prereqTitle": "Требования перед установкой",
+        "prereqBody": "Агент UTMStack взаимодействует с сервером через следующие порты. Убедитесь, что они открыты между хостом и UTMStack перед установкой:",
+        "sensitiveWarning": "Команда ниже содержит конфиденциальный токен регистрации — не передавайте его третьим лицам.",
+        "uninstall": {
+          "title": "Удалить агент",
+          "body": "Выполните это на хосте, чтобы остановить и удалить агент UTMStack и его службы. Используется платформа, выбранная выше."
+        },
+        "macCompat": "Требуется macOS 11 (Big Sur) или новее на Apple Silicon (M1/M2/M3 или новее). Mac на базе Intel не поддерживаются."
       },
       "collector": {
         "howItWorksTitle": "Как это работает",
@@ -1500,7 +1516,1070 @@
         "step2Hint": "На устройстве {{name}} направьте пересылку syslog на адрес коллектора на {{port}}.",
         "vendorDocs": "Смотрите инструкции для конкретного поставщика",
         "step3Title": "3 · Проверка",
-        "step3Body": "Через несколько минут вы должны увидеть события {{name}} в source: {{source}} в Log Explorer и новую запись в Источниках данных."
+        "step3Body": "Через несколько минут вы должны увидеть события {{name}} в source: {{source}} в Log Explorer и новую запись в Источниках данных.",
+        "endpoint": {
+          "title": "Параметры подключения",
+          "hint": "Настройте {{name}} для пересылки журналов на Forwarder, используя хост и порт ниже."
+        },
+        "syslog": {
+          "sections": {
+            "sendLogs": {
+              "title": "1 · Отправка журналов в UTMStack",
+              "body": "Настройте устройство для отправки syslog-сообщений по UDP (514) или TCP (514) на агент UTMStack."
+            },
+            "enableCollector": {
+              "title": "2 · Включение syslog-коллектора",
+              "body": "Включите коллектор журналов и syslog-интеграцию в файле конфигурации там, где установлен агент UTMStack."
+            },
+            "activate": {
+              "title": "3 · Активация",
+              "body": "Активируйте модуль UTMStack, чтобы события начали поступать в Log Explorer."
+            }
+          }
+        },
+        "netflow": {
+          "source": "Сетевое устройство",
+          "step1": {
+            "title": "Включить слушатель NetFlow на Forwarder",
+            "body": "На хосте, где установлен Forwarder, выполните эту команду, чтобы открыть коллектор NetFlow на порту 2055:",
+            "note": "NetFlow использует только UDP — TCP и TLS не поддерживаются для этого протокола."
+          },
+          "step2": {
+            "title": "Настройте устройство для экспорта NetFlow",
+            "body": "Направьте экспорт NetFlow с вашего маршрутизатора или межсетевого экрана на Forwarder-хост, порт <hl>{{port}} UDP</hl>. Пример ниже предназначен для Cisco IOS — для других платформ обратитесь к документации производителя:",
+            "note": "Замените <interface> на имя интерфейса, на котором должен отслеживаться трафик (например, GigabitEthernet0/0). Примените ingress/egress для каждого нужного интерфейса."
+          }
+        },
+        "cisco": {
+          "source": "Cisco ASA",
+          "step1": {
+            "title": "Включить слушатель Cisco ASA на Forwarder",
+            "body": "На хосте, где установлен Forwarder, выполните эту команду, чтобы открыть слушатель журналов Cisco ASA:",
+            "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в приведённой выше команде."
+          },
+          "step2": {
+            "title": "Настроить Cisco ASA для пересылки журналов",
+            "body": "На вашем Cisco ASA включите <hl>syslog</hl> и направьте его на Forwarder-хост, порт {{port}}. Выполните эти команды в привилегированном режиме EXEC (замените <interface> на имя внутреннего или управляющего интерфейса):"
+          }
+        },
+        "ciscoSwitch": {
+          "source": "Cisco Switch",
+          "step1": {
+            "title": "Включить слушатель Cisco Switch на Forwarder",
+            "body": "На хосте, где установлен Forwarder, выполните эту команду, чтобы открыть слушатель журналов Cisco Switch:",
+            "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в приведённой выше команде."
+          },
+          "step2": {
+            "title": "Настроить коммутатор для пересылки журналов",
+            "body": "В привилегированном режиме EXEC на вашем коммутаторе Cisco включите <hl>syslog</hl> и направьте его на Forwarder-хост, порт {{port}}:"
+          }
+        },
+        "ciscoMeraki": {
+          "source": "Cisco Meraki",
+          "step1": {
+            "title": "Включить слушатель Cisco Meraki на Forwarder",
+            "body": "На хосте, где установлен Forwarder, выполните эту команду, чтобы открыть слушатель журналов Cisco Meraki:",
+            "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в приведённой выше команде."
+          },
+          "step2": {
+            "title": "Настроить Meraki для пересылки журналов",
+            "body": "В Meraki Dashboard перейдите в <hl>Network-wide → Configure → General</hl>, прокрутите до раздела Reporting и добавьте syslog-сервер с IP Forwarder и портом {{port}}. Выберите все роли, которые нужно пересылать."
+          }
+        },
+        "ciscoFirepower": {
+          "source": "Cisco Firepower",
+          "step1": {
+            "title": "Включить слушатель Cisco Firepower на Forwarder",
+            "body": "На хосте, где установлен Forwarder, выполните эту команду, чтобы открыть слушатель журналов Cisco Firepower:",
+            "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в приведённой выше команде."
+          },
+          "step2": {
+            "title": "Настроить Firepower для пересылки журналов",
+            "body": "В Firepower Management Center (FMC) перейдите в <hl>Devices → Platform Settings</hl>, отредактируйте или создайте политику и перейдите в <hl>Syslog → Syslog Servers</hl>. Добавьте IP Forwarder с портом {{port}} (UDP), затем назначьте политику вашим устройствам и выполните развёртывание."
+          }
+        },
+        "vmware": {
+          "source": "VMware ESXi",
+          "step1": {
+            "title": "Включить слушатель VMware на Forwarder",
+            "body": "На хосте, где установлен Forwarder, выполните эту команду, чтобы открыть syslog-слушатель VMware ESXi. ESXi передаёт данные по TCP:",
+            "note": "Для зашифрованного канала используйте tls вместо tcp (предварительно загрузите сертификаты на Forwarder)."
+          },
+          "step2": {
+            "title": "Направить syslog ESXi на Forwarder",
+            "body": "Откройте сессию SSH/ESXi Shell на хосте (или используйте vSphere Client: Host → Configure → Advanced System Settings → Syslog.global.logHost). Задайте удалённый loghost как <hl>{{host}}:{{port}}</hl> и перезагрузите конфигурацию:",
+            "note": "В vSphere можно вместо этого задать Syslog.global.logHost с тем же значением tcp://host:port, не выполняя esxcli."
+          },
+          "step3": {
+            "title": "Открыть порт syslog в брандмауэре ESXi",
+            "body": "Разрешите исходящий syslog через брандмауэр ESXi, чтобы хост мог достичь Forwarder:"
+          }
+        },
+        "as400": {
+          "intro": {
+            "title": "Принцип работы",
+            "body": "Коллектор AS/400 — это Linux-служба, которая напрямую подключается к вашим системам AS/400 (IBM i), извлекает записи журнала безопасности и безопасно передаёт их в UTMStack для корреляции и оповещения.",
+            "note": "На самом AS/400 ничего не устанавливается — Коллектор работает на Linux-хосте, имеющем сетевой доступ к вашим системам AS/400.",
+            "diagram": {
+              "source": "ваши журналы",
+              "edge1": "журналы",
+              "collector": "AS/400 Collector",
+              "collectorSub": "извлекает из AS/400",
+              "edge2": "защищённый канал",
+              "utmstackSub": "оповещения и корреляция"
+            }
+          },
+          "install": {
+            "title": "Установить AS/400 Collector",
+            "body": "Выполните эту команду на Linux-хосте, который имеет сетевой доступ к UTMStack и вашим системам AS/400.",
+            "reuse": "AS/400 Collector уже установлен? Пропустите этот шаг — просто добавьте серверы в файл конфигурации на следующем шаге."
+          },
+          "configure": {
+            "title": "Добавить серверы AS/400",
+            "body": "Отредактируйте as400-config.yaml в каталоге установки коллектора и добавьте каждую систему AS/400, которую хотите отслеживать:",
+            "note": "Вы можете указать несколько серверов. Коллектор отслеживает этот файл и автоматически перезагружается при сохранении — перезапуск не требуется."
+          },
+          "journal": {
+            "title": "Включить аудит журналирования на AS/400",
+            "body": "На каждой системе AS/400 убедитесь, что журнал аудита безопасности <hl>QAUDJRN</hl> активен. Обратитесь к документации IBM за точными шагами — процедура различается в зависимости от версии IBM i."
+          },
+          "uninstall": {
+            "title": "Необязательно — удалить Collector",
+            "body": "Выполните эту команду на хосте, где установлен AS/400 Collector, чтобы остановить службу и удалить все файлы."
+          }
+        },
+        "bitdefender": {
+          "intro": {
+            "title": "Принцип работы",
+            "body": "UTMStack подключается к Bitdefender GravityZone с использованием вашего API-ключа для настройки Event Push Service. Затем GravityZone отправляет события безопасности непосредственно в UTMStack для корреляции и оповещения.",
+            "diagram": {
+              "source": "события конечных точек",
+              "edge": "Event Push Service",
+              "utmstackSub": "оповещения и корреляция"
+            },
+            "note": "На GravityZone ничего не устанавливается — UTMStack регистрирует себя в качестве адресата push-уведомлений с использованием API-учётных данных только для чтения."
+          },
+          "whitelist": {
+            "title": "Добавить IP-адреса Bitdefender в белый список",
+            "body": "Следующие IP-адреса Bitdefender GravityZone должны быть разрешены в вашем брандмауэре на порту 8000, чтобы Event Push Service мог достичь UTMStack:",
+            "note": "Добавьте эти IP-адреса в ваш брандмауэр или группу безопасности перед завершением настройки."
+          },
+          "apiSection": "Получить учётные данные API",
+          "api": {
+            "myAccount": {
+              "title": "Открыть «Мой аккаунт»",
+              "body": "В консоли Bitdefender GravityZone нажмите <strong>My Account</strong>."
+            },
+            "accessUrl": {
+              "title": "Записать Access URL",
+              "body": "Прокрутите вниз до раздела <strong>Control Center API</strong> и сохраните Access URL — он понадобится при заполнении формы учётных данных ниже. Затем откройте раздел API-ключей и нажмите <strong>Add</strong> в верхней части таблицы."
+            },
+            "createKey": {
+              "title": "Создать API-ключ",
+              "body": "Введите описание для API-ключа, выберите параметр <strong>Event Push Service API</strong> и нажмите <strong>Save</strong>. Скопируйте сгенерированный ключ."
+            }
+          },
+          "companySection": "Получить идентификаторы компаний",
+          "company": {
+            "myCompany": {
+              "title": "Открыть «Моя компания»",
+              "body": "В консоли GravityZone нажмите <strong>My Company</strong>."
+            },
+            "licensing": {
+              "title": "Записать идентификаторы компаний",
+              "body": "Откройте раздел <strong>Licensing</strong> и сохраните идентификаторы компаний, которые хотите отслеживать — введите их через запятую в форме учётных данных ниже."
+            }
+          },
+          "credentials": {
+            "title": "Ввести учётные данные",
+            "body": "Введите URL доступа, API-ключ, публичный IP-адрес UTMStack (на который GravityZone будет отправлять события) и идентификаторы компаний для мониторинга. UTMStack проверяет учётные данные перед сохранением."
+          },
+          "fields": {
+            "accessUrl": {
+              "label": "URL доступа GravityZone"
+            },
+            "connectionKey": {
+              "label": "API-ключ"
+            },
+            "utmPublicIP": {
+              "label": "Публичный IP-адрес UTMStack"
+            },
+            "companyIds": {
+              "label": "Идентификаторы компаний (через запятую)"
+            }
+          }
+        },
+        "eset": {
+          "source": "ESET Protect",
+          "step1": {
+            "title": "Включите обработчик ESET на Forwarder",
+            "body": "На хосте, где установлен Forwarder, выполните следующую команду для запуска syslog-обработчика ESET:",
+            "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в приведённой выше команде."
+          },
+          "console": {
+            "moreMenu": {
+              "title": "Откройте меню «Дополнительно»",
+              "body": "На боковой панели консоли ESET Protect нажмите меню <hl>Дополнительно</hl>."
+            },
+            "serverConfig": {
+              "title": "Откройте настройки сервера",
+              "body": "В разделе «Дополнительно» откройте раздел <hl>Настройки сервера</hl> (конфигурация сервера)."
+            },
+            "advanced": {
+              "title": "Разверните расширенные настройки",
+              "body": "Нажмите <hl>Расширенные настройки</hl>, чтобы открыть полный список параметров конфигурации."
+            },
+            "syslog": {
+              "title": "Настройте Syslog-сервер",
+              "body": "Прокрутите до <hl>Syslog server</hl>, включите <hl>Export logs to Syslog</hl> и укажите в качестве назначения хост Forwarder на порту {{port}} (UDP). ESET отправляет LEEF/syslog, который Forwarder принимает как тип данных antivirus-esmc-eset."
+            }
+          }
+        },
+        "kaspersky": {
+          "source": "Kaspersky Security",
+          "step1": {
+            "title": "Включите обработчик Kaspersky на Forwarder",
+            "body": "На хосте, где установлен Forwarder, выполните следующую команду для запуска syslog-обработчика Kaspersky:",
+            "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в приведённой выше команде."
+          },
+          "console": {
+            "consoleSettings": {
+              "title": "Откройте «Настройки консоли» → «Интеграция»",
+              "body": "На боковой панели Kaspersky Security Center откройте <hl>Настройки консоли</hl> и нажмите подменю <hl>Интеграция</hl>."
+            },
+            "siem": {
+              "title": "Откройте настройки интеграции SIEM",
+              "body": "В разделе «Интеграция» выберите <hl>SIEM</hl> и нажмите ссылку <hl>Настройки</hl>, чтобы открыть конфигурацию экспорта."
+            },
+            "configure": {
+              "title": "Настройте экспорт SIEM",
+              "body": "Включите экспорт и настройте Kaspersky для отправки событий в формате <hl>Splunk (CEF)</hl> на хост Forwarder через порт {{port}} (UDP). Forwarder принимает их как тип данных antivirus-kaspersky."
+            }
+          }
+        },
+        "sophos": {
+          "intro": {
+            "title": "Sophos Central — API Plugin",
+            "body": "Sophos Central предоставляет защищённые API для получения данных о событиях и предупреждениях. UTMStack подключается к этим API для централизованного мониторинга и повышения видимости безопасности — агент или Forwarder не требуется.",
+            "diagram": {
+              "source": "Sophos Central API",
+              "edge": "HTTPS API",
+              "utmstackSub": "Приём и корреляция"
+            },
+            "note": "UTMStack опрашивает Sophos Central API по расписанию. Убедитесь, что создаваемые ниже учётные данные API имеют доступ на чтение событий и предупреждений."
+          },
+          "apiSection": "Создание учётных данных API в Sophos Central",
+          "steps": {
+            "apiCredentials": {
+              "title": "Откройте управление учётными данными API",
+              "body": "В <hl>Sophos Central Admin</hl> перейдите в <hl>Global Settings → API Credentials Management</hl>."
+            },
+            "addCredential": {
+              "title": "Создайте новые учётные данные",
+              "body": "Нажмите <hl>Add Credential</hl>. Укажите <hl>Name</hl> и <hl>Description</hl>, выберите подходящую <hl>Role</hl>, затем нажмите <hl>Add</hl>."
+            },
+            "copyIds": {
+              "title": "Скопируйте Client ID и Client Secret",
+              "body": "Скопируйте <hl>Client ID</hl> и <hl>Client Secret</hl> и сохраните в надёжном месте.",
+              "secretNote": "Client Secret отображается только один раз. Сохраните его в надёжном месте, не закрывая это диалоговое окно."
+            }
+          },
+          "credentialsSection": "Подключение к UTMStack",
+          "credentials": {
+            "title": "Добавьте учётные данные Sophos Central",
+            "body": "Введите только что созданные учётные данные. Вы можете добавить несколько учётных записей Sophos, нажав «Add tenant»."
+          },
+          "fields": {
+            "clientId": {
+              "label": "Client ID"
+            },
+            "apiKey": {
+              "label": "Client Secret / API-ключ"
+            }
+          }
+        },
+        "webroot": {
+          "sections": {
+            "login": {
+              "title": "1 · Войдите в консоль управления",
+              "body": "Войдите в консоль управления Webroot. Она открывается на вкладке Sites."
+            },
+            "openSettings": {
+              "title": "2 · Откройте «Настройки»",
+              "body": "Перейдите на вкладку Settings."
+            },
+            "apiAccess": {
+              "title": "3 · Откройте доступ к API",
+              "body": "На вкладке Subscriptions нажмите вкладку API Access."
+            },
+            "createCredential": {
+              "title": "4 · Создайте клиентские учётные данные",
+              "body": "Нажмите New и заполните поля Name и Description. Ознакомьтесь с соглашением SecureAnywhere Business Solution и Unity API, затем нажмите Create."
+            },
+            "noteClientSecret": {
+              "title": "5 · Скопируйте Client ID и секрет клиента",
+              "body": "Сохраните Client ID из списка и Client Secret, который отображается только один раз. Нажмите «I have made note of the client secret» для подтверждения."
+            },
+            "fillForm": {
+              "title": "6 · Заполните форму",
+              "body": "Укажите Client ID и Client Secret в UTMStack. При необходимости вы можете добавить несколько тенантов Webroot."
+            },
+            "activate": {
+              "title": "7 · Активация",
+              "body": "Активируйте модуль UTMStack, чтобы начать получать события Webroot."
+            }
+          }
+        },
+        "sentinelOne": {
+          "source": "SentinelOne",
+          "step1": {
+            "title": "Включите обработчик SentinelOne на Forwarder",
+            "body": "На хосте, где установлен Forwarder, выполните следующую команду для запуска syslog-обработчика SentinelOne. SentinelOne передаёт CEF по TCP:",
+            "note": "Для зашифрованного канала используйте tls вместо tcp (предварительно загрузите сертификаты на Forwarder)."
+          },
+          "console": {
+            "settings": {
+              "title": "Откройте настройки SentinelOne",
+              "body": "На боковой панели консоли управления SentinelOne нажмите меню <hl>Настройки</hl>."
+            },
+            "syslog": {
+              "title": "Настройте интеграцию Syslog",
+              "body": "Перейдите в <hl>Integrations → Syslog</hl> и включите. Укажите хост <hl>{{host}}</hl> и порт <hl>{{port}}</hl>, оставьте формат <hl>CEF</hl>, нажмите <hl>Test</hl> для проверки соединения, затем <hl>Save</hl>."
+            }
+          }
+        },
+        "office365": {
+          "intro": {
+            "title": "Как это работает",
+            "body": "UTMStack подключается к Microsoft 365 с помощью зарегистрированного приложения Azure AD и опрашивает Office 365 Management Activity API для получения событий аудита и безопасности. Агент в вашем тенанте не устанавливается.",
+            "diagram": {
+              "source": "события аудита и безопасности",
+              "edge": "Management API",
+              "utmstackSub": "корреляция и оповещения"
+            },
+            "note": "UTMStack требует доступа к API только для чтения — разрешения на запись не запрашиваются."
+          },
+          "appSection": "Регистрация приложения Azure",
+          "steps": {
+            "azurePortal": {
+              "title": "Откройте Microsoft Entra ID",
+              "body": "Откройте <hl>Azure Portal</hl> (portal.azure.com) и нажмите <hl>Microsoft Entra ID</hl>."
+            },
+            "appRegistrations": {
+              "title": "Перейдите в «Регистрации приложений»",
+              "body": "В левом меню нажмите <hl>Регистрации приложений</hl>."
+            },
+            "registerApp": {
+              "title": "Зарегистрируйте новое приложение",
+              "body": "Нажмите <hl>Новая регистрация</hl>. Введите имя <hl>UTMStack O365 Agent</hl>, выберите <hl>Учётные записи только в этом каталоге организации (один клиент)</hl> и нажмите <hl>Зарегистрировать</hl>."
+            },
+            "clientSecret": {
+              "title": "Создайте секрет клиента",
+              "body": "Перейдите в <hl>Сертификаты и секреты → Новый секрет клиента</hl>. Добавьте описание, установите срок действия <hl>730 дней (24 месяца)</hl> и нажмите <hl>Добавить</hl>.",
+              "copyNote": "Немедленно скопируйте значение секрета — оно отображается только один раз и впоследствии недоступно."
+            },
+            "apiPermissions": {
+              "title": "Добавьте разрешения Office 365 Management API",
+              "body": "Перейдите в <hl>Разрешения API → Добавить разрешение</hl> и найдите <hl>Office 365 Management APIs</hl>."
+            },
+            "activityFeed": {
+              "title": "Предоставьте разрешения ActivityFeed",
+              "body": "Выберите <hl>Разрешения приложения</hl> и добавьте <hl>ActivityFeed.Read</hl> и <hl>ActivityFeed.ReadDlp</hl>. Нажмите <hl>Предоставить согласие администратора</hl> и подтвердите."
+            },
+            "graphPermissions": {
+              "title": "Добавьте разрешения Microsoft Graph",
+              "body": "Вернитесь в <hl>Добавить разрешение</hl> и нажмите <hl>Microsoft Graph</hl>."
+            },
+            "delegatedPermissions": {
+              "title": "Добавьте делегированные разрешения SecurityAlert",
+              "body": "Выберите <hl>Делегированные разрешения</hl> и добавьте <hl>SecurityAlert.Read.All</hl> и <hl>SecurityAlert.ReadWrite.All</hl>. Нажмите <hl>Предоставить согласие администратора</hl> и подтвердите."
+            },
+            "appPermissions": {
+              "title": "Добавьте разрешения приложения SecurityAlert",
+              "body": "Выберите <hl>Разрешения приложения</hl> и добавьте <hl>SecurityAlert.Read.All</hl> и <hl>SecurityAlert.ReadWrite.All</hl>. Нажмите <hl>Предоставить согласие администратора</hl> и подтвердите."
+            },
+            "noteIds": {
+              "title": "Скопируйте идентификаторы приложения",
+              "body": "Перейдите в раздел <hl>Обзор</hl> приложения и скопируйте <hl>Идентификатор приложения (клиента)</hl> и <hl>Идентификатор каталога (тенанта)</hl>. Также потребуется значение секрета, скопированное на шаге 4."
+            }
+          },
+          "credentialsSection": "Учётные данные",
+          "credentials": {
+            "title": "Подключите тенант Microsoft 365",
+            "body": "Введите данные из шагов выше. UTMStack проверяет учётные данные перед сохранением. Вы можете добавить несколько тенантов."
+          },
+          "fields": {
+            "tenantId": {
+              "label": "Идентификатор тенанта (Directory ID)"
+            },
+            "clientId": {
+              "label": "Client ID (Application ID)"
+            },
+            "clientSecret": {
+              "label": "Client Secret"
+            },
+            "cloudEnv": {
+              "label": "Облачная среда (необязательно)",
+              "hint": "Commercial (по умолчанию), GCC, GCCHigh или DoD"
+            }
+          }
+        },
+        "github": {
+          "source": "GitHub",
+          "step1": {
+            "title": "Включить прослушиватель webhook GitHub на Forwarder",
+            "body": "На хосте, где установлен Forwarder, выполните эту команду, чтобы открыть прослушиватель webhook HTTPS для GitHub:",
+            "tokenNote": "Терминал выведет секретный токен — скопируйте его немедленно. Он больше не будет показан."
+          },
+          "certWarning": {
+            "title": "GitHub требует TLS-сертификат, подписанный центром сертификации",
+            "body": "GitHub доставляет вебхуки только на конечные точки HTTPS с сертификатом, выданным публичным центром сертификации (самоподписанные сертификаты отклоняются). Убедитесь, что хост Forwarder имеет действующий доменный сертификат до регистрации вебхука."
+          },
+          "step2": {
+            "title": "Зарегистрировать вебхук в GitHub",
+            "body": "В вашем репозитории или организации перейдите в Settings → Webhooks → Add webhook и заполните форму:",
+            "payloadUrl": "URL полезной нагрузки",
+            "contentType": "Тип содержимого",
+            "secret": "Секрет",
+            "secretHint": "Вставьте <hl>токен</hl>, выведенный Forwarder на предыдущем шаге.",
+            "events": "Какие события",
+            "eventsHint": "Отправлять всё — или выбрать определённые типы событий."
+          }
+        },
+        "salesforce": {
+          "sections": {
+            "openSetup": {
+              "title": "1 · Открыть Setup",
+              "body": "Перейдите в Setup и выберите «Setup for the current app» в правом верхнем углу экрана."
+            },
+            "appManager": {
+              "title": "2 · Открыть App Manager",
+              "body": "Введите «App Manager» в строке быстрого поиска и выберите App Manager."
+            },
+            "newConnectedApp": {
+              "title": "3 · Создать новое Connected App",
+              "body": "На экране Lightning Experience App Manager нажмите «New Connected App» и заполните поля."
+            },
+            "oauthSettings": {
+              "title": "4 · Включить OAuth Settings",
+              "body": "В разделе «API (Enable OAuth Settings)» установите флажок «Enable OAuth Settings» и укажите https://login.salesforce.com/services/oauth2/success в качестве Callback URL."
+            },
+            "oauthScopes": {
+              "title": "5 · Добавить OAuth scopes",
+              "body": "Выберите «Access Connect REST API resources (chatter_api)» в разделе Selected OAuth Scopes."
+            },
+            "save": {
+              "title": "6 · Сохранить",
+              "body": "Сохраните изменения и нажмите Continue на следующем экране."
+            },
+            "manageConsumer": {
+              "title": "7 · Открыть Manage Consumer Details",
+              "body": "Внутри Connected App перейдите в «API (Enable OAuth Settings)» и нажмите «Manage Consumer Details» рядом с Consumer Key и Secret."
+            },
+            "copyCredentials": {
+              "title": "8 · Скопировать Consumer Key и Secret",
+              "body": "Подтвердите личность. Consumer Key и Consumer Secret отображаются в разделе «Consumer Details». Скопируйте оба с помощью кнопки Copy."
+            },
+            "fillForm": {
+              "title": "9 · Заполнить форму",
+              "body": "Укажите Consumer Key, Consumer Secret, имя пользователя и пароль Salesforce в UTMStack."
+            },
+            "activate": {
+              "title": "10 · Активировать",
+              "body": "Активируйте модуль UTMStack, чтобы события Salesforce начали поступать."
+            }
+          }
+        },
+        "iis": {
+          "sections": {
+            "enableModule": {
+              "title": "1 · Включить модуль IIS Filebeat",
+              "body": "На хосте агента UTMStack выполните:\ncd \"C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\\" && filebeat modules enable iis"
+            },
+            "configureModule": {
+              "title": "2 · Настроить модуль IIS",
+              "body": "Отредактируйте C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\modules.d\\iis.yml, как показано ниже, чтобы указать каталоги журналов IIS для отправки."
+            },
+            "activate": {
+              "title": "3 · Активировать",
+              "body": "Активируйте модуль UTMStack, чтобы события IIS начали поступать."
+            }
+          }
+        },
+        "filebeat": {
+          "sections": {
+            "installRsyslog": {
+              "title": "1 · Установить rsyslog",
+              "body": "Убедитесь, что rsyslog установлен на хосте. Используйте менеджер пакетов вашего дистрибутива (apt, dnf, yum)."
+            },
+            "configureRsyslog": {
+              "title": "2 · Настроить rsyslog для пересылки в UTMStack",
+              "body": "Отредактируйте /etc/rsyslog.conf (или файл в /etc/rsyslog.d/) и добавьте правило пересылки, направляющее трафик на агент UTMStack по UDP или TCP на порту 514."
+            },
+            "restartRsyslog": {
+              "title": "3 · Перезапустить rsyslog",
+              "body": "Перезапустите службу rsyslog: sudo systemctl restart rsyslog"
+            },
+            "enableCollector": {
+              "title": "4 · Включить сборщик журналов Linux",
+              "body": "Включите сборщик журналов и интеграцию Linux Logs в конфигурационном файле там, где установлен агент UTMStack."
+            }
+          }
+        },
+        "json": {
+          "sections": {
+            "overview": {
+              "title": "1 · Использовать конечную точку приёма HTTP/JSON",
+              "body": "UTMStack принимает произвольные JSON-события по HTTPS. Отправьте POST-запрос со списком событий; UTMStack разберёт их и направит через настроенный парсер."
+            },
+            "auth": {
+              "title": "2 · Аутентификация с помощью токена федерации",
+              "body": "Получите токен федерации в Settings → Connection Key и передайте его как Bearer-токен в заголовке Authorization."
+            }
+          },
+          "endpoint": {
+            "title": "Конечная точка приёма JSON",
+            "hint": "Используйте этот формат запроса из вашего приложения или задания cron. Токен — это ключ федерации из Settings → Connection Key."
+          }
+        },
+        "ldap": {
+          "sections": {
+            "openServerManager": {
+              "title": "1 · Открыть Server Manager",
+              "body": "На контроллере домена AD откройте Server Manager."
+            },
+            "addRoles": {
+              "title": "2 · Добавить роли и компоненты",
+              "body": "Выберите «Add roles and features» в меню Manage."
+            },
+            "selectCertServices": {
+              "title": "3 · Выбрать Active Directory Certificate Services",
+              "body": "На шаге Server Roles выберите Active Directory Certificate Services."
+            },
+            "installServices": {
+              "title": "4 · Установить службу роли Центра сертификации",
+              "body": "На шаге Role Services выберите Certificate Authority и завершите работу мастера."
+            },
+            "configureAdCs": {
+              "title": "5 · Настроить AD CS",
+              "body": "После установки нажмите на уведомление для настройки AD CS и выберите Certificate Authority в качестве службы роли для настройки."
+            },
+            "pickCaType": {
+              "title": "6 · Выбрать тип ЦС",
+              "body": "Выберите Enterprise CA → Root CA → Create a new private key."
+            },
+            "setValidity": {
+              "title": "7 · Установить срок действия сертификата",
+              "body": "Установите срок действия, соответствующий требованиям вашей организации (обычно 5 лет)."
+            },
+            "confirm": {
+              "title": "8 · Подтвердить и установить",
+              "body": "Проверьте настройки и нажмите Configure для завершения."
+            },
+            "restart": {
+              "title": "9 · Перезапустить контроллер домена",
+              "body": "Перезапустите контроллер домена, чтобы LDAPS стал доступен на TCP 636."
+            },
+            "activate": {
+              "title": "10 · Активировать",
+              "body": "Активируйте модуль UTMStack, чтобы события аудита AD начали поступать."
+            }
+          }
+        },
+        "oracle": {
+          "source": "Сервер Oracle DB",
+          "step1": {
+            "title": "Включить интеграцию Oracle на Forwarder",
+            "body": "На сервере, где установлен Forwarder, выполните следующую команду, чтобы начать прослушивание журналов Oracle:",
+            "note": "Forwarder начнёт получать события syslog от Oracle на порту 7021."
+          },
+          "step2": {
+            "title": "Настроить rsyslog на сервере Oracle",
+            "body": "Создайте файл конфигурации rsyslog:",
+            "editBody": "Откройте файл в предпочтительном редакторе и добавьте следующую конфигурацию. Замените BASEDIR путём установки Oracle (например, /u01/app/oracle), а <forwarder-ip> — IP-адресом или именем хоста Forwarder:",
+            "note": "Используйте @@<forwarder-ip>:7021 вместо @, если предпочитаете доставку по TCP."
+          },
+          "step3": {
+            "title": "Перезапустить rsyslog",
+            "body": "Примените новую конфигурацию, перезапустив службу rsyslog:"
+          },
+          "step4": {
+            "title": "Проверить конфигурацию",
+            "body": "Отправьте тестовые сообщения журнала, чтобы убедиться, что UTMStack получает события от всех трёх источников журналов Oracle:",
+            "note": "Откройте Log Explorer и найдите текст тестового сообщения выше, чтобы подтвердить его получение."
+          }
+        },
+        "vulnerabilities": {
+          "sections": {
+            "overview": {
+              "title": "1 · О сканере уязвимостей",
+              "body": "Модуль уязвимостей UTMStack сканирует активы, обнаруженные через модуль Asset Management, и сопоставляет их отпечатки с базой данных CVE."
+            },
+            "scope": {
+              "title": "2 · Определить область сканирования",
+              "body": "Используйте модуль Asset Management для регистрации хостов, которые необходимо сканировать. Сканер уязвимостей будет периодически проверять их."
+            },
+            "activate": {
+              "title": "3 · Активировать",
+              "body": "Активируйте модуль UTMStack для запуска сканирования."
+            }
+          }
+        },
+        "assetScanner": {
+          "sections": {
+            "overview": {
+              "title": "1 · Об управлении активами",
+              "body": "Модуль Asset Management обнаруживает и инвентаризирует хосты, программное обеспечение и сервисы в вашей сети."
+            },
+            "agentRequirement": {
+              "title": "2 · Требования к агенту",
+              "body": "Обнаружение активов использует агенты UTMStack, работающие на хостах Linux, Windows или macOS. Установите агент на системы, которые необходимо инвентаризировать."
+            },
+            "activate": {
+              "title": "3 · Активировать",
+              "body": "Активируйте модуль UTMStack, чтобы начать обнаружение активов."
+            }
+          }
+        },
+        "fileIntegrity": {
+          "sections": {
+            "enableAuditPolicy": {
+              "title": "1 · Включить аудит доступа к объектам",
+              "body": "На хосте Windows откройте Group Policy → Computer Configuration → Windows Settings → Security Settings → Advanced Audit Policy Configuration → Object Access и включите \"Audit File System\"."
+            },
+            "configureFolderAuditing": {
+              "title": "2 · Настроить аудит папок",
+              "body": "Для каждой папки, которую необходимо контролировать, откройте Properties → Security → Advanced → Auditing и добавьте запись аудита для нужных субъектов и типов доступа."
+            },
+            "verifyEvents": {
+              "title": "3 · Проверить появление событий в журнале безопасности",
+              "body": "Откройте Event Viewer и убедитесь, что при обращении к аудируемым объектам генерируются события 4663/4670."
+            },
+            "activate": {
+              "title": "4 · Активировать",
+              "body": "Активируйте модуль UTMStack, чтобы начали поступать события целостности файлов."
+            }
+          }
+        },
+        "socAi": {
+          "sections": {
+            "overview": {
+              "title": "1 · О SOC AI",
+              "body": "SOC AI расширяет UTMStack аналитиком на основе LLM, который обобщает оповещения и предлагает дальнейшие шаги. Работает с выбранным вами провайдером."
+            },
+            "chooseProvider": {
+              "title": "2 · Выбрать провайдера",
+              "body": "Выберите провайдера — OpenAI, Anthropic, Azure OpenAI, Google Gemini, Ollama, Mistral, DeepSeek, Groq или совместимый с OpenAI пользовательский endpoint."
+            },
+            "configureCredentials": {
+              "title": "3 · Настроить учётные данные",
+              "body": "Укажите API-ключ, а также (при необходимости) название модели и URL endpoint."
+            },
+            "activate": {
+              "title": "4 · Активировать",
+              "body": "Активируйте модуль UTMStack, чтобы SOC AI начал обрабатывать оповещения."
+            }
+          }
+        },
+        "utmstack": {
+          "intro": {
+            "title": "Как это работает",
+            "body": "Эта интеграция обеспечивает самомониторинг вашего развёртывания UTMStack. Лёгкий коллектор, установленный на хосте UTMStack, отслеживает журналы контейнеров Docker самой платформы и передаёт их обратно в UTMStack для корреляции и создания оповещений.",
+            "diagram": {
+              "source": "Журналы Docker",
+              "sourceSub": "Контейнеры UTMStack",
+              "edge1": "отслеживание",
+              "collector": "Коллектор",
+              "collectorSub": "на хосте",
+              "edge2": "приём",
+              "utmstackSub": "Корреляция и оповещения"
+            }
+          },
+          "requirements": {
+            "title": "Работает только на хосте UTMStack",
+            "body": "Эта интеграция может быть установлена только на экземпляр UTMStack под управлением Ubuntu или дистрибутива семейства Red Hat. Установите коллектор непосредственно на сервер UTMStack."
+          },
+          "install": {
+            "title": "Установить коллектор",
+            "body": "На хосте UTMStack выберите операционную систему и выполните приведённую ниже команду для загрузки и установки коллектора самомониторинга:",
+            "sensitiveWarning": "Эта команда содержит конфиденциальный токен подключения. Обращайтесь с ним как с паролем и не передавайте его третьим лицам."
+          },
+          "after": {
+            "title": "Что вы увидите после установки",
+            "item1": "Коллектор регистрируется и отображается в разделе Data sources.",
+            "item2": "Журналы контейнеров UTMStack начинают поступать в течение минуты.",
+            "item3": "События становятся доступны для поиска в Log Explorer в типе данных utmstack."
+          },
+          "uninstall": {
+            "title": "Удалить коллектор",
+            "body": "Чтобы удалить коллектор самомониторинга с хоста UTMStack, выполните:"
+          }
+        },
+        "windowsFaa": {
+          "sections": {
+            "enableAuditPolicy": {
+              "title": "1 · Включить аудит доступа к объектам",
+              "body": "На хосте Windows откройте Group Policy → Computer Configuration → Windows Settings → Security Settings → Advanced Audit Policy Configuration → Object Access и включите \"Audit File System\"."
+            },
+            "configureFolderAuditing": {
+              "title": "2 · Настроить аудит папок",
+              "body": "Для каждой папки, которую необходимо контролировать, откройте Properties → Security → Advanced → Auditing и добавьте запись аудита для нужных субъектов и типов доступа."
+            },
+            "activate": {
+              "title": "3 · Активировать",
+              "body": "Активируйте модуль UTMStack, чтобы начали поступать события файловой активности."
+            }
+          }
+        },
+        "awsBeanstalk": {
+          "sections": {
+            "openConsole": {
+              "title": "1 · Открыть консоль Elastic Beanstalk",
+              "body": "В AWS Console откройте Elastic Beanstalk."
+            },
+            "environment": {
+              "title": "2 · Открыть страницу управления окружением",
+              "body": "Перейдите на страницу управления окружением, которое необходимо отслеживать."
+            },
+            "configuration": {
+              "title": "3 · Открыть раздел Configuration",
+              "body": "Выберите Configuration."
+            },
+            "software": {
+              "title": "4 · Изменить конфигурацию Software",
+              "body": "В категории Software configuration выберите Modify."
+            },
+            "s3LogStorage": {
+              "title": "5 · Включить хранение журналов в S3",
+              "body": "В разделе S3 log storage выберите Rotate logs для загрузки ротируемых журналов в Amazon S3."
+            },
+            "cloudwatchStreaming": {
+              "title": "6 · Включить потоковую передачу CloudWatch Logs",
+              "body": "В разделе Instance log streaming to CloudWatch Logs включите потоковую передачу, задайте период хранения и выберите, загружать ли существующие журналы."
+            },
+            "activate": {
+              "title": "7 · Активировать",
+              "body": "Активируйте модуль UTMStack, чтобы начали поступать события Beanstalk."
+            }
+          }
+        },
+        "awsFargate": {
+          "sections": {
+            "taskDefinition": {
+              "title": "1 · Обновить определение задачи",
+              "body": "В определении задачи для Fargate задайте logDriver как \"awslogs\" и укажите имя группы журналов."
+            },
+            "cloudwatchLogs": {
+              "title": "2 · Убедиться, что CloudWatch Logs получает журналы",
+              "body": "Откройте консоль CloudWatch Logs и убедитесь, что группа журналов заполняется при выполнении задач."
+            },
+            "iamPrerequisite": {
+              "title": "3 · Предварительное условие: IAM-пользователь",
+              "body": "Эта интеграция использует общие учётные данные с модулем AWS IAM User — убедитесь, что он настроен с политикой CloudWatchLogsReadOnlyAccess."
+            },
+            "activate": {
+              "title": "4 · Активировать",
+              "body": "Активируйте модуль UTMStack, чтобы начали поступать события Fargate."
+            }
+          }
+        },
+        "awsIamUser": {
+          "sections": {
+            "iamConsole": {
+              "title": "1 · Открыть консоль IAM",
+              "body": "В консоли AWS перейдите в IAM → Users → Add users."
+            },
+            "createUser": {
+              "title": "2 · Создать пользователя",
+              "body": "Введите имя пользователя (например, utmstack-ingest). Выберите программный доступ."
+            },
+            "programmaticAccess": {
+              "title": "3 · Задать тип учётных данных",
+              "body": "Выберите \"Access key — Programmatic access\"."
+            },
+            "attachPolicy": {
+              "title": "4 · Привязать политику чтения CloudWatch",
+              "body": "Привяжите управляемую AWS политику CloudWatchLogsReadOnlyAccess."
+            },
+            "review": {
+              "title": "5 · Проверить пользователя",
+              "body": "Проверьте данные пользователя и нажмите Create user."
+            },
+            "copyKeys": {
+              "title": "6 · Скопировать идентификатор ключа доступа и секрет",
+              "body": "Скопируйте Access key ID и Secret access key — секрет отображается только один раз."
+            },
+            "createLogGroup": {
+              "title": "7 · Создать группу журналов CloudWatch",
+              "body": "В CloudWatch → Log groups создайте группу журналов с именем \"utmstack\" — другие интеграции AWS будут направлять данные в неё."
+            },
+            "fillForm": {
+              "title": "8 · Заполнить форму",
+              "body": "Укажите в UTMStack ключ доступа, секрет, регион по умолчанию и имя группы журналов (например, \"utmstack\")."
+            },
+            "activate": {
+              "title": "9 · Активировать",
+              "body": "Активируйте модуль UTMStack, чтобы начали поступать события AWS."
+            }
+          }
+        },
+        "awsLambda": {
+          "sections": {
+            "iamPrerequisite": {
+              "title": "1 · Предварительное условие: IAM-пользователь",
+              "body": "Lambda использует модуль AWS IAM User — убедитесь, что эта интеграция настроена первой с политикой CloudWatchLogsReadOnlyAccess."
+            },
+            "cloudwatchStream": {
+              "title": "2 · Lambda уже передаёт данные в CloudWatch Logs",
+              "body": "AWS Lambda автоматически публикует журналы выполнения в CloudWatch Logs в разделе /aws/lambda/<function_name>. UTMStack получает данные из группы журналов, настроенной при создании IAM-пользователя."
+            },
+            "activate": {
+              "title": "3 · Активировать",
+              "body": "Активируйте модуль UTMStack, чтобы начали поступать события Lambda."
+            }
+          }
+        },
+        "awsSqlServer": {
+          "sections": {
+            "openRds": {
+              "title": "1 · Открыть консоль Amazon RDS",
+              "body": "Откройте https://console.aws.amazon.com/rds/."
+            },
+            "pickDb": {
+              "title": "2 · Выбрать экземпляр БД",
+              "body": "На панели навигации выберите Databases и укажите экземпляр БД, который необходимо отслеживать."
+            },
+            "modify": {
+              "title": "3 · Изменить экземпляр",
+              "body": "Выберите Modify."
+            },
+            "logExports": {
+              "title": "4 · Включить экспорт журналов",
+              "body": "В разделе Log exports выберите Error log и Agent log для публикации в CloudWatch Logs."
+            },
+            "apply": {
+              "title": "5 · Применить изменения",
+              "body": "Нажмите «Continue», затем «Modify DB Instance» на странице сводки."
+            },
+            "activate": {
+              "title": "6 · Активировать",
+              "body": "Активируйте модуль UTMStack, чтобы начать получать события SQL Server."
+            }
+          }
+        },
+        "awsPostgresql": {
+          "sections": {
+            "openRds": {
+              "title": "1 · Открыть консоль Amazon RDS",
+              "body": "Откройте https://console.aws.amazon.com/rds/."
+            },
+            "pickDb": {
+              "title": "2 · Выбрать экземпляр БД",
+              "body": "На панели навигации выберите «Databases» и укажите экземпляр БД, который нужно изменить."
+            },
+            "logExports": {
+              "title": "3 · Включить экспорт журналов",
+              "body": "В разделе «Log exports» выберите журнал PostgreSQL для публикации в CloudWatch Logs."
+            },
+            "apply": {
+              "title": "4 · Применить изменения",
+              "body": "Нажмите «Continue», затем «Modify DB Instance» на странице сводки."
+            },
+            "activate": {
+              "title": "5 · Активировать",
+              "body": "Активируйте модуль UTMStack, чтобы начать получать события PostgreSQL."
+            }
+          }
+        },
+        "awsTrafficMirror": {
+          "sections": {
+            "createTarget": {
+              "title": "1 · Создать целевой объект зеркалирования трафика",
+              "body": "В консоли VPC создайте Traffic Mirror Target, указывающий на сетевой интерфейс виртуальной машины агента UTMStack."
+            },
+            "createFilter": {
+              "title": "2 · Создать фильтр зеркалирования трафика",
+              "body": "Создайте Traffic Mirror Filter и добавьте правила входящего/исходящего трафика для протоколов, которые нужно зеркалировать (например, весь TCP, весь UDP)."
+            },
+            "createSession": {
+              "title": "3 · Создать сессию зеркалирования трафика",
+              "body": "Создайте Traffic Mirror Session, связывающую каждый исходный сетевой интерфейс с созданными целевым объектом и фильтром."
+            },
+            "iamPrerequisite": {
+              "title": "4 · Предварительное условие: пользователь IAM",
+              "body": "Убедитесь, что модуль AWS IAM User также настроен, чтобы UTMStack мог при необходимости читать журналы VPC Flow Logs."
+            },
+            "activate": {
+              "title": "5 · Активировать",
+              "body": "Активируйте модуль UTMStack, чтобы начать разбор зеркалированного трафика."
+            }
+          }
+        },
+        "forwarder": {
+          "intro": {
+            "title": "Принцип работы",
+            "body": "Журналы передаются от {{source}} в UTMStack Forwarder, который безопасно пересылает их в UTMStack для корреляции и оповещений. На {{source}} ничего не устанавливается — Forwarder достаточно запустить на одном из хостов вашей сети."
+          },
+          "diagram": {
+            "sourceSub": "ваши журналы",
+            "forwarder": "Forwarder",
+            "forwarderSub": "слушает на {{port}}",
+            "utmstack": "UTMStack",
+            "utmstackSub": "оповещения и корреляция",
+            "flow1": "журналы",
+            "flow2": "защищённо"
+          },
+          "noInstall": "На {{source}} ничего не устанавливается — нужно лишь перенаправить его журналы в Forwarder.",
+          "install": {
+            "title": "Установить UTMStack Forwarder",
+            "body": "Forwarder — это Linux-служба, которая принимает журналы с ваших устройств и отправляет их в UTMStack. Один Forwarder обрабатывает несколько интеграций одновременно.",
+            "reuse": "Forwarder уже запущен? Пропустите этот шаг — укажите {{source}} хост и порт существующего Forwarder, как показано ниже."
+          },
+          "tls": {
+            "title": "Дополнительно — Включить шифрование TLS",
+            "intro": "По умолчанию прослушиватель принимает нешифрованный TCP/UDP. Чтобы зашифровать трафик syslog при передаче, сначала загрузите файлы сертификатов, затем повторно включите прослушиватель с протоколом tls.",
+            "step1": "1 · Загрузить сертификат и ключ (один раз на Forwarder)",
+            "step1Note": "Дополнительный сертификат CA можно передать третьим аргументом. Если его опустить, в роли CA будет использован конечный сертификат.",
+            "step2": "2 · Повторно включить прослушиватель с TLS"
+          },
+          "uninstall": {
+            "title": "Дополнительно — Удалить Forwarder",
+            "body": "Выполните эту команду на хосте, где установлен Forwarder, чтобы остановить службу и удалить все её файлы."
+          }
+        },
+        "aix": {
+          "source": "Сервер AIX",
+          "step1": {
+            "title": "Включить прослушиватель AIX на Forwarder",
+            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель журналов AIX:",
+            "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
+          },
+          "step2": {
+            "title": "Настроить AIX для пересылки журналов",
+            "body": "На вашей системе AIX настройте службу <hl>syslog</hl> для перенаправления журналов на хост Forwarder через порт {{port}}. Обратитесь к документации IBM за точным синтаксисом — он различается в зависимости от версии AIX."
+          }
+        },
+        "deceptivebytes": {
+          "source": "Deceptive Bytes",
+          "step1": {
+            "title": "Включить прослушиватель Deceptive Bytes на Forwarder",
+            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель syslog Deceptive Bytes:",
+            "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
+          },
+          "step2": {
+            "title": "Настроить Deceptive Bytes для пересылки журналов",
+            "body": "В консоли управления Deceptive Bytes настройте пересылку <hl>syslog</hl> для отправки событий на хост Forwarder через порт {{port}} (UDP). Deceptive Bytes генерирует syslog в формате CEF, который Forwarder принимает как тип данных <hl>deceptive-bytes</hl>."
+          }
+        },
+        "mikrotik": {
+          "source": "Маршрутизатор MikroTik",
+          "step1": {
+            "title": "Включить прослушиватель MikroTik на Forwarder",
+            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель syslog MikroTik:",
+            "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
+          },
+          "step2": {
+            "title": "Настроить MikroTik для пересылки журналов",
+            "body": "На маршрутизаторе MikroTik создайте удалённое <hl>действие журналирования</hl> (logging action), указывающее на хост Forwarder через порт {{port}}, и привяжите его к нужным темам журнала. Выполните следующее из CLI RouterOS (Terminal в Winbox):",
+            "note": "Также можно настроить через Winbox: System → Logging → вкладка Actions (добавить удалённое действие) → затем вкладка Rules (добавить правила, указывающие на новое действие)."
+          }
+        },
+        "fortigate": {
+          "source": "Межсетевой экран FortiGate",
+          "step1": {
+            "title": "Включить прослушиватель FortiGate на Forwarder",
+            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель syslog FortiGate:",
+            "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
+          },
+          "step2": {
+            "title": "Настроить FortiGate для пересылки журналов",
+            "body": "На FortiGate направьте syslog на хост Forwarder через порт {{port}}. Выполните следующее из CLI FortiOS (или используйте Log & Report → Log Settings → Syslog в GUI):",
+            "note": "Замените адрес сервера, если Forwarder запущен на другом хосте. Для нескольких коллекторов syslog используйте syslogd2/syslogd3/syslogd4."
+          }
+        },
+        "fortiweb": {
+          "source": "FortiWeb WAF",
+          "step1": {
+            "title": "Включить прослушиватель FortiWeb на Forwarder",
+            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель syslog FortiWeb:",
+            "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
+          },
+          "step2": {
+            "title": "Настроить FortiWeb для пересылки журналов",
+            "body": "На FortiWeb создайте политику syslog, указывающую на хост Forwarder через порт {{port}}, и включите журналирование syslog. Выполните следующее из CLI FortiWeb (или используйте Log & Report → Log Policy → Syslog Policy в GUI):",
+            "note": "Убедитесь, что в настройках Log & Report включена отправка нужных типов журналов (Attack, Event, Traffic) в syslog."
+          }
+        },
+        "paloalto": {
+          "source": "Межсетевой экран Palo Alto",
+          "step1": {
+            "title": "Включить прослушиватель Palo Alto на Forwarder",
+            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель syslog Palo Alto:",
+            "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
+          },
+          "step2": {
+            "title": "Создать профиль Syslog-сервера",
+            "body": "В PAN-OS перейдите в <hl>Device → Server Profiles → Syslog</hl> и добавьте профиль. Укажите адрес сервера <hl>{{host}}</hl>, транспорт <hl>UDP</hl>, порт <hl>{{port}}</hl> и формат <hl>BSD</hl>."
+          },
+          "step3": {
+            "title": "Настроить пересылку журналов и выполнить Commit",
+            "body": "Создайте профиль <hl>Log Forwarding</hl> (Objects → Log Forwarding), который отправляет трафик, угрозы и другие типы журналов в указанный выше профиль syslog, привяжите его к правилам <hl>Security policy</hl> (Policies → Security → правило → Actions → Log Forwarding), затем выполните <hl>Commit</hl>."
+          }
+        },
+        "pfsense": {
+          "source": "Межсетевой экран pfSense",
+          "step1": {
+            "title": "Включить прослушиватель pfSense на Forwarder",
+            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель syslog pfSense:",
+            "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
+          },
+          "step2": {
+            "title": "Включить удалённое журналирование в pfSense",
+            "body": "В веб-интерфейсе pfSense перейдите в <hl>Status → System Logs → Settings</hl>. В разделе <hl>Remote Logging Options</hl> установите флажок <hl>Enable Remote Logging</hl>, укажите удалённый сервер журналов <hl>{{host}}:{{port}}</hl>, выберите журналы для отправки (или <hl>Everything</hl>) и нажмите <hl>Save</hl>."
+          }
+        },
+        "sonicwall": {
+          "source": "Межсетевой экран SonicWall",
+          "step1": {
+            "title": "Включить прослушиватель SonicWall на Forwarder",
+            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель syslog SonicWall:",
+            "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
+          },
+          "step2": {
+            "title": "Добавить Syslog-сервер в SonicOS",
+            "body": "В SonicOS перейдите в <hl>Device → Log → Syslog</hl> (на старых прошивках: Manage → Log → Syslog) и добавьте Syslog Server с адресом <hl>{{host}}</hl> и портом <hl>{{port}}</hl>. Установите <hl>Syslog Format</hl> в значение <hl>ArcSight (CEF)</hl> — UTMStack обрабатывает SonicWall в формате CEF — затем нажмите Apply."
+          }
+        },
+        "sophosxg": {
+          "source": "Sophos Firewall",
+          "step1": {
+            "title": "Включить прослушиватель Sophos Firewall на Forwarder",
+            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель syslog Sophos Firewall:",
+            "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
+          },
+          "step2": {
+            "title": "Добавить Syslog-сервер в Sophos Firewall",
+            "body": "В консоли Sophos Firewall (SFOS) перейдите в <hl>System → System services → Log settings</hl> и добавьте Syslog-сервер с адресом <hl>{{host}}</hl> и портом <hl>{{port}}</hl>. Выберите типы журналов для пересылки (firewall, IPS, ATP, web и др.) и нажмите <hl>Apply</hl>."
+          }
+        },
+        "suricata": {
+          "source": "Suricata IDS",
+          "step1": {
+            "title": "Включить прослушиватель Suricata на Forwarder",
+            "body": "На хосте, где установлен Forwarder, выполните следующую команду для открытия прослушивателя Suricata:",
+            "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в приведённой выше команде."
+          },
+          "step2": {
+            "title": "Отправить журналы Suricata EVE в syslog",
+            "body": "Suricata принимает данные в формате JSON (EVE). На хосте Suricata отредактируйте <hl>suricata.yaml</hl> и настройте вывод <hl>eve-log</hl> для записи в syslog:",
+            "note": "Затем перезапустите Suricata: sudo systemctl restart suricata"
+          },
+          "step3": {
+            "title": "Пересылать syslog на Forwarder",
+            "body": "Направьте объект <hl>local5</hl> (куда теперь пишет Suricata) на Forwarder. Добавьте это правило в <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> на хосте Suricata:",
+            "note": "Используйте @@ вместо @ для TCP. Затем перезапустите rsyslog: sudo systemctl restart rsyslog"
+          }
+        }
       },
       "cloud": {
         "howItWorksTitle": "Как это работает",
@@ -1536,7 +2615,8 @@
           "sections": {
             "createTopic": {
               "title": "1 · Создайте тему Pub/Sub",
-              "body": "В консоли Google Cloud откройте Pub/Sub → Темы и создайте новую тему. UTMStack будет получать события через эту тему."
+              "body": "В консоли Google Cloud откройте Pub/Sub → Темы и создайте новую тему. UTMStack будет получать события через эту тему.",
+              "docLabel": "Открыть страницу тем Pub/Sub"
             },
             "createSubscription": {
               "title": "2 · Создайте подписку",
@@ -1556,7 +2636,8 @@
             },
             "serviceAccount": {
               "title": "6 · Создайте сервисный аккаунт",
-              "body": "Откройте IAM и администрирование → Сервисные аккаунты и создайте новый сервисный аккаунт. Назначьте ему роль Pub/Sub Editor, чтобы UTMStack мог читать из подписки."
+              "body": "Откройте IAM и администрирование → Сервисные аккаунты и создайте новый сервисный аккаунт. Назначьте ему роль Pub/Sub Editor, чтобы UTMStack мог читать из подписки.",
+              "docLabel": "Открыть страницу сервисных аккаунтов"
             },
             "serviceAccountKey": {
               "title": "7 · Создайте ключ для сервисного аккаунта",
@@ -1580,6 +2661,29 @@
             "jsonKey": {
               "label": "JSON-ключ сервисного аккаунта"
             }
+          },
+          "intro": {
+            "title": "Принцип работы",
+            "body": "UTMStack считывает активность аудита непосредственно из Google Cloud через Pub/Sub. Маршрутизатор журналов направляет журналы проекта в тему Pub/Sub; UTMStack запускает внутренний сборщик, который читает Pull-подписку этой темы с помощью ключа сервисного аккаунта. В вашем GCP-проекте ничего не устанавливается.",
+            "diagram": {
+              "source": "Cloud Logging",
+              "edge1": "Logs Router",
+              "pubsub": "Pub/Sub",
+              "pubsubSub": "тема + подписка",
+              "edge2": "получает",
+              "utmstackSub": "оповещения и корреляция"
+            },
+            "note": "В GCP агенты не запускаются — UTMStack получает сообщения из подписки Pub/Sub с помощью JSON-ключа сервисного аккаунта, который вы укажете ниже."
+          },
+          "credentials": {
+            "title": "Конфигурация Pub/Sub",
+            "body": "Используйте собранные выше значения для настройки UTMStack. Вы можете отслеживать несколько проектов, сохранив дополнительные конфигурации.",
+            "mapping": {
+              "intro": "Справочник полей",
+              "projectId": "Project ID — GCP-проект, содержащий вашу тему, подписку и маршрутизатор журналов",
+              "subscription": "Имя подписки — Pull-подписка, созданная на шаге 2",
+              "jsonKey": "JSON-ключ сервисного аккаунта — файл, загруженный на шаге 8"
+            }
           }
         },
         "azure": {
@@ -1598,7 +2702,8 @@
             },
             "consumerGroup": {
               "title": "4 · Создайте отдельную consumer group",
-              "body": "Откройте Event Hub → Consumer groups и создайте новую для UTMStack. Не используйте $Default — выделите UTMStack собственную группу, чтобы контрольные точки не пересекались с другими потребителями."
+              "body": "Откройте Event Hub → Consumer groups и создайте новую для UTMStack. Не используйте $Default — выделите UTMStack собственную группу, чтобы контрольные точки не пересекались с другими потребителями.",
+              "warn": "Создайте группу потребителей специально для UTMStack. Не используйте $Default или другие уже используемые группы — совместное использование группы потребителей несвязанными потребителями может привести к непредвиденному поведению и потере событий. Все экземпляры UTMStack должны использовать одну группу потребителей для совместной обработки событий."
             },
             "storageAccount": {
               "title": "5 · Создайте учётную запись хранения",
@@ -1615,6 +2720,28 @@
             "eventSubscription": {
               "title": "8 · Создайте подписку на события",
               "body": "Создайте подписку на события, нацеленную на ваш Event Hub. Выберите типы событий для пересылки в UTMStack."
+            },
+            "createEventHub": {
+              "title": "Создать Event Hub",
+              "body": "На портале Azure создайте пространство имён Event Hubs и Event Hub внутри него. UTMStack будет считывать события из этого концентратора.",
+              "docLabel": "Краткое руководство: создание концентратора событий с помощью портала Azure"
+            },
+            "createStorageAccount": {
+              "title": "Создать Storage Account",
+              "body": "UTMStack требуется Storage Account для сохранения контрольных точек позиции чтения. Создайте его в том же регионе, что и Event Hub.",
+              "docLabel": "Краткое руководство: создание учётной записи хранилища"
+            },
+            "storageConnection": {
+              "title": "Скопировать строку подключения Storage Account",
+              "body": "Получите строку подключения Storage Account с ключом в разделе: All services → Storage accounts → ваша учётная запись → Access keys. UTMStack использует её для хранения контрольных точек Event Hub."
+            },
+            "createEventSubscription": {
+              "title": "Создать подписку на события",
+              "body": "На панели Events подписки создайте новое событие, нажав Events → Event Subscription."
+            },
+            "configureEventSubscription": {
+              "title": "Направить подписку на события в Event Hub",
+              "body": "Настройте подписку на события для отправки журналов в Event Hub, созданный на шаге 1."
             }
           },
           "fields": {
@@ -1629,6 +2756,31 @@
             },
             "storageConnection": {
               "label": "Строка подключения учётной записи хранения"
+            }
+          },
+          "intro": {
+            "title": "Принцип работы",
+            "body": "UTMStack считывает активность аудита непосредственно из Azure Event Hub. Вы настраиваете подписку Azure для потоковой передачи событий в Event Hub; UTMStack запускает внутренний сборщик, который читает этот концентратор и сохраняет контрольные точки в Storage Account. В вашем тенанте Azure ничего не устанавливается.",
+            "diagram": {
+              "source": "события подписки",
+              "edge1": "передаёт в",
+              "eventHub": "Event Hub",
+              "eventHubSub": "поток событий",
+              "edge2": "получает",
+              "utmstackSub": "оповещения и корреляция"
+            },
+            "note": "В Azure агенты не запускаются — UTMStack получает события из Event Hub с помощью строк подключения, которые вы укажете ниже."
+          },
+          "sampleLabel": "Пример строки подключения:",
+          "credentials": {
+            "title": "Конфигурация Event Hub",
+            "body": "Используйте данные, собранные на предыдущих шагах, для настройки UTMStack. Вы можете добавить несколько Event Hub, сохранив дополнительные конфигурации.",
+            "mapping": {
+              "intro": "Справочник полей",
+              "eventHubConnection": "Строка подключения Event Hub — значение, полученное на шаге 3",
+              "consumerGroup": "Группа потребителей — значение, полученное на шаге 4",
+              "storageContainer": "Имя контейнера хранилища — значение, полученное на шаге 6",
+              "storageConnection": "Строка подключения учётной записи хранилища — значение, полученное на шаге 7"
             }
           }
         },
@@ -1684,6 +2836,166 @@
             "logGroupName": {
               "label": "Имя log group"
             }
+          },
+          "intro": {
+            "title": "Принцип работы",
+            "body": "UTMStack считывает активность аудита непосредственно из AWS CloudWatch Logs. CloudTrail фиксирует вызовы API и события управления в вашем аккаунте AWS, пересылает их в группу журналов CloudWatch, а UTMStack опрашивает эту группу для приёма и корреляции событий.",
+            "diagram": {
+              "source": "события API",
+              "edge1": "CloudTrail",
+              "cloudwatchSub": "группы журналов",
+              "edge2": "опрашивает",
+              "utmstackSub": "оповещения и корреляция"
+            },
+            "note": "На AWS агенты не устанавливаются — UTMStack получает события журналов с помощью учётных данных IAM с правами только на чтение, которые вы укажете ниже."
+          },
+          "iamSection": "Настроить пользователя IAM",
+          "iam": {
+            "dashboard": {
+              "title": "Открыть панель управления IAM",
+              "body": "Откройте консоль AWS, перейдите на панель управления IAM и выберите <strong>Users</strong>."
+            },
+            "addUser": {
+              "title": "Добавить пользователя",
+              "body": "Нажмите <strong>Add user</strong>, введите понятное имя пользователя и перейдите к следующему шагу."
+            },
+            "attachPolicy": {
+              "title": "Прикрепить политику только для чтения",
+              "body": "В разделе <strong>Permissions</strong> прикрепите необходимую политику. Выберите <strong>CloudWatchLogsReadOnlyAccess</strong> для доступа только для чтения к CloudWatch."
+            },
+            "createUser": {
+              "title": "Создать пользователя",
+              "body": "Проверьте конфигурацию и нажмите <strong>Create user</strong> для создания аккаунта."
+            },
+            "openUser": {
+              "title": "Открыть нового пользователя",
+              "body": "Откройте только что созданного пользователя, щёлкнув по его имени, чтобы просмотреть сведения и управлять учётными данными."
+            },
+            "securityTab": {
+              "title": "Перейти в раздел Security credentials",
+              "body": "Выберите вкладку <strong>Security credentials</strong> для создания ключей программного доступа."
+            },
+            "createKey": {
+              "title": "Создать ключ доступа",
+              "body": "Нажмите <strong>Create access key</strong> и выберите вариант для приложения, работающего вне AWS (программный доступ)."
+            },
+            "confirmKey": {
+              "title": "Подтвердить создание",
+              "body": "Подтвердите создание ключа доступа. AWS сгенерирует Access Key ID и Secret Access Key."
+            },
+            "downloadKey": {
+              "title": "Сохранить учётные данные",
+              "body": "Загрузите файл с учётными данными или скопируйте Access Key ID и Secret Access Key в надёжное место — Secret Access Key отображается только один раз."
+            }
+          },
+          "credentials": {
+            "title": "Ввести учётные данные",
+            "body": "Вставьте Access Key ID и Secret Access Key, полученные на предыдущих шагах. UTMStack проверяет учётные данные в AWS перед сохранением."
+          },
+          "cloudwatchSection": "Настроить AWS CloudWatch",
+          "cloudwatch": {
+            "createGroup": {
+              "title": "Создать группу журналов CloudWatch",
+              "body": "Откройте консоль CloudWatch, выберите <strong>Log management</strong> и нажмите <strong>Create log group</strong>."
+            },
+            "nameGroup": {
+              "title": "Задать имя группы журналов и срок хранения",
+              "body": "Введите имя группы журналов <code>utmstack</code> и установите срок хранения <strong>1 day</strong>. Нажмите <strong>Create log group</strong>."
+            },
+            "openTrail": {
+              "title": "Открыть CloudTrail и создать трейл",
+              "body": "В консоли CloudTrail нажмите <strong>Create trail</strong>, чтобы начать настройку нового трейла."
+            },
+            "configureTrail": {
+              "title": "Настроить доставку, проверку и интеграцию с CloudWatch",
+              "body": "В форме создания CloudTrail задайте следующие параметры:",
+              "items": [
+                "<strong>Trail name and scope:</strong> введите понятное имя; включите <em>Apply trail to all accounts in my organization</em>, если требуется сбор данных по всей организации.",
+                "<strong>S3 destination:</strong> выберите <em>Create new S3 bucket</em> (или укажите существующий бакет) для доставки необработанных журналов.",
+                "<strong>Encryption:</strong> включите <em>Log file SSE-KMS</em> и выберите подходящий KMS-ключ.",
+                "<strong>Log file validation:</strong> включите для обеспечения целостности доставляемых журналов (рекомендуется).",
+                "<strong>CloudWatch Logs:</strong> включите доставку в CloudWatch, выберите <em>Use existing log group</em> и введите точное имя <code>utmstack</code>.",
+                "<strong>IAM role:</strong> укажите или создайте роль, которую CloudTrail будет использовать для записи в S3 и публикации в CloudWatch."
+              ]
+            },
+            "eventTypes": {
+              "title": "Выбрать типы событий",
+              "body": "Включите категории событий, необходимые для мониторинга и аудита.",
+              "management": {
+                "label": "1 · События управления",
+                "body": "Включите <strong>Management events</strong> и выберите <strong>All</strong>, чтобы записывать всю активность API, управляющую ресурсами AWS (создание, обновление, удаление)."
+              },
+              "data": {
+                "label": "2 · События данных",
+                "body": "Добавьте <strong>Data event</strong>. Выберите <strong>S3</strong> и укажите <strong>Log all events</strong>, чтобы фиксировать операции на уровне объектов, такие как GetObject и PutObject."
+              },
+              "network": {
+                "label": "3 · События сетевой активности",
+                "body": "В разделе <strong>Network Activities</strong> добавьте хотя бы одну службу (например, <code>ec2.amazonaws.com</code>) и включите <strong>Log all events</strong>."
+              }
+            },
+            "review": {
+              "title": "Проверьте и создайте трейл",
+              "body": "На экране <strong>Configure event aggregation</strong> примите значения по умолчанию (или измените при необходимости). Проверьте все настройки и нажмите <strong>Create trail</strong>."
+            }
+          }
+        },
+        "crowdstrike": {
+          "intro": {
+            "title": "Как это работает",
+            "body": "UTMStack считывает обнаружения и активность аудита напрямую из CrowdStrike Falcon Event Streams API. Вы создаёте API-клиент в Falcon с областью Event Streams; UTMStack запускает внутренний пуллер, который получает события с использованием этих учётных данных. На ваших конечных точках или в Falcon ничего не устанавливается.",
+            "diagram": {
+              "source": "обнаружения и события",
+              "edge1": "Event Streams API",
+              "api": "Falcon API",
+              "apiSub": "поток событий",
+              "edge2": "получает",
+              "utmstackSub": "оповещения и корреляция"
+            },
+            "note": "UTMStack не устанавливает агентов — он получает события из Falcon, используя предоставленные вами ниже учётные данные API-клиента (только чтение)."
+          },
+          "sections": {
+            "apiClients": {
+              "title": "Откройте API Clients and Keys",
+              "body": "В консоли Falcon откройте меню (значок гамбургера, в верхнем левом углу) и перейдите в Support and resources → API Clients and Keys."
+            },
+            "createClient": {
+              "title": "Создайте новый API-клиент",
+              "body": "Нажмите Create API Client, чтобы начать создание нового клиента."
+            },
+            "scopes": {
+              "title": "Задайте имя клиента и назначьте область Event Streams",
+              "body": "Присвойте клиенту понятное имя (UTMStack использует его для идентификации источника событий) и выберите области API, необходимые для Event Streams. Нажмите Create для генерации учётных данных."
+            },
+            "recordCredentials": {
+              "title": "Сохраните учётные данные",
+              "body": "Скопируйте Client ID, Client Secret и Base URL для вашего региона CrowdStrike. Секрет отображается только один раз — сохраните его в надёжном месте. Все три значения нужно будет вставить в форму ниже."
+            }
+          },
+          "credentials": {
+            "title": "Конфигурация API-клиента",
+            "body": "Используйте учётные данные из шагов выше для настройки UTMStack. Вы можете добавить несколько клиентов CrowdStrike, сохранив дополнительные конфигурации.",
+            "mapping": {
+              "intro": "Описание полей",
+              "appName": "Имя приложения — понятное имя клиента из шага 3 (идентифицирует источник событий)",
+              "clientId": "Client ID — значение, сохранённое на шаге 4",
+              "clientSecret": "Client Secret — значение, сохранённое на шаге 4 (отображается только один раз)",
+              "cloudRegionUrl": "Base URL — конечная точка вашего региона, например https://api.crowdstrike.com (us-1), https://api.us-2.crowdstrike.com (us-2), https://api.eu-1.crowdstrike.com (eu-1)"
+            }
+          },
+          "fields": {
+            "appName": {
+              "label": "Имя приложения"
+            },
+            "clientId": {
+              "label": "Client ID"
+            },
+            "clientSecret": {
+              "label": "Client Secret"
+            },
+            "cloudRegionUrl": {
+              "label": "Base URL (облачный регион)"
+            }
           }
         }
       },
@@ -1701,7 +3013,33 @@
         "powershellLabel": "PowerShell (запустить от имени администратора)",
         "linuxLabel": "Linux — bash",
         "macosLabel": "macOS — bash",
-        "exampleLabel": "Пример целевого syslog на {{name}}:"
+        "exampleLabel": "Пример целевого syslog на {{name}}:",
+        "intro": {
+          "title": "Как это работает",
+          "body": "Пользовательская интеграция принимает журналы из любого источника, не охваченного встроенными модулями. Вы устанавливаете UTMStack Forwarder, регистрируете слушатель для ваших данных с выбранным протоколом и указываете источник на него.",
+          "note": "Выберите протокол, который может использовать ваш источник (syslog UDP/TCP/TLS или HTTP/HTTPS для JSON) ниже — Forwarder автоматически создаст тип данных."
+        },
+        "diagram": {
+          "source": "Ваш источник",
+          "sourceSub": "любое приложение или устройство",
+          "forwarder": "Forwarder",
+          "ingests": "принимает",
+          "utmstackSub": "оповещения и корреляция"
+        },
+        "choose": {
+          "title": "Выберите протокол и порт",
+          "body": "Выберите способ отправки данных источником и порт, на котором должен слушать Forwarder, затем выполните команду активации на хосте Forwarder.",
+          "portLabel": "Порт прослушивания",
+          "tlsFirst": "Сначала загрузите ваш TLS-сертификат и ключ на Forwarder:",
+          "enableLabel": "Затем включите интеграцию:",
+          "authNote": "Для включения аутентификации добавьте <code>--auth bearer</code> (токен) или <code>--auth hmac</code> — Forwarder выведет токен для использования в заголовке Authorization."
+        },
+        "send": {
+          "title": "Направьте ваш источник на Forwarder",
+          "bodyNetwork": "Настройте ваш источник для отправки syslog <hl>{{proto}}</hl> на <hl>{{host}}:{{port}}</hl>. На большинстве устройств для этого есть параметр удалённого syslog или пересылки журналов.",
+          "bodyHttp": "Отправляйте события в формате JSON через HTTP POST на <hl>{{endpoint}}</hl>. Тело каждого запроса — одно событие JSON:",
+          "httpBindNote": "По умолчанию слушатель HTTP/HTTPS привязывается к 127.0.0.1 (хосту Forwarder), поэтому отправляйте запросы из приложения, работающего на этом хосте, или используйте обратный прокси. Для удалённых источников используйте syslog (UDP/TCP/TLS)."
+        }
       }
     },
     "codeBlock": {
@@ -1726,11 +3064,78 @@
       "fileReadError": "Ошибка при чтении файла",
       "cancel": "Отмена",
       "create": "Создать интеграцию",
-      "creating": "Создание…"
+      "creating": "Создание…",
+      "editTitle": "Редактировать интеграцию",
+      "save": "Сохранить",
+      "saving": "Сохранение…",
+      "currentIcon": "Текущий значок — загрузите файл для замены",
+      "name": "Название интеграции",
+      "namePlaceholder": "например, Acme Firewall",
+      "description": "Описание",
+      "descriptionPlaceholder": "Что принимает эта интеграция и зачем (необязательно)",
+      "category": "Категория",
+      "identifierHint": "Сохраняется как “{{id}}” (производное от имени)",
+      "nameTaken": "Это название интеграции нельзя использовать — интеграция с таким идентификатором уже существует.",
+      "removeIcon": "Удалить значок",
+      "defaultIconNote": "Значок по умолчанию — загрузите файл, чтобы использовать собственный.",
+      "categoryPlaceholder": "Выберите категорию…"
     },
     "toast": {
-      "created": "Интеграция создана"
-    }
+      "created": "Интеграция создана",
+      "updated": "Интеграция обновлена",
+      "updateError": "Не удалось обновить интеграцию",
+      "enabled": "Интеграция включена",
+      "disabled": "Интеграция отключена",
+      "toggleError": "Не удалось изменить состояние интеграции"
+    },
+    "delete": {
+      "title": "Удалить интеграцию",
+      "confirm": "Удалить эту интеграцию?",
+      "yes": "Удалить",
+      "no": "Отмена",
+      "deleted": "Интеграция удалена",
+      "error": "Не удалось удалить интеграцию"
+    },
+    "modules": {
+      "WINDOWS_AGENT": "Сбор системной, защитной активности и журналов событий Windows через лёгкий агент UTMStack, установленный на каждом хосте.",
+      "LINUX_AGENT": "Сбор системных журналов, журналов аутентификации и аудита Linux через лёгкий агент UTMStack, установленный на каждом хосте.",
+      "MACOS": "Сбор системных журналов и журналов безопасности macOS с конечных точек Apple Mac через лёгкий агент UTMStack.",
+      "VMWARE": "Приём syslog гипервизора VMware ESXi для мониторинга активности и событий хостов виртуализации в UTMStack.",
+      "NETFLOW": "Приём записей NetFlow от маршрутизаторов и коммутаторов для мониторинга сетевого трафика и обнаружения аномалий.",
+      "AWS_IAM_USER": "Приём активности учётных записей AWS и вызовов API через CloudTrail и CloudWatch для аудита использования облака, доступа и изменений.",
+      "AZURE": "Приём журналов платформы и активности Microsoft Azure для мониторинга облачных нагрузок, удостоверений и изменений ресурсов.",
+      "O365": "Приём журналов аудита Microsoft 365 по Exchange, Teams, SharePoint и OneDrive для мониторинга активности пользователей и администраторов.",
+      "GCP": "Приём журналов аудита и активности Google Cloud Platform для мониторинга вычислений, хранилища и удостоверений в проектах.",
+      "KASPERSKY": "Приём обнаружений Kaspersky Security Center и телеметрии конечных точек для корреляции активности вредоносного ПО в сети.",
+      "ESET": "Приём обнаружений конечных точек ESET PROTECT и телеметрии для корреляции многоуровневой защиты от вредоносного ПО.",
+      "BITDEFENDER": "Приём обнаружений Bitdefender GravityZone и телеметрии конечных точек для корреляции угроз на корпоративных устройствах.",
+      "SENTINEL_ONE": "Приём обнаружений конечных точек SentinelOne и поведенческой телеметрии для масштабной корреляции и расследования угроз.",
+      "SOPHOS": "Приём обнаружений Sophos Central по конечным точкам, серверам, межсетевым экранам и электронной почте для корреляции угроз в одном месте.",
+      "CROWDSTRIKE": "Приём обнаружений конечных точек и рабочих нагрузок CrowdStrike Falcon для корреляции активности облачных угроз в UTMStack.",
+      "CISCO": "Приём журналов трафика, VPN и угроз межсетевого экрана Cisco ASA для мониторинга защиты периметра и доступа в UTMStack.",
+      "MERAKI": "Приём syslog межсетевого экрана и устройств безопасности Cisco Meraki для мониторинга управляемого из облака сетевого трафика и угроз.",
+      "FIRE_POWER": "Приём журналов Cisco Firepower NGFW и IPS для мониторинга попыток вторжения и угроз на периметре.",
+      "CISCO_SWITCH": "Приём syslog и телеметрии коммутаторов Cisco для мониторинга производительности сети, изменений конфигурации и безопасности.",
+      "FORTIGATE": "Приём журналов трафика и угроз Fortinet FortiGate NGFW для мониторинга защиты периметра и сетевой активности.",
+      "FORTIWEB": "Приём журналов WAF Fortinet FortiWeb для мониторинга атак на веб-приложения и защиты открытых сервисов и API.",
+      "SOPHOS_XG": "Приём журналов межсетевого экрана Sophos XG, включающих веб-фильтрацию, IPS и VPN, для мониторинга сетевого трафика и угроз.",
+      "PALO_ALTO": "Приём журналов трафика и угроз Palo Alto Networks NGFW для мониторинга использования приложений и защиты периметра.",
+      "SONIC_WALL": "Приём журналов трафика и угроз SonicWall NGFW для мониторинга защиты периметра и сетевой активности в UTMStack.",
+      "PFSENSE": "Приём журналов межсетевого экрана и маршрутизатора pfSense с унифицированным управлением угрозами для мониторинга сетевого трафика и угроз.",
+      "MIKROTIK": "Приём журналов межсетевого экрана, маршрутизации и беспроводной сети MikroTik RouterOS для мониторинга сетевой активности и конфигурации.",
+      "AIX": "Сбор системных журналов, журналов безопасности и аудита IBM AIX Unix для мониторинга активности на платформах IBM Power в UTMStack.",
+      "AS_400": "Сбор системных журналов и журналов аудита IBM AS/400 (IBM i) для мониторинга активности пользователей на платформах OS/400.",
+      "ORACLE": "Приём журналов аудита Oracle Database для мониторинга запросов, доступа и привилегированных операций в базах данных.",
+      "SURICATA": "Приём оповещений Suricata IDS/IPS и сетевых событий для обнаружения вторжений и вредоносного трафика в сети.",
+      "DECEPTIVE_BYTES": "Приём оповещений Deceptive Bytes от платформы активного обмана конечных точек для раннего выявления активности злоумышленников.",
+      "GITHUB": "Приём журналов аудита GitHub для мониторинга доступа к репозиториям, изменений кода и активности организации в целях безопасности исходного кода.",
+      "UTMSTACK": "Приём телеметрии UTMStack SIEM и XDR для мониторинга работоспособности платформы, внутренней активности и событий самоаудита."
+    },
+    "edit": {
+      "title": "Редактировать интеграцию"
+    },
+    "allCategories": "Все категории",
+    "customOnly": "Пользовательские"
   },
   "datasources": {
     "title": "Источники данных",

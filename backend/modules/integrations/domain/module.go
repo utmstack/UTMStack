@@ -9,6 +9,7 @@ type UtmModule struct {
 	ModuleActive      bool   `gorm:"column:module_active;default:false"                                  json:"moduleActive"`
 	ModuleIcon        string `gorm:"column:module_icon"                                                  json:"moduleIcon"`
 	ModuleCategory    string `gorm:"column:module_category;size:128"                                     json:"moduleCategory"`
+	IngestType        string `gorm:"column:ingest_type;size:32" json:"ingestType"`
 	IsSystem          bool   `gorm:"column:is_system;not null;default:false" json:"isSystem"`
 }
 

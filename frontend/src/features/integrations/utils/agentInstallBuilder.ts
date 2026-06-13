@@ -94,30 +94,31 @@ function macosUninstall(installer: string): string {
 }
 
 function windowsInstall(host: string, token: string, installer: string): string {
-  return (
-    `New-Item -ItemType Directory -Force -Path "C:\\Program Files\\UTMStack\\UTMStack Agent"; ` +
-    `& curl.exe -k -o "C:\\Program Files\\UTMStack\\UTMStack Agent\\${installer}" ` +
-    `"https://${host}:9001/private/dependencies/agent/${installer}"; ` +
-    `Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\${installer}" ` +
-    `-ArgumentList 'install', '${host}', '<secret>${token}</secret>', 'yes' -NoNewWindow -Wait`
-  )
+  const dir = 'C:\\Program Files\\UTMStack\\UTMStack Agent'
+  // One statement per line (backtick = PowerShell line continuation) so the block
+  // wraps top-to-bottom like the bash guides instead of one long horizontal line.
+  return `New-Item -ItemType Directory -Force -Path "${dir}"
+& curl.exe -k -o "${dir}\\${installer}" \`
+  "https://${host}:9001/private/dependencies/agent/${installer}"
+Start-Process "${dir}\\${installer}" \`
+  -ArgumentList 'install', '${host}', '<secret>${token}</secret>', 'yes' \`
+  -NoNewWindow -Wait`
 }
 
 function windowsUninstall(installer: string): string {
-  return (
-    `Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\${installer}" ` +
-    `-ArgumentList 'uninstall' -NoNewWindow -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
-    `Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackAgent' -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
-    `Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackAgent' -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
-    `Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackWindowsLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
-    `Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackWindowsLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
-    `Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackModulesLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
-    `Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackModulesLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
-    `Write-Host "Removing UTMStack Agent dependencies..."; ` +
-    `Start-Sleep -Seconds 10; ` +
-    `Remove-Item 'C:\\Program Files\\UTMStack\\UTMStack Agent' -Recurse -Force -ErrorAction Stop; ` +
-    `Write-Host "UTMStack Agent removed successfully."`
-  )
+  const dir = 'C:\\Program Files\\UTMStack\\UTMStack Agent'
+  // One statement per line so the block flows top-to-bottom (no horizontal scroll).
+  return `Start-Process "${dir}\\${installer}" -ArgumentList 'uninstall' -NoNewWindow -Wait -ErrorAction SilentlyContinue | Out-Null
+Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackAgent' -Wait -ErrorAction SilentlyContinue | Out-Null
+Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackAgent' -Wait -ErrorAction SilentlyContinue | Out-Null
+Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackWindowsLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null
+Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackWindowsLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null
+Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackModulesLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null
+Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackModulesLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null
+Write-Host "Removing UTMStack Agent dependencies..."
+Start-Sleep -Seconds 10
+Remove-Item '${dir}' -Recurse -Force -ErrorAction Stop
+Write-Host "UTMStack Agent removed successfully."`
 }
 
 export function buildAgentInstall(agentId: string, ctx: AgentBuilderContext): AgentInstallConfig {

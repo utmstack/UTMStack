@@ -15,12 +15,6 @@ DROP SEQUENCE IF EXISTS jhi_persistent_audit_event_event_id_seq;
 ALTER TABLE jhi_user DROP COLUMN IF EXISTS openvas_user_uuid;
 ALTER TABLE jhi_user DROP COLUMN IF EXISTS openvas_user_id;
 
--- Drop the legacy utm_module.description column. The Go UtmModule models the
--- description as module_description; the bare `description` is a leftover from
--- the Java schema that nothing references (and AutoMigrate never recreates,
--- since the model has no such field).
-ALTER TABLE utm_module DROP COLUMN IF EXISTS description;
-
 -- Drop the config-parameter section grouping. The Go appconfig module updates
 -- seeded parameters by key (conf_param_short) and never reads the section, which
 -- only existed so the legacy frontend could group settings. Drop the column
@@ -440,50 +434,60 @@ WHERE NOT EXISTS (
 -- Seed the built-in (system) integrations into utm_module.
 --
 -- On a fresh install GORM creates an empty utm_module and this populates the
--- catalog (name, icon, category, data_type, is_system=true). On an in-place
--- upgrade these rows already exist (the pre-AutoMigrate step backfilled their
--- data_type/is_system), so ON CONFLICT (module_name) makes this a no-op.
+-- catalog. On an in-place (v11) upgrade these rows already exist, so ON CONFLICT
+-- (module_name) DO UPDATE refreshes their two-axis classification — module_category
+-- (technology: firewall/xdr/cloud/…) and ingest_type (how it reaches the SIEM:
+-- agent/collector/forwarder/plugin) — while preserving each row's active state.
 --
 -- SOC_AI and FILE_INTEGRITY are intentionally omitted: they are not data-source
 -- integrations in the new model. The 7 pullers (AWS/AZURE/GCP/O365/BITDEFENDER/
 -- CROWDSTRIKE/SOPHOS) carry their field schema in integrations/<name>.yaml.
-INSERT INTO utm_module (module_name, pretty_name, module_description, module_active, module_icon, module_category, data_type, is_system) VALUES
-    ('WINDOWS_AGENT',   'Windows Agent',                 'Send Windows operating-system logs to UTMStack via the installed agent.',                        true,  'windows-agent.svg', 'Agents & Syslog', 'wineventlog',                true),
-    ('LINUX_AGENT',     'Linux agent',                   'Send Linux operating-system logs to UTMStack via the installed agent.',                          true,  'linux_agent.svg',   'Agents & Syslog', 'linux',                      true),
-    ('MACOS',           'MacOS',                         'macOS is a series of operating systems for the Apple Mac family of computers.',                  true,  'macos.svg',         'Agents & Syslog', 'macos',                      true),
-    ('SYSLOG',          'Syslog',                        'Accept syslog from firewalls and other network devices that support it.',                        true,  'log-file.svg',      'Agents & Syslog', 'syslog',                     true),
-    ('VMWARE',          'VMWare Syslog',                 'Redirect and store VMware ESXi syslog messages in UTMStack.',                                    false, 'vmware.svg',        'Agents & Syslog', 'vmware-esxi',                true),
-    ('JSON',            'Json Input',                    'Send your JSON-format logs to be processed by UTMStack.',                                        true,  'json.svg',          'Other',           'json-input',                 true),
-    ('NETFLOW',         'Netflow',                       'Redirect network-traffic NetFlow logs to UTMStack for monitoring and analysis.',                 false, 'netflow.svg',       'Network',         'netflow',                    true),
-    ('AWS_IAM_USER',    'AWS Cloudwatch',                'Audit AWS account activity and API usage via CloudTrail/CloudWatch.',                            false, 'aws-cloudtrail.svg', 'Cloud',          'aws',                        true),
-    ('AZURE',           'Azure',                         'Microsoft Azure public cloud computing platform (IaaS, PaaS, SaaS).',                            false, 'azure.svg',         'Cloud',           'azure',                      true),
-    ('O365',            'Microsoft 365',                 'Microsoft 365 subscription services (Exchange Online, Teams, SharePoint, OneDrive).',            false, 'office.svg',        'Cloud',           'o365',                       true),
-    ('GCP',             'Google Cloud Platform',         'Google Cloud Platform hosted services for compute, storage and application development.',         false, 'gcp.svg',           'Cloud',           'google',                     true),
-    ('KASPERSKY',       'Kaspersky Security',            'Comprehensive information about the devices and applications running on your network.',           false, 'kaspersky.svg',     'Antivirus',       'antivirus-kaspersky',        true),
-    ('ESET',            'ESET Endpoint Protection',      'Multilayered endpoint protection with machine learning and easy management.',                    false, 'eset.svg',          'Antivirus',       'antivirus-esmc-eset',        true),
-    ('BITDEFENDER',     'Bitdefender',                   'Bitdefender GravityZone cybersecurity for businesses and consumers.',                            false, 'bitdefender.svg',   'Antivirus',       'antivirus-bitdefender-gz',   true),
-    ('SENTINEL_ONE',    'SentinelOne Endpoint Security', 'SentinelOne endpoint security (Core, Control and Complete tiers).',                              false, 'sentinelone.svg',   'XDR',             'antivirus-sentinel-one',     true),
-    ('SOPHOS',          'Sophos Central',                'Single cloud management for Sophos endpoint, server, mobile, firewall, ZTNA and email.',         false, 'sophos.svg',        'XDR',             'sophos-central',             true),
-    ('CROWDSTRIKE',     'CrowdStrike',                   'CrowdStrike Falcon cloud-native endpoint and workload protection.',                              true,  'crowdstrike.svg',   'Device',          'crowdstrike',                true),
-    ('CISCO',           'Cisco ASA',                     'Cisco ASA adaptive security appliances — ingest device logs into UTMStack.',                     false, 'cisco.svg',         'Device',          'firewall-cisco-asa',         true),
-    ('MERAKI',          'Cisco Meraki',                  'Syslog integration with Cisco Meraki firewalls.',                                               false, 'meraki.svg',        'Device',          'firewall-meraki',            true),
-    ('FIRE_POWER',      'Fire Power',                    'Cisco Firepower next-generation firewalls — threat protection and IPS.',                          false, 'fire-power.svg',    'Device',          'firewall-cisco-firepower',   true),
-    ('CISCO_SWITCH',    'Cisco Switch',                  'Cisco network switches — performance, flexibility and security telemetry.',                       false, 'cisco.svg',         'Device',          'cisco-switch',               true),
-    ('FORTIGATE',       'FortiGate',                     'Fortinet FortiGate next-generation firewalls (NGFW).',                                           false, 'fortigate.svg',     'Device',          'firewall-fortigate-traffic', true),
-    ('FORTIWEB',        'FortiWeb',                      'Fortinet FortiWeb web application firewall (WAF).',                                              false, 'fortigate.svg',     'Device',          'firewall-fortiweb',          true),
-    ('SOPHOS_XG',       'Sophos XG',                     'Sophos XG firewall — anti-malware, web filtering, IPS, VPN and reporting.',                       false, 'sophosxg.svg',      'Device',          'firewall-sophos-xg',         true),
-    ('PALO_ALTO',       'Palo Alto',                     'Palo Alto Networks next-generation firewalls — application and threat inspection.',               false, 'palo-alto.svg',     'Device',          'firewall-paloalto',          true),
-    ('SONIC_WALL',      'SonicWall',                     'SonicWall next-generation firewalls (NGFW).',                                                    false, 'sonicwall.svg',     'Device',          'firewall-sonicwall',         true),
-    ('PFSENSE',         'Pfsense',                       'pfSense open-source firewall and router with unified threat management.',                         false, 'pfsense.svg',       'Device',          'firewall-pfsense',           true),
-    ('MIKROTIK',        'MikroTik',                      'MikroTik RouterOS routing, switching, firewall and wireless equipment.',                          false, 'mikrotik.svg',      'Device',          'firewall-mikrotik',          true),
-    ('AIX',             'IBM AIX',                       'IBM AIX proprietary Unix operating systems for IBM platforms.',                                 false, 'aix.svg',           'Device',          'ibm-aix',                    true),
-    ('AS_400',          'AS/400',                        'IBM AS/400 (IBM i) midrange systems running OS/400.',                                            false, 'ibm-as-400.svg',    'Device',          'ibm-as400',                  true),
-    ('ORACLE',          'Oracle',                        'Oracle Database multi-model database management system.',                                        false, 'oracle.svg',        'Device',          'oracle',                     true),
-    ('SURICATA',        'Suricata',                      'Suricata open-source intrusion detection and prevention system (IDS/IPS).',                       false, 'suricata.png',      'Device',          'suricata',                   true),
-    ('DECEPTIVE_BYTES', 'Deceptive Bytes',               'Deceptive Bytes active endpoint deception platform.',                                            false, 'deceptive-b.svg',   'Other',           'deceptive-bytes',            true),
-    ('GITHUB',          'GitHub',                        'GitHub source-hosting and version control — audit log ingestion.',                               false, 'github.svg',        'Other',           'github',                     true),
-    ('UTMSTACK',        'Utmstack',                      'UTMStack open-source SIEM and XDR self-telemetry.',                                              false, 'utmstack.png',      'Device',          'utmstack',                   true)
-ON CONFLICT (module_name) DO NOTHING;
+--
+-- On in-place upgrades these linger as rows in utm_module; remove them so the
+-- catalog matches the new model. SOC AI = SOC_AI, File Classification = FILE_INTEGRITY.
+-- SYSLOG and JSON are dropped too: syslog/json ingestion is handled by the forwarder
+-- (built-in datatypes), not as standalone catalog modules.
+DELETE FROM utm_module WHERE module_name IN ('SOC_AI', 'FILE_INTEGRITY', 'SYSLOG', 'JSON');
+
+INSERT INTO utm_module (module_name, pretty_name, module_description, module_active, module_icon, module_category, ingest_type, data_type, is_system) VALUES
+    ('WINDOWS_AGENT',   'Windows Agent',                 '',                        true,  '', 'operating-system', 'agent',     'wineventlog',                true),
+    ('LINUX_AGENT',     'Linux Agent',                   '',                          true,  '',   'operating-system', 'agent',     'linux',                      true),
+    ('MACOS',           'macOS Agent',                   '',                  true,  '',         'operating-system', 'agent',     'macos',                      true),
+    ('VMWARE',          'VMware ESXi',                   '',                                    false, '',        'virtualization',   'forwarder', 'vmware-esxi',                true),
+    ('NETFLOW',         'Netflow',                       '',                 false, '',       'network',          'forwarder', 'netflow',                    true),
+    ('AWS_IAM_USER',    'AWS',                           '',                            false, '', 'cloud',           'plugin',    'aws',                        true),
+    ('AZURE',           'Azure',                         '',                            false, '',         'cloud',            'plugin',    'azure',                      true),
+    ('O365',            'Microsoft 365',                 '',            false, '',        'cloud',            'plugin',    'o365',                       true),
+    ('GCP',             'Google Cloud Platform',         '',         false, '',           'cloud',            'plugin',    'google',                     true),
+    ('KASPERSKY',       'Kaspersky Security',            '',           false, '',     'antivirus',        'forwarder', 'antivirus-kaspersky',        true),
+    ('ESET',            'ESET Endpoint Protection',      '',                    false, '',          'antivirus',        'forwarder', 'antivirus-esmc-eset',        true),
+    ('BITDEFENDER',     'Bitdefender',                   '',                            false, '',   'antivirus',        'plugin',    'antivirus-bitdefender-gz',   true),
+    ('SENTINEL_ONE',    'SentinelOne Endpoint Security', '',                              false, '',   'xdr',              'forwarder', 'antivirus-sentinel-one',     true),
+    ('SOPHOS',          'Sophos Central',                '',         false, '',        'xdr',              'plugin',    'sophos-central',             true),
+    ('CROWDSTRIKE',     'CrowdStrike',                   '',                              true,  '',   'xdr',              'plugin',    'crowdstrike',                true),
+    ('CISCO',           'Cisco ASA',                     '',                     false, '',         'firewall',         'forwarder', 'firewall-cisco-asa',         true),
+    ('MERAKI',          'Cisco Meraki',                  '',                                               false, '',        'firewall',         'forwarder', 'firewall-meraki',            true),
+    ('FIRE_POWER',      'Fire Power',                    '',                          false, '',    'firewall',         'forwarder', 'firewall-cisco-firepower',   true),
+    ('CISCO_SWITCH',    'Cisco Switch',                  '',                       false, '',         'network',          'forwarder', 'cisco-switch',               true),
+    ('FORTIGATE',       'FortiGate',                     '',                                           false, '',     'firewall',         'forwarder', 'firewall-fortigate-traffic', true),
+    ('FORTIWEB',        'FortiWeb',                      '',                                              false, '',     'firewall',         'forwarder', 'firewall-fortiweb',          true),
+    ('SOPHOS_XG',       'Sophos Firewall',               '',                       false, '',      'firewall',         'forwarder', 'firewall-sophos-xg',         true),
+    ('PALO_ALTO',       'Palo Alto',                     '',               false, '',     'firewall',         'forwarder', 'firewall-paloalto',          true),
+    ('SONIC_WALL',      'SonicWall',                     '',                                                    false, '',     'firewall',         'forwarder', 'firewall-sonicwall',         true),
+    ('PFSENSE',         'pfSense',                       '',                         false, '',       'firewall',         'forwarder', 'firewall-pfsense',           true),
+    ('MIKROTIK',        'MikroTik',                      '',                          false, '',      'firewall',         'forwarder', 'firewall-mikrotik',          true),
+    ('AIX',             'IBM AIX',                       '',                                 false, '',           'operating-system', 'forwarder', 'ibm-aix',                    true),
+    ('AS_400',          'AS/400',                        '',                                            false, '',    'operating-system', 'collector', 'ibm-as400',                  true),
+    ('ORACLE',          'Oracle',                        '',                                        false, '',        'database',         'forwarder', 'oracle',                     true),
+    ('SURICATA',        'Suricata',                      '',                       false, '',      'ids',              'forwarder', 'suricata',                   true),
+    ('DECEPTIVE_BYTES', 'Deceptive Bytes',               '',                                            false, '',   'deception',        'forwarder', 'deceptive-bytes',            true),
+    ('GITHUB',          'GitHub',                        '',                               false, '',        'devops',           'forwarder', 'github',                     true),
+    ('UTMSTACK',        'Utmstack',                      '',                                              false, '',      'siem',             'collector', 'utmstack',                   true)
+ON CONFLICT (module_name) DO UPDATE SET
+    module_category   = EXCLUDED.module_category,
+    ingest_type       = EXCLUDED.ingest_type,
+    module_description = EXCLUDED.module_description,
+    module_icon       = EXCLUDED.module_icon;
 
 -- Seed the system index patterns. Uses v11- prefix directly (no UPDATE step).
 -- ON CONFLICT (id) DO NOTHING: on in-place upgrades the existing rows are

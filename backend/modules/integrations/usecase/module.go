@@ -123,7 +123,8 @@ func (u *moduleUsecase) Create(ctx context.Context, req dto.CreateModuleRequest)
 		PrettyName:        req.PrettyName,
 		ModuleDescription: req.ModuleDescription,
 		ModuleIcon:        req.ModuleIcon,
-		ModuleCategory:    req.ModuleCategory,
+		ModuleCategory:    req.ModuleCategory, // technology — user's choice
+		IngestType:        "forwarder",        // custom integrations always ingest via the forwarder
 		ModuleActive:      false,
 		IsSystem:          false,
 	}
@@ -145,7 +146,8 @@ func (u *moduleUsecase) Update(ctx context.Context, id int64, req dto.UpdateModu
 	m.PrettyName = req.PrettyName
 	m.ModuleDescription = req.ModuleDescription
 	m.ModuleIcon = req.ModuleIcon
-	m.ModuleCategory = req.ModuleCategory
+	m.ModuleCategory = req.ModuleCategory // technology — user's choice
+	m.IngestType = "forwarder"            // custom integrations always ingest via the forwarder
 	if err := u.repo.Save(ctx, m); err != nil {
 		return nil, err
 	}
