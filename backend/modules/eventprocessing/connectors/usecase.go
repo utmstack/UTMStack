@@ -54,5 +54,5 @@ type FilterUsecase interface {
 
 type IngestionStatsUsecase interface {
 	Totals(ctx context.Context, groupBy, status, from, to string, top int) (*dto.IngestionStatsResponse, error)
-	Timeline(ctx context.Context, groupBy, status, interval, from, to string, top int) (*dto.IngestionTimelineResponse, error)
+	Timeline(ctx context.Context, groupBy, status, interval, from, to string, top int, dataSource string) (*dto.IngestionTimelineResponse, error)
 }

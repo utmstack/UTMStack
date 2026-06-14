@@ -99,6 +99,26 @@ func (u *alertUsecase) UpdateNotes(ctx context.Context, userLogin string, alertI
 	return nil
 }
 
+func (u *alertUsecase) UpdateAssignee(ctx context.Context, userLogin string, alertID string, assignee string) error {
+	if alertID == "" {
+		return domain.ErrMissingAlertID
+	}
+
+	user := resolveUser(userLogin)
+
+	if err := u.repo.UpdateAssignee(ctx, alertID, assignee); err != nil {
+		return err
+	}
+
+	if u.history != nil {
+		entry := buildAssigneeEntry(alertID, user, assignee)
+		if err := u.history.Record(ctx, []connectors.HistoryEntry{entry}); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (u *alertUsecase) UpdateTags(ctx context.Context, userLogin string, req dto.UpdateAlertTagsRequest) error {
 	user := resolveUser(userLogin)
 
@@ -186,6 +206,27 @@ func buildStatusEntries(oldAlerts []domain.UtmAlert, user, newLabel string, req 
 		entries = append(entries, e)
 	}
 	return entries
+}
+
+func buildAssigneeEntry(alertID, user, assignee string) connectors.HistoryEntry {
+	newVal := map[string]any{"assignee": assignee}
+	newValJSON, _ := json.Marshal(newVal)
+
+	var msg string
+	if strings.TrimSpace(assignee) != "" {
+		msg = fmt.Sprintf(domain.MsgAssigneeSet, user, assignee)
+	} else {
+		msg = fmt.Sprintf(domain.MsgAssigneeCleared, user)
+	}
+
+	return connectors.HistoryEntry{
+		AlertID:  alertID,
+		User:     user,
+		Action:   domain.ActionUpdateAssignee,
+		NewValue: string(newValJSON),
+		Message:  msg,
+		At:       time.Now().UTC(),
+	}
 }
 
 func buildNotesEntry(alertID, user, notes string) connectors.HistoryEntry {

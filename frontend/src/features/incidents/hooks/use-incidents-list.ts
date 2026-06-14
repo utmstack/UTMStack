@@ -58,7 +58,9 @@ export function useIncidentsList(filters: IncidentsListFilters): UseIncidentsLis
       })
       .then(({ data, total }) => {
         if (cancelled) return
-        setIncidents(data ?? [])
+        // page is 0-based; the first page replaces, later pages append (board
+        // mode always fetches page 0, so it replaces).
+        setIncidents((prev) => (page === 0 ? (data ?? []) : [...prev, ...(data ?? [])]))
         setTotal(total)
       })
       .catch(() => !cancelled && setError(true))

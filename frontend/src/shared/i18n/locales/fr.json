@@ -17,7 +17,9 @@
       "clear": "Effacer",
       "done": "OK",
       "apply": "Appliquer"
-    }
+    },
+    "loadingMore": "Chargement…",
+    "allLoaded": "{{count}} chargés"
   },
   "auth": {
     "login": {
@@ -200,7 +202,9 @@
     "team": "Équipe",
     "settings": "Paramètres",
     "back": "Retour",
-    "regexPatterns": "Expressions régulières"
+    "regexPatterns": "Expressions régulières",
+    "taggingRules": "Règles d'étiquetage",
+    "parsingFilters": "Filtres d'analyse"
   },
   "dashboards": {
     "title": "Tableaux de bord",
@@ -536,7 +540,8 @@
     "dateFormat": "Format de date",
     "language": "Langue",
     "auditLogs": "Journaux d'audit",
-    "about": "À propos"
+    "about": "À propos",
+    "socAi": "SOC-AI"
   },
   "topbar": {
     "theme": {
@@ -1479,7 +1484,9 @@
       "patternsFailed": "Impossible de charger les index patterns.",
       "searchFailed": "La recherche a échoué.",
       "retry": "Réessayer",
-      "none": "Aucun log ne correspond à cette requête."
+      "none": "Aucun log ne correspond à cette requête.",
+      "loadingMore": "Chargement…",
+      "endOfResults": "{{count}} événements chargés"
     },
     "detail": {
       "fieldsCount_one": "{{count}} champ",
@@ -1489,7 +1496,9 @@
       "parsedFields": "Champs analysés",
       "json": "JSON",
       "filterFor": "Filtrer sur",
-      "filterOut": "Exclure"
+      "filterOut": "Exclure",
+      "surrounding": "Événements environnants",
+      "surroundingHint": "Afficher les événements ±15 min autour de celui-ci, provenant de la même source"
     },
     "view": {
       "table": "Tableau",
@@ -1527,6 +1536,15 @@
       "nLogs_one": "{{count}} journal",
       "nLogs_other": "{{count}} journaux",
       "truncated": "Affichage des {{count}} premiers journaux liés (ensemble complet plus grand)."
+    },
+    "saved": {
+      "title": "Enregistrées",
+      "empty": "Aucune recherche enregistrée",
+      "saveCurrent": "Enregistrer la recherche actuelle",
+      "save": "Enregistrer",
+      "namePlaceholder": "Nom de la recherche",
+      "delete": "Supprimer",
+      "saved": "« {{name}} » enregistrée"
     }
   },
   "integrations": {
@@ -3112,7 +3130,7 @@
         "httpJson": "HTTP / JSON",
         "payloadTitle": "Exemple de payload JSON",
         "parserTitle": "Définir l'analyseur",
-        "parserBody": "UTMStack détectera automatiquement les clés JSON et proposera des mappages de champs. Vous pouvez remplacer les mappages dans l'éditeur d'analyseur et ajouter des modèles Grok gratuitement.",
+        "parserBody": "Les événements entrants sont stockés sous le type de données {{dataType}}. Ajoutez un filtre d'analyse afin que la charge utile brute soit mappée en champs structurés, puis créez des règles d'alerte par-dessus.",
         "openEditor": "Ouvrir l'éditeur d'analyseur",
         "powershellLabel": "PowerShell (Exécuter en tant qu'administrateur)",
         "linuxLabel": "Linux — bash",
@@ -3360,7 +3378,8 @@
     "limitBanner": {
       "title": "Limite de sources de données dépassée.",
       "message": "Vous avez {{count}} sources de données mais votre licence en couvre {{limit}}. Les journaux des sources au-delà de la limite sont rejetés.",
-      "cta": "Gérer la licence"
+      "cta": "Gérer la licence",
+      "dismiss": "Ignorer"
     },
     "title": "Sources de données",
     "total": "{{count}} au total",
@@ -3452,7 +3471,11 @@
       "dangerText": "La suppression retire cette source du registre. Les événements historiques restent consultables dans le Log Explorer ; si la source continue d'envoyer des données, elle sera redécouverte.",
       "delete": "Supprimer la source",
       "confirmDelete": "Confirmer la suppression",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "viewLogs": "Voir les journaux",
+      "trend": "Tendance d'ingestion",
+      "noTrend": "Aucun événement reçu sur cette période",
+      "logGap": "Dernier événement {{since}} — interruption possible des journaux"
     },
     "toast": {
       "labelsUpdated": "Labels mis à jour",
@@ -3479,6 +3502,50 @@
         "2": "Moyenne",
         "3": "Élevée"
       }
+    },
+    "console": {
+      "section": "Console",
+      "sectionHint": "Exécuter des commandes sur cet hôte via son agent (réponse en direct).",
+      "open": "Ouvrir la console",
+      "close": "Fermer",
+      "hint": "Saisissez une commande et appuyez sur Entrée pour l'exécuter sur l'agent.",
+      "running": "Exécution…",
+      "placeholder": "Saisissez une commande…",
+      "offline": "Cet agent semble hors ligne — il pourrait ne pas répondre aux commandes.",
+      "vars": {
+        "button": "Variables",
+        "title": "Variables de commande",
+        "subtitle": "Référencez-les dans les commandes sous la forme",
+        "add": "Nouvelle variable",
+        "name": "Nom",
+        "value": "Valeur",
+        "description": "Description",
+        "isSecret": "Secret (chiffré, masqué dans la sortie)",
+        "secret": "secret",
+        "secretHint": "Laissez vide pour conserver la valeur enregistrée.",
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "edit": "Modifier",
+        "delete": "Supprimer",
+        "loading": "Chargement…",
+        "empty": "Aucune variable pour l'instant.",
+        "saved": "Variable enregistrée",
+        "deleted": "Variable supprimée",
+        "nameRequired": "Le nom est requis",
+        "loadError": "Échec du chargement des variables",
+        "saveError": "Échec de l'enregistrement de la variable",
+        "deleteError": "Échec de la suppression de la variable",
+        "insert": "Insérer"
+      },
+      "disabled": "Agent hors ligne — commandes désactivées",
+      "connError": "Erreur de connexion",
+      "cmdError": "Erreur de commande",
+      "shellSelect": "Type de shell"
+    },
+    "health": {
+      "online": "en ligne",
+      "offline": "hors ligne",
+      "total": "total"
     }
   },
   "adversaries": {
@@ -3692,7 +3759,8 @@
       "delete": "Supprimer l'étiquette",
       "systemLocked": "Étiquette système (verrouillée)",
       "alreadyExists": "Cette étiquette existe déjà.",
-      "color": "Couleur {{color}}"
+      "color": "Couleur {{color}}",
+      "createRule": "Créer une règle d'étiquetage avec cette étiquette"
     },
     "table": {
       "alert": "Alerte",
@@ -3700,10 +3768,12 @@
       "technique": "Technique",
       "sourceAdversary": "Source → Adversaire",
       "risk": "Risque",
-      "time": "Heure"
+      "time": "Heure",
+      "riskHint": "Score de risque (0–100), coloré selon la gravité"
     },
     "row": {
-      "createRuleFromAlert": "Créer une étiquette à partir de cette alerte"
+      "createRuleFromAlert": "Créer une étiquette à partir de cette alerte",
+      "assignedTo": "Attribuée à {{user}}"
     },
     "list": {
       "loading": "Chargement des alertes…",
@@ -3741,7 +3811,8 @@
         "sensor": "Capteur",
         "dataType": "Type de donnée",
         "alertId": "ID d'alerte",
-        "statusNote": "Note de statut"
+        "statusNote": "Note de statut",
+        "assignee": "Personne assignée"
       },
       "incidentDetail": {
         "incident": "Incident",
@@ -3750,7 +3821,12 @@
         "created": "Créé"
       },
       "notesPlaceholder": "Ajouter des notes d'investigation…",
-      "saveNotes": "Enregistrer les notes"
+      "saveNotes": "Enregistrer les notes",
+      "assignee": "Attribuer",
+      "assign": "Attribuer",
+      "unassign": "Désattribuer",
+      "unassigned": "Non attribuée",
+      "loadingUsers": "Chargement des utilisateurs…"
     },
     "related": {
       "sample": "Un échantillon de jusqu’à ~11 événements que le moteur a stockés sur cette alerte. Utilisez « Voir tous les journaux associés » pour l’ensemble complet et non plafonné.",
@@ -3825,7 +3901,10 @@
       "relatedLogsFailed": "Échec du chargement des journaux associés",
       "incidentCreated": "Incident créé",
       "alertsAdded": "Alertes ajoutées à l'incident",
-      "incidentFailed": "Échec de l'enregistrement de l'incident"
+      "incidentFailed": "Échec de l'enregistrement de l'incident",
+      "assigned": "Alerte attribuée",
+      "unassigned": "Alerte désattribuée",
+      "assignFailed": "Impossible de mettre à jour l'attribution"
     }
   },
   "incidents": {
@@ -4242,7 +4321,10 @@
       "platform": "Plateforme",
       "conditions": "Conditions",
       "commands": "Commandes",
-      "active": "Actif"
+      "active": "Actif",
+      "lastRun": "Dernière exécution",
+      "failedRuns_one": "{{count}} exécution échouée",
+      "failedRuns_other": "{{count}} exécutions échouées"
     },
     "operator": {
       "IS": "est",
@@ -4330,7 +4412,14 @@
       "AGENT_OFFLINE": "Agent hors ligne",
       "AGENT_NOT_FOUND": "Agent introuvable",
       "UNKNOWN": "Inconnu"
-    }
+    },
+    "kpi": {
+      "flows": "Total des flux",
+      "active": "Actifs",
+      "runs24h": "Exécutions (24 h)",
+      "failed24h": "Échecs (24 h)"
+    },
+    "neverRun": "jamais"
   },
   "compliance": {
     "title": "Compliance",
@@ -4529,6 +4618,200 @@
       "badge": "Enterprise",
       "upgrade": "Passer à Enterprise",
       "upsell": "Ce framework/contrôle nécessite l'édition Enterprise."
+    }
+  },
+  "socAi": {
+    "title": "Configuration SOC-AI",
+    "subtitle": "Configurez l'agent IA qui trie les alertes et alimente l'assistant des opérations.",
+    "section": {
+      "connection": "Modèle et connexion",
+      "auth": "Authentification",
+      "behavior": "Comportement de tri des alertes",
+      "advanced": "Avancé",
+      "capabilities": "Capacités"
+    },
+    "provider": {
+      "label": "Fournisseur",
+      "hint": "Sélectionne le format d'échange. Tout autre fournisseur qu'Anthropic utilise l'API compatible OpenAI."
+    },
+    "model": {
+      "label": "Modèle",
+      "hint": "Identifiant du modèle exposé par le fournisseur.",
+      "customOption": "Modèle personnalisé…",
+      "customPlaceholder": "Saisissez un identifiant de modèle"
+    },
+    "url": {
+      "label": "URL de l'API",
+      "hint": "Laissez vide pour utiliser le point de terminaison par défaut du fournisseur."
+    },
+    "apiKey": {
+      "label": "Clé d'API",
+      "hint": "Identifiant envoyé au fournisseur.",
+      "setHint": "Une clé est enregistrée. Laissez vide pour la conserver."
+    },
+    "authType": {
+      "label": "Type d'authentification",
+      "hint": "Mode d'envoi de la clé d'API (en-tête bearer, en-tête personnalisé ou aucun)."
+    },
+    "authHeaderName": {
+      "label": "Nom de l'en-tête d'authentification",
+      "hint": "En-tête transportant la clé (par ex. api-key pour Azure)."
+    },
+    "customHeaders": {
+      "label": "En-têtes personnalisés (JSON)",
+      "hint": "En-têtes supplémentaires fusionnés dans chaque requête. Les valeurs sont chiffrées ; « ***** » conserve celle enregistrée."
+    },
+    "maxTokens": {
+      "label": "Tokens maximum",
+      "hint": "Nombre maximum de tokens par réponse du LLM."
+    },
+    "maxToolIterations": {
+      "label": "Itérations d'outils maximum",
+      "hint": "Limite de la boucle planification -> outil -> observation de l'agent."
+    },
+    "autoAnalyze": {
+      "label": "Analyser automatiquement les alertes",
+      "hint": "Trier les alertes entrantes en temps réel."
+    },
+    "changeAlertStatus": {
+      "label": "Modifier le statut des alertes",
+      "hint": "Permettre à l'agent de définir le statut d'une alerte lors du tri."
+    },
+    "automaticIncidentCreation": {
+      "label": "Créer des incidents",
+      "hint": "Permettre à l'agent d'ouvrir des incidents à partir des alertes triées."
+    },
+    "allowedWriteTools": {
+      "label": "Outils d'écriture autorisés",
+      "hint": "Un nom d'outil MCP par ligne que l'agent de tri peut utiliser (par ex. alerts.update_status). Les notes sont toujours autorisées."
+    },
+    "save": "Enregistrer la configuration",
+    "saving": "Vérification et enregistrement...",
+    "saved": "Configuration SOC-AI enregistrée",
+    "saveError": "Échec de l'enregistrement de la configuration",
+    "loadError": "Échec du chargement de la configuration",
+    "modelRequired": "Le modèle est requis",
+    "invalidHeaders": "Les en-têtes personnalisés doivent être un objet JSON valide",
+    "applyTags": {
+      "label": "Appliquer des étiquettes",
+      "hint": "Permettre à l'agent d'étiqueter les alertes lors du tri."
+    },
+    "capsCaption": "L'accès en lecture est toujours actif. Choisissez ce que l'agent peut modifier — lors du tri et en discussion. Pour tout ce qui est désactivé, l'agent refusera et renverra l'utilisateur ici.",
+    "note": {
+      "azure": "Collez l'URL complète de votre point de terminaison de déploiement Azure ; le modèle est le nom de votre déploiement. L'authentification utilise l'en-tête api-key.",
+      "ollama": "Pointez l'URL vers votre hôte Ollama. Aucune clé d'API n'est nécessaire pour une instance locale.",
+      "custom": "Tout point de terminaison compatible OpenAI. Définissez l'URL, l'authentification et les en-têtes supplémentaires requis par votre passerelle."
+    },
+    "cap": {
+      "alerts": {
+        "label": "Gérer les alertes",
+        "hint": "Modifier le statut, appliquer des étiquettes, ajouter des notes, gérer les règles d'étiquetage."
+      },
+      "incidents": {
+        "label": "Gérer les incidents",
+        "hint": "Créer des incidents, ajouter des alertes, modifier le statut, ajouter des notes."
+      },
+      "dashboards": {
+        "label": "Gérer les tableaux de bord",
+        "hint": "Créer et modifier des tableaux de bord."
+      },
+      "compliance": {
+        "label": "Gérer la conformité",
+        "hint": "Gérer les frameworks et générer des rapports."
+      },
+      "correlation": {
+        "label": "Gérer les règles de corrélation",
+        "hint": "Créer et modifier les règles de corrélation et de traitement des événements."
+      },
+      "datasources": {
+        "label": "Gérer les sources de données",
+        "hint": "Modifier les groupes et libellés des sources de données."
+      }
+    },
+    "chat": {
+      "title": "Assistant SOC",
+      "empty": "Posez n'importe quelle question sur vos alertes, vos détections ou la console — je peux enquêter et agir sur le SIEM.",
+      "tryPrefix": "Essayez",
+      "suggestion": "combien d'alertes ouvertes, regroupées par adversaire ?",
+      "placeholder": "Posez une question…",
+      "floatingPlaceholder": "Interrogez l'assistant SOC…",
+      "send": "Envoyer",
+      "collapse": "Réduire",
+      "expand": "Agrandir",
+      "clear": "Effacer la conversation",
+      "close": "Fermer",
+      "copy": "Copier",
+      "copied": "Copié",
+      "errorGeneric": "Une erreur s'est produite.",
+      "errorUnreachable": "Impossible de joindre l'assistant."
+    }
+  },
+  "taggingRules": {
+    "title": "Règles d'étiquetage",
+    "subtitle": "Étiqueter automatiquement les alertes qui correspondent aux conditions.",
+    "new": "Nouvelle règle",
+    "refresh": "Actualiser",
+    "empty": "Aucune règle d'étiquetage pour l'instant.",
+    "loadError": "Impossible de charger les règles d'étiquetage.",
+    "retry": "Réessayer",
+    "deleteConfirm": "Supprimer la règle « {{name}} » ? Les futures alertes correspondant à ses conditions ne seront plus étiquetées.",
+    "toolbar": {
+      "search": "Rechercher par nom de règle…",
+      "allTags": "Toutes les étiquettes"
+    },
+    "table": {
+      "rule": "Règle",
+      "tags": "Étiquettes",
+      "conditions": "Conditions",
+      "modifiedBy": "Modifiée par",
+      "modifiedDate": "Modifiée"
+    },
+    "drawer": {
+      "createTitle": "Nouvelle règle d'étiquetage",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "save": "Enregistrer",
+      "create": "Créer",
+      "cancel": "Annuler"
+    },
+    "form": {
+      "basics": "Informations de base",
+      "name": "Nom de la règle",
+      "namePlaceholder": "par ex. Force brute SSH interne",
+      "description": "Description",
+      "descriptionPlaceholder": "Pourquoi cette règle existe et ce qu'elle étiquette.",
+      "tags": "Étiquettes à appliquer",
+      "noTags": "Aucune étiquette sélectionnée.",
+      "addTag": "Ajouter une étiquette",
+      "removeTag": "Retirer",
+      "noCatalog": "Aucune étiquette dans le catalogue pour l'instant.",
+      "createTag": "Créer une étiquette",
+      "newTagName": "Nom de la nouvelle étiquette",
+      "conditions": "Conditions (TOUTES doivent correspondre)",
+      "noConditions": "Au moins une condition est requise.",
+      "addCondition": "Ajouter une condition",
+      "removeCondition": "Retirer la condition",
+      "valuePlaceholder": "Valeur",
+      "valueListPlaceholder": "Valeurs séparées par des virgules",
+      "incomplete": "Renseignez le nom de la règle, la description, au moins une étiquette et complétez chaque condition."
+    },
+    "view": {
+      "description": "Description",
+      "tags": "Étiquettes",
+      "conditions": "Conditions",
+      "audit": "Audit",
+      "createdBy": "Créée par",
+      "createdDate": "Créée",
+      "modifiedBy": "Modifiée par",
+      "modifiedDate": "Modifiée"
+    },
+    "toast": {
+      "created": "Règle « {{name}} » créée.",
+      "updated": "Règle « {{name}} » mise à jour.",
+      "deleted": "Règle « {{name}} » supprimée.",
+      "createError": "Échec de la création de la règle.",
+      "updateError": "Échec de la mise à jour de la règle.",
+      "deleteError": "Échec de la suppression de la règle."
     }
   }
 }

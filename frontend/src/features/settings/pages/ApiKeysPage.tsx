@@ -5,8 +5,6 @@ import type { TFunction } from 'i18next'
 import {
   AlertTriangle,
   Check,
-  ChevronLeft,
-  ChevronRight,
   Copy,
   Crown,
   Globe2,
@@ -24,6 +22,7 @@ import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { useBilling } from '@/features/billing'
 import { ApiKeyHttpError, apiKeysHttpService } from '../services/api-keys-http.service'
 import type { ApiKey, ApiKeyPageInfo } from '../types/api-key.types'
@@ -59,7 +58,8 @@ export function ApiKeysSection() {
       const resp = await apiKeysHttpService.list(page, PAGE_SIZE)
       // Go marshals an empty slice as null, so allowed_ip can come back null —
       // normalize it to an array so the rest of the page can treat it uniformly.
-      setKeys(resp.data.map((k) => ({ ...k, allowed_ip: k.allowed_ip ?? [] })))
+      const normalized = resp.data.map((k) => ({ ...k, allowed_ip: k.allowed_ip ?? [] }))
+      setKeys((prev) => (page === 1 ? normalized : [...(prev ?? []), ...normalized]))
       setPageInfo(resp.page_info)
     } catch {
       setError(true)
@@ -86,18 +86,14 @@ export function ApiKeysSection() {
   const ENFORCE_ENTERPRISE_GATE = true
   const showManager = !ENFORCE_ENTERPRISE_GATE || isEnterprise
 
-  const hasPrev = (pageInfo?.page ?? 1) > 1
-  const hasNext = (pageInfo?.page ?? 1) < (pageInfo?.total_pages ?? 1)
-
   return (
-    <section className="mt-8 rounded-xl border border-border bg-card p-6">
-      <header className="mb-4 flex items-start justify-between gap-3">
-        <div>
-          <h2 className="flex items-center gap-2 text-base font-semibold">
-            <KeyRound size={16} strokeWidth={1.75} />
-            {t('apiKeys.title')}
-          </h2>
-          <p className="mt-1 text-xs text-muted-foreground">{t('apiKeys.subtitle')}</p>
+    <section className="mt-8 rounded-xl border border-border bg-card px-6 pb-6 pt-3">
+      <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <KeyRound size={14} strokeWidth={1.75} />
+          <span>
+            <span className="font-medium text-foreground">{pageInfo?.total_items ?? 0}</span> {t('apiKeys.title').toLowerCase()}
+          </span>
         </div>
         {showManager && (
           <Button size="sm" onClick={() => setDialog({ mode: 'create' })}>
@@ -151,7 +147,7 @@ export function ApiKeysSection() {
           <div className="text-right">{t('apiKeys.col.actions')}</div>
         </div>
 
-        {loading && (
+        {loading && (!keys || keys.length === 0) && (
           <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
             {t('apiKeys.loading')}
@@ -176,8 +172,7 @@ export function ApiKeysSection() {
           </div>
         )}
 
-        {!loading &&
-          !error &&
+        {filtered.length > 0 &&
           filtered.map((k) => (
             <KeyRow
               key={k.id}
@@ -189,34 +184,13 @@ export function ApiKeysSection() {
           ))}
       </div>
 
-      {pageInfo && pageInfo.total_items > 0 && (
-        <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-          <span>
-            {t('apiKeys.count', {
-              count: pageInfo.total_items,
-              page: pageInfo.page,
-              pages: pageInfo.total_pages,
-            })}
-          </span>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!hasPrev || loading}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-            >
-              <ChevronLeft size={14} />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!hasNext || loading}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              <ChevronRight size={14} />
-            </Button>
-          </div>
-        </div>
+      {!error && keys && keys.length > 0 && (
+        <InfiniteScrollSentinel
+          onReach={() => setPage((p) => p + 1)}
+          hasMore={keys.length < (pageInfo?.total_items ?? 0)}
+          loading={loading}
+          endLabel={t('common.allLoaded', { count: pageInfo?.total_items ?? 0 })}
+        />
       )}
         </>
       )}

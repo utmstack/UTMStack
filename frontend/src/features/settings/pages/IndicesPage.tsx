@@ -20,7 +20,7 @@ import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { Pagination } from '@/shared/components/ui/pagination'
+import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import {
   dataViewsHttpService,
   IndexHttpError,
@@ -34,13 +34,12 @@ export function IndicesPage() {
   const { t } = useTranslation()
   const [tab, setTab] = useState<Tab>('dataViews')
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
       <header>
-        <h1 className="flex items-center gap-2 text-xl font-semibold">
-          <Boxes size={18} strokeWidth={1.75} />
-          {t('indices.title')}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t('indices.subtitle')}</p>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Boxes size={14} strokeWidth={1.75} />
+          <span className="font-medium text-foreground">{t('indices.title')}</span>
+        </div>
         <div className="mt-4 flex items-center gap-1 border-b border-border">
           <TabBtn active={tab === 'dataViews'} onClick={() => setTab('dataViews')} icon={Layers}>
             {t('indices.tabs.dataViews')}
@@ -94,10 +93,17 @@ function DataViewsTab() {
   const [search, setSearch] = useState('')
   const [debounced, setDebounced] = useState('')
   const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize] = useState(50)
   const [total, setTotal] = useState(0)
+  const [nonce, setNonce] = useState(0)
   const [dialog, setDialog] = useState<{ mode: 'create' } | { mode: 'edit'; dv: IndexPattern } | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<IndexPattern | null>(null)
+
+  // Reset to the first page and force a fresh (replacing) load after a mutation.
+  const reload = useCallback(() => {
+    setPage(0)
+    setNonce((n) => n + 1)
+  }, [])
 
   useEffect(() => {
     const h = setTimeout(() => {
@@ -112,16 +118,18 @@ function DataViewsTab() {
     setError(false)
     try {
       const { data, total } = await dataViewsHttpService.listPaged(page, pageSize, debounced)
-      setItems(data)
+      setItems((prev) => (page === 0 ? (data ?? []) : [...(prev ?? []), ...(data ?? [])]))
       setTotal(total)
     } catch {
       setError(true)
-      setItems([])
-      setTotal(0)
+      if (page === 0) {
+        setItems([])
+        setTotal(0)
+      }
     } finally {
       setLoading(false)
     }
-  }, [page, pageSize, debounced])
+  }, [page, pageSize, debounced, nonce])
 
   useEffect(() => {
     void load()
@@ -157,12 +165,12 @@ function DataViewsTab() {
           <div className="text-right">{t('indices.dataViews.colActions')}</div>
         </div>
 
-        {loading && (
+        {loading && list.length === 0 && (
           <RowMessage>
             <Loader2 className="h-4 w-4 animate-spin" /> {t('indices.dataViews.loading')}
           </RowMessage>
         )}
-        {!loading && error && (
+        {error && list.length === 0 && (
           <RowMessage>
             <AlertTriangle size={16} className="text-amber-500" /> {t('indices.dataViews.loadFailed')}
             <Button variant="outline" size="sm" className="ml-2" onClick={() => void load()}>
@@ -176,9 +184,7 @@ function DataViewsTab() {
           </div>
         )}
 
-        {!loading &&
-          !error &&
-          list.map((dv) => (
+        {list.map((dv) => (
             <div
               key={dv.id}
               className="grid items-center gap-3 border-b border-border px-4 py-3 text-xs last:border-b-0 hover:bg-muted/30"
@@ -215,17 +221,12 @@ function DataViewsTab() {
           ))}
       </div>
 
-      {!loading && !error && (
-        <Pagination
-          page={page}
-          pageSize={pageSize}
-          total={total}
+      {!error && list.length > 0 && (
+        <InfiniteScrollSentinel
+          onReach={() => setPage((p) => p + 1)}
+          hasMore={list.length < total}
           loading={loading}
-          onPageChange={setPage}
-          onPageSizeChange={(s) => {
-            setPageSize(s)
-            setPage(0)
-          }}
+          endLabel={t('common.allLoaded', { count: total })}
         />
       )}
 
@@ -235,7 +236,7 @@ function DataViewsTab() {
           onClose={() => setDialog(null)}
           onSaved={() => {
             setDialog(null)
-            void load()
+            reload()
           }}
         />
       )}
@@ -249,9 +250,7 @@ function DataViewsTab() {
             await dataViewsHttpService.remove(confirmDelete.id)
             toast.success(t('indices.dataViews.toast.deleted'))
             setConfirmDelete(null)
-            // Stepping back if we just emptied a non-first page; else reload in place.
-            if (list.length === 1 && page > 0) setPage((p) => p - 1)
-            else void load()
+            reload()
           }}
         />
       )}
@@ -401,12 +400,19 @@ function IndicesTab() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize] = useState(50)
   const [total, setTotal] = useState(0)
+  const [nonce, setNonce] = useState(0)
   const [search, setSearch] = useState('')
   const [debounced, setDebounced] = useState('')
   const [includeSystem, setIncludeSystem] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<IndexInfo | null>(null)
+
+  // Reset to the first page and force a fresh (replacing) load after a mutation.
+  const reload = useCallback(() => {
+    setPage(0)
+    setNonce((n) => n + 1)
+  }, [])
 
   useEffect(() => {
     const h = setTimeout(() => {
@@ -421,20 +427,24 @@ function IndicesTab() {
     setError(false)
     try {
       const { data, total } = await indicesHttpService.listPaged(page + 1, pageSize, debounced, includeSystem)
-      setItems(data)
+      setItems((prev) => (page === 0 ? (data ?? []) : [...(prev ?? []), ...(data ?? [])]))
       setTotal(total)
     } catch {
       setError(true)
-      setItems([])
-      setTotal(0)
+      if (page === 0) {
+        setItems([])
+        setTotal(0)
+      }
     } finally {
       setLoading(false)
     }
-  }, [page, pageSize, debounced, includeSystem])
+  }, [page, pageSize, debounced, includeSystem, nonce])
 
   useEffect(() => {
     void load()
   }, [load])
+
+  const list = items ?? []
 
   return (
     <>
@@ -479,12 +489,12 @@ function IndicesTab() {
           <div className="text-right">{t('indices.index.colActions')}</div>
         </div>
 
-        {loading && (
+        {loading && list.length === 0 && (
           <RowMessage>
             <Loader2 className="h-4 w-4 animate-spin" /> {t('indices.index.loading')}
           </RowMessage>
         )}
-        {!loading && error && (
+        {error && list.length === 0 && (
           <RowMessage>
             <AlertTriangle size={16} className="text-amber-500" /> {t('indices.index.loadFailed')}
             <Button variant="outline" size="sm" className="ml-2" onClick={() => void load()}>
@@ -492,15 +502,13 @@ function IndicesTab() {
             </Button>
           </RowMessage>
         )}
-        {!loading && !error && items && items.length === 0 && (
+        {!loading && !error && list.length === 0 && (
           <div className="px-6 py-14 text-center text-sm text-muted-foreground">
             {debounced ? t('indices.index.noFilterMatch') : t('indices.index.none')}
           </div>
         )}
 
-        {!loading &&
-          !error &&
-          items?.map((idx) => (
+        {list.map((idx) => (
             <div
               key={idx.index}
               className="grid items-center gap-3 border-b border-border px-4 py-2.5 text-xs last:border-b-0 hover:bg-muted/30"
@@ -528,17 +536,12 @@ function IndicesTab() {
           ))}
       </div>
 
-      {!loading && !error && (
-        <Pagination
-          page={page}
-          pageSize={pageSize}
-          total={total}
+      {!error && list.length > 0 && (
+        <InfiniteScrollSentinel
+          onReach={() => setPage((p) => p + 1)}
+          hasMore={list.length < total}
           loading={loading}
-          onPageChange={setPage}
-          onPageSizeChange={(s) => {
-            setPageSize(s)
-            setPage(0)
-          }}
+          endLabel={t('common.allLoaded', { count: total })}
         />
       )}
 
@@ -556,8 +559,7 @@ function IndicesTab() {
             await indicesHttpService.remove([confirmDelete.index])
             toast.success(t('indices.index.toast.deleted'))
             setConfirmDelete(null)
-            if ((items?.length ?? 0) === 1 && page > 0) setPage((p) => p - 1)
-            else void load()
+            reload()
           }}
         />
       )}

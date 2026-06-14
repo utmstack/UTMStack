@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Activity, AlertTriangle, Loader2, RefreshCw } from 'lucide-react'
+import { AlertTriangle, Loader2, RefreshCw } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { ingestionHttpService } from '../services/data-processing-http.service'
 import type { GroupBy, IngestionBucket, IngestionStatus } from '../types/data-processing.types'
@@ -56,15 +56,8 @@ export function DataProcessingPage() {
   const [nonce, setNonce] = useState(0)
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-xl font-semibold">
-            <Activity size={18} strokeWidth={1.75} />
-            {t('dataProcessing.title')}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t('dataProcessing.subtitle')}</p>
-        </div>
+    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
+      <header className="flex flex-wrap items-center justify-end gap-3">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setNonce((n) => n + 1)}

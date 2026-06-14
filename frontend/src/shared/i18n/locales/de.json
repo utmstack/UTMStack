@@ -17,7 +17,9 @@
       "clear": "Löschen",
       "done": "Fertig",
       "apply": "Übernehmen"
-    }
+    },
+    "loadingMore": "Mehr wird geladen…",
+    "allLoaded": "Alle {{count}} geladen"
   },
   "auth": {
     "login": {
@@ -200,7 +202,9 @@
     "team": "Team",
     "settings": "Einstellungen",
     "back": "Zurück",
-    "regexPatterns": "Reguläre Ausdrücke"
+    "regexPatterns": "Reguläre Ausdrücke",
+    "taggingRules": "Tagging-Regeln",
+    "parsingFilters": "Parsing-Filter"
   },
   "dashboards": {
     "title": "Dashboards",
@@ -536,7 +540,8 @@
     "dateFormat": "Datumsformat",
     "language": "Sprache",
     "auditLogs": "App-Audit-Protokolle",
-    "about": "Über"
+    "about": "Über",
+    "socAi": "SOC-AI"
   },
   "topbar": {
     "theme": {
@@ -1479,7 +1484,9 @@
       "patternsFailed": "Index patterns konnten nicht geladen werden.",
       "searchFailed": "Suche fehlgeschlagen.",
       "retry": "Erneut versuchen",
-      "none": "Keine Logs entsprechen dieser Abfrage."
+      "none": "Keine Logs entsprechen dieser Abfrage.",
+      "loadingMore": "Mehr wird geladen…",
+      "endOfResults": "Alle {{count}} Ereignisse geladen"
     },
     "detail": {
       "fieldsCount_one": "{{count}} Feld",
@@ -1489,7 +1496,9 @@
       "parsedFields": "Geparste Felder",
       "json": "JSON",
       "filterFor": "Filtern nach",
-      "filterOut": "Ausschließen"
+      "filterOut": "Ausschließen",
+      "surrounding": "Umliegende Ereignisse",
+      "surroundingHint": "Ereignisse ±15 Min. um dieses herum aus derselben Quelle anzeigen"
     },
     "view": {
       "table": "Tabelle",
@@ -1527,6 +1536,15 @@
       "nLogs_one": "{{count}} Log",
       "nLogs_other": "{{count}} Logs",
       "truncated": "Zeige die ersten {{count}} zugehörigen Logs (die vollständige Menge ist größer)."
+    },
+    "saved": {
+      "title": "Gespeichert",
+      "empty": "Noch keine gespeicherten Suchen",
+      "saveCurrent": "Aktuelle Suche speichern",
+      "save": "Speichern",
+      "namePlaceholder": "Name der Suche",
+      "delete": "Löschen",
+      "saved": "„{{name}}“ gespeichert"
     }
   },
   "integrations": {
@@ -3112,7 +3130,7 @@
         "httpJson": "HTTP / JSON",
         "payloadTitle": "JSON-Payload-Beispiel",
         "parserTitle": "Parser definieren",
-        "parserBody": "UTMStack erkennt automatisch JSON-Schlüssel und schlägt Feldzuordnungen vor. Sie können Zuordnungen im Parser-Editor überschreiben und Grok-Muster kostenlos hinzufügen.",
+        "parserBody": "Eingehende Ereignisse werden unter dem Datentyp {{dataType}} gespeichert. Fügen Sie einen Parsing-Filter dafür hinzu, damit die Rohdaten in strukturierte Felder abgebildet werden, und erstellen Sie darauf aufbauend Alarmregeln.",
         "openEditor": "Parser-Editor öffnen",
         "powershellLabel": "PowerShell (Als Administrator ausführen)",
         "linuxLabel": "Linux — bash",
@@ -3360,7 +3378,8 @@
     "limitBanner": {
       "title": "Datenquellen-Limit überschritten.",
       "message": "Sie haben {{count}} Datenquellen, aber Ihre Lizenz deckt {{limit}} ab. Logs von Datenquellen über dem Limit werden verworfen.",
-      "cta": "Lizenz verwalten"
+      "cta": "Lizenz verwalten",
+      "dismiss": "Ausblenden"
     },
     "title": "Datenquellen",
     "total": "{{count}} insgesamt",
@@ -3452,7 +3471,11 @@
       "dangerText": "Das Löschen entfernt diese Quelle aus dem Register. Historische Ereignisse bleiben im Log-Explorer durchsuchbar; sendet die Quelle weiter Daten, wird sie erneut erkannt.",
       "delete": "Datenquelle löschen",
       "confirmDelete": "Löschen bestätigen",
-      "cancel": "Abbrechen"
+      "cancel": "Abbrechen",
+      "viewLogs": "Logs anzeigen",
+      "trend": "Aufnahmetrend",
+      "noTrend": "In diesem Zeitfenster keine Ereignisse empfangen",
+      "logGap": "Letztes Ereignis {{since}} — mögliche Log-Lücke"
     },
     "toast": {
       "labelsUpdated": "Labels aktualisiert",
@@ -3479,6 +3502,50 @@
         "2": "Mittel",
         "3": "Hoch"
       }
+    },
+    "console": {
+      "section": "Konsole",
+      "sectionHint": "Befehle auf diesem Host über dessen Agenten ausführen (Live-Response).",
+      "open": "Konsole öffnen",
+      "close": "Schließen",
+      "hint": "Befehl eingeben und mit Enter auf dem Agenten ausführen.",
+      "running": "Wird ausgeführt…",
+      "placeholder": "Befehl eingeben…",
+      "offline": "Dieser Agent scheint offline zu sein — er reagiert möglicherweise nicht auf Befehle.",
+      "vars": {
+        "button": "Variablen",
+        "title": "Befehlsvariablen",
+        "subtitle": "In Befehlen referenzieren als",
+        "add": "Neue Variable",
+        "name": "Name",
+        "value": "Wert",
+        "description": "Beschreibung",
+        "isSecret": "Geheim (verschlüsselt, in der Ausgabe maskiert)",
+        "secret": "geheim",
+        "secretHint": "Leer lassen, um den gespeicherten Wert beizubehalten.",
+        "save": "Speichern",
+        "cancel": "Abbrechen",
+        "edit": "Bearbeiten",
+        "delete": "Löschen",
+        "loading": "Wird geladen…",
+        "empty": "Noch keine Variablen.",
+        "saved": "Variable gespeichert",
+        "deleted": "Variable gelöscht",
+        "nameRequired": "Name ist erforderlich",
+        "loadError": "Variablen konnten nicht geladen werden",
+        "saveError": "Variable konnte nicht gespeichert werden",
+        "deleteError": "Variable konnte nicht gelöscht werden",
+        "insert": "Einfügen"
+      },
+      "disabled": "Agent offline — Befehle sind deaktiviert",
+      "connError": "Verbindungsfehler",
+      "cmdError": "Befehlsfehler",
+      "shellSelect": "Shell-Typ"
+    },
+    "health": {
+      "online": "online",
+      "offline": "offline",
+      "total": "gesamt"
     }
   },
   "adversaries": {
@@ -3692,7 +3759,8 @@
       "delete": "Tag löschen",
       "systemLocked": "System-Tag (gesperrt)",
       "alreadyExists": "Dieses Tag existiert bereits.",
-      "color": "Farbe {{color}}"
+      "color": "Farbe {{color}}",
+      "createRule": "Tagging-Regel mit diesem Tag erstellen"
     },
     "table": {
       "alert": "Warnung",
@@ -3700,10 +3768,12 @@
       "technique": "Technik",
       "sourceAdversary": "Quelle → Angreifer",
       "risk": "Risiko",
-      "time": "Zeit"
+      "time": "Zeit",
+      "riskHint": "Risikobewertung (0–100), farblich nach Schweregrad"
     },
     "row": {
-      "createRuleFromAlert": "Tag aus dieser Warnung erstellen"
+      "createRuleFromAlert": "Tag aus dieser Warnung erstellen",
+      "assignedTo": "Zugewiesen an {{user}}"
     },
     "list": {
       "loading": "Warnungen werden geladen…",
@@ -3741,7 +3811,8 @@
         "sensor": "Sensor",
         "dataType": "Datentyp",
         "alertId": "Warnungs-ID",
-        "statusNote": "Statusnotiz"
+        "statusNote": "Statusnotiz",
+        "assignee": "Zuständiger"
       },
       "incidentDetail": {
         "incident": "Vorfall",
@@ -3750,7 +3821,12 @@
         "created": "Erstellt"
       },
       "notesPlaceholder": "Untersuchungsnotizen hinzufügen…",
-      "saveNotes": "Notizen speichern"
+      "saveNotes": "Notizen speichern",
+      "assignee": "Zuweisen",
+      "assign": "Zuweisen",
+      "unassign": "Zuweisung aufheben",
+      "unassigned": "Nicht zugewiesen",
+      "loadingUsers": "Benutzer werden geladen…"
     },
     "related": {
       "sample": "Eine Stichprobe von bis zu ~11 Ereignissen, die die Engine zu dieser Warnung gespeichert hat. Verwende „Alle zugehörigen Logs anzeigen“ für den vollständigen, unbegrenzten Satz.",
@@ -3825,7 +3901,10 @@
       "relatedLogsFailed": "Zugehörige Logs konnten nicht geladen werden",
       "incidentCreated": "Vorfall erstellt",
       "alertsAdded": "Warnungen zum Vorfall hinzugefügt",
-      "incidentFailed": "Vorfall konnte nicht gespeichert werden"
+      "incidentFailed": "Vorfall konnte nicht gespeichert werden",
+      "assigned": "Alarm zugewiesen",
+      "unassigned": "Alarmzuweisung aufgehoben",
+      "assignFailed": "Zuständiger konnte nicht aktualisiert werden"
     }
   },
   "incidents": {
@@ -4242,7 +4321,10 @@
       "platform": "Plattform",
       "conditions": "Bedingungen",
       "commands": "Befehle",
-      "active": "Aktiv"
+      "active": "Aktiv",
+      "lastRun": "Letzte Ausführung",
+      "failedRuns_one": "{{count}} fehlgeschlagene Ausführung",
+      "failedRuns_other": "{{count}} fehlgeschlagene Ausführungen"
     },
     "operator": {
       "IS": "ist",
@@ -4330,7 +4412,14 @@
       "AGENT_OFFLINE": "Agent offline",
       "AGENT_NOT_FOUND": "Agent nicht gefunden",
       "UNKNOWN": "Unbekannt"
-    }
+    },
+    "kpi": {
+      "flows": "Flows gesamt",
+      "active": "Aktiv",
+      "runs24h": "Ausführungen (24 Std.)",
+      "failed24h": "Fehlgeschlagen (24 Std.)"
+    },
+    "neverRun": "nie"
   },
   "compliance": {
     "title": "Compliance",
@@ -4529,6 +4618,200 @@
       "badge": "Enterprise",
       "upgrade": "Auf Enterprise upgraden",
       "upsell": "Dieses Framework/dieser Control erfordert die Enterprise-Edition."
+    }
+  },
+  "socAi": {
+    "title": "SOC-AI-Konfiguration",
+    "subtitle": "Konfigurieren Sie den KI-Agenten, der Alarme triagiert und den Betriebsassistenten antreibt.",
+    "section": {
+      "connection": "Modell & Verbindung",
+      "auth": "Authentifizierung",
+      "behavior": "Verhalten der Alarm-Triage",
+      "advanced": "Erweitert",
+      "capabilities": "Fähigkeiten"
+    },
+    "provider": {
+      "label": "Anbieter",
+      "hint": "Bestimmt das Wire-Format. Alles außer Anthropic nutzt die OpenAI-kompatible API."
+    },
+    "model": {
+      "label": "Modell",
+      "hint": "Vom Anbieter bereitgestellte Modellkennung.",
+      "customOption": "Benutzerdefiniertes Modell…",
+      "customPlaceholder": "Modell-ID eingeben"
+    },
+    "url": {
+      "label": "API-URL",
+      "hint": "Leer lassen, um den Standard-Endpunkt des Anbieters zu verwenden."
+    },
+    "apiKey": {
+      "label": "API-Schlüssel",
+      "hint": "An den Anbieter gesendete Anmeldedaten.",
+      "setHint": "Ein Schlüssel ist gespeichert. Leer lassen, um ihn beizubehalten."
+    },
+    "authType": {
+      "label": "Authentifizierungstyp",
+      "hint": "Wie der API-Schlüssel gesendet wird (Bearer-Header, benutzerdefinierter Header oder keiner)."
+    },
+    "authHeaderName": {
+      "label": "Name des Auth-Headers",
+      "hint": "Header, der den Schlüssel trägt (z. B. api-key für Azure)."
+    },
+    "customHeaders": {
+      "label": "Benutzerdefinierte Header (JSON)",
+      "hint": "Zusätzliche Header, die in jede Anfrage einfließen. Werte werden verschlüsselt; „*****“ behält den gespeicherten Wert."
+    },
+    "maxTokens": {
+      "label": "Max. Tokens",
+      "hint": "Maximale Anzahl Tokens pro LLM-Antwort."
+    },
+    "maxToolIterations": {
+      "label": "Max. Tool-Iterationen",
+      "hint": "Obergrenze für die Plan -> Tool -> Beobachten-Schleife des Agenten."
+    },
+    "autoAnalyze": {
+      "label": "Alarme automatisch analysieren",
+      "hint": "Eingehende Alarme in Echtzeit triagieren."
+    },
+    "changeAlertStatus": {
+      "label": "Alarmstatus ändern",
+      "hint": "Dem Agenten erlauben, den Status eines Alarms während der Triage zu setzen."
+    },
+    "automaticIncidentCreation": {
+      "label": "Vorfälle erstellen",
+      "hint": "Dem Agenten erlauben, aus triagierten Alarmen Vorfälle zu eröffnen."
+    },
+    "allowedWriteTools": {
+      "label": "Erlaubte Schreib-Tools",
+      "hint": "Ein MCP-Tool-Name pro Zeile, den der Triage-Agent verwenden darf (z. B. alerts.update_status). Notizen sind immer erlaubt."
+    },
+    "save": "Konfiguration speichern",
+    "saving": "Wird überprüft & gespeichert...",
+    "saved": "SOC-AI-Konfiguration gespeichert",
+    "saveError": "Konfiguration konnte nicht gespeichert werden",
+    "loadError": "Konfiguration konnte nicht geladen werden",
+    "modelRequired": "Modell ist erforderlich",
+    "invalidHeaders": "Benutzerdefinierte Header müssen ein gültiges JSON-Objekt sein",
+    "applyTags": {
+      "label": "Tags anwenden",
+      "hint": "Dem Agenten erlauben, Alarme während der Triage zu taggen."
+    },
+    "capsCaption": "Lesezugriff ist immer aktiv. Wählen Sie, was der Agent ändern darf — während der Triage und im Chat. Alles Deaktivierte lehnt der Agent ab und verweist den Benutzer hierher zurück.",
+    "note": {
+      "azure": "Fügen Sie Ihren vollständigen Azure-Deployment-Endpunkt als URL ein; das Modell ist Ihr Deployment-Name. Die Authentifizierung verwendet den api-key-Header.",
+      "ollama": "Richten Sie die URL auf Ihren Ollama-Host. Für eine lokale Instanz ist kein API-Schlüssel erforderlich.",
+      "custom": "Jeder OpenAI-kompatible Endpunkt. Legen Sie die URL, die Authentifizierung und alle zusätzlichen Header fest, die Ihr Gateway benötigt."
+    },
+    "cap": {
+      "alerts": {
+        "label": "Alarme verwalten",
+        "hint": "Status ändern, Tags anwenden, Notizen hinzufügen, Tag-Regeln verwalten."
+      },
+      "incidents": {
+        "label": "Vorfälle verwalten",
+        "hint": "Vorfälle erstellen, Alarme hinzufügen, Status ändern, Notizen hinzufügen."
+      },
+      "dashboards": {
+        "label": "Dashboards verwalten",
+        "hint": "Dashboards erstellen und bearbeiten."
+      },
+      "compliance": {
+        "label": "Compliance verwalten",
+        "hint": "Frameworks verwalten und Berichte erstellen."
+      },
+      "correlation": {
+        "label": "Korrelationsregeln verwalten",
+        "hint": "Korrelations- und Ereignisverarbeitungsregeln erstellen und bearbeiten."
+      },
+      "datasources": {
+        "label": "Datenquellen verwalten",
+        "hint": "Datenquellengruppen und Labels bearbeiten."
+      }
+    },
+    "chat": {
+      "title": "SOC-Assistent",
+      "empty": "Fragen Sie alles über Ihre Alarme, Erkennungen oder die Konsole — ich kann das SIEM untersuchen und darin handeln.",
+      "tryPrefix": "Versuchen",
+      "suggestion": "Wie viele offene Alarme, gruppiert nach Angreifer?",
+      "placeholder": "Eine Frage stellen…",
+      "floatingPlaceholder": "Den SOC-Assistenten fragen…",
+      "send": "Senden",
+      "collapse": "Einklappen",
+      "expand": "Ausklappen",
+      "clear": "Konversation löschen",
+      "close": "Schließen",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "errorGeneric": "Etwas ist schiefgelaufen.",
+      "errorUnreachable": "Der Assistent konnte nicht erreicht werden."
+    }
+  },
+  "taggingRules": {
+    "title": "Tagging-Regeln",
+    "subtitle": "Alarme, die Bedingungen erfüllen, automatisch taggen.",
+    "new": "Neue Regel",
+    "refresh": "Aktualisieren",
+    "empty": "Noch keine Tagging-Regeln.",
+    "loadError": "Tagging-Regeln konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "deleteConfirm": "Regel „{{name}}“ löschen? Künftige Alarme, die ihre Bedingungen erfüllen, werden nicht mehr getaggt.",
+    "toolbar": {
+      "search": "Nach Regelname suchen…",
+      "allTags": "Alle Tags"
+    },
+    "table": {
+      "rule": "Regel",
+      "tags": "Tags",
+      "conditions": "Bedingungen",
+      "modifiedBy": "Geändert von",
+      "modifiedDate": "Geändert"
+    },
+    "drawer": {
+      "createTitle": "Neue Tagging-Regel",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "save": "Speichern",
+      "create": "Erstellen",
+      "cancel": "Abbrechen"
+    },
+    "form": {
+      "basics": "Grundlagen",
+      "name": "Regelname",
+      "namePlaceholder": "z. B. Interner SSH-Brute-Force",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Warum diese Regel existiert und was sie taggt.",
+      "tags": "Anzuwendende Tags",
+      "noTags": "Keine Tags ausgewählt.",
+      "addTag": "Tag hinzufügen",
+      "removeTag": "Entfernen",
+      "noCatalog": "Noch keine Tags im Katalog.",
+      "createTag": "Tag erstellen",
+      "newTagName": "Name des neuen Tags",
+      "conditions": "Bedingungen (ALLE müssen zutreffen)",
+      "noConditions": "Mindestens eine Bedingung ist erforderlich.",
+      "addCondition": "Bedingung hinzufügen",
+      "removeCondition": "Bedingung entfernen",
+      "valuePlaceholder": "Wert",
+      "valueListPlaceholder": "Kommagetrennte Werte",
+      "incomplete": "Füllen Sie Regelname, Beschreibung, mindestens ein Tag aus und vervollständigen Sie jede Bedingung."
+    },
+    "view": {
+      "description": "Beschreibung",
+      "tags": "Tags",
+      "conditions": "Bedingungen",
+      "audit": "Audit",
+      "createdBy": "Erstellt von",
+      "createdDate": "Erstellt",
+      "modifiedBy": "Geändert von",
+      "modifiedDate": "Geändert"
+    },
+    "toast": {
+      "created": "Regel „{{name}}“ erstellt.",
+      "updated": "Regel „{{name}}“ aktualisiert.",
+      "deleted": "Regel „{{name}}“ gelöscht.",
+      "createError": "Regel konnte nicht erstellt werden.",
+      "updateError": "Regel konnte nicht aktualisiert werden.",
+      "deleteError": "Regel konnte nicht gelöscht werden."
     }
   }
 }

@@ -25,12 +25,15 @@ export function useTaggingRulesList(params: TaggingRuleListParams): UseTaggingRu
     setError(false)
     try {
       const { data, total } = await svc.list(params)
-      setRules(data ?? [])
+      // page is 1-based here; the first page replaces, later pages append.
+      setRules((prev) => ((params.page ?? 1) <= 1 ? (data ?? []) : [...prev, ...(data ?? [])]))
       setTotal(total)
     } catch {
       setError(true)
-      setRules([])
-      setTotal(0)
+      if ((params.page ?? 1) <= 1) {
+        setRules([])
+        setTotal(0)
+      }
     } finally {
       setLoading(false)
     }

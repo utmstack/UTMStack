@@ -5,8 +5,9 @@ import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { Pagination } from '@/shared/components/ui/pagination'
+import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { soarFlowsService } from '../services/soar-flows.service'
+import { soarExecutionsService } from '../services/soar-executions.service'
 import { FlowEditor } from '../components/FlowEditor'
 import { ExecutionsView } from '../components/ExecutionsView'
 import type { Flow } from '../types/soar.types'
@@ -18,13 +19,9 @@ export function FlowsPage() {
   const [tab, setTab] = useState<PageTab>('flows')
 
   return (
-    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 py-6">
+    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 pb-6 pt-3">
       <header className="shrink-0">
-        <h1 className="flex items-center gap-2 text-xl font-semibold">
-          <Workflow size={18} strokeWidth={1.75} /> {t('soar.title')}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t('soar.subtitle')}</p>
-        <div className="mt-4 inline-flex rounded-md border border-border p-0.5">
+        <div className="inline-flex rounded-md border border-border p-0.5">
           <TabButton active={tab === 'flows'} onClick={() => setTab('flows')} icon={Workflow} label={t('soar.tabs.flows')} />
           <TabButton active={tab === 'executions'} onClick={() => setTab('executions')} icon={History} label={t('soar.tabs.executions')} />
         </div>
@@ -50,10 +47,30 @@ function TabButton({ active, onClick, icon: Icon, label }: { active: boolean; on
 
 type ListTab = 'all' | 'active' | 'inactive' | 'system' | 'user'
 const LIST_TABS: ListTab[] = ['all', 'active', 'inactive', 'system', 'user']
-const COLS = 'minmax(200px,1fr) 120px 88px 90px 80px 56px'
+const COLS = 'minmax(200px,1fr) 110px 78px 84px 130px 72px 52px'
 
 function flowName(relPath: string): string {
   return (relPath.split('/').pop() ?? relPath).replace(/\.ya?ml$/i, '')
+}
+
+// Per-flow runtime telemetry, aggregated client-side from the most recent
+// executions (flows themselves carry no run history). Keyed by rulePath = relPath.
+interface FlowStat {
+  last?: string
+  runs: number
+  failed: number
+}
+
+function relativeTime(iso?: string): string {
+  if (!iso) return '—'
+  const diff = Date.now() - new Date(iso).getTime()
+  if (Number.isNaN(diff)) return '—'
+  const m = Math.round(diff / 60_000)
+  if (m < 1) return 'now'
+  if (m < 60) return `${m}m`
+  const h = Math.round(m / 60)
+  if (h < 24) return `${h}h`
+  return `${Math.round(h / 24)}d`
 }
 
 function FlowsTab() {
@@ -64,10 +81,11 @@ function FlowsTab() {
   const [items, setItems] = useState<Flow[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize] = useState(50)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [editing, setEditing] = useState<{ flow?: Flow; creating: boolean } | null>(null)
+  const [stats, setStats] = useState<Record<string, FlowStat>>({})
 
   useEffect(() => {
     const h = setTimeout(() => {
@@ -96,14 +114,39 @@ function FlowsTab() {
     soarFlowsService
       .list(query)
       .then((r) => {
-        setItems(r.data ?? [])
+        setItems((prev) => (page === 0 ? (r.data ?? []) : [...prev, ...(r.data ?? [])]))
         setTotal(r.total ?? 0)
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false))
-  }, [query])
+  }, [query, page])
   useEffect(() => {
     load()
+  }, [load])
+
+  // Aggregate recent executions into per-flow stats (last run / runs / failures).
+  // Capped at the most recent 500 executions; refreshed alongside the flows list.
+  useEffect(() => {
+    let cancelled = false
+    soarExecutionsService
+      .list({ page: 0, size: 500 })
+      .then((r) => {
+        if (cancelled) return
+        const map: Record<string, FlowStat> = {}
+        for (const e of r.data ?? []) {
+          const s = (map[e.rulePath] ??= { runs: 0, failed: 0 })
+          s.runs++
+          if (e.executionStatus === 'FAILED') s.failed++
+          if (!s.last || (e.executionDate && e.executionDate > s.last)) s.last = e.executionDate
+        }
+        setStats(map)
+      })
+      .catch(() => {
+        if (!cancelled) setStats({})
+      })
+    return () => {
+      cancelled = true
+    }
   }, [load])
 
   const toggleActive = async (f: Flow) => {
@@ -119,6 +162,7 @@ function FlowsTab() {
 
   return (
     <>
+      <FlowKpis refreshKey={total} />
       <div className="flex shrink-0 flex-wrap items-center gap-2">
         <div className="relative">
           <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -154,6 +198,7 @@ function FlowsTab() {
           <div>{t('soar.cols.platform')}</div>
           <div className="text-center">{t('soar.cols.conditions')}</div>
           <div className="text-center">{t('soar.cols.commands')}</div>
+          <div>{t('soar.cols.lastRun')}</div>
           <div className="text-center">{t('soar.cols.active')}</div>
           <div />
         </div>
@@ -168,16 +213,19 @@ function FlowsTab() {
           ) : items.length === 0 ? (
             <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('soar.empty')}</div>
           ) : (
-            items.map((f) => (
-              <FlowRow key={f.relPath} f={f} onOpen={() => setEditing({ flow: f, creating: false })} onToggle={() => toggleActive(f)} t={t} />
-            ))
+            <>
+              {items.map((f) => (
+                <FlowRow key={f.relPath} f={f} stat={stats[f.relPath]} onOpen={() => setEditing({ flow: f, creating: false })} onToggle={() => toggleActive(f)} t={t} />
+              ))}
+              <InfiniteScrollSentinel
+                onReach={() => setPage((p) => p + 1)}
+                hasMore={items.length < total}
+                loading={loading}
+                endLabel={t('common.allLoaded', { count: total })}
+              />
+            </>
           )}
         </div>
-        {total > 0 && (
-          <div className="shrink-0 border-t border-border px-3 py-2">
-            <Pagination page={page} pageSize={pageSize} total={total} onPageChange={setPage} onPageSizeChange={(s) => { setPageSize(s); setPage(0) }} />
-          </div>
-        )}
       </div>
 
       {editing && (
@@ -195,7 +243,51 @@ function FlowsTab() {
   )
 }
 
-function FlowRow({ f, onOpen, onToggle, t }: { f: Flow; onOpen: () => void; onToggle: () => void; t: ReturnType<typeof useTranslation>['t'] }) {
+// At-a-glance runtime KPIs. Flows carry no execution telemetry, so these come from
+// cheap count queries (size:1, read total) against the flows + executions endpoints.
+function FlowKpis({ refreshKey }: { refreshKey: number }) {
+  const { t } = useTranslation()
+  const [k, setK] = useState<{ flows: number; active: number; runs24h: number; failed24h: number } | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+    Promise.allSettled([
+      soarFlowsService.list({ page: 0, size: 1 }),
+      soarFlowsService.list({ page: 0, size: 1, active: true }),
+      soarExecutionsService.list({ page: 0, size: 1, executionDateGte: since }),
+      soarExecutionsService.list({ page: 0, size: 1, executionStatus: 'FAILED', executionDateGte: since }),
+    ]).then(([f, a, r, x]) => {
+      if (cancelled) return
+      const tot = (res: PromiseSettledResult<{ total: number }>) => (res.status === 'fulfilled' ? res.value.total : 0)
+      setK({ flows: tot(f), active: tot(a), runs24h: tot(r), failed24h: tot(x) })
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [refreshKey])
+
+  const cards = [
+    { key: 'flows', n: k?.flows, tone: 'text-foreground' },
+    { key: 'active', n: k?.active, tone: 'text-emerald-600 dark:text-emerald-400' },
+    { key: 'runs24h', n: k?.runs24h, tone: 'text-foreground' },
+    { key: 'failed24h', n: k?.failed24h, tone: (k?.failed24h ?? 0) > 0 ? 'text-red-600 dark:text-red-400' : 'text-foreground' },
+  ]
+  return (
+    <div className="mb-3 grid shrink-0 grid-cols-2 gap-3 sm:grid-cols-4">
+      {cards.map((c) => (
+        <div key={c.key} className="rounded-lg border border-border bg-card px-4 py-3">
+          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{t(`soar.kpi.${c.key}`)}</div>
+          <div className={cn('mt-1 text-2xl font-semibold tabular-nums', c.tone)}>
+            {c.n == null ? '—' : c.n.toLocaleString()}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function FlowRow({ f, stat, onOpen, onToggle, t }: { f: Flow; stat?: FlowStat; onOpen: () => void; onToggle: () => void; t: ReturnType<typeof useTranslation>['t'] }) {
   return (
     <div className="grid cursor-pointer items-center gap-3 border-b border-border px-4 py-2.5 text-sm transition-colors last:border-0 hover:bg-muted/40" style={{ gridTemplateColumns: COLS }} onClick={onOpen}>
       <div className="flex min-w-0 items-center gap-2" title={f.relPath}>
@@ -214,6 +306,20 @@ function FlowRow({ f, onOpen, onToggle, t }: { f: Flow; onOpen: () => void; onTo
       </div>
       <div className="text-center font-mono text-[11px] text-muted-foreground">{f.conditions?.length ?? 0}</div>
       <div className="text-center font-mono text-[11px] text-muted-foreground">{f.commands?.length ?? 0}</div>
+      <div className="min-w-0 text-[11px]" title={stat?.last ? new Date(stat.last).toLocaleString() : undefined}>
+        {stat?.last ? (
+          <div className="flex items-center gap-1.5">
+            <span className="font-mono text-muted-foreground">{relativeTime(stat.last)}</span>
+            {stat.failed > 0 && (
+              <span className="rounded bg-red-500/15 px-1 py-0.5 text-[9px] font-semibold text-red-600 dark:text-red-400" title={t('soar.cols.failedRuns', { count: stat.failed })}>
+                {stat.failed} ✕
+              </span>
+            )}
+          </div>
+        ) : (
+          <span className="text-muted-foreground/50">{t('soar.neverRun')}</span>
+        )}
+      </div>
       <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
         <Toggle checked={f.active} onChange={onToggle} />
       </div>

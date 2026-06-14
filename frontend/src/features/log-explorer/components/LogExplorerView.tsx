@@ -11,6 +11,7 @@ import {
   Code2,
   Database,
   Download,
+  Bookmark,
   Filter,
   Globe,
   Hash,
@@ -19,10 +20,12 @@ import {
   Play,
   Plus,
   RefreshCw,
+  Save,
   Search,
   Table as TableIcon,
   Tag,
   ToggleLeft,
+  Trash2,
   Type,
   X,
   type LucideIcon,
@@ -33,9 +36,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { Pagination } from '@/shared/components/ui/pagination'
 import { TimeRangePicker, presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
-import { ResultsHeader, ResultRow } from './log-results'
+import { ResultsHeader, ResultRow, flattenDoc } from './log-results'
 import {
   logExplorerHttpService as svc,
   LogExplorerHttpError,
@@ -68,7 +70,34 @@ function textPrefix(pattern: string): string {
 
 /* ─── Page ─────────────────────────────────────────────────────────────── */
 
-const PAGE_SIZE_DEFAULT = 25
+// Larger page = fewer round-trips while scrolling; the list is virtualization-free
+// but rows are light, so 50 keeps scroll smooth.
+const PAGE_SIZE_DEFAULT = 50
+
+// SIEM-important fields, in priority order. When the analyst hasn't picked columns,
+// the table auto-shows the first few of these that actually carry values in the
+// current results — so firewall logs surface src/dst IP, auth logs surface the
+// user, etc., without manual setup. Mirrors the legacy "summary" field list.
+const IMPORTANT_FIELDS = [
+  'severity',
+  'dataType',
+  'action',
+  'actionResult',
+  'origin.user',
+  'origin.ip',
+  'origin.host',
+  'target.user',
+  'target.ip',
+  'target.host',
+  'target.port',
+  'protocol',
+  'statusCode',
+  'connectionStatus',
+  'command',
+  'origin.url',
+  'target.url',
+]
+const MAX_AUTO_COLUMNS = 5
 
 /** Router state passed by an alert's "view all related logs" action. */
 interface RelatedLogsSeed {
@@ -103,16 +132,19 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
 
   const [filters, setFilters] = useState<FilterType[]>(initial.filters)
 
-  const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState(PAGE_SIZE_DEFAULT)
   const [total, setTotal] = useState(0)
 
   const [rows, setRows] = useState<LogDocument[]>([])
   const [loading, setLoading] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fields, setFields] = useState<IndexField[]>([])
   const [expanded, setExpanded] = useState<number | null>(null)
   const [nonce, setNonce] = useState(0)
+  // Infinite scroll: pages are accumulated, not replaced. pageRef tracks the last
+  // page fetched (1-based); a ref so the scroll handler reads it without re-binding.
+  const pageRef = useRef(0)
+  const scrollRef = useRef<HTMLDivElement | null>(null)
 
   const [viewMode, setViewMode] = useState<'table' | 'chart'>(initial.viewMode)
 
@@ -123,6 +155,49 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
       setColumns((cur) => (cur.includes(name) ? cur.filter((c) => c !== name) : [...cur, name])),
     []
   )
+
+  // Capture the current query as a reusable saved search.
+  const currentSnapshot = useCallback(
+    (): SavedSearchState => ({
+      patternStr: pattern?.pattern ?? null,
+      range,
+      filters,
+      searchInput,
+      appliedQuery,
+    }),
+    [pattern, range, filters, searchInput, appliedQuery]
+  )
+
+  const loadSnapshot = useCallback(
+    (s: SavedSearchState) => {
+      if (s.patternStr) {
+        const p = patterns.find((x) => x.pattern === s.patternStr)
+        if (p) setPattern(p)
+      }
+      setRange(s.range)
+      setFilters(s.filters ?? [])
+      setSearchInput(s.searchInput ?? '')
+      setAppliedQuery(s.appliedQuery ?? '')
+      setExpanded(null)
+    },
+    [patterns]
+  )
+
+  // "View surrounding events": re-scope the view to a ±15-minute window around the
+  // selected event, narrowed to its source, so the analyst can read what happened
+  // immediately before and after it without leaving the table.
+  const viewSurrounding = useCallback((ts: string, srcField?: string, srcVal?: string) => {
+    const center = new Date(ts).getTime()
+    if (Number.isNaN(center)) return
+    const W = 15 * 60 * 1000
+    setExpanded(null)
+    setFilters(srcField && srcVal ? [{ field: srcField, operator: 'IS', value: srcVal }] : [])
+    setRange({
+      from: new Date(center - W).toISOString(),
+      to: new Date(center + W).toISOString(),
+      interval: 'minute',
+    })
+  }, [])
 
   // Persistence is gated until the initial patterns load resolves — otherwise the
   // first render would write `patternStr: null` and wipe the saved tab pattern.
@@ -242,49 +317,97 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
 
   const activeFilterList = useMemo(() => buildFilters(), [buildFilters])
 
-  /* Main fetch — results (+ histogram, except in SQL mode). */
-  const run = useCallback(async () => {
-    if (!pattern) return
-    setLoading(true)
-    setError(null)
-    try {
-      if (sqlMode) {
-        if (!appliedSql.trim()) {
+  // Auto-detected default columns: the important fields present in the current
+  // results. Only used when the analyst hasn't picked their own columns.
+  const autoColumns = useMemo(() => {
+    if (columns.length > 0 || rows.length === 0) return []
+    const sample = rows.slice(0, 50).map((d) => flattenDoc(d))
+    const present = IMPORTANT_FIELDS.filter((f) =>
+      sample.some((flat) => {
+        const v = flat[f]
+        return v != null && v !== ''
+      })
+    )
+    return present.slice(0, MAX_AUTO_COLUMNS)
+  }, [columns.length, rows])
+
+  /* Fetch one page. page 1 replaces the list (fresh query); later pages append
+     (infinite scroll). The histogram fetches separately. */
+  const fetchPage = useCallback(
+    async (pageNum: number) => {
+      if (!pattern) return
+      const fresh = pageNum <= 1
+      if (fresh) {
+        setLoading(true)
+        setError(null)
+      } else {
+        setLoadingMore(true)
+      }
+      try {
+        let data: LogDocument[] = []
+        let totalCount = 0
+        if (sqlMode) {
+          if (!appliedSql.trim()) {
+            setRows([])
+            setTotal(0)
+            pageRef.current = 1
+            return
+          }
+          const r = await svc.searchSql(appliedSql.trim(), pageNum, PAGE_SIZE_DEFAULT)
+          data = r.data ?? []
+          totalCount = r.total
+        } else {
+          const r = await svc.search({
+            indexPattern: pattern.pattern,
+            filters: buildFilters(),
+            page: pageNum,
+            size: PAGE_SIZE_DEFAULT,
+          })
+          data = r.data ?? []
+          totalCount = r.total
+        }
+        pageRef.current = pageNum
+        setTotal(totalCount)
+        setRows((prev) => (fresh ? data : [...prev, ...data]))
+      } catch (e) {
+        if (fresh) {
+          setError(e instanceof LogExplorerHttpError ? e.message : 'explorer:failed')
           setRows([])
           setTotal(0)
-          return
         }
-        const { data, total } = await svc.searchSql(appliedSql.trim(), page + 1, pageSize)
-        setRows(data ?? [])
-        setTotal(total)
-      } else {
-        const { data, total } = await svc.search({
-          indexPattern: pattern.pattern,
-          filters: buildFilters(),
-          page: page + 1,
-          size: pageSize,
-        })
-        setRows(data ?? [])
-        setTotal(total)
+      } finally {
+        setLoading(false)
+        setLoadingMore(false)
       }
-    } catch (e) {
-      setError(e instanceof LogExplorerHttpError ? e.message : 'explorer:failed')
-      setRows([])
-      setTotal(0)
-    } finally {
-      setLoading(false)
-    }
-  }, [pattern, sqlMode, appliedSql, page, pageSize, buildFilters])
+    },
+    [pattern, sqlMode, appliedSql, buildFilters]
+  )
 
+  // Fresh load whenever the query inputs change → reset to page 1 (replace).
   useEffect(() => {
-    void run()
+    setExpanded(null)
+    void fetchPage(1)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pattern, range.from, range.to, appliedQuery, appliedSql, sqlMode, filters, page, pageSize, nonce])
+  }, [pattern, range.from, range.to, appliedQuery, appliedSql, sqlMode, filters, nonce])
+
+  const loadMore = useCallback(() => {
+    if (loading || loadingMore) return
+    if (rows.length >= total) return
+    void fetchPage(pageRef.current + 1)
+  }, [loading, loadingMore, rows.length, total, fetchPage])
+
+  // Auto-load the next page as the results list nears its bottom.
+  const onScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const el = e.currentTarget
+      if (el.scrollHeight - el.scrollTop - el.clientHeight < 400) loadMore()
+    },
+    [loadMore]
+  )
 
   /* Commit the input box and run (Enter / Run button). */
   const submit = () => {
     setExpanded(null)
-    setPage(0)
     if (sqlMode) {
       if (appliedSql === sqlInput) setNonce((n) => n + 1)
       else setAppliedSql(sqlInput)
@@ -295,44 +418,33 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   }
 
   const addFilter = (f: FilterType) => {
-    setPage(0)
     setFilters((cur) =>
       cur.some((c) => c.field === f.field && c.operator === f.operator && c.value === f.value) ? cur : [...cur, f]
     )
   }
   const removeFilter = (i: number) => {
-    setPage(0)
     setFilters((cur) => cur.filter((_, idx) => idx !== i))
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col px-6 py-6">
-      <Header pattern={pattern} total={total} loading={loading} />
-
-      <div className="mt-4">
+    <div className="flex h-full min-h-0 flex-col px-6 pb-4 pt-3">
+      <div>
         <QueryBar
           patterns={patterns}
           pattern={pattern}
           onPattern={(p) => {
             setPattern(p)
-            setPage(0)
             setFilters([])
             setColumns([])
           }}
           searchInput={searchInput}
           onSearchInput={setSearchInput}
           sqlMode={sqlMode}
-          onSqlMode={(v) => {
-            setSqlMode(v)
-            setPage(0)
-          }}
+          onSqlMode={(v) => setSqlMode(v)}
           sqlInput={sqlInput}
           onSqlInput={setSqlInput}
           range={range}
-          onRange={(r) => {
-            setRange(r)
-            setPage(0)
-          }}
+          onRange={(r) => setRange(r)}
           onRun={submit}
           loading={loading}
           onRefresh={() => setNonce((n) => n + 1)}
@@ -352,21 +464,38 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
         />
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-2">
+      <div className="mt-3 flex items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          {filters.length > 0 && <FilterChips filters={filters} onRemove={removeFilter} onClear={() => setFilters([])} />}
           {!sqlMode && pattern && (
             <AddFilterButton pattern={pattern} fields={fields} filters={activeFilterList} onAdd={addFilter} />
           )}
+          {!sqlMode && <SavedSearches snapshot={currentSnapshot} onLoad={loadSnapshot} />}
+          {filters.length > 0 && <FilterChips filters={filters} onRemove={removeFilter} onClear={() => setFilters([])} />}
         </div>
-        {!sqlMode && <ViewToggle mode={viewMode} onChange={setViewMode} />}
+        <div className="flex items-center gap-3">
+          <span className="whitespace-nowrap text-xs text-muted-foreground">
+            {loading ? (
+              t('logExplorer.searching')
+            ) : (
+              <>
+                <span className="font-medium text-foreground">{total.toLocaleString()}</span> {t('logExplorer.eventsIn')}{' '}
+                <span className="font-mono">{pattern?.pattern ?? '—'}</span>
+              </>
+            )}
+          </span>
+          {!sqlMode && <ViewToggle mode={viewMode} onChange={setViewMode} />}
+        </div>
       </div>
 
       <div className="mt-2 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
         {viewMode === 'chart' && !sqlMode ? (
           <ChartPanel pattern={pattern} fields={fields} filters={activeFilterList} />
         ) : (
-          <div className="flex min-h-0 flex-1">
+          <>
+            {!sqlMode && pattern && (
+              <HistogramStrip pattern={pattern} filters={activeFilterList} range={range} />
+            )}
+            <div className="flex min-h-0 flex-1">
             {!sqlMode && (
               <FieldSidebar
                 fields={fields}
@@ -378,8 +507,8 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
               />
             )}
             <div className="flex min-w-0 flex-1 flex-col border-l border-border">
-              <ResultsHeader columns={columns} onRemoveColumn={toggleColumn} />
-              <div className="min-h-0 flex-1 overflow-y-auto">
+              <ResultsHeader columns={columns} autoColumns={autoColumns} onRemoveColumn={toggleColumn} />
+              <div ref={scrollRef} onScroll={onScroll} className="min-h-0 flex-1 overflow-y-auto">
                 {loading && rows.length === 0 ? (
                   <RowMessage>
                     <Loader2 className="h-4 w-4 animate-spin" /> {t('logExplorer.results.searching')}
@@ -401,66 +530,38 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
                     {t('logExplorer.results.none')}
                   </div>
                 ) : (
-                  rows.map((doc, i) => (
-                    <ResultRow
-                      key={i}
-                      doc={doc}
-                      columns={columns}
-                      expanded={expanded === i}
-                      onToggle={() => setExpanded(expanded === i ? null : i)}
-                      onAdd={addFilter}
-                    />
-                  ))
+                  <>
+                    {rows.map((doc, i) => (
+                      <ResultRow
+                        key={i}
+                        doc={doc}
+                        columns={columns}
+                        autoColumns={autoColumns}
+                        expanded={expanded === i}
+                        onToggle={() => setExpanded(expanded === i ? null : i)}
+                        onAdd={addFilter}
+                        onSurrounding={viewSurrounding}
+                      />
+                    ))}
+                    {loadingMore && (
+                      <div className="flex items-center justify-center gap-2 py-4 text-xs text-muted-foreground">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t('logExplorer.results.loadingMore')}
+                      </div>
+                    )}
+                    {!loadingMore && rows.length >= total && (
+                      <div className="py-4 text-center text-[11px] text-muted-foreground/70">
+                        {t('logExplorer.results.endOfResults', { count: total.toLocaleString() })}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
-          </div>
+            </div>
+          </>
         )}
       </div>
-
-      {viewMode === 'table' && !loading && !error && total > 0 && (
-        <div className="shrink-0">
-          <Pagination
-            page={page}
-            pageSize={pageSize}
-            total={total}
-            loading={loading}
-            align="right"
-            onPageChange={(p) => {
-              setExpanded(null)
-              setPage(p)
-            }}
-            onPageSizeChange={(s) => {
-              setPageSize(s)
-              setPage(0)
-            }}
-          />
-        </div>
-      )}
     </div>
-  )
-}
-
-/* ─── Header ───────────────────────────────────────────────────────────── */
-
-function Header({ pattern, total, loading }: { pattern: IndexPattern | null; total: number; loading: boolean }) {
-  const { t } = useTranslation()
-  return (
-    <header className="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{t('logExplorer.title')}</h1>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {loading ? (
-            t('logExplorer.searching')
-          ) : (
-            <>
-              <span className="font-medium text-foreground">{total.toLocaleString()}</span> {t('logExplorer.eventsIn')}{' '}
-              <span className="font-mono">{pattern?.pattern ?? '—'}</span>
-            </>
-          )}
-        </p>
-      </div>
-    </header>
   )
 }
 
@@ -1128,6 +1229,224 @@ function chartTimeLabel(c: string) {
   return Number.isNaN(d.getTime())
     ? c
     : d.toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+}
+
+// ── Saved searches ────────────────────────────────────────────────────────
+// Reusable query snapshots persisted in localStorage so an analyst's daily
+// queries survive reloads. Backend-free by design (per-browser, like the tabs).
+
+interface SavedSearchState {
+  patternStr: string | null
+  range: TimeRange
+  filters: FilterType[]
+  searchInput: string
+  appliedQuery: string
+}
+
+interface SavedSearch extends SavedSearchState {
+  name: string
+}
+
+const SAVED_SEARCHES_KEY = 'utmstack-logexplorer-saved-searches'
+
+function loadSavedSearches(): SavedSearch[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = window.localStorage.getItem(SAVED_SEARCHES_KEY)
+    const arr = raw ? JSON.parse(raw) : []
+    return Array.isArray(arr) ? arr : []
+  } catch {
+    return []
+  }
+}
+
+function persistSavedSearches(list: SavedSearch[]) {
+  try {
+    window.localStorage.setItem(SAVED_SEARCHES_KEY, JSON.stringify(list))
+  } catch {
+    /* ignore quota/availability errors */
+  }
+}
+
+function SavedSearches({
+  snapshot,
+  onLoad,
+}: {
+  snapshot: () => SavedSearchState
+  onLoad: (s: SavedSearchState) => void
+}) {
+  const { t } = useTranslation()
+  const [open, setOpen] = useState(false)
+  const [list, setList] = useState<SavedSearch[]>(() => loadSavedSearches())
+  const [saving, setSaving] = useState(false)
+  const [name, setName] = useState('')
+
+  const commit = (next: SavedSearch[]) => {
+    setList(next)
+    persistSavedSearches(next)
+  }
+
+  const save = () => {
+    const n = name.trim()
+    if (!n) return
+    const next = [...list.filter((s) => s.name !== n), { name: n, ...snapshot() }]
+    commit(next)
+    setName('')
+    setSaving(false)
+    toast.success(t('logExplorer.saved.saved', { name: n }))
+  }
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <Bookmark size={13} /> {t('logExplorer.saved.title')}
+        {list.length > 0 && <span className="font-mono text-[10px]">({list.length})</span>}
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute left-0 z-20 mt-1 w-72 overflow-hidden rounded-md border border-border bg-card shadow-lg">
+            <div className="max-h-64 overflow-y-auto">
+              {list.length === 0 ? (
+                <div className="px-3 py-3 text-xs text-muted-foreground">{t('logExplorer.saved.empty')}</div>
+              ) : (
+                list.map((s) => (
+                  <div key={s.name} className="group flex items-center gap-2 px-3 py-1.5 text-sm hover:bg-muted/40">
+                    <button
+                      onClick={() => {
+                        onLoad(s)
+                        setOpen(false)
+                      }}
+                      className="min-w-0 flex-1 truncate text-left"
+                      title={s.name}
+                    >
+                      {s.name}
+                    </button>
+                    <button
+                      onClick={() => commit(list.filter((x) => x.name !== s.name))}
+                      title={t('logExplorer.saved.delete')}
+                      className="shrink-0 text-muted-foreground opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="border-t border-border p-2">
+              {saving ? (
+                <div className="flex items-center gap-1.5">
+                  <input
+                    autoFocus
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') save()
+                      if (e.key === 'Escape') setSaving(false)
+                    }}
+                    placeholder={t('logExplorer.saved.namePlaceholder')}
+                    className="h-7 min-w-0 flex-1 rounded border border-input bg-background px-2 text-xs outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  />
+                  <button onClick={save} className="rounded bg-primary px-2 py-1 text-[11px] font-medium text-primary-foreground hover:opacity-90">
+                    {t('logExplorer.saved.save')}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setSaving(true)}
+                  className="flex w-full items-center gap-1.5 rounded px-2 py-1.5 text-xs text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+                >
+                  <Save size={12} /> {t('logExplorer.saved.saveCurrent')}
+                </button>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+// Pick a date-histogram interval that yields a readable number of buckets for
+// the selected time window.
+function histogramInterval(from?: string | null, to?: string | null): string {
+  if (!from || !to) return 'hour'
+  const span = new Date(to).getTime() - new Date(from).getTime()
+  if (Number.isNaN(span) || span <= 0) return 'hour'
+  const H = 3_600_000
+  const D = 24 * H
+  if (span <= 2 * H) return 'minute'
+  if (span <= 2 * D) return 'hour'
+  if (span <= 60 * D) return 'day'
+  if (span <= 365 * D) return 'week'
+  return 'month'
+}
+
+// Always-on event-volume histogram shown above the results table (Discover-style).
+// Aggregates the same filtered/time-scoped result set on @timestamp so analysts
+// see spikes and gaps without leaving the table. Uses flex columns (not a stretched
+// SVG) so the strip never collapses into a solid block.
+function HistogramStrip({
+  pattern,
+  filters,
+  range,
+}: {
+  pattern: IndexPattern
+  filters: FilterType[]
+  range: TimeRange
+}) {
+  const interval = histogramInterval(range.from, range.to)
+  const [data, setData] = useState<ChartView | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    svc
+      .chartView({
+        indexPattern: pattern.pattern,
+        field: TS,
+        fieldDataType: 'date',
+        filters,
+        interval,
+        top: 50,
+      })
+      .then((d) => {
+        if (!cancelled) setData(d)
+      })
+      .catch(() => {
+        if (!cancelled) setData(null)
+      })
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pattern.pattern, filters, interval])
+
+  if (!data || data.values.length === 0) return null
+  const max = Math.max(1, ...data.values)
+  return (
+    <div className="shrink-0 border-b border-border/60 px-4 pb-1.5 pt-2.5">
+      <div className="flex h-12 items-end justify-center gap-px">
+        {data.values.map((v, i) => (
+          <div key={i} className="flex h-full max-w-[14px] flex-1 items-end">
+            <div
+              className="w-full rounded-t-[1px] bg-primary/40 transition-colors hover:bg-primary/70"
+              style={{ height: `${v <= 0 ? 0 : Math.max(2, (v / max) * 100)}%` }}
+              title={`${chartTimeLabel(data.categories[i])} · ${v.toLocaleString()}`}
+            />
+          </div>
+        ))}
+      </div>
+      {data.categories.length > 1 && (
+        <div className="mt-1 flex justify-between font-mono text-[9px] text-muted-foreground/70">
+          <span>{chartTimeLabel(data.categories[0])}</span>
+          <span>{chartTimeLabel(data.categories[data.categories.length - 1])}</span>
+        </div>
+      )}
+    </div>
+  )
 }
 
 function ChartPanel({

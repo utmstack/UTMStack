@@ -22,12 +22,15 @@ export function useAlertsList(page: number, pageSize: number, filters: FilterTyp
     setError(false)
     try {
       const { data, total } = await svc.list({ page: page + 1, size: pageSize, filters })
-      setAlerts(data ?? [])
+      // page is 0-based here; the first page replaces, later pages append.
+      setAlerts((prev) => (page === 0 ? (data ?? []) : [...prev, ...(data ?? [])]))
       setTotal(total)
     } catch {
       setError(true)
-      setAlerts([])
-      setTotal(0)
+      if (page === 0) {
+        setAlerts([])
+        setTotal(0)
+      }
     } finally {
       setLoading(false)
     }

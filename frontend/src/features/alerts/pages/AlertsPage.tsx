@@ -3,9 +3,9 @@ import { AlertTriangle, Loader2 } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/components/ui/button'
-import { Pagination } from '@/shared/components/ui/pagination'
+import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
-import { FILTER_OPS, PAGE_SIZE_DEFAULT, TS } from '../lib/alert-meta'
+import { FILTER_OPS, TS } from '../lib/alert-meta'
 import { alertToRuleConditions } from '../lib/tagging-rule-meta'
 import {
   STATUS_INT,
@@ -45,7 +45,7 @@ export function AlertsPage() {
   const [customFilters, setCustomFilters] = useState<CustomFilter[]>([])
 
   const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState(PAGE_SIZE_DEFAULT)
+  const [pageSize] = useState(50)
 
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [openAlert, setOpenAlert] = useState<Alert | null>(null)
@@ -116,7 +116,7 @@ export function AlertsPage() {
     refreshStats()
   }, [refreshList, refreshStats])
 
-  const { applyStatus, applyTags, updateNotes, exportCsv } = useAlertMutations({
+  const { applyStatus, applyTags, updateNotes, updateAssignee, exportCsv } = useAlertMutations({
     refresh,
     clearSelection: () => setSelected(new Set()),
     openAlert,
@@ -151,10 +151,10 @@ export function AlertsPage() {
   }
 
   return (
-    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 py-6">
+    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 pb-6 pt-3">
       <AlertsHeader total={total} openCount={openCount} view={view} onView={setView} />
 
-      <div className="mt-4 shrink-0">
+      <div className="mt-3 shrink-0">
         <AlertsToolbar
           search={search}
           onSearch={setSearch}
@@ -254,28 +254,16 @@ export function AlertsPage() {
                   />
                 ))
               )}
+              {alerts.length > 0 && (
+                <InfiniteScrollSentinel
+                  onReach={() => setPage((p) => p + 1)}
+                  hasMore={alerts.length < total}
+                  loading={loading}
+                  endLabel={t('common.allLoaded', { count: total })}
+                />
+              )}
             </div>
           </div>
-
-          { total > 0 && (
-            <div className={`shrink-0 ${loading && '[&_*]:cursor-wait'}`}
-            onClickCapture={(ev)=>{
-              if(loading){
-                ev.stopPropagation();
-                ev.preventDefault();
-              }
-            }}
-            >
-              <Pagination
-                page={page}
-                pageSize={pageSize}
-                total={total}
-                loading={loading}
-                onPageChange={(p) => setPage(p)}
-                onPageSizeChange={(s) => { setPageSize(s); setPage(0) }}
-              />
-            </div>
-          )}
         </>
       )}
 
@@ -291,6 +279,7 @@ export function AlertsPage() {
           onDeleteTag={(id, name) => void deleteTag(id, name)}
           onIncident={() => setIncidentTargets([openAlert])}
           onNotes={(notes) => void updateNotes(openAlert.id, notes)}
+          onAssign={(assignee) => void updateAssignee(openAlert.id, assignee)}
         />
       )}
 

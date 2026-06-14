@@ -17,7 +17,9 @@
       "clear": "Cancella",
       "done": "Fine",
       "apply": "Applica"
-    }
+    },
+    "loadingMore": "Caricamento in corso…",
+    "allLoaded": "{{count}} caricati"
   },
   "auth": {
     "login": {
@@ -200,7 +202,9 @@
     "team": "Team",
     "settings": "Impostazioni",
     "back": "Indietro",
-    "regexPatterns": "Espressioni regolari"
+    "regexPatterns": "Espressioni regolari",
+    "taggingRules": "Regole di etichettatura",
+    "parsingFilters": "Filtri di parsing"
   },
   "dashboards": {
     "title": "Dashboard",
@@ -536,7 +540,8 @@
     "dateFormat": "Formato data",
     "language": "Lingua",
     "auditLogs": "Log di audit",
-    "about": "Informazioni"
+    "about": "Informazioni",
+    "socAi": "SOC-AI"
   },
   "topbar": {
     "theme": {
@@ -1479,7 +1484,9 @@
       "patternsFailed": "Impossibile caricare gli index patterns.",
       "searchFailed": "Ricerca fallita.",
       "retry": "Riprova",
-      "none": "Nessun log corrisponde a questa query."
+      "none": "Nessun log corrisponde a questa query.",
+      "loadingMore": "Caricamento in corso…",
+      "endOfResults": "{{count}} eventi caricati"
     },
     "detail": {
       "fieldsCount_one": "{{count}} campo",
@@ -1489,7 +1496,9 @@
       "parsedFields": "Campi analizzati",
       "json": "JSON",
       "filterFor": "Filtra per",
-      "filterOut": "Escludi"
+      "filterOut": "Escludi",
+      "surrounding": "Eventi circostanti",
+      "surroundingHint": "Mostra gli eventi ±15 min attorno a questo, dalla stessa sorgente"
     },
     "view": {
       "table": "Tabella",
@@ -1527,6 +1536,15 @@
       "nLogs_one": "{{count}} log",
       "nLogs_other": "{{count}} log",
       "truncated": "Mostrando i primi {{count}} log correlati (insieme completo più grande)."
+    },
+    "saved": {
+      "title": "Salvati",
+      "empty": "Nessuna ricerca salvata",
+      "saveCurrent": "Salva ricerca corrente",
+      "save": "Salva",
+      "namePlaceholder": "Nome ricerca",
+      "delete": "Elimina",
+      "saved": "Salvata “{{name}}”"
     }
   },
   "integrations": {
@@ -3112,7 +3130,7 @@
         "httpJson": "HTTP / JSON",
         "payloadTitle": "Esempio di payload JSON",
         "parserTitle": "Definisci il parser",
-        "parserBody": "UTMStack rileverà automaticamente le chiavi JSON e proporrà mappature di campi. Puoi sovrascrivere le mappature nell'editor del parser e aggiungere modelli Grok gratuitamente.",
+        "parserBody": "Gli eventi in ingresso vengono memorizzati sotto il tipo di dato {{dataType}}. Aggiungi un filtro di parsing affinché il payload grezzo venga mappato in campi strutturati, quindi crea regole di avviso.",
         "openEditor": "Apri editor parser",
         "powershellLabel": "PowerShell (Esegui come amministratore)",
         "linuxLabel": "Linux — bash",
@@ -3360,7 +3378,8 @@
     "limitBanner": {
       "title": "Limite di datasource superato.",
       "message": "Hai {{count}} datasource ma la tua licenza copre {{limit}}. I log dei datasource oltre il limite vengono scartati.",
-      "cta": "Gestisci licenza"
+      "cta": "Gestisci licenza",
+      "dismiss": "Ignora"
     },
     "title": "Origini dati",
     "total": "{{count}} in totale",
@@ -3452,7 +3471,11 @@
       "dangerText": "L'eliminazione rimuove questa origine dal registro. Gli eventi storici restano consultabili nel Log Explorer; se l'origine continua a inviare dati, verrà riscoperta.",
       "delete": "Elimina origine",
       "confirmDelete": "Conferma eliminazione",
-      "cancel": "Annulla"
+      "cancel": "Annulla",
+      "viewLogs": "Visualizza log",
+      "trend": "Andamento ingestione",
+      "noTrend": "Nessun evento ricevuto in questo intervallo",
+      "logGap": "Ultimo evento {{since}} — possibile interruzione dei log"
     },
     "toast": {
       "labelsUpdated": "Labels aggiornati",
@@ -3479,6 +3502,50 @@
         "2": "Media",
         "3": "Alta"
       }
+    },
+    "console": {
+      "section": "Console",
+      "sectionHint": "Esegui comandi su questo host tramite il suo agente (risposta in tempo reale).",
+      "open": "Apri console",
+      "close": "Chiudi",
+      "hint": "Digita un comando e premi Invio per eseguirlo sull'agente.",
+      "running": "Esecuzione in corso…",
+      "placeholder": "Digita un comando…",
+      "offline": "Questo agente sembra offline — potrebbe non rispondere ai comandi.",
+      "vars": {
+        "button": "Variabili",
+        "title": "Variabili dei comandi",
+        "subtitle": "Richiamale nei comandi come",
+        "add": "Nuova variabile",
+        "name": "Nome",
+        "value": "Valore",
+        "description": "Descrizione",
+        "isSecret": "Segreto (cifrato, mascherato nell'output)",
+        "secret": "segreto",
+        "secretHint": "Lascia vuoto per mantenere il valore memorizzato.",
+        "save": "Salva",
+        "cancel": "Annulla",
+        "edit": "Modifica",
+        "delete": "Elimina",
+        "loading": "Caricamento in corso…",
+        "empty": "Nessuna variabile.",
+        "saved": "Variabile salvata",
+        "deleted": "Variabile eliminata",
+        "nameRequired": "Il nome è obbligatorio",
+        "loadError": "Impossibile caricare le variabili",
+        "saveError": "Impossibile salvare la variabile",
+        "deleteError": "Impossibile eliminare la variabile",
+        "insert": "Inserisci"
+      },
+      "disabled": "Agente offline — i comandi sono disabilitati",
+      "connError": "Errore di connessione",
+      "cmdError": "Errore del comando",
+      "shellSelect": "Tipo di shell"
+    },
+    "health": {
+      "online": "online",
+      "offline": "offline",
+      "total": "totale"
     }
   },
   "adversaries": {
@@ -3692,7 +3759,8 @@
       "delete": "Elimina tag",
       "systemLocked": "Tag di sistema (bloccato)",
       "alreadyExists": "Questo tag esiste già.",
-      "color": "Colore {{color}}"
+      "color": "Colore {{color}}",
+      "createRule": "Crea una regola di etichettatura con questa etichetta"
     },
     "table": {
       "alert": "Avviso",
@@ -3700,10 +3768,12 @@
       "technique": "Tecnica",
       "sourceAdversary": "Origine → Avversario",
       "risk": "Rischio",
-      "time": "Ora"
+      "time": "Ora",
+      "riskHint": "Punteggio di rischio (0–100), colorato in base alla gravità"
     },
     "row": {
-      "createRuleFromAlert": "Crea un'etichetta da questo avviso"
+      "createRuleFromAlert": "Crea un'etichetta da questo avviso",
+      "assignedTo": "Assegnato a {{user}}"
     },
     "list": {
       "loading": "Caricamento avvisi…",
@@ -3741,7 +3811,8 @@
         "sensor": "Sensore",
         "dataType": "Tipo di dato",
         "alertId": "ID avviso",
-        "statusNote": "Nota di stato"
+        "statusNote": "Nota di stato",
+        "assignee": "Assegnatario"
       },
       "incidentDetail": {
         "incident": "Incidente",
@@ -3750,7 +3821,12 @@
         "created": "Creato"
       },
       "notesPlaceholder": "Aggiungi note di indagine…",
-      "saveNotes": "Salva note"
+      "saveNotes": "Salva note",
+      "assignee": "Assegna",
+      "assign": "Assegna",
+      "unassign": "Rimuovi assegnazione",
+      "unassigned": "Non assegnato",
+      "loadingUsers": "Caricamento utenti…"
     },
     "related": {
       "sample": "Un campione fino a ~11 eventi che il motore ha memorizzato su questo avviso. Usa «Vedi tutti i log correlati» per l’insieme completo e senza limiti.",
@@ -3825,7 +3901,10 @@
       "relatedLogsFailed": "Impossibile caricare i log correlati",
       "incidentCreated": "Incidente creato",
       "alertsAdded": "Avvisi aggiunti all’incidente",
-      "incidentFailed": "Impossibile salvare l’incidente"
+      "incidentFailed": "Impossibile salvare l’incidente",
+      "assigned": "Alert assegnato",
+      "unassigned": "Assegnazione dell'alert rimossa",
+      "assignFailed": "Impossibile aggiornare l'assegnatario"
     }
   },
   "incidents": {
@@ -4242,7 +4321,10 @@
       "platform": "Piattaforma",
       "conditions": "Condizioni",
       "commands": "Comandi",
-      "active": "Attivo"
+      "active": "Attivo",
+      "lastRun": "Ultima esecuzione",
+      "failedRuns_one": "{{count}} esecuzione fallita",
+      "failedRuns_other": "{{count}} esecuzioni fallite"
     },
     "operator": {
       "IS": "è",
@@ -4330,7 +4412,14 @@
       "AGENT_OFFLINE": "Agente offline",
       "AGENT_NOT_FOUND": "Agente non trovato",
       "UNKNOWN": "Sconosciuto"
-    }
+    },
+    "kpi": {
+      "flows": "Flussi totali",
+      "active": "Attivi",
+      "runs24h": "Esecuzioni (24h)",
+      "failed24h": "Fallite (24h)"
+    },
+    "neverRun": "mai"
   },
   "compliance": {
     "title": "Compliance",
@@ -4529,6 +4618,200 @@
       "badge": "Enterprise",
       "upgrade": "Passa a Enterprise",
       "upsell": "Questo framework/controllo richiede l'edizione Enterprise."
+    }
+  },
+  "socAi": {
+    "title": "Configurazione SOC-AI",
+    "subtitle": "Configura l'agente AI che esegue il triage degli alert e alimenta l'assistente operativo.",
+    "section": {
+      "connection": "Modello e connessione",
+      "auth": "Autenticazione",
+      "behavior": "Comportamento del triage degli alert",
+      "advanced": "Avanzate",
+      "capabilities": "Capacità"
+    },
+    "provider": {
+      "label": "Provider",
+      "hint": "Seleziona il formato di trasmissione. Qualsiasi opzione diversa da Anthropic usa l'API compatibile con OpenAI."
+    },
+    "model": {
+      "label": "Modello",
+      "hint": "Identificatore del modello esposto dal provider.",
+      "customOption": "Modello personalizzato…",
+      "customPlaceholder": "Inserisci un ID modello"
+    },
+    "url": {
+      "label": "URL API",
+      "hint": "Lascia vuoto per usare l'endpoint predefinito del provider."
+    },
+    "apiKey": {
+      "label": "Chiave API",
+      "hint": "Credenziale inviata al provider.",
+      "setHint": "Una chiave è memorizzata. Lascia vuoto per mantenerla."
+    },
+    "authType": {
+      "label": "Tipo di autenticazione",
+      "hint": "Come viene inviata la chiave API (header bearer, header personalizzato o nessuno)."
+    },
+    "authHeaderName": {
+      "label": "Nome header di autenticazione",
+      "hint": "Header che trasporta la chiave (es. api-key per Azure)."
+    },
+    "customHeaders": {
+      "label": "Header personalizzati (JSON)",
+      "hint": "Header aggiuntivi uniti a ogni richiesta. I valori sono cifrati; \"*****\" mantiene quello memorizzato."
+    },
+    "maxTokens": {
+      "label": "Token massimi",
+      "hint": "Numero massimo di token per risposta dell'LLM."
+    },
+    "maxToolIterations": {
+      "label": "Iterazioni massime degli strumenti",
+      "hint": "Limite al ciclo dell'agente piano -> strumento -> osservazione."
+    },
+    "autoAnalyze": {
+      "label": "Analisi automatica degli alert",
+      "hint": "Esegui il triage degli alert in arrivo in tempo reale."
+    },
+    "changeAlertStatus": {
+      "label": "Modifica stato degli alert",
+      "hint": "Consenti all'agente di impostare lo stato di un alert durante il triage."
+    },
+    "automaticIncidentCreation": {
+      "label": "Crea incident",
+      "hint": "Consenti all'agente di aprire incident dagli alert sottoposti a triage."
+    },
+    "allowedWriteTools": {
+      "label": "Strumenti di scrittura consentiti",
+      "hint": "Un nome di strumento MCP per riga che l'agente di triage può usare (es. alerts.update_status). Le note sono sempre consentite."
+    },
+    "save": "Salva configurazione",
+    "saving": "Verifica e salvataggio in corso...",
+    "saved": "Configurazione SOC-AI salvata",
+    "saveError": "Impossibile salvare la configurazione",
+    "loadError": "Impossibile caricare la configurazione",
+    "modelRequired": "Il modello è obbligatorio",
+    "invalidHeaders": "Gli header personalizzati devono essere un oggetto JSON valido",
+    "applyTags": {
+      "label": "Applica etichette",
+      "hint": "Consenti all'agente di etichettare gli alert durante il triage."
+    },
+    "capsCaption": "L'accesso in lettura è sempre attivo. Scegli cosa l'agente può modificare — durante il triage e in chat. Per qualsiasi opzione disattivata, l'agente rifiuterà e rimanderà l'utente a questa pagina.",
+    "note": {
+      "azure": "Incolla l'endpoint completo del tuo deployment Azure come URL; il modello è il nome del tuo deployment. L'autenticazione usa l'header api-key.",
+      "ollama": "Punta l'URL al tuo host Ollama. Non è necessaria alcuna chiave API per un'istanza locale.",
+      "custom": "Qualsiasi endpoint compatibile con OpenAI. Imposta l'URL, l'autenticazione e gli eventuali header aggiuntivi richiesti dal tuo gateway."
+    },
+    "cap": {
+      "alerts": {
+        "label": "Gestisci alert",
+        "hint": "Modifica stato, applica etichette, aggiungi note, gestisci regole di etichettatura."
+      },
+      "incidents": {
+        "label": "Gestisci incident",
+        "hint": "Crea incident, aggiungi alert, modifica stato, aggiungi note."
+      },
+      "dashboards": {
+        "label": "Gestisci dashboard",
+        "hint": "Crea e modifica dashboard."
+      },
+      "compliance": {
+        "label": "Gestisci compliance",
+        "hint": "Gestisci i framework e genera report."
+      },
+      "correlation": {
+        "label": "Gestisci regole di correlazione",
+        "hint": "Crea e modifica regole di correlazione ed elaborazione eventi."
+      },
+      "datasources": {
+        "label": "Gestisci sorgenti dati",
+        "hint": "Modifica gruppi ed etichette delle sorgenti dati."
+      }
+    },
+    "chat": {
+      "title": "Assistente SOC",
+      "empty": "Chiedi qualsiasi cosa sui tuoi alert, sulle rilevazioni o sulla console — posso investigare e agire sul SIEM.",
+      "tryPrefix": "Prova",
+      "suggestion": "quanti alert aperti, raggruppati per avversario?",
+      "placeholder": "Fai una domanda…",
+      "floatingPlaceholder": "Chiedi all'assistente SOC…",
+      "send": "Invia",
+      "collapse": "Comprimi",
+      "expand": "Espandi",
+      "clear": "Cancella conversazione",
+      "close": "Chiudi",
+      "copy": "Copia",
+      "copied": "Copiato",
+      "errorGeneric": "Si è verificato un errore.",
+      "errorUnreachable": "Impossibile raggiungere l'assistente."
+    }
+  },
+  "taggingRules": {
+    "title": "Regole di etichettatura",
+    "subtitle": "Etichetta automaticamente gli alert che soddisfano le condizioni.",
+    "new": "Nuova regola",
+    "refresh": "Aggiorna",
+    "empty": "Nessuna regola di etichettatura.",
+    "loadError": "Impossibile caricare le regole di etichettatura.",
+    "retry": "Riprova",
+    "deleteConfirm": "Eliminare la regola \"{{name}}\"? Gli alert futuri che soddisfano le sue condizioni non verranno più etichettati.",
+    "toolbar": {
+      "search": "Cerca per nome regola…",
+      "allTags": "Tutte le etichette"
+    },
+    "table": {
+      "rule": "Regola",
+      "tags": "Etichette",
+      "conditions": "Condizioni",
+      "modifiedBy": "Modificato da",
+      "modifiedDate": "Modificato"
+    },
+    "drawer": {
+      "createTitle": "Nuova regola di etichettatura",
+      "edit": "Modifica",
+      "delete": "Elimina",
+      "save": "Salva",
+      "create": "Crea",
+      "cancel": "Annulla"
+    },
+    "form": {
+      "basics": "Informazioni di base",
+      "name": "Nome regola",
+      "namePlaceholder": "es. Brute-force SSH interno",
+      "description": "Descrizione",
+      "descriptionPlaceholder": "Perché esiste questa regola e cosa etichetta.",
+      "tags": "Etichette da applicare",
+      "noTags": "Nessuna etichetta selezionata.",
+      "addTag": "Aggiungi etichetta",
+      "removeTag": "Rimuovi",
+      "noCatalog": "Nessuna etichetta nel catalogo.",
+      "createTag": "Crea etichetta",
+      "newTagName": "Nome nuova etichetta",
+      "conditions": "Condizioni (devono essere soddisfatte TUTTE)",
+      "noConditions": "È richiesta almeno una condizione.",
+      "addCondition": "Aggiungi condizione",
+      "removeCondition": "Rimuovi condizione",
+      "valuePlaceholder": "Valore",
+      "valueListPlaceholder": "Valori separati da virgola",
+      "incomplete": "Compila il nome della regola, la descrizione, almeno un'etichetta e completa ogni condizione."
+    },
+    "view": {
+      "description": "Descrizione",
+      "tags": "Etichette",
+      "conditions": "Condizioni",
+      "audit": "Audit",
+      "createdBy": "Creato da",
+      "createdDate": "Creato",
+      "modifiedBy": "Modificato da",
+      "modifiedDate": "Modificato"
+    },
+    "toast": {
+      "created": "Regola \"{{name}}\" creata.",
+      "updated": "Regola \"{{name}}\" aggiornata.",
+      "deleted": "Regola \"{{name}}\" eliminata.",
+      "createError": "Impossibile creare la regola.",
+      "updateError": "Impossibile aggiornare la regola.",
+      "deleteError": "Impossibile eliminare la regola."
     }
   }
 }

@@ -177,6 +177,7 @@ type UtmAlert struct {
 	LastEvent         *AlertEvent     `json:"lastEvent,omitempty"`
 	Tags              []string        `json:"tags,omitempty"`
 	Notes             string          `json:"notes,omitempty"`
+	Assignee          string          `json:"assignee,omitempty"`
 	TagRulesApplied   []int64         `json:"tagRulesApplied,omitempty"`
 	DeduplicatedBy    []string        `json:"deduplicatedBy,omitempty"`
 	Logs              []string        `json:"logs,omitempty"`
@@ -208,6 +209,7 @@ const (
 	ActionUpdateNotes    AlertAction = "UPDATE_NOTES"
 	ActionUpdateSolution AlertAction = "UPDATE_SOLUTION"
 	ActionMarkAsIncident AlertAction = "MARK_AS_INCIDENT"
+	ActionUpdateAssignee AlertAction = "UPDATE_ASSIGNEE"
 )
 
 // AlertStatus is the lifecycle state of an alert.

@@ -297,7 +297,7 @@ export function ThreatIntelPage() {
   const totalMatches = matchedIocs.reduce((s, i) => s + i.matchesInEnv, 0)
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
       <Header total={matchedIocs.length} />
 
       <div className="mt-5 grid grid-cols-12 gap-4">
@@ -371,17 +371,9 @@ export function ThreatIntelPage() {
 
 function Header({ total }: { total: number }) {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight">Threat intelligence</h1>
-          <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-[11px] tabular-nums text-muted-foreground">
-            {total.toLocaleString()} matched in your env
-          </span>
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Indicators, threat actors, and feeds correlated against your environment.
-        </p>
+    <header className="flex flex-wrap items-center justify-between gap-3">
+      <div className="text-xs text-muted-foreground">
+        <span className="font-medium text-foreground">{total.toLocaleString()}</span> matched in your env
       </div>
       <div className="flex items-center gap-2">
         <Button variant="outline" size="sm">

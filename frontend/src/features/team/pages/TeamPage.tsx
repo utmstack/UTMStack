@@ -4,8 +4,6 @@ import type { TFunction } from 'i18next'
 import {
   AlertTriangle,
   Check,
-  ChevronLeft,
-  ChevronRight,
   Crown,
   KeyRound,
   Loader2,
@@ -24,6 +22,7 @@ import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { SUPPORTED_LANGUAGES } from '@/shared/i18n'
 import { rolesHttpService, TeamHttpError, usersHttpService } from '../services/team-http.service'
 import type {
@@ -81,23 +80,22 @@ export function TeamPage() {
   }, [t])
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
-      <header>
-        <h1 className="flex items-center gap-2 text-xl font-semibold">
-          <UserCheck size={18} strokeWidth={1.75} />
-          {t('team.title')}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t('team.subtitle')}</p>
-
-        <div className="mt-4 flex items-center gap-1 border-b border-border">
-          <TabBtn active={view === 'members'} onClick={() => setView('members')} icon={UserCheck}>
-            {t('team.tabs.members')}
-          </TabBtn>
-          <TabBtn active={view === 'roles'} onClick={() => setView('roles')} icon={Shield}>
-            {t('team.tabs.roles')}
-          </TabBtn>
+    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <UserCheck size={14} strokeWidth={1.75} />
+          <span className="font-medium text-foreground">{t('team.title')}</span>
         </div>
       </header>
+
+      <div className="mt-3 flex items-center gap-1 border-b border-border">
+        <TabBtn active={view === 'members'} onClick={() => setView('members')} icon={UserCheck}>
+          {t('team.tabs.members')}
+        </TabBtn>
+        <TabBtn active={view === 'roles'} onClick={() => setView('roles')} icon={Shield}>
+          {t('team.tabs.roles')}
+        </TabBtn>
+      </div>
 
       {view === 'members' ? <MembersView roles={roles} /> : <RolesView roles={roles} />}
     </div>
@@ -162,7 +160,7 @@ function MembersView({ roles }: { roles: Role[] }) {
     setError(false)
     try {
       const resp = await usersHttpService.list({ page, page_size: PAGE_SIZE, search: debounced })
-      setUsers(resp.data)
+      setUsers((prev) => (page === 1 ? resp.data : [...(prev ?? []), ...resp.data]))
       setPageInfo(resp.page_info)
     } catch {
       setError(true)
@@ -206,7 +204,7 @@ function MembersView({ roles }: { roles: Role[] }) {
           <div />
         </div>
 
-        {loading && (
+        {loading && (!users || users.length === 0) && (
           <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
             {t('team.members.loading')}
@@ -231,39 +229,17 @@ function MembersView({ roles }: { roles: Role[] }) {
           </div>
         )}
 
-        {!loading &&
-          !error &&
-          users?.map((u) => <MemberRow key={u.id} user={u} onOpen={() => setOpenId(u.id)} />)}
+        {users && users.length > 0 &&
+          users.map((u) => <MemberRow key={u.id} user={u} onOpen={() => setOpenId(u.id)} />)}
       </div>
 
-      {pageInfo && pageInfo.total_items > 0 && (
-        <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-          <span>
-            {t('team.members.countLabel', {
-              count: pageInfo.total_items,
-              page: pageInfo.page,
-              pages: pageInfo.total_pages,
-            })}
-          </span>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!pageInfo.has_prev || loading}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-            >
-              <ChevronLeft size={14} />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!pageInfo.has_next || loading}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              <ChevronRight size={14} />
-            </Button>
-          </div>
-        </div>
+      {users && users.length > 0 && (
+        <InfiniteScrollSentinel
+          onReach={() => setPage((p) => p + 1)}
+          hasMore={users.length < (pageInfo?.total_items ?? 0)}
+          loading={loading}
+          endLabel={t('common.allLoaded', { count: pageInfo?.total_items ?? 0 })}
+        />
       )}
 
       {openId != null && (

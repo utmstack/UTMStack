@@ -13,6 +13,11 @@ type UpdateAlertTagsRequest struct {
 	CreateRule bool     `json:"createRule"`
 }
 
+type UpdateAlertAssigneeRequest struct {
+	AlertID  string `json:"alertId" binding:"required"`
+	Assignee string `json:"assignee"` // empty clears the assignment
+}
+
 type ConvertToIncidentRequest struct {
 	// AlertIDs maps to Java's ConvertToIncidentRequestBody.eventIds field (not alertIds).
 	AlertIDs       []string `json:"eventIds"       binding:"required"`

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Loader2, Plus, Search, X } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { Pagination } from '@/shared/components/ui/pagination'
+import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { cn } from '@/shared/lib/utils'
 import { useVisualizations } from '@/features/dashboard/hooks/useVisualizations'
 import { DEFAULT_PAGE_SIZE } from '@/features/dashboard/constants'
@@ -27,19 +27,29 @@ export function AddVisualizationDrawer({
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(0)
-  const [size, setSize] = useState(DEFAULT_PAGE_SIZE)
+  const [pageSize] = useState(DEFAULT_PAGE_SIZE)
+  const [rows, setRows] = useState<Visualization[]>([])
+  const [total, setTotal] = useState(0)
   const [selected, setSelected] = useState<Map<number, Visualization>>(new Map())
 
   useEffect(() => {
     if (!open) setSelected(new Map())
   }, [open])
 
-  const query = useVisualizations({ name: search || undefined, page, size })
+  const query = useVisualizations({ name: search || undefined, page, size: pageSize })
+  const loading = query.isFetching
+
+  // Accumulate rows across pages; page 0 (initial / new search) replaces.
+  useEffect(() => {
+    if (!query.data) return
+    const { data, total: t } = query.data
+    setRows((prev) => (page === 0 ? data : [...prev, ...data]))
+    setTotal(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query.data])
 
   if (!open) return null
 
-  const items = query.data?.data ?? []
-  const total = query.data?.total ?? 0
   const selectedCount = selected.size
 
   const toggle = (viz: Visualization) => {
@@ -115,19 +125,19 @@ export function AddVisualizationDrawer({
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-2 py-2">
-          {query.isLoading && (
+          {loading && rows.length === 0 && (
             <div className="flex items-center justify-center gap-2 px-3 py-8 text-xs text-muted-foreground">
               <Loader2 size={14} className="animate-spin" />
               {t('dashboards.addWidget.loading')}
             </div>
           )}
-          {!query.isLoading && items.length === 0 && (
+          {!loading && rows.length === 0 && (
             <div className="px-3 py-8 text-center text-xs text-muted-foreground">
               {t('dashboards.addWidget.empty')}
             </div>
           )}
           <ul className="space-y-1">
-            {items.map((viz) => {
+            {rows.map((viz) => {
               const already = excludedIds.has(viz.id)
               const checked = selected.has(viz.id)
               return (
@@ -187,21 +197,14 @@ export function AddVisualizationDrawer({
               )
             })}
           </ul>
-        </div>
-
-        <div className="border-t border-border px-5 py-3">
-          <Pagination
-            page={page}
-            pageSize={size}
-            total={total}
-            loading={query.isLoading}
-            onPageChange={setPage}
-            onPageSizeChange={(s) => {
-              setSize(s)
-              setPage(0)
-            }}
-            align="right"
-          />
+          {rows.length > 0 && (
+            <InfiniteScrollSentinel
+              onReach={() => setPage((p) => p + 1)}
+              hasMore={rows.length < total}
+              loading={loading}
+              endLabel={t('common.allLoaded', { count: total })}
+            />
+          )}
         </div>
 
         <footer className="flex items-center justify-between gap-2 border-t border-border bg-muted/30 px-5 py-3">

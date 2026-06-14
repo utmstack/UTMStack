@@ -1,9 +1,11 @@
-import { useState } from 'react'
-import { ChevronDown, Flame, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ChevronDown, ExternalLink, Flame, UserPlus, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
+import { usersHttpService } from '@/features/team/services/team-http.service'
+import type { UserListItem } from '@/features/team/types/team.types'
 import { SEV_META, ST_META, TS, absTime, flagEmoji, relativeTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
 import { combineUserNote, isAiNote, parseAiNote, userNotePart } from '../lib/ai-note'
 import { STATUS_BY_INT, STATUS_INT, type Alert, type AlertTag, type Side, type StatusKey } from '../types/alert.types'
@@ -26,6 +28,7 @@ export function AlertDrawer({
   onDeleteTag,
   onIncident,
   onNotes,
+  onAssign,
 }: {
   alert: Alert
   tagCatalog: AlertTag[]
@@ -37,6 +40,7 @@ export function AlertDrawer({
   onDeleteTag: (id: number, tagName: string) => void
   onIncident: () => void
   onNotes: (notes: string) => void
+  onAssign: (assignee: string) => void
 }) {
   const { t } = useTranslation()
   const [tab, setTab] = useState<Tab>('summary')
@@ -123,6 +127,7 @@ export function AlertDrawer({
             <Button size="sm" variant="outline" onClick={onIncident}>
               <Flame size={13} className="mr-1.5 text-red-500" /> {t('alerts.drawer.addToIncident')}
             </Button>
+            <AssigneeMenu current={a.assignee} onAssign={onAssign} />
           </div>
 
           {tags.length > 0 && (
@@ -209,9 +214,12 @@ export function AlertDrawer({
               <Section title={t('alerts.drawer.section.details')}>
                 <dl className="grid grid-cols-[140px_1fr] gap-y-2 text-xs">
                   <Row k={t('alerts.drawer.details.risk')}>{riskOf(a)}</Row>
+                  <Row k={t('alerts.drawer.details.assignee')}>
+                    {a.assignee ? a.assignee : <span className="text-muted-foreground">{t('alerts.drawer.unassigned')}</span>}
+                  </Row>
                   <Row k={t('alerts.drawer.details.category')}>{a.category || '—'}</Row>
                   <Row k={t('alerts.drawer.details.technique')}>
-                    <span className="font-mono">{a.technique || '—'}</span>
+                    <TechniqueValue technique={a.technique} />
                   </Row>
                   <Row k={t('alerts.drawer.details.sensor')}>{a.dataSource || '—'}</Row>
                   <Row k={t('alerts.drawer.details.dataType')}>
@@ -261,6 +269,95 @@ export function AlertDrawer({
           {tab === 'history' && <HistoryTab alert={a} />}
         </div>
       </div>
+    </div>
+  )
+}
+
+// Renders the MITRE technique as a link to attack.mitre.org when it carries a
+// technique id (e.g. "T1110 - Brute Force" or "T1059.001 - PowerShell").
+function TechniqueValue({ technique }: { technique?: string }) {
+  if (!technique) return <span className="font-mono">—</span>
+  const m = technique.match(/T\d{4}(?:\.\d{3})?/i)
+  if (!m) return <span className="font-mono">{technique}</span>
+  const id = m[0].toUpperCase()
+  const path = id.replace('.', '/')
+  return (
+    <a
+      href={`https://attack.mitre.org/techniques/${path}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1 font-mono text-primary hover:underline"
+    >
+      {technique}
+      <ExternalLink size={11} className="shrink-0" />
+    </a>
+  )
+}
+
+// Assign / reassign / clear an alert's owner. Loads the user list lazily on first
+// open so the dropdown isn't fetched for every alert row.
+function AssigneeMenu({ current, onAssign }: { current?: string; onAssign: (assignee: string) => void }) {
+  const { t } = useTranslation()
+  const [users, setUsers] = useState<UserListItem[] | null>(null)
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    if (!loaded) return
+    let cancelled = false
+    usersHttpService
+      .list({ page_size: 200 })
+      .then((r) => {
+        if (!cancelled) setUsers(r.data ?? [])
+      })
+      .catch(() => {
+        if (!cancelled) setUsers([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [loaded])
+
+  const label = (u: UserListItem) =>
+    [u.first_name, u.last_name].filter(Boolean).join(' ') || u.login
+
+  return (
+    <div onMouseEnter={() => setLoaded(true)} onFocusCapture={() => setLoaded(true)} onClickCapture={() => setLoaded(true)}>
+      <Menu
+        trigger={
+          <>
+            <UserPlus size={13} className="mr-1.5" />
+            {current ? current : t('alerts.drawer.assign')}
+            <ChevronDown size={12} className="ml-1" />
+          </>
+        }
+      >
+        {users == null ? (
+          <div className="px-3 py-2 text-xs text-muted-foreground">{t('alerts.drawer.loadingUsers')}</div>
+        ) : (
+          <>
+            {users.map((u) => (
+              <button
+                key={u.id}
+                onClick={() => onAssign(label(u))}
+                className={cn(
+                  'block w-full px-3 py-1.5 text-left text-sm hover:bg-muted',
+                  current === label(u) && 'font-semibold text-primary'
+                )}
+              >
+                {label(u)}
+              </button>
+            ))}
+            {current && (
+              <button
+                onClick={() => onAssign('')}
+                className="block w-full border-t border-border px-3 py-1.5 text-left text-sm text-muted-foreground hover:bg-muted"
+              >
+                {t('alerts.drawer.unassign')}
+              </button>
+            )}
+          </>
+        )}
+      </Menu>
     </div>
   )
 }

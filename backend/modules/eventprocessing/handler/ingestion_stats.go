@@ -68,6 +68,7 @@ func (h *IngestionStatsHandler) Totals(c *gin.Context) {
 //	@Param       from     query string false "RFC3339 start (default now-24h)"
 //	@Param       to       query string false "RFC3339 end (default now)"
 //	@Param       top      query int    false "Max series when groupBy set (default 100)"
+//	@Param       dataSource query string false "Scope the timeline to a single source (by name)"
 //	@Success     200 {object} dto.IngestionTimelineResponse
 //	@Failure     400 {object} map[string]string
 //	@Failure     500 {object} map[string]string
@@ -81,6 +82,7 @@ func (h *IngestionStatsHandler) Timeline(c *gin.Context) {
 		c.Query("from"),
 		c.Query("to"),
 		queryIntDefault(c, "top", 0),
+		c.Query("dataSource"),
 	)
 	if err != nil {
 		writeStatsError(c, err)

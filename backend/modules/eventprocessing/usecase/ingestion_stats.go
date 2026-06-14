@@ -61,7 +61,7 @@ func (u *ingestionStatsUsecase) Totals(ctx context.Context, groupBy, status, fro
 	}, nil
 }
 
-func (u *ingestionStatsUsecase) Timeline(ctx context.Context, groupBy, status, interval, from, to string, top int) (*dto.IngestionTimelineResponse, error) {
+func (u *ingestionStatsUsecase) Timeline(ctx context.Context, groupBy, status, interval, from, to string, top int, dataSource string) (*dto.IngestionTimelineResponse, error) {
 	// groupBy is optional for the timeline (empty → a single flat series).
 	field, err := resolveGroupBy(groupBy, false)
 	if err != nil {
@@ -84,7 +84,7 @@ func (u *ingestionStatsUsecase) Timeline(ctx context.Context, groupBy, status, i
 	}
 
 	if field == "" {
-		points, err := u.repo.Timeline(ctx, statusType, interval, from, to)
+		points, err := u.repo.Timeline(ctx, statusType, interval, from, to, dataSource)
 		if err != nil {
 			return nil, err
 		}
@@ -92,7 +92,7 @@ func (u *ingestionStatsUsecase) Timeline(ctx context.Context, groupBy, status, i
 		return resp, nil
 	}
 
-	series, err := u.repo.TimelineByField(ctx, field, statusType, interval, from, to, top)
+	series, err := u.repo.TimelineByField(ctx, field, statusType, interval, from, to, top, dataSource)
 	if err != nil {
 		return nil, err
 	}

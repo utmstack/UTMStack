@@ -157,13 +157,12 @@ export function EmailConfigurationPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
       <header>
-        <h1 className="flex items-center gap-2 text-xl font-semibold">
-          <Mail size={18} strokeWidth={1.75} />
+        <h1 className="flex items-center gap-2 text-base font-semibold">
+          <Mail size={16} strokeWidth={1.75} />
           {t('emailConfig.title')}
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t('emailConfig.subtitle')}</p>
       </header>
 
       {loading ? (

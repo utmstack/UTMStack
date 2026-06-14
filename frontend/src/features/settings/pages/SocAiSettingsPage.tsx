@@ -268,13 +268,12 @@ export function SocAiSettingsPage() {
   const hasModelList = def.models.length > 0
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
       <header>
-        <h1 className="flex items-center gap-2 text-xl font-semibold">
-          <Bot size={18} strokeWidth={1.75} />
+        <h1 className="flex items-center gap-2 text-base font-semibold">
+          <Bot size={16} strokeWidth={1.75} />
           {t('socAi.title')}
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t('socAi.subtitle')}</p>
       </header>
 
       {loading ? (

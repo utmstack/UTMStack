@@ -64,6 +64,7 @@ export interface Alert {
   target?: Side
   tags?: string[]
   notes?: string
+  assignee?: string
   history?: AlertHistoryEntry[]
   events?: AlertEventItem[]
 }

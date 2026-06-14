@@ -69,4 +69,9 @@ export const datasourcesHttpService = {
     api.get<IngestionTotals>('/eventprocessing/ingestion-stats?groupBy=dataSource&status=received&top=500'),
   ingestionTimeline: () =>
     api.get<IngestionTimeline>('/eventprocessing/ingestion-stats/timeline?status=received&interval=auto'),
+  // Per-source ingestion trend (scopes the timeline to one dataSource by name).
+  ingestionTimelineFor: (name: string) =>
+    api.get<IngestionTimeline>(
+      `/eventprocessing/ingestion-stats/timeline?status=received&interval=auto&dataSource=${encodeURIComponent(name)}`,
+    ),
 }

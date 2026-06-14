@@ -78,7 +78,7 @@ export function ConnectionKeyPage() {
   const hasToken = token !== ''
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
       <Header />
 
       <div className="mt-6 space-y-5">
@@ -115,15 +115,10 @@ function Header() {
   const { t } = useTranslation()
   return (
     <header>
-      <h1 className="flex items-center gap-2 text-xl font-semibold">
-        <KeyRound size={18} strokeWidth={1.75} />
+      <h1 className="flex items-center gap-2 text-base font-semibold">
+        <KeyRound size={16} strokeWidth={1.75} />
         {t('connectionKey.title')}
       </h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        {t('connectionKey.subtitle1')}{' '}
-        <span className="font-medium text-foreground">{t('connectionKey.subtitleEmphasis')}</span>{' '}
-        {t('connectionKey.subtitle2')}
-      </p>
     </header>
   )
 }

@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next'
 import {
   AlertTriangle,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
   Copy,
   Filter,
   RefreshCw,
@@ -18,11 +16,11 @@ import { cn } from '@/shared/lib/utils'
 import { useDateFormat } from '@/shared/lib/datetime'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { auditHttpService } from '../services/audit-http.service'
 import { humanizeAction } from '../lib'
 import type { AuditListQuery, AuditLog } from '../types/audit.types'
 
-const PAGE_SIZE_OPTIONS = [25, 50, 100, 200]
 const DEFAULT_PAGE_SIZE = 50
 
 /* ─── Page ─────────────────────────────────────────────────────────────── */
@@ -46,7 +44,7 @@ export function AuditPage() {
       setLoading(true)
       try {
         const resp = await auditHttpService.list(q)
-        setData(resp.items)
+        setData((prev) => ((q.page ?? 1) === 1 ? resp.items : [...prev, ...resp.items]))
         setPageInfo({
           page: resp.page_number,
           total_pages: resp.total_pages,
@@ -73,10 +71,6 @@ export function AuditPage() {
 
   const clearFilters = () => {
     setFilters((f) => ({ page: 1, page_size: f.page_size ?? DEFAULT_PAGE_SIZE }))
-  }
-
-  const setPageSize = (size: number) => {
-    setFilters((f) => ({ ...f, page_size: size, page: 1 }))
   }
 
   const hasActiveFilters = useMemo(
@@ -135,7 +129,7 @@ export function AuditPage() {
     }))
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
       <Header loading={loading} total={pageInfo.total_items} onRefresh={() => load(filters)} />
 
       <div className="mt-6">
@@ -166,51 +160,15 @@ export function AuditPage() {
 
       <div className="mt-5">
         <TableCard data={data} loading={loading} onSelect={setSelected} />
+        {data.length > 0 && (
+          <InfiniteScrollSentinel
+            onReach={() => setFilters((f) => ({ ...f, page: (f.page ?? 1) + 1 }))}
+            hasMore={data.length < pageInfo.total_items}
+            loading={loading}
+            endLabel={t('common.allLoaded', { count: pageInfo.total_items })}
+          />
+        )}
       </div>
-
-      {pageInfo.total_items > 0 && (
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <span>{t('pagination.perPage')}</span>
-            <select
-              value={filters.page_size ?? DEFAULT_PAGE_SIZE}
-              onChange={(e) => setPageSize(Number(e.target.value))}
-              className="cursor-pointer rounded-md border border-border bg-card px-1.5 py-1 text-xs text-foreground outline-none focus:ring-1 focus:ring-ring"
-            >
-              {PAGE_SIZE_OPTIONS.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-            <span className="ml-1">
-              {t('pagination.pageOf', { page: pageInfo.page, total: pageInfo.total_pages })}
-            </span>
-          </div>
-          {pageInfo.total_pages > 1 && (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={!pageInfo.has_prev || loading}
-                onClick={() => setFilters((f) => ({ ...f, page: (f.page ?? 1) - 1 }))}
-              >
-                <ChevronLeft size={14} className="mr-1" />
-                {t('pagination.previous')}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={!pageInfo.has_next || loading}
-                onClick={() => setFilters((f) => ({ ...f, page: (f.page ?? 1) + 1 }))}
-              >
-                {t('pagination.next')}
-                <ChevronRight size={14} className="ml-1" />
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
 
       {selected && <DetailDrawer log={selected} onClose={() => setSelected(null)} />}
     </div>
@@ -230,21 +188,19 @@ function Header({
 }) {
   const { t } = useTranslation()
   return (
-    <header className="flex items-end justify-between gap-3">
-      <div>
-        <h1 className="flex items-center gap-2 text-xl font-semibold">
-          <ScrollText size={18} strokeWidth={1.75} />
-          {t('audit.title')}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t('audit.subtitle')}
-          {total > 0 && <> {t('audit.totalEntries', { total: total.toLocaleString() })}</>}
-        </p>
+    <header className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <ScrollText size={14} strokeWidth={1.75} />
+        <span>
+          <span className="font-medium text-foreground">{total.toLocaleString()}</span> {t('audit.title').toLowerCase()}
+        </span>
       </div>
-      <Button variant="outline" size="sm" onClick={onRefresh} disabled={loading}>
-        <RefreshCw size={14} className={cn('mr-2', loading && 'animate-spin')} />
-        {t('common.actions.refresh')}
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" onClick={onRefresh} disabled={loading}>
+          <RefreshCw size={14} className={cn('mr-2', loading && 'animate-spin')} />
+          {t('common.actions.refresh')}
+        </Button>
+      </div>
     </header>
   )
 }

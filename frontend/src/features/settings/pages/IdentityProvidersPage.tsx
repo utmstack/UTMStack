@@ -27,7 +27,7 @@ import type { IdentityProvider, IdentityProviderRequest } from '../types/idp.typ
 function EnterpriseGate() {
   const { t } = useTranslation()
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
       <PageHeader />
       <div className="mt-10 flex flex-col items-center justify-center rounded-xl border border-border bg-card px-6 py-16 text-center">
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-500/10 text-amber-500 ring-1 ring-inset ring-amber-500/30">
@@ -51,11 +51,10 @@ function PageHeader({ onAdd }: { onAdd?: () => void }) {
   return (
     <header className="flex items-end justify-between gap-3">
       <div>
-        <h1 className="flex items-center gap-2 text-xl font-semibold">
-          <ShieldCheck size={18} strokeWidth={1.75} />
+        <h1 className="flex items-center gap-2 text-base font-semibold">
+          <ShieldCheck size={16} strokeWidth={1.75} />
           {t('idp.title')}
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t('idp.subtitle')}</p>
       </div>
       {onAdd && (
         <Button size="sm" onClick={onAdd}>
@@ -131,7 +130,7 @@ export function IdentityProvidersPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
       <PageHeader onAdd={() => setDialog({ mode: 'create' })} />
 
       <div className="mt-5">

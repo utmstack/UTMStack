@@ -195,7 +195,7 @@ export function ProfilePage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-10">
+    <div className="mx-auto w-full max-w-[1100px] px-6 pt-5 pb-10">
       {/* Hero */}
       <header className="flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-6">
         <div className="relative">
@@ -236,8 +236,7 @@ export function ProfilePage() {
           )}
         </div>
         <div className="flex-1 text-center sm:text-left">
-          <h1 className="text-xl font-semibold">{fullName}</h1>
-          <p className="text-sm text-muted-foreground">{user?.email}</p>
+          <h1 className="text-base font-semibold">{fullName}</h1>
           <div className="mt-1.5 flex items-center justify-center gap-1.5 sm:justify-start">
             <span className="rounded-md bg-primary/15 px-2 py-0.5 text-[11px] font-medium text-primary ring-1 ring-inset ring-primary/20">
               {t('profile.hero.administrator')}

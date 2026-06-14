@@ -356,6 +356,7 @@ type epIngestionTimelineInput struct {
 	From     string `json:"from,omitempty"`
 	To       string `json:"to,omitempty"`
 	Top      int    `json:"top,omitempty"`
+	DataSource string `json:"data_source,omitempty"`
 }
 
 func registerEPIngestionStats(m *Module) {
@@ -374,6 +375,6 @@ func registerEPIngestionStats(m *Module) {
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "eventprocessing.read"},
 		func(ctx context.Context, _ *authz.Actor, in epIngestionTimelineInput) (any, error) {
-			return uc.Timeline(ctx, in.GroupBy, in.Status, in.Interval, in.From, in.To, in.Top)
+			return uc.Timeline(ctx, in.GroupBy, in.Status, in.Interval, in.From, in.To, in.Top, in.DataSource)
 		})
 }

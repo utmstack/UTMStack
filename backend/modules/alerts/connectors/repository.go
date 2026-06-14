@@ -13,6 +13,7 @@ type AlertRepository interface {
 	UpdateStatus(ctx context.Context, alertIDs []string, status int, statusLabel, observation string) error
 	UpdateStatusAndTag(ctx context.Context, alertIDs []string) error // adds "False positive" tag
 	UpdateNotes(ctx context.Context, alertID, notes string) error
+	UpdateAssignee(ctx context.Context, alertID, assignee string) error
 	UpdateTags(ctx context.Context, alertIDs []string, tags []string) error
 	ConvertToIncident(ctx context.Context, alertIDs []string, name string, id int, createdAt time.Time, createdBy, source string) error
 	CountOpenAlerts(ctx context.Context) (int64, error)

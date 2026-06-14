@@ -85,18 +85,13 @@ export function NotificationsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
       <header className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="flex items-center gap-2 text-xl font-semibold">
-            <Bell size={18} strokeWidth={1.75} />
+          <h1 className="flex items-center gap-2 text-base font-semibold">
+            <Bell size={16} strokeWidth={1.75} />
             {t('notifications.title')}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {total > 0
-              ? t('notifications.subtitle', { total, unread: unreadCount })
-              : t('notifications.allCaughtUp')}
-          </p>
         </div>
         <Button variant="outline" size="sm" onClick={() => void onMarkAll()} disabled={unreadCount === 0}>
           <CheckCheck size={14} className="mr-1.5" />

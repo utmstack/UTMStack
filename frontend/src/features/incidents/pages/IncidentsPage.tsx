@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { AlertTriangle, Flame, Loader2, RefreshCw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
-import { Pagination } from '@/shared/components/ui/pagination'
+import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { useIncidentsList } from '../hooks/use-incidents-list'
 import { useIncidentSync } from '../hooks/use-incident-sync'
 import type { Incident, IncidentStatus } from '../types/incident.types'
@@ -24,7 +24,7 @@ export function IncidentsPage() {
   const [dateTo, setDateTo] = useState('')
   const [layout, setLayout] = useState<IncidentsLayout>('table')
   const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize] = useState(50)
   const [open, setOpen] = useState<Incident | null>(null)
 
   // Debounce the free-text search.
@@ -66,15 +66,11 @@ export function IncidentsPage() {
   }
 
   return (
-    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 py-6">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-xl font-semibold">
-            <Flame size={18} strokeWidth={1.75} className="text-red-500" />
-            {t('incidents.title')}
-            <span className="text-sm font-normal text-muted-foreground">· {total}</span>
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t('incidents.subtitle')}</p>
+    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 pb-6 pt-3">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Flame size={14} strokeWidth={1.75} className="text-red-500" />
+          <span><span className="font-medium text-foreground">{total}</span> {t('incidents.title').toLowerCase()}</span>
         </div>
         <div className="flex items-center gap-2">
           <IncidentsLayoutToggle
@@ -141,21 +137,15 @@ export function IncidentsPage() {
       ) : isBoard ? (
         <IncidentsBoard incidents={incidents} onOpen={setOpen} />
       ) : (
-        <>
+        <div className="min-h-0 flex-1 overflow-y-auto">
           <IncidentsTable incidents={incidents} onOpen={setOpen} />
-          <div className="mt-3 shrink-0">
-            <Pagination
-              page={page}
-              pageSize={pageSize}
-              total={total}
-              onPageChange={setPage}
-              onPageSizeChange={(s) => {
-                setPageSize(s)
-                setPage(0)
-              }}
-            />
-          </div>
-        </>
+          <InfiniteScrollSentinel
+            onReach={() => setPage((p) => p + 1)}
+            hasMore={incidents.length < total}
+            loading={loading}
+            endLabel={t('common.allLoaded', { count: total })}
+          />
+        </div>
       )}
 
       {open && (

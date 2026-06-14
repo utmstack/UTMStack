@@ -78,6 +78,21 @@ func (h *AlertHandler) UpdateNotes(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{})
 }
 
+func (h *AlertHandler) UpdateAssignee(c *gin.Context) {
+	var req dto.UpdateAlertAssigneeRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err := h.usecase.UpdateAssignee(c.Request.Context(), c.GetString("user_login"), req.AlertID, req.Assignee)
+	audit.Record(c, audit_connectors.Event{Action: "alert.assignee"}, audit_domain.ALERT_UPDATE_ATTEMPT, audit_domain.ALERT_UPDATE_SUCCESS, err)
+	if err != nil {
+		writeAlertError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{})
+}
+
 // @Summary     Related logs for an alert
 // @Description Reproduces the Event Processor's correlation search (without the
 // @Description engine's 10-hit cap) and returns the matching log ids so the UI can

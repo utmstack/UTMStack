@@ -34,13 +34,9 @@ export function CompliancePage() {
   const [tab, setTab] = useState<PageTab>('frameworks')
 
   return (
-    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 py-6">
+    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 pb-6 pt-3">
       <header className="shrink-0">
-        <h1 className="flex items-center gap-2 text-xl font-semibold">
-          <BadgeCheck size={18} strokeWidth={1.75} /> {t('compliance.title')}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t('compliance.subtitle')}</p>
-        <div className="mt-4 inline-flex rounded-md border border-border p-0.5">
+        <div className="inline-flex rounded-md border border-border p-0.5">
           <TabButton active={tab === 'frameworks'} onClick={() => setTab('frameworks')} icon={ShieldCheck} label={t('compliance.tabs.frameworks')} />
           <TabButton active={tab === 'controls'} onClick={() => setTab('controls')} icon={ListChecks} label={t('compliance.tabs.controls')} />
           <TabButton active={tab === 'reports'} onClick={() => setTab('reports')} icon={FileBarChart} label={t('compliance.tabs.reports')} />

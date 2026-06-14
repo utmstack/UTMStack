@@ -12,6 +12,7 @@ import {
   Network,
   Plus,
   RefreshCw,
+  ScrollText,
   Search,
   Server,
   ShieldCheck,
@@ -22,14 +23,14 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { Pagination } from '@/shared/components/ui/pagination'
+import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import {
   datasourcesHttpService as svc,
   DatasourcesHttpError,
@@ -39,6 +40,7 @@ import type {
   AssetGroup,
   Datasource,
   IngestionBucket,
+  ListResponse,
   SourceKind,
   TimelinePoint,
   Usage,
@@ -127,11 +129,6 @@ const TABS = [
 ] as const
 type TabId = (typeof TABS)[number]['id']
 
-// Must be one of the Pagination component's page-size options ([10, 20, 50, 100]),
-// otherwise the <select> shows the first option (10) while a different number of
-// rows actually renders.
-const PAGE_SIZE_DEFAULT = 20
-
 /* ─── Page ─────────────────────────────────────────────────────────────── */
 
 export function DataSourcesPage() {
@@ -143,8 +140,8 @@ export function DataSourcesPage() {
   const [labelFilter, setLabelFilter] = useState<string | null>(null)
   const [layout, setLayout] = useState<'list' | 'cards'>('list')
 
-  const [page, setPage] = useState(0) // 0-based for Pagination; sent as page+1
-  const [pageSize, setPageSize] = useState(PAGE_SIZE_DEFAULT)
+  const [page, setPage] = useState(0) // 0-based; sent as page+1, accumulated on scroll
+  const [pageSize] = useState(50)
   const [total, setTotal] = useState(0)
   const [sources, setSources] = useState<Datasource[]>([])
   const [loading, setLoading] = useState(true)
@@ -154,6 +151,7 @@ export function DataSourcesPage() {
   const [usage, setUsage] = useState<Usage | null>(null)
   const [stats, setStats] = useState<Record<string, IngestionBucket>>({})
   const [timeline, setTimeline] = useState<TimelinePoint[]>([])
+  const [counts, setCounts] = useState<Record<TabId, number> | null>(null)
   const [openId, setOpenId] = useState<number | null>(null)
 
   useEffect(() => {
@@ -177,7 +175,7 @@ export function DataSourcesPage() {
         label: labelFilter ?? undefined,
         staleBefore: tab === 'offline' ? new Date(Date.now() - IDLE_MS).toISOString() : undefined,
       })
-      setSources(res.items ?? [])
+      setSources((prev) => (page === 0 ? (res.items ?? []) : [...prev, ...(res.items ?? [])]))
       setTotal(res.total_items ?? 0)
     } catch {
       setError(true)
@@ -213,6 +211,26 @@ export function DataSourcesPage() {
       setStats(map)
     }
     if (tl.status === 'fulfilled') setTimeline(tl.value.points ?? [])
+
+    // Per-tab counts for the health summary + tab badges. Cheap size:1 queries
+    // that only read total_items; reflect global health (no search/group filter).
+    const staleIso = new Date(Date.now() - IDLE_MS).toISOString()
+    const [cAll, cAgent, cPuller, cDirect, cOffline] = await Promise.allSettled([
+      svc.list({ page: 1, size: 1 }),
+      svc.list({ page: 1, size: 1, kind: 'agent' }),
+      svc.list({ page: 1, size: 1, kind: 'puller' }),
+      svc.list({ page: 1, size: 1, kind: 'direct' }),
+      svc.list({ page: 1, size: 1, staleBefore: staleIso }),
+    ])
+    const tot = (r: PromiseSettledResult<ListResponse<Datasource>>) =>
+      r.status === 'fulfilled' ? r.value.total_items ?? 0 : 0
+    setCounts({
+      all: tot(cAll),
+      agent: tot(cAgent),
+      puller: tot(cPuller),
+      direct: tot(cDirect),
+      offline: tot(cOffline),
+    })
   }, [])
 
   useEffect(() => {
@@ -244,7 +262,7 @@ export function DataSourcesPage() {
   const events24h = (name: string) => stats[name]?.count ?? 0
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
       <Header total={total} />
 
       <div className="mt-5 grid grid-cols-12 gap-4">
@@ -256,8 +274,10 @@ export function DataSourcesPage() {
         </div>
       </div>
 
+      {counts && <HealthSummary counts={counts} />}
+
       <div className="mt-5">
-        <Tabs current={tab} onChange={(t) => { setTab(t); setPage(0) }} />
+        <Tabs current={tab} counts={counts} onChange={(t) => { setTab(t); setPage(0) }} />
       </div>
 
       <Toolbar
@@ -319,14 +339,12 @@ export function DataSourcesPage() {
         )}
       </div>
 
-      {!loading && !error && total > 0 && (
-        <Pagination
-          page={page}
-          pageSize={pageSize}
-          total={total}
+      {!error && sources.length > 0 && (
+        <InfiniteScrollSentinel
+          onReach={() => setPage((p) => p + 1)}
+          hasMore={sources.length < total}
           loading={loading}
-          onPageChange={setPage}
-          onPageSizeChange={(s) => { setPageSize(s); setPage(0) }}
+          endLabel={t('common.allLoaded', { count: total })}
         />
       )}
 
@@ -349,15 +367,9 @@ export function DataSourcesPage() {
 function Header({ total }: { total: number }) {
   const { t } = useTranslation()
   return (
-    <header className="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight">{t('datasources.title')}</h1>
-          <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-[11px] tabular-nums text-muted-foreground">
-            {t('datasources.total', { count: total })}
-          </span>
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">{t('datasources.subtitle')}</p>
+    <header className="flex flex-wrap items-center justify-between gap-3">
+      <div className="text-xs text-muted-foreground">
+        <span className="font-medium text-foreground">{t('datasources.total', { count: total })}</span>
       </div>
       <Button asChild size="sm">
         <Link to="/integrations">
@@ -457,26 +469,72 @@ function UsageCard({ usage }: { usage: Usage | null }) {
 
 /* ─── Tabs ─────────────────────────────────────────────────────────────── */
 
-function Tabs({ current, onChange }: { current: TabId; onChange: (t: TabId) => void }) {
+function Tabs({
+  current,
+  counts,
+  onChange,
+}: {
+  current: TabId
+  counts: Record<TabId, number> | null
+  onChange: (t: TabId) => void
+}) {
   const { t } = useTranslation()
   return (
     <div className="flex flex-wrap items-center gap-1 border-b border-border">
       {TABS.map((v) => {
         const active = current === v.id
+        const n = counts?.[v.id]
         return (
           <button
             key={v.id}
             onClick={() => onChange(v.id)}
             className={cn(
-              'relative px-3 py-2 text-xs transition-colors',
+              'relative flex items-center gap-1.5 px-3 py-2 text-xs transition-colors',
               active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
             )}
           >
             {t(`datasources.tabs.${v.id}`)}
+            {n != null && (
+              <span
+                className={cn(
+                  'rounded px-1.5 py-0.5 text-[10px] font-semibold tabular-nums',
+                  v.id === 'offline' && n > 0
+                    ? 'bg-red-500/15 text-red-600 dark:text-red-400'
+                    : 'bg-muted text-muted-foreground'
+                )}
+              >
+                {n.toLocaleString()}
+              </span>
+            )}
             {active && <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-primary" />}
           </button>
         )
       })}
+    </div>
+  )
+}
+
+// Compact at-a-glance fleet health derived from the per-tab counts. "Online" is
+// everything not stale-past-24h; "Offline" is the stale set. Gives the analyst the
+// online/offline split the page otherwise hid behind the row-by-row status dots.
+function HealthSummary({ counts }: { counts: Record<TabId, number> }) {
+  const { t } = useTranslation()
+  const offline = counts.offline
+  const online = Math.max(0, counts.all - offline)
+  const items = [
+    { key: 'online', n: online, dot: 'bg-emerald-500', tone: 'text-emerald-600 dark:text-emerald-400' },
+    { key: 'offline', n: offline, dot: 'bg-red-500', tone: 'text-red-600 dark:text-red-400' },
+    { key: 'total', n: counts.all, dot: 'bg-muted-foreground/40', tone: 'text-foreground' },
+  ]
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-border bg-card px-4 py-2.5">
+      {items.map((it) => (
+        <div key={it.key} className="flex items-center gap-2 text-sm">
+          <span className={cn('h-2 w-2 rounded-full', it.dot)} />
+          <span className="font-semibold tabular-nums">{it.n.toLocaleString()}</span>
+          <span className="text-xs text-muted-foreground">{t(`datasources.health.${it.key}`)}</span>
+        </div>
+      ))}
     </div>
   )
 }
@@ -728,10 +786,23 @@ function SourceDrawer({
   onChanged: () => void
 }) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [src, setSrc] = useState<Datasource | null>(null)
   const [loading, setLoading] = useState(true)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [consoleOpen, setConsoleOpen] = useState(false)
+  const [trend, setTrend] = useState<number[] | null>(null)
+
+  // Pivot to Log Explorer scoped to this source's events (Discover-style drill-in).
+  const viewLogs = () => {
+    if (!src) return
+    navigate('/log-explorer', {
+      state: {
+        socaiFilters: [{ field: 'dataSource', operator: 'IS', value: src.name }],
+        socaiTime: '7d',
+      },
+    })
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -747,6 +818,24 @@ function SourceDrawer({
     return () => { cancelled = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
+
+  // Per-source ingestion trend (sparkline) — fetched once the source name is known.
+  useEffect(() => {
+    if (!src?.name) return
+    let cancelled = false
+    setTrend(null)
+    svc
+      .ingestionTimelineFor(src.name)
+      .then((tl) => {
+        if (!cancelled) setTrend((tl.points ?? []).map((p) => p.count))
+      })
+      .catch(() => {
+        if (!cancelled) setTrend([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [src?.name])
 
   // Persist a labels array (joined to the comma-separated form the backend stores).
   const saveLabels = async (next: string[]): Promise<boolean> => {
@@ -845,9 +934,17 @@ function SourceDrawer({
                 )}
               </div>
             </div>
-            <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground">
-              <X size={16} />
-            </button>
+            <div className="flex shrink-0 items-center gap-2">
+              {src && (
+                <Button variant="outline" size="sm" onClick={viewLogs} disabled={!src.dataType && !src.name}>
+                  <ScrollText size={13} className="mr-1.5" />
+                  {t('datasources.drawer.viewLogs')}
+                </Button>
+              )}
+              <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground">
+                <X size={16} />
+              </button>
+            </div>
           </div>
         </header>
 
@@ -858,6 +955,13 @@ function SourceDrawer({
             </div>
           ) : (
             <div className="space-y-4">
+              {statusKey === 'offline' && src.lastPingAt && (
+                <div className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2.5 text-xs text-amber-700 dark:text-amber-300">
+                  <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+                  <span>{t('datasources.drawer.logGap', { since: relativeTime(t, src.lastPingAt) })}</span>
+                </div>
+              )}
+
               <Section title={t('datasources.drawer.statsIdentity')}>
                 <dl className="grid grid-cols-[140px_1fr] gap-y-2 text-xs">
                   <Row k={t('datasources.drawer.rows.events24h')}>{events24h(src.name) > 0 ? events24h(src.name).toLocaleString() : '—'}</Row>
@@ -867,6 +971,12 @@ function SourceDrawer({
                   {src.dataType && <Row k={t('datasources.drawer.rows.dataType')}><span className="font-mono">{src.dataType}</span></Row>}
                   {src.ip && <Row k={t('datasources.drawer.rows.ip')}><span className="font-mono">{src.ip}</span></Row>}
                 </dl>
+                <div className="mt-3 border-t border-border/60 pt-3">
+                  <div className="mb-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                    {t('datasources.drawer.trend')}
+                  </div>
+                  <Sparkline values={trend} />
+                </div>
               </Section>
 
               {metaEntries.length > 0 && (
@@ -965,6 +1075,36 @@ function SourceDrawer({
 }
 
 /* ─── Small parts ──────────────────────────────────────────────────────── */
+
+// Compact per-source ingestion sparkline. null = loading, [] = no data. Gaps in
+// the series (zero buckets) make a silent source visually obvious.
+function Sparkline({ values }: { values: number[] | null }) {
+  const { t } = useTranslation()
+  if (values == null) {
+    return (
+      <div className="flex h-10 items-center gap-1.5 text-[11px] text-muted-foreground">
+        <Loader2 className="h-3 w-3 animate-spin" /> {t('datasources.drawer.loading')}
+      </div>
+    )
+  }
+  if (values.length === 0 || values.every((v) => v <= 0)) {
+    return <div className="flex h-10 items-center text-[11px] text-muted-foreground">{t('datasources.drawer.noTrend')}</div>
+  }
+  const max = Math.max(1, ...values)
+  return (
+    <div className="flex h-10 items-end justify-center gap-px">
+      {values.map((v, i) => (
+        <div key={i} className="flex h-full max-w-[10px] flex-1 items-end">
+          <div
+            className="w-full rounded-t-[1px] bg-primary/45"
+            style={{ height: `${v <= 0 ? 0 : Math.max(3, (v / max) * 100)}%` }}
+            title={v.toLocaleString()}
+          />
+        </div>
+      ))}
+    </div>
+  )
+}
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (

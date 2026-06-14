@@ -17,7 +17,9 @@
       "clear": "Limpiar",
       "done": "Listo",
       "apply": "Aplicar"
-    }
+    },
+    "loadingMore": "Cargando más…",
+    "allLoaded": "Cargados los {{count}}"
   },
   "auth": {
     "login": {
@@ -201,7 +203,8 @@
     "settings": "Configuración",
     "back": "Atrás",
     "parsingFilters": "Filtros de Parsing",
-    "regexPatterns": "Expresiones regulares"
+    "regexPatterns": "Expresiones regulares",
+    "taggingRules": "Reglas de etiquetado"
   },
   "dashboards": {
     "title": "Paneles",
@@ -1481,7 +1484,9 @@
       "patternsFailed": "No se pudieron cargar los index patterns.",
       "searchFailed": "La búsqueda falló.",
       "retry": "Reintentar",
-      "none": "Ningún log coincide con esta consulta."
+      "none": "Ningún log coincide con esta consulta.",
+      "loadingMore": "Cargando más…",
+      "endOfResults": "Cargados los {{count}} eventos"
     },
     "detail": {
       "fieldsCount_one": "{{count}} campo",
@@ -1491,7 +1496,9 @@
       "parsedFields": "Campos parseados",
       "json": "JSON",
       "filterFor": "Filtrar por",
-      "filterOut": "Excluir"
+      "filterOut": "Excluir",
+      "surrounding": "Eventos alrededor",
+      "surroundingHint": "Mostrar eventos ±15 min alrededor de este, de la misma fuente"
     },
     "view": {
       "table": "Tabla",
@@ -1529,6 +1536,15 @@
       "nLogs_one": "{{count}} log",
       "nLogs_other": "{{count}} logs",
       "truncated": "Mostrando los primeros {{count}} logs relacionados (el conjunto completo es mayor)."
+    },
+    "saved": {
+      "title": "Guardadas",
+      "empty": "Aún no hay búsquedas guardadas",
+      "saveCurrent": "Guardar búsqueda actual",
+      "save": "Guardar",
+      "namePlaceholder": "Nombre de la búsqueda",
+      "delete": "Eliminar",
+      "saved": "Guardada «{{name}}»"
     }
   },
   "integrations": {
@@ -3076,7 +3092,7 @@
         "httpJson": "HTTP / JSON",
         "payloadTitle": "Ejemplo de payload JSON",
         "parserTitle": "Define el analizador",
-        "parserBody": "UTMStack detectará automáticamente claves JSON y propondrá asignaciones de campos. Puedes anular asignaciones en el editor del analizador y agregar patrones Grok de forma gratuita.",
+        "parserBody": "Los eventos entrantes se almacenan bajo el tipo de dato {{dataType}}. Añade un filtro de parseo para él de modo que el payload sin procesar se mapee a campos estructurados, y luego crea reglas de alerta encima.",
         "openEditor": "Abrir editor de analizador",
         "powershellLabel": "PowerShell (Ejecutar como administrador)",
         "linuxLabel": "Linux — bash",
@@ -3324,7 +3340,8 @@
     "limitBanner": {
       "title": "Límite de datasources superado.",
       "message": "Tienes {{count}} datasources pero tu licencia cubre {{limit}}. Los logs de los datasources que exceden el límite se están descartando.",
-      "cta": "Gestionar licencia"
+      "cta": "Gestionar licencia",
+      "dismiss": "Descartar"
     },
     "title": "Fuentes de datos",
     "total": "{{count}} en total",
@@ -3416,7 +3433,11 @@
       "dangerText": "Eliminar quita esta fuente del registro. Los eventos históricos siguen disponibles en el Log Explorer; si la fuente sigue enviando datos, se redescubrirá.",
       "delete": "Eliminar fuente",
       "confirmDelete": "Confirmar eliminación",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "viewLogs": "Ver logs",
+      "trend": "Tendencia de ingesta",
+      "noTrend": "No se recibieron eventos en esta ventana",
+      "logGap": "Último evento {{since}} — posible interrupción de logs"
     },
     "toast": {
       "labelsUpdated": "Labels actualizados",
@@ -3482,6 +3503,11 @@
         "2": "Media",
         "3": "Alta"
       }
+    },
+    "health": {
+      "online": "en línea",
+      "offline": "desconectados",
+      "total": "total"
     }
   },
   "adversaries": {
@@ -3821,7 +3847,8 @@
       "delete": "Eliminar etiqueta",
       "systemLocked": "Etiqueta del sistema (bloqueada)",
       "alreadyExists": "Esa etiqueta ya existe.",
-      "color": "Color {{color}}"
+      "color": "Color {{color}}",
+      "createRule": "Crear regla de etiquetado con esta etiqueta"
     },
     "table": {
       "alert": "Alerta",
@@ -3829,10 +3856,12 @@
       "technique": "Técnica",
       "sourceAdversary": "Origen → Adversario",
       "risk": "Riesgo",
-      "time": "Hora"
+      "time": "Hora",
+      "riskHint": "Puntuación de riesgo (0–100), coloreada por severidad"
     },
     "row": {
-      "createRuleFromAlert": "Crear una etiqueta a partir de esta alerta"
+      "createRuleFromAlert": "Crear una etiqueta a partir de esta alerta",
+      "assignedTo": "Asignado a {{user}}"
     },
     "list": {
       "loading": "Cargando alertas…",
@@ -3870,7 +3899,8 @@
         "sensor": "Sensor",
         "dataType": "Tipo de dato",
         "alertId": "ID de alerta",
-        "statusNote": "Nota de estado"
+        "statusNote": "Nota de estado",
+        "assignee": "Asignado a"
       },
       "incidentDetail": {
         "incident": "Incidente",
@@ -3879,7 +3909,12 @@
         "created": "Creado"
       },
       "notesPlaceholder": "Añade notas de investigación…",
-      "saveNotes": "Guardar notas"
+      "saveNotes": "Guardar notas",
+      "assignee": "Asignar",
+      "assign": "Asignar",
+      "unassign": "Quitar asignación",
+      "unassigned": "Sin asignar",
+      "loadingUsers": "Cargando usuarios…"
     },
     "related": {
       "sample": "Una muestra de hasta ~11 eventos que el motor almacenó en esta alerta. Usa «Ver todos los registros relacionados» para el conjunto completo y sin límite.",
@@ -3954,7 +3989,10 @@
       "relatedLogsFailed": "No se pudieron cargar los registros relacionados",
       "incidentCreated": "Incidente creado",
       "alertsAdded": "Alertas añadidas al incidente",
-      "incidentFailed": "No se pudo guardar el incidente"
+      "incidentFailed": "No se pudo guardar el incidente",
+      "assigned": "Alerta asignada",
+      "unassigned": "Alerta sin asignar",
+      "assignFailed": "No se pudo actualizar el asignado"
     }
   },
   "incidents": {
@@ -4371,7 +4409,10 @@
       "platform": "Plataforma",
       "conditions": "Condiciones",
       "commands": "Comandos",
-      "active": "Activo"
+      "active": "Activo",
+      "lastRun": "Última ejecución",
+      "failedRuns_one": "{{count}} ejecución fallida",
+      "failedRuns_other": "{{count}} ejecuciones fallidas"
     },
     "operator": {
       "IS": "es",
@@ -4459,7 +4500,14 @@
       "AGENT_OFFLINE": "Agente offline",
       "AGENT_NOT_FOUND": "Agente no encontrado",
       "UNKNOWN": "Desconocido"
-    }
+    },
+    "kpi": {
+      "flows": "Flujos totales",
+      "active": "Activos",
+      "runs24h": "Ejecuciones (24h)",
+      "failed24h": "Fallidas (24h)"
+    },
+    "neverRun": "nunca"
   },
   "compliance": {
     "title": "Compliance",
@@ -4658,6 +4706,74 @@
       "badge": "Enterprise",
       "upgrade": "Pasar a Enterprise",
       "upsell": "Este framework/control requiere la edición Enterprise."
+    }
+  },
+  "taggingRules": {
+    "title": "Reglas de etiquetado",
+    "subtitle": "Etiqueta automáticamente las alertas que cumplan las condiciones.",
+    "new": "Nueva regla",
+    "refresh": "Actualizar",
+    "empty": "Aún no hay reglas de etiquetado.",
+    "loadError": "No se pudieron cargar las reglas de etiquetado.",
+    "retry": "Reintentar",
+    "deleteConfirm": "¿Eliminar la regla \"{{name}}\"? Las alertas futuras que cumplan sus condiciones dejarán de etiquetarse.",
+    "toolbar": {
+      "search": "Buscar por nombre de regla…",
+      "allTags": "Todas las etiquetas"
+    },
+    "table": {
+      "rule": "Regla",
+      "tags": "Etiquetas",
+      "conditions": "Condiciones",
+      "modifiedBy": "Modificado por",
+      "modifiedDate": "Modificado"
+    },
+    "drawer": {
+      "createTitle": "Nueva regla de etiquetado",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "save": "Guardar",
+      "create": "Crear",
+      "cancel": "Cancelar"
+    },
+    "form": {
+      "basics": "Datos básicos",
+      "name": "Nombre de la regla",
+      "namePlaceholder": "p. ej. Fuerza bruta SSH interna",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Por qué existe esta regla y qué etiqueta.",
+      "tags": "Etiquetas a aplicar",
+      "noTags": "No hay etiquetas seleccionadas.",
+      "addTag": "Agregar etiqueta",
+      "removeTag": "Quitar",
+      "noCatalog": "Aún no hay etiquetas en el catálogo.",
+      "createTag": "Crear etiqueta",
+      "newTagName": "Nombre de la nueva etiqueta",
+      "conditions": "Condiciones (deben cumplirse TODAS)",
+      "noConditions": "Se requiere al menos una condición.",
+      "addCondition": "Agregar condición",
+      "removeCondition": "Quitar condición",
+      "valuePlaceholder": "Valor",
+      "valueListPlaceholder": "Valores separados por comas",
+      "incomplete": "Completa el nombre de la regla, la descripción, al menos una etiqueta y todas las condiciones."
+    },
+    "view": {
+      "description": "Descripción",
+      "tags": "Etiquetas",
+      "conditions": "Condiciones",
+      "audit": "Auditoría",
+      "createdBy": "Creado por",
+      "createdDate": "Creado",
+      "modifiedBy": "Modificado por",
+      "modifiedDate": "Modificado"
+    },
+    "toast": {
+      "created": "Regla \"{{name}}\" creada.",
+      "updated": "Regla \"{{name}}\" actualizada.",
+      "deleted": "Regla \"{{name}}\" eliminada.",
+      "createError": "No se pudo crear la regla.",
+      "updateError": "No se pudo actualizar la regla.",
+      "deleteError": "No se pudo eliminar la regla."
     }
   }
 }

@@ -17,8 +17,9 @@ func NewIngestionStatsRepository() connectors.IngestionStatsRepository {
 }
 
 // timeRangeFilter builds the bool filter shared by every stats query: a
-// @timestamp range plus an optional doc `type` term.
-func timeRangeFilter(statusType, from, to string) map[string]any {
+// @timestamp range, an optional doc `type` term, and an optional single-source
+// scope (dataSource).
+func timeRangeFilter(statusType, from, to, dataSource string) map[string]any {
 	filters := []any{
 		map[string]any{"range": map[string]any{
 			"@timestamp": map[string]any{"gte": from, "lte": to},
@@ -26,6 +27,9 @@ func timeRangeFilter(statusType, from, to string) map[string]any {
 	}
 	if statusType != "" {
 		filters = append(filters, map[string]any{"term": map[string]any{"type": statusType}})
+	}
+	if dataSource != "" {
+		filters = append(filters, map[string]any{"term": map[string]any{"dataSource.keyword": dataSource}})
 	}
 	return map[string]any{"bool": map[string]any{"filter": filters}}
 }
@@ -35,7 +39,7 @@ var sumCount = map[string]any{"events": map[string]any{"sum": map[string]any{"fi
 func (r *osIngestionStatsRepository) TotalsByField(ctx context.Context, field, statusType, from, to string, top int) ([]dto.IngestionStatsBucket, int64, error) {
 	body := map[string]any{
 		"size":  0,
-		"query": timeRangeFilter(statusType, from, to),
+		"query": timeRangeFilter(statusType, from, to, ""),
 		"aggs": map[string]any{
 			"groups": map[string]any{
 				"terms": map[string]any{"field": field + ".keyword", "size": top},
@@ -64,10 +68,10 @@ func (r *osIngestionStatsRepository) TotalsByField(ctx context.Context, field, s
 	return out, subSum(res.Aggregations, "total"), nil
 }
 
-func (r *osIngestionStatsRepository) Timeline(ctx context.Context, statusType, interval, from, to string) ([]dto.TimelinePoint, error) {
+func (r *osIngestionStatsRepository) Timeline(ctx context.Context, statusType, interval, from, to, dataSource string) ([]dto.TimelinePoint, error) {
 	body := map[string]any{
 		"size":  0,
-		"query": timeRangeFilter(statusType, from, to),
+		"query": timeRangeFilter(statusType, from, to, dataSource),
 		"aggs": map[string]any{
 			"timeline": dateHistogram(interval, from, to),
 		},
@@ -92,10 +96,10 @@ func dateHistogram(interval, from, to string) map[string]any {
 	}
 }
 
-func (r *osIngestionStatsRepository) TimelineByField(ctx context.Context, field, statusType, interval, from, to string, top int) ([]dto.TimelineSeries, error) {
+func (r *osIngestionStatsRepository) TimelineByField(ctx context.Context, field, statusType, interval, from, to string, top int, dataSource string) ([]dto.TimelineSeries, error) {
 	body := map[string]any{
 		"size":  0,
-		"query": timeRangeFilter(statusType, from, to),
+		"query": timeRangeFilter(statusType, from, to, dataSource),
 		"aggs": map[string]any{
 			"groups": map[string]any{
 				"terms": map[string]any{"field": field + ".keyword", "size": top},

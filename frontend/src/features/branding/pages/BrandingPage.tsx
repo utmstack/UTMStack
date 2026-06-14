@@ -93,13 +93,12 @@ export function BrandingPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
       <header>
-        <h1 className="flex items-center gap-2 text-xl font-semibold">
-          <Paintbrush size={18} strokeWidth={1.75} />
+        <h1 className="flex items-center gap-2 text-base font-semibold">
+          <Paintbrush size={16} strokeWidth={1.75} />
           {t('branding.title')}
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t('branding.subtitle')}</p>
       </header>
 
       {!entitled && (

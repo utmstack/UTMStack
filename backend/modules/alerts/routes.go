@@ -18,6 +18,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 
 	ag.POST("/status", write, h.UpdateStatus)
 	ag.POST("/notes", write, h.UpdateNotes)
+	ag.POST("/assignee", write, h.UpdateAssignee)
 	ag.POST("/tags", write, h.UpdateTags)
 	ag.POST("/convert-to-incident", write, h.ConvertToIncident)
 

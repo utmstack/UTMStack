@@ -17,7 +17,9 @@
       "clear": "Limpar",
       "done": "Concluir",
       "apply": "Aplicar"
-    }
+    },
+    "loadingMore": "Carregando mais…",
+    "allLoaded": "Todos os {{count}} carregados"
   },
   "auth": {
     "login": {
@@ -201,7 +203,8 @@
     "settings": "Configurações",
     "back": "Voltar",
     "parsingFilters": "Filtros de Parsing",
-    "regexPatterns": "Expressões regulares"
+    "regexPatterns": "Expressões regulares",
+    "taggingRules": "Regras de Marcação"
   },
   "dashboards": {
     "title": "Painéis",
@@ -1481,7 +1484,9 @@
       "patternsFailed": "Não foi possível carregar os index patterns.",
       "searchFailed": "A busca falhou.",
       "retry": "Tentar novamente",
-      "none": "Nenhum log corresponde a esta consulta."
+      "none": "Nenhum log corresponde a esta consulta.",
+      "loadingMore": "Carregando mais…",
+      "endOfResults": "Todos os {{count}} eventos carregados"
     },
     "detail": {
       "fieldsCount_one": "{{count}} campo",
@@ -1491,7 +1496,9 @@
       "parsedFields": "Campos analisados",
       "json": "JSON",
       "filterFor": "Filtrar por",
-      "filterOut": "Excluir"
+      "filterOut": "Excluir",
+      "surrounding": "Eventos ao redor",
+      "surroundingHint": "Mostrar eventos ±15 min ao redor deste, da mesma fonte"
     },
     "view": {
       "table": "Tabela",
@@ -1529,6 +1536,15 @@
       "nLogs_one": "{{count}} log",
       "nLogs_other": "{{count}} logs",
       "truncated": "Mostrando os primeiros {{count}} logs relacionados (o conjunto completo é maior)."
+    },
+    "saved": {
+      "title": "Salvas",
+      "empty": "Ainda não há buscas salvas",
+      "saveCurrent": "Salvar busca atual",
+      "save": "Salvar",
+      "namePlaceholder": "Nome da busca",
+      "delete": "Excluir",
+      "saved": "Salva “{{name}}”"
     }
   },
   "integrations": {
@@ -3076,7 +3092,7 @@
         "httpJson": "HTTP / JSON",
         "payloadTitle": "Exemplo de payload JSON",
         "parserTitle": "Defina o analisador",
-        "parserBody": "O UTMStack detectará automaticamente chaves JSON e proporá mapeamentos de campos. Você pode substituir mapeamentos no editor do analisador e adicionar padrões Grok gratuitamente.",
+        "parserBody": "Os eventos recebidos são armazenados sob o tipo de dado {{dataType}}. Adicione um filtro de parsing para ele de modo que o payload bruto seja mapeado em campos estruturados e, em seguida, crie regras de alerta.",
         "openEditor": "Abrir editor do analisador",
         "powershellLabel": "PowerShell (Executar como administrador)",
         "linuxLabel": "Linux — bash",
@@ -3324,7 +3340,8 @@
     "limitBanner": {
       "title": "Limite de datasources excedido.",
       "message": "Você tem {{count}} datasources, mas sua licença cobre {{limit}}. Os logs dos datasources além do limite estão sendo descartados.",
-      "cta": "Gerenciar licença"
+      "cta": "Gerenciar licença",
+      "dismiss": "Dispensar"
     },
     "title": "Fontes de dados",
     "total": "{{count}} no total",
@@ -3416,7 +3433,11 @@
       "dangerText": "Excluir remove esta fonte do registro. Os eventos históricos continuam pesquisáveis no Log Explorer; se a fonte continuar enviando dados, será redescoberta.",
       "delete": "Excluir fonte",
       "confirmDelete": "Confirmar exclusão",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "viewLogs": "Ver logs",
+      "trend": "Tendência de ingestão",
+      "noTrend": "Nenhum evento recebido nesta janela",
+      "logGap": "Último evento {{since}} — possível interrupção de logs"
     },
     "toast": {
       "labelsUpdated": "Labels atualizados",
@@ -3482,6 +3503,11 @@
         "2": "Média",
         "3": "Alta"
       }
+    },
+    "health": {
+      "online": "online",
+      "offline": "offline",
+      "total": "total"
     }
   },
   "adversaries": {
@@ -3821,7 +3847,8 @@
       "delete": "Excluir etiqueta",
       "systemLocked": "Etiqueta do sistema (bloqueada)",
       "alreadyExists": "Essa etiqueta já existe.",
-      "color": "Cor {{color}}"
+      "color": "Cor {{color}}",
+      "createRule": "Criar regra de marcação com esta etiqueta"
     },
     "table": {
       "alert": "Alerta",
@@ -3829,10 +3856,12 @@
       "technique": "Técnica",
       "sourceAdversary": "Origem → Adversário",
       "risk": "Risco",
-      "time": "Hora"
+      "time": "Hora",
+      "riskHint": "Pontuação de risco (0–100), colorida por severidade"
     },
     "row": {
-      "createRuleFromAlert": "Criar uma tag a partir deste alerta"
+      "createRuleFromAlert": "Criar uma tag a partir deste alerta",
+      "assignedTo": "Atribuído a {{user}}"
     },
     "list": {
       "loading": "Carregando alertas…",
@@ -3870,7 +3899,8 @@
         "sensor": "Sensor",
         "dataType": "Tipo de dado",
         "alertId": "ID do alerta",
-        "statusNote": "Nota de estado"
+        "statusNote": "Nota de estado",
+        "assignee": "Responsável"
       },
       "incidentDetail": {
         "incident": "Incidente",
@@ -3879,7 +3909,12 @@
         "created": "Criado"
       },
       "notesPlaceholder": "Adicione notas de investigação…",
-      "saveNotes": "Salvar notas"
+      "saveNotes": "Salvar notas",
+      "assignee": "Atribuir",
+      "assign": "Atribuir",
+      "unassign": "Remover atribuição",
+      "unassigned": "Sem responsável",
+      "loadingUsers": "Carregando usuários…"
     },
     "related": {
       "sample": "Uma amostra de até ~11 eventos que o mecanismo armazenou neste alerta. Use «Ver todos os registros relacionados» para o conjunto completo e sem limite.",
@@ -3954,7 +3989,10 @@
       "relatedLogsFailed": "Falha ao carregar os registros relacionados",
       "incidentCreated": "Incidente criado",
       "alertsAdded": "Alertas adicionados ao incidente",
-      "incidentFailed": "Falha ao salvar o incidente"
+      "incidentFailed": "Falha ao salvar o incidente",
+      "assigned": "Alerta atribuído",
+      "unassigned": "Alerta sem responsável",
+      "assignFailed": "Não foi possível atualizar o responsável"
     }
   },
   "incidents": {
@@ -4371,7 +4409,10 @@
       "platform": "Plataforma",
       "conditions": "Condições",
       "commands": "Comandos",
-      "active": "Ativo"
+      "active": "Ativo",
+      "lastRun": "Última execução",
+      "failedRuns_one": "{{count}} execução falhada",
+      "failedRuns_other": "{{count}} execuções falhadas"
     },
     "operator": {
       "IS": "é",
@@ -4459,7 +4500,14 @@
       "AGENT_OFFLINE": "Agente offline",
       "AGENT_NOT_FOUND": "Agente não encontrado",
       "UNKNOWN": "Desconhecido"
-    }
+    },
+    "kpi": {
+      "flows": "Fluxos totais",
+      "active": "Ativos",
+      "runs24h": "Execuções (24h)",
+      "failed24h": "Falhas (24h)"
+    },
+    "neverRun": "nunca"
   },
   "compliance": {
     "title": "Compliance",
@@ -4658,6 +4706,74 @@
       "badge": "Enterprise",
       "upgrade": "Atualizar para Enterprise",
       "upsell": "Este framework/controle requer a edição Enterprise."
+    }
+  },
+  "taggingRules": {
+    "title": "Regras de Marcação",
+    "subtitle": "Marque automaticamente alertas que correspondam às condições.",
+    "new": "Nova regra",
+    "refresh": "Atualizar",
+    "empty": "Ainda não há regras de marcação.",
+    "loadError": "Não foi possível carregar as regras de marcação.",
+    "retry": "Tentar novamente",
+    "deleteConfirm": "Excluir a regra \"{{name}}\"? Os próximos alertas que corresponderem às suas condições deixarão de ser marcados.",
+    "toolbar": {
+      "search": "Buscar pelo nome da regra…",
+      "allTags": "Todas as etiquetas"
+    },
+    "table": {
+      "rule": "Regra",
+      "tags": "Etiquetas",
+      "conditions": "Condições",
+      "modifiedBy": "Modificado por",
+      "modifiedDate": "Modificado"
+    },
+    "drawer": {
+      "createTitle": "Nova regra de marcação",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "save": "Salvar",
+      "create": "Criar",
+      "cancel": "Cancelar"
+    },
+    "form": {
+      "basics": "Informações básicas",
+      "name": "Nome da regra",
+      "namePlaceholder": "ex.: Força bruta SSH interno",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Por que esta regra existe e o que ela marca.",
+      "tags": "Etiquetas a aplicar",
+      "noTags": "Nenhuma etiqueta selecionada.",
+      "addTag": "Adicionar etiqueta",
+      "removeTag": "Remover",
+      "noCatalog": "Ainda não há etiquetas no catálogo.",
+      "createTag": "Criar etiqueta",
+      "newTagName": "Nome da nova etiqueta",
+      "conditions": "Condições (TODAS devem corresponder)",
+      "noConditions": "É necessária pelo menos uma condição.",
+      "addCondition": "Adicionar condição",
+      "removeCondition": "Remover condição",
+      "valuePlaceholder": "Valor",
+      "valueListPlaceholder": "Valores separados por vírgula",
+      "incomplete": "Preencha o nome da regra, a descrição, ao menos uma etiqueta e complete todas as condições."
+    },
+    "view": {
+      "description": "Descrição",
+      "tags": "Etiquetas",
+      "conditions": "Condições",
+      "audit": "Auditoria",
+      "createdBy": "Criado por",
+      "createdDate": "Criado",
+      "modifiedBy": "Modificado por",
+      "modifiedDate": "Modificado"
+    },
+    "toast": {
+      "created": "Regra \"{{name}}\" criada.",
+      "updated": "Regra \"{{name}}\" atualizada.",
+      "deleted": "Regra \"{{name}}\" excluída.",
+      "createError": "Falha ao criar a regra.",
+      "updateError": "Falha ao atualizar a regra.",
+      "deleteError": "Falha ao excluir a regra."
     }
   }
 }

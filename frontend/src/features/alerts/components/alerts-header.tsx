@@ -17,23 +17,17 @@ export function AlertsHeader({
 }) {
   const { t } = useTranslation()
   return (
-    <header className="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight">{t('alerts.title')}</h1>
-          <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-[11px] tabular-nums text-muted-foreground">
-            {t('alerts.matching', { count: total.toLocaleString() })}
-          </span>
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {t('alerts.subtitle')}
-          {openCount != null && (
-            <>
-              {' '}
+    <header className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <span className="font-medium text-foreground">{t('alerts.matching', { count: total.toLocaleString() })}</span>
+        {openCount != null && (
+          <>
+            <span className="text-muted-foreground/50">·</span>
+            <span>
               <span className="font-medium text-foreground">{openCount.toLocaleString()}</span> {t('alerts.openNow')}
-            </>
-          )}
-        </p>
+            </span>
+          </>
+        )}
       </div>
       <ViewToggle view={view} onView={onView} />
     </header>

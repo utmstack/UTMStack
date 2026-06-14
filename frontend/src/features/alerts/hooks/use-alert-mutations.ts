@@ -15,6 +15,7 @@ export interface UseAlertMutationsResult {
   applyStatus: (ids: string[], status: number, observation?: string, fp?: boolean) => Promise<void>
   applyTags: (ids: string[], tags: string[]) => Promise<void>
   updateNotes: (alertId: string, notes: string) => Promise<void>
+  updateAssignee: (alertId: string, assignee: string) => Promise<void>
   exportCsv: (filters: FilterType[]) => Promise<void>
 }
 
@@ -100,6 +101,23 @@ export function useAlertMutations({
     [t, openAlert, setOpenAlert, refetchOpen]
   )
 
+  const updateAssignee = useCallback(
+    async (alertId: string, assignee: string) => {
+      try {
+        await svc.updateAssignee(alertId, assignee)
+        toast.success(assignee ? t('alerts.toast.assigned') : t('alerts.toast.unassigned'))
+        if (openAlert && openAlert.id === alertId) {
+          setOpenAlert({ ...openAlert, assignee })
+          refetchOpen(alertId)
+        }
+        refresh()
+      } catch {
+        toast.error(t('alerts.toast.assignFailed'))
+      }
+    },
+    [t, openAlert, setOpenAlert, refetchOpen, refresh]
+  )
+
   const exportCsv = useCallback(
     async (filters: FilterType[]) => {
       try {
@@ -111,5 +129,5 @@ export function useAlertMutations({
     [t]
   )
 
-  return { applyStatus, applyTags, updateNotes, exportCsv }
+  return { applyStatus, applyTags, updateNotes, updateAssignee, exportCsv }
 }

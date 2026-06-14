@@ -10,4 +10,6 @@ const (
 	MsgNotesUpdated         = "The %s user updated the alert notes with: <br>%s"
 	MsgNotesCleared         = "The %s user removed all notes of the alert"
 	MsgConvertToIncident    = "This alert was added to incident %s by user %s"
+	MsgAssigneeSet          = "The user %s assigned the alert to %s"
+	MsgAssigneeCleared      = "The user %s unassigned the alert"
 )

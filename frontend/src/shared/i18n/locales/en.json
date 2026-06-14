@@ -17,7 +17,9 @@
       "clear": "Clear",
       "done": "Done",
       "apply": "Apply"
-    }
+    },
+    "loadingMore": "Loading more…",
+    "allLoaded": "All {{count}} loaded"
   },
   "auth": {
     "login": {
@@ -1482,7 +1484,9 @@
       "patternsFailed": "Could not load index patterns.",
       "searchFailed": "Search failed.",
       "retry": "Retry",
-      "none": "No logs match this query."
+      "none": "No logs match this query.",
+      "loadingMore": "Loading more…",
+      "endOfResults": "All {{count}} events loaded"
     },
     "detail": {
       "fieldsCount_one": "{{count}} field",
@@ -1492,7 +1496,9 @@
       "parsedFields": "Parsed fields",
       "json": "JSON",
       "filterFor": "Filter for",
-      "filterOut": "Filter out"
+      "filterOut": "Filter out",
+      "surrounding": "Surrounding events",
+      "surroundingHint": "Show events ±15 min around this one, from the same source"
     },
     "view": {
       "table": "Table",
@@ -1530,6 +1536,15 @@
       "nLogs_one": "{{count}} log",
       "nLogs_other": "{{count}} logs",
       "truncated": "Showing the first {{count}} related logs (the full set is larger)."
+    },
+    "saved": {
+      "title": "Saved",
+      "empty": "No saved searches yet",
+      "saveCurrent": "Save current search",
+      "save": "Save",
+      "namePlaceholder": "Search name",
+      "delete": "Delete",
+      "saved": "Saved “{{name}}”"
     }
   },
   "integrations": {
@@ -3298,7 +3313,8 @@
     "limitBanner": {
       "title": "Datasource limit exceeded.",
       "message": "You have {{count}} datasources but your license covers {{limit}}. Logs from datasources beyond the limit are being dropped.",
-      "cta": "Manage license"
+      "cta": "Manage license",
+      "dismiss": "Dismiss"
     },
     "title": "Data sources",
     "total": "{{count}} total",
@@ -3390,7 +3406,11 @@
       "dangerText": "Deleting removes this source from the registry. Historical events stay searchable in the Log Explorer; if the source keeps sending data it will be rediscovered.",
       "delete": "Delete data source",
       "confirmDelete": "Confirm delete",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "viewLogs": "View logs",
+      "trend": "Ingestion trend",
+      "noTrend": "No events received in this window",
+      "logGap": "Last event {{since}} — possible log gap"
     },
     "toast": {
       "labelsUpdated": "Labels updated",
@@ -3456,6 +3476,11 @@
         "2": "Medium",
         "3": "High"
       }
+    },
+    "health": {
+      "online": "online",
+      "offline": "offline",
+      "total": "total"
     }
   },
   "adversaries": {
@@ -3804,10 +3829,12 @@
       "technique": "Technique",
       "sourceAdversary": "Source → Adversary",
       "risk": "Risk",
-      "time": "Time"
+      "time": "Time",
+      "riskHint": "Risk score (0–100), colored by severity"
     },
     "row": {
-      "createRuleFromAlert": "Create a tag from this alert"
+      "createRuleFromAlert": "Create a tag from this alert",
+      "assignedTo": "Assigned to {{user}}"
     },
     "list": {
       "loading": "Loading alerts…",
@@ -3845,7 +3872,8 @@
         "sensor": "Sensor",
         "dataType": "Data type",
         "alertId": "Alert ID",
-        "statusNote": "Status note"
+        "statusNote": "Status note",
+        "assignee": "Assignee"
       },
       "incidentDetail": {
         "incident": "Incident",
@@ -3854,7 +3882,12 @@
         "created": "Created"
       },
       "notesPlaceholder": "Add investigation notes…",
-      "saveNotes": "Save notes"
+      "saveNotes": "Save notes",
+      "assignee": "Assign",
+      "assign": "Assign",
+      "unassign": "Unassign",
+      "unassigned": "Unassigned",
+      "loadingUsers": "Loading users…"
     },
     "related": {
       "sample": "A sample of up to ~11 events the engine stored on this alert. Use “View all related logs” for the full, uncapped set.",
@@ -3929,7 +3962,10 @@
       "relatedLogsFailed": "Failed to load related logs",
       "incidentCreated": "Incident created",
       "alertsAdded": "Alerts added to incident",
-      "incidentFailed": "Failed to save incident"
+      "incidentFailed": "Failed to save incident",
+      "assigned": "Alert assigned",
+      "unassigned": "Alert unassigned",
+      "assignFailed": "Could not update assignee"
     }
   },
   "taggingRules": {
@@ -4414,7 +4450,10 @@
       "platform": "Platform",
       "conditions": "Conditions",
       "commands": "Commands",
-      "active": "Active"
+      "active": "Active",
+      "lastRun": "Last run",
+      "failedRuns_one": "{{count}} failed run",
+      "failedRuns_other": "{{count}} failed runs"
     },
     "operator": {
       "IS": "is",
@@ -4502,7 +4541,14 @@
       "AGENT_OFFLINE": "Agent offline",
       "AGENT_NOT_FOUND": "Agent not found",
       "UNKNOWN": "Unknown"
-    }
+    },
+    "kpi": {
+      "flows": "Total flows",
+      "active": "Active",
+      "runs24h": "Executions (24h)",
+      "failed24h": "Failed (24h)"
+    },
+    "neverRun": "never"
   },
   "compliance": {
     "title": "Compliance",

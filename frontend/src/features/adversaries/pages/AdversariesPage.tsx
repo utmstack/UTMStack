@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, LayoutGrid, ListIcon, Loader2, RefreshCw, Search, ShieldAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { VIEWS, type ViewId } from '../lib/adversary-meta'
 import { useAdversaries } from '../hooks/use-adversaries'
 import type { Adversary } from '../types/adversary.types'
@@ -12,12 +13,15 @@ import { AdversariesList } from '../components/adversaries-list'
 import { AdversariesGrid } from '../components/adversaries-grid'
 import { AdversaryDrawer } from '../components/adversary-drawer'
 
+const PAGE_SIZE = 50
+
 export function AdversariesPage() {
   const { t } = useTranslation()
   const [view, setView] = useState<ViewId>('all')
   const [search, setSearch] = useState('')
   const [layout, setLayout] = useState<'list' | 'cards'>('list')
   const [open, setOpen] = useState<Adversary | null>(null)
+  const [visible, setVisible] = useState(PAGE_SIZE)
   const { adversaries, loading, error, refresh } = useAdversaries()
 
   const counts = useMemo(
@@ -35,28 +39,29 @@ export function AdversariesPage() {
     )
   }, [adversaries, view, search])
 
+  // Reset the client-side window whenever the filtered set changes.
+  useEffect(() => setVisible(PAGE_SIZE), [view, search])
+
+  const visibleItems = filtered.slice(0, visible)
+
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="flex items-center gap-2 text-xl font-semibold">
-              <ShieldAlert size={18} strokeWidth={1.75} />
-              {t('adversaries.title')}
-            </h1>
-            <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-[11px] tabular-nums text-muted-foreground">
-              {t('adversaries.countChip', { count: adversaries.length })}
-            </span>
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground">{t('adversaries.subtitle')}</p>
+    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <ShieldAlert size={14} strokeWidth={1.75} />
+          <span>
+            <span className="font-medium text-foreground">{adversaries.length}</span> {t('adversaries.title').toLowerCase()}
+          </span>
         </div>
-        <button
-          onClick={refresh}
-          title={t('adversaries.refresh')}
-          className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-foreground"
-        >
-          <RefreshCw size={14} className={cn(loading && 'animate-spin')} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={refresh}
+            title={t('adversaries.refresh')}
+            className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <RefreshCw size={14} className={cn(loading && 'animate-spin')} />
+          </button>
+        </div>
       </header>
 
       <div className="mt-5">
@@ -142,10 +147,20 @@ export function AdversariesPage() {
         <div className="mt-3 rounded-xl border border-border bg-card px-6 py-16 text-center text-sm text-muted-foreground">
           {t('adversaries.empty')}
         </div>
-      ) : layout === 'list' ? (
-        <AdversariesList adversaries={filtered} onOpen={setOpen} />
       ) : (
-        <AdversariesGrid adversaries={filtered} onOpen={setOpen} />
+        <>
+          {layout === 'list' ? (
+            <AdversariesList adversaries={visibleItems} onOpen={setOpen} />
+          ) : (
+            <AdversariesGrid adversaries={visibleItems} onOpen={setOpen} />
+          )}
+          <InfiniteScrollSentinel
+            onReach={() => setVisible((v) => v + PAGE_SIZE)}
+            hasMore={visible < filtered.length}
+            loading={loading}
+            endLabel={t('common.allLoaded', { count: filtered.length })}
+          />
+        </>
       )}
 
       {open && <AdversaryDrawer a={open} onClose={() => setOpen(null)} />}

@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { Pagination } from '@/shared/components/ui/pagination'
+import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import {
   DataProcessingHttpError,
   filtersHttpService,
@@ -43,7 +43,7 @@ export function ParsingFiltersPage() {
   const [items, setItems] = useState<Filter[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(0) // 0-based
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize] = useState(50)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [editing, setEditing] = useState<{ filter: Filter; creating: boolean } | null>(null)
@@ -102,7 +102,7 @@ export function ParsingFiltersPage() {
     filtersHttpService
       .list(query)
       .then((r) => {
-        setItems(r.data ?? [])
+        setItems((prev) => (page === 0 ? (r.data ?? []) : [...prev, ...(r.data ?? [])]))
         setTotal(r.total ?? 0)
       })
       .catch(() => setError(true))
@@ -124,20 +124,20 @@ export function ParsingFiltersPage() {
   }
 
   return (
-    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 py-6">
-      <header className="flex shrink-0 items-start justify-between gap-4">
-        <div>
-          <h1 className="flex items-center gap-2 text-xl font-semibold">
-            <FileCode size={18} strokeWidth={1.75} /> {t('parsingFilters.title')}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t('parsingFilters.subtitle')}</p>
+    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 pb-6 pt-3">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <FileCode size={14} strokeWidth={1.75} />
+          <span><span className="font-medium text-foreground">{total}</span> {t('parsingFilters.title').toLowerCase()}</span>
         </div>
-        <Button
-          size="sm"
-          onClick={() => setEditing({ filter: { relPath: '', content: '', system: false, active: true }, creating: true })}
-        >
-          <Plus size={14} className="mr-1.5" /> {t('parsingFilters.new')}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            onClick={() => setEditing({ filter: { relPath: '', content: '', system: false, active: true }, creating: true })}
+          >
+            <Plus size={14} className="mr-1.5" /> {t('parsingFilters.new')}
+          </Button>
+        </div>
       </header>
 
       <div className="mt-4 flex shrink-0 flex-wrap items-center gap-2">
@@ -213,25 +213,19 @@ export function ParsingFiltersPage() {
           ) : items.length === 0 ? (
             <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('parsingFilters.empty')}</div>
           ) : (
-            items.map((f) => (
-              <Row key={f.relPath} f={f} onOpen={() => setEditing({ filter: f, creating: false })} onToggle={() => toggleActive(f)} />
-            ))
+            <>
+              {items.map((f) => (
+                <Row key={f.relPath} f={f} onOpen={() => setEditing({ filter: f, creating: false })} onToggle={() => toggleActive(f)} />
+              ))}
+              <InfiniteScrollSentinel
+                onReach={() => setPage((p) => p + 1)}
+                hasMore={items.length < total}
+                loading={loading}
+                endLabel={t('common.allLoaded', { count: total })}
+              />
+            </>
           )}
         </div>
-        {total > 0 && (
-          <div className="shrink-0 border-t border-border px-3 py-2">
-            <Pagination
-              page={page}
-              pageSize={pageSize}
-              total={total}
-              onPageChange={setPage}
-              onPageSizeChange={(s) => {
-                setPageSize(s)
-                setPage(0)
-              }}
-            />
-          </div>
-        )}
       </div>
 
       {editing && (

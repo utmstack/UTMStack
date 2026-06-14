@@ -5,8 +5,6 @@ import type { TFunction } from 'i18next'
 import {
   AlertTriangle,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   Clock,
   Copy,
   Download,
@@ -29,10 +27,11 @@ import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { adAuditHttpService } from '../services/ad-audit-http.service'
 import type { ADUser, ADUserStats, ADUserStatus } from '../types/ad-user.types'
 
-const SIZE = 25
+const SIZE = 50
 const STALE_MS = 30 * 86_400_000
 
 type ViewId = 'all' | ADUserStatus
@@ -114,7 +113,7 @@ export function UserAuditorPage() {
         page,
         size: SIZE,
       })
-      setUsers(res.data ?? [])
+      setUsers((prev) => (page === 0 ? (res.data ?? []) : [...prev, ...(res.data ?? [])]))
       setTotal(res.total)
     } catch {
       setError(true)
@@ -146,13 +145,8 @@ export function UserAuditorPage() {
     stale: stats?.stale ?? 0,
   }
 
-  const hasPrev = page > 0
-  const hasNext = (page + 1) * SIZE < total
-  const from = total === 0 ? 0 : page * SIZE + 1
-  const to = Math.min((page + 1) * SIZE, total)
-
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
       <Header total={stats?.total ?? total} t={t} />
 
       <div className="mt-5">
@@ -189,7 +183,7 @@ export function UserAuditorPage() {
       ) : layout === 'list' ? (
         <div className="mt-3 overflow-hidden rounded-xl border border-border bg-card">
           <ListHeader t={t} />
-          {loading ? (
+          {loading && users.length === 0 ? (
             <LoadingRows />
           ) : (
             users.map((u) => <UserListRow key={u.id} user={u} onOpen={() => setOpenUser(u)} t={t} />)
@@ -202,7 +196,7 @@ export function UserAuditorPage() {
         </div>
       ) : (
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {loading ? (
+          {loading && users.length === 0 ? (
             <div className="col-span-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-16 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
             </div>
@@ -217,18 +211,13 @@ export function UserAuditorPage() {
         </div>
       )}
 
-      {total > 0 && (
-        <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-          <span className="tabular-nums">{t('userAuditor.pageInfo', { from, to, count: total })}</span>
-          <div className="flex items-center gap-1">
-            <Button variant="outline" size="sm" disabled={!hasPrev || loading} onClick={() => setPage((p) => Math.max(0, p - 1))}>
-              <ChevronLeft size={14} />
-            </Button>
-            <Button variant="outline" size="sm" disabled={!hasNext || loading} onClick={() => setPage((p) => p + 1)}>
-              <ChevronRight size={14} />
-            </Button>
-          </div>
-        </div>
+      {!error && users.length > 0 && (
+        <InfiniteScrollSentinel
+          onReach={() => setPage((p) => p + 1)}
+          hasMore={users.length < total}
+          loading={loading}
+          endLabel={t('common.allLoaded', { count: total })}
+        />
       )}
 
       {openUser && <UserDrawer user={openUser} onClose={() => setOpenUser(null)} t={t} />}
@@ -240,15 +229,9 @@ export function UserAuditorPage() {
 
 function Header({ total, t }: { total: number; t: TFunction }) {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight">{t('userAuditor.title')}</h1>
-          <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-[11px] tabular-nums text-muted-foreground">
-            {t('userAuditor.accountsChip', { count: total })}
-          </span>
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">{t('userAuditor.subtitle')}</p>
+    <header className="flex flex-wrap items-center justify-between gap-3">
+      <div className="text-xs text-muted-foreground">
+        <span className="font-medium text-foreground">{t('userAuditor.accountsChip', { count: total })}</span>
       </div>
       <div className="flex items-center gap-2">
         <Button variant="default" size="sm">

@@ -1,7 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { ChevronRight, Copy, Minus, Plus, X } from 'lucide-react'
+import { ChevronRight, Copy, Crosshair, Minus, Plus, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import type { FilterType, LogDocument } from '../types/log-explorer.types'
 
@@ -107,9 +107,13 @@ function absTimestamp(iso: string) {
     : d.toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
-function gridTemplate(columns: string[]): string {
-  if (columns.length === 0) return '24px 4px 195px 150px minmax(0, 1fr)'
-  return `24px 4px 195px ${columns.map(() => 'minmax(140px, 1fr)').join(' ')}`
+// Grid columns. Manual mode (user picked columns): time + each picked column (last
+// flexes). Default mode: time + source + auto-detected important columns + a
+// flexible message column.
+function gridTemplate(columns: string[], autoColumns: string[] = []): string {
+  if (columns.length > 0) return `20px 3px 168px ${columns.map(() => 'minmax(120px, 1fr)').join(' ')}`
+  const auto = autoColumns.map(() => 'minmax(96px, 0.7fr)').join(' ')
+  return `20px 3px 168px 120px ${auto ? auto + ' ' : ''}minmax(0, 1fr)`
 }
 
 function colValue(flat: Record<string, unknown>, c: string): string {
@@ -119,12 +123,20 @@ function colValue(flat: Record<string, unknown>, c: string): string {
   return String(v)
 }
 
-export function ResultsHeader({ columns, onRemoveColumn }: { columns: string[]; onRemoveColumn?: (c: string) => void }) {
+export function ResultsHeader({
+  columns,
+  autoColumns = [],
+  onRemoveColumn,
+}: {
+  columns: string[]
+  autoColumns?: string[]
+  onRemoveColumn?: (c: string) => void
+}) {
   const { t } = useTranslation()
   return (
     <div
-      className="grid items-center gap-4 border-b border-border/70 bg-muted/20 px-5 py-2.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
-      style={{ gridTemplateColumns: gridTemplate(columns) }}
+      className="grid items-center gap-3 border-b border-border/70 bg-muted/20 px-4 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
+      style={{ gridTemplateColumns: gridTemplate(columns, autoColumns) }}
     >
       <div />
       <div />
@@ -132,13 +144,18 @@ export function ResultsHeader({ columns, onRemoveColumn }: { columns: string[]; 
       {columns.length === 0 ? (
         <>
           <div>{t('logExplorer.results.source')}</div>
+          {autoColumns.map((c) => (
+            <div key={c} className="truncate" title={c}>
+              {fieldLabel(c)}
+            </div>
+          ))}
           <div>{t('logExplorer.results.message')}</div>
         </>
       ) : (
         columns.map((c) => (
           <div key={c} className="group flex min-w-0 items-center gap-1">
             <span className="truncate" title={c}>
-              {c.split('.').pop()}
+              {fieldLabel(c)}
             </span>
             {onRemoveColumn && (
               <button
@@ -156,18 +173,27 @@ export function ResultsHeader({ columns, onRemoveColumn }: { columns: string[]; 
   )
 }
 
+// Short, readable column header from a field path: "origin.ip" → "origin ip".
+function fieldLabel(field: string): string {
+  return field.replace(/\./g, ' ')
+}
+
 export function ResultRow({
   doc,
   columns,
+  autoColumns = [],
   expanded,
   onToggle,
   onAdd,
+  onSurrounding,
 }: {
   doc: LogDocument
   columns: string[]
+  autoColumns?: string[]
   expanded: boolean
   onToggle: () => void
   onAdd?: (f: FilterType) => void
+  onSurrounding?: (ts: string, srcField?: string, srcVal?: string) => void
 }) {
   const flat = useMemo(() => flattenDoc(doc), [doc])
   const ts = (flat[TS] as string) ?? ''
@@ -182,13 +208,13 @@ export function ResultRow({
       <div
         onClick={onToggle}
         className={cn(
-          'grid cursor-pointer items-center gap-4 border-b border-border/40 px-5 py-3 text-[13px] leading-relaxed transition-colors last:border-b-0',
+          'grid cursor-pointer items-center gap-3 border-b border-border/40 px-4 py-1 text-xs leading-tight transition-colors last:border-b-0',
           expanded ? 'bg-muted/30' : 'hover:bg-muted/20'
         )}
-        style={{ gridTemplateColumns: gridTemplate(columns) }}
+        style={{ gridTemplateColumns: gridTemplate(columns, autoColumns) }}
       >
-        <ChevronRight size={14} className={cn('text-muted-foreground/60 transition-transform', expanded && 'rotate-90 text-foreground')} />
-        <span className={cn('h-4 w-1 rounded-full', tone.dot)} />
+        <ChevronRight size={13} className={cn('text-muted-foreground/60 transition-transform', expanded && 'rotate-90 text-foreground')} />
+        <span className={cn('h-3.5 w-[3px] rounded-full', tone.dot)} />
         <div className="font-mono tabular-nums text-muted-foreground">{ts ? shortTime(ts) : '—'}</div>
         {columns.length > 0 ? (
           columns.map((c) => (
@@ -199,6 +225,14 @@ export function ResultRow({
         ) : (
           <>
             <div className="truncate font-mono text-foreground/70">{source}</div>
+            {autoColumns.map((c) => {
+              const val = colValue(flat, c)
+              return (
+                <div key={c} className={cn('truncate font-mono', val === '—' ? 'text-muted-foreground/40' : 'text-foreground/85')} title={val}>
+                  {val}
+                </div>
+              )
+            })}
             {message ? (
               <div className="truncate text-foreground">{message}</div>
             ) : (
@@ -215,7 +249,7 @@ export function ResultRow({
           </>
         )}
       </div>
-      {expanded && <ExpandedPanel flat={flat} doc={doc} onAdd={onAdd} />}
+      {expanded && <ExpandedPanel flat={flat} doc={doc} onAdd={onAdd} onSurrounding={onSurrounding} />}
     </>
   )
 }
@@ -226,14 +260,18 @@ function ExpandedPanel({
   flat,
   doc,
   onAdd,
+  onSurrounding,
 }: {
   flat: Record<string, unknown>
   doc: LogDocument
   onAdd?: (f: FilterType) => void
+  onSurrounding?: (ts: string, srcField?: string, srcVal?: string) => void
 }) {
   const { t } = useTranslation()
   const [tab, setTab] = useState<DetailTab>('fields')
   const ts = (flat[TS] as string) ?? ''
+  const srcField = SRC_FIELDS.find((f) => flat[f] != null)
+  const srcVal = srcField != null ? String(flat[srcField]) : undefined
   const entries = Object.entries(flat).sort(([a], [b]) => a.localeCompare(b))
 
   return (
@@ -243,15 +281,26 @@ function ExpandedPanel({
           {ts && <span className="font-mono">{absTimestamp(ts)}</span>}
           <span className="font-mono">{t('logExplorer.detail.fieldsCount', { count: entries.length })}</span>
         </div>
-        <button
-          onClick={() => {
-            void navigator.clipboard.writeText(JSON.stringify(doc, null, 2))
-            toast.success(t('logExplorer.detail.copied'))
-          }}
-          className="flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"
-        >
-          <Copy size={12} /> {t('logExplorer.detail.copyJson')}
-        </button>
+        <div className="flex items-center gap-1.5">
+          {onSurrounding && ts && (
+            <button
+              onClick={() => onSurrounding(ts, srcField, srcVal)}
+              title={t('logExplorer.detail.surroundingHint')}
+              className="flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <Crosshair size={12} /> {t('logExplorer.detail.surrounding')}
+            </button>
+          )}
+          <button
+            onClick={() => {
+              void navigator.clipboard.writeText(JSON.stringify(doc, null, 2))
+              toast.success(t('logExplorer.detail.copied'))
+            }}
+            className="flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <Copy size={12} /> {t('logExplorer.detail.copyJson')}
+          </button>
+        </div>
       </div>
 
       <div className="flex items-center gap-4 border-b border-border/60 px-5">

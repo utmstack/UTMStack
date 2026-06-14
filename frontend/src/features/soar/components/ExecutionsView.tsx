@@ -4,7 +4,7 @@ import { AlertTriangle, CheckCircle2, Clock, Loader2, RefreshCw, Search, XCircle
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { Pagination } from '@/shared/components/ui/pagination'
+import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { useDateFormat } from '@/shared/lib/datetime'
 import { soarExecutionsService } from '../services/soar-executions.service'
 import type { Execution, ExecutionStatus } from '../types/soar.types'
@@ -27,7 +27,7 @@ export function ExecutionsView() {
   const [items, setItems] = useState<Execution[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize] = useState(50)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
@@ -55,12 +55,12 @@ export function ExecutionsView() {
     soarExecutionsService
       .list(query)
       .then((r) => {
-        setItems(r.data ?? [])
+        setItems((prev) => (page === 0 ? (r.data ?? []) : [...prev, ...(r.data ?? [])]))
         setTotal(r.total ?? 0)
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false))
-  }, [query])
+  }, [query, page])
   useEffect(() => {
     load()
   }, [load])
@@ -111,14 +111,17 @@ export function ExecutionsView() {
           ) : items.length === 0 ? (
             <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('soar.executions.empty')}</div>
           ) : (
-            items.map((e) => <ExecutionRow key={e.id} e={e} df={df} t={t} />)
+            <>
+              {items.map((e) => <ExecutionRow key={e.id} e={e} df={df} t={t} />)}
+              <InfiniteScrollSentinel
+                onReach={() => setPage((p) => p + 1)}
+                hasMore={items.length < total}
+                loading={loading}
+                endLabel={t('common.allLoaded', { count: total })}
+              />
+            </>
           )}
         </div>
-        {total > 0 && (
-          <div className="shrink-0 border-t border-border px-3 py-2">
-            <Pagination page={page} pageSize={pageSize} total={total} onPageChange={setPage} onPageSizeChange={(s) => { setPageSize(s); setPage(0) }} />
-          </div>
-        )}
       </div>
     </div>
   )

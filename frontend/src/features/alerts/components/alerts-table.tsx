@@ -1,7 +1,7 @@
-import { ArrowRight, Sparkles, Tag } from 'lucide-react'
+import { ArrowRight, Sparkles, Tag, UserCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
-import { ST_META, TABLE_COLS, TS, flagEmoji, relativeTime, riskOf, statusKey } from '../lib/alert-meta'
+import { SEV_META, ST_META, TABLE_COLS, TS, absTime, flagEmoji, relativeTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
 import { isAiNote } from '../lib/ai-note'
 import type { Alert, AlertTag, Side } from '../types/alert.types'
 import { TagChip } from './ui-primitives'
@@ -21,7 +21,7 @@ export function AlertsTableHeader({ allChecked, onTogglePage }: { allChecked: bo
       <div>{t('alerts.table.status')}</div>
       <div>{t('alerts.table.technique')}</div>
       <div>{t('alerts.table.sourceAdversary')}</div>
-      <div className="text-center">{t('alerts.table.risk')}</div>
+      <div className="text-center" title={t('alerts.table.riskHint')}>{t('alerts.table.risk')}</div>
       <div className="text-center">{t('alerts.table.time')}</div>
       <div />
     </div>
@@ -46,12 +46,20 @@ export function AlertRow({
   const { t } = useTranslation()
   const stm = ST_META[statusKey(a)]
   const stmLabel = t(`alerts.status.${statusKey(a)}`)
+  const sk = sevKey(a)
+  const sev = SEV_META[sk]
   return (
     <div
-      className="group grid cursor-pointer items-center gap-3 border-b border-border/50 px-4 py-2.5 text-[13px] last:border-b-0 hover:bg-muted/20"
+      className="group relative grid cursor-pointer items-center gap-3 border-b border-border/50 px-4 py-2.5 text-[13px] last:border-b-0 hover:bg-muted/20"
       style={{ gridTemplateColumns: TABLE_COLS }}
       onClick={onOpen}
     >
+      {/* Severity accent — colored left edge so the row's risk reads at a glance. */}
+      <span
+        className={cn('absolute inset-y-0 left-0 w-[3px]', sev.bar)}
+        title={t(`alerts.severity.${sk}`)}
+        aria-hidden
+      />
       <button
         onClick={(e) => {
           e.stopPropagation()
@@ -103,6 +111,15 @@ export function AlertRow({
               +{(a.tags ?? []).length - 2}
             </span>
           )}
+          {a.assignee && (
+            <span
+              className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium leading-none text-primary"
+              title={t('alerts.row.assignedTo', { user: a.assignee })}
+            >
+              <UserCheck size={10} />
+              {a.assignee}
+            </span>
+          )}
         </div>
       </div>
       <div>
@@ -114,8 +131,18 @@ export function AlertRow({
         {a.technique || '—'}
       </div>
       <FlowCell source={a.target} adversary={a.adversary} />
-      <div className="text-center font-mono tabular-nums">{riskOf(a)}</div>
-      <div className="text-center font-mono text-[11px] text-muted-foreground">{relativeTime(a[TS])}</div>
+      <div className="flex justify-center">
+        <span
+          className={cn(
+            'inline-flex min-w-[26px] items-center justify-center rounded-md px-1.5 py-0.5 font-mono text-[11px] font-semibold tabular-nums ring-1 ring-inset',
+            sev.pill,
+          )}
+          title={t('alerts.table.riskHint')}
+        >
+          {riskOf(a)}
+        </span>
+      </div>
+      <div className="text-center font-mono text-[11px] text-muted-foreground" title={absTime(a[TS])}>{relativeTime(a[TS])}</div>
     </div>
   )
 }

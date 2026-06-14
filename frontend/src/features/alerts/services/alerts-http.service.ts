@@ -154,6 +154,10 @@ export const alertsHttpService = {
       headers: { 'Content-Type': 'text/plain' },
     }),
 
+  // Assign / unassign an alert (empty assignee clears it).
+  updateAssignee: (alertId: string, assignee: string) =>
+    api.post<void>('/utm-alerts/assignee', { alertId, assignee }),
+
   // Flag alert docs as belonging to an incident (after the incident exists).
   convertToIncident: (eventIds: string[], incidentName: string, incidentId: number) =>
     api.post<void>('/utm-alerts/convert-to-incident', {

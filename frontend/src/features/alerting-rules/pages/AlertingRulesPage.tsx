@@ -24,7 +24,7 @@ import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { Pagination } from '@/shared/components/ui/pagination'
+import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { YamlCodeEditor } from '@/shared/components/YamlCodeEditor'
 import { useDateFormat } from '@/shared/lib/datetime'
 import {
@@ -72,7 +72,7 @@ export function AlertingRulesPage() {
   const [dataType, setDataType] = useState(() => new URLSearchParams(window.location.search).get('dataType') ?? 'all')
 
   const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize] = useState(50)
   const [nonce, setNonce] = useState(0)
 
   const [categories, setCategories] = useState<string[]>([])
@@ -135,7 +135,7 @@ export function AlertingRulesPage() {
       })
       .then(({ data, total }) => {
         if (cancelled) return
-        setRules(data ?? [])
+        setRules((prev) => (page === 0 ? (data ?? []) : [...prev, ...(data ?? [])]))
         setTotal(total)
       })
       .catch(() => !cancelled && setError(true))
@@ -175,15 +175,11 @@ export function AlertingRulesPage() {
   }
 
   return (
-    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 py-6">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-xl font-semibold">
-            <ShieldAlert size={18} strokeWidth={1.75} />
-            {t('alertingRules.title')}
-            <span className="text-sm font-normal text-muted-foreground">· {total}</span>
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t('alertingRules.subtitle')}</p>
+    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 pb-6 pt-3">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <ShieldAlert size={14} strokeWidth={1.75} />
+          <span><span className="font-medium text-foreground">{total}</span> {t('alertingRules.title').toLowerCase()}</span>
         </div>
         <div className="flex items-center gap-2">
           <input
@@ -249,12 +245,15 @@ export function AlertingRulesPage() {
       ) : rules.length === 0 ? (
         <Center>{t('alertingRules.empty')}</Center>
       ) : (
-        <>
+        <div className="min-h-0 flex-1 overflow-y-auto">
           <Table rules={rules} onOpen={setOpen} onToggle={toggleActive} t={t} />
-          <div className="mt-3 shrink-0">
-            <Pagination page={page} pageSize={pageSize} total={total} onPageChange={setPage} onPageSizeChange={(s) => { setPageSize(s); setPage(0) }} />
-          </div>
-        </>
+          <InfiniteScrollSentinel
+            onReach={() => setPage((p) => p + 1)}
+            hasMore={rules.length < total}
+            loading={loading}
+            endLabel={t('common.allLoaded', { count: total })}
+          />
+        </div>
       )}
 
       {open && <RuleDrawer rule={open} dataTypeOptions={dataTypeOptions} onClose={() => setOpen(null)} onToggle={toggleActive} onDelete={remove} onSaved={() => { setOpen(null); refresh() }} t={t} />}

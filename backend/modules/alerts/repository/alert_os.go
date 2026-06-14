@@ -32,6 +32,8 @@ const updateTagsScript = `ctx._source.tags = params.tags;`
 
 const updateNotesScript = `ctx._source.notes = params.notes;`
 
+const updateAssigneeScript = `ctx._source.assignee = params.assignee;`
+
 // addFalsePositiveScript adds the "False positive" tag without disturbing others.
 const addFalsePositiveScript = `
 if (ctx._source.tags == null) { ctx._source.tags = []; }
@@ -101,6 +103,17 @@ func (r *osAlertRepo) UpdateNotes(ctx context.Context, alertID, notes string) er
 		Source: updateNotesScript,
 		Params: map[string]any{
 			"notes": notes,
+		},
+	}
+	filter := termQuery("id.keyword", alertID)
+	return osUpdateByQuery(ctx, alertIndex, filter, script)
+}
+
+func (r *osAlertRepo) UpdateAssignee(ctx context.Context, alertID, assignee string) error {
+	script := Script{
+		Source: updateAssigneeScript,
+		Params: map[string]any{
+			"assignee": assignee,
 		},
 	}
 	filter := termQuery("id.keyword", alertID)

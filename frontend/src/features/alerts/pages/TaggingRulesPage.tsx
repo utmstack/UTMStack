@@ -5,13 +5,12 @@ import { AlertTriangle, Loader2, Plus, RefreshCw, Search, TagIcon } from 'lucide
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { Pagination } from '@/shared/components/ui/pagination'
+import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { useTaggingRulesList } from '../hooks/use-tagging-rules-list'
 import { useTaggingRuleMutations } from '../hooks/use-tagging-rule-mutations'
 import { useAlertTagCatalog } from '../hooks/use-alert-tag-catalog'
 import { TaggingRulesTable } from '../components/tagging-rules-table'
 import { TaggingRuleDrawer } from '../components/tagging-rule-drawer'
-import { TAGGING_RULES_PAGE_SIZE } from '../lib/tagging-rule-meta'
 import { taggingRulesHttpService } from '../services/tagging-rules-http.service'
 import type { AlertTag, FilterType, TaggingRule, TaggingRuleListParams } from '../types/tagging-rule.types'
 
@@ -21,7 +20,7 @@ export function TaggingRulesPage() {
   const [search, setSearch] = useState('')
   const [debounced, setDebounced] = useState('')
   const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState(TAGGING_RULES_PAGE_SIZE)
+  const [pageSize] = useState(50)
   const [tagFilter, setTagFilter] = useState<number | 'all'>('all')
 
   const [open, setOpen] = useState<TaggingRule | null>(null)
@@ -137,15 +136,11 @@ export function TaggingRulesPage() {
   }
 
   return (
-    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 py-6">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-xl font-semibold">
-            <TagIcon size={18} strokeWidth={1.75} />
-            {t('taggingRules.title')}
-            <span className="text-sm font-normal text-muted-foreground">· {total}</span>
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t('taggingRules.subtitle')}</p>
+    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 pb-6 pt-3">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <TagIcon size={14} strokeWidth={1.75} />
+          <span><span className="font-medium text-foreground">{total}</span> {t('taggingRules.title').toLowerCase()}</span>
         </div>
         <div className="flex items-center gap-2">
           <Button size="sm" onClick={() => setCreating(true)}>
@@ -203,21 +198,15 @@ export function TaggingRulesPage() {
       ) : rules.length === 0 ? (
         <Center>{t('taggingRules.empty')}</Center>
       ) : (
-        <>
+        <div className="min-h-0 flex-1 overflow-y-auto">
           <TaggingRulesTable rules={rules} onOpen={setOpen} />
-          <div className="mt-3 shrink-0">
-            <Pagination
-              page={page}
-              pageSize={pageSize}
-              total={total}
-              onPageChange={setPage}
-              onPageSizeChange={(s) => {
-                setPageSize(s)
-                setPage(0)
-              }}
-            />
-          </div>
-        </>
+          <InfiniteScrollSentinel
+            onReach={() => setPage((p) => p + 1)}
+            hasMore={rules.length < total}
+            loading={loading}
+            endLabel={t('common.allLoaded', { count: total })}
+          />
+        </div>
       )}
 
       {open && (
