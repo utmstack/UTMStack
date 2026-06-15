@@ -69,6 +69,41 @@ jobs:
           gh pr diff "$PR_NUMBER" > /tmp/pr.diff
           echo "Diff size: $(wc -c < /tmp/pr.diff) bytes"
 
+      - name: Exclude rules/filters/definitions from the review diff
+        # Changes under any "rules", "filters" or "definitions" folder are
+        # content (detection rules, correlation filters, definitions), not code,
+        # so they're dropped before the AI sees the diff. Per-file sections are
+        # split on the "diff --git" header and any whose path contains one of
+        # those folder names (at any depth) is removed.
+        run: |
+          python3 - <<'PY'
+          import re
+
+          path = "/tmp/pr.diff"
+          with open(path, "r", encoding="utf-8", errors="replace") as fh:
+              content = fh.read()
+
+          EXCLUDED = {"rules", "filters", "definitions"}
+          sections = re.split(r'(?m)^(?=diff --git )', content)
+
+          def is_excluded(section: str) -> bool:
+              m = re.match(r'diff --git a/(.+?) b/(.+)', section)
+              if not m:
+                  return False
+              for p in (m.group(1).strip(), m.group(2).strip()):
+                  if EXCLUDED.intersection(p.split('/')):
+                      return True
+              return False
+
+          kept = [s for s in sections if s and not is_excluded(s)]
+          out = "".join(kept)
+          with open(path, "w", encoding="utf-8") as fh:
+              fh.write(out)
+
+          dropped = sum(1 for s in sections if s and is_excluded(s))
+          print(f"Dropped {dropped} excluded file section(s); filtered diff size: {len(out)} bytes")
+          PY
+
       - name: Run AI review
         env:
           PROMPT_FILE: ${{ matrix.prompt.path }}

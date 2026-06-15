@@ -143,10 +143,17 @@ fi
 
 # =============================================================================
 # 2. AI verdict — read every ai-review-* artifact
+#
+# Gate policy (severity-based): only HIGH/CRITICAL findings — or an explicit
+# Tier 3 (critical path / needs a human), or a review that couldn't run —
+# block the merge. MEDIUM/LOW findings are surfaced as non-blocking warnings
+# and do NOT stop auto-merge.
 # =============================================================================
 
 declare -a ai_results=()
 declare -i max_tier=1
+has_block_sev=false      # any high/critical finding
+has_any_findings=false   # any finding at all (for warning vs clean wording)
 ai_findings_md=""
 
 shopt -s nullglob
@@ -154,37 +161,55 @@ for d in "$ARTIFACTS_DIR"/ai-review-*/; do
     f="${d}result.json"
     [[ -f "$f" ]] || continue
     ai_results+=("$f")
+
     tier=$(jq -r '.tier // 2' "$f")
-    if (( tier > max_tier )); then
-        max_tier=$tier
+    (( tier > max_tier )) && max_tier=$tier
+
+    if jq -e '[(.findings // [])[].severity // "" | ascii_downcase] | any(. == "high" or . == "critical")' "$f" >/dev/null 2>&1; then
+        has_block_sev=true
+    fi
+    if jq -e '((.findings // []) | length) > 0' "$f" >/dev/null 2>&1; then
+        has_any_findings=true
     fi
 done
 shopt -u nullglob
 
+no_ai=false
 if [[ ${#ai_results[@]} -eq 0 ]]; then
-    echo "::warning::No AI review artifacts — treating as tier 2 fail-safe"
-    max_tier=2
+    echo "::warning::No AI review artifacts — fail-safe block"
+    no_ai=true
 fi
 
-# Build a markdown section per AI prompt result.
+# Final AI gate: block on a high/critical finding, an explicit Tier 3, or a
+# review that did not run. Tier 2 on its own (only medium/low) does NOT block.
+ai_blocked=false
+if $no_ai || $has_block_sev || (( max_tier >= 3 )); then
+    ai_blocked=true
+fi
+
+# Build a markdown section per AI prompt result, labelled by what it found
+# (blocking high/critical vs non-blocking warnings vs clean).
 for f in "${ai_results[@]}"; do
     prompt=$(jq -r '.prompt // "unknown"' "$f")
     model=$(jq -r '.model // "?"' "$f")
-    tier=$(jq -r '.tier // 2' "$f")
     summary=$(jq -r '.summary // "(no summary)"' "$f")
+    p_block=$(jq -r '[(.findings // [])[].severity // "" | ascii_downcase] | any(. == "high" or . == "critical")' "$f" 2>/dev/null || echo false)
+    p_count=$(jq -r '(.findings // []) | length' "$f" 2>/dev/null || echo 0)
+    p_tier=$(jq -r '.tier // 2' "$f")
     findings=$(jq -r '
-        .findings // [] |
+        (.findings // []) |
         if length == 0 then "  _No findings._"
         else
             map("  - **\(.severity // "?")** `\(.file // "?"):\(.line // "?")` — \(.message // "")") | join("\n")
         end
     ' "$f")
-    case "$tier" in
-        1) icon="✅" label="Tier 1 — looks clean" ;;
-        2) icon="⚠️" label="Tier 2 — changes requested" ;;
-        3) icon="🛑" label="Tier 3 — engineer review required" ;;
-        *) icon="❓" label="Tier ?" ;;
-    esac
+    if [[ "$p_block" == "true" || "$p_tier" == "3" ]]; then
+        icon="🛑" label="blocking — must fix before merge"
+    elif (( p_count > 0 )); then
+        icon="⚠️" label="non-blocking warnings"
+    else
+        icon="✅" label="clean"
+    fi
     ai_findings_md+=$'\n'"#### $icon \`$prompt\` (\`$model\`) — $label"$'\n\n'
     ai_findings_md+="**Summary:** $summary"$'\n\n'
     ai_findings_md+="$findings"$'\n'
@@ -219,32 +244,30 @@ else
 fi
 
 # --- AI verdict comment (always) ---
-case "$max_tier" in
-    1)
-        ai_header="### ✅ AI review — Approved"
-        ai_intro="All prompts returned Tier 1. No blocking issues detected in this diff."
-        ;;
-    2)
-        ai_header="### ⚠️ AI review — Changes requested"
-        ai_intro="One or more prompts found issues the author should fix before merging. Details below."
-        ;;
-    3)
-        mention=""
-        if [[ -n "$TIER3_REVIEWERS" ]]; then
-            IFS=',' read -ra handles <<< "$TIER3_REVIEWERS"
-            for h in "${handles[@]}"; do
-                h="$(echo "$h" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^@//')"
-                [[ -n "$h" ]] && mention+="@$h "
-            done
-        fi
-        ai_header="### 🛑 AI review — Engineer review required"
-        ai_intro="This PR touches critical paths or introduces changes the model cannot judge with sufficient confidence. ${mention}please review."
-        ;;
-    *)
-        ai_header="### ❓ AI review — Unknown verdict"
-        ai_intro="The approver could not determine an overall tier."
-        ;;
-esac
+if $no_ai; then
+    ai_header="### ❓ AI review — could not run"
+    ai_intro="No AI results were produced, so the merge is held for a human. Check the workflow logs."
+elif (( max_tier >= 3 )); then
+    mention=""
+    if [[ -n "$TIER3_REVIEWERS" ]]; then
+        IFS=',' read -ra handles <<< "$TIER3_REVIEWERS"
+        for h in "${handles[@]}"; do
+            h="$(echo "$h" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^@//')"
+            [[ -n "$h" ]] && mention+="@$h "
+        done
+    fi
+    ai_header="### 🛑 AI review — Engineer review required"
+    ai_intro="This PR touches critical paths or introduces changes the model cannot judge with sufficient confidence. ${mention}please review."
+elif $has_block_sev; then
+    ai_header="### 🛑 AI review — Blocking issues"
+    ai_intro="One or more high/critical issues can break things and must be fixed before merging. Details below."
+elif $has_any_findings; then
+    ai_header="### ✅ AI review — Approved with warnings"
+    ai_intro="Only minor (medium/low) issues were found. They won't block the merge, but consider addressing them."
+else
+    ai_header="### ✅ AI review — Approved"
+    ai_intro="No issues detected in this diff."
+fi
 
 ai_body=$(cat <<EOF
 $ai_header
@@ -317,18 +340,18 @@ fi
 # =============================================================================
 
 if [[ -n "$APPROVER_TOKEN" || "$DRY_RUN" == "1" ]]; then
-    if ! $deps_failed && [[ "$max_tier" == "1" ]] && $authorized; then
+    if ! $deps_failed && ! $ai_blocked && $authorized; then
         review_event="APPROVE"
-        review_body="Approved by AI review (Tier 1, deps OK, authorized author)."
+        review_body="Approved — no blocking issues, deps OK, authorized author. Any non-blocking warnings are listed above."
     elif ! $authorized; then
         review_event="REQUEST_CHANGES"
         review_body="Author is not in @${ORG}/${ADMIN_TEAM} nor @${ORG}/${CORE_TEAM} — admin review required."
-    elif [[ "$max_tier" == "3" ]] || $deps_failed; then
+    elif $deps_failed; then
         review_event="REQUEST_CHANGES"
-        review_body="Changes requested — see approver comments above."
+        review_body="Changes requested — Go dependencies check failed (see above)."
     else
         review_event="REQUEST_CHANGES"
-        review_body="Changes requested by AI review (Tier 2)."
+        review_body="Changes requested — AI review found blocking issues (high/critical, or engineer review required). See above."
     fi
 
     if [[ "$DRY_RUN" == "1" ]]; then
@@ -359,7 +382,7 @@ fi
 # stays pending.
 # =============================================================================
 
-if ! $deps_failed && [[ "$max_tier" == "1" ]] && $authorized; then
+if ! $deps_failed && ! $ai_blocked && $authorized; then
     if [[ "$BASE_REF" == release/* ]]; then
         if [[ "$DRY_RUN" == "1" ]]; then
             echo "[DRY_RUN] Would enable auto-merge: gh pr merge $PR_NUMBER --auto --$MERGE_METHOD (base: $BASE_REF)"
@@ -383,10 +406,12 @@ fi
 
 echo ""
 echo "Summary:"
-echo "  deps_failed: $deps_failed"
-echo "  max_tier:    $max_tier"
-echo "  authorized:  $authorized"
-echo "  base_ref:    $BASE_REF"
+echo "  deps_failed:    $deps_failed"
+echo "  max_tier:       $max_tier"
+echo "  has_block_sev:  $has_block_sev"
+echo "  ai_blocked:     $ai_blocked"
+echo "  authorized:     $authorized"
+echo "  base_ref:       $BASE_REF"
 
 if $deps_failed; then
     exit 1
@@ -396,7 +421,7 @@ if ! $authorized; then
     exit 1
 fi
 
-if [[ "$max_tier" -ge 2 ]]; then
+if $ai_blocked; then
     exit 1
 fi
 

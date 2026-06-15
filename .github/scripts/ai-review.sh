@@ -47,10 +47,10 @@ write_fallback() {
             tier: 2,
             summary: "AI review could not parse model response — manual review recommended.",
             findings: [{
-                severity: "medium",
+                severity: "high",
                 file: "(n/a)",
                 line: 0,
-                message: $reason
+                message: ($reason + " (fail-safe: a review that cannot run is treated as blocking).")
             }]
         }' > "$OUTPUT_FILE"
     echo "::warning::Wrote fallback result: $reason"
@@ -82,6 +82,19 @@ fi
 MODEL="${prompt_model:-$DEFAULT_MODEL}"
 
 echo "::group::AI review — prompt: $prompt_name (model: $MODEL)"
+
+# --- Nothing to review -------------------------------------------------------
+# The diff can be empty after upstream filtering (e.g. a PR that only touches
+# excluded rules/filters/definitions paths). Pass as Tier 1 instead of calling
+# the model with an empty diff.
+if [[ ! -s "$DIFF_FILE" ]] || ! grep -q '[^[:space:]]' "$DIFF_FILE"; then
+    jq -n --arg prompt "$prompt_name" --arg model "$MODEL" \
+        '{prompt: $prompt, model: $model, tier: 1, summary: "No reviewable changes in this diff (excluded paths only).", findings: []}' \
+        > "$OUTPUT_FILE"
+    echo "Empty diff — wrote Tier 1 pass."
+    echo "::endgroup::"
+    exit 0
+fi
 
 # --- Build request body ------------------------------------------------------
 

@@ -27,7 +27,7 @@ this exact shape (no markdown, no code fences, no extra text):
   "summary": "<one line, max 200 chars>",
   "findings": [
     {
-      "severity": "high" | "medium" | "low",
+      "severity": "critical" | "high" | "medium" | "low",
       "file": "<path>",
       "line": <int>,
       "message": "<description and mitigation>"
@@ -36,22 +36,33 @@ this exact shape (no markdown, no code fences, no extra text):
 }
 ```
 
+### Severity drives the merge gate
+
+The approver blocks the merge based on **severity**, not on how many findings
+there are. Pick the lowest severity that honestly fits — don't inflate a nit.
+
+- **`critical` / `high` → BLOCKING.** Something that can break: crashes, nil
+  dereferences, data loss/corruption, races/deadlocks, broken or unsafe DB
+  migrations, security holes, breaking API/proto/contract changes. These stop
+  auto-merge.
+- **`medium` / `low` → non-blocking WARNING.** Real but contained: missing
+  user feedback, inconsistent patterns, naming, typos in docs/strings, style.
+  Reported as warnings; the PR can still merge.
+
 ### Tier semantics
 
-- **Tier 1 — Approve.** The change is simple, doesn't touch critical logic,
-  no issues detected. The approver aggregates all tiers and, if every
-  prompt returns Tier 1, approves the PR.
-- **Tier 2 — Changes requested.** Minor issues the author must fix before
-  merging: typos, small bugs, out-of-context code, noticeable style
-  problems, incomplete mocks or tests.
-- **Tier 3 — Engineer review required.** The diff touches critical paths
-  (crypto, auth, DB migrations, installer, gRPC contracts, CI/CD, secret
-  handling) or introduces changes the model can't judge with sufficient
-  confidence. The approver blocks the merge and @mentions the senior
-  engineering team.
+`tier` is a coarse signal. The gate uses severity for blocking, **plus** Tier 3:
 
-The approver takes the **maximum tier** across all prompts: if security
-returns Tier 1 but architecture returns Tier 3, the final verdict is Tier 3.
+- **Tier 1** — fine to merge; no high/critical issues (minor warnings allowed).
+- **Tier 2** — at least one high-severity bug that should be fixed.
+- **Tier 3** — engineer review required / could break. Critical paths (crypto,
+  auth, DB migrations, installer, gRPC contracts, CI/CD, secret handling) or
+  changes the model can't judge confidently. Always blocks and @mentions the
+  team.
+
+**The merge is blocked if** any finding is `high`/`critical`, **or** any prompt
+returns Tier 3, **or** no review ran. Otherwise the approver approves the PR
+(any medium/low findings ride along as warnings).
 
 ### When there's nothing to report
 
@@ -60,10 +71,9 @@ Tier 1, a brief `summary` ("No security concerns detected.") and
 
 ### Unparseable responses
 
-If the model returns something that isn't valid JSON matching the schema,
-the approver treats it as **Tier 2** with a generic finding asking for
-manual review. Fail-safe behaviour — we'd rather block and ask for human
-review than let something pass without understanding it.
+If the model returns something that isn't valid JSON matching the schema, the
+approver treats it as a blocking `high` finding. Fail-safe behaviour — we'd
+rather hold for a human than let something pass without understanding it.
 
 ## Picking a model
 
