@@ -4,9 +4,9 @@ dataTypes:
   - google
 name: GCP Privileged Role Granted — Owner or Editor
 impact:
-  confidentiality: 5
-  integrity: 5
-  availability: 3
+  confidentiality: 3
+  integrity: 3
+  availability: 1
 category: Privilege Escalation
 technique: "T1078 - Valid Accounts"
 adversary: origin
