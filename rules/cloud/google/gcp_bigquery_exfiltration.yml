@@ -26,21 +26,21 @@ description: |
   7. Implement VPC Service Controls to restrict data export
   8. Enable BigQuery authorized views to restrict data access
 where: |
-  contains("log.protoPayload.serviceName", "bigquery.googleapis.com") &&
-  (contains("log.protoPayload.methodName", "jobservice.insert") ||
-   contains("log.protoPayload.methodName", "tableservice.exportdata") ||
-   contains("log.protoPayload.methodName", "datasets.copy"))
+  contains("log.protoPayloadServiceName", "bigquery.googleapis.com") &&
+  (contains("log.protoPayloadMethodName", "jobservice.insert") ||
+   contains("log.protoPayloadMethodName", "tableservice.exportdata") ||
+   contains("log.protoPayloadMethodName", "datasets.copy"))
 afterEvents:
   - indexPattern: v11-log-google-*
     with:
-      - field: log.protoPayload.authenticationInfo.principalEmail
+      - field: origin.user
         operator: filter_term
-        value: '{{.log.protoPayload.authenticationInfo.principalEmail}}'
-      - field: log.protoPayload.serviceName
+        value: '{{.origin.user}}'
+      - field: log.protoPayloadServiceName
         operator: filter_term
         value: bigquery.googleapis.com
     within: 30m
     count: 10
 groupBy:
-  - lastEvent.log.protoPayload.methodName
+  - lastEvent.log.protoPayloadMethodName
   - adversary.user

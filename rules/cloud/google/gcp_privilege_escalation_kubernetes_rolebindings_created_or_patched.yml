@@ -20,9 +20,9 @@ references:
   - "https://attack.mitre.org/tactics/TA0004/"
   - "https://attack.mitre.org/techniques/T1548"
 where: |
-  contains("log.protoPayload.methodName", ".rbac") &&
-      regexMatch("log.protoPayload.methodName", '((.+)\\.)?(cluster)?rolebinding(s)?\\.(create|patch)$') &&
-      !equals("log.protoPayload.authenticationInfo.principalEmail", "system:addon-manager")
+  contains("log.protoPayloadMethodName", ".rbac") &&
+      regexMatch("log.protoPayloadMethodName", '((.+)\\.)?(cluster)?rolebinding(s)?\\.(create|patch)$') &&
+      !equals("origin.user", "system:addon-manager")
 groupBy:
   - adversary.ip
   - adversary.user

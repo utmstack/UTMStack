@@ -15,7 +15,7 @@ references:
   - "https://attack.mitre.org/tactics/TA0005"
   - "https://attack.mitre.org/techniques/T1562/"
 where: |
-  equals("log.protoPayload.methodName", "google.login.LoginService.2svDisable")
+  equals("log.protoPayloadMethodName", "google.login.LoginService.2svDisable")
 groupBy:
   - adversary.ip
   - adversary.user
