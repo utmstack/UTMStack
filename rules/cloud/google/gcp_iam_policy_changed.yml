@@ -4,9 +4,9 @@ dataTypes:
   - google
 name: GCP IAM Policy Changed — Privilege Escalation
 impact:
-  confidentiality: 4
-  integrity: 4
-  availability: 3
+  confidentiality: 3
+  integrity: 3
+  availability: 2
 category: Privilege Escalation
 technique: "T1098 - Account Manipulation"
 adversary: origin
