@@ -5,14 +5,12 @@ import {
   AlertTriangle,
   ArrowLeft,
   BadgeCheck,
-  BarChart3,
   Bell,
   Bot,
   Boxes,
   CalendarClock,
   ChevronDown,
   Database,
-  FilePlus2,
   Flame,
   HardDriveDownload,
   History,
@@ -21,8 +19,6 @@ import {
   KeyRound,
   Languages,
   LayoutDashboard,
-  LineChart,
-  List,
   Mail,
   Palette,
   Plug,
@@ -49,6 +45,8 @@ type LeafItem = {
   to: string
   label: string
   icon: LucideIcon
+  /** Light up for any path under `to` (e.g. Dashboards spans /dashboards/*). */
+  matchPrefix?: boolean
 }
 
 type GroupItem = {
@@ -79,19 +77,8 @@ const sections: Section[] = [
     id: 'main',
     label: null,
     items: [
-      { to: '/home', label: 'nav.home', icon: Home },
-      {
-        id: 'dashboards',
-        label: 'nav.dashboards',
-        icon: LayoutDashboard,
-        basePath: '/dashboards',
-        children: [
-          { to: '/dashboards/list', label: 'nav.dashboardList', icon: List },
-          { to: '/dashboards/visualizations', label: 'nav.visualizationList', icon: BarChart3 },
-          { to: '/dashboards/new', label: 'nav.newDashboard', icon: FilePlus2 },
-          { to: '/dashboards/visualizations/new', label: 'nav.newVisualization', icon: LineChart },
-        ],
-      },
+      { to: '/home', label: 'nav.overview', icon: Home },
+      { to: '/dashboards', label: 'nav.dashboards', icon: LayoutDashboard, matchPrefix: true },
       {
         id: 'threat-management',
         label: 'nav.threatManagement',
@@ -241,7 +228,7 @@ export function Sidebar() {
                       <SidebarLeaf
                         key={item.to}
                         item={item}
-                        active={isPathActive(item.to)}
+                        active={item.matchPrefix ? isBaseActive(item.to) : isPathActive(item.to)}
                       />
                     )
                   )}

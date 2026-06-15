@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Calendar, Loader2, Plus, Trash2, X } from 'lucide-react'
+import { ArrowLeft, BarChart3, Calendar, Loader2, Plus, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
@@ -17,6 +17,7 @@ import {
   useVisualizations,
 } from '@/features/dashboard/hooks/useVisualizations'
 import { CHART_TYPES } from '@/features/dashboard/constants'
+import { getChartIcon } from '@/features/dashboard/components/chart-icon'
 import { parseBuilderConfig } from '@/features/dashboard/utils/builder-config'
 import type { ChartTypeId, Visualization } from '@/features/dashboard/types'
 
@@ -211,18 +212,26 @@ export function VisualizationListPage() {
   }
 
   return (
-    <div className="mx-auto flex h-full w-full max-w-[1400px] flex-col gap-4 px-6 py-6">
+    <div className="mx-auto flex h-full w-full max-w-[1100px] flex-col gap-4 px-6 pb-6 pt-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold">{t('dashboards.visualizationList.title')}</h1>
-          <p className="text-sm text-muted-foreground">
+        <div className="flex items-center gap-3">
+          <Link
+            to="/dashboards/list"
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <ArrowLeft size={15} />
+            {t('dashboards.tabs.dashboards')}
+          </Link>
+          <span className="text-border">/</span>
+          <h1 className="flex items-center gap-2 text-base font-semibold">
+            <BarChart3 size={16} className="text-muted-foreground" />
+            {t('dashboards.tabs.visualizations')}
+          </h1>
+          <span className="text-xs text-muted-foreground">
             {filtersActive
-              ? t('dashboards.visualizationList.subtitleFiltered', {
-                  shown: filtered.length,
-                  total,
-                })
+              ? t('dashboards.visualizationList.subtitleFiltered', { shown: filtered.length, total })
               : t('dashboards.visualizationList.subtitle', { count: total })}
-          </p>
+          </span>
         </div>
         <Button asChild size="sm">
           <Link to="/dashboards/visualizations/new">
@@ -347,7 +356,9 @@ export function VisualizationListPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map(({ viz: v, chartType, source }) => (
+                {filtered.map(({ viz: v, chartType, source }) => {
+                  const ChartIcon = getChartIcon(chartType)
+                  return (
                   <tr
                     key={v.id}
                     className="border-b border-border/60 last:border-0 hover:bg-muted/40"
@@ -355,8 +366,17 @@ export function VisualizationListPage() {
                     <td className="px-3 py-2 font-medium">
                       <Link
                         to={`/dashboards/visualizations/${v.id}`}
-                        className="text-foreground hover:text-primary hover:underline"
+                        className="flex items-center gap-2 text-foreground hover:text-primary hover:underline"
                       >
+                        <ChartIcon
+                          size={15}
+                          className="shrink-0 text-muted-foreground"
+                          aria-label={
+                            chartType
+                              ? t(`dashboards.editor.chartTypes.${chartType}.label`) ?? undefined
+                              : undefined
+                          }
+                        />
                         {v.name}
                       </Link>
                     </td>
@@ -384,7 +404,8 @@ export function VisualizationListPage() {
                       )}
                     </td>
                   </tr>
-                ))}
+                  )
+                })}
               </tbody>
             </table>
           )}

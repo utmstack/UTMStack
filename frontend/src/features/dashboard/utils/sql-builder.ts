@@ -116,12 +116,15 @@ export function composeSql(state: BuilderState): string {
   }
 
   if (state.chartType === 'table') {
+    // Legacy raw SELECT (kept for widgets saved before the columns picker).
     const advanced = state.advancedSelect?.trim()
     if (advanced) {
       if (hasWhereClause(advanced)) return advanced
       return `${advanced}\n${where}\nLIMIT 100`
     }
-    return [`SELECT *`, `FROM ${indexPattern}`, where, `LIMIT 100`].join('\n')
+    const cols = (state.columns ?? []).map((c) => c.trim()).filter(Boolean)
+    const select = cols.length > 0 ? cols.join(', ') : '*'
+    return [`SELECT ${select}`, `FROM ${indexPattern}`, where, `LIMIT 100`].join('\n')
   }
 
   const dimensionExpr = (state.dimension?.trim() || 'NULL').trim()

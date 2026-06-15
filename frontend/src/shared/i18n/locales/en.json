@@ -180,9 +180,9 @@
     "home": "Home",
     "dashboards": "Dashboards",
     "dashboardList": "Dashboard list",
-    "visualizationList": "Visualization list",
+    "visualizationList": "Widget list",
     "newDashboard": "New dashboard",
-    "newVisualization": "New visualization",
+    "newVisualization": "New widget",
     "threatManagement": "Threat Management",
     "alerts": "Alerts",
     "taggingRules": "Tagging Rules",
@@ -204,7 +204,8 @@
     "settings": "Settings",
     "back": "Back",
     "parsingFilters": "Parsing Filters",
-    "regexPatterns": "Regex Patterns"
+    "regexPatterns": "Regex Patterns",
+    "overview": "Overview"
   },
   "dashboards": {
     "title": "Dashboards",
@@ -226,14 +227,14 @@
       "addWidget": "Add widget",
       "save": "Save",
       "discard": "Discard",
-      "newTitle": "New visualization",
+      "newTitle": "New widget",
       "newSubtitle": "Pick a chart type, choose a data source, and shape it visually. SQL is generated for you.",
-      "editTitle": "Edit visualization",
-      "editSubtitle": "Tweak the chart definition. Changes apply everywhere this visualization is used.",
-      "loading": "Loading visualization…",
-      "notFoundTitle": "Visualization not found",
+      "editTitle": "Edit widget",
+      "editSubtitle": "Tweak the chart definition. Changes apply everywhere this widget is used.",
+      "loading": "Loading widget…",
+      "notFoundTitle": "Widget not found",
       "notFoundSubtitle": "It may have been deleted or you may not have access.",
-      "backToList": "Back to visualizations",
+      "backToList": "Back to widgets",
       "chartType": {
         "title": "Chart type"
       },
@@ -296,18 +297,18 @@
         }
       },
       "dataSource": {
-        "title": "Data source",
-        "indexPattern": "Index pattern",
-        "noPatternHint": "Choose an index pattern to enable filters, metric and dimension."
+        "title": "Which data?",
+        "indexPattern": "Data set",
+        "noPatternHint": "Choose a data set to enable conditions, measure and grouping."
       },
       "indexPattern": {
         "placeholder": "Select an index pattern…",
         "loading": "Loading index patterns…"
       },
       "filters": {
-        "title": "Filters",
-        "empty": "No filters — all documents in range will be included.",
-        "add": "Add filter",
+        "title": "Include only events where…",
+        "empty": "No conditions — all events in the time range are included.",
+        "add": "Add condition",
         "remove": "Remove",
         "field": "Field",
         "fieldPlaceholder": "e.g. host.name",
@@ -334,28 +335,33 @@
         "DOES_NOT_EXIST": "does not exist"
       },
       "aggregations": {
-        "count": "Count",
-        "count_distinct": "Count distinct",
+        "count": "Number of events",
+        "count_distinct": "Unique values",
         "sum": "Sum",
         "avg": "Average",
-        "min": "Min",
-        "max": "Max"
+        "min": "Minimum",
+        "max": "Maximum"
       },
       "metric": {
-        "title": "Metric (Y-axis)",
-        "aggregation": "Aggregation",
-        "field": "Field",
+        "title": "What do you want to measure?",
+        "aggregation": "Measure",
+        "field": "Of field",
         "fieldPlaceholder": "Pick a field…",
-        "fieldNotRequired": "Not needed for COUNT(*)"
+        "fieldNotRequired": "Not needed when counting events"
       },
       "dimension": {
-        "title": "Dimension (X-axis / group by)",
+        "title": "Group by",
         "field": "Field",
         "placeholder": "Pick a field to group by…"
       },
       "table": {
         "title": "Custom SELECT (optional)",
-        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status"
+        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status",
+        "hint": "Shows every column of the matching events. To pick specific columns or aggregate, switch to the SQL tab.",
+        "columnsTitle": "Columns",
+        "allColumns": "All columns will be shown. Add fields to pick specific ones.",
+        "addColumn": "Add a column…",
+        "removeColumn": "Remove column"
       },
       "sqlPreview": {
         "title": "SQL preview",
@@ -387,24 +393,27 @@
         "swapConfirm": "Apply"
       },
       "saveDialog": {
-        "createTitle": "Save new visualization",
+        "createTitle": "Save new widget",
         "updateTitle": "Save changes",
         "subtitle": "Give it a name so you can find it in the list."
       },
-      "saveVisualization": "Save visualization",
+      "saveVisualization": "Save widget",
       "fieldSelect": {
         "loading": "Loading fields…",
         "choose": "Choose a field…"
       },
       "toast": {
         "notReady": "Pick an index pattern (and add a metric or SQL) before saving."
-      }
+      },
+      "nameLabel": "Name",
+      "namePlaceholder": "e.g. Top sources by volume",
+      "descriptionLabel": "Description (optional)"
     },
     "grid": {
       "empty": "This dashboard has no widgets yet.",
-      "emptyEditing": "Click \"Add widget\" to drop a visualization onto the grid.",
-      "missingVisualization": "Visualization unavailable",
-      "unknownVisualization": "Visualization"
+      "emptyEditing": "Click \"Add widget\" to drop a widget onto the grid.",
+      "missingVisualization": "Widget unavailable",
+      "unknownVisualization": "Widget"
     },
     "widget": {
       "renderError": "Could not render this widget.",
@@ -416,7 +425,16 @@
       "regionMapShapeHint": "The SQL must return latitude and longitude columns (or a value array [lat, lon, count]).",
       "regionMapUnnamed": "(unnamed)",
       "regionMapValue": "value: {{value}}",
-      "removeAriaLabel": "Remove widget"
+      "removeAriaLabel": "Remove widget",
+      "moveBack": "Move back",
+      "moveForward": "Move forward",
+      "width": "Width",
+      "height": "Height",
+      "widthSmall": "1 col",
+      "widthMedium": "2 cols",
+      "widthLarge": "3 cols",
+      "heightNormal": "Normal",
+      "heightTall": "Tall"
     },
     "form": {
       "createTitle": "New dashboard",
@@ -430,11 +448,11 @@
       "save": "Save"
     },
     "addWidget": {
-      "title": "Add visualization",
-      "subtitle": "Pick one or more existing visualizations to drop on the grid.",
-      "searchPlaceholder": "Search visualizations…",
-      "loading": "Loading visualizations…",
-      "empty": "No visualizations found.",
+      "title": "Add widget",
+      "subtitle": "Pick one or more existing widgets to drop on the grid.",
+      "searchPlaceholder": "Search widgets…",
+      "loading": "Loading widgets…",
+      "empty": "No widgets found.",
       "alreadyAdded": "Already on this dashboard",
       "newWidget": "New widget",
       "noneSelected": "No widgets selected",
@@ -461,19 +479,19 @@
       "widgetAddFailed": "Could not add widget.",
       "layoutSaved": "Layout saved.",
       "layoutSaveFailed": "Could not save layout.",
-      "visualizationCreated": "Visualization created.",
-      "visualizationCreateFailed": "Could not create visualization.",
-      "visualizationUpdated": "Visualization updated.",
-      "visualizationUpdateFailed": "Could not update visualization.",
-      "visualizationDeleted": "Visualization deleted.",
-      "visualizationDeleteFailed": "Could not delete visualization."
+      "visualizationCreated": "Widget created.",
+      "visualizationCreateFailed": "Could not create widget.",
+      "visualizationUpdated": "Widget updated.",
+      "visualizationUpdateFailed": "Could not update widget.",
+      "visualizationDeleted": "Widget deleted.",
+      "visualizationDeleteFailed": "Could not delete widget."
     },
     "newDashboard": {
       "title": "New dashboard",
       "subtitle": "Create a blank dashboard. You can add widgets after it's saved."
     },
     "newVisualization": {
-      "title": "New visualization",
+      "title": "New widget",
       "subtitle": "Define a reusable chart from a SQL query and an ECharts option config.",
       "sqlQuery": "SQL query",
       "sqlQueryPlaceholder": "SELECT bucket, count(*) FROM logs GROUP BY bucket",
@@ -483,17 +501,17 @@
       "configError": "Invalid JSON: {{error}}"
     },
     "visualizationList": {
-      "title": "Visualizations",
-      "subtitle": "{{count}} visualization(s) available.",
+      "title": "Widgets",
+      "subtitle": "{{count}} widget(s) available.",
       "subtitleFiltered": "Showing {{shown}} of {{total}}.",
       "create": "New",
-      "searchPlaceholder": "Search visualizations…",
-      "loading": "Loading visualizations…",
-      "empty": "No visualizations yet.",
-      "emptyFiltered": "No visualizations match the current filters.",
+      "searchPlaceholder": "Search widgets…",
+      "loading": "Loading widgets…",
+      "empty": "No widgets yet.",
+      "emptyFiltered": "No widgets match the current filters.",
       "delete": "Delete",
-      "deleteTitle": "Delete visualization",
-      "confirmDelete": "Delete visualization \"{{name}}\"? This cannot be undone.",
+      "deleteTitle": "Delete widget",
+      "confirmDelete": "Delete widget \"{{name}}\"? This cannot be undone.",
       "filters": {
         "search": "Search",
         "chartType": "Chart type",
@@ -523,6 +541,25 @@
         "created": "Created",
         "modified": "Modified"
       }
+    },
+    "tabs": {
+      "dashboards": "Dashboards",
+      "visualizations": "Widgets",
+      "newDashboard": "New dashboard",
+      "unsetDefault": "Unset default",
+      "options": "Options"
+    },
+    "picker": {
+      "none": "Select dashboard",
+      "search": "Search dashboards…",
+      "new": "New dashboard",
+      "setDefault": "Set as default",
+      "empty": "No dashboards"
+    },
+    "empty": {
+      "title": "No dashboards yet",
+      "body": "Create your first dashboard to see your security data at a glance.",
+      "cta": "Create dashboard"
     }
   },
   "settings": {

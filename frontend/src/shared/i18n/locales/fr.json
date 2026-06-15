@@ -180,9 +180,9 @@
     "home": "Accueil",
     "dashboards": "Tableaux de bord",
     "dashboardList": "Liste des tableaux",
-    "visualizationList": "Visualisations",
+    "visualizationList": "Widgets",
     "newDashboard": "Nouveau tableau",
-    "newVisualization": "Nouvelle visualisation",
+    "newVisualization": "Nouveau widget",
     "threatManagement": "Gestion des menaces",
     "alerts": "Alertes",
     "incidents": "Incidents",
@@ -204,7 +204,8 @@
     "back": "Retour",
     "regexPatterns": "Expressions régulières",
     "taggingRules": "Règles d'étiquetage",
-    "parsingFilters": "Filtres d'analyse"
+    "parsingFilters": "Filtres d'analyse",
+    "overview": "Vue d'ensemble"
   },
   "dashboards": {
     "title": "Tableaux de bord",
@@ -226,14 +227,14 @@
       "addWidget": "Ajouter un widget",
       "save": "Enregistrer",
       "discard": "Annuler",
-      "newTitle": "Nouvelle visualisation",
+      "newTitle": "Nouveau widget",
       "newSubtitle": "Choisissez un type de graphique, une source de données et mettez-le en forme visuellement. La requête SQL est générée automatiquement.",
-      "editTitle": "Modifier la visualisation",
-      "editSubtitle": "Ajustez la définition du graphique. Les modifications s'appliquent partout où cette visualisation est utilisée.",
-      "loading": "Chargement de la visualisation…",
-      "notFoundTitle": "Visualisation introuvable",
+      "editTitle": "Modifier le widget",
+      "editSubtitle": "Ajustez la définition du graphique. Les modifications s'appliquent partout où ce widget est utilisé.",
+      "loading": "Chargement du widget…",
+      "notFoundTitle": "Widget introuvable",
       "notFoundSubtitle": "Elle a peut-être été supprimée ou vous n'y avez pas accès.",
-      "backToList": "Retour aux visualisations",
+      "backToList": "Retour aux widgets",
       "chartType": {
         "title": "Type de graphique"
       },
@@ -296,18 +297,18 @@
         }
       },
       "dataSource": {
-        "title": "Source de données",
-        "indexPattern": "Modèle d'index",
-        "noPatternHint": "Choisissez un modèle d'index pour activer les filtres, la métrique et la dimension."
+        "title": "Quelles données ?",
+        "indexPattern": "Jeu de données",
+        "noPatternHint": "Choisissez un jeu de données pour activer les conditions, la mesure et le regroupement."
       },
       "indexPattern": {
         "placeholder": "Sélectionnez un modèle d'index…",
         "loading": "Chargement des modèles d'index…"
       },
       "filters": {
-        "title": "Filtres",
-        "empty": "Aucun filtre — tous les documents de la plage seront inclus.",
-        "add": "Ajouter un filtre",
+        "title": "Inclure uniquement les événements où…",
+        "empty": "Aucune condition — tous les événements de la plage horaire sont inclus.",
+        "add": "Ajouter une condition",
         "remove": "Retirer",
         "field": "Champ",
         "fieldPlaceholder": "ex. host.name",
@@ -334,28 +335,33 @@
         "DOES_NOT_EXIST": "n'existe pas"
       },
       "aggregations": {
-        "count": "Nombre",
-        "count_distinct": "Nombre distinct",
+        "count": "Nombre d’événements",
+        "count_distinct": "Valeurs uniques",
         "sum": "Somme",
         "avg": "Moyenne",
-        "min": "Min",
-        "max": "Max"
+        "min": "Minimum",
+        "max": "Maximum"
       },
       "metric": {
-        "title": "Métrique (axe Y)",
-        "aggregation": "Agrégation",
-        "field": "Champ",
+        "title": "Que voulez-vous mesurer ?",
+        "aggregation": "Mesure",
+        "field": "Du champ",
         "fieldPlaceholder": "Choisissez un champ…",
-        "fieldNotRequired": "Non requis pour COUNT(*)"
+        "fieldNotRequired": "Inutile pour le comptage d’événements"
       },
       "dimension": {
-        "title": "Dimension (axe X / regrouper par)",
+        "title": "Regrouper par",
         "field": "Champ",
-        "placeholder": "Choisissez un champ pour regrouper…"
+        "placeholder": "Choisissez un champ à regrouper…"
       },
       "table": {
         "title": "SELECT personnalisé (facultatif)",
-        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status"
+        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status",
+        "hint": "Affiche toutes les colonnes des événements correspondants. Pour choisir des colonnes précises ou agréger, passez à l’onglet SQL.",
+        "columnsTitle": "Colonnes",
+        "allColumns": "Toutes les colonnes seront affichées. Ajoutez des champs pour en choisir certaines.",
+        "addColumn": "Ajouter une colonne…",
+        "removeColumn": "Retirer la colonne"
       },
       "sqlPreview": {
         "title": "Aperçu SQL",
@@ -387,24 +393,27 @@
         "swapConfirm": "Appliquer"
       },
       "saveDialog": {
-        "createTitle": "Enregistrer une nouvelle visualisation",
+        "createTitle": "Enregistrer un nouveau widget",
         "updateTitle": "Enregistrer les modifications",
         "subtitle": "Donnez-lui un nom pour la retrouver dans la liste."
       },
-      "saveVisualization": "Enregistrer la visualisation",
+      "saveVisualization": "Enregistrer le widget",
       "fieldSelect": {
         "loading": "Chargement des champs…",
         "choose": "Choisissez un champ…"
       },
       "toast": {
         "notReady": "Choisissez un modèle d'index (et ajoutez une métrique ou du SQL) avant d'enregistrer."
-      }
+      },
+      "nameLabel": "Nom",
+      "namePlaceholder": "ex. Principales sources par volume",
+      "descriptionLabel": "Description (facultative)"
     },
     "grid": {
       "empty": "Ce tableau de bord ne contient encore aucun widget.",
-      "emptyEditing": "Cliquez sur « Ajouter un widget » pour déposer une visualisation sur la grille.",
-      "missingVisualization": "Visualisation indisponible",
-      "unknownVisualization": "Visualisation"
+      "emptyEditing": "Cliquez sur « Ajouter un widget » pour déposer un widget sur la grille.",
+      "missingVisualization": "Widget indisponible",
+      "unknownVisualization": "Widget"
     },
     "widget": {
       "renderError": "Impossible d'afficher ce widget.",
@@ -416,7 +425,16 @@
       "regionMapShapeHint": "Le SQL doit renvoyer des colonnes de latitude et de longitude (ou un tableau value [lat, lon, count]).",
       "regionMapUnnamed": "(sans nom)",
       "regionMapValue": "valeur : {{value}}",
-      "removeAriaLabel": "Retirer le widget"
+      "removeAriaLabel": "Retirer le widget",
+      "moveBack": "Reculer",
+      "moveForward": "Avancer",
+      "width": "Largeur",
+      "height": "Hauteur",
+      "widthSmall": "1 col",
+      "widthMedium": "2 cols",
+      "widthLarge": "3 cols",
+      "heightNormal": "Normale",
+      "heightTall": "Haute"
     },
     "form": {
       "createTitle": "Nouveau tableau de bord",
@@ -430,11 +448,11 @@
       "save": "Enregistrer"
     },
     "addWidget": {
-      "title": "Ajouter une visualisation",
-      "subtitle": "Choisissez une ou plusieurs visualisations existantes à déposer sur la grille.",
-      "searchPlaceholder": "Rechercher des visualisations…",
-      "loading": "Chargement des visualisations…",
-      "empty": "Aucune visualisation trouvée.",
+      "title": "Ajouter un widget",
+      "subtitle": "Choisissez un ou plusieurs widgets existants à déposer sur la grille.",
+      "searchPlaceholder": "Rechercher des widgets…",
+      "loading": "Chargement des widgets…",
+      "empty": "Aucun widget trouvé.",
       "alreadyAdded": "Déjà sur ce tableau de bord",
       "newWidget": "Nouveau widget",
       "noneSelected": "Aucun widget sélectionné",
@@ -461,19 +479,19 @@
       "widgetAddFailed": "Impossible d'ajouter le widget.",
       "layoutSaved": "Disposition enregistrée.",
       "layoutSaveFailed": "Impossible d'enregistrer la disposition.",
-      "visualizationCreated": "Visualisation créée.",
-      "visualizationCreateFailed": "Impossible de créer la visualisation.",
-      "visualizationUpdated": "Visualisation mise à jour.",
-      "visualizationUpdateFailed": "Impossible de mettre à jour la visualisation.",
-      "visualizationDeleted": "Visualisation supprimée.",
-      "visualizationDeleteFailed": "Impossible de supprimer la visualisation."
+      "visualizationCreated": "Widget créé.",
+      "visualizationCreateFailed": "Impossible de créer le widget.",
+      "visualizationUpdated": "Widget mis à jour.",
+      "visualizationUpdateFailed": "Impossible de mettre à jour le widget.",
+      "visualizationDeleted": "Widget supprimé.",
+      "visualizationDeleteFailed": "Impossible de supprimer le widget."
     },
     "newDashboard": {
       "title": "Nouveau tableau de bord",
       "subtitle": "Créez un tableau de bord vide. Vous pourrez ajouter des widgets après l'avoir enregistré."
     },
     "newVisualization": {
-      "title": "Nouvelle visualisation",
+      "title": "Nouveau widget",
       "subtitle": "Définissez un graphique réutilisable à partir d'une requête SQL et d'une configuration ECharts.",
       "sqlQuery": "Requête SQL",
       "sqlQueryPlaceholder": "SELECT bucket, count(*) FROM logs GROUP BY bucket",
@@ -483,17 +501,17 @@
       "configError": "JSON non valide : {{error}}"
     },
     "visualizationList": {
-      "title": "Visualisations",
-      "subtitle": "{{count}} visualisation(s) disponible(s).",
+      "title": "Widgets",
+      "subtitle": "{{count}} widget(s) disponible(s).",
       "subtitleFiltered": "{{shown}} sur {{total}} affichées.",
       "create": "Nouvelle",
-      "searchPlaceholder": "Rechercher des visualisations…",
-      "loading": "Chargement des visualisations…",
-      "empty": "Aucune visualisation pour le moment.",
-      "emptyFiltered": "Aucune visualisation ne correspond aux filtres actuels.",
+      "searchPlaceholder": "Rechercher des widgets…",
+      "loading": "Chargement des widgets…",
+      "empty": "Aucun widget pour le moment.",
+      "emptyFiltered": "Aucun widget ne correspond aux filtres actuels.",
       "delete": "Supprimer",
-      "deleteTitle": "Supprimer la visualisation",
-      "confirmDelete": "Supprimer la visualisation « {{name}} » ? Cette action est irréversible.",
+      "deleteTitle": "Supprimer le widget",
+      "confirmDelete": "Supprimer le widget « {{name}} » ? Cette action est irréversible.",
       "filters": {
         "search": "Recherche",
         "chartType": "Type de graphique",
@@ -523,6 +541,25 @@
         "created": "Créée",
         "modified": "Modifiée"
       }
+    },
+    "tabs": {
+      "dashboards": "Tableaux de bord",
+      "visualizations": "Widgets",
+      "newDashboard": "Nouveau tableau de bord",
+      "unsetDefault": "Retirer par défaut",
+      "options": "Options"
+    },
+    "picker": {
+      "none": "Sélectionner un tableau de bord",
+      "search": "Rechercher des tableaux de bord…",
+      "new": "Nouveau tableau de bord",
+      "setDefault": "Définir par défaut",
+      "empty": "Aucun tableau de bord"
+    },
+    "empty": {
+      "title": "Aucun tableau de bord",
+      "body": "Créez votre premier tableau de bord pour voir vos données de sécurité d'un coup d'œil.",
+      "cta": "Créer un tableau de bord"
     }
   },
   "settings": {

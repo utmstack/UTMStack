@@ -70,6 +70,9 @@ function sanitizeBuilder(raw: Record<string, unknown>): BuilderState {
     filters,
     metric,
     dimension: typeof raw.dimension === 'string' ? raw.dimension : null,
+    columns: Array.isArray(raw.columns)
+      ? raw.columns.filter((c): c is string => typeof c === 'string')
+      : [],
     advancedSelect: typeof raw.advancedSelect === 'string' ? raw.advancedSelect : null,
     rawSql: typeof raw.rawSql === 'string' ? raw.rawSql : null,
     configTouched: !!raw.configTouched,
@@ -84,6 +87,7 @@ export function makeInitialBuilder(): BuilderState {
     filters: [],
     metric: { ...DEFAULT_BUILDER_METRIC },
     dimension: null,
+    columns: [],
     advancedSelect: null,
     rawSql: null,
     configTouched: false,

@@ -9,11 +9,13 @@ export const GRID_COLS = 12
 export const GRID_ROW_HEIGHT = 50
 export const GRID_MARGIN: [number, number] = [12, 12]
 
+// Default widget size — wide and tall like the legacy dashboard cards (~590×420px
+// on a 12-col grid), so charts have room to breathe instead of being cramped.
 export const DEFAULT_WIDGET_LAYOUT: WidgetLayout = {
   x: 0,
   y: Number.POSITIVE_INFINITY,
   w: 4,
-  h: 4,
+  h: 8,
 }
 
 export const CHART_TYPE_META: Record<string, { label: string }> = {

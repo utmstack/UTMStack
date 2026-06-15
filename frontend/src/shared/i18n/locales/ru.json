@@ -180,9 +180,9 @@
     "home": "Главная",
     "dashboards": "Панели",
     "dashboardList": "Список панелей",
-    "visualizationList": "Визуализации",
+    "visualizationList": "Список виджетов",
     "newDashboard": "Новая панель",
-    "newVisualization": "Новая визуализация",
+    "newVisualization": "Новый виджет",
     "threatManagement": "Управление угрозами",
     "alerts": "Оповещения",
     "incidents": "Инциденты",
@@ -204,7 +204,8 @@
     "back": "Назад",
     "regexPatterns": "Регулярные выражения",
     "taggingRules": "Правила тегирования",
-    "parsingFilters": "Фильтры разбора"
+    "parsingFilters": "Фильтры разбора",
+    "overview": "Обзор"
   },
   "dashboards": {
     "title": "Панели",
@@ -226,14 +227,14 @@
       "addWidget": "Добавить виджет",
       "save": "Сохранить",
       "discard": "Отменить",
-      "newTitle": "Новая визуализация",
+      "newTitle": "Новый виджет",
       "newSubtitle": "Выберите тип диаграммы и источник данных, настройте её визуально. SQL-запрос будет создан автоматически.",
-      "editTitle": "Редактирование визуализации",
-      "editSubtitle": "Настройте определение диаграммы. Изменения будут применены везде, где используется эта визуализация.",
-      "loading": "Загрузка визуализации…",
-      "notFoundTitle": "Визуализация не найдена",
+      "editTitle": "Редактирование виджета",
+      "editSubtitle": "Настройте определение диаграммы. Изменения будут применены везде, где используется этот виджет.",
+      "loading": "Загрузка виджета…",
+      "notFoundTitle": "Виджет не найден",
       "notFoundSubtitle": "Возможно, она была удалена или у вас нет к ней доступа.",
-      "backToList": "Вернуться к визуализациям",
+      "backToList": "Вернуться к виджетам",
       "chartType": {
         "title": "Тип диаграммы"
       },
@@ -296,18 +297,18 @@
         }
       },
       "dataSource": {
-        "title": "Источник данных",
-        "indexPattern": "Шаблон индекса",
-        "noPatternHint": "Выберите шаблон индекса, чтобы включить фильтры, метрику и измерение."
+        "title": "Какие данные?",
+        "indexPattern": "Набор данных",
+        "noPatternHint": "Выберите набор данных, чтобы включить условия, меру и группировку."
       },
       "indexPattern": {
         "placeholder": "Выберите шаблон индекса…",
         "loading": "Загрузка шаблонов индекса…"
       },
       "filters": {
-        "title": "Фильтры",
-        "empty": "Фильтров нет — будут включены все документы из диапазона.",
-        "add": "Добавить фильтр",
+        "title": "Включать только события, где…",
+        "empty": "Без условий — включаются все события за выбранный период.",
+        "add": "Добавить условие",
         "remove": "Удалить",
         "field": "Поле",
         "fieldPlaceholder": "напр. host.name",
@@ -334,28 +335,33 @@
         "DOES_NOT_EXIST": "не существует"
       },
       "aggregations": {
-        "count": "Количество",
-        "count_distinct": "Уникальных",
+        "count": "Количество событий",
+        "count_distinct": "Уникальные значения",
         "sum": "Сумма",
         "avg": "Среднее",
-        "min": "Мин",
-        "max": "Макс"
+        "min": "Минимум",
+        "max": "Максимум"
       },
       "metric": {
-        "title": "Метрика (ось Y)",
-        "aggregation": "Агрегация",
-        "field": "Поле",
+        "title": "Что вы хотите измерить?",
+        "aggregation": "Мера",
+        "field": "По полю",
         "fieldPlaceholder": "Выберите поле…",
-        "fieldNotRequired": "Не требуется для COUNT(*)"
+        "fieldNotRequired": "Не требуется при подсчёте событий"
       },
       "dimension": {
-        "title": "Измерение (ось X / группировка)",
+        "title": "Группировать по",
         "field": "Поле",
         "placeholder": "Выберите поле для группировки…"
       },
       "table": {
         "title": "Свой SELECT (необязательно)",
-        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status"
+        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status",
+        "hint": "Показывает все столбцы подходящих событий. Чтобы выбрать конкретные столбцы или агрегировать, перейдите на вкладку SQL.",
+        "columnsTitle": "Столбцы",
+        "allColumns": "Будут показаны все столбцы. Добавьте поля, чтобы выбрать конкретные.",
+        "addColumn": "Добавить столбец…",
+        "removeColumn": "Удалить столбец"
       },
       "sqlPreview": {
         "title": "Предпросмотр SQL",
@@ -387,24 +393,27 @@
         "swapConfirm": "Применить"
       },
       "saveDialog": {
-        "createTitle": "Сохранить новую визуализацию",
+        "createTitle": "Сохранить новый виджет",
         "updateTitle": "Сохранить изменения",
         "subtitle": "Дайте имя, чтобы найти её в списке."
       },
-      "saveVisualization": "Сохранить визуализацию",
+      "saveVisualization": "Сохранить виджет",
       "fieldSelect": {
         "loading": "Загрузка полей…",
         "choose": "Выберите поле…"
       },
       "toast": {
         "notReady": "Перед сохранением выберите шаблон индекса (и добавьте метрику или SQL)."
-      }
+      },
+      "nameLabel": "Название",
+      "namePlaceholder": "напр. Топ источников по объёму",
+      "descriptionLabel": "Описание (необязательно)"
     },
     "grid": {
       "empty": "В этой панели пока нет виджетов.",
-      "emptyEditing": "Нажмите «Добавить виджет», чтобы поместить визуализацию на сетку.",
-      "missingVisualization": "Визуализация недоступна",
-      "unknownVisualization": "Визуализация"
+      "emptyEditing": "Нажмите «Добавить виджет», чтобы поместить виджет на сетку.",
+      "missingVisualization": "Виджет недоступен",
+      "unknownVisualization": "Виджет"
     },
     "widget": {
       "renderError": "Не удалось отобразить этот виджет.",
@@ -416,7 +425,16 @@
       "regionMapShapeHint": "SQL должен возвращать столбцы широты и долготы (или массив value [lat, lon, count]).",
       "regionMapUnnamed": "(без названия)",
       "regionMapValue": "значение: {{value}}",
-      "removeAriaLabel": "Удалить виджет"
+      "removeAriaLabel": "Удалить виджет",
+      "moveBack": "Переместить назад",
+      "moveForward": "Переместить вперёд",
+      "width": "Ширина",
+      "height": "Высота",
+      "widthSmall": "1 стлб",
+      "widthMedium": "2 стлб",
+      "widthLarge": "3 стлб",
+      "heightNormal": "Обычная",
+      "heightTall": "Высокая"
     },
     "form": {
       "createTitle": "Новая панель",
@@ -430,11 +448,11 @@
       "save": "Сохранить"
     },
     "addWidget": {
-      "title": "Добавить визуализацию",
-      "subtitle": "Выберите одну или несколько существующих визуализаций для размещения на сетке.",
-      "searchPlaceholder": "Поиск визуализаций…",
-      "loading": "Загрузка визуализаций…",
-      "empty": "Визуализации не найдены.",
+      "title": "Добавить виджет",
+      "subtitle": "Выберите один или несколько существующих виджетов для размещения на сетке.",
+      "searchPlaceholder": "Поиск виджетов…",
+      "loading": "Загрузка виджетов…",
+      "empty": "Виджеты не найдены.",
       "alreadyAdded": "Уже на этой панели",
       "newWidget": "Новый виджет",
       "noneSelected": "Виджеты не выбраны",
@@ -461,19 +479,19 @@
       "widgetAddFailed": "Не удалось добавить виджет.",
       "layoutSaved": "Макет сохранён.",
       "layoutSaveFailed": "Не удалось сохранить макет.",
-      "visualizationCreated": "Визуализация создана.",
-      "visualizationCreateFailed": "Не удалось создать визуализацию.",
-      "visualizationUpdated": "Визуализация обновлена.",
-      "visualizationUpdateFailed": "Не удалось обновить визуализацию.",
-      "visualizationDeleted": "Визуализация удалена.",
-      "visualizationDeleteFailed": "Не удалось удалить визуализацию."
+      "visualizationCreated": "Виджет создан.",
+      "visualizationCreateFailed": "Не удалось создать виджет.",
+      "visualizationUpdated": "Виджет обновлён.",
+      "visualizationUpdateFailed": "Не удалось обновить виджет.",
+      "visualizationDeleted": "Виджет удалён.",
+      "visualizationDeleteFailed": "Не удалось удалить виджет."
     },
     "newDashboard": {
       "title": "Новая панель",
       "subtitle": "Создайте пустую панель. Виджеты можно добавить после сохранения."
     },
     "newVisualization": {
-      "title": "Новая визуализация",
+      "title": "Новый виджет",
       "subtitle": "Определите переиспользуемую диаграмму из SQL-запроса и конфигурации ECharts.",
       "sqlQuery": "SQL-запрос",
       "sqlQueryPlaceholder": "SELECT bucket, count(*) FROM logs GROUP BY bucket",
@@ -483,17 +501,17 @@
       "configError": "Некорректный JSON: {{error}}"
     },
     "visualizationList": {
-      "title": "Визуализации",
-      "subtitle": "Доступно визуализаций: {{count}}.",
+      "title": "Виджеты",
+      "subtitle": "Доступно виджетов: {{count}}.",
       "subtitleFiltered": "Показано {{shown}} из {{total}}.",
       "create": "Создать",
-      "searchPlaceholder": "Поиск визуализаций…",
-      "loading": "Загрузка визуализаций…",
-      "empty": "Визуализаций пока нет.",
-      "emptyFiltered": "Нет визуализаций, соответствующих текущим фильтрам.",
+      "searchPlaceholder": "Поиск виджетов…",
+      "loading": "Загрузка виджетов…",
+      "empty": "Виджетов пока нет.",
+      "emptyFiltered": "Нет виджетов, соответствующих текущим фильтрам.",
       "delete": "Удалить",
-      "deleteTitle": "Удалить визуализацию",
-      "confirmDelete": "Удалить визуализацию «{{name}}»? Это действие нельзя отменить.",
+      "deleteTitle": "Удалить виджет",
+      "confirmDelete": "Удалить виджет «{{name}}»? Это действие нельзя отменить.",
       "filters": {
         "search": "Поиск",
         "chartType": "Тип диаграммы",
@@ -523,6 +541,25 @@
         "created": "Создана",
         "modified": "Изменена"
       }
+    },
+    "tabs": {
+      "dashboards": "Дашборды",
+      "visualizations": "Виджеты",
+      "newDashboard": "Новый дашборд",
+      "unsetDefault": "Убрать по умолчанию",
+      "options": "Параметры"
+    },
+    "picker": {
+      "none": "Выбрать дашборд",
+      "search": "Поиск дашбордов…",
+      "new": "Новый дашборд",
+      "setDefault": "Сделать по умолчанию",
+      "empty": "Нет дашбордов"
+    },
+    "empty": {
+      "title": "Дашбордов пока нет",
+      "body": "Создайте первый дашборд, чтобы видеть данные безопасности с одного взгляда.",
+      "cta": "Создать дашборд"
     }
   },
   "settings": {

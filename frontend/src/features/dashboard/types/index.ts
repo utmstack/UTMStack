@@ -158,6 +158,8 @@ export interface BuilderState {
   filters: FilterRow[]
   metric: BuilderMetric
   dimension: string | null
+  /** Table chart: explicit columns to SELECT. Empty → all columns (SELECT *). */
+  columns: string[]
   advancedSelect: string | null
   rawSql: string | null
   configTouched: boolean

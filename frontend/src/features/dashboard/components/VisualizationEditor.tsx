@@ -9,11 +9,10 @@ import { IndexPatternSelect } from '@/features/dashboard/components/editor/Index
 import { FilterBuilder } from '@/features/dashboard/components/editor/FilterBuilder'
 import { MetricPicker } from '@/features/dashboard/components/editor/MetricPicker'
 import { DimensionPicker } from '@/features/dashboard/components/editor/DimensionPicker'
-import { SqlPreview } from '@/features/dashboard/components/editor/SqlPreview'
+import { ColumnsPicker } from '@/features/dashboard/components/editor/ColumnsPicker'
 import { ChartPreviewPanel } from '@/features/dashboard/components/editor/ChartPreviewPanel'
 import { ChartTypeModal } from '@/features/dashboard/components/editor/ChartTypeModal'
-import { SaveVisualizationDialog } from '@/features/dashboard/components/editor/SaveVisualizationDialog'
-import { useIndexProperties } from '@/features/dashboard/hooks/useIndexProperties'
+import { useAggregatableFields } from '@/features/dashboard/hooks/useAggregatableFields'
 import { useVisualizationMutations } from '@/features/dashboard/hooks/useVisualizations'
 import { getChartTypeMeta } from '@/features/dashboard/constants'
 import { composeSql } from '@/features/dashboard/utils/sql-builder'
@@ -25,6 +24,7 @@ import {
 import type {
   BuilderState,
   ChartTypeId,
+  IndexProperty,
   Visualization,
 } from '@/features/dashboard/types'
 
@@ -67,13 +67,12 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
     return { ...makeInitialBuilder(), chartType: initialChartType ?? 'bar' }
   })
 
+  const [name, setName] = useState(initial?.name ?? '')
+  const [description, setDescription] = useState(initial?.description ?? '')
   const [tab, setTab] = useState<EditorTab>(() => (builder.rawMode ? 'sql' : 'visual'))
   const [chartTypeOpen, setChartTypeOpen] = useState(false)
-  const [saveOpen, setSaveOpen] = useState(false)
 
-  const fieldsQuery = useIndexProperties(builder.indexPattern)
-  const fields = fieldsQuery.data ?? []
-  const fieldsLoading = fieldsQuery.isFetching && !!builder.indexPattern
+  const { fields, isLoading: fieldsLoading } = useAggregatableFields(builder.indexPattern)
 
   const composedSql = useMemo(() => composeSql(builder), [builder])
 
@@ -107,32 +106,32 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
   const sqlForSave = builder.rawMode ? (builder.rawSql ?? '').trim() : composedSql.trim()
 
   const ready =
-    builder.indexPattern.trim().length > 0 && sqlForSave.length > 0
+    name.trim().length > 0 &&
+    builder.indexPattern.trim().length > 0 &&
+    sqlForSave.length > 0
 
-  const openSaveDialog = () => {
+  // Save directly — name and description are captured inline, so no extra dialog.
+  const handleSave = () => {
     if (!ready) {
       toast.error(t('dashboards.editor.toast.notReady'))
       return
     }
-    setSaveOpen(true)
-  }
+    if (busy) return
 
-  const handleSubmit = ({ name, description }: { name: string; description?: string }) => {
     const configJson = serializeBuilderConfig(option, builder)
+    const payload = {
+      name: name.trim(),
+      description: description.trim() || undefined,
+      sqlQuery: sqlForSave,
+      config: configJson,
+    }
 
     if (isEdit && initial) {
       updateVisualization.mutate(
-        {
-          id: initial.id,
-          name,
-          description,
-          sqlQuery: sqlForSave,
-          config: configJson,
-        },
+        { id: initial.id, ...payload },
         {
           onSuccess: () => {
             toast.success(t('dashboards.toast.visualizationUpdated'))
-            setSaveOpen(false)
             navigate('/dashboards/visualizations')
           },
           onError: (err) =>
@@ -140,40 +139,26 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
         }
       )
     } else {
-      createVisualization.mutate(
-        {
-          name,
-          description,
-          sqlQuery: sqlForSave,
-          config: configJson,
+      createVisualization.mutate(payload, {
+        onSuccess: () => {
+          toast.success(t('dashboards.toast.visualizationCreated'))
+          navigate('/dashboards/visualizations')
         },
-        {
-          onSuccess: () => {
-            toast.success(t('dashboards.toast.visualizationCreated'))
-            setSaveOpen(false)
-            navigate('/dashboards/visualizations')
-          },
-          onError: (err) =>
-            toast.error(err.message ?? t('dashboards.toast.visualizationCreateFailed')),
-        }
-      )
+        onError: (err) =>
+          toast.error(err.message ?? t('dashboards.toast.visualizationCreateFailed')),
+      })
     }
   }
 
   return (
-    <div className="mx-auto flex h-full w-full max-w-[1400px] flex-col gap-4 px-6 py-6">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex flex-col gap-1.5">
-          <h1 className="text-xl font-semibold">
+    <div className="mx-auto flex h-full w-full max-w-[1100px] flex-col gap-4 px-6 pb-6 pt-3">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <h1 className="text-base font-semibold">
             {isEdit
               ? t('dashboards.editor.editTitle')
               : t('dashboards.editor.newTitle')}
           </h1>
-          <p className="text-sm text-muted-foreground">
-            {isEdit
-              ? t('dashboards.editor.editSubtitle')
-              : t('dashboards.editor.newSubtitle')}
-          </p>
           <ChartTypeChip
             chartType={builder.chartType}
             onChange={() => setChartTypeOpen(true)}
@@ -189,12 +174,45 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
           >
             {t('dashboards.form.cancel')}
           </Button>
-          <Button type="button" size="sm" onClick={openSaveDialog} disabled={!ready || busy}>
+          <Button type="button" size="sm" onClick={handleSave} disabled={!ready || busy}>
             {busy && <Loader2 size={14} className="mr-1 animate-spin" />}
             {t('dashboards.editor.saveVisualization')}
           </Button>
         </div>
       </header>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div>
+          <label
+            htmlFor="viz-name"
+            className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
+          >
+            {t('dashboards.editor.nameLabel')}
+          </label>
+          <input
+            id="viz-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder={t('dashboards.editor.namePlaceholder') ?? ''}
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          />
+        </div>
+        <div>
+          <label
+            htmlFor="viz-description"
+            className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
+          >
+            {t('dashboards.editor.descriptionLabel')}
+          </label>
+          <input
+            id="viz-description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder={t('dashboards.form.descriptionPlaceholder') ?? ''}
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          />
+        </div>
+      </div>
 
       <ModeTabs tab={tab} onChange={switchTab} />
 
@@ -207,7 +225,6 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
               fieldsLoading={fieldsLoading}
               showMetric={showMetric}
               showDimension={showDimension}
-              composedSql={composedSql}
               onBuilderChange={setBuilder}
             />
           ) : (
@@ -240,16 +257,6 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
           setChartTypeOpen(false)
         }}
         onClose={() => setChartTypeOpen(false)}
-      />
-
-      <SaveVisualizationDialog
-        open={saveOpen}
-        mode={isEdit ? 'update' : 'create'}
-        initialName={initial?.name}
-        initialDescription={initial?.description}
-        busy={busy}
-        onClose={() => (busy ? null : setSaveOpen(false))}
-        onSubmit={handleSubmit}
       />
     </div>
   )
@@ -331,15 +338,13 @@ function VisualTab({
   fieldsLoading,
   showMetric,
   showDimension,
-  composedSql,
   onBuilderChange,
 }: {
   builder: BuilderState
-  fields: ReturnType<typeof useIndexProperties>['data'] extends infer T ? T extends undefined ? never : T : never
+  fields: IndexProperty[]
   fieldsLoading: boolean
   showMetric: boolean
   showDimension: boolean
-  composedSql: string
   onBuilderChange: React.Dispatch<React.SetStateAction<BuilderState>>
 }) {
   const { t } = useTranslation()
@@ -404,26 +409,16 @@ function VisualTab({
 
       {builder.chartType === 'table' && (
         <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
-          <SectionTitle>{t('dashboards.editor.table.title')}</SectionTitle>
-          <textarea
-            value={builder.advancedSelect ?? ''}
-            onChange={(e) =>
-              onBuilderChange((b) => ({
-                ...b,
-                advancedSelect: e.target.value || null,
-              }))
-            }
-            rows={4}
-            placeholder={t('dashboards.editor.table.placeholder') ?? ''}
-            spellCheck={false}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs leading-relaxed shadow-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+          <SectionTitle>{t('dashboards.editor.table.columnsTitle')}</SectionTitle>
+          <ColumnsPicker
+            value={builder.columns}
+            fields={fields ?? []}
+            loading={fieldsLoading}
+            onChange={(next) => onBuilderChange((b) => ({ ...b, columns: next }))}
           />
+          <p className="text-[11px] text-muted-foreground">{t('dashboards.editor.table.hint')}</p>
         </section>
       )}
-
-      <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
-        <SqlPreview sql={composedSql} />
-      </section>
     </>
   )
 }

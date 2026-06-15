@@ -180,9 +180,9 @@
     "home": "Início",
     "dashboards": "Painéis",
     "dashboardList": "Lista de painéis",
-    "visualizationList": "Visualizações",
+    "visualizationList": "Widgets",
     "newDashboard": "Novo painel",
-    "newVisualization": "Nova visualização",
+    "newVisualization": "Novo widget",
     "threatManagement": "Gestão de ameaças",
     "alerts": "Alertas",
     "incidents": "Incidentes",
@@ -204,7 +204,8 @@
     "back": "Voltar",
     "parsingFilters": "Filtros de Parsing",
     "regexPatterns": "Expressões regulares",
-    "taggingRules": "Regras de Marcação"
+    "taggingRules": "Regras de Marcação",
+    "overview": "Visão geral"
   },
   "dashboards": {
     "title": "Painéis",
@@ -226,14 +227,14 @@
       "addWidget": "Adicionar widget",
       "save": "Salvar",
       "discard": "Descartar",
-      "newTitle": "Nova visualização",
+      "newTitle": "Novo widget",
       "newSubtitle": "Escolha um tipo de gráfico, selecione uma fonte de dados e modele-o visualmente. O SQL é gerado automaticamente.",
-      "editTitle": "Editar visualização",
-      "editSubtitle": "Ajuste a definição do gráfico. As alterações são aplicadas em todos os lugares em que esta visualização é usada.",
-      "loading": "Carregando visualização…",
-      "notFoundTitle": "Visualização não encontrada",
+      "editTitle": "Editar widget",
+      "editSubtitle": "Ajuste a definição do gráfico. As alterações são aplicadas em todos os lugares em que este widget é usado.",
+      "loading": "Carregando widget…",
+      "notFoundTitle": "Widget não encontrado",
       "notFoundSubtitle": "Pode ter sido excluída ou você não tem acesso a ela.",
-      "backToList": "Voltar para visualizações",
+      "backToList": "Voltar para widgets",
       "chartType": {
         "title": "Tipo de gráfico"
       },
@@ -296,18 +297,18 @@
         }
       },
       "dataSource": {
-        "title": "Fonte de dados",
-        "indexPattern": "Padrão de índice",
-        "noPatternHint": "Escolha um padrão de índice para habilitar filtros, métrica e dimensão."
+        "title": "Quais dados?",
+        "indexPattern": "Conjunto de dados",
+        "noPatternHint": "Escolha um conjunto de dados para habilitar condições, medida e agrupamento."
       },
       "indexPattern": {
         "placeholder": "Selecione um padrão de índice…",
         "loading": "Carregando padrões de índice…"
       },
       "filters": {
-        "title": "Filtros",
-        "empty": "Sem filtros — todos os documentos do intervalo serão incluídos.",
-        "add": "Adicionar filtro",
+        "title": "Incluir apenas eventos onde…",
+        "empty": "Sem condições — todos os eventos do intervalo de tempo são incluídos.",
+        "add": "Adicionar condição",
         "remove": "Remover",
         "field": "Campo",
         "fieldPlaceholder": "ex.: host.name",
@@ -334,28 +335,33 @@
         "DOES_NOT_EXIST": "não existe"
       },
       "aggregations": {
-        "count": "Contagem",
-        "count_distinct": "Contagem distinta",
+        "count": "Número de eventos",
+        "count_distinct": "Valores únicos",
         "sum": "Soma",
         "avg": "Média",
-        "min": "Mín",
-        "max": "Máx"
+        "min": "Mínimo",
+        "max": "Máximo"
       },
       "metric": {
-        "title": "Métrica (eixo Y)",
-        "aggregation": "Agregação",
-        "field": "Campo",
+        "title": "O que você quer medir?",
+        "aggregation": "Medida",
+        "field": "Do campo",
         "fieldPlaceholder": "Escolha um campo…",
-        "fieldNotRequired": "Não necessário para COUNT(*)"
+        "fieldNotRequired": "Não necessário ao contar eventos"
       },
       "dimension": {
-        "title": "Dimensão (eixo X / agrupar por)",
+        "title": "Agrupar por",
         "field": "Campo",
         "placeholder": "Escolha um campo para agrupar…"
       },
       "table": {
         "title": "SELECT personalizado (opcional)",
-        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status"
+        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status",
+        "hint": "Mostra todas as colunas dos eventos correspondentes. Para escolher colunas específicas ou agregar, vá para a aba SQL.",
+        "columnsTitle": "Colunas",
+        "allColumns": "Todas as colunas serão exibidas. Adicione campos para escolher colunas específicas.",
+        "addColumn": "Adicionar uma coluna…",
+        "removeColumn": "Remover coluna"
       },
       "sqlPreview": {
         "title": "Pré-visualização do SQL",
@@ -387,24 +393,27 @@
         "swapConfirm": "Aplicar"
       },
       "saveDialog": {
-        "createTitle": "Salvar nova visualização",
+        "createTitle": "Salvar novo widget",
         "updateTitle": "Salvar alterações",
         "subtitle": "Dê um nome para encontrá-la na lista."
       },
-      "saveVisualization": "Salvar visualização",
+      "saveVisualization": "Salvar widget",
       "fieldSelect": {
         "loading": "Carregando campos…",
         "choose": "Escolha um campo…"
       },
       "toast": {
         "notReady": "Escolha um padrão de índice (e adicione uma métrica ou SQL) antes de salvar."
-      }
+      },
+      "nameLabel": "Nome",
+      "namePlaceholder": "ex.: Principais fontes por volume",
+      "descriptionLabel": "Descrição (opcional)"
     },
     "grid": {
       "empty": "Este painel ainda não tem widgets.",
-      "emptyEditing": "Clique em \"Adicionar widget\" para soltar uma visualização na grade.",
-      "missingVisualization": "Visualização indisponível",
-      "unknownVisualization": "Visualização"
+      "emptyEditing": "Clique em \"Adicionar widget\" para soltar um widget na grade.",
+      "missingVisualization": "Widget indisponível",
+      "unknownVisualization": "Widget"
     },
     "widget": {
       "renderError": "Não foi possível renderizar este widget.",
@@ -416,7 +425,16 @@
       "regionMapShapeHint": "O SQL deve retornar colunas de latitude e longitude (ou um array value [lat, lon, count]).",
       "regionMapUnnamed": "(sem nome)",
       "regionMapValue": "valor: {{value}}",
-      "removeAriaLabel": "Remover widget"
+      "removeAriaLabel": "Remover widget",
+      "moveBack": "Mover para trás",
+      "moveForward": "Mover para frente",
+      "width": "Largura",
+      "height": "Altura",
+      "widthSmall": "1 col",
+      "widthMedium": "2 cols",
+      "widthLarge": "3 cols",
+      "heightNormal": "Normal",
+      "heightTall": "Alto"
     },
     "form": {
       "createTitle": "Novo painel",
@@ -430,11 +448,11 @@
       "save": "Salvar"
     },
     "addWidget": {
-      "title": "Adicionar visualização",
-      "subtitle": "Escolha uma ou mais visualizações existentes para soltar na grade.",
-      "searchPlaceholder": "Pesquisar visualizações…",
-      "loading": "Carregando visualizações…",
-      "empty": "Nenhuma visualização encontrada.",
+      "title": "Adicionar widget",
+      "subtitle": "Escolha um ou mais widgets existentes para soltar na grade.",
+      "searchPlaceholder": "Pesquisar widgets…",
+      "loading": "Carregando widgets…",
+      "empty": "Nenhum widget encontrado.",
       "alreadyAdded": "Já está neste painel",
       "newWidget": "Novo widget",
       "noneSelected": "Nenhum widget selecionado",
@@ -461,19 +479,19 @@
       "widgetAddFailed": "Não foi possível adicionar o widget.",
       "layoutSaved": "Layout salvo.",
       "layoutSaveFailed": "Não foi possível salvar o layout.",
-      "visualizationCreated": "Visualização criada.",
-      "visualizationCreateFailed": "Não foi possível criar a visualização.",
-      "visualizationUpdated": "Visualização atualizada.",
-      "visualizationUpdateFailed": "Não foi possível atualizar a visualização.",
-      "visualizationDeleted": "Visualização excluída.",
-      "visualizationDeleteFailed": "Não foi possível excluir a visualização."
+      "visualizationCreated": "Widget criado.",
+      "visualizationCreateFailed": "Não foi possível criar o widget.",
+      "visualizationUpdated": "Widget atualizado.",
+      "visualizationUpdateFailed": "Não foi possível atualizar o widget.",
+      "visualizationDeleted": "Widget excluído.",
+      "visualizationDeleteFailed": "Não foi possível excluir o widget."
     },
     "newDashboard": {
       "title": "Novo painel",
       "subtitle": "Crie um painel em branco. Você pode adicionar widgets depois de salvá-lo."
     },
     "newVisualization": {
-      "title": "Nova visualização",
+      "title": "Novo widget",
       "subtitle": "Defina um gráfico reutilizável a partir de uma consulta SQL e de uma configuração de ECharts.",
       "sqlQuery": "Consulta SQL",
       "sqlQueryPlaceholder": "SELECT bucket, count(*) FROM logs GROUP BY bucket",
@@ -483,17 +501,17 @@
       "configError": "JSON inválido: {{error}}"
     },
     "visualizationList": {
-      "title": "Visualizações",
-      "subtitle": "{{count}} visualização(ões) disponível(eis).",
+      "title": "Widgets",
+      "subtitle": "{{count}} widget(s) disponível(eis).",
       "subtitleFiltered": "Exibindo {{shown}} de {{total}}.",
       "create": "Nova",
-      "searchPlaceholder": "Pesquisar visualizações…",
-      "loading": "Carregando visualizações…",
-      "empty": "Ainda não há visualizações.",
-      "emptyFiltered": "Nenhuma visualização corresponde aos filtros atuais.",
+      "searchPlaceholder": "Pesquisar widgets…",
+      "loading": "Carregando widgets…",
+      "empty": "Ainda não há widgets.",
+      "emptyFiltered": "Nenhum widget corresponde aos filtros atuais.",
       "delete": "Excluir",
-      "deleteTitle": "Excluir visualização",
-      "confirmDelete": "Excluir a visualização \"{{name}}\"? Esta ação não pode ser desfeita.",
+      "deleteTitle": "Excluir widget",
+      "confirmDelete": "Excluir o widget \"{{name}}\"? Esta ação não pode ser desfeita.",
       "filters": {
         "search": "Pesquisar",
         "chartType": "Tipo de gráfico",
@@ -523,6 +541,25 @@
         "created": "Criada",
         "modified": "Modificada"
       }
+    },
+    "tabs": {
+      "dashboards": "Painéis",
+      "visualizations": "Widgets",
+      "newDashboard": "Novo painel",
+      "unsetDefault": "Remover padrão",
+      "options": "Opções"
+    },
+    "picker": {
+      "none": "Selecionar painel",
+      "search": "Buscar painéis…",
+      "new": "Novo painel",
+      "setDefault": "Definir como padrão",
+      "empty": "Sem painéis"
+    },
+    "empty": {
+      "title": "Ainda não há painéis",
+      "body": "Crie seu primeiro painel para ver seus dados de segurança rapidamente.",
+      "cta": "Criar painel"
     }
   },
   "settings": {

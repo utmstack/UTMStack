@@ -1,41 +1,9 @@
 import { useTranslation } from 'react-i18next'
-import {
-  BarChart3,
-  BarChartHorizontal,
-  LineChart,
-  AreaChart,
-  PieChart,
-  Gauge,
-  Target,
-  Grid3x3,
-  Cloud,
-  Hash,
-  List as ListIcon,
-  Map,
-  Type,
-  Table as TableIcon,
-  type LucideIcon,
-} from 'lucide-react'
+import { BarChart3 } from 'lucide-react'
 import { CHART_TYPES } from '@/features/dashboard/constants'
+import { CHART_ICONS } from '@/features/dashboard/components/chart-icon'
 import { cn } from '@/shared/lib/utils'
 import type { ChartTypeId } from '@/features/dashboard/types'
-
-const ICONS: Record<string, LucideIcon> = {
-  bar: BarChart3,
-  horizontal_bar: BarChartHorizontal,
-  line: LineChart,
-  area: AreaChart,
-  pie: PieChart,
-  gauge: Gauge,
-  goal: Target,
-  heatmap: Grid3x3,
-  tag_cloud: Cloud,
-  metric: Hash,
-  table: TableIcon,
-  list: ListIcon,
-  region_map: Map,
-  text: Type,
-}
 
 export function ChartTypePicker({
   value,
@@ -46,9 +14,9 @@ export function ChartTypePicker({
 }) {
   const { t } = useTranslation()
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+    <div className="grid auto-rows-fr grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
       {CHART_TYPES.map((c) => {
-        const Icon = ICONS[c.icon] ?? BarChart3
+        const Icon = CHART_ICONS[c.icon] ?? BarChart3
         const active = value === c.id
         return (
           <button
@@ -56,17 +24,17 @@ export function ChartTypePicker({
             type="button"
             onClick={() => onChange(c.id)}
             className={cn(
-              'flex flex-col items-start gap-1 rounded-md border px-3 py-2.5 text-left transition-colors',
+              'flex h-full flex-col items-start gap-1.5 rounded-lg border p-3 text-left transition-colors',
               active
-                ? 'border-primary bg-primary/5 text-foreground'
-                : 'border-border hover:bg-muted'
+                ? 'border-primary bg-primary/5 text-foreground ring-1 ring-primary/30'
+                : 'border-border hover:border-border hover:bg-muted'
             )}
           >
-            <Icon size={18} className={active ? 'text-primary' : 'text-muted-foreground'} />
-            <span className="text-sm font-medium">
+            <Icon size={18} className={cn('shrink-0', active ? 'text-primary' : 'text-muted-foreground')} />
+            <span className="text-sm font-medium leading-tight">
               {t(`dashboards.editor.chartTypes.${c.id}.label`)}
             </span>
-            <span className="text-[10px] leading-tight text-muted-foreground">
+            <span className="line-clamp-2 text-[11px] leading-snug text-muted-foreground">
               {t(`dashboards.editor.chartTypes.${c.id}.description`)}
             </span>
           </button>

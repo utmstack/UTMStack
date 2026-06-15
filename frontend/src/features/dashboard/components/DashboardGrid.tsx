@@ -1,11 +1,8 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Responsive, WidthProvider, type Layout } from 'react-grid-layout/legacy'
-import 'react-grid-layout/css/styles.css'
-import 'react-resizable/css/styles.css'
+import { cn } from '@/shared/lib/utils'
 import { WidgetCard } from '@/features/dashboard/components/WidgetCard'
 import { WidgetRenderer } from '@/features/dashboard/components/WidgetRenderer'
-import { GRID_COLS, GRID_MARGIN, GRID_ROW_HEIGHT } from '@/features/dashboard/constants'
 import type {
   DashboardVisualization,
   GridLayoutItem,
@@ -13,10 +10,18 @@ import type {
 } from '@/features/dashboard/types'
 import type { TimeRange } from '@/shared/components/ui/time-range-picker'
 
-const ResponsiveGridLayout = WidthProvider(Responsive)
-
-const BREAKPOINTS = { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }
-const COLS = { lg: GRID_COLS, md: GRID_COLS, sm: 6, xs: 4, xxs: 2 }
+// Column span per width preset. Grid is responsive (1 col mobile, 2 tablet, 3
+// desktop), so spans are clamped at each breakpoint. Literal classes so Tailwind
+// keeps them.
+const WIDTH_CLASS: Record<number, string> = {
+  1: '',
+  2: 'md:col-span-2 xl:col-span-2',
+  3: 'md:col-span-2 xl:col-span-3',
+}
+const HEIGHT_CLASS: Record<number, string> = {
+  1: 'h-[340px]',
+  2: 'h-[560px]',
+}
 
 export function DashboardGrid({
   items,
@@ -24,7 +29,8 @@ export function DashboardGrid({
   visualizationsById,
   time,
   editing,
-  onLayoutChange,
+  onMove,
+  onResize,
   onRemoveItem,
 }: {
   items: GridLayoutItem[]
@@ -32,7 +38,8 @@ export function DashboardGrid({
   visualizationsById: Map<number, Visualization>
   time: TimeRange
   editing: boolean
-  onLayoutChange?: (next: GridLayoutItem[]) => void
+  onMove?: (id: string, dir: -1 | 1) => void
+  onResize?: (id: string, w: number, h: number) => void
   onRemoveItem?: (id: number) => void
 }) {
   const { t } = useTranslation()
@@ -52,52 +59,42 @@ export function DashboardGrid({
   }
 
   return (
-    <ResponsiveGridLayout
-      className="layout"
-      layouts={{ lg: items, md: items, sm: items, xs: items, xxs: items }}
-      breakpoints={BREAKPOINTS}
-      cols={COLS}
-      rowHeight={GRID_ROW_HEIGHT}
-      margin={GRID_MARGIN}
-      compactType="vertical"
-      isDraggable={editing}
-      isResizable={editing}
-      draggableHandle=".widget-drag-handle"
-      onLayoutChange={(next: Layout) => {
-        if (!editing || !onLayoutChange) return
-        const mapped: GridLayoutItem[] = next.map((n) => ({
-          i: String(n.i),
-          x: n.x,
-          y: n.y,
-          w: n.w,
-          h: n.h,
-        }))
-        onLayoutChange(mapped)
-      }}
-    >
-      {items.map((item) => {
+    // Responsive columns — adapts widgets-per-row to the screen. Each widget
+    // spans 1–3 columns (its width preset) and is short or tall (height preset).
+    <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {items.map((item, idx) => {
         const dv = layoutMap.get(item.i)
         const viz = dv ? visualizationsById.get(dv.idVisualization) : undefined
         const title = viz?.name ?? t('dashboards.grid.unknownVisualization')
-        const layoutId = dv?.id
+        const w = item.w || 1
+        const h = item.h || 1
         return (
-          <div key={item.i} data-grid={item}>
-            <WidgetCard
-              title={title}
-              editing={editing}
-              onRemove={layoutId ? () => onRemoveItem?.(layoutId) : undefined}
-            >
-              {viz ? (
-                <WidgetRenderer visualization={viz} time={time} />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                  {t('dashboards.grid.missingVisualization')}
-                </div>
-              )}
-            </WidgetCard>
+          <div key={item.i} className={cn('min-w-0', WIDTH_CLASS[w] ?? '')}>
+            <div className={cn('w-full', HEIGHT_CLASS[h] ?? HEIGHT_CLASS[1])}>
+              <WidgetCard
+                title={title}
+                editing={editing}
+                width={w}
+                height={h}
+                canMoveBack={idx > 0}
+                canMoveForward={idx < items.length - 1}
+                onMoveBack={() => onMove?.(item.i, -1)}
+                onMoveForward={() => onMove?.(item.i, 1)}
+                onResize={(nw, nh) => onResize?.(item.i, nw, nh)}
+                onRemove={dv ? () => onRemoveItem?.(dv.id) : undefined}
+              >
+                {viz ? (
+                  <WidgetRenderer visualization={viz} time={time} />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                    {t('dashboards.grid.missingVisualization')}
+                  </div>
+                )}
+              </WidgetCard>
+            </div>
           </div>
         )
       })}
-    </ResponsiveGridLayout>
+    </div>
   )
 }

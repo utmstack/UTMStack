@@ -20,13 +20,25 @@ export function parseChartConfig(raw: string): ParsedChartConfig {
   }
 }
 
+// Sensible plot margins for cartesian charts. ECharts' built-in grid leaves ~60px
+// top/bottom, which squashes the plot into a thin band on short containers (e.g.
+// the editor preview). `containLabel` still grows margins to fit axis labels.
+const DEFAULT_GRID = { left: 8, right: 16, top: 16, bottom: 16, containLabel: true }
+
 export function mergeRowsIntoOption(
   option: Record<string, unknown>,
   rows: Row[]
 ): Record<string, unknown> {
   const existingDataset = isRecord(option.dataset) ? option.dataset : {}
+
+  // Only cartesian charts (with x/y axes) use a grid; pie/gauge/etc. don't.
+  const hasAxes =
+    'xAxis' in option || 'yAxis' in option
+  const grid = option.grid ?? (hasAxes ? DEFAULT_GRID : undefined)
+
   return {
     ...option,
+    ...(grid ? { grid } : {}),
     dataset: {
       ...existingDataset,
       source: rows,

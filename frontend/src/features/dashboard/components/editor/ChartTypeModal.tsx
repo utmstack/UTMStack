@@ -31,7 +31,7 @@ export function ChartTypeModal({
       onClick={onClose}
     >
       <div
-        className="flex w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl"
+        className="flex w-full max-w-4xl flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-start justify-between gap-4 border-b border-border px-6 py-4">

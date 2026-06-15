@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Loader2, Pencil } from 'lucide-react'
+import { LayoutDashboard, Loader2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
 import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
@@ -9,24 +9,21 @@ import { useDashboard, useDashboards } from '@/features/dashboard/hooks/useDashb
 import { useDashboardLayouts } from '@/features/dashboard/hooks/useDashboardLayouts'
 import { createVisualizationsService } from '@/features/dashboard/service/visualizations.service'
 import { useDashboardEditor } from '@/features/dashboard/hooks/useDashboardEditor'
-import { DashboardList } from '@/features/dashboard/components/DashboardList'
 import { DashboardGrid } from '@/features/dashboard/components/DashboardGrid'
 import { DashboardEditorBar } from '@/features/dashboard/components/DashboardEditorBar'
 import { DashboardFormDialog } from '@/features/dashboard/components/DashboardFormDialog'
 import { DashboardTimeRange } from '@/features/dashboard/components/DashboardTimeRange'
 import { AddVisualizationDrawer } from '@/features/dashboard/components/AddVisualizationDrawer'
-import {
-  DEFAULT_PAGE_SIZE,
-  DEFAULT_WIDGET_LAYOUT,
-} from '@/features/dashboard/constants'
-import { fromGridItem, serializeLayout, toGridItems } from '@/features/dashboard/utils/layout'
+import { DashboardTabsBar } from '@/features/dashboard/components/DashboardTabsBar'
+import { DEFAULT_PAGE_SIZE } from '@/features/dashboard/constants'
+import { serializeLayout, toOrderedItems } from '@/features/dashboard/utils/layout'
 import type { Dashboard, GridLayoutItem, Visualization } from '@/features/dashboard/types'
 import { useQueries } from '@tanstack/react-query'
 import { VISUALIZATIONS_QUERY_KEYS } from '@/features/dashboard/hooks/useVisualizations'
+const DEFAULT_DASHBOARD_KEY = 'utmstack-default-dashboard'
 
 export function DashboardPage() {
   const { t } = useTranslation()
-  const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [time, setTime] = useState<TimeRange>(() => presetRange('24h'))
   const [formOpen, setFormOpen] = useState<null | { mode: 'create' | 'rename'; target: Dashboard | null }>(
@@ -35,17 +32,36 @@ export function DashboardPage() {
   const [addOpen, setAddOpen] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<Dashboard | null>(null)
 
-  const dashboards = useDashboards({ name: search || undefined, page: 0, size: DEFAULT_PAGE_SIZE })
+  const dashboards = useDashboards({ page: 0, size: DEFAULT_PAGE_SIZE })
   const dashboardItems = dashboards.list.data?.data ?? []
+  // No dashboards AND no active search → genuinely empty (show the create CTA).
+  const noDashboards = dashboardItems.length === 0
 
+  // "Default" dashboard (the one shown on entry), persisted per browser.
+  const [defaultId, setDefaultId] = useState<number | null>(() => {
+    if (typeof window === 'undefined') return null
+    const raw = window.localStorage.getItem(DEFAULT_DASHBOARD_KEY)
+    const n = raw == null ? NaN : Number(raw)
+    return Number.isFinite(n) ? n : null
+  })
+  const setDefaultDashboard = (id: number | null) => {
+    setDefaultId(id)
+    try {
+      if (id == null) window.localStorage.removeItem(DEFAULT_DASHBOARD_KEY)
+      else window.localStorage.setItem(DEFAULT_DASHBOARD_KEY, String(id))
+    } catch {
+      /* ignore */
+    }
+  }
+
+  // On entry land on the default dashboard → else the first one. Keep the
+  // selection valid as the list changes.
   useEffect(() => {
-    if (selectedId == null && dashboardItems.length > 0) {
-      setSelectedId(dashboardItems[0].id)
-    }
-    if (selectedId != null && !dashboardItems.some((d) => d.id === selectedId)) {
-      setSelectedId(dashboardItems[0]?.id ?? null)
-    }
-  }, [dashboardItems, selectedId])
+    if (dashboardItems.length === 0) return
+    const valid = (id: number | null) => id != null && dashboardItems.some((d) => d.id === id)
+    if (valid(selectedId)) return
+    setSelectedId(valid(defaultId) ? defaultId : dashboardItems[0].id)
+  }, [dashboardItems, selectedId, defaultId])
 
   const selectedDashboard = useDashboard(selectedId)
 
@@ -75,7 +91,7 @@ export function DashboardPage() {
     return map
   }, [vizQueries])
 
-  const initialItems = useMemo(() => toGridItems(layoutRows), [layoutRows])
+  const initialItems = useMemo(() => toOrderedItems(layoutRows), [layoutRows])
   const editor = useDashboardEditor(initialItems)
 
   const layoutsById = useMemo(() => {
@@ -140,11 +156,12 @@ export function DashboardPage() {
   const handleAddVisualizations = async (vizs: Visualization[]) => {
     if (selectedId == null || vizs.length === 0) return
     try {
-      for (const viz of vizs) {
+      const base = layoutRows.length
+      for (let i = 0; i < vizs.length; i++) {
         await layouts.createLayout.mutateAsync({
           idDashboard: selectedId,
-          idVisualization: viz.id,
-          layout: serializeLayout({ ...DEFAULT_WIDGET_LAYOUT }),
+          idVisualization: vizs[i].id,
+          layout: serializeLayout({ order: base + i, w: 1, h: 1 }),
         })
       }
       toast.success(
@@ -161,14 +178,15 @@ export function DashboardPage() {
   const handleSave = async () => {
     if (!editor.dirty || selectedId == null) return
     try {
-      const baselineMap = new Map(editor.baseline.map((it) => [it.i, it]))
-      const movedItems = editor.working.filter((it) => {
-        const base = baselineMap.get(it.i)
-        return !base || base.x !== it.x || base.y !== it.y || base.w !== it.w || base.h !== it.h
-      })
-
-      for (let i = 0; i < movedItems.length; i++) {
-        const item = movedItems[i]
+      // Persist order + size for every widget whose position or size changed.
+      const baseById = new Map(
+        editor.baseline.map((it, idx) => [it.i, { idx, w: it.w, h: it.h }])
+      )
+      for (let i = 0; i < editor.working.length; i++) {
+        const item = editor.working[i]
+        const base = baseById.get(item.i)
+        const changed = !base || base.idx !== i || base.w !== item.w || base.h !== item.h
+        if (!changed) continue
         const layoutId = layoutsById.get(item.i)
         if (layoutId == null) continue
         const dv = layoutRows.find((r) => r.id === layoutId)
@@ -177,7 +195,7 @@ export function DashboardPage() {
           id: dv.id,
           idDashboard: dv.idDashboard,
           idVisualization: dv.idVisualization,
-          layout: serializeLayout(fromGridItem(item, i)),
+          layout: serializeLayout({ order: i, w: item.w, h: item.h }),
         })
       }
 
@@ -199,72 +217,67 @@ export function DashboardPage() {
     layouts.createLayout.isPending
 
   return (
-    <div className="mx-auto flex h-full w-full max-w-[1800px] flex-col gap-4 px-6 py-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold">{t('dashboards.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('dashboards.subtitle')}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <DashboardTimeRange value={time} onChange={setTime} />
-          {selectedDashboard.data && !editor.editing && !selectedDashboard.data.systemOwner && (
-            <Button variant="outline" size="sm" onClick={editor.enter}>
-              <Pencil size={14} className="mr-1" />
-              {t('dashboards.actions.edit')}
-            </Button>
-          )}
-        </div>
-      </div>
-
-      <div className="flex min-h-0 flex-1 gap-4">
-        <DashboardList
+    <div className="mx-auto flex h-full w-full max-w-[1800px] flex-col gap-4 px-6 pb-6 pt-3">
+      {!noDashboards && (
+        <DashboardTabsBar
           dashboards={dashboardItems}
           selectedId={selectedId}
-          search={search}
-          loading={dashboards.list.isLoading}
-          onSearchChange={setSearch}
+          defaultId={defaultId}
           onSelect={setSelectedId}
+          onSetDefault={setDefaultDashboard}
           onCreate={() => setFormOpen({ mode: 'create', target: null })}
           onRename={(d) => setFormOpen({ mode: 'rename', target: d })}
           onDelete={(d) => setPendingDelete(d)}
-        />
-
-        <div className="flex min-w-0 flex-1 flex-col gap-3">
-          {editor.editing && (
-            <DashboardEditorBar
-              dirty={editor.dirty}
-              saving={saving}
-              onAddWidget={() => setAddOpen(true)}
-              onSave={handleSave}
-              onDiscard={editor.discard}
-            />
-          )}
-
-          <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-border bg-background/30 p-2">
-            {selectedId == null && !dashboards.list.isLoading && (
-              <div className="flex h-full min-h-[300px] items-center justify-center text-sm text-muted-foreground">
-                {t('dashboards.page.noSelection')}
-              </div>
-            )}
-            {selectedId != null && layouts.list.isLoading && (
-              <div className="flex h-full min-h-[300px] items-center justify-center gap-2 text-sm text-muted-foreground">
-                <Loader2 size={16} className="animate-spin" />
-                {t('dashboards.page.loading')}
-              </div>
-            )}
-            {selectedId != null && !layouts.list.isLoading && (
-              <DashboardGrid
-                items={gridItems}
-                layouts={layoutRows}
-                visualizationsById={visualizationsById}
-                time={time}
-                editing={editor.editing}
-                onLayoutChange={editor.replace}
-                onRemoveItem={editor.remove}
+          onEdit={
+            selectedDashboard.data && !editor.editing && !selectedDashboard.data.systemOwner
+              ? editor.enter
+              : undefined
+          }
+          right={
+            editor.editing ? (
+              <DashboardEditorBar
+                dirty={editor.dirty}
+                saving={saving}
+                onAddWidget={() => setAddOpen(true)}
+                onSave={handleSave}
+                onDiscard={editor.discard}
               />
-            )}
+            ) : selectedId != null ? (
+              <DashboardTimeRange value={time} onChange={setTime} />
+            ) : null
+          }
+        />
+      )}
+
+      <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-border bg-background/30 p-2">
+        {noDashboards && !dashboards.list.isLoading ? (
+          <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-3 text-center">
+            <LayoutDashboard size={32} className="text-muted-foreground/40" />
+            <div>
+              <p className="text-sm font-medium">{t('dashboards.empty.title')}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t('dashboards.empty.body')}</p>
+            </div>
+            <Button size="sm" onClick={() => setFormOpen({ mode: 'create', target: null })}>
+              <Plus size={14} className="mr-1" /> {t('dashboards.empty.cta')}
+            </Button>
           </div>
-        </div>
+        ) : selectedId != null && layouts.list.isLoading ? (
+          <div className="flex h-full min-h-[300px] items-center justify-center gap-2 text-sm text-muted-foreground">
+            <Loader2 size={16} className="animate-spin" />
+            {t('dashboards.page.loading')}
+          </div>
+        ) : selectedId != null && !layouts.list.isLoading ? (
+          <DashboardGrid
+            items={gridItems}
+            layouts={layoutRows}
+            visualizationsById={visualizationsById}
+            time={time}
+            editing={editor.editing}
+            onMove={editor.move}
+            onResize={editor.resize}
+            onRemoveItem={editor.remove}
+          />
+        ) : null}
       </div>
 
       <DashboardFormDialog

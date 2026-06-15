@@ -53,7 +53,7 @@ export function ChartPreviewPanel({
         </span>
         <TimeRangePicker value={time} onChange={setTime} align="right" />
       </div>
-      <div className="min-h-[30dvh] flex-1 rounded-md border border-border bg-background/30 p-2">
+      <div className="h-[420px] rounded-md border border-border bg-background/30 p-2">
         <Body
           sql={debouncedSql}
           renderer={renderer}
