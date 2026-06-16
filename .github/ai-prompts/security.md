@@ -37,6 +37,25 @@ do not skip it.
 
 **Ignore** preexisting issues on lines not touched by the diff.
 
+## Routine dependency updates are not vulnerabilities
+
+A separate **required** CI check (`go_deps`) already enforces that every Go
+module is on its latest version, so mass `go.mod` / `go.sum` bumps are a
+routine, expected part of this repo's workflow. A version bump of an
+existing dependency — **including** security-relevant ones (threatwinds
+SDK, gRPC, protobuf, gofalcon, crypto libraries) — is **not by itself a
+vulnerability** and does **not** count as touching a "security-critical
+path" below. Do not raise a finding or mark Tier 3 merely because a
+security-related module was bumped to a newer version.
+
+A diff that is **only** dependency version bumps is **Tier 1** for the
+vulnerability checks (the information-disclosure check still applies to any
+user-facing text in the diff). Do raise a finding when a dependency change
+is more than a routine bump: a pin to a **known-vulnerable or yanked**
+version, a **downgrade** that reintroduces a fixed CVE, a new dependency
+from an untrusted / typosquatted source, or a `replace` directive
+redirecting a module somewhere unexpected.
+
 ## How to assign tier
 
 - **Tier 1** — No vulnerabilities introduced by this diff AND no
@@ -50,7 +69,9 @@ do not skip it.
   secret handling, installer, token/JWT generation) or introduces a
   high-impact vulnerability (RCE, auth bypass, secret leak). Even if the
   change looks fine, if it touches these paths mark Tier 3 — human
-  verification outweighs your individual confidence.
+  verification outweighs your individual confidence. (A `go.mod` / `go.sum`
+  version bump does **not** count as touching these paths — see *Routine
+  dependency updates* above.)
 
 ## Output
 

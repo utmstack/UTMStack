@@ -64,6 +64,16 @@ there are. Pick the lowest severity that honestly fits — don't inflate a nit.
 returns Tier 3, **or** no review ran. Otherwise the approver approves the PR
 (any medium/low findings ride along as warnings).
 
+### Routine dependency bumps
+
+A separate required check (`go_deps`) already enforces that Go modules are on
+their latest version, so mass `go.mod` / `go.sum` bumps are routine and
+expected. The `architecture` and `security` prompts treat a version bump of
+existing modules as **Tier 1** — not an architectural/agent-breaking change
+and not a vulnerability — and only flag genuine anomalies (new deps, major
+breaking jumps, downgrades, known-vulnerable pins, suspicious `replace`
+directives). Don't add prompts that re-block on routine bumps.
+
 ### When there's nothing to report
 
 Tier 1, a brief `summary` ("No security concerns detected.") and
