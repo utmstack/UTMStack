@@ -601,4 +601,6 @@
 
   <include file="/config/liquibase/changelog/20260615001_fix_response_action_template_syntax.xml" relativeToChangelogFile="false"/>
 
+  <include file="/config/liquibase/changelog/20260623001_migrate_compliance_report_config_to_control_config.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
