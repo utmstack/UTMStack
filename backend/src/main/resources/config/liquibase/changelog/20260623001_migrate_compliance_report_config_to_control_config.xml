@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260623001" author="Alex">
+        <sql dbms="postgresql" splitStatements="true" stripComments="false">
+            <![CDATA[
+            -- Sentinel "Legacy Reports" standard and "Unassigned" section so the
+            -- COALESCE fallback for standard_section_id always resolves to a real row.
+            INSERT INTO utm_compliance_standard (id, standard_name, standard_description, system_owner)
+            SELECT 9000, 'Legacy Reports', 'Auto-created landing standard for reports migrated from utm_compliance_report_config.', false
+            WHERE NOT EXISTS (SELECT 1 FROM utm_compliance_standard WHERE id = 9000);
+
+            INSERT INTO utm_compliance_standard_section (id, standard_id, standard_section_name, standard_section_description)
+            SELECT 9000, 9000, 'Unassigned', 'Migrated reports whose original section was NULL.'
+            WHERE NOT EXISTS (SELECT 1 FROM utm_compliance_standard_section WHERE id = 9000);
+
+            -- Temp mapping table threads pre-allocated control IDs through three
+            -- inserts: control_config → query_config-from-visualizations →
+            -- query_config-placeholder for controls with no visualization match.
+            -- Dropped automatically when the Liquibase transaction commits.
+            CREATE TEMP TABLE _ctl_migration_map (
+                new_control_id BIGINT,
+                old_report_id  BIGINT,
+                dashboard_id   BIGINT,
+                control_name   TEXT
+            ) ON COMMIT DROP;
+
+            -- Reserve a new control id for every legacy report that isn't already
+            -- present in utm_compliance_control_config (matched by name + section
+            -- so reruns are safe).
+            INSERT INTO _ctl_migration_map (new_control_id, old_report_id, dashboard_id, control_name)
+            SELECT
+                nextval(pg_get_serial_sequence('utm_compliance_control_config', 'id')),
+                r.id,
+                r.dashboard_id,
+                COALESCE(r.config_report_name, 'Report ' || r.id::text)
+            FROM utm_compliance_report_config r
+            WHERE NOT EXISTS (
+                SELECT 1 FROM utm_compliance_control_config c
+                WHERE c.control_name = COALESCE(r.config_report_name, 'Report ' || r.id::text)
+                  AND c.standard_section_id = COALESCE(r.standard_section_id, 9000)
+            );
+
+            -- Insert the controls using the reserved ids.
+            INSERT INTO utm_compliance_control_config
+                (id, standard_section_id, control_name, control_solution, control_remediation, control_strategy)
+            SELECT
+                m.new_control_id,
+                COALESCE(r.standard_section_id, 9000),
+                m.control_name,
+                r.config_solution,
+                r.config_report_remediation,
+                'ALL'
+            FROM _ctl_migration_map m
+            JOIN utm_compliance_report_config r ON r.id = m.old_report_id;
+
+            -- For each control whose legacy dashboard has visualizations, copy one
+            -- query row per visualization. The actual SQL lives in
+            -- utm_visualization.sql_query (see UtmVisualization.java:106). If the
+            -- visualization only has an OpenSearch DSL query (utm_visualization.query),
+            -- fall back to the TODO placeholder so the row stays valid.
+            INSERT INTO utm_compliance_query_config
+                (query_name, query_description, sql_query, evaluation_rule, rule_value,
+                 index_pattern_id, control_config_id)
+            SELECT
+                COALESCE(NULLIF(v.name, ''), 'Query for ' || m.control_name),
+                '[MIGRATED:20260623001] from utm_visualization id=' || v.id
+                    || ' via dashboard_id=' || m.dashboard_id
+                    || COALESCE(' — ' || NULLIF(v.description, ''), ''),
+                COALESCE(NULLIF(v.sql_query, ''), '-- TODO: define SQL query (placeholder from legacy migration)'),
+                'NO_HITS_ALLOWED',
+                NULL,
+                COALESCE(v.id_pattern, (SELECT id FROM utm_index_pattern ORDER BY id LIMIT 1)),
+                m.new_control_id
+            FROM _ctl_migration_map m
+            JOIN utm_dashboard_visualization dv ON dv.id_dashboard = m.dashboard_id
+            JOIN utm_visualization v ON v.id = dv.id_visualization;
+
+            -- Controls whose dashboard_id was NULL or whose dashboard had no
+            -- visualizations still need at least one placeholder query so the new
+            -- UI can list and edit them.
+            INSERT INTO utm_compliance_query_config
+                (query_name, query_description, sql_query, evaluation_rule, rule_value,
+                 index_pattern_id, control_config_id)
+            SELECT
+                'Query for ' || m.control_name,
+                '[MIGRATED:20260623001] from utm_compliance_report_config — no source visualization, query to be defined',
+                '-- TODO: define SQL query (placeholder from legacy migration)',
+                'NO_HITS_ALLOWED',
+                NULL,
+                (SELECT id FROM utm_index_pattern ORDER BY id LIMIT 1),
+                m.new_control_id
+            FROM _ctl_migration_map m
+            WHERE NOT EXISTS (
+                SELECT 1 FROM utm_compliance_query_config q
+                WHERE q.control_config_id = m.new_control_id
+            );
+            ]]>
+        </sql>
+        <rollback>
+            <sql dbms="postgresql" splitStatements="true" stripComments="false">
+                <![CDATA[
+                -- Deleting the controls cascades to utm_compliance_query_config
+                -- (FK is ON DELETE CASCADE per changeset 20260112003). Match every
+                -- control that has at least one query row tagged by this migration.
+                DELETE FROM utm_compliance_control_config
+                WHERE id IN (
+                    SELECT DISTINCT control_config_id
+                    FROM utm_compliance_query_config
+                    WHERE query_description LIKE '[MIGRATED:20260623001]%'
+                );
+
+                DELETE FROM utm_compliance_standard_section WHERE id = 9000;
+                DELETE FROM utm_compliance_standard WHERE id = 9000;
+                ]]>
+            </sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
