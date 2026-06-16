@@ -9,9 +9,9 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.8.0
 	github.com/aws/aws-sdk-go-v2/config v1.32.25
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.24
-	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.75.2
+	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.76.0
 	github.com/aws/aws-sdk-go-v2/service/sts v1.43.3
-	github.com/crowdstrike/gofalcon v0.20.1
+	github.com/crowdstrike/gofalcon v0.21.0
 	github.com/gin-gonic/gin v1.12.0
 	github.com/threatwinds/go-sdk v1.1.26
 	golang.org/x/sync v0.21.0

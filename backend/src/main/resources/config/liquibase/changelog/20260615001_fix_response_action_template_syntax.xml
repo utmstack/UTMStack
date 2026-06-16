@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260615001-1" author="Alex">
+        <comment>Drop broken duplicate response action templates whose clean equivalents already exist (33→43, 36→38, 37→39).</comment>
+        <sql dbms="postgresql" splitStatements="true">
+            <![CDATA[
+                DELETE FROM public.utm_response_action_template WHERE id IN (33, 36, 37);
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="20260615001-2" author="Alex">
+        <comment>Fix typo (applicactionname) and remove malformed $($(...)) nesting in template 106.</comment>
+        <sql dbms="postgresql" splitStatements="false">
+            <![CDATA[
+                UPDATE public.utm_response_action_template
+                SET command = 'powershell ForEach-Object {Start-Process -FilePath ($_.UninstallString -replace ''"([^"]*)".*'', ''$1'') -ArgumentList "/S" -Wait} -InputObject (Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*, HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object {$_.DisplayName -like "*$(target.applicationname)*"})'
+                WHERE id = 106;
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="20260615001-3" author="Alex">
+        <comment>Fix bash nested double-quote bug in $(rpm/dpkg | grep ...) for templates 107, 108, 109.</comment>
+        <sql dbms="postgresql" splitStatements="true">
+            <![CDATA[
+                UPDATE public.utm_response_action_template
+                SET command = 'yum remove -y "$(rpm -qa --queryformat ''%{NAME}\n'' | grep -ixF -- "$(target.applicationname)" | head -1)"'
+                WHERE id = 107;
+
+                UPDATE public.utm_response_action_template
+                SET command = 'apt-get remove -y "$(dpkg-query -W -f=''${Package}\n'' | grep -ixF -- "$(target.applicationname)" | head -1)"'
+                WHERE id = 108;
+
+                UPDATE public.utm_response_action_template
+                SET command = 'zypper remove -y "$(rpm -qa --queryformat ''%{NAME}\n'' | grep -ixF -- "$(target.applicationname)" | head -1)"'
+                WHERE id = 109;
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="20260615001-4" author="Alex">
+        <comment>Replace tr ' ' '\n' (literal backslash-n inside single quotes) with a self-skip in the loop for templates 122, 123.</comment>
+        <sql dbms="postgresql" splitStatements="true">
+            <![CDATA[
+                UPDATE public.utm_response_action_template
+                SET command = 'for grp in $(id -nG $(adversary.user)); do [ "$grp" = "$(adversary.user)" ] || gpasswd -d $(adversary.user) "$grp"; done'
+                WHERE id = 122;
+
+                UPDATE public.utm_response_action_template
+                SET command = 'for grp in $(id -nG $(adversary.user)); do case "$grp" in $(adversary.user)|staff|everyone) ;; *) dseditgroup -o edit -d $(adversary.user) -t user "$grp" 2>/dev/null ;; esac; done'
+                WHERE id = 123;
+            ]]>
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

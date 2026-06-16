@@ -32,6 +32,27 @@ React/Angular frontend). Your job is to spot **architectural deviations**.
 **Ignore** style, naming, formatting, or refactors that don't affect
 structure.
 
+## Routine dependency updates are not architectural changes
+
+A separate **required** CI check (`go_deps` / `go-deps.sh --check`) already
+enforces that every Go module is on its latest version and still builds, so
+mass `go.mod` / `go.sum` bumps are an expected, routine part of this repo's
+workflow. A version bump of existing modules is **not** an architectural
+deviation and **not** an agent-breaking change — even when:
+
+- it lands under `agent/`, `agent-manager/`, `installer/`, or a plugin (the
+  file path alone is not a contract or wire-protocol change), or
+- the bumped module is security-relevant (SDKs, gRPC, protobuf, crypto).
+
+A diff that is **only** dependency version bumps of existing modules is
+**Tier 1** — do not raise `high` findings or escalate to Tier 3 for it. Do
+still flag a change that is more than a routine bump: a brand-new
+third-party dependency, a *major* version jump documented as breaking, a
+**downgrade**, or a new/edited `replace` directive pointing somewhere
+unexpected. The critical-path and agent-breaking rules below are about
+**code and contract** changes (protos, wire protocol, auth, migrations), not
+manifest version bumps.
+
 ## How to assign tier
 
 - **Tier 1** — No architectural deviations detected.
@@ -45,10 +66,11 @@ structure.
   - Installer (`installer/`).
   - Auth / crypto / secret handling.
   - GitHub Actions workflows or CI scripts.
-  - **Agent code (`agent/`), agent-manager wire protocol, or any change
-    that forces a synchronized agent+server upgrade.** Deployed agents
-    in the field may be on older versions; breaking their compatibility
-    requires senior review and a coordinated rollout plan.
+  - **Agent code or contract** (`agent/` logic, agent-manager wire
+    protocol — **not** a routine `go.mod`/`go.sum` version bump) **or any
+    change that forces a synchronized agent+server upgrade.** Deployed
+    agents in the field may be on older versions; breaking their
+    compatibility requires senior review and a coordinated rollout plan.
   - Any change that breaks backwards compatibility of a public endpoint
     or persisted schema.
 

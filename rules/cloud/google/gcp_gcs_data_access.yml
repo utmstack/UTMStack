@@ -4,7 +4,7 @@ dataTypes:
   - google
 name: GCP Cloud Storage — Sensitive Data Access
 impact:
-  confidentiality: 4
+  confidentiality: 3
   integrity: 1
   availability: 1
 category: Discovery
