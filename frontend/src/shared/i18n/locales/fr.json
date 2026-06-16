@@ -176,6 +176,78 @@
       "genericError": "Une erreur s'est produite"
     }
   },
+  "home": {
+    "hero": {
+      "title": "Que souhaitez-vous savoir à partir de vos données de sécurité ?",
+      "placeholder": "Renseignez-vous sur Scattered Spider, cela nous concerne-t-il ?, avons-nous déjà été touchés ?, créez une règle de détection et maintenez-la à jour.",
+      "mention": "Mentionner",
+      "attach": "Joindre",
+      "send": "Envoyer",
+      "suggestions": {
+        "threatHunt": "Chasse aux menaces",
+        "observableTriage": "Triage des observables",
+        "writeRule": "Écrire une règle",
+        "systemStatus": "État actuel du système"
+      }
+    },
+    "kpis": {
+      "alerts24h": "Alertes (24 h)",
+      "openIncidents": "Incidents ouverts",
+      "openIncidentsSub": "actuellement ouverts",
+      "highSeverity24h": "Gravité élevée (24 h)",
+      "highSeveritySub": "sur {{n}} alertes",
+      "activePlaybooks": "Playbooks actifs",
+      "activePlaybooksSub": "activés"
+    },
+    "datasources": {
+      "title": "Sources de données",
+      "viewAll": "Tout voir",
+      "ofTotal": "sur {{n}}",
+      "datasources": "sources de données",
+      "sendingData": "envoient des données",
+      "totalEvents": "Total des événements",
+      "noData": "Aucune donnée d'ingestion sur cette période"
+    },
+    "span": {
+      "recent": "période récente",
+      "days_one": "{{count}} dernier jour",
+      "days_other": "{{count}} derniers jours",
+      "hours": "dernières {{n}} h"
+    },
+    "mitre": {
+      "title": "Principales techniques MITRE ATT&CK",
+      "explore": "Explorer",
+      "empty": "Aucune alerte avec technique attribuée pour le moment"
+    },
+    "assets": {
+      "title": "Actifs les plus ciblés",
+      "viewAll": "Tout voir",
+      "asset": "Actif",
+      "alerts": "Alertes",
+      "empty": "Aucun actif ciblé dans les alertes récentes"
+    },
+    "compliance": {
+      "title": "Score de conformité",
+      "reports": "Rapports",
+      "empty": "Aucun rapport de conformité généré pour le moment"
+    },
+    "health": {
+      "title": "État du système",
+      "details": "Détails",
+      "services": {
+        "backend": "API backend",
+        "opensearch": "Cluster OpenSearch",
+        "socai": "Moteur SOC-AI"
+      },
+      "detail": {
+        "noClusterInfo": "aucune information sur le cluster",
+        "disabled": "désactivé",
+        "tools": "{{n}} outils",
+        "unreachable": "injoignable",
+        "pending": "…"
+      }
+    }
+  },
   "nav": {
     "home": "Accueil",
     "dashboards": "Tableaux de bord",

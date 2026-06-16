@@ -285,6 +285,10 @@ func (h *AuthHandler) RevokeOtherSessions(c *gin.Context) {
 		return
 	}
 	if err := h.authUsecase.RevokeOtherSessions(c.Request.Context(), uid, sessionIDFromCtx(c)); err != nil {
+		if errors.Is(err, domain.ErrNoActiveSession) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "no active session to preserve"})
+			return
+		}
 		_ = catcher.Error("revoke other sessions failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not revoke sessions"})
 		return

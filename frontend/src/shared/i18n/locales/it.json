@@ -176,6 +176,78 @@
       "genericError": "Qualcosa è andato storto"
     }
   },
+  "home": {
+    "hero": {
+      "title": "Cosa vuoi sapere dai tuoi dati di sicurezza?",
+      "placeholder": "Indaga su Scattered Spider, ci riguarda?, siamo mai stati colpiti?, crea una regola di rilevamento e mantienila aggiornata.",
+      "mention": "Menziona",
+      "attach": "Allega",
+      "send": "Invia",
+      "suggestions": {
+        "threatHunt": "Caccia alle minacce",
+        "observableTriage": "Triage degli osservabili",
+        "writeRule": "Scrivi una regola",
+        "systemStatus": "Stato attuale del sistema"
+      }
+    },
+    "kpis": {
+      "alerts24h": "Avvisi (24 h)",
+      "openIncidents": "Incidenti aperti",
+      "openIncidentsSub": "attualmente aperti",
+      "highSeverity24h": "Gravità alta (24 h)",
+      "highSeveritySub": "su {{n}} avvisi",
+      "activePlaybooks": "Playbook attivi",
+      "activePlaybooksSub": "abilitati"
+    },
+    "datasources": {
+      "title": "Origini dati",
+      "viewAll": "Vedi tutto",
+      "ofTotal": "su {{n}}",
+      "datasources": "origini dati",
+      "sendingData": "che inviano dati",
+      "totalEvents": "Eventi totali",
+      "noData": "Nessun dato di ingest in questo intervallo"
+    },
+    "span": {
+      "recent": "intervallo recente",
+      "days_one": "ultimo {{count}} giorno",
+      "days_other": "ultimi {{count}} giorni",
+      "hours": "ultime {{n}} h"
+    },
+    "mitre": {
+      "title": "Principali tecniche MITRE ATT&CK",
+      "explore": "Esplora",
+      "empty": "Nessun avviso con tecnica assegnata"
+    },
+    "assets": {
+      "title": "Asset più presi di mira",
+      "viewAll": "Vedi tutto",
+      "asset": "Asset",
+      "alerts": "Avvisi",
+      "empty": "Nessun asset preso di mira negli avvisi recenti"
+    },
+    "compliance": {
+      "title": "Punteggio di conformità",
+      "reports": "Report",
+      "empty": "Nessun report di conformità ancora generato"
+    },
+    "health": {
+      "title": "Stato del sistema",
+      "details": "Dettagli",
+      "services": {
+        "backend": "API backend",
+        "opensearch": "Cluster OpenSearch",
+        "socai": "Motore SOC-AI"
+      },
+      "detail": {
+        "noClusterInfo": "nessuna informazione sul cluster",
+        "disabled": "disabilitato",
+        "tools": "{{n}} strumenti",
+        "unreachable": "irraggiungibile",
+        "pending": "…"
+      }
+    }
+  },
   "nav": {
     "home": "Home",
     "dashboards": "Dashboard",

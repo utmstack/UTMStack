@@ -176,6 +176,80 @@
       "genericError": "Что-то пошло не так"
     }
   },
+  "home": {
+    "hero": {
+      "title": "Что вы хотите узнать из ваших данных безопасности?",
+      "placeholder": "Изучите Scattered Spider, применимо ли это к нам?, атаковали ли нас когда-нибудь?, создайте правило обнаружения и поддерживайте его в актуальном состоянии.",
+      "mention": "Упомянуть",
+      "attach": "Прикрепить",
+      "send": "Отправить",
+      "suggestions": {
+        "threatHunt": "Поиск угроз",
+        "observableTriage": "Триаж индикаторов",
+        "writeRule": "Написать правило",
+        "systemStatus": "Текущее состояние системы"
+      }
+    },
+    "kpis": {
+      "alerts24h": "Оповещения (24 ч)",
+      "openIncidents": "Открытые инциденты",
+      "openIncidentsSub": "сейчас открыты",
+      "highSeverity24h": "Высокая важность (24 ч)",
+      "highSeveritySub": "из {{n}} оповещений",
+      "activePlaybooks": "Активные плейбуки",
+      "activePlaybooksSub": "включены"
+    },
+    "datasources": {
+      "title": "Источники данных",
+      "viewAll": "Показать все",
+      "ofTotal": "из {{n}}",
+      "datasources": "источников данных",
+      "sendingData": "отправляют данные",
+      "totalEvents": "Всего событий",
+      "noData": "Нет данных о приёме в этом интервале"
+    },
+    "span": {
+      "recent": "недавний период",
+      "days_one": "последний {{count}} день",
+      "days_few": "последние {{count}} дня",
+      "days_many": "последние {{count}} дней",
+      "days_other": "последние {{count}} дней",
+      "hours": "последние {{n}} ч"
+    },
+    "mitre": {
+      "title": "Топ техник MITRE ATT&CK",
+      "explore": "Изучить",
+      "empty": "Пока нет оповещений с указанной техникой"
+    },
+    "assets": {
+      "title": "Наиболее атакуемые активы",
+      "viewAll": "Показать все",
+      "asset": "Актив",
+      "alerts": "Оповещения",
+      "empty": "Нет атакуемых активов в недавних оповещениях"
+    },
+    "compliance": {
+      "title": "Оценка соответствия",
+      "reports": "Отчёты",
+      "empty": "Отчёты о соответствии ещё не созданы"
+    },
+    "health": {
+      "title": "Состояние системы",
+      "details": "Подробности",
+      "services": {
+        "backend": "Backend API",
+        "opensearch": "Кластер OpenSearch",
+        "socai": "Движок SOC-AI"
+      },
+      "detail": {
+        "noClusterInfo": "нет данных о кластере",
+        "disabled": "отключено",
+        "tools": "инструментов: {{n}}",
+        "unreachable": "недоступен",
+        "pending": "…"
+      }
+    }
+  },
   "nav": {
     "home": "Главная",
     "dashboards": "Панели",

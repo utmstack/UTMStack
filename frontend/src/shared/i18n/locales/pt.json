@@ -176,6 +176,78 @@
       "genericError": "Algo deu errado"
     }
   },
+  "home": {
+    "hero": {
+      "title": "O que você gostaria de saber a partir dos seus dados de segurança?",
+      "placeholder": "Pesquise o Scattered Spider, isso se aplica a nós?, já fomos atacados?, crie uma regra de detecção e mantenha-a ajustada.",
+      "mention": "Mencionar",
+      "attach": "Anexar",
+      "send": "Enviar",
+      "suggestions": {
+        "threatHunt": "Caça a ameaças",
+        "observableTriage": "Triagem de observáveis",
+        "writeRule": "Escrever uma regra",
+        "systemStatus": "Status atual do sistema"
+      }
+    },
+    "kpis": {
+      "alerts24h": "Alertas (24 h)",
+      "openIncidents": "Incidentes abertos",
+      "openIncidentsSub": "abertos no momento",
+      "highSeverity24h": "Severidade alta (24 h)",
+      "highSeveritySub": "de {{n}} alertas",
+      "activePlaybooks": "Playbooks ativos",
+      "activePlaybooksSub": "habilitados"
+    },
+    "datasources": {
+      "title": "Fontes de dados",
+      "viewAll": "Ver tudo",
+      "ofTotal": "de {{n}}",
+      "datasources": "fontes de dados",
+      "sendingData": "enviando dados",
+      "totalEvents": "Total de eventos",
+      "noData": "Sem dados de ingestão nesta janela"
+    },
+    "span": {
+      "recent": "janela recente",
+      "days_one": "último {{count}} dia",
+      "days_other": "últimos {{count}} dias",
+      "hours": "últimas {{n}} h"
+    },
+    "mitre": {
+      "title": "Principais técnicas MITRE ATT&CK",
+      "explore": "Explorar",
+      "empty": "Ainda não há alertas com técnica atribuída"
+    },
+    "assets": {
+      "title": "Ativos mais visados",
+      "viewAll": "Ver tudo",
+      "asset": "Ativo",
+      "alerts": "Alertas",
+      "empty": "Nenhum ativo visado nos alertas recentes"
+    },
+    "compliance": {
+      "title": "Pontuação de conformidade",
+      "reports": "Relatórios",
+      "empty": "Nenhum relatório de conformidade gerado ainda"
+    },
+    "health": {
+      "title": "Integridade do sistema",
+      "details": "Detalhes",
+      "services": {
+        "backend": "API do backend",
+        "opensearch": "Cluster do OpenSearch",
+        "socai": "Motor SOC-AI"
+      },
+      "detail": {
+        "noClusterInfo": "sem informações do cluster",
+        "disabled": "desabilitado",
+        "tools": "{{n}} ferramentas",
+        "unreachable": "inacessível",
+        "pending": "…"
+      }
+    }
+  },
   "nav": {
     "home": "Início",
     "dashboards": "Painéis",

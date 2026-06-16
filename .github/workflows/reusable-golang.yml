@@ -26,6 +26,12 @@ on:
       API_SECRET:
         required: false
         description: "Token to fetch private github.com/utmstack Go modules. Optional; when unset, only public modules are fetchable (backwards-compatible)."
+      CM_SIGN_PUBLIC_KEY:
+        required: false
+        description: "Optional value baked into the binary via ldflags. The `secrets` context is not allowed in a caller's `with:`, so secret-derived ldflags must be passed here and referenced from `inputs.flags` as $CM_SIGN_PUBLIC_KEY."
+      CM_ENCRYPT_SALT:
+        required: false
+        description: "Optional value baked into the binary via ldflags. Reference from `inputs.flags` as $CM_ENCRYPT_SALT."
 jobs:
   build:
     name: Build
@@ -55,6 +61,12 @@ jobs:
   
       - name: Build Binary
         working-directory: ./${{inputs.image_name}}
+        env:
+          # Exposed so `inputs.flags` can reference them with shell expansion
+          # ($CM_SIGN_PUBLIC_KEY / $CM_ENCRYPT_SALT). The `secrets` context can't
+          # be used in the caller's `with:`, only in a step like this one.
+          CM_SIGN_PUBLIC_KEY: ${{ secrets.CM_SIGN_PUBLIC_KEY }}
+          CM_ENCRYPT_SALT: ${{ secrets.CM_ENCRYPT_SALT }}
         run: |
           if [ -n "${{inputs.flags}}" ]; then
             go build -o ${{inputs.image_name}} -v -ldflags "${{inputs.flags}}" .

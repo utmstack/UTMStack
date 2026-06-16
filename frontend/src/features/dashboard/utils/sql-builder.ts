@@ -23,14 +23,16 @@ export function aggregationToSelect(metric: BuilderMetric): string {
       return 'COUNT(*)'
     case 'count_distinct':
       return metric.field ? `COUNT(DISTINCT ${metric.field})` : 'COUNT(*)'
+    // SUM/AVG/MIN/MAX need a column — `SUM(*)` is invalid SQL. If no field is
+    // selected yet, fall back to COUNT(*) so the builder never emits broken SQL.
     case 'sum':
-      return metric.field ? `SUM(${metric.field})` : 'SUM(*)'
+      return metric.field ? `SUM(${metric.field})` : 'COUNT(*)'
     case 'avg':
-      return metric.field ? `AVG(${metric.field})` : 'AVG(*)'
+      return metric.field ? `AVG(${metric.field})` : 'COUNT(*)'
     case 'min':
-      return metric.field ? `MIN(${metric.field})` : 'MIN(*)'
+      return metric.field ? `MIN(${metric.field})` : 'COUNT(*)'
     case 'max':
-      return metric.field ? `MAX(${metric.field})` : 'MAX(*)'
+      return metric.field ? `MAX(${metric.field})` : 'COUNT(*)'
     default:
       return 'COUNT(*)'
   }

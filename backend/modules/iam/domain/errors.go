@@ -12,6 +12,7 @@ var (
 	ErrInvalidRefresh     = errors.New("invalid or expired refresh token")
 	ErrEmailTaken         = errors.New("email is already in use")
 	ErrSessionNotFound    = errors.New("session not found")
+	ErrNoActiveSession    = errors.New("no active session to preserve")
 	ErrInvalidResetKey    = errors.New("invalid or expired reset key")
 )
 

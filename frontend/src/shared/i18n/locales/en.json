@@ -176,6 +176,78 @@
       "genericError": "Something went wrong"
     }
   },
+  "home": {
+    "hero": {
+      "title": "What would you like to know from your security data?",
+      "placeholder": "Research Scattered Spider, does it apply to us, have we ever been hit, build a detection rule and keep it tuned.",
+      "mention": "Mention",
+      "attach": "Attach",
+      "send": "Send",
+      "suggestions": {
+        "threatHunt": "Threat hunt",
+        "observableTriage": "Observable triage",
+        "writeRule": "Write a rule",
+        "systemStatus": "Current system status"
+      }
+    },
+    "kpis": {
+      "alerts24h": "Alerts (24h)",
+      "openIncidents": "Open incidents",
+      "openIncidentsSub": "currently open",
+      "highSeverity24h": "High severity (24h)",
+      "highSeveritySub": "of {{n}} alerts",
+      "activePlaybooks": "Active playbooks",
+      "activePlaybooksSub": "enabled"
+    },
+    "datasources": {
+      "title": "Datasources",
+      "viewAll": "View all",
+      "ofTotal": "of {{n}}",
+      "datasources": "datasources",
+      "sendingData": "sending data",
+      "totalEvents": "Total events",
+      "noData": "No ingestion data in this window"
+    },
+    "span": {
+      "recent": "recent window",
+      "days_one": "last {{count}} day",
+      "days_other": "last {{count}} days",
+      "hours": "last {{n}}h"
+    },
+    "mitre": {
+      "title": "Top MITRE ATT&CK techniques",
+      "explore": "Explore",
+      "empty": "No technique-tagged alerts yet"
+    },
+    "assets": {
+      "title": "Top targeted assets",
+      "viewAll": "View all",
+      "asset": "Asset",
+      "alerts": "Alerts",
+      "empty": "No targeted assets in recent alerts"
+    },
+    "compliance": {
+      "title": "Compliance score",
+      "reports": "Reports",
+      "empty": "No compliance reports generated yet"
+    },
+    "health": {
+      "title": "System health",
+      "details": "Details",
+      "services": {
+        "backend": "Backend API",
+        "opensearch": "OpenSearch cluster",
+        "socai": "SOC-AI engine"
+      },
+      "detail": {
+        "noClusterInfo": "no cluster info",
+        "disabled": "disabled",
+        "tools": "{{n}} tools",
+        "unreachable": "unreachable",
+        "pending": "…"
+      }
+    }
+  },
   "nav": {
     "home": "Home",
     "dashboards": "Dashboards",

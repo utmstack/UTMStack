@@ -5,7 +5,7 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
-func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
+func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, apiKeyAuth middleware.APIKeyAuthFunc) {
 	rh := m.GetRuleHandler()
 	th := m.GetTemplateHandler()
 	eh := m.GetExecutionHandler()
@@ -62,5 +62,6 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	jg.GET("/:id", read, jh.GetByID)
 	jg.DELETE("/:id", write, jh.Delete)
 
+	m.commandWSHandler.SetAPIKeyAuth(apiKeyAuth)
 	api.GET("/soar/ws/command/:agentId", m.commandWSHandler.CommandStream)
 }

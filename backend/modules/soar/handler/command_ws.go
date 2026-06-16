@@ -13,6 +13,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager/agent"
+	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 	jwtpkg "github.com/utmstack/utmstack/backend/pkg/jwt"
 )
 
@@ -20,6 +21,7 @@ type CommandWSHandler struct {
 	agentClient *agentmanager.AgentManagerClient
 	signer      *jwtpkg.Signer
 	variableUC  connectors.VariableUsecase
+	apiKeyAuth  middleware.APIKeyAuthFunc
 }
 
 func NewCommandWSHandler(agentClient *agentmanager.AgentManagerClient, signer *jwtpkg.Signer, variableUC connectors.VariableUsecase) *CommandWSHandler {
@@ -28,6 +30,48 @@ func NewCommandWSHandler(agentClient *agentmanager.AgentManagerClient, signer *j
 		signer:      signer,
 		variableUC:  variableUC,
 	}
+}
+
+func (h *CommandWSHandler) SetAPIKeyAuth(f middleware.APIKeyAuthFunc) {
+	h.apiKeyAuth = f
+}
+
+func (h *CommandWSHandler) authenticate(c *gin.Context) bool {
+	rawToken := ""
+	if header := c.GetHeader("Authorization"); header != "" {
+		t, ok := strings.CutPrefix(header, "Bearer ")
+		if !ok || t == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid Authorization header"})
+			return false
+		}
+		rawToken = t
+	} else if q := c.Query("token"); q != "" {
+		rawToken = q
+	}
+	if rawToken != "" {
+		claims, err := h.signer.Verify(rawToken)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token"})
+			return false
+		}
+		c.Set("user_login", claims.Login)
+		return true
+	}
+
+	if h.apiKeyAuth != nil {
+		if apiKey := c.GetHeader("Utm-Api-Key"); apiKey != "" {
+			actor, err := h.apiKeyAuth(c.Request.Context(), apiKey, c.ClientIP())
+			if err != nil || actor == nil {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid api key"})
+				return false
+			}
+			c.Set("user_login", actor.Login)
+			return true
+		}
+	}
+
+	c.JSON(http.StatusUnauthorized, gin.H{"error": "missing token"})
+	return false
 }
 
 type wsCommandRequest struct {
@@ -59,23 +103,7 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 		return
 	}
 
-	rawToken := ""
-	if header := c.GetHeader("Authorization"); header != "" {
-		t, ok := strings.CutPrefix(header, "Bearer ")
-		if !ok || t == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid Authorization header"})
-			return
-		}
-		rawToken = t
-	} else if q := c.Query("token"); q != "" {
-		rawToken = q
-	}
-	if rawToken == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "missing token"})
-		return
-	}
-	if _, err := h.signer.Verify(rawToken); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token"})
+	if !h.authenticate(c) {
 		return
 	}
 

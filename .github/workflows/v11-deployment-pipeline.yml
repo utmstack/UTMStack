@@ -479,11 +479,15 @@ jobs:
       tag: ${{ needs.setup_deployment.outputs.tag }}
       build_context: "."
       dockerfile: "./backend/Dockerfile"
+      # NOTE: `secrets.*` is NOT allowed in `with:`. The values are passed via the
+      # `secrets:` block below and expanded here as shell env vars at build time.
       flags: >-
-        -X 'github.com/utmstack/utmstack/backend/modules/billing.PublicKey=${{ secrets.CM_SIGN_PUBLIC_KEY }}'
-        -X 'github.com/utmstack/utmstack/backend/modules/billing.EncryptSalt=${{ secrets.CM_ENCRYPT_SALT }}'
+        -X 'github.com/utmstack/utmstack/backend/modules/billing.PublicKey=${CM_SIGN_PUBLIC_KEY}'
+        -X 'github.com/utmstack/utmstack/backend/modules/billing.EncryptSalt=${CM_ENCRYPT_SALT}'
     secrets:
       API_SECRET: ${{ secrets.API_SECRET }}
+      CM_SIGN_PUBLIC_KEY: ${{ secrets.CM_SIGN_PUBLIC_KEY }}
+      CM_ENCRYPT_SALT: ${{ secrets.CM_ENCRYPT_SALT }}
   build_frontend:
     name: Build Frontend Microservice
     needs: [validations, setup_deployment]

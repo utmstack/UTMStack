@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { GridLayoutItem } from '@/features/dashboard/types'
 
 export interface EditorState {
@@ -15,15 +15,28 @@ export function useDashboardEditor(initialItems: GridLayoutItem[]) {
   const [pendingRemovals, setPendingRemovals] = useState<number[]>([])
 
   // Keep working/baseline in sync with the latest data while NOT editing — the
-  // layout rows arrive asynchronously, so without `initialItems` in the deps the
-  // working copy stays stale (empty) and edit mode would render nothing.
+  // layout rows arrive asynchronously. We must NOT depend on the `initialItems`
+  // array identity: callers usually pass a freshly-derived array every render,
+  // so depending on it would re-run this effect (which setStates) on every
+  // render → infinite loop. Instead we sync only when the *content* changes,
+  // tracked by a stable string signature, and read the latest array via a ref.
+  const itemsRef = useRef(initialItems)
+  itemsRef.current = initialItems
+
+  const signature = useMemo(
+    () => JSON.stringify(initialItems.map((it) => [it.i, it.x, it.y, it.w, it.h])),
+    [initialItems],
+  )
+
   useEffect(() => {
     if (!editing) {
-      setWorking(initialItems)
-      setBaseline(initialItems)
+      setWorking(itemsRef.current)
+      setBaseline(itemsRef.current)
       setPendingRemovals([])
     }
-  }, [editing, initialItems])
+    // `signature` (a value-based string) stands in for `initialItems`; `itemsRef`
+    // is intentionally not a dependency.
+  }, [editing, signature])
 
   const enter = useCallback(() => {
     // Start the edit session from the current items (not a stale working copy).

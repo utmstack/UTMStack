@@ -1,6 +1,9 @@
 import { useMemo } from 'react'
 import { useIndexProperties } from '@/features/dashboard/hooks/useIndexProperties'
-import { filterAggregatableFields } from '@/features/dashboard/utils/aggregatable-fields'
+import {
+  filterAggregatableFields,
+  groupableFields,
+} from '@/features/dashboard/utils/aggregatable-fields'
 import type { IndexProperty } from '@/features/dashboard/types'
 
 /**
@@ -22,8 +25,16 @@ export function useAggregatableFields(indexPattern: string | null | undefined) {
     [propsQuery.data]
   )
 
+  // Subset valid for GROUP BY / COUNT(DISTINCT) — excludes pure `text` fields
+  // (not aggregatable in OpenSearch SQL). Filters/columns still use `fields`.
+  const groupable = useMemo<IndexProperty[]>(
+    () => groupableFields(fields, propsQuery.data ?? []),
+    [fields, propsQuery.data]
+  )
+
   return {
     fields,
+    groupableFields: groupable,
     isLoading: propsQuery.isFetching && !!indexPattern?.trim(),
   }
 }

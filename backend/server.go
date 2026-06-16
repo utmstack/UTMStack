@@ -125,7 +125,7 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	appconfig.RegisterRoutes(api, m.appconfig, userAuth, mssp)
 	billing.RegisterRoutes(api, m.billing, userAuth)
 	alerts.RegisterRoutes(api, m.alerts, userAuth)
-	soar.RegisterRoutes(api, m.soar, userAuth)
+	soar.RegisterRoutes(api, m.soar, userAuth, apiKeyAuth)
 	eventprocessing.RegisterRoutes(api, m.eventProcessing, userAuth)
 	compliance.RegisterRoutes(api, m.compliance, userAuth)
 	dashboards.RegisterRoutes(api, m.dashboards, userAuth)

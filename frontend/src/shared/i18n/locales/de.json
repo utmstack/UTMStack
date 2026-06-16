@@ -176,6 +176,78 @@
       "genericError": "Etwas ist schiefgelaufen"
     }
   },
+  "home": {
+    "hero": {
+      "title": "Was möchten Sie aus Ihren Sicherheitsdaten erfahren?",
+      "placeholder": "Recherchieren Sie Scattered Spider, betrifft uns das?, wurden wir jemals getroffen?, erstellen Sie eine Erkennungsregel und halten Sie sie aktuell.",
+      "mention": "Erwähnen",
+      "attach": "Anhängen",
+      "send": "Senden",
+      "suggestions": {
+        "threatHunt": "Threat Hunting",
+        "observableTriage": "Observable-Triage",
+        "writeRule": "Regel schreiben",
+        "systemStatus": "Aktueller Systemstatus"
+      }
+    },
+    "kpis": {
+      "alerts24h": "Warnungen (24 Std.)",
+      "openIncidents": "Offene Vorfälle",
+      "openIncidentsSub": "aktuell offen",
+      "highSeverity24h": "Hoher Schweregrad (24 Std.)",
+      "highSeveritySub": "von {{n}} Warnungen",
+      "activePlaybooks": "Aktive Playbooks",
+      "activePlaybooksSub": "aktiviert"
+    },
+    "datasources": {
+      "title": "Datenquellen",
+      "viewAll": "Alle anzeigen",
+      "ofTotal": "von {{n}}",
+      "datasources": "Datenquellen",
+      "sendingData": "senden Daten",
+      "totalEvents": "Ereignisse gesamt",
+      "noData": "Keine Ingest-Daten in diesem Zeitraum"
+    },
+    "span": {
+      "recent": "letzter Zeitraum",
+      "days_one": "letzter {{count}} Tag",
+      "days_other": "letzte {{count}} Tage",
+      "hours": "letzte {{n}} Std."
+    },
+    "mitre": {
+      "title": "Top MITRE ATT&CK-Techniken",
+      "explore": "Erkunden",
+      "empty": "Noch keine Warnungen mit zugewiesener Technik"
+    },
+    "assets": {
+      "title": "Am häufigsten angegriffene Assets",
+      "viewAll": "Alle anzeigen",
+      "asset": "Asset",
+      "alerts": "Warnungen",
+      "empty": "Keine angegriffenen Assets in den letzten Warnungen"
+    },
+    "compliance": {
+      "title": "Compliance-Score",
+      "reports": "Berichte",
+      "empty": "Noch keine Compliance-Berichte erstellt"
+    },
+    "health": {
+      "title": "Systemzustand",
+      "details": "Details",
+      "services": {
+        "backend": "Backend-API",
+        "opensearch": "OpenSearch-Cluster",
+        "socai": "SOC-AI-Engine"
+      },
+      "detail": {
+        "noClusterInfo": "keine Cluster-Informationen",
+        "disabled": "deaktiviert",
+        "tools": "{{n}} Tools",
+        "unreachable": "nicht erreichbar",
+        "pending": "…"
+      }
+    }
+  },
   "nav": {
     "home": "Startseite",
     "dashboards": "Dashboards",

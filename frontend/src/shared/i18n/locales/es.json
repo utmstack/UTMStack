@@ -176,6 +176,78 @@
       "genericError": "Algo salió mal"
     }
   },
+  "home": {
+    "hero": {
+      "title": "¿Qué te gustaría saber a partir de tus datos de seguridad?",
+      "placeholder": "Investiga a Scattered Spider, ¿nos aplica?, ¿nos han atacado alguna vez?, crea una regla de detección y mantenla ajustada.",
+      "mention": "Mencionar",
+      "attach": "Adjuntar",
+      "send": "Enviar",
+      "suggestions": {
+        "threatHunt": "Caza de amenazas",
+        "observableTriage": "Triaje de observables",
+        "writeRule": "Escribir una regla",
+        "systemStatus": "Estado actual del sistema"
+      }
+    },
+    "kpis": {
+      "alerts24h": "Alertas (24 h)",
+      "openIncidents": "Incidentes abiertos",
+      "openIncidentsSub": "abiertos actualmente",
+      "highSeverity24h": "Severidad alta (24 h)",
+      "highSeveritySub": "de {{n}} alertas",
+      "activePlaybooks": "Playbooks activos",
+      "activePlaybooksSub": "habilitados"
+    },
+    "datasources": {
+      "title": "Fuentes de datos",
+      "viewAll": "Ver todo",
+      "ofTotal": "de {{n}}",
+      "datasources": "fuentes de datos",
+      "sendingData": "enviando datos",
+      "totalEvents": "Eventos totales",
+      "noData": "Sin datos de ingesta en esta ventana"
+    },
+    "span": {
+      "recent": "ventana reciente",
+      "days_one": "último {{count}} día",
+      "days_other": "últimos {{count}} días",
+      "hours": "últimas {{n}} h"
+    },
+    "mitre": {
+      "title": "Técnicas MITRE ATT&CK principales",
+      "explore": "Explorar",
+      "empty": "Aún no hay alertas con técnica asignada"
+    },
+    "assets": {
+      "title": "Activos más atacados",
+      "viewAll": "Ver todo",
+      "asset": "Activo",
+      "alerts": "Alertas",
+      "empty": "No hay activos atacados en las alertas recientes"
+    },
+    "compliance": {
+      "title": "Puntuación de cumplimiento",
+      "reports": "Informes",
+      "empty": "Aún no se han generado informes de cumplimiento"
+    },
+    "health": {
+      "title": "Estado del sistema",
+      "details": "Detalles",
+      "services": {
+        "backend": "API del backend",
+        "opensearch": "Clúster de OpenSearch",
+        "socai": "Motor SOC-AI"
+      },
+      "detail": {
+        "noClusterInfo": "sin información del clúster",
+        "disabled": "deshabilitado",
+        "tools": "{{n}} herramientas",
+        "unreachable": "inaccesible",
+        "pending": "…"
+      }
+    }
+  },
   "nav": {
     "home": "Inicio",
     "dashboards": "Paneles",

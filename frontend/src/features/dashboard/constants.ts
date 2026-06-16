@@ -97,7 +97,19 @@ export const CHART_TYPES: ChartTypeMeta[] = [
     icon: 'pie',
     defaultConfig: {
       tooltip: { trigger: 'item' },
-      series: [{ type: 'pie', radius: '60%', encode: { itemName: 0, value: 1 } }],
+      series: [
+        {
+          type: 'pie',
+          radius: '60%',
+          center: ['50%', '45%'],
+          encode: { itemName: 0, value: 1 },
+          // No permanent labels/leader lines (they overlap badly with many
+          // categories). Show the slice name in white only on hover.
+          label: { show: false },
+          labelLine: { show: false },
+          emphasis: { label: { show: true, color: '#ffffff', fontWeight: 'bold' } },
+        },
+      ],
     },
   },
   {
@@ -193,18 +205,26 @@ export function getChartTypeMeta(id: ChartTypeId): ChartTypeMeta {
   return CHART_TYPES.find((c) => c.id === id) ?? CHART_TYPES[0]
 }
 
+// Which field types an aggregation accepts in the visual builder:
+//  - 'none'      → no field (COUNT(*))
+//  - 'any'       → any field (COUNT DISTINCT works on text/keyword/numbers/…)
+//  - 'numeric'   → numeric only (SUM/AVG on text is meaningless / breaks)
+//  - 'orderable' → numeric or date (MIN/MAX)
+export type AggregationFieldKind = 'none' | 'any' | 'numeric' | 'orderable'
+
 export interface AggregationMeta {
   id: AggregationId
   requiresField: boolean
+  fieldKind: AggregationFieldKind
 }
 
 export const AGGREGATIONS: AggregationMeta[] = [
-  { id: 'count', requiresField: false },
-  { id: 'count_distinct', requiresField: true },
-  { id: 'sum', requiresField: true },
-  { id: 'avg', requiresField: true },
-  { id: 'min', requiresField: true },
-  { id: 'max', requiresField: true },
+  { id: 'count', requiresField: false, fieldKind: 'none' },
+  { id: 'count_distinct', requiresField: true, fieldKind: 'any' },
+  { id: 'sum', requiresField: true, fieldKind: 'numeric' },
+  { id: 'avg', requiresField: true, fieldKind: 'numeric' },
+  { id: 'min', requiresField: true, fieldKind: 'orderable' },
+  { id: 'max', requiresField: true, fieldKind: 'orderable' },
 ]
 
 export interface OperatorMeta {

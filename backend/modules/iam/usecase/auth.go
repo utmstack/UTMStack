@@ -336,6 +336,9 @@ func (u *authUsecase) RevokeSession(ctx context.Context, userID, sessionID uint6
 }
 
 func (u *authUsecase) RevokeOtherSessions(ctx context.Context, userID, currentSessionID uint64) error {
+	if currentSessionID == 0 {
+		return domain.ErrNoActiveSession
+	}
 	if err := u.refreshRepo.RevokeAllForUserExcept(ctx, userID, currentSessionID); err != nil {
 		return err
 	}

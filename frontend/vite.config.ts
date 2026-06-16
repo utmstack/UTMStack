@@ -5,7 +5,13 @@ import path from 'path'
 
 const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:8080'
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  // Some deps (react-draggable, prop-types — pulled in by react-grid-layout)
+  // reference `process.env.NODE_ENV`, which doesn't exist in the browser and
+  // throws "process is not defined". Vite doesn't shim it, so define it here.
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(mode),
+  },
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -28,4 +34,4 @@ export default defineConfig({
       },
     },
   },
-})
+}))

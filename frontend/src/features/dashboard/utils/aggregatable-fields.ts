@@ -58,3 +58,26 @@ export function filterAggregatableFields(fields: IndexProperty[]): IndexProperty
     return true
   })
 }
+
+/**
+ * Fields that can be used in a GROUP BY / COUNT(DISTINCT …) — i.e. a dimension.
+ *
+ * In OpenSearch SQL a `text` field is analyzed and is NOT aggregatable: grouping
+ * by it errors. A text field that has a `<name>.keyword` multifield groups fine
+ * (SQL uses the keyword under the hood), so only *pure* text (no keyword sibling)
+ * is excluded. Everything else (keyword, numeric, date, boolean, ip) is groupable.
+ *
+ * Pass the already-{@link filterAggregatableFields}'d list plus the raw mapping
+ * (so the keyword siblings — which the filtered list drops — are still visible).
+ */
+export function groupableFields(
+  aggregatable: IndexProperty[],
+  rawFields: IndexProperty[]
+): IndexProperty[] {
+  const rawNames = new Set(rawFields.map((f) => f.name))
+  return aggregatable.filter((f) => {
+    const type = (f.type ?? '').trim().toLowerCase()
+    if (type === 'text') return rawNames.has(`${f.name}.keyword`)
+    return true
+  })
+}

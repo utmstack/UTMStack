@@ -72,7 +72,11 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
   const [tab, setTab] = useState<EditorTab>(() => (builder.rawMode ? 'sql' : 'visual'))
   const [chartTypeOpen, setChartTypeOpen] = useState(false)
 
-  const { fields, isLoading: fieldsLoading } = useAggregatableFields(builder.indexPattern)
+  const {
+    fields,
+    groupableFields: groupable,
+    isLoading: fieldsLoading,
+  } = useAggregatableFields(builder.indexPattern)
 
   const composedSql = useMemo(() => composeSql(builder), [builder])
 
@@ -222,6 +226,7 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
             <VisualTab
               builder={builder}
               fields={fields}
+              groupableFields={groupable}
               fieldsLoading={fieldsLoading}
               showMetric={showMetric}
               showDimension={showDimension}
@@ -335,6 +340,7 @@ function TabButton({
 function VisualTab({
   builder,
   fields,
+  groupableFields,
   fieldsLoading,
   showMetric,
   showDimension,
@@ -342,6 +348,7 @@ function VisualTab({
 }: {
   builder: BuilderState
   fields: IndexProperty[]
+  groupableFields: IndexProperty[]
   fieldsLoading: boolean
   showMetric: boolean
   showDimension: boolean
@@ -387,7 +394,7 @@ function VisualTab({
               <SectionTitle>{t('dashboards.editor.metric.title')}</SectionTitle>
               <MetricPicker
                 value={builder.metric}
-                fields={fields ?? []}
+                fields={groupableFields ?? []}
                 loading={fieldsLoading}
                 onChange={(next) => onBuilderChange((b) => ({ ...b, metric: next }))}
               />
@@ -398,7 +405,7 @@ function VisualTab({
               <SectionTitle>{t('dashboards.editor.dimension.title')}</SectionTitle>
               <DimensionPicker
                 value={builder.dimension}
-                fields={fields ?? []}
+                fields={groupableFields ?? []}
                 loading={fieldsLoading}
                 onChange={(next) => onBuilderChange((b) => ({ ...b, dimension: next }))}
               />

@@ -1,8 +1,10 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { cn } from '@/shared/lib/utils'
+import GridLayout, { useContainerWidth, type Layout } from 'react-grid-layout'
+import 'react-grid-layout/css/styles.css'
 import { WidgetCard } from '@/features/dashboard/components/WidgetCard'
 import { WidgetRenderer } from '@/features/dashboard/components/WidgetRenderer'
+import { GRID_COLS, GRID_MARGIN, GRID_ROW_HEIGHT } from '@/features/dashboard/constants'
 import type {
   DashboardVisualization,
   GridLayoutItem,
@@ -10,27 +12,13 @@ import type {
 } from '@/features/dashboard/types'
 import type { TimeRange } from '@/shared/components/ui/time-range-picker'
 
-// Column span per width preset. Grid is responsive (1 col mobile, 2 tablet, 3
-// desktop), so spans are clamped at each breakpoint. Literal classes so Tailwind
-// keeps them.
-const WIDTH_CLASS: Record<number, string> = {
-  1: '',
-  2: 'md:col-span-2 xl:col-span-2',
-  3: 'md:col-span-2 xl:col-span-3',
-}
-const HEIGHT_CLASS: Record<number, string> = {
-  1: 'h-[340px]',
-  2: 'h-[560px]',
-}
-
 export function DashboardGrid({
   items,
   layouts,
   visualizationsById,
   time,
   editing,
-  onMove,
-  onResize,
+  onLayoutChange,
   onRemoveItem,
 }: {
   items: GridLayoutItem[]
@@ -38,11 +26,12 @@ export function DashboardGrid({
   visualizationsById: Map<number, Visualization>
   time: TimeRange
   editing: boolean
-  onMove?: (id: string, dir: -1 | 1) => void
-  onResize?: (id: string, w: number, h: number) => void
+  onLayoutChange?: (items: GridLayoutItem[]) => void
   onRemoveItem?: (id: number) => void
 }) {
   const { t } = useTranslation()
+  // v2 has no WidthProvider — it measures the container via this hook.
+  const { width, containerRef } = useContainerWidth()
 
   const layoutMap = useMemo(() => {
     const map = new Map<string, DashboardVisualization>()
@@ -59,42 +48,52 @@ export function DashboardGrid({
   }
 
   return (
-    // Responsive columns — adapts widgets-per-row to the screen. Each widget
-    // spans 1–3 columns (its width preset) and is short or tall (height preset).
-    <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {items.map((item, idx) => {
-        const dv = layoutMap.get(item.i)
-        const viz = dv ? visualizationsById.get(dv.idVisualization) : undefined
-        const title = viz?.name ?? t('dashboards.grid.unknownVisualization')
-        const w = item.w || 1
-        const h = item.h || 1
-        return (
-          <div key={item.i} className={cn('min-w-0', WIDTH_CLASS[w] ?? '')}>
-            <div className={cn('w-full', HEIGHT_CLASS[h] ?? HEIGHT_CLASS[1])}>
-              <WidgetCard
-                title={title}
-                editing={editing}
-                width={w}
-                height={h}
-                canMoveBack={idx > 0}
-                canMoveForward={idx < items.length - 1}
-                onMoveBack={() => onMove?.(item.i, -1)}
-                onMoveForward={() => onMove?.(item.i, 1)}
-                onResize={(nw, nh) => onResize?.(item.i, nw, nh)}
-                onRemove={dv ? () => onRemoveItem?.(dv.id) : undefined}
-              >
-                {viz ? (
-                  <WidgetRenderer visualization={viz} time={time} />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                    {t('dashboards.grid.missingVisualization')}
-                  </div>
-                )}
-              </WidgetCard>
-            </div>
-          </div>
-        )
-      })}
+    <div ref={containerRef} className="w-full">
+      {width > 0 && (
+        <GridLayout
+          width={width}
+          layout={items}
+          gridConfig={{ cols: GRID_COLS, rowHeight: GRID_ROW_HEIGHT, margin: GRID_MARGIN }}
+          // Drag only by the card header; never start a drag from a control.
+          dragConfig={{
+            enabled: editing,
+            handle: '.widget-drag-handle',
+            cancel: 'button, select, a, input, textarea, .no-drag',
+          }}
+          resizeConfig={{ enabled: editing, handles: ['se'] }}
+          onLayoutChange={
+            editing
+              ? (l: Layout) =>
+                  onLayoutChange?.(
+                    l.map((it) => ({ i: it.i, x: it.x, y: it.y, w: it.w, h: it.h }))
+                  )
+              : undefined
+          }
+        >
+          {items.map((item) => {
+            const dv = layoutMap.get(item.i)
+            const viz = dv ? visualizationsById.get(dv.idVisualization) : undefined
+            const title = viz?.name ?? t('dashboards.grid.unknownVisualization')
+            return (
+              <div key={item.i}>
+                <WidgetCard
+                  title={title}
+                  editing={editing}
+                  onRemove={dv ? () => onRemoveItem?.(dv.id) : undefined}
+                >
+                  {viz ? (
+                    <WidgetRenderer visualization={viz} time={time} />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                      {t('dashboards.grid.missingVisualization')}
+                    </div>
+                  )}
+                </WidgetCard>
+              </div>
+            )
+          })}
+        </GridLayout>
+      )}
     </div>
   )
 }

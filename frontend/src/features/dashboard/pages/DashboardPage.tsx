@@ -15,8 +15,8 @@ import { DashboardFormDialog } from '@/features/dashboard/components/DashboardFo
 import { DashboardTimeRange } from '@/features/dashboard/components/DashboardTimeRange'
 import { AddVisualizationDrawer } from '@/features/dashboard/components/AddVisualizationDrawer'
 import { DashboardTabsBar } from '@/features/dashboard/components/DashboardTabsBar'
-import { DEFAULT_PAGE_SIZE } from '@/features/dashboard/constants'
-import { serializeLayout, toOrderedItems } from '@/features/dashboard/utils/layout'
+import { DEFAULT_PAGE_SIZE, DEFAULT_WIDGET_LAYOUT } from '@/features/dashboard/constants'
+import { nextRow, serializeLayout, toGridItems } from '@/features/dashboard/utils/layout'
 import type { Dashboard, GridLayoutItem, Visualization } from '@/features/dashboard/types'
 import { useQueries } from '@tanstack/react-query'
 import { VISUALIZATIONS_QUERY_KEYS } from '@/features/dashboard/hooks/useVisualizations'
@@ -91,7 +91,7 @@ export function DashboardPage() {
     return map
   }, [vizQueries])
 
-  const initialItems = useMemo(() => toOrderedItems(layoutRows), [layoutRows])
+  const initialItems = useMemo(() => toGridItems(layoutRows), [layoutRows])
   const editor = useDashboardEditor(initialItems)
 
   const layoutsById = useMemo(() => {
@@ -156,13 +156,20 @@ export function DashboardPage() {
   const handleAddVisualizations = async (vizs: Visualization[]) => {
     if (selectedId == null || vizs.length === 0) return
     try {
-      const base = layoutRows.length
+      // Drop new widgets below the current layout, one per row.
+      let y = nextRow(initialItems)
       for (let i = 0; i < vizs.length; i++) {
         await layouts.createLayout.mutateAsync({
           idDashboard: selectedId,
           idVisualization: vizs[i].id,
-          layout: serializeLayout({ order: base + i, w: 1, h: 1 }),
+          layout: serializeLayout({
+            x: 0,
+            y,
+            w: DEFAULT_WIDGET_LAYOUT.w,
+            h: DEFAULT_WIDGET_LAYOUT.h,
+          }),
         })
+        y += DEFAULT_WIDGET_LAYOUT.h
       }
       toast.success(
         vizs.length === 1
@@ -178,14 +185,16 @@ export function DashboardPage() {
   const handleSave = async () => {
     if (!editor.dirty || selectedId == null) return
     try {
-      // Persist order + size for every widget whose position or size changed.
-      const baseById = new Map(
-        editor.baseline.map((it, idx) => [it.i, { idx, w: it.w, h: it.h }])
-      )
-      for (let i = 0; i < editor.working.length; i++) {
-        const item = editor.working[i]
+      // Persist x/y/w/h for every widget whose position or size changed.
+      const baseById = new Map(editor.baseline.map((it) => [it.i, it]))
+      for (const item of editor.working) {
         const base = baseById.get(item.i)
-        const changed = !base || base.idx !== i || base.w !== item.w || base.h !== item.h
+        const changed =
+          !base ||
+          base.x !== item.x ||
+          base.y !== item.y ||
+          base.w !== item.w ||
+          base.h !== item.h
         if (!changed) continue
         const layoutId = layoutsById.get(item.i)
         if (layoutId == null) continue
@@ -195,7 +204,7 @@ export function DashboardPage() {
           id: dv.id,
           idDashboard: dv.idDashboard,
           idVisualization: dv.idVisualization,
-          layout: serializeLayout({ order: i, w: item.w, h: item.h }),
+          layout: serializeLayout({ x: item.x, y: item.y, w: item.w, h: item.h }),
         })
       }
 
@@ -273,8 +282,7 @@ export function DashboardPage() {
             visualizationsById={visualizationsById}
             time={time}
             editing={editor.editing}
-            onMove={editor.move}
-            onResize={editor.resize}
+            onLayoutChange={editor.replace}
             onRemoveItem={editor.remove}
           />
         ) : null}
