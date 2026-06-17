@@ -1,7 +1,0 @@
-export enum AlertHistoryActionEnum {
-  TAG = 'UPDATE_TAGS',
-  STATUS = 'UPDATE_STATUS',
-  NOTE = 'UPDATE_NOTES',
-  SOLUTION = 'UPDATE_SOLUTION',
-  INCIDENT = 'MARK_AS_INCIDENT'
-}
