@@ -7,7 +7,7 @@ import type {
   FederationUserList,
 } from '../types'
 
-// FS team management talks to the FS itself (/fs/users), not a proxied instance.
+// FS team management — the FS's own /api/v1/users subpath, not a proxied instance.
 const api = createApiClient(FS_API_URL)
 
 export { ApiError as FederationTeamError }

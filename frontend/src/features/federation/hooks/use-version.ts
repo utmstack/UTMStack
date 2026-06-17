@@ -4,7 +4,7 @@ import { FS_API_URL, IS_FEDERATION } from '@/shared/config/mode'
 
 const api = createApiClient(FS_API_URL)
 
-/** The Federation Service build version (GET /fs/version). Only fetched in FS mode. */
+/** The Federation Service build version (GET /api/v1/version). Only fetched in FS mode. */
 export function useFederationVersion(): string | undefined {
   const { data } = useQuery({
     queryKey: ['fs', 'version'],

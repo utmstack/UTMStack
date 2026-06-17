@@ -3,8 +3,9 @@
  * `IS_FEDERATION` constant (mode.ts) reads the right value everywhere.
  *
  * The same frontend artifact serves both products and is NOT rebuilt per mode,
- * so the backend decides: the Federation Service answers GET /fs/mode (a route
- * the instance backend doesn't have). Result is stashed on window.__UTM_FEDERATION__.
+ * so the backend decides: the Federation Service answers GET /api/v1/mode with
+ * {federation:true}; an instance backend has no such route (404 / SPA-fallback
+ * HTML) → instance mode. Result is stashed on window.__UTM_FEDERATION__.
  *
  * IMPORTANT: this module must not import mode.ts (that would evaluate
  * IS_FEDERATION too early). main.tsx awaits this, then dynamically imports the app.
@@ -18,7 +19,7 @@ export async function resolveFederationMode(): Promise<void> {
   try {
     const ctrl = new AbortController()
     const timer = setTimeout(() => ctrl.abort(), 4000)
-    const res = await fetch('/fs/mode', {
+    const res = await fetch('/api/v1/mode', {
       signal: ctrl.signal,
       headers: { Accept: 'application/json' },
     })

@@ -8,7 +8,7 @@ import type {
   FederationUser,
 } from '../types'
 
-// Talks to the FS's own API (/fs), NOT a proxied instance.
+// Talks to the FS's own /api/v1 subpaths (auth), NOT a proxied instance.
 const api = createApiClient(FS_API_URL)
 
 export { ApiError as FederationHttpError }

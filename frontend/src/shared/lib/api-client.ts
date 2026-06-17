@@ -54,7 +54,7 @@ async function refreshAccessToken(): Promise<string | null> {
   }
 }
 
-// Federation rotates the FS access token via /fs/auth/refresh, which speaks
+// Federation rotates the FS access token via /api/v1/auth/refresh, which speaks
 // camelCase. The proxy authenticates every instance call with the FS JWT, so a
 // 401 from either the FS API or a proxied instance means the FS token expired.
 async function refreshFederationToken(): Promise<string | null> {
@@ -106,8 +106,10 @@ function getAxiosInstance(baseURL: string): AxiosInstance {
       config.headers.Authorization = `Bearer ${tokens.access_token}`
     }
     // Federation: stamp the selected instance so the FS proxy can route the call.
-    // The FS's own API (/fs) isn't proxied, so it's left untouched.
-    if (IS_FEDERATION && baseURL !== FS_API_URL) {
+    // The FS shares the /api/v1 namespace (its own subpaths vs proxied instance
+    // paths), so we can't tell them apart by base URL — stamp on every call once
+    // an instance is picked; the FS ignores the header on its own routes.
+    if (IS_FEDERATION) {
       const instanceId = getCurrentInstanceId()
       if (instanceId != null) {
         config.headers['X-UTM-Instance'] = String(instanceId)

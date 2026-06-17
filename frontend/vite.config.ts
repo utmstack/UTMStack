@@ -6,8 +6,9 @@ import path from 'path'
 const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:8080'
 
 // Federation dev mode (npm run dev:federation / VITE_FEDERATION=true): point /api
-// and /fs at the Federation Service, which proxies /api onward to the selected
-// instance. In normal mode /api goes straight to the instance backend.
+// at the Federation Service, which serves its own /api/v1 subpaths and proxies
+// the rest onward to the selected instance. In normal mode /api goes straight to
+// the instance backend.
 const FEDERATION = process.env.VITE_FEDERATION === 'true'
 const FS_URL = process.env.FS_URL ?? 'http://localhost:8090'
 const API_TARGET = FEDERATION ? FS_URL : BACKEND_URL
@@ -40,8 +41,6 @@ export default defineConfig(({ mode }) => ({
         target: API_TARGET,
         changeOrigin: true,
       },
-      // FS-native API (login, instances) — only in federation mode.
-      ...(FEDERATION ? { '/fs': { target: FS_URL, changeOrigin: true } } : {}),
     },
   },
 }))

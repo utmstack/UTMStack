@@ -46,7 +46,7 @@ function storeFromResponse(res: {
 /**
  * Federation-mode replacement for AuthProvider. It populates the SAME AuthContext
  * — so `useAuth()` works everywhere — but is backed by the FS's own session
- * (/fs/auth), not an instance login. Authz is permissive (the instance API key
+ * (/api/v1/auth), not an instance login. Authz is permissive (the instance API key
  * enforces every permission server-side; `/auth/me` isn't reachable through the
  * proxy). Profile features (avatar, password, sessions, TOTP 2FA) hit the FS
  * directly.
