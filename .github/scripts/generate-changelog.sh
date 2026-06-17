@@ -52,20 +52,35 @@ command -v git  >/dev/null || { echo "git is required";  exit 1; }
 : "${THREATWINDS_API_KEY:?THREATWINDS_API_KEY is required}"
 : "${THREATWINDS_API_SECRET:?THREATWINDS_API_SECRET is required}"
 
+# ─── Resolve current ref (tag may not exist yet when pipeline runs) ────────────
+if git rev-parse "$CURRENT_TAG" >/dev/null 2>&1; then
+    CURRENT_REF="$CURRENT_TAG"
+else
+    echo "Tag $CURRENT_TAG not found in repo yet, using HEAD"
+    CURRENT_REF="HEAD"
+fi
+
 # ─── Resolve previous tag if not provided ─────────────────────────────────────
 if [ -z "$PREVIOUS_TAG" ]; then
     echo "Auto-detecting previous tag..."
     ALL_TAGS=$(git tag --sort=-v:refname)
-    FOUND_CURRENT=false
-    for tag in $ALL_TAGS; do
-        if [ "$FOUND_CURRENT" = true ]; then
-            PREVIOUS_TAG="$tag"
-            break
-        fi
-        if [ "$tag" = "$CURRENT_TAG" ]; then
-            FOUND_CURRENT=true
-        fi
-    done
+    if [ "$CURRENT_REF" = "$CURRENT_TAG" ]; then
+        # Tag exists: find the tag immediately before CURRENT_TAG
+        FOUND_CURRENT=false
+        for tag in $ALL_TAGS; do
+            if [ "$FOUND_CURRENT" = true ]; then
+                PREVIOUS_TAG="$tag"
+                break
+            fi
+            if [ "$tag" = "$CURRENT_TAG" ]; then
+                FOUND_CURRENT=true
+            fi
+        done
+    else
+        # Tag doesn't exist yet: use the most recent existing tag
+        PREVIOUS_TAG=$(echo "$ALL_TAGS" | head -1)
+        [ -n "$PREVIOUS_TAG" ] && echo "Tag not yet created; using most recent existing tag: $PREVIOUS_TAG"
+    fi
     if [ -z "$PREVIOUS_TAG" ]; then
         PREVIOUS_TAG=$(git rev-list --max-parents=0 HEAD | head -1)
         echo "No previous tag found, using first commit: $PREVIOUS_TAG"
@@ -73,13 +88,14 @@ if [ -z "$PREVIOUS_TAG" ]; then
 fi
 
 echo "Current tag:  $CURRENT_TAG"
+echo "Current ref:  $CURRENT_REF"
 echo "Previous tag: $PREVIOUS_TAG"
 echo "Model:        $MODEL"
 echo
 
 # ─── Collect commits ──────────────────────────────────────────────────────────
-COMMITS=$(git log "${PREVIOUS_TAG}..${CURRENT_TAG}" --pretty=format:"- %h %s (%an)" --no-merges)
-COMMIT_COUNT=$(git rev-list --count "${PREVIOUS_TAG}..${CURRENT_TAG}" --no-merges)
+COMMITS=$(git log "${PREVIOUS_TAG}..${CURRENT_REF}" --pretty=format:"- %h %s (%an)" --no-merges)
+COMMIT_COUNT=$(git rev-list --count "${PREVIOUS_TAG}..${CURRENT_REF}" --no-merges)
 
 if [ -z "$COMMITS" ]; then
     echo "No commits found between $PREVIOUS_TAG and $CURRENT_TAG."
