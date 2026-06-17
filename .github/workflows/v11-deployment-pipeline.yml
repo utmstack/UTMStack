@@ -561,7 +561,7 @@ jobs:
   build_installer_release:
     name: Build & Upload Installer
     needs: [generate_changelog, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment == 'rc' }}
+    if: ${{ always() && needs.setup_deployment.result == 'success' && needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment == 'rc' && needs.generate_changelog.result != 'cancelled' }}
     uses: ./.github/workflows/installer-release.yml
     with:
       version: ${{ needs.setup_deployment.outputs.tag }}
