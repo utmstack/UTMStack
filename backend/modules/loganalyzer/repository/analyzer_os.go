@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	osdk "github.com/threatwinds/go-sdk/os"
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/connectors"
@@ -10,10 +11,32 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
-type osAnalyzerRepository struct{}
+type osAnalyzerRepository struct {
+	mapper *osdk.FieldMapper
+}
 
 func NewAnalyzerRepository() connectors.AnalyzerRepository {
-	return &osAnalyzerRepository{}
+	return &osAnalyzerRepository{mapper: osdk.NewFieldMapper()}
+}
+
+func (r *osAnalyzerRepository) aggregatableField(ctx context.Context, index, field string) string {
+	if field == "" || strings.HasSuffix(field, ".keyword") {
+		return field
+	}
+	merged, err := r.mapper.GetMergedMapping(ctx, index)
+	if err != nil {
+		return field // best-effort: let OpenSearch surface any error
+	}
+	info, ok := merged.Fields[field]
+	if !ok || !strings.EqualFold(info.Type, "text") {
+		return field
+	}
+	for sub, subType := range info.Fields {
+		if strings.EqualFold(subType, "keyword") {
+			return field + "." + sub
+		}
+	}
+	return field
 }
 
 // TopValues runs a terms aggregation on `field` (+ a value_count for the total)
@@ -22,18 +45,19 @@ func (r *osAnalyzerRepository) TopValues(ctx context.Context, index, field strin
 	if top <= 0 {
 		top = 10
 	}
+	aggField := r.aggregatableField(ctx, index, field)
 	body := map[string]any{
 		"size": 0,
 		"aggs": map[string]any{
 			"values": map[string]any{
 				"terms": map[string]any{
-					"field": field,
+					"field": aggField,
 					"size":  top,
 					"order": map[string]any{"_count": "desc"},
 				},
 			},
 			"total": map[string]any{
-				"value_count": map[string]any{"field": field},
+				"value_count": map[string]any{"field": aggField},
 			},
 		},
 	}
@@ -81,7 +105,7 @@ func (r *osAnalyzerRepository) ChartView(ctx context.Context, req dto.ChartViewR
 		}
 		chart = map[string]any{
 			"terms": map[string]any{
-				"field": req.Field,
+				"field": r.aggregatableField(ctx, req.IndexPattern, req.Field),
 				"size":  top,
 				"order": map[string]any{"_count": "desc"},
 			},

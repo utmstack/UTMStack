@@ -8,6 +8,8 @@ import {
   type ReactNode,
 } from 'react'
 import { useAuth } from '@/features/auth'
+import { IS_FEDERATION } from '@/shared/config/mode'
+import { useCurrentInstanceId } from '@/shared/lib/current-instance'
 import { notificationsHttpService } from './notifications-http.service'
 
 interface NotificationsContextValue {
@@ -29,6 +31,10 @@ const NotificationsContext = createContext<NotificationsContextValue | undefined
  */
 export function NotificationsProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth()
+  const instanceId = useCurrentInstanceId()
+  // In federation mode notifications belong to the selected instance — don't poll
+  // until one is chosen (the proxy 400s without an instance, e.g. on the picker).
+  const ready = isAuthenticated && (!IS_FEDERATION || instanceId != null)
   const [unreadCount, setUnreadCount] = useState(0)
 
   const refreshUnread = useCallback(async () => {
@@ -62,14 +68,14 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   )
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!ready) {
       setUnreadCount(0)
       return
     }
     void refreshUnread()
     const t = setInterval(() => void refreshUnread(), UNREAD_POLL_MS)
     return () => clearInterval(t)
-  }, [isAuthenticated, refreshUnread])
+  }, [ready, refreshUnread])
 
   const value = useMemo<NotificationsContextValue>(
     () => ({ unreadCount, refreshUnread, markRead, markAllRead, remove }),

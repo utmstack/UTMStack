@@ -1,6 +1,17 @@
 import { getStoredTokens } from '@/shared/lib/api-client'
+import { IS_FEDERATION } from '@/shared/config/mode'
+import { getCurrentInstanceId } from '@/shared/lib/current-instance'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api/v1'
+
+// Federation: the chat is a proxied instance call, so it needs the instance
+// selector header (fetch can set it; the browser WebSocket API can't, but this
+// is SSE over fetch).
+function federationHeaders(): Record<string, string> {
+  if (!IS_FEDERATION) return {}
+  const id = getCurrentInstanceId()
+  return id != null ? { 'X-UTM-Instance': String(id) } : {}
+}
 
 /** One streamed step of an agent run (mirrors the plugin's agent.Event). */
 export interface ChatEvent {
@@ -37,6 +48,7 @@ export async function streamChat(
     headers: {
       'Content-Type': 'application/json',
       ...(tokens?.access_token ? { Authorization: `Bearer ${tokens.access_token}` } : {}),
+      ...federationHeaders(),
     },
     body: JSON.stringify(body),
     signal,

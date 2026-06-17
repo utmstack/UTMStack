@@ -161,6 +161,38 @@ body {
   scrollbar-color: color-mix(in oklab, var(--foreground) 18%, transparent) transparent;
 }
 
+/* ── Federation console animations ──────────────────────────────────────────
+ * Lightweight entrance + ambient motion (no animation library). Cards use
+ * `.fs-fade-up` with an inline animation-delay for a staggered reveal.
+ * ───────────────────────────────────────────────────────────────────────────*/
+@keyframes fs-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fs-spin-slow {
+  to {
+    transform: translateX(-50%) rotate(360deg);
+  }
+}
+.fs-fade-up {
+  animation: fs-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fs-spin-slow {
+  animation: fs-spin-slow 40s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fs-fade-up,
+  .fs-spin-slow {
+    animation: none;
+  }
+}
+
 /* Compliance report: print only the document (#report-doc), full-bleed. */
 @media print {
   body {

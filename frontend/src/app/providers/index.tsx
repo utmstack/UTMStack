@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TooltipProvider } from '@/shared/components/ui/tooltip'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/features/auth'
+import { FederationAuthProvider } from '@/features/federation'
+import { IS_FEDERATION } from '@/shared/config/mode'
 import { BillingProvider } from '@/features/billing'
 import { BrandingProvider } from '@/features/branding'
 import { NotificationsProvider } from '@/features/notifications'
@@ -33,13 +35,17 @@ function DateFormatLoader() {
   return null
 }
 
+// Federation mode swaps the instance login/session for an FS-backed one, but
+// populates the same AuthContext so the rest of the shell is unchanged.
+const AuthShell = IS_FEDERATION ? FederationAuthProvider : AuthProvider
+
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <BrandingProvider>
         <TooltipProvider delayDuration={0}>
-          <AuthProvider>
+          <AuthShell>
             <BillingProvider>
               <NotificationsProvider>
                 <DateFormatLoader />
@@ -47,7 +53,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
                 <ThemedToaster />
               </NotificationsProvider>
             </BillingProvider>
-          </AuthProvider>
+          </AuthShell>
         </TooltipProvider>
       </BrandingProvider>
     </ThemeProvider>

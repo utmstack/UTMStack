@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Loader2, Lock, Mail, ShieldCheck, User as UserIcon } from 'lucide-react'
 import { toast } from 'sonner'
@@ -11,7 +11,7 @@ import { AuthHttpError } from '../services/auth-http.service'
 import { useAuth } from '../services/auth.context'
 import type { TfaMethod } from '../types/auth.types'
 
-type Mode = 'credentials' | 'tfa' | 'forgot'
+type Mode = 'credentials' | 'tfa' | 'forgot' | 'reset'
 
 interface TfaChallenge {
   method: TfaMethod
@@ -20,19 +20,29 @@ interface TfaChallenge {
 
 export function LoginPage() {
   const { t } = useTranslation()
-  const { login, verifyTfaCode, requestPasswordReset } = useAuth()
+  const { login, verifyTfaCode, requestPasswordReset, finishPasswordReset } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
   const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/'
 
-  const [mode, setMode] = useState<Mode>('credentials')
+  const resetKey = searchParams.get('key')
+
+  const [mode, setMode] = useState<Mode>(resetKey ? 'reset' : 'credentials')
   const [loginValue, setLoginValue] = useState('')
   const [password, setPassword] = useState('')
   const [code, setCode] = useState('')
   const [resetEmail, setResetEmail] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [challenge, setChallenge] = useState<TfaChallenge | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // An invitation / reset link lands here with ?key=… → show the set-password form.
+  useEffect(() => {
+    if (resetKey) setMode('reset')
+  }, [resetKey])
 
   const goAuthenticated = () => navigate(from, { replace: true })
 
@@ -112,6 +122,39 @@ export function LoginPage() {
     }
   }
 
+  const handleReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!resetKey || submitting) return
+    if (newPassword.length < 8) {
+      setError(t('auth.errors.passwordTooShort', 'Password must be at least 8 characters'))
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      setError(t('auth.errors.passwordsNoMatch', 'Passwords do not match'))
+      return
+    }
+    setSubmitting(true)
+    setError(null)
+    try {
+      await finishPasswordReset({ key: resetKey, new_password: newPassword })
+      toast.success(t('auth.reset.done', 'Password set. You can sign in now.'))
+      setNewPassword('')
+      setConfirmPassword('')
+      // Drop the key from the URL and return to the sign-in form.
+      searchParams.delete('key')
+      setSearchParams(searchParams, { replace: true })
+      backToCredentials()
+    } catch (err) {
+      if (err instanceof AuthHttpError && (err.status === 410 || err.status === 400)) {
+        setError(t('auth.reset.invalid', 'This link is invalid or has expired.'))
+      } else {
+        setError(mapError(err, t('auth.errors.resetFailed')))
+      }
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   const backToCredentials = () => {
     setMode('credentials')
     setError(null)
@@ -158,6 +201,16 @@ export function LoginPage() {
               <>
                 <h1 className="text-[22px] font-semibold tracking-tight">{t('auth.forgot.title')}</h1>
                 <p className="mt-1.5 text-sm text-muted-foreground">{t('auth.forgot.subtitle')}</p>
+              </>
+            )}
+            {mode === 'reset' && (
+              <>
+                <h1 className="text-[22px] font-semibold tracking-tight">
+                  {t('auth.reset.title', 'Set your password')}
+                </h1>
+                <p className="mt-1.5 text-sm text-muted-foreground">
+                  {t('auth.reset.subtitle', 'Choose a password to activate your account.')}
+                </p>
               </>
             )}
           </div>
@@ -340,6 +393,84 @@ export function LoginPage() {
               >
                 <ArrowLeft className="h-3 w-3" />
                 {t('auth.tfa.back')}
+              </button>
+            </form>
+          )}
+
+          {mode === 'reset' && (
+            <form onSubmit={handleReset}>
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="new-password"
+                    className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
+                  >
+                    {t('auth.reset.newPassword', 'New password')}
+                  </label>
+                  <div className="relative">
+                    <Lock
+                      aria-hidden
+                      className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                    />
+                    <PasswordInput
+                      id="new-password"
+                      placeholder="••••••••"
+                      autoComplete="new-password"
+                      required
+                      autoFocus
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="confirm-password"
+                    className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
+                  >
+                    {t('auth.reset.confirmPassword', 'Confirm password')}
+                  </label>
+                  <div className="relative">
+                    <Lock
+                      aria-hidden
+                      className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                    />
+                    <PasswordInput
+                      id="confirm-password"
+                      placeholder="••••••••"
+                      autoComplete="new-password"
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {error && <p className="mt-4 text-xs text-destructive">{error}</p>}
+
+              <Button
+                type="submit"
+                className="mt-6 h-10 w-full"
+                disabled={submitting || !newPassword || !confirmPassword}
+              >
+                {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {t('auth.reset.submit', 'Set password')}
+              </Button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  searchParams.delete('key')
+                  setSearchParams(searchParams, { replace: true })
+                  backToCredentials()
+                }}
+                className="mt-4 flex w-full items-center justify-center gap-1.5 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <ArrowLeft className="h-3 w-3" />
+                {t('auth.reset.backToSignIn', 'Back to sign in')}
               </button>
             </form>
           )}

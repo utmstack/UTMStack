@@ -9,15 +9,23 @@ import {
   Languages,
   Loader2,
   LogOut,
+  Mail,
   Moon,
   Sun,
   UserCircle,
+  Users,
   type LucideIcon,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { useThemeContext } from '@/app/providers'
 import { useAuth } from '@/features/auth'
+import { IS_FEDERATION } from '@/shared/config/mode'
+import { useCurrentInstanceId } from '@/shared/lib/current-instance'
+// Leaf imports (not the federation barrel) to avoid a cycle: the barrel
+// re-exports InstancePickerPage, which imports this Topbar.
+import { InstanceSelector } from '@/features/federation/components/InstanceSelector'
+import { useFederationVersion } from '@/features/federation/hooks/use-version'
 import { useBilling } from '@/features/billing'
 import {
   NotificationRow,
@@ -34,6 +42,10 @@ export function Topbar() {
   const { theme, toggleTheme } = useThemeContext()
   const { user, logout, updateMe, isAdmin } = useAuth()
   const { license, version } = useBilling()
+  // Federation: before an instance is selected there's no billing version, so
+  // show the FS console's own version in the badge slot.
+  const fsVersion = useFederationVersion()
+  const currentInstanceId = useCurrentInstanceId()
   const { unreadCount, markRead, remove, markAllRead, refreshUnread } = useNotifications()
   const {
     items: notifItems,
@@ -161,6 +173,18 @@ export function Topbar() {
               <span className="font-medium">Community</span>
             </span>
           ))}
+
+        {/* Federation, no instance yet (e.g. the picker): show the FS version. */}
+        {IS_FEDERATION && currentInstanceId == null && fsVersion && (
+          <span className="hidden items-center gap-1.5 rounded-full border border-border bg-muted/40 px-2.5 py-1 text-[11px] sm:inline-flex">
+            <span className="font-mono text-muted-foreground">{fsVersion}</span>
+            <span className="h-3 w-px bg-border" />
+            <span className="font-medium text-primary">Federation</span>
+          </span>
+        )}
+
+        {/* Federation: switch the active instance — sits right of the version badge. */}
+        {IS_FEDERATION && <InstanceSelector />}
       </div>
 
       {/* Right cluster */}
@@ -278,6 +302,25 @@ export function Topbar() {
               >
                 <UserCircle size={16} strokeWidth={1.75} /> {t('topbar.profile.profile')}
               </Link>
+              {/* Federation-owned admin pages (no instance needed). */}
+              {IS_FEDERATION && (
+                <>
+                  <Link
+                    to="/team"
+                    onClick={() => setProfileOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-popover-foreground/70 hover:bg-muted hover:text-popover-foreground"
+                  >
+                    <Users size={16} strokeWidth={1.75} /> {t('team.title')}
+                  </Link>
+                  <Link
+                    to="/settings/email"
+                    onClick={() => setProfileOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-popover-foreground/70 hover:bg-muted hover:text-popover-foreground"
+                  >
+                    <Mail size={16} strokeWidth={1.75} /> {t('emailConfig.title')}
+                  </Link>
+                </>
+              )}
               <div className="relative">
                 <button
                   type="button"

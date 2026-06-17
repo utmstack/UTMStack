@@ -1,4 +1,6 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios'
+import { FS_API_URL, IS_FEDERATION } from '@/shared/config/mode'
+import { getCurrentInstanceId } from '@/shared/lib/current-instance'
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
 
@@ -52,6 +54,32 @@ async function refreshAccessToken(): Promise<string | null> {
   }
 }
 
+// Federation rotates the FS access token via /fs/auth/refresh, which speaks
+// camelCase. The proxy authenticates every instance call with the FS JWT, so a
+// 401 from either the FS API or a proxied instance means the FS token expired.
+async function refreshFederationToken(): Promise<string | null> {
+  const tokens = getStoredTokens()
+  if (!tokens?.refresh_token) return null
+  try {
+    const response = await axios.post<{
+      accessToken: string
+      refreshToken: string
+      expiresAt?: string
+      refreshExpiresAt?: string
+    }>(`${FS_API_URL}/auth/refresh`, { refreshToken: tokens.refresh_token })
+    const next: AuthTokens = {
+      access_token: response.data.accessToken,
+      refresh_token: response.data.refreshToken,
+      expires_at: response.data.expiresAt,
+      refresh_expires_at: response.data.refreshExpiresAt,
+    }
+    storeTokens(next)
+    return next.access_token
+  } catch {
+    return null
+  }
+}
+
 export class ApiError extends Error {
   constructor(message: string, public status: number, public code?: string) {
     super(message)
@@ -77,6 +105,14 @@ function getAxiosInstance(baseURL: string): AxiosInstance {
     if (tokens?.access_token) {
       config.headers.Authorization = `Bearer ${tokens.access_token}`
     }
+    // Federation: stamp the selected instance so the FS proxy can route the call.
+    // The FS's own API (/fs) isn't proxied, so it's left untouched.
+    if (IS_FEDERATION && baseURL !== FS_API_URL) {
+      const instanceId = getCurrentInstanceId()
+      if (instanceId != null) {
+        config.headers['X-UTM-Instance'] = String(instanceId)
+      }
+    }
     return config
   })
 
@@ -89,7 +125,8 @@ function getAxiosInstance(baseURL: string): AxiosInstance {
 
       if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
         originalRequest._retry = true
-        const newToken = refreshPromise ?? (refreshPromise = refreshAccessToken())
+        const doRefresh = IS_FEDERATION ? refreshFederationToken : refreshAccessToken
+        const newToken = refreshPromise ?? (refreshPromise = doRefresh())
         const tk = await newToken
         refreshPromise = null
         if (tk) {

@@ -5,6 +5,13 @@ import path from 'path'
 
 const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:8080'
 
+// Federation dev mode (npm run dev:federation / VITE_FEDERATION=true): point /api
+// and /fs at the Federation Service, which proxies /api onward to the selected
+// instance. In normal mode /api goes straight to the instance backend.
+const FEDERATION = process.env.VITE_FEDERATION === 'true'
+const FS_URL = process.env.FS_URL ?? 'http://localhost:8090'
+const API_TARGET = FEDERATION ? FS_URL : BACKEND_URL
+
 export default defineConfig(({ mode }) => ({
   // Some deps (react-draggable, prop-types — pulled in by react-grid-layout)
   // reference `process.env.NODE_ENV`, which doesn't exist in the browser and
@@ -20,18 +27,21 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     proxy: {
-      // /api/* in dev → goes to the Go backend; avoids CORS during dev.
+      // /api/* in dev → the Go backend, or the Federation Service in FS mode
+      // (which proxies on to the selected instance). Avoids CORS during dev.
       '/api': {
-        target: BACKEND_URL,
+        target: API_TARGET,
         changeOrigin: true,
       },
       // /uploads/* serves user-uploaded files (avatars). Backend exposes them
-      // statically; in dev the Vite server proxies to the Go backend so
-      // <img src="/uploads/..."> resolves transparently.
+      // statically; in dev the Vite server proxies so <img src="/uploads/...">
+      // resolves transparently.
       '/uploads': {
-        target: BACKEND_URL,
+        target: API_TARGET,
         changeOrigin: true,
       },
+      // FS-native API (login, instances) — only in federation mode.
+      ...(FEDERATION ? { '/fs': { target: FS_URL, changeOrigin: true } } : {}),
     },
   },
 }))

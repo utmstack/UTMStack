@@ -1,6 +1,10 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from '@/features/auth'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
+import { IS_FEDERATION } from '@/shared/config/mode'
+import { FederationGate, InstancePickerPage } from '@/features/federation'
+import { FederationAdminLayout } from '@/features/federation/components/FederationAdminLayout'
+import { FederationTeamPage } from '@/features/federation/pages/FederationTeamPage'
 import { HomePage } from '@/features/home/pages/HomePage'
 import {
   DashboardPage,
@@ -46,11 +50,44 @@ export function AppRoutes() {
     <Routes>
       <Route path="/auth/login" element={<LoginPage />} />
 
+      {/* Federation: account pages that don't need an instance (authed only). */}
+      {IS_FEDERATION && (
+        <Route
+          path="/instances"
+          element={
+            <ProtectedRoute>
+              <InstancePickerPage />
+            </ProtectedRoute>
+          }
+        />
+      )}
+      {/* Federation account/admin pages: FS-owned, reachable without an instance,
+          so they sit outside the FederationGate under their own chrome. */}
+      {IS_FEDERATION && (
+        <Route
+          element={
+            <ProtectedRoute>
+              <FederationAdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/team" element={<FederationTeamPage />} />
+          <Route path="/settings/email" element={<EmailConfigurationPage />} />
+        </Route>
+      )}
+
       <Route
         path="/"
         element={
           <ProtectedRoute>
-            <DashboardLayout />
+            {IS_FEDERATION ? (
+              <FederationGate>
+                <DashboardLayout />
+              </FederationGate>
+            ) : (
+              <DashboardLayout />
+            )}
           </ProtectedRoute>
         }
       >
@@ -98,7 +135,8 @@ export function AppRoutes() {
         {/* Legacy redirect — Tagging Rules was replaced by Parsing Filters. */}
         <Route path="tagging-rules" element={<Navigate to="/parsing-filters" replace />} />
         <Route path="data-processing" element={<DataProcessingPage />} />
-        <Route path="team" element={<TeamPage />} />
+        {/* Federation serves its own flat team page from the admin chrome (top-level). */}
+        {!IS_FEDERATION && <Route path="team" element={<TeamPage />} />}
         {/* Settings — drill-down sub-pages */}
         <Route path="settings" element={<Navigate to="/settings/license" replace />} />
         <Route path="settings/license" element={<LicensePage />} />
@@ -117,13 +155,16 @@ export function AppRoutes() {
             embedded in the profile page, not system settings. */}
         <Route path="settings/api-keys" element={<Navigate to="/profile" replace />} />
         <Route path="settings/identity-providers" element={<IdentityProvidersPage />} />
-        <Route path="settings/email" element={<EmailConfigurationPage />} />
+        {/* Federation serves email config from its own admin chrome (top-level route). */}
+        {!IS_FEDERATION && <Route path="settings/email" element={<EmailConfigurationPage />} />}
         <Route path="settings/soc-ai" element={<SocAiSettingsPage />} />
         <Route path="settings/date-format" element={<DateFormatPage />} />
         <Route path="settings/language" element={<LanguagePage />} />
         <Route path="settings/audit-logs" element={<AuditPage />} />
         <Route path="settings/about" element={<AboutPage />} />
-        <Route path="profile" element={<ProfilePage />} />
+        {/* Instance-user profile (normal mode). In federation the account lives at
+            the top-level /profile (FederationProfilePage), reachable without an instance. */}
+        {!IS_FEDERATION && <Route path="profile" element={<ProfilePage />} />}
         <Route path="audit" element={<Navigate to="/settings/audit-logs" replace />} />
 
         {/* Legacy redirects */}

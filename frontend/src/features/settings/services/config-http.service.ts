@@ -1,6 +1,9 @@
 import { createApiClient } from '@/shared/lib/api-client'
+import { FS_API_URL, IS_FEDERATION } from '@/shared/config/mode'
 
-const api = createApiClient()
+// In federation mode this config lives on the FS itself (/fs/config), not on a
+// proxied instance.
+const api = createApiClient(IS_FEDERATION ? FS_API_URL : undefined)
 
 export interface ConfigEntry {
   key: string

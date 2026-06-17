@@ -36,7 +36,7 @@ export type LoginOutcome =
   | { status: 'authenticated' }
   | { status: 'tfa_required'; method: TfaMethod; preAuthToken: string }
 
-interface AuthContextValue {
+export interface AuthContextValue {
   user: User | null
   isAuthenticated: boolean
   isLoading: boolean
@@ -58,7 +58,10 @@ interface AuthContextValue {
   refreshUser: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined)
+// Exported so federation mode can populate the SAME context with an FS-backed
+// session (see features/federation/FederationAuthProvider), keeping useAuth()
+// working unchanged across the shared shell.
+export const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)

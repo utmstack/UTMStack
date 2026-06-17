@@ -8,6 +8,8 @@ import {
   type ReactNode,
 } from 'react'
 import { useAuth } from '@/features/auth'
+import { IS_FEDERATION } from '@/shared/config/mode'
+import { useCurrentInstanceId } from '@/shared/lib/current-instance'
 import { billingHttpService } from './billing-http.service'
 import type { License, VersionInfo } from '../types/billing.types'
 
@@ -28,6 +30,10 @@ const BillingContext = createContext<BillingContextValue | undefined>(undefined)
  */
 export function BillingProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth()
+  const instanceId = useCurrentInstanceId()
+  // In federation mode the license/version belong to the selected instance —
+  // don't fetch until one is chosen (avoids proxy 400s on the picker).
+  const ready = isAuthenticated && (!IS_FEDERATION || instanceId != null)
   const [license, setLicense] = useState<License | null>(null)
   const [version, setVersion] = useState<VersionInfo | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -51,13 +57,13 @@ export function BillingProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!ready) {
       setLicense(null)
       setVersion(null)
       return
     }
     void refresh()
-  }, [isAuthenticated, refresh])
+  }, [ready, refresh])
 
   const value = useMemo<BillingContextValue>(
     () => ({ license, version, isLoading, error, refresh }),

@@ -5,7 +5,8 @@ import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { PasswordInput } from '@/shared/components/ui/password-input'
-import { authHttpService, AuthHttpError } from '@/features/auth/services/auth-http.service'
+import { AuthHttpError } from '@/features/auth/services/auth-http.service'
+import { tfaService } from '../services/tfa.service'
 import type { TfaInitResponse, TfaMethod, User } from '@/features/auth/types/auth.types'
 
 type Mode = 'idle' | 'enroll' | 'disable'
@@ -15,8 +16,17 @@ type EnrollStep = 'choose' | 'verify'
  * Self-service 2FA: shows the current status and drives the full enrollment
  * (choose method → init → verify code → complete) and teardown (re-auth with
  * password) flows. After any change it calls onChanged() to refresh the user.
+ * `allowEmail` gates the EMAIL method (off in federation mode, which is TOTP-only).
  */
-export function TwoFactorBody({ user, onChanged }: { user: User; onChanged: () => Promise<void> }) {
+export function TwoFactorBody({
+  user,
+  onChanged,
+  allowEmail = true,
+}: {
+  user: User
+  onChanged: () => Promise<void>
+  allowEmail?: boolean
+}) {
   const { t } = useTranslation()
   const enabled = !!user.tfa_enabled
   const [mode, setMode] = useState<Mode>('idle')
@@ -55,7 +65,7 @@ export function TwoFactorBody({ user, onChanged }: { user: User; onChanged: () =
   const handleStartInit = async () => {
     setBusy(true)
     try {
-      const resp = await authHttpService.tfaInit({ method })
+      const resp = await tfaService.tfaInit({ method })
       setInit(resp)
       setStep('verify')
       if (method === 'EMAIL') toast.success(t('profile.toast.tfaEmailCodeSent'))
@@ -69,7 +79,7 @@ export function TwoFactorBody({ user, onChanged }: { user: User; onChanged: () =
   const handleResend = async () => {
     setBusy(true)
     try {
-      const resp = await authHttpService.tfaRefreshChallenge('EMAIL')
+      const resp = await tfaService.tfaRefreshChallenge('EMAIL')
       if (resp.email_sent) toast.success(t('profile.toast.tfaNewCodeSent'))
     } catch (err) {
       if (err instanceof AuthHttpError && err.status === 429) {
@@ -90,8 +100,8 @@ export function TwoFactorBody({ user, onChanged }: { user: User; onChanged: () =
     }
     setBusy(true)
     try {
-      await authHttpService.tfaVerify({ method, code })
-      await authHttpService.tfaComplete({ method })
+      await tfaService.tfaVerify({ method, code })
+      await tfaService.tfaComplete({ method })
       await onChanged()
       toast.success(t('profile.toast.tfaEnabled'))
       resetEnroll()
@@ -110,7 +120,7 @@ export function TwoFactorBody({ user, onChanged }: { user: User; onChanged: () =
     }
     setBusy(true)
     try {
-      await authHttpService.tfaDisable({ password })
+      await tfaService.tfaDisable({ password })
       await onChanged()
       toast.success(t('profile.toast.tfaDisabled'))
       setPassword('')
@@ -218,16 +228,18 @@ export function TwoFactorBody({ user, onChanged }: { user: User; onChanged: () =
             desc={t('profile.tfa.totpDesc')}
             onClick={() => setMethod('TOTP')}
           />
-          <MethodCard
-            active={method === 'EMAIL'}
-            icon={<Mail size={16} />}
-            title={t('profile.tfa.methodEmail')}
-            desc={t('profile.tfa.emailDesc')}
-            disabled={!user.email}
-            onClick={() => setMethod('EMAIL')}
-          />
+          {allowEmail && (
+            <MethodCard
+              active={method === 'EMAIL'}
+              icon={<Mail size={16} />}
+              title={t('profile.tfa.methodEmail')}
+              desc={t('profile.tfa.emailDesc')}
+              disabled={!user.email}
+              onClick={() => setMethod('EMAIL')}
+            />
+          )}
         </div>
-        {!user.email && (
+        {allowEmail && !user.email && (
           <p className="mt-2 text-[11px] text-muted-foreground">{t('profile.tfa.noEmailHint')}</p>
         )}
         <div className="mt-4 flex gap-2">

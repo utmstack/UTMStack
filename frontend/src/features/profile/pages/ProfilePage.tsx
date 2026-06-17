@@ -5,15 +5,31 @@ import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { PasswordInput } from '@/shared/components/ui/password-input'
+import { IS_FEDERATION } from '@/shared/config/mode'
 import { useAuth } from '@/features/auth'
 import { authHttpService, AuthHttpError } from '@/features/auth/services/auth-http.service'
 import type { Session } from '@/features/auth/types/auth.types'
+import { federationAuthService } from '@/features/federation/services/federation-auth.service'
 import { SUPPORTED_LANGUAGES } from '@/shared/i18n'
 import { TwoFactorBody } from '../components/TwoFactorBody'
 import { ApiKeysSection } from '@/features/settings/pages/ApiKeysPage'
 
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024 // 2 MB
 const AVATAR_ACCEPT = 'image/png,image/jpeg,image/webp,image/gif'
+
+// Sessions live in the FS in federation mode and in the instance otherwise; both
+// expose the same shape so the section below renders identically either way.
+const sessionsService = IS_FEDERATION
+  ? {
+      list: () => federationAuthService.listSessions(),
+      revoke: (id: number) => federationAuthService.revokeSession(id),
+      revokeOthers: () => federationAuthService.revokeOtherSessions(),
+    }
+  : {
+      list: () => authHttpService.listSessions(),
+      revoke: (id: number) => authHttpService.revokeSession(id),
+      revokeOthers: () => authHttpService.revokeOtherSessions(),
+    }
 
 export function ProfilePage() {
   const { t } = useTranslation()
@@ -48,7 +64,7 @@ export function ProfilePage() {
   const loadSessions = useCallback(async () => {
     setSessionsLoading(true)
     try {
-      const list = await authHttpService.listSessions()
+      const list = await sessionsService.list()
       setSessions(list)
     } catch {
       toast.error(t('profile.toast.sessionsLoadFailed'))
@@ -136,7 +152,7 @@ export function ProfilePage() {
   const handleRevokeSession = async (id: number) => {
     setRevokingId(id)
     try {
-      await authHttpService.revokeSession(id)
+      await sessionsService.revoke(id)
       toast.success(t('profile.toast.sessionRevoked'))
       setSessions((s) => (s ? s.filter((x) => x.id !== id) : s))
     } catch {
@@ -184,7 +200,7 @@ export function ProfilePage() {
   const handleRevokeOthers = async () => {
     setRevokingAll(true)
     try {
-      await authHttpService.revokeOtherSessions()
+      await sessionsService.revokeOthers()
       toast.success(t('profile.toast.othersSignedOut'))
       await loadSessions()
     } catch {
@@ -338,14 +354,14 @@ export function ProfilePage() {
         </form>
       </Section>
 
-      {/* Two-factor */}
+      {/* Two-factor. Federation is TOTP-only (no mailer), so EMAIL is hidden there. */}
       <Section
         title={t('profile.tfa.title')}
         description={t('profile.tfa.description')}
         icon={Shield}
       >
         {user ? (
-          <TwoFactorBody user={user} onChanged={refreshUser} />
+          <TwoFactorBody user={user} onChanged={refreshUser} allowEmail={!IS_FEDERATION} />
         ) : (
           <div className="rounded-md border border-border p-6 text-center text-sm text-muted-foreground">
             {t('profile.tfa.loading')}
@@ -353,10 +369,10 @@ export function ProfilePage() {
         )}
       </Section>
 
-      {/* API keys (per-user → embedded here, not in system settings) */}
-      <ApiKeysSection />
+      {/* API keys (per-user → embedded here, not in system settings). Not in federation. */}
+      {!IS_FEDERATION && <ApiKeysSection />}
 
-      {/* Sessions */}
+      {/* Active sessions (FS sessions in federation mode, instance sessions otherwise) */}
       <Section title={t('profile.sessions.title')} description={t('profile.sessions.description')}>
         {sessionsLoading ? (
           <div className="rounded-md border border-border p-6 text-center text-sm text-muted-foreground">

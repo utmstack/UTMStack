@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:federation": "VITE_FEDERATION=true vite",
     "build": "tsc -b && vite build",
     "build:dev": "tsc -b && vite build --mode development",
     "lint": "eslint .",
