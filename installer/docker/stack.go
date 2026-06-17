@@ -162,7 +162,7 @@ func RemoveServices(services []string) error {
 
 	time.Sleep(60 * time.Second)
 
-	if err := utils.RunCmd("docker", "system", "prune", "-f"); err != nil {
+	if err := utils.RunCmd("docker", "system", "prune", "-a", "-f"); err != nil {
 		return err
 	}
 

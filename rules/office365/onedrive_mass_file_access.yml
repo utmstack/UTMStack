@@ -41,7 +41,7 @@ afterEvents:
       - field: log.Workload
         operator: filter_term
         value: 'OneDrive'
-    within: now-30m
+    within: 30m
     count: 67
     or:
       - indexPattern: v11-log-o365-*
@@ -55,7 +55,7 @@ afterEvents:
           - field: log.Workload
             operator: filter_term
             value: 'OneDrive'
-        within: now-30m
+        within: 30m
         count: 67
       - indexPattern: v11-log-o365-*
         with:
@@ -68,7 +68,7 @@ afterEvents:
           - field: log.Workload
             operator: filter_term
             value: 'OneDrive'
-        within: now-30m
+        within: 30m
         count: 67
 deduplicateBy:
   - adversary.user

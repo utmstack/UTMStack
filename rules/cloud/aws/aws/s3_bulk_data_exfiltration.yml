@@ -38,7 +38,7 @@ afterEvents:
       - field: log.eventName
         operator: filter_term
         value: GetObject
-    within: now-15m
+    within: 15m
     count: 100
 groupBy:
   - adversary.user

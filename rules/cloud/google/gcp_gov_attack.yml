@@ -21,7 +21,7 @@ references:
   - "https://attack.mitre.org/tactics/TA0009/"
   - "https://attack.mitre.org/techniques/T1560"
 where: |
-  contains("log.protoPayload.methodName", "google.login.LoginService.govAttackWarning")
+  contains("log.protoPayloadMethodName", "google.login.LoginService.govAttackWarning")
 groupBy:
   - adversary.ip
   - adversary.user

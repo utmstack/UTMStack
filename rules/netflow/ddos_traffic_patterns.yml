@@ -34,7 +34,7 @@ afterEvents:
       - field: dataType
         operator: filter_term
         value: netflow
-    within: now-5m
+    within: 5m
     count: 100
 groupBy:
   - target.ip

@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - google
+name: GCP Cloud Storage Bucket Created
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Collection
+technique: "T1560 - Archive Collected Data"
+adversary: origin
+references:
+  - https://cloud.google.com/storage/docs/audit-logging
+  - https://cloud.google.com/logging/docs/audit/cal-categories#cloud_storage
+  - https://attack.mitre.org/techniques/T1560/
+description: |
+  Detects creation of a new Google Cloud Storage (GCS) bucket. Attackers may create buckets to stage stolen data, host malware, or establish command-and-control infrastructure. Unexpected bucket creation should be investigated, especially if the bucket has public access configured.
+
+  Next Steps:
+  1. Verify if the bucket creation was authorized
+  2. Check the bucket's name and location for suspicious patterns
+  3. Review the bucket's IAM bindings and uniform bucket-level access settings
+  4. Check if the bucket has public access or default object ACLs
+  5. If unauthorized, delete the bucket and investigate the user
+  6. Review other storage operations by the same user in the same time window
+where: |
+  equals("log.protoPayloadServiceName", "storage.googleapis.com") &&
+  equals("log.protoPayloadMethodName", "storage.buckets.create") &&
+  exists("origin.user")

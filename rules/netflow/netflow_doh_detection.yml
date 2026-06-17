@@ -43,7 +43,7 @@ afterEvents:
       - field: target.port
         operator: filter_term
         value: '443'
-    within: now-1h
+    within: 1h
     count: 20
 groupBy:
   - adversary.ip

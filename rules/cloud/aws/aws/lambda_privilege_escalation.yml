@@ -39,7 +39,7 @@ afterEvents:
       - field: log.eventName
         operator: filter_term
         value: AttachRolePolicy
-    within: now-1h
+    within: 1h
     count: 2
 groupBy:
   - lastEvent.log.requestParameters.roleArn

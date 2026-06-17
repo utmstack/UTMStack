@@ -264,7 +264,7 @@ public class UtmAlertResponseRuleService {
         }
     }
 
-    @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.SECONDS)
     public void executeRuleCommands() {
         final String ctx = CLASSNAME + ".executeRuleCommands";
         try {

@@ -26,7 +26,7 @@ description: |
   6. Monitor for any subsequent suspicious activity from deployed containers
 where: |
   (
-    equals("log.protoPayload.serviceName", "binaryauthorization.googleapis.com") && 
+    equals("log.protoPayloadServiceName", "binaryauthorization.googleapis.com") && 
     (
       contains("log.logName", "cloudaudit.googleapis.com/system_event") &&
       (contains("log.protoPayload.response.details", "breakglass") || equals("log.jsonPayload.breakglass", true))
@@ -42,5 +42,5 @@ where: |
     )
   )
 groupBy:
-  - lastEvent.log.protoPayload.authenticationInfo.principalEmail
-  - lastEvent.log.protoPayload.resourceName
+  - lastEvent.origin.user
+  - lastEvent.log.protoPayloadResourceName

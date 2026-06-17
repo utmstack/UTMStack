@@ -30,7 +30,7 @@ afterEvents:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-    within: now-1h
+    within: 1h
     count: 2
 groupBy:
   - adversary.host

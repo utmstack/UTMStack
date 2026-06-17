@@ -46,7 +46,7 @@ afterEvents:
       - field: log.processName
         operator: filter_term
         value: '{{.log.processName}}'
-    within: now-30m
+    within: 30m
     count: 2
 groupBy:
   - lastEvent.log.exploitTechnique

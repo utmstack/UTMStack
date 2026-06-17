@@ -1,17 +1,18 @@
 package com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.impl.coordinate_map;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.park.utmstack.domain.chart_builder.UtmVisualization;
 import com.park.utmstack.domain.chart_builder.types.aggregation.AggregationType;
 import com.park.utmstack.domain.chart_builder.types.aggregation.Bucket;
 import com.park.utmstack.domain.chart_builder.types.aggregation.Metric;
-import com.park.utmstack.domain.ip_info.GeoIp;
-import com.park.utmstack.service.ip_info.IpInfoService;
+import com.park.utmstack.util.chart_builder.elasticsearch_dsl.requests.RequestDsl;
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.ResponseParser;
-import com.park.utmstack.util.exceptions.UtmIpInfoException;
 import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
 import com.utmstack.opensearch_connector.types.BucketAggregation;
 import com.utmstack.opensearch_connector.types.SearchSqlResponse;
+import org.opensearch.client.opensearch._types.aggregations.Aggregate;
+import org.opensearch.client.opensearch._types.aggregations.TopHitsAggregate;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +28,9 @@ import java.util.stream.Collectors;
 @Component
 public class ResponseParserForCoordinateMapChart implements ResponseParser<CoordinateMapChartResult> {
     private static final String CLASSNAME = "ResponseParserForCoordinateMapChart";
+    private static final List<String> GEO_PREFIXES = List.of("origin", "source", "destination");
 
     private final Logger log = LoggerFactory.getLogger(ResponseParserForCoordinateMapChart.class);
-
-    private final IpInfoService ipInfoService;
-
-    public ResponseParserForCoordinateMapChart(IpInfoService ipInfoService) {
-        this.ipInfoService = ipInfoService;
-    }
 
     @Override
     public List<CoordinateMapChartResult> parse(UtmVisualization visualization, SearchResponse<ObjectNode> result) {
@@ -53,20 +49,13 @@ public class ResponseParserForCoordinateMapChart implements ResponseParser<Coord
 
 
                 for (BucketAggregation entry : entries) {
-                    GeoIp ipV4Info;
-                    try {
-                        ipV4Info = ipInfoService.getIpInfo(entry.getKey());
-
-                        if (ipV4Info == null)
-                            continue;
-                    } catch (UtmIpInfoException e) {
-                        log.error(e.getMessage());
+                    Double[] latLon = extractLatLongFromTopHits(entry.getSubAggregations());
+                    if (latLon == null)
                         continue;
-                    }
 
                     CoordinateMapChartResult value = new CoordinateMapChartResult();
                     value.setName(entry.getKey());
-                    value.addLatitude(ipV4Info.getLatitude()).addLongitude(ipV4Info.getLongitude());
+                    value.addLatitude(latLon[0]).addLongitude(latLon[1]);
 
                     switch (metric.getAggregation()) {
                         case COUNT:
@@ -140,20 +129,14 @@ public class ResponseParserForCoordinateMapChart implements ResponseParser<Coord
                 }
                 if (!StringUtils.hasText(ip)) continue;
 
-                GeoIp ipInfo;
-                try {
-                    ipInfo = ipInfoService.getIpInfo(ip);
-                    if (ipInfo == null) continue;
-                } catch (UtmIpInfoException e) {
-                    log.error(e.getMessage());
-                    continue;
-                }
+                Double[] latLon = extractLatLongFromRow(row);
+                if (latLon == null) continue;
 
                 CoordinateMapChartResult chartResult = new CoordinateMapChartResult();
                 chartResult.setName(ip);
                 chartResult.setValue(new Double[] {
-                        ipInfo.getLatitude(),
-                        ipInfo.getLongitude(),
+                        latLon[0],
+                        latLon[1],
                         (double) i
                 });
 
@@ -163,6 +146,61 @@ public class ResponseParserForCoordinateMapChart implements ResponseParser<Coord
             return retValue;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage(), e);
+        }
+    }
+
+    private Double[] extractLatLongFromTopHits(Map<String, Aggregate> subAggs) {
+        if (subAggs == null) return null;
+        Aggregate geoAgg = subAggs.get(RequestDsl.GEO_HIT_AGG);
+        if (geoAgg == null || !geoAgg.isTopHits()) return null;
+        TopHitsAggregate topHits = geoAgg.topHits();
+        if (topHits.hits() == null || topHits.hits().hits().isEmpty()) return null;
+        var hit = topHits.hits().hits().get(0);
+        if (hit.source() == null) return null;
+        try {
+            ObjectNode source = hit.source().to(ObjectNode.class);
+            return extractLatLongFromJson(source);
+        } catch (Exception e) {
+            log.warn("Failed to deserialize top_hits source for geolocation: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private Double[] extractLatLongFromJson(ObjectNode source) {
+        if (source == null) return null;
+        for (String prefix : GEO_PREFIXES) {
+            JsonNode geo = source.path(prefix).path("geolocation");
+            JsonNode lat = geo.path("latitude");
+            JsonNode lon = geo.path("longitude");
+            if (lat.isNumber() && lon.isNumber()) {
+                return new Double[]{lat.asDouble(), lon.asDouble()};
+            }
+        }
+        return null;
+    }
+
+    private Double[] extractLatLongFromRow(Map<String, Object> row) {
+        Double lat = null;
+        Double lon = null;
+        for (Map.Entry<String, Object> e : row.entrySet()) {
+            if (e.getValue() == null) continue;
+            String key = e.getKey();
+            if (lat == null && (key.endsWith(".geolocation.latitude") || key.equals("latitude"))) {
+                lat = toDouble(e.getValue());
+            } else if (lon == null && (key.endsWith(".geolocation.longitude") || key.equals("longitude"))) {
+                lon = toDouble(e.getValue());
+            }
+        }
+        if (lat == null || lon == null) return null;
+        return new Double[]{lat, lon};
+    }
+
+    private Double toDouble(Object val) {
+        if (val instanceof Number) return ((Number) val).doubleValue();
+        try {
+            return Double.parseDouble(val.toString());
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 }

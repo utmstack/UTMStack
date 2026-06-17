@@ -2,9 +2,11 @@ name: V10 - Build & Deploy Pipeline
 
 on:
   push:
-    branches: [ 'release/v10**' ]
+    branches:
+      - 'release/v10**'
+      - 'v10'
   release:
-    types: [ prereleased, released ]
+    types: [ released ]
 
 jobs:
   setup_deployment:
@@ -19,42 +21,31 @@ jobs:
         id: set-env
         run: |
           # ===================
-          # DEV Environment
+          # DEV — push to release/v10**
           # ===================
-          # Triggered by: push to release/v10.x.x branches
           if ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/v10') }}; then
             echo "DEV environment"
             echo "tag=v10-dev" >> $GITHUB_OUTPUT
             echo "environment=dev" >> $GITHUB_OUTPUT
 
           # ===================
-          # RC Environment
+          # RC — push to v10
           # ===================
-          # Triggered by: prerelease creation
-          elif ${{ github.event_name == 'release' && github.event.action == 'prereleased' }}; then
-            TAG="${{ github.event.release.tag_name }}"
-
-            # Skip if tag doesn't start with v10 (this pipeline is for v10 only)
-            if [[ ! "$TAG" =~ ^v10\. ]]; then
-              echo "⏭️ Skipping: Tag '$TAG' is not a v10 release. This pipeline handles v10 releases only."
-              exit 0
-            fi
-
+          elif ${{ github.event_name == 'push' && github.ref == 'refs/heads/v10' }}; then
             echo "RC environment"
             echo "tag=v10-rc" >> $GITHUB_OUTPUT
             echo "environment=rc" >> $GITHUB_OUTPUT
-            echo "release_tag=$TAG" >> $GITHUB_OUTPUT
+            echo "release_tag=v10-rc" >> $GITHUB_OUTPUT
 
           # ===================
-          # PROD Environment
+          # PRODUCTION — release.released (non-prerelease publish)
+          # Skip if tag doesn't start with v10 (this pipeline is for v10 only).
           # ===================
-          # Triggered by: prerelease promoted to release
           elif ${{ github.event_name == 'release' && github.event.action == 'released' }}; then
             TAG="${{ github.event.release.tag_name }}"
 
-            # Skip if tag doesn't start with v10 (this pipeline is for v10 only)
             if [[ ! "$TAG" =~ ^v10\. ]]; then
-              echo "⏭️ Skipping: Tag '$TAG' is not a v10 release. This pipeline handles v10 releases only."
+              echo "⏭️ Skipping: Tag '$TAG' is not a v10 release."
               exit 0
             fi
 
@@ -63,40 +54,10 @@ jobs:
             echo "environment=prod" >> $GITHUB_OUTPUT
             echo "release_tag=$TAG" >> $GITHUB_OUTPUT
           fi
-  
-  validations:
-    name: Validate permissions
-    runs-on: ubuntu-24.04
-    needs: setup_deployment
-    if: ${{ needs.setup_deployment.outputs.tag != '' }}
-    steps:
-      - name: Check permissions
-        run: |
-          echo "Validating user permissions..."
-
-          RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
-          -H "Accept: application/vnd.github.json" \
-          "https://api.github.com/orgs/utmstack/teams/integration-developers/memberships/${{ github.actor }}")
-          
-          if echo "$RESPONSE" | grep -q '"state": "active"'; then
-            echo "✅ User ${{ github.actor }} is a member of the integration-developers team."
-          else
-            RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
-            -H "Accept: application/vnd.github.json" \
-            "https://api.github.com/orgs/utmstack/teams/core-developers/memberships/${{ github.actor }}")
-
-            if echo "$RESPONSE" | grep -q '"state": "active"'; then
-              echo "✅ User ${{ github.actor }} is a member of the core-developers team."
-            else
-              echo "⛔ ERROR: User ${{ github.actor }} is not a member of the core-developers or integration-developers team."
-              echo $RESPONSE
-              exit 1
-            fi
-          fi
 
   build_agent:
     name: Build and Sign Agent
-    needs: [validations,setup_deployment]
+    needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: utmstack-signer
     steps:
@@ -145,7 +106,7 @@ jobs:
 
   build_agent_manager:
     name: Build Agent-Manager Image
-    needs: [build_agent,validations,setup_deployment]
+    needs: [build_agent, setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-22.04
     steps:
@@ -193,7 +154,7 @@ jobs:
 
   build_aws:
     name: Build AWS Microservice
-    needs: [validations,setup_deployment]
+    needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-golang.yml
     with:
@@ -202,7 +163,7 @@ jobs:
   
   build_backend:
     name: Build Backend Microservice
-    needs: [validations,setup_deployment]
+    needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-java.yml
     with:
@@ -215,7 +176,7 @@ jobs:
   
   build_correlation:
     name: Build Correlation Microservice
-    needs: [validations,setup_deployment]
+    needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-golang.yml
     with:
@@ -224,7 +185,7 @@ jobs:
 
   build_frontend:
     name: Build Frontend Microservice
-    needs: [validations,setup_deployment]
+    needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-node.yml
     with:
@@ -233,7 +194,7 @@ jobs:
 
   build_bitdefender:
     name: Build Bitdefender Microservice
-    needs: [validations,setup_deployment]
+    needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-golang.yml
     with:
@@ -242,7 +203,7 @@ jobs:
   
   build_mutate:
     name: Build Mutate Microservice
-    needs: [validations,setup_deployment]
+    needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-basic.yml
     with:
@@ -251,7 +212,7 @@ jobs:
   
   build_office365:
     name: Build Office365 Microservice
-    needs: [validations,setup_deployment]
+    needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-golang.yml
     with:
@@ -260,7 +221,7 @@ jobs:
   
   build_log_auth_proxy:
     name: Build Log-Auth-Proxy Microservice
-    needs: [validations,setup_deployment]
+    needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-golang.yml
     with:
@@ -269,7 +230,7 @@ jobs:
   
   build_soc_ai:
     name: Build Soc-AI Microservice
-    needs: [validations,setup_deployment]
+    needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-golang.yml
     with:
@@ -278,7 +239,7 @@ jobs:
   
   build_sophos:
     name: Build Sophos Microservice
-    needs: [validations,setup_deployment]
+    needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-golang.yml
     with:
@@ -287,7 +248,7 @@ jobs:
 
   build_user_auditor:
     name: Build User-Auditor Microservice
-    needs: [validations,setup_deployment]
+    needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-java.yml
     with:
@@ -299,7 +260,7 @@ jobs:
   
   build_web_pdf:
     name: Build Web-PDF Microservice
-    needs: [validations,setup_deployment]
+    needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-java.yml
     with:

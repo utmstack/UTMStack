@@ -42,7 +42,7 @@ afterEvents:
       - field: action
         operator: filter_term
         value: 'Invite external user'
-    within: now-1h
+    within: 1h
     count: 10
 groupBy:
   - adversary.user

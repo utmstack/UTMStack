@@ -120,6 +120,47 @@ export const EVENT_IS_ALERT = 'isAlert';
 
 export const FALSE_POSITIVE_OBJECT = {id: 1, tagName: 'False positive', tagColor: '#f44336', systemOwner: true};
 
+// Event-related fields exposed in tag-rule conditions.
+// These are flattened paths into the `events` array on the alert document
+// ("events" is mapped as an object array, so any condition matches when ANY
+// event satisfies it).
+export const EVENT_TAG_RULE_FIELDS: UtmFieldType[] = [
+  {label: 'Event Data Type', field: 'events.dataType', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Data Source', field: 'events.dataSource', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Action', field: 'events.action', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Action Result', field: 'events.actionResult', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Severity', field: 'events.severity', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Protocol', field: 'events.protocol', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Connection Status', field: 'events.connectionStatus', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Status Code', field: 'events.statusCode', type: ElasticDataTypesEnum.NUMBER, visible: true},
+  {label: 'Event Tenant Name', field: 'events.tenantName', type: ElasticDataTypesEnum.STRING, visible: true},
+  // Origin
+  {label: 'Event Origin IP', field: 'events.origin.ip', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Origin Host', field: 'events.origin.host', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Origin User', field: 'events.origin.user', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Origin Port', field: 'events.origin.port', type: ElasticDataTypesEnum.NUMBER, visible: true},
+  {label: 'Event Origin Domain', field: 'events.origin.domain', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Origin URL', field: 'events.origin.url', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Origin Country', field: 'events.origin.geolocation.country', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Origin Country Code', field: 'events.origin.geolocation.countryCode', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Origin City', field: 'events.origin.geolocation.city', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Origin ASN', field: 'events.origin.geolocation.asn', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Origin ASO', field: 'events.origin.geolocation.aso', type: ElasticDataTypesEnum.STRING, visible: true},
+  // Target
+  {label: 'Event Target IP', field: 'events.target.ip', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Target Host', field: 'events.target.host', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Target User', field: 'events.target.user', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Target Port', field: 'events.target.port', type: ElasticDataTypesEnum.NUMBER, visible: true},
+  {label: 'Event Target URL', field: 'events.target.url', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Target Domain', field: 'events.target.domain', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Target File', field: 'events.target.file', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Target Country', field: 'events.target.geolocation.country', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Target Country Code', field: 'events.target.geolocation.countryCode', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Target City', field: 'events.target.geolocation.city', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Target ASN', field: 'events.target.geolocation.asn', type: ElasticDataTypesEnum.STRING, visible: true},
+  {label: 'Event Target ASO', field: 'events.target.geolocation.aso', type: ElasticDataTypesEnum.STRING, visible: true},
+];
+
 export const ALERT_FIELDS: UtmFieldType[] = [
   {
     label: 'Alert name',

@@ -39,7 +39,7 @@ afterEvents:
       - field: protocol
         operator: filter_term
         value: 'tcp'
-    within: now-15m
+    within: 15m
     count: 10
 groupBy:
   - adversary.ip

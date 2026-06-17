@@ -40,7 +40,7 @@ afterEvents:
       - field: log.eventType
         operator: filter_term
         value: 'token_access'
-    within: now-1h
+    within: 1h
     count: 3
 groupBy:
   - lastEvent.log.tokenId

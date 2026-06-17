@@ -45,7 +45,7 @@ afterEvents:
       - field: log.cat
         operator: filter_term
         value: NetworkThreat
-    within: now-30m
+    within: 30m
     count: 5
 groupBy:
   - origin.ip

@@ -1,0 +1,22 @@
+# Rule version v1.0.0
+
+name: O365 Audit Log Purge
+description: |
+  Detects attempts to purge, delete, or remove audit log data from Office 365.
+  Attackers commonly destroy audit evidence to cover their tracks after compromising
+  an environment. Detection of audit log deletion activities is a strong indicator
+  of an active adversary attempting to evade detection and hinder incident response.
+category: "Defense Evasion"
+technique: "T1070 - Indicator Removal"
+references:
+  - "https://attack.mitre.org/techniques/T1070/"
+dataTypes:
+  - o365
+adversary: origin
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 0
+where: oneOf("action", ["DSIPurgeStarted", "AuditSearchDeleted", "HardDelete"])
+groupBy:
+  - adversary.user

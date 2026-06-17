@@ -23,8 +23,15 @@ afterEvents:
         - field: target.user.keyword
           operator: filter_term
           value: "{{.target.user}}"
-      within: now-5m
+        - field: origin.host.keyword
+          operator: filter_term
+          value: "{{.origin.host}}"
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: "{{.origin.ip}}"
+      within: 5m
       count: 10
 deduplicateBy:
   - origin.host
   - target.user
+  - origin.ip

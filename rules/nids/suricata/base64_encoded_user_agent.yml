@@ -38,7 +38,7 @@ afterEvents:
       - field: log.eventType
         operator: filter_term
         value: 'http'
-    within: now-30m
+    within: 30m
     count: 3
 groupBy:
   - lastEvent.log.http.http_user_agent

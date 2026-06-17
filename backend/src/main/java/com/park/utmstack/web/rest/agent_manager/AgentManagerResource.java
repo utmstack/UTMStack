@@ -69,14 +69,18 @@ public class AgentManagerResource {
     }
 
     @GetMapping("/agents-with-commands")
-    public ResponseEntity<List<AgentDTO>> listAgentsWithCommands() {
+    public ResponseEntity<List<AgentDTO>> listAgentsWithCommands(
+            @RequestParam(required = false) Integer pageNumber,
+            @RequestParam(required = false) Integer pageSize,
+            @RequestParam(required = false) String searchQuery,
+            @RequestParam(required = false) String sortBy) {
         final String ctx = CLASSNAME + ".listAgentsWithCommands";
         try {
             ListRequest request = ListRequest.newBuilder()
-                    .setPageNumber(1)
-                    .setPageSize(1000000)
-                    .setSearchQuery("")
-                    .setSortBy("")
+                    .setPageNumber(pageNumber != null ? pageNumber : 0)
+                    .setPageSize(pageSize != null ? pageSize : 1000000)
+                    .setSearchQuery(searchQuery != null ? searchQuery : "")
+                    .setSortBy(sortBy != null ? sortBy : "")
                     .build();
             ListAgentsResponseDTO response = agentGrpcService.listAgentWithCommands(request);
             List<AgentDTO> agentDTOList = response.getAgents();

@@ -25,8 +25,8 @@ description: |
   6. Audit all API calls made by the service account since the delegation was granted
   7. Review Google Workspace admin logs for related changes
 where: |
-  contains("log.protoPayload.methodName", "AUTHORIZE_API_CLIENT_ACCESS") ||
-  (contains("log.protoPayload.serviceName", "admin.googleapis.com") && contains("log.protoPayload.methodName", "GrantClientAccess"))
+  contains("log.protoPayloadMethodName", "AUTHORIZE_API_CLIENT_ACCESS") ||
+  (contains("log.protoPayloadServiceName", "admin.googleapis.com") && contains("log.protoPayloadMethodName", "GrantClientAccess"))
 groupBy:
-  - lastEvent.log.protoPayload.authenticationInfo.principalEmail
-  - lastEvent.log.protoPayload.resourceName
+  - lastEvent.origin.user
+  - lastEvent.log.protoPayloadResourceName

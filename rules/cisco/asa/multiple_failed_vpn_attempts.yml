@@ -40,7 +40,7 @@ afterEvents:
       - field: log.messageId
         operator: filter_term
         value: '113015'
-    within: now-15m
+    within: 15m
     count: 10
     or:
       - indexPattern: v11-log-firewall-cisco-asa-*
@@ -51,7 +51,7 @@ afterEvents:
           - field: log.messageId
             operator: filter_term
             value: '113021'
-        within: now-15m
+        within: 15m
         count: 10
       - indexPattern: v11-log-firewall-cisco-asa-*
         with:
@@ -61,7 +61,7 @@ afterEvents:
           - field: log.messageId
             operator: filter_term
             value: '109034'
-        within: now-15m
+        within: 15m
         count: 10
       - indexPattern: v11-log-firewall-cisco-asa-*
         with:
@@ -71,7 +71,7 @@ afterEvents:
           - field: log.messageId
             operator: filter_term
             value: '611102'
-        within: now-15m
+        within: 15m
         count: 10
 groupBy:
   - adversary.ip

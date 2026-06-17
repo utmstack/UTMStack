@@ -47,10 +47,81 @@ public class ModuleSocAi implements IModule {
 
         keys.add(ModuleConfigurationKey.builder()
             .withGroupId(groupId)
+            .withConfKey("utmstack.socai.provider")
+            .withConfName("AI Provider")
+            .withConfDescription("AI provider used by SOC AI.")
+            .withConfDataType("text")
+            .withConfValue("openai")
+            .withConfRequired(true)
+            .build());
+
+        keys.add(ModuleConfigurationKey.builder()
+            .withGroupId(groupId)
+            .withConfKey("utmstack.socai.model")
+            .withConfName("AI Model")
+            .withConfDescription("AI model that SOC AI will use to analyze alerts (first option of active provider).")
+            .withConfDataType("text")
+            .withConfValue("gpt-4o")
+            .withConfRequired(true)
+            .build());
+
+        keys.add(ModuleConfigurationKey.builder()
+            .withGroupId(groupId)
+            .withConfKey("utmstack.socai.url")
+            .withConfName("Provider URL")
+            .withConfDescription("Endpoint URL for the provider (only set for azure / ollama / custom).")
+            .withConfDataType("text")
+            .withConfValue("")
+            .withConfRequired(false)
+            .build());
+
+        keys.add(ModuleConfigurationKey.builder()
+            .withGroupId(groupId)
+            .withConfKey("utmstack.socai.maxTokens")
+            .withConfName("Max Tokens")
+            .withConfDescription("Maximum number of tokens used per request.")
+            .withConfDataType("text")
+            .withConfValue("4096")
+            .withConfRequired(true)
+            .build());
+
+        keys.add(ModuleConfigurationKey.builder()
+            .withGroupId(groupId)
+            .withConfKey("utmstack.socai.authType")
+            .withConfName("Authentication Type")
+            .withConfDescription("Authentication type used to reach the provider (none for ollama).")
+            .withConfDataType("text")
+            .withConfValue("custom-headers")
+            .withConfRequired(true)
+            .build());
+
+        keys.add(ModuleConfigurationKey.builder()
+            .withGroupId(groupId)
+            .withConfKey("utmstack.socai.customHeaders")
+            .withConfName("Custom Headers")
+            .withConfDescription("Custom headers (JSON object) sent with each request to the provider.")
+            .withConfDataType("password")
+            .withConfValue("")
+            .withConfRequired(false)
+            .build());
+
+        keys.add(ModuleConfigurationKey.builder()
+            .withGroupId(groupId)
+            .withConfKey("utmstack.socai.autoAnalyze")
+            .withConfName("Auto Analyze")
+            .withConfDescription("If set to \"true\", SOC AI will automatically analyze incoming alerts.")
+            .withConfDataType("text")
+            .withConfValue("false")
+            .withConfRequired(false)
+            .build());
+
+        keys.add(ModuleConfigurationKey.builder()
+            .withGroupId(groupId)
             .withConfKey("utmstack.socai.incidentCreation")
             .withConfName("Automatic Incident creation")
             .withConfDescription("If set to \"true\", the system will create incidents based on analysis of alerts.")
-            .withConfDataType("bool")
+            .withConfDataType("text")
+            .withConfValue("false")
             .withConfRequired(false)
             .build());
 
@@ -60,36 +131,10 @@ public class ModuleSocAi implements IModule {
             .withConfName("Change Alert Status")
             .withConfDescription("If set to \"true\", SOC Ai will automatically change the status of alerts. " +
                 "Analysts should investigate those with the status \"In Review\".")
-            .withConfDataType("bool")
+            .withConfDataType("text")
+            .withConfValue("false")
             .withConfRequired(false)
             .build());
-
-        keys.add(ModuleConfigurationKey.builder()
-                .withGroupId(groupId)
-                .withConfKey("utmstack.socai.model")
-                .withConfName("Select AI Model")
-                .withConfDescription("Choose the AI model that SOC AI will use to analyze alerts.")
-                .withConfDataType("select")
-                .withConfRequired(true)
-                .withConfOptions(
-                        "[" +
-                                "{\"value\": \"gpt-4\", \"label\": \"GPT-4\"}," +
-                                "{\"value\": \"gpt-4-0613\", \"label\": \"GPT-4 (0613)\"}," +
-                                "{\"value\": \"gpt-4-32k\", \"label\": \"GPT-4 32K\"}," +
-                                "{\"value\": \"gpt-4-32k-0613\", \"label\": \"GPT-4 32K (0613)\"}," +
-                                "{\"value\": \"gpt-4-turbo\", \"label\": \"GPT-4 Turbo\"}," +
-                                "{\"value\": \"gpt-4o\", \"label\": \"GPT-4 Omni\"}," +
-                                "{\"value\": \"gpt-4o-mini\", \"label\": \"GPT-4 Omni Mini\"}," +
-                                "{\"value\": \"gpt-4.1\", \"label\": \"GPT-4.1\"}," +
-                                "{\"value\": \"gpt-4.1-mini\", \"label\": \"GPT-4.1 Mini\"}," +
-                                "{\"value\": \"gpt-4.1-nano\", \"label\": \"GPT-4.1 Nano\"}," +
-                                "{\"value\": \"gpt-3.5-turbo\", \"label\": \"GPT-3.5 Turbo\"}," +
-                                "{\"value\": \"gpt-3.5-turbo-0613\", \"label\": \"GPT-3.5 Turbo (0613)\"}," +
-                                "{\"value\": \"gpt-3.5-turbo-16k\", \"label\": \"GPT-3.5 Turbo 16K\"}," +
-                                "{\"value\": \"gpt-3.5-turbo-16k-0613\", \"label\": \"GPT-3.5 Turbo 16K (0613)\"}" +
-                                "]"
-                )
-                .build());
 
         return keys;
     }

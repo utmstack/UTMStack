@@ -42,7 +42,7 @@ afterEvents:
       - field: action
         operator: filter_match
         value: 'Form'
-    within: now-1h
+    within: 1h
     count: 3
 groupBy:
   - adversary.user

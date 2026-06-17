@@ -36,7 +36,7 @@ afterEvents:
       - field: action
         operator: filter_term
         value: 'FileDownloaded'
-    within: now-30m
+    within: 30m
     count: 100
 groupBy:
   - adversary.ip

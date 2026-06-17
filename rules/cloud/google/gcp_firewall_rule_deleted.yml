@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - google
+name: GCP Firewall Rule Deleted
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 3
+category: Impact
+technique: "T1562 - Impair Defenses"
+adversary: origin
+references:
+  - https://cloud.google.com/firewall/docs/rules/create-manage#deleting_a_firewall_rule
+  - https://cloud.google.com/logging/docs/audit/cal-categories#compute_engine
+  - https://attack.mitre.org/techniques/T1562/
+description: |
+  Detects deletion of a GCP VPC firewall rule. Attackers may delete security rules (such as egress filters or blocking rules) to facilitate data exfiltration or lateral movement. Unexpected firewall deletions should be investigated promptly.
+
+  Next Steps:
+  1. Verify if the deletion was part of an authorized change window
+  2. Identify the deleted firewall rule's purpose (security blocking vs routine rule)
+  3. Check if the user has a legitimate reason for the change
+  4. Re-create the rule if it was a security control
+  5. Review other compute firewall changes in the same time window
+  6. Check if the user's account shows signs of compromise
+where: |
+  equals("log.protoPayloadServiceName", "compute.googleapis.com") &&
+  equals("log.protoPayloadMethodName", "v1.compute.firewalls.delete") &&
+  exists("origin.user")

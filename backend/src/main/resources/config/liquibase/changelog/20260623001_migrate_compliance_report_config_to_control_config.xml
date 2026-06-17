@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260623001" author="Alex">
+        <sql dbms="postgresql" splitStatements="true" stripComments="false">
+            <![CDATA[
+            -- 0. Persistent audit log so rollback can identify the rows this
+            -- changeset created without depending on any user-editable column.
+            -- Shared across future data migrations; PK keyed by (changeset_id, new_control_id).
+            CREATE TABLE IF NOT EXISTS utm_compliance_migration_log (
+                changeset_id   VARCHAR(50) NOT NULL,
+                new_control_id BIGINT      NOT NULL,
+                old_report_id  BIGINT,
+                migrated_at    TIMESTAMP   NOT NULL DEFAULT now(),
+                PRIMARY KEY (changeset_id, new_control_id)
+            );
+
+            -- 1. Sentinel "Legacy Reports" standard + section. The COALESCE in the
+            -- control insert falls back to id=9000 when a legacy row's section is
+            -- NULL. Range 9000+ is unused by existing seeds (which cap at 812).
+            INSERT INTO utm_compliance_standard (id, standard_name, standard_description, system_owner)
+            SELECT 9000, 'Legacy Reports', 'Auto-created landing standard for reports migrated from utm_compliance_report_config.', false
+            WHERE NOT EXISTS (SELECT 1 FROM utm_compliance_standard WHERE id = 9000);
+
+            INSERT INTO utm_compliance_standard_section (id, standard_id, standard_section_name, standard_section_description)
+            SELECT 9000, 9000, 'Unassigned', 'Migrated reports whose original section was NULL.'
+            WHERE NOT EXISTS (SELECT 1 FROM utm_compliance_standard_section WHERE id = 9000);
+
+            -- 2. Pre-allocate one control id per legacy report and record it in the
+            -- audit log. nextval() is atomic in PostgreSQL and produces one fresh
+            -- value per source row in the SELECT — no collisions possible even
+            -- under concurrent transactions, though this changeset runs at boot
+            -- and has no concurrent writers in practice.
+            INSERT INTO utm_compliance_migration_log (changeset_id, new_control_id, old_report_id)
+            SELECT
+                '20260623001',
+                nextval(pg_get_serial_sequence('utm_compliance_control_config', 'id')),
+                r.id
+            FROM utm_compliance_report_config r
+            WHERE NOT EXISTS (
+                SELECT 1 FROM utm_compliance_control_config c
+                WHERE c.control_name = COALESCE(r.config_report_name, 'Report ' || r.id::text)
+                  AND c.standard_section_id = COALESCE(r.standard_section_id, 9000)
+            )
+            AND NOT EXISTS (
+                SELECT 1 FROM utm_compliance_migration_log m
+                WHERE m.changeset_id = '20260623001' AND m.old_report_id = r.id
+            );
+
+            -- 3. Insert controls with the reserved ids.
+            INSERT INTO utm_compliance_control_config
+                (id, standard_section_id, control_name, control_solution, control_remediation, control_strategy)
+            SELECT
+                m.new_control_id,
+                COALESCE(r.standard_section_id, 9000),
+                COALESCE(r.config_report_name, 'Report ' || r.id::text),
+                r.config_solution,
+                r.config_report_remediation,
+                'ALL'
+            FROM utm_compliance_migration_log m
+            JOIN utm_compliance_report_config r ON r.id = m.old_report_id
+            WHERE m.changeset_id = '20260623001'
+              AND NOT EXISTS (
+                  SELECT 1 FROM utm_compliance_control_config c WHERE c.id = m.new_control_id
+              );
+
+            -- 4. For each control whose legacy dashboard has visualizations, copy
+            -- one query row per visualization. Actual SQL lives in
+            -- utm_visualization.sql_query (column added in 20251203001).
+            INSERT INTO utm_compliance_query_config
+                (query_name, query_description, sql_query, evaluation_rule, rule_value,
+                 index_pattern_id, control_config_id)
+            SELECT
+                COALESCE(NULLIF(v.name, ''), 'Query for control ' || m.new_control_id),
+                COALESCE(NULLIF(v.description, ''), 'Migrated from utm_visualization id=' || v.id),
+                COALESCE(NULLIF(v.sql_query, ''), '-- TODO: define SQL query (placeholder from legacy migration)'),
+                'NO_HITS_ALLOWED',
+                NULL,
+                COALESCE(v.id_pattern, (SELECT id FROM utm_index_pattern ORDER BY id LIMIT 1)),
+                m.new_control_id
+            FROM utm_compliance_migration_log m
+            JOIN utm_compliance_report_config r ON r.id = m.old_report_id
+            JOIN utm_dashboard_visualization dv ON dv.id_dashboard = r.dashboard_id
+            JOIN utm_visualization v ON v.id = dv.id_visualization
+            WHERE m.changeset_id = '20260623001';
+
+            -- 5. Placeholder query for controls whose dashboard had no
+            -- visualizations (or whose dashboard_id was NULL), so the UI lists
+            -- every migrated control with at least one editable query row.
+            INSERT INTO utm_compliance_query_config
+                (query_name, query_description, sql_query, evaluation_rule, rule_value,
+                 index_pattern_id, control_config_id)
+            SELECT
+                'Query for control ' || m.new_control_id,
+                'Migrated from utm_compliance_report_config — no source visualization, query to be defined',
+                '-- TODO: define SQL query (placeholder from legacy migration)',
+                'NO_HITS_ALLOWED',
+                NULL,
+                (SELECT id FROM utm_index_pattern ORDER BY id LIMIT 1),
+                m.new_control_id
+            FROM utm_compliance_migration_log m
+            WHERE m.changeset_id = '20260623001'
+              AND NOT EXISTS (
+                  SELECT 1 FROM utm_compliance_query_config q
+                  WHERE q.control_config_id = m.new_control_id
+              );
+            ]]>
+        </sql>
+        <rollback>
+            <sql dbms="postgresql" splitStatements="true" stripComments="false">
+                <![CDATA[
+                -- Delete controls created by this changeset. The audit log is the
+                -- source of truth — independent of any column the application may
+                -- have edited after migration. Cascade FK from utm_compliance_query_config
+                -- (defined in 20260112003) removes child query rows automatically.
+                DELETE FROM utm_compliance_control_config
+                WHERE id IN (
+                    SELECT new_control_id FROM utm_compliance_migration_log
+                    WHERE changeset_id = '20260623001'
+                );
+
+                -- Conditionally remove the sentinel section/standard: only if
+                -- nothing else now references id=9000 (so we don't orphan rows
+                -- that may have been attached manually post-migration).
+                DELETE FROM utm_compliance_standard_section
+                WHERE id = 9000
+                  AND NOT EXISTS (
+                      SELECT 1 FROM utm_compliance_control_config c WHERE c.standard_section_id = 9000
+                  );
+
+                DELETE FROM utm_compliance_standard
+                WHERE id = 9000
+                  AND NOT EXISTS (
+                      SELECT 1 FROM utm_compliance_standard_section s WHERE s.standard_id = 9000
+                  );
+
+                -- Clear this changeset's audit rows; keep the log table itself
+                -- intact for future migrations to reuse.
+                DELETE FROM utm_compliance_migration_log WHERE changeset_id = '20260623001';
+                ]]>
+            </sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

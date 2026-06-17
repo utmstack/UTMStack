@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - google
+name: GCP Cloud Storage — Sensitive Data Access
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 1
+category: Discovery
+technique: "T1083 - File and Directory Discovery"
+adversary: origin
+references:
+  - https://cloud.google.com/storage/docs/audit-logging
+  - https://cloud.google.com/logging/docs/audit/cal-categories#cloud_storage
+  - https://attack.mitre.org/techniques/T1083/
+description: |
+  Detects data access operations (object listing) on GCS buckets via the data_access audit log. Attackers enumerate bucket contents after gaining access to identify sensitive files for exfiltration. Listing objects is often the precursor to bulk download or data theft.
+
+  Next Steps:
+  1. Verify if the data access was from an authorized service or user
+  2. Check which bucket was accessed and what type of data it contains
+  3. Review if the user has a legitimate business need to access this bucket
+  4. Look for subsequent object download operations from the same user
+  5. Check the OAuth client ID to identify the application performing access
+  6. Review bucket-level IAM bindings for overly permissive access
+where: |
+  equals("log.protoPayloadServiceName", "storage.googleapis.com") &&
+  oneOf("log.protoPayloadMethodName", ["storage.objects.list", "storage.buckets.getStorageLayout"]) &&
+  contains("log.logName", "data_access") && exists("origin.user")

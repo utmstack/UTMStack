@@ -36,7 +36,7 @@ afterEvents:
       - field: origin.mac
         operator: filter_term
         value: '{{.origin.mac}}'
-    within: now-10m
+    within: 10m
     count: 3
 groupBy:
   - adversary.mac

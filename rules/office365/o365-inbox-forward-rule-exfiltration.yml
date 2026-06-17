@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+name: O365 Inbox Forward Rule with Email Exfiltration
+description: |
+  Detects the creation or modification of inbox forwarding rules followed by a burst
+  of SendAs activity from the same user within 1 hour. This pattern indicates an
+  attacker who has created email forwarding rules to redirect sensitive emails and
+  is actively exfiltrating data by sending emails as the compromised user. This is
+  a common data exfiltration technique used after initial access is gained.
+category: "Collection"
+technique: "T1114.003 - Email Forwarding Rule"
+references:
+  - "https://attack.mitre.org/techniques/T1114/003/"
+dataTypes:
+  - o365
+adversary: origin
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 0
+where: oneOf("action", ["New-InboxRule", "Set-InboxRule", "UpdateInboxRules"])
+correlation:
+  - indexPattern: "v11-log-o365-*"
+    within: 1h
+    count: 5
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: "{{.origin.user}}"
+      - field: action
+        operator: filter_term
+        value: "SendAs"
+groupBy:
+  - adversary.user

@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - google
+name: GCP Cloud Logging Sink Modified
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1070 - Indicator Removal"
+adversary: origin
+references:
+  - https://cloud.google.com/logging/docs/audit/cal-categories#cloud_logging
+  - https://cloud.google.com/logging/docs/sinks
+  - https://attack.mitre.org/techniques/T1070/
+description: |
+  Detects creation, modification, or deletion of Cloud Logging sinks. Attackers may manipulate logging sinks to redirect, suppress, or delete audit trail data, effectively blinding security monitoring. This is a classic defense evasion technique.
+
+  Next Steps:
+  1. Verify if the sink change was authorized by the logging/SECOPS team
+  2. For deletions: check if the sink was forwarding to a security tool (SIEM, SOAR)
+  3. For creations: verify the destination is a legitimate logging backend
+  4. For updates: compare the old and new sink configurations
+  5. Restore any deleted security-relevant sinks immediately
+  6. Review Cloud Audit logs for other logging configuration changes
+where: |
+  equals("log.protoPayloadServiceName", "logging.googleapis.com") &&
+  oneof("log.protoPayloadMethodName", ["google.logging.v2.ConfigServiceV2.CreateSink", "google.logging.v2.ConfigServiceV2.DeleteSink", "google.logging.v2.ConfigServiceV2.UpdateSink"]) &&
+  exists("origin.user")

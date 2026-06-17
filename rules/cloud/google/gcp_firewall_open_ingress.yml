@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - google
+name: GCP Firewall Rule Created — Open Ingress
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references:
+  - https://cloud.google.com/firewall/docs/rules/create-manage#creating_a_firewall_rule
+  - https://cloud.google.com/logging/docs/audit/cal-categories#compute_engine
+  - https://attack.mitre.org/techniques/T1190/
+description: |
+  Detects the creation of a GCP VPC firewall rule that allows ingress traffic from 0.0.0.0/0 (any source) on sensitive ports (RDP 3389, SSH 22, SQL 1433, 3306, 5432, etc.). This is a common early-stage tactic to open attack surface for lateral movement or direct exploitation.
+
+  Next Steps:
+  1. Verify if the firewall rule was authorized by the network/security team
+  2. Check the source IP and user for legitimacy (was it a known admin?)
+  3. Review the firewall rule scope — consider restricting sourceRanges to known IP CIDRs
+  4. Check if the targeted VMs have compensating controls (SSH keys, MFA bastion)
+  5. If unauthorized, delete the rule and investigate the user's session
+  6. Review Cloud Audit logs for other firewall changes in the same time window
+where: |
+  equals("log.protoPayloadServiceName", "compute.googleapis.com") &&
+  equals("log.protoPayloadMethodName", "v1.compute.firewalls.insert") &&
+  exists("origin.user")

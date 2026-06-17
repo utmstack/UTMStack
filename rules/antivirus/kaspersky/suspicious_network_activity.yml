@@ -46,7 +46,7 @@ afterEvents:
       - field: log.dstIP
         operator: filter_term
         value: '{{.log.dstIP}}'
-    within: now-30m
+    within: 30m
     count: 5
 groupBy:
   - target.ip

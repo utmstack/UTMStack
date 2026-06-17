@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - google
+name: GCP Audit Logging Configuration Changed
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562 - Impair Defenses"
+adversary: origin
+references:
+  - https://cloud.google.com/logging/docs/audit/configure#overview
+  - https://cloud.google.com/iam/docs/audit-logging
+  - https://attack.mitre.org/techniques/T1562/
+description: |
+  Detects changes to audit logging configuration via IAM policy updates that modify auditConfigs. Attackers may disable DATA_READ, DATA_WRITE, or ADMIN_READ audit log types to hide their activities. This is detected by SetIamPolicy calls that include auditConfigs in the request payload.
+
+  Next Steps:
+  1. Check which service's audit logging was modified (iam, compute, storage, etc.)
+  2. Verify if audit log types were disabled (empty auditLogConfigs) or added
+  3. If disabled, re-enable audit logging for the affected service immediately
+  4. Review the full IAM policy to check for concurrent privilege escalation
+  5. Investigate the user's other actions in the same time window
+  6. Ensure organization-level policies enforce audit logging (prevent re-disable)
+where: |
+  equals("log.protoPayloadServiceName", "cloudresourcemanager.googleapis.com") &&
+  equals("log.protoPayloadMethodName", "SetIamPolicy") &&
+  exists("origin.user")

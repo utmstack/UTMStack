@@ -40,7 +40,7 @@ afterEvents:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'
-    within: now-30m
+    within: 30m
     count: 3
 groupBy:
   - adversary.host

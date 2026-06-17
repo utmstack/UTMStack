@@ -50,7 +50,7 @@ afterEvents:
       - field: log.message
         operator: filter_match
         value: 'remote login OR authenticated OR session opened'
-    within: now-30m
+    within: 30m
     count: 5
 groupBy:
   - adversary.ip

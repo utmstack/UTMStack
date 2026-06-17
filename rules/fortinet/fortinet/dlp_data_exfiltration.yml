@@ -39,7 +39,7 @@ afterEvents:
       - field: log.subtype
         operator: filter_term
         value: 'dlp'
-    within: now-1h
+    within: 1h
     count: 3
 groupBy:
   - lastEvent.log.dlp_profile

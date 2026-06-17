@@ -35,7 +35,7 @@ afterEvents:
       - field: log.eventName
         operator: filter_term
         value: 'ChangeResourceRecordSets'
-    within: now-30m
+    within: 30m
     count: 10
 groupBy:
   - lastEvent.log.sourceIPAddress

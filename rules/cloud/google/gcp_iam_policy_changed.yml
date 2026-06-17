@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - google
+name: GCP IAM Policy Changed — Privilege Escalation
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1098 - Account Manipulation"
+adversary: origin
+references:
+  - https://cloud.google.com/iam/docs/audit-logging#admin-activity
+  - https://cloud.google.com/logging/docs/audit/cal-categories#iam
+  - https://attack.mitre.org/techniques/T1098/
+description: |
+  Detects changes to IAM policies at the project or resource level in GCP. This includes granting high-privilege roles (Owner, Editor, IAM Admin) to users or service accounts. Attackers commonly use IAM policy modifications to escalate privileges and establish persistence.
+
+  Next Steps:
+  1. Verify if the IAM change was authorized and matches a change request
+  2. Check which roles were granted — especially Owner, Editor, or IAM Admin
+  3. Identify the target user or service account receiving new privileges
+  4. If unauthorized, revoke the binding immediately and rotate credentials
+  5. Review the actor's session for other privilege escalation attempts
+  6. Check if the service account's workload identity was compromised
+where: |
+  oneof("log.protoPayloadServiceName", ["cloudresourcemanager.googleapis.com", "pubsub.googleapis.com"]) &&
+  oneof("log.protoPayloadMethodName", ["SetIamPolicy", "google.iam.v1.IAMPolicy.SetIamPolicy"]) &&
+  exists("log.protoPayload.request.policy.bindings") && contains("log.logName", "activity") && exists("origin.user")

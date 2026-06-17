@@ -16,8 +16,8 @@ references:
   - "https://attack.mitre.org/tactics/TA0001"
   - "https://attack.mitre.org/techniques/T1566/"
 where: |
-  equals("log.protoPayload.methodName", "google.login.LoginService.accountDisabledSpamming") ||
-  equals("log.protoPayload.methodName", "google.login.LoginService.accountDisabledSpammingThroughRelay")
+  equals("log.protoPayloadMethodName", "google.login.LoginService.accountDisabledSpamming") ||
+  equals("log.protoPayloadMethodName", "google.login.LoginService.accountDisabledSpammingThroughRelay")
 groupBy:
   - adversary.ip
   - adversary.user

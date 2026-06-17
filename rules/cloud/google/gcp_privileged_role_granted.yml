@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - google
+name: GCP Privileged Role Granted — Owner or Editor
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Privilege Escalation
+technique: "T1078 - Valid Accounts"
+adversary: origin
+references:
+  - https://cloud.google.com/iam/docs/understanding-roles#basic
+  - https://cloud.google.com/logging/docs/audit/cal-categories#iam
+  - https://attack.mitre.org/techniques/T1078/
+description: |
+  Detects when a highly privileged GCP IAM role (Owner, Editor, or IAM Admin) is granted to a user or service account. These roles provide broad access to all resources and are prime targets for privilege escalation. An attacker gaining Owner or Editor access can effectively control the entire project.
+
+  Next Steps:
+  1. Verify the IAM binding change against the change management process
+  2. Identify the exact role granted and the target principal
+  3. Check if the principal is a human user or a service account
+  4. If unauthorized, immediately revoke the binding via IAM audit log
+  5. Review the actor's Cloud Shell and gcloud session history
+  6. Rotate credentials for any service accounts that were granted elevated roles
+where: |
+  equals("log.protoPayloadServiceName", "cloudresourcemanager.googleapis.com") &&
+  equals("log.protoPayloadMethodName", "SetIamPolicy") &&
+  (contains("log.protoPayload.response.bindings", "roles/owner") ||
+  contains("log.protoPayload.response.bindings", "roles/editor")) && exists("origin.user")

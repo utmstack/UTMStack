@@ -39,6 +39,8 @@ export class GuideSocAiComponent implements OnInit {
   saving = false;
   loading = true;
 
+  configReady=false
+
   // Form values - what the user sees/edits
   formValues: {[key: string]: string} = {};
   customModelValue = '';
@@ -322,6 +324,7 @@ export class GuideSocAiComponent implements OnInit {
         };
       }
       this.loading = false;
+      this.configReady = true;
       this.cdr.detectChanges();
     }, () => {
       this.loading = false;
@@ -439,6 +442,31 @@ export class GuideSocAiComponent implements OnInit {
 
   save() {
     this.saving = true;
+
+    if (!this.groupId || !this.rawConfigs.length) {
+      this.moduleGroupService.create({
+        name: 'socai',
+        description: 'socai',
+        moduleId: this.integrationId
+      }).subscribe(
+        response => {
+          this.groupId = response.body.id;
+          this.rawConfigs = response.body.moduleGroupConfigurations || [];
+          this.cdr.markForCheck()
+          this.persistConfig();
+        },
+        () => {
+          this.saving = false;
+          this.cdr.markForCheck();
+          this.toast.showError('Error', 'Failed to create configuration group. Please try again.');
+        }
+      );
+      return;
+    }
+    this.persistConfig();
+  }
+
+  private persistConfig() {
     const changes: UtmModuleGroupConfType[] = [];
 
     // Set provider
@@ -494,12 +522,16 @@ export class GuideSocAiComponent implements OnInit {
       // Otherwise: don't touch customHeaders — keep existing value in DB
     }
 
+    this.rawConfigs=changes
+    this.cdr.markForCheck()
+
     this.moduleGroupConfService.update({
       keys: changes,
       moduleId: this.integrationId
     }).subscribe(
       () => {
         this.saving = false;
+        this.configReady = true;
         this.cdr.markForCheck()
         this.toast.showSuccessBottom('SOC AI configuration saved successfully');
       },
@@ -609,5 +641,11 @@ export class GuideSocAiComponent implements OnInit {
     } catch (e) {
       // Invalid JSON, start empty
     }
+  }
+
+
+  public disableModule(){
+    this.groupId=null
+    this.rawConfigs=[]
   }
 }

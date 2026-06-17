@@ -182,6 +182,7 @@ public class UtmAlertTagRuleService {
             List<FilterType> filters = new ArrayList<>();
             filters.add(new FilterType(Constants.alertStatus, OperatorType.IS, AlertStatus.AUTOMATIC_REVIEW.getCode()));
             filters.add(new FilterType(Constants.timestamp, OperatorType.IS_LESS_THAN_OR_EQUALS, rulesEvaluationStart.toString()));
+            filters.add(new FilterType(Constants.alertTags, OperatorType.DOES_NOT_CONTAIN, Constants.FALSE_POSITIVE_TAG));
 
             Query query = SearchUtil.toQuery(filters);
             String indexPattern = Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS);

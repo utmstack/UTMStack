@@ -40,7 +40,7 @@ afterEvents:
       - field: origin.ip.keyword
         operator: filter_term
         value: '{{.origin.ip}}'
-    within: now-15m
+    within: 15m
     count: 3
 groupBy:
   - origin.ip

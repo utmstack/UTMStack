@@ -50,7 +50,7 @@ afterEvents:
       - field: log.Workload
         operator: filter_term
         value: 'SecurityComplianceCenter'
-    within: now-2h
+    within: 2h
     count: 5
 groupBy:
   - lastEvent.action

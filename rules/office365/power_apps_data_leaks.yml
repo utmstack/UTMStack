@@ -38,7 +38,7 @@ afterEvents:
       - field: action
         operator: filter_term
         value: 'CreateDataConnection'
-    within: now-12h
+    within: 12h
     count: 2
     or:
       - indexPattern: v11-log-o365-*
@@ -49,7 +49,7 @@ afterEvents:
           - field: action
             operator: filter_term
             value: 'UpdateDataConnection'
-        within: now-12h
+        within: 12h
         count: 2
       - indexPattern: v11-log-o365-*
         with:
@@ -59,7 +59,7 @@ afterEvents:
           - field: action
             operator: filter_term
             value: 'ExportData'
-        within: now-12h
+        within: 12h
         count: 3
 groupBy:
   - adversary.ip
