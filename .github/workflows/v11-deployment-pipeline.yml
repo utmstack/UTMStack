@@ -4,9 +4,8 @@ on:
   push:
     branches:
       - 'release/v11**'
-      - 'v11'
   release:
-    types: [ released ]
+    types: [published]
 
 jobs:
   setup_deployment:
@@ -61,101 +60,26 @@ jobs:
             echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_DEV }}" >> $GITHUB_OUTPUT
 
           # =====================================================================
-          # RC — push to v11
+          # PRODUCTION — release.published (prerelease or not)
           #
-          # Tag derivation walks two CMs to handle both the normal flow and
-          # the hotfix flow without divergent code paths:
-          #
-          #   1. CM DEV gives us the candidate BASE (strip `-dev.N`).
-          #   2. CM PROD gives us the latest version already in production.
-          #   3. If BASE > PROD → use BASE. Normal flow.
-          #      If BASE <= PROD → BASE is already released (hotfix scenario)
-          #      so bump the patch of PROD instead. Avoids overwriting an
-          #      already-shipped tag and matches the roll-forward policy.
+          # The tag is taken directly from the release event — no CM queries.
+          # Always runs a full build and deploys to our production instances.
           # =====================================================================
-          elif ${{ github.event_name == 'push' && github.ref == 'refs/heads/v11' }}; then
-            ENVIRONMENT="rc"
+          elif ${{ github.event_name == 'release' }}; then
             CM_URL="https://cm.utmstack.com"
-            CM_DEV_URL="https://cm.dev.utmstack.com"
-            echo "Environment: $ENVIRONMENT"
-            echo "CM URL (target): $CM_URL"
-            echo "CM URL (source for base): $CM_DEV_URL"
-
-            DEV_RESPONSE=$(curl -s "${CM_DEV_URL}/api/v1/versions/latest")
-            LATEST_DEV_VERSION=$(echo "$DEV_RESPONSE" | jq -r '.version // empty')
-            echo "Latest dev version from CM DEV: $LATEST_DEV_VERSION"
-
-            if [ -z "$LATEST_DEV_VERSION" ]; then
-              echo "❌ No dev version found in CM DEV — cannot derive RC base. Push a release/v11.x.x branch first."
-              exit 1
-            fi
-
-            BASE=$(echo "$LATEST_DEV_VERSION" | sed -E 's/-dev\.[0-9]+$//')
-            echo "BASE derived from CM DEV: $BASE"
-
-            if [[ ! "$BASE" =~ ^v11\. ]]; then
-              echo "❌ Derived BASE '$BASE' is not a v11 release."
-              exit 1
-            fi
-
-            # Double-check against production to detect the hotfix scenario.
-            PROD_RESPONSE=$(curl -s "${CM_URL}/api/v1/versions/latest")
-            PROD_LATEST=$(echo "$PROD_RESPONSE" | jq -r '.version // empty')
-            echo "Latest production version from CM PROD: ${PROD_LATEST:-<none>}"
-
-            if [ -n "$PROD_LATEST" ]; then
-              # sort -V puts the higher semver last.
-              HIGHER=$(printf '%s\n%s\n' "$BASE" "$PROD_LATEST" | sort -V | tail -1)
-              if [ "$HIGHER" = "$BASE" ] && [ "$BASE" != "$PROD_LATEST" ]; then
-                # BASE is strictly newer than PROD — use it as-is.
-                TAG="$BASE"
-                echo "BASE ($BASE) > PROD ($PROD_LATEST) — using BASE as RC tag."
-              else
-                # PROD is >= BASE → BASE was already released (hotfix case).
-                # Bump the patch of PROD.
-                MAJOR_MINOR=$(echo "$PROD_LATEST" | sed -E 's/^(v[0-9]+\.[0-9]+)\.[0-9]+.*$/\1/')
-                PATCH=$(echo "$PROD_LATEST" | sed -E 's/^v[0-9]+\.[0-9]+\.([0-9]+).*$/\1/')
-                NEW_PATCH=$((PATCH + 1))
-                TAG="${MAJOR_MINOR}.${NEW_PATCH}"
-                echo "BASE ($BASE) <= PROD ($PROD_LATEST) — hotfix scenario. Bumping patch: $TAG"
-              fi
-            else
-              # CM PROD has no versions yet — use BASE.
-              TAG="$BASE"
-              echo "CM PROD is empty — using BASE as RC tag."
-            fi
-
-            echo "RC tag: $TAG"
-
-            echo "tag=$TAG" >> $GITHUB_OUTPUT
-            echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
-            echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
-            echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_PROD }}" >> $GITHUB_OUTPUT
-
-          # =====================================================================
-          # PRODUCTION — release.released (non-prerelease publish)
-          #
-          # Production does NOT rebuild anything. The images, installer, and
-          # changelog are all artifacts of the RC run. The production trigger
-          # only needs to tell CM "this version is now available to community
-          # instances" via a promote endpoint (TODO: define and wire up).
-          # =====================================================================
-          elif ${{ github.event_name == 'release' && github.event.action == 'released' }}; then
-            ENVIRONMENT="production"
-            CM_URL="https://cm.utmstack.com"
-            echo "Environment: $ENVIRONMENT"
-            echo "CM URL: $CM_URL"
-
             TAG="${{ github.event.release.tag_name }}"
-            echo "Tag from release: $TAG"
+            echo "Event: release, tag=$TAG"
 
             if [[ ! "$TAG" =~ ^v11\. ]]; then
               echo "⏭️ Skipping: tag '$TAG' is not a v11 release."
               exit 0
             fi
 
+            echo "Environment: production (our instances)"
+            echo "CM URL: $CM_URL"
+
             echo "tag=$TAG" >> $GITHUB_OUTPUT
-            echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+            echo "environment=production" >> $GITHUB_OUTPUT
             echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
             echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_PROD }}" >> $GITHUB_OUTPUT
           fi
@@ -163,7 +87,7 @@ jobs:
   build_agent:
     name: Build Agent Binaries
     needs: [setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
@@ -263,7 +187,7 @@ jobs:
   sign_agent_windows:
     name: Sign Windows Agent Binaries
     needs: [build_agent, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-sign-agent.yml
     with:
       os: windows
@@ -283,7 +207,7 @@ jobs:
   sign_agent_macos:
     name: Sign macOS Agent Binaries
     needs: [build_agent, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-sign-agent.yml
     with:
       os: macos
@@ -297,7 +221,7 @@ jobs:
   build_utmstack_collector:
     name: Build UTMStack Collector
     needs: [setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
@@ -331,7 +255,7 @@ jobs:
   build_agent_manager:
     name: Build Agent Manager Microservice
     needs: [sign_agent_windows, sign_agent_macos, build_utmstack_collector, setup_deployment]
-    if: ${{ always() && needs.sign_agent_windows.result == 'success' && needs.sign_agent_macos.result == 'success' && needs.build_utmstack_collector.result == 'success' && needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ always() && needs.sign_agent_windows.result == 'success' && needs.sign_agent_macos.result == 'success' && needs.build_utmstack_collector.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
@@ -425,7 +349,7 @@ jobs:
   build_event_processor:
     name: Build Event Processor Microservice
     needs: [setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
@@ -483,7 +407,7 @@ jobs:
   build_backend:
     name: Build Backend Microservice
     needs: [setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-java.yml
     with:
       image_name: backend
@@ -496,7 +420,7 @@ jobs:
   build_frontend:
     name: Build Frontend Microservice
     needs: [setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-node.yml
     with:
       image_name: frontend
@@ -505,7 +429,7 @@ jobs:
   build_user_auditor:
     name: Build User-Auditor Microservice
     needs: [setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-java.yml
     with:
       image_name: user-auditor
@@ -517,7 +441,7 @@ jobs:
   build_web_pdf:
     name: Build Web-PDF Microservice
     needs: [setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-java.yml
     with:
       image_name: web-pdf
@@ -541,12 +465,10 @@ jobs:
     steps:
       - run: echo "✅ All builds completed successfully."
 
-  # AI changelog runs only on RC. Production reuses the same release notes
-  # because the GitHub Release was already created during RC.
   generate_changelog:
     name: Generate Changelog
     needs: [all_builds_complete, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment == 'rc' }}
+    if: ${{ needs.setup_deployment.outputs.tag != '' && github.event_name == 'release' }}
     uses: ./.github/workflows/generate-changelog.yml
     with:
       current_tag: ${{ needs.setup_deployment.outputs.tag }}
@@ -554,20 +476,17 @@ jobs:
       THREATWINDS_API_KEY: ${{ secrets.THREATWINDS_API_KEY }}
       THREATWINDS_API_SECRET: ${{ secrets.THREATWINDS_API_SECRET }}
 
-  # Installer build runs only on RC. The resulting binary is uploaded to the
-  # GitHub Release as a prerelease asset. When the release is later promoted
-  # to non-prerelease (which triggers production), the installer is already
-  # there — no rebuild needed.
+  # Installer build runs on any GitHub release event (prerelease or not).
+  # The binary is uploaded to the release that triggered this pipeline.
   build_installer_release:
     name: Build & Upload Installer
     needs: [generate_changelog, setup_deployment]
-    if: ${{ always() && needs.setup_deployment.result == 'success' && needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment == 'rc' && needs.generate_changelog.result != 'cancelled' }}
+    if: ${{ always() && needs.setup_deployment.result == 'success' && needs.setup_deployment.outputs.tag != '' && github.event_name == 'release' && needs.generate_changelog.result != 'cancelled' }}
     uses: ./.github/workflows/installer-release.yml
     with:
       version: ${{ needs.setup_deployment.outputs.tag }}
       version_major: v11
-      environment: rc
-      prerelease: true
+      environment: ${{ needs.setup_deployment.outputs.environment }}
       changelog: ${{ needs.generate_changelog.outputs.changelog }}
     secrets:
       API_SECRET: ${{ secrets.API_SECRET }}
@@ -588,12 +507,10 @@ jobs:
       CM_ENCRYPT_SALT: ${{ secrets.CM_ENCRYPT_SALT }}
       CM_SIGN_PUBLIC_KEY: ${{ secrets.CM_SIGN_PUBLIC_KEY }}
 
-  # Publish a new version to CM. Runs for dev and rc — production does NOT
-  # re-publish because the rc run already registered v11.x.x in CM PROD.
   publish_new_version:
     name: Publish New Version to Customer Manager
     needs: [all_builds_complete, generate_changelog, setup_deployment]
-    if: ${{ always() && needs.all_builds_complete.result == 'success' && needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ always() && needs.all_builds_complete.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code
@@ -606,7 +523,7 @@ jobs:
           TAG: ${{ needs.setup_deployment.outputs.tag }}
           CM_URL: ${{ needs.setup_deployment.outputs.cm_url }}
         run: |
-          # Use AI changelog for rc / production, generic for dev.
+          # Use AI changelog for production releases, generic for dev.
           if [ "$ENVIRONMENT" != "dev" ] && [ -n "$CHANGELOG_CONTENT" ]; then
             changelog="$CHANGELOG_CONTENT"
           else
@@ -641,13 +558,10 @@ jobs:
 
           echo "Response: $response"
 
-  # Schedule the freshly-published version. For dev, this targets the dev
-  # instance list; for rc, the RC instance list. Production does NOT use this
-  # job — promotion to community lives in `promote_to_community` below.
   schedule:
     name: Schedule release to our instances
     needs: [publish_new_version, setup_deployment]
-    if: ${{ always() && needs.publish_new_version.result == 'success' && needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ always() && needs.publish_new_version.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
     env:
       ENVIRONMENT: ${{ needs.setup_deployment.outputs.environment }}
@@ -665,7 +579,6 @@ jobs:
             instance_ids="${{ vars.SCHEDULE_INSTANCES_DEV }}"
             auth_json='${{ secrets.CM_SERVICE_ACCOUNT_DEV }}'
           else
-            # rc uses prod variables
             instance_ids="${{ vars.SCHEDULE_INSTANCES_PROD }}"
             auth_json='${{ secrets.CM_SERVICE_ACCOUNT_PROD }}'
           fi
@@ -703,45 +616,5 @@ jobs:
 
           echo "✅ Scheduled release for all instances with version $TAG"
 
-  promote_to_community:
-    name: Promote to Community
-    needs: [setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment == 'production' }}
-    runs-on: ubuntu-24.04
-    env:
-      TAG: ${{ needs.setup_deployment.outputs.tag }}
-      CM_URL: ${{ needs.setup_deployment.outputs.cm_url }}
-    steps:
-      - name: Schedule update for all community instances
-        run: |
-          echo "🚀 Promoting $TAG to community"
-          echo "   CM URL: $CM_URL"
-
-          cmAuth=$(echo '${{ secrets.CM_SERVICE_ACCOUNT_PROD }}' | jq -r '.')
-          auth_id=$(echo "$cmAuth"  | jq -r '.id')
-          auth_key=$(echo "$cmAuth" | jq -r '.key')
-
-          body=$(jq -n \
-            --arg version "$TAG" \
-            '{version: $version, edition: "community"}')
-
-          response=$(curl -sS -w "\n%{http_code}" -X POST "${CM_URL}/api/v1/updates" \
-            -H "Content-Type: application/json" \
-            -H "id: $auth_id" \
-            -H "key: $auth_key" \
-            -d "$body")
-
-          http_code=$(echo "$response" | tail -n1)
-          payload=$(echo "$response" | sed '$d')
-
-          echo "HTTP $http_code"
-          echo "Response: $payload"
-
-          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
-            echo "✅ Community broadcast scheduled for $TAG"
-          else
-            echo "❌ Community broadcast failed (HTTP $http_code)"
-            exit 1
-          fi
 
 
