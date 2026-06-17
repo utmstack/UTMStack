@@ -153,6 +153,7 @@ export class IndexPatternCreateComponent implements OnInit {
     const req = {
       indexPattern: this.regex
     };
+    alert('2')
     this.elasticIndexService.getElasticIndexField(req).subscribe(fields => {
       filterFieldDataType(fields.body, ElasticDataTypesEnum.DATE).subscribe(field => {
         this.loadingFields = false;
