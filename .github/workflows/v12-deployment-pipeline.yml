@@ -16,6 +16,7 @@ jobs:
       environment: ${{ steps.set-env.outputs.environment }}
       cm_url: ${{ steps.set-env.outputs.cm_url }}
       event_processor_tag: ${{ steps.set-env.outputs.event_processor_tag }}
+      enterprise_version: ${{ steps.set-env.outputs.enterprise_version }}
     steps:
       - name: Determine Build Environment
         id: set-env
@@ -58,6 +59,7 @@ jobs:
             echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
             echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
             echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_DEV }}" >> $GITHUB_OUTPUT
+            echo "enterprise_version=${{ vars.ENTERPRISE_ARTIFACTS_VERSION_DEV }}" >> $GITHUB_OUTPUT
 
           # =====================================================================
           # PRODUCTION — release.published (prerelease or not)
@@ -82,8 +84,8 @@ jobs:
             echo "environment=production" >> $GITHUB_OUTPUT
             echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
             echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_PROD }}" >> $GITHUB_OUTPUT
+            echo "enterprise_version=${{ vars.ENTERPRISE_ARTIFACTS_VERSION_PROD }}" >> $GITHUB_OUTPUT
           fi
-
   build_agent:
     name: Build Agent Binaries
     needs: [setup_deployment]
@@ -183,7 +185,6 @@ jobs:
             agent/utmstack_agent_service_darwin_arm64
             agent/updater/utmstack_updater_service_darwin_arm64
           retention-days: 1
-
   sign_agent_windows:
     name: Sign Windows Agent Binaries
     needs: [build_agent, setup_deployment]
@@ -203,7 +204,6 @@ jobs:
         updater/utmstack_updater_service_windows_amd64.exe
         updater/utmstack_updater_service_windows_arm64.exe
     secrets: inherit
-
   sign_agent_macos:
     name: Sign macOS Agent Binaries
     needs: [build_agent, setup_deployment]
@@ -217,7 +217,6 @@ jobs:
         utmstack_agent_service_darwin_arm64
         updater/utmstack_updater_service_darwin_arm64
     secrets: inherit
-
   build_utmstack_collector:
     name: Build UTMStack Collector
     needs: [setup_deployment]
@@ -230,28 +229,26 @@ jobs:
       - name: Build UTMStack Collectors
         run: |
           echo "Building UTMStack Collector..."
-          cd ${{ github.workspace }}/utmstack-collector
-
-          GOOS=linux GOARCH=amd64 go build -o utmstack_collector -v -ldflags "-X 'github.com/utmstack/UTMStack/utmstack-collector/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+          cd ${{ github.workspace }}/collectors/utmstack
+          GOOS=linux GOARCH=amd64 go build -o utmstack_collector -v -ldflags "-X 'github.com/utmstack/UTMStack/collectors/utmstack/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
           echo "Building UTMStack AS400 Collector..."
+          cd ${{ github.workspace }}/collectors/as400
+          GOOS=linux GOARCH=amd64 go build -o utmstack_as400_collector_service -v -ldflags "-X 'github.com/utmstack/UTMStack/collectors/as400/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
-          cd ${{ github.workspace }}/as400
-          GOOS=linux GOARCH=amd64 go build -o utmstack_as400_collector_service -v -ldflags "-X 'github.com/utmstack/UTMStack/as400/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
-
-          cd ${{ github.workspace }}/as400/updater
-          GOOS=linux GOARCH=amd64 go build -o utmstack_as400_updater_service -v .
+          echo "Building UTMStack Forwarder..."
+          cd ${{ github.workspace }}/collectors/forwarder
+          GOOS=linux GOARCH=amd64 go build -o utmstack_forwarder -v -ldflags "-X 'github.com/utmstack/UTMStack/collectors/forwarder/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
       - name: Upload collector binary as artifact
         uses: actions/upload-artifact@v4
         with:
           name: utmstack-collectors
           path: |
-            ${{ github.workspace }}/utmstack-collector/utmstack_collector
-            ${{ github.workspace }}/as400/utmstack_as400_collector_service
-            ${{ github.workspace }}/as400/updater/utmstack_as400_updater_service
+            ${{ github.workspace }}/collectors/utmstack/utmstack_collector
+            ${{ github.workspace }}/collectors/as400/utmstack_as400_collector_service
+            ${{ github.workspace }}/collectors/forwarder/utmstack_forwarder
           retention-days: 1
-
   build_agent_manager:
     name: Build Agent Manager Microservice
     needs: [sign_agent_windows, sign_agent_macos, build_utmstack_collector, setup_deployment]
@@ -277,7 +274,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: utmstack-collectors
-          path: ${{ github.workspace }}/utmstack-collector
+          path: ${{ github.workspace }}/collector-binaries
 
       - name: Download signed macOS agents from artifact
         uses: actions/download-artifact@v4
@@ -286,20 +283,30 @@ jobs:
           path: ${{ github.workspace }}/agent-darwin
 
       - name: Prepare dependencies for Agent Manager Image
+        env:
+          GH_TOKEN: ${{ secrets.READ_PRIVATE_REPO }}
+          ENTERPRISE_VERSION: ${{ needs.setup_deployment.outputs.enterprise_version }}
         run: |
           cd ${{ github.workspace }}/agent-manager
           GOOS=linux GOARCH=amd64  go build -o agent-manager -v .
 
           mkdir -p ./dependencies/collector
-          cp "${{ github.workspace }}/utmstack-collector/utmstack-collector/utmstack_collector" ./dependencies/collector/
-          cp "${{ github.workspace }}/utmstack-collector/version.json" ./dependencies/collector/
+          cp "${{ github.workspace }}/collector-binaries/utmstack/utmstack_collector" ./dependencies/collector/
+          cp "${{ github.workspace }}/collectors/utmstack/version.json" ./dependencies/collector/
 
           mkdir -p ./dependencies/collector/as400
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/collector/as400-collector.jar" -o ./dependencies/collector/as400/as400-collector.jar
+          gh release download "$ENTERPRISE_VERSION" \
+            --repo utmstack/UTMStackEnterprise \
+            --pattern as400-collector.jar \
+            --output ./dependencies/collector/as400/as400-collector.jar \
+            --clobber
 
-          cp "${{ github.workspace }}/as400/version.json" ./dependencies/collector/as400/
-          cp "${{ github.workspace }}/utmstack-collector/as400/utmstack_as400_collector_service" ./dependencies/collector/as400/
-          cp "${{ github.workspace }}/utmstack-collector/as400/updater/utmstack_as400_updater_service" ./dependencies/collector/as400/
+          cp "${{ github.workspace }}/collectors/as400/version.json" ./dependencies/collector/as400/
+          cp "${{ github.workspace }}/collector-binaries/as400/utmstack_as400_collector_service" ./dependencies/collector/as400/
+
+          mkdir -p ./dependencies/collector/forwarder
+          cp "${{ github.workspace }}/collector-binaries/forwarder/utmstack_forwarder" ./dependencies/collector/forwarder/
+          cp "${{ github.workspace }}/collectors/forwarder/version.json" ./dependencies/collector/forwarder/
 
           mkdir -p ./dependencies/agent/
 
@@ -318,7 +325,11 @@ jobs:
           # macOS agents (signed and notarized)
           cp "${{ github.workspace }}/agent-darwin/utmstack_agent_service_darwin_arm64" ./dependencies/agent/
           cp "${{ github.workspace }}/agent-darwin/updater/utmstack_updater_service_darwin_arm64" ./dependencies/agent/
-          curl -sSL "https://storage.googleapis.com/utmstack-updates/agent_updates/release/macos-agent/latest/utmstack-collector-mac" -o ./dependencies/agent/utmstack-collector-mac
+          gh release download "$ENTERPRISE_VERSION" \
+            --repo utmstack/UTMStackEnterprise \
+            --pattern utmstack-collector-mac \
+            --output ./dependencies/agent/utmstack-collector-mac \
+            --clobber
 
           # TODO: Remove legacy binary names after all agents have migrated to new naming convention
           # Legacy names for backwards compatibility with existing agents
@@ -345,7 +356,6 @@ jobs:
           push: true
           provenance: false
           tags: ghcr.io/utmstack/utmstack/agent-manager:${{ needs.setup_deployment.outputs.tag }}
-
   build_event_processor:
     name: Build Event Processor Microservice
     needs: [setup_deployment]
@@ -364,7 +374,6 @@ jobs:
           cd ${{ github.workspace }}/plugins/aws; go build -o com.utmstack.aws.plugin -v .
           cd ${{ github.workspace }}/plugins/azure; go build -o com.utmstack.azure.plugin -v .
           cd ${{ github.workspace }}/plugins/bitdefender; go build -o com.utmstack.bitdefender.plugin -v .
-          cd ${{ github.workspace }}/plugins/config; go build -o com.utmstack.config.plugin -v .
           cd ${{ github.workspace }}/plugins/events; go build -o com.utmstack.events.plugin -v .
           cd ${{ github.workspace }}/plugins/gcp; go build -o com.utmstack.gcp.plugin -v .
           cd ${{ github.workspace }}/plugins/geolocation; go build -o com.utmstack.geolocation.plugin -v .
@@ -373,11 +382,15 @@ jobs:
           cd ${{ github.workspace }}/plugins/sophos; go build -o com.utmstack.sophos.plugin -v .
           cd ${{ github.workspace }}/plugins/stats; go build -o com.utmstack.stats.plugin -v .
           cd ${{ github.workspace }}/plugins/soc-ai; go build -o com.utmstack.soc-ai.plugin -v .
-          cd ${{ github.workspace }}/plugins/modules-config; go build -o com.utmstack.modules-config.plugin -v .
           cd ${{ github.workspace }}/plugins/crowdstrike; go build -o com.utmstack.crowdstrike.plugin -v .
           cd ${{ github.workspace }}/plugins/feeds; go build -o com.utmstack.feeds.plugin -v .
+          cd ${{ github.workspace }}/plugins/ad-audit; go build -o com.utmstack.ad-audit.plugin -v .
+          cd ${{ github.workspace }}/plugins/soar; go build -o com.utmstack.soar.plugin -v .
 
       - name: Prepare Dependencies for Event Processor Image
+        env:
+          GH_TOKEN: ${{ secrets.READ_PRIVATE_REPO }}
+          ENTERPRISE_VERSION: ${{ needs.setup_deployment.outputs.enterprise_version }}
         run: |
           mkdir -p ./geolocation
           curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/geolocation/asn-blocks-v4.csv" -o ./geolocation/asn-blocks-v4.csv
@@ -385,6 +398,15 @@ jobs:
           curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/geolocation/blocks-v4.csv" -o ./geolocation/blocks-v4.csv
           curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/geolocation/blocks-v6.csv" -o ./geolocation/blocks-v6.csv
           curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/geolocation/locations-en.csv" -o ./geolocation/locations-en.csv
+
+          # Enterprise entitlements plugin (prebuilt, from private UTMStackEnterprise release)
+          mkdir -p ./plugins/entitlements
+          gh release download "$ENTERPRISE_VERSION" \
+            --repo utmstack/UTMStackEnterprise \
+            --pattern entitlements \
+            --output ./plugins/entitlements/com.utmstack.entitlements.plugin \
+            --clobber
+          chmod +x ./plugins/entitlements/com.utmstack.entitlements.plugin
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -403,20 +425,25 @@ jobs:
           tags: ghcr.io/utmstack/utmstack/eventprocessor:${{ needs.setup_deployment.outputs.tag }}
           build-args: |
             BASE_IMAGE=ghcr.io/threatwinds/eventprocessor/base:${{ needs.setup_deployment.outputs.event_processor_tag }}
-
   build_backend:
     name: Build Backend Microservice
     needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
-    uses: ./.github/workflows/reusable-java.yml
+    uses: ./.github/workflows/reusable-golang.yml
     with:
       image_name: backend
       tag: ${{ needs.setup_deployment.outputs.tag }}
-      java_version: '17'
-      use_tag_as_version: true
-      maven_profile: 'prod'
-      maven_goals: 'clean package'
-      copy_filters_and_rules: true
+      build_context: "."
+      dockerfile: "./backend/Dockerfile"
+      # NOTE: `secrets.*` is NOT allowed in `with:`. The values are passed via the
+      # `secrets:` block below and expanded here as shell env vars at build time.
+      flags: >-
+        -X 'github.com/utmstack/utmstack/backend/modules/billing.PublicKey=${CM_SIGN_PUBLIC_KEY}'
+        -X 'github.com/utmstack/utmstack/backend/modules/billing.EncryptSalt=${CM_ENCRYPT_SALT}'
+    secrets:
+      API_SECRET: ${{ secrets.API_SECRET }}
+      CM_SIGN_PUBLIC_KEY: ${{ secrets.CM_SIGN_PUBLIC_KEY }}
+      CM_ENCRYPT_SALT: ${{ secrets.CM_ENCRYPT_SALT }}
   build_frontend:
     name: Build Frontend Microservice
     needs: [setup_deployment]
@@ -425,46 +452,18 @@ jobs:
     with:
       image_name: frontend
       tag: ${{ needs.setup_deployment.outputs.tag }}
-
-  build_user_auditor:
-    name: Build User-Auditor Microservice
-    needs: [setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' }}
-    uses: ./.github/workflows/reusable-java.yml
-    with:
-      image_name: user-auditor
-      tag: ${{ needs.setup_deployment.outputs.tag }}
-      java_version: '11'
-      use_version_file: false
-      maven_goals: 'clean install -U'
-
-  build_web_pdf:
-    name: Build Web-PDF Microservice
-    needs: [setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' }}
-    uses: ./.github/workflows/reusable-java.yml
-    with:
-      image_name: web-pdf
-      tag: ${{ needs.setup_deployment.outputs.tag }}
-      java_version: '11'
-      use_version_file: false
-      maven_goals: 'clean install -U'
-
   all_builds_complete:
     name: All Builds Complete
     needs: [
       build_agent_manager,
       build_event_processor,
       build_backend,
-      build_frontend,
-      build_user_auditor,
-      build_web_pdf
+      build_frontend
     ]
-    if: ${{ always() && needs.build_agent_manager.result == 'success' && needs.build_event_processor.result == 'success' && needs.build_backend.result == 'success' && needs.build_frontend.result == 'success' && needs.build_user_auditor.result == 'success' && needs.build_web_pdf.result == 'success' }}
+    if: ${{ always() && needs.build_agent_manager.result == 'success' && needs.build_event_processor.result == 'success' && needs.build_backend.result == 'success' && needs.build_frontend.result == 'success' }}
     runs-on: ubuntu-24.04
     steps:
       - run: echo "✅ All builds completed successfully."
-
   generate_changelog:
     name: Generate Changelog
     needs: [all_builds_complete, setup_deployment]
@@ -492,7 +491,6 @@ jobs:
       API_SECRET: ${{ secrets.API_SECRET }}
       CM_ENCRYPT_SALT: ${{ secrets.CM_ENCRYPT_SALT }}
       CM_SIGN_PUBLIC_KEY: ${{ secrets.CM_SIGN_PUBLIC_KEY }}
-
   deploy_installer_dev:
     name: Deploy Installer (Dev)
     needs: [all_builds_complete, setup_deployment]
@@ -506,7 +504,6 @@ jobs:
       API_SECRET: ${{ secrets.API_SECRET }}
       CM_ENCRYPT_SALT: ${{ secrets.CM_ENCRYPT_SALT }}
       CM_SIGN_PUBLIC_KEY: ${{ secrets.CM_SIGN_PUBLIC_KEY }}
-
   publish_new_version:
     name: Publish New Version to Customer Manager
     needs: [all_builds_complete, generate_changelog, setup_deployment]
@@ -557,7 +554,6 @@ jobs:
             -d "$body")
 
           echo "Response: $response"
-
   schedule:
     name: Schedule release to our instances
     needs: [publish_new_version, setup_deployment]
@@ -615,6 +611,3 @@ jobs:
           done
 
           echo "✅ Scheduled release for all instances with version $TAG"
-
-
-
