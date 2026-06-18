@@ -1,6 +1,7 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {UserRouteAccessService} from './core/auth/user-route-access-service';
+import {WelcomeComponent as FederationWelcomeComponent} from './federation/pages/welcome/welcome.component';
 import {ConfirmIdentityComponent} from './shared/components/auth/confirm-identity/confirm-identity.component';
 import {LoginComponent} from './shared/components/auth/login/login.component';
 import {
@@ -151,6 +152,16 @@ const routes: Routes = [
     loadChildren: './rule-management/rule-management.module#RuleManagementModule',
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
+  },
+  {
+    path: 'federation',
+    canActivate: [UserRouteAccessService],
+    data: {authorities: [ADMIN_ROLE, USER_ROLE]},
+    children: [
+      {path: '', redirectTo: 'welcome', pathMatch: 'full'},
+      {path: 'welcome', component: FederationWelcomeComponent},
+      {path: 'instances', component: FederationWelcomeComponent}
+    ]
   },
   {path: '', component: LoginComponent},
   {path: 'totp', component: TotpComponent},

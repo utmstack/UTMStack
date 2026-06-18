@@ -5,7 +5,6 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {InlineSVGModule} from 'ng-inline-svg';
 import {InstanceFormModalComponent} from './components/instance-form-modal/instance-form-modal.component';
 import {InstanceSwitcherComponent} from './components/instance-switcher/instance-switcher.component';
-import {FederationRoutingModule} from './federation-routing.module';
 import {WelcomeComponent} from './pages/welcome/welcome.component';
 
 @NgModule({
@@ -13,8 +12,7 @@ import {WelcomeComponent} from './pages/welcome/welcome.component';
     CommonModule,
     FormsModule,
     NgbModule,
-    InlineSVGModule,
-    FederationRoutingModule
+    InlineSVGModule
   ],
   declarations: [
     InstanceSwitcherComponent,

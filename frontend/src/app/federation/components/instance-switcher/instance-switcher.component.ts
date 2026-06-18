@@ -2,6 +2,9 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
+import {
+  ModalConfirmationComponent
+} from '../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {FederationInstance} from '../../domain/federation-instance.model';
 import {FederationInstanceStateService} from '../../services/federation-instance-state.service';
 import {FederationInstancesService} from '../../services/federation-instances.service';
@@ -81,10 +84,19 @@ export class InstanceSwitcherComponent implements OnInit, OnDestroy {
     if (this.pendingDeleteId !== null) {
       return;
     }
-    const confirmed = window.confirm(`Remove instance "${instance.name}"?`);
-    if (!confirmed) {
-      return;
-    }
+    const modalRef = this.modalService.open(ModalConfirmationComponent, {backdrop: 'static', centered: true});
+    modalRef.componentInstance.header = 'Remove federation instance';
+    modalRef.componentInstance.message = `Are you sure that you want to remove the instance: \n${instance.name}?`;
+    modalRef.componentInstance.confirmBtnText = 'Remove';
+    modalRef.componentInstance.confirmBtnIcon = 'icon-cancel-circle2';
+    modalRef.componentInstance.confirmBtnType = 'delete';
+    modalRef.componentInstance.textDisplay = 'Requests routed to this instance will stop working' +
+      ' and its locally stored selection will be cleared.';
+    modalRef.componentInstance.textType = 'warning';
+    modalRef.result.then(() => this.confirmRemove(instance), () => undefined);
+  }
+
+  private confirmRemove(instance: FederationInstance): void {
     this.pendingDeleteId = instance.id;
     this.errorMessage = null;
     this.instancesService.delete(instance.id).subscribe({
