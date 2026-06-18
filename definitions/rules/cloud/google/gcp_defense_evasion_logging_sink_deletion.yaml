@@ -23,7 +23,7 @@
     - "https://attack.mitre.org/techniques/T1562/"
     - "https://attack.mitre.org/tactics/TA0005/"
   where: |
-    regexMatch("log.protoPayload.methodName", "((.+)?sink(s)?\\.delete|(.+)?v(\\w+)\\.ConfigServiceV(\\w+)\\.DeleteSink)")
+    regexMatch("log.protoPayloadMethodName", "((.+)?sink(s)?\\.delete|(.+)?v(\\w+)\\.ConfigServiceV(\\w+)\\.DeleteSink)")
   groupBy:
     - adversary.ip
     - adversary.user

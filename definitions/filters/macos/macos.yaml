@@ -26,3 +26,7 @@ pipeline:
           from:
             - log.threadidentifier
           to: log.threadIdentifier
+
+      # Drop unnecessary events
+      - drop:
+          where: equals("log.level", "notice") && contains("log.subsystem", "com.apple.cloudkit") || contains("log.subsystem", "com.apple.CoreDuet") || oneOf("log.subsystem", ["com.apple.apsd", "com.apple.bluetooth", "com.apple.SkyLight", "com.apple.mDNSResponder", "com.apple.homed", "com.apple.identityservicesd", "com.apple.powerlogd", "com.apple.analyticsd", "com.apple.UIKit", "com.apple.runningboard", "com.apple.WiFiManager", "com.apple.xpc", "com.apple.cache_delete", "com.apple.spotlightindex"])

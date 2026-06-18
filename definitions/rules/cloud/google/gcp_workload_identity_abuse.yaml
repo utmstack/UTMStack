@@ -26,11 +26,11 @@
     7. Audit all existing workload identity configurations for unauthorized providers
     8. Implement Organization Policy to restrict workload identity pool creation
   where: |
-    contains("log.protoPayload.serviceName", "iam.googleapis.com") &&
-    (contains("log.protoPayload.methodName", "CreateWorkloadIdentityPool") ||
-     contains("log.protoPayload.methodName", "CreateWorkloadIdentityPoolProvider") ||
-     contains("log.protoPayload.methodName", "UpdateWorkloadIdentityPool") ||
-     contains("log.protoPayload.methodName", "UpdateWorkloadIdentityPoolProvider"))
+    contains("log.protoPayloadServiceName", "iam.googleapis.com") &&
+    (contains("log.protoPayloadMethodName", "CreateWorkloadIdentityPool") ||
+     contains("log.protoPayloadMethodName", "CreateWorkloadIdentityPoolProvider") ||
+     contains("log.protoPayloadMethodName", "UpdateWorkloadIdentityPool") ||
+     contains("log.protoPayloadMethodName", "UpdateWorkloadIdentityPoolProvider"))
   groupBy:
-    - lastEvent.log.protoPayload.methodName
+    - lastEvent.log.protoPayloadMethodName
     - adversary.user

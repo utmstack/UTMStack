@@ -16,7 +16,7 @@
     - https://attack.mitre.org/techniques/T1078/
   description: |
     Detects suspicious sign-in attempts to Google Cloud Identity, including logins from unfamiliar locations, unusual IP addresses, or after multiple failed attempts. These could indicate compromised credentials or unauthorized access attempts.
-  
+    
     Next Steps:
     1. Verify the legitimacy of the login attempt with the user
     2. Check if the IP address is from a known malicious source
@@ -25,12 +25,12 @@
     5. If confirmed malicious, reset user credentials immediately
     6. Review access logs for any unauthorized activities
   where: |
-    equals("log.protoPayload.serviceName", "login.googleapis.com") && 
+    equals("log.protoPayloadServiceName", "login.googleapis.com") && 
     (
       equals("log.protoPayload.metadata.event.type", "Suspicious Login") ||
       (equals("log.protoPayload.metadata.event.type", "login") && equals("log.protoPayload.metadata.event.parameter.is_suspicious", true)) ||
       equals("log.protoPayload.metadata.event.parameter.is_suspicious", true)
     )
   groupBy:
-    - lastEvent.log.protoPayload.authenticationInfo.principalEmail
+    - lastEvent.origin.user
     - adversary.ip

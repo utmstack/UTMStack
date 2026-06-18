@@ -47,6 +47,11 @@ pipeline:
 
       - rename:
           from:
+            - log.data.SubStatus
+          to: log.eventDataSubStatus
+
+      - rename:
+          from:
             - log.data.PrivilegeList
           to: log.eventDataPrivilegeList
 

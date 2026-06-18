@@ -26,13 +26,13 @@
     7. Review VPC Service Controls for the project
     8. Enable Cloud Storage audit logging for data access events
   where: |
-    contains("log.protoPayload.serviceName", "storage.googleapis.com") &&
-    (contains("log.protoPayload.methodName", "storage.setIamPermissions") ||
-     contains("log.protoPayload.methodName", "storage.buckets.update") ||
-     contains("log.protoPayload.methodName", "storage.objects.update")) &&
+    contains("log.protoPayloadServiceName", "storage.googleapis.com") &&
+    (contains("log.protoPayloadMethodName", "storage.setIamPermissions") ||
+     contains("log.protoPayloadMethodName", "storage.buckets.update") ||
+     contains("log.protoPayloadMethodName", "storage.objects.update")) &&
     (contains("log.protoPayload.request.policy.bindings", "allUsers") ||
      contains("log.protoPayload.request.policy.bindings", "allAuthenticatedUsers") ||
      contains("log.protoPayload.request.acl", "allUsers"))
   groupBy:
-    - lastEvent.log.protoPayload.resourceName
+    - lastEvent.log.protoPayloadResourceName
     - adversary.user

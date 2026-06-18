@@ -25,10 +25,10 @@
     6. Scan the deployed container for vulnerabilities and malware
     7. Review cluster activity following the deployment
   where: |
-    (equals("log.protoPayload.serviceName", "binaryauthorization.googleapis.com") &&
+    (equals("log.protoPayloadServiceName", "binaryauthorization.googleapis.com") &&
     contains("log.protoPayload.response", "breakglass")) ||
-    (contains("log.protoPayload.methodName", "container.clusters") &&
+    (contains("log.protoPayloadMethodName", "container.clusters") &&
     contains("log.protoPayload.request", "breakglass"))
   groupBy:
-    - lastEvent.log.protoPayload.authenticationInfo.principalEmail
-    - lastEvent.log.protoPayload.resourceName
+    - lastEvent.origin.user
+    - lastEvent.log.protoPayloadResourceName

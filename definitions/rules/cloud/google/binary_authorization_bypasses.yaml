@@ -16,7 +16,7 @@
     - https://attack.mitre.org/techniques/T1553/
   description: |
     Detects attempts to bypass Binary Authorization controls including use of breakglass deployments, policy violations, and unauthorized container deployments. These events could indicate attempts to deploy untrusted or malicious container images.
-  
+    
     Next Steps:
     1. Verify the legitimacy of the breakglass deployment or policy bypass
     2. Review the container image source and verify its authenticity
@@ -26,7 +26,7 @@
     6. Monitor for any subsequent suspicious activity from deployed containers
   where: |
     (
-      equals("log.protoPayload.serviceName", "binaryauthorization.googleapis.com") && 
+      equals("log.protoPayloadServiceName", "binaryauthorization.googleapis.com") && 
       (
         contains("log.logName", "cloudaudit.googleapis.com/system_event") &&
         (contains("log.protoPayload.response.details", "breakglass") || equals("log.jsonPayload.breakglass", true))
@@ -42,5 +42,5 @@
       )
     )
   groupBy:
-    - lastEvent.log.protoPayload.authenticationInfo.principalEmail
-    - lastEvent.log.protoPayload.resourceName
+    - lastEvent.origin.user
+    - lastEvent.log.protoPayloadResourceName

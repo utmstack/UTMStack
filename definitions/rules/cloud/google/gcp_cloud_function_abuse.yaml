@@ -26,12 +26,12 @@
     7. Review invocation logs for the function
     8. Implement Organization Policy to restrict Cloud Function deployment
   where: |
-    ((contains("log.protoPayload.serviceName", "cloudfunctions.googleapis.com") &&
-      (contains("log.protoPayload.methodName", "CreateFunction") ||
-       contains("log.protoPayload.methodName", "UpdateFunction"))) ||
-     (contains("log.protoPayload.serviceName", "run.googleapis.com") &&
-      (contains("log.protoPayload.methodName", "CreateService") ||
-       contains("log.protoPayload.methodName", "ReplaceService"))))
+    ((contains("log.protoPayloadServiceName", "cloudfunctions.googleapis.com") &&
+      (contains("log.protoPayloadMethodName", "CreateFunction") ||
+       contains("log.protoPayloadMethodName", "UpdateFunction"))) ||
+     (contains("log.protoPayloadServiceName", "run.googleapis.com") &&
+      (contains("log.protoPayloadMethodName", "CreateService") ||
+       contains("log.protoPayloadMethodName", "ReplaceService"))))
   groupBy:
-    - lastEvent.log.protoPayload.methodName
+    - lastEvent.log.protoPayloadMethodName
     - adversary.user

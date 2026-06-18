@@ -1,7 +1,8 @@
-# GCP filter, version 2.1.2
-# 
+# GCP filter, version 2.2.0
+#
 # Documentations
 # 1- https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry
+# 2- https://cloud.google.com/logging/docs/audit (protoPayload / AuditLog)
 
 pipeline:
   - dataTypes:
@@ -252,6 +253,75 @@ pipeline:
           to: log.resourceType
 
       # .......................................................................#
+      # Renaming protoPayload fields (Cloud Audit Logs — AuditLog message)
+      # .......................................................................#
+      # NOTE: log.protoPayload.@type is NOT renamed here. The engine treats
+      # paths containing '@' as complex and the rename plugin errors with
+      # "cannot delete value from a complex path". The whole log.protoPayload
+      # subtree is dropped in the final delete step, so the field is cleaned
+      # up implicitly. We use log.protoPayloadMethodName (always present in
+      # AuditLog) as the discriminator for protoPayload-derived actionResult.
+      - rename:
+          from:
+            - log.protoPayload.authenticationInfo.principalEmail
+          to: origin.user
+
+      - rename:
+          from:
+            - log.protoPayload.authenticationInfo.principalSubject
+          to: log.protoPayloadPrincipalSubject
+
+      - rename:
+          from:
+            - log.protoPayload.authenticationInfo.oauthInfo.oauthClientId
+          to: log.protoPayloadOauthClientId
+
+      - rename:
+          from:
+            - log.protoPayload.requestMetadata.callerIp
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.protoPayload.requestMetadata.callerSuppliedUserAgent
+          to: log.httpUserAgent
+
+      - rename:
+          from:
+            - log.protoPayload.methodName
+          to: log.protoPayloadMethodName
+
+      - rename:
+          from:
+            - log.protoPayload.serviceName
+          to: log.protoPayloadServiceName
+
+      - rename:
+          from:
+            - log.protoPayload.resourceName
+          to: log.protoPayloadResourceName
+
+      - rename:
+          from:
+            - log.protoPayload.resourceLocation.currentLocations
+          to: log.protoPayloadResourceLocation
+
+      - rename:
+          from:
+            - log.protoPayload.authorizationInfo
+          to: log.protoPayloadAuthorizationInfo
+
+      - rename:
+          from:
+            - log.protoPayload.status.code
+          to: log.protoPayloadStatusCode
+
+      - rename:
+          from:
+            - log.protoPayload.status.message
+          to: log.protoPayloadStatusMessage
+
+      # .......................................................................#
       # Renaming operation field
       # .......................................................................#
       - rename:
@@ -301,6 +371,11 @@ pipeline:
       - cast:
           fields:
             - statusCode
+          to: int
+
+      - cast:
+          fields:
+            - log.protoPayloadStatusCode
           to: int
 
       # Adding severity field based on log.severity
@@ -382,6 +457,34 @@ pipeline:
             key: actionResult
             value: "denied"
           where: equals("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome", "DENY")
+
+      # Adding actionResult for Cloud Audit Logs (protoPayload):
+      # In GCP AuditLog, status.code follows google.rpc.Code — 0/absent = OK,
+      # any non-zero code = error. We only apply this when the event is an
+      # AuditLog (log.protoPayloadMethodName is always present in AuditLog;
+      # used as discriminator since log.protoPayload.@type can't be renamed
+      # due to the '@' character) so non-audit logs keep their existing
+      # actionResult derivation.
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "success"
+          where: 'exists("log.protoPayloadMethodName") && !exists("log.protoPayloadStatusCode")'
+
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "success"
+          where: 'exists("log.protoPayloadMethodName") && equals("log.protoPayloadStatusCode", 0)'
+
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "failure"
+          where: 'exists("log.protoPayloadMethodName") && greaterThan("log.protoPayloadStatusCode", 0)'
 
       # Adding geolocation to origin.ip
       - dynamic:

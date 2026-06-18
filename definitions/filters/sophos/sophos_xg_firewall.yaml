@@ -1,4 +1,4 @@
-# Sophos_XG filter, version 3.0.5
+# Sophos_XG filter, version 3.0.6
 # Supports SF 20.0 version log types
 # See manual: https://docs.sophos.com/nsg/sophos-firewall/20.0/pdf/sf-syslog-guide-20.0.pdf
 # and documentation https://docs.sophos.com/nsg/sophos-firewall/20.0/Help/en-us/webhelp/onlinehelp/AdministratorHelp/Logs/TroubleshootingLogs/LogFileDetails/index.html#https-ftp-waf
@@ -318,6 +318,7 @@ pipeline:
           from:
             - log.statuscode
           to: log.statusCode
+          where: exists("log.statuscode")
 
       - rename:
           from:
@@ -682,11 +683,27 @@ pipeline:
             - origin.bytesSent
           to: float
 
+      # Adding actionResult based on log.subtype value
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: exists("log.subType") && equals("log.subType", "Denied")
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where: exists("log.subType") && equals("log.subType", "Accepted") || equals("log.subType", "Allowed")
+
       # Renaming "log.statusCode" to "statusCode" to add it to the event structure
       - rename:
           from:
             - log.statusCode
           to: statusCode
+          where: exists("log.statusCode")
 
       # Adding actionResult
       # denied by default
@@ -695,13 +712,14 @@ pipeline:
           params:
             key: actionResult
             value: 'denied'
+          where: exists("statusCode")
 
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: (greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 299)) || (greaterOrEqual("statusCode", 300) && lessOrEqual("statusCode", 399) && greaterThan("origin.bytesReceived", 0))
+          where: exists("statusCode") && ((greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 299)) || (greaterOrEqual("statusCode", 300) && lessOrEqual("statusCode", 399) && greaterThan("origin.bytesReceived", 0)))
 
       # Removing unused fields
       - delete:
