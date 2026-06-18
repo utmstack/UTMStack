@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import { cn } from '@/shared/lib/utils'
 import { DatasourceLimitBanner } from '@/features/datasources/components/DatasourceLimitBanner'
 import { SocAiFloating, SocAiPanel, SocAiProvider, useSocAiConfigured } from '@/features/soc-ai'
+import { AdminSetupGate } from '@/features/onboarding/AdminSetupGate'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 
@@ -31,6 +32,8 @@ export function DashboardLayout() {
             <SocAiPanel />
           </>
         )}
+        {/* First-run: force the admin to set a real email before using the app. */}
+        <AdminSetupGate />
       </div>
     </SocAiProvider>
   )

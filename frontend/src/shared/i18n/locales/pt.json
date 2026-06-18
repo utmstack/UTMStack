@@ -1,4 +1,16 @@
 {
+  "onboarding": {
+    "adminEmail": {
+      "title": "Defina o e-mail do administrador",
+      "subtitle": "Obrigatório antes de continuar",
+      "description": "Sua conta de administrador ainda usa o e-mail padrão. Defina um endereço real — ele é necessário para recuperação de senha, notificações e e-mails de alerta.",
+      "emailLabel": "Endereço de e-mail",
+      "save": "Salvar e continuar",
+      "saving": "Salvando…",
+      "success": "E-mail do administrador definido. Agora configure seu servidor de e-mail.",
+      "error": "Não foi possível salvar seu e-mail. Tente novamente."
+    }
+  },
   "common": {
     "appName": "UTMStack",
     "language": "Idioma",

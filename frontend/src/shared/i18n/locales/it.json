@@ -1,4 +1,16 @@
 {
+  "onboarding": {
+    "adminEmail": {
+      "title": "Imposta l'email dell'amministratore",
+      "subtitle": "Richiesto prima di continuare",
+      "description": "Il tuo account amministratore usa ancora l'email predefinita. Imposta un indirizzo reale — serve per il recupero della password, le notifiche e le email di avviso.",
+      "emailLabel": "Indirizzo email",
+      "save": "Salva e continua",
+      "saving": "Salvataggio…",
+      "success": "Email dell'amministratore impostata. Ora configura il tuo server di posta.",
+      "error": "Impossibile salvare la tua email. Riprova."
+    }
+  },
   "common": {
     "appName": "UTMStack",
     "language": "Lingua",

@@ -1,4 +1,16 @@
 {
+  "onboarding": {
+    "adminEmail": {
+      "title": "Définir l'e-mail de l'administrateur",
+      "subtitle": "Requis avant de continuer",
+      "description": "Votre compte administrateur utilise encore l'e-mail par défaut. Définissez une adresse réelle — elle est nécessaire pour la récupération du mot de passe, les notifications et les e-mails d'alerte.",
+      "emailLabel": "Adresse e-mail",
+      "save": "Enregistrer et continuer",
+      "saving": "Enregistrement…",
+      "success": "E-mail de l'administrateur défini. Configurez ensuite votre serveur de messagerie.",
+      "error": "Impossible d'enregistrer votre e-mail. Veuillez réessayer."
+    }
+  },
   "common": {
     "appName": "UTMStack",
     "language": "Langue",

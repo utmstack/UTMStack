@@ -1,4 +1,16 @@
 {
+  "onboarding": {
+    "adminEmail": {
+      "title": "Administrator-E-Mail festlegen",
+      "subtitle": "Erforderlich, bevor Sie fortfahren",
+      "description": "Ihr Administratorkonto verwendet noch die Standard-E-Mail. Legen Sie eine echte Adresse fest — sie wird für Passwort-Wiederherstellung, Benachrichtigungen und Alarm-E-Mails benötigt.",
+      "emailLabel": "E-Mail-Adresse",
+      "save": "Speichern und fortfahren",
+      "saving": "Wird gespeichert…",
+      "success": "Administrator-E-Mail festgelegt. Konfigurieren Sie als Nächstes Ihren Mailserver.",
+      "error": "Ihre E-Mail konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
+    }
+  },
   "common": {
     "appName": "UTMStack",
     "language": "Sprache",

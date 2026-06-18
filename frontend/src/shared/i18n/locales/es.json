@@ -1,4 +1,16 @@
 {
+  "onboarding": {
+    "adminEmail": {
+      "title": "Configura el email del administrador",
+      "subtitle": "Requerido antes de continuar",
+      "description": "Tu cuenta de administrador todavía usa el email por defecto. Pon una dirección real — se necesita para recuperar la contraseña, las notificaciones y los correos de alertas.",
+      "emailLabel": "Correo electrónico",
+      "save": "Guardar y continuar",
+      "saving": "Guardando…",
+      "success": "Email del administrador configurado. Ahora configura tu servidor de correo.",
+      "error": "No se pudo guardar tu email. Inténtalo de nuevo."
+    }
+  },
   "common": {
     "appName": "UTMStack",
     "language": "Idioma",

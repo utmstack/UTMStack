@@ -1,4 +1,16 @@
 {
+  "onboarding": {
+    "adminEmail": {
+      "title": "Set your admin email",
+      "subtitle": "Required before you continue",
+      "description": "Your administrator account still uses the default email. Set a real address — it's needed for password recovery, notifications and alert emails.",
+      "emailLabel": "Email address",
+      "save": "Save and continue",
+      "saving": "Saving…",
+      "success": "Admin email set. Next, configure your mail server.",
+      "error": "Could not save your email. Please try again."
+    }
+  },
   "common": {
     "appName": "UTMStack",
     "language": "Language",
