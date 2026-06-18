@@ -12,7 +12,7 @@ on:
         required: true
         type: string
       environment:
-        description: 'Environment (dev or rc)'
+        description: 'Environment (dev or production)'
         required: true
         type: string
       prerelease:
@@ -188,12 +188,12 @@ jobs:
           sudo /usr/local/bin/utmstack_installer
 
   # ============================================
-  # V11 RC - Upload to prerelease only
+  # V11 Production - Build installer and upload to GitHub release.
   # ============================================
-  build_v11_rc:
-    name: Build V11 Installer for Prerelease
+  build_v11_release:
+    name: Build V11 Installer for Release
     runs-on: ubuntu-24.04
-    if: inputs.version_major == 'v11' && inputs.environment == 'rc'
+    if: inputs.version_major == 'v11' && inputs.environment == 'production'
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -226,7 +226,7 @@ jobs:
           GONOPROXY: github.com/utmstack
           GONOSUMDB: github.com/utmstack
         run: |
-          echo "Building V11 Installer for prerelease (branch=prod)"
+          echo "Building V11 Installer for release (branch=prod)"
           go build -o installer -v -ldflags "\
             -X 'github.com/utmstack/UTMStack/installer/config.DEFAULT_BRANCH=prod' \
             -X 'github.com/utmstack/UTMStack/installer/config.INSTALLER_VERSION=${{ inputs.version }}' \
@@ -241,6 +241,5 @@ jobs:
           tag_name: ${{ inputs.version }}
           body_path: /tmp/CHANGELOG.md
           draft: false
-          prerelease: ${{ inputs.prerelease }}
           files: |
             ./installer/installer

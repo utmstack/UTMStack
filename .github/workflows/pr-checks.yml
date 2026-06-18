@@ -1,0 +1,73 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches:
+      - 'release/**'
+      - 'v10'
+      - 'v11'
+
+# Cancel previous runs when new commits are pushed to the same PR.
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  go_deps:
+    name: Go deps
+    uses: ./.github/workflows/_pr-reusable-go-deps.yml
+    secrets:
+      API_SECRET: ${{ secrets.API_SECRET }}
+
+  ai_review:
+    name: AI review
+    uses: ./.github/workflows/_pr-reusable-ai-review.yml
+    secrets:
+      THREATWINDS_API_KEY: ${{ secrets.THREATWINDS_API_KEY }}
+      THREATWINDS_API_SECRET: ${{ secrets.THREATWINDS_API_SECRET }}
+
+  approver:
+    name: Approver
+    needs:
+      - go_deps
+      - ai_review
+    uses: ./.github/workflows/_pr-reusable-approver.yml
+    with:
+      tier3_reviewers: 'Kbayero,osmontero'
+    secrets:
+      APPROVER_APP_ID: ${{ secrets.APPROVER_APP_ID }}
+      APPROVER_PRIVATE_KEY: ${{ secrets.APPROVER_PRIVATE_KEY }}
+      API_SECRET: ${{ secrets.API_SECRET }}
+
+  all_checks_passed:
+    name: All checks passed
+    if: always()
+    needs:
+      - go_deps
+      - ai_review
+      - approver
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Verify all required check jobs succeeded
+        env:
+          NEEDS_JSON: ${{ toJson(needs) }}
+        run: |
+          echo "Dependent job results:"
+          echo "$NEEDS_JSON" | jq -r 'to_entries[] | "  \(.key): \(.value.result)"'
+
+          failed=$(echo "$NEEDS_JSON" | jq -r 'to_entries[] | select(.value.result != "success" and .value.result != "skipped") | .key')
+
+          if [ -n "$failed" ]; then
+            echo ""
+            echo "❌ The following jobs did not succeed:"
+            echo "$failed" | sed 's/^/  - /'
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All required checks passed."

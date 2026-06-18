@@ -12,26 +12,6 @@ on:
       flags:
         required: false
         type: string
-      build_context:
-        required: false
-        type: string
-        default: ""
-        description: "Docker build context (defaults to ./<image_name>)"
-      dockerfile:
-        required: false
-        type: string
-        default: ""
-        description: "Path to the Dockerfile (defaults to ./<image_name>/Dockerfile)"
-    secrets:
-      API_SECRET:
-        required: false
-        description: "Token to fetch private github.com/utmstack Go modules. Optional; when unset, only public modules are fetchable (backwards-compatible)."
-      CM_SIGN_PUBLIC_KEY:
-        required: false
-        description: "Optional value baked into the binary via ldflags. The `secrets` context is not allowed in a caller's `with:`, so secret-derived ldflags must be passed here and referenced from `inputs.flags` as $CM_SIGN_PUBLIC_KEY."
-      CM_ENCRYPT_SALT:
-        required: false
-        description: "Optional value baked into the binary via ldflags. Reference from `inputs.flags` as $CM_ENCRYPT_SALT."
 jobs:
   build:
     name: Build
@@ -46,27 +26,12 @@ jobs:
           go-version: ^1.20
         id: go
 
-      - name: Configure git for private modules
-        run: |
-          if [ -n "${{ secrets.API_SECRET }}" ]; then
-            git config --global url."https://${{ secrets.API_SECRET }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
-            echo "GOPRIVATE=github.com/utmstack" >> $GITHUB_ENV
-            echo "GONOPROXY=github.com/utmstack" >> $GITHUB_ENV
-            echo "GONOSUMDB=github.com/utmstack" >> $GITHUB_ENV
-          fi
-
       - name: Running Tests
         working-directory: ./${{inputs.image_name}}
         run: go test -v ./...
   
       - name: Build Binary
         working-directory: ./${{inputs.image_name}}
-        env:
-          # Exposed so `inputs.flags` can reference them with shell expansion
-          # ($CM_SIGN_PUBLIC_KEY / $CM_ENCRYPT_SALT). The `secrets` context can't
-          # be used in the caller's `with:`, only in a step like this one.
-          CM_SIGN_PUBLIC_KEY: ${{ secrets.CM_SIGN_PUBLIC_KEY }}
-          CM_ENCRYPT_SALT: ${{ secrets.CM_ENCRYPT_SALT }}
         run: |
           if [ -n "${{inputs.flags}}" ]; then
             go build -o ${{inputs.image_name}} -v -ldflags "${{inputs.flags}}" .
@@ -84,7 +49,6 @@ jobs:
       - name: Build and Push the Image
         uses: docker/build-push-action@v6
         with:
-          context: ${{ inputs.build_context != '' && inputs.build_context || format('./{0}', inputs.image_name) }}
-          file: ${{ inputs.dockerfile != '' && inputs.dockerfile || format('./{0}/Dockerfile', inputs.image_name) }}
+          context: ./${{inputs.image_name}}
           push: true
           tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.tag}}

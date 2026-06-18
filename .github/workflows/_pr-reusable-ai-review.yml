@@ -1,0 +1,122 @@
+name: Reusable - AI code review
+
+on:
+  workflow_call:
+    inputs:
+      default_model:
+        required: false
+        type: string
+        default: 'gemini-3-flash-lite'
+        description: "Default model when a prompt doesn't pin one in frontmatter"
+    secrets:
+      THREATWINDS_API_KEY:
+        required: true
+      THREATWINDS_API_SECRET:
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  discover:
+    name: Discover prompts
+    runs-on: ubuntu-24.04
+    outputs:
+      prompts: ${{ steps.list.outputs.prompts }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: list
+        run: |
+          # README.md is documentation, not a prompt — exclude it.
+          mapfile -t files < <(find .github/ai-prompts -maxdepth 1 -name '*.md' \
+            -not -name 'README.md' | sort)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "prompts=[]" >> "$GITHUB_OUTPUT"
+            echo "No AI prompts found under .github/ai-prompts/"
+            exit 0
+          fi
+          # Emit objects with both path and a safe name (basename without
+          # extension) so the matrix can use the name as artifact suffix.
+          items=()
+          for f in "${files[@]}"; do
+            name=$(basename "$f" .md)
+            items+=("$(jq -cn --arg path "$f" --arg name "$name" '{path:$path, name:$name}')")
+          done
+          json="[$(IFS=,; echo "${items[*]}")]"
+          echo "prompts=$json" >> "$GITHUB_OUTPUT"
+          echo "Prompts to run: $json"
+
+  review:
+    name: ${{ matrix.prompt.name }}
+    needs: discover
+    if: needs.discover.outputs.prompts != '[]'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        prompt: ${{ fromJson(needs.discover.outputs.prompts) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch PR diff
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          # gh pr diff gives the same unified diff the GitHub UI shows.
+          # Simpler than `git diff base..head` and doesn't require fetch-depth: 0.
+          gh pr diff "$PR_NUMBER" > /tmp/pr.diff
+          echo "Diff size: $(wc -c < /tmp/pr.diff) bytes"
+
+      - name: Exclude rules/filters/definitions from the review diff
+        # Changes under any "rules", "filters" or "definitions" folder are
+        # content (detection rules, correlation filters, definitions), not code,
+        # so they're dropped before the AI sees the diff. Per-file sections are
+        # split on the "diff --git" header and any whose path contains one of
+        # those folder names (at any depth) is removed.
+        run: |
+          python3 - <<'PY'
+          import re
+
+          path = "/tmp/pr.diff"
+          with open(path, "r", encoding="utf-8", errors="replace") as fh:
+              content = fh.read()
+
+          EXCLUDED = {"rules", "filters", "definitions"}
+          sections = re.split(r'(?m)^(?=diff --git )', content)
+
+          def is_excluded(section: str) -> bool:
+              m = re.match(r'diff --git a/(.+?) b/(.+)', section)
+              if not m:
+                  return False
+              for p in (m.group(1).strip(), m.group(2).strip()):
+                  if EXCLUDED.intersection(p.split('/')):
+                      return True
+              return False
+
+          kept = [s for s in sections if s and not is_excluded(s)]
+          out = "".join(kept)
+          with open(path, "w", encoding="utf-8") as fh:
+              fh.write(out)
+
+          dropped = sum(1 for s in sections if s and is_excluded(s))
+          print(f"Dropped {dropped} excluded file section(s); filtered diff size: {len(out)} bytes")
+          PY
+
+      - name: Run AI review
+        env:
+          PROMPT_FILE: ${{ matrix.prompt.path }}
+          DIFF_FILE: /tmp/pr.diff
+          OUTPUT_FILE: /tmp/result.json
+          AI_REVIEW_MODEL: ${{ inputs.default_model }}
+          THREATWINDS_API_KEY: ${{ secrets.THREATWINDS_API_KEY }}
+          THREATWINDS_API_SECRET: ${{ secrets.THREATWINDS_API_SECRET }}
+        run: bash .github/scripts/ai-review.sh
+
+      - name: Upload result artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-review-${{ matrix.prompt.name }}
+          path: /tmp/result.json
+          retention-days: 7
