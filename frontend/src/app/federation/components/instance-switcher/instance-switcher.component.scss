@@ -22,7 +22,7 @@
 
     &.active {
       background-color: rgba(35, 47, 62, 0.08);
-      color: inherit;
+      color: white !important;
     }
   }
 
@@ -54,4 +54,7 @@
   .federation-instance-add {
     cursor: pointer;
   }
+}
+.textActive{
+      color: white !important;
 }

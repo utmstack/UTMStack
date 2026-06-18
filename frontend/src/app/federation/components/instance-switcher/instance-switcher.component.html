@@ -27,6 +27,7 @@
          class="federation-instance-row dropdown-item d-flex align-items-center justify-content-between"
          [class.active]="active && instance.id === active.id">
       <button type="button"
+              [class.textActive]="active && instance.id === active.id"
               class="btn btn-link p-0 flex-grow-1 text-left text-truncate federation-instance-name-btn"
               (click)="select(instance, $event)">
         <i *ngIf="active && instance.id === active.id" class="icon-check mr-1"></i>
