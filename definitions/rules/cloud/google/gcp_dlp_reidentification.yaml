@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - google
+  name: GCP DLP Re-Identification API Call
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 0
+  category: Collection
+  technique: "T1565 - Data Manipulation"
+  adversary: origin
+  references:
+    - https://cloud.google.com/dlp/docs/reference/rest/v2/projects.content/reidentify
+    - https://attack.mitre.org/techniques/T1565/
+  description: |
+    Detects calls to the DLP re-identification API which reverses data de-identification. This is a sensitive operation that could expose previously protected PII, financial data, or health records. Unauthorized use indicates potential data exfiltration attempts.
+
+    Next Steps:
+    1. Verify the re-identification request was authorized for the specific use case
+    2. Review the data being re-identified and its sensitivity classification
+    3. Check the user identity and whether they have legitimate access to this data
+    4. Review the destination of the re-identified data
+    5. If unauthorized, revoke access and investigate potential data exposure
+    6. Review DLP API permissions and restrict re-identification access
+  where: |
+    contains("log.protoPayloadMethodName", "ReidentifyContent") ||
+    contains("log.protoPayloadMethodName", "reidentify")
+  groupBy:
+    - lastEvent.origin.user
+    - lastEvent.log.protoPayloadMethodName

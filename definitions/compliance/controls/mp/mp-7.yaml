@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: mp-7
+family: mp
+familyName: Media Protection
+name: Media Use
+scope: governance
+statement: |-
+  [restrict | prohibit] the use of [types of system media] on [systems or system components] using [controls] ; and
+    Prohibit the use of portable storage devices in organizational systems when such devices have no identifiable owner.
+source: NIST SP 800-53 Rev 5 (public domain)

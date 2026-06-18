@@ -1,0 +1,15 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: ca-6
+family: ca
+familyName: Assessment, Authorization, and Monitoring
+name: Authorization
+scope: governance
+statement: |-
+  Assign a senior official as the authorizing official for the system;
+    Assign a senior official as the authorizing official for common controls available for inheritance by organizational systems;
+    Ensure that the authorizing official for the system, before commencing operations:
+      Accepts the use of common controls inherited by the system; and
+      Authorizes the system to operate;
+    Ensure that the authorizing official for common controls authorizes the use of those controls for inheritance by organizational systems;
+    Update the authorizations [frequency].
+source: NIST SP 800-53 Rev 5 (public domain)

@@ -1,0 +1,12 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: mp-8
+family: mp
+familyName: Media Protection
+name: Media Downgrading
+scope: governance
+statement: |-
+  Establish [system media downgrading process] that includes employing downgrading mechanisms with strength and integrity commensurate with the security category or classification of the information;
+    Verify that the system media downgrading process is commensurate with the security category and/or classification level of the information to be removed and the access authorizations of the potential recipients of the downgraded information;
+    Identify [system media requiring downgrading] ; and
+    Downgrade the identified system media using the established process.
+source: NIST SP 800-53 Rev 5 (public domain)

@@ -1,0 +1,16 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: au-13
+family: au
+familyName: Audit and Accountability
+name: Monitoring for Information Disclosure
+scope: data
+statement: |-
+  Monitor [open-source information and/or information sites] [frequency] for evidence of unauthorized disclosure of organizational information; and
+    If an information disclosure is discovered:
+      Notify [personnel or roles] ; and
+      Take the following additional actions: [additional actions].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

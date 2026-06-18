@@ -1,0 +1,18 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: cm-9
+family: cm
+familyName: Configuration Management
+name: Configuration Management Plan
+scope: data
+statement: |-
+  Develop, document, and implement a configuration management plan for the system that:
+    Addresses roles, responsibilities, and configuration management processes and procedures;
+    Establishes a process for identifying configuration items throughout the system development life cycle and for managing the configuration of the configuration items;
+    Defines the configuration items for the system and places the configuration items under configuration management;
+    Is reviewed and approved by [personnel or roles] ; and
+    Protects the configuration management plan from unauthorized disclosure and modification.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

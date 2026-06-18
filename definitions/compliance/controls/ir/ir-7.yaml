@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ir-7
+family: ir
+familyName: Incident Response
+name: Incident Response Assistance
+scope: data
+statement: Provide an incident response support resource, integral to the organizational incident response
+  capability, that offers advice and assistance to users of the system for the handling and reporting
+  of incidents.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

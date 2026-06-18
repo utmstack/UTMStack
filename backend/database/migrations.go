@@ -1,0 +1,116 @@
+package database
+
+import (
+	"errors"
+
+	adaudit_domain "github.com/utmstack/utmstack/backend/modules/adaudit/domain"
+	alerts_domain "github.com/utmstack/utmstack/backend/modules/alerts/domain"
+	appconfig_domain "github.com/utmstack/utmstack/backend/modules/appconfig/domain"
+	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
+	compliance_domain "github.com/utmstack/utmstack/backend/modules/compliance/domain"
+	dashboards_domain "github.com/utmstack/utmstack/backend/modules/dashboards/domain"
+	datasources_domain "github.com/utmstack/utmstack/backend/modules/datasources/domain"
+	iam_domain "github.com/utmstack/utmstack/backend/modules/iam/domain"
+	incidents_domain "github.com/utmstack/utmstack/backend/modules/incidents/domain"
+	integrations_domain "github.com/utmstack/utmstack/backend/modules/integrations/domain"
+	loganalyzer_domain "github.com/utmstack/utmstack/backend/modules/loganalyzer/domain"
+	notifications_domain "github.com/utmstack/utmstack/backend/modules/notifications/domain"
+	opensearch_domain "github.com/utmstack/utmstack/backend/modules/opensearch/domain"
+	arr_domain "github.com/utmstack/utmstack/backend/modules/soar/domain"
+	"gorm.io/gorm"
+
+	"github.com/threatwinds/go-sdk/catcher"
+
+	"github.com/golang-migrate/migrate/v4"
+	migratepg "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+)
+
+func Models() []any {
+	return []any{
+		iam_domain.User{},
+		iam_domain.Authority{},
+		iam_domain.Permission{},
+		iam_domain.AuthorityPermission{},
+		iam_domain.UserAuthority{},
+		iam_domain.APIKey{},
+		iam_domain.RefreshToken{},
+		iam_domain.IdentityProviderConfig{},
+		audit_domain.AuditLog{},
+		appconfig_domain.Config{},
+		alerts_domain.UtmAlertTag{},
+		alerts_domain.UtmAlertTagRule{},
+		arr_domain.AlertResponseRuleExecution{},
+		arr_domain.AlertResponseActionTemplate{},
+		arr_domain.UtmIncidentVariable{},
+		arr_domain.UtmIncidentAction{},
+		arr_domain.UtmIncidentActionCommand{},
+		arr_domain.UtmIncidentJob{},
+		compliance_domain.UtmComplianceReportSchedule{},
+		opensearch_domain.UtmIndexPattern{},
+		integrations_domain.UtmModule{},
+		incidents_domain.UtmIncident{},
+		incidents_domain.UtmIncidentAlert{},
+		incidents_domain.UtmIncidentNote{},
+		incidents_domain.UtmIncidentHistory{},
+		notifications_domain.UtmNotification{},
+		datasources_domain.UtmAssetGroup{},
+		datasources_domain.Datasource{},
+		dashboards_domain.Dashboard{},
+		dashboards_domain.Visualization{},
+		dashboards_domain.DashboardVisualization{},
+		loganalyzer_domain.UtmLogAnalyzerQuery{},
+		adaudit_domain.ADUser{},
+	}
+}
+
+func MigrateDatabase(db *gorm.DB, migrationsURL string) error {
+	if err := db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`).Error; err != nil {
+		catcher.Warn("could not create uuid-ossp extension", map[string]any{"error": err.Error()})
+	}
+
+	if migrationsURL != "" {
+		if err := runSQLMigrations(db, migrationsURL+"/pre", "schema_migrations_pre", "pre-AutoMigrate"); err != nil {
+			return err
+		}
+	}
+
+	models := Models()
+	if len(models) > 0 {
+		catcher.Info("running GORM AutoMigrate...", nil)
+		if err := db.AutoMigrate(models...); err != nil {
+			return err
+		}
+		catcher.Info("GORM AutoMigrate complete", nil)
+	}
+
+	if migrationsURL == "" {
+		return nil
+	}
+	return runSQLMigrations(db, migrationsURL, "schema_migrations", "post-AutoMigrate")
+}
+
+func runSQLMigrations(db *gorm.DB, migrationsURL, table, stage string) error {
+	sqlDB, err := db.DB()
+	if err != nil {
+		return err
+	}
+	driver, err := migratepg.WithInstance(sqlDB, &migratepg.Config{MigrationsTable: table})
+	if err != nil {
+		return err
+	}
+	m, err := migrate.NewWithDatabaseInstance(migrationsURL, "postgres", driver)
+	if err != nil {
+		return err
+	}
+	switch err := m.Up(); {
+	case err == nil:
+		catcher.Info(stage+" SQL migrations applied", nil)
+	case errors.Is(err, migrate.ErrNoChange):
+		// Already at the latest version (tracked in the stage's table) — nothing ran.
+		catcher.Info(stage+" SQL migrations already up to date", nil)
+	default:
+		return err
+	}
+	return nil
+}

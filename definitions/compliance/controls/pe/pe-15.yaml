@@ -1,0 +1,9 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pe-15
+family: pe
+familyName: Physical and Environmental Protection
+name: Water Damage Protection
+scope: governance
+statement: Protect the system from damage resulting from water leakage by providing master shutoff or
+  isolation valves that are accessible, working properly, and known to key personnel.
+source: NIST SP 800-53 Rev 5 (public domain)

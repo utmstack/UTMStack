@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-9
+family: pm
+familyName: Program Management
+name: Risk Management Strategy
+scope: governance
+statement: |-
+  Develops a comprehensive strategy to manage:
+      Security risk to organizational operations and assets, individuals, other organizations, and the Nation associated with the operation and use of organizational systems; and
+      Privacy risk to individuals resulting from the authorized processing of personally identifiable information;
+    Implement the risk management strategy consistently across the organization; and
+    Review and update the risk management strategy [frequency] or as required, to address organizational changes.
+source: NIST SP 800-53 Rev 5 (public domain)

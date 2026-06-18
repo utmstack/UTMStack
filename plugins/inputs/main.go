@@ -67,7 +67,6 @@ func main() {
 		go sendLog()
 	}
 
-	go startHTTPServer(middlewares, cert, key)
 	_ = startGRPCServer(middlewares, cert, key)
 }
 

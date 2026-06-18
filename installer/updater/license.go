@@ -18,11 +18,8 @@ func (c *UpdaterClient) LicenseProcess() {
 	defer ticker.Stop()
 
 	for range ticker.C {
-		if IsInMaintenanceWindow() {
-			err := c.CheckLicense()
-			if err != nil {
-				config.Logger().ErrorF("error checking license: %v", err)
-			}
+		if err := c.CheckLicense(); err != nil {
+			config.Logger().ErrorF("error checking license: %v", err)
 		}
 	}
 }

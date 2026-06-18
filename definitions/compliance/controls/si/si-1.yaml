@@ -1,0 +1,17 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: si-1
+family: si
+familyName: System and Information Integrity
+name: Policy and Procedures
+scope: governance
+statement: |-
+  Develop, document, and disseminate to [organization-defined personnel or roles]:
+      [organization-level | mission/business process-level | system-level] system and information integrity policy that:
+        Addresses purpose, scope, roles, responsibilities, management commitment, coordination among organizational entities, and compliance; and
+        Is consistent with applicable laws, executive orders, directives, regulations, policies, standards, and guidelines; and
+      Procedures to facilitate the implementation of the system and information integrity policy and the associated system and information integrity controls;
+    Designate an [official] to manage the development, documentation, and dissemination of the system and information integrity policy and procedures; and
+    Review and update the current system and information integrity:
+      Policy [frequency] and following [events] ; and
+      Procedures [frequency] and following [events].
+source: NIST SP 800-53 Rev 5 (public domain)

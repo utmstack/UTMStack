@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ia-7
+family: ia
+familyName: Identification and Authentication
+name: Cryptographic Module Authentication
+scope: data
+statement: Implement mechanisms for authentication to a cryptographic module that meet the requirements
+  of applicable laws, executive orders, directives, policies, regulations, standards, and guidelines for
+  such authentication.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

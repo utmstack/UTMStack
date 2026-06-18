@@ -56,7 +56,6 @@ func StartGrpcServer() {
 	RegisterAgentServiceServer(grpcServer, AgentServ)
 	RegisterPanelServiceServer(grpcServer, AgentServ)
 	RegisterCollectorServiceServer(grpcServer, CollectorServ)
-	RegisterPanelCollectorServiceServer(grpcServer, CollectorServ)
 	RegisterPingServiceServer(grpcServer, LastSeenServ)
 
 	healthServer := health.NewServer()

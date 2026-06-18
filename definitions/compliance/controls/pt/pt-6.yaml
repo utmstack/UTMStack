@@ -1,0 +1,12 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pt-6
+family: pt
+familyName: Personally Identifiable Information Processing and Transparency
+name: System of Records Notice
+scope: governance
+statement: |-
+  For systems that process information that will be maintained in a Privacy Act system of records:
+    Draft system of records notices in accordance with OMB guidance and submit new and significantly modified system of records notices to the OMB and appropriate congressional committees for advance review;
+    Publish system of records notices in the Federal Register; and
+    Keep system of records notices accurate, up-to-date, and scoped in accordance with policy.
+source: NIST SP 800-53 Rev 5 (public domain)

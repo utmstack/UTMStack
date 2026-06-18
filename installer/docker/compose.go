@@ -214,6 +214,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		"EVENT_PROCESSOR_HOST=event-processor-manager",
 		"EVENT_PROCESSOR_PORT=9002",
 		"SOC_AI_BASE_URL=http://event-processor-manager:8090",
+		"UPLOAD_DIR=/uploads",
 	}
 
 	// Disable TFA in dev and rc environments
@@ -230,8 +231,14 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		},
 		Environment: backendEnv,
 		Volumes: []string{
-			stack.DataSources + ":/etc/utmstack",
 			conf.UpdatesFolder + ":/updates",
+			utils.MakeDir(0777, conf.DataDir, "uploads") + ":/uploads",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "soar") + ":/workdir/soar",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "compliance") + ":/workdir/compliance",
+			// Shared with the event-processor: the backend authors the rules and
+			// pipeline (tenants/patterns/filters); the EP reads the same host dirs.
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "rules") + ":/workdir/rules",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -265,7 +272,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		}).([]string),
 		Ports: []string{
 			"50051:50051",
-			"8080:8080",
 		},
 		Volumes: []string{
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
@@ -372,58 +378,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 				},
 				Reservations: &Res{
 					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", opensearchMem/2)),
-				},
-			},
-		},
-	}
-
-	userAuditorMem := stack.ServiceResources["user-auditor"].AssignedMemory
-	c.Services["user-auditor"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/user-auditor:${UTMSTACK_TAG}"),
-		DependsOn: []string{
-			"postgres",
-			"node1",
-		},
-		Environment: []string{
-			"SERVER_NAME=" + conf.ServerName,
-			"INTERNAL_KEY=" + conf.InternalKey,
-			"DB_USER=postgres",
-			"DB_HOST=postgres",
-			"DB_PORT=5432",
-			"DB_NAME=userauditor",
-			"DB_PASS=" + conf.Password,
-			"ELASTICSEARCH_HOST=node1",
-			"ELASTICSEARCH_PORT=9200",
-			"ELASTICSEARCH_USER=admin",
-			"ELASTICSEARCH_PASSWORD=" + conf.OpenSearchPassword,
-		},
-		Logging: &dLogging,
-		Deploy: &Deploy{
-			Placement: &pManager,
-			Resources: &Resources{
-				Limits: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", userAuditorMem)),
-				},
-			},
-		},
-	}
-
-	webPDFMem := stack.ServiceResources["web-pdf"].AssignedMemory
-	c.Services["web-pdf"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/web-pdf:${UTMSTACK_TAG}"),
-		Volumes: []string{
-			stack.ShmFolder + ":/dev/shm",
-		},
-		DependsOn: []string{
-			"backend",
-			"frontend",
-		},
-		Logging: &dLogging,
-		Deploy: &Deploy{
-			Placement: &pManager,
-			Resources: &Resources{
-				Limits: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", webPDFMem)),
 				},
 			},
 		},

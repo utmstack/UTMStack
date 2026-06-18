@@ -1,0 +1,42 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - firewall-sophos-xg
+  name: Sophos XG IPS Alert Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Intrusion Detection
+  technique: "T1190 - Exploit Public-Facing Application"
+  adversary: origin
+  references:
+    - https://docs.sophos.com/nsg/sophos-firewall/20.0/Help/en-us/webhelp/onlinehelp/AdministratorHelp/IPS/index.html
+    - https://attack.mitre.org/techniques/T1190/
+  description: |
+    Detects IPS alert triggers on Sophos XG Firewall indicating active exploitation attempts, vulnerability scanning, or known attack signatures targeting protected hosts.
+
+    Next Steps:
+    1. Review the IPS signature details and severity level
+    2. Investigate the source IP for additional malicious activity
+    3. Check if the attack was blocked or only logged
+    4. Verify the target system is patched against the detected vulnerability
+    5. Scan the target for signs of compromise if the attack may have succeeded
+    6. Update IPS signatures and security policies
+  where: |
+    equals("log.type", "IPS") &&
+    (oneOf("log.severity", ["Critical", "High"]) ||
+     contains("log.priority", ["1", "2"])) &&
+    exists("origin.ip") &&
+    exists("target.ip")
+  afterEvents:
+    - indexPattern: v11-log-firewall-sophos-xg-*
+      with:
+        - field: origin.ip
+          operator: filter_term
+          value: '{{.origin.ip}}'
+      within: 15m
+      count: 3
+  groupBy:
+    - adversary.ip
+    - target.ip

@@ -1,0 +1,11 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-24
+family: pm
+familyName: Program Management
+name: Data Integrity Board
+scope: governance
+statement: |-
+  Establish a Data Integrity Board to:
+    Review proposals to conduct or participate in a matching program; and
+    Conduct an annual review of all matching programs in which the agency has participated.
+source: NIST SP 800-53 Rev 5 (public domain)

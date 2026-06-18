@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: mp-3
+family: mp
+familyName: Media Protection
+name: Media Marking
+scope: governance
+statement: |-
+  Mark system media indicating the distribution limitations, handling caveats, and applicable security markings (if any) of the information; and
+    Exempt [types of media exempted from marking] from marking if the media remain within [controlled areas].
+source: NIST SP 800-53 Rev 5 (public domain)

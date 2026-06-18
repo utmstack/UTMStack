@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - firewall-sonicwall
+  name: SonicWall Capture ATP Malicious Verdict
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Execution
+  technique: "T1204 - User Execution"
+  adversary: origin
+  references:
+    - https://www.sonicwall.com/support/knowledge-base/capture-atp-overview/170503785055490
+    - https://attack.mitre.org/techniques/T1204/
+  description: |
+    Detects when SonicWall Capture ATP (Advanced Threat Protection) identifies a file as malicious after sandbox analysis. This indicates an attempted malware delivery or execution that was blocked by the ATP service.
+
+    Next Steps:
+    1. Investigate the source IP address for additional malicious activity
+    2. Review the file hash and name for threat intelligence correlation
+    3. Check if the same file was delivered to other internal systems
+    4. Verify ATP policies are properly configured and up to date
+    5. Consider blocking the source IP at the perimeter if confirmed malicious
+    6. Document the incident and update threat intelligence feeds
+  where: (contains("log.msg", "Capture ATP") || contains("log.msg", "Gateway Anti-Virus") || contains("log.msg", "Sandbox") || equals("log.category", "Anti-Virus") || equals("log.af_type", "ATP")) && (contains("log.msg", "malicious") || contains("log.msg", "blocked") || contains("log.msg", "threat detected") || equals("log.result", "malicious") || equals("action", "blocked"))
+  afterEvents:
+    - indexPattern: v11-log-firewall-sonicwall-*
+      with:
+        - field: origin.ip
+          operator: filter_term
+          value: '{{.origin.ip}}'
+      within: 1h
+      count: 2
+  groupBy:
+    - adversary.host
+    - adversary.ip

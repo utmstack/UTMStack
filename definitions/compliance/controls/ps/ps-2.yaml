@@ -1,0 +1,11 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: ps-2
+family: ps
+familyName: Personnel Security
+name: Position Risk Designation
+scope: governance
+statement: |-
+  Assign a risk designation to all organizational positions;
+    Establish screening criteria for individuals filling those positions; and
+    Review and update position risk designations [frequency].
+source: NIST SP 800-53 Rev 5 (public domain)

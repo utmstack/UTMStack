@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"runtime"
 	"strings"
 	"sync"
@@ -18,7 +19,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/utmstack/UTMStack/plugins/crowdstrike/config"
 )
 
 const (
@@ -61,7 +61,7 @@ func main() {
 		return
 	}
 
-	go config.StartConfigurationSystem()
+	go StartConfigurationSystem()
 
 	for i := 0; i < 2*runtime.NumCPU(); i++ {
 		go func() {
@@ -77,12 +77,12 @@ func main() {
 func watchConfigurationChanges() {
 	time.Sleep(3 * time.Second)
 
-	initialConfig := config.GetConfig()
+	initialConfig := GetConfig()
 	if initialConfig != nil && initialConfig.ModuleActive {
 		updateStreams(initialConfig)
 	}
 
-	for newConfig := range config.GetConfigUpdateChannel() {
+	for newConfig := range GetConfigUpdateChannel() {
 		if newConfig == nil || !newConfig.ModuleActive {
 			stopAllStreams()
 			continue
@@ -92,11 +92,11 @@ func watchConfigurationChanges() {
 	}
 }
 
-func updateStreams(newConfig *config.ConfigurationSection) {
+func updateStreams(newConfig *ConfigurationSection) {
 	activeStreamsMu.Lock()
 	defer activeStreamsMu.Unlock()
 
-	newGroups := make(map[streamKey]*config.ModuleGroup)
+	newGroups := make(map[streamKey]*ModuleGroup)
 	for _, grp := range newConfig.ModuleGroups {
 		key := streamKey{groupID: grp.Id, groupName: grp.GroupName}
 		newGroups[key] = grp
@@ -127,7 +127,7 @@ func updateStreams(newConfig *config.ConfigurationSection) {
 			if processorChanged(existingStream.processor, newProcessor) {
 				existingStream.cancel()
 
-				go func(s *activeStream, k streamKey, g *config.ModuleGroup) {
+				go func(s *activeStream, k streamKey, g *ModuleGroup) {
 					s.wg.Wait()
 					activeStreamsMu.Lock()
 					delete(activeStreams, k)
@@ -141,7 +141,7 @@ func updateStreams(newConfig *config.ConfigurationSection) {
 	}
 }
 
-func startStream(key streamKey, group *config.ModuleGroup) {
+func startStream(key streamKey, group *ModuleGroup) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	processor := buildProcessor(group)
@@ -362,7 +362,7 @@ type CrowdStrikeProcessor struct {
 	AppName      string
 }
 
-func isGroupValid(group *config.ModuleGroup) bool {
+func isGroupValid(group *ModuleGroup) bool {
 	if group == nil {
 		return false
 	}
@@ -375,7 +375,7 @@ func isGroupValid(group *config.ModuleGroup) bool {
 	return true
 }
 
-func buildProcessor(group *config.ModuleGroup) *CrowdStrikeProcessor {
+func buildProcessor(group *ModuleGroup) *CrowdStrikeProcessor {
 	processor := &CrowdStrikeProcessor{}
 
 	for _, cnf := range group.ModuleGroupConfigurations {
@@ -451,4 +451,70 @@ func extractCloudFromURL(cloudValue string) (falcon.CloudType, error) {
 	}
 
 	return falcon.CloudValidate(trimmed)
+}
+
+func connectionChecker(url string) error {
+	checkConn := func() error {
+		if err := checkConnection(url); err != nil {
+			return fmt.Errorf("connection failed: %v", err)
+		}
+		return nil
+	}
+
+	if err := infiniteRetryIfXError(checkConn, "connection failed"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func checkConnection(url string) error {
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			_ = catcher.Error("error closing response body: %v", err, map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
+		}
+	}()
+
+	return nil
+}
+
+func infiniteRetryIfXError(f func() error, exception string) error {
+	var xErrorWasLogged bool
+
+	for {
+		err := f()
+		if err != nil && is(err, exception) {
+			if !xErrorWasLogged {
+				_ = catcher.Error("An error occurred (%s), will keep retrying indefinitely...", err, map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
+				xErrorWasLogged = true
+			}
+			time.Sleep(reconnectDelay)
+			continue
+		}
+
+		return err
+	}
+}
+
+func is(e error, args ...string) bool {
+	for _, arg := range args {
+		if strings.Contains(e.Error(), arg) {
+			return true
+		}
+	}
+	return false
 }

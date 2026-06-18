@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: sc-12
+family: sc
+familyName: System and Communications Protection
+name: Cryptographic Key Establishment and Management
+scope: data
+statement: 'Establish and manage cryptographic keys when cryptography is employed within the system in
+  accordance with the following key management requirements: [requirements].'
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

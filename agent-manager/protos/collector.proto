@@ -10,11 +10,6 @@ service CollectorService {
   rpc DeleteCollector(DeleteRequest) returns (AuthResponse) {}
   rpc ListCollector (ListRequest) returns (ListCollectorResponse) {}
   rpc CollectorStream(stream CollectorMessages) returns (stream CollectorMessages) {}
-  rpc GetCollectorConfig (ConfigRequest) returns (CollectorConfig) {}
-}
-
-service PanelCollectorService {
-  rpc RegisterCollectorConfig(CollectorConfig) returns (ConfigKnowledge) {}
 }
 
 enum CollectorModule{
@@ -80,8 +75,4 @@ message CollectorGroupConfigurations {
 message ConfigKnowledge{
   string accepted = 1;
   string request_id = 2;
-}
-
-message ConfigRequest {
-  CollectorModule module = 1;
 }

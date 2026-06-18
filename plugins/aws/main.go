@@ -18,7 +18,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/utmstack/UTMStack/plugins/aws/config"
 )
 
 const (
@@ -42,7 +41,7 @@ func main() {
 		return
 	}
 
-	go config.StartConfigurationSystem()
+	go StartConfigurationSystem()
 
 	for t := 0; t < 2*runtime.NumCPU(); t++ {
 		go func() {
@@ -64,12 +63,12 @@ func main() {
 func watchConfigChanges() {
 	time.Sleep(3 * time.Second)
 
-	initialConfig := config.GetConfig()
+	initialConfig := GetConfig()
 	if initialConfig != nil && initialConfig.ModuleActive {
 		syncStreams(initialConfig)
 	}
 
-	for newConfig := range config.GetConfigUpdateChannel() {
+	for newConfig := range GetConfigUpdateChannel() {
 		if newConfig == nil || !newConfig.ModuleActive {
 			stopAllStreams()
 			continue
@@ -79,7 +78,7 @@ func watchConfigChanges() {
 	}
 }
 
-func syncStreams(moduleConfig *config.ConfigurationSection) {
+func syncStreams(moduleConfig *ConfigurationSection) {
 	currentGroupIDs := make(map[int32]bool)
 	for _, group := range moduleConfig.ModuleGroups {
 		currentConfig := getAWSProcessor(group)
@@ -113,7 +112,7 @@ func syncStreams(moduleConfig *config.ConfigurationSection) {
 	}
 }
 
-func startGroupStream(groupID int32, group *config.ModuleGroup) {
+func startGroupStream(groupID int32, group *ModuleGroup) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	groupConfig := getAWSProcessor(group)
@@ -156,7 +155,7 @@ func sleepWithCancel(ctx context.Context, d time.Duration) bool {
 	}
 }
 
-func streamLogs(ctx context.Context, group *config.ModuleGroup) {
+func streamLogs(ctx context.Context, group *ModuleGroup) {
 	agent := getAWSProcessor(group)
 
 	awsConfig, err := agent.createAWSSession()
@@ -241,7 +240,7 @@ type AWSProcessor struct {
 	LogGroup        string
 }
 
-func getAWSProcessor(group *config.ModuleGroup) AWSProcessor {
+func getAWSProcessor(group *ModuleGroup) AWSProcessor {
 	awsPro := AWSProcessor{}
 	for _, cnf := range group.ModuleGroupConfigurations {
 		switch cnf.ConfKey {

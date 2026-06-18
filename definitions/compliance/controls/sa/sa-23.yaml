@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sa-23
+family: sa
+familyName: System and Services Acquisition
+name: Specialization
+scope: governance
+statement: Employ [design modification | augmentation | reconfiguration] on [systems or system components]
+  supporting mission essential services or functions to increase the trustworthiness in those systems
+  or components.
+source: NIST SP 800-53 Rev 5 (public domain)

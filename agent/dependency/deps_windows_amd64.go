@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/utmstack/UTMStack/agent/collector"
 	"github.com/utmstack/UTMStack/agent/config"
+	"github.com/utmstack/UTMStack/agent/utils"
 	"github.com/utmstack/UTMStack/shared/exec"
 	"github.com/utmstack/UTMStack/shared/fs"
 	"github.com/utmstack/UTMStack/shared/svc"
@@ -31,15 +31,6 @@ func GetDependencies() []Dependency {
 			Configure:   configureUpdater,
 			Uninstall:   uninstallUpdater,
 		},
-
-		// New beats dependency - only for uninstalling existing filebeat/winlogbeat
-		// No download, no install - native collectors are used instead
-		{
-			Name:      "beats",
-			Version:   BeatsVersion,
-			Critical:  false,
-			Uninstall: uninstallBeats,
-		},
 	}
 }
 
@@ -57,7 +48,11 @@ func uninstallUpdater() error {
 }
 
 func uninstallBeats() error {
-	return collector.UninstallAll()
+	_ = utils.StopService(config.ModulesServName)
+	_ = utils.UninstallService(config.ModulesServName)
+	_ = utils.StopService("UTMStackWindowsLogsCollector")
+	_ = utils.UninstallService("UTMStackWindowsLogsCollector")
+	return nil
 }
 
 func preDownloadUpdater() (func(), error) {

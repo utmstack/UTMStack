@@ -1,0 +1,12 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sa-3
+family: sa
+familyName: System and Services Acquisition
+name: System Development Life Cycle
+scope: governance
+statement: |-
+  Acquire, develop, and manage the system using [system-development life cycle] that incorporates information security and privacy considerations;
+    Define and document information security and privacy roles and responsibilities throughout the system development life cycle;
+    Identify individuals having information security and privacy roles and responsibilities; and
+    Integrate the organizational information security and privacy risk management process into system development life cycle activities.
+source: NIST SP 800-53 Rev 5 (public domain)

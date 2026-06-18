@@ -1,0 +1,21 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - google
+  name: "GCP 2-step verification disabled"
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: "Defense Evasion"
+  technique: "T1562 - Impair Defenses"
+  adversary: origin
+  description: "Google Cloud has detected that 2-step verification was disabled for the organization or a user"
+  references:
+    - "https://attack.mitre.org/tactics/TA0005"
+    - "https://attack.mitre.org/techniques/T1562/"
+  where: |
+    equals("log.protoPayloadMethodName", "google.login.LoginService.2svDisable")
+  groupBy:
+    - adversary.ip
+    - adversary.user

@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pe-23
+family: pe
+familyName: Physical and Environmental Protection
+name: Facility Location
+scope: governance
+statement: |-
+  Plan the location or site of the facility where the system resides considering physical and environmental hazards; and
+    For existing facilities, consider the physical and environmental hazards in the organizational risk management strategy.
+source: NIST SP 800-53 Rev 5 (public domain)

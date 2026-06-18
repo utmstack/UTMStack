@@ -1,0 +1,8 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sr-9
+family: sr
+familyName: Supply Chain Risk Management
+name: Tamper Resistance and Detection
+scope: governance
+statement: Implement a tamper protection program for the system, system component, or system service.
+source: NIST SP 800-53 Rev 5 (public domain)

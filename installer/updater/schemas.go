@@ -62,26 +62,3 @@ type LicenseEncrypted struct {
 	Type        string    `json:"type"`
 	CreatedAt   string    `json:"created_at"`
 }
-
-type SectionBackend struct {
-	ID          int    `json:"id"`
-	Section     string `json:"section"`
-	Description string `json:"description"`
-	ShortName   string `json:"shortName"`
-}
-
-type ConfigBackend struct {
-	ID                   int            `json:"id"`
-	SectionID            int            `json:"sectionId"`
-	ConfParamShort       string         `json:"confParamShort"`
-	ConfParamLarge       string         `json:"confParamLarge"`
-	ConfParamDescription string         `json:"confParamDescription"`
-	ConfParamValue       string         `json:"confParamValue"`
-	ConfParamRegexp      string         `json:"confParamRegexp"`
-	ConfParamRequired    bool           `json:"confParamRequired"`
-	ConfParamDatatype    string         `json:"confParamDatatype"`
-	ModificationTime     string         `json:"modificationTime"`
-	ModificationUser     string         `json:"modificationUser"`
-	ConfParamOption      string         `json:"confParamOption"`
-	Section              SectionBackend `json:"section"`
-}

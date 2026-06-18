@@ -1,0 +1,17 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: cm-2
+family: cm
+familyName: Configuration Management
+name: Baseline Configuration
+scope: data
+statement: |-
+  Develop, document, and maintain under configuration control, a current baseline configuration of the system; and
+    Review and update the baseline configuration of the system:
+      [frequency];
+      When required due to [circumstances] ; and
+      When system components are installed or upgraded.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

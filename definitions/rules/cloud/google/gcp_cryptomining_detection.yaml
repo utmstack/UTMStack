@@ -1,0 +1,37 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - google
+  name: GCP Cryptomining Instance Launch Detection
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: Resource Hijacking
+  technique: "T1496 - Resource Hijacking"
+  adversary: origin
+  references:
+    - https://cloud.google.com/compute/docs/machine-types
+    - https://attack.mitre.org/techniques/T1496/
+  description: |
+    Detects creation of GPU-accelerated or high-compute GCP instances commonly used for cryptomining. Attackers with compromised GCP credentials frequently launch expensive GPU instances (a2, g2) or compute-optimized instances in unusual regions for cryptocurrency mining operations.
+
+    Next Steps:
+    1. Verify the identity launching the instance and confirm business justification
+    2. Check if GPU instances are normally used in this project
+    3. Review the instance's machine type and attached GPU accelerators
+    4. Examine the instance image for known mining software
+    5. Check billing dashboards for unexpected cost increases
+    6. If unauthorized, stop and delete the instance immediately
+    7. Rotate compromised credentials and review IAM bindings
+    8. Implement Organization Policy constraints to restrict GPU instance creation
+  where: |
+    contains("log.protoPayloadMethodName", "compute.instances.insert") &&
+    (contains("log.protoPayload.request.machineType", "a2-") ||
+     contains("log.protoPayload.request.machineType", "g2-") ||
+     contains("log.protoPayload.request.machineType", "n1-highmem-96") ||
+     contains("log.protoPayload.request.machineType", "c2d-highcpu") ||
+     contains("log.protoPayload.request.guestAccelerators", "nvidia"))
+  groupBy:
+    - lastEvent.log.protoPayloadResourceName
+    - adversary.user

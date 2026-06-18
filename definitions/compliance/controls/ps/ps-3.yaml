@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: ps-3
+family: ps
+familyName: Personnel Security
+name: Personnel Screening
+scope: governance
+statement: |-
+  Screen individuals prior to authorizing access to the system; and
+    Rescreen individuals in accordance with [organization-defined conditions requiring rescreening and, where rescreening is so indicated, the frequency of rescreening].
+source: NIST SP 800-53 Rev 5 (public domain)

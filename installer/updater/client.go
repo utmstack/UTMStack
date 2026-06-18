@@ -1,15 +1,10 @@
 package updater
 
 import (
-	"bytes"
-	"context"
 	"fmt"
 	"io"
-	"mime/multipart"
 	"net/http"
 	"os"
-	"path/filepath"
-	"strings"
 	"sync"
 	"time"
 
@@ -75,13 +70,8 @@ func (c *UpdaterClient) UpdateProcess() {
 	defer ticker.Stop()
 
 	for range ticker.C {
-		inWindow := IsInMaintenanceWindow()
-
-		if inWindow {
-			err := c.CheckUpdate()
-			if err != nil {
-				config.Logger().ErrorF("error checking update: %v", err)
-			}
+		if err := c.CheckUpdate(); err != nil {
+			config.Logger().ErrorF("error checking update: %v", err)
 		}
 	}
 }
@@ -225,59 +215,6 @@ func (c *UpdaterClient) MarkUpdateSent(updateId string) error {
 	)
 	if err != nil || status != http.StatusOK {
 		return fmt.Errorf("error marking update as sent: status: %d, error: %v", status, err)
-	}
-	return nil
-}
-
-func (c *UpdaterClient) UploadLogs(ctx context.Context, path string) error {
-	url := fmt.Sprintf("%s%s", c.Config.Server, config.LogCollectorEndpoint)
-
-	buf := &bytes.Buffer{}
-	writer := multipart.NewWriter(buf)
-
-	zipFile, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	defer zipFile.Close()
-
-	part, err := writer.CreateFormFile("file", filepath.Base(path))
-	if err != nil {
-		return err
-	}
-
-	if _, err = io.Copy(part, zipFile); err != nil {
-		return err
-	}
-
-	if err = writer.Close(); err != nil {
-		return err
-	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, buf)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	req.Header.Set("id", c.Config.InstanceID)
-	req.Header.Set("key", c.Config.InstanceKey)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode >= 300 {
-		body, _ := io.ReadAll(resp.Body)
-		bodyStr := string(body)
-
-		if resp.StatusCode == 500 && strings.Contains(bodyStr, "log collector is not enabled for this instance") {
-			return nil
-		}
-
-		return fmt.Errorf("%s: %s", resp.Status, bodyStr)
 	}
 	return nil
 }

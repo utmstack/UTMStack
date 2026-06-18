@@ -1,0 +1,29 @@
+# Rule version v1.0.3
+
+- dataTypes:
+    - google
+  name: "GCP probable Exfiltration, Logging Sink Modification"
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 2
+  category: "Exfiltration"
+  technique: "T1537 - Transfer Data to Cloud Account"
+  adversary: origin
+  description: "Exfiltration consists of techniques that adversaries may use to steal data from your network. Once they've collected data, 
+                adversaries often package it to avoid detection while removing it. This can include compression and encryption. Techniques for 
+                getting data out of a target network typically include transferring it over their command and control channel or an alternate 
+                channel and may also include putting size limits on the transmission.  
+                Identifies a modification to a Logging sink in Google Cloud Platform (GCP). Logging compares the log entry to the sinks 
+                in that resource. Each sink whose filter matches the log entry writes a copy of the log entry to the sink's export 
+                destination. An adversary may update a Logging sink to exfiltrate logs to a different export destination."
+  references: 
+    - "https://cloud.google.com/logging/docs/export#how_sinks_work"
+    - "https://cloud.google.com/logging/docs/reference/v2/rest/v2/projects.sinks#LogSink"
+    - "https://attack.mitre.org/techniques/T1537/"
+    - "https://attack.mitre.org/tactics/TA0010/"
+  where: |
+    regexMatch("log.protoPayloadMethodName", "((.+)?sink(s)?\\.update|(.+)?v(\\w+)\\.ConfigServiceV(\\w+)\\.UpdateSink)")
+  groupBy:
+    - adversary.ip
+    - adversary.user

@@ -14,7 +14,6 @@ const (
 	SetUpdateSentEndpoint         = "/api/v1/updates/sent"
 	GetLicenseEndpoint            = "/api/v1/licenses"
 	HealthEndpoint                = "/api/v1/health"
-	LogCollectorEndpoint          = "/api/v1/logcollectors/upload"
 
 	GitHubReleasesURL = "https://github.com/utmstack/UTMStack/releases/download/%s/installer"
 
@@ -33,7 +32,6 @@ var (
 	REPLACE           string
 	PUBLIC_KEY        string
 
-	BackendConfigEndpoint  = "https://127.0.0.1/api/utm-configuration-parameters?page=0&size=10000&sectionId.equals=%d&sort=id,asc"
 	ConfigPath             = filepath.Join("/root", "utmstack.yml")
 	InstanceConfigPath     = filepath.Join(GetConfig().UpdatesFolder, "instance-config.yml")
 	ServiceLogPath         = filepath.Join(GetConfig().UpdatesFolder, "logs", "utmstack-updater.log")
@@ -43,7 +41,6 @@ var (
 	LastAdminEmailPath     = filepath.Join(GetConfig().UpdatesFolder, "last-admin-email.txt")
 	EventProcessorLogsPath = filepath.Join(GetConfig().DataDir, "events-engine-workdir", "logs")
 	CheckUpdatesEvery      = 5 * time.Minute
-	SyncSystemLogsEvery    = 5 * time.Minute
 	ConnectedToInternet    = false
 )
 

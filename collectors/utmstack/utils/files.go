@@ -1,0 +1,90 @@
+package utils
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"reflect"
+
+	"gopkg.in/yaml.v2"
+)
+
+func GetMyPath() string {
+	ex, err := os.Executable()
+	if err != nil {
+		return ""
+	}
+	exPath := filepath.Dir(ex)
+	return exPath
+}
+
+func ReadYAML(path string, result interface{}) error {
+	if result == nil {
+		return fmt.Errorf("result interface is nil")
+	}
+
+	rv := reflect.ValueOf(result)
+	if rv.Kind() != reflect.Ptr || rv.IsNil() {
+		return fmt.Errorf("result must be a non-nil pointer")
+	}
+
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = file.Close() }()
+
+	d := yaml.NewDecoder(file)
+	if err := d.Decode(result); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func WriteStringToFile(fileName string, body string) error {
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = file.Close() }()
+
+	_, err = file.WriteString(body)
+	return err
+}
+
+func WriteYAML(url string, data interface{}) error {
+	config, err := yaml.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	err = WriteStringToFile(url, string(config))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ReadJson(fileName string, data interface{}) error {
+	content, err := os.ReadFile(fileName)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(content, data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func CheckIfPathExist(path string) bool {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}

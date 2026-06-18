@@ -1,0 +1,18 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sa-4
+family: sa
+familyName: System and Services Acquisition
+name: Acquisition Process
+scope: governance
+statement: |-
+  Include the following requirements, descriptions, and criteria, explicitly or by reference, using [standardized contract language | {{ insert: param, sa-04_odp.02 }} ] in the acquisition contract for the system, system component, or system service:
+    Security and privacy functional requirements;
+    Strength of mechanism requirements;
+    Security and privacy assurance requirements;
+    Controls needed to satisfy the security and privacy requirements.
+    Security and privacy documentation requirements;
+    Requirements for protecting security and privacy documentation;
+    Description of the system development environment and environment in which the system is intended to operate;
+    Allocation of responsibility or identification of parties responsible for information security, privacy, and supply chain risk management; and
+    Acceptance criteria.
+source: NIST SP 800-53 Rev 5 (public domain)

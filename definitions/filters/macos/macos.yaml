@@ -1,0 +1,32 @@
+# Macos filter, version 3.0.1
+pipeline:
+  - dataTypes:
+      - macos
+    steps:
+      - json:
+          source: raw
+
+      # Renaming useful fields
+      - rename:
+          from:
+            - log.activityidentifier
+          to: log.activityIdentifier
+
+      - rename:
+          from:
+            - log.processidentifier
+          to: log.processIdentifier
+
+      - rename:
+          from:
+            - log.storecategory
+          to: log.storeCategory
+
+      - rename:
+          from:
+            - log.threadidentifier
+          to: log.threadIdentifier
+
+      # Drop unnecessary events
+      - drop:
+          where: equals("log.level", "notice") && contains("log.subsystem", "com.apple.cloudkit") || contains("log.subsystem", "com.apple.CoreDuet") || oneOf("log.subsystem", ["com.apple.apsd", "com.apple.bluetooth", "com.apple.SkyLight", "com.apple.mDNSResponder", "com.apple.homed", "com.apple.identityservicesd", "com.apple.powerlogd", "com.apple.analyticsd", "com.apple.UIKit", "com.apple.runningboard", "com.apple.WiFiManager", "com.apple.xpc", "com.apple.cache_delete", "com.apple.spotlightindex"])

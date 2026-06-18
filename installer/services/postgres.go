@@ -48,32 +48,6 @@ func InitPgUtmstack(_ *config.Config) error {
 		return err
 	}
 
-	// Creating utm_client table
-	createTable := `CREATE TABLE public.utm_client (
-		id serial NOT NULL,
-		client_name varchar(100) NULL,
-		client_domain varchar(100) NULL,
-		client_prefix varchar(10) NULL,
-		client_mail varchar(100) NULL,
-		client_user varchar(50) NULL,
-		client_pass varchar(50) NULL,
-		client_licence_creation timestamp(0) NULL,
-		client_licence_expire timestamp(0) NULL,
-		client_licence_id varchar(100) NULL,
-		client_licence_verified bool NOT NULL,
-		CONSTRAINT utm_client_pkey PRIMARY KEY (id)
-	);`
-	err = execPsql(containerID, "utmstack", createTable)
-	if err != nil && !strings.Contains(err.Error(), "already exists") {
-		return err
-	}
-
-	// Insert client data
-	err = execPsql(containerID, "utmstack", "INSERT INTO public.utm_client (client_licence_verified) VALUES (false);")
-	if err != nil && !strings.Contains(err.Error(), "duplicate key") {
-		return err
-	}
-
 	return nil
 }
 
@@ -102,19 +76,4 @@ func GetAdminEmail() (string, error) {
 	}
 
 	return output[0], nil
-}
-
-func InitPgUserAuditor(_ *config.Config) error {
-	containerID, err := getPostgresContainerID()
-	if err != nil {
-		return err
-	}
-
-	// Creating userauditor database
-	err = execPsql(containerID, "", "CREATE DATABASE userauditor")
-	if err != nil && !strings.Contains(err.Error(), "already exists") {
-		return err
-	}
-
-	return nil
 }

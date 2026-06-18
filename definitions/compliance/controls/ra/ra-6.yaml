@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ra-6
+family: ra
+familyName: Risk Assessment
+name: Technical Surveillance Countermeasures Survey
+scope: data
+statement: 'Employ a technical surveillance countermeasures survey at [locations] [{{ insert: param, ra-06_odp.03
+  }}  | when {{ insert: param, ra-06_odp.04 }} ].'
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

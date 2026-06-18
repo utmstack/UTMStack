@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-26
+family: pm
+familyName: Program Management
+name: Complaint Management
+scope: governance
+statement: |-
+  Implement a process for receiving and responding to complaints, concerns, or questions from individuals about the organizational security and privacy practices that includes:
+    Mechanisms that are easy to use and readily accessible by the public;
+    All information necessary for successfully filing complaints;
+    Tracking mechanisms to ensure all complaints received are reviewed and addressed within [organization-defined time period];
+    Acknowledgement of receipt of complaints, concerns, or questions from individuals within [time period] ; and
+    Response to complaints, concerns, or questions from individuals within [time period].
+source: NIST SP 800-53 Rev 5 (public domain)

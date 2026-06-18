@@ -1,0 +1,21 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ra-5
+family: ra
+familyName: Risk Assessment
+name: Vulnerability Monitoring and Scanning
+scope: data
+statement: |-
+  Monitor and scan for vulnerabilities in the system and hosted applications [organization-defined frequency and/or randomly in accordance with organization-defined process] and when new vulnerabilities potentially affecting the system are identified and reported;
+    Employ vulnerability monitoring tools and techniques that facilitate interoperability among tools and automate parts of the vulnerability management process by using standards for:
+      Enumerating platforms, software flaws, and improper configurations;
+      Formatting checklists and test procedures; and
+      Measuring vulnerability impact;
+    Analyze vulnerability scan reports and results from vulnerability monitoring;
+    Remediate legitimate vulnerabilities [response times] in accordance with an organizational assessment of risk;
+    Share information obtained from the vulnerability monitoring process and control assessments with [personnel or roles] to help eliminate similar vulnerabilities in other systems; and
+    Employ vulnerability monitoring tools that include the capability to readily update the vulnerabilities to be scanned.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

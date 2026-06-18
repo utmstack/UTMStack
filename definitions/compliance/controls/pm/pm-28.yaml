@@ -1,0 +1,15 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-28
+family: pm
+familyName: Program Management
+name: Risk Framing
+scope: governance
+statement: |-
+  Identify and document:
+      Assumptions affecting risk assessments, risk responses, and risk monitoring;
+      Constraints affecting risk assessments, risk responses, and risk monitoring;
+      Priorities and trade-offs considered by the organization for managing risk; and
+      Organizational risk tolerance;
+    Distribute the results of risk framing activities to [personnel] ; and
+    Review and update risk framing considerations [frequency].
+source: NIST SP 800-53 Rev 5 (public domain)

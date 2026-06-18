@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - antivirus-kaspersky
+  name: Lateral Movement Indicators Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Lateral Movement
+  technique: "T1021 - Remote Services"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/tactics/TA0008/
+    - https://support.kaspersky.com/KESWin/11/en-us/151065.htm
+  description: |
+    Detects indicators of lateral movement attempts within the network through Kaspersky antivirus logs. 
+    Attackers use various techniques including PSExec, WMI, RDP, SMB shares, and exploitation tools to move 
+    from one compromised system to others, expanding their access and control across the network. This rule 
+    identifies blocked or detected activities that may indicate lateral movement attempts.
+  
+    Next Steps:
+    1. Investigate the source IP and hostname for signs of compromise
+    2. Review authentication logs for the same time period to identify potential credential theft
+    3. Check if the detected tools (PSExec, WMI, RDP) are authorized for use in your environment
+    4. Examine network traffic between the source and destination systems
+    5. Look for other suspicious activities from the same source host
+    6. Consider isolating affected systems if lateral movement is confirmed
+    7. Review similar patterns from the same source within the detection window
+  where: |
+    (equals("log.cn1", "3") || equals("log.cs1", "DETECT") || equals("log.act", "blocked")) &&
+    (contains("log.msg", ["psexec", "wmi", "rdp", "smb", "admin$", "ipc$", "c$",
+      "remote", "lateral", "pivot"]) ||
+     contains("log.cs4", ["exploit", "mimikatz", "bloodhound", "sharphound", "propagat"])) &&
+    exists("log.dst") &&
+    exists("log.src") &&
+    safe(log.src, "") != safe(log.dst, "")
+  afterEvents:
+    - indexPattern: v11-log-antivirus-kaspersky-*
+      with:
+        - field: log.src
+          operator: filter_term
+          value: '{{.log.src}}'
+      within: 2h
+      count: 3

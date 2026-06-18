@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: au-5
+family: au
+familyName: Audit and Accountability
+name: Response to Audit Logging Process Failures
+scope: data
+statement: |-
+  Alert [personnel or roles] within [time period] in the event of an audit logging process failure; and
+    Take the following additional actions: [additional actions].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

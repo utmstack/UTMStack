@@ -2,13 +2,11 @@ package agent
 
 import (
 	"regexp"
-	"strconv"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/utils"
-	"github.com/utmstack/config-client-go/types"
 )
 
 func convertModelToAgentResponse(agents []models.Agent, total int64) *ListAgentsResponse {
@@ -123,30 +121,5 @@ func modelToProtoCollector(model models.Collector) *Collector {
 		Status:       Status(collectorStatus),
 		LastSeen:     lastSeen,
 		Module:       CollectorModule(CollectorModule_value[string(model.Module)]),
-	}
-}
-
-func convertModuleGroupToCollectorProto(moduleGroup types.ModuleGroup) *CollectorConfigGroup {
-	var protoConfigs []*CollectorGroupConfigurations
-	for _, cnf := range moduleGroup.Configurations {
-		protoConfigs = append(protoConfigs, &CollectorGroupConfigurations{
-			Id:              int32(cnf.ID),
-			GroupId:         int32(cnf.GroupID),
-			ConfKey:         cnf.ConfKey,
-			ConfValue:       cnf.ConfValue,
-			ConfName:        cnf.ConfName,
-			ConfDescription: cnf.ConfDescription,
-			ConfDataType:    string(cnf.ConfDataType),
-			ConfRequired:    cnf.ConfRequired,
-		})
-	}
-
-	intCollectorID, _ := strconv.Atoi(moduleGroup.CollectorID)
-	return &CollectorConfigGroup{
-		Id:               int32(moduleGroup.ID),
-		GroupName:        moduleGroup.GroupName,
-		GroupDescription: moduleGroup.GroupDescription,
-		CollectorId:      int32(intCollectorID),
-		Configurations:   protoConfigs,
 	}
 }

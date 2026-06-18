@@ -1,0 +1,21 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - google
+  name: "GCP suspicious login blocked"
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: "Initial Access"
+  technique: "T1078 - Valid Accounts"
+  adversary: origin
+  description: "A suspicious login to a user's account was detected and blocked by Google Cloud."
+  references:
+    - "https://attack.mitre.org/tactics/TA0001/"
+    - "https://attack.mitre.org/techniques/T1078"
+  where: |
+    equals("log.protoPayloadMethodName", "google.login.LoginService.suspiciousLogin")
+  groupBy:
+    - adversary.ip
+    - adversary.user

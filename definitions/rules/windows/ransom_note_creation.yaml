@@ -1,0 +1,32 @@
+# Rule version v1.0.2
+
+- dataTypes:
+    - "wineventlog"
+  name: "Windows: Possible ransomware attack detected. Ransomware Note Creation."
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: "Impact"
+  technique: "T1486 - Data Encrypted for Impact"
+  adversary: origin
+  description: "Ransomware, is a type of malware that prevents users from accessing their system or 
+                personal files and requires payment of a ransom in order to gain access to them again. Identifies 
+                ransomware attempts. A known ransomware note file has been detected, potentially indicating an active ransomware infection."
+  references:
+    - "https://attack.mitre.org/tactics/TA0040/"
+  where: equals("log.eventCode", 4663) && regexMatch("log.EventDataFileName", "(README_TO_RESTORE_FILES|INSTRUCTION_TO_GET_FILES_BACK|HOW_TO_DECRYPT_FILES|DECRYPT_INSTRUCTION|RECOVER_INSTRUCTION|RESTORE_FILES|READ_ME_NOW|YOUR_FILES_ARE_ENCRYPTED|IMPORTANT_INSTRUCTIONS|NOTICE|DECRYPT_YOUR_FILES|HOW_TO_RESTORE_FILES|HELP_DECRYPT|RECOVERY_FILE|RECOVER-FILES|INSTRUCTION)\\.(txt|html|php)$")
+  afterEvents:
+    - indexPattern: v11-log-wineventlog-*
+      with:
+        - field: log.eventCode
+          operator: filter_term
+          value: '{{.log.eventCode}}'
+        - field: log.EventDataFileName.keyword
+          operator: filter_term
+          value: '{{.log.EventDataFileName}}'
+      within: 60s
+      count: 5
+  groupBy:
+    - origin.ip
+    - target.user

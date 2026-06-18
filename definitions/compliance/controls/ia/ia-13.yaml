@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ia-13
+family: ia
+familyName: Identification and Authentication
+name: Identity Providers and Authorization Servers
+scope: data
+statement: Employ identity providers and authorization servers to manage user, device, and non-person
+  entity (NPE) identities, attributes, and access rights supporting authentication and authorization decisions
+  in accordance with [policy] using [mechanisms].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

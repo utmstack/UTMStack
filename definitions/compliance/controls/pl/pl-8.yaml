@@ -1,0 +1,15 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pl-8
+family: pl
+familyName: Planning
+name: Security and Privacy Architectures
+scope: governance
+statement: |-
+  Develop security and privacy architectures for the system that:
+      Describe the requirements and approach to be taken for protecting the confidentiality, integrity, and availability of organizational information;
+      Describe the requirements and approach to be taken for processing personally identifiable information to minimize privacy risk to individuals;
+      Describe how the architectures are integrated into and support the enterprise architecture; and
+      Describe any assumptions about, and dependencies on, external systems and services;
+    Review and update the architectures [frequency] to reflect changes in the enterprise architecture; and
+    Reflect planned architecture changes in security and privacy plans, Concept of Operations (CONOPS), criticality analysis, organizational procedures, and procurements and acquisitions.
+source: NIST SP 800-53 Rev 5 (public domain)

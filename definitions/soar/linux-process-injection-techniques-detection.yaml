@@ -1,0 +1,13 @@
+# UTMStack system SOAR flow
+- name: Linux  - Process Injection Techniques Detection
+  description: Detects and responds to suspicious process injection techniques on Ubuntu 20.04/22.04 LTS. This playbook automates
+    disabling the user account associated with the anomalous process execution.
+  conditions:
+  - operator: IS
+    field: name
+    value: Process Execution Anomalies
+  commands:
+  - sudo usermod --expiredate 1 $(target.user)
+  - usermod -s /sbin/nologin $(adversary.user)
+  shell: sh
+  agentPlatform: ubuntu

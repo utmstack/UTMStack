@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: si-14
+family: si
+familyName: System and Information Integrity
+name: Non-persistence
+scope: data
+statement: 'Implement non-persistent [system components and services] that are initiated in a known state
+  and terminated [upon end of session of use | {{ insert: param, si-14_odp.03 }} ].'
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

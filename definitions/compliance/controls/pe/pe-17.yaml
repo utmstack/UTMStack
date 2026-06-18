@@ -1,0 +1,12 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pe-17
+family: pe
+familyName: Physical and Environmental Protection
+name: Alternate Work Site
+scope: governance
+statement: |-
+  Determine and document the [alternate work sites] allowed for use by employees;
+    Employ the following controls at alternate work sites: [controls];
+    Assess the effectiveness of controls at alternate work sites; and
+    Provide a means for employees to communicate with information security and privacy personnel in case of incidents.
+source: NIST SP 800-53 Rev 5 (public domain)

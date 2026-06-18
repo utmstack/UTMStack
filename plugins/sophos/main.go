@@ -14,8 +14,6 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
-
-	"github.com/utmstack/UTMStack/plugins/sophos/config"
 )
 
 const (
@@ -31,7 +29,7 @@ var (
 	nextKeysMu sync.RWMutex
 
 	activeGroupsMu sync.RWMutex
-	activeGroups   = make(map[int32]*config.ModuleGroup)
+	activeGroups   = make(map[int32]*ModuleGroup)
 )
 
 func main() {
@@ -40,7 +38,7 @@ func main() {
 		return
 	}
 
-	go config.StartConfigurationSystem()
+	go StartConfigurationSystem()
 
 	for t := 0; t < 2*runtime.NumCPU(); t++ {
 		go plugins.SendLogsFromChannel("com.utmstack.sophos")
@@ -49,7 +47,7 @@ func main() {
 	watchConfigAndPull()
 }
 
-func syncActiveGroups(newConfig *config.ConfigurationSection) {
+func syncActiveGroups(newConfig *ConfigurationSection) {
 	activeGroupsMu.Lock()
 	defer activeGroupsMu.Unlock()
 
@@ -57,11 +55,11 @@ func syncActiveGroups(newConfig *config.ConfigurationSection) {
 		catcher.Info("Module deactivated, clearing all groups", map[string]any{
 			"process": "plugin_com.utmstack.sophos",
 		})
-		activeGroups = make(map[int32]*config.ModuleGroup)
+		activeGroups = make(map[int32]*ModuleGroup)
 		return
 	}
 
-	newGroups := make(map[int32]*config.ModuleGroup)
+	newGroups := make(map[int32]*ModuleGroup)
 	for _, grp := range newConfig.ModuleGroups {
 		newGroups[grp.Id] = grp
 	}
@@ -85,11 +83,11 @@ func syncActiveGroups(newConfig *config.ConfigurationSection) {
 	activeGroups = newGroups
 }
 
-func getActiveGroups() []*config.ModuleGroup {
+func getActiveGroups() []*ModuleGroup {
 	activeGroupsMu.RLock()
 	defer activeGroupsMu.RUnlock()
 
-	groups := make([]*config.ModuleGroup, 0, len(activeGroups))
+	groups := make([]*ModuleGroup, 0, len(activeGroups))
 	for _, grp := range activeGroups {
 		groups = append(groups, grp)
 	}
@@ -99,7 +97,7 @@ func getActiveGroups() []*config.ModuleGroup {
 func watchConfigAndPull() {
 	time.Sleep(3 * time.Second)
 
-	initialConfig := config.GetConfig()
+	initialConfig := GetConfig()
 	if initialConfig != nil && initialConfig.ModuleActive {
 		syncActiveGroups(initialConfig)
 	}
@@ -112,7 +110,7 @@ func watchConfigAndPull() {
 
 	for {
 		select {
-		case newConfig := <-config.GetConfigUpdateChannel():
+		case newConfig := <-GetConfigUpdateChannel():
 			catcher.Info("Received config update, syncing groups", map[string]any{
 				"moduleActive": newConfig != nil && newConfig.ModuleActive,
 				"process":      "plugin_com.utmstack.sophos",
@@ -139,7 +137,7 @@ func watchConfigAndPull() {
 			var wg sync.WaitGroup
 			wg.Add(len(groups))
 			for _, grp := range groups {
-				go func(group *config.ModuleGroup) {
+				go func(group *ModuleGroup) {
 					defer wg.Done()
 					var invalid bool
 					for _, c := range group.ModuleGroupConfigurations {
@@ -160,7 +158,7 @@ func watchConfigAndPull() {
 	}
 }
 
-func pull(startTime time.Time, group *config.ModuleGroup) {
+func pull(startTime time.Time, group *ModuleGroup) {
 	nextKeysMu.RLock()
 	prevKey := nextKeys[int(group.Id)]
 	nextKeysMu.RUnlock()
@@ -199,7 +197,7 @@ type SophosCentralProcessor struct {
 	ExpiresAt    time.Time
 }
 
-func getSophosCentralProcessor(group *config.ModuleGroup) SophosCentralProcessor {
+func getSophosCentralProcessor(group *ModuleGroup) SophosCentralProcessor {
 	sophosProcessor := SophosCentralProcessor{}
 
 	for _, cnf := range group.ModuleGroupConfigurations {
@@ -504,4 +502,70 @@ func (p *SophosCentralProcessor) buildURL(fromTime int64, nextKey string) (*url.
 
 	u.RawQuery = params.Encode()
 	return u, nil
+}
+
+func connectionChecker(url string) error {
+	checkConn := func() error {
+		if err := checkConnection(url); err != nil {
+			return fmt.Errorf("connection failed: %v", err)
+		}
+		return nil
+	}
+
+	if err := infiniteRetryIfXError(checkConn, "connection failed"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func checkConnection(url string) error {
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			_ = catcher.Error("error closing response body", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
+		}
+	}()
+
+	return nil
+}
+
+func infiniteRetryIfXError(f func() error, exception string) error {
+	var xErrorWasLogged bool
+
+	for {
+		err := f()
+		if err != nil && is(err, exception) {
+			if !xErrorWasLogged {
+				_ = catcher.Error("An error occurred, will keep retrying indefinitely...", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
+				xErrorWasLogged = true
+			}
+			time.Sleep(wait)
+			continue
+		}
+
+		return err
+	}
+}
+
+func is(e error, args ...string) bool {
+	for _, arg := range args {
+		if strings.Contains(e.Error(), arg) {
+			return true
+		}
+	}
+	return false
 }

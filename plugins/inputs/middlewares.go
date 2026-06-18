@@ -1,23 +1,16 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"crypto/hmac"
-	"crypto/sha256"
-	"errors"
-	"fmt"
-	"io"
-	"net/http"
+	"net"
 	"strconv"
 	"strings"
 
-	"github.com/gin-gonic/gin"
-	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 )
 
@@ -46,51 +39,6 @@ func (m *Middlewares) GrpcStreamAuth(srv any, ss grpc.ServerStream, _ *grpc.Stre
 	return handler(srv, ss)
 }
 
-func (m *Middlewares) HttpAuth() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		connectionKey := c.GetHeader(proxyAPIKeyHeader)
-		if connectionKey == "" {
-			e := catcher.Error("cannot authenticate", errors.New("missing connection key"), map[string]any{"process": "plugin_com.utmstack.inputs", "status": http.StatusUnauthorized})
-			e.GinError(c)
-			return
-		}
-		isValid := m.AuthService.IsConnectionKeyValid(connectionKey)
-		if !isValid {
-			e := catcher.Error("cannot authenticate", errors.New("invalid connection key"), map[string]any{"process": "plugin_com.utmstack.inputs", "status": http.StatusUnauthorized})
-			e.GinError(c)
-			return
-		}
-		c.Next()
-	}
-}
-
-func (m *Middlewares) GitHubAuth() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		body, err := io.ReadAll(c.Request.Body)
-		if err != nil {
-			e := catcher.Error("failed to read request body", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
-			e.GinError(c)
-			return
-		}
-		sig := c.GetHeader("X-Hub-Signature-256")
-		if len(sig) == 0 {
-			e := catcher.Error("missing X-Hub-Signature-256 header", nil, map[string]any{"process": "plugin_com.utmstack.inputs"})
-			e.GinError(c)
-			return
-		}
-		c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
-		key := m.AuthService.GetConnectionKey()
-		err = verifySignature(body, key, sig)
-		if err != nil {
-			e := catcher.Error("failed to verify signature", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
-			e.GinError(c)
-			return
-		}
-
-		c.Next()
-	}
-}
-
 func (m *Middlewares) authFromContext(ctx context.Context) error {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
@@ -100,7 +48,7 @@ func (m *Middlewares) authFromContext(ctx context.Context) error {
 	authKey := md.Get("key")
 	authId := md.Get("id")
 	connectorType := md.Get("type")
-	authConnectionKey := md.Get("connection-key")
+	authAPIKey := md.Get(apiKeyHeader)
 	authInternalKey := md.Get("internal-key")
 
 	if len(authKey) > 0 && len(authId) > 0 && len(connectorType) > 0 {
@@ -114,9 +62,9 @@ func (m *Middlewares) authFromContext(ctx context.Context) error {
 		if !m.AuthService.IsKeyValid(key, uint(id), typ) {
 			return status.Error(codes.PermissionDenied, "invalid key")
 		}
-	} else if len(authConnectionKey) > 0 {
-		if !isConnectionKeyValid(authConnectionKey[0]) {
-			return status.Error(codes.PermissionDenied, "invalid connection key")
+	} else if len(authAPIKey) > 0 {
+		if !apiKeys.valid(authAPIKey[0], peerIP(ctx)) {
+			return status.Error(codes.PermissionDenied, "invalid api key")
 		}
 	} else if len(authInternalKey) > 0 {
 		internalKey := plugins.PluginCfg("com.utmstack").Get("internalKey").String()
@@ -130,27 +78,14 @@ func (m *Middlewares) authFromContext(ctx context.Context) error {
 	return nil
 }
 
-func verifySignature(payloadBody []byte, secretToken string, signatureHeader string) error {
-	if signatureHeader == "" {
-		return errors.New("x-hub-signature-256 header is missing")
+// peerIP extracts the client IP of a gRPC call (for the API key IP allowlist).
+func peerIP(ctx context.Context) string {
+	p, ok := peer.FromContext(ctx)
+	if !ok || p.Addr == nil {
+		return ""
 	}
-
-	mac := hmac.New(sha256.New, []byte(secretToken))
-	mac.Write(payloadBody)
-	expectedSignature := "sha256=" + fmt.Sprintf("%x", mac.Sum(nil))
-
-	if signatureHeader != expectedSignature {
-		return errors.New("request signatures didn't match")
+	if host, _, err := net.SplitHostPort(p.Addr.String()); err == nil {
+		return host
 	}
-
-	return nil
-}
-
-func isConnectionKeyValid(token string) bool {
-	panelKey, e := GetConnectionKey()
-	if e != nil {
-		return false
-	}
-
-	return token == string(panelKey)
+	return p.Addr.String()
 }

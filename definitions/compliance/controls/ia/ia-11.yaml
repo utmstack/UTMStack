@@ -1,0 +1,12 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ia-11
+family: ia
+familyName: Identification and Authentication
+name: Re-authentication
+scope: data
+statement: Require users to re-authenticate when [circumstances or situations].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

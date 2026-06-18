@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pe-16
+family: pe
+familyName: Physical and Environmental Protection
+name: Delivery and Removal
+scope: governance
+statement: |-
+  Authorize and control [organization-defined types of system components] entering and exiting the facility; and
+    Maintain records of the system components.
+source: NIST SP 800-53 Rev 5 (public domain)

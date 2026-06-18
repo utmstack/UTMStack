@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: si-11
+family: si
+familyName: System and Information Integrity
+name: Error Handling
+scope: data
+statement: |-
+  Generate error messages that provide information necessary for corrective actions without revealing information that could be exploited; and
+    Reveal error messages only to [personnel or roles].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: au-11
+family: au
+familyName: Audit and Accountability
+name: Audit Record Retention
+scope: data
+statement: Retain audit records for [time period] to provide support for after-the-fact investigations
+  of incidents and to meet regulatory and organizational information retention requirements.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

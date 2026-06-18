@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sa-15
+family: sa
+familyName: System and Services Acquisition
+name: Development Process, Standards, and Tools
+scope: governance
+statement: |-
+  Require the developer of the system, system component, or system service to follow a documented development process that:
+      Explicitly addresses security and privacy requirements;
+      Identifies the standards and tools used in the development process;
+      Documents the specific tool options and tool configurations used in the development process; and
+      Documents, manages, and ensures the integrity of changes to the process and/or tools used in development; and
+    Review the development process, standards, tools, tool options, and tool configurations [frequency] to determine if the process, standards, tools, tool options and tool configurations selected and employed can satisfy the following security and privacy requirements: [organization-defined security and privacy requirements].
+source: NIST SP 800-53 Rev 5 (public domain)

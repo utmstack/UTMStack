@@ -1,0 +1,14 @@
+# UTMStack system SOAR flow
+- name: Windows Server - Failed RDP Brute Force Response
+  description: Automates a simple, direct response to RDP brute-force attempts by blocking the attacker's IP.
+  conditions:
+  - operator: IS
+    field: name
+    value: RDP Brute Force Attack
+  commands:
+  - netsh advfirewall firewall add rule name="Block-RDP-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)"
+    enable=yes
+  - netsh advfirewall firewall add rule name="Block-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)"
+    enable=yes
+  shell: powershell
+  agentPlatform: windows

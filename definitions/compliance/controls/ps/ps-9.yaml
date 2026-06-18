@@ -1,0 +1,8 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: ps-9
+family: ps
+familyName: Personnel Security
+name: Position Descriptions
+scope: governance
+statement: Incorporate security and privacy roles and responsibilities into organizational position descriptions.
+source: NIST SP 800-53 Rev 5 (public domain)

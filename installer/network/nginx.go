@@ -3,6 +3,7 @@ package network
 import (
 	"path"
 
+	"github.com/utmstack/UTMStack/installer/branding"
 	"github.com/utmstack/UTMStack/installer/config"
 	"github.com/utmstack/UTMStack/installer/docker"
 	"github.com/utmstack/UTMStack/installer/templates"
@@ -41,7 +42,11 @@ func ConfigureNginx(stack *docker.StackConfig, distro string) error {
 		return err
 	}
 
-	err = utils.WriteToFile(path.Join("/", "etc", "nginx", "html", "custom_502.html"), templates.NginxCustomBadGateway)
+	logo := "https://storage.googleapis.com/utmstack-updates/nginx/logo_UTMStack.svg"
+	if uri, ok := branding.LogoDataURI(); ok {
+		logo = uri
+	}
+	err = utils.WriteToFile(path.Join("/", "etc", "nginx", "html", "custom_502.html"), templates.NginxCustomBadGateway(branding.Name(), logo))
 	if err != nil {
 		config.Logger().ErrorF("error writing custom 502 page: %v", err)
 	}

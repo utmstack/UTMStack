@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"regexp"
 	"strings"
@@ -24,23 +25,51 @@ type IncidentDetail struct {
 }
 
 type AlertFields struct {
-	Timestamp         string         `json:"@timestamp"`
-	Status            int            `json:"status"`
-	StatusLabel       string         `json:"statusLabel"`
-	StatusObservation string         `json:"statusObservation"`
-	IsIncident        bool           `json:"isIncident"`
-	IncidentDetail    IncidentDetail `json:"incidentDetail"`
-	Severity          int            `json:"severity"`
-	SeverityLabel     string         `json:"severityLabel"`
-	Solution          string         `json:"solution"`
-	Reference         []string       `json:"reference"`
-	LastEvent         *plugins.Event `json:"lastEvent"`
-	Tags              []string       `json:"tags"`
-	Notes             string         `json:"notes"`
-	TagRulesApplied   []int          `json:"tagRulesApplied"`
-	DeduplicatedBy    []string       `json:"deduplicatedBy"`
-	GroupedBy         []string       `json:"groupedBy"`
+	Timestamp         string            `json:"@timestamp"`
+	Status            int               `json:"status"`
+	StatusLabel       string            `json:"statusLabel"`
+	StatusObservation string            `json:"statusObservation"`
+	IsIncident        bool              `json:"isIncident"`
+	IncidentDetail    IncidentDetail    `json:"incidentDetail"`
+	Severity          int               `json:"severity"`
+	SeverityLabel     string            `json:"severityLabel"`
+	Solution          string            `json:"solution"`
+	Reference         []string          `json:"reference"`
+	LastEvent         *plugins.Event    `json:"lastEvent"`
+	Tags              []string          `json:"tags"`
+	Notes             string            `json:"notes"`
+	TagRulesApplied   []int             `json:"tagRulesApplied"`
+	DeduplicatedBy    []string          `json:"deduplicatedBy"`
+	GroupedBy         []string          `json:"groupedBy"`
+	SourceGroup       *AlertSourceGroup `json:"sourceGroup,omitempty"` // datasource asset group (enrichment)
+	SourceLabels      []string          `json:"sourceLabels,omitempty"`
 	plugins.Alert
+}
+
+type AlertSourceGroup struct {
+	ID   uint64 `json:"id"`
+	Name string `json:"name"`
+}
+
+// rules holds the active tag-rule snapshot the plugin evaluates against each
+// freshly indexed alert. It is refreshed in the background; a missing or empty
+// snapshot just means no rules fire — release-to-Open still runs.
+var rules *ruleCache
+
+var dsCache *datasourceCache
+
+func enrichFromDatasource(a *AlertFields) {
+	if dsCache == nil || a.DataSource == "" {
+		return
+	}
+	e, ok := dsCache.Lookup(a.DataSource)
+	if !ok {
+		return
+	}
+	if e.GroupID != nil {
+		a.SourceGroup = &AlertSourceGroup{ID: *e.GroupID, Name: e.GroupName}
+	}
+	a.SourceLabels = e.Labels
 }
 
 func main() {
@@ -57,6 +86,23 @@ func main() {
 		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
+
+	rules = newRuleCache()
+	initialCtx, initialCancel := context.WithTimeout(context.Background(), rulesRequestTimeout)
+	if err := rules.Refresh(initialCtx); err != nil {
+		// First-pass failure is non-fatal — the background loop keeps trying.
+		_ = catcher.Error("initial tag-rule cache refresh failed", err, map[string]any{"process": "plugin_com.utmstack.alerts"})
+	}
+	initialCancel()
+	go rules.Run(context.Background())
+
+	dsCache = newDatasourceCache()
+	dsCtx, dsCancel := context.WithTimeout(context.Background(), rulesRequestTimeout)
+	if err := dsCache.Refresh(dsCtx); err != nil {
+		_ = catcher.Error("initial datasource cache refresh failed", err, map[string]any{"process": "plugin_com.utmstack.alerts"})
+	}
+	dsCancel()
+	go dsCache.Run(context.Background())
 
 	err = plugins.InitCorrelationPlugin("com.utmstack.alerts", correlate)
 	if err != nil {
@@ -87,7 +133,16 @@ func correlate(ctx context.Context,
 
 	parentId := getPreviousAlertId(alert)
 
-	return nil, newAlert(alert, parentId)
+	var snapshot []RuleSnapshot
+	if rules != nil {
+		snapshot = rules.Snapshot()
+	}
+
+	if err := newAlert(alert, parentId, snapshot); err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }
 
 func isDuplicate(alert *plugins.Alert) bool {
@@ -312,7 +367,34 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 	return nil
 }
 
-func newAlert(alert *plugins.Alert, parentId *string) error {
+func applyTagRules(a *AlertFields, rules []RuleSnapshot) {
+	a.StatusObservation = tagRuleOpenObservation
+	if len(rules) == 0 {
+		return
+	}
+
+	raw, err := json.Marshal(a)
+	if err != nil {
+		_ = catcher.Error("tag rules: cannot marshal alert", err, map[string]any{"alert": a.Name, "process": "plugin_com.utmstack.alerts"})
+		return
+	}
+	var doc map[string]any
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		_ = catcher.Error("tag rules: cannot decode alert", err, map[string]any{"alert": a.Name, "process": "plugin_com.utmstack.alerts"})
+		return
+	}
+
+	d := evaluateTagRules(doc, rules)
+	a.Tags = d.Tags
+	a.TagRulesApplied = d.RuleIDs
+	if d.FalsePositive {
+		a.Status = statusCompleted
+		a.StatusLabel = "Completed"
+		a.StatusObservation = tagRuleCompletedObservation
+	}
+}
+
+func newAlert(alert *plugins.Alert, parentId *string, ruleSnapshot []RuleSnapshot) error {
 	// Recover from panics to ensure the function doesn't terminate
 	defer func() {
 		if r := recover(); r != nil {
@@ -343,8 +425,8 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 
 	a := AlertFields{
 		Timestamp:     alert.Timestamp,
-		Status:        1,
-		StatusLabel:   "Automatic review",
+		Status:        statusOpen,
+		StatusLabel:   "Open",
 		Severity:      severityN,
 		SeverityLabel: severityLabel,
 		Reference:     alert.References,
@@ -378,6 +460,12 @@ func newAlert(alert *plugins.Alert, parentId *string) error {
 	a.Impact = alert.Impact
 	a.ImpactScore = alert.ImpactScore
 	a.Errors = alert.Errors
+
+	// Enrich with the dataSource's asset group/labels, then evaluate tag rules in
+	// memory — so the alert is indexed once with its final context, tags and status
+	// (and rules can match on the enriched sourceGroup/sourceLabels).
+	enrichFromDatasource(&a)
+	applyTagRules(&a, ruleSnapshot)
 
 	// Retry logic for indexing operation
 	maxRetries := 3

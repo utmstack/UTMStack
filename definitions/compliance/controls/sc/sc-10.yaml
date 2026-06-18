@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: sc-10
+family: sc
+familyName: System and Communications Protection
+name: Network Disconnect
+scope: data
+statement: Terminate the network connection associated with a communications session at the end of the
+  session or after [time period] of inactivity.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

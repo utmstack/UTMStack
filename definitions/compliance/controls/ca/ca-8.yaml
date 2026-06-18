@@ -1,0 +1,8 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: ca-8
+family: ca
+familyName: Assessment, Authorization, and Monitoring
+name: Penetration Testing
+scope: governance
+statement: Conduct penetration testing [frequency] on [system(s) or system components].
+source: NIST SP 800-53 Rev 5 (public domain)

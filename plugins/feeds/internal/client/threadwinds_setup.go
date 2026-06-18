@@ -22,9 +22,7 @@ func ConfigureThreadWindsCredentials(ctx context.Context, deps *ClientDependenci
 
 		if err := deps.Backend.SaveThreadWindsCredentials(ctx,
 			regResp.APIKey,
-			regResp.APISecret,
-			twConfig.KeyID,
-			twConfig.SecretID); err != nil {
+			regResp.APISecret); err != nil {
 			return catcher.Error("failed to save ThreadWinds credentials", err, nil)
 		}
 

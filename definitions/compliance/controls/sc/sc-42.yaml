@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: sc-42
+family: sc
+familyName: System and Communications Protection
+name: Sensor Capability and Data
+scope: data
+statement: |-
+  Prohibit [the use of devices possessing {{ insert: param, sc-42_odp.02 }} in {{ insert: param, sc-42_odp.03 }}  | the remote activation of environmental sensing capabilities on organizational systems or system components with the following exceptions: {{ insert: param, sc-42_odp.04 }} ] ; and
+    Provide an explicit indication of sensor use to [group of users].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

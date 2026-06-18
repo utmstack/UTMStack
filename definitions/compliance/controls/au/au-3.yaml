@@ -1,0 +1,19 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: au-3
+family: au
+familyName: Audit and Accountability
+name: Content of Audit Records
+scope: data
+statement: |-
+  Ensure that audit records contain information that establishes the following:
+    What type of event occurred;
+    When the event occurred;
+    Where the event occurred;
+    Source of the event;
+    Outcome of the event; and
+    Identity of any individuals, subjects, or objects/entities associated with the event.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

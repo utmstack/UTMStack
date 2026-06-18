@@ -1,0 +1,21 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - google
+  name: "GCP suspicious programmatic login"
+  impact:
+    confidentiality: 1
+    integrity: 2
+    availability: 3
+  category: "Credential Access"
+  technique: "T1110 - Brute Force"
+  adversary: origin
+  description: "Google Cloud has detected a suspicious programmatic login. Programmatic login can be use to perform brute force attack."
+  references:
+    - "https://attack.mitre.org/tactics/TA0006"
+    - "https://attack.mitre.org/techniques/T1110"
+  where: |
+    equals("log.protoPayloadMethodName", "google.login.LoginService.suspiciousProgrammaticLogin")
+  groupBy:
+    - adversary.ip
+    - adversary.user

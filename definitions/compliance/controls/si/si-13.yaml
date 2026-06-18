@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: si-13
+family: si
+familyName: System and Information Integrity
+name: Predictable Failure Prevention
+scope: data
+statement: |-
+  Determine mean time to failure (MTTF) for the following system components in specific environments of operation: [system components] ; and
+    Provide substitute system components and a means to exchange active and standby components in accordance with the following criteria: [mean time to failure (MTTF) substitution criteria].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

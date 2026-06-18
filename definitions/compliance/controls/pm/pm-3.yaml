@@ -1,0 +1,11 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-3
+family: pm
+familyName: Program Management
+name: Information Security and Privacy Resources
+scope: governance
+statement: |-
+  Include the resources needed to implement the information security and privacy programs in capital planning and investment requests and document all exceptions to this requirement;
+    Prepare documentation required for addressing information security and privacy programs in capital planning and investment requests in accordance with applicable laws, executive orders, directives, policies, regulations, standards; and
+    Make available for expenditure, the planned information security and privacy resources.
+source: NIST SP 800-53 Rev 5 (public domain)

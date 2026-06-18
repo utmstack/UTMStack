@@ -1,0 +1,8 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sa-20
+family: sa
+familyName: System and Services Acquisition
+name: Customized Development of Critical Components
+scope: governance
+statement: 'Reimplement or custom develop the following critical system components: [critical system].'
+source: NIST SP 800-53 Rev 5 (public domain)

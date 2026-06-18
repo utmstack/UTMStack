@@ -1,0 +1,15 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: cp-7
+family: cp
+familyName: Contingency Planning
+name: Alternate Processing Site
+scope: data
+statement: |-
+  Establish an alternate processing site, including necessary agreements to permit the transfer and resumption of [system operations] for essential mission and business functions within [time period] when the primary processing capabilities are unavailable;
+    Make available at the alternate processing site, the equipment and supplies required to transfer and resume operations or put contracts in place to support delivery to the site within the organization-defined time period for transfer and resumption; and
+    Provide controls at the alternate processing site that are equivalent to those at the primary site.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

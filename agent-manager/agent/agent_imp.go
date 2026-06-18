@@ -32,8 +32,10 @@ type AgentService struct {
 	CacheAgentKeyMutex    sync.RWMutex
 	CommandResultChannel  map[string]chan *CommandResult
 	CommandResultChannelM sync.Mutex
-
-	DBConnection *database.DB
+	connKey               string
+	connKeyID             uint
+	connKeyMutex          sync.RWMutex
+	DBConnection          *database.DB
 }
 
 func (s *AgentService) ValidateAgentKey(key string, id uint) bool {
@@ -61,6 +63,11 @@ func InitAgentService() error {
 		}
 		for _, agent := range agents {
 			AgentServ.CacheAgentKey[agent.ID] = agent.AgentKey
+		}
+
+		if e := AgentServ.loadConnectionKey(); e != nil {
+			err = e
+			return
 		}
 	})
 	return err
@@ -110,6 +117,11 @@ func (s *AgentService) RegisterAgent(ctx context.Context, req *AgentRequest) (*A
 	}
 
 	catcher.Info("Agent registered correctly", map[string]any{"hostname": agent.Hostname, "id": agent.ID, "process": "agent-manager"})
+
+	if OnAgentRegisterHook != nil {
+		OnAgentRegisterHook(agent)
+	}
+
 	return &AuthResponse{
 		Id:  uint32(agent.ID),
 		Key: key,
@@ -162,6 +174,10 @@ func (s *AgentService) UpdateAgent(ctx context.Context, req *AgentRequest) (*Aut
 	if err != nil {
 		catcher.Error("failed to update agent", err, map[string]any{"process": "agent-manager"})
 		return nil, status.Errorf(codes.Internal, "failed to update agent: %v", err)
+	}
+
+	if OnAgentUpdateHook != nil {
+		OnAgentUpdateHook(agent)
 	}
 
 	res := &AuthResponse{
@@ -248,6 +264,10 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 	s.AgentStreamMap[idUint] = stream
 	s.AgentStreamMutex.Unlock()
 
+	if OnAgentConnectHook != nil {
+		OnAgentConnectHook(stream.Context(), idUint)
+	}
+
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
@@ -281,7 +301,7 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 					CmdId:      cmdID,
 					ExecutedAt: msg.Result.ExecutedAt,
 				}
-			} else {
+			} else if OnCommandResultHook == nil || !OnCommandResultHook(msg.Result) {
 				catcher.Error("failed to find result channel for CmdID", nil, map[string]any{"cmdID": cmdID, "process": "agent-manager"})
 			}
 			s.CommandResultChannelM.Unlock()
@@ -331,16 +351,26 @@ func (s *AgentService) ProcessCommand(stream PanelService_ProcessCommandServer) 
 			catcher.Error("unable to create a new command history", err, map[string]any{"process": "agent-manager"})
 		}
 
-		err = agentStream.Send(&BidirectionalStream{
-			StreamMessage: &BidirectionalStream_Command{
-				Command: &UtmCommand{
-					AgentId: cmd.AgentId,
-					Command: replaceSecretValues(cmd.Command),
-					CmdId:   cmdID,
-					Shell:   cmd.Shell,
+		var lock sync.Locker
+		if LockStreamHook != nil {
+			lock = LockStreamHook(uint(streamId))
+		}
+		func() {
+			if lock != nil {
+				lock.Lock()
+				defer lock.Unlock()
+			}
+			err = agentStream.Send(&BidirectionalStream{
+				StreamMessage: &BidirectionalStream_Command{
+					Command: &UtmCommand{
+						AgentId: cmd.AgentId,
+						Command: replaceSecretValues(cmd.Command),
+						CmdId:   cmdID,
+						Shell:   cmd.Shell,
+					},
 				},
-			},
-		})
+			})
+		}()
 		if err != nil {
 			return status.Errorf(codes.Internal, "failed to send command to agent: %v", err)
 		}

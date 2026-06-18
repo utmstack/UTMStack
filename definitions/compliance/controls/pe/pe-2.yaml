@@ -1,0 +1,12 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pe-2
+family: pe
+familyName: Physical and Environmental Protection
+name: Physical Access Authorizations
+scope: governance
+statement: |-
+  Develop, approve, and maintain a list of individuals with authorized access to the facility where the system resides;
+    Issue authorization credentials for facility access;
+    Review the access list detailing authorized facility access by individuals [frequency] ; and
+    Remove individuals from the facility access list when access is no longer required.
+source: NIST SP 800-53 Rev 5 (public domain)

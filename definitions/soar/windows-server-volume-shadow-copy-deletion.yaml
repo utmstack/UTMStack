@@ -1,0 +1,15 @@
+# UTMStack system SOAR flow
+- name: Windows Server - Volume Shadow Copy Deletion
+  description: Detects and responds to unauthorized deletion of Volume Shadow Copies by terminating suspicious processes,
+    logging out the user, and disabling the user account.
+  conditions:
+  - operator: IS
+    field: name
+    value: Volume Shadow Copy Deletion
+  commands:
+  - taskkill /F /IM "$(target.process)" ; logoff $(target.user) ; net user "$(target.user)" /active:no
+  - taskkill /F /IM (Split-Path -Path "$(adversary.process)" -Leaf)
+  - net user $(adversary.user) /active:no
+  - logoff $(target.user)
+  shell: powershell
+  agentPlatform: windows

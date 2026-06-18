@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: au-10
+family: au
+familyName: Audit and Accountability
+name: Non-repudiation
+scope: data
+statement: Provide irrefutable evidence that an individual (or process acting on behalf of an individual)
+  has performed [actions].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

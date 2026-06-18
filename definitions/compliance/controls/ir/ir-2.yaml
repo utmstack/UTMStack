@@ -1,0 +1,17 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ir-2
+family: ir
+familyName: Incident Response
+name: Incident Response Training
+scope: data
+statement: |-
+  Provide incident response training to system users consistent with assigned roles and responsibilities:
+      Within [time period] of assuming an incident response role or responsibility or acquiring system access;
+      When required by system changes; and
+      [frequency] thereafter; and
+    Review and update incident response training content [frequency] and following [events].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

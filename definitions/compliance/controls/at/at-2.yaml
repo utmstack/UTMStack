@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: at-2
+family: at
+familyName: Awareness and Training
+name: Literacy Training and Awareness
+scope: governance
+statement: |-
+  Provide security and privacy literacy training to system users (including managers, senior executives, and contractors):
+      As part of initial training for new users and [organization-defined frequency] thereafter; and
+      When required by system changes or following [organization-defined events];
+    Employ the following techniques to increase the security and privacy awareness of system users [awareness techniques];
+    Update literacy training and awareness content [frequency] and following [events] ; and
+    Incorporate lessons learned from internal or external security incidents or breaches into literacy training and awareness techniques.
+source: NIST SP 800-53 Rev 5 (public domain)

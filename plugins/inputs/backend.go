@@ -1,59 +1,89 @@
 package main
 
 import (
-	"fmt"
-	"io"
+	"bytes"
+	"context"
+	"encoding/json"
 	"net/http"
+	"strings"
+	"sync"
+	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 )
 
-func createPanelRequest(method string, endpoint string) (*http.Request, error) {
-	pConfig := plugins.PluginCfg("com.utmstack")
-	backend := pConfig.Get("backend").String()
-	internalKey := pConfig.Get("internalKey").String()
+const (
+	apiKeyAuthPath = "/api/v1/api-keys/authenticate"
+	apiKeyHeader   = "Utm-Api-Key" // header / gRPC metadata key a direct pusher presents
+	internalHeader = "X-Internal-Key"
+	apiKeyCacheTTL = 60 * time.Second // how long a validated key is trusted before re-checking
+)
 
-	url := fmt.Sprintf(endpoint, backend)
-
-	req, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		return nil, catcher.Error("cannot create request", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
-	}
-
-	req.Header.Add(panelAPIKeyHeader, internalKey)
-
-	return req, nil
+type apiKeyValidator struct {
+	client *http.Client
+	mu     sync.RWMutex
+	seen   map[string]time.Time // apiKey -> last successful validation
 }
 
-func GetConnectionKey() ([]byte, error) {
-	client := &http.Client{}
+var apiKeys = &apiKeyValidator{
+	client: &http.Client{Timeout: 15 * time.Second},
+	seen:   make(map[string]time.Time),
+}
 
-	req, err := createPanelRequest("GET", panelConnectionKeyEndpoint)
+// valid reports whether apiKey is currently a valid backend API key for clientIP.
+func (v *apiKeyValidator) valid(apiKey, clientIP string) bool {
+	if apiKey == "" {
+		return false
+	}
+	v.mu.RLock()
+	at, ok := v.seen[apiKey]
+	v.mu.RUnlock()
+	if ok && time.Since(at) < apiKeyCacheTTL {
+		return true
+	}
+	if !v.authenticate(apiKey, clientIP) {
+		return false
+	}
+	v.mu.Lock()
+	v.seen[apiKey] = time.Now()
+	v.mu.Unlock()
+	return true
+}
+
+func (v *apiKeyValidator) authenticate(apiKey, clientIP string) bool {
+	cfg := plugins.PluginCfg("com.utmstack")
+	backend := strings.TrimRight(cfg.Get("backend").String(), "/")
+	if backend != "" && !strings.HasPrefix(backend, "http://") && !strings.HasPrefix(backend, "https://") {
+		backend = "http://" + backend
+	}
+	internalKey := cfg.Get("internalKey").String()
+	if backend == "" || internalKey == "" {
+		_ = catcher.Error("api key auth unavailable: backend or internalKey not configured", nil, map[string]any{"process": "plugin_com.utmstack.inputs"})
+		return false
+	}
+
+	body, err := json.Marshal(map[string]string{"apiKey": apiKey, "clientIp": clientIP})
 	if err != nil {
-		return nil, catcher.Error("cannot create request", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
+		return false
 	}
 
-	resp, err := client.Do(req)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, backend+apiKeyAuthPath, bytes.NewReader(body))
 	if err != nil {
-		return nil, catcher.Error("cannot send request", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
+		return false
 	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(internalHeader, internalKey)
 
-	defer func() {
-		_ = resp.Body.Close()
-	}()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, catcher.Error("cannot get connection key", nil, map[string]any{
-			"process": "plugin_com.utmstack.inputs",
-			"status":  resp.StatusCode,
-		})
-	}
-
-	body, err := io.ReadAll(resp.Body)
+	resp, err := v.client.Do(req)
 	if err != nil {
-		return nil, err
+		_ = catcher.Error("api key validation request failed", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
+		return false
 	}
+	defer func() { _ = resp.Body.Close() }()
 
-	return body, nil
+	return resp.StatusCode == http.StatusOK
 }

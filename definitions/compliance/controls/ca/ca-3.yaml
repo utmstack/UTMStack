@@ -1,0 +1,11 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: ca-3
+family: ca
+familyName: Assessment, Authorization, and Monitoring
+name: Information Exchange
+scope: governance
+statement: |-
+  Approve and manage the exchange of information between the system and other systems using [interconnection security agreements | information exchange security agreements | memoranda of understanding or agreement | service level agreements | user agreements | non-disclosure agreements | {{ insert: param, ca-03_odp.02 }} ];
+    Document, as part of each exchange agreement, the interface characteristics, security and privacy requirements, controls, and responsibilities for each system, and the impact level of the information communicated; and
+    Review and update the agreements [frequency].
+source: NIST SP 800-53 Rev 5 (public domain)

@@ -1,0 +1,18 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: si-3
+family: si
+familyName: System and Information Integrity
+name: Malicious Code Protection
+scope: data
+statement: |-
+  Implement [signature-based | non-signature-based] malicious code protection mechanisms at system entry and exit points to detect and eradicate malicious code;
+    Automatically update malicious code protection mechanisms as new releases are available in accordance with organizational configuration management policy and procedures;
+    Configure malicious code protection mechanisms to:
+      Perform periodic scans of the system [frequency] and real-time scans of files from external sources at [endpoint | network entry and exit points] as the files are downloaded, opened, or executed in accordance with organizational policy; and
+      [block malicious code | quarantine malicious code | take {{ insert: param, si-03_odp.05 }} ] ; and send alert to [personnel or roles] in response to malicious code detection; and
+    Address the receipt of false positives during malicious code detection and eradication and the resulting potential impact on the availability of the system.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

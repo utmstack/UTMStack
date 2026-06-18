@@ -1,0 +1,114 @@
+/* Rich-block styling for assistant replies (the HTML produced by lib/markdown.ts).
+   Targets nodes set via dangerouslySetInnerHTML, so it can't be Tailwind utility
+   classes — scoped under .socai-md, themed with the app's CSS variables. */
+
+.socai-md {
+  color: var(--foreground);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.socai-md > :first-child { margin-top: 0; }
+.socai-md > :last-child { margin-bottom: 0; }
+.socai-md p { margin: 0 0 10px; }
+.socai-md strong { font-weight: 600; }
+.socai-md em { font-style: italic; }
+
+.socai-md h1,
+.socai-md h2,
+.socai-md h3,
+.socai-md h4 {
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 16px 0 8px;
+}
+.socai-md h1 { font-size: 17px; }
+.socai-md h2 { font-size: 15.5px; }
+.socai-md h3,
+.socai-md h4 { font-size: 14px; }
+
+.socai-md ul,
+.socai-md ol { margin: 0 0 10px; padding-left: 20px; }
+.socai-md li { margin: 3px 0; }
+
+.socai-md a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.socai-md code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.88em;
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+.socai-md pre {
+  margin: 0 0 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+  overflow-x: auto;
+}
+.socai-md pre code { padding: 0; background: transparent; font-size: 12.5px; line-height: 1.5; }
+.socai-md hr {
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  margin: 14px 0;
+}
+.socai-md blockquote {
+  margin: 0 0 10px;
+  padding-left: 12px;
+  border-left: 3px solid color-mix(in srgb, var(--foreground) 15%, transparent);
+  color: var(--muted-foreground);
+}
+
+/* --- Callouts (GitHub alerts) --- */
+.socai-callout {
+  display: flex;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--accent-color, var(--primary)) 30%, transparent);
+  background: color-mix(in srgb, var(--accent-color, var(--primary)) 8%, transparent);
+}
+.socai-callout__icon { flex-shrink: 0; margin-top: 1px; color: var(--accent-color, var(--primary)); }
+.socai-callout__body > :last-child { margin-bottom: 0; }
+.socai-callout--tip { --accent-color: #10b981; }
+.socai-callout--success { --accent-color: #10b981; }
+.socai-callout--note { --accent-color: var(--primary); }
+.socai-callout--info { --accent-color: #0ea5e9; }
+.socai-callout--warning { --accent-color: #f59e0b; }
+.socai-callout--danger { --accent-color: #ef4444; }
+
+/* --- Tables --- */
+.socai-table-wrap { margin: 0 0 12px; overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+.socai-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.socai-table th,
+.socai-table td { padding: 7px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+.socai-table th {
+  font-weight: 600;
+  background: color-mix(in srgb, var(--foreground) 4%, transparent);
+  color: var(--foreground);
+}
+.socai-table tbody tr:last-child td { border-bottom: 0; }
+
+/* --- Images & diagrams --- */
+.socai-img { max-width: 100%; border-radius: 8px; margin: 0 0 10px; }
+.socai-diagram {
+  margin: 0 0 12px;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  overflow-x: auto;
+  text-align: center;
+}
+.socai-diagram svg { max-width: 100%; height: auto; }
+.socai-mermaid--error {
+  color: var(--muted-foreground);
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+}

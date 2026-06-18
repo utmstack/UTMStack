@@ -1,0 +1,8 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pl-11
+family: pl
+familyName: Planning
+name: Baseline Tailoring
+scope: governance
+statement: Tailor the selected control baseline by applying specified tailoring actions.
+source: NIST SP 800-53 Rev 5 (public domain)

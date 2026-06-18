@@ -1,7 +1,6 @@
 package services
 
 import (
-	"bytes"
 	"crypto/tls"
 	"fmt"
 	"net/http"
@@ -31,36 +30,6 @@ func Backend() error {
 	}
 
 	return nil
-}
-
-func RegenerateKey(internal string) error {
-	baseURL := "https://127.0.0.1"
-
-	transCfg := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-
-	req, err := http.NewRequest("GET", baseURL+"/api/federation-service/generateApiToken", bytes.NewBuffer([]byte{}))
-	if err != nil {
-		return err
-	}
-
-	req.Header.Add("Utm-Internal-Key", internal)
-
-	client := &http.Client{Transport: transCfg}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != 200 && resp.StatusCode != 202 {
-		return fmt.Errorf("error regenerating connection key, response status code: %d", resp.StatusCode)
-	}
-
-	err = resp.Body.Close()
-
-	return err
 }
 
 func SetBaseURL(hostname string) error {

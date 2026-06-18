@@ -1,0 +1,19 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: cm-3
+family: cm
+familyName: Configuration Management
+name: Configuration Change Control
+scope: data
+statement: |-
+  Determine and document the types of changes to the system that are configuration-controlled;
+    Review proposed configuration-controlled changes to the system and approve or disapprove such changes with explicit consideration for security and privacy impact analyses;
+    Document configuration change decisions associated with the system;
+    Implement approved configuration-controlled changes to the system;
+    Retain records of configuration-controlled changes to the system for [time period];
+    Monitor and review activities associated with configuration-controlled changes to the system; and
+    Coordinate and provide oversight for configuration change control activities through [configuration change control element] that convenes [{{ insert: param, cm-03_odp.04 }}  | when {{ insert: param, cm-03_odp.05 }} ].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

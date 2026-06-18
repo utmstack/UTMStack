@@ -1,11 +1,10 @@
-FROM nginx:1.30.1
-WORKDIR /usr/share/nginx/html
-COPY ./nginx/mime.types /etc/nginx/mime.types
-COPY ./dist/utm-stack/ /usr/share/nginx/html/
+FROM nginx:1.25.3-alpine
 
-HEALTHCHECK --start-period=120s --interval=60s --timeout=60s \
-  CMD curl --insecure -I -f http://localhost/health && curl --insecure -I -f http://localhost/api/ping || exit 1
+WORKDIR /usr/share/nginx/html
+RUN rm -rf ./*
+
+COPY ./dist/ .
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-
-CMD ["/bin/sh",  "-c", "exec nginx -g 'daemon off;'"]
+CMD ["nginx", "-g", "daemon off;"]

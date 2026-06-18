@@ -1,0 +1,9 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-2
+family: pm
+familyName: Program Management
+name: Information Security Program Leadership Role
+scope: governance
+statement: Appoint a senior agency information security officer with the mission and resources to coordinate,
+  develop, implement, and maintain an organization-wide information security program.
+source: NIST SP 800-53 Rev 5 (public domain)

@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: cp-13
+family: cp
+familyName: Contingency Planning
+name: Alternative Security Mechanisms
+scope: data
+statement: Employ [alternative or supplemental security mechanisms] for satisfying [security functions]
+  when the primary means of implementing the security function is unavailable or compromised.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

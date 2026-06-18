@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ac-11
+family: ac
+familyName: Access Control
+name: Device Lock
+scope: data
+statement: |-
+  Prevent further access to the system by [initiating a device lock after {{ insert: param, ac-11_odp.02 }} of inactivity | requiring the user to initiate a device lock before leaving the system unattended] ; and
+    Retain the device lock until the user reestablishes access using established identification and authentication procedures.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

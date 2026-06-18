@@ -1,0 +1,8 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sa-18
+family: sa
+familyName: System and Services Acquisition
+name: Tamper Resistance and Detection
+scope: governance
+statement: ''
+source: NIST SP 800-53 Rev 5 (public domain)

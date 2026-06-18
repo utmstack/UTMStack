@@ -1,0 +1,19 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: cm-8
+family: cm
+familyName: Configuration Management
+name: System Component Inventory
+scope: data
+statement: |-
+  Develop and document an inventory of system components that:
+      Accurately reflects the system;
+      Includes all components within the system;
+      Does not include duplicate accounting of components or components assigned to any other system;
+      Is at the level of granularity deemed necessary for tracking and reporting; and
+      Includes the following information to achieve system component accountability: [information] ; and
+    Review and update the system component inventory [frequency].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

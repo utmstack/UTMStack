@@ -1,0 +1,41 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - json-input
+  name: Prototype Pollution Attempt Detected
+  impact:
+    confidentiality: 2
+    integrity: 3
+    availability: 2
+  category: Defense Evasion, Privilege Escalation
+  technique: Prototype Pollution
+  adversary: origin
+  references:
+    - https://www.netspi.com/blog/technical-blog/web-application-pentesting/ultimate-guide-to-prototype-pollution/
+    - https://attack.mitre.org/techniques/T1055/
+  description: |
+    Detects attempts to pollute JavaScript object prototypes through malicious JSON input containing __proto__, constructor, or prototype properties. This attack can lead to application compromise by modifying the behavior of all objects in the application.
+  
+    Next Steps:
+    1. Immediately block the source IP address if possible
+    2. Review application logs for any successful prototype pollution attempts
+    3. Check for any unexpected behavior in the affected application
+    4. Validate input sanitization mechanisms are working correctly
+    5. Review recent application deployments for security vulnerabilities
+    6. Monitor for additional attack attempts from the same source
+  where: |
+    (exists("log.__proto__") ||
+     contains("raw", "__proto__") ||
+     contains("raw", "constructor.prototype") ||
+     contains("raw", "Object.prototype"))
+  afterEvents:
+    - indexPattern: v11-log-json-input-*
+      with:
+        - field: origin.ip
+          operator: filter_term
+          value: '{{.origin.ip}}'
+      within: 10m
+      count: 3
+  groupBy:
+    - adversary.host
+    - adversary.ip

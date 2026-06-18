@@ -5,13 +5,14 @@ import (
 	"os"
 	"time"
 
+	"github.com/utmstack/UTMStack/installer/branding"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
 func Uninstall() error {
-	fmt.Println("### Uninstalling UTMStack ###")
+	fmt.Printf("### Uninstalling %s ###\n", branding.Name())
 
-	fmt.Print("Checking if UTMStack is installed")
+	fmt.Printf("Checking if %s is installed", branding.Name())
 	isInstalled, err := utils.CheckIfServiceIsInstalled("UTMStackComponentsUpdater")
 	if err != nil {
 		return fmt.Errorf("error checking if service is installed: %v", err)
@@ -19,7 +20,7 @@ func Uninstall() error {
 
 	if !isInstalled {
 		fmt.Println(" [NOT FOUND]")
-		fmt.Println("UTMStack service is not installed on this system.")
+		fmt.Printf("%s service is not installed on this system.\n", branding.Name())
 
 		fmt.Print("Checking if Docker Swarm stack exists")
 		err := utils.RunCmd("docker", "stack", "ls", "--format", "{{.Name}}")
@@ -27,7 +28,7 @@ func Uninstall() error {
 			output, _ := utils.RunCmdWithOutput("docker", "stack", "ls", "--format", "{{.Name}}")
 			if contains(output, "utmstack") {
 				fmt.Println(" [FOUND]")
-				fmt.Print("Removing UTMStack Docker Swarm stack")
+				fmt.Printf("Removing %s Docker Swarm stack", branding.Name())
 				if err := utils.RunCmd("docker", "stack", "rm", "utmstack"); err != nil {
 					fmt.Printf(" [ERROR]\nerror removing stack: %v\n", err)
 				} else {
@@ -62,7 +63,7 @@ func Uninstall() error {
 	}
 	fmt.Println(" [OK]")
 
-	fmt.Print("Removing UTMStack Docker Swarm stack")
+	fmt.Printf("Removing %s Docker Swarm stack", branding.Name())
 	err = utils.RunCmd("docker", "stack", "rm", "utmstack")
 	if err != nil {
 		fmt.Printf(" [WARNING]\nerror removing stack (stack might not exist): %v\n", err)
@@ -82,11 +83,11 @@ func Uninstall() error {
 
 	cleanupFolders()
 
-	fmt.Println("\n### UTMStack has been uninstalled successfully ###")
+	fmt.Printf("\n### %s has been uninstalled successfully ###\n", branding.Name())
 	fmt.Println("Note: The following items were NOT removed:")
 	fmt.Println("  - Docker installation")
 	fmt.Println("  - System packages (nginx, vlan, etc.)")
-	fmt.Println("  - UTMStack data directory (/utmstack)")
+	fmt.Printf("  - %s data directory (/utmstack)\n", branding.Name())
 	fmt.Println("\nIf you want to completely remove all data, you can manually delete:")
 	fmt.Println("  - /utmstack directory")
 	fmt.Println("  - /root/utmstack.yml configuration file")

@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: sc-13
+family: sc
+familyName: System and Communications Protection
+name: Cryptographic Protection
+scope: data
+statement: |-
+  Determine the [cryptographic uses] ; and
+    Implement the following types of cryptography required for each specified cryptographic use: [types of cryptography].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

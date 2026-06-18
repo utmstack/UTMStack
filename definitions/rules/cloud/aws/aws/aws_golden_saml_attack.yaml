@@ -1,0 +1,56 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - aws
+  name: AWS Golden SAML Attack Detected
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 3
+  category: Credential Access
+  technique: "T1556 - Modify Authentication Process"
+  adversary: origin
+  references:
+    - https://www.cyberark.com/resources/threat-research-blog/golden-saml-newly-discovered-attack-technique-forges-authentication-to-cloud-apps
+    - https://attack.mitre.org/techniques/T1556/
+  description: |
+    Detects potential Golden SAML attacks by monitoring for AssumeRoleWithSAML calls combined with UpdateSAMLProvider or CreateSAMLProvider operations. Golden SAML was the technique used in the SolarWinds attack, allowing attackers to forge SAML tokens and assume any role in the AWS account.
+
+    Next Steps:
+    1. Immediately investigate the SAML provider configuration changes and the AssumeRoleWithSAML calls
+    2. Verify the SAML provider metadata document has not been tampered with
+    3. Check if the identity provider federation trust is legitimate
+    4. Review the assumed role ARN and session name for suspicious values
+    5. Correlate with identity provider logs to verify the SAML assertion was legitimately issued
+    6. Check for lateral movement or privilege escalation after the role assumption
+    7. If unauthorized, rotate the SAML provider trust and revoke all active sessions
+  where: |
+    equals("log.eventSource", "sts.amazonaws.com") &&
+    equals("log.eventName", "AssumeRoleWithSAML") &&
+    equals("log.errorCode", "")
+  afterEvents:
+    - indexPattern: v11-log-aws-*
+      with:
+        - field: log.userIdentityAccountId
+          operator: filter_term
+          value: '{{.log.userIdentityAccountId}}'
+      within: 24h
+      count: 1
+      or:
+        - indexPattern: v11-log-aws-*
+          with:
+            - field: log.eventName
+              operator: filter_term
+              value: 'UpdateSAMLProvider'
+          within: 24h
+          count: 1
+        - indexPattern: v11-log-aws-*
+          with:
+            - field: log.eventName
+              operator: filter_term
+              value: 'CreateSAMLProvider'
+          within: 24h
+          count: 1
+  groupBy:
+    - adversary.user
+    - lastEvent.log.requestParametersRoleArn

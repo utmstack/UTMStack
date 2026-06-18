@@ -1,0 +1,343 @@
+# ISO 27001:2022 Annex A (checklist). Public IDs/titles, NO normative text (ISO copyright). satisfiedBy best-effort.
+key: iso-27001-2022
+name: ISO/IEC 27001:2022 (Annex A)
+description: ISO/IEC 27001:2022 Annex A controls (all 93). Reference IDs and short titles only — the normative
+  text is ISO copyright and is not reproduced.
+source: ISO/IEC 27001:2022 (ISO copyright) — public IDs/titles. 800-53 mapping best-effort (review).
+sections:
+- key: a5
+  name: A.5 Organizational controls
+  requirements:
+  - id: A.5.1
+    name: Policies for information security
+    satisfiedBy: []
+  - id: A.5.2
+    name: Information security roles and responsibilities
+    satisfiedBy: []
+  - id: A.5.3
+    name: Segregation of duties
+    satisfiedBy: []
+  - id: A.5.4
+    name: Management responsibilities
+    satisfiedBy: []
+  - id: A.5.5
+    name: Contact with authorities
+    satisfiedBy: []
+  - id: A.5.6
+    name: Contact with special interest groups
+    satisfiedBy: []
+  - id: A.5.7
+    name: Threat intelligence
+    satisfiedBy:
+    - ra-3
+    - si-5
+  - id: A.5.8
+    name: Information security in project management
+    satisfiedBy: []
+  - id: A.5.9
+    name: Inventory of information and other associated assets
+    satisfiedBy: []
+  - id: A.5.10
+    name: Acceptable use of information and other associated assets
+    satisfiedBy: []
+  - id: A.5.11
+    name: Return of assets
+    satisfiedBy: []
+  - id: A.5.12
+    name: Classification of information
+    satisfiedBy: []
+  - id: A.5.13
+    name: Labelling of information
+    satisfiedBy: []
+  - id: A.5.14
+    name: Information transfer
+    satisfiedBy: []
+  - id: A.5.15
+    name: Access control
+    satisfiedBy:
+    - ac-3
+    - ac-6
+  - id: A.5.16
+    name: Identity management
+    satisfiedBy:
+    - ia-4
+    - ia-2
+  - id: A.5.17
+    name: Authentication information
+    satisfiedBy:
+    - ia-5
+  - id: A.5.18
+    name: Access rights
+    satisfiedBy:
+    - ac-2
+    - ac-6
+  - id: A.5.19
+    name: Information security in supplier relationships
+    satisfiedBy: []
+  - id: A.5.20
+    name: Addressing information security within supplier agreements
+    satisfiedBy: []
+  - id: A.5.21
+    name: Managing information security in the ICT supply chain
+    satisfiedBy: []
+  - id: A.5.22
+    name: Monitoring, review and change management of supplier services
+    satisfiedBy: []
+  - id: A.5.23
+    name: Information security for use of cloud services
+    satisfiedBy: []
+  - id: A.5.24
+    name: Information security incident management planning and preparation
+    satisfiedBy:
+    - ir-4
+  - id: A.5.25
+    name: Assessment and decision on information security events
+    satisfiedBy:
+    - ir-4
+    - au-6
+  - id: A.5.26
+    name: Response to information security incidents
+    satisfiedBy:
+    - ir-4
+    - ir-5
+  - id: A.5.27
+    name: Learning from information security incidents
+    satisfiedBy:
+    - ir-4
+  - id: A.5.28
+    name: Collection of evidence
+    satisfiedBy:
+    - au-9
+  - id: A.5.29
+    name: Information security during disruption
+    satisfiedBy: []
+  - id: A.5.30
+    name: ICT readiness for business continuity
+    satisfiedBy: []
+  - id: A.5.31
+    name: Legal, statutory, regulatory and contractual requirements
+    satisfiedBy: []
+  - id: A.5.32
+    name: Intellectual property rights
+    satisfiedBy: []
+  - id: A.5.33
+    name: Protection of records
+    satisfiedBy: []
+  - id: A.5.34
+    name: Privacy and protection of PII
+    satisfiedBy: []
+  - id: A.5.35
+    name: Independent review of information security
+    satisfiedBy: []
+  - id: A.5.36
+    name: Compliance with policies, rules and standards for information security
+    satisfiedBy: []
+  - id: A.5.37
+    name: Documented operating procedures
+    satisfiedBy: []
+- key: a6
+  name: A.6 People controls
+  requirements:
+  - id: A.6.1
+    name: Screening
+    satisfiedBy: []
+  - id: A.6.2
+    name: Terms and conditions of employment
+    satisfiedBy: []
+  - id: A.6.3
+    name: Information security awareness, education and training
+    satisfiedBy: []
+  - id: A.6.4
+    name: Disciplinary process
+    satisfiedBy: []
+  - id: A.6.5
+    name: Responsibilities after termination or change of employment
+    satisfiedBy: []
+  - id: A.6.6
+    name: Confidentiality or non-disclosure agreements
+    satisfiedBy: []
+  - id: A.6.7
+    name: Remote working
+    satisfiedBy: []
+  - id: A.6.8
+    name: Information security event reporting
+    satisfiedBy: []
+- key: a7
+  name: A.7 Physical controls
+  requirements:
+  - id: A.7.1
+    name: Physical security perimeters
+    satisfiedBy: []
+  - id: A.7.2
+    name: Physical entry
+    satisfiedBy: []
+  - id: A.7.3
+    name: Securing offices, rooms and facilities
+    satisfiedBy: []
+  - id: A.7.4
+    name: Physical security monitoring
+    satisfiedBy: []
+  - id: A.7.5
+    name: Protecting against physical and environmental threats
+    satisfiedBy: []
+  - id: A.7.6
+    name: Working in secure areas
+    satisfiedBy: []
+  - id: A.7.7
+    name: Clear desk and clear screen
+    satisfiedBy: []
+  - id: A.7.8
+    name: Equipment siting and protection
+    satisfiedBy: []
+  - id: A.7.9
+    name: Security of assets off-premises
+    satisfiedBy: []
+  - id: A.7.10
+    name: Storage media
+    satisfiedBy: []
+  - id: A.7.11
+    name: Supporting utilities
+    satisfiedBy: []
+  - id: A.7.12
+    name: Cabling security
+    satisfiedBy: []
+  - id: A.7.13
+    name: Equipment maintenance
+    satisfiedBy: []
+  - id: A.7.14
+    name: Secure disposal or re-use of equipment
+    satisfiedBy: []
+- key: a8
+  name: A.8 Technological controls
+  requirements:
+  - id: A.8.1
+    name: User end point devices
+    satisfiedBy: []
+  - id: A.8.2
+    name: Privileged access rights
+    satisfiedBy:
+    - ac-2
+    - ac-6
+  - id: A.8.3
+    name: Information access restriction
+    satisfiedBy:
+    - ac-3
+    - ac-6
+  - id: A.8.4
+    name: Access to source code
+    satisfiedBy: []
+  - id: A.8.5
+    name: Secure authentication
+    satisfiedBy:
+    - ia-2
+    - ia-5
+  - id: A.8.6
+    name: Capacity management
+    satisfiedBy: []
+  - id: A.8.7
+    name: Protection against malware
+    satisfiedBy:
+    - si-3
+  - id: A.8.8
+    name: Management of technical vulnerabilities
+    satisfiedBy:
+    - ra-5
+    - si-2
+  - id: A.8.9
+    name: Configuration management
+    satisfiedBy:
+    - cm-2
+    - cm-6
+  - id: A.8.10
+    name: Information deletion
+    satisfiedBy: []
+  - id: A.8.11
+    name: Data masking
+    satisfiedBy: []
+  - id: A.8.12
+    name: Data leakage prevention
+    satisfiedBy:
+    - ac-4
+  - id: A.8.13
+    name: Information backup
+    satisfiedBy:
+    - cp-9
+  - id: A.8.14
+    name: Redundancy of information processing facilities
+    satisfiedBy: []
+  - id: A.8.15
+    name: Logging
+    satisfiedBy:
+    - au-2
+    - au-3
+    - au-12
+  - id: A.8.16
+    name: Monitoring activities
+    satisfiedBy:
+    - au-6
+    - si-4
+  - id: A.8.17
+    name: Clock synchronization
+    satisfiedBy:
+    - au-8
+  - id: A.8.18
+    name: Use of privileged utility programs
+    satisfiedBy:
+    - ac-6
+  - id: A.8.19
+    name: Installation of software on operational systems
+    satisfiedBy: []
+  - id: A.8.20
+    name: Networks security
+    satisfiedBy:
+    - sc-7
+    - ac-4
+  - id: A.8.21
+    name: Security of network services
+    satisfiedBy:
+    - sc-7
+  - id: A.8.22
+    name: Segregation of networks
+    satisfiedBy:
+    - sc-7
+  - id: A.8.23
+    name: Web filtering
+    satisfiedBy:
+    - sc-7
+  - id: A.8.24
+    name: Use of cryptography
+    satisfiedBy:
+    - sc-13
+    - sc-28
+    - sc-8
+  - id: A.8.25
+    name: Secure development life cycle
+    satisfiedBy: []
+  - id: A.8.26
+    name: Application security requirements
+    satisfiedBy: []
+  - id: A.8.27
+    name: Secure system architecture and engineering principles
+    satisfiedBy: []
+  - id: A.8.28
+    name: Secure coding
+    satisfiedBy: []
+  - id: A.8.29
+    name: Security testing in development and acceptance
+    satisfiedBy: []
+  - id: A.8.30
+    name: Outsourced development
+    satisfiedBy: []
+  - id: A.8.31
+    name: Separation of development, test and production environments
+    satisfiedBy: []
+  - id: A.8.32
+    name: Change management
+    satisfiedBy:
+    - cm-3
+  - id: A.8.33
+    name: Test information
+    satisfiedBy: []
+  - id: A.8.34
+    name: Protection of information systems during audit testing
+    satisfiedBy: []

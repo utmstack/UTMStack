@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: ps-8
+family: ps
+familyName: Personnel Security
+name: Personnel Sanctions
+scope: governance
+statement: |-
+  Employ a formal sanctions process for individuals failing to comply with established information security and privacy policies and procedures; and
+    Notify [personnel or roles] within [time period] when a formal employee sanctions process is initiated, identifying the individual sanctioned and the reason for the sanction.
+source: NIST SP 800-53 Rev 5 (public domain)

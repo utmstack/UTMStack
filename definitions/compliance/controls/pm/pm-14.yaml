@@ -1,0 +1,12 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-14
+family: pm
+familyName: Program Management
+name: Testing, Training, and Monitoring
+scope: governance
+statement: |-
+  Implement a process for ensuring that organizational plans for conducting security and privacy testing, training, and monitoring activities associated with organizational systems:
+      Are developed and maintained; and
+      Continue to be executed; and
+    Review testing, training, and monitoring plans for consistency with the organizational risk management strategy and organization-wide priorities for risk response actions.
+source: NIST SP 800-53 Rev 5 (public domain)

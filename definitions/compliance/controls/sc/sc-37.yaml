@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: sc-37
+family: sc
+familyName: System and Communications Protection
+name: Out-of-band Channels
+scope: data
+statement: 'Employ the following out-of-band channels for the physical delivery or electronic transmission
+  of [information, system components, or devices] to [individuals or systems]: [out-of-band channels].'
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

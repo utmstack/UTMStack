@@ -1,0 +1,14 @@
+# UTMStack system SOAR flow
+- name: 'Windows: Volume Shadow Copy Deletion'
+  description: Kill Suspicious Process, Disable Compromised User Account and Logout Compromised User.
+  conditions:
+  - operator: IS
+    field: name
+    value: Volume Shadow Copy Deletion
+  commands:
+  - taskkill /F /IM "$(target.process)" ; net user "$(target.user)" /active:no ; logoff $(target.user)
+  - taskkill /F /IM (Split-Path -Path "$(adversary.process)" -Leaf)
+  - net user $(adversary.user) /active:no
+  - logoff $(target.user)
+  shell: powershell
+  agentPlatform: windows

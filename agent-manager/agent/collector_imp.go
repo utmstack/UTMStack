@@ -11,13 +11,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/database"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/utils"
-	utmconf "github.com/utmstack/config-client-go"
-	"github.com/utmstack/config-client-go/enum"
-	"github.com/utmstack/config-client-go/types"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 )
@@ -36,16 +32,11 @@ const (
 
 type CollectorService struct {
 	UnimplementedCollectorServiceServer
-	UnimplementedPanelCollectorServiceServer
 
-	CollectorStreamMap        map[uint]CollectorService_CollectorStreamServer
-	CollectorStreamMutex      sync.Mutex
-	CollectorConfigsCache     map[uint][]*CollectorConfigGroup
-	CollectorConfigsCacheM    sync.Mutex
-	CacheCollectorKey         map[uint]string
-	CacheCollectorKeyMutex    sync.RWMutex
-	CollectorPendigConfigChan chan *CollectorConfig
-	CollectorTypes            []enum.UTMModule
+	CollectorStreamMap     map[uint]CollectorService_CollectorStreamServer
+	CollectorStreamMutex   sync.Mutex
+	CacheCollectorKey      map[uint]string
+	CacheCollectorKeyMutex sync.RWMutex
 
 	DBConnection *database.DB
 }
@@ -60,12 +51,9 @@ func (s *CollectorService) ValidateCollectorKey(key string, id uint) bool {
 func InitCollectorService() {
 	collectorServOnce.Do(func() {
 		CollectorServ = &CollectorService{
-			CollectorStreamMap:        make(map[uint]CollectorService_CollectorStreamServer),
-			CollectorConfigsCache:     make(map[uint][]*CollectorConfigGroup),
-			CacheCollectorKey:         make(map[uint]string),
-			CollectorPendigConfigChan: make(chan *CollectorConfig, 1000),
-			CollectorTypes:            []enum.UTMModule{},
-			DBConnection:              database.GetDB(),
+			CollectorStreamMap: make(map[uint]CollectorService_CollectorStreamServer),
+			CacheCollectorKey:  make(map[uint]string),
+			DBConnection:       database.GetDB(),
 		}
 		collectors := []models.Collector{}
 		_, err := CollectorServ.DBConnection.GetAll(&collectors, "")
@@ -76,48 +64,6 @@ func InitCollectorService() {
 		}
 		for _, c := range collectors {
 			CollectorServ.CacheCollectorKey[c.ID] = c.CollectorKey
-		}
-
-		go CollectorServ.ProcessPendingConfigs()
-
-	external:
-		for {
-			client := utmconf.NewUTMClient(config.InternalKey, config.PanelServiceName)
-			for _, moduleType := range CollectorServ.CollectorTypes {
-				moduleConfig := &types.ConfigurationSection{}
-				moduleConfig, err = client.GetUTMConfig(moduleType)
-				if err != nil {
-					catcher.Error("failed to get module config", err, map[string]any{"process": "agent-manager"})
-					time.Sleep(5 * time.Second)
-					continue external
-				}
-
-				pendigConfigs := make(map[string][]*CollectorConfigGroup)
-				for _, group := range moduleConfig.ConfigurationGroups {
-					var idInt int
-					idInt, err = strconv.Atoi(group.CollectorID)
-					if err != nil {
-						catcher.Error("invalid collector ID", err, map[string]any{"process": "agent-manager"})
-						continue
-					}
-
-					CollectorServ.CollectorConfigsCache[uint(idInt)] = append(
-						CollectorServ.CollectorConfigsCache[uint(idInt)],
-						convertModuleGroupToCollectorProto(group),
-					)
-
-					pendigConfigs[group.CollectorID] = append(pendigConfigs[group.CollectorID], convertModuleGroupToCollectorProto(group))
-				}
-
-				for id, configs := range pendigConfigs {
-					CollectorServ.CollectorPendigConfigChan <- &CollectorConfig{
-						CollectorId: id,
-						RequestId:   uuid.New().String(),
-						Groups:      configs,
-					}
-				}
-			}
-			break
 		}
 	})
 }
@@ -218,33 +164,6 @@ func (s *CollectorService) ListCollector(ctx context.Context, req *ListRequest) 
 	return convertModelToCollectorResponse(collectors, total), nil
 }
 
-func (s *CollectorService) ProcessPendingConfigs() {
-	for configs := range s.CollectorPendigConfigChan {
-		collectorID, err := strconv.Atoi(configs.CollectorId)
-		if err != nil {
-			catcher.Error("invalid collector ID", err, map[string]any{"process": "agent-manager"})
-			continue
-		}
-
-		s.CollectorStreamMutex.Lock()
-		stream, ok := s.CollectorStreamMap[uint(collectorID)]
-		s.CollectorStreamMutex.Unlock()
-
-		if ok {
-			err = stream.Send(&CollectorMessages{
-				StreamMessage: &CollectorMessages_Config{
-					Config: &CollectorConfig{
-						Groups: configs.Groups,
-					},
-				},
-			})
-			if err != nil {
-				catcher.Error("failed to send config to collector", err, map[string]any{"process": "agent-manager"})
-			}
-		}
-	}
-}
-
 func (s *CollectorService) CollectorStream(stream CollectorService_CollectorStreamServer) error {
 	id, _, _, err := utils.GetItemsFromContext(stream.Context())
 	if err != nil {
@@ -290,40 +209,4 @@ func (s *CollectorService) CollectorStream(stream CollectorService_CollectorStre
 			// Not implemented
 		}
 	}
-}
-
-func (s *CollectorService) GetCollectorConfig(ctx context.Context, in *ConfigRequest) (*CollectorConfig, error) {
-	id, _, _, err := utils.GetItemsFromContext(ctx)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, fmt.Errorf("unable to get items from context: %v", err).Error())
-	}
-	uid, err := strconv.Atoi(id)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, fmt.Errorf("invalid id: %v", err).Error())
-	}
-
-	s.CollectorConfigsCacheM.Lock()
-	defer s.CollectorConfigsCacheM.Unlock()
-
-	return &CollectorConfig{
-		Groups: s.CollectorConfigsCache[uint(uid)],
-	}, nil
-}
-
-func (s *CollectorService) RegisterCollectorConfig(ctx context.Context, in *CollectorConfig) (*ConfigKnowledge, error) {
-	collectorID, err := strconv.Atoi(in.CollectorId)
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid collector ID")
-	}
-
-	s.CollectorPendigConfigChan <- in
-
-	s.CollectorConfigsCacheM.Lock()
-	s.CollectorConfigsCache[uint(collectorID)] = in.Groups
-	s.CollectorConfigsCacheM.Unlock()
-
-	return &ConfigKnowledge{
-		Accepted:  "true",
-		RequestId: in.RequestId,
-	}, nil
 }

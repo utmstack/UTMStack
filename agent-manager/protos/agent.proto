@@ -18,6 +18,14 @@ service AgentService {
 
 service PanelService {
   rpc ProcessCommand (stream UtmCommand) returns (stream CommandResult){}
+  rpc GetConnectionKey(ConnectionKeyRequest) returns (ConnectionKeyResponse) {}
+  rpc RotateConnectionKey(ConnectionKeyRequest) returns (ConnectionKeyResponse) {}
+}
+
+message ConnectionKeyRequest {}
+
+message ConnectionKeyResponse {
+  string connection_key = 1;
 }
 
 enum AgentCommandStatus {

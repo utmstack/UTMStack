@@ -1,0 +1,16 @@
+# UTMStack system SOAR flow
+- name: Windows Server - PowerShell Empire Detection
+  description: Detects potential PowerShell Empire framework usage based on characteristic command patterns, obfuscation techniques,
+    and encoded payloads. This playbook automates actions to kill suspicious processes, delete malicious files, and disable
+    compromised user accounts.
+  conditions:
+  - operator: IS
+    field: name
+    value: PowerShell Empire Detection
+  commands:
+  - taskkill /F /IM "$(target.process)" ; Remove-Item -LiteralPath "$(target.file)" -Force -Recurse ; net user "$(target.user)"
+    /active:no
+  - Remove-Item -LiteralPath "$(adversary.path)" -Force -Recurse
+  - net user $(adversary.user) /active:no
+  shell: powershell
+  agentPlatform: windows

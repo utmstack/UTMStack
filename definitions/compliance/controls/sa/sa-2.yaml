@@ -1,0 +1,11 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sa-2
+family: sa
+familyName: System and Services Acquisition
+name: Allocation of Resources
+scope: governance
+statement: |-
+  Determine the high-level information security and privacy requirements for the system or system service in mission and business process planning;
+    Determine, document, and allocate the resources required to protect the system or system service as part of the organizational capital planning and investment control process; and
+    Establish a discrete line item for information security and privacy in organizational programming and budgeting documentation.
+source: NIST SP 800-53 Rev 5 (public domain)

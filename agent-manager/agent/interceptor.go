@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/utmstack/UTMStack/agent-manager/config"
-	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -90,7 +89,7 @@ func authHeaders(md metadata.MD, fullMethod string) error {
 			return status.Error(codes.PermissionDenied, "invalid type")
 		}
 	case "connection-key":
-		if !utils.IsConnectionKeyValid(fmt.Sprintf(config.PanelConnectionKeyUrl, config.UTMHost), authConnectionKey[0]) {
+		if !AgentServ.ValidateConnectionKey(authConnectionKey[0]) {
 			return status.Error(codes.PermissionDenied, "invalid connection key")
 		}
 	case "internal-key":

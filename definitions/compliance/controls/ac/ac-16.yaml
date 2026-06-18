@@ -1,0 +1,18 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ac-16
+family: ac
+familyName: Access Control
+name: Security and Privacy Attributes
+scope: data
+statement: |-
+  Provide the means to associate [organization-defined types of security and privacy attributes] with [organization-defined security and privacy attribute values] for information in storage, in process, and/or in transmission;
+    Ensure that the attribute associations are made and retained with the information;
+    Establish the following permitted security and privacy attributes from the attributes defined in [AC-16a](#ac-16_smt.a) for [organization-defined systems]: [organization-defined security and privacy attributes];
+    Determine the following permitted attribute values or ranges for each of the established attributes: [attribute values or ranges];
+    Audit changes to attributes; and
+    Review [organization-defined security and privacy attributes] for applicability [organization-defined frequency].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

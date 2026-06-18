@@ -1,0 +1,12 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: ps-5
+family: ps
+familyName: Personnel Security
+name: Personnel Transfer
+scope: governance
+statement: |-
+  Review and confirm ongoing operational need for current logical and physical access authorizations to systems and facilities when individuals are reassigned or transferred to other positions within the organization;
+    Initiate [transfer or reassignment actions] within [time period following the formal transfer action];
+    Modify access authorization as needed to correspond with any changes in operational need due to reassignment or transfer; and
+    Notify [personnel or roles] within [time period].
+source: NIST SP 800-53 Rev 5 (public domain)

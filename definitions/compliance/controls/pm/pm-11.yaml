@@ -1,0 +1,11 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-11
+family: pm
+familyName: Program Management
+name: Mission and Business Process Definition
+scope: governance
+statement: |-
+  Define organizational mission and business processes with consideration for information security and privacy and the resulting risk to organizational operations, organizational assets, individuals, other organizations, and the Nation; and
+    Determine information protection and personally identifiable information processing needs arising from the defined mission and business processes; and
+    Review and revise the mission and business processes [frequency].
+source: NIST SP 800-53 Rev 5 (public domain)

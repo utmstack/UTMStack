@@ -1,14 +1,3 @@
-> [!IMPORTANT]
-> ## ⚠️ UPGRADE NOTIFICATION and UTMStack v10 End-of-Life Notice
->
-> **UTMStack v10 will be sunset on December 5, 2026 (6 months from now).**
->
-> As of today, **v10 is no longer receiving any new features** and will only receive critical fixes until the sunset date. After December 5, 2026, v10 will no longer be supported.
->
-> 👉 **All users must upgrade to v11 as soon as possible** using the upgrade package. Full guide here: https://docs.utmstack.com/upgrade
-
----
-
 # UTMStack
 
 <p align="center">
@@ -17,23 +6,27 @@
   </a>
 </p>
 
-<p align="center">
-<a href="https://github.com/utmstack/UTMStack/graphs/contributors"><img src="https://img.shields.io/github/contributors-anon/utmstack/utmstack">
-<a href="https://github.com/utmstack/UTMStack/releases/"><img src="https://img.shields.io/github/release/utmstack/utmstack">
-<a href="https://github.com/utmstack/UTMStack/issues"><img src="https://img.shields.io/github/issues-raw/utmstack/utmstack">
-<a href="https://github.com/utmstack/UTMStack/commits/main"><img src="https://img.shields.io/github/commit-activity/m/utmstack/utmstack">
-<a href="https://github.com/utmstack/UTMStack/blob/master/LICENSE"><img src="https://img.shields.io/github/license/ad-aures/castopod?color=blue">
-<a href="https://discord.gg/ZznvZ8xcHh"><img src="https://img.shields.io/discord/1154016563775672400.svg?logo=discord">
-</p>
+[![Contributors](https://img.shields.io/github/contributors-anon/utmstack/utmstack)](https://github.com/utmstack/UTMStack/graphs/contributors)
+[![Release](https://img.shields.io/github/release/utmstack/utmstack)](https://github.com/utmstack/UTMStack/releases/)
+[![Issues](https://img.shields.io/github/issues-raw/utmstack/utmstack)](https://github.com/utmstack/UTMStack/issues)
+[![Commit Activity](https://img.shields.io/github/commit-activity/m/utmstack/utmstack)](https://github.com/utmstack/UTMStack/commits/main)
+[![License](https://img.shields.io/github/license/ad-aures/castopod?color=blue)](https://github.com/utmstack/UTMStack/blob/master/LICENSE)
+[![Discord](https://img.shields.io/discord/1154016563775672400.svg?logo=discord)](https://discord.gg/ZznvZ8xcHh)
 
-<h4 align="center">Enterprise-ready SIEM and XDR powered by Real-Time correlation and Threat Intelligence</h4>
+#### Enterprise-ready SIEM and XDR powered by Real-Time correlation and Threat Intelligence
 
 ## Introduction
 
 Welcome to the UTMStack open-source project! UTMStack is a unified threat management platform that merges SIEM (Security Information and Event Management) and XDR (Extended Detection and Response) technologies. Our unique approach allows real-time correlation of log data, threat intelligence, and malware activity patterns from multiple sources, enabling the identification and halting of complex threats that use stealthy techniques. Visit an [online demo here.](https://utmstack.com/demo)
 
-<h1 align="center">
-<a href="https://utmstack.com"><img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-two.gif" width="400px" alt="UTMStack"></a>   <a href="https://utmstack.com"><img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-one.gif" width="372px" alt="UTMStack"></a> </h1>
+<p align="center">
+  <a href="https://utmstack.com">
+    <img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-two.gif?v=2" alt="UTMStack" width="45%">
+  </a>
+  <a href="https://utmstack.com">
+    <img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-one.gif?v=2" alt="UTMStack" width="45%">
+  </a>
+</p>
 
 ## Features
 

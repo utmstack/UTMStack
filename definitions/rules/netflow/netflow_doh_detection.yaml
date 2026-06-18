@@ -1,0 +1,50 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - netflow
+  name: DNS-over-HTTPS (DoH) Traffic Detection
+  impact:
+    confidentiality: 1
+    integrity: 0
+    availability: 0
+  category: Command and Control
+  technique: "T1071.004 - Application Layer Protocol: DNS"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1071/004/
+    - https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
+  description: |
+    Detects DNS-over-HTTPS traffic to known public DoH resolvers. While DoH provides privacy, malware and attackers use it to bypass DNS monitoring and exfiltrate data through encrypted DNS channels.
+
+    Next Steps:
+    1. Identify the internal host using DoH
+    2. Determine if DoH usage is authorized by organization policy
+    3. Check if the host has DNS-related malware or unauthorized DNS tools
+    4. Review if corporate DNS policies are being bypassed
+    5. Consider blocking known DoH resolver IPs at the perimeter
+    6. Investigate the host for other signs of compromise if DoH usage is unexpected
+  where: |
+    exists("origin.ip") &&
+    exists("target.ip") &&
+    equals("target.port", 443) &&
+    equals("protocol", "TCP") &&
+    (equals("target.ip", "1.1.1.1") || equals("target.ip", "1.0.0.1") ||
+     equals("target.ip", "8.8.8.8") || equals("target.ip", "8.8.4.4") ||
+     equals("target.ip", "9.9.9.9") || equals("target.ip", "149.112.112.112") ||
+     equals("target.ip", "208.67.222.222") || equals("target.ip", "208.67.220.220") ||
+     equals("target.ip", "185.228.168.168") || equals("target.ip", "185.228.169.168") ||
+     equals("target.ip", "104.16.248.249") || equals("target.ip", "104.16.249.249"))
+  afterEvents:
+    - indexPattern: v11-log-netflow-*
+      with:
+        - field: origin.ip
+          operator: filter_term
+          value: '{{.origin.ip}}'
+        - field: target.port
+          operator: filter_term
+          value: '443'
+      within: 1h
+      count: 20
+  groupBy:
+    - adversary.ip
+    - target.ip

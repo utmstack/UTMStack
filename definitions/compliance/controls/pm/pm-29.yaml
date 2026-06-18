@@ -1,0 +1,10 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-29
+family: pm
+familyName: Program Management
+name: Risk Management Program Leadership Roles
+scope: governance
+statement: |-
+  Appoint a Senior Accountable Official for Risk Management to align organizational information security and privacy management processes with strategic, operational, and budgetary planning processes; and
+    Establish a Risk Executive (function) to view and analyze risk from an organization-wide perspective and ensure management of risk is consistent across the organization.
+source: NIST SP 800-53 Rev 5 (public domain)

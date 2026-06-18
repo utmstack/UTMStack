@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ac-4
+family: ac
+familyName: Access Control
+name: Information Flow Enforcement
+scope: data
+statement: Enforce approved authorizations for controlling the flow of information within the system and
+  between connected systems based on [information flow control policies].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

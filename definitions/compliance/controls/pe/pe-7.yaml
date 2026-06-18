@@ -1,0 +1,8 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pe-7
+family: pe
+familyName: Physical and Environmental Protection
+name: Visitor Control
+scope: governance
+statement: ''
+source: NIST SP 800-53 Rev 5 (public domain)

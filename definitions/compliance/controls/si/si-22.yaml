@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: si-22
+family: si
+familyName: System and Information Integrity
+name: Information Diversity
+scope: data
+statement: |-
+  Identify the following alternative sources of information for [essential functions and services]: [alternative information sources] ; and
+    Use an alternative information source for the execution of essential functions or services on [systems or system components] when the primary source of information is corrupted or unavailable.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

@@ -1,0 +1,51 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - wineventlog
+  name: Silver Ticket Attack Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Credential Access
+  technique: "T1558.002 - Steal or Forge Kerberos Tickets: Silver Ticket"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1558/002/
+    - https://adsecurity.org/?p=2011
+    - https://www.sans.org/blog/kerberos-in-the-crosshairs-golden-tickets-silver-tickets-mitm-and-more/
+  description: |
+    Detects Silver Ticket attacks where adversaries forge Kerberos TGS tickets using a service
+    account's NTLM hash, bypassing the KDC entirely. Unlike Golden Tickets, Silver Tickets target
+    specific services. The rule detects TGS tickets presented without corresponding TGT requests,
+    and service access events with anomalous Kerberos authentication patterns.
+
+    Next Steps:
+    1. Identify the targeted service and its associated service account
+    2. Verify if the service account hash has been compromised via Kerberoasting
+    3. Reset the targeted service account password immediately
+    4. Review access logs for the targeted service for unauthorized activity
+    5. Check for prior Kerberoasting activity targeting the same service SPN
+    6. Investigate the source host for compromise indicators
+    7. Implement AES-only encryption for service accounts
+    8. Enable Kerberos PAC validation on the targeted services
+  where: |
+    equals("log.eventCode", "4769") &&
+    equals("log.channel", "Security") &&
+    (
+      equals("log.eventDataTicketEncryptionType", "23") &&
+      !regexMatch("log.eventDataServiceName", "(?i)(krbtgt|\\$$)") &&
+      !oneOf("log.eventDataStatus", ["0", "6"]) &&
+      exists("origin.ip")
+    )
+  afterEvents:
+    - indexPattern: v11-log-wineventlog-*
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{.origin.ip}}'
+      within: 15m
+      count: 5
+  groupBy:
+    - origin.ip
+    - origin.host

@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: si-21
+family: si
+familyName: System and Information Integrity
+name: Information Refresh
+scope: data
+statement: Refresh [information] at [frequencies] or generate the information on demand and delete the
+  information when no longer needed.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

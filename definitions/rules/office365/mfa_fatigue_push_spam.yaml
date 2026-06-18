@@ -1,0 +1,47 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - o365
+  name: MFA Fatigue Push Spam Attack Detection
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Credential Access
+  technique: "T1621 - Multi-Factor Authentication Request Generation"
+  adversary: origin
+  references:
+    - https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-mfa-howitworks
+    - https://attack.mitre.org/techniques/T1621/
+  description: |
+    Detects MFA fatigue attacks where an attacker repeatedly triggers MFA push notifications to overwhelm a user into accepting. Multiple failed MFA challenges followed by a successful authentication strongly indicates an MFA fatigue attack.
+
+    Next Steps:
+    1. Contact the user immediately to verify if they intentionally approved the MFA request
+    2. Review the source IP addresses of the MFA challenges
+    3. Check if the authentication was ultimately successful after the MFA spam
+    4. Review the user's account for signs of compromise post-authentication
+    5. If MFA was approved under duress, immediately reset credentials and revoke sessions
+    6. Switch the user to phishing-resistant MFA methods (FIDO2, certificate-based)
+    7. Enable number matching for push notifications
+    8. Implement risk-based Conditional Access policies
+  where: |
+    (equals("action", "UserLoginFailed") || equals("action", "UserLoggedIn")) &&
+    (contains("log.Parameters", "MFA") ||
+     contains("log.LogonError", "MfaDenied") ||
+     contains("log.LogonError", "MfaIncomplete") ||
+     equals("log.LogonError", "InvalidStrongAuthenticationMethod"))
+  afterEvents:
+    - indexPattern: v11-log-o365-*
+      with:
+        - field: origin.user
+          operator: filter_term
+          value: '{{.origin.user}}'
+        - field: log.LogonError
+          operator: filter_match
+          value: 'Mfa'
+      within: 15m
+      count: 5
+  groupBy:
+    - adversary.ip
+    - adversary.user

@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: sc-15
+family: sc
+familyName: System and Communications Protection
+name: Collaborative Computing Devices and Applications
+scope: data
+statement: |-
+  Prohibit remote activation of collaborative computing devices and applications with the following exceptions: [exceptions where remote activation is to be allowed] ; and
+    Provide an explicit indication of use to users physically present at the devices.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

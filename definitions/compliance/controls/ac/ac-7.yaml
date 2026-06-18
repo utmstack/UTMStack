@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ac-7
+family: ac
+familyName: Access Control
+name: Unsuccessful Logon Attempts
+scope: data
+statement: |-
+  Enforce a limit of [number] consecutive invalid logon attempts by a user during a [time period] ; and
+    Automatically [lock the account or node for {{ insert: param, ac-07_odp.04 }}  | lock the account or node until released by an administrator | delay next logon prompt per {{ insert: param, ac-07_odp.05 }}  | notify system administrator | take other {{ insert: param, ac-07_odp.06 }} ] when the maximum number of unsuccessful attempts is exceeded.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

@@ -1,0 +1,9 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sr-7
+family: sr
+familyName: Supply Chain Risk Management
+name: Supply Chain Operations Security
+scope: governance
+statement: 'Employ the following Operations Security (OPSEC) controls to protect supply chain-related
+  information for the system, system component, or system service: [OPSEC controls].'
+source: NIST SP 800-53 Rev 5 (public domain)

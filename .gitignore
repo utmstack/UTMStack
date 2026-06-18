@@ -14,3 +14,11 @@ installer/public_key.crt
 
 
 qodana.yaml
+backend/.env.example
+backend/.env
+
+# Compiled backend binary (produced by dev-backend/build.sh)
+backend/backend
+
+# Local docker dev harness (compose + build.sh + .env)
+dev-backend/

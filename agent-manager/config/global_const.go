@@ -14,7 +14,6 @@ func KeyAuthRoutes() []string {
 
 		"/agent.CollectorService/CollectorStream",
 		"/agent.CollectorService/DeleteCollector",
-		"/agent.CollectorService/GetCollectorConfig",
 
 		"/agent.ModuleConfigService/IsModuleEnabled",
 
@@ -39,14 +38,14 @@ func InternalKeyRoutes() []string {
 		"/agent.CollectorService/ListCollector",
 
 		"/agent.PanelService/ProcessCommand",
-		"/agent.PanelCollectorService/RegisterCollectorConfig",
+		"/agent.PanelService/GetConnectionKey",
+		"/agent.PanelService/RotateConnectionKey",
 
 		"/grpc.health.v1.Health/Check",
 	}
 }
 
 var (
-	PanelConnectionKeyUrl     = "%s/api/authenticateFederationServiceManager"
 	CheckEvery                = 5 * time.Minute
 	CertPath                  = "/cert/utm.crt"
 	CertKeyPath               = "/cert/utm.key"
@@ -54,7 +53,6 @@ var (
 	UpdatesVersionsPath       = filepath.Join(UpdatesFolder, "version.json")
 	UpdatesDependenciesFolder = "/dependencies"
 	InternalKey               = os.Getenv("INTERNAL_KEY")
-	PanelServiceName          = os.Getenv("PANEL_SERV_NAME")
 	LogLevel                  = os.Getenv("LOG_LEVEL")
 	EncryptionKey             = os.Getenv("ENCRYPTION_KEY")
 	UTMHost                   = os.Getenv("UTM_HOST")

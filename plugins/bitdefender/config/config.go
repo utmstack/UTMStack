@@ -1,45 +1,60 @@
 package config
 
 import (
-	"context"
-	"encoding/json"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/sha1"
+	"encoding/base64"
 	"fmt"
-	"net/http"
-	"strings"
-	sync "sync"
+	"os"
+	"path/filepath"
+	"sync"
 	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/utmstack/UTMStack/plugins/bitdefender/utils"
-	"google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	"google.golang.org/grpc/connectivity"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
+	"golang.org/x/crypto/pbkdf2"
+	"gopkg.in/yaml.v3"
 )
 
 const (
-	DefaultTenant      string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+	pluginFile                = "system_plugins_bitdefender.yaml"
+	processName               = "plugin_com.utmstack.bitdefender"
+	pipelineDirDefault        = "/workdir/pipeline"
 	EndpointPush       string = "/v1.0/jsonrpc/push"
 	BitdefenderGZPort  string = "8000"
+	DefaultTenant      string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 	UrlCheckConnection string = "https://cloud.gravityzone.bitdefender.com"
-
-	reconnectDelay = 5 * time.Second
-	maxMessageSize = 1024 * 1024 * 1024
 )
+
+type ConfigurationSection struct {
+	ModuleActive bool
+	ModuleGroups []*ModuleGroup
+}
+
+type ModuleGroup struct {
+	Id                        int32
+	GroupName                 string
+	ModuleGroupConfigurations []*Configuration
+}
+
+type Configuration struct {
+	ConfKey   string
+	ConfValue string
+}
 
 var (
-	cnf *ConfigurationSection
-	mu  sync.Mutex
-
-	internalKey       string
-	modulesConfigHost string
-
-	configsSent = make(map[string]BDGZModuleConfig)
+	cnf              *ConfigurationSection
+	mu               sync.Mutex
+	configUpdateChan chan *ConfigurationSection
 )
 
+func init() {
+	configUpdateChan = make(chan *ConfigurationSection, 1)
+}
+
+// GetConfig returns the current configuration (nil-safe).
 func GetConfig() *ConfigurationSection {
 	mu.Lock()
 	defer mu.Unlock()
@@ -49,239 +64,207 @@ func GetConfig() *ConfigurationSection {
 	return cnf
 }
 
-func StartConfigurationSystem() {
-	for {
-		if err := utils.ConnectionChecker(UrlCheckConnection); err != nil {
-			_ = catcher.Error("External connection failure detected: %v", err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
-		}
-		pluginConfig := plugins.PluginCfg("com.utmstack")
-		if !pluginConfig.Exists() {
-			_ = catcher.Error("plugin configuration not found", nil, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
-			time.Sleep(reconnectDelay)
-			continue
-		}
-		internalKey = pluginConfig.Get("internalKey").String()
-		modulesConfigHost = pluginConfig.Get("modulesConfig").String()
-
-		if internalKey == "" || modulesConfigHost == "" {
-			fmt.Println("Internal key or Modules Config Host is not set, skipping UTMStack plugin execution")
-			time.Sleep(reconnectDelay)
-			continue
-		}
-		break
-	}
-
-	for {
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
-		ctx = metadata.AppendToOutgoingContext(ctx, "internal-key", internalKey)
-		conn, err := grpc.NewClient(
-			modulesConfigHost,
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)),
-		)
-
-		if err != nil {
-			_ = catcher.Error("Failed to connect to server", err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
-			cancel()
-			time.Sleep(reconnectDelay)
-			continue
-		}
-
-		state := conn.GetState()
-		if state == connectivity.Shutdown || state == connectivity.TransientFailure {
-			_ = catcher.Error("Connection is in shutdown or transient failure state", nil, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
-			cancel()
-			time.Sleep(reconnectDelay)
-			continue
-		}
-
-		client := NewConfigServiceClient(conn)
-		stream, err := client.StreamConfig(ctx)
-		if err != nil {
-			_ = catcher.Error("Failed to create stream", err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
-			_ = conn.Close()
-			cancel()
-			time.Sleep(reconnectDelay)
-			continue
-		}
-
-		err = stream.Send(&BiDirectionalMessage{
-			Payload: &BiDirectionalMessage_PluginInit{
-				PluginInit: &PluginInit{Type: PluginType_BITDEFENDER},
-			},
-		})
-		if err != nil {
-			_ = catcher.Error("Failed to send PluginInit", err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
-			_ = conn.Close()
-			cancel()
-			time.Sleep(reconnectDelay)
-			continue
-		}
-
-		for {
-			in, err := stream.Recv()
-			if err != nil {
-				if strings.Contains(err.Error(), "EOF") {
-					catcher.Info("Stream closed by server, reconnecting...", map[string]any{"process": "plugin_com.utmstack.bitdefender"})
-					_ = conn.Close()
-					cancel()
-					time.Sleep(reconnectDelay)
-					break
-				}
-				st, ok := status.FromError(err)
-				if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
-					_ = catcher.Error("Stream error: "+st.Message(), err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
-					_ = conn.Close()
-					cancel()
-					time.Sleep(reconnectDelay)
-					break
-				} else {
-					_ = catcher.Error("Stream receive error", err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
-					time.Sleep(reconnectDelay)
-					continue
-				}
-			}
-
-			switch message := in.Payload.(type) {
-			case *BiDirectionalMessage_Config:
-				catcher.Info("Received configuration update", map[string]any{"process": "plugin_com.utmstack.bitdefender"})
-				cnf = message.Config
-				go processConfigurations(cnf)
-			}
-		}
-	}
+// GetConfigUpdateChannel returns the channel that receives config updates.
+func GetConfigUpdateChannel() <-chan *ConfigurationSection {
+	return configUpdateChan
 }
 
-func processConfigurations(config *ConfigurationSection) {
-	for _, group := range config.ModuleGroups {
-		newConfig := GetBDGZModuleConfig(group)
-		if isNeededUpdate(configsSent, newConfig, group.GroupName) {
-			if newConfig.ConnectionKey == "" || newConfig.AccessUrl == "" || newConfig.MasterIp == "" || len(newConfig.CompaniesIDs) == 0 {
-				_ = catcher.Error("Invalid configuration for group", nil, map[string]any{
-					"group":   group.GroupName,
-					"process": "plugin_com.utmstack.bitdefender",
-				})
+// StartConfigurationSystem starts the file watcher. Blocks until configured,
+// then runs indefinitely.
+func StartConfigurationSystem() {
+	pipelineDir := pipelineDirDefault
+	var encKey string
+	for {
+		cfg := plugins.PluginCfg("com.utmstack")
+		if cfg.Exists() {
+			if d := cfg.Get("pipelineDir").String(); d != "" {
+				pipelineDir = d
+			}
+			encKey = cfg.Get("encryptionKey").String()
+			break
+		}
+		_ = catcher.Error("plugin configuration not found", nil, map[string]any{"process": processName})
+		time.Sleep(5 * time.Second)
+	}
+
+	filePath := filepath.Join(pipelineDir, pluginFile)
+
+	// Initial load.
+	if sec := readConfig(filePath, encKey); sec != nil {
+		mu.Lock()
+		cnf = sec
+		mu.Unlock()
+		push(sec)
+	}
+
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		_ = catcher.Error("failed to create file watcher", err, map[string]any{"process": processName})
+		pollFallback(filePath, encKey)
+		return
+	}
+	defer watcher.Close()
+
+	// Watch the directory so we catch atomic write (rename) events.
+	if err := watcher.Add(pipelineDir); err != nil {
+		_ = catcher.Error("failed to watch pipeline dir", err, map[string]any{"process": processName})
+		pollFallback(filePath, encKey)
+		return
+	}
+
+	catcher.Info(fmt.Sprintf("watching %s for config changes", filePath), map[string]any{"process": processName})
+
+	for {
+		select {
+		case event, ok := <-watcher.Events:
+			if !ok {
+				return
+			}
+			if event.Name != filePath {
 				continue
 			}
-
-			func() {
-				defer func() {
-					if r := recover(); r != nil {
-						_ = catcher.Error("recovered from panic in API operations", nil, map[string]any{
-							"panic":   r,
-							"group":   group.GroupName,
-							"process": "plugin_com.utmstack.bitdefender",
-						})
-					}
-				}()
-
-				if err := apiPush(newConfig, "sendConf"); err != nil {
-					_ = catcher.Error("error sending configuration", err, map[string]any{
-						"group":   group.GroupName,
-						"process": "plugin_com.utmstack.bitdefender",
-					})
-					return
+			if event.Has(fsnotify.Write) || event.Has(fsnotify.Create) ||
+				event.Has(fsnotify.Rename) || event.Has(fsnotify.Remove) {
+				if sec := readConfig(filePath, encKey); sec != nil {
+					mu.Lock()
+					cnf = sec
+					mu.Unlock()
+					push(sec)
 				}
-				time.Sleep(15 * time.Second)
-				if err := apiPush(newConfig, "getConf"); err != nil {
-					_ = catcher.Error("error getting configuration", err, map[string]any{
-						"group":   group.GroupName,
-						"process": "plugin_com.utmstack.bitdefender",
-					})
-					return
-				}
-				if err := apiPush(newConfig, "sendTest"); err != nil {
-					_ = catcher.Error("error sending test event", err, map[string]any{
-						"group":   group.GroupName,
-						"process": "plugin_com.utmstack.bitdefender",
-					})
-					return
-				}
-
-				configsSent[group.GroupName] = newConfig
-			}()
+			}
+		case err, ok := <-watcher.Errors:
+			if !ok {
+				return
+			}
+			_ = catcher.Error("watcher error", err, map[string]any{"process": processName})
 		}
 	}
 }
 
-func apiPush(config BDGZModuleConfig, operation string) error {
-	operationFunc := map[string]func(BDGZModuleConfig) (*http.Response, error){
-		"sendConf": sendPushEventSettings,
-		"getConf":  getPushEventSettings,
-		"sendTest": sendTestPushEvent,
-	}
-
-	fn, ok := operationFunc[operation]
-	if !ok {
-		return catcher.Error("wrong operation", nil, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
-	}
-
-	for i := 0; i < 5; i++ {
-		response, err := fn(config)
-		if err != nil {
-			_ = catcher.Error(fmt.Sprintf("%v", err), err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
-			time.Sleep(1 * time.Minute)
-			continue
+// pollFallback is used if fsnotify setup fails — polls every 30s instead.
+func pollFallback(filePath, encKey string) {
+	catcher.Warn("falling back to 30s polling", map[string]any{"process": processName})
+	for range time.Tick(30 * time.Second) {
+		if sec := readConfig(filePath, encKey); sec != nil {
+			mu.Lock()
+			cnf = sec
+			mu.Unlock()
+			push(sec)
 		}
+	}
+}
 
-		func() { _ = response.Body.Close() }()
+func push(sec *ConfigurationSection) {
+	select {
+	case configUpdateChan <- sec:
+	default:
+	}
+}
 
+// tenantYAML matches the flat YAML format the backend writes.
+type tenantYAML struct {
+	Name   string            `yaml:"name"`
+	Config map[string]string `yaml:",inline"`
+}
+
+var sensitiveKeys = map[string]bool{
+	"connectionKey": true,
+}
+
+func readConfig(path, encKey string) *ConfigurationSection {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			// File removed → module disabled / no configuration. Report an empty,
+			// inactive section so the module is treated as disabled and all work stops.
+			return &ConfigurationSection{ModuleActive: false}
+		}
+		_ = catcher.Error("failed to read config file", err, map[string]any{"process": processName, "file": path})
 		return nil
 	}
 
-	return catcher.Error("error sending configuration after 5 retries", nil, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
-}
-
-func sendPushEventSettings(config BDGZModuleConfig) (*http.Response, error) {
-	byteTemplate := getTemplateSetPush(config)
-	body, err := json.Marshal(byteTemplate)
-	if err != nil {
-		return nil, catcher.Error("error when marshaling the request body to send the configuration", err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
-	}
-	return sendRequest(body, config)
-}
-
-func getPushEventSettings(config BDGZModuleConfig) (*http.Response, error) {
-	byteTemplate := getTemplateGet()
-	body, err := json.Marshal(byteTemplate)
-	if err != nil {
-		return nil, catcher.Error("error when marshaling the request body to get the configuration", err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
-	}
-	return sendRequest(body, config)
-}
-
-func sendTestPushEvent(config BDGZModuleConfig) (*http.Response, error) {
-	byteTemplate := getTemplateTest()
-	body, err := json.Marshal(byteTemplate)
-	if err != nil {
-		return nil, catcher.Error("error when marshaling the request body to send the test event", err, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
-	}
-	return sendRequest(body, config)
-}
-
-func isNeededUpdate(savedConfigs map[string]BDGZModuleConfig, newConf BDGZModuleConfig, groupName string) bool {
-	cnf, ok := savedConfigs[groupName]
-	if !ok {
-		return true
+	var tenants []tenantYAML
+	if err := yaml.Unmarshal(data, &tenants); err != nil {
+		_ = catcher.Error("failed to parse config file", err, map[string]any{"process": processName, "file": path})
+		return nil
 	}
 
-	return isDifferent(cnf.CompaniesIDs, newConf.CompaniesIDs) ||
-		cnf.ConnectionKey != newConf.ConnectionKey ||
-		cnf.AccessUrl != newConf.AccessUrl ||
-		cnf.MasterIp != newConf.MasterIp
-}
-
-func isDifferent(a1 []string, a2 []string) bool {
-	m := make(map[string]bool)
-	for _, v := range a1 {
-		m[v] = true
+	sec := &ConfigurationSection{
+		ModuleActive: len(tenants) > 0,
 	}
-	for _, v := range a2 {
-		if !m[v] {
-			return true
+	for i, t := range tenants {
+		grp := &ModuleGroup{
+			Id:        int32(i + 1),
+			GroupName: t.Name,
 		}
-		delete(m, v)
+		for k, v := range t.Config {
+			conf := &Configuration{ConfKey: k, ConfValue: v}
+			if sensitiveKeys[k] && encKey != "" {
+				dec, err := NewCipher(encKey).Decrypt(conf.ConfValue)
+				if err == nil {
+					conf.ConfValue = dec
+				}
+			}
+			grp.ModuleGroupConfigurations = append(grp.ModuleGroupConfigurations, conf)
+		}
+		sec.ModuleGroups = append(sec.ModuleGroups, grp)
 	}
-	return len(m) > 0
+	return sec
+}
+
+const (
+	iterationCount = 65536
+	keyLength      = 16
+)
+
+type Cipher struct {
+	key []byte
+}
+
+func NewCipher(key string) *Cipher {
+	return &Cipher{key: []byte(key)}
+}
+
+func (c *Cipher) setKey() (cipher.Block, []byte, error) {
+	h := sha1.New()
+	h.Write(c.key)
+	salt := h.Sum(nil)
+	keyEnc := pbkdf2.Key(c.key, salt, iterationCount, keyLength, sha1.New)
+	block, err := aes.NewCipher(keyEnc)
+	if err != nil {
+		return nil, nil, err
+	}
+	return block, salt[:keyLength], nil
+}
+
+func (c *Cipher) Decrypt(crypt string) (string, error) {
+	if crypt == "" {
+		return "", nil
+	}
+	encryptedData, err := base64.StdEncoding.DecodeString(crypt)
+	if err != nil {
+		return crypt, nil // not base64 → already plaintext
+	}
+	blk, iv, err := c.setKey()
+	if err != nil {
+		return crypt, err
+	}
+	if len(encryptedData)%aes.BlockSize != 0 {
+		return crypt, nil // not a valid CBC block → already plaintext
+	}
+	dec := cipher.NewCBCDecrypter(blk, iv)
+	decrypted := make([]byte, len(encryptedData))
+	dec.CryptBlocks(decrypted, encryptedData)
+	return string(pkcs5Trim(decrypted)), nil
+}
+
+func pkcs5Trim(data []byte) []byte {
+	if len(data) == 0 {
+		return data
+	}
+	padding := int(data[len(data)-1])
+	if padding > len(data) || padding == 0 {
+		return data
+	}
+	return data[:len(data)-padding]
 }

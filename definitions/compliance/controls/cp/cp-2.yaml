@@ -1,0 +1,27 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: cp-2
+family: cp
+familyName: Contingency Planning
+name: Contingency Plan
+scope: data
+statement: |-
+  Develop a contingency plan for the system that:
+      Identifies essential mission and business functions and associated contingency requirements;
+      Provides recovery objectives, restoration priorities, and metrics;
+      Addresses contingency roles, responsibilities, assigned individuals with contact information;
+      Addresses maintaining essential mission and business functions despite a system disruption, compromise, or failure;
+      Addresses eventual, full system restoration without deterioration of the controls originally planned and implemented;
+      Addresses the sharing of contingency information; and
+      Is reviewed and approved by [organization-defined personnel or roles];
+    Distribute copies of the contingency plan to [organization-defined key contingency personnel (identified by name and/or by role) and organizational elements];
+    Coordinate contingency planning activities with incident handling activities;
+    Review the contingency plan for the system [frequency];
+    Update the contingency plan to address changes to the organization, system, or environment of operation and problems encountered during contingency plan implementation, execution, or testing;
+    Communicate contingency plan changes to [organization-defined key contingency personnel (identified by name and/or by role) and organizational elements];
+    Incorporate lessons learned from contingency plan testing, training, or actual contingency activities into contingency testing and training; and
+    Protect the contingency plan from unauthorized disclosure and modification.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

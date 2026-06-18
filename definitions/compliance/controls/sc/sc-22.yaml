@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: sc-22
+family: sc
+familyName: System and Communications Protection
+name: Architecture and Provisioning for Name/Address Resolution Service
+scope: data
+statement: Ensure the systems that collectively provide name/address resolution service for an organization
+  are fault-tolerant and implement internal and external role separation.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

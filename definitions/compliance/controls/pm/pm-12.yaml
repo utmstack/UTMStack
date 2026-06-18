@@ -1,0 +1,9 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-12
+family: pm
+familyName: Program Management
+name: Insider Threat Program
+scope: governance
+statement: Implement an insider threat program that includes a cross-discipline insider threat incident
+  handling team.
+source: NIST SP 800-53 Rev 5 (public domain)

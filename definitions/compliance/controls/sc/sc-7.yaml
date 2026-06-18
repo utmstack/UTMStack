@@ -1,0 +1,15 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: sc-7
+family: sc
+familyName: System and Communications Protection
+name: Boundary Protection
+scope: data
+statement: |-
+  Monitor and control communications at the external managed interfaces to the system and at key internal managed interfaces within the system;
+    Implement subnetworks for publicly accessible system components that are [physically | logically] separated from internal organizational networks; and
+    Connect to external networks or systems only through managed interfaces consisting of boundary protection devices arranged in accordance with an organizational security and privacy architecture.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

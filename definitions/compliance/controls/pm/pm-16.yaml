@@ -1,0 +1,9 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-16
+family: pm
+familyName: Program Management
+name: Threat Awareness Program
+scope: governance
+statement: Implement a threat awareness program that includes a cross-organization information-sharing
+  capability for threat intelligence.
+source: NIST SP 800-53 Rev 5 (public domain)

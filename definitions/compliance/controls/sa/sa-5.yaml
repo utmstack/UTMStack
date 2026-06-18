@@ -1,0 +1,18 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sa-5
+family: sa
+familyName: System and Services Acquisition
+name: System Documentation
+scope: governance
+statement: |-
+  Obtain or develop administrator documentation for the system, system component, or system service that describes:
+      Secure configuration, installation, and operation of the system, component, or service;
+      Effective use and maintenance of security and privacy functions and mechanisms; and
+      Known vulnerabilities regarding configuration and use of administrative or privileged functions;
+    Obtain or develop user documentation for the system, system component, or system service that describes:
+      User-accessible security and privacy functions and mechanisms and how to effectively use those functions and mechanisms;
+      Methods for user interaction, which enables individuals to use the system, component, or service in a more secure manner and protect individual privacy; and
+      User responsibilities in maintaining the security of the system, component, or service and privacy of individuals;
+    Document attempts to obtain system, system component, or system service documentation when such documentation is either unavailable or nonexistent and take [actions] in response; and
+    Distribute documentation to [personnel or roles].
+source: NIST SP 800-53 Rev 5 (public domain)

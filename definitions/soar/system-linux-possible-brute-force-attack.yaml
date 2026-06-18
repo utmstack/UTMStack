@@ -1,0 +1,13 @@
+# UTMStack system SOAR flow
+- name: 'System Linux: Possible Brute Force Attack'
+  description: Identifies multiple SSH login failures followed by a successful one from the same source address. Adversaries
+    can attempt to login into multiple users with a common or known password to gain access to accounts.
+  conditions:
+  - operator: IS
+    field: name
+    value: 'System Linux: Possible Brute Force Attack'
+  commands:
+  - sudo ufw deny from $(adversary.ip) to any
+  - ufw deny from $(adversary.ip) to any
+  shell: sh
+  agentPlatform: ubuntu

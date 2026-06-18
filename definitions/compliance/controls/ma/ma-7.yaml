@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: ma-7
+family: ma
+familyName: Maintenance
+name: Field Maintenance
+scope: data
+statement: Restrict or prohibit field maintenance on [systems or system components] to [trusted maintenance
+  facilities].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

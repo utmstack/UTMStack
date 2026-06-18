@@ -1,0 +1,11 @@
+# Generic syslog filter, version 2.0.0
+# Allow processing of any syslog log
+pipeline:
+  - dataTypes:
+      - syslog
+    steps:
+      - grok:
+          patterns:
+            - fieldName: log.message
+              pattern: '(.*)'
+          source: raw

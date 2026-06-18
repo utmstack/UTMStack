@@ -1,0 +1,691 @@
+{
+  "$comment": "UTMStack MCP Module — reference catalog of every tool, resource, and prompt the server exposes (or will expose). Each tool entry maps to the underlying usecase method, declares its permission/license gate, and includes a JSON-Schema-style input shape. status='implemented' tools are wired in modules/mcp/tools_*.go today; status='planned' tools are scaffolded by the design but not yet registered.",
+  "mcp_protocol_version": "2025-06-18",
+  "server": {
+    "name": "utmstack",
+    "title": "UTMStack",
+    "version": "v1",
+    "description": "UTMStack backend exposed over MCP. Lets MCP-aware AI tools drive the same SOC operations a user would over REST — search alerts, run SOAR rules, query OpenSearch, manage incidents, generate compliance reports — under the same auth, permissions, license gates, and audit log.",
+    "transport": "streamable-http",
+    "endpoint": "/api/v1/mcp",
+    "health_endpoint": "/api/v1/mcp/health",
+    "auth": "Bearer JWT or Utm-Api-Key header — same as REST. The caller's Actor (UserID, Login, Roles, Permissions) is propagated into every tool invocation and enforced via pkg/authz.",
+    "audit": "Every tool call writes one row to the audit_log table with EventType=MCP_TOOL_CALL and ResourceType=<tool name>."
+  },
+  "permissions": {
+    "alerts.read": "List/search alerts and the tag catalog.",
+    "alerts.write": "Mutate alerts (status, notes, tags) and tag rules.",
+    "incidents.read": "List/get incidents, alerts, notes, history.",
+    "incidents.write": "Create/modify incidents and their alert links/notes.",
+    "soar.read": "Read SOAR rules, templates, executions, variables, actions, jobs.",
+    "soar.write": "Mutate SOAR rules and run actions/jobs (may dispatch commands to agents).",
+    "opensearch.read": "Search OpenSearch via the FilterType DSL or SQL; read indices and policy.",
+    "opensearch.write": "Delete indices, manage index patterns, update ISM policy.",
+    "loganalyzer.read": "Run analyzer queries and load saved queries.",
+    "loganalyzer.write": "Create/update/delete saved analyzer queries.",
+    "dashboards.read": "List/get dashboards, visualizations, and layouts.",
+    "dashboards.write": "Create/update/delete dashboards, visualizations, and layouts.",
+    "eventprocessing.read": "Read regex patterns, tenant configs, correlation rules, filters, ingestion stats.",
+    "eventprocessing.write": "Mutate regex patterns, tenant configs, correlation rules, filters.",
+    "datasources.read": "List datasources, groups, and usage.",
+    "datasources.write": "Mutate datasources, groups, labels.",
+    "integrations.read": "List integrations and tenant configs.",
+    "integrations.write": "Activate/configure integrations; manage their tenants.",
+    "compliance.read": "Read frameworks, controls, reports, and schedules.",
+    "compliance.write": "Mutate frameworks/controls; generate reports; manage schedules.",
+    "audit.read": "Read the audit log.",
+    "adaudit.read": "Read AD user inventory.",
+    "config.read": "Read app config and branding.",
+    "config.write": "Update app config and branding (branding write also requires MSSP).",
+    "users.read": "List/get users.",
+    "users.write": "Create/update users; assign roles.",
+    "users.delete": "Deactivate users.",
+    "roles.read": "List/get roles.",
+    "idp.read": "List identity providers.",
+    "idp.write": "Mutate identity providers (also requires Enterprise license).",
+    "ROLE_ADMIN": "Administrative role gate (license upload, connection keys).",
+    "ENTERPRISE": "Active license edition must be Enterprise.",
+    "MSSP": "Active license must have MSSP enabled."
+  },
+  "annotation_semantics": {
+    "readOnlyHint": "true when the tool does not mutate any state.",
+    "idempotentHint": "true when repeated identical calls have the same effect as one call.",
+    "destructiveHint": "true when the tool may perform irrecoverable changes (deletes, dispatched commands).",
+    "openWorldHint": "true when the tool may interact with external systems (OpenSearch, agents, mail, SOC-AI service)."
+  },
+
+  "tools": [
+    {
+      "name": "alerts.update_status",
+      "status": "implemented",
+      "module": "alerts",
+      "title": "Update alert status",
+      "description": "Change the status of one or more alerts (open / in-review / closed). Records the change in alert history and optionally tags closed alerts as false-positive.",
+      "permission": "alerts.write",
+      "annotations": {"readOnlyHint": false, "idempotentHint": true, "destructiveHint": false, "openWorldHint": true},
+      "input": {
+        "type": "object",
+        "properties": {
+          "alert_ids": {"type": "array", "items": {"type": "string"}, "description": "OpenSearch _id values of the alerts to update"},
+          "status": {"type": "integer", "description": "0=open, 1=in-review, 2=closed"},
+          "status_observation": {"type": "string", "description": "Optional analyst note"},
+          "add_false_positive_tag": {"type": "boolean"}
+        },
+        "required": ["alert_ids", "status"]
+      },
+      "output": "{ updated: int }",
+      "maps_to": "alerts.AlertUsecase.UpdateStatus",
+      "rest_equivalent": "POST /api/v1/utm-alerts/status"
+    },
+    {
+      "name": "alerts.update_notes",
+      "status": "implemented",
+      "module": "alerts",
+      "title": "Replace alert notes",
+      "description": "Replace the analyst notes attached to a single alert.",
+      "permission": "alerts.write",
+      "annotations": {"readOnlyHint": false, "idempotentHint": true, "destructiveHint": false, "openWorldHint": true},
+      "input": {
+        "type": "object",
+        "properties": {
+          "alert_id": {"type": "string"},
+          "notes": {"type": "string"}
+        },
+        "required": ["alert_id", "notes"]
+      },
+      "output": "{ alert_id: string }",
+      "maps_to": "alerts.AlertUsecase.UpdateNotes",
+      "rest_equivalent": "POST /api/v1/utm-alerts/notes"
+    },
+    {
+      "name": "alerts.update_tags",
+      "status": "implemented",
+      "module": "alerts",
+      "title": "Set tags on alerts",
+      "description": "Replace the tag list on one or more alerts. If create_rule=true, also persists a tag rule so future matching alerts are auto-tagged.",
+      "permission": "alerts.write",
+      "annotations": {"readOnlyHint": false, "idempotentHint": false, "destructiveHint": false, "openWorldHint": true},
+      "input": {
+        "type": "object",
+        "properties": {
+          "alert_ids": {"type": "array", "items": {"type": "string"}},
+          "tags": {"type": "array", "items": {"type": "string"}},
+          "create_rule": {"type": "boolean"}
+        },
+        "required": ["alert_ids", "tags"]
+      },
+      "output": "{ updated: int }",
+      "maps_to": "alerts.AlertUsecase.UpdateTags",
+      "rest_equivalent": "POST /api/v1/utm-alerts/tags"
+    },
+    {
+      "name": "alerts.convert_to_incident",
+      "status": "implemented",
+      "module": "alerts",
+      "title": "Attach alerts to an incident",
+      "description": "Convert/attach alerts to an incident — either by creating a new one (incident_id=0) or appending to an existing one.",
+      "permission": "alerts.write",
+      "annotations": {"readOnlyHint": false, "idempotentHint": false, "destructiveHint": false, "openWorldHint": true},
+      "input": {
+        "type": "object",
+        "properties": {
+          "alert_ids": {"type": "array", "items": {"type": "string"}},
+          "incident_name": {"type": "string"},
+          "incident_id": {"type": "integer", "description": "0 to create new"},
+          "incident_source": {"type": "string"}
+        },
+        "required": ["alert_ids", "incident_name", "incident_id"]
+      },
+      "output": "{ alerts_attached: int, incident_id: int }",
+      "maps_to": "alerts.AlertUsecase.ConvertToIncident",
+      "rest_equivalent": "POST /api/v1/utm-alerts/convert-to-incident"
+    },
+    {
+      "name": "alerts.count_open",
+      "status": "implemented",
+      "module": "alerts",
+      "title": "Count open alerts",
+      "description": "Return the current count of alerts in the OPEN status across all indices.",
+      "permission": "alerts.read",
+      "annotations": {"readOnlyHint": true, "openWorldHint": true},
+      "input": {"type": "object", "properties": {}},
+      "output": "{ count: int64 }",
+      "maps_to": "alerts.AlertUsecase.CountOpenAlerts",
+      "rest_equivalent": "GET /api/v1/utm-alerts/count-open-alerts"
+    },
+    {
+      "name": "alerts.search_adversary",
+      "status": "implemented",
+      "module": "alerts",
+      "title": "Search alerts grouped by adversary",
+      "description": "Return alerts grouped by adversary host. Each entry surfaces the parent alert plus its correlated children.",
+      "permission": "alerts.read",
+      "annotations": {"readOnlyHint": true, "openWorldHint": true},
+      "input": {
+        "type": "object",
+        "properties": {
+          "filters": {"type": "array", "items": {"$ref": "#/definitions/FilterType"}, "description": "Optional structured filters (see mcp://utmstack/docs/filter-operators)"}
+        }
+      },
+      "output": "AdversaryResponse[] — each containing { adversary: Side, alerts: [{ alert, children[] }] }",
+      "maps_to": "alerts.AdversaryUsecase.FetchAdversaryAlerts",
+      "rest_equivalent": "POST /api/v1/adversary/alerts"
+    },
+
+    {
+      "name": "alert_tags.create",
+      "status": "implemented",
+      "module": "alerts",
+      "title": "Create alert tag",
+      "permission": "alerts.write",
+      "annotations": {"readOnlyHint": false, "destructiveHint": false},
+      "input": {"type": "object", "properties": {"tag_name": {"type": "string"}, "tag_color": {"type": "string"}}, "required": ["tag_name"]},
+      "output": "UtmAlertTag",
+      "maps_to": "alerts.AlertTagUsecase.Create",
+      "rest_equivalent": "POST /api/v1/utm-alert-tags"
+    },
+    {
+      "name": "alert_tags.update",
+      "status": "implemented",
+      "module": "alerts",
+      "title": "Update alert tag",
+      "permission": "alerts.write",
+      "annotations": {"idempotentHint": true},
+      "input": {"type": "object", "properties": {"id": {"type": "integer"}, "tag_name": {"type": "string"}, "tag_color": {"type": "string"}, "system_owner": {"type": "boolean"}}, "required": ["id", "tag_name"]},
+      "output": "UtmAlertTag",
+      "maps_to": "alerts.AlertTagUsecase.Update",
+      "rest_equivalent": "PUT /api/v1/utm-alert-tags"
+    },
+    {
+      "name": "alert_tags.list",
+      "status": "implemented",
+      "module": "alerts",
+      "title": "List alert tags",
+      "permission": "alerts.read",
+      "annotations": {"readOnlyHint": true},
+      "input": {"type": "object", "properties": {"tag_name": {"type": "string"}, "system_owner": {"type": "boolean"}, "page": {"type": "integer"}, "size": {"type": "integer"}}},
+      "output": "{ items: UtmAlertTag[], total: int64 }",
+      "maps_to": "alerts.AlertTagUsecase.List",
+      "rest_equivalent": "GET /api/v1/utm-alert-tags"
+    },
+    {
+      "name": "alert_tags.get",
+      "status": "implemented",
+      "module": "alerts",
+      "title": "Get alert tag by ID",
+      "permission": "alerts.read",
+      "annotations": {"readOnlyHint": true},
+      "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]},
+      "output": "UtmAlertTag",
+      "maps_to": "alerts.AlertTagUsecase.GetByID",
+      "rest_equivalent": "GET /api/v1/utm-alert-tags/:id"
+    },
+    {
+      "name": "alert_tags.delete",
+      "status": "implemented",
+      "module": "alerts",
+      "title": "Delete alert tag",
+      "permission": "alerts.write",
+      "annotations": {"destructiveHint": true},
+      "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]},
+      "output": "{ id: int, deleted: true }",
+      "maps_to": "alerts.AlertTagUsecase.Delete",
+      "rest_equivalent": "DELETE /api/v1/utm-alert-tags/:id"
+    },
+
+    {
+      "name": "alert_tag_rules.create",
+      "status": "implemented",
+      "module": "alerts",
+      "title": "Create alert tag rule",
+      "description": "Persist a rule that auto-applies tags to alerts matching the given FilterType conditions.",
+      "permission": "alerts.write",
+      "input": {"type": "object", "properties": {"name": {"type": "string"}, "description": {"type": "string"}, "conditions": {"type": "array", "items": {"$ref": "#/definitions/FilterType"}}, "tags": {"type": "array", "items": {"$ref": "#/definitions/AlertTagRuleTagRef"}}}, "required": ["name", "description", "conditions", "tags"]},
+      "output": "AlertTagRuleResponse",
+      "maps_to": "alerts.AlertTagRuleUsecase.Create",
+      "rest_equivalent": "POST /api/v1/alert-tag-rules"
+    },
+    {
+      "name": "alert_tag_rules.update",
+      "status": "implemented",
+      "module": "alerts",
+      "title": "Update alert tag rule",
+      "permission": "alerts.write",
+      "annotations": {"idempotentHint": true},
+      "input": {"type": "object", "properties": {"id": {"type": "integer"}, "name": {"type": "string"}, "description": {"type": "string"}, "conditions": {"type": "array"}, "tags": {"type": "array"}}, "required": ["id", "name", "description", "conditions", "tags"]},
+      "output": "AlertTagRuleResponse",
+      "maps_to": "alerts.AlertTagRuleUsecase.Update",
+      "rest_equivalent": "PUT /api/v1/alert-tag-rules"
+    },
+    {
+      "name": "alert_tag_rules.list",
+      "status": "implemented",
+      "module": "alerts",
+      "title": "List alert tag rules",
+      "permission": "alerts.read",
+      "annotations": {"readOnlyHint": true},
+      "input": {"type": "object", "properties": {"name": {"type": "string"}, "condition_field": {"type": "string"}, "condition_value": {"type": "string"}, "active": {"type": "boolean"}, "tag_ids": {"type": "array", "items": {"type": "integer"}}, "page": {"type": "integer"}, "size": {"type": "integer"}}},
+      "output": "{ items: AlertTagRuleResponse[], total: int64 }",
+      "maps_to": "alerts.AlertTagRuleUsecase.List",
+      "rest_equivalent": "GET /api/v1/alert-tag-rules"
+    },
+    {
+      "name": "alert_tag_rules.get",
+      "status": "implemented",
+      "module": "alerts",
+      "title": "Get alert tag rule by ID",
+      "permission": "alerts.read",
+      "annotations": {"readOnlyHint": true},
+      "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]},
+      "output": "AlertTagRuleResponse",
+      "maps_to": "alerts.AlertTagRuleUsecase.GetByID",
+      "rest_equivalent": "GET /api/v1/alert-tag-rules/:id"
+    },
+    {
+      "name": "alert_tag_rules.delete",
+      "status": "implemented",
+      "module": "alerts",
+      "title": "Delete alert tag rule",
+      "permission": "alerts.write",
+      "annotations": {"destructiveHint": true},
+      "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]},
+      "output": "{ id: int, deleted: true }",
+      "maps_to": "alerts.AlertTagRuleUsecase.Delete",
+      "rest_equivalent": "DELETE /api/v1/alert-tag-rules/:id"
+    },
+
+    {
+      "name": "incidents.create",
+      "status": "planned",
+      "module": "incidents",
+      "title": "Create incident",
+      "permission": "incidents.write",
+      "input": {"type": "object", "properties": {"name": {"type": "string"}, "description": {"type": "string"}, "category": {"type": "string"}, "severity": {"type": "integer"}, "assigned_to": {"type": "string"}, "alert_links": {"type": "array", "items": {"$ref": "#/definitions/AlertLinkItem"}}}, "required": ["name"]},
+      "output": "UtmIncident",
+      "maps_to": "incidents.IncidentUsecase.Create",
+      "rest_equivalent": "POST /api/v1/incidents"
+    },
+    {"name": "incidents.add_alerts", "status": "planned", "module": "incidents", "title": "Attach alerts to an existing incident", "permission": "incidents.write", "input": {"type": "object", "properties": {"incident_id": {"type": "integer"}, "alert_links": {"type": "array"}}, "required": ["incident_id", "alert_links"]}, "output": "UtmIncident", "maps_to": "incidents.IncidentUsecase.AddAlerts", "rest_equivalent": "POST /api/v1/incidents/add-alerts"},
+    {"name": "incidents.change_status", "status": "planned", "module": "incidents", "title": "Change incident status", "permission": "incidents.write", "annotations": {"idempotentHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}, "status": {"type": "string"}, "note": {"type": "string"}}, "required": ["id", "status"]}, "output": "UtmIncident", "maps_to": "incidents.IncidentUsecase.ChangeStatus", "rest_equivalent": "PUT /api/v1/incidents/change-status"},
+    {"name": "incidents.list", "status": "planned", "module": "incidents", "title": "List incidents", "permission": "incidents.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"status": {"type": "string"}, "assigned_to": {"type": "string"}, "severity": {"type": "integer"}, "from": {"type": "string"}, "to": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: IncidentResponse[], total: int64 }", "maps_to": "incidents.IncidentUsecase.List", "rest_equivalent": "GET /api/v1/incidents"},
+    {"name": "incidents.get", "status": "planned", "module": "incidents", "title": "Get incident by ID", "permission": "incidents.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "IncidentResponse", "maps_to": "incidents.IncidentUsecase.GetByID", "rest_equivalent": "GET /api/v1/incidents/:id"},
+    {"name": "incidents.users_assigned", "status": "planned", "module": "incidents", "title": "List users currently assigned to incidents", "permission": "incidents.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "UserAssignedDTO[]", "maps_to": "incidents.IncidentUsecase.GetUsersAssigned", "rest_equivalent": "GET /api/v1/incidents/users-assigned"},
+    {"name": "incident_alerts.create", "status": "planned", "module": "incidents", "title": "Add alert row to incident", "permission": "incidents.write", "input": {"type": "object", "properties": {"incident_id": {"type": "integer"}, "alert_id": {"type": "string"}, "alert_source": {"type": "string"}}, "required": ["incident_id", "alert_id"]}, "output": "IncidentAlertResponse", "maps_to": "incidents.IncidentAlertUsecase.Create", "rest_equivalent": "POST /api/v1/incident-alerts"},
+    {"name": "incident_alerts.update_status", "status": "planned", "module": "incidents", "title": "Update incident-alert status", "permission": "incidents.write", "annotations": {"idempotentHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}, "status": {"type": "string"}}, "required": ["id", "status"]}, "output": "IncidentAlertResponse", "maps_to": "incidents.IncidentAlertUsecase.UpdateStatus", "rest_equivalent": "POST /api/v1/incident-alerts/update-status"},
+    {"name": "incident_alerts.update", "status": "planned", "module": "incidents", "title": "Update incident-alert row", "permission": "incidents.write", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "alert_id": {"type": "string"}, "alert_source": {"type": "string"}}, "required": ["id"]}, "output": "IncidentAlertResponse", "maps_to": "incidents.IncidentAlertUsecase.Update", "rest_equivalent": "PUT /api/v1/incident-alerts"},
+    {"name": "incident_alerts.list", "status": "planned", "module": "incidents", "title": "List incident-alert links", "permission": "incidents.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"incident_id": {"type": "integer"}, "status": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: IncidentAlertResponse[], total: int64 }", "maps_to": "incidents.IncidentAlertUsecase.List", "rest_equivalent": "GET /api/v1/incident-alerts"},
+    {"name": "incident_alerts.delete", "status": "planned", "module": "incidents", "title": "Remove alert from incident", "permission": "incidents.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "incidents.IncidentAlertUsecase.Delete", "rest_equivalent": "DELETE /api/v1/incident-alerts/:id"},
+    {"name": "incident_notes.create", "status": "planned", "module": "incidents", "title": "Add note to incident", "permission": "incidents.write", "input": {"type": "object", "properties": {"incident_id": {"type": "integer"}, "note": {"type": "string"}}, "required": ["incident_id", "note"]}, "output": "NoteResponse", "maps_to": "incidents.IncidentNoteUsecase.Create", "rest_equivalent": "POST /api/v1/incident-notes"},
+    {"name": "incident_notes.list", "status": "planned", "module": "incidents", "title": "List incident notes", "permission": "incidents.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"incident_id": {"type": "integer"}, "page": {"type": "integer"}, "size": {"type": "integer"}}, "required": ["incident_id"]}, "output": "{ items: NoteResponse[], total: int64 }", "maps_to": "incidents.IncidentNoteUsecase.List", "rest_equivalent": "GET /api/v1/incident-notes"},
+    {"name": "incident_history.list", "status": "planned", "module": "incidents", "title": "List incident history", "permission": "incidents.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"incident_id": {"type": "integer"}, "action": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: HistoryResponse[], total: int64 }", "maps_to": "incidents.IncidentHistoryUsecase.List", "rest_equivalent": "GET /api/v1/incident-histories"},
+    {"name": "incident_history.count", "status": "planned", "module": "incidents", "title": "Count incident history rows", "permission": "incidents.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"incident_id": {"type": "integer"}}}, "output": "{ count: int64 }", "maps_to": "incidents.IncidentHistoryUsecase.Count", "rest_equivalent": "GET /api/v1/incident-histories/count"},
+    {"name": "incident_history.get", "status": "planned", "module": "incidents", "title": "Get incident history row", "permission": "incidents.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "HistoryResponse", "maps_to": "incidents.IncidentHistoryUsecase.GetByID", "rest_equivalent": "GET /api/v1/incident-histories/:id"},
+
+    {"name": "soar.rule.create", "status": "planned", "module": "soar", "title": "Create SOAR rule", "permission": "soar.write", "input": {"type": "object", "properties": {"name": {"type": "string"}, "description": {"type": "string"}, "filters": {"type": "array"}, "template_path": {"type": "string"}, "variables": {"type": "object"}, "enabled": {"type": "boolean"}}, "required": ["name", "template_path"]}, "output": "RuleResponse", "maps_to": "soar.RuleUsecase.Create", "rest_equivalent": "POST /api/v1/soar/rules"},
+    {"name": "soar.rule.update", "status": "planned", "module": "soar", "title": "Update SOAR rule", "permission": "soar.write", "input": {"type": "object", "properties": {"rel_path": {"type": "string"}, "name": {"type": "string"}, "filters": {"type": "array"}, "variables": {"type": "object"}}, "required": ["rel_path"]}, "output": "RuleResponse", "maps_to": "soar.RuleUsecase.Update", "rest_equivalent": "PUT /api/v1/soar/rules/:relPath"},
+    {"name": "soar.rule.get", "status": "planned", "module": "soar", "title": "Get SOAR rule", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"rel_path": {"type": "string"}}, "required": ["rel_path"]}, "output": "RuleResponse", "maps_to": "soar.RuleUsecase.Get", "rest_equivalent": "GET /api/v1/soar/rules/:relPath"},
+    {"name": "soar.rule.delete", "status": "planned", "module": "soar", "title": "Delete SOAR rule", "permission": "soar.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"rel_path": {"type": "string"}}, "required": ["rel_path"]}, "output": "{ rel_path: string, deleted: true }", "maps_to": "soar.RuleUsecase.Delete", "rest_equivalent": "DELETE /api/v1/soar/rules/:relPath"},
+    {"name": "soar.rule.set_enabled", "status": "planned", "module": "soar", "title": "Enable or disable SOAR rule", "permission": "soar.write", "annotations": {"idempotentHint": true}, "input": {"type": "object", "properties": {"rel_path": {"type": "string"}, "enabled": {"type": "boolean"}}, "required": ["rel_path", "enabled"]}, "output": "RuleResponse", "maps_to": "soar.RuleUsecase.SetEnabled", "rest_equivalent": "PUT /api/v1/soar/rules/:relPath/enabled"},
+    {"name": "soar.rule.list", "status": "planned", "module": "soar", "title": "List SOAR rules", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"name": {"type": "string"}, "enabled": {"type": "boolean"}, "template": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: RuleResponse[], total: int64 }", "maps_to": "soar.RuleUsecase.List", "rest_equivalent": "GET /api/v1/soar/rules"},
+    {"name": "soar.rule.resolve_filter_values", "status": "planned", "module": "soar", "title": "Suggest filter values", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"field": {"type": "string"}, "prefix": {"type": "string"}}, "required": ["field"]}, "output": "ResolveFilterValuesResponse", "maps_to": "soar.RuleUsecase.ResolveFilterValues", "rest_equivalent": "GET /api/v1/soar/rules/resolve-filter-values"},
+    {"name": "soar.template.list", "status": "planned", "module": "soar", "title": "List rule templates", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"name": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: TemplateResponse[], total: int64 }", "maps_to": "soar.TemplateUsecase.List", "rest_equivalent": "GET /api/v1/soar/action-templates"},
+    {"name": "soar.execution.list", "status": "planned", "module": "soar", "title": "List rule executions", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"rule_rel_path": {"type": "string"}, "status": {"type": "string"}, "from": {"type": "string"}, "to": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: ExecutionResponse[], total: int64 }", "maps_to": "soar.ExecutionUsecase.List", "rest_equivalent": "GET /api/v1/soar/rule-executions"},
+    {"name": "soar.variable.create", "status": "planned", "module": "soar", "title": "Create incident variable", "permission": "soar.write", "input": {"type": "object", "properties": {"name": {"type": "string"}, "value": {"type": "string"}, "is_secret": {"type": "boolean"}}, "required": ["name", "value"]}, "output": "VariableResponse", "maps_to": "soar.VariableUsecase.Create", "rest_equivalent": "POST /api/v1/soar/incident-variables"},
+    {"name": "soar.variable.update", "status": "planned", "module": "soar", "title": "Update incident variable", "permission": "soar.write", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "name": {"type": "string"}, "value": {"type": "string"}, "is_secret": {"type": "boolean"}}, "required": ["id"]}, "output": "VariableResponse", "maps_to": "soar.VariableUsecase.Update", "rest_equivalent": "PUT /api/v1/soar/incident-variables"},
+    {"name": "soar.variable.get", "status": "planned", "module": "soar", "title": "Get incident variable", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "VariableResponse", "maps_to": "soar.VariableUsecase.FindByID", "rest_equivalent": "GET /api/v1/soar/incident-variables/:id"},
+    {"name": "soar.variable.list", "status": "planned", "module": "soar", "title": "List incident variables", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"name": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: VariableResponse[], total: int64 }", "maps_to": "soar.VariableUsecase.FindAll", "rest_equivalent": "GET /api/v1/soar/incident-variables"},
+    {"name": "soar.variable.delete", "status": "planned", "module": "soar", "title": "Delete incident variable", "permission": "soar.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "soar.VariableUsecase.Delete", "rest_equivalent": "DELETE /api/v1/soar/incident-variables/:id"},
+    {"name": "soar.action.create", "status": "planned", "module": "soar", "title": "Create incident action", "permission": "soar.write", "input": {"type": "object", "properties": {"name": {"type": "string"}, "description": {"type": "string"}, "platform": {"type": "string"}}, "required": ["name", "platform"]}, "output": "UtmIncidentAction", "maps_to": "soar.ActionUsecase.Create", "rest_equivalent": "POST /api/v1/soar/incident-actions"},
+    {"name": "soar.action.update", "status": "planned", "module": "soar", "title": "Update incident action", "permission": "soar.write", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "name": {"type": "string"}, "description": {"type": "string"}}, "required": ["id"]}, "output": "UtmIncidentAction", "maps_to": "soar.ActionUsecase.Update", "rest_equivalent": "PUT /api/v1/soar/incident-actions"},
+    {"name": "soar.action.get", "status": "planned", "module": "soar", "title": "Get incident action", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "UtmIncidentAction", "maps_to": "soar.ActionUsecase.FindByID", "rest_equivalent": "GET /api/v1/soar/incident-actions/:id"},
+    {"name": "soar.action.list", "status": "planned", "module": "soar", "title": "List incident actions", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"name": {"type": "string"}, "platform": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: UtmIncidentAction[], total: int64 }", "maps_to": "soar.ActionUsecase.FindAll", "rest_equivalent": "GET /api/v1/soar/incident-actions"},
+    {"name": "soar.action.delete", "status": "planned", "module": "soar", "title": "Delete incident action", "permission": "soar.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "soar.ActionUsecase.Delete", "rest_equivalent": "DELETE /api/v1/soar/incident-actions/:id"},
+    {"name": "soar.action_command.create", "status": "planned", "module": "soar", "title": "Create action command", "permission": "soar.write", "input": {"type": "object", "properties": {"action_id": {"type": "integer"}, "platform": {"type": "string"}, "command": {"type": "string"}}, "required": ["action_id", "platform", "command"]}, "output": "UtmIncidentActionCommand", "maps_to": "soar.ActionCommandUsecase.Create", "rest_equivalent": "POST /api/v1/soar/incident-action-commands"},
+    {"name": "soar.action_command.update", "status": "planned", "module": "soar", "title": "Update action command", "permission": "soar.write", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "platform": {"type": "string"}, "command": {"type": "string"}}, "required": ["id"]}, "output": "UtmIncidentActionCommand", "maps_to": "soar.ActionCommandUsecase.Update", "rest_equivalent": "PUT /api/v1/soar/incident-action-commands"},
+    {"name": "soar.action_command.get", "status": "planned", "module": "soar", "title": "Get action command", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "UtmIncidentActionCommand", "maps_to": "soar.ActionCommandUsecase.FindByID", "rest_equivalent": "GET /api/v1/soar/incident-action-commands/:id"},
+    {"name": "soar.action_command.list", "status": "planned", "module": "soar", "title": "List action commands", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"action_id": {"type": "integer"}, "platform": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: UtmIncidentActionCommand[], total: int64 }", "maps_to": "soar.ActionCommandUsecase.FindAll", "rest_equivalent": "GET /api/v1/soar/incident-action-commands"},
+    {"name": "soar.action_command.delete", "status": "planned", "module": "soar", "title": "Delete action command", "permission": "soar.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "soar.ActionCommandUsecase.Delete", "rest_equivalent": "DELETE /api/v1/soar/incident-action-commands/:id"},
+    {"name": "soar.job.create", "status": "planned", "module": "soar", "title": "Create SOAR job", "description": "Schedules an action command for execution on a target agent. DESTRUCTIVE: triggers a real command on the agent.", "permission": "soar.write", "annotations": {"destructiveHint": true, "openWorldHint": true}, "input": {"type": "object", "properties": {"action_id": {"type": "integer"}, "agent_id": {"type": "string"}, "variables": {"type": "object"}, "incident_id": {"type": "integer"}}, "required": ["action_id", "agent_id"]}, "output": "UtmIncidentJob", "maps_to": "soar.JobUsecase.Create", "rest_equivalent": "POST /api/v1/soar/incident-jobs"},
+    {"name": "soar.job.get", "status": "planned", "module": "soar", "title": "Get SOAR job", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "UtmIncidentJob", "maps_to": "soar.JobUsecase.FindByID", "rest_equivalent": "GET /api/v1/soar/incident-jobs/:id"},
+    {"name": "soar.job.list", "status": "planned", "module": "soar", "title": "List SOAR jobs", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"agent_id": {"type": "string"}, "status": {"type": "string"}, "from": {"type": "string"}, "to": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: UtmIncidentJob[], total: int64 }", "maps_to": "soar.JobUsecase.FindAll", "rest_equivalent": "GET /api/v1/soar/incident-jobs"},
+    {"name": "soar.job.count", "status": "planned", "module": "soar", "title": "Count SOAR jobs", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"status": {"type": "string"}}}, "output": "{ count: int64 }", "maps_to": "soar.JobUsecase.Count", "rest_equivalent": "GET /api/v1/soar/incident-jobs/count"},
+    {"name": "soar.job.delete", "status": "planned", "module": "soar", "title": "Delete SOAR job", "permission": "soar.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "soar.JobUsecase.Delete", "rest_equivalent": "DELETE /api/v1/soar/incident-jobs/:id"},
+    {"name": "soar.agent.list_by_platform", "status": "planned", "module": "soar", "title": "List agents on a platform", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"platform": {"type": "string", "enum": ["windows", "linux", "macos"]}}, "required": ["platform"]}, "output": "string[]", "maps_to": "soar.AgentUsecase.ListByPlatform"},
+
+    {"name": "opensearch.search", "status": "planned", "module": "opensearch", "title": "Structured search", "description": "Run a search against the configured index pattern using the FilterType DSL (see mcp://utmstack/docs/filter-operators). Returns paged hits.", "permission": "opensearch.read", "annotations": {"readOnlyHint": true, "openWorldHint": true}, "input": {"type": "object", "properties": {"index_pattern": {"type": "string"}, "filters": {"type": "array", "items": {"$ref": "#/definitions/FilterType"}}, "top": {"type": "integer"}, "page": {"type": "integer"}, "size": {"type": "integer"}, "sort_by": {"type": "string"}, "sort_order": {"type": "string", "enum": ["asc", "desc"]}, "include_children": {"type": "boolean"}}, "required": ["index_pattern"]}, "output": "{ hits: object[], total: int64 }", "maps_to": "opensearch.Gateway.Search", "rest_equivalent": "POST /api/v1/opensearch/search"},
+    {"name": "opensearch.search_sql", "status": "planned", "module": "opensearch", "title": "SQL search", "description": "Run a sanitized SQL query against the OpenSearch SQL plugin.", "permission": "opensearch.read", "annotations": {"readOnlyHint": true, "openWorldHint": true}, "input": {"type": "object", "properties": {"sql": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}, "required": ["sql"]}, "output": "{ hits: object[], total: int64 }", "maps_to": "opensearch.Gateway.SearchSQL", "rest_equivalent": "POST /api/v1/opensearch/search/sql"},
+    {"name": "opensearch.search_csv", "status": "planned", "module": "opensearch", "title": "Search and project to CSV columns", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"index_pattern": {"type": "string"}, "filters": {"type": "array"}, "columns": {"type": "array", "items": {"$ref": "#/definitions/DataColumn"}}, "top": {"type": "integer"}}, "required": ["index_pattern", "columns"]}, "output": "object[] — rows projected to the requested columns", "maps_to": "opensearch.Gateway.SearchCSV", "rest_equivalent": "POST /api/v1/opensearch/search/csv"},
+    {"name": "opensearch.generic_search", "status": "planned", "module": "opensearch", "title": "Generic search against any index", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"index": {"type": "string"}, "filters": {"type": "array"}, "top": {"type": "integer"}, "page": {"type": "integer"}, "size": {"type": "integer"}}, "required": ["index"]}, "output": "{ hits: object[], total: int64 }", "maps_to": "opensearch.Gateway.GenericSearch", "rest_equivalent": "POST /api/v1/opensearch/generic-search"},
+    {"name": "opensearch.count", "status": "planned", "module": "opensearch", "title": "Count matching documents", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"index_pattern": {"type": "string"}, "filters": {"type": "array"}}, "required": ["index_pattern"]}, "output": "{ hasResults: bool }", "maps_to": "opensearch.Gateway.Count", "rest_equivalent": "POST /api/v1/opensearch/count"},
+    {"name": "opensearch.property_values", "status": "planned", "module": "opensearch", "title": "Distinct values for a property", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"index_pattern": {"type": "string"}, "field": {"type": "string"}, "prefix": {"type": "string"}, "top": {"type": "integer"}}, "required": ["index_pattern", "field"]}, "output": "string[]", "maps_to": "opensearch.Gateway.PropertyValues", "rest_equivalent": "GET /api/v1/opensearch/property/values"},
+    {"name": "opensearch.property_values_with_count", "status": "planned", "module": "opensearch", "title": "Distinct values with counts", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"index_pattern": {"type": "string"}, "field": {"type": "string"}, "filters": {"type": "array"}, "top": {"type": "integer"}}, "required": ["index_pattern", "field"]}, "output": "map[string]int64", "maps_to": "opensearch.Gateway.PropertyValuesWithCount", "rest_equivalent": "POST /api/v1/opensearch/property/values-with-count"},
+    {"name": "opensearch.index.properties", "status": "planned", "module": "opensearch", "title": "List index fields", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"pattern": {"type": "string"}}, "required": ["pattern"]}, "output": "IndexPropertyType[]", "maps_to": "opensearch.Gateway.IndexProperties", "rest_equivalent": "GET /api/v1/opensearch/index/properties"},
+    {"name": "opensearch.index.list", "status": "planned", "module": "opensearch", "title": "List indices matching a pattern", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"pattern": {"type": "string"}, "include_system": {"type": "boolean"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: IndexInfo[], total: int64 }", "maps_to": "opensearch.Gateway.IndexAll", "rest_equivalent": "GET /api/v1/opensearch/index/all"},
+    {"name": "opensearch.index.delete", "status": "planned", "module": "opensearch", "title": "Delete indices", "permission": "opensearch.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"indices": {"type": "array", "items": {"type": "string"}}}, "required": ["indices"]}, "output": "{ deleted: int }", "maps_to": "opensearch.Gateway.DeleteIndex", "rest_equivalent": "POST /api/v1/opensearch/index/delete-index"},
+    {"name": "opensearch.cluster_status", "status": "planned", "module": "opensearch", "title": "Cluster status", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "ClusterStatusResponse", "maps_to": "opensearch.Gateway.ClusterStatus", "rest_equivalent": "GET /api/v1/opensearch/cluster/status"},
+    {"name": "opensearch.index_pattern.create", "status": "planned", "module": "opensearch", "title": "Create index pattern", "permission": "opensearch.write", "input": {"type": "object", "properties": {"name": {"type": "string"}, "pattern": {"type": "string"}, "time_field": {"type": "string"}}, "required": ["name", "pattern"]}, "output": "IndexPatternResponse", "maps_to": "opensearch.IndexPatternUsecase.Create", "rest_equivalent": "POST /api/v1/opensearch/index-patterns"},
+    {"name": "opensearch.index_pattern.update", "status": "planned", "module": "opensearch", "title": "Update index pattern", "permission": "opensearch.write", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "name": {"type": "string"}, "pattern": {"type": "string"}, "time_field": {"type": "string"}}, "required": ["id"]}, "output": "IndexPatternResponse", "maps_to": "opensearch.IndexPatternUsecase.Update", "rest_equivalent": "PUT /api/v1/opensearch/index-patterns"},
+    {"name": "opensearch.index_pattern.list", "status": "planned", "module": "opensearch", "title": "List index patterns", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"name": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: IndexPatternResponse[], total: int64 }", "maps_to": "opensearch.IndexPatternUsecase.List", "rest_equivalent": "GET /api/v1/opensearch/index-patterns"},
+    {"name": "opensearch.index_pattern.get", "status": "planned", "module": "opensearch", "title": "Get index pattern", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "IndexPatternResponse", "maps_to": "opensearch.IndexPatternUsecase.GetByID", "rest_equivalent": "GET /api/v1/opensearch/index-patterns/:id"},
+    {"name": "opensearch.index_pattern.fields", "status": "planned", "module": "opensearch", "title": "Fields for an index pattern", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"pattern_id": {"type": "integer"}}, "required": ["pattern_id"]}, "output": "IndexPatternFieldsResponse[]", "maps_to": "opensearch.IndexPatternUsecase.Fields", "rest_equivalent": "GET /api/v1/opensearch/index-patterns/fields"},
+    {"name": "opensearch.index_pattern.delete", "status": "planned", "module": "opensearch", "title": "Delete index pattern", "permission": "opensearch.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "opensearch.IndexPatternUsecase.Delete", "rest_equivalent": "DELETE /api/v1/opensearch/index-patterns/:id"},
+    {"name": "opensearch.policy.get", "status": "planned", "module": "opensearch", "title": "Get ISM policy", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "PolicySettings", "maps_to": "opensearch.PolicyUsecase.GetPolicy", "rest_equivalent": "GET /api/v1/opensearch/index-policy/policy"},
+    {"name": "opensearch.policy.update", "status": "planned", "module": "opensearch", "title": "Update ISM policy", "permission": "opensearch.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"hot_days": {"type": "integer"}, "warm_days": {"type": "integer"}, "delete_days": {"type": "integer"}}, "required": ["hot_days", "warm_days", "delete_days"]}, "output": "UpdateManagedIndexPolicyResponse", "maps_to": "opensearch.PolicyUsecase.UpdatePolicy", "rest_equivalent": "PUT /api/v1/opensearch/index-policy/policy"},
+
+    {"name": "loganalyzer.top_values", "status": "planned", "module": "loganalyzer", "title": "Top-N values for a field", "permission": "loganalyzer.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"index_pattern": {"type": "string"}, "field": {"type": "string"}, "filters": {"type": "array"}, "top": {"type": "integer"}}, "required": ["index_pattern", "field", "top"]}, "output": "TopValuesResponse", "maps_to": "loganalyzer.AnalyzerUsecase.TopValues", "rest_equivalent": "POST /api/v1/log-analyzer/top-x-values/:indexPattern/:field/:top"},
+    {"name": "loganalyzer.chart_view", "status": "planned", "module": "loganalyzer", "title": "Chart view aggregation", "permission": "loganalyzer.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"index_pattern": {"type": "string"}, "interval": {"type": "string"}, "metric": {"type": "string"}, "filters": {"type": "array"}, "from": {"type": "string"}, "to": {"type": "string"}}, "required": ["index_pattern"]}, "output": "ChartViewResponse", "maps_to": "loganalyzer.AnalyzerUsecase.ChartView", "rest_equivalent": "POST /api/v1/log-analyzer/chart-view"},
+    {"name": "loganalyzer.query.create", "status": "planned", "module": "loganalyzer", "title": "Save analyzer query", "permission": "loganalyzer.write", "input": {"type": "object", "properties": {"name": {"type": "string"}, "description": {"type": "string"}, "columns": {"type": "array"}, "filters": {"type": "array"}, "id_pattern": {"type": "integer"}}, "required": ["name"]}, "output": "UtmLogAnalyzerQuery", "maps_to": "loganalyzer.QueryUsecase.Create", "rest_equivalent": "POST /api/v1/log-analyzer/queries"},
+    {"name": "loganalyzer.query.update", "status": "planned", "module": "loganalyzer", "title": "Update saved query", "permission": "loganalyzer.write", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "name": {"type": "string"}, "filters": {"type": "array"}}, "required": ["id"]}, "output": "UtmLogAnalyzerQuery", "maps_to": "loganalyzer.QueryUsecase.Update", "rest_equivalent": "PUT /api/v1/log-analyzer/queries"},
+    {"name": "loganalyzer.query.list", "status": "planned", "module": "loganalyzer", "title": "List saved queries", "permission": "loganalyzer.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"name": {"type": "string"}, "owner": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: UtmLogAnalyzerQuery[], total: int64 }", "maps_to": "loganalyzer.QueryUsecase.List", "rest_equivalent": "GET /api/v1/log-analyzer/queries"},
+    {"name": "loganalyzer.query.get", "status": "planned", "module": "loganalyzer", "title": "Get saved query", "permission": "loganalyzer.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "UtmLogAnalyzerQuery", "maps_to": "loganalyzer.QueryUsecase.GetByID", "rest_equivalent": "GET /api/v1/log-analyzer/queries/:id"},
+    {"name": "loganalyzer.query.delete", "status": "planned", "module": "loganalyzer", "title": "Delete saved query", "permission": "loganalyzer.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "loganalyzer.QueryUsecase.Delete", "rest_equivalent": "DELETE /api/v1/log-analyzer/queries/:id"},
+
+    {"name": "dashboards.create", "status": "planned", "module": "dashboards", "title": "Create dashboard", "permission": "dashboards.write", "input": {"type": "object", "properties": {"name": {"type": "string"}, "description": {"type": "string"}, "config": {"type": "object"}}, "required": ["name"]}, "output": "Dashboard", "maps_to": "dashboards.DashboardUsecase.Create", "rest_equivalent": "POST /api/v1/dashboards"},
+    {"name": "dashboards.update", "status": "planned", "module": "dashboards", "title": "Update dashboard", "permission": "dashboards.write", "annotations": {"idempotentHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}, "name": {"type": "string"}, "description": {"type": "string"}, "config": {"type": "object"}}, "required": ["id"]}, "output": "Dashboard", "maps_to": "dashboards.DashboardUsecase.Update", "rest_equivalent": "PUT /api/v1/dashboards"},
+    {"name": "dashboards.list", "status": "planned", "module": "dashboards", "title": "List dashboards", "permission": "dashboards.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"name": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: Dashboard[], total: int64 }", "maps_to": "dashboards.DashboardUsecase.List", "rest_equivalent": "GET /api/v1/dashboards"},
+    {"name": "dashboards.get", "status": "planned", "module": "dashboards", "title": "Get dashboard", "permission": "dashboards.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "Dashboard", "maps_to": "dashboards.DashboardUsecase.GetByID", "rest_equivalent": "GET /api/v1/dashboards/:id"},
+    {"name": "dashboards.delete", "status": "planned", "module": "dashboards", "title": "Delete dashboard", "permission": "dashboards.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "dashboards.DashboardUsecase.Delete", "rest_equivalent": "DELETE /api/v1/dashboards/:id"},
+    {"name": "visualizations.create", "status": "planned", "module": "dashboards", "title": "Create visualization", "permission": "dashboards.write", "input": {"type": "object", "properties": {"name": {"type": "string"}, "sql_query": {"type": "string"}, "config": {"type": "object"}}, "required": ["name"]}, "output": "Visualization", "maps_to": "dashboards.VisualizationUsecase.Create", "rest_equivalent": "POST /api/v1/visualizations"},
+    {"name": "visualizations.update", "status": "planned", "module": "dashboards", "title": "Update visualization", "permission": "dashboards.write", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "name": {"type": "string"}, "sql_query": {"type": "string"}, "config": {"type": "object"}}, "required": ["id"]}, "output": "Visualization", "maps_to": "dashboards.VisualizationUsecase.Update", "rest_equivalent": "PUT /api/v1/visualizations"},
+    {"name": "visualizations.list", "status": "planned", "module": "dashboards", "title": "List visualizations", "permission": "dashboards.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"name": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: Visualization[], total: int64 }", "maps_to": "dashboards.VisualizationUsecase.List", "rest_equivalent": "GET /api/v1/visualizations"},
+    {"name": "visualizations.get", "status": "planned", "module": "dashboards", "title": "Get visualization", "permission": "dashboards.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "Visualization", "maps_to": "dashboards.VisualizationUsecase.GetByID", "rest_equivalent": "GET /api/v1/visualizations/:id"},
+    {"name": "visualizations.delete", "status": "planned", "module": "dashboards", "title": "Delete visualization", "permission": "dashboards.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "dashboards.VisualizationUsecase.Delete", "rest_equivalent": "DELETE /api/v1/visualizations/:id"},
+    {"name": "dashboard_layouts.create", "status": "planned", "module": "dashboards", "title": "Create dashboard layout", "permission": "dashboards.write", "input": {"type": "object", "properties": {"id_dashboard": {"type": "integer"}, "id_visualization": {"type": "integer"}, "layout": {"type": "object"}}, "required": ["id_dashboard", "id_visualization"]}, "output": "DashboardVisualization", "maps_to": "dashboards.LayoutUsecase.Create", "rest_equivalent": "POST /api/v1/dashboard-layouts"},
+    {"name": "dashboard_layouts.update", "status": "planned", "module": "dashboards", "title": "Update dashboard layout", "permission": "dashboards.write", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "layout": {"type": "object"}}, "required": ["id"]}, "output": "DashboardVisualization", "maps_to": "dashboards.LayoutUsecase.Update", "rest_equivalent": "PUT /api/v1/dashboard-layouts"},
+    {"name": "dashboard_layouts.list", "status": "planned", "module": "dashboards", "title": "List dashboard layouts", "permission": "dashboards.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id_dashboard": {"type": "integer"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: DashboardVisualization[], total: int64 }", "maps_to": "dashboards.LayoutUsecase.List", "rest_equivalent": "GET /api/v1/dashboard-layouts"},
+    {"name": "dashboard_layouts.get", "status": "planned", "module": "dashboards", "title": "Get dashboard layout", "permission": "dashboards.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "DashboardVisualization", "maps_to": "dashboards.LayoutUsecase.GetByID", "rest_equivalent": "GET /api/v1/dashboard-layouts/:id"},
+    {"name": "dashboard_layouts.delete", "status": "planned", "module": "dashboards", "title": "Delete dashboard layout", "permission": "dashboards.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "dashboards.LayoutUsecase.Delete", "rest_equivalent": "DELETE /api/v1/dashboard-layouts/:id"},
+
+    {"name": "regex_pattern.create", "status": "planned", "module": "eventprocessing", "title": "Create regex pattern", "permission": "eventprocessing.write", "input": {"type": "object", "properties": {"pattern_id": {"type": "string"}, "description": {"type": "string"}, "definition": {"type": "string"}}, "required": ["pattern_id", "definition"]}, "output": "RegexPatternResponse", "maps_to": "eventprocessing.RegexPatternUsecase.Create", "rest_equivalent": "POST /api/v1/eventprocessing/regex-pattern"},
+    {"name": "regex_pattern.update", "status": "planned", "module": "eventprocessing", "title": "Update regex pattern", "permission": "eventprocessing.write", "input": {"type": "object", "properties": {"pattern_id": {"type": "string"}, "description": {"type": "string"}, "definition": {"type": "string"}}, "required": ["pattern_id"]}, "output": "RegexPatternResponse", "maps_to": "eventprocessing.RegexPatternUsecase.Update", "rest_equivalent": "PUT /api/v1/eventprocessing/regex-pattern"},
+    {"name": "regex_pattern.list", "status": "planned", "module": "eventprocessing", "title": "List regex patterns", "permission": "eventprocessing.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"pattern_id": {"type": "string"}, "system_owner": {"type": "boolean"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: RegexPatternResponse[], total: int64 }", "maps_to": "eventprocessing.RegexPatternUsecase.List", "rest_equivalent": "GET /api/v1/eventprocessing/regex-pattern"},
+    {"name": "regex_pattern.get", "status": "planned", "module": "eventprocessing", "title": "Get regex pattern", "permission": "eventprocessing.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"pattern_id": {"type": "string"}}, "required": ["pattern_id"]}, "output": "RegexPatternResponse", "maps_to": "eventprocessing.RegexPatternUsecase.GetByID", "rest_equivalent": "GET /api/v1/eventprocessing/regex-pattern/:id"},
+    {"name": "regex_pattern.delete", "status": "planned", "module": "eventprocessing", "title": "Delete regex pattern", "permission": "eventprocessing.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"pattern_id": {"type": "string"}}, "required": ["pattern_id"]}, "output": "{ id: string, deleted: true }", "maps_to": "eventprocessing.RegexPatternUsecase.Delete", "rest_equivalent": "DELETE /api/v1/eventprocessing/regex-pattern/:id"},
+    {"name": "tenant_config.create", "status": "planned", "module": "eventprocessing", "title": "Create tenant config", "permission": "eventprocessing.write", "input": {"type": "object", "properties": {"asset_name": {"type": "string"}, "hostname_list": {"type": "array", "items": {"type": "string"}}, "ip_list": {"type": "array", "items": {"type": "string"}}, "confidentiality": {"type": "integer"}, "integrity": {"type": "integer"}, "availability": {"type": "integer"}}, "required": ["asset_name"]}, "output": "TenantConfigResponse", "maps_to": "eventprocessing.TenantConfigUsecase.Create", "rest_equivalent": "POST /api/v1/eventprocessing/tenant-config"},
+    {"name": "tenant_config.update", "status": "planned", "module": "eventprocessing", "title": "Update tenant config", "permission": "eventprocessing.write", "input": {"type": "object", "properties": {"asset_name": {"type": "string"}, "hostname_list": {"type": "array"}, "ip_list": {"type": "array"}}, "required": ["asset_name"]}, "output": "TenantConfigResponse", "maps_to": "eventprocessing.TenantConfigUsecase.Update", "rest_equivalent": "PUT /api/v1/eventprocessing/tenant-config"},
+    {"name": "tenant_config.list", "status": "planned", "module": "eventprocessing", "title": "List tenant configs", "permission": "eventprocessing.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"asset_name": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: TenantConfigResponse[], total: int64 }", "maps_to": "eventprocessing.TenantConfigUsecase.List", "rest_equivalent": "GET /api/v1/eventprocessing/tenant-config"},
+    {"name": "tenant_config.get", "status": "planned", "module": "eventprocessing", "title": "Get tenant config", "permission": "eventprocessing.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"asset_name": {"type": "string"}}, "required": ["asset_name"]}, "output": "TenantConfigResponse", "maps_to": "eventprocessing.TenantConfigUsecase.GetByID", "rest_equivalent": "GET /api/v1/eventprocessing/tenant-config/:id"},
+    {"name": "tenant_config.delete", "status": "planned", "module": "eventprocessing", "title": "Delete tenant config", "permission": "eventprocessing.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"asset_name": {"type": "string"}}, "required": ["asset_name"]}, "output": "{ asset_name: string, deleted: true }", "maps_to": "eventprocessing.TenantConfigUsecase.Delete", "rest_equivalent": "DELETE /api/v1/eventprocessing/tenant-config/:id"},
+    {"name": "correlation_rule.create", "status": "planned", "module": "eventprocessing", "title": "Create correlation rule", "permission": "eventprocessing.write", "input": {"type": "object", "properties": {"rule_name": {"type": "string"}, "adversary": {"type": "string"}, "category": {"type": "string"}, "technique": {"type": "string"}, "description": {"type": "string"}, "definition": {"type": "object"}, "confidentiality": {"type": "integer"}, "integrity": {"type": "integer"}, "availability": {"type": "integer"}}, "required": ["rule_name", "definition"]}, "output": "CorrelationRuleResponse", "maps_to": "eventprocessing.CorrelationRuleUsecase.Create", "rest_equivalent": "POST /api/v1/eventprocessing/correlation-rule"},
+    {"name": "correlation_rule.update", "status": "planned", "module": "eventprocessing", "title": "Update correlation rule", "permission": "eventprocessing.write", "input": {"type": "object", "properties": {"rel_path": {"type": "string"}, "rule_name": {"type": "string"}, "definition": {"type": "object"}}, "required": ["rel_path"]}, "output": "CorrelationRuleResponse", "maps_to": "eventprocessing.CorrelationRuleUsecase.Update", "rest_equivalent": "PUT /api/v1/eventprocessing/correlation-rule"},
+    {"name": "correlation_rule.list", "status": "planned", "module": "eventprocessing", "title": "List correlation rules", "permission": "eventprocessing.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"rule_name": {"type": "string"}, "adversary": {"type": "string"}, "active": {"type": "boolean"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: CorrelationRuleResponse[], total: int64 }", "maps_to": "eventprocessing.CorrelationRuleUsecase.List", "rest_equivalent": "GET /api/v1/eventprocessing/correlation-rule/search-by-filters"},
+    {"name": "correlation_rule.get", "status": "planned", "module": "eventprocessing", "title": "Get correlation rule", "permission": "eventprocessing.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"rel_path": {"type": "string"}}, "required": ["rel_path"]}, "output": "CorrelationRuleResponse", "maps_to": "eventprocessing.CorrelationRuleUsecase.GetByRelPath", "rest_equivalent": "GET /api/v1/eventprocessing/correlation-rule/find"},
+    {"name": "correlation_rule.delete", "status": "planned", "module": "eventprocessing", "title": "Delete correlation rule", "permission": "eventprocessing.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"rel_path": {"type": "string"}}, "required": ["rel_path"]}, "output": "{ rel_path: string, deleted: true }", "maps_to": "eventprocessing.CorrelationRuleUsecase.Delete", "rest_equivalent": "DELETE /api/v1/eventprocessing/correlation-rule"},
+    {"name": "correlation_rule.set_active", "status": "planned", "module": "eventprocessing", "title": "Activate or deactivate correlation rule", "permission": "eventprocessing.write", "annotations": {"idempotentHint": true}, "input": {"type": "object", "properties": {"rel_path": {"type": "string"}, "active": {"type": "boolean"}}, "required": ["rel_path", "active"]}, "output": "{ rel_path: string, active: bool }", "maps_to": "eventprocessing.CorrelationRuleUsecase.SetActive", "rest_equivalent": "PUT /api/v1/eventprocessing/correlation-rule/activate-deactivate"},
+    {"name": "correlation_rule.search_property_values", "status": "planned", "module": "eventprocessing", "title": "Search distinct property values", "permission": "eventprocessing.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"property": {"type": "string"}, "value": {"type": "string"}}, "required": ["property"]}, "output": "string[]", "maps_to": "eventprocessing.CorrelationRuleUsecase.FindDistinctPropertyValues", "rest_equivalent": "GET /api/v1/eventprocessing/correlation-rule/search-property-values"},
+    {"name": "filter.create", "status": "planned", "module": "eventprocessing", "title": "Create logstash filter", "permission": "eventprocessing.write", "input": {"type": "object", "properties": {"filter_name": {"type": "string"}, "logstash_filter": {"type": "string"}, "data_type_id": {"type": "integer"}, "module_name": {"type": "string"}}, "required": ["filter_name", "logstash_filter", "data_type_id"]}, "output": "FilterResponse", "maps_to": "eventprocessing.FilterUsecase.Create", "rest_equivalent": "POST /api/v1/eventprocessing/filters"},
+    {"name": "filter.update", "status": "planned", "module": "eventprocessing", "title": "Update logstash filter", "permission": "eventprocessing.write", "input": {"type": "object", "properties": {"rel_path": {"type": "string"}, "filter_name": {"type": "string"}, "logstash_filter": {"type": "string"}}, "required": ["rel_path"]}, "output": "FilterResponse", "maps_to": "eventprocessing.FilterUsecase.Update", "rest_equivalent": "PUT /api/v1/eventprocessing/filters"},
+    {"name": "filter.list", "status": "planned", "module": "eventprocessing", "title": "List filters", "permission": "eventprocessing.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"filter_name": {"type": "string"}, "data_type_id": {"type": "integer"}, "active": {"type": "boolean"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: FilterResponse[], total: int64 }", "maps_to": "eventprocessing.FilterUsecase.List", "rest_equivalent": "GET /api/v1/eventprocessing/filters"},
+    {"name": "filter.get", "status": "planned", "module": "eventprocessing", "title": "Get filter by relPath", "permission": "eventprocessing.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"rel_path": {"type": "string"}}, "required": ["rel_path"]}, "output": "FilterResponse", "maps_to": "eventprocessing.FilterUsecase.GetByRelPath", "rest_equivalent": "GET /api/v1/eventprocessing/filters/find"},
+    {"name": "filter.delete", "status": "planned", "module": "eventprocessing", "title": "Delete filter", "permission": "eventprocessing.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"rel_path": {"type": "string"}}, "required": ["rel_path"]}, "output": "{ rel_path: string, deleted: true }", "maps_to": "eventprocessing.FilterUsecase.Delete", "rest_equivalent": "DELETE /api/v1/eventprocessing/filters"},
+    {"name": "filter.set_active", "status": "planned", "module": "eventprocessing", "title": "Activate or deactivate filter", "permission": "eventprocessing.write", "annotations": {"idempotentHint": true}, "input": {"type": "object", "properties": {"rel_path": {"type": "string"}, "active": {"type": "boolean"}}, "required": ["rel_path", "active"]}, "output": "{ rel_path: string, active: bool }", "maps_to": "eventprocessing.FilterUsecase.SetActive", "rest_equivalent": "PUT /api/v1/eventprocessing/filters/activate"},
+    {"name": "ingestion_stats.totals", "status": "planned", "module": "eventprocessing", "title": "Ingestion totals", "permission": "eventprocessing.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"group_by": {"type": "string"}, "status": {"type": "string"}, "from": {"type": "string"}, "to": {"type": "string"}, "top": {"type": "integer"}}}, "output": "IngestionStatsResponse", "maps_to": "eventprocessing.IngestionStatsUsecase.Totals", "rest_equivalent": "GET /api/v1/eventprocessing/ingestion-stats"},
+    {"name": "ingestion_stats.timeline", "status": "planned", "module": "eventprocessing", "title": "Ingestion timeline", "permission": "eventprocessing.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"group_by": {"type": "string"}, "status": {"type": "string"}, "interval": {"type": "string"}, "from": {"type": "string"}, "to": {"type": "string"}, "top": {"type": "integer"}}}, "output": "IngestionTimelineResponse", "maps_to": "eventprocessing.IngestionStatsUsecase.Timeline", "rest_equivalent": "GET /api/v1/eventprocessing/ingestion-stats/timeline"},
+
+    {"name": "datasources.list", "status": "planned", "module": "datasources", "title": "List datasources", "permission": "datasources.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"name": {"type": "string"}, "data_type": {"type": "string"}, "group_id": {"type": "integer"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: DatasourceDTO[], total: int64 }", "maps_to": "datasources.DatasourceUsecase.List", "rest_equivalent": "GET /api/v1/datasources"},
+    {"name": "datasources.get", "status": "planned", "module": "datasources", "title": "Get datasource", "permission": "datasources.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "DatasourceDTO", "maps_to": "datasources.DatasourceUsecase.GetByID", "rest_equivalent": "GET /api/v1/datasources/:id"},
+    {"name": "datasources.update_group", "status": "planned", "module": "datasources", "title": "Move datasource to group", "permission": "datasources.write", "annotations": {"idempotentHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}, "group_id": {"type": "integer"}}, "required": ["id", "group_id"]}, "output": "{ id: int, group_id: int }", "maps_to": "datasources.DatasourceUsecase.UpdateGroup", "rest_equivalent": "PUT /api/v1/datasources/group"},
+    {"name": "datasources.update_labels", "status": "planned", "module": "datasources", "title": "Set datasource labels", "permission": "datasources.write", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "labels": {"type": "array", "items": {"type": "string"}}}, "required": ["id", "labels"]}, "output": "{ id: int, labels: string[] }", "maps_to": "datasources.DatasourceUsecase.UpdateLabels", "rest_equivalent": "PUT /api/v1/datasources/labels"},
+    {"name": "datasources.delete", "status": "planned", "module": "datasources", "title": "Delete datasource", "permission": "datasources.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "datasources.DatasourceUsecase.Delete", "rest_equivalent": "DELETE /api/v1/datasources/:id"},
+    {"name": "datasources.usage", "status": "planned", "module": "datasources", "title": "Datasource usage vs license", "permission": "datasources.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "{ count: int64, limit: int64, unlimited: bool }", "maps_to": "datasources.DatasourceUsecase.Count + Billing.License().DatasourceCap", "rest_equivalent": "GET /api/v1/datasources/usage"},
+    {"name": "datasource_groups.create", "status": "planned", "module": "datasources", "title": "Create datasource group", "permission": "datasources.write", "input": {"type": "object", "properties": {"name": {"type": "string"}, "description": {"type": "string"}}, "required": ["name"]}, "output": "UtmAssetGroup", "maps_to": "datasources.AssetGroupUsecase.Create", "rest_equivalent": "POST /api/v1/datasource-groups"},
+    {"name": "datasource_groups.update", "status": "planned", "module": "datasources", "title": "Update datasource group", "permission": "datasources.write", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "name": {"type": "string"}, "description": {"type": "string"}}, "required": ["id"]}, "output": "UtmAssetGroup", "maps_to": "datasources.AssetGroupUsecase.Update", "rest_equivalent": "PUT /api/v1/datasource-groups/:id"},
+    {"name": "datasource_groups.list", "status": "planned", "module": "datasources", "title": "List datasource groups", "permission": "datasources.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: AssetGroupDTO[], total: int64 }", "maps_to": "datasources.AssetGroupUsecase.List", "rest_equivalent": "GET /api/v1/datasource-groups"},
+    {"name": "datasource_groups.get", "status": "planned", "module": "datasources", "title": "Get datasource group", "permission": "datasources.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "UtmAssetGroup", "maps_to": "datasources.AssetGroupUsecase.GetByID", "rest_equivalent": "GET /api/v1/datasource-groups/:id"},
+    {"name": "datasource_groups.delete", "status": "planned", "module": "datasources", "title": "Delete datasource group", "permission": "datasources.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "datasources.AssetGroupUsecase.Delete", "rest_equivalent": "DELETE /api/v1/datasource-groups/:id"},
+
+    {"name": "integrations.list", "status": "planned", "module": "integrations", "title": "List integrations", "permission": "integrations.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"category": {"type": "string"}, "active": {"type": "boolean"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: ModuleResponse[], total: int64 }", "maps_to": "integrations.ModuleUsecase.List", "rest_equivalent": "GET /api/v1/integrations"},
+    {"name": "integrations.get", "status": "planned", "module": "integrations", "title": "Get integration", "permission": "integrations.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "ModuleResponse", "maps_to": "integrations.ModuleUsecase.GetByID", "rest_equivalent": "GET /api/v1/integrations/:id"},
+    {"name": "integrations.get_by_name", "status": "planned", "module": "integrations", "title": "Get integration by name", "permission": "integrations.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"module_name": {"type": "string"}}, "required": ["module_name"]}, "output": "ModuleResponse", "maps_to": "integrations.ModuleUsecase.GetByName"},
+    {"name": "integrations.create", "status": "planned", "module": "integrations", "title": "Create integration", "permission": "integrations.write", "input": {"type": "object", "properties": {"data_type": {"type": "string"}, "pretty_name": {"type": "string"}, "module_name": {"type": "string"}, "category": {"type": "string"}, "description": {"type": "string"}}, "required": ["module_name", "data_type", "category"]}, "output": "ModuleResponse", "maps_to": "integrations.ModuleUsecase.Create", "rest_equivalent": "POST /api/v1/integrations"},
+    {"name": "integrations.update", "status": "planned", "module": "integrations", "title": "Update integration", "permission": "integrations.write", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "pretty_name": {"type": "string"}, "description": {"type": "string"}, "category": {"type": "string"}}, "required": ["id"]}, "output": "ModuleResponse", "maps_to": "integrations.ModuleUsecase.Update", "rest_equivalent": "PUT /api/v1/integrations/:id"},
+    {"name": "integrations.delete", "status": "planned", "module": "integrations", "title": "Delete integration", "permission": "integrations.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "integrations.ModuleUsecase.Delete", "rest_equivalent": "DELETE /api/v1/integrations/:id"},
+    {"name": "integrations.activate", "status": "planned", "module": "integrations", "title": "Activate/deactivate integration", "permission": "integrations.write", "annotations": {"idempotentHint": true, "openWorldHint": true}, "input": {"type": "object", "properties": {"module_name": {"type": "string"}, "active": {"type": "boolean"}}, "required": ["module_name", "active"]}, "output": "ModuleResponse", "maps_to": "integrations.ModuleUsecase.ActivateDeactivate", "rest_equivalent": "PUT /api/v1/integrations/activate"},
+    {"name": "integrations.is_active", "status": "planned", "module": "integrations", "title": "Check integration activation", "permission": "integrations.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"module_name": {"type": "string"}}, "required": ["module_name"]}, "output": "{ active: bool }", "maps_to": "integrations.ModuleUsecase.IsActive", "rest_equivalent": "GET /api/v1/integrations/is-active"},
+    {"name": "integrations.categories", "status": "planned", "module": "integrations", "title": "List integration categories", "permission": "integrations.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "string[]", "maps_to": "integrations.ModuleUsecase.Categories", "rest_equivalent": "GET /api/v1/integrations/categories"},
+    {"name": "integrations.data_types", "status": "planned", "module": "integrations", "title": "List data type options", "permission": "integrations.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "DataTypeOption[]", "maps_to": "integrations.ModuleUsecase.DataTypes", "rest_equivalent": "GET /api/v1/integrations/data-types"},
+    {"name": "integrations.tenants.list", "status": "planned", "module": "integrations", "title": "List integration tenant configs", "permission": "integrations.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"module_name": {"type": "string"}}, "required": ["module_name"]}, "output": "Tenant[]", "maps_to": "integrations.TenantUsecase.List", "rest_equivalent": "GET /api/v1/integrations/tenants/:module"},
+    {"name": "integrations.tenants.save", "status": "planned", "module": "integrations", "title": "Save integration tenant config", "permission": "integrations.write", "input": {"type": "object", "properties": {"module_name": {"type": "string"}, "name": {"type": "string"}, "config": {"type": "object"}}, "required": ["module_name", "name", "config"]}, "output": "Tenant", "maps_to": "integrations.TenantUsecase.Save", "rest_equivalent": "PUT /api/v1/integrations/tenants/:module"},
+    {"name": "integrations.tenants.delete", "status": "planned", "module": "integrations", "title": "Delete integration tenant config", "permission": "integrations.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"module_name": {"type": "string"}, "name": {"type": "string"}}, "required": ["module_name", "name"]}, "output": "{ module: string, name: string, deleted: true }", "maps_to": "integrations.TenantUsecase.Delete", "rest_equivalent": "DELETE /api/v1/integrations/tenants/:module/:name"},
+
+    {"name": "compliance.framework.list", "status": "planned", "module": "compliance", "title": "List compliance frameworks", "permission": "compliance.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "Framework[]", "maps_to": "compliance.FrameworkUsecase.ListFrameworks", "rest_equivalent": "GET /api/v1/compliance/frameworks"},
+    {"name": "compliance.framework.get", "status": "planned", "module": "compliance", "title": "Get framework", "permission": "compliance.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"key": {"type": "string"}}, "required": ["key"]}, "output": "Framework", "maps_to": "compliance.FrameworkUsecase.GetFramework", "rest_equivalent": "GET /api/v1/compliance/frameworks/:key"},
+    {"name": "compliance.framework.create", "status": "planned", "module": "compliance", "title": "Create custom framework", "permission": "compliance.write", "input": {"type": "object", "properties": {"key": {"type": "string"}, "name": {"type": "string"}, "sections": {"type": "array"}, "requirements": {"type": "array"}}, "required": ["key", "name"]}, "output": "Framework", "maps_to": "compliance.FrameworkUsecase.CreateFramework", "rest_equivalent": "POST /api/v1/compliance/frameworks"},
+    {"name": "compliance.framework.update", "status": "planned", "module": "compliance", "title": "Update framework (user overlay)", "permission": "compliance.write", "input": {"type": "object", "properties": {"key": {"type": "string"}, "name": {"type": "string"}, "sections": {"type": "array"}}, "required": ["key"]}, "output": "Framework", "maps_to": "compliance.FrameworkUsecase.UpdateFramework", "rest_equivalent": "PUT /api/v1/compliance/frameworks/:key"},
+    {"name": "compliance.framework.delete", "status": "planned", "module": "compliance", "title": "Delete framework (user overlay)", "permission": "compliance.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"key": {"type": "string"}}, "required": ["key"]}, "output": "{ key: string, deleted: true }", "maps_to": "compliance.FrameworkUsecase.DeleteFramework", "rest_equivalent": "DELETE /api/v1/compliance/frameworks/:key"},
+    {"name": "compliance.framework.set_enabled", "status": "planned", "module": "compliance", "title": "Enable or disable framework", "permission": "compliance.write", "annotations": {"idempotentHint": true}, "input": {"type": "object", "properties": {"key": {"type": "string"}, "enabled": {"type": "boolean"}}, "required": ["key", "enabled"]}, "output": "{ key: string, enabled: bool }", "maps_to": "compliance.FrameworkUsecase.SetFrameworkEnabled", "rest_equivalent": "PUT /api/v1/compliance/frameworks/:key/enabled"},
+    {"name": "compliance.control.list", "status": "planned", "module": "compliance", "title": "List controls", "permission": "compliance.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "Control[]", "maps_to": "compliance.FrameworkUsecase.ListControls", "rest_equivalent": "GET /api/v1/compliance/controls"},
+    {"name": "compliance.control.get", "status": "planned", "module": "compliance", "title": "Get control", "permission": "compliance.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]}, "output": "Control", "maps_to": "compliance.FrameworkUsecase.GetControl", "rest_equivalent": "GET /api/v1/compliance/controls/:id"},
+    {"name": "compliance.control.create", "status": "planned", "module": "compliance", "title": "Create custom control", "permission": "compliance.write", "input": {"type": "object", "properties": {"id": {"type": "string"}, "family": {"type": "string"}, "scope": {"type": "string"}, "statement": {"type": "string"}, "remediation": {"type": "string"}, "checks": {"type": "array"}}, "required": ["id"]}, "output": "Control", "maps_to": "compliance.FrameworkUsecase.CreateControl", "rest_equivalent": "POST /api/v1/compliance/controls"},
+    {"name": "compliance.control.update", "status": "planned", "module": "compliance", "title": "Update control (user overlay)", "permission": "compliance.write", "input": {"type": "object", "properties": {"id": {"type": "string"}, "statement": {"type": "string"}, "remediation": {"type": "string"}, "checks": {"type": "array"}}, "required": ["id"]}, "output": "Control", "maps_to": "compliance.FrameworkUsecase.UpdateControl", "rest_equivalent": "PUT /api/v1/compliance/controls/:id"},
+    {"name": "compliance.control.delete", "status": "planned", "module": "compliance", "title": "Delete control (user overlay)", "permission": "compliance.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]}, "output": "{ id: string, deleted: true }", "maps_to": "compliance.FrameworkUsecase.DeleteControl", "rest_equivalent": "DELETE /api/v1/compliance/controls/:id"},
+    {"name": "compliance.control.set_enabled", "status": "planned", "module": "compliance", "title": "Enable or disable control", "permission": "compliance.write", "annotations": {"idempotentHint": true}, "input": {"type": "object", "properties": {"id": {"type": "string"}, "enabled": {"type": "boolean"}}, "required": ["id", "enabled"]}, "output": "{ id: string, enabled: bool }", "maps_to": "compliance.FrameworkUsecase.SetControlEnabled", "rest_equivalent": "PUT /api/v1/compliance/controls/:id/enabled"},
+    {"name": "compliance.report.evaluate", "status": "planned", "module": "compliance", "title": "Evaluate framework (live, no save)", "permission": "compliance.read", "annotations": {"readOnlyHint": true, "openWorldHint": true}, "input": {"type": "object", "properties": {"framework_key": {"type": "string"}}, "required": ["framework_key"]}, "output": "Report", "maps_to": "compliance.EvaluatorUsecase.EvaluateFramework", "rest_equivalent": "GET /api/v1/compliance/frameworks/:key/report"},
+    {"name": "compliance.report.generate", "status": "planned", "module": "compliance", "title": "Generate compliance report (saves snapshot)", "permission": "compliance.write", "annotations": {"openWorldHint": true}, "input": {"type": "object", "properties": {"framework_key": {"type": "string"}}, "required": ["framework_key"]}, "output": "Report", "maps_to": "compliance.EvaluatorUsecase.GenerateReport", "rest_equivalent": "POST /api/v1/compliance/frameworks/:key/report"},
+    {"name": "compliance.report.list", "status": "planned", "module": "compliance", "title": "List historical reports", "permission": "compliance.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"framework_key": {"type": "string"}, "limit": {"type": "integer"}}, "required": ["framework_key"]}, "output": "ReportSnapshotMeta[]", "maps_to": "compliance.EvaluatorUsecase.ListReports", "rest_equivalent": "GET /api/v1/compliance/reports"},
+    {"name": "compliance.report.get", "status": "planned", "module": "compliance", "title": "Get report snapshot", "permission": "compliance.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]}, "output": "ReportSnapshot", "maps_to": "compliance.EvaluatorUsecase.GetReport", "rest_equivalent": "GET /api/v1/compliance/reports/:id"},
+    {"name": "compliance.schedule.create", "status": "planned", "module": "compliance", "title": "Schedule recurring report", "permission": "compliance.write", "input": {"type": "object", "properties": {"framework_key": {"type": "string"}, "cron": {"type": "string"}, "recipients": {"type": "array", "items": {"type": "string"}}}, "required": ["framework_key", "cron"]}, "output": "ScheduleResponse", "maps_to": "compliance.ScheduleUsecase.Create", "rest_equivalent": "POST /api/v1/compliance-report-schedules"},
+    {"name": "compliance.schedule.update", "status": "planned", "module": "compliance", "title": "Update report schedule", "permission": "compliance.write", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "cron": {"type": "string"}, "recipients": {"type": "array"}}, "required": ["id"]}, "output": "ScheduleResponse", "maps_to": "compliance.ScheduleUsecase.Update", "rest_equivalent": "PUT /api/v1/compliance-report-schedules"},
+    {"name": "compliance.schedule.list_by_user", "status": "planned", "module": "compliance", "title": "List my report schedules", "permission": "compliance.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"framework_key": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: ScheduleResponse[], total: int64 }", "maps_to": "compliance.ScheduleUsecase.ListByUser", "rest_equivalent": "GET /api/v1/compliance-report-schedules/by-user"},
+    {"name": "compliance.schedule.get", "status": "planned", "module": "compliance", "title": "Get report schedule", "permission": "compliance.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "ScheduleResponse", "maps_to": "compliance.ScheduleUsecase.GetByID", "rest_equivalent": "GET /api/v1/compliance-report-schedules/by-id/:id"},
+    {"name": "compliance.schedule.delete", "status": "planned", "module": "compliance", "title": "Delete report schedule", "permission": "compliance.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "compliance.ScheduleUsecase.Delete", "rest_equivalent": "DELETE /api/v1/compliance-report-schedules/:id"},
+
+    {"name": "audit.list", "status": "planned", "module": "audit", "title": "List audit log entries", "permission": "audit.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"user_login": {"type": "string"}, "event_type": {"type": "string"}, "resource_type": {"type": "string"}, "status": {"type": "string"}, "from": {"type": "string"}, "to": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: LogResponse[], total: int64 }", "maps_to": "audit.Usecase.List", "rest_equivalent": "GET /api/v1/audit"},
+    {"name": "audit.get", "status": "planned", "module": "audit", "title": "Get audit log entry", "permission": "audit.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "LogResponse", "maps_to": "audit.Usecase.Get", "rest_equivalent": "GET /api/v1/audit/:id"},
+
+    {"name": "adaudit.users.list", "status": "planned", "module": "adaudit", "title": "List Active Directory users", "permission": "adaudit.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"search": {"type": "string"}, "tenant_id": {"type": "string"}, "active": {"type": "boolean"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: ADUser[], total: int64 }", "maps_to": "adaudit.ADUserUsecase.List", "rest_equivalent": "GET /api/v1/ad-audit/users"},
+
+    {"name": "notifications.list", "status": "planned", "module": "notifications", "title": "List notifications", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"read": {"type": "boolean"}, "type": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: UtmNotification[], total: int64 }", "maps_to": "notifications.NotificationUsecase.List", "rest_equivalent": "GET /api/v1/notifications"},
+    {"name": "notifications.get", "status": "planned", "module": "notifications", "title": "Get notification", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "UtmNotification", "maps_to": "notifications.NotificationUsecase.GetByID", "rest_equivalent": "GET /api/v1/notifications/:id"},
+    {"name": "notifications.unread_count", "status": "planned", "module": "notifications", "title": "Count unread notifications", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "{ count: int64 }", "maps_to": "notifications.NotificationUsecase.CountUnread", "rest_equivalent": "GET /api/v1/notifications/unread-count"},
+    {"name": "notifications.mark_read", "status": "planned", "module": "notifications", "title": "Mark notification read/unread", "annotations": {"idempotentHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}, "read": {"type": "boolean"}}, "required": ["id", "read"]}, "output": "UtmNotification", "maps_to": "notifications.NotificationUsecase.MarkRead", "rest_equivalent": "PUT /api/v1/notifications/:id/read"},
+    {"name": "notifications.mark_all_read", "status": "planned", "module": "notifications", "title": "Mark all notifications read", "annotations": {"idempotentHint": true}, "input": {"type": "object", "properties": {}}, "output": "{ marked: int64 }", "maps_to": "notifications.NotificationUsecase.MarkAllRead", "rest_equivalent": "PUT /api/v1/notifications/read-all"},
+    {"name": "notifications.update_status", "status": "planned", "module": "notifications", "title": "Update notification status", "annotations": {"idempotentHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}, "status": {"type": "string", "enum": ["ACTIVE", "HIDDEN", "DELETED"]}}, "required": ["id", "status"]}, "output": "UtmNotification", "maps_to": "notifications.NotificationUsecase.UpdateStatus", "rest_equivalent": "PUT /api/v1/notifications/:id/status"},
+    {"name": "notifications.delete", "status": "planned", "module": "notifications", "title": "Delete notification", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "notifications.NotificationUsecase.Delete", "rest_equivalent": "DELETE /api/v1/notifications/:id"},
+
+    {"name": "iam.user.list", "status": "planned", "module": "iam", "title": "List users", "permission": "users.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"search": {"type": "string"}, "active": {"type": "boolean"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "UserListResponse", "maps_to": "iam.UserUsecase.List", "rest_equivalent": "GET /api/v1/users"},
+    {"name": "iam.user.get", "status": "planned", "module": "iam", "title": "Get user", "permission": "users.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "UserDetailResponse", "maps_to": "iam.UserUsecase.Get", "rest_equivalent": "GET /api/v1/users/:id"},
+    {"name": "iam.user.create", "status": "planned", "module": "iam", "title": "Create user", "permission": "users.write", "input": {"type": "object", "properties": {"login": {"type": "string"}, "email": {"type": "string"}, "first_name": {"type": "string"}, "last_name": {"type": "string"}, "role_names": {"type": "array", "items": {"type": "string"}}}, "required": ["login", "email"]}, "output": "UserDetailResponse", "maps_to": "iam.UserUsecase.Create", "rest_equivalent": "POST /api/v1/users"},
+    {"name": "iam.user.update", "status": "planned", "module": "iam", "title": "Update user", "permission": "users.write", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "first_name": {"type": "string"}, "last_name": {"type": "string"}, "email": {"type": "string"}, "active": {"type": "boolean"}}, "required": ["id"]}, "output": "UserDetailResponse", "maps_to": "iam.UserUsecase.Update", "rest_equivalent": "PUT /api/v1/users/:id"},
+    {"name": "iam.user.deactivate", "status": "planned", "module": "iam", "title": "Deactivate user", "permission": "users.delete", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deactivated: true }", "maps_to": "iam.UserUsecase.Deactivate", "rest_equivalent": "DELETE /api/v1/users/:id"},
+    {"name": "iam.user.assign_roles", "status": "planned", "module": "iam", "title": "Assign roles to user", "permission": "users.write", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "role_names": {"type": "array", "items": {"type": "string"}}}, "required": ["id", "role_names"]}, "output": "UserDetailResponse", "maps_to": "iam.UserUsecase.AssignRoles", "rest_equivalent": "PUT /api/v1/users/:id/roles"},
+    {"name": "iam.role.list", "status": "planned", "module": "iam", "title": "List roles", "permission": "roles.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "RoleResponse[]", "maps_to": "iam.RoleUsecase.List", "rest_equivalent": "GET /api/v1/roles"},
+    {"name": "iam.role.get", "status": "planned", "module": "iam", "title": "Get role with permissions", "permission": "roles.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]}, "output": "RoleDetailResponse", "maps_to": "iam.RoleUsecase.Get", "rest_equivalent": "GET /api/v1/roles/:name"},
+    {"name": "iam.auth.me", "status": "planned", "module": "iam", "title": "Get my profile", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "UserResponse", "maps_to": "iam.AuthUsecase.Me", "rest_equivalent": "GET /api/v1/auth/me"},
+    {"name": "iam.auth.update_me", "status": "planned", "module": "iam", "title": "Update my profile", "input": {"type": "object", "properties": {"first_name": {"type": "string"}, "last_name": {"type": "string"}, "email": {"type": "string"}}}, "output": "UserResponse", "maps_to": "iam.AuthUsecase.UpdateMe", "rest_equivalent": "PUT /api/v1/auth/me"},
+    {"name": "iam.auth.list_sessions", "status": "planned", "module": "iam", "title": "List my active sessions", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "SessionResponse[]", "maps_to": "iam.AuthUsecase.ListSessions", "rest_equivalent": "GET /api/v1/auth/sessions"},
+    {"name": "iam.auth.revoke_session", "status": "planned", "module": "iam", "title": "Revoke a session", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, revoked: true }", "maps_to": "iam.AuthUsecase.RevokeSession", "rest_equivalent": "DELETE /api/v1/auth/sessions/:id"},
+    {"name": "iam.auth.revoke_other_sessions", "status": "planned", "module": "iam", "title": "Revoke all other sessions", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {}}, "output": "{ revoked: int64 }", "maps_to": "iam.AuthUsecase.RevokeOtherSessions", "rest_equivalent": "DELETE /api/v1/auth/sessions"},
+    {"name": "iam.auth.change_password", "status": "planned", "module": "iam", "title": "Change my password", "annotations": {"destructiveHint": false}, "input": {"type": "object", "properties": {"current_password": {"type": "string"}, "new_password": {"type": "string"}}, "required": ["current_password", "new_password"]}, "output": "{ changed: true }", "maps_to": "iam.AuthUsecase.ChangePassword", "rest_equivalent": "POST /api/v1/auth/change-password"},
+    {"name": "iam.apikey.list", "status": "planned", "module": "iam", "title": "List API keys", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"name": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "APIKeyListResponse", "maps_to": "iam.APIKeyUsecase.List", "rest_equivalent": "GET /api/v1/api-keys"},
+    {"name": "iam.apikey.get", "status": "planned", "module": "iam", "title": "Get API key", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "APIKeyResponse", "maps_to": "iam.APIKeyUsecase.Get", "rest_equivalent": "GET /api/v1/api-keys/:id"},
+    {"name": "iam.apikey.create", "status": "planned", "module": "iam", "title": "Create API key", "license_required": "ENTERPRISE", "input": {"type": "object", "properties": {"name": {"type": "string"}, "ip_allow_list": {"type": "array", "items": {"type": "string"}}, "expires_at": {"type": "string"}}, "required": ["name"]}, "output": "APIKeyResponse", "maps_to": "iam.APIKeyUsecase.Create", "rest_equivalent": "POST /api/v1/api-keys"},
+    {"name": "iam.apikey.update", "status": "planned", "module": "iam", "title": "Update API key", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "name": {"type": "string"}, "ip_allow_list": {"type": "array"}, "expires_at": {"type": "string"}}, "required": ["id"]}, "output": "APIKeyResponse", "maps_to": "iam.APIKeyUsecase.Update", "rest_equivalent": "PUT /api/v1/api-keys/:id"},
+    {"name": "iam.apikey.delete", "status": "planned", "module": "iam", "title": "Delete API key", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "iam.APIKeyUsecase.Delete", "rest_equivalent": "DELETE /api/v1/api-keys/:id"},
+    {"name": "iam.apikey.generate", "status": "planned", "module": "iam", "title": "Generate API key secret", "license_required": "ENTERPRISE", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, secret: string }", "maps_to": "iam.APIKeyUsecase.Generate", "rest_equivalent": "POST /api/v1/api-keys/:id/generate"},
+    {"name": "iam.idp.list", "status": "planned", "module": "iam", "title": "List identity providers", "permission": "idp.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"active": {"type": "boolean"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "IdentityProviderConfig[]", "maps_to": "iam.IdentityProviderUsecase.List", "rest_equivalent": "GET /api/v1/identity-providers"},
+    {"name": "iam.idp.get", "status": "planned", "module": "iam", "title": "Get identity provider", "permission": "idp.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "IdentityProviderConfig", "maps_to": "iam.IdentityProviderUsecase.GetByID", "rest_equivalent": "GET /api/v1/identity-providers/:id"},
+    {"name": "iam.idp.create", "status": "planned", "module": "iam", "title": "Create identity provider", "permission": "idp.write", "license_required": "ENTERPRISE", "input": {"type": "object", "properties": {"name": {"type": "string"}, "type": {"type": "string"}, "metadata_xml": {"type": "string"}, "active": {"type": "boolean"}}, "required": ["name", "type"]}, "output": "IdentityProviderConfig", "maps_to": "iam.IdentityProviderUsecase.Create", "rest_equivalent": "POST /api/v1/identity-providers"},
+    {"name": "iam.idp.update", "status": "planned", "module": "iam", "title": "Update identity provider", "permission": "idp.write", "license_required": "ENTERPRISE", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "name": {"type": "string"}, "metadata_xml": {"type": "string"}, "active": {"type": "boolean"}}, "required": ["id"]}, "output": "IdentityProviderConfig", "maps_to": "iam.IdentityProviderUsecase.Update", "rest_equivalent": "PUT /api/v1/identity-providers"},
+    {"name": "iam.idp.delete", "status": "planned", "module": "iam", "title": "Delete identity provider", "permission": "idp.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "iam.IdentityProviderUsecase.Delete", "rest_equivalent": "DELETE /api/v1/identity-providers/:id"},
+
+    {"name": "config.list", "status": "planned", "module": "appconfig", "title": "List configs", "permission": "config.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "ConfigResponse[]", "maps_to": "appconfig.Usecase.List", "rest_equivalent": "GET /api/v1/config"},
+    {"name": "config.get", "status": "planned", "module": "appconfig", "title": "Get config by key", "permission": "config.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"key": {"type": "string"}}, "required": ["key"]}, "output": "ConfigResponse", "maps_to": "appconfig.Usecase.Get", "rest_equivalent": "GET /api/v1/config/:key"},
+    {"name": "config.update", "status": "planned", "module": "appconfig", "title": "Update config value", "permission": "config.write", "annotations": {"destructiveHint": true, "idempotentHint": true}, "input": {"type": "object", "properties": {"key": {"type": "string"}, "value": {"type": "string"}}, "required": ["key", "value"]}, "output": "ConfigResponse", "maps_to": "appconfig.Usecase.Update", "rest_equivalent": "PUT /api/v1/config/:key"},
+    {"name": "config.check_mail", "status": "planned", "module": "appconfig", "title": "Test SMTP configuration", "permission": "config.write", "annotations": {"openWorldHint": true}, "input": {"type": "object", "properties": {"configs": {"type": "array"}}, "required": ["configs"]}, "output": "CheckMailResponse", "maps_to": "appconfig.Usecase.CheckMail", "rest_equivalent": "POST /api/v1/config/checkEmailConfiguration"},
+    {"name": "branding.get", "status": "planned", "module": "appconfig", "title": "Get branding (admin view)", "permission": "config.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "BrandingResponse", "maps_to": "appconfig.BrandingUsecase.Get", "rest_equivalent": "GET /api/v1/branding"},
+    {"name": "branding.update", "status": "planned", "module": "appconfig", "title": "Update branding", "permission": "config.write", "license_required": "MSSP", "input": {"type": "object", "properties": {"product_name": {"type": "string"}, "primary_color": {"type": "string"}, "logo_url": {"type": "string"}}}, "output": "BrandingResponse", "maps_to": "appconfig.BrandingUsecase.Update", "rest_equivalent": "PUT /api/v1/branding"},
+    {"name": "branding.get_public", "status": "planned", "module": "appconfig", "title": "Get public branding", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "BrandingPublic", "maps_to": "appconfig.BrandingUsecase.GetPublic", "rest_equivalent": "GET /api/v1/branding/public"},
+
+    {"name": "billing.version", "status": "planned", "module": "billing", "title": "Server version info", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "VersionInfo", "maps_to": "billing.VersionUsecase.Info", "rest_equivalent": "GET /api/v1/billing/version"},
+    {"name": "billing.license.get", "status": "planned", "module": "billing", "title": "Active license", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "License", "maps_to": "billing.LicenseService.Current", "rest_equivalent": "GET /api/v1/billing/license"},
+
+    {"name": "socai.analyze_alert", "status": "planned", "module": "socai", "title": "Forward an alert to SOC AI for analysis", "description": "Forwards the alert payload to the configured external SOC AI service and returns its async ack. The remote service writes its conclusions back through the regular alerts/incidents pipeline.", "annotations": {"openWorldHint": true}, "input": {"type": "object", "properties": {"alert": {"type": "object"}}, "required": ["alert"]}, "output": "{ status: string, alertId: string, message: string }", "maps_to": "socai.SocAIClient.Analyze", "rest_equivalent": "POST /api/v1/soc-ai/analyze"}
+  ],
+
+  "resources": [
+    {
+      "uri": "mcp://utmstack/catalog/integrations",
+      "name": "Integrations catalog",
+      "description": "Live list of integration modules (data type, pretty name, category, active flag). Useful as context before calling integrations.activate.",
+      "mime_type": "application/json",
+      "status": "planned",
+      "backed_by": "integrations.ModuleUsecase.List"
+    },
+    {
+      "uri": "mcp://utmstack/catalog/frameworks",
+      "name": "Compliance frameworks catalog",
+      "description": "File-backed compliance framework catalog (key, name, requirement count, enabled state).",
+      "mime_type": "application/json",
+      "status": "planned",
+      "backed_by": "compliance.FrameworkUsecase.ListFrameworks"
+    },
+    {
+      "uri": "mcp://utmstack/catalog/alert-tags",
+      "name": "Alert tag catalog",
+      "description": "User-defined alert tags. Useful for prompting the LLM with the existing taxonomy before alerts.update_tags.",
+      "mime_type": "application/json",
+      "status": "planned",
+      "backed_by": "alerts.AlertTagUsecase.List"
+    },
+    {
+      "uri": "mcp://utmstack/docs/filter-operators",
+      "name": "FilterType operator reference",
+      "description": "Documentation of the structured FilterType DSL (IS, IS_NOT, CONTAIN, IS_BETWEEN, EXIST, …) used by opensearch.search, alerts.search_adversary, alert_tag_rules, loganalyzer.* and dashboards.",
+      "mime_type": "text/markdown",
+      "status": "planned",
+      "backed_by": "pkg/common_models/filter.go (FilterOperator constants)"
+    },
+    {
+      "uri": "mcp://utmstack/docs/event-types",
+      "name": "Audit event-type enum",
+      "description": "Full list of ApplicationEventType values written by REST handlers and the MCP layer.",
+      "mime_type": "text/markdown",
+      "status": "planned",
+      "backed_by": "modules/audit/domain/event_type.go"
+    }
+  ],
+
+  "prompts": [
+    {
+      "name": "soc.triage-open-alerts",
+      "title": "Triage open alerts",
+      "description": "Pulls all open alerts grouped by adversary, asks the model to propose a status, tags, and (when appropriate) an incident for each adversary cluster, then awaits explicit user approval before applying the changes.",
+      "status": "planned",
+      "arguments": [],
+      "tool_sequence": [
+        "alerts.count_open",
+        "alerts.search_adversary",
+        "alert_tags.list",
+        "(model proposes)",
+        "alerts.update_tags",
+        "alerts.update_status",
+        "alerts.convert_to_incident"
+      ]
+    },
+    {
+      "name": "soc.investigate-alert",
+      "title": "Investigate alert",
+      "description": "Given an alert ID, pulls the alert, related events from OpenSearch, and any similar past incidents; the model then drafts an incident-creation payload for human approval.",
+      "status": "planned",
+      "arguments": [
+        {"name": "alert_id", "description": "OpenSearch _id of the alert to investigate", "required": true}
+      ],
+      "tool_sequence": [
+        "opensearch.search",
+        "opensearch.search_sql",
+        "incidents.list",
+        "(model drafts)",
+        "incidents.create"
+      ]
+    },
+    {
+      "name": "soc.compliance-summary",
+      "title": "Compliance summary",
+      "description": "Generates a fresh report for the requested framework and turns it into a stakeholder-ready summary (gaps, owners, next steps).",
+      "status": "planned",
+      "arguments": [
+        {"name": "framework_key", "description": "Framework key (e.g. NIST_800_53, ISO_27001)", "required": true}
+      ],
+      "tool_sequence": [
+        "compliance.framework.get",
+        "compliance.report.generate",
+        "compliance.report.get"
+      ]
+    },
+    {
+      "name": "soc.draft-soar-rule",
+      "title": "Draft SOAR rule",
+      "description": "Guides the model through SOAR rule construction: list available templates, list variables, propose filter conditions, then create the rule on confirmation.",
+      "status": "planned",
+      "arguments": [
+        {"name": "goal", "description": "Plain-language goal for the rule (e.g. 'isolate hosts on Mimikatz detections')", "required": true}
+      ],
+      "tool_sequence": [
+        "soar.template.list",
+        "soar.variable.list",
+        "soar.rule.resolve_filter_values",
+        "(model drafts)",
+        "soar.rule.create"
+      ]
+    }
+  ],
+
+  "definitions": {
+    "FilterType": {
+      "type": "object",
+      "description": "Structured query condition used across opensearch.*, alerts.*, loganalyzer.*, dashboards, eventprocessing.* tools.",
+      "properties": {
+        "field": {"type": "string"},
+        "operator": {
+          "type": "string",
+          "enum": ["IS", "IS_NOT", "IS_ONE_OF_TERMS", "IS_ONE_OF_TERMS_OR", "IS_LESS_THAN_OR_EQUALS", "IS_GREATER_THAN", "EXIST", "DOES_NOT_EXIST", "NOT_CONTAINS", "CONTAIN", "DOES_NOT_CONTAIN", "CONTAIN_ONE_OF", "DOES_NOT_CONTAIN_ONE_OF", "IS_ONE_OF", "IS_NOT_ONE_OF", "IS_BETWEEN", "IS_NOT_BETWEEN", "IS_IN_FIELDS", "IS_NOT_IN_FIELDS", "ENDS_WITH", "NOT_ENDS_WITH", "START_WITH", "NOT_START_WITH"]
+        },
+        "value": {"description": "Operator-dependent — string, number, [from,to] tuple, or string[]"}
+      },
+      "required": ["field", "operator"]
+    },
+    "AlertLinkItem": {
+      "type": "object",
+      "properties": {"alert_id": {"type": "string"}, "alert_source": {"type": "string"}},
+      "required": ["alert_id"]
+    },
+    "AlertTagRuleTagRef": {
+      "type": "object",
+      "properties": {"id": {"type": "integer"}, "tag_name": {"type": "string"}, "tag_color": {"type": "string"}, "system_owner": {"type": "boolean"}},
+      "required": ["id"]
+    },
+    "DataColumn": {
+      "type": "object",
+      "properties": {"field": {"type": "string"}, "header": {"type": "string"}, "format": {"type": "string"}}
+    }
+  },
+
+  "summary": {
+    "tool_count_total": 218,
+    "tool_count_implemented": 16,
+    "tool_count_planned": 202,
+    "resource_count": 5,
+    "prompt_count": 4,
+    "modules_covered": ["alerts", "incidents", "soar", "opensearch", "loganalyzer", "dashboards", "eventprocessing", "datasources", "integrations", "compliance", "audit", "adaudit", "notifications", "iam", "appconfig", "billing", "socai"],
+    "tool_count_by_module": {
+      "soar": 30,
+      "eventprocessing": 25,
+      "iam": 25,
+      "compliance": 21,
+      "opensearch": 19,
+      "alerts": 16,
+      "incidents": 16,
+      "dashboards": 15,
+      "integrations": 13,
+      "datasources": 11,
+      "loganalyzer": 7,
+      "notifications": 7,
+      "appconfig": 7,
+      "audit": 2,
+      "billing": 2,
+      "adaudit": 1,
+      "socai": 1
+    }
+  }
+}

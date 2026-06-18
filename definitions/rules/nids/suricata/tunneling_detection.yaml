@@ -1,0 +1,56 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - suricata
+  name: Tunneling Detection
+  impact:
+    confidentiality: 3
+    integrity: 2
+    availability: 1
+  category: Command and Control
+  technique: "T1572 - Protocol Tunneling"
+  adversary: origin
+  references:
+    - https://attack.mitre.org/techniques/T1572/
+    - https://docs.suricata.io/en/latest/output/eve/eve-json-format.html
+  description: |
+    Detects various tunneling techniques including SSH tunneling, HTTP tunneling, VPN over non-standard ports, and protocol mismatches. Tunneling is used by attackers to bypass network security controls and establish covert communication channels.
+  
+    Next Steps:
+    1. Verify the legitimacy of the detected tunneling activity
+    2. Check if the source IP is authorized to establish tunneled connections
+    3. Analyze the destination and ports being used for tunneling
+    4. Review network traffic patterns for data exfiltration indicators
+    5. Investigate the purpose and content of the tunneled traffic
+    6. Consider blocking the source IP if activity is confirmed malicious
+    7. Review firewall rules to prevent unauthorized tunneling protocols
+  where: |
+    (
+      (equals("log.eventType", "alert") &&
+       (contains("log.alert.signature", "SSH") &&
+        !equals("target.port", 22))) ||
+      (equals("log.appProto", "ssh") &&
+       !equals("target.port", 22)) ||
+      (equals("protocol", "TCP") &&
+       equals("target.port", 443) &&
+       !equals("log.appProto", "tls")) ||
+      (equals("log.eventType", "alert") &&
+       contains("log.alert.signature", "tunnel")) ||
+      (equals("target.port", 53) &&
+       equals("protocol", "TCP") &&
+       greaterThan("log.flow.bytes_toserver", 5000))
+    )
+  afterEvents:
+    - indexPattern: v11-log-suricata-*
+      with:
+        - field: origin.ip
+          operator: filter_term
+          value: '{{.origin.ip}}'
+        - field: target.port
+          operator: filter_term
+          value: '{{.target.port}}'
+      within: 30m
+      count: 5
+  groupBy:
+    - adversary.ip
+    - target.port

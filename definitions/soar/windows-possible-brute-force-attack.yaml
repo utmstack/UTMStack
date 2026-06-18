@@ -1,0 +1,16 @@
+# UTMStack system SOAR flow
+- name: 'Windows: Possible Brute Force Attack'
+  description: Detects patterns of repeated and rapid login attempts from the same IP address or source, indicating a potential
+    brute force attack. This playbook responds by blacklisting the adversary's IP in the firewall to block further connections.
+  conditions:
+  - operator: IS
+    field: name
+    value: 'Windows: Possible Brute Force Attack'
+  commands:
+  - netsh advfirewall firewall add rule name="Block-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)"
+    enable=yes
+  - netsh advfirewall firewall add rule name="Block-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)"
+    enable=yes
+  - net user $(adversary.user) /active:no
+  shell: powershell
+  agentPlatform: windows

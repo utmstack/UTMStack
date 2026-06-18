@@ -1,0 +1,41 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - firewall-sonicwall
+  name: SonicWall Encrypted Threats Detection
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Command and Control
+  technique: "T1573 - Encrypted Channel"
+  adversary: origin
+  references:
+    - https://www.sonicwall.com/solutions/advanced-threats/encrypted-threats/
+    - https://attack.mitre.org/techniques/T1573/
+  description: |
+    Detects threats hidden in encrypted traffic identified by SonicWall DPI-SSL (Deep Packet Inspection of SSL/TLS) including malware, exploits, and data exfiltration attempts over encrypted channels. This rule identifies when SonicWall's advanced threat protection has detected malicious activity within encrypted communications.
+
+    Next Steps:
+    1. Review the specific threat type and category identified in the event details
+    2. Examine the source and destination IP addresses for indicators of compromise
+    3. Check the SSL/TLS certificate details and validation status
+    4. Investigate the application or service attempting the encrypted communication
+    5. Review network traffic patterns to identify potential data exfiltration
+    6. Consider temporarily blocking the source IP if malicious activity is confirmed
+    7. Update security policies to prevent similar encrypted threats
+    8. Document findings for threat intelligence and future prevention
+  where: |
+    (contains("log.eventName", "SSL") || contains("log.eventName", "TLS") || contains("log.eventName", "encrypted") || contains("log.eventName", "DPI-SSL") || contains("log.message", "SSL") || contains("log.message", "TLS") || contains("log.message", "encrypted") || contains("protocol", "SSL") || contains("protocol", "TLS")) &&
+    (contains("log.eventName", "threat") || contains("log.eventName", "malware") || contains("log.eventName", "blocked") || contains("log.eventName", "violation") || contains("log.message", "threat") || contains("log.message", "malware") || contains("log.message", "blocked") || equals("log.result", "blocked") || equals("action", "blocked") || exists("log.ipscat") || exists("log.spycat"))
+  afterEvents:
+    - indexPattern: v11-log-firewall-sonicwall-*
+      with:
+        - field: origin.ip
+          operator: filter_term
+          value: '{{.origin.ip}}'
+      within: 30m
+      count: 3
+  groupBy:
+    - adversary.ip
+    - target.ip

@@ -1,0 +1,23 @@
+# Rule version v1.0.3
+
+- dataTypes:
+    - google
+  name: "GCP probable hijacked account"
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: "Collection"
+  technique: "T1560 - Archive Collected Data"
+  adversary: target
+  description: "A user's account was disabled because Google has detected a suspicious activity 
+                  indicating it might have been compromised.
+                  Hijacked account can be used to perform other attacks like data collection and exfiltration"
+  references:
+    - "https://attack.mitre.org/tactics/TA0009/"
+    - "https://attack.mitre.org/techniques/T1560"
+  where: |
+    equals("log.protoPayloadMethodName", "google.login.LoginService.accountDisabledHijacked")
+  groupBy:
+    - target.ip
+    - target.user

@@ -1,0 +1,44 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - google
+  name: Anthos Security Policy Violations
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Security Control Bypass
+  technique: "T1562 - Impair Defenses"
+  adversary: origin
+  references:
+    - https://cloud.google.com/anthos/docs/concepts/overview
+    - https://attack.mitre.org/techniques/T1562/
+  description: |
+    Detects security-related events in Google Anthos environments including policy violations, authentication failures, and suspicious container activities. Monitors Anthos Service Mesh, Config Management, and Policy Controller events.
+    
+    Next Steps:
+    - Review the specific policy violation details in the event logs
+    - Verify if the violation was authorized or represents a legitimate security concern
+    - Check the source IP and user account associated with the violation
+    - Examine recent configuration changes to Anthos security policies
+    - Validate that security controls are properly configured and enforced
+    - Consider implementing additional monitoring for the affected resources
+  where: |
+    (
+      oneOf("log.protoPayloadServiceName", ["anthos.googleapis.com", "anthospolicycontroller.googleapis.com", "anthosservicemesh.googleapis.com"]) ||
+      oneOf("log.resourceType", ["k8s_cluster", "gke_cluster"])
+    ) && 
+    (
+      contains("log.protoPayloadMethodName", "Policy") ||
+      oneOf("log.jsonPayload.type", ["admission.k8s.io/violation", "policy.violation", "security.alert"]) ||
+      oneOf("log.severity", ["ERROR", "WARNING"])
+    ) &&
+    (
+      equals("log.protoPayload.response.status", "PERMISSION_DENIED") ||
+      contains("log.protoPayloadStatusMessage", "violation") ||
+      contains("log.protoPayloadStatusMessage", "denied") ||
+      contains("log.jsonPayload.details", "policy")
+    )
+  groupBy:
+    - lastEvent.log.protoPayloadResourceName
+    - lastEvent.log.resource.labels.project_id

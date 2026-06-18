@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: sc-50
+family: sc
+familyName: System and Communications Protection
+name: Software-enforced Separation and Policy Enforcement
+scope: data
+statement: Implement software-enforced separation and policy enforcement mechanisms between [security
+  domains].
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

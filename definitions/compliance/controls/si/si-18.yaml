@@ -1,0 +1,14 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: si-18
+family: si
+familyName: System and Information Integrity
+name: Personally Identifiable Information Quality Operations
+scope: data
+statement: |-
+  Check the accuracy, relevance, timeliness, and completeness of personally identifiable information across the information life cycle [organization-defined frequency] ; and
+    Correct or delete inaccurate or outdated personally identifiable information.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

@@ -1,0 +1,11 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sa-21
+family: sa
+familyName: System and Services Acquisition
+name: Developer Screening
+scope: governance
+statement: |-
+  Require that the developer of [system, systems component, or system service]:
+    Has appropriate access authorizations as determined by assigned [official government duties] ; and
+    Satisfies the following additional personnel screening criteria: [additional personnel screening criteria].
+source: NIST SP 800-53 Rev 5 (public domain)

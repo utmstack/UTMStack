@@ -1,0 +1,12 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-27
+family: pm
+familyName: Program Management
+name: Privacy Reporting
+scope: governance
+statement: |-
+  Develop [privacy reports] and disseminate to:
+      [oversight bodies] to demonstrate accountability with statutory, regulatory, and policy privacy mandates; and
+      [officials] and other personnel with responsibility for monitoring privacy program compliance; and
+    Review and update privacy reports [frequency].
+source: NIST SP 800-53 Rev 5 (public domain)

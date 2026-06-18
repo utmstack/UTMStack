@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: pm-4
+family: pm
+familyName: Program Management
+name: Plan of Action and Milestones Process
+scope: governance
+statement: |-
+  Implement a process to ensure that plans of action and milestones for the information security, privacy, and supply chain risk management programs and associated organizational systems:
+      Are developed and maintained;
+      Document the remedial information security, privacy, and supply chain risk management actions to adequately respond to risk to organizational operations and assets, individuals, other organizations, and the Nation; and
+      Are reported in accordance with established reporting requirements.
+    Review plans of action and milestones for consistency with the organizational risk management strategy and organization-wide priorities for risk response actions.
+source: NIST SP 800-53 Rev 5 (public domain)

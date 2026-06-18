@@ -1,0 +1,9 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sr-4
+family: sr
+familyName: Supply Chain Risk Management
+name: Provenance
+scope: governance
+statement: 'Document, monitor, and maintain valid provenance of the following systems, system components,
+  and associated data: [systems, system components, and associated data].'
+source: NIST SP 800-53 Rev 5 (public domain)

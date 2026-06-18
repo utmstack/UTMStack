@@ -1,0 +1,16 @@
+# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+id: si-5
+family: si
+familyName: System and Information Integrity
+name: Security Alerts, Advisories, and Directives
+scope: data
+statement: |-
+  Receive system security alerts, advisories, and directives from [external organizations] on an ongoing basis;
+    Generate internal security alerts, advisories, and directives as deemed necessary;
+    Disseminate security alerts, advisories, and directives to: [{{ insert: param, si-05_odp.03 }}  | {{ insert: param, si-05_odp.04 }}  | {{ insert: param, si-05_odp.05 }} ] ; and
+    Implement security directives in accordance with established time frames, or notify the issuing organization of the degree of noncompliance.
+source: NIST SP 800-53 Rev 5 (public domain)
+checks:
+  - key: todo
+    name: 'TODO: define compliance check for this control'
+    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

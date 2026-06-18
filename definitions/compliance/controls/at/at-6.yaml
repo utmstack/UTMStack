@@ -1,0 +1,9 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: at-6
+family: at
+familyName: Awareness and Training
+name: Training Feedback
+scope: governance
+statement: 'Provide feedback on organizational training results to the following personnel [frequency]:
+  [personnel].'
+source: NIST SP 800-53 Rev 5 (public domain)

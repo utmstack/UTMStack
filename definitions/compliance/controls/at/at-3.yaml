@@ -1,0 +1,13 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: at-3
+family: at
+familyName: Awareness and Training
+name: Role-based Training
+scope: governance
+statement: |-
+  Provide role-based security and privacy training to personnel with the following roles and responsibilities: [organization-defined roles and responsibilities]:
+      Before authorizing access to the system, information, or performing assigned duties, and [frequency] thereafter; and
+      When required by system changes;
+    Update role-based training content [frequency] and following [events] ; and
+    Incorporate lessons learned from internal or external security incidents or breaches into role-based training.
+source: NIST SP 800-53 Rev 5 (public domain)

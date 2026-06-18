@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+- dataTypes:
+    - json-input
+  name: JSON Injection Attack Attempt
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 2
+  category: Defense Evasion
+  technique: JSON Injection
+  adversary: origin
+  references:
+    - https://www.acunetix.com/blog/web-security-zone/what-are-json-injections/
+    - https://attack.mitre.org/techniques/T1027/
+  description: |
+    Detects potential JSON injection attempts including malicious payloads, script injections, and attempts to manipulate JSON structure. These attacks can lead to XSS, authentication bypass, or remote code execution.
+  
+    Next Steps:
+    1. Examine the full JSON payload for injection patterns and malicious content
+    2. Check if the request was successful and what data was accessed or modified
+    3. Review authentication status and privileges of the requesting user
+    4. Investigate the source IP for other suspicious activities
+    5. Validate JSON parsing error logs for additional attack indicators
+    6. Check for any successful exploitation or data exfiltration
+  where: |
+    exists("origin.ip") &&
+    (contains("log.payload", "<script") ||
+     contains("log.payload", "javascript:") ||
+     contains("log.payload", "eval(") ||
+     contains("log.payload", "__proto__") ||
+     contains("log.data", "<script") ||
+     contains("log.data", "javascript:") ||
+     contains("log.data", "eval("))
+  afterEvents:
+    - indexPattern: v11-log-json-input-*
+      with:
+        - field: origin.ip
+          operator: filter_term
+          value: '{{.origin.ip}}'
+      within: 10m
+      count: 3
+  groupBy:
+    - adversary.ip
+    - target.hostname

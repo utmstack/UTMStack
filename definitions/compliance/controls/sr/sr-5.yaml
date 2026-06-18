@@ -1,0 +1,9 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sr-5
+family: sr
+familyName: Supply Chain Risk Management
+name: Acquisition Strategies, Tools, and Methods
+scope: governance
+statement: 'Employ the following acquisition strategies, contract tools, and procurement methods to protect
+  against, identify, and mitigate supply chain risks: [strategies, tools, and methods].'
+source: NIST SP 800-53 Rev 5 (public domain)

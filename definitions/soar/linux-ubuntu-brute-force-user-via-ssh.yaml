@@ -1,0 +1,16 @@
+# UTMStack system SOAR flow
+- name: Linux - Ubuntu - Brute Force User via SSH
+  description: Detects multiple failed SSH authentication attempts from the same source IP, indicating a potential brute force
+    attack. This playbook blocks the attacking IP, disables the targeted user account, and initiates a host shutdown.
+  conditions:
+  - operator: IS
+    field: name
+    value: SSH Brute Force Attempts
+  commands:
+  - sudo ufw insert 1 deny from $(adversary.ip) to any port 22 proto tcp ; sudo usermod --expiredate 1 $(target.user) ; sudo
+    shutdown -h now
+  - usermod -s /sbin/nologin $(adversary.user)
+  - shutdown -h now
+  - pkill -KILL -u $(target.user)
+  shell: sh
+  agentPlatform: ubuntu

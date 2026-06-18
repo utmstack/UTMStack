@@ -1,0 +1,9 @@
+# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+id: sr-10
+family: sr
+familyName: Supply Chain Risk Management
+name: Inspection of Systems or Components
+scope: governance
+statement: 'Inspect the following systems or system components [at random | at {{ insert: param, sr-10_odp.03
+  }}  | upon {{ insert: param, sr-10_odp.04 }} ] to detect tampering: [systems or system components].'
+source: NIST SP 800-53 Rev 5 (public domain)

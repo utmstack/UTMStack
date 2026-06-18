@@ -1,0 +1,13 @@
+# Generic filter, version 2.0
+# Allow processing of any one line json or syslog logs 
+pipeline:
+  - dataTypes:
+      - generic
+    steps:
+      - grok:
+          patterns:
+            - fieldName: log.message
+              pattern: '(.*)'
+          source: raw
+      - json:
+          source: log.message
