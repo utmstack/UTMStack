@@ -1,0 +1,46 @@
+import {Component, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {InstanceFormModalComponent} from '../../components/instance-form-modal/instance-form-modal.component';
+import {FederationInstance} from '../../domain/federation-instance.model';
+import {FederationInstanceStateService} from '../../services/federation-instance-state.service';
+import {FederationInstancesService} from '../../services/federation-instances.service';
+
+@Component({
+  selector: 'app-federation-welcome',
+  templateUrl: './welcome.component.html',
+  styleUrls: ['./welcome.component.scss']
+})
+export class WelcomeComponent implements OnInit {
+
+  constructor(
+    private modalService: NgbModal,
+    private router: Router,
+    private instanceState: FederationInstanceStateService,
+    private instancesService: FederationInstancesService
+  ) {}
+
+  ngOnInit(): void {
+    this.openCreateModal();
+  }
+
+  openCreateModal(): void {
+    const ref = this.modalService.open(InstanceFormModalComponent, {
+      centered: true,
+      backdrop: 'static',
+      keyboard: false
+    });
+    ref.componentInstance.saved.subscribe((created: FederationInstance) => {
+      ref.close();
+      this.instancesService.list().subscribe(instances => {
+        const list = instances || [];
+        this.instanceState.setInstances(list);
+        const next = list.find(i => i.id === created.id) || list[0];
+        if (next) {
+          this.instanceState.setActive(next, false);
+        }
+        this.router.navigate(['/dashboard/overview']);
+      });
+    });
+  }
+}

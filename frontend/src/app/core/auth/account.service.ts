@@ -4,6 +4,9 @@ import {Observable, Subject} from 'rxjs';
 
 import {SERVER_API_URL} from '../../app.constants';
 import {HttpCancelService} from '../../blocks/service/httpcancel.service';
+import {FederationInstancesService} from '../../federation/services/federation-instances.service';
+import {FederationInstanceStateService} from '../../federation/services/federation-instance-state.service';
+import {FederationModeService} from '../../federation/services/federation-mode.service';
 import {Account} from '../user/account.model';
 import {AuthServerProvider} from './auth-jwt.service';
 import {extractQueryParamsForNavigation} from "../../shared/util/query-params-to-filter.util";
@@ -18,6 +21,7 @@ export class AccountService {
   private userIdentity: Account;
   private authenticated = false;
   private authenticationState = new Subject<any>();
+  private instancesFetchInFlight = false;
 
   constructor(private http: HttpClient,
               private authServerProvider: AuthServerProvider,
@@ -25,7 +29,10 @@ export class AccountService {
               private stateStorageService: StateStorageService,
               private router: Router,
               private spinner: NgxSpinnerService,
-              private utmToast: UtmToastService) {
+              private utmToast: UtmToastService,
+              private federationModeService: FederationModeService,
+              private federationInstancesService: FederationInstancesService,
+              private federationInstanceState: FederationInstanceStateService) {
   }
 
   fetch(): Observable<HttpResponse<Account>> {
@@ -99,10 +106,13 @@ export class AccountService {
         if (account) {
           this.userIdentity = account;
           this.authenticated = true;
-        } else {
-          this.userIdentity = null;
-          this.authenticated = false;
+          return this.ensureFederationInstancesLoaded().then(() => {
+            this.authenticationState.next(this.userIdentity);
+            return this.userIdentity;
+          });
         }
+        this.userIdentity = null;
+        this.authenticated = false;
         this.authenticationState.next(this.userIdentity);
         return this.userIdentity;
       })
@@ -140,9 +150,36 @@ export class AccountService {
     }
   }
 
+  private ensureFederationInstancesLoaded(): Promise<void> {
+    if (!this.federationModeService.isActive) {
+      return Promise.resolve();
+    }
+    if (this.federationInstanceState.instances.length > 0) {
+      return Promise.resolve();
+    }
+    if (this.instancesFetchInFlight) {
+      return Promise.resolve();
+    }
+    this.instancesFetchInFlight = true;
+    return this.federationInstancesService.list()
+      .toPromise()
+      .then(instances => {
+        this.instancesFetchInFlight = false;
+        this.federationInstanceState.setInstances(instances || []);
+      })
+      .catch(() => {
+        this.instancesFetchInFlight = false;
+      });
+  }
+
   startNavigation() {
     this.identity(true).then(account => {
       if (account) {
+        if (this.federationModeService.isActive && this.federationInstanceState.instances.length === 0) {
+          this.router.navigate(['/federation/welcome'])
+            .then(() => this.spinner.hide());
+          return;
+        }
         const { path, queryParams } =
           extractQueryParamsForNavigation(this.stateStorageService.getUrl() ? this.stateStorageService.getUrl() : '' );
         if (path) {

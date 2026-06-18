@@ -1,0 +1,44 @@
+<div class="modal-header">
+  <h5 class="modal-title">{{ title }}</h5>
+  <button type="button" class="close" aria-label="Close" (click)="cancel()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<form #form="ngForm" (ngSubmit)="submit()" novalidate>
+  <div class="modal-body">
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+    <div class="form-group">
+      <label for="instanceName">Name</label>
+      <input id="instanceName" name="name" type="text" class="form-control"
+             [(ngModel)]="model.name" required>
+    </div>
+
+    <div class="form-group">
+      <label for="instanceBaseUrl">Base URL</label>
+      <input id="instanceBaseUrl" name="baseUrl" type="url" class="form-control"
+             [(ngModel)]="model.baseUrl" required>
+    </div>
+
+    <div class="form-group">
+      <label for="instanceApiKey">API key</label>
+      <input id="instanceApiKey" name="apiKey" type="password" class="form-control"
+             [(ngModel)]="model.apiKey" [required]="!isEditMode">
+      <small *ngIf="apiKeyHint" class="form-text text-muted">{{ apiKeyHint }}</small>
+    </div>
+
+    <div class="form-group form-check">
+      <input id="instanceTlsSkip" name="tlsSkipVerify" type="checkbox" class="form-check-input"
+             [(ngModel)]="model.tlsSkipVerify">
+      <label for="instanceTlsSkip" class="form-check-label">Skip TLS verification</label>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-light" (click)="cancel()" [disabled]="submitting">Cancel</button>
+    <button type="submit" class="btn utm-button utm-button-primary"
+            [disabled]="submitting || form.invalid">
+      <span *ngIf="submitting" class="spinner-border spinner-border-sm mr-2"></span>
+      Save
+    </button>
+  </div>
+</form>
