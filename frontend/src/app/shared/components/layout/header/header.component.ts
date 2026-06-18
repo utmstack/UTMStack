@@ -1,9 +1,10 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
-import {Subject} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import {filter, takeUntil} from 'rxjs/operators';
 import {AccountService} from '../../../../core/auth/account.service';
 import {User} from '../../../../core/user/user.model';
+import {FederationModeService} from '../../../../federation/services/federation-mode.service';
 import {ThemeChangeBehavior} from '../../../behaviors/theme-change.behavior';
 import {ADMIN_ROLE} from '../../../constants/global.constant';
 import {AppThemeLocationEnum} from '../../../enums/app-theme-location.enum';
@@ -23,12 +24,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   logoImage: string;
   altImage: string;
   versionInfo: AppVersionInfo;
+  federationActive$: Observable<boolean>;
   destroy$: Subject<void> = new Subject();
 
   constructor(private accountService: AccountService,
               public sanitizer: DomSanitizer,
               private themeChangeBehavior: ThemeChangeBehavior,
-              private versionTypeService: VersionInfoService) {
+              private versionTypeService: VersionInfoService,
+              private federationModeService: FederationModeService) {
+    this.federationActive$ = this.federationModeService.active$;
   }
 
   ngOnInit() {

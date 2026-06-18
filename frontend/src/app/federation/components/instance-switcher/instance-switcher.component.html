@@ -1,0 +1,60 @@
+<div class="dropdown h-100 cursor-pointer federation-instance-switcher"
+     container="body"
+     display="dynamic"
+     ngbDropdown
+     autoClose="outside"
+     placement="auto">
+  <div class="dropdown-toggle h-100 d-flex justify-content-center align-items-center px-2"
+       data-toggle="dropdown"
+       ngbDropdownToggle>
+    <span class="svg-icon svg-icon-sm svg-icon-white text-white mr-2"
+          inlineSVG="assets/icons/header/cloud.svg"></span>
+    <span class="text-white text-truncate federation-instance-name"
+          [title]="active ? active.name : 'No instance'">
+      {{ active ? active.name : 'No instance' }}
+    </span>
+  </div>
+  <div class="dropdown-menu federation-instance-menu" ngbDropdownMenu>
+    <h6 class="dropdown-header text-uppercase">Instances</h6>
+
+    <div *ngIf="errorMessage" class="px-3 py-2 small text-danger">{{ errorMessage }}</div>
+
+    <div *ngIf="instances.length === 0" class="px-3 py-2 small text-muted">
+      No instances connected.
+    </div>
+
+    <div *ngFor="let instance of instances; trackBy: trackById"
+         class="federation-instance-row dropdown-item d-flex align-items-center justify-content-between"
+         [class.active]="active && instance.id === active.id">
+      <button type="button"
+              class="btn btn-link p-0 flex-grow-1 text-left text-truncate federation-instance-name-btn"
+              (click)="select(instance, $event)">
+        <i *ngIf="active && instance.id === active.id" class="icon-check mr-1"></i>
+        {{ instance.name }}
+      </button>
+      <div class="federation-instance-actions ml-2 d-flex align-items-center">
+        <button type="button"
+                class="btn btn-sm btn-link p-1"
+                title="Edit"
+                (click)="openEdit(instance, $event)">
+          <i class="icon-pencil"></i>
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-link p-1 text-danger"
+                title="Remove"
+                [disabled]="pendingDeleteId === instance.id"
+                (click)="remove(instance, $event)">
+          <i class="icon-trash"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="dropdown-divider"></div>
+    <button type="button"
+            class="dropdown-item d-flex align-items-center federation-instance-add"
+            (click)="openCreate($event)">
+      <i class="icon-plus3 mr-2"></i>
+      Add instance
+    </button>
+  </div>
+</div>

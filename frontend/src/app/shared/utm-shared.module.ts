@@ -18,6 +18,7 @@ import {AssetsGroupAddModule} from '../assets-discover/shared/components/asset-g
 import {AssetsApplyNoteModule} from '../assets-discover/shared/components/assets-apply-note/assets-apply-note.module';
 import {AssetsApplyTypeModule} from '../assets-discover/shared/components/assets-apply-type/assets-apply-type.module';
 import {AuthServerProvider} from '../core/auth/auth-jwt.service';
+import {FederationModule} from '../federation/federation.module';
 import {AlertEchoesTimelineComponent} from '../data-management/alert-management/shared/components/alert-echoes-timeline/alert-echoes-timeline.component';
 import {UtmToastService} from './alert/utm-toast.service';
 import {DashboardBehavior} from './behaviors/dashboard.behavior';
@@ -269,7 +270,8 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     InfiniteScrollModule,
     NgxEchartsModule,
     ResizableModule,
-    MonacoEditorModule.forRoot()
+    MonacoEditorModule.forRoot(),
+    FederationModule
   ],
   declarations: [
     ElasticFilterComponent,
