@@ -1,0 +1,30 @@
+.federation-team-modal {
+  .federation-team-toolbar {
+    gap: 1rem;
+  }
+
+  .federation-team-table {
+    th {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #6c757d;
+    }
+
+    td {
+      vertical-align: middle;
+    }
+
+    .federation-team-actions {
+      white-space: nowrap;
+
+      .btn {
+        margin-left: 0.15rem;
+      }
+    }
+  }
+
+  .badge {
+    font-weight: 500;
+  }
+}

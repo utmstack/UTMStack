@@ -1,0 +1,107 @@
+<div class="modal-header">
+  <h5 class="modal-title">Team management</h5>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div class="modal-body federation-team-modal">
+  <div class="d-flex justify-content-between align-items-center mb-3 federation-team-toolbar">
+    <div class="flex-grow-1 mr-3">
+      <input type="text" class="form-control" placeholder="Search by name, login or email"
+             [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)">
+    </div>
+    <button type="button" class="btn utm-button utm-button-primary"
+            (click)="openInvite()">
+      <i class="icon-plus3 mr-1"></i>
+      Invite user
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <div class="table-responsive">
+    <table class="table table-sm federation-team-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Login</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>2FA</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="loading">
+          <td colspan="6" class="text-center text-muted py-3">Loading...</td>
+        </tr>
+        <tr *ngIf="!loading && users.length === 0">
+          <td colspan="6" class="text-center text-muted py-3">No team members found.</td>
+        </tr>
+        <tr *ngFor="let user of users; trackBy: trackById">
+          <td>{{ displayName(user) }}</td>
+          <td>{{ user.login }}</td>
+          <td>{{ user.email || '—' }}</td>
+          <td>
+            <span *ngIf="user.pending" class="badge badge-warning">Pending</span>
+            <span *ngIf="!user.pending && user.activated" class="badge badge-success">Active</span>
+            <span *ngIf="!user.pending && !user.activated" class="badge badge-secondary">Inactive</span>
+          </td>
+          <td>
+            <span *ngIf="user.tfa_enabled" class="badge badge-info">On</span>
+            <span *ngIf="!user.tfa_enabled" class="text-muted">—</span>
+          </td>
+          <td class="text-right federation-team-actions">
+            <button type="button" class="btn btn-sm btn-link p-1"
+                    title="Edit" (click)="openEdit(user)"
+                    [disabled]="pendingActionId === user.id">
+              <i class="icon-pencil"></i>
+            </button>
+            <button *ngIf="user.pending" type="button" class="btn btn-sm btn-link p-1"
+                    title="Resend invite" (click)="resendInvite(user)"
+                    [disabled]="pendingActionId === user.id">
+              <i class="icon-envelop3"></i>
+            </button>
+            <button *ngIf="user.tfa_enabled" type="button" class="btn btn-sm btn-link p-1 text-warning"
+                    title="Disable 2FA" (click)="disableTfa(user)"
+                    [disabled]="pendingActionId === user.id">
+              <i class="icon-shield-cross"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-link p-1"
+                    [class.text-danger]="user.activated"
+                    [class.text-success]="!user.activated"
+                    [title]="user.activated ? 'Deactivate' : 'Activate'"
+                    (click)="toggleActivation(user)"
+                    [disabled]="pendingActionId === user.id">
+              <i [class.icon-cancel-circle2]="user.activated"
+                 [class.icon-checkmark-circle]="!user.activated"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="pageInfo && pageInfo.total_items > 0"
+       class="d-flex justify-content-between align-items-center mt-2">
+    <small class="text-muted">
+      Page {{ pageInfo.page }} of {{ pageInfo.total_pages }}
+      ({{ pageInfo.total_items }} total)
+    </small>
+    <div>
+      <button type="button" class="btn btn-sm utm-button utm-button-grey mr-2"
+              (click)="prevPage()" [disabled]="!pageInfo.has_prev || loading">
+        Previous
+      </button>
+      <button type="button" class="btn btn-sm utm-button utm-button-grey"
+              (click)="nextPage()" [disabled]="!pageInfo.has_next || loading">
+        Next
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn utm-button utm-button-grey" (click)="activeModal.close()">Close</button>
+</div>
