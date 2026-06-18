@@ -74,7 +74,7 @@ func Uninstall() error {
 		time.Sleep(30 * time.Second)
 
 		fmt.Print("Cleaning up Docker system")
-		if err := utils.RunCmd("docker", "system", "prune", "-f", "--volumes"); err != nil {
+		if err := utils.RunCmd("docker", "system", "prune", "-a", "-f", "--volumes"); err != nil {
 			fmt.Printf(" [WARNING]\nerror pruning docker system: %v\n", err)
 		} else {
 			fmt.Println(" [OK]")
