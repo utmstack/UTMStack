@@ -42,7 +42,6 @@ export class HeaderMenuNavigationComponent implements OnInit, OnDestroy {
     this.navBehavior.$nav
         .pipe(takeUntil(this.destroy$))
         .subscribe( value => {
-console.log(value)
       if (value) {
         this.loadMenus();
       }

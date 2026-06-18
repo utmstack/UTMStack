@@ -1,0 +1,52 @@
+<div class="modal-header">
+  <h5 class="modal-title">{{ title }}</h5>
+  <button type="button" class="close" aria-label="Close" (click)="cancel()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<form #form="ngForm" (ngSubmit)="submit()" novalidate>
+  <div class="modal-body">
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+    <div class="form-group">
+      <label for="teamUserLogin">Login</label>
+      <input id="teamUserLogin" name="login" type="text" class="form-control"
+             [(ngModel)]="model.login" [disabled]="isEditMode"
+             required minlength="1" maxlength="50">
+      <small *ngIf="!isEditMode" class="form-text text-muted">
+        Unique identifier used to sign in.
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="teamUserEmail">Email</label>
+      <input id="teamUserEmail" name="email" type="email" class="form-control"
+             [(ngModel)]="model.email" required email maxlength="254">
+    </div>
+
+    <div class="form-group">
+      <label for="teamUserFirstName">First name</label>
+      <input id="teamUserFirstName" name="first_name" type="text" class="form-control"
+             [(ngModel)]="model.first_name" required maxlength="50">
+    </div>
+
+    <div class="form-group">
+      <label for="teamUserLastName">Last name</label>
+      <input id="teamUserLastName" name="last_name" type="text" class="form-control"
+             [(ngModel)]="model.last_name" required maxlength="50">
+    </div>
+
+    <p *ngIf="!isEditMode" class="small text-muted mb-0">
+      An invitation email with a link to set a password will be sent.
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn utm-button utm-button-grey"
+            (click)="cancel()" [disabled]="submitting">Cancel</button>
+    <button type="submit" class="btn utm-button utm-button-primary"
+            [disabled]="submitting || form.invalid">
+      <span *ngIf="submitting" class="spinner-border spinner-border-sm mr-2"></span>
+      {{ isEditMode ? 'Save' : 'Send invite' }}
+    </button>
+  </div>
+</form>

@@ -10,6 +10,12 @@
          inlineSVG="assets/icons/header/user-icon.svg"></div>
   </div>
   <div class="dropdown-menu" ngbDropdownMenu>
+    <a *ngIf="federationActive$ | async"
+       (click)="openTeamManagement()"
+       class="dropdown-item">
+      <i class="icon-users"></i>
+      Team management
+    </a>
     <a (click)="viewSettings()" class="dropdown-item">
       <i class="icon-cog5"></i>
       Profile Settings
