@@ -248,6 +248,9 @@ public class DefinitionSyncService implements CommandLineRunner {
     }
 
     private RuleYaml mapToRuleYaml(Map<String, Object> map) {
+        if (map.containsKey("correlation") && !map.containsKey("afterEvents")) {
+            map.put("afterEvents", map.remove("correlation"));
+        }
         Yaml yaml = new Yaml();
         String dump = yaml.dump(map);
         return yaml.loadAs(dump, RuleYaml.class);
