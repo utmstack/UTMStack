@@ -10,6 +10,15 @@ const (
 	SERVICE_UPDATER_NAME = "UTMStackUpdater"
 )
 
+// DataType identifies the log source type reported to the engine.
+type DataType string
+
+const (
+	DataTypeLinuxAgent   DataType = "linux"
+	DataTypeWindowsAgent DataType = "wineventlog"
+	DataTypeMacOs        DataType = "macos"
+)
+
 var (
 	REPLACE_KEY string
 
