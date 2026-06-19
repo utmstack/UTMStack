@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"strings"
 	"testing"
 	"time"
 )
@@ -70,11 +71,16 @@ func TestPreAuthSigner_AccessSignerRejectsPreAuth(t *testing.T) {
 func TestPreAuthSigner_RejectsTamperedSignature(t *testing.T) {
 	s := NewPreAuthSigner("secret", 5*time.Minute)
 	token, _, _ := s.Sign(1, "EMAIL")
-	// Flip the last char of the signature segment.
-	bad := token[:len(token)-1] + "0"
-	if bad == token {
-		bad = token[:len(token)-1] + "1"
+	// Tamper the FIRST char of the signature segment. The last base64url char of an
+	// HS512 signature carries non-significant padding bits that the (non-strict)
+	// decoder ignores, so flipping it can decode to the same bytes and yield an
+	// equivalent token; the first char is always significant.
+	dot := strings.LastIndex(token, ".")
+	repl := byte('A')
+	if token[dot+1] == repl {
+		repl = 'B'
 	}
+	bad := token[:dot+1] + string(repl) + token[dot+2:]
 	if _, err := s.Verify(bad); err == nil {
 		t.Fatal("tampered token must fail verification")
 	}
