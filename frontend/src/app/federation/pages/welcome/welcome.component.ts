@@ -1,6 +1,8 @@
 import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {InstanceFormModalComponent} from '../../components/instance-form-modal/instance-form-modal.component';
 import {FederationInstance} from '../../domain/federation-instance.model';
 import {FederationInstanceStateService} from '../../services/federation-instance-state.service';
@@ -12,6 +14,8 @@ import {FederationInstancesService} from '../../services/federation-instances.se
   styleUrls: ['./welcome.component.scss']
 })
 export class WelcomeComponent {
+  readonly hasInstances$: Observable<boolean> = this.instanceState.instances$
+    .pipe(map(instances => instances.length > 0));
 
   constructor(
     private modalService: NgbModal,

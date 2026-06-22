@@ -18,7 +18,7 @@ export class FederationOverviewService {
   }
 
   countAlertsBySeverity(from: string, to: string): Observable<CountAlertsBySeverityEntry[]> {
-    const params = new HttpParams().set('from', from).set('to', to);
+    const params = new HttpParams().set('from', from).set('to', to).set('top','100000');
     return this.http.get<CountAlertsBySeverityEntry[]>(this.severityEndpoint, {params});
   }
 }

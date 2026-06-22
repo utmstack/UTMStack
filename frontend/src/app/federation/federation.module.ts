@@ -5,6 +5,7 @@ import {RouterModule} from '@angular/router';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {InlineSVGModule} from 'ng-inline-svg';
 import {NgxEchartsModule} from 'ngx-echarts';
+import {NgxGaugeModule} from 'ngx-gauge';
 import {FederationOverviewGridComponent} from './components/federation-overview-grid/federation-overview-grid.component';
 import {FederationSidebarComponent} from './components/federation-sidebar/federation-sidebar.component';
 import {
@@ -28,7 +29,8 @@ import {WelcomeComponent} from './pages/welcome/welcome.component';
     RouterModule,
     NgbModule,
     InlineSVGModule,
-    NgxEchartsModule
+    NgxEchartsModule,
+    NgxGaugeModule
   ],
   declarations: [
     FederationSidebarComponent,
