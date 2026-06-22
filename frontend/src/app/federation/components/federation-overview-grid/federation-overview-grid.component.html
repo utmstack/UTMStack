@@ -1,0 +1,27 @@
+<div class="overview-grid">
+  <div class="overview-grid__state" *ngIf="loading">
+    <div class="overview-grid__spinner"></div>
+    <div class="overview-grid__state-label">Loading federation overview…</div>
+  </div>
+
+  <div class="overview-grid__state" *ngIf="!loading && errorMessage">
+    <i class="icon-cancel-circle2 overview-grid__state-icon overview-grid__state-icon--error"></i>
+    <div class="overview-grid__state-label">{{ errorMessage }}</div>
+    <button type="button" class="btn utm-button utm-button-primary mt-2" (click)="loadData()">
+      <i class="icon-loop3 mr-2"></i>Retry
+    </button>
+  </div>
+
+  <div class="overview-grid__state" *ngIf="!loading && !errorMessage && entries.length === 0">
+    <i class="icon-cloud-check overview-grid__state-icon overview-grid__state-icon--muted"></i>
+    <div class="overview-grid__state-label">No active instances are reporting data.</div>
+  </div>
+
+  <div class="overview-grid__items" *ngIf="!loading && !errorMessage && entries.length > 0">
+    <app-instance-overview-card
+      *ngFor="let entry of entries; trackBy: trackByInstance"
+      [entry]="entry"
+      (select)="onSelect(entry, $event)">
+    </app-instance-overview-card>
+  </div>
+</div>

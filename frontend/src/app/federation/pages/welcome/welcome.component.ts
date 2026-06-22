@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {InstanceFormModalComponent} from '../../components/instance-form-modal/instance-form-modal.component';
@@ -11,7 +11,7 @@ import {FederationInstancesService} from '../../services/federation-instances.se
   templateUrl: './welcome.component.html',
   styleUrls: ['./welcome.component.scss']
 })
-export class WelcomeComponent implements OnInit {
+export class WelcomeComponent {
 
   constructor(
     private modalService: NgbModal,
@@ -19,10 +19,6 @@ export class WelcomeComponent implements OnInit {
     private instanceState: FederationInstanceStateService,
     private instancesService: FederationInstancesService
   ) {}
-
-  ngOnInit(): void {
-    this.openCreateModal();
-  }
 
   openCreateModal(): void {
     const ref = this.modalService.open(InstanceFormModalComponent, {
