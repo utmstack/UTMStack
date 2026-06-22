@@ -491,6 +491,7 @@ jobs:
       API_SECRET: ${{ secrets.API_SECRET }}
       CM_ENCRYPT_SALT: ${{ secrets.CM_ENCRYPT_SALT }}
       CM_SIGN_PUBLIC_KEY: ${{ secrets.CM_SIGN_PUBLIC_KEY }}
+
   deploy_installer_dev:
     name: Deploy Installer (Dev)
     needs: [all_builds_complete, setup_deployment]
@@ -504,6 +505,7 @@ jobs:
       API_SECRET: ${{ secrets.API_SECRET }}
       CM_ENCRYPT_SALT: ${{ secrets.CM_ENCRYPT_SALT }}
       CM_SIGN_PUBLIC_KEY: ${{ secrets.CM_SIGN_PUBLIC_KEY }}
+      
   publish_new_version:
     name: Publish New Version to Customer Manager
     needs: [all_builds_complete, generate_changelog, setup_deployment]
