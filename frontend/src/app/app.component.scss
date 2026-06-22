@@ -94,6 +94,21 @@
   animation: ease-in;
 }
 
+.federation-mode {
+  margin-left: 60px;
+}
+
+.side-menu-federation {
+  position: fixed;
+  top: $navbar-secondary-height+$navbar-primary-height -10px;
+  left: 0;
+  bottom: 0;
+  width: 60px;
+  z-index: 999;
+  background-color: $utm-header-color;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 //
 //app-mobile-header {
 //  display: none;

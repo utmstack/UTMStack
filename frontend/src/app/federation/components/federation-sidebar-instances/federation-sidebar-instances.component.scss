@@ -1,19 +1,29 @@
-.federation-instance-switcher {
-  min-width: 120px;
-  max-width: 220px;
+.federation-sidebar-link {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 8px 0;
+  cursor: pointer;
 
-  .federation-instance-name {
-    max-width: 160px;
-    display: inline-block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 0.85rem;
+  &:hover,
+  &:focus {
+    text-decoration: none;
+    outline: none;
   }
 
-  .federation-instance-menu {
-    min-width: 260px;
+  ::ng-deep svg {
+    fill: #ffffff !important;
   }
+
+  &::after {
+    display: none;
+  }
+}
+
+::ng-deep .federation-instance-menu {
+  min-width: 260px;
 
   .federation-instance-row {
     cursor: default;
@@ -22,7 +32,6 @@
 
     &.active {
       background-color: rgba(35, 47, 62, 0.08);
-      color: white !important;
     }
   }
 
@@ -34,6 +43,11 @@
     &:hover {
       text-decoration: none;
     }
+  }
+
+  .textActive {
+    color: #0a6ebd !important;
+    font-weight: 500;
   }
 
   .federation-instance-actions {
@@ -54,7 +68,4 @@
   .federation-instance-add {
     cursor: pointer;
   }
-}
-.textActive{
-      color: white !important;
 }

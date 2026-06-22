@@ -1,9 +1,15 @@
 <div class="overview-card">
-  <div class="overview-card__chart" *ngIf="pieOption && hasData" echarts [options]="pieOption"></div>
+  <div class="overview-card__title">{{ entry.instanceName }}</div>
+
+  <div class="overview-card__charts" *ngIf="hasData">
+    <div class="overview-card__chart" *ngIf="statusOption" echarts [options]="statusOption"></div>
+    <div class="overview-card__chart" *ngIf="severityOption" echarts [options]="severityOption"></div>
+  </div>
+
   <div class="overview-card__empty" *ngIf="!hasData">
-    <div class="overview-card__empty-title">{{ entry.instanceName }}</div>
     <div class="overview-card__empty-msg">No alerts in window</div>
   </div>
+
   <div class="overview-card__nav">
     <button type="button"
             class="nav-icon"
