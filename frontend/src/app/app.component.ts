@@ -5,6 +5,7 @@ import {catchError, delay, distinctUntilChanged, filter, map, skip, takeUntil, t
 import {AccountService} from './core/auth/account.service';
 import {ApiServiceCheckerService} from './core/auth/api-checker-service';
 import {FederationInstanceStateService} from './federation/services/federation-instance-state.service';
+import {FederationModeService} from './federation/services/federation-mode.service';
 import {MenuBehavior} from './shared/behaviors/menu.behavior';
 import {ThemeChangeBehavior} from './shared/behaviors/theme-change.behavior';
 import {ADMIN_ROLE, USER_ROLE} from './shared/constants/global.constant';
@@ -12,7 +13,7 @@ import {AppThemeLocationEnum} from './shared/enums/app-theme-location.enum';
 import {UtmAppThemeService} from './shared/services/theme/utm-app-theme.service';
 import {AppVersionInfo} from "./shared/types/updates/updates.type";
 import {VersionType, VersionInfoService} from "./shared/services/version/version-info.service";
-import {EMPTY} from "rxjs";
+import {EMPTY, Observable} from "rxjs";
 import {AppVersionService} from './shared/services/version/app-version.service';
 
 @Component({
@@ -33,6 +34,7 @@ export class AppComponent implements OnInit {
   hideStatus = false;
   isAuth = false;
   viewportHeight: number;
+  federationActive$: Observable<boolean>;
 
   constructor(
     private translate: TranslateService,
@@ -44,7 +46,9 @@ export class AppComponent implements OnInit {
     private accountService: AccountService,
     private checkForUpdatesService: AppVersionService,
     private versionTypeService: VersionInfoService,
-    private federationInstanceState: FederationInstanceStateService) {
+    private federationInstanceState: FederationInstanceStateService,
+    private federationModeService: FederationModeService) {
+    this.federationActive$ = this.federationModeService.active$;
 
     this.translate.setDefaultLang('en');
 

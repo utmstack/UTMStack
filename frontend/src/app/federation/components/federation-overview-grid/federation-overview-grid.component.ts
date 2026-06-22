@@ -1,8 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {forkJoin, of, Subject} from 'rxjs';
+import {catchError, takeUntil} from 'rxjs/operators';
 import {resolveRangeByTime} from '../../../shared/util/resolve-date';
+import {CountAlertsBySeverityEntry} from '../../domain/count-alerts-by-severity.model';
 import {CountAlertsByStatusEntry} from '../../domain/count-alerts-by-status.model';
 import {FederationInstanceStateService} from '../../services/federation-instance-state.service';
 import {FederationOverviewService} from '../../services/federation-overview.service';
@@ -14,6 +15,7 @@ import {FederationOverviewService} from '../../services/federation-overview.serv
 })
 export class FederationOverviewGridComponent implements OnInit, OnDestroy {
   entries: CountAlertsByStatusEntry[] = [];
+  severityByInstance: Record<number, CountAlertsBySeverityEntry> = {};
   loading = false;
   errorMessage: string | null = null;
 
@@ -41,19 +43,32 @@ export class FederationOverviewGridComponent implements OnInit, OnDestroy {
     }
     this.loading = true;
     this.errorMessage = null;
-    this.overviewService.countAlertsByStatus(range.timeFrom, range.timeTo)
+    forkJoin([
+      this.overviewService.countAlertsByStatus(range.timeFrom, range.timeTo),
+      this.overviewService.countAlertsBySeverity(range.timeFrom, range.timeTo)
+        .pipe(catchError(() => of([] as CountAlertsBySeverityEntry[])))
+    ])
       .pipe(takeUntil(this.destroy$))
       .subscribe(
-        entries => {
-          this.entries = entries || [];
+        ([status, severity]: [CountAlertsByStatusEntry[], CountAlertsBySeverityEntry[]]) => {
+          this.entries = status || [];
+          this.severityByInstance = {};
+          (severity || []).forEach(entry => {
+            this.severityByInstance[entry.instanceId] = entry;
+          });
           this.loading = false;
         },
         () => {
           this.entries = [];
+          this.severityByInstance = {};
           this.errorMessage = 'Could not load federation overview.';
           this.loading = false;
         }
       );
+  }
+
+  severityFor(entry: CountAlertsByStatusEntry): CountAlertsBySeverityEntry | null {
+    return this.severityByInstance[entry.instanceId] || null;
   }
 
   onSelect(entry: CountAlertsByStatusEntry, route: string): void {

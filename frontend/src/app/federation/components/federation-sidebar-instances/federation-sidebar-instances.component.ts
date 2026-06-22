@@ -5,17 +5,19 @@ import {takeUntil} from 'rxjs/operators';
 import {
   ModalConfirmationComponent
 } from '../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
+import {SYSTEM_MENU_ICONS_PATH} from '../../../shared/constants/menu_icons.constants';
 import {FederationInstance} from '../../domain/federation-instance.model';
 import {FederationInstanceStateService} from '../../services/federation-instance-state.service';
 import {FederationInstancesService} from '../../services/federation-instances.service';
 import {InstanceFormModalComponent} from '../instance-form-modal/instance-form-modal.component';
 
 @Component({
-  selector: 'app-federation-instance-switcher',
-  templateUrl: './instance-switcher.component.html',
-  styleUrls: ['./instance-switcher.component.scss']
+  selector: 'app-federation-sidebar-instances',
+  templateUrl: './federation-sidebar-instances.component.html',
+  styleUrls: ['./federation-sidebar-instances.component.scss']
 })
-export class InstanceSwitcherComponent implements OnInit, OnDestroy {
+export class FederationSidebarInstancesComponent implements OnInit, OnDestroy {
+  iconPath = SYSTEM_MENU_ICONS_PATH;
   instances: FederationInstance[] = [];
   active: FederationInstance | null = null;
   pendingDeleteId: number | null = null;
@@ -96,6 +98,10 @@ export class InstanceSwitcherComponent implements OnInit, OnDestroy {
     modalRef.result.then(() => this.confirmRemove(instance), () => undefined);
   }
 
+  trackById(_index: number, item: FederationInstance): number {
+    return item.id;
+  }
+
   private confirmRemove(instance: FederationInstance): void {
     this.pendingDeleteId = instance.id;
     this.errorMessage = null;
@@ -111,10 +117,6 @@ export class InstanceSwitcherComponent implements OnInit, OnDestroy {
           || 'Failed to remove instance.';
       }
     });
-  }
-
-  trackById(_index: number, item: FederationInstance): number {
-    return item.id;
   }
 
   private reload(preferredId: number | null, forceSwitch: boolean): void {

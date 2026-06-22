@@ -529,7 +529,8 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     ResizableFilterContainerComponent,
     CodeEditorComponent,
     IsEnterpriseModuleDirective,
-    ScheduleConfigComponent
+    ScheduleConfigComponent,
+    FederationModule
   ],
   entryComponents: [
     LoginComponent,

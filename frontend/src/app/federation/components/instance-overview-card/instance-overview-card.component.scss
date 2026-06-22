@@ -12,10 +12,25 @@
   height: 100%;
   min-height: 320px;
 
-  &__chart {
+  &__title {
+    font-weight: 600;
+    color: #232f3e;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  &__charts {
     flex: 1 1 auto;
-    min-height: 220px;
-    height: 220px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    min-height: 200px;
+  }
+
+  &__chart {
+    min-width: 0;
+    min-height: 200px;
+    height: 200px;
   }
 
   &__empty {

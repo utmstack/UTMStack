@@ -1,23 +1,22 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {Subject} from 'rxjs';
-import {debounceTime, distinctUntilChanged, takeUntil} from 'rxjs/operators';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {
   ModalConfirmationComponent
 } from '../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {TeamUser, TeamUserPageInfo} from '../../domain/team-user.model';
 import {FederationTeamService} from '../../services/federation-team.service';
-import {TeamUserFormModalComponent} from '../team-user-form-modal/team-user-form-modal.component';
+import {TeamUserFormModalComponent} from '../../components/team-user-form-modal/team-user-form-modal.component';
 
 const DEFAULT_PAGE_SIZE = 20;
 
 @Component({
-  selector: 'app-federation-team-management-modal',
-  templateUrl: './team-management-modal.component.html',
-  styleUrls: ['./team-management-modal.component.scss']
+  selector: 'app-team-members-page',
+  templateUrl: './team-members.page.component.html',
+  styleUrls: ['./team-members.page.component.scss']
 })
-export class TeamManagementModalComponent implements OnInit, OnDestroy {
+export class TeamMembersPageComponent implements OnInit, OnDestroy {
   users: TeamUser[] = [];
   pageInfo: TeamUserPageInfo | null = null;
   loading = false;
@@ -27,21 +26,13 @@ export class TeamManagementModalComponent implements OnInit, OnDestroy {
 
   private currentPage = 1;
   private readonly pageSize = DEFAULT_PAGE_SIZE;
-  private searchSubject = new Subject<string>();
   private destroy$ = new Subject<void>();
 
-  constructor(public activeModal: NgbActiveModal,
-              private teamService: FederationTeamService,
+  constructor(private teamService: FederationTeamService,
               private modalService: NgbModal,
               private toast: UtmToastService) {}
 
   ngOnInit(): void {
-    this.searchSubject
-      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.currentPage = 1;
-        this.load();
-      });
     this.load();
   }
 
@@ -52,7 +43,8 @@ export class TeamManagementModalComponent implements OnInit, OnDestroy {
 
   onSearchChange(value: string): void {
     this.searchTerm = value;
-    this.searchSubject.next(value);
+    this.currentPage = 1;
+    this.load();
   }
 
   prevPage(): void {
@@ -142,10 +134,6 @@ export class TeamManagementModalComponent implements OnInit, OnDestroy {
     } else {
       this.activate(user);
     }
-  }
-
-  trackById(_index: number, item: TeamUser): number {
-    return item.id;
   }
 
   displayName(user: TeamUser): string {

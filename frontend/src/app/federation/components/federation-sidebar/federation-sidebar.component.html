@@ -1,0 +1,66 @@
+<aside class="federation-sidebar d-flex flex-column hidden">
+    asas
+  <ul class="federation-sidebar-list">
+    <li class="federation-sidebar-item">
+      <app-federation-sidebar-instances></app-federation-sidebar-instances>
+    </li>
+
+    <li class="federation-sidebar-item"
+        [class.active]="isActive('/federation/welcome') || isActive('/federation/instances')"
+        routerLink="/federation/welcome">
+      <a class="federation-sidebar-link"
+         container="body"
+         ngbTooltip="Federation Overview"
+         placement="right"
+         tooltipClass="utm-tooltip">
+        <i class="federation-sidebar-fa icon-cloud-check2"></i>
+      </a>
+    </li>
+
+    <li class="federation-sidebar-item"
+        [class.active]="isActive('/federation/team-members')"
+        routerLink="/federation/team-members">
+      <a class="federation-sidebar-link"
+         container="body"
+         ngbTooltip="Team Members"
+         placement="right"
+         tooltipClass="utm-tooltip">
+        <i class="federation-sidebar-fa icon-users"></i>
+      </a>
+    </li>
+
+    <li class="federation-sidebar-divider" role="separator"></li>
+  </ul>
+
+  <ul class="federation-sidebar-list federation-sidebar-footer">
+    <li class="federation-sidebar-item" (click)="openProfileSettings()">
+      <a class="federation-sidebar-link"
+         container="body"
+         ngbTooltip="Profile Settings"
+         placement="right"
+         tooltipClass="utm-tooltip">
+        <i class="federation-sidebar-fa icon-cog5"></i>
+      </a>
+    </li>
+
+    <li class="federation-sidebar-item" (click)="openChangePassword()">
+      <a class="federation-sidebar-link"
+         container="body"
+         ngbTooltip="Change Password"
+         placement="right"
+         tooltipClass="utm-tooltip">
+        <i class="federation-sidebar-fa icon-lock5"></i>
+      </a>
+    </li>
+
+    <li class="federation-sidebar-item" (click)="signOut()">
+      <a class="federation-sidebar-link"
+         container="body"
+         ngbTooltip="Sign Out"
+         placement="right"
+         tooltipClass="utm-tooltip">
+        <i class="federation-sidebar-fa icon-switch2"></i>
+      </a>
+    </li>
+  </ul>
+</aside>

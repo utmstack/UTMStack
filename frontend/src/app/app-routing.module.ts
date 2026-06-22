@@ -1,6 +1,7 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {UserRouteAccessService} from './core/auth/user-route-access-service';
+import {TeamMembersPageComponent} from './federation/pages/team-members/team-members.page.component';
 import {WelcomeComponent as FederationWelcomeComponent} from './federation/pages/welcome/welcome.component';
 import {ConfirmIdentityComponent} from './shared/components/auth/confirm-identity/confirm-identity.component';
 import {LoginComponent} from './shared/components/auth/login/login.component';
@@ -160,7 +161,8 @@ const routes: Routes = [
     children: [
       {path: '', redirectTo: 'welcome', pathMatch: 'full'},
       {path: 'welcome', component: FederationWelcomeComponent},
-      {path: 'instances', component: FederationWelcomeComponent}
+      {path: 'instances', component: FederationWelcomeComponent},
+      {path: 'team-members', component: TeamMembersPageComponent}
     ]
   },
   {path: '', component: LoginComponent},

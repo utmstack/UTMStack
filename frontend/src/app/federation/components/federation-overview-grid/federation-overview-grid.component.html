@@ -21,6 +21,7 @@
     <app-instance-overview-card
       *ngFor="let entry of entries; trackBy: trackByInstance"
       [entry]="entry"
+      [severityEntry]="severityFor(entry)"
       (select)="onSelect(entry, $event)">
     </app-instance-overview-card>
   </div>

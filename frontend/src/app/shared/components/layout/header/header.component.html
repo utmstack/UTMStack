@@ -24,10 +24,6 @@
           <app-utm-notification></app-utm-notification>
         </li>
 
-        <li *ngIf="federationActive$ | async" class="nav-item ml-4 text-center">
-          <app-federation-instance-switcher></app-federation-instance-switcher>
-        </li>
-
         <li *ngIf="user" class="nav-item ml-4 text-center">
           <app-utm-notification-user-setting></app-utm-notification-user-setting>
         </li>

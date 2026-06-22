@@ -1,20 +1,18 @@
-<div class="dropdown h-100 cursor-pointer federation-instance-switcher"
+<div ngbDropdown
+     placement="right-top"
      container="body"
-     display="dynamic"
-     ngbDropdown
      autoClose="outside"
-     placement="auto">
-  <div class="dropdown-toggle h-100 d-flex justify-content-center align-items-center px-2"
-       data-toggle="dropdown"
-       ngbDropdownToggle>
-    <span class="svg-icon svg-icon-sm svg-icon-white text-white mr-2"
-          inlineSVG="assets/icons/header/cloud.svg"></span>
-    <span class="text-white text-truncate federation-instance-name"
-          [title]="active ? active.name : 'No instance'">
-      {{ active ? active.name : 'No instance' }}
-    </span>
-  </div>
-  <div class="dropdown-menu federation-instance-menu" ngbDropdownMenu>
+     class="federation-sidebar-instances">
+  <a ngbDropdownToggle
+     class="federation-sidebar-link"
+     container="body"
+     [ngbTooltip]="active ? active.name : 'Instances'"
+     placement="right"
+     tooltipClass="utm-tooltip">
+    <i class="federation-sidebar-fa icon-cloud2"></i>
+  </a>
+
+  <div ngbDropdownMenu class="federation-instance-menu">
     <h6 class="dropdown-header text-uppercase">Instances</h6>
 
     <div *ngIf="errorMessage" class="px-3 py-2 small text-danger">{{ errorMessage }}</div>
@@ -27,8 +25,8 @@
          class="federation-instance-row dropdown-item d-flex align-items-center justify-content-between"
          [class.active]="active && instance.id === active.id">
       <button type="button"
-              [class.textActive]="active && instance.id === active.id"
               class="btn btn-link p-0 flex-grow-1 text-left text-truncate federation-instance-name-btn"
+              [class.textActive]="active && instance.id === active.id"
               (click)="select(instance, $event)">
         <i *ngIf="active && instance.id === active.id" class="icon-check mr-1"></i>
         {{ instance.name }}
