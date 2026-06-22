@@ -1,15 +1,24 @@
-<div class="container-fluid py-3">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <div>
-      <h4 class="label-header text-uppercase mb-1">Federation Overview</h4>
-      <p class="text-muted mb-0">Active instances and alert distribution.</p>
-    </div>
-    <button type="button"
-            class="btn utm-button utm-button-primary"
-            (click)="openCreateModal()">
-      <i class="icon-plus3 mr-2"></i>Connect instance
-    </button>
+<ng-container *ngIf="(hasInstances$ | async); else emptyState">
+  <div class="welcome-overview">
+    <app-federation-overview-grid></app-federation-overview-grid>
   </div>
+</ng-container>
 
-  <app-federation-overview-grid></app-federation-overview-grid>
-</div>
+<ng-template #emptyState>
+  <div class="container-fluid d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 95px);">
+    <div class="text-center" style="max-width: 480px;">
+      <div class="mb-4">
+        <i class="icon-cloud-plus" style="font-size: 72px; color: #232f3e; opacity: 0.85;"></i>
+      </div>
+      <h4 class="label-header text-uppercase mb-2">Welcome to UTMStack Federation</h4>
+      <p class="text-muted mb-4">
+        No instances are connected yet. Connect your first instance to start managing it from this console.
+      </p>
+      <button type="button"
+              class="btn utm-button utm-button-primary"
+              (click)="openCreateModal()">
+        <i class="icon-plus3 mr-2"></i>Connect instance
+      </button>
+    </div>
+  </div>
+</ng-template>

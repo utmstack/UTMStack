@@ -1,9 +1,42 @@
 <div class="overview-card">
   <div class="overview-card__title">{{ entry.instanceName }}</div>
 
-  <div class="overview-card__charts" *ngIf="hasData">
-    <div class="overview-card__chart" *ngIf="statusOption" echarts [options]="statusOption"></div>
-    <div class="overview-card__chart" *ngIf="severityOption" echarts [options]="severityOption"></div>
+  <div class="overview-card__rows" *ngIf="hasData">
+    <div class="overview-card__row">
+      <div class="overview-card__row-label">Severity</div>
+      <div class="overview-card__row-meters">
+        <ngx-gauge *ngFor="let meter of severityMeters"
+                   [animate]="true"
+                   cap="round"
+                   [foregroundColor]="meter.color"
+                   [label]="meter.label"
+                   [max]="severityMax || 1"
+                   [min]="0"
+                   [thick]="6"
+                   type="full"
+                   [value]="meter.value"
+                   [size]="70"
+                   class="overview-card__gauge"></ngx-gauge>
+      </div>
+    </div>
+
+    <div class="overview-card__row">
+      <div class="overview-card__row-label">Status</div>
+      <div class="overview-card__row-meters">
+        <ngx-gauge *ngFor="let meter of statusMeters"
+                   [animate]="true"
+                   [size]="70"
+                   cap="round"
+                   [foregroundColor]="meter.color"
+                   [label]="meter.label"
+                   [max]="statusMax || 1"
+                   [min]="0"
+                   [thick]="6"
+                   type="full"
+                   [value]="meter.value"
+                   class="overview-card__gauge"></ngx-gauge>
+      </div>
+    </div>
   </div>
 
   <div class="overview-card__empty" *ngIf="!hasData">
