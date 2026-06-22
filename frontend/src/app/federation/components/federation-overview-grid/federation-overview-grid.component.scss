@@ -1,0 +1,49 @@
+:host { display: block; width: 100%; }
+
+.overview-grid {
+  width: 100%;
+  padding: 16px;
+
+  &__items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
+
+  &__state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 280px;
+    color: #6b7280;
+  }
+
+  &__state-label {
+    font-size: 14px;
+    color: #475569;
+    text-align: center;
+    max-width: 360px;
+  }
+
+  &__state-icon {
+    font-size: 48px;
+
+    &--error { color: #dc3545; font-size: 36px; }
+    &--muted { color: #232f3e; opacity: 0.4; }
+  }
+
+  &__spinner {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 3px solid #e5e7eb;
+    border-top-color: #232f3e;
+    animation: federation-overview-spin 0.9s linear infinite;
+  }
+}
+
+@keyframes federation-overview-spin {
+  to { transform: rotate(360deg); }
+}
