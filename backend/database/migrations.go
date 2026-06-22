@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+	"fmt"
 
 	adaudit_domain "github.com/utmstack/utmstack/backend/modules/adaudit/domain"
 	alerts_domain "github.com/utmstack/utmstack/backend/modules/alerts/domain"
@@ -103,14 +104,34 @@ func runSQLMigrations(db *gorm.DB, migrationsURL, table, stage string) error {
 	if err != nil {
 		return err
 	}
+	if err := applyUp(m, stage); err != nil {
+		var dirty migrate.ErrDirty
+		if !errors.As(err, &dirty) {
+			return err
+		}
+		// A previous run started version dirty.Version but failed mid-way.
+		// All our migrations are idempotent (IF EXISTS / ON CONFLICT), so it is
+		// safe to force the version back one step and retry.
+		catcher.Warn(fmt.Sprintf("%s SQL migration version %d is dirty — forcing back and retrying", stage, dirty.Version), nil)
+		if ferr := m.Force(dirty.Version - 1); ferr != nil {
+			return fmt.Errorf("could not force migration version after dirty state: %w", ferr)
+		}
+		if rerr := applyUp(m, stage); rerr != nil {
+			return rerr
+		}
+	}
+	return nil
+}
+
+func applyUp(m *migrate.Migrate, stage string) error {
 	switch err := m.Up(); {
 	case err == nil:
 		catcher.Info(stage+" SQL migrations applied", nil)
+		return nil
 	case errors.Is(err, migrate.ErrNoChange):
-		// Already at the latest version (tracked in the stage's table) — nothing ran.
 		catcher.Info(stage+" SQL migrations already up to date", nil)
+		return nil
 	default:
 		return err
 	}
-	return nil
 }
