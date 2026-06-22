@@ -1,9 +1,10 @@
 import {Component, HostListener, OnInit, Renderer2} from '@angular/core';
 import {Router} from '@angular/router';
 import {TranslateService} from '@ngx-translate/core';
-import {catchError, delay, distinctUntilChanged, filter, map, takeUntil, tap} from 'rxjs/operators';
+import {catchError, delay, distinctUntilChanged, filter, map, skip, takeUntil, tap} from 'rxjs/operators';
 import {AccountService} from './core/auth/account.service';
 import {ApiServiceCheckerService} from './core/auth/api-checker-service';
+import {FederationInstanceStateService} from './federation/services/federation-instance-state.service';
 import {MenuBehavior} from './shared/behaviors/menu.behavior';
 import {ThemeChangeBehavior} from './shared/behaviors/theme-change.behavior';
 import {ADMIN_ROLE, USER_ROLE} from './shared/constants/global.constant';
@@ -42,7 +43,8 @@ export class AppComponent implements OnInit {
     private apiServiceCheckerService: ApiServiceCheckerService,
     private accountService: AccountService,
     private checkForUpdatesService: AppVersionService,
-    private versionTypeService: VersionInfoService) {
+    private versionTypeService: VersionInfoService,
+    private federationInstanceState: FederationInstanceStateService) {
 
     this.translate.setDefaultLang('en');
 
@@ -81,6 +83,10 @@ export class AppComponent implements OnInit {
         this.getReportLogo();
       }
     });
+
+    this.federationInstanceState.switch$
+      .pipe(skip(1))
+      .subscribe(() => this.getReportLogo());
 
     this.accountService.getAuthenticationState()
       .pipe(distinctUntilChanged((prev, next) =>  prev && next && prev.id === next.id))
