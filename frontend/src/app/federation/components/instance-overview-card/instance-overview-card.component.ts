@@ -5,6 +5,7 @@ import {
 } from '../../domain/count-alerts-by-severity.model';
 import {AlertStatusSerie, CountAlertsByStatusEntry} from '../../domain/count-alerts-by-status.model';
 import {FEDERATION_NAV_ACTIONS, NavAction} from '../../domain/federation-nav-actions';
+import {SYSTEM_MENU_ICONS_PATH} from '../../../shared/constants/menu_icons.constants';
 
 interface MeterDatum {
   label: string;
@@ -36,6 +37,7 @@ export class InstanceOverviewCardComponent implements OnChanges {
   @Input() entry!: CountAlertsByStatusEntry;
   @Input() severityEntry: CountAlertsBySeverityEntry | null = null;
   @Output() select = new EventEmitter<string>();
+  iconPath=SYSTEM_MENU_ICONS_PATH
 
   readonly actions: ReadonlyArray<NavAction> = FEDERATION_NAV_ACTIONS;
   severityMeters: MeterDatum[] = [];

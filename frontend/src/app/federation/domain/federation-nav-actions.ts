@@ -5,8 +5,8 @@ export interface NavAction {
 }
 
 export const FEDERATION_NAV_ACTIONS: ReadonlyArray<NavAction> = [
-  {label: 'Log Explorer', iconClass: 'icon-search4', route: '/discover/log-analyzer'},
-  {label: 'Alert Management', iconClass: 'icon-bell2', route: '/data/alert/view'},
-  {label: 'SOAR Flows', iconClass: 'icon-stack-play', route: '/soar/flows'},
-  {label: 'Data Sources', iconClass: 'icon-database', route: '/data-sources'}
+  {label: 'Log Explorer', iconClass: 'ANALYTICS.svg', route: '/discover/log-analyzer'},
+  {label: 'Alert Management', iconClass: 'PROMOTION.svg', route: '/data/alert/view'},
+  {label: 'SOAR Flows', iconClass: 'VISION.svg', route: '/soar/flows'},
+  {label: 'Data Sources', iconClass: 'NETWORK.svg', route: '/data-sources'}
 ];
