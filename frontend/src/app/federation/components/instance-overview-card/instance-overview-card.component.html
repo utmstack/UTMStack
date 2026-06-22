@@ -49,7 +49,8 @@
             *ngFor="let action of actions"
             (click)="onSelect(action.route)"
             [title]="action.label">
-      <i [class]="action.iconClass"></i>
+        <span [inlineSVG]="iconPath+action.iconClass"
+              class="svg-icon  svg-icon-primary"></span>
       <span class="nav-icon__label">{{ action.label }}</span>
     </button>
   </div>
