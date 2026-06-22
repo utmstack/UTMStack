@@ -20,11 +20,11 @@
         <app-utm-notification-alert></app-utm-notification-alert>
       </li>
 
-      <li *ngIf="user" class="nav-item  ml-2 text-center">
+      <li *ngIf="user && !(federationActive$ | async)"  class="nav-item  ml-2 text-center">
         <app-utm-notification-user-setting></app-utm-notification-user-setting>
       </li>
 
-      <ng-container *ngIf="!(federationActive$ | async)">
+      <ng-container >
         <li *appHasAnyAuthority="roleAdmin" class="nav-item  ml-2 text-center">
           <app-utm-menu-burger></app-utm-menu-burger>
         </li>
