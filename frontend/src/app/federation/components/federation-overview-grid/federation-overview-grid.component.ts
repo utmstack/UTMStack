@@ -86,7 +86,8 @@ export class FederationOverviewGridComponent implements OnInit, OnDestroy {
     if (target) {
       this.instanceState.setActive(target, true);
     }
-    this.router.navigate([route]);
+
+    this.router.navigateByUrl(route);
   }
 
   trackByInstance(_index: number, entry: CountAlertsByStatusEntry): number {
@@ -188,6 +189,7 @@ export class FederationOverviewGridComponent implements OnInit, OnDestroy {
         if (forceSwitch) {
           window.location.reload();
         }
+        this.loadData();
       },
       error: () => {
         this.errorMessage = 'Failed to refresh instances.';
