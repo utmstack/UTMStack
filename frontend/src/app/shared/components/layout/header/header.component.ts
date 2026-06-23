@@ -39,14 +39,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
               private federationModeService: FederationModeService) {
     this.federationActive$ = this.federationModeService.active$;
 
+  }
+
+  ngOnInit() {
+
     this.federationWelcomeRoute$ = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       map((event: NavigationEnd) => this.isFederationWelcome(event.urlAfterRedirects)),
       startWith(this.isFederationWelcome(this.router.url))
     );
-  }
 
-  ngOnInit() {
+
     this.themeChangeBehavior.$themeNavbarIcon
       .pipe(
         takeUntil(this.destroy$),
