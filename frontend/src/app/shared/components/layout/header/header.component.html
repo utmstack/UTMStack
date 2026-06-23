@@ -11,9 +11,21 @@
         ></app-utm-version-info>
 
         <!--<app-utm-license-info class="ml-4"></app-utm-license-info>-->
+
+      <ng-container *ngIf="!(federationActive$ | async)">
         <app-utm-vault-status class="ml-4"></app-utm-vault-status>
+      </ng-container>
+      <ng-container *ngIf="!(federationActive$ | async)">
         <app-utm-date-format-info class="ml-4"></app-utm-date-format-info>
+      </ng-container>
+      <ng-container *ngIf="!(federationActive$ | async)">
         <app-utm-getting-started *appHasAnyAuthority="roleAdmin" class="ml-2"></app-utm-getting-started>
+      </ng-container>
+
+
+
+
+
       </div>
       <ul class="navbar-nav navbar-nav-right flex-nowrap desktop-notifications">
 
@@ -28,7 +40,7 @@
         <app-utm-notification-user-setting></app-utm-notification-user-setting>
       </li>
 
-      <ng-container >
+      <ng-container *ngIf="!(federationActive$ | async)">
         <li *appHasAnyAuthority="roleAdmin" class="nav-item  ml-2 text-center">
           <app-utm-menu-burger></app-utm-menu-burger>
         </li>
