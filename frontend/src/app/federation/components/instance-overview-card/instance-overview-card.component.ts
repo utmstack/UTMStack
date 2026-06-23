@@ -62,7 +62,7 @@ export class InstanceOverviewCardComponent implements OnChanges {
       this.statusMax = this.statusMeters.reduce((m, d) => m+d.value, 0);
     }
     if (changes.severityEntry) {
-      const buckets = this.severityEntry ? this.severityEntry.data.value : [];
+      const buckets = this.severityEntry && this.severityEntry.data ? this.severityEntry.data.value : [];
       this.totalSeverity = buckets.reduce((sum, bucket) => sum + bucket.value, 0);
       this.severityMeters = SEVERITY_ORDER.map(serie => {
         const bucket = buckets.find(b => b.name === serie);
