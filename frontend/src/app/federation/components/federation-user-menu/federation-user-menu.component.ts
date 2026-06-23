@@ -23,6 +23,10 @@ export class FederationUserMenuComponent {
     this.router.navigate(['/federation/team-members']);
   }
 
+  goToEmailConfig(): void {
+    this.router.navigate(['/federation/email-config']);
+  }
+
   openProfileSettings(): void {
     this.modalService.open(SettingsComponent, {centered: true});
   }

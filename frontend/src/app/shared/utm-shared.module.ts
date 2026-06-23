@@ -119,6 +119,9 @@ import {
 import {AppConfigParamsComponent} from './components/utm/config/app-config-params/app-config-params.component';
 import {AppConfigSectionsComponent} from './components/utm/config/app-config-sections/app-config-sections.component';
 import {
+  FederationEmailConfigPageComponent
+} from '../federation/pages/email-config/federation-email-config.page.component';
+import {
   AppModuleDisabledWarningComponent
 } from './components/utm/config/app-module-disabled-warning/app-module-disabled-warning.component';
 import {UtmEmailConfCheckComponent} from './components/utm/config/shared/components/utm-email-conf-check/utm-email-conf-check.component';
@@ -348,6 +351,7 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     GenericFilerSortComponent,
     AppConfigParamsComponent,
     AppConfigSectionsComponent,
+    FederationEmailConfigPageComponent,
     AppModuleDisabledWarningComponent,
     AppConfigDeleteConfirmComponent,
     UtmScrollTopComponent,
