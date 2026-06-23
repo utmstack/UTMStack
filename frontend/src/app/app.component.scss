@@ -100,11 +100,11 @@
 
 .side-menu-federation {
   position: fixed;
-  top: $navbar-secondary-height+$navbar-primary-height -10px;
+  top: $navbar-primary-height;
   left: 0;
   bottom: 0;
   width: 60px;
-  z-index: 999;
+  z-index: 1031;
   background-color: $utm-header-color;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
