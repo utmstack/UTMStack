@@ -42,6 +42,9 @@ export class FederationSidebarInstancesComponent implements OnInit, OnDestroy {
     window.location.reload();
   }
 
+  trackById(_index: number, instance: FederationInstance): number {
+    return instance.id;
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();

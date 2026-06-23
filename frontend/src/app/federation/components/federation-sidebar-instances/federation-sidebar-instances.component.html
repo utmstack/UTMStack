@@ -1,16 +1,18 @@
 <div ngbDropdown
-     placement="bottom-left"
-     container="body"
+     #dropdown="ngbDropdown"
+     placement="bottom-left bottom-right"
+     display="dynamic"
      autoClose="outside"
-     class="federation-sidebar-instances">
-  <a ngbDropdownToggle
-     class="federation-sidebar-link"
-     container="body"
-     [ngbTooltip]="active ? active.name : 'Instances'"
-     placement="bottom"
-     tooltipClass="utm-tooltip">
-    <i class="federation-sidebar-fa icon-cloud2"></i>
-  </a>
+     class="federation-instance-selector">
+  <button type="button"
+          ngbDropdownToggle
+          class="federation-instance-selector__toggle">
+    <i class="federation-instance-selector__lead icon-cloud2"></i>
+    <span class="federation-instance-selector__label text-truncate">
+      {{ active ? active.name : 'Select instance' }}
+    </span>
+    <i class="federation-instance-selector__caret icon-arrow-down32"></i>
+  </button>
 
   <div ngbDropdownMenu class="federation-instance-menu">
     <h6 class="dropdown-header text-uppercase">Instances</h6>
@@ -21,15 +23,19 @@
       No instances connected.
     </div>
 
-    <div *ngFor="let instance of instances; trackBy: trackById"
-         class="federation-instance-row dropdown-item d-flex align-items-center justify-content-between"
-         [class.active]="active && instance.id === active.id">
-      <button type="button"
-              class="btn btn-link p-0 flex-grow-1 text-left text-truncate federation-instance-name-btn"
-              [class.textActive]="active && instance.id === active.id"
-              (click)="select(instance, $event)">
-        <i *ngIf="active && instance.id === active.id" class="icon-check mr-1"></i>
+    <button *ngFor="let instance of instances; trackBy: trackById"
+            type="button"
+            class="federation-instance-row dropdown-item d-flex align-items-center"
+            [class.active]="active && instance.id === active.id"
+            (click)="select(instance, $event)">
+      <i class="federation-instance-row__check icon-check"
+         [class.invisible]="!active || instance.id !== active.id"></i>
+      <span class="federation-instance-row__name text-truncate flex-grow-1">
         {{ instance.name }}
-      </button>
-    </div>
+      </span>
+      <span *ngIf="instance.version" class="federation-instance-row__version">
+        {{ instance.version || 'n/a' }}
+      </span>
+    </button>
+  </div>
 </div>
