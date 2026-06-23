@@ -1,8 +1,5 @@
 <nav class="federation-sidebar d-flex flex-row align-items-center">
   <ul class="federation-sidebar-list">
-    <li class="federation-sidebar-item">
-      <app-federation-sidebar-instances></app-federation-sidebar-instances>
-    </li>
 
     <li class="federation-sidebar-item"
         [class.active]="isActive('/federation/welcome') || isActive('/federation/instances')"
@@ -14,6 +11,10 @@
          tooltipClass="utm-tooltip">
         <i class="federation-sidebar-fa icon-cloud-check2"></i>
       </a>
+    </li>
+
+    <li class="federation-sidebar-item">
+      <app-federation-sidebar-instances></app-federation-sidebar-instances>
     </li>
   </ul>
 </nav>

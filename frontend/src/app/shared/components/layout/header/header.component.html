@@ -63,7 +63,7 @@
 
 
   <!-- Alternative navbar -->
-  <div *ngIf="(!federationRoute | async)"
+  <div *ngIf="!(federationWelcomeRoute$ | async)"
        class="navbar navbar-expand-md navbar-light utm-navbar-secondary p-0 utmstack-header-menu utm-navbar-secondary--federation">
     <app-header-menu-navigation></app-header-menu-navigation>
   </div>

@@ -5,4 +5,5 @@ export interface FederationInstance {
   tlsSkipVerify: boolean;
   createdAt: string;
   updatedAt: string;
+  version?: string;
 }
