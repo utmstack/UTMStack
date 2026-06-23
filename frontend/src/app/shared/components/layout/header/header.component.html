@@ -42,7 +42,8 @@
 
 
   <!-- Alternative navbar -->
-  <div class="navbar navbar-expand-md navbar-light utm-navbar-secondary p-0 utmstack-header-menu">
+  <div *ngIf="(federationActive$ | async)"
+       class="navbar navbar-expand-md navbar-light utm-navbar-secondary p-0 utmstack-header-menu utm-navbar-secondary--federation">
     <app-header-menu-navigation></app-header-menu-navigation>
   </div>
   <!-- /alternative navbar -->
