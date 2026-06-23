@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
-import {Observable, Subject} from 'rxjs';
-import {filter, takeUntil} from 'rxjs/operators';
+import {Observable, of, Subject} from 'rxjs';
+import {filter, map, takeUntil} from 'rxjs/operators';
 import {AccountService} from '../../../../core/auth/account.service';
 import {User} from '../../../../core/user/user.model';
 import {FederationModeService} from '../../../../federation/services/federation-mode.service';
@@ -10,6 +10,7 @@ import {ADMIN_ROLE} from '../../../constants/global.constant';
 import {AppThemeLocationEnum} from '../../../enums/app-theme-location.enum';
 import {VersionInfoService} from '../../../services/version/version-info.service';
 import {AppVersionInfo} from '../../../types/updates/updates.type';
+import { ActivatedRoute, UrlSegment } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -26,13 +27,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
   versionInfo: AppVersionInfo;
   federationActive$: Observable<boolean>;
   destroy$: Subject<void> = new Subject();
+  federationRoute=of(false)
 
   constructor(private accountService: AccountService,
               public sanitizer: DomSanitizer,
+              private route:ActivatedRoute,
               private themeChangeBehavior: ThemeChangeBehavior,
               private versionTypeService: VersionInfoService,
               private federationModeService: FederationModeService) {
     this.federationActive$ = this.federationModeService.active$;
+    this.federationRoute = this.route.url.pipe(map(paths=>paths.some(segment=>{
+            console.log(segment)
+            return false
+      })))
   }
 
   ngOnInit() {

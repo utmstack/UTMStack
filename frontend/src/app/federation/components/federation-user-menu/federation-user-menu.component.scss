@@ -1,0 +1,16 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+
+  i {
+    margin-right: 8px;
+  }
+}
