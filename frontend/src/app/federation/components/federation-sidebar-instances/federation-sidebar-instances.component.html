@@ -37,5 +37,14 @@
         {{ instance.version || 'n/a' }}
       </span>
     </button>
+
+    <div class="dropdown-divider"></div>
+
+    <button type="button"
+            class="federation-instance-manage dropdown-item d-flex align-items-center"
+            (click)="manageInstances($event)">
+      <i class="federation-instance-manage__icon icon-cog5"></i>
+      <span class="federation-instance-manage__label">Manage instances</span>
+    </button>
   </div>
 </div>
