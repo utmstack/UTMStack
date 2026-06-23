@@ -29,6 +29,7 @@ import {AppConfigDeleteConfirmComponent} from '../app-config-delete-confirm/app-
 export class AppConfigSectionsComponent implements OnInit, OnDestroy {
 
   @Input() section: SectionConfigType;
+  @Input() params?: SectionConfigParamType[];
   @Output() validConfigSection = new EventEmitter<boolean>();
   @Input() allowDeleteSection = false;
   @Output() changesApplied = new EventEmitter<boolean>();
@@ -66,7 +67,12 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
-    this.getConfigurations();
+    if (this.params) {
+      this.applyConfigs(this.params);
+      this.loading = false;
+    } else {
+      this.getConfigurations();
+    }
     this.changesApplied.emit(true);
 
     this.networkService.isOnline$
@@ -89,24 +95,26 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     })
       .subscribe(response => {
         this.loading = false;
-        this.configs = response.body;
-
-        this.configs = this.configs.map(conf => {
-          if(conf.confParamDatatype === ConfigDataTypeEnum.Cron) {
-            conf.confParamValue = JSON.parse(conf.confParamValue);
-          }
-          return conf;
-        });
-
-        const countryList = this.configs.find(conf => conf.confParamDatatype === ConfigDataTypeEnum.CountryList);
-        if (countryList) {
-          this.loadSelectOptions(this.getName(countryList.confParamShort));
-        }
-        this.configToSave=this.configs
-        this.validConfigSection.emit(this.checkConfigValid());
+        this.applyConfigs(response.body);
       }, error => {
         this.toastService.showError('Error', 'Error getting application configurations');
       });
+  }
+
+  private applyConfigs(params: SectionConfigParamType[]) {
+    this.configs = params.map(conf => {
+      if (conf.confParamDatatype === ConfigDataTypeEnum.Cron) {
+        conf.confParamValue = JSON.parse(conf.confParamValue);
+      }
+      return conf;
+    });
+
+    const countryList = this.configs.find(conf => conf.confParamDatatype === ConfigDataTypeEnum.CountryList);
+    if (countryList) {
+      this.loadSelectOptions(this.getName(countryList.confParamShort));
+    }
+    this.configToSave = this.configs;
+    this.validConfigSection.emit(this.checkConfigValid());
   }
 
   saveConfig() {
