@@ -4,24 +4,28 @@
 .federation-sidebar {
   width: 100%;
   height: 100%;
-  padding: 0.25rem 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+  padding: 0;
+  overflow: visible;
 }
 
 .federation-sidebar-list {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .federation-sidebar-footer {
-  margin-top: auto;
+  margin-left: auto;
 }
 
 .federation-sidebar-item {
-  padding: 4px 0;
+  padding: 0 4px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.08);
@@ -44,9 +48,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
   height: 100%;
-  padding: 8px 0;
+  padding: 8px 10px;
 
   &:hover,
   &:focus {
@@ -66,8 +69,9 @@
 }
 
 .federation-sidebar-divider {
-  height: 1px;
-  margin: 6px 12px;
+  width: 1px;
+  height: 24px;
+  margin: 0 8px;
   background-color: rgba(255, 255, 255, 0.12);
   list-style: none;
 }

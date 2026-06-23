@@ -182,7 +182,7 @@
 }
 
 .utm-navbar-secondary--federation {
-  padding-left: 60px !important;
+  padding-left: 0 !important;
 }
 
 
@@ -229,4 +229,12 @@
 
 app-utm-notification-ad, app-utm-notification-alert, app-utm-notification-assets, app-utm-notification-user-setting {
  height: 100% !important;
+}
+
+.federation-header-nav {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  margin: 0 1rem;
+  height: 100%;
 }

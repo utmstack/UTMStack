@@ -27,6 +27,11 @@
 
 
       </div>
+
+      <ng-container *ngIf="(federationActive$ | async)">
+        <app-federation-sidebar class="federation-header-nav"></app-federation-sidebar>
+      </ng-container>
+
       <ul class="navbar-nav navbar-nav-right flex-nowrap desktop-notifications">
 
         <!--<li class="nav-item ml-4 text-center">

@@ -7,17 +7,12 @@
     </div>
 
     <ng-container *appHasAnyAuthority="roles">
-      <div *ngIf="!(federationActive$ | async); else federationSide"
+      <div *ngIf="!(federationActive$ | async)"
            [hidden]="!menu || isInExportRoute()" class="side-menu">
         <div class="sidebar sidebar-light sidebar-main sidebar-expand-md">
           <app-sidebar></app-sidebar>
         </div>
       </div>
-      <ng-template #federationSide>
-        <div [hidden]="isInExportRoute()" class="side-menu-federation">
-          <app-federation-sidebar></app-federation-sidebar>
-        </div>
-      </ng-template>
     </ng-container>
   </div>
   <!--<app-app-restart-api></app-app-restart-api>-->
