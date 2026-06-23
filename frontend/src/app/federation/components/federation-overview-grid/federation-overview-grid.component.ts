@@ -179,6 +179,7 @@ export class FederationOverviewGridComponent implements OnInit, OnDestroy {
           window.location.reload();
           return;
         }
+        this.loadData();
         if (preferredId !== null) {
           const target = list.find(i => i.id === preferredId);
           if (target) {
@@ -189,7 +190,6 @@ export class FederationOverviewGridComponent implements OnInit, OnDestroy {
         if (forceSwitch) {
           window.location.reload();
         }
-        this.loadData();
       },
       error: () => {
         this.errorMessage = 'Failed to refresh instances.';
