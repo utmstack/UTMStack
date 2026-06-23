@@ -66,7 +66,6 @@ export class InstanceOverviewCardComponent implements OnChanges {
       this.totalSeverity = buckets.reduce((sum, bucket) => sum + bucket.value, 0);
       this.severityMeters = SEVERITY_ORDER.map(serie => {
         const bucket = buckets.find(b => b.name === serie);
-        console.log(bucket,name)
         return {
           label: serie,
           value: bucket ? bucket.value : 0,

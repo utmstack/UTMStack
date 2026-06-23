@@ -1,6 +1,10 @@
 <div class="overview-card">
   <div class="overview-card__title">{{ entry.instanceName }}</div>
 
+  <div class="overview-card__actions">
+      <ng-content> </ng-content>
+  </div>
+
   <div class="overview-card__rows" *ngIf="hasData">
     <div class="overview-card__row">
       <div class="overview-card__row-label">Severity</div>

@@ -1,6 +1,13 @@
 :host { display: block; height: 100%; }
 
+.overview-card__actions{
+  position:absolute;
+  right:2%;
+  top:2%;
+}
+
 .overview-card {
+  position:relative;
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;

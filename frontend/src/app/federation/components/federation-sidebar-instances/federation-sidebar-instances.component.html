@@ -31,29 +31,5 @@
         <i *ngIf="active && instance.id === active.id" class="icon-check mr-1"></i>
         {{ instance.name }}
       </button>
-      <div class="federation-instance-actions ml-2 d-flex align-items-center">
-        <button type="button"
-                class="btn btn-sm btn-link p-1"
-                title="Edit"
-                (click)="openEdit(instance, $event)">
-          <i class="icon-pencil"></i>
-        </button>
-        <button type="button"
-                class="btn btn-sm btn-link p-1 text-danger"
-                title="Remove"
-                [disabled]="pendingDeleteId === instance.id"
-                (click)="remove(instance, $event)">
-          <i class="icon-trash"></i>
-        </button>
-      </div>
     </div>
-
-    <div class="dropdown-divider"></div>
-    <button type="button"
-            class="dropdown-item d-flex align-items-center federation-instance-add"
-            (click)="openCreate($event)">
-      <i class="icon-plus3 mr-2"></i>
-      Add instance
-    </button>
-  </div>
 </div>
