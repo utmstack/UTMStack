@@ -14,9 +14,9 @@ interface MeterDatum {
 }
 
 const STATUS_COLORS: Record<AlertStatusSerie, string> = {
-  'Open': '#dc3545',
+  'Open': '#28a745',
   'In review': '#ffc107',
-  'Completed': '#28a745'
+  'Completed': '#17a2b8'
 };
 
 const SEVERITY_COLORS: Record<AlertSeveritySerie, string> = {

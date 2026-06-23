@@ -16,10 +16,10 @@
                    [label]="meter.label"
                    [max]="severityMax || 1"
                    [min]="0"
-                   [thick]="6"
+                   [thick]="3"
+                   [size]="80"
                    type="full"
                    [value]="meter.value"
-                   [size]="70"
                    class="overview-card__gauge"></ngx-gauge>
       </div>
     </div>
@@ -29,13 +29,13 @@
       <div class="overview-card__row-meters">
         <ngx-gauge *ngFor="let meter of statusMeters"
                    [animate]="true"
-                   [size]="70"
                    cap="round"
                    [foregroundColor]="meter.color"
                    [label]="meter.label"
                    [max]="statusMax || 1"
                    [min]="0"
-                   [thick]="6"
+                   [thick]="3"
+                   [size]="80"
                    type="full"
                    [value]="meter.value"
                    class="overview-card__gauge"></ngx-gauge>
@@ -53,9 +53,15 @@
             *ngFor="let action of actions"
             (click)="onSelect(action.route)"
             [title]="action.label">
+      <span class="nav-icon__graphic">
         <span [inlineSVG]="iconPath+action.iconClass"
               class="svg-icon  svg-icon-primary"></span>
-      <span class="nav-icon__label">{{ action.label }}</span>
+        <span *ngIf="action.counter && totalAlerts > 0"
+              class="nav-icon__badge"
+              [title]="totalAlerts + ' total alerts'">
+          {{ totalAlerts }}
+        </span>
+      </span>
     </button>
   </div>
 </div>
